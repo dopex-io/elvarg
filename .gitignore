@@ -1,0 +1,37 @@
+# dependencies
+node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+build
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+src/sdk
+app/src/addresses
+
+# Eslint cache
+.eslintcache
+
+# Local Netlify folder
+.netlify
+
+# Local Vercel folder
+.vercel
+
+# Generated GraphQL hooks
+/app/src/generated.ts

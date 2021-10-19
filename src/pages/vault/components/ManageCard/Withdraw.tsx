@@ -1,0 +1,174 @@
+import { useCallback, useContext } from 'react';
+import Box from '@material-ui/core/Box';
+import format from 'date-fns/format';
+import cx from 'classnames';
+import { BigNumber } from 'ethers';
+
+import CustomButton from 'components/UI/CustomButton';
+import Typography from 'components/UI/Typography';
+
+import { SsovContext } from 'contexts/Ssov';
+import { AssetsContext } from 'contexts/Assets';
+
+import { newEthersTransaction } from 'utils/contracts/transactions';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+import styles from './styles.module.scss';
+
+interface WithdrawProps {
+  className?: string;
+}
+
+const Withdraw = ({ className }: WithdrawProps) => {
+  const {
+    ssovSdk,
+    currentEpoch,
+    selectedEpoch,
+    selectedEpochSsovData: {
+      epochTimes,
+      epochStrikes,
+      totalEpochStrikeDeposits,
+      totalEpochDeposits,
+      userEpochStrikeDeposits,
+      userEpochDeposits,
+    },
+    updateSelectedEpochSsovData,
+  } = useContext(SsovContext);
+  const { updateAssetBalances } = useContext(AssetsContext);
+  const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
+
+  // Ssov data for next epoch
+  const epochEndTime = epochTimes[1]
+    ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
+    : 'N/A';
+
+  const strikes = epochStrikes.map((strike) =>
+    getUserReadableAmount(strike, 8).toString()
+  );
+
+  const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
+    (deposit) => getUserReadableAmount(deposit, 18)
+  );
+
+  const totalEpochDepositsAmount = getUserReadableAmount(
+    totalEpochDeposits,
+    18
+  );
+
+  const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
+    (deposit) => getUserReadableAmount(deposit, 18)
+  );
+
+  const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
+
+  // Handle Withdraw
+  const handleWithdraw = useCallback(
+    async (index) => {
+      try {
+        await newEthersTransaction(
+          ssovSdk.send.withdrawForStrike(selectedEpoch, index)
+        );
+        updateSelectedEpochSsovData();
+      } catch (err) {
+        console.log(err);
+      }
+      updateAssetBalances();
+    },
+    [ssovSdk, selectedEpoch, updateSelectedEpochSsovData, updateAssetBalances]
+  );
+
+  return (
+    <Box>
+      <Box className="bg-umbra flex flex-col p-4 rounded-xl justify-between mb-2">
+        <Box className="flex flex-row justify-between w-full items-center mb-2">
+          <Typography variant="h6" className="text-stieglitz">
+            My Deposits
+          </Typography>
+          <Typography variant="h6">
+            <span className="text-wave-blue">
+              {userEpochDepositsAmount.toFixed(3)}
+            </span>{' '}
+            / {totalEpochDepositsAmount.toFixed(3)} DPX
+          </Typography>
+        </Box>
+        <Box>
+          {strikes.map((strike, index) =>
+            BigNumber.from(userEpochStrikeDepositsAmounts[index]).gt(0) ? (
+              <Box className="flex flex-row mt-3" key={index}>
+                <Box
+                  className={cx(
+                    'bg-cod-gray h-12 rounded-md mr-2',
+                    styles.allocationWidth
+                  )}
+                >
+                  <Box
+                    key={strike}
+                    className="bg-cod-gray flex flex-col py-1 rounded-xl text-center mb-4"
+                  >
+                    <Typography variant="h6">
+                      <span className="text-wave-blue">
+                        {userEpochStrikeDepositsAmounts[index].toFixed(3)}
+                      </span>{' '}
+                      / {totalEpochStrikeDepositsAmounts[index].toFixed(3)}
+                    </Typography>
+                    <Typography variant="h6" className="text-stieglitz">
+                      DPX ${strike}
+                    </Typography>
+                  </Box>
+                </Box>
+                <CustomButton
+                  size="large"
+                  onClick={(e) => handleWithdraw(index)}
+                  disabled={!isWithdrawable}
+                  color={isWithdrawable ? 'primary' : 'cod-gray'}
+                >
+                  Withdraw
+                </CustomButton>
+              </Box>
+            ) : (
+              <Box
+                className="bg-cod-gray flex flex-col py-1 rounded-xl text-center mt-3"
+                key={index}
+              >
+                <Typography variant="h6">
+                  {totalEpochStrikeDepositsAmounts[index].toFixed(3)}
+                </Typography>
+                <Typography variant="h6" className="text-stieglitz">
+                  DPX ${strike}
+                </Typography>
+              </Box>
+            )
+          )}
+        </Box>
+      </Box>
+      <Box className="flex flex-row border-umbra rounded-xl border p-4 mb-2">
+        <Box className="flex flex-col">
+          <Typography variant="h6" className="mb-4 text-left">
+            Epoch {selectedEpoch}
+          </Typography>
+          <Typography
+            variant="caption"
+            component="div"
+            className="mb-4 text-stieglitz text-left"
+          >
+            Withdrawals can only be processed for past epochs. This one expired{' '}
+            {epochEndTime}
+          </Typography>
+          <Typography
+            variant="caption"
+            component="a"
+            className="text-wave-blue text-left"
+            // @ts-ignore
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://blog.dopex.io/introducing-single-staking-option-vaults-ssov-b90bbb0a9ae5"
+          >
+            Read More
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default Withdraw;

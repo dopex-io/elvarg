@@ -1,0 +1,21 @@
+.inputStyle {
+  ::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+}
+
+.arrowIcon {
+  position: absolute;
+  left: 45%;
+  top: -6.865%;
+  border-radius: 50%;
+}
+
+@media screen and (max-width: 480px) {
+  .arrowIcon {
+    position: absolute;
+    left: 45%;
+    top: -9%;
+    border-radius: 50%;
+  }
+}

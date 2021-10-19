@@ -1,0 +1,11 @@
+schema: https://api.thegraph.com/subgraphs/name/psytama/dopex
+documents: 'src/**/*.graphql'
+generates:
+  ./src/generated.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHooks: true
+      defaultScalarType: string

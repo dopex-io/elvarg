@@ -1,0 +1,91 @@
+{
+  "name": "dapp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "generate": "graphql-codegen",
+    "contracts": "node ./scripts/contracts.js",
+    "evm": "cd ../core-contracts && yarn evm",
+    "postinstall": "husky install"
+  },
+  "dependencies": {
+    "@0xsequence/multicall": "^0.28.0",
+    "@apollo/client": "^3.4.7",
+    "@craco/craco": "^6.1.2",
+    "@dopex-io/sdk": "^1.0.0-alpha.34",
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.58",
+    "@walletconnect/web3-provider": "^1.6.5",
+    "axios": "^0.21.1",
+    "bignumber.js": "^9.0.1",
+    "classnames": "^2.2.6",
+    "date-fns": "^2.16.1",
+    "eth-rpc-errors": "^4.0.2",
+    "ethers": "^5.4.5",
+    "formik": "^2.2.6",
+    "fortmatic": "^2.2.1",
+    "graphql": "^15.5.1",
+    "lodash": "^4.17.20",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-hot-toast": "^2.0.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^4.0.3",
+    "react-table": "^7.7.0",
+    "react-use": "^17.2.4",
+    "recharts": "^2.0.9",
+    "sass": "^1.43.2",
+    "web3modal": "^1.9.4",
+    "yup": "^0.32.9"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^2.0.1",
+    "@graphql-codegen/typescript": "^2.0.0",
+    "@graphql-codegen/typescript-operations": "^2.0.1",
+    "@graphql-codegen/typescript-react-apollo": "^3.0.0",
+    "@types/lodash": "^4.14.170",
+    "@types/react": "^17.0.11",
+    "@types/react-dom": "^17.0.8",
+    "@types/react-router-dom": "^5.1.7",
+    "@typescript-eslint/eslint-plugin": "^4.0.0",
+    "@typescript-eslint/parser": "^4.0.0",
+    "autoprefixer": "^9",
+    "babel-eslint": "^10.0.0",
+    "eslint": "^7.5.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.3",
+    "eslint-plugin-react-hooks": "^4.0.8",
+    "husky": "^7.0.1",
+    "lint-staged": "^11.0.0",
+    "postcss": "7.0.36",
+    "prettier": "^2.1.1",
+    "shelljs": "^0.8.4",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "typescript": "^4.1.2"
+  },
+  "lint-staged": {
+    "*.+(js|jsx|ts|tsx|json|css|md)": [
+      "prettier --write"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

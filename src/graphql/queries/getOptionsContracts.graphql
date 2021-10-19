@@ -1,0 +1,12 @@
+query getOptionsContracts($expiry: BigInt) {
+  optionPools {
+    address: id
+    baseAsset
+    optionsContracts(where: { expiry_gte: $expiry }, first: 1000) {
+      address: id
+      expiry
+      strike
+      isPut
+    }
+  }
+}

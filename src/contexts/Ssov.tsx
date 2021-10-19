@@ -1,0 +1,432 @@
+import {
+  createContext,
+  useEffect,
+  useContext,
+  useState,
+  useCallback,
+} from 'react';
+import {
+  SSOV,
+  SSOV__factory,
+  SSOVOptionPricing__factory,
+  VolatilityOracle__factory,
+  ERC20__factory,
+  ERC20,
+  VolatilityOracle,
+  SSOVOptionPricing,
+} from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
+
+import { WalletContext } from './Wallet';
+
+interface SsovExtra {
+  ssovSdk?: SsovSdkStateInterface;
+  currentEpoch?: number;
+  nextEpoch?: number;
+  selectedEpoch?: number;
+  setSelectedEpoch?: Function;
+  updateCurrentEpochSsovData?: Function;
+  updateNextEpochSsovData?: Function;
+  updateSelectedEpochSsovData?: Function;
+  dpxToken?: ERC20;
+  dpxTokenPrice?: BigNumber;
+  ssovOptionPricingSdk?: ssovOptionPricingSdkStateInterface;
+  volatilityOracleContracts?: volatilityOracleStateInterface;
+  APY?: string;
+}
+
+interface SsovData {
+  epochTimes: {};
+  isEpochExpired: boolean;
+  isVaultReady: boolean;
+  epochStrikes: BigNumber[];
+  epochStrikeTokens: ERC20[];
+  totalEpochStrikeDeposits: BigNumber[];
+  totalEpochDeposits: BigNumber;
+  userEpochStrikeDeposits: BigNumber[];
+  userEpochDeposits: string;
+  userEpochCallsPurchased: BigNumber[];
+}
+
+interface SsovContextInterface extends SsovExtra {
+  currentEpochSsovData: SsovData;
+  nextEpochSsovData: SsovData;
+  selectedEpochSsovData: SsovData;
+}
+
+interface SsovSdkStateInterface {
+  call: SSOV;
+  send: SSOV;
+}
+
+interface ssovOptionPricingSdkStateInterface {
+  call: SSOVOptionPricing;
+  send: SSOVOptionPricing;
+}
+interface volatilityOracleStateInterface {
+  call: VolatilityOracle;
+  send: VolatilityOracle;
+}
+
+const initialState = {
+  currentEpochSsovData: {
+    epochTimes: {},
+    isEpochExpired: false,
+    isVaultReady: false,
+    epochStrikes: [],
+    epochStrikeTokens: [],
+    totalEpochStrikeDeposits: [],
+    totalEpochDeposits: BigNumber.from(0),
+    userEpochStrikeDeposits: [],
+    userEpochDeposits: '0',
+    userEpochCallsPurchased: [],
+  },
+  nextEpochSsovData: {
+    epochTimes: {},
+    isEpochExpired: false,
+    isVaultReady: false,
+    epochStrikes: [],
+    epochStrikeTokens: [],
+    totalEpochStrikeDeposits: [],
+    totalEpochDeposits: BigNumber.from(0),
+    userEpochStrikeDeposits: [],
+    userEpochDeposits: '0',
+    userEpochCallsPurchased: [],
+  },
+  selectedEpochSsovData: {
+    epochTimes: {},
+    isEpochExpired: false,
+    isVaultReady: false,
+    epochStrikes: [],
+    epochStrikeTokens: [],
+    totalEpochStrikeDeposits: [],
+    totalEpochDeposits: BigNumber.from(0),
+    userEpochStrikeDeposits: [],
+    userEpochDeposits: '0',
+    userEpochCallsPurchased: [],
+  },
+};
+
+export const SsovContext = createContext<SsovContextInterface>(initialState);
+
+export const SsovProvider = (props) => {
+  const { accountAddress, contractAddresses, provider, signer } =
+    useContext(WalletContext);
+  const [state, setState] = useState(initialState);
+  const [ssovSdk, setSsovSdk] = useState<SsovSdkStateInterface | null>(null);
+  const [currentEpoch, setCurrentEpoch] = useState<number>(1);
+  const [selectedEpoch, setSelectedEpoch] = useState<number>(1);
+  const [dpxToken, setDpxToken] = useState<ERC20 | null>(null);
+
+  const updateCurrentEpochSsovData = useCallback(async () => {
+    if (!ssovSdk || !accountAddress || !currentEpoch) return;
+
+    // current epoch
+    const [
+      epochTimes,
+      isEpochExpired,
+      isVaultReady,
+      epochStrikes,
+      epochStrikeTokens,
+      totalEpochStrikeDeposits,
+      totalEpochDeposits,
+      userEpochStrikeDeposits,
+      userEpochCallsPurchased,
+    ] = await Promise.all([
+      ssovSdk.call.getEpochTimes(currentEpoch),
+      ssovSdk.call.isEpochExpired(currentEpoch),
+      ssovSdk.call.isVaultReady(currentEpoch),
+      ssovSdk.call.getEpochStrikes(currentEpoch),
+      ssovSdk.call.getEpochStrikeTokens(currentEpoch),
+      ssovSdk.call.getTotalEpochStrikeDeposits(currentEpoch),
+      ssovSdk.call.totalEpochDeposits(currentEpoch),
+      ssovSdk.call.getUserEpochDeposits(currentEpoch, accountAddress),
+      ssovSdk.call.getUserEpochCallsPurchased(currentEpoch, accountAddress),
+    ]);
+
+    const userEpochDeposits = userEpochStrikeDeposits
+      .reduce(
+        (accumulator, currentValue) => accumulator.add(currentValue),
+        BigNumber.from(0)
+      )
+      .toString();
+
+    let APY = '0.00';
+    if (currentEpoch > 1) {
+      const pastEpochs = Array.from(
+        { length: Number(currentEpoch - 1) },
+        (_, i) => i + 1
+      ).slice(-12);
+      const totalDeposits = (
+        await Promise.all(
+          pastEpochs.map((epoch) => ssovSdk.call.totalEpochDeposits(epoch))
+        )
+      )
+        .map((deposit) => deposit)
+        .reduce(
+          (accumulator, currentValue) => accumulator.add(currentValue),
+          BigNumber.from(0)
+        );
+      const totalExercises = (
+        await Promise.all(
+          pastEpochs.map((epoch) =>
+            ssovSdk.call.totalTokenVaultExercises(epoch)
+          )
+        )
+      )
+        .map((exercise) => exercise)
+        .reduce(
+          (accumulator, currentValue) => accumulator.add(currentValue),
+          BigNumber.from(0)
+        );
+      if (totalDeposits.gt(0) && totalExercises.gt(0)) {
+        APY = totalExercises.mul(100).div(totalDeposits).toNumber().toFixed(2);
+      }
+    }
+
+    setState((prevState) => {
+      const epochSsovData = {
+        epochTimes: epochTimes.toString(),
+        isEpochExpired,
+        isVaultReady,
+        epochStrikes,
+        epochStrikeTokens: epochStrikeTokens.map((token) =>
+          ERC20__factory.connect(token, signer)
+        ),
+        totalEpochStrikeDeposits,
+        totalEpochDeposits,
+        userEpochStrikeDeposits,
+        userEpochDeposits,
+        userEpochCallsPurchased,
+      };
+      if (currentEpoch === selectedEpoch) {
+        return {
+          ...prevState,
+          currentEpochSsovData: epochSsovData,
+          selectedEpochSsovData: epochSsovData,
+          APY,
+        };
+      } else {
+        return {
+          ...prevState,
+          currentEpochSsovData: epochSsovData,
+          APY,
+        };
+      }
+    });
+  }, [ssovSdk, accountAddress, currentEpoch, selectedEpoch, signer]);
+
+  const updateNextEpochSsovData = useCallback(async () => {
+    if (!ssovSdk || !accountAddress) return;
+
+    // next epoch
+    let nextEpoch = currentEpoch + 1;
+    let epochTimes = await ssovSdk.call.getEpochTimes(nextEpoch);
+
+    if (!Number(epochTimes[0])) {
+      nextEpoch = currentEpoch;
+      epochTimes = await ssovSdk.call.getEpochTimes(nextEpoch);
+    }
+
+    const [
+      isEpochExpired,
+      isVaultReady,
+      epochStrikes,
+      totalEpochStrikeDeposits,
+      totalEpochDeposits,
+      userEpochStrikeDeposits,
+    ] = await Promise.all([
+      ssovSdk.call.isEpochExpired(nextEpoch),
+      ssovSdk.call.isVaultReady(nextEpoch),
+      ssovSdk.call.getEpochStrikes(nextEpoch),
+      ssovSdk.call.getTotalEpochStrikeDeposits(nextEpoch),
+      ssovSdk.call.totalEpochDeposits(nextEpoch),
+      ssovSdk.call.getUserEpochDeposits(nextEpoch, accountAddress),
+    ]);
+
+    const userEpochDeposits = userEpochStrikeDeposits
+      .reduce(
+        (accumulator, currentValue) => accumulator.add(currentValue),
+        BigNumber.from(0)
+      )
+      .toString();
+
+    setState((prevState) => ({
+      ...prevState,
+      nextEpoch,
+      nextEpochSsovData: {
+        epochTimes,
+        isEpochExpired,
+        isVaultReady,
+        epochStrikes,
+        epochStrikeTokens: [],
+        totalEpochStrikeDeposits,
+        totalEpochDeposits,
+        userEpochStrikeDeposits,
+        userEpochDeposits,
+        userEpochCallsPurchased: [],
+      },
+    }));
+  }, [ssovSdk, accountAddress, currentEpoch]);
+
+  const updateSelectedEpochSsovData = useCallback(async () => {
+    if (!ssovSdk || !accountAddress || !selectedEpoch) return;
+
+    // selected epoch
+    const [
+      epochTimes,
+      isEpochExpired,
+      isVaultReady,
+      epochStrikes,
+      epochStrikeTokens,
+      totalEpochStrikeDeposits,
+      totalEpochDeposits,
+      userEpochStrikeDeposits,
+      userEpochCallsPurchased,
+    ] = await Promise.all([
+      ssovSdk.call.getEpochTimes(selectedEpoch),
+      ssovSdk.call.isEpochExpired(selectedEpoch),
+      ssovSdk.call.isVaultReady(selectedEpoch),
+      ssovSdk.call.getEpochStrikes(selectedEpoch),
+      ssovSdk.call.getEpochStrikeTokens(selectedEpoch),
+      ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
+      ssovSdk.call.totalEpochDeposits(selectedEpoch),
+      ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
+      ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+    ]);
+    const userEpochDeposits = userEpochStrikeDeposits
+      .map((deposit) => deposit)
+      .reduce(
+        (accumulator, currentValue) => accumulator.add(currentValue),
+        BigNumber.from(0)
+      )
+      .toString();
+
+    setState((prevState) => ({
+      ...prevState,
+      selectedEpochSsovData: {
+        epochTimes,
+        isEpochExpired,
+        isVaultReady,
+        epochStrikes,
+        epochStrikeTokens: epochStrikeTokens.map((token) =>
+          ERC20__factory.connect(token, signer)
+        ),
+        totalEpochStrikeDeposits,
+        totalEpochDeposits,
+        userEpochStrikeDeposits,
+        userEpochDeposits,
+        userEpochCallsPurchased,
+      },
+    }));
+  }, [ssovSdk, accountAddress, selectedEpoch, signer]);
+
+  useEffect(() => {
+    if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
+
+    const SSOVAddresses = contractAddresses.SSOV as unknown as {
+      [key: string]: string;
+    };
+
+    if (!SSOVAddresses.Vault) return;
+    const ssovSdk = {
+      call: SSOV__factory.connect(SSOVAddresses.Vault, provider),
+      send: SSOV__factory.connect(SSOVAddresses.Vault, signer),
+    };
+
+    setSsovSdk(ssovSdk);
+
+    (async function () {
+      // Epoch
+      try {
+        const currentEpoch = Number(await ssovSdk.call.currentEpoch());
+
+        setCurrentEpoch(currentEpoch);
+        setSelectedEpoch(currentEpoch);
+      } catch (err) {
+        console.log(err);
+      }
+
+      // OptionPricing
+      const ssovOptionPricingSdk = {
+        call: SSOVOptionPricing__factory.connect(
+          SSOVAddresses.OptionPricing,
+          provider
+        ),
+        send: SSOVOptionPricing__factory.connect(
+          SSOVAddresses.OptionPricing,
+          signer
+        ),
+      };
+
+      const volatilityOracleContracts = {
+        call: VolatilityOracle__factory.connect(
+          SSOVAddresses.VolatilityOracle,
+          provider
+        ),
+        send: VolatilityOracle__factory.connect(
+          SSOVAddresses.VolatilityOracle,
+          signer
+        ),
+      };
+
+      setState((prevState) => ({
+        ...prevState,
+        ssovOptionPricingSdk,
+        volatilityOracleContracts,
+      }));
+    })();
+  }, [contractAddresses, provider, signer]);
+
+  useEffect(() => {
+    if (!ssovSdk || !contractAddresses) return;
+
+    (async function () {
+      const dpxTokenPrice = await ssovSdk.call.viewUsdPrice(
+        contractAddresses.DPX
+      );
+      setState((prevState) => ({
+        ...prevState,
+        dpxTokenPrice,
+      }));
+    })();
+  }, [ssovSdk, contractAddresses]);
+
+  useEffect(() => {
+    if (!contractAddresses || !accountAddress) return;
+
+    const dpxToken = ERC20__factory.connect(contractAddresses.DPX, signer);
+
+    setDpxToken(dpxToken);
+  }, [contractAddresses, accountAddress, signer]);
+
+  useEffect(() => {
+    updateCurrentEpochSsovData();
+  }, [updateCurrentEpochSsovData]);
+
+  useEffect(() => {
+    updateNextEpochSsovData();
+  }, [updateNextEpochSsovData]);
+
+  useEffect(() => {
+    updateSelectedEpochSsovData();
+  }, [updateSelectedEpochSsovData]);
+
+  const contextValue = {
+    ...state,
+    ssovSdk,
+    currentEpoch,
+    selectedEpoch,
+    setSelectedEpoch,
+    updateCurrentEpochSsovData,
+    updateNextEpochSsovData,
+    updateSelectedEpochSsovData,
+    dpxToken,
+  };
+
+  return (
+    <SsovContext.Provider value={contextValue}>
+      {props.children}
+    </SsovContext.Provider>
+  );
+};

@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('../assets/fonts/Ilisarniq-Light.otf');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('../assets/fonts/Ilisarniq-Regular.otf');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('../assets/fonts/Ilisarniq-Demi.otf');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('../assets/fonts/Ilisarniq-Bold.otf');
+  font-weight: 700;
+}
+
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: white;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}

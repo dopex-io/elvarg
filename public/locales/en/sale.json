@@ -1,0 +1,15 @@
+{
+  "saleEndsIn": "Sale Ends In",
+  "infoSection": {
+    "title": "DPX Token Distribution",
+    "paragraph": "You can deposit Ether into the deposit contract to claim a stake as an early participant. Come back here to see the status, estimated claim and when the sale has concluded.",
+    "progressAndMetrics": "Sale Progress and Metrics"
+  },
+  "priceInfo": "The final price and amount of DPX is determined at the end of the sale.",
+  "saleStartInfo": " The sale begins at {{ saleStartTime }}. Please check back in later.",
+  "saleEnd": {
+    "1": "The sale has concluded and DPX can now be claimed!",
+    "2": "Thank you for supporting decentralized options on Ethereum."
+  },
+  "saleEndInfo": "Participants can claim tokens when the sale ends at"
+}

@@ -1,0 +1,14 @@
+query getLeaderboardData {
+  users(first: 1000) {
+    id
+    userTradeStats {
+      optionPool {
+        id
+      }
+      totalPremium
+      totalPutPnl
+      totalCallPnl
+      totalFees
+    }
+  }
+}
