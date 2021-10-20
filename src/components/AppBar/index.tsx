@@ -79,7 +79,7 @@ const appLinks = {
     { name: 'portfolio', to: '/portfolio' },
     { name: 'faucet', to: '/faucet' },
     { name: 'swap', to: '/swap' },
-    { name: 'vault', to: '/vault' },
+    { name: 'SSOV', to: '/ssov' },
   ],
   42161: [{ name: 'farms', to: '/farms' }],
 };
@@ -101,7 +101,7 @@ interface AppBarProps {
     | 'portfolio'
     | 'token sale'
     | 'faucet'
-    | 'vault'
+    | 'SSOV'
     | 'leaderboard'
     | 'swap';
 }

@@ -11,7 +11,7 @@ import format from 'date-fns/format';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import PurchaseVault from '../ManageCard/PurchaseVault';
-import VaultBox from '../VaultBox';
+import InfoBox from '../InfoBox';
 
 import dpxLogo from 'assets/tokens/dpx.svg';
 import Dpx from 'assets/icons/DpxIcon';
@@ -132,7 +132,7 @@ function VaultCard(props: VaultCardProps) {
           <Box className="grid grid-cols-3 gap-2 mb-2">
             {info.map((item) => {
               return (
-                <VaultBox
+                <InfoBox
                   key={item.heading}
                   Icon={item.icon}
                   heading={item.heading}
@@ -205,7 +205,7 @@ function VaultCard(props: VaultCardProps) {
             <CustomButton
               size="medium"
               onClick={() => {
-                history.push('/vault/manage');
+                history.push('/ssov/manage');
               }}
             >
               Deposit
@@ -221,6 +221,15 @@ function VaultCard(props: VaultCardProps) {
               Buy Options
             </CustomButton>
           </Box>
+          <Typography
+            variant="h6"
+            className="text-wave-blue text-right block"
+            component="a"
+            // @ts-ignore
+            href="/ssov/manage#balances"
+          >
+            View Options
+          </Typography>
           <Typography variant="h6" className="text-stieglitz">
             Epoch {nextEpoch}
           </Typography>

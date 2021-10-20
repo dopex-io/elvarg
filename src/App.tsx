@@ -7,8 +7,10 @@ import { client } from 'graphql/apollo';
 
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
-// import { GeoLocationProvider } from 'contexts/GeoLocation';
 import { FarmingProvider } from 'contexts/Farming';
+// import { GeoLocationProvider } from 'contexts/GeoLocation';
+
+import { BUILD } from 'constants/index';
 
 import WrongNetworkModal from 'components/WrongNetworkDialog';
 import PageLoader from 'components/PageLoader';
@@ -16,29 +18,40 @@ import PageLoader from 'components/PageLoader';
 const Farming = lazy(() => import('pages/farming/farms'));
 const FarmingStake = lazy(() => import('pages/farming/stake'));
 const TokenSale = lazy(() => import('pages/sale'));
-// const Portfolio = lazy(() => import('pages/portfolio'));
-// const Options = lazy(() => import('pages/options'));
-// const Pools = lazy(() => import('pages/pools'));
-// const PoolsManage = lazy(() => import('pages/pools/manage'));
-// const PoolsVolume = lazy(() => import('pages/pools/volume'));
-// const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
-// const Swap = lazy(() => import('pages/swap'));
-// const SsovTestnetFaucet = lazy(() => import('pages/ssov-faucet'));
-// const Vault = lazy(() => import('pages/vault'));
-// const VaultManage = lazy(() => import('pages/vault/Manage'));
+const Portfolio = lazy(() => import('pages/portfolio'));
+const Options = lazy(() => import('pages/options'));
+const Pools = lazy(() => import('pages/pools'));
+const PoolsManage = lazy(() => import('pages/pools/manage'));
+const PoolsVolume = lazy(() => import('pages/pools/volume'));
+const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
+const Swap = lazy(() => import('pages/swap'));
+const Ssov = lazy(() => import('pages/ssov'));
+const SsovManage = lazy(() => import('pages/ssov/Manage'));
 
 function AppRoutes() {
+  if (BUILD === 'testnet') {
+    return (
+      <BrowserRouter forceRefresh={false}>
+        <Suspense fallback={<PageLoader />}>
+          <Switch>
+            <Route path="/" component={Options} exact />
+            <Route path="/pools" component={Pools} exact />
+            <Route path="/pools/manage" component={PoolsManage} exact />
+            <Route path="/pools/volume" component={PoolsVolume} exact />
+            <Route path="/portfolio" component={Portfolio} exact />
+            <Route path="/faucet" component={TestnetFaucet} exact />
+            <Route path="/swap" component={Swap} exact />
+            <Route path="/ssov" component={Ssov} exact />
+            <Route path="/ssov/manage" component={SsovManage} exact />
+          </Switch>
+        </Suspense>
+      </BrowserRouter>
+    );
+  }
   return (
     <BrowserRouter forceRefresh={false}>
       <Suspense fallback={<PageLoader />}>
         <Switch>
-          {/* <Route path="/" component={Options} exact />
-          <Route path="/pools" component={Pools} exact />
-          <Route path="/pools/manage" component={PoolsManage} exact />
-          <Route path="/pools/volume" component={PoolsVolume} exact />
-          <Route path="/portfolio" component={Portfolio} exact />
-          <Route path="/faucet" component={TestnetFaucet} exact />
-          <Route path="/swap" component={Swap} exact /> */}
           <Route path="/sale" component={TokenSale} exact />
           <FarmingProvider>
             <Route path="/farms" component={Farming} exact />
@@ -47,9 +60,6 @@ function AppRoutes() {
               <Redirect to="/farms" />
             </Route>
           </FarmingProvider>
-          {/* <Route path="/vault" component={Vault} exact />
-          <Route path="/vault/Manage" component={VaultManage} exact />
-          <Route path="/faucet" component={SsovTestnetFaucet} exact /> */}
         </Switch>
       </Suspense>
     </BrowserRouter>

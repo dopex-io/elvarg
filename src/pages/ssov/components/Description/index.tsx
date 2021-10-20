@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
 import Box from '@material-ui/core/Box';
 
-import VaultBox from '../VaultBox';
+import VaultBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
@@ -47,15 +47,18 @@ const Description = () => {
   return (
     <Box className="flex flex-col mr-10">
       <Typography variant="h1" className="mb-6">
-        DPX SSF Option Vault
+        DPX SSOV
       </Typography>
       <Typography variant="h5" className="text-stieglitz mb-6">
-        <span className="text-white">DPX SSF Option Vault (SSOV)</span> accepts
-        user DPX deposits and stakes them in the DPX Single-Staking-Farm (SSF).
+        <span className="text-white">
+          DPX Single Staking Option Vault (SSOV)
+        </span>{' '}
+        accepts user DPX deposits and stakes them in the DPX Single Staking
+        Farm.
         <br />
         <br />
         This farm simultaneously auto-compounds, farms and supplies DPX
-        liquidity to our first L1 options pool.
+        liquidity to our first options pool.
       </Typography>
       <Box className="flex flex-row">
         <CustomButton
