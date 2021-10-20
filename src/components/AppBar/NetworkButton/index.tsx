@@ -78,12 +78,14 @@ export default function NetworkButton() {
     testnet: [
       <MenuItem
         text="Asset Bridge"
+        key="Asset Bridge"
         icon={<img src={bridge} alt="Arbitrum" className="w-4 mr-3" />}
         className="mb-6"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
       <MenuItem
         text="Learn More"
+        key="Learn More"
         icon={<InfoIcon className="w-4 mr-3 text-stieglitz" />}
         onClick={() =>
           window.open(
@@ -96,6 +98,7 @@ export default function NetworkButton() {
     main: [
       <MenuItem
         text="Switch to L2 (Arbitrum)"
+        key="Switch to L2 (Arbitrum)"
         icon={<img src={arbitrum} alt="Arbitrum" className="w-4 mr-3" />}
         className="mb-6"
         endComponent={<Switch checked={chainId === 42161} className="ml-8" />}
@@ -103,12 +106,14 @@ export default function NetworkButton() {
       />,
       <MenuItem
         text="Asset Bridge"
+        key="Asset Bridge"
         icon={<img src={bridge} alt="Arbitrum" className="w-4 mr-3" />}
         className="mb-6"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
       <MenuItem
         text="Learn More"
+        key="Learn More"
         icon={<InfoIcon className="w-4 mr-3 text-stieglitz" />}
         onClick={() =>
           window.open(
