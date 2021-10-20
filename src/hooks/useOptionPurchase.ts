@@ -132,6 +132,7 @@ const useOptionPurchase = () => {
       amount: 1,
       useVolumePoolFunds: false,
       delegate: false,
+      margin: false,
     },
     validate: (values) => {
       const errors: any = {};
@@ -356,6 +357,11 @@ const useOptionPurchase = () => {
     selectedOptionData.strikePrice,
   ]);
 
+  const handleMargin = useCallback(
+    (e) => formik.setFieldValue('margin', e.target.checked),
+    [formik]
+  );
+
   const handleUseVolumePool = useCallback(
     (e) => formik.setFieldValue('useVolumePoolFunds', e.target.checked),
     [formik]
@@ -402,6 +408,7 @@ const useOptionPurchase = () => {
     selectedOptionData,
     totalPrice,
     userAssetBalances,
+    handleMargin,
     handleUseVolumePool,
     handleDelegate,
     userVolumePoolFunds,

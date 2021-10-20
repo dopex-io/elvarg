@@ -38,6 +38,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     selectedOptionData,
     totalPrice,
     userAssetBalances,
+    handleMargin,
     handleUseVolumePool,
     handleDelegate,
     userVolumePoolFunds,
@@ -171,6 +172,44 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
             <ErrorBox error={formik.values.error || txError} />
             <Box className="bg-umbra rounded-xl p-4 flex flex-col space-y-4">
               <Box className="flex justify-between">
+                <Box className="flex space-x-2">
+                  <Typography variant="h6" component="span">
+                    Leverage up to 5x
+                  </Typography>
+                </Box>
+                <Switch
+                  checked={formik.values.margin ?? false}
+                  onChange={handleMargin}
+                />
+              </Box>
+              <Box className="flex justify-between">
+                <Box className="flex space-x-2">
+                  <Typography variant="h6" component="span">
+                    Use Volume Pool Funds
+                  </Typography>
+                </Box>
+                <Switch
+                  checked={formik.values.useVolumePoolFunds ?? false}
+                  onChange={handleUseVolumePool}
+                />
+              </Box>
+              <Box className="flex justify-between">
+                <Box className="flex space-x-2">
+                  <Typography variant="h6" component="span">
+                    Auto Exercise
+                  </Typography>
+                  <Tooltip title={DELEGATE_INFO} placement="bottom">
+                    <InfoOutlinedIcon className="h-3 w-3 mt-1.5" />
+                  </Tooltip>
+                </Box>
+                <Switch
+                  checked={formik.values.delegate ?? false}
+                  onChange={handleDelegate}
+                />
+              </Box>
+            </Box>
+            <Box className="bg-umbra rounded-xl p-4 flex flex-col space-y-4">
+              <Box className="flex justify-between">
                 <Typography
                   variant="caption"
                   component="div"
@@ -266,27 +305,6 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                   <span className="opacity-60">USDT</span>
                 </Typography>
               </Box>
-            </Box>
-            <Box className="flex space-x-2">
-              <Switch
-                checked={formik.values.useVolumePoolFunds ?? false}
-                onChange={handleUseVolumePool}
-              />
-              <Typography variant="h6" component="span">
-                Use Volume Pool Funds
-              </Typography>
-            </Box>
-            <Box className="flex space-x-2">
-              <Switch
-                checked={formik.values.delegate ?? false}
-                onChange={handleDelegate}
-              />
-              <Typography variant="h6" component="span">
-                Auto Exercise
-              </Typography>
-              <Tooltip title={DELEGATE_INFO} placement="bottom">
-                <InfoOutlinedIcon className="h-3 w-3 mt-1.5" />
-              </Tooltip>
             </Box>
             <WalletButton
               size="large"
