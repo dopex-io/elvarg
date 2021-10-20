@@ -5,7 +5,7 @@ import VaultBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
-import PurchaseVault from '../ManageCard/PurchaseVault';
+import PurchaseDialog from '../ManageCard/PurchaseDialog';
 import Dpx from 'assets/icons/DpxIcon';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
@@ -86,7 +86,7 @@ const Description = () => {
         })}
       </Box>
       {purchaseState && (
-        <PurchaseVault
+        <PurchaseDialog
           open={purchaseState}
           handleClose={
             (() => {
