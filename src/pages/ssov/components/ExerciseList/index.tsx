@@ -214,6 +214,7 @@ const ExerciseList = () => {
         {userExercisableOptions.length > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"
+            id="balances"
             rowsPerPageOptions={[ROWS_PER_PAGE]}
             count={userExercisableOptions.length}
             page={page}

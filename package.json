@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && node ./scripts/writeRedirects.js",
     "test": "craco test",
     "eject": "react-scripts eject",
     "generate": "graphql-codegen",

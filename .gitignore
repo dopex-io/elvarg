@@ -34,4 +34,4 @@ app/src/addresses
 .vercel
 
 # Generated GraphQL hooks
-/app/src/generated.ts
+/src/generated.ts

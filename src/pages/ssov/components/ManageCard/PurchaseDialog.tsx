@@ -30,7 +30,7 @@ export interface Props {
   handleClose: () => {};
 }
 
-const PurchaseVault = ({ open, handleClose }: Props) => {
+const PurchaseDialog = ({ open, handleClose }: Props) => {
   const {
     ssovSdk,
     currentEpoch,
@@ -44,6 +44,7 @@ const PurchaseVault = ({ open, handleClose }: Props) => {
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
+  const [volatility, setVolatility] = useState(0);
   const [optionPricing, setOptionPricing] = useState(0);
   const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
@@ -188,6 +189,7 @@ const PurchaseVault = ({ open, handleClose }: Props) => {
         dpxTokenPrice,
         volatility
       );
+      setVolatility(volatility.toNumber());
       setOptionPricing(getUserReadableAmount(optionPricing, 8));
     } catch (err) {
       console.log(err);
@@ -304,6 +306,7 @@ const PurchaseVault = ({ open, handleClose }: Props) => {
                 ${currentPrice.toFixed(2)}
               </Typography>
             </Box>
+
             {strikeIndex !== null && (
               <>
                 <Box className="flex flex-row justify-between mb-4">
@@ -328,6 +331,18 @@ const PurchaseVault = ({ open, handleClose }: Props) => {
                   </Typography>
                   <Typography variant="caption" component="div">
                     {inputValue}
+                  </Typography>
+                </Box>
+                <Box className="flex flex-row justify-between mb-4">
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-stieglitz"
+                  >
+                    Volatility
+                  </Typography>
+                  <Typography variant="caption" component="div">
+                    {volatility}
                   </Typography>
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
@@ -404,4 +419,4 @@ const PurchaseVault = ({ open, handleClose }: Props) => {
   );
 };
 
-export default PurchaseVault;
+export default PurchaseDialog;

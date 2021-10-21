@@ -83,6 +83,10 @@ const Deposit = ({ className }: DepositProps) => {
     ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
     : 'N/A';
 
+  const epochStartTime = epochTimes[0]
+    ? format(new Date(epochTimes[0] * 1000), 'MM/dd')
+    : 'N/A';
+
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
   );
@@ -313,22 +317,11 @@ const Deposit = ({ className }: DepositProps) => {
           <Typography
             variant="caption"
             component="div"
-            className="mb-4 text-stieglitz text-left"
+            className="text-stieglitz text-left"
           >
             {isVaultReady
-              ? `Deposits for this epoch has been closed. This window closed at ${epochEndTime}`
-              : `Deposits for this epoch are now open. This window closes at ${epochEndTime}`}
-          </Typography>
-          <Typography
-            variant="caption"
-            component="a"
-            className="text-wave-blue text-left"
-            // @ts-ignore
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://blog.dopex.io/introducing-single-staking-option-vaults-ssov-b90bbb0a9ae5"
-          >
-            Read More
+              ? `Deposits for this epoch has been closed. This window closed at ${epochStartTime}.`
+              : `Deposits for this epoch are now open. This window closes at ${epochEndTime}.`}
           </Typography>
         </Box>
       </Box>
