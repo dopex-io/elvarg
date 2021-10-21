@@ -16,6 +16,8 @@ import { AssetsContext } from 'contexts/Assets';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import { S3_BUCKET_RESOURCES } from 'constants/index';
+
 import usdt from 'assets/tokens/usdt.svg';
 
 const AssetBalances = () => {
@@ -133,6 +135,7 @@ const AssetBalances = () => {
                                 : '',
                               symbol: asset,
                               decimals: selectedBaseAssetDecimals,
+                              image: S3_BUCKET_RESOURCES[asset],
                             }}
                           />
                         </TableCell>
