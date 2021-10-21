@@ -6,6 +6,8 @@ import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import MuiInput from '@material-ui/core/Input';
 
 import PnlChart from './PnlChart';
 import Typography from 'components/UI/Typography';
@@ -180,6 +182,14 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                 <Switch
                   checked={formik.values.margin ?? false}
                   onChange={handleMargin}
+                />
+              </Box>
+              <Box className="flex justify-between">
+                <Button className="bg-mineshaft text-white">2x</Button>
+                <Button className="bg-mineshaft text-white w-4">5x</Button>
+                <MuiInput
+                  disableUnderline={true}
+                  className="h-10 w-20 text-md text-white font-mono bg-mineshaft rounded-md p-1 px-1"
                 />
               </Box>
               <Box className="flex justify-between">
