@@ -6,6 +6,8 @@ import Typography from 'components/UI/Typography';
 
 import { WalletContext } from 'contexts/Wallet';
 
+import { S3_BUCKET_RESOURCES } from 'constants/index';
+
 interface BalanceItemProps {
   balance: string;
   token: string;
@@ -33,6 +35,7 @@ const BalanceItem = (props: BalanceItemProps) => {
               address: contractAddresses[upperCaseToken],
               symbol: token,
               decimals: decimals,
+              image: S3_BUCKET_RESOURCES[upperCaseToken],
             }}
           />
         )}

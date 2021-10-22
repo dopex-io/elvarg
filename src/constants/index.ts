@@ -133,3 +133,8 @@ export const DELEGATE_INFO: string =
   'Auto exercising will charge 1% of the total P&L as fee. (This is temporary and will be reduced heavily during our final launch).';
 
 export const BUILD: string = process.env.REACT_APP_BUILD;
+
+export const S3_BUCKET_RESOURCES = {
+  DPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/DPX.png',
+  RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
+};
