@@ -14,10 +14,14 @@ import {
   ERC20,
   VolatilityOracle,
   SSOVOptionPricing,
+  StakingRewards__factory,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+import axios from 'axios';
 
 import { WalletContext } from './Wallet';
+
+import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 interface SsovExtra {
   ssovSdk?: SsovSdkStateInterface;
@@ -132,6 +136,7 @@ export const SsovProvider = (props) => {
       totalEpochDeposits,
       userEpochStrikeDeposits,
       userEpochCallsPurchased,
+      stakingRewardsAddress,
     ] = await Promise.all([
       ssovSdk.call.getEpochTimes(currentEpoch),
       ssovSdk.call.isEpochExpired(currentEpoch),
@@ -142,6 +147,9 @@ export const SsovProvider = (props) => {
       ssovSdk.call.totalEpochDeposits(currentEpoch),
       ssovSdk.call.getUserEpochDeposits(currentEpoch, accountAddress),
       ssovSdk.call.getUserEpochCallsPurchased(currentEpoch, accountAddress),
+      ssovSdk.call.getAddress(
+        '0x5374616b696e6752657761726473000000000000000000000000000000000000' // StakingRewards
+      ),
     ]);
 
     const userEpochDeposits = userEpochStrikeDeposits
@@ -151,7 +159,65 @@ export const SsovProvider = (props) => {
       )
       .toString();
 
-    let APY = '0.00';
+    const stakingRewardsContract = StakingRewards__factory.connect(
+      stakingRewardsAddress,
+      provider
+    );
+
+    let [DPX, RDPX] = await Promise.all([
+      stakingRewardsContract.rewardRateDPX(),
+      stakingRewardsContract.rewardRateRDPX(),
+    ]);
+
+    const totalSupply = await stakingRewardsContract.totalSupply();
+
+    // Add DPX price
+    const pricePromises = [];
+
+    pricePromises.push(
+      axios
+        .get(
+          `https://api.coingecko.com/api/v3/simple/price?ids=dopex&vs_currencies=usd`
+        )
+        .then((payload) => {
+          return payload.data.dopex.usd;
+        })
+    );
+
+    // Add rDPX price
+    pricePromises.push(
+      axios
+        .get(
+          `https://api.coingecko.com/api/v3/simple/price?ids=dopex-rebate-token&vs_currencies=usd`
+        )
+        .then((payload) => {
+          return payload.data['dopex-rebate-token'].usd;
+        })
+    );
+
+    const prices = await Promise.all(pricePromises);
+
+    let priceDPX = prices[0];
+    let priceRDPX = prices[1];
+
+    const TVL = totalSupply.mul(Math.round(priceDPX)).div(oneEBigNumber(18));
+
+    let DPXemitted;
+    let RDPXemitted;
+
+    DPXemitted = DPX.mul(BigNumber.from(86400 * 365))
+      .mul(Math.round(priceDPX))
+      .div(oneEBigNumber(18));
+    RDPXemitted = RDPX.mul(BigNumber.from(86400 * 365))
+      .mul(Math.round(priceRDPX))
+      .div(oneEBigNumber(18));
+
+    const denominator =
+      TVL.toNumber() + DPXemitted.toNumber() + RDPXemitted.toNumber();
+
+    let APR = (denominator / TVL.toNumber() - 1) * 100;
+
+    let APY: string | number = APR;
     if (currentEpoch > 1) {
       const pastEpochs = Array.from(
         { length: Number(currentEpoch - 1) },
@@ -180,9 +246,11 @@ export const SsovProvider = (props) => {
           BigNumber.from(0)
         );
       if (totalDeposits.gt(0) && totalExercises.gt(0)) {
-        APY = totalExercises.mul(100).div(totalDeposits).toNumber().toFixed(2);
+        APY += totalExercises.mul(100).div(totalDeposits).toNumber();
       }
     }
+
+    APY = APY.toFixed(2);
 
     setState((prevState) => {
       const epochSsovData = {
@@ -214,7 +282,7 @@ export const SsovProvider = (props) => {
         };
       }
     });
-  }, [ssovSdk, accountAddress, currentEpoch, selectedEpoch, signer]);
+  }, [ssovSdk, accountAddress, currentEpoch, selectedEpoch, signer, provider]);
 
   const updateNextEpochSsovData = useCallback(async () => {
     if (!ssovSdk || !accountAddress) return;

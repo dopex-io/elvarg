@@ -57,7 +57,7 @@ function VaultCard(props: VaultCardProps) {
     {
       icon: Action,
       heading: 'APY',
-      value: APY || '...',
+      value: `${APY}%` || '...',
     },
     {
       icon: Coin,

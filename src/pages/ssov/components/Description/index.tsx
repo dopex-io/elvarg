@@ -35,7 +35,7 @@ const Description = () => {
     {
       icon: Action,
       heading: 'APY',
-      value: APY || '...',
+      value: `${APY}%` || '...',
     },
     {
       icon: Coin,

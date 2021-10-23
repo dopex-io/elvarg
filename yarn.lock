@@ -1312,6 +1312,11 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
+"@dopex-io/sdk@../sdk":
+  version "1.0.0-alpha.34"
+  dependencies:
+    ethers "^5.4.5"
+
 "@dopex-io/sdk@^1.0.0-alpha.34":
   version "1.0.0-alpha.34"
   resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.34.tgz#02cef204ca1d9b156a8240b00f3e9f191f00f261"
