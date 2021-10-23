@@ -166,23 +166,12 @@ export const FarmingProvider = (props) => {
       let DPXemitted;
       let RDPXemitted;
 
-      const isBoosted = true;
-
-      if (isBoosted) {
-        DPXemitted = DPX.mul(BigNumber.from(86400 * 365 * 2))
-          .mul(Math.round(priceDPX))
-          .div(oneEBigNumber(18));
-        RDPXemitted = RDPX.mul(BigNumber.from(86400 * 365 * 2))
-          .mul(Math.round(priceRDPX))
-          .div(oneEBigNumber(18));
-      } else {
-        DPXemitted = DPX.mul(BigNumber.from(86400 * 365))
-          .mul(Math.round(priceDPX))
-          .div(oneEBigNumber(18));
-        RDPXemitted = RDPX.mul(BigNumber.from(86400 * 365))
-          .mul(Math.round(priceRDPX))
-          .div(oneEBigNumber(18));
-      }
+      DPXemitted = DPX.mul(BigNumber.from(86400 * 365))
+        .mul(Math.round(priceDPX))
+        .div(oneEBigNumber(18));
+      RDPXemitted = RDPX.mul(BigNumber.from(86400 * 365))
+        .mul(Math.round(priceRDPX))
+        .div(oneEBigNumber(18));
 
       const denominator =
         TVL.toNumber() + DPXemitted.toNumber() + RDPXemitted.toNumber();
