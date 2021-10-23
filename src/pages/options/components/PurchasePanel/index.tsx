@@ -185,11 +185,11 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                 />
               </Box>
               <Box className="flex justify-between">
-                <Button className="bg-mineshaft text-white">2x</Button>
-                <Button className="bg-mineshaft text-white w-4">5x</Button>
+                <Button className="bg-mineshaft text-white mr-1">2x</Button>
+                <Button className="bg-mineshaft text-white w-4 mr-1">5x</Button>
                 <MuiInput
                   disableUnderline={true}
-                  className="h-10 w-20 text-md text-white font-mono bg-mineshaft rounded-md p-1 px-1"
+                  className="h-10 w-20 text-md text-white font-mono bg-mineshaft rounded-md p-1 px-2"
                 />
               </Box>
               <Box className="flex justify-between">
