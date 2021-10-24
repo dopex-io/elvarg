@@ -145,7 +145,6 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
     try {
       await newEthersTransaction(
         ssovSdk.send.exercise(
-          selectedEpoch,
           strikeIndex,
           getContractReadableAmount(inputValue, 18).toString(),
           accountAddress
@@ -160,7 +159,6 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
     }
   }, [
     ssovSdk,
-    selectedEpoch,
     strikeIndex,
     inputValue,
     accountAddress,

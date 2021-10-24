@@ -1,5 +1,6 @@
 const CHAIN_ID_TO_EXPLORER = {
   421611: 'https://testnet.arbiscan.io/',
+  42161: 'https://arbiscan.io/',
   42: 'https://kovan.etherscan.io/',
   1: 'https://etherscan.io/',
   1337: '',

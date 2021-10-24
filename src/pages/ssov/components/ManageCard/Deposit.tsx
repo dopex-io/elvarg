@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import Box from '@material-ui/core/Box';
 import cx from 'classnames';
 import format from 'date-fns/format';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -14,6 +14,7 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -33,7 +34,7 @@ import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     formControl: {
       width: 279,
@@ -41,11 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface DepositProps {
-  className?: string;
-}
-
-const Deposit = ({ className }: DepositProps) => {
+const Deposit = () => {
   const classes = useStyles();
   const {
     ssovSdk,
@@ -322,6 +319,32 @@ const Deposit = ({ className }: DepositProps) => {
             {isVaultReady
               ? `Deposits for this epoch has been closed. This window closed at ${epochStartTime}.`
               : `Deposits for this epoch are now open. This window closes at ${epochEndTime}.`}
+            <br />
+            <br />
+            <Countdown
+              date={
+                isVaultReady
+                  ? new Date(epochTimes[1] * 1000)
+                  : new Date(epochTimes[0] * 1000)
+              }
+              renderer={({ days, hours, minutes, seconds, completed }) => {
+                if (completed) {
+                  return (
+                    <span className="text-wave-blue">
+                      {isVaultReady
+                        ? `This epoch has expired.`
+                        : `The window for deposits have closed. Vault will be bootstrapped soon.`}
+                    </span>
+                  );
+                } else {
+                  return (
+                    <span className="text-wave-blue">
+                      Time left: {days}d {hours}h {minutes}m {seconds}s
+                    </span>
+                  );
+                }
+              }}
+            />
           </Typography>
         </Box>
       </Box>
