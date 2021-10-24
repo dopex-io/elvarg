@@ -3,6 +3,7 @@ import Box from '@material-ui/core/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
 import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -15,11 +16,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import styles from './styles.module.scss';
 
-interface WithdrawProps {
-  className?: string;
-}
-
-const Withdraw = ({ className }: WithdrawProps) => {
+const Withdraw = () => {
   const {
     ssovSdk,
     currentEpoch,
@@ -38,6 +35,7 @@ const Withdraw = ({ className }: WithdrawProps) => {
   const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
 
   // Ssov data for next epoch
+
   const epochEndTime = epochTimes[1]
     ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
     : 'N/A';
@@ -151,19 +149,28 @@ const Withdraw = ({ className }: WithdrawProps) => {
             component="div"
             className="mb-4 text-stieglitz text-left"
           >
-            Withdrawals can only be processed for past epochs. This one expired{' '}
-            {epochEndTime}
-          </Typography>
-          <Typography
-            variant="caption"
-            component="a"
-            className="text-wave-blue text-left"
-            // @ts-ignore
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://blog.dopex.io/introducing-single-staking-option-vaults-ssov-b90bbb0a9ae5"
-          >
-            Read More
+            Withdrawals can only be processed for past epochs. Expiry for the
+            selected epoch is {epochEndTime}.
+            <br />
+            <br />
+            <Countdown
+              date={new Date(epochTimes[1] * 1000)}
+              renderer={({ days, hours, minutes, seconds, completed }) => {
+                if (completed) {
+                  return (
+                    <span className="text-wave-blue">
+                      This epoch has expired.
+                    </span>
+                  );
+                } else {
+                  return (
+                    <span className="text-wave-blue">
+                      Epoch end in: {days}d {hours}h {minutes}m {seconds}s
+                    </span>
+                  );
+                }
+              }}
+            />
           </Typography>
         </Box>
       </Box>

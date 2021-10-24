@@ -254,7 +254,7 @@ export const SsovProvider = (props) => {
 
     setState((prevState) => {
       const epochSsovData = {
-        epochTimes: epochTimes.toString(),
+        epochTimes,
         isEpochExpired,
         isVaultReady,
         epochStrikes,
