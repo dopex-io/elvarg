@@ -6,10 +6,14 @@ import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import MuiInput from '@material-ui/core/Input';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import PnlChart from './PnlChart';
+import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 import Accordion from 'components/UI/Accordion';
@@ -184,14 +188,77 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                   onChange={handleMargin}
                 />
               </Box>
-              <Box className="flex justify-between">
-                <Button className="bg-mineshaft text-white mr-1">2x</Button>
-                <Button className="bg-mineshaft text-white w-4 mr-1">5x</Button>
-                <MuiInput
-                  disableUnderline={true}
-                  className="h-10 w-20 text-md text-white font-mono bg-mineshaft rounded-md p-1 px-2"
-                />
-              </Box>
+              {formik.values.margin && (
+                <>
+                  <Box className="flex justify-between">
+                    <Button className="bg-mineshaft text-white mr-1">2x</Button>
+                    <Button className="bg-mineshaft text-white mr-1">5x</Button>
+                    <MuiInput
+                      disableUnderline={true}
+                      className="h-10 w-full text-md text-white font-mono bg-mineshaft rounded-md p-1 px-2"
+                    />
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Collateral Required ($)
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      ${formatAmount(0)}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Collateralization Ratio
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {1}x
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Balance
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {formatAmount(0)} {'DPX'}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <CustomButton
+                      size="medium"
+                      color="mineshaft"
+                      className="w-full"
+                      classes={{ label: 'uppercase' }}
+                      aria-controls="expiry-menu"
+                      aria-haspopup="true"
+                      // onClick={handleClick}
+                      endIcon={<ExpandMoreIcon />}
+                    >
+                      {'DPX'}
+                    </CustomButton>
+                    <Menu
+                      id="expiry-menu"
+                      // anchorEl={anchorEl}
+                      open={false}
+                      // onClose={handleClose}
+                      classes={{ paper: 'bg-cod-gray' }}
+                    >
+                      <MenuItem>Custom Expiry</MenuItem>
+                    </Menu>
+                  </Box>
+                </>
+              )}
               <Box className="flex justify-between">
                 <Box className="flex space-x-2">
                   <Typography variant="h6" component="span">
@@ -203,21 +270,36 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                   onChange={handleUseVolumePool}
                 />
               </Box>
-              <Box className="flex justify-between">
-                <Box className="flex space-x-2">
-                  <Typography variant="h6" component="span">
-                    Auto Exercise
-                  </Typography>
-                  <Tooltip title={DELEGATE_INFO} placement="bottom">
-                    <InfoOutlinedIcon className="h-3 w-3 mt-1.5" />
-                  </Tooltip>
+              {!formik.values.margin && (
+                <Box className="flex justify-between">
+                  <Box className="flex space-x-2">
+                    <Typography variant="h6" component="span">
+                      Auto Exercise
+                    </Typography>
+                    <Tooltip title={DELEGATE_INFO} placement="bottom">
+                      <InfoOutlinedIcon className="h-3 w-3 mt-1.5" />
+                    </Tooltip>
+                  </Box>
+                  <Switch
+                    checked={formik.values.delegate ?? false}
+                    onChange={handleDelegate}
+                  />
                 </Box>
-                <Switch
-                  checked={formik.values.delegate ?? false}
-                  onChange={handleDelegate}
-                />
-              </Box>
+              )}
             </Box>
+            {formik.values.margin && (
+              <Box className="rounded-xl border border-umbra p-4 flex flex-col space-y-4">
+                <Typography
+                  variant="caption"
+                  component="div"
+                  className="text-stieglitz"
+                >
+                  This will lock {100} {'DPX'} as collateral for your trade.
+                  Please maintain sufficient collateral in order to avoid
+                  liquidation.
+                </Typography>
+              </Box>
+            )}
             <Box className="bg-umbra rounded-xl p-4 flex flex-col space-y-4">
               <Box className="flex justify-between">
                 <Typography
