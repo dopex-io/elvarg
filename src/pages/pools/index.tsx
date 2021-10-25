@@ -19,6 +19,12 @@ import usdtlending from 'assets/icons/usdtlending.svg';
 
 import styles from './styles.module.scss';
 
+enum SelectedPool {
+  POOLS,
+  VOLUME_POOLS,
+  LENDING_POOLS,
+}
+
 function Pools() {
   const {
     baseAssetsOptionPoolSdks,
@@ -26,7 +32,9 @@ function Pools() {
     selectedEpoch,
     epochInitTime,
   } = useContext(PoolsContext);
-  const [volumePools, setVolumePools] = useState<boolean>(false);
+  const [selectedPool, setSelectedPool] = useState<SelectedPool>(
+    SelectedPool.POOLS
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -52,7 +60,7 @@ function Pools() {
         <Box className="flex mt-5">
           <PoolSelectorButton
             title={'Pools'}
-            isSelected={!volumePools}
+            isSelected={selectedPool === SelectedPool.POOLS}
             startIcon={
               <Box className="h-10 w-10 rounded-full flex items-center bg-stieglitz">
                 <Typography variant="h5" className="ml-4 mb-1">
@@ -65,21 +73,21 @@ function Pools() {
                 ? `WETH, WBTC + ${baseAssetsOptionPoolSdks.length - 2} More`
                 : `WETH, WBTC`
             }
-            onClick={() => setVolumePools(false)}
+            onClick={() => setSelectedPool(SelectedPool.POOLS)}
           />
           <PoolSelectorButton
             startIcon={<img src={usdt} alt="USDT" />}
             title={'Volume Pools'}
             subtitle={'USDT'}
-            isSelected={volumePools}
-            onClick={() => setVolumePools(true)}
+            isSelected={selectedPool === SelectedPool.VOLUME_POOLS}
+            onClick={() => setSelectedPool(SelectedPool.VOLUME_POOLS)}
           />
           <PoolSelectorButton
             startIcon={<img src={usdtlending} alt="USDT" />}
             title={'Lending Pools'}
             subtitle={'USDT'}
-            isSelected={volumePools}
-            onClick={() => setVolumePools(true)}
+            isSelected={selectedPool === SelectedPool.LENDING_POOLS}
+            onClick={() => setSelectedPool(SelectedPool.LENDING_POOLS)}
           />
         </Box>
         {/* <TimePeriodSelector className="mt-1.5" /> */}
@@ -106,7 +114,9 @@ function Pools() {
         </Box>
         <Box className="mt-5 flex-1 flex overflow-auto">
           <Box className="flex min-h-0 space-x-6">
-            {volumePools ? (
+            {selectedPool === SelectedPool.VOLUME_POOLS ? (
+              <VolumeCard />
+            ) : selectedPool === SelectedPool.LENDING_POOLS ? (
               <VolumeCard />
             ) : (
               baseAssetsOptionPoolSdks.map((baseAssetsOptionPoolSdk, index) => (
