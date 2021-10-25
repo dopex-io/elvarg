@@ -9,6 +9,7 @@ import EpochSelector from 'pages/pools/components/EpochSelector';
 import PoolCard from './components/PoolCard';
 import PoolSelectorButton from './components/PoolSelectorButton';
 import VolumeCard from './components/VolumeCard';
+import LendingCard from './components/LendingCard';
 
 import { PoolsContext, PoolsProvider } from 'contexts/Pools';
 
@@ -117,7 +118,7 @@ function Pools() {
             {selectedPool === SelectedPool.VOLUME_POOLS ? (
               <VolumeCard />
             ) : selectedPool === SelectedPool.LENDING_POOLS ? (
-              <VolumeCard />
+              <LendingCard />
             ) : (
               baseAssetsOptionPoolSdks.map((baseAssetsOptionPoolSdk, index) => (
                 <PoolCard
