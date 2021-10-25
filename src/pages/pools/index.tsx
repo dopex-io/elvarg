@@ -15,6 +15,7 @@ import { PoolsContext, PoolsProvider } from 'contexts/Pools';
 import getNextFriday from 'utils/date/getNextFriday';
 
 import usdt from 'assets/tokens/usdt.svg';
+import usdtlending from 'assets/icons/usdtlending.svg';
 
 import styles from './styles.module.scss';
 
@@ -69,6 +70,13 @@ function Pools() {
           <PoolSelectorButton
             startIcon={<img src={usdt} alt="USDT" />}
             title={'Volume Pools'}
+            subtitle={'USDT'}
+            isSelected={volumePools}
+            onClick={() => setVolumePools(true)}
+          />
+          <PoolSelectorButton
+            startIcon={<img src={usdtlending} alt="USDT" />}
+            title={'Lending Pools'}
             subtitle={'USDT'}
             isSelected={volumePools}
             onClick={() => setVolumePools(true)}
