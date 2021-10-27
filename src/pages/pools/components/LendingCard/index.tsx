@@ -19,11 +19,9 @@ import usdtlending from 'assets/icons/usdtlending.svg';
 
 function LendingCard({ className }: { className?: string }) {
   const history = useHistory();
-  const {
-    userVolumePoolDeposits,
-    totalVolumePoolDeposits,
-    volumePoolDiscount,
-  } = useContext(PoolsContext);
+  const userVolumePoolDeposits = '0';
+  const totalVolumePoolDeposits = '0';
+
   const { usdtDecimals } = useContext(AssetsContext);
 
   const finalTotalVolumePoolDeposits = getUserReadableAmount(
@@ -85,7 +83,7 @@ function LendingCard({ className }: { className?: string }) {
             APY
           </Typography>
           <Typography variant="h4">
-            {volumePoolDiscount}
+            {5}
             <span className="text-stieglitz">%</span>
           </Typography>
         </Box>
