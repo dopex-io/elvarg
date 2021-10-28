@@ -33,6 +33,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
+import formatAmount from 'utils/general/formatAmount';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -387,9 +388,9 @@ const Deposit = () => {
             </Typography>
             <Typography variant="h6">
               <span className="text-wave-blue">
-                {userEpochDepositsAmount.toFixed(3)}
+                {formatAmount(userEpochDepositsAmount, 5)}
               </span>{' '}
-              / {totalEpochDepositsAmount.toFixed(3)} DPX
+              / {formatAmount(totalEpochDepositsAmount, 5)} DPX
             </Typography>
           </Box>
         </AccordionSummary>
@@ -402,9 +403,9 @@ const Deposit = () => {
               >
                 <Typography variant="h6">
                   <span className="text-wave-blue">
-                    {userEpochStrikeDepositsAmounts[index].toFixed(3)}
+                    {formatAmount(userEpochStrikeDepositsAmounts[index], 5)}
                   </span>{' '}
-                  / {totalEpochStrikeDepositsAmounts[index].toFixed(3)}
+                  / {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
                   DPX ${strike}

@@ -27,6 +27,7 @@ interface userExercisableOption {
   depositedAmount: number;
   purchasedAmount: number;
   exercisableAmount: number;
+  pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
 }
@@ -77,7 +78,15 @@ const ExerciseList = () => {
           18
         );
         const isExercisable = exercisableAmount > 0 && dpxTokenPrice.gt(strike);
+
         const isPastEpoch = selectedEpoch < currentEpoch;
+
+        const pnlAmount =
+          dpxTokenPrice
+            .sub(strikePrice)
+            .mul(purchasedAmount)
+            .div(dpxTokenPrice)
+            .toNumber() / 1e18;
 
         return {
           strikeIndex,
@@ -85,6 +94,7 @@ const ExerciseList = () => {
           depositedAmount,
           purchasedAmount,
           exercisableAmount,
+          pnlAmount,
           isExercisable,
           isPastEpoch,
         };
@@ -169,6 +179,14 @@ const ExerciseList = () => {
                   </Typography>
                 </TableCell>
                 <TableCell
+                  align="left"
+                  className="text-stieglitz bg-cod-gray border-0 pb-0"
+                >
+                  <Typography variant="h6" className="text-stieglitz">
+                    FInal P&L
+                  </Typography>
+                </TableCell>
+                <TableCell
                   align="right"
                   className="text-stieglitz bg-cod-gray border-0 pb-0"
                 >
@@ -191,6 +209,7 @@ const ExerciseList = () => {
                     depositedAmount,
                     purchasedAmount,
                     exercisableAmount,
+                    pnlAmount,
                     isExercisable,
                     isPastEpoch,
                   }) => {
@@ -201,6 +220,7 @@ const ExerciseList = () => {
                         strikePrice={strikePrice}
                         depositedAmount={depositedAmount}
                         purchasedAmount={purchasedAmount}
+                        pnlAmount={pnlAmount}
                         exercisableAmount={exercisableAmount}
                         isExercisable={isExercisable}
                         isPastEpoch={isPastEpoch}

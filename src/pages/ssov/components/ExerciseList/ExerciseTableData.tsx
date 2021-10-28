@@ -5,6 +5,8 @@ import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 
+import formatAmount from 'utils/general/formatAmount';
+
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import dpxIcon from 'assets/tokens/dpx.svg';
@@ -26,6 +28,7 @@ interface ExerciseTableDataProps {
   depositedAmount: number;
   purchasedAmount: number;
   exercisableAmount: number;
+  pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
 }
@@ -37,6 +40,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     depositedAmount,
     purchasedAmount,
     exercisableAmount,
+    pnlAmount,
     isExercisable,
     isPastEpoch,
   } = props;
@@ -81,16 +85,21 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         </Box>
       </TableCell>
       <TableCell align="left" className="mx-0 pt-2">
-        <Typography variant="h6">${strikePrice.toString()}</Typography>
+        <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">
-        <Typography variant="h6">{depositedAmount.toFixed(3)}</Typography>
+        <Typography variant="h6">{formatAmount(depositedAmount, 5)}</Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">
-        <Typography variant="h6">{purchasedAmount.toFixed(3)}</Typography>
+        <Typography variant="h6">{formatAmount(purchasedAmount, 5)}</Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6">{exercisableAmount.toFixed(3)}</Typography>
+        <Typography variant="h6">
+          {formatAmount(exercisableAmount, 5)}
+        </Typography>
+      </TableCell>
+      <TableCell align="left" className="px-6 pt-2">
+        <Typography variant="h6">{formatAmount(pnlAmount, 5)}</Typography>
       </TableCell>
       <TableCell align="right">
         <Box className="flex justify-end">
