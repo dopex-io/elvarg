@@ -19,20 +19,12 @@ import usdtlending from 'assets/icons/usdtlending.svg';
 
 function LendingCard({ className }: { className?: string }) {
   const history = useHistory();
-  const userVolumePoolDeposits = '0';
-  const totalVolumePoolDeposits = '0';
 
   const { usdtDecimals } = useContext(AssetsContext);
 
-  const finalTotalVolumePoolDeposits = getUserReadableAmount(
-    totalVolumePoolDeposits,
-    usdtDecimals
-  );
+  const finalTotalVolumePoolDeposits = 0;
 
-  const finalUserVolumePoolDeposits = getUserReadableAmount(
-    userVolumePoolDeposits,
-    usdtDecimals
-  );
+  const finalUserVolumePoolDeposits = 0;
 
   return (
     <Box
