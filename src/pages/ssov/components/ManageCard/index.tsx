@@ -36,7 +36,7 @@ const ManageCard = () => {
     >
       <Box className="flex flex-row mb-4 justify-between">
         <IconButton className="p-0 pr-3 pb-1">
-          <Link to="/vault">
+          <Link to="/ssov">
             <ArrowBackIcon className="text-stieglitz" />
           </Link>
         </IconButton>
