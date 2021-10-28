@@ -1,26 +1,19 @@
-import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Link from '@material-ui/core/Link';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 
-import { PoolsContext } from 'contexts/Pools';
-import { AssetsContext } from 'contexts/Assets';
-
 import Typography from 'components/UI/Typography';
 import Accordion from 'components/UI/Accordion';
 import WalletButton from 'components/WalletButton';
 
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import usdtlending from 'assets/icons/usdtlending.svg';
 
 function LendingCard({ className }: { className?: string }) {
   const history = useHistory();
-
-  const { usdtDecimals } = useContext(AssetsContext);
 
   const finalTotalVolumePoolDeposits = 0;
 
