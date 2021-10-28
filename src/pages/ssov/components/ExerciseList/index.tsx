@@ -82,11 +82,12 @@ const ExerciseList = () => {
         const isPastEpoch = selectedEpoch < currentEpoch;
 
         const pnlAmount =
-          dpxTokenPrice
-            .sub(strikePrice)
-            .mul(purchasedAmount)
-            .div(dpxTokenPrice)
-            .toNumber() / 1e18;
+          Number(
+            dpxTokenPrice
+              .sub(strikePrice)
+              .mul(userEpochCallsPurchased[strikeIndex])
+              .div(dpxTokenPrice)
+          ) / 1e18;
 
         return {
           strikeIndex,
