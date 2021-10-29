@@ -67,11 +67,11 @@ const Description = () => {
           onClick={() => {
             setPurchaseState(true);
           }}
-          disabled={currentEpoch < 1}
+          disabled={true}
         >
           Buy Call Options From Vault
         </CustomButton>
-        <EpochSelector />
+        {/* <EpochSelector /> */}
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item, index) => {
