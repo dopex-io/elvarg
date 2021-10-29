@@ -59,7 +59,7 @@ function AppRoutes() {
             <Route path="/farms" component={Farming} exact />
             <Route path="/farms/stake" component={FarmingStake} exact />
             <Route path="/">
-              <Redirect to="/farms" />
+              <Redirect to="/ssov" />
             </Route>
           </FarmingProvider>
         </Switch>
