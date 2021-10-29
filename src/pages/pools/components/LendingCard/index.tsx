@@ -15,9 +15,9 @@ import usdtlending from 'assets/icons/usdtlending.svg';
 function LendingCard({ className }: { className?: string }) {
   const history = useHistory();
 
-  const finalTotalVolumePoolDeposits = 0;
+  const finalTotalVolumePoolDeposits = 1;
 
-  const finalUserVolumePoolDeposits = 0;
+  const finalUserVolumePoolDeposits = 1;
 
   return (
     <Box
