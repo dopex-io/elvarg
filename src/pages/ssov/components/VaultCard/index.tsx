@@ -216,7 +216,7 @@ function VaultCard(props: VaultCardProps) {
               onClick={() => {
                 setPurchaseState(true);
               }}
-              disabled={currentEpoch < 1}
+              disabled={true}
             >
               Buy Options
             </CustomButton>

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import cx from 'classnames';
 import format from 'date-fns/format';
@@ -15,6 +15,7 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
+import { ethers } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -49,9 +50,10 @@ const Deposit = () => {
     ssovSdk,
     nextEpoch,
     dpxToken,
-    nextEpochSsovData: {
+    currentEpochSsovData: {
       epochTimes,
       isVaultReady,
+      isEpochExpired,
       epochStrikes,
       totalEpochStrikeDeposits,
       totalEpochDeposits,
@@ -62,19 +64,31 @@ const Deposit = () => {
   } = useContext(SsovContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
+
+  console.log(isVaultReady);
+
   const [selectedStrikeIndexes, setSelectedStrikeIndexes] = useState<number[]>(
     []
   );
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
     [key: number]: string;
   }>({});
+
+  const isDepositWindowOpen = useMemo(() => {
+    if (isVaultReady || !isEpochExpired) return false;
+    return true;
+  }, [isVaultReady, isEpochExpired]);
+
   const totalDepositAmount = selectedStrikeIndexes.reduce(
     (accumulator, currentIndex) =>
-      accumulator.add(BigNumber.from(strikeDepositAmounts[currentIndex] || 0)),
+      accumulator.add(
+        ethers.utils.parseUnits(strikeDepositAmounts[currentIndex] || '0', 8)
+      ),
     BigNumber.from(0)
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
+  const [error, setError] = useState('');
 
   // Ssov data for next epoch
   const epochEndTime = epochTimes[1]
@@ -113,6 +127,9 @@ const Deposit = () => {
         width: 250,
       },
     },
+    classes: {
+      paper: '',
+    },
   };
 
   // Handles strikes & deposit amounts
@@ -131,6 +148,17 @@ const Deposit = () => {
       [index]: e.target.value,
     }));
   };
+
+  useEffect(() => {
+    if (totalDepositAmount.gte(BigNumber.from(10000000000))) {
+      setError('Deposit amount cannot exceed 100 DPX');
+    } else if (totalEpochDeposits.lte(BigNumber.from(2500000000000))) {
+      console.log(totalDepositAmount.toString());
+      setError('Max deposits have been met. Deposits are no longer possible.');
+    } else {
+      setError('');
+    }
+  }, [totalDepositAmount, totalEpochDeposits]);
 
   // Handles isApproved
   useEffect(() => {
@@ -175,11 +203,15 @@ const Deposit = () => {
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     try {
+      if (totalDepositAmount.gte(BigNumber.from(10000000000))) {
+        return;
+      }
       const strikeIndexes = selectedStrikeIndexes.filter(
         (index) =>
           strikeDepositAmounts[index] &&
           BigNumber.from(strikeDepositAmounts[index]).gt('0')
       );
+
       await newEthersTransaction(
         ssovSdk.send.depositMultiple(
           strikeIndexes,
@@ -199,6 +231,7 @@ const Deposit = () => {
       console.log(err);
     }
   }, [
+    totalDepositAmount,
     selectedStrikeIndexes,
     ssovSdk,
     strikeDepositAmounts,
@@ -242,8 +275,6 @@ const Deposit = () => {
         <Box>
           <FormControl variant="outlined" className={cx(classes.formControl)}>
             <Select
-              labelId="demo-simple-select-outlined-label"
-              id="demo-simple-select-outlined"
               className={cx(
                 styles.SelectSize,
                 'bg-mineshaft rounded-md px-2 text-white'
@@ -255,7 +286,7 @@ const Deposit = () => {
               onChange={handleSelectStrikes}
               input={<Input />}
               variant="outlined"
-              renderValue={(selected) => {
+              renderValue={() => {
                 return (
                   <Typography
                     variant="h6"
@@ -273,7 +304,6 @@ const Deposit = () => {
               }}
               classes={{ icon: 'absolute right-20 text-white' }}
               label="strikes"
-              disabled={isVaultReady}
             >
               {strikes.map((strike, index) => (
                 <MenuItem key={index} value={index}>
@@ -286,8 +316,16 @@ const Deposit = () => {
               ))}
             </Select>
           </FormControl>
+          <Typography
+            variant="caption"
+            component="div"
+            className="text-down-bad text-left mt-5"
+          >
+            {error}
+          </Typography>
         </Box>
       </Box>
+
       <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
         <Typography
           variant="caption"
@@ -297,10 +335,10 @@ const Deposit = () => {
           Allocation
         </Typography>
         <Typography variant="caption" component="div">
-          {totalDepositAmount.toString()} DPX
+          {getUserReadableAmount(totalDepositAmount, 8).toString()} DPX
         </Typography>
       </Box>
-      <Box className="flex flex-row border-umbra rounded-xl border p-4 mb-2">
+      <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
         <Box className="mr-4">
           {isVaultReady ? <DepositClosed /> : <DepositOpen />}
         </Box>
@@ -317,35 +355,31 @@ const Deposit = () => {
             component="div"
             className="text-stieglitz text-left"
           >
-            {isVaultReady
-              ? `Deposits for this epoch has been closed. This window closed at ${epochStartTime}.`
-              : `Deposits for this epoch are now open. This window closes at ${epochEndTime}.`}
+            {isDepositWindowOpen
+              ? `Deposits for this epoch has been closed.`
+              : `Deposits for this epoch are now open.`}
             <br />
             <br />
-            <Countdown
-              date={
-                isVaultReady
-                  ? new Date(epochTimes[1] * 1000)
-                  : new Date(epochTimes[0] * 1000)
-              }
-              renderer={({ days, hours, minutes, seconds, completed }) => {
-                if (completed) {
-                  return (
-                    <span className="text-wave-blue">
-                      {isVaultReady
-                        ? `This epoch has expired.`
-                        : `The window for deposits have closed. Vault will be bootstrapped soon.`}
-                    </span>
-                  );
-                } else {
-                  return (
-                    <span className="text-wave-blue">
-                      Time left: {days}d {hours}h {minutes}m {seconds}s
-                    </span>
-                  );
-                }
-              }}
-            />
+            {isVaultReady ? (
+              <Countdown
+                date={new Date(epochTimes[1] * 1000)}
+                renderer={({ days, hours, minutes, seconds, completed }) => {
+                  if (completed) {
+                    return (
+                      <span className="text-wave-blue">
+                        This epoch has expired.
+                      </span>
+                    );
+                  } else {
+                    return (
+                      <span className="text-wave-blue">
+                        Time left: {days}d {hours}h {minutes}m {seconds}s
+                      </span>
+                    );
+                  }
+                }}
+              />
+            ) : null}
           </Typography>
         </Box>
       </Box>
@@ -355,7 +389,12 @@ const Deposit = () => {
             {isVaultReady ? 'Closed' : 'Enter an amount'}
           </CustomButton>
         ) : approved ? (
-          <CustomButton size="large" className="w-full" onClick={handleDeposit}>
+          <CustomButton
+            size="large"
+            className="w-full"
+            onClick={handleDeposit}
+            disabled={Boolean(error)}
+          >
             Deposit
           </CustomButton>
         ) : (
@@ -382,6 +421,7 @@ const Deposit = () => {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
+          `
           <Box className="flex flex-row justify-between w-full items-center">
             <Typography variant="h6" className="text-stieglitz">
               My Deposits

@@ -219,35 +219,35 @@ export const SsovProvider = (props) => {
 
     let APY: string | number = APR;
     if (currentEpoch > 1) {
-      const pastEpochs = Array.from(
-        { length: Number(currentEpoch - 1) },
-        (_, i) => i + 1
-      ).slice(-12);
-      const totalDeposits = (
-        await Promise.all(
-          pastEpochs.map((epoch) => ssovSdk.call.totalEpochDeposits(epoch))
-        )
-      )
-        .map((deposit) => deposit)
-        .reduce(
-          (accumulator, currentValue) => accumulator.add(currentValue),
-          BigNumber.from(0)
-        );
-      const totalExercises = (
-        await Promise.all(
-          pastEpochs.map((epoch) =>
-            ssovSdk.call.totalTokenVaultExercises(epoch)
-          )
-        )
-      )
-        .map((exercise) => exercise)
-        .reduce(
-          (accumulator, currentValue) => accumulator.add(currentValue),
-          BigNumber.from(0)
-        );
-      if (totalDeposits.gt(0) && totalExercises.gt(0)) {
-        APY += totalExercises.mul(100).div(totalDeposits).toNumber();
-      }
+      // const pastEpochs = Array.from(
+      //   { length: Number(currentEpoch - 1) },
+      //   (_, i) => i + 1
+      // ).slice(-12);
+      // const totalDeposits = (
+      //   await Promise.all(
+      //     pastEpochs.map((epoch) => ssovSdk.call.totalEpochDeposits(epoch))
+      //   )
+      // )
+      //   .map((deposit) => deposit)
+      //   .reduce(
+      //     (accumulator, currentValue) => accumulator.add(currentValue),
+      //     BigNumber.from(0)
+      //   );
+      // const totalExercises = (
+      //   await Promise.all(
+      //     pastEpochs.map((epoch) =>
+      //       ssovSdk.call.totalTokenVaultExercises(epoch)
+      //     )
+      //   )
+      // )
+      //   .map((exercise) => exercise)
+      //   .reduce(
+      //     (accumulator, currentValue) => accumulator.add(currentValue),
+      //     BigNumber.from(0)
+      //   );
+      // if (totalDeposits.gt(0) && totalExercises.gt(0)) {
+      //   APY += totalExercises.mul(100).div(totalDeposits).toNumber();
+      // }
     }
 
     APY = APY.toFixed(2);
@@ -288,7 +288,7 @@ export const SsovProvider = (props) => {
     if (!ssovSdk || !accountAddress) return;
 
     // next epoch
-    let nextEpoch = currentEpoch + 1;
+    let nextEpoch = 1;
     let epochTimes = await ssovSdk.call.getEpochTimes(nextEpoch);
 
     if (!Number(epochTimes[0])) {
@@ -407,10 +407,9 @@ export const SsovProvider = (props) => {
     (async function () {
       // Epoch
       try {
-        const currentEpoch = Number(await ssovSdk.call.currentEpoch());
-
-        setCurrentEpoch(currentEpoch);
-        setSelectedEpoch(currentEpoch);
+        // const currentEpoch = Number(await ssovSdk.call.currentEpoch());
+        // setCurrentEpoch(currentEpoch);
+        // setSelectedEpoch(currentEpoch);
       } catch (err) {
         console.log(err);
       }
@@ -440,6 +439,7 @@ export const SsovProvider = (props) => {
 
       setState((prevState) => ({
         ...prevState,
+        APY: '0.00',
         ssovOptionPricingSdk,
         volatilityOracleContracts,
       }));

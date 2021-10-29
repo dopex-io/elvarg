@@ -77,12 +77,14 @@ export default function NetworkButton() {
   const menuOptions = {
     testnet: [
       <MenuItem
+        key={1}
         text="Asset Bridge"
         icon={<img src={bridge} alt="Arbitrum" className="w-4 mr-3" />}
         className="mb-6"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
       <MenuItem
+        key={2}
         text="Learn More"
         icon={<InfoIcon className="w-4 mr-3 text-stieglitz" />}
         onClick={() =>
@@ -95,6 +97,7 @@ export default function NetworkButton() {
     ],
     main: [
       <MenuItem
+        key={1}
         text="Switch to L2 (Arbitrum)"
         icon={<img src={arbitrum} alt="Arbitrum" className="w-4 mr-3" />}
         className="mb-6"
@@ -102,12 +105,14 @@ export default function NetworkButton() {
         onClick={handleClick}
       />,
       <MenuItem
+        key={2}
         text="Asset Bridge"
         icon={<img src={bridge} alt="Arbitrum" className="w-4 mr-3" />}
         className="mb-6"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
       <MenuItem
+        key={3}
         text="Learn More"
         icon={<InfoIcon className="w-4 mr-3 text-stieglitz" />}
         onClick={() =>

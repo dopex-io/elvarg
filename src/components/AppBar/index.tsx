@@ -81,7 +81,10 @@ const appLinks = {
     { name: 'swap', to: '/swap' },
     { name: 'SSOV', to: '/ssov' },
   ],
-  42161: [{ name: 'farms', to: '/farms' }],
+  42161: [
+    { name: 'farms', to: '/farms' },
+    { name: 'SSOV', to: '/ssov' },
+  ],
 };
 
 const menuLinks = [
