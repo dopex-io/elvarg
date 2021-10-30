@@ -9,7 +9,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TablePagination from '@material-ui/core/TablePagination';
 import isEmpty from 'lodash/isEmpty';
-import _ from 'lodash';
+import range from 'lodash/range';
 import Skeleton from '@material-ui/lab/Skeleton';
 
 import Typography from 'components/UI/Typography';
@@ -143,7 +143,7 @@ const ExerciseList = () => {
         >
           {isEmpty(userExercisableOptions) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
-              {_.range(3).map((_) => (
+              {range(3).map((_) => (
                 <Skeleton
                   variant="text"
                   animation="wave"
