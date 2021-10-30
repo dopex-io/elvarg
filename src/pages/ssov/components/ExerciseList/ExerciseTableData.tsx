@@ -88,7 +88,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">
-        <Typography variant="h6">{formatAmount(depositedAmount, 5)}</Typography>
+        <Typography variant="h6">
+          {formatAmount(depositedAmount, 5)}
+          {' DPX'}
+        </Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">{formatAmount(purchasedAmount, 5)}</Typography>

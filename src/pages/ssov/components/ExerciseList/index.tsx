@@ -8,6 +8,9 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TablePagination from '@material-ui/core/TablePagination';
+import isEmpty from 'lodash/isEmpty';
+import _ from 'lodash';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
@@ -138,99 +141,112 @@ const ExerciseList = () => {
         <TableContainer
           className={cx(styles.optionsTable, 'overflow-x-hidden bg-cod-gray')}
         >
-          <Table>
-            <TableHead className="bg-umbra">
-              <TableRow className="bg-umbra">
-                <TableCell
-                  align="left"
-                  className="text-stieglitz bg-cod-gray border-0 pb-0"
-                >
-                  <Typography variant="h6">Option</Typography>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  className="text-stieglitz bg-cod-gray border-0 pb-0"
-                >
-                  <Typography variant="h6" className="text-stieglitz">
-                    Strike Price
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  className="text-stieglitz bg-cod-gray border-0 pb-0"
-                >
-                  <Typography variant="h6" className="text-stieglitz">
-                    My Deposit
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  className="text-stieglitz bg-cod-gray border-0 pb-0"
-                >
-                  <Typography variant="h6" className="text-stieglitz">
-                    Purchased
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  className="text-stieglitz bg-cod-gray border-0 pb-0"
-                >
-                  <Typography variant="h6" className="text-stieglitz">
-                    Exercisable
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  className="text-stieglitz bg-cod-gray border-0 pb-0"
-                >
-                  <Typography variant="h6" className="text-stieglitz">
-                    FInal P&L
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  align="right"
-                  className="text-stieglitz bg-cod-gray border-0 pb-0"
-                >
-                  <Typography variant="h6" className="text-stieglitz">
-                    Actions
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody className={cx('rounded-lg')}>
-              {userExercisableOptions
-                .slice(
-                  page * ROWS_PER_PAGE,
-                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
-                )
-                ?.map(
-                  ({
-                    strikeIndex,
-                    strikePrice,
-                    depositedAmount,
-                    purchasedAmount,
-                    exercisableAmount,
-                    pnlAmount,
-                    isExercisable,
-                    isPastEpoch,
-                  }) => {
-                    return (
-                      <ExerciseTableData
-                        key={strikeIndex}
-                        strikeIndex={strikeIndex}
-                        strikePrice={strikePrice}
-                        depositedAmount={depositedAmount}
-                        purchasedAmount={purchasedAmount}
-                        pnlAmount={pnlAmount}
-                        exercisableAmount={exercisableAmount}
-                        isExercisable={isExercisable}
-                        isPastEpoch={isPastEpoch}
-                      />
-                    );
-                  }
-                )}
-            </TableBody>
-          </Table>
+          {isEmpty(userExercisableOptions) ? (
+            <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
+              {_.range(3).map((_) => (
+                <Skeleton
+                  variant="text"
+                  animation="wave"
+                  height={60}
+                  className="bg-umbra"
+                />
+              ))}
+            </Box>
+          ) : (
+            <Table>
+              <TableHead className="bg-umbra">
+                <TableRow className="bg-umbra">
+                  <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6">Option</Typography>
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      Strike Price
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      My Deposit
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      Purchased
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      Exercisable
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      Final PnL
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      Actions
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody className={cx('rounded-lg')}>
+                {userExercisableOptions
+                  .slice(
+                    page * ROWS_PER_PAGE,
+                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                  )
+                  ?.map(
+                    ({
+                      strikeIndex,
+                      strikePrice,
+                      depositedAmount,
+                      purchasedAmount,
+                      exercisableAmount,
+                      pnlAmount,
+                      isExercisable,
+                      isPastEpoch,
+                    }) => {
+                      return (
+                        <ExerciseTableData
+                          key={strikeIndex}
+                          strikeIndex={strikeIndex}
+                          strikePrice={strikePrice}
+                          depositedAmount={depositedAmount}
+                          purchasedAmount={purchasedAmount}
+                          pnlAmount={pnlAmount}
+                          exercisableAmount={exercisableAmount}
+                          isExercisable={isExercisable}
+                          isPastEpoch={isPastEpoch}
+                        />
+                      );
+                    }
+                  )}
+              </TableBody>
+            </Table>
+          )}
         </TableContainer>
         {userExercisableOptions.length > ROWS_PER_PAGE ? (
           <TablePagination
