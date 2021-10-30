@@ -85,12 +85,8 @@ const ExerciseList = () => {
         const isPastEpoch = selectedEpoch < currentEpoch;
 
         const pnlAmount =
-          Number(
-            dpxTokenPrice
-              .sub(strikePrice)
-              .mul(userEpochCallsPurchased[strikeIndex])
-              .div(dpxTokenPrice)
-          ) / 1e18;
+          ((Number(dpxTokenPrice.div(1e8)) - strikePrice) * purchasedAmount) /
+          Number(dpxTokenPrice.div(1e8));
 
         return {
           strikeIndex,
@@ -143,8 +139,9 @@ const ExerciseList = () => {
         >
           {isEmpty(userExercisableOptions) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
-              {range(3).map((_) => (
+              {range(3).map((_, index) => (
                 <Skeleton
+                  key={index}
                   variant="text"
                   animation="wave"
                   height={60}
