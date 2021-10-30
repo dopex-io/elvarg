@@ -1,7 +1,6 @@
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import cx from 'classnames';
-import format from 'date-fns/format';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -13,15 +12,15 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import Countdown from 'react-countdown';
-import { ethers } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import MaxApprove from 'components/MaxApprove';
 import DepositOpen from 'assets/icons/DepositOpen';
 import DepositClosed from 'assets/icons/DepositClosed';
+import BasicInput from 'components/UI/BasicInput';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
@@ -42,6 +41,18 @@ const useStyles = makeStyles(() =>
     },
   })
 );
+
+const SelectMenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: 224,
+      width: 250,
+    },
+  },
+  classes: {
+    paper: 'bg-cod-gray',
+  },
+};
 
 const Deposit = () => {
   const classes = useStyles();
@@ -64,8 +75,6 @@ const Deposit = () => {
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
-  console.log(isVaultReady);
-
   const [selectedStrikeIndexes, setSelectedStrikeIndexes] = useState<number[]>(
     []
   );
@@ -78,25 +87,9 @@ const Deposit = () => {
     return true;
   }, [isVaultReady, isEpochExpired]);
 
-  const totalDepositAmount = selectedStrikeIndexes.reduce(
-    (accumulator, currentIndex) =>
-      accumulator.add(
-        ethers.utils.parseUnits(strikeDepositAmounts[currentIndex] || '0', 8)
-      ),
-    BigNumber.from(0)
-  );
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
   const [error, setError] = useState('');
-
-  // Ssov data for next epoch
-  const epochEndTime = epochTimes[1]
-    ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
-    : 'N/A';
-
-  const epochStartTime = epochTimes[0]
-    ? format(new Date(epochTimes[0] * 1000), 'MM/dd')
-    : 'N/A';
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -117,42 +110,46 @@ const Deposit = () => {
 
   const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
 
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
-    classes: {
-      paper: '',
-    },
-  };
-
   // Handles strikes & deposit amounts
-  const handleSelectStrikes = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
-    setSelectedStrikeIndexes((event.target.value as number[]).sort());
-  };
+  const handleSelectStrikes = useCallback(
+    (event: React.ChangeEvent<{ value: unknown }>) => {
+      setSelectedStrikeIndexes((event.target.value as number[]).sort());
+    },
+    []
+  );
 
-  const inputStrikeDepositAmount = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setStrikeDepositAmounts((prevState) => ({
-      ...prevState,
-      [index]: e.target.value,
-    }));
-  };
+  const inputStrikeDepositAmount = useCallback(
+    (
+      index: number,
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+      setStrikeDepositAmounts((prevState) => ({
+        ...prevState,
+        [index]: e.target.value,
+      }));
+    },
+    []
+  );
+
+  const totalDepositAmount = useMemo(
+    () =>
+      selectedStrikeIndexes.reduce(
+        (accumulator, currentIndex) =>
+          accumulator.add(
+            ethersUtils.parseUnits(
+              strikeDepositAmounts[currentIndex] || '0',
+              18
+            )
+          ),
+        BigNumber.from(0)
+      ),
+    [selectedStrikeIndexes, strikeDepositAmounts]
+  );
 
   useEffect(() => {
-    if (totalDepositAmount.gte(BigNumber.from(10000000000))) {
+    if (totalDepositAmount.gte(ethersUtils.parseUnits('100', 18))) {
       setError('Deposit amount cannot exceed 100 DPX');
-    } else if (totalEpochDeposits.lte(BigNumber.from(2500000000000))) {
-      console.log(totalDepositAmount.toString());
+    } else if (totalEpochDeposits.gte(ethersUtils.parseUnits('25000', 18))) {
       setError('Max deposits have been met. Deposits are no longer possible.');
     } else {
       setError('');
@@ -202,26 +199,21 @@ const Deposit = () => {
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     try {
-      if (totalDepositAmount.gte(BigNumber.from(10000000000))) {
-        return;
-      }
       const strikeIndexes = selectedStrikeIndexes.filter(
         (index) =>
           strikeDepositAmounts[index] &&
-          BigNumber.from(strikeDepositAmounts[index]).gt('0')
+          ethersUtils.parseUnits(strikeDepositAmounts[index], 18).gt('0')
       );
 
       await newEthersTransaction(
         ssovSdk.send.depositMultiple(
           strikeIndexes,
           strikeIndexes.map((index) =>
-            getContractReadableAmount(
-              strikeDepositAmounts[index],
-              18
-            ).toString()
+            ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
           )
         )
       );
+
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
@@ -230,7 +222,6 @@ const Deposit = () => {
       console.log(err);
     }
   }, [
-    totalDepositAmount,
     selectedStrikeIndexes,
     ssovSdk,
     strikeDepositAmounts,
@@ -255,7 +246,7 @@ const Deposit = () => {
                 </Typography>
               </Box>
               <Box className="border-umbra rounded-xl border w-24">
-                <Input
+                <BasicInput
                   disableUnderline={true}
                   value={strikeDepositAmounts[index] || ''}
                   placeholder="0"
@@ -295,12 +286,7 @@ const Deposit = () => {
                   </Typography>
                 );
               }}
-              MenuProps={MenuProps}
-              inputProps={{
-                style: {
-                  color: '#3E3E3E',
-                },
-              }}
+              MenuProps={SelectMenuProps}
               classes={{ icon: 'absolute right-20 text-white' }}
               label="strikes"
             >
@@ -308,20 +294,23 @@ const Deposit = () => {
                 <MenuItem key={index} value={index}>
                   <Checkbox
                     color="default"
+                    className="p-0 mr-2 text-white"
                     checked={selectedStrikeIndexes.indexOf(index) > -1}
                   />
-                  <ListItemText primary={strike} />
+                  <ListItemText className="text-white" primary={strike} />
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <Typography
-            variant="caption"
-            component="div"
-            className="text-down-bad text-left mt-5"
-          >
-            {error}
-          </Typography>
+          {error ? (
+            <Typography
+              variant="caption"
+              component="div"
+              className="text-down-bad text-left mt-5"
+            >
+              {error}
+            </Typography>
+          ) : null}
         </Box>
       </Box>
 
@@ -334,7 +323,7 @@ const Deposit = () => {
           Allocation
         </Typography>
         <Typography variant="caption" component="div">
-          {getUserReadableAmount(totalDepositAmount, 8).toString()} DPX
+          {getUserReadableAmount(totalDepositAmount, 18).toString()} DPX
         </Typography>
       </Box>
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
@@ -352,32 +341,42 @@ const Deposit = () => {
           <Typography
             variant="caption"
             component="div"
+            className="mb-4 text-left"
+          >
+            Duration 1 month
+          </Typography>
+          <Typography
+            variant="caption"
+            component="div"
             className="text-stieglitz text-left"
           >
             {isDepositWindowOpen
               ? `Deposits for this epoch has been closed.`
               : `Deposits for this epoch are now open.`}
-            <br />
-            <br />
+
             {isVaultReady ? (
-              <Countdown
-                date={new Date(epochTimes[1] * 1000)}
-                renderer={({ days, hours, minutes, seconds, completed }) => {
-                  if (completed) {
-                    return (
-                      <span className="text-wave-blue">
-                        This epoch has expired.
-                      </span>
-                    );
-                  } else {
-                    return (
-                      <span className="text-wave-blue">
-                        Time left: {days}d {hours}h {minutes}m {seconds}s
-                      </span>
-                    );
-                  }
-                }}
-              />
+              <>
+                <br />
+                <br />
+                <Countdown
+                  date={new Date(epochTimes[1] * 1000)}
+                  renderer={({ days, hours, minutes, seconds, completed }) => {
+                    if (completed) {
+                      return (
+                        <span className="text-wave-blue">
+                          This epoch has expired.
+                        </span>
+                      );
+                    } else {
+                      return (
+                        <span className="text-wave-blue">
+                          Time left: {days}d {hours}h {minutes}m {seconds}s
+                        </span>
+                      );
+                    }
+                  }}
+                />
+              </>
             ) : null}
           </Typography>
         </Box>
