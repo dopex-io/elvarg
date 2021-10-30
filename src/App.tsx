@@ -52,15 +52,15 @@ function AppRoutes() {
     <BrowserRouter forceRefresh={false}>
       <Suspense fallback={<PageLoader />}>
         <Switch>
+          <Route path="/" exact>
+            <Redirect to="/ssov" />
+          </Route>
           <Route path="/sale" component={TokenSale} exact />
           <Route path="/ssov" component={Ssov} exact />
           <Route path="/ssov/manage" component={SsovManage} exact />
           <FarmingProvider>
             <Route path="/farms" component={Farming} exact />
             <Route path="/farms/stake" component={FarmingStake} exact />
-            <Route path="/">
-              <Redirect to="/farms" />
-            </Route>
           </FarmingProvider>
         </Switch>
       </Suspense>

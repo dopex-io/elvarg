@@ -72,7 +72,6 @@ const Stake = () => {
       token: token ? token : 'DPX',
       amount: BigNumber.from(0),
     },
-    enableReinitialize: true,
     validationSchema: validationSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
@@ -396,12 +395,12 @@ const Stake = () => {
               </Select>
             }
             id="amount"
-            name="amount"
             type="number"
+            name="amount"
             value={getUserReadableAmount(
               formik.values.amount,
               selectedToken.selectedBaseAssetDecimals
-            ).toString()}
+            )}
             onBlur={formik.handleBlur}
             onChange={inputHandleChange}
             error={formik.touched.amount && Boolean(formik.errors.amount)}
