@@ -235,8 +235,8 @@ export const SsovProvider = (props) => {
       //   );
       // const totalExercises = (
       //   await Promise.all(
-      //     pastEpochs.map((epoch, index) =>
-      //       ssovSdk.call.totalTokenVaultExercises(epoch, epochStrikes[index])
+      //     pastEpochs.map((epoch) =>
+      //       ssovSdk.call.totalTokenVaultExercises(epoch)
       //     )
       //   )
       // )
