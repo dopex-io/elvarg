@@ -29,11 +29,11 @@ import { AssetsContext } from 'contexts/Assets';
 import { newEthersTransaction } from 'utils/contracts/transactions';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
-import formatAmount from 'utils/general/formatAmount';
 
 const useStyles = makeStyles(() =>
   createStyles({
