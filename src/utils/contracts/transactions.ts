@@ -41,7 +41,11 @@ export async function newEthersTransaction(
       );
     }
   } catch (err) {
-    console.log(err);
-    toast.error(err.message, { id: toastId });
+    if (err?.data?.message !== undefined) {
+      toast.error(err.data.message, { id: toastId });
+    } else {
+      console.log(err);
+      toast.error(err.message, { id: toastId });
+    }
   }
 }
