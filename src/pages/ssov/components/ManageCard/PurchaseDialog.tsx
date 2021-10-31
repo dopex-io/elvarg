@@ -22,6 +22,7 @@ import { AssetsContext } from 'contexts/Assets';
 
 import { newEthersTransaction } from 'utils/contracts/transactions';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -90,7 +91,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
   const formik = useFormik({
     initialValues: {
-      amount: '',
+      amount: 0,
     },
     enableReinitialize: true,
     validationSchema: validationSchema,
@@ -354,7 +355,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     Option Price
                   </Typography>
                   <Typography variant="caption" component="div">
-                    ${optionPricing.toFixed(3)}
+                    ${formatAmount(optionPricing, 5)}
                   </Typography>
                 </Box>
                 <Box className="flex flex-row justify-between">
@@ -370,7 +371,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     component="div"
                     className="text-wave-blue"
                   >
-                    {premium.toFixed(5)} DPX
+                    {formatAmount(premium, 5)} DPX
                   </Typography>
                 </Box>
               </>
