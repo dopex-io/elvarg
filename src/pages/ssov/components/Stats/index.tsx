@@ -66,6 +66,9 @@ const StatsTableData = (props: StatsTableDataProps & { dpxPrice: number }) => {
           {formatAmount(totalDeposits * dpxPrice, 5)}
         </Box>
       </TableCell>
+      <TableCell align="left" className="pt-2">
+        <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
+      </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
           {formatAmount(totalPremiums, 5)}
@@ -75,9 +78,6 @@ const StatsTableData = (props: StatsTableDataProps & { dpxPrice: number }) => {
           {'$'}
           {formatAmount(totalPremiums * dpxPrice, 5)}
         </Box>
-      </TableCell>
-      <TableCell align="left" className="pt-2">
-        <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
       </TableCell>
     </TableRow>
   );
@@ -196,7 +196,7 @@ const Stats = (props: { className?: string }) => {
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
                     <Typography variant="h6" className="text-stieglitz">
-                      Total Premiums
+                      Total Purchased
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -204,7 +204,7 @@ const Stats = (props: { className?: string }) => {
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
                     <Typography variant="h6" className="text-stieglitz">
-                      Total Purchased
+                      Total Premiums
                     </Typography>
                   </TableCell>
                 </TableRow>
