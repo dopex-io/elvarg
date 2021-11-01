@@ -5,6 +5,7 @@ import AppBar from 'components/AppBar';
 import Description from '../components/Description';
 import ManageCard from '../components/ManageCard';
 import ExerciseList from '../components/ExerciseList';
+import Stats from '../components/Stats';
 
 import { SsovProvider } from 'contexts/Ssov';
 
@@ -28,6 +29,7 @@ const Manage = () => {
               </Box>
             </Box>
             <ExerciseList />
+            <Stats className="mt-4" />
           </Box>
         </Box>
       </Box>
