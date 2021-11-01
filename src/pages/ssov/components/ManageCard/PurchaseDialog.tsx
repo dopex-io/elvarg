@@ -50,6 +50,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
+  const [error, setError] = useState('');
   const [userDpxBalance, setUserDpxBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
@@ -105,10 +106,18 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
   const inputHandleChange = useCallback(
     (e) => {
+      if (
+        ethersUtils.parseEther(inputValue ? inputValue : '0').gt(userDpxBalance)
+      ) {
+        console.log('this was run');
+        setError('Purchase amount exceeds balance');
+      } else {
+        setError('');
+      }
       formik.setFieldValue('amount', e.target.value);
       setInputValue(e.target.value.toString());
     },
-    [formik]
+    [formik, userDpxBalance, inputValue]
   );
 
   // Handles isApproved
@@ -266,7 +275,12 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
               classes={{ input: 'text-right' }}
             />
           </Box>
-          <Box className="flex justify-center">
+          <Box className="flex flex-row mb-4">
+            <Typography variant="h6" className="mr-2 text-stieglitz">
+              Select Strike Prices
+            </Typography>
+          </Box>
+          <Box className="flex  justify-center">
             <Select
               id="strike"
               name="strike"
@@ -297,6 +311,15 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
               ))}
             </Select>
           </Box>
+          {error ? (
+            <Typography
+              variant="caption"
+              component="div"
+              className="text-down-bad text-left mt-5"
+            >
+              {error}
+            </Typography>
+          ) : null}
         </Box>
         <Box className="bg-umbra rounded-md flex flex-col mb-4 p-4">
           <Box className="flex flex-col">
