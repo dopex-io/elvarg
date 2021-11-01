@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo } from 'react';
+import { useContext, useState, useMemo, useCallback } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import TableHead from '@material-ui/core/TableHead';
@@ -83,6 +83,8 @@ const StatsTableData = (props: StatsTableDataProps & { dpxPrice: number }) => {
   );
 };
 
+const ROWS_PER_PAGE = 5;
+
 const Stats = (props: { className?: string }) => {
   const { className } = props;
   const {
@@ -96,16 +98,18 @@ const Stats = (props: { className?: string }) => {
     dpxTokenPrice,
   } = useContext(SsovContext);
 
-  const ROWS_PER_PAGE = 5;
   const [page, setPage] = useState(0);
-  const handleChangePage = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
+  const handleChangePage = useCallback(
+    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+      setPage(newPage);
+    },
+    [setPage]
+  );
 
-  const dpxPrice = getUserReadableAmount(dpxTokenPrice ?? 0, 8);
+  const dpxPrice = useMemo(
+    () => getUserReadableAmount(dpxTokenPrice ?? 0, 8),
+    [dpxTokenPrice]
+  );
 
   const stats: StatsTableDataProps[] = useMemo(
     () =>

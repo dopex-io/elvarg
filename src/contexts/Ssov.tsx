@@ -142,6 +142,13 @@ export const SsovProvider = (props) => {
       epochStrikeTokens,
       totalEpochDeposits,
       stakingRewardsAddress,
+      [
+        totalEpochStrikeDeposits,
+        totalEpochCallsPurchased,
+        totalEpochPremium,
+        userEpochStrikeDeposits,
+        userEpochCallsPurchased,
+      ],
     ] = await Promise.all([
       ssovSdk.call.getEpochTimes(currentEpoch),
       ssovSdk.call.isEpochExpired(currentEpoch),
@@ -152,20 +159,13 @@ export const SsovProvider = (props) => {
       ssovSdk.call.getAddress(
         '0x5374616b696e6752657761726473000000000000000000000000000000000000' // StakingRewards
       ),
-    ]);
-
-    const [
-      totalEpochStrikeDeposits,
-      totalEpochCallsPurchased,
-      totalEpochPremium,
-      userEpochStrikeDeposits,
-      userEpochCallsPurchased,
-    ] = await Promise.all([
-      ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
-      ssovSdk.call.getTotalEpochCallsPurchased(selectedEpoch),
-      ssovSdk.call.getTotalEpochPremium(selectedEpoch),
-      ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
-      ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      Promise.all([
+        ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
+        ssovSdk.call.getTotalEpochCallsPurchased(selectedEpoch),
+        ssovSdk.call.getTotalEpochPremium(selectedEpoch),
+        ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
+        ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      ]),
     ]);
 
     const userEpochDeposits = userEpochStrikeDeposits
@@ -372,6 +372,13 @@ export const SsovProvider = (props) => {
       epochStrikes,
       epochStrikeTokens,
       totalEpochDeposits,
+      [
+        totalEpochStrikeDeposits,
+        totalEpochCallsPurchased,
+        totalEpochPremium,
+        userEpochStrikeDeposits,
+        userEpochCallsPurchased,
+      ],
     ] = await Promise.all([
       ssovSdk.call.getEpochTimes(selectedEpoch),
       ssovSdk.call.isEpochExpired(selectedEpoch),
@@ -379,20 +386,13 @@ export const SsovProvider = (props) => {
       ssovSdk.call.getEpochStrikes(selectedEpoch),
       ssovSdk.call.getEpochStrikeTokens(selectedEpoch),
       ssovSdk.call.totalEpochDeposits(selectedEpoch),
-    ]);
-
-    const [
-      totalEpochStrikeDeposits,
-      totalEpochCallsPurchased,
-      totalEpochPremium,
-      userEpochStrikeDeposits,
-      userEpochCallsPurchased,
-    ] = await Promise.all([
-      ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
-      ssovSdk.call.getTotalEpochCallsPurchased(selectedEpoch),
-      ssovSdk.call.getTotalEpochPremium(selectedEpoch),
-      ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
-      ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      Promise.all([
+        ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
+        ssovSdk.call.getTotalEpochCallsPurchased(selectedEpoch),
+        ssovSdk.call.getTotalEpochPremium(selectedEpoch),
+        ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
+        ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      ]),
     ]);
 
     const userEpochDeposits = userEpochStrikeDeposits
