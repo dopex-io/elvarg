@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useContext, useState } from 'react';
+import { useCallback, useEffect, useContext, useState, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
@@ -102,26 +102,23 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     },
   });
 
-  const premium = (optionPricing * formik.values.amount) / currentPrice;
+  const premium = useMemo(() => {
+    return ethersUtils.parseEther(
+      ((optionPricing * formik.values.amount) / currentPrice).toString()
+    );
+  }, [optionPricing, currentPrice, formik.values.amount]);
 
   const inputHandleChange = useCallback(
     (e) => {
-      if (ethersUtils.parseEther('0').gt(userDpxBalance)) {
-        console.log('this was run');
-        setError('Purchase amount exceeds balance');
-      } else {
-        setError('');
-      }
       formik.setFieldValue('amount', e.target.value);
     },
-    [formik, userDpxBalance]
+    [formik]
   );
-
   // Handles isApproved
   useEffect(() => {
     if (!dpxToken || !ssovSdk) return;
     (async function () {
-      const finalAmount = ethersUtils.parseEther(premium.toFixed(3));
+      const finalAmount = premium;
 
       const userDpxAmount = await dpxToken.balanceOf(accountAddress);
 
@@ -140,13 +137,21 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     })();
   }, [accountAddress, premium, dpxToken, ssovSdk]);
 
+  useEffect(() => {
+    if (premium.gt(userDpxBalance)) {
+      setError('Purchase amount exceeds balance');
+    } else {
+      setError('');
+    }
+  }, [premium, userDpxBalance, userEpochStrikePurchasableAmount]);
+
   const handleApprove = useCallback(async () => {
-    const finalAmount = ethersUtils.parseEther(premium.toFixed(18));
+    const finalAmount = premium;
     try {
       await newEthersTransaction(
         dpxToken.approve(
           ssovSdk.call.address,
-          maxApprove ? MAX_VALUE : finalAmount.toString()
+          maxApprove ? MAX_VALUE : finalAmount
         )
       );
       setApproved(true);
@@ -406,7 +411,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     component="div"
                     className="text-wave-blue"
                   >
-                    {formatAmount(premium, 5)} DPX
+                    {formatAmount(getUserReadableAmount(premium, 18), 5)} DPX
                   </Typography>
                 </Box>
               </>
