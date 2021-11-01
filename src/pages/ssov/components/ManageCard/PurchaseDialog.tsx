@@ -346,18 +346,6 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     component="div"
                     className="text-stieglitz"
                   >
-                    Available
-                  </Typography>
-                  <Typography variant="caption" component="div">
-                    {formatAmount(userEpochStrikePurchasableAmount, 5)}
-                  </Typography>
-                </Box>
-                <Box className="flex flex-row justify-between mb-4">
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    className="text-stieglitz"
-                  >
                     Strike Price
                   </Typography>
                   <Typography variant="caption" component="div">
