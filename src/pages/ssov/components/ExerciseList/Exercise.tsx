@@ -47,10 +47,10 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
   const [maxApprove, setMaxApprove] = useState(false);
 
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
-  const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex], 8);
-  const currentPrice = getUserReadableAmount(dpxTokenPrice, 8);
+  const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
+  const currentPrice = getUserReadableAmount(dpxTokenPrice ?? 0, 8);
   const userEpochStrikeDepositAmount = getUserReadableAmount(
-    userEpochStrikeDeposits[strikeIndex],
+    userEpochStrikeDeposits[strikeIndex] ?? 0,
     18
   );
 

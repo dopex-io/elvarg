@@ -46,6 +46,8 @@ interface SsovData {
   epochStrikes: BigNumber[];
   epochStrikeTokens: ERC20[];
   totalEpochStrikeDeposits: BigNumber[];
+  totalEpochCallsPurchased: BigNumber[];
+  totalEpochPremium: BigNumber[];
   totalEpochDeposits: BigNumber;
   userEpochStrikeDeposits: BigNumber[];
   userEpochDeposits: string;
@@ -81,6 +83,8 @@ const initialState = {
     epochStrikeTokens: [],
     totalEpochStrikeDeposits: [],
     totalEpochDeposits: BigNumber.from(0),
+    totalEpochCallsPurchased: [],
+    totalEpochPremium: [],
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
     userEpochCallsPurchased: [],
@@ -93,6 +97,8 @@ const initialState = {
     epochStrikeTokens: [],
     totalEpochStrikeDeposits: [],
     totalEpochDeposits: BigNumber.from(0),
+    totalEpochCallsPurchased: [],
+    totalEpochPremium: [],
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
     userEpochCallsPurchased: [],
@@ -105,6 +111,8 @@ const initialState = {
     epochStrikeTokens: [],
     totalEpochStrikeDeposits: [],
     totalEpochDeposits: BigNumber.from(0),
+    totalEpochCallsPurchased: [],
+    totalEpochPremium: [],
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
     userEpochCallsPurchased: [],
@@ -132,24 +140,32 @@ export const SsovProvider = (props) => {
       isVaultReady,
       epochStrikes,
       epochStrikeTokens,
-      totalEpochStrikeDeposits,
       totalEpochDeposits,
-      userEpochStrikeDeposits,
-      userEpochCallsPurchased,
       stakingRewardsAddress,
+      [
+        totalEpochStrikeDeposits,
+        totalEpochCallsPurchased,
+        totalEpochPremium,
+        userEpochStrikeDeposits,
+        userEpochCallsPurchased,
+      ],
     ] = await Promise.all([
       ssovSdk.call.getEpochTimes(currentEpoch),
       ssovSdk.call.isEpochExpired(currentEpoch),
       ssovSdk.call.isVaultReady(currentEpoch),
       ssovSdk.call.getEpochStrikes(currentEpoch),
       ssovSdk.call.getEpochStrikeTokens(currentEpoch),
-      ssovSdk.call.getTotalEpochStrikeDeposits(currentEpoch),
       ssovSdk.call.totalEpochDeposits(currentEpoch),
-      ssovSdk.call.getUserEpochDeposits(currentEpoch, accountAddress),
-      ssovSdk.call.getUserEpochCallsPurchased(currentEpoch, accountAddress),
       ssovSdk.call.getAddress(
         '0x5374616b696e6752657761726473000000000000000000000000000000000000' // StakingRewards
       ),
+      Promise.all([
+        ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
+        ssovSdk.call.getTotalEpochCallsPurchased(selectedEpoch),
+        ssovSdk.call.getTotalEpochPremium(selectedEpoch),
+        ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
+        ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      ]),
     ]);
 
     const userEpochDeposits = userEpochStrikeDeposits
@@ -266,6 +282,8 @@ export const SsovProvider = (props) => {
         userEpochStrikeDeposits,
         userEpochDeposits,
         userEpochCallsPurchased,
+        totalEpochCallsPurchased,
+        totalEpochPremium,
       };
       if (currentEpoch === selectedEpoch) {
         return {
@@ -302,6 +320,8 @@ export const SsovProvider = (props) => {
       epochStrikes,
       totalEpochStrikeDeposits,
       totalEpochDeposits,
+      totalEpochCallsPurchased,
+      totalEpochPremium,
       userEpochStrikeDeposits,
     ] = await Promise.all([
       ssovSdk.call.isEpochExpired(nextEpoch),
@@ -309,6 +329,8 @@ export const SsovProvider = (props) => {
       ssovSdk.call.getEpochStrikes(nextEpoch),
       ssovSdk.call.getTotalEpochStrikeDeposits(nextEpoch),
       ssovSdk.call.totalEpochDeposits(nextEpoch),
+      ssovSdk.call.getTotalEpochCallsPurchased(nextEpoch),
+      ssovSdk.call.getTotalEpochPremium(nextEpoch),
       ssovSdk.call.getUserEpochDeposits(nextEpoch, accountAddress),
     ]);
 
@@ -330,6 +352,8 @@ export const SsovProvider = (props) => {
         epochStrikeTokens: [],
         totalEpochStrikeDeposits,
         totalEpochDeposits,
+        totalEpochCallsPurchased,
+        totalEpochPremium,
         userEpochStrikeDeposits,
         userEpochDeposits,
         userEpochCallsPurchased: [],
@@ -347,21 +371,30 @@ export const SsovProvider = (props) => {
       isVaultReady,
       epochStrikes,
       epochStrikeTokens,
-      totalEpochStrikeDeposits,
       totalEpochDeposits,
-      userEpochStrikeDeposits,
-      userEpochCallsPurchased,
+      [
+        totalEpochStrikeDeposits,
+        totalEpochCallsPurchased,
+        totalEpochPremium,
+        userEpochStrikeDeposits,
+        userEpochCallsPurchased,
+      ],
     ] = await Promise.all([
       ssovSdk.call.getEpochTimes(selectedEpoch),
       ssovSdk.call.isEpochExpired(selectedEpoch),
       ssovSdk.call.isVaultReady(selectedEpoch),
       ssovSdk.call.getEpochStrikes(selectedEpoch),
       ssovSdk.call.getEpochStrikeTokens(selectedEpoch),
-      ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
       ssovSdk.call.totalEpochDeposits(selectedEpoch),
-      ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
-      ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      Promise.all([
+        ssovSdk.call.getTotalEpochStrikeDeposits(selectedEpoch),
+        ssovSdk.call.getTotalEpochCallsPurchased(selectedEpoch),
+        ssovSdk.call.getTotalEpochPremium(selectedEpoch),
+        ssovSdk.call.getUserEpochDeposits(selectedEpoch, accountAddress),
+        ssovSdk.call.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      ]),
     ]);
+
     const userEpochDeposits = userEpochStrikeDeposits
       .map((deposit) => deposit)
       .reduce(
@@ -382,6 +415,8 @@ export const SsovProvider = (props) => {
         ),
         totalEpochStrikeDeposits,
         totalEpochDeposits,
+        totalEpochCallsPurchased,
+        totalEpochPremium,
         userEpochStrikeDeposits,
         userEpochDeposits,
         userEpochCallsPurchased,
