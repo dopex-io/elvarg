@@ -19,6 +19,7 @@ import { SsovContext } from 'contexts/Ssov';
 import { newEthersTransaction } from 'utils/contracts/transactions';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -95,7 +96,10 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
 
   const handleMax = useCallback(() => {
     setInputValue(userEpochStrikeTokenBalance.toString());
-    formik.setFieldValue('amount', userEpochStrikeTokenBalance.toFixed(3));
+    formik.setFieldValue(
+      'amount',
+      formatAmount(userEpochStrikeTokenBalance, 5)
+    );
   }, [formik, userEpochStrikeTokenBalance]);
 
   const inputHandleChange = useCallback(
@@ -231,7 +235,7 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
                 Current Price
               </Typography>
               <Typography variant="caption" component="div">
-                ${currentPrice.toFixed(3)}
+                ${formatAmount(currentPrice, 5)}
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -243,7 +247,7 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
                 Strike Price
               </Typography>
               <Typography variant="caption">
-                ${strikePrice.toFixed(3)}
+                ${formatAmount(strikePrice, 5)}
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -267,7 +271,7 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
                 Estimated Rewards
               </Typography>
               <Typography variant="caption" component="div">
-                {PnL.toFixed(3)} DPX
+                {formatAmount(PnL, 5)} DPX
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -283,7 +287,7 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
                 component="div"
                 className="text-wave-blue"
               >
-                {PnLPercent.toFixed(2)}%
+                {formatAmount(PnLPercent, 5)}%
               </Typography>
             </Box>
           </Box>
