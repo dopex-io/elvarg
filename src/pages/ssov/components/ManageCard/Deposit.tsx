@@ -90,7 +90,6 @@ const Deposit = () => {
 
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
-  const [error, setError] = useState('');
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -146,16 +145,6 @@ const Deposit = () => {
       ),
     [selectedStrikeIndexes, strikeDepositAmounts]
   );
-
-  useEffect(() => {
-    if (totalDepositAmount.gte(ethersUtils.parseUnits('100', 18))) {
-      setError('Deposit amount cannot exceed 100 DPX');
-    } else if (totalEpochDeposits.gte(ethersUtils.parseUnits('25000', 18))) {
-      setError('Max deposits have been met. Deposits are no longer possible.');
-    } else {
-      setError('');
-    }
-  }, [totalDepositAmount, totalEpochDeposits]);
 
   // Handles isApproved
   useEffect(() => {
@@ -303,15 +292,6 @@ const Deposit = () => {
               ))}
             </Select>
           </FormControl>
-          {error ? (
-            <Typography
-              variant="caption"
-              component="div"
-              className="text-down-bad text-left mt-5"
-            >
-              {error}
-            </Typography>
-          ) : null}
         </Box>
       </Box>
 
@@ -352,8 +332,8 @@ const Deposit = () => {
             className="text-stieglitz text-left"
           >
             {isDepositWindowOpen
-              ? `Deposits for this epoch has been closed.`
-              : `Deposits for this epoch are now open.`}
+              ? `Deposits for this epoch are now open.`
+              : `Deposits for this epoch has been closed.`}
 
             {isVaultReady ? (
               <>
