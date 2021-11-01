@@ -8,7 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { utils as ethersUtils } from 'ethers';
+import { utils as ethersUtils, BigNumber } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -50,6 +50,9 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
+  const [userDpxBalance, setUserDpxBalance] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -113,6 +116,10 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     if (!dpxToken || !ssovSdk) return;
     (async function () {
       const finalAmount = ethersUtils.parseEther(premium.toFixed(3));
+
+      const userDpxAmount = await dpxToken.balanceOf(accountAddress);
+
+      setUserDpxBalance(userDpxAmount);
 
       let allowance = await dpxToken.allowance(
         accountAddress,
@@ -226,11 +233,9 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
         </Box>
         <Box className="flex justify-between">
           <Typography variant="h6" className="text-stieglitz mb-2">
-            Available:{' '}
+            Balance:{' '}
             <Typography variant="caption" component="span">
-              {userEpochStrikePurchasableAmount === 0
-                ? '-'
-                : `${userEpochStrikePurchasableAmount.toString()}`}
+              {formatAmount(getUserReadableAmount(userDpxBalance, 18))} DPX
             </Typography>
           </Typography>
           <Typography variant="h6" className="text-stieglitz mb-2">
@@ -310,6 +315,18 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
             {strikeIndex !== null && (
               <>
+                <Box className="flex flex-row justify-between mb-4">
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-stieglitz"
+                  >
+                    Available
+                  </Typography>
+                  <Typography variant="caption" component="div">
+                    {formatAmount(userEpochStrikePurchasableAmount, 5)}
+                  </Typography>
+                </Box>
                 <Box className="flex flex-row justify-between mb-4">
                   <Typography
                     variant="caption"
