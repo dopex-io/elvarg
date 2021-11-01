@@ -82,6 +82,7 @@ const Deposit = () => {
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
     [key: number]: string;
   }>({});
+  const [error, setError] = useState('');
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady || !isEpochExpired) return false;
@@ -93,7 +94,6 @@ const Deposit = () => {
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
-  const [error, setError] = useState('');
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -151,11 +151,7 @@ const Deposit = () => {
   );
 
   useEffect(() => {
-    if (totalEpochDeposits.gte(ethersUtils.parseUnits('25000', 18))) {
-      setError('Max deposits have been met. Deposits are no longer possible.');
-    } else if (totalDepositAmount.gte(ethersUtils.parseUnits('100', 18))) {
-      setError('Deposit amount cannot exceed 100 DPX.');
-    } else if (totalDepositAmount.gt(userDpxBalance)) {
+    if (totalDepositAmount.gt(userDpxBalance)) {
       setError('Deposit amount exceeds your current DPX balance.');
     } else {
       setError('');
@@ -334,7 +330,6 @@ const Deposit = () => {
           ) : null}
         </Box>
       </Box>
-
       <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
         <Typography
           variant="caption"
@@ -372,8 +367,8 @@ const Deposit = () => {
             className="text-stieglitz text-left"
           >
             {isDepositWindowOpen
-              ? `Deposits for this epoch has been closed.`
-              : `Deposits for this epoch are now open.`}
+              ? `Deposits for this epoch are now open.`
+              : `Deposits for this epoch has been closed.`}
 
             {isVaultReady ? (
               <>

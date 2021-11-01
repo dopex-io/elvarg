@@ -67,7 +67,6 @@ const Description = () => {
           onClick={() => {
             setPurchaseState(true);
           }}
-          disabled={true}
         >
           Buy Call Options From Vault
         </CustomButton>
