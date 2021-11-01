@@ -47,7 +47,6 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
   const [volatility, setVolatility] = useState(0);
   const [optionPricing, setOptionPricing] = useState(0);
-  const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
   const [error, setError] = useState('');
@@ -83,7 +82,6 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   }, [updateUserEpochStrikePurchasableAmount]);
 
   const currentPrice = getUserReadableAmount(dpxTokenPrice, 8);
-  const premium = (optionPricing * Number(inputValue)) / currentPrice;
 
   // Handle Input Amount
   const validationSchema = yup.object({
@@ -104,20 +102,19 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     },
   });
 
+  const premium = (optionPricing * formik.values.amount) / currentPrice;
+
   const inputHandleChange = useCallback(
     (e) => {
-      if (
-        ethersUtils.parseEther(inputValue ? inputValue : '0').gt(userDpxBalance)
-      ) {
+      if (ethersUtils.parseEther('0').gt(userDpxBalance)) {
         console.log('this was run');
         setError('Purchase amount exceeds balance');
       } else {
         setError('');
       }
       formik.setFieldValue('amount', e.target.value);
-      setInputValue(e.target.value.toString());
     },
-    [formik, userDpxBalance, inputValue]
+    [formik, userDpxBalance]
   );
 
   // Handles isApproved
@@ -160,7 +157,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
-    const finalAmount = ethersUtils.parseEther(inputValue);
+    const finalAmount = ethersUtils.parseEther(String(formik.values.amount));
     try {
       await newEthersTransaction(
         ssovSdk.send.purchase(strikeIndex, finalAmount)
@@ -168,15 +165,13 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
       updateCurrentEpochSsovData();
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
-      setInputValue('');
-      formik.setFieldValue('amount', '');
+      formik.setFieldValue('amount', 0);
     } catch (err) {
       console.log(err);
     }
   }, [
     ssovSdk,
     strikeIndex,
-    inputValue,
     updateCurrentEpochSsovData,
     updateUserEpochStrikePurchasableAmount,
     updateAssetBalances,
@@ -371,7 +366,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     Amount
                   </Typography>
                   <Typography variant="caption" component="div">
-                    {inputValue}
+                    {formik.values.amount}
                   </Typography>
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
@@ -419,9 +414,8 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
           </Box>
         </Box>
         {strikeIndex === null ||
-        inputValue.length === 0 ||
-        Number(inputValue) === 0 ||
-        Number(inputValue) > userEpochStrikePurchasableAmount ? (
+        formik.values.amount === 0 ||
+        formik.values.amount > userEpochStrikePurchasableAmount ? (
           <CustomButton size="xl" className="w-full mb-4" disabled>
             Purchase
           </CustomButton>
