@@ -403,12 +403,7 @@ const Deposit = () => {
             {isVaultReady ? 'Closed' : 'Enter an amount'}
           </CustomButton>
         ) : approved ? (
-          <CustomButton
-            size="large"
-            className="w-full"
-            onClick={handleDeposit}
-            disabled={Boolean(error)}
-          >
+          <CustomButton size="large" className="w-full" onClick={handleDeposit}>
             Deposit
           </CustomButton>
         ) : (

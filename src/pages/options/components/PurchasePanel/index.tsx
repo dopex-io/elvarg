@@ -1,4 +1,4 @@
-import { forwardRef, useMemo } from 'react';
+import { forwardRef, useMemo, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import format from 'date-fns/format';
 import isEmpty from 'lodash/isEmpty';
@@ -7,7 +7,7 @@ import Box from '@material-ui/core/Box';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import PnlChart from './PnlChart';
+import PnlChart from 'components/PnlChart';
 import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 import Accordion from 'components/UI/Accordion';
@@ -20,7 +20,13 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import useOptionPurchase from 'hooks/useOptionPurchase';
 
-import { BASE_ASSET_MAP, DELEGATE_INFO } from 'constants/index';
+import { AssetsContext } from 'contexts/Assets';
+
+import {
+  BASE_ASSET_MAP,
+  DELEGATE_INFO,
+  PRICE_INCREMENTS,
+} from 'constants/index';
 
 import styles from './styles.module.scss';
 
@@ -42,6 +48,8 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     handleDelegate,
     userVolumePoolFunds,
   } = useOptionPurchase();
+
+  const { baseAssetsWithPrices } = useContext(AssetsContext);
 
   const { finalCost, finalTotalCost, finalFees } = useMemo(() => {
     const _totalPrice = getUserReadableAmount(totalPrice, 6);
@@ -215,7 +223,12 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
             <Box className="bg-umbra rounded-xl p-4">
               <PnlChart
                 breakEven={selectedOptionData.breakEven}
-                selectedBaseAsset={selectedBaseAsset}
+                price={getUserReadableAmount(
+                  baseAssetsWithPrices[selectedBaseAsset].price,
+                  8
+                )}
+                priceIncrement={PRICE_INCREMENTS[selectedBaseAsset].increment}
+                symbol={baseAssetsWithPrices[selectedBaseAsset].symbol}
                 optionPrice={selectedOptionData.optionPrice}
                 isPut={isPut}
                 amount={formik.values.amount}
