@@ -242,9 +242,11 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
         </Box>
         <Box className="flex justify-between">
           <Typography variant="h6" className="text-stieglitz mb-2">
-            Balance:{' '}
+            Available:{' '}
             <Typography variant="caption" component="span">
-              {formatAmount(getUserReadableAmount(userDpxBalance, 18))} DPX
+              {userEpochStrikePurchasableAmount === 0
+                ? '-'
+                : `${userEpochStrikePurchasableAmount.toString()}`}
             </Typography>
           </Typography>
           <Typography variant="h6" className="text-stieglitz mb-2">
@@ -398,7 +400,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     ${formatAmount(optionPricing, 5)}
                   </Typography>
                 </Box>
-                <Box className="flex flex-row justify-between">
+                <Box className="flex flex-row justify-between mb-4">
                   <Typography
                     variant="caption"
                     component="div"
@@ -412,6 +414,23 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     className="text-wave-blue"
                   >
                     {formatAmount(getUserReadableAmount(premium, 18), 5)} DPX
+                  </Typography>
+                </Box>
+                <Box className="flex flex-row justify-between">
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-stieglitz"
+                  >
+                    Your Balance
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-wave-blue"
+                  >
+                    {formatAmount(getUserReadableAmount(userDpxBalance, 18))}
+                    DPX
                   </Typography>
                 </Box>
               </>
