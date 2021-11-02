@@ -75,7 +75,10 @@ const StatsTableData = (
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
         <Box component="h6" className="text-xs text-stieglitz">
-          {formatAmount(100 * (totalPurchased / totalDeposits), 0)}
+          {formatAmount(
+            totalDeposits > 0 ? 100 * (totalPurchased / totalDeposits) : 0,
+            0
+          )}
           {'%'}
         </Box>
       </TableCell>
@@ -92,7 +95,7 @@ const StatsTableData = (
       <TableCell align="right" className="px-6 pt-2">
         <Typography variant="h6">
           {formatAmount(
-            epochTime > 0
+            epochTime > 0 && totalDeposits > 0
               ? (YEAR_SECONDS / epochTime) * (totalPurchased / totalDeposits)
               : 0,
             2
