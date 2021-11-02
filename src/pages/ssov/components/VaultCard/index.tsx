@@ -216,7 +216,6 @@ function VaultCard(props: VaultCardProps) {
               onClick={() => {
                 setPurchaseState(true);
               }}
-              disabled={true}
             >
               Buy Options
             </CustomButton>

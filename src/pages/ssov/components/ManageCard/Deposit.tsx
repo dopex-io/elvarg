@@ -82,15 +82,18 @@ const Deposit = () => {
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
     [key: number]: string;
   }>({});
+  const [error, setError] = useState('');
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady || !isEpochExpired) return false;
     return true;
   }, [isVaultReady, isEpochExpired]);
 
+  const [userDpxBalance, setUserDpxBalance] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
-  const [error, setError] = useState('');
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -148,23 +151,24 @@ const Deposit = () => {
   );
 
   useEffect(() => {
-    if (totalDepositAmount.gte(ethersUtils.parseUnits('100', 18))) {
-      setError('Deposit amount cannot exceed 100 DPX');
-    } else if (totalEpochDeposits.gte(ethersUtils.parseUnits('25000', 18))) {
-      setError('Max deposits have been met. Deposits are no longer possible.');
+    if (totalDepositAmount.gt(userDpxBalance)) {
+      setError('Deposit amount exceeds your current DPX balance.');
     } else {
       setError('');
     }
-  }, [totalDepositAmount, totalEpochDeposits]);
+  }, [totalDepositAmount, totalEpochDeposits, userDpxBalance]);
 
   // Handles isApproved
   useEffect(() => {
-    if (!dpxToken || !ssovSdk) return;
+    if (!dpxToken || !ssovSdk || !accountAddress) return;
     (async function () {
       const finalAmount = getContractReadableAmount(
         totalDepositAmount.toString(),
         18
       );
+
+      let userDpxAmount = await dpxToken.balanceOf(accountAddress);
+      setUserDpxBalance(userDpxAmount);
 
       let allowance = await dpxToken.allowance(
         accountAddress,
@@ -232,6 +236,18 @@ const Deposit = () => {
 
   return (
     <Box>
+      <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
+        <Typography
+          variant="caption"
+          component="div"
+          className="text-stieglitz text-left"
+        >
+          Balance
+        </Typography>
+        <Typography variant="caption" component="div">
+          {formatAmount(getUserReadableAmount(userDpxBalance, 18))} DPX
+        </Typography>
+      </Box>
       <Box className="bg-umbra flex flex-col p-4 rounded-xl justify-between mb-2">
         <Box className="flex flex-row mb-4">
           <Typography variant="h6" className="mr-2 text-stieglitz">
@@ -314,7 +330,6 @@ const Deposit = () => {
           ) : null}
         </Box>
       </Box>
-
       <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
         <Typography
           variant="caption"
@@ -352,8 +367,8 @@ const Deposit = () => {
             className="text-stieglitz text-left"
           >
             {isDepositWindowOpen
-              ? `Deposits for this epoch has been closed.`
-              : `Deposits for this epoch are now open.`}
+              ? `Deposits for this epoch are now open.`
+              : `Deposits for this epoch has been closed.`}
 
             {isVaultReady ? (
               <>
@@ -388,12 +403,7 @@ const Deposit = () => {
             {isVaultReady ? 'Closed' : 'Enter an amount'}
           </CustomButton>
         ) : approved ? (
-          <CustomButton
-            size="large"
-            className="w-full"
-            onClick={handleDeposit}
-            disabled={Boolean(error)}
-          >
+          <CustomButton size="large" className="w-full" onClick={handleDeposit}>
             Deposit
           </CustomButton>
         ) : (

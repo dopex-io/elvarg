@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useContext, useEffect } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
 import Box from '@material-ui/core/Box';
 
@@ -7,11 +7,6 @@ import Typography from 'components/UI/Typography';
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import getValueSign from 'utils/general/getValueSign';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { AssetsContext } from 'contexts/Assets';
-
-import { PRICE_INCREMENTS } from 'constants/index';
 
 const CustomTooltip = () => {
   return null;
@@ -22,37 +17,34 @@ interface PnlChartProps {
   optionPrice: number;
   amount: number;
   isPut: boolean;
-  selectedBaseAsset: string;
+  price: number;
+  priceIncrement: number;
+  symbol: string;
 }
 
 const PnlChart = (props: PnlChartProps) => {
-  const { breakEven, isPut, optionPrice, amount, selectedBaseAsset } = props;
+  const {
+    breakEven,
+    isPut,
+    optionPrice,
+    amount,
+    price,
+    priceIncrement,
+    symbol,
+  } = props;
 
   const [state, setState] = useState({ price: 0, pnl: 0 });
 
-  const { baseAssetsWithPrices } = useContext(AssetsContext);
-
-  const { currentPrice, increment, asset } = useMemo(() => {
-    return {
-      currentPrice: getUserReadableAmount(
-        baseAssetsWithPrices[selectedBaseAsset].price,
-        8
-      ),
-      increment: PRICE_INCREMENTS[selectedBaseAsset].increment,
-      asset: baseAssetsWithPrices[selectedBaseAsset].symbol,
-    };
-  }, [baseAssetsWithPrices, selectedBaseAsset]);
-
   const pnl = useMemo(() => {
     let value;
-    if (isPut) value = breakEven - currentPrice;
-    else value = currentPrice - breakEven;
+    if (isPut) value = breakEven - price;
+    else value = price - breakEven;
     return value * amount;
-  }, [currentPrice, breakEven, isPut, amount]);
+  }, [price, breakEven, isPut, amount]);
 
   useEffect(() => {
-    setState({ price: currentPrice, pnl });
-  }, [pnl, currentPrice]);
+    setState({ price, pnl });
+  }, [price, pnl]);
 
   const data = useMemo(
     () =>
@@ -60,20 +52,20 @@ const PnlChart = (props: PnlChartProps) => {
         .join()
         .split(',')
         .map((_item, index) => {
-          let price;
-          if (index > 20) price = currentPrice - (index - 20) * increment;
-          else price = currentPrice + index * increment;
+          let fPrice;
+          if (index > 20) fPrice = price - (index - 20) * priceIncrement;
+          else fPrice = price + index * priceIncrement;
           let pnl;
 
-          if (isPut) pnl = breakEven - price;
-          else pnl = price - breakEven;
+          if (isPut) pnl = breakEven - fPrice;
+          else pnl = fPrice - breakEven;
           return {
-            price,
+            price: fPrice,
             value: Math.max(pnl, -optionPrice) * amount,
           };
         })
         .sort((a, b) => a.price - b.price),
-    [breakEven, currentPrice, increment, isPut, optionPrice, amount]
+    [breakEven, price, priceIncrement, isPut, optionPrice, amount]
   );
 
   const handleOnMouseMove = useCallback(({ activePayload }) => {
@@ -83,8 +75,8 @@ const PnlChart = (props: PnlChartProps) => {
   }, []);
 
   const handleMouseLeave = useCallback(
-    () => setState({ price: currentPrice, pnl }),
-    [currentPrice, pnl]
+    () => setState({ price, pnl }),
+    [price, pnl]
   );
 
   return (
@@ -123,7 +115,7 @@ const PnlChart = (props: PnlChartProps) => {
           component="div"
           className="text-stieglitz"
         >
-          {asset} Price
+          {symbol} Price
         </Typography>
         <Typography
           variant="caption"
