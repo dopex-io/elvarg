@@ -96,7 +96,9 @@ const StatsTableData = (
         <Typography variant="h6">
           {formatAmount(
             epochTime > 0 && totalDeposits > 0
-              ? (YEAR_SECONDS / epochTime) * (totalPurchased / totalDeposits)
+              ? 100 *
+                  (YEAR_SECONDS / epochTime) *
+                  (totalPremiums / totalDeposits)
               : 0,
             2
           )}
