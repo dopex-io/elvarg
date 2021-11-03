@@ -34,14 +34,16 @@ export interface Props {
 
 const PurchaseDialog = ({ open, handleClose }: Props) => {
   const {
-    ssovSdk,
+    ssovContractWithSigner,
     currentEpoch,
-    currentEpochSsovData: { epochStrikes, epochStrikeTokens },
-    updateCurrentEpochSsovData,
+    ssovData: { epochStrikes },
+    userSsovData: { epochStrikeTokens },
     dpxToken,
     dpxTokenPrice,
-    ssovOptionPricingSdk,
-    volatilityOracleContracts,
+    updateSsovData,
+    updateUserSsovData,
+    ssovOptionPricingContract,
+    volatilityOracleContract,
   } = useContext(SsovContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
@@ -75,17 +77,17 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   );
 
   const updateUserEpochStrikePurchasableAmount = useCallback(async () => {
-    if (!epochStrikeToken || !ssovSdk) {
+    if (!epochStrikeToken || !ssovContractWithSigner) {
       setUserEpochStrikePurchasableAmount(0);
       return;
     }
     const vaultEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
-      ssovSdk.call.address
+      ssovContractWithSigner.address
     );
     setUserEpochStrikePurchasableAmount(
       getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
     );
-  }, [epochStrikeToken, ssovSdk]);
+  }, [epochStrikeToken, ssovContractWithSigner]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
@@ -114,7 +116,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
   // Handles isApproved
   useEffect(() => {
-    if (!dpxToken || !ssovSdk) return;
+    if (!dpxToken || !ssovContractWithSigner) return;
     (async function () {
       const finalAmount = state.totalCost;
 
@@ -124,7 +126,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
       let allowance = await dpxToken.allowance(
         accountAddress,
-        ssovSdk.call.address
+        ssovContractWithSigner.address
       );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
@@ -133,27 +135,28 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
         setApproved(false);
       }
     })();
-  }, [accountAddress, state.totalCost, dpxToken, ssovSdk]);
+  }, [accountAddress, state.totalCost, dpxToken, ssovContractWithSigner]);
 
   const handleApprove = useCallback(async () => {
     try {
       await newEthersTransaction(
-        dpxToken.approve(ssovSdk.call.address, MAX_VALUE)
+        dpxToken.approve(ssovContractWithSigner.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [dpxToken, ssovSdk]);
+  }, [dpxToken, ssovContractWithSigner]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
     const finalAmount = ethersUtils.parseEther(String(formik.values.amount));
     try {
       await newEthersTransaction(
-        ssovSdk.send.purchase(strikeIndex, finalAmount)
+        ssovContractWithSigner.purchase(strikeIndex, finalAmount)
       );
-      updateCurrentEpochSsovData();
+      updateSsovData();
+      updateUserSsovData();
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
       formik.setFieldValue('amount', 0);
@@ -161,9 +164,10 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
       console.log(err);
     }
   }, [
-    ssovSdk,
+    ssovContractWithSigner,
     strikeIndex,
-    updateCurrentEpochSsovData,
+    updateSsovData,
+    updateUserSsovData,
     updateUserEpochStrikePurchasableAmount,
     updateAssetBalances,
     formik,
@@ -173,23 +177,24 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   useEffect(() => {
     if (
       strikeIndex === null ||
-      !ssovOptionPricingSdk ||
-      !volatilityOracleContracts
+      !ssovOptionPricingContract ||
+      !volatilityOracleContract
     )
       return;
 
     async function updateOptionPrice() {
       const strike = epochStrikes[strikeIndex];
       try {
-        const expiry = await ssovSdk.call.getMonthlyExpiryFromTimestamp(
-          Math.floor(Date.now() / 1000)
-        );
+        const expiry =
+          await ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
+            Math.floor(Date.now() / 1000)
+          );
 
         const volatility = (
-          await volatilityOracleContracts.call.getVolatility()
+          await volatilityOracleContract.getVolatility()
         ).toNumber();
 
-        const optionPrice = await ssovOptionPricingSdk.call.getOptionPrice(
+        const optionPrice = await ssovOptionPricingContract.getOptionPrice(
           false,
           expiry,
           strike,
@@ -201,7 +206,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
           .mul(ethersUtils.parseEther(String(formik.values.amount)))
           .div(dpxTokenPrice);
 
-        const fees = await ssovSdk.call.calculateFees(
+        const fees = await ssovContractWithSigner.calculateFees(
           premium,
           dpxTokenPrice,
           true
@@ -223,9 +228,9 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   }, [
     strikeIndex,
     epochStrikes,
-    ssovSdk,
-    ssovOptionPricingSdk,
-    volatilityOracleContracts,
+    ssovContractWithSigner,
+    ssovOptionPricingContract,
+    volatilityOracleContract,
     dpxTokenPrice,
     formik.values.amount,
   ]);

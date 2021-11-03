@@ -31,14 +31,12 @@ export interface Props {
 
 const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
   const {
-    ssovSdk,
+    ssovContractWithSigner,
     selectedEpoch,
-    selectedEpochSsovData: {
-      epochStrikes,
-      epochStrikeTokens,
-      userEpochStrikeDeposits,
-    },
-    updateSelectedEpochSsovData,
+    ssovData: { epochStrikes },
+    userSsovData: { epochStrikeTokens, userEpochStrikeDeposits },
+    updateSsovData,
+    updateUserSsovData,
     dpxTokenPrice,
   } = useContext(SsovContext);
   const { accountAddress } = useContext(WalletContext);
@@ -112,13 +110,13 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
 
   // Handles isApproved
   useEffect(() => {
-    if (!epochStrikeToken || !ssovSdk) return;
+    if (!epochStrikeToken || !ssovContractWithSigner) return;
     (async function () {
       const finalAmount = getContractReadableAmount(inputValue, 18);
 
       let allowance = await epochStrikeToken.allowance(
         accountAddress,
-        ssovSdk.call.address
+        ssovContractWithSigner.address
       );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
@@ -127,14 +125,14 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
         setApproved(false);
       }
     })();
-  }, [accountAddress, inputValue, epochStrikeToken, ssovSdk]);
+  }, [accountAddress, inputValue, epochStrikeToken, ssovContractWithSigner]);
 
   const handleApprove = useCallback(async () => {
     const finalAmount = getContractReadableAmount(inputValue, 18);
     try {
       await newEthersTransaction(
         epochStrikeToken.approve(
-          ssovSdk.call.address,
+          ssovContractWithSigner.address,
           maxApprove ? MAX_VALUE : finalAmount.toString()
         )
       );
@@ -142,19 +140,20 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
     } catch (err) {
       console.log(err);
     }
-  }, [inputValue, maxApprove, epochStrikeToken, ssovSdk]);
+  }, [inputValue, maxApprove, epochStrikeToken, ssovContractWithSigner]);
 
   // Handle Exercise
   const handleExercise = useCallback(async () => {
     try {
       await newEthersTransaction(
-        ssovSdk.send.exercise(
+        ssovContractWithSigner.exercise(
           strikeIndex,
           getContractReadableAmount(inputValue, 18).toString(),
           accountAddress
         )
       );
-      updateSelectedEpochSsovData();
+      updateSsovData();
+      updateUserSsovData();
       updateUserEpochStrikeTokenBalance();
       setInputValue('');
       formik.setFieldValue('amount', '');
@@ -162,11 +161,12 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
       console.log(err);
     }
   }, [
-    ssovSdk,
+    ssovContractWithSigner,
     strikeIndex,
     inputValue,
     accountAddress,
-    updateSelectedEpochSsovData,
+    updateSsovData,
+    updateUserSsovData,
     updateUserEpochStrikeTokenBalance,
     formik,
   ]);

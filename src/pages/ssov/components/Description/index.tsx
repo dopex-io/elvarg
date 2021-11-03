@@ -17,12 +17,11 @@ import formatAmount from 'utils/general/formatAmount';
 
 const Description = () => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { currentEpoch, dpxTokenPrice, APY, currentEpochSsovData } =
-    useContext(SsovContext);
+  const { dpxTokenPrice, APY, ssovData } = useContext(SsovContext);
 
   const TVL =
-    currentEpochSsovData.totalEpochDeposits && dpxTokenPrice
-      ? getUserReadableAmount(currentEpochSsovData.totalEpochDeposits, 18) *
+    ssovData.totalEpochDeposits && dpxTokenPrice
+      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
         getUserReadableAmount(dpxTokenPrice, 8)
       : 0;
 
@@ -68,9 +67,9 @@ const Description = () => {
             setPurchaseState(true);
           }}
         >
-          Buy Call Options From Vault
+          Buy Call Options
         </CustomButton>
-        {/* <EpochSelector /> */}
+        <EpochSelector />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item, index) => {

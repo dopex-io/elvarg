@@ -1,58 +1,51 @@
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import cx from 'classnames';
 
 import { SsovContext } from 'contexts/Ssov';
 
 export default function EpochSelector({ className }: { className?: string }) {
-  const { currentEpoch, nextEpoch, selectedEpoch, setSelectedEpoch } =
+  const { currentEpoch, selectedEpoch, setSelectedEpoch } =
     useContext(SsovContext);
-  const [showCustomEpochField, setShowCustomEpochField] = useState(false);
 
-  const handleSelectChange = (e) => {
-    if (e.target.value === 'custom') {
-      setShowCustomEpochField(true);
-    } else {
-      setShowCustomEpochField(false);
+  const handleSelectChange = useCallback(
+    (e) => {
       setSelectedEpoch(Number(e.target.value));
-    }
-  };
+    },
+    [setSelectedEpoch]
+  );
 
-  const handleInputChange = (e) => {
-    setSelectedEpoch(Number(e.target.value));
-  };
+  const epochs = useMemo(
+    () =>
+      Array(currentEpoch)
+        .join()
+        .split(',')
+        .map((_i, index) => {
+          return (
+            <MenuItem
+              value={index + 1}
+              key={index + 1}
+              className="text-white"
+              disabled={index + 1 === currentEpoch}
+            >
+              Epoch {index + 1} {currentEpoch === index + 1 ? '(Current)' : ''}
+            </MenuItem>
+          );
+        }),
+    [currentEpoch]
+  );
 
-  const epochs = Array(nextEpoch)
-    .join()
-    .split(',')
-    .map((_i, index) => {
-      return (
-        <MenuItem
-          value={index + 1}
-          key={index + 1}
-          className="text-white"
-          disabled={index + 1 === currentEpoch || index + 1 === nextEpoch}
-        >
-          Epoch {index + 1}{' '}
-          {currentEpoch === index + 1
-            ? '(Current)'
-            : nextEpoch === index + 1
-            ? '(Next)'
-            : ''}
-        </MenuItem>
-      );
-    });
+  if (!currentEpoch || !selectedEpoch) return <></>;
 
   return (
     <Box className={cx('', className)}>
       <FormControl>
         <Box className="text-white">
           <Select
-            value={showCustomEpochField ? 'custom' : selectedEpoch}
+            value={selectedEpoch}
             onChange={handleSelectChange}
             className="text-white bg-umbra px-3 py-1 rounded-lg"
             MenuProps={{
@@ -63,16 +56,7 @@ export default function EpochSelector({ className }: { className?: string }) {
             placeholder={'Select epoch'}
           >
             {epochs}
-            {/* <MenuItem value="custom">Custom Epoch</MenuItem> */}
           </Select>
-          {showCustomEpochField ? (
-            <TextField
-              onChange={handleInputChange}
-              className="epoch-selector-fields-text bg-stieglitz rounded-lg p-1"
-              placeholder="Type a Custom Epoch"
-              type="number"
-            />
-          ) : null}
         </Box>
       </FormControl>
     </Box>

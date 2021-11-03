@@ -14,6 +14,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
+import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
 import { SsovContext } from 'contexts/Ssov';
@@ -39,9 +40,8 @@ const ExerciseList = () => {
   const {
     currentEpoch,
     selectedEpoch,
-    selectedEpochSsovData: {
-      isVaultReady,
-      epochStrikes,
+    ssovData: { isVaultReady, epochStrikes },
+    userSsovData: {
       epochStrikeTokens,
       userEpochStrikeDeposits,
       userEpochCallsPurchased,
@@ -137,7 +137,11 @@ const ExerciseList = () => {
         <TableContainer
           className={cx(styles.optionsTable, 'overflow-x-hidden bg-cod-gray')}
         >
-          {isEmpty(userExercisableOptions) ? (
+          {!accountAddress ? (
+            <Box className="p-4 flex items-center justify-center">
+              <WalletButton size="medium" />
+            </Box>
+          ) : isEmpty(userExercisableOptions) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
               {range(3).map((_, index) => (
                 <Skeleton

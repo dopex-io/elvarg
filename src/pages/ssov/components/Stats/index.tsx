@@ -115,7 +115,7 @@ const Stats = (props: { className?: string }) => {
   const { className } = props;
   const {
     selectedEpoch,
-    selectedEpochSsovData: {
+    ssovData: {
       epochTimes,
       epochStrikes,
       totalEpochPremium,
