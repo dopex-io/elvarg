@@ -55,8 +55,9 @@ function VaultCard(props: VaultCardProps) {
     },
     {
       icon: Action,
-      heading: 'APY',
+      heading: 'Farm APY',
       value: `${APY}%` || '...',
+      toolTip: 'This is the base APY calculated from the farms',
     },
     {
       icon: Coin,
@@ -130,7 +131,15 @@ function VaultCard(props: VaultCardProps) {
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
             {info.map((item) => {
-              return (
+              return item.toolTip ? (
+                <InfoBox
+                  key={item.heading}
+                  Icon={item.icon}
+                  heading={item.heading}
+                  value={item.value}
+                  toolTip={item.toolTip}
+                />
+              ) : (
                 <InfoBox
                   key={item.heading}
                   Icon={item.icon}
