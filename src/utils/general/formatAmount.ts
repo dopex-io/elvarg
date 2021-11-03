@@ -1,5 +1,3 @@
-import toFixed from './toFixed';
-
 function formatAmount(
   amount: string | number = 0,
   decimalPoints: number = 0,
@@ -13,10 +11,7 @@ function formatAmount(
   } else if (typecastedAmount > 1000000) {
     return (typecastedAmount / 1000000).toFixed(1) + 'M'; // convert to M for number from > 1 million
   }
-  return new Intl.NumberFormat('en-US', {
-    style: 'decimal',
-    maximumFractionDigits: decimalPoints,
-  }).format(Number(toFixed(typecastedAmount, decimalPoints))); // if value < 1000, nothing to do
+  return Number(typecastedAmount.toFixed(decimalPoints)).toLocaleString(); // if value < 1000, nothing to do
 }
 
 export default formatAmount;
