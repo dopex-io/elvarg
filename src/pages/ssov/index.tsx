@@ -11,7 +11,7 @@ const Ssov = () => {
     <SsovProvider>
       <Box className="bg-black min-h-screen">
         <AppBar active="SSOV" />
-        <Box className="pb-32 pt-20 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <Box className="py-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
           <Box className="text-center mx-auto max-w-xl mb-12">
             <Typography variant="h1" className="mb-1">
               Single Staking Option Vaults
