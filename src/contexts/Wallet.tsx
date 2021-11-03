@@ -15,7 +15,7 @@ import { INFURA_PROJECT_ID } from 'constants/index';
 
 interface WalletContextInterface {
   accountAddress?: string;
-  contractAddresses?: { [key: string]: string };
+  contractAddresses?: { [key: string]: any };
   provider?: ethers.providers.Provider;
   signer?: Signer;
   wrongNetwork?: boolean;
