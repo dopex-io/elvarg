@@ -485,7 +485,7 @@ export const SsovProvider = (props) => {
     if (!ssovSdk || !contractAddresses) return;
 
     (async function () {
-      const dpxTokenPrice = await ssovSdk.call.viewUsdPrice(
+      const dpxTokenPrice = await ssovSdk.call.callStatic.getUsdPrice(
         contractAddresses.DPX
       );
       setState((prevState) => ({
