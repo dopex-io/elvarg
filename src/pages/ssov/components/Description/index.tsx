@@ -35,7 +35,7 @@ const Description = () => {
       icon: Action,
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
-      toolTip: 'This is the base APY calculated from the farms',
+      toolTip: 'This is the base APY calculated from the single staking farm',
     },
     {
       icon: Coin,
