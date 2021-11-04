@@ -34,21 +34,28 @@ export interface Props {
 
 const PurchaseDialog = ({ open, handleClose }: Props) => {
   const {
-    ssovSdk,
+    ssovContractWithSigner,
     currentEpoch,
-    currentEpochSsovData: { epochStrikes, epochStrikeTokens },
-    updateCurrentEpochSsovData,
+    ssovData: { epochStrikes },
+    userSsovData: { epochStrikeTokens },
     dpxToken,
     dpxTokenPrice,
-    ssovOptionPricingSdk,
-    volatilityOracleContracts,
+    updateSsovData,
+    updateUserSsovData,
+    ssovOptionPricingContract,
+    volatilityOracleContract,
   } = useContext(SsovContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
+  const [state, setState] = useState({
+    volatility: 0,
+    optionPrice: BigNumber.from(0),
+    fees: BigNumber.from(0),
+    premium: BigNumber.from(0),
+    totalCost: BigNumber.from(0),
+  });
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
-  const [volatility, setVolatility] = useState(0);
-  const [optionPrice, setOptionPrice] = useState(0);
   const [approved, setApproved] = useState<boolean>(false);
   const [userDpxBalance, setUserDpxBalance] = useState<BigNumber>(
     BigNumber.from('0')
@@ -58,25 +65,29 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
 
-  const strikes = epochStrikes.map((strike) =>
-    getUserReadableAmount(strike, 8).toString()
+  const strikes = useMemo(
+    () =>
+      epochStrikes.map((strike) => getUserReadableAmount(strike, 8).toString()),
+    [epochStrikes]
   );
 
-  const epochStrikeToken =
-    strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null;
+  const epochStrikeToken = useMemo(
+    () => (strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null),
+    [strikeIndex, epochStrikeTokens]
+  );
 
   const updateUserEpochStrikePurchasableAmount = useCallback(async () => {
-    if (!epochStrikeToken || !ssovSdk) {
+    if (!epochStrikeToken || !ssovContractWithSigner) {
       setUserEpochStrikePurchasableAmount(0);
       return;
     }
     const vaultEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
-      ssovSdk.call.address
+      ssovContractWithSigner.address
     );
     setUserEpochStrikePurchasableAmount(
       getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
     );
-  }, [epochStrikeToken, ssovSdk]);
+  }, [epochStrikeToken, ssovContractWithSigner]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
@@ -95,7 +106,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     }),
     validate: () => {
       const errors: any = {};
-      if (premium.gt(userDpxBalance)) {
+      if (state.totalCost.gt(userDpxBalance)) {
         errors.amount = 'Insufficient DPX balance to pay for premium.';
       }
       return errors;
@@ -103,21 +114,11 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     onSubmit: noop,
   });
 
-  const currentPrice = getUserReadableAmount(dpxTokenPrice, 8);
-  const premiumDpx = (optionPrice * formik.values.amount) / currentPrice;
-  const premiumUsd = optionPrice * formik.values.amount;
-
-  const premium = useMemo(() => {
-    return ethersUtils.parseEther(
-      ((optionPrice * formik.values.amount) / currentPrice).toString()
-    );
-  }, [optionPrice, currentPrice, formik.values.amount]);
-
   // Handles isApproved
   useEffect(() => {
-    if (!dpxToken || !ssovSdk) return;
+    if (!dpxToken || !ssovContractWithSigner) return;
     (async function () {
-      const finalAmount = premium;
+      const finalAmount = state.totalCost;
 
       const userDpxAmount = await dpxToken.balanceOf(accountAddress);
 
@@ -125,7 +126,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
       let allowance = await dpxToken.allowance(
         accountAddress,
-        ssovSdk.call.address
+        ssovContractWithSigner.address
       );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
@@ -134,27 +135,28 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
         setApproved(false);
       }
     })();
-  }, [accountAddress, premium, dpxToken, ssovSdk]);
+  }, [accountAddress, state.totalCost, dpxToken, ssovContractWithSigner]);
 
   const handleApprove = useCallback(async () => {
     try {
       await newEthersTransaction(
-        dpxToken.approve(ssovSdk.call.address, MAX_VALUE)
+        dpxToken.approve(ssovContractWithSigner.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [dpxToken, ssovSdk]);
+  }, [dpxToken, ssovContractWithSigner]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
     const finalAmount = ethersUtils.parseEther(String(formik.values.amount));
     try {
       await newEthersTransaction(
-        ssovSdk.send.purchase(strikeIndex, finalAmount)
+        ssovContractWithSigner.purchase(strikeIndex, finalAmount)
       );
-      updateCurrentEpochSsovData();
+      updateSsovData();
+      updateUserSsovData();
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
       formik.setFieldValue('amount', 0);
@@ -162,40 +164,61 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
       console.log(err);
     }
   }, [
-    ssovSdk,
+    ssovContractWithSigner,
     strikeIndex,
-    updateCurrentEpochSsovData,
+    updateSsovData,
+    updateUserSsovData,
     updateUserEpochStrikePurchasableAmount,
     updateAssetBalances,
     formik,
   ]);
 
-  // Calculate the Option Price
+  // Calculate the Option Price & Fees
   useEffect(() => {
     if (
       strikeIndex === null ||
-      !ssovOptionPricingSdk ||
-      !volatilityOracleContracts
+      !ssovOptionPricingContract ||
+      !volatilityOracleContract
     )
       return;
 
     async function updateOptionPrice() {
       const strike = epochStrikes[strikeIndex];
       try {
-        const expiry = await ssovSdk.call.getMonthlyExpiryFromTimestamp(
-          Math.floor(Date.now() / 1000)
-        );
+        const expiry =
+          await ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
+            Math.floor(Date.now() / 1000)
+          );
 
-        const volatility = await volatilityOracleContracts.call.getVolatility();
-        const _optionPrice = await ssovOptionPricingSdk.call.getOptionPrice(
+        const volatility = (
+          await volatilityOracleContract.getVolatility()
+        ).toNumber();
+
+        const optionPrice = await ssovOptionPricingContract.getOptionPrice(
           false,
           expiry,
           strike,
           dpxTokenPrice,
           volatility
         );
-        setVolatility(volatility.toNumber());
-        setOptionPrice(getUserReadableAmount(_optionPrice, 8));
+
+        const premium = optionPrice
+          .mul(ethersUtils.parseEther(String(formik.values.amount)))
+          .div(dpxTokenPrice);
+
+        const fees = await ssovContractWithSigner.calculateFees(
+          premium,
+          dpxTokenPrice,
+          true
+        );
+
+        setState({
+          volatility,
+          optionPrice,
+          premium,
+          fees,
+          totalCost: premium.add(fees),
+        });
       } catch (err) {
         console.log(err);
       }
@@ -205,10 +228,11 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   }, [
     strikeIndex,
     epochStrikes,
-    ssovSdk,
-    ssovOptionPricingSdk,
-    volatilityOracleContracts,
+    ssovContractWithSigner,
+    ssovOptionPricingContract,
+    volatilityOracleContract,
     dpxTokenPrice,
+    formik.values.amount,
   ]);
 
   return (
@@ -312,7 +336,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                 Current Price (DPX)
               </Typography>
               <Typography variant="caption" component="div">
-                ${currentPrice.toFixed(2)}
+                ${formatAmount(getUserReadableAmount(dpxTokenPrice, 8))}
               </Typography>
             </Box>
             {strikeIndex !== null && (
@@ -350,7 +374,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     Volatility
                   </Typography>
                   <Typography variant="caption" component="div">
-                    {volatility}
+                    {state.volatility}
                   </Typography>
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
@@ -362,7 +386,27 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     Option Price
                   </Typography>
                   <Typography variant="caption" component="div">
-                    ${formatAmount(optionPrice, 5)}
+                    $
+                    {formatAmount(
+                      getUserReadableAmount(state.optionPrice, 8),
+                      3
+                    )}
+                  </Typography>
+                </Box>
+                <Box className="flex flex-row justify-between mb-4">
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-stieglitz"
+                  >
+                    Fees
+                  </Typography>
+                  <Typography variant="caption" component="div">
+                    $
+                    {formatAmount(
+                      getUserReadableAmount(state.fees.mul(dpxTokenPrice), 26),
+                      3
+                    )}
                   </Typography>
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
@@ -378,8 +422,19 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     component="div"
                     className="text-wave-blue"
                   >
-                    {formatAmount(premiumDpx, 5)} DPX ($
-                    {formatAmount(premiumUsd, 5)})
+                    {formatAmount(
+                      getUserReadableAmount(state.totalCost, 18),
+                      3
+                    )}{' '}
+                    DPX ($
+                    {formatAmount(
+                      getUserReadableAmount(
+                        state.totalCost.mul(dpxTokenPrice),
+                        26
+                      ),
+                      3
+                    )}
+                    )
                   </Typography>
                 </Box>
                 <Box className="flex flex-row justify-between">
@@ -418,12 +473,14 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
         {strikeIndex === null ? null : (
           <Box className="p-4 bg-umbra mb-4 rounded-md">
             <PnlChart
-              breakEven={Number(strikes[strikeIndex]) + optionPrice}
-              optionPrice={optionPrice}
+              breakEven={
+                Number(strikes[strikeIndex]) +
+                getUserReadableAmount(state.optionPrice, 8)
+              }
+              optionPrice={getUserReadableAmount(state.optionPrice, 8)}
               amount={formik.values.amount}
               isPut={false}
-              price={currentPrice}
-              priceIncrement={50}
+              price={getUserReadableAmount(dpxTokenPrice, 8)}
               symbol="DPX"
             />
           </Box>

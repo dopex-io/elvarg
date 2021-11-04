@@ -19,18 +19,18 @@ import styles from './styles.module.scss';
 
 const Withdraw = () => {
   const {
-    ssovSdk,
+    ssovContractWithSigner,
     currentEpoch,
     selectedEpoch,
-    selectedEpochSsovData: {
+    ssovData: {
       epochTimes,
       epochStrikes,
       totalEpochStrikeDeposits,
       totalEpochDeposits,
-      userEpochStrikeDeposits,
-      userEpochDeposits,
     },
-    updateSelectedEpochSsovData,
+    userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
+    updateSsovData,
+    updateUserSsovData,
   } = useContext(SsovContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
@@ -65,15 +65,22 @@ const Withdraw = () => {
     async (index) => {
       try {
         await newEthersTransaction(
-          ssovSdk.send.withdrawForStrike(selectedEpoch, index)
+          ssovContractWithSigner.withdrawForStrike(selectedEpoch, index)
         );
-        updateSelectedEpochSsovData();
+        updateSsovData();
+        updateUserSsovData();
       } catch (err) {
         console.log(err);
       }
       updateAssetBalances();
     },
-    [ssovSdk, selectedEpoch, updateSelectedEpochSsovData, updateAssetBalances]
+    [
+      ssovContractWithSigner,
+      selectedEpoch,
+      updateSsovData,
+      updateUserSsovData,
+      updateAssetBalances,
+    ]
   );
 
   return (

@@ -28,11 +28,7 @@ import useOptionPurchase from 'hooks/useOptionPurchase';
 
 import { AssetsContext } from 'contexts/Assets';
 
-import {
-  BASE_ASSET_MAP,
-  DELEGATE_INFO,
-  PRICE_INCREMENTS,
-} from 'constants/index';
+import { BASE_ASSET_MAP, DELEGATE_INFO } from 'constants/index';
 
 import styles from './styles.module.scss';
 
@@ -358,7 +354,6 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                   baseAssetsWithPrices[selectedBaseAsset].price,
                   8
                 )}
-                priceIncrement={PRICE_INCREMENTS[selectedBaseAsset].increment}
                 symbol={baseAssetsWithPrices[selectedBaseAsset].symbol}
                 optionPrice={selectedOptionData.optionPrice}
                 isPut={isPut}

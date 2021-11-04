@@ -18,20 +18,11 @@ interface PnlChartProps {
   amount: number;
   isPut: boolean;
   price: number;
-  priceIncrement: number;
   symbol: string;
 }
 
 const PnlChart = (props: PnlChartProps) => {
-  const {
-    breakEven,
-    isPut,
-    optionPrice,
-    amount,
-    price,
-    priceIncrement,
-    symbol,
-  } = props;
+  const { breakEven, isPut, optionPrice, amount, price, symbol } = props;
 
   const [state, setState] = useState({ price: 0, pnl: 0 });
 
@@ -46,27 +37,27 @@ const PnlChart = (props: PnlChartProps) => {
     setState({ price, pnl });
   }, [price, pnl]);
 
-  const data = useMemo(
-    () =>
-      Array(40)
-        .join()
-        .split(',')
-        .map((_item, index) => {
-          let fPrice;
-          if (index > 20) fPrice = price - (index - 20) * priceIncrement;
-          else fPrice = price + index * priceIncrement;
-          let pnl;
+  const data = useMemo(() => {
+    const increment = breakEven / 20;
 
-          if (isPut) pnl = breakEven - fPrice;
-          else pnl = fPrice - breakEven;
-          return {
-            price: fPrice,
-            value: Math.max(pnl, -optionPrice) * amount,
-          };
-        })
-        .sort((a, b) => a.price - b.price),
-    [breakEven, price, priceIncrement, isPut, optionPrice, amount]
-  );
+    return Array(40)
+      .join()
+      .split(',')
+      .map((_item, index) => {
+        let fPrice;
+        if (index > 20) fPrice = price - (index - 20) * increment;
+        else fPrice = price + index * increment;
+        let pnl;
+
+        if (isPut) pnl = breakEven - fPrice;
+        else pnl = fPrice - breakEven;
+        return {
+          price: fPrice,
+          value: Math.max(pnl, -optionPrice) * amount,
+        };
+      })
+      .sort((a, b) => a.price - b.price);
+  }, [breakEven, price, isPut, optionPrice, amount]);
 
   const handleOnMouseMove = useCallback(({ activePayload }) => {
     if (!activePayload?.length) return;

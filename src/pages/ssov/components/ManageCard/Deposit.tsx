@@ -58,20 +58,20 @@ const SelectMenuProps = {
 const Deposit = () => {
   const classes = useStyles();
   const {
-    ssovSdk,
-    nextEpoch,
+    ssovContractWithSigner,
+    selectedEpoch,
     dpxToken,
-    currentEpochSsovData: {
+    ssovData: {
       epochTimes,
       isVaultReady,
       isEpochExpired,
       epochStrikes,
       totalEpochStrikeDeposits,
       totalEpochDeposits,
-      userEpochStrikeDeposits,
-      userEpochDeposits,
     },
-    updateNextEpochSsovData,
+    userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
+    updateSsovData,
+    updateUserSsovData,
   } = useContext(SsovContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
@@ -160,7 +160,7 @@ const Deposit = () => {
 
   // Handles isApproved
   useEffect(() => {
-    if (!dpxToken || !ssovSdk || !accountAddress) return;
+    if (!dpxToken || !ssovContractWithSigner || !accountAddress) return;
     (async function () {
       const finalAmount = getContractReadableAmount(
         totalDepositAmount.toString(),
@@ -172,7 +172,7 @@ const Deposit = () => {
 
       let allowance = await dpxToken.allowance(
         accountAddress,
-        ssovSdk.call.address
+        ssovContractWithSigner.address
       );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
@@ -181,7 +181,7 @@ const Deposit = () => {
         setApproved(false);
       }
     })();
-  }, [accountAddress, totalDepositAmount, dpxToken, ssovSdk]);
+  }, [accountAddress, totalDepositAmount, dpxToken, ssovContractWithSigner]);
 
   const handleApprove = useCallback(async () => {
     const finalAmount = getContractReadableAmount(
@@ -191,7 +191,7 @@ const Deposit = () => {
     try {
       await newEthersTransaction(
         dpxToken.approve(
-          ssovSdk.call.address,
+          ssovContractWithSigner.address,
           maxApprove ? MAX_VALUE : finalAmount.toString()
         )
       );
@@ -199,7 +199,7 @@ const Deposit = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [totalDepositAmount, maxApprove, dpxToken, ssovSdk]);
+  }, [totalDepositAmount, maxApprove, dpxToken, ssovContractWithSigner]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -211,7 +211,7 @@ const Deposit = () => {
       );
 
       await newEthersTransaction(
-        ssovSdk.send.depositMultiple(
+        ssovContractWithSigner.depositMultiple(
           strikeIndexes,
           strikeIndexes.map((index) =>
             ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
@@ -222,15 +222,17 @@ const Deposit = () => {
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
-      updateNextEpochSsovData();
+      updateSsovData();
+      updateUserSsovData();
     } catch (err) {
       console.log(err);
     }
   }, [
     selectedStrikeIndexes,
-    ssovSdk,
+    ssovContractWithSigner,
     strikeDepositAmounts,
-    updateNextEpochSsovData,
+    updateSsovData,
+    updateUserSsovData,
     updateAssetBalances,
   ]);
 
@@ -343,7 +345,7 @@ const Deposit = () => {
         </Typography>
       </Box>
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
-        <Box className="mr-4">
+        <Box className="mr-4 mb-4">
           {isVaultReady ? <DepositClosed /> : <DepositOpen />}
         </Box>
         <Box className="flex flex-col">
@@ -352,14 +354,14 @@ const Deposit = () => {
             component="div"
             className="mb-4 text-left"
           >
-            Epoch {nextEpoch}
+            Epoch {selectedEpoch}
           </Typography>
           <Typography
             variant="caption"
             component="div"
             className="mb-4 text-left"
           >
-            Duration 1 month
+            Duration: 1 Month
           </Typography>
           <Typography
             variant="caption"
@@ -369,7 +371,6 @@ const Deposit = () => {
             {isDepositWindowOpen
               ? `Deposits for this epoch are now open.`
               : `Deposits for this epoch has been closed.`}
-
             {isVaultReady ? (
               <>
                 <br />

@@ -33,18 +33,17 @@ function VaultCard(props: VaultCardProps) {
   const { className } = props;
   const history = useHistory();
   const {
-    currentEpoch,
-    nextEpoch,
-    nextEpochSsovData: { epochTimes, totalEpochDeposits, userEpochDeposits },
+    selectedEpoch,
+    ssovData: { epochTimes, totalEpochDeposits },
+    userSsovData: { userEpochDeposits },
     dpxTokenPrice,
-    currentEpochSsovData,
     APY,
   } = useContext(SsovContext);
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
   const TVL =
-    currentEpochSsovData.totalEpochDeposits && dpxTokenPrice
-      ? getUserReadableAmount(currentEpochSsovData.totalEpochDeposits, 18) *
+    totalEpochDeposits && dpxTokenPrice
+      ? getUserReadableAmount(totalEpochDeposits, 18) *
         getUserReadableAmount(dpxTokenPrice, 8)
       : 0;
 
@@ -230,7 +229,7 @@ function VaultCard(props: VaultCardProps) {
             View Options
           </Typography>
           <Typography variant="h6" className="text-stieglitz">
-            Epoch {nextEpoch}
+            Epoch {selectedEpoch}
           </Typography>
         </Box>
       </Box>

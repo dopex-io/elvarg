@@ -1,4 +1,5 @@
 import { useContext, useState, useMemo, useCallback } from 'react';
+import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import TableHead from '@material-ui/core/TableHead';
@@ -32,13 +33,18 @@ interface StatsTableDataProps {
   totalPremiums: number;
 }
 
-const StatsTableData = (props: StatsTableDataProps & { dpxPrice: number }) => {
+const YEAR_SECONDS = 31536000;
+
+const StatsTableData = (
+  props: StatsTableDataProps & { dpxPrice: number; epochTime: number }
+) => {
   const {
     strikePrice,
     totalDeposits,
     totalPurchased,
     totalPremiums,
     dpxPrice,
+    epochTime,
   } = props;
 
   return (
@@ -63,11 +69,18 @@ const StatsTableData = (props: StatsTableDataProps & { dpxPrice: number }) => {
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalDeposits * dpxPrice, 5)}
+          {formatAmount(totalDeposits * dpxPrice, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
+        <Box component="h6" className="text-xs text-stieglitz">
+          {formatAmount(
+            totalDeposits > 0 ? 100 * (totalPurchased / totalDeposits) : 0,
+            0
+          )}
+          {'%'}
+        </Box>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
@@ -76,8 +89,21 @@ const StatsTableData = (props: StatsTableDataProps & { dpxPrice: number }) => {
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalPremiums * dpxPrice, 5)}
+          {formatAmount(totalPremiums * dpxPrice, 2)}
         </Box>
+      </TableCell>
+      <TableCell align="right" className="px-6 pt-2">
+        <Typography variant="h6">
+          {formatAmount(
+            epochTime > 0 && totalDeposits > 0
+              ? 100 *
+                  (YEAR_SECONDS / epochTime) *
+                  (totalPremiums / totalDeposits)
+              : 0,
+            2
+          )}
+          {'%'}
+        </Typography>
       </TableCell>
     </TableRow>
   );
@@ -89,7 +115,8 @@ const Stats = (props: { className?: string }) => {
   const { className } = props;
   const {
     selectedEpoch,
-    selectedEpochSsovData: {
+    ssovData: {
+      epochTimes,
       epochStrikes,
       totalEpochPremium,
       totalEpochStrikeDeposits,
@@ -97,6 +124,11 @@ const Stats = (props: { className?: string }) => {
     },
     dpxTokenPrice,
   } = useContext(SsovContext);
+
+  const epochTime =
+    epochTimes && epochTimes[0] && epochTimes[1]
+      ? (epochTimes[1] as BigNumber).sub(epochTimes[0] as BigNumber).toNumber()
+      : 0;
 
   const [page, setPage] = useState(0);
   const handleChangePage = useCallback(
@@ -211,6 +243,14 @@ const Stats = (props: { className?: string }) => {
                       Total Premiums
                     </Typography>
                   </TableCell>
+                  <TableCell
+                    align="right"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      APR
+                    </Typography>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
@@ -236,6 +276,7 @@ const Stats = (props: { className?: string }) => {
                           totalPurchased={totalPurchased}
                           totalPremiums={totalPremiums}
                           dpxPrice={dpxPrice}
+                          epochTime={epochTime}
                         />
                       );
                     }
