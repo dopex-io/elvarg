@@ -282,7 +282,8 @@ export const SsovProvider = (props) => {
   }, [ssovContract, contractAddresses]);
 
   useEffect(() => {
-    if (!contractAddresses || !accountAddress) return;
+    if (!contractAddresses || !accountAddress || !contractAddresses.SSOV)
+      return;
 
     const dpxToken = ERC20__factory.connect(contractAddresses.DPX, signer);
 
