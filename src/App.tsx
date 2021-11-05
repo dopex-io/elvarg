@@ -8,6 +8,7 @@ import { client } from 'graphql/apollo';
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
+import { SsovProvider } from 'contexts/Ssov';
 // import { GeoLocationProvider } from 'contexts/GeoLocation';
 
 import { BUILD } from 'constants/index';
@@ -18,6 +19,8 @@ import PageLoader from 'components/PageLoader';
 const Farming = lazy(() => import('pages/farming/farms'));
 const FarmingStake = lazy(() => import('pages/farming/stake'));
 const TokenSale = lazy(() => import('pages/sale'));
+const Ssov = lazy(() => import('pages/ssov'));
+const SsovManage = lazy(() => import('pages/ssov/Manage'));
 const Portfolio = lazy(() => import('pages/portfolio'));
 const Options = lazy(() => import('pages/options'));
 const Pools = lazy(() => import('pages/pools'));
@@ -25,8 +28,6 @@ const PoolsManage = lazy(() => import('pages/pools/manage'));
 const PoolsVolume = lazy(() => import('pages/pools/volume'));
 const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
 const Swap = lazy(() => import('pages/swap'));
-const Ssov = lazy(() => import('pages/ssov'));
-const SsovManage = lazy(() => import('pages/ssov/Manage'));
 
 function AppRoutes() {
   if (BUILD === 'testnet') {
@@ -41,8 +42,10 @@ function AppRoutes() {
             <Route path="/portfolio" component={Portfolio} exact />
             <Route path="/faucet" component={TestnetFaucet} exact />
             <Route path="/swap" component={Swap} exact />
-            <Route path="/ssov" component={Ssov} exact />
-            <Route path="/ssov/manage" component={SsovManage} exact />
+            <SsovProvider>
+              <Route path="/ssov" component={Ssov} exact />
+              <Route path="/ssov/manage" component={SsovManage} exact />
+            </SsovProvider>
           </Switch>
         </Suspense>
       </BrowserRouter>
@@ -56,8 +59,10 @@ function AppRoutes() {
             <Redirect to="/ssov" />
           </Route>
           <Route path="/sale" component={TokenSale} exact />
-          <Route path="/ssov" component={Ssov} exact />
-          <Route path="/ssov/manage" component={SsovManage} exact />
+          <SsovProvider>
+            <Route path="/ssov" component={Ssov} exact />
+            <Route path="/ssov/manage" component={SsovManage} exact />
+          </SsovProvider>
           <FarmingProvider>
             <Route path="/farms" component={Farming} exact />
             <Route path="/farms/stake" component={FarmingStake} exact />
