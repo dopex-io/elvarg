@@ -33,8 +33,9 @@ const Description = () => {
     },
     {
       icon: Action,
-      heading: 'APY',
+      heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
+      toolTip: 'This is the base APY calculated from the single staking farm',
     },
     {
       icon: Coin,
@@ -73,9 +74,17 @@ const Description = () => {
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item, index) => {
-          return (
+          return item.toolTip ? (
             <VaultBox
-              key={index}
+              key={item.heading}
+              Icon={item.icon}
+              heading={item.heading}
+              value={item.value}
+              toolTip={item.toolTip}
+            />
+          ) : (
+            <VaultBox
+              key={item.heading}
               Icon={item.icon}
               heading={item.heading}
               value={item.value}

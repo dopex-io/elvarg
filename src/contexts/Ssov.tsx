@@ -209,9 +209,7 @@ export const SsovProvider = (props) => {
 
     let APR = (denominator / TVL.toNumber() - 1) * 100;
 
-    let APY: string | number = APR;
-
-    APY = APY.toFixed(2);
+    let APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
 
     setState((prevState) => {
       return {
