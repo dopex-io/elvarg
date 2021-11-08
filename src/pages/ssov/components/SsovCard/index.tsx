@@ -2,10 +2,7 @@ import { useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import format from 'date-fns/format';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -157,64 +154,56 @@ function SsovCard(props: SsovCardProps) {
             })}
           </Box>
           <Box>
-            <Accordion className="bg-umbra shadow-none rounded-xl">
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon className="text-stieglitz" />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
+            <Box className="bg-umbra shadow-none rounded-lg">
+              <Typography
+                variant="caption"
+                component="div"
+                className="text-stieglitz text-sm px-4 pt-2"
               >
-                <Typography
-                  variant="caption"
-                  component="div"
-                  className="text-stieglitz"
-                >
-                  Vault Properties
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Box className="flex flex-col w-full">
-                  <Box className="flex flex-row justify-between mb-3">
-                    <Typography
-                      variant="caption"
-                      component="div"
-                      className="text-stieglitz"
-                    >
-                      Epoch
-                    </Typography>
-                    <Typography variant="caption" component="div">
-                      Monthly
-                    </Typography>
-                  </Box>
-                  <Box className="flex flex-row justify-between mb-3">
-                    <Typography
-                      variant="caption"
-                      component="div"
-                      className="text-stieglitz"
-                    >
-                      Next Epoch
-                    </Typography>
-                    <Typography variant="caption" component="div">
-                      {epochTimePeriod}
-                    </Typography>
-                  </Box>
-                  <Box className="flex flex-row justify-between mb-3">
-                    <Typography
-                      variant="caption"
-                      component="div"
-                      className="text-stieglitz"
-                    >
-                      Deposits
-                    </Typography>
-                    <Typography variant="caption" component="div">
-                      <span className="text-wave-blue">
-                        {userEpochDepositsAmount}
-                      </span>{' '}
-                      {tokenSymbol} / {totalEpochDepositsAmount} {tokenSymbol}
-                    </Typography>
-                  </Box>
+                Vault Properties
+              </Typography>
+              <Box className="flex flex-col w-full p-4">
+                <Box className="flex flex-row justify-between mb-3">
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-stieglitz"
+                  >
+                    Epoch
+                  </Typography>
+                  <Typography variant="caption" component="div">
+                    Monthly
+                  </Typography>
                 </Box>
-              </AccordionDetails>
-            </Accordion>
+                <Box className="flex flex-row justify-between mb-3">
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-stieglitz"
+                  >
+                    Next Epoch
+                  </Typography>
+                  <Typography variant="caption" component="div">
+                    {epochTimePeriod}
+                  </Typography>
+                </Box>
+                <Box className="flex flex-row justify-between mb-3">
+                  <Typography
+                    variant="caption"
+                    component="div"
+                    className="text-stieglitz"
+                  >
+                    Deposits
+                  </Typography>
+                  <Typography variant="caption" component="div">
+                    <span className="text-wave-blue">
+                      {userEpochDepositsAmount}
+                    </span>{' '}
+                    {tokenSymbol} / {totalEpochDepositsAmount} {tokenSymbol}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
           </Box>
           <Box className="grid grid-cols-2 gap-2 my-4">
             <CustomButton
