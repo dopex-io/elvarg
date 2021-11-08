@@ -30,21 +30,23 @@ import { MAX_VALUE } from 'constants/index';
 export interface Props {
   open: boolean;
   handleClose: () => {};
+  ssov: string;
 }
 
-const PurchaseDialog = ({ open, handleClose }: Props) => {
+const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
+  const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
     currentEpoch,
     ssovData: { epochStrikes },
     userSsovData: { epochStrikeTokens },
-    dpxToken,
-    dpxTokenPrice,
+    token,
+    tokenPrice,
     updateSsovData,
     updateUserSsovData,
     ssovOptionPricingContract,
     volatilityOracleContract,
-  } = useContext(SsovContext);
+  } = context[ssov];
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -57,7 +59,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
   });
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
   const [approved, setApproved] = useState<boolean>(false);
-  const [userDpxBalance, setUserDpxBalance] = useState<BigNumber>(
+  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
   const [
@@ -106,7 +108,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     }),
     validate: () => {
       const errors: any = {};
-      if (state.totalCost.gt(userDpxBalance)) {
+      if (state.totalCost.gt(userTokenBalance)) {
         errors.amount = 'Insufficient DPX balance to pay for premium.';
       }
       return errors;
@@ -116,15 +118,15 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
 
   // Handles isApproved
   useEffect(() => {
-    if (!dpxToken || !ssovContractWithSigner) return;
+    if (!token || !ssovContractWithSigner) return;
     (async function () {
       const finalAmount = state.totalCost;
 
-      const userDpxAmount = await dpxToken.balanceOf(accountAddress);
+      const userAmount = await token.balanceOf(accountAddress);
 
-      setUserDpxBalance(userDpxAmount);
+      setUserTokenBalance(userAmount);
 
-      let allowance = await dpxToken.allowance(
+      let allowance = await token.allowance(
         accountAddress,
         ssovContractWithSigner.address
       );
@@ -135,18 +137,18 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
         setApproved(false);
       }
     })();
-  }, [accountAddress, state.totalCost, dpxToken, ssovContractWithSigner]);
+  }, [accountAddress, state.totalCost, token, ssovContractWithSigner]);
 
   const handleApprove = useCallback(async () => {
     try {
       await newEthersTransaction(
-        dpxToken.approve(ssovContractWithSigner.address, MAX_VALUE)
+        token.approve(ssovContractWithSigner.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [dpxToken, ssovContractWithSigner]);
+  }, [token, ssovContractWithSigner]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -198,17 +200,17 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
           false,
           expiry,
           strike,
-          dpxTokenPrice,
+          tokenPrice,
           volatility
         );
 
         const premium = optionPrice
           .mul(ethersUtils.parseEther(String(formik.values.amount)))
-          .div(dpxTokenPrice);
+          .div(tokenPrice);
 
         const fees = await ssovContractWithSigner.calculateFees(
           premium,
-          dpxTokenPrice,
+          tokenPrice,
           true
         );
 
@@ -231,7 +233,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
     ssovContractWithSigner,
     ssovOptionPricingContract,
     volatilityOracleContract,
-    dpxTokenPrice,
+    tokenPrice,
     formik.values.amount,
   ]);
 
@@ -336,7 +338,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                 Current Price (DPX)
               </Typography>
               <Typography variant="caption" component="div">
-                ${formatAmount(getUserReadableAmount(dpxTokenPrice, 8))}
+                ${formatAmount(getUserReadableAmount(tokenPrice, 8))}
               </Typography>
             </Box>
             {strikeIndex !== null && (
@@ -404,7 +406,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                   <Typography variant="caption" component="div">
                     $
                     {formatAmount(
-                      getUserReadableAmount(state.fees.mul(dpxTokenPrice), 26),
+                      getUserReadableAmount(state.fees.mul(tokenPrice), 26),
                       3
                     )}
                   </Typography>
@@ -429,7 +431,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     DPX ($
                     {formatAmount(
                       getUserReadableAmount(
-                        state.totalCost.mul(dpxTokenPrice),
+                        state.totalCost.mul(tokenPrice),
                         26
                       ),
                       3
@@ -450,7 +452,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
                     component="div"
                     className="text-wave-blue"
                   >
-                    {formatAmount(getUserReadableAmount(userDpxBalance, 18))}{' '}
+                    {formatAmount(getUserReadableAmount(userTokenBalance, 18))}{' '}
                     DPX
                   </Typography>
                 </Box>
@@ -480,7 +482,7 @@ const PurchaseDialog = ({ open, handleClose }: Props) => {
               optionPrice={getUserReadableAmount(state.optionPrice, 8)}
               amount={formik.values.amount}
               isPut={false}
-              price={getUserReadableAmount(dpxTokenPrice, 8)}
+              price={getUserReadableAmount(tokenPrice, 8)}
               symbol="DPX"
             />
           </Box>

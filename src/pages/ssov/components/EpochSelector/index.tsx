@@ -7,9 +7,16 @@ import cx from 'classnames';
 
 import { SsovContext } from 'contexts/Ssov';
 
-export default function EpochSelector({ className }: { className?: string }) {
-  const { currentEpoch, selectedEpoch, setSelectedEpoch } =
-    useContext(SsovContext);
+export default function EpochSelector({
+  className,
+  ssov,
+}: {
+  className?: string;
+  ssov: string;
+}) {
+  const context = useContext(SsovContext);
+
+  const { currentEpoch, selectedEpoch, setSelectedEpoch } = context[ssov];
 
   const handleSelectChange = useCallback(
     (e) => {

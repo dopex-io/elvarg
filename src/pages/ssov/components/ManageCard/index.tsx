@@ -14,7 +14,7 @@ import { SsovContext } from 'contexts/Ssov';
 
 import styles from './styles.module.scss';
 
-const ManageCard = () => {
+const ManageCard = ({ ssov }) => {
   const [isDeposit, setIsDeposit] = useState(true);
 
   const handleChangeToDeposit = useCallback(() => {
@@ -25,7 +25,8 @@ const ManageCard = () => {
     setIsDeposit(false);
   }, []);
 
-  const { selectedEpoch } = useContext(SsovContext);
+  const context = useContext(SsovContext);
+  const { selectedEpoch } = context[ssov];
 
   return (
     <Box
@@ -69,7 +70,7 @@ const ManageCard = () => {
           </Box>
         </Box>
       </Box>
-      {isDeposit ? <Deposit /> : <Withdraw />}
+      {isDeposit ? <Deposit ssov={ssov} /> : <Withdraw ssov={ssov} />}
     </Box>
   );
 };

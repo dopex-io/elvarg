@@ -31,6 +31,8 @@ const Farms = () => {
     rDPX_WETHPool,
   } = useContext(FarmingContext);
 
+  console.log('Asda');
+
   const { accountAddress, signer, chainId } = useContext(WalletContext);
 
   const [yourDeposit, setYourDeposit] = useState(0);

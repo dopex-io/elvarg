@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 
 import AppBar from 'components/AppBar';
@@ -7,6 +8,10 @@ import ExerciseList from '../components/ExerciseList';
 import Stats from '../components/Stats';
 
 const Manage = () => {
+  const { asset } = useParams<{ asset: string }>();
+
+  const ssov = asset === 'rdpx' ? 'ssovRdpx' : 'ssovDpx';
+
   return (
     <Box className="overflow-x-hidden bg-black h-screen">
       <AppBar active="SSOV" />
@@ -14,14 +19,14 @@ const Manage = () => {
         <Box className="flex flex-col mt-20">
           <Box className="flex flex-row mb-4">
             <Box className="w-1/2 flex flex-shrink">
-              <Description />
+              <Description ssov={ssov} />
             </Box>
             <Box className="w-1/2 flex flex-row-reverse flex-shrink">
-              <ManageCard />
+              <ManageCard ssov={ssov} />
             </Box>
           </Box>
-          <ExerciseList />
-          <Stats className="mt-4" />
+          <ExerciseList ssov={ssov} />
+          <Stats ssov={ssov} className="mt-4" />
         </Box>
       </Box>
     </Box>

@@ -36,7 +36,8 @@ interface userExercisableOption {
   isPastEpoch: boolean;
 }
 
-const ExerciseList = () => {
+const ExerciseList = ({ ssov }) => {
+  const context = useContext(SsovContext);
   const {
     currentEpoch,
     selectedEpoch,
@@ -46,8 +47,8 @@ const ExerciseList = () => {
       userEpochStrikeDeposits,
       userEpochCallsPurchased,
     },
-    dpxTokenPrice,
-  } = useContext(SsovContext);
+    tokenPrice,
+  } = context[ssov];
   const { accountAddress } = useContext(WalletContext);
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
@@ -77,16 +78,17 @@ const ExerciseList = () => {
           18
         );
         const exercisableAmount = getUserReadableAmount(
+          //@ts-ignore
           userEpochStrikeTokenBalanceArray[strikeIndex],
           18
         );
-        const isExercisable = exercisableAmount > 0 && dpxTokenPrice.gt(strike);
+        const isExercisable = exercisableAmount > 0 && tokenPrice.gt(strike);
 
         const isPastEpoch = selectedEpoch < currentEpoch;
 
         const pnlAmount =
-          ((Number(dpxTokenPrice.div(1e8)) - strikePrice) * purchasedAmount) /
-          Number(dpxTokenPrice.div(1e8));
+          ((Number(tokenPrice.div(1e8)) - strikePrice) * purchasedAmount) /
+          Number(tokenPrice.div(1e8));
 
         return {
           strikeIndex,
@@ -110,7 +112,7 @@ const ExerciseList = () => {
     epochStrikes,
     userEpochStrikeDeposits,
     userEpochCallsPurchased,
-    dpxTokenPrice,
+    tokenPrice,
     isVaultReady,
   ]);
 
@@ -241,6 +243,7 @@ const ExerciseList = () => {
                           exercisableAmount={exercisableAmount}
                           isExercisable={isExercisable}
                           isPastEpoch={isPastEpoch}
+                          ssov={ssov}
                         />
                       );
                     }
