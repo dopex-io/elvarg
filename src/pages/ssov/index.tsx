@@ -2,7 +2,7 @@ import Box from '@material-ui/core/Box';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
-import VaultCard from './components/VaultCard';
+import SsovCard from './components/SsovCard';
 
 const Ssov = () => {
   return (
@@ -14,12 +14,13 @@ const Ssov = () => {
             Single Staking Option Vaults
           </Typography>
           <Typography variant="h5" className="text-stieglitz">
-            Supply liquidity to Dopex pools. Collect premiums and earn DPX &
-            rDPX as a liquidity provider.
+            Supply option liquidity to an Option Vault. Collect premiums from
+            option purchases and earn rewards from farms simultaneously.
           </Typography>
         </Box>
-        <Box>
-          <VaultCard />
+        <Box className="flex space-x- space-x-24 justify-center">
+          <SsovCard ssov="ssovDpx" />
+          <SsovCard ssov="ssovRdpx" />
         </Box>
       </Box>
     </Box>

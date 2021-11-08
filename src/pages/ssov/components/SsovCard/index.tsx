@@ -14,7 +14,9 @@ import PurchaseDialog from '../ManageCard/PurchaseDialog';
 import InfoBox from '../InfoBox';
 
 import dpxLogo from 'assets/tokens/dpx.svg';
+import rdpxLogo from 'assets/tokens/rdpx.svg';
 import Dpx from 'assets/icons/DpxIcon';
+import Rdpx from 'assets/tokens/Rdpx';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
@@ -25,33 +27,37 @@ import formatAmount from 'utils/general/formatAmount';
 
 import styles from './styles.module.scss';
 
-interface VaultCardProps {
+interface SsovCardProps {
   className?: string;
+  ssov: string;
 }
 
-function VaultCard(props: VaultCardProps) {
-  const { className } = props;
+function SsovCard(props: SsovCardProps) {
+  const { className, ssov } = props;
   const history = useHistory();
+  const context = useContext(SsovContext);
   const {
     selectedEpoch,
     ssovData: { epochTimes, totalEpochDeposits },
     userSsovData: { userEpochDeposits },
-    dpxTokenPrice,
+    tokenPrice,
     APY,
-  } = useContext(SsovContext);
+  } = context[ssov];
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
   const TVL =
-    totalEpochDeposits && dpxTokenPrice
+    totalEpochDeposits && tokenPrice
       ? getUserReadableAmount(totalEpochDeposits, 18) *
-        getUserReadableAmount(dpxTokenPrice, 8)
+        getUserReadableAmount(tokenPrice, 8)
       : 0;
+
+  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
 
   const info = [
     {
-      icon: Dpx,
+      icon: ssov === 'ssovDpx' ? Dpx : Rdpx,
       heading: 'Asset',
-      value: 'DPX',
+      value: tokenSymbol,
     },
     {
       icon: Action,
@@ -85,9 +91,7 @@ function VaultCard(props: VaultCardProps) {
       : 'N/A';
 
   return (
-    <Box
-      className={cx('p-0.5 rounded-xl mx-auto', styles['WETH'], styles.Border)}
-    >
+    <Box className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Border)}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -98,10 +102,13 @@ function VaultCard(props: VaultCardProps) {
         <Box>
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
-              <img src={dpxLogo} alt="Icon" />
+              <img
+                src={ssov === 'ssovDpx' ? dpxLogo : rdpxLogo}
+                alt={tokenSymbol}
+              />
             </Box>
             <Box className="flex items-center">
-              <Typography variant="h5">DPX Options Vault</Typography>
+              <Typography variant="h5">{tokenSymbol} Options Vault</Typography>
             </Box>
           </Box>
           <Box className="border-umbra rounded-xl border p-4 flex flex-col mb-4">
@@ -113,9 +120,9 @@ function VaultCard(props: VaultCardProps) {
               component="div"
               className="mb-4 text-left text-stieglitz"
             >
-              Returns are generated via an automated compound strategy in the
-              DPX farm where all yield is collectively used to sell Call
-              Options.
+              Returns are generated via an automated compound strategy in the{' '}
+              {tokenSymbol} farm where all yield is collectively used to sell
+              Call Options.
             </Typography>
             <Typography
               variant="caption"
@@ -202,7 +209,7 @@ function VaultCard(props: VaultCardProps) {
                       <span className="text-wave-blue">
                         {userEpochDepositsAmount}
                       </span>{' '}
-                      DPX / {totalEpochDepositsAmount} DPX
+                      {tokenSymbol} / {totalEpochDepositsAmount} {tokenSymbol}
                     </Typography>
                   </Box>
                 </Box>
@@ -213,7 +220,9 @@ function VaultCard(props: VaultCardProps) {
             <CustomButton
               size="medium"
               onClick={() => {
-                history.push('/ssov/manage');
+                history.push(
+                  `/ssov/manage/${ssov === 'ssovDpx' ? 'dpx' : 'rdpx'}`
+                );
               }}
             >
               Deposit
@@ -233,7 +242,9 @@ function VaultCard(props: VaultCardProps) {
             className="text-wave-blue text-right block"
             component="a"
             // @ts-ignore
-            href="/ssov/manage#balances"
+            href={`/ssov/manage/${
+              ssov === 'ssovDpx' ? 'dpx' : 'rdpx'
+            }#balances`}
           >
             View Options
           </Typography>
@@ -244,6 +255,7 @@ function VaultCard(props: VaultCardProps) {
       </Box>
       {purchaseState && (
         <PurchaseDialog
+          ssov="ssovDpx"
           open={purchaseState}
           handleClose={
             (() => {
@@ -256,4 +268,4 @@ function VaultCard(props: VaultCardProps) {
   );
 }
 
-export default VaultCard;
+export default SsovCard;

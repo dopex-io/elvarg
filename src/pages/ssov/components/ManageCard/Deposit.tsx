@@ -55,12 +55,13 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = () => {
+const Deposit = ({ ssov }) => {
   const classes = useStyles();
+  const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
     selectedEpoch,
-    dpxToken,
+    token,
     ssovData: {
       epochTimes,
       isVaultReady,
@@ -72,7 +73,7 @@ const Deposit = () => {
     userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
     updateSsovData,
     updateUserSsovData,
-  } = useContext(SsovContext);
+  } = context[ssov];
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -84,12 +85,14 @@ const Deposit = () => {
   }>({});
   const [error, setError] = useState('');
 
+  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady || !isEpochExpired) return false;
     return true;
   }, [isVaultReady, isEpochExpired]);
 
-  const [userDpxBalance, setUserDpxBalance] = useState<BigNumber>(
+  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
   const [approved, setApproved] = useState<boolean>(false);
@@ -151,26 +154,26 @@ const Deposit = () => {
   );
 
   useEffect(() => {
-    if (totalDepositAmount.gt(userDpxBalance)) {
-      setError('Deposit amount exceeds your current DPX balance.');
+    if (totalDepositAmount.gt(userTokenBalance)) {
+      setError(`Deposit amount exceeds your current ${tokenSymbol} balance.`);
     } else {
       setError('');
     }
-  }, [totalDepositAmount, totalEpochDeposits, userDpxBalance]);
+  }, [totalDepositAmount, totalEpochDeposits, userTokenBalance, tokenSymbol]);
 
   // Handles isApproved
   useEffect(() => {
-    if (!dpxToken || !ssovContractWithSigner || !accountAddress) return;
+    if (!token || !ssovContractWithSigner || !accountAddress) return;
     (async function () {
       const finalAmount = getContractReadableAmount(
         totalDepositAmount.toString(),
         18
       );
 
-      let userDpxAmount = await dpxToken.balanceOf(accountAddress);
-      setUserDpxBalance(userDpxAmount);
+      let userAmount = await token.balanceOf(accountAddress);
+      setUserTokenBalance(userAmount);
 
-      let allowance = await dpxToken.allowance(
+      let allowance = await token.allowance(
         accountAddress,
         ssovContractWithSigner.address
       );
@@ -181,7 +184,7 @@ const Deposit = () => {
         setApproved(false);
       }
     })();
-  }, [accountAddress, totalDepositAmount, dpxToken, ssovContractWithSigner]);
+  }, [accountAddress, totalDepositAmount, token, ssovContractWithSigner]);
 
   const handleApprove = useCallback(async () => {
     const finalAmount = getContractReadableAmount(
@@ -190,7 +193,7 @@ const Deposit = () => {
     );
     try {
       await newEthersTransaction(
-        dpxToken.approve(
+        token.approve(
           ssovContractWithSigner.address,
           maxApprove ? MAX_VALUE : finalAmount.toString()
         )
@@ -199,7 +202,7 @@ const Deposit = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [totalDepositAmount, maxApprove, dpxToken, ssovContractWithSigner]);
+  }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -247,7 +250,8 @@ const Deposit = () => {
           Balance
         </Typography>
         <Typography variant="caption" component="div">
-          {formatAmount(getUserReadableAmount(userDpxBalance, 18))} DPX
+          {formatAmount(getUserReadableAmount(userTokenBalance, 18))}{' '}
+          {tokenSymbol}
         </Typography>
       </Box>
       <Box className="bg-umbra flex flex-col p-4 rounded-xl justify-between mb-2">
@@ -341,7 +345,8 @@ const Deposit = () => {
           Allocation
         </Typography>
         <Typography variant="caption" component="div">
-          {getUserReadableAmount(totalDepositAmount, 18).toString()} DPX
+          {getUserReadableAmount(totalDepositAmount, 18).toString()}{' '}
+          {tokenSymbol}
         </Typography>
       </Box>
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
@@ -431,7 +436,6 @@ const Deposit = () => {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          `
           <Box className="flex flex-row justify-between w-full items-center">
             <Typography variant="h6" className="text-stieglitz">
               My Deposits
@@ -440,7 +444,7 @@ const Deposit = () => {
               <span className="text-wave-blue">
                 {formatAmount(userEpochDepositsAmount, 5)}
               </span>{' '}
-              / {formatAmount(totalEpochDepositsAmount, 5)} DPX
+              / {formatAmount(totalEpochDepositsAmount, 5)} {tokenSymbol}
             </Typography>
           </Box>
         </AccordionSummary>
@@ -458,7 +462,7 @@ const Deposit = () => {
                   / {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
-                  DPX ${strike}
+                  {tokenSymbol} ${strike}
                 </Typography>
               </Box>
             ))}

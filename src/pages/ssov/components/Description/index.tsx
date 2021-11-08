@@ -7,6 +7,7 @@ import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../ManageCard/PurchaseDialog';
 import Dpx from 'assets/icons/DpxIcon';
+import Rdpx from 'assets/tokens/Rdpx';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
@@ -15,21 +16,24 @@ import { SsovContext } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-const Description = () => {
+const Description = ({ ssov }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { dpxTokenPrice, APY, ssovData } = useContext(SsovContext);
+  const context = useContext(SsovContext);
+  const { tokenPrice, APY, ssovData } = context[ssov];
+
+  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
 
   const TVL =
-    ssovData.totalEpochDeposits && dpxTokenPrice
+    ssovData.totalEpochDeposits && tokenPrice
       ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
-        getUserReadableAmount(dpxTokenPrice, 8)
+        getUserReadableAmount(tokenPrice, 8)
       : 0;
 
   const info = [
     {
-      icon: Dpx,
+      icon: ssov === 'ssovDpx' ? Dpx : Rdpx,
       heading: 'Asset',
-      value: 'DPX',
+      value: tokenSymbol,
     },
     {
       icon: Action,
@@ -47,17 +51,18 @@ const Description = () => {
   return (
     <Box className="flex flex-col mr-10">
       <Typography variant="h1" className="mb-6">
-        DPX SSOV
+        {tokenSymbol} SSOV
       </Typography>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
-          DPX Single Staking Option Vault (SSOV)
+          {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>{' '}
-        accepts user DPX deposits and stakes them in the DPX Single Staking
-        Farm.
+        accepts user {tokenSymbol} deposits and stakes them in the {tokenSymbol}{' '}
+        Single Staking Farm.
         <br />
         <br />
-        This farm simultaneously auto-compounds, farms and supplies DPX
+        This farm simultaneously auto-compounds, farms and supplies{' '}
+        {tokenSymbol}
         liquidity to our first options pool.
       </Typography>
       <Box className="flex flex-row">
@@ -70,7 +75,7 @@ const Description = () => {
         >
           Buy Call Options
         </CustomButton>
-        <EpochSelector />
+        <EpochSelector ssov={ssov} />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item, index) => {
@@ -95,6 +100,7 @@ const Description = () => {
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
+          ssov={ssov}
           handleClose={
             (() => {
               setPurchaseState(false);

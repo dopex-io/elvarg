@@ -27,9 +27,11 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
+  ssov: string;
 }
 
-const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
+const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
+  const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
     selectedEpoch,
@@ -37,8 +39,8 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
     userSsovData: { epochStrikeTokens, userEpochStrikeDeposits },
     updateSsovData,
     updateUserSsovData,
-    dpxTokenPrice,
-  } = useContext(SsovContext);
+    tokenPrice,
+  } = context[ssov];
   const { accountAddress } = useContext(WalletContext);
   const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
@@ -46,7 +48,7 @@ const Exercise = ({ open, handleClose, strikeIndex }: Props) => {
 
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
-  const currentPrice = getUserReadableAmount(dpxTokenPrice ?? 0, 8);
+  const currentPrice = getUserReadableAmount(tokenPrice ?? 0, 8);
   const userEpochStrikeDepositAmount = getUserReadableAmount(
     userEpochStrikeDeposits[strikeIndex] ?? 0,
     18

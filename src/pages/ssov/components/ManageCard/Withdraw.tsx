@@ -17,7 +17,8 @@ import formatAmount from 'utils/general/formatAmount';
 
 import styles from './styles.module.scss';
 
-const Withdraw = () => {
+const Withdraw = ({ ssov }) => {
+  const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
     currentEpoch,
@@ -31,7 +32,7 @@ const Withdraw = () => {
     userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
     updateSsovData,
     updateUserSsovData,
-  } = useContext(SsovContext);
+  } = context[ssov];
   const { updateAssetBalances } = useContext(AssetsContext);
   const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
 
@@ -83,6 +84,8 @@ const Withdraw = () => {
     ]
   );
 
+  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+
   return (
     <Box>
       <Box className="bg-umbra flex flex-col p-4 rounded-xl justify-between mb-2">
@@ -94,7 +97,7 @@ const Withdraw = () => {
             <span className="text-wave-blue">
               {formatAmount(userEpochDepositsAmount, 5)}
             </span>{' '}
-            / {formatAmount(totalEpochDepositsAmount, 5)} DPX
+            / {formatAmount(totalEpochDepositsAmount, 5)} {tokenSymbol}
           </Typography>
         </Box>
         <Box>
@@ -119,7 +122,7 @@ const Withdraw = () => {
                       {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                     </Typography>
                     <Typography variant="h6" className="text-stieglitz">
-                      DPX ${strike}
+                      {tokenSymbol} ${strike}
                     </Typography>
                   </Box>
                 </Box>
@@ -141,7 +144,7 @@ const Withdraw = () => {
                   {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
-                  DPX ${strike}
+                  {tokenSymbol} ${strike}
                 </Typography>
               </Box>
             )

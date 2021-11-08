@@ -10,6 +10,7 @@ import formatAmount from 'utils/general/formatAmount';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import dpxIcon from 'assets/tokens/dpx.svg';
+import rdpxIcon from 'assets/tokens/rdpx.svg';
 import Exercise from './Exercise';
 
 const CustomizedTooltip = withStyles((theme) => ({
@@ -31,6 +32,7 @@ interface ExerciseTableDataProps {
   pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
+  ssov: string;
 }
 
 const ExerciseTableData = (props: ExerciseTableDataProps) => {
@@ -43,6 +45,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     pnlAmount,
     isExercisable,
     isPastEpoch,
+    ssov,
   } = props;
 
   const [modalState, setModalState] = useState({
@@ -65,6 +68,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const Modal = MODALS[modalState.type];
+  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -72,15 +76,19 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         open={modalState.open}
         handleClose={handleClose}
         strikeIndex={strikeIndex}
+        ssov={ssov}
         className="rounded-xl"
       />
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={dpxIcon} alt="DPX" />
+            <img
+              src={ssov === 'ssovDpx' ? dpxIcon : rdpxIcon}
+              alt={tokenSymbol}
+            />
           </Box>
           <Typography variant="h5" className="text-white">
-            DPX
+            {tokenSymbol}
           </Typography>
         </Box>
       </TableCell>

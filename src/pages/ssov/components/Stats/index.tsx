@@ -22,6 +22,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import dpxIcon from 'assets/tokens/dpx.svg';
+import rdpxIcon from 'assets/tokens/rdpx.svg';
 
 import styles from './styles.module.scss';
 
@@ -31,20 +32,24 @@ interface StatsTableDataProps {
   totalDeposits: number;
   totalPurchased: number;
   totalPremiums: number;
+  imgSrc: string;
+  tokenSymbol: string;
 }
 
 const YEAR_SECONDS = 31536000;
 
 const StatsTableData = (
-  props: StatsTableDataProps & { dpxPrice: number; epochTime: number }
+  props: StatsTableDataProps & { price: number; epochTime: number }
 ) => {
   const {
     strikePrice,
     totalDeposits,
     totalPurchased,
     totalPremiums,
-    dpxPrice,
+    price,
     epochTime,
+    imgSrc,
+    tokenSymbol,
   } = props;
 
   return (
@@ -52,10 +57,10 @@ const StatsTableData = (
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={dpxIcon} alt="DPX" />
+            <img src={imgSrc} alt="DPX" />
           </Box>
           <Typography variant="h5" className="text-white">
-            DPX
+            {tokenSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -64,12 +69,11 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)}
-          {' DPX'}
+          {formatAmount(totalDeposits, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalDeposits * dpxPrice, 2)}
+          {formatAmount(totalDeposits * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
@@ -84,12 +88,11 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)}
-          {' DPX'}
+          {formatAmount(totalPremiums, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalPremiums * dpxPrice, 2)}
+          {formatAmount(totalPremiums * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="right" className="px-6 pt-2">
@@ -111,8 +114,9 @@ const StatsTableData = (
 
 const ROWS_PER_PAGE = 5;
 
-const Stats = (props: { className?: string }) => {
-  const { className } = props;
+const Stats = (props: { className?: string; ssov: string }) => {
+  const { className, ssov } = props;
+  const context = useContext(SsovContext);
   const {
     selectedEpoch,
     ssovData: {
@@ -122,8 +126,8 @@ const Stats = (props: { className?: string }) => {
       totalEpochStrikeDeposits,
       totalEpochCallsPurchased,
     },
-    dpxTokenPrice,
-  } = useContext(SsovContext);
+    tokenPrice,
+  } = context[ssov];
 
   const epochTime =
     epochTimes && epochTimes[0] && epochTimes[1]
@@ -138,9 +142,9 @@ const Stats = (props: { className?: string }) => {
     [setPage]
   );
 
-  const dpxPrice = useMemo(
-    () => getUserReadableAmount(dpxTokenPrice ?? 0, 8),
-    [dpxTokenPrice]
+  const price = useMemo(
+    () => getUserReadableAmount(tokenPrice ?? 0, 8),
+    [tokenPrice]
   );
 
   const stats: StatsTableDataProps[] = useMemo(
@@ -275,8 +279,10 @@ const Stats = (props: { className?: string }) => {
                           totalDeposits={totalDeposits}
                           totalPurchased={totalPurchased}
                           totalPremiums={totalPremiums}
-                          dpxPrice={dpxPrice}
+                          price={price}
                           epochTime={epochTime}
+                          imgSrc={ssov === 'ssovDpx' ? dpxIcon : rdpxIcon}
+                          tokenSymbol={ssov === 'ssovDpx' ? 'DPX' : 'rDPX'}
                         />
                       );
                     }
