@@ -98,10 +98,8 @@ export const SsovProvider = (props) => {
   const [ssovRdpxContract, setSsovRdpxContract] = useState<SSOV | null>(null);
   const [ssovRdpxContractWithSigner, setSsovRdpxContractWithSigner] =
     useState<SSOV | null>(null);
-  const [currentEpochRdpx, setCurrentEpochRdpx] = useState<number | null>(null);
-  const [selectedEpochRdpx, setSelectedEpochRdpx] = useState<number | null>(
-    null
-  );
+  const [currentEpochRdpx, setCurrentEpochRdpx] = useState<number | null>(1);
+  const [selectedEpochRdpx, setSelectedEpochRdpx] = useState<number | null>(1);
   const [rdpxToken, setRdpxToken] = useState<ERC20 | null>(null);
 
   const updateUserSsovDpxData = useCallback(async () => {
@@ -357,16 +355,18 @@ export const SsovProvider = (props) => {
     let priceDPX = prices[0];
     let priceRDPX = prices[1];
 
-    const TVL = totalSupply.mul(Math.round(priceDPX)).div(oneEBigNumber(18));
+    const TVL = totalSupply.mul(Math.round(priceRDPX)).div(oneEBigNumber(18));
 
     let DPXemitted;
     let RDPXemitted;
 
-    DPXemitted = DPX.mul(BigNumber.from(86400 * 365))
+    DPXemitted = DPX.mul(BigNumber.from(86400 * 90))
       .mul(Math.round(priceDPX))
+      .mul(2)
       .div(oneEBigNumber(18));
-    RDPXemitted = RDPX.mul(BigNumber.from(86400 * 365))
+    RDPXemitted = RDPX.mul(BigNumber.from(86400 * 90))
       .mul(Math.round(priceRDPX))
+      .mul(2)
       .div(oneEBigNumber(18));
 
     const denominator =
@@ -420,9 +420,9 @@ export const SsovProvider = (props) => {
         let currentEpoch = Number(await _ssovDpxContract.currentEpoch());
         setCurrentEpochDpx(currentEpoch);
         setSelectedEpochDpx(currentEpoch);
-        currentEpoch = Number(await _ssovRdpxContract.currentEpoch());
-        setCurrentEpochRdpx(currentEpoch);
-        setSelectedEpochRdpx(currentEpoch);
+        // currentEpoch = Number(await _ssovRdpxContract.currentEpoch());
+        // setCurrentEpochRdpx(currentEpoch);
+        // setSelectedEpochRdpx(currentEpoch);
       } catch (err) {
         console.log(err);
       }

@@ -373,7 +373,7 @@ const Deposit = ({ ssov }) => {
             component="div"
             className="text-stieglitz text-left"
           >
-            {isDepositWindowOpen
+            {isDepositWindowOpen || ssov === 'ssovRdpx'
               ? `Deposits for this epoch are now open.`
               : `Deposits for this epoch has been closed.`}
             {isVaultReady ? (
