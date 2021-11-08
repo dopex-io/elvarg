@@ -61,8 +61,8 @@ function SsovCard(props: SsovCardProps) {
     },
     {
       icon: Action,
-      heading: 'Farm APY',
-      value: `${APY}%` || '...',
+      heading: 'APY',
+      value: `${APY ? `${APY}%` : '...'}`,
       toolTip: 'This is the base APY calculated from the single staking farm',
     },
     {

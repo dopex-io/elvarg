@@ -399,7 +399,7 @@ export const SsovProvider = (props) => {
 
     const SSOVAddresses = contractAddresses.SSOV;
 
-    if (!SSOVAddresses.DPX.Vault) return;
+    if (!SSOVAddresses?.DPX?.Vault) return;
 
     const _ssovDpxContract = SSOV__factory.connect(
       SSOVAddresses.DPX.Vault,
@@ -485,7 +485,7 @@ export const SsovProvider = (props) => {
 
     const SSOVAddresses = contractAddresses.SSOV;
 
-    if (!SSOVAddresses?.DPX.Vault) return;
+    if (!SSOVAddresses?.DPX?.Vault) return;
 
     setSsovDpxContractWithSigner(
       SSOV__factory.connect(SSOVAddresses.DPX.Vault, signer)
