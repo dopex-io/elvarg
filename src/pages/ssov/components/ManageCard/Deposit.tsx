@@ -399,6 +399,21 @@ const Deposit = ({ ssov }) => {
                   }}
                 />
               </>
+            ) : ssov === 'ssovRdpx' ? (
+              <>
+                <br />
+                <br />
+                <Countdown
+                  date={new Date(1636567200000)}
+                  renderer={({ days, hours, minutes, seconds, completed }) => {
+                    return (
+                      <span className="text-wave-blue">
+                        Time left: {days}d {hours}h {minutes}m {seconds}s
+                      </span>
+                    );
+                  }}
+                />
+              </>
             ) : null}
           </Typography>
         </Box>
