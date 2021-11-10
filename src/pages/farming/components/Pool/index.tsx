@@ -149,7 +149,12 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
         }}
       />
       <Box className="w-full">
-        <FarmingHeader Icon={Icon} heading={poolInfo.stakingAsset} />
+        <FarmingHeader
+          Icon={Icon}
+          heading={
+            poolInfo.stakingAsset === 'RDPX' ? 'rDPX' : poolInfo.stakingAsset
+          }
+        />
       </Box>
       <Box className="border-cod-gray rounded-xl border p-4 flex flex-col justify-between w-full mb-4 h-full">
         {accountAddress ? (
