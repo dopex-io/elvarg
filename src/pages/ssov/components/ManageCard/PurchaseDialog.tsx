@@ -42,11 +42,10 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     userSsovData: { epochStrikeTokens },
     token,
     tokenPrice,
-    updateSsovData,
-    updateUserSsovData,
     ssovOptionPricingContract,
     volatilityOracleContract,
   } = context[ssov];
+  const { updateSsovData, updateUserSsovData } = context;
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -157,8 +156,8 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
       await newEthersTransaction(
         ssovContractWithSigner.purchase(strikeIndex, finalAmount)
       );
-      updateSsovData();
-      updateUserSsovData();
+      updateSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
+      updateUserSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
       formik.setFieldValue('amount', 0);
@@ -173,6 +172,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     updateUserEpochStrikePurchasableAmount,
     updateAssetBalances,
     formik,
+    ssov,
   ]);
 
   // Calculate the Option Price & Fees

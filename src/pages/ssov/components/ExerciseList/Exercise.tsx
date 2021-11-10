@@ -37,10 +37,9 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     selectedEpoch,
     ssovData: { epochStrikes },
     userSsovData: { epochStrikeTokens, userEpochStrikeDeposits },
-    updateSsovData,
-    updateUserSsovData,
     tokenPrice,
   } = context[ssov];
+  const { updateSsovData, updateUserSsovData } = context;
   const { accountAddress } = useContext(WalletContext);
   const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
@@ -154,8 +153,8 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
           accountAddress
         )
       );
-      updateSsovData();
-      updateUserSsovData();
+      updateSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
+      updateUserSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
       updateUserEpochStrikeTokenBalance();
       setInputValue('');
       formik.setFieldValue('amount', '');
@@ -171,6 +170,7 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     updateUserSsovData,
     updateUserEpochStrikeTokenBalance,
     formik,
+    ssov,
   ]);
 
   return (

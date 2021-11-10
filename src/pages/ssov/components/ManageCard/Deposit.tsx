@@ -55,7 +55,7 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = ({ ssov }) => {
+const Deposit = ({ ssov }: { ssov: string }) => {
   const classes = useStyles();
   const context = useContext(SsovContext);
   const {
@@ -71,9 +71,8 @@ const Deposit = ({ ssov }) => {
       totalEpochDeposits,
     },
     userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
-    updateSsovData,
-    updateUserSsovData,
   } = context[ssov];
+  const { updateSsovData, updateUserSsovData } = context;
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -225,8 +224,8 @@ const Deposit = ({ ssov }) => {
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
-      updateSsovData();
-      updateUserSsovData();
+      updateSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
+      updateUserSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
     } catch (err) {
       console.log(err);
     }
@@ -237,6 +236,7 @@ const Deposit = ({ ssov }) => {
     updateSsovData,
     updateUserSsovData,
     updateAssetBalances,
+    ssov,
   ]);
 
   return (
