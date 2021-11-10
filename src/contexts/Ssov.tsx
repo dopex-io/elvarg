@@ -98,8 +98,10 @@ export const SsovProvider = (props) => {
   const [ssovRdpxContract, setSsovRdpxContract] = useState<SSOV | null>(null);
   const [ssovRdpxContractWithSigner, setSsovRdpxContractWithSigner] =
     useState<SSOV | null>(null);
-  const [currentEpochRdpx, setCurrentEpochRdpx] = useState<number | null>(1);
-  const [selectedEpochRdpx, setSelectedEpochRdpx] = useState<number | null>(1);
+  const [currentEpochRdpx, setCurrentEpochRdpx] = useState<number | null>(null);
+  const [selectedEpochRdpx, setSelectedEpochRdpx] = useState<number | null>(
+    null
+  );
   const [rdpxToken, setRdpxToken] = useState<ERC20 | null>(null);
 
   const updateUserSsovData = useCallback(
@@ -237,12 +239,15 @@ export const SsovProvider = (props) => {
         token === 'dpx'
           ? BigNumber.from(86400 * 365)
           : BigNumber.from(86400 * 90);
+      const boost = token === 'dpx' ? 1 : 2;
 
       DPXemitted = DPX.mul(rewardsDuration)
         .mul(Math.round(priceDPX))
+        .mul(boost)
         .div(oneEBigNumber(18));
       RDPXemitted = RDPX.mul(rewardsDuration)
         .mul(Math.round(priceRDPX))
+        .mul(boost)
         .div(oneEBigNumber(18));
 
       const denominator =
@@ -303,19 +308,22 @@ export const SsovProvider = (props) => {
     (async function () {
       // Epoch
       try {
-        const [currentEpoch, dpxTokenPrice, rdpxTokenPrice] = await Promise.all(
-          [
-            _ssovDpxContract.currentEpoch(),
-            _ssovDpxContract.callStatic.getUsdPrice(contractAddresses.DPX),
-            _ssovDpxContract.callStatic.getUsdPrice(contractAddresses.RDPX),
-          ]
-        );
+        const [
+          currentEpochDpx,
+          currentEpochRdpx,
+          dpxTokenPrice,
+          rdpxTokenPrice,
+        ] = await Promise.all([
+          _ssovDpxContract.currentEpoch(),
+          _ssovRdpxContract.currentEpoch(),
+          _ssovDpxContract.callStatic.getUsdPrice(contractAddresses.DPX),
+          _ssovDpxContract.callStatic.getUsdPrice(contractAddresses.RDPX),
+        ]);
 
-        setCurrentEpochDpx(Number(currentEpoch));
-        setSelectedEpochDpx(Number(currentEpoch));
-        // currentEpoch = Number(await _ssovRdpxContract.currentEpoch());
-        // setCurrentEpochRdpx(currentEpoch);
-        // setSelectedEpochRdpx(currentEpoch);
+        setCurrentEpochDpx(Number(currentEpochDpx));
+        setSelectedEpochDpx(Number(currentEpochDpx));
+        setCurrentEpochRdpx(Number(currentEpochRdpx));
+        setSelectedEpochRdpx(Number(currentEpochRdpx));
 
         setStateDpx((prevState) => ({
           ...prevState,

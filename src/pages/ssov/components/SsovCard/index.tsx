@@ -233,7 +233,6 @@ function SsovCard(props: SsovCardProps) {
               onClick={() => {
                 setPurchaseState(true);
               }}
-              disabled={ssov === 'ssovRdpx'}
             >
               Buy Options
             </CustomButton>
@@ -256,7 +255,7 @@ function SsovCard(props: SsovCardProps) {
       </Box>
       {purchaseState && (
         <PurchaseDialog
-          ssov="ssovDpx"
+          ssov={ssov}
           open={purchaseState}
           handleClose={
             (() => {

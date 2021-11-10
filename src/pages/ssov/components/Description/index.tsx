@@ -72,7 +72,6 @@ const Description = ({ ssov }) => {
           onClick={() => {
             setPurchaseState(true);
           }}
-          disabled={ssov === 'ssovRdpx'}
         >
           Buy Call Options
         </CustomButton>

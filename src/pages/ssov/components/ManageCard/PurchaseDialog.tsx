@@ -13,9 +13,11 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import dpxIcon from 'assets/tokens/dpx.svg';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
+
+import dpxIcon from 'assets/tokens/dpx.svg';
+import rdpxIcon from 'assets/tokens/rdpx.svg';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
@@ -237,6 +239,8 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     formik.values.amount,
   ]);
 
+  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+
   return (
     <Dialog
       open={open}
@@ -270,10 +274,13 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
           <Box className="flex flex-row justify-between mb-4">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={dpxIcon} alt="DPX" />
+                <img
+                  src={ssov === 'ssovDpx' ? dpxIcon : rdpxIcon}
+                  alt={tokenSymbol}
+                />
               </Box>
               <Typography variant="h5" className="text-white">
-                DPX
+                {tokenSymbol}
               </Typography>
             </Box>
             <Input
@@ -335,7 +342,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
                 component="div"
                 className="text-stieglitz"
               >
-                Current Price (DPX)
+                Current Price ({tokenSymbol})
               </Typography>
               <Typography variant="caption" component="div">
                 ${formatAmount(getUserReadableAmount(tokenPrice, 8))}
@@ -428,7 +435,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
                       getUserReadableAmount(state.totalCost, 18),
                       3
                     )}{' '}
-                    DPX ($
+                    {tokenSymbol} ($
                     {formatAmount(
                       getUserReadableAmount(
                         state.totalCost.mul(tokenPrice),
@@ -453,7 +460,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
                     className="text-wave-blue"
                   >
                     {formatAmount(getUserReadableAmount(userTokenBalance, 18))}{' '}
-                    DPX
+                    {tokenSymbol}
                   </Typography>
                 </Box>
 

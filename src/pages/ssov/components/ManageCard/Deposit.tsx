@@ -373,7 +373,7 @@ const Deposit = ({ ssov }: { ssov: string }) => {
             component="div"
             className="text-stieglitz text-left"
           >
-            {isDepositWindowOpen || ssov === 'ssovRdpx'
+            {isDepositWindowOpen
               ? `Deposits for this epoch are now open.`
               : `Deposits for this epoch has been closed.`}
             {isVaultReady ? (
@@ -396,21 +396,6 @@ const Deposit = ({ ssov }: { ssov: string }) => {
                         </span>
                       );
                     }
-                  }}
-                />
-              </>
-            ) : ssov === 'ssovRdpx' ? (
-              <>
-                <br />
-                <br />
-                <Countdown
-                  date={new Date(1636567200000)}
-                  renderer={({ days, hours, minutes, seconds, completed }) => {
-                    return (
-                      <span className="text-wave-blue">
-                        Time left: {days}d {hours}h {minutes}m {seconds}s
-                      </span>
-                    );
                   }}
                 />
               </>
