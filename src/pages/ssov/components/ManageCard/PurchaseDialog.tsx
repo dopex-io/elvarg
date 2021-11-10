@@ -323,11 +323,14 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
                   </Typography>
                 );
               }}
-              classes={{ icon: 'absolute right-20 text-white' }}
+              classes={{
+                icon: 'absolute right-20 text-white',
+              }}
+              MenuProps={{ classes: { paper: 'bg-umbra' } }}
               label="strikes"
             >
               {strikes.map((strike, index) => (
-                <MenuItem key={index} value={index}>
+                <MenuItem key={index} value={index} className="text-white">
                   <ListItemText primary={strike} />
                 </MenuItem>
               ))}
