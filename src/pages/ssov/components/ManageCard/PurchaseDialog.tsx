@@ -32,7 +32,7 @@ import { MAX_VALUE } from 'constants/index';
 export interface Props {
   open: boolean;
   handleClose: () => {};
-  ssov: string;
+  ssov: 'dpx' | 'rdpx';
 }
 
 const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
@@ -158,8 +158,8 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
       await newEthersTransaction(
         ssovContractWithSigner.purchase(strikeIndex, finalAmount)
       );
-      updateSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
-      updateUserSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
+      updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+      updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
       formik.setFieldValue('amount', 0);
@@ -239,7 +239,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     formik.values.amount,
   ]);
 
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   return (
     <Dialog
@@ -275,7 +275,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={ssov === 'ssovDpx' ? dpxIcon : rdpxIcon}
+                  src={ssov === 'dpx' ? dpxIcon : rdpxIcon}
                   alt={tokenSymbol}
                 />
               </Box>

@@ -10,7 +10,7 @@ import Stats from '../components/Stats';
 const Manage = () => {
   const { asset } = useParams<{ asset: string }>();
 
-  const ssov = asset === 'rdpx' ? 'ssovRdpx' : 'ssovDpx';
+  const ssov = asset === 'rdpx' ? 'rdpx' : 'dpx';
 
   return (
     <Box className="overflow-x-hidden bg-black h-screen">

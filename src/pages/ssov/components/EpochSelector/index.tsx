@@ -12,7 +12,7 @@ export default function EpochSelector({
   ssov,
 }: {
   className?: string;
-  ssov: string;
+  ssov: 'dpx' | 'rdpx';
 }) {
   const context = useContext(SsovContext);
 

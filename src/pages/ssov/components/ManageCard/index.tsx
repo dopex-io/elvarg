@@ -14,7 +14,7 @@ import { SsovContext } from 'contexts/Ssov';
 
 import styles from './styles.module.scss';
 
-const ManageCard = ({ ssov }) => {
+const ManageCard = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const [isDeposit, setIsDeposit] = useState(true);
 
   const handleChangeToDeposit = useCallback(() => {

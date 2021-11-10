@@ -281,8 +281,8 @@ const Stats = (props: { className?: string; ssov: string }) => {
                           totalPremiums={totalPremiums}
                           price={price}
                           epochTime={epochTime}
-                          imgSrc={ssov === 'ssovDpx' ? dpxIcon : rdpxIcon}
-                          tokenSymbol={ssov === 'ssovDpx' ? 'DPX' : 'rDPX'}
+                          imgSrc={ssov === 'dpx' ? dpxIcon : rdpxIcon}
+                          tokenSymbol={ssov === 'dpx' ? 'DPX' : 'rDPX'}
                         />
                       );
                     }

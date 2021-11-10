@@ -19,8 +19,8 @@ const Ssov = () => {
           </Typography>
         </Box>
         <Box className="flex space-x- space-x-24 justify-center">
-          <SsovCard ssov="ssovDpx" />
-          <SsovCard ssov="ssovRdpx" />
+          <SsovCard ssov="dpx" />
+          <SsovCard ssov="rdpx" />
         </Box>
       </Box>
     </Box>

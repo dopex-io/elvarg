@@ -29,7 +29,7 @@ import styles from './styles.module.scss';
 
 interface SsovCardProps {
   className?: string;
-  ssov: string;
+  ssov: 'dpx' | 'rdpx';
 }
 
 function SsovCard(props: SsovCardProps) {
@@ -51,11 +51,11 @@ function SsovCard(props: SsovCardProps) {
         getUserReadableAmount(tokenPrice, 8)
       : 0;
 
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   const info = [
     {
-      icon: ssov === 'ssovDpx' ? Dpx : Rdpx,
+      icon: ssov === 'dpx' ? Dpx : Rdpx,
       heading: 'Asset',
       value: tokenSymbol,
     },
@@ -103,7 +103,7 @@ function SsovCard(props: SsovCardProps) {
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
-                src={ssov === 'ssovDpx' ? dpxLogo : rdpxLogo}
+                src={ssov === 'dpx' ? dpxLogo : rdpxLogo}
                 alt={tokenSymbol}
               />
             </Box>
@@ -220,9 +220,7 @@ function SsovCard(props: SsovCardProps) {
             <CustomButton
               size="medium"
               onClick={() => {
-                history.push(
-                  `/ssov/manage/${ssov === 'ssovDpx' ? 'dpx' : 'rdpx'}`
-                );
+                history.push(`/ssov/manage/${ssov === 'dpx' ? 'dpx' : 'rdpx'}`);
               }}
             >
               Deposit
@@ -242,9 +240,7 @@ function SsovCard(props: SsovCardProps) {
             className="text-wave-blue text-right block"
             component="a"
             // @ts-ignore
-            href={`/ssov/manage/${
-              ssov === 'ssovDpx' ? 'dpx' : 'rdpx'
-            }#balances`}
+            href={`/ssov/manage/${ssov === 'dpx' ? 'dpx' : 'rdpx'}#balances`}
           >
             View Options
           </Typography>

@@ -52,8 +52,8 @@ interface Ssov {
   APY?: string;
 }
 interface SsovContextInterface {
-  ssovDpx: Ssov;
-  ssovRdpx: Ssov;
+  dpx: Ssov;
+  rdpx: Ssov;
   updateSsovData?: Function;
   updateUserSsovData?: Function;
 }
@@ -78,8 +78,8 @@ const initialState = {
 };
 
 export const SsovContext = createContext<SsovContextInterface>({
-  ssovDpx: initialState,
-  ssovRdpx: initialState,
+  dpx: initialState,
+  rdpx: initialState,
 });
 
 export const SsovProvider = (props) => {
@@ -392,7 +392,7 @@ export const SsovProvider = (props) => {
   }, [updateUserSsovData]);
 
   const contextValue = {
-    ssovDpx: {
+    dpx: {
       ...stateDpx,
       ssovContract: ssovDpxContract,
       ssovContractWithSigner: ssovDpxContractWithSigner,
@@ -401,7 +401,7 @@ export const SsovProvider = (props) => {
       setSelectedEpoch: setSelectedEpochDpx,
       token: dpxToken,
     },
-    ssovRdpx: {
+    rdpx: {
       ...stateRdpx,
       ssovContract: ssovRdpxContract,
       ssovContractWithSigner: ssovRdpxContractWithSigner,

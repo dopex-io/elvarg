@@ -17,7 +17,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ ssov }) => {
+const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
@@ -68,8 +68,8 @@ const Withdraw = ({ ssov }) => {
         await newEthersTransaction(
           ssovContractWithSigner.withdrawForStrike(selectedEpoch, index)
         );
-        updateSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
-        updateUserSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
+        updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+        updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
       } catch (err) {
         console.log(err);
       }
@@ -85,7 +85,7 @@ const Withdraw = ({ ssov }) => {
     ]
   );
 
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   return (
     <Box>

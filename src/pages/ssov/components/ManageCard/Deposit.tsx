@@ -55,7 +55,7 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = ({ ssov }: { ssov: string }) => {
+const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const classes = useStyles();
   const context = useContext(SsovContext);
   const {
@@ -84,7 +84,7 @@ const Deposit = ({ ssov }: { ssov: string }) => {
   }>({});
   const [error, setError] = useState('');
 
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady || !isEpochExpired) return false;
@@ -224,8 +224,8 @@ const Deposit = ({ ssov }: { ssov: string }) => {
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
-      updateSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
-      updateUserSsovData(ssov === 'ssovDpx' ? 'dpx' : 'rdpx');
+      updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+      updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
     } catch (err) {
       console.log(err);
     }
