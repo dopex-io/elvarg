@@ -187,7 +187,7 @@ function SsovCard(props: SsovCardProps) {
                     {epochTimePeriod}
                   </Typography>
                 </Box>
-                <Box className="flex flex-row justify-between mb-3">
+                <Box className="flex flex-row justify-between">
                   <Typography
                     variant="caption"
                     component="div"
