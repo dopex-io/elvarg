@@ -15,7 +15,7 @@ import InfoBox from '../InfoBox';
 
 import dpxLogo from 'assets/tokens/dpx.svg';
 import rdpxLogo from 'assets/tokens/rdpx.svg';
-import Dpx from 'assets/icons/DpxIcon';
+import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
