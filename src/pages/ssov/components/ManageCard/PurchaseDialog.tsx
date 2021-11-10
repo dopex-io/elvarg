@@ -490,7 +490,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
               amount={formik.values.amount}
               isPut={false}
               price={getUserReadableAmount(tokenPrice, 8)}
-              symbol="DPX"
+              symbol={tokenSymbol}
             />
           </Box>
         )}
