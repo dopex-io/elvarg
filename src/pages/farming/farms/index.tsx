@@ -16,6 +16,7 @@ import { FarmingContext } from 'contexts/Farming';
 import { WalletContext } from 'contexts/Wallet';
 
 import dpxLogo from 'assets/tokens/dpx.svg';
+import rdpxLogo from 'assets/tokens/rdpx.svg';
 import dpx_wethLogo from 'assets/tokens/dpx_weth.svg';
 import rdpx_wethLogo from 'assets/tokens/rdpx_weth.svg';
 
@@ -23,15 +24,15 @@ const Farms = () => {
   const {
     setStakingAsset,
     DPX,
+    RDPX,
     DPX_WETH,
     rDPX_WETH,
     setPool,
     DPXPool,
+    RDPXPool,
     DPX_WETHPool,
     rDPX_WETHPool,
   } = useContext(FarmingContext);
-
-  console.log('Asda');
 
   const { accountAddress, signer, chainId } = useContext(WalletContext);
 
@@ -47,6 +48,7 @@ const Farms = () => {
     (async function () {
       await Promise.all([
         setPool('DPX'),
+        setPool('RDPX'),
         setPool('DPX-WETH'),
         setPool('rDPX-WETH'),
       ]);
@@ -58,6 +60,7 @@ const Farms = () => {
       if (!accountAddress) return;
       await Promise.all([
         setStakingAsset('DPX'),
+        setStakingAsset('RDPX'),
         setStakingAsset('DPX-WETH'),
         setStakingAsset('rDPX-WETH'),
       ]);
@@ -246,6 +249,9 @@ const Farms = () => {
                         poolInfo={rDPX_WETHPool}
                       />
                     ) : null}
+                    {RDPX.userStakedBalance.gt(0) ? (
+                      <Pool token={RDPX} Icon={rdpxLogo} poolInfo={RDPXPool} />
+                    ) : null}
                   </Box>
                 </Box>
               ) : null}
@@ -273,6 +279,13 @@ const Farms = () => {
                           poolInfo={rDPX_WETHPool}
                         />
                       ) : null}
+                      {RDPX.userStakedBalance.eq(0) ? (
+                        <Pool
+                          token={RDPX}
+                          Icon={rdpxLogo}
+                          poolInfo={RDPXPool}
+                        />
+                      ) : null}
                     </Box>
                   ) : (
                     <Box className="flex flex-col lg:flex-row lg:space-x-4">
@@ -287,6 +300,7 @@ const Farms = () => {
                         Icon={rdpx_wethLogo}
                         poolInfo={rDPX_WETHPool}
                       />
+                      <Pool token={RDPX} Icon={rdpxLogo} poolInfo={RDPXPool} />
                     </Box>
                   )}
                 </Box>

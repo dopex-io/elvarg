@@ -20,9 +20,11 @@ import Typography from 'components/UI/Typography';
 import MaxApprove from 'components/MaxApprove';
 import LpTokenDistribution from '../components/LpTokenDistribution';
 
-import Equal from 'assets/icons/Equal';
+import Boosted from 'assets/farming/Boosted';
 import Dropdown from 'assets/farming/Dropdown';
+import Equal from 'assets/icons/Equal';
 import dpxIcon from 'assets/tokens/dpx.svg';
+import rdpxIcon from 'assets/tokens/rdpx.svg';
 import dpxWethIcon from 'assets/tokens/dpx_weth.svg';
 import rdpxWethIcon from 'assets/tokens/rdpx_weth.svg';
 
@@ -53,6 +55,8 @@ const Stake = () => {
     DPXPool,
     DPX_WETHPool,
     rDPX_WETHPool,
+    RDPX,
+    RDPXPool,
     isStake,
     token,
     setData,
@@ -94,11 +98,18 @@ const Stake = () => {
         selectedToken: rDPX_WETH,
         selectedPool: rDPX_WETHPool,
       };
+    } else if (formik.values.token === 'RDPX') {
+      return {
+        selectedToken: RDPX,
+        selectedPool: RDPXPool,
+      };
     }
   }, [
     formik.values.token,
     DPX,
     DPXPool,
+    RDPX,
+    RDPXPool,
     DPX_WETH,
     DPX_WETHPool,
     rDPX_WETH,
@@ -114,6 +125,7 @@ const Stake = () => {
     (async function () {
       await Promise.all([
         setPool('DPX'),
+        setPool('RDPX'),
         setPool('DPX-WETH'),
         setPool('rDPX-WETH'),
       ]);
@@ -125,6 +137,7 @@ const Stake = () => {
       if (!accountAddress) return;
       await Promise.all([
         setStakingAsset('DPX'),
+        setStakingAsset('RDPX'),
         setStakingAsset('DPX-WETH'),
         setStakingAsset('rDPX-WETH'),
       ]);
@@ -392,6 +405,19 @@ const Stake = () => {
                     </Typography>
                   </Box>
                 </MenuItem>
+                <MenuItem value="RDPX">
+                  <Box className="flex flex-row items-center">
+                    <Box className="flex flex-row h-8 w-14 items-center">
+                      <img src={rdpxIcon} alt="rDPX" />
+                    </Box>
+                    <Typography
+                      variant="h5"
+                      className="text-white hover:text-stieglitz"
+                    >
+                      rDPX
+                    </Typography>
+                  </Box>
+                </MenuItem>
               </Select>
             }
             id="amount"
@@ -409,6 +435,17 @@ const Stake = () => {
           <FormHelperText className="text-right mt-1 mb-2 text-red-400">
             {formik.touched.amount && formik.errors.amount}
           </FormHelperText>
+          {formik.values.token === 'RDPX' ? (
+            <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
+              <Box className="mr-3">
+                <Boosted />
+              </Box>
+              <Typography variant="h5">
+                This yield program is currently incentivized with a 2x rewards
+                boost till the 15th of November.
+              </Typography>
+            </Box>
+          ) : null}
           <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
             <Box className="flex flex-col mb-2">
               <Box className="flex flex-row mb-2">
@@ -458,7 +495,8 @@ const Stake = () => {
               </Box>
             </Box>
           </Box>
-          {selectedToken.selectedBaseAsset !== 'DPX' ? (
+          {selectedToken.selectedBaseAsset !== 'DPX' &&
+          selectedToken.selectedBaseAsset !== 'RDPX' ? (
             <a
               href={UNISWAP_LINKS[selectedToken.selectedBaseAsset]}
               target="_blank"
