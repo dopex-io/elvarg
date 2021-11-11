@@ -73,7 +73,8 @@ const Farms = () => {
         !accountAddress ||
         !DPX.userStakedBalance ||
         !DPX_WETH.userStakedBalance ||
-        !rDPX_WETH.userStakedBalance
+        !rDPX_WETH.userStakedBalance ||
+        !RDPX.userStakedBalance
       )
         return;
       let numberOfDeposits = 0;
@@ -86,6 +87,10 @@ const Farms = () => {
       if (rDPX_WETH.userStakedBalance > 0) {
         numberOfDeposits++;
       }
+      if (RDPX.userStakedBalance > 0) {
+        numberOfDeposits++;
+      }
+
       setYourDeposit(numberOfDeposits);
     })();
   }, [
@@ -93,6 +98,7 @@ const Farms = () => {
     DPX.userStakedBalance,
     DPX_WETH.userStakedBalance,
     rDPX_WETH.userStakedBalance,
+    RDPX.userStakedBalance,
   ]);
 
   useEffect(() => {
