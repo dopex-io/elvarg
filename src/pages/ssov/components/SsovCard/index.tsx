@@ -197,9 +197,10 @@ function SsovCard(props: SsovCardProps) {
                   </Typography>
                   <Typography variant="caption" component="div">
                     <span className="text-wave-blue">
-                      {userEpochDepositsAmount}
+                      {formatAmount(userEpochDepositsAmount, 5)}
                     </span>{' '}
-                    {tokenSymbol} / {totalEpochDepositsAmount} {tokenSymbol}
+                    {tokenSymbol} / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
+                    {tokenSymbol}
                   </Typography>
                 </Box>
               </Box>
