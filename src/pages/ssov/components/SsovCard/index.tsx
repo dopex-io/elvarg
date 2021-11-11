@@ -73,11 +73,11 @@ function SsovCard(props: SsovCardProps) {
   const userEpochDepositsAmount = getUserReadableAmount(
     userEpochDeposits,
     18
-  ).toString();
+  ).toFixed(3);
   const totalEpochDepositsAmount = getUserReadableAmount(
     totalEpochDeposits,
     18
-  ).toString();
+  ).toFixed(3);
 
   const epochTimePeriod =
     epochTimes[0] && epochTimes[1]

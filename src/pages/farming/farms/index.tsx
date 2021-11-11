@@ -86,6 +86,9 @@ const Farms = () => {
       if (rDPX_WETH.userStakedBalance > 0) {
         numberOfDeposits++;
       }
+      if (RDPX.userStakedBalance > 0) {
+        numberOfDeposits++;
+      }
       setYourDeposit(numberOfDeposits);
     })();
   }, [
@@ -93,16 +96,20 @@ const Farms = () => {
     DPX.userStakedBalance,
     DPX_WETH.userStakedBalance,
     rDPX_WETH.userStakedBalance,
+    RDPX.userStakedBalance,
   ]);
 
   useEffect(() => {
     (function () {
       if (!DPXPool.TVL || !DPX_WETHPool.TVL || !rDPX_WETHPool.TVL) return;
       setTotalTVL(
-        DPXPool.TVL.add(DPX_WETHPool.TVL).add(rDPX_WETHPool.TVL).toNumber()
+        DPXPool.TVL.add(DPX_WETHPool.TVL)
+          .add(rDPX_WETHPool.TVL)
+          .add(RDPXPool.TVL)
+          .toNumber()
       );
     })();
-  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL]);
+  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL, RDPXPool.TVL]);
 
   const handleClaimAll = useCallback(async () => {
     if (DPX.rewards[0] > 0 || DPX.rewards[1] > 0) {
