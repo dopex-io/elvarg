@@ -6,7 +6,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../ManageCard/PurchaseDialog';
-import Dpx from 'assets/icons/DpxIcon';
+import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
@@ -16,12 +16,12 @@ import { SsovContext } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-const Description = ({ ssov }) => {
+const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const context = useContext(SsovContext);
   const { tokenPrice, APY, ssovData } = context[ssov];
 
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   const TVL =
     ssovData.totalEpochDeposits && tokenPrice
@@ -31,7 +31,7 @@ const Description = ({ ssov }) => {
 
   const info = [
     {
-      icon: ssov === 'ssovDpx' ? Dpx : Rdpx,
+      icon: ssov === 'dpx' ? Dpx : Rdpx,
       heading: 'Asset',
       value: tokenSymbol,
     },
@@ -72,7 +72,6 @@ const Description = ({ ssov }) => {
           onClick={() => {
             setPurchaseState(true);
           }}
-          disabled={ssov === 'ssovRdpx'}
         >
           Buy Call Options
         </CustomButton>

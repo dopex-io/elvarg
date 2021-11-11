@@ -21,7 +21,7 @@ const poolTemplateObj = {
   selectedBaseAssetDecimals: null,
   userAssetBalance: null,
   stakingRewardsContractAddress: null,
-  userStakedBalance: null,
+  userStakedBalance: BigNumber.from(0),
   rewards: null,
   total: null,
   loading: true,
@@ -42,6 +42,7 @@ export const FarmingProvider = (props) => {
     DPX: poolTemplateObj,
     DPX_WETH: poolTemplateObj,
     rDPX_WETH: poolTemplateObj,
+    RDPX: poolTemplateObj,
   });
 
   const [poolsInfo, setPoolsInfo] = useState({
@@ -58,6 +59,7 @@ export const FarmingProvider = (props) => {
       stakingAsset: 'rDPX-WETH',
       tokenPrice: null,
     },
+    RDPXPool: { APR: null, TVL: null, stakingAsset: 'RDPX', tokenPrice: null },
   });
 
   const [tokensInfo, setTokensInfo] = useState({
@@ -143,6 +145,8 @@ export const FarmingProvider = (props) => {
 
         if (token === 'DPX') {
           priceLP = priceDPX;
+        } else if (token === 'RDPX') {
+          priceLP = priceRDPX;
         } else if (token === 'DPX-WETH') {
           priceLP =
             (priceDPX * Number(dpxReserveOfDpxWethPool) +
@@ -166,11 +170,19 @@ export const FarmingProvider = (props) => {
       let DPXemitted;
       let RDPXemitted;
 
-      DPXemitted = DPX.mul(BigNumber.from(86400 * 365))
+      const rewardsDuration =
+        token === 'RDPX'
+          ? BigNumber.from(86400 * 90)
+          : BigNumber.from(86400 * 365);
+      const boost = token === 'RDPX' ? 2 : 1;
+
+      DPXemitted = DPX.mul(rewardsDuration)
         .mul(Math.round(priceDPX))
+        .mul(boost)
         .div(oneEBigNumber(18));
-      RDPXemitted = RDPX.mul(BigNumber.from(86400 * 365))
+      RDPXemitted = RDPX.mul(rewardsDuration)
         .mul(Math.round(priceRDPX))
+        .mul(boost)
         .div(oneEBigNumber(18));
 
       const denominator =
@@ -195,6 +207,9 @@ export const FarmingProvider = (props) => {
           rDPX_WETHPool: {
             ...poolsInfo.rDPX_WETHPool,
           },
+          RDPXPool: {
+            ...poolsInfo.RDPXPool,
+          },
         }));
       } else if (token === 'DPX-WETH') {
         setPoolsInfo((poolsInfo) => ({
@@ -209,6 +224,9 @@ export const FarmingProvider = (props) => {
           },
           rDPX_WETHPool: {
             ...poolsInfo.rDPX_WETHPool,
+          },
+          RDPXPool: {
+            ...poolsInfo.RDPXPool,
           },
         }));
 
@@ -243,6 +261,9 @@ export const FarmingProvider = (props) => {
             TVL: TVL,
             tokenPrice: priceLP,
           },
+          RDPXPool: {
+            ...poolsInfo.RDPXPool,
+          },
         }));
 
         setTokensInfo((tokensInfo) => ({
@@ -260,6 +281,24 @@ export const FarmingProvider = (props) => {
               .dividedBy(new BN(totalTokens.toString()).dividedBy(1e18))
               .toString(),
             rDPXPrice: priceRDPX,
+          },
+        }));
+      } else if (token === 'RDPX') {
+        setPoolsInfo((poolsInfo) => ({
+          DPXPool: {
+            ...poolsInfo.DPXPool,
+          },
+          DPX_WETHPool: {
+            ...poolsInfo.DPX_WETHPool,
+          },
+          rDPX_WETHPool: {
+            ...poolsInfo.rDPX_WETHPool,
+          },
+          RDPXPool: {
+            ...poolsInfo.RDPXPool,
+            APR: APR,
+            TVL: TVL,
+            tokenPrice: priceLP,
           },
         }));
       }
@@ -316,6 +355,9 @@ export const FarmingProvider = (props) => {
           rDPX_WETH: {
             ...pools.rDPX_WETH,
           },
+          RDPX: {
+            ...pools.RDPX,
+          },
         }));
       } else if (token === 'DPX-WETH') {
         setPools((pools) => ({
@@ -337,6 +379,9 @@ export const FarmingProvider = (props) => {
           rDPX_WETH: {
             ...pools.rDPX_WETH,
           },
+          RDPX: {
+            ...pools.RDPX,
+          },
         }));
       } else if (token === 'rDPX-WETH') {
         setPools((pools) => ({
@@ -348,6 +393,33 @@ export const FarmingProvider = (props) => {
           },
           rDPX_WETH: {
             ...pools.rDPX_WETH,
+            selectedBaseAsset: token,
+            selectedBaseAssetContract,
+            selectedBaseAssetDecimals,
+            userAssetBalance: balance,
+            userStakedBalance,
+            rewards,
+            totalSupply,
+            stakingRewardsContractAddress: contractAddresses[stakingAsset],
+            loading: false,
+          },
+          RDPX: {
+            ...pools.RDPX,
+          },
+        }));
+      } else if (token === 'RDPX') {
+        setPools((pools) => ({
+          DPX: {
+            ...pools.DPX,
+          },
+          DPX_WETH: {
+            ...pools.DPX_WETH,
+          },
+          rDPX_WETH: {
+            ...pools.rDPX_WETH,
+          },
+          RDPX: {
+            ...pools.RDPX,
             selectedBaseAsset: token,
             selectedBaseAssetContract,
             selectedBaseAssetDecimals,

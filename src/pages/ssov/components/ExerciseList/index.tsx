@@ -36,7 +36,7 @@ interface userExercisableOption {
   isPastEpoch: boolean;
 }
 
-const ExerciseList = ({ ssov }) => {
+const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const context = useContext(SsovContext);
   const {
     currentEpoch,

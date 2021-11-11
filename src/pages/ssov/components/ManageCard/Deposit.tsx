@@ -55,7 +55,7 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = ({ ssov }) => {
+const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const classes = useStyles();
   const context = useContext(SsovContext);
   const {
@@ -71,9 +71,8 @@ const Deposit = ({ ssov }) => {
       totalEpochDeposits,
     },
     userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
-    updateSsovData,
-    updateUserSsovData,
   } = context[ssov];
+  const { updateSsovData, updateUserSsovData } = context;
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -85,7 +84,7 @@ const Deposit = ({ ssov }) => {
   }>({});
   const [error, setError] = useState('');
 
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady || !isEpochExpired) return false;
@@ -225,8 +224,8 @@ const Deposit = ({ ssov }) => {
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
-      updateSsovData();
-      updateUserSsovData();
+      updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+      updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
     } catch (err) {
       console.log(err);
     }
@@ -237,6 +236,7 @@ const Deposit = ({ ssov }) => {
     updateSsovData,
     updateUserSsovData,
     updateAssetBalances,
+    ssov,
   ]);
 
   return (
@@ -373,7 +373,7 @@ const Deposit = ({ ssov }) => {
             component="div"
             className="text-stieglitz text-left"
           >
-            {isDepositWindowOpen || ssov === 'ssovRdpx'
+            {isDepositWindowOpen
               ? `Deposits for this epoch are now open.`
               : `Deposits for this epoch has been closed.`}
             {isVaultReady ? (
@@ -396,21 +396,6 @@ const Deposit = ({ ssov }) => {
                         </span>
                       );
                     }
-                  }}
-                />
-              </>
-            ) : ssov === 'ssovRdpx' ? (
-              <>
-                <br />
-                <br />
-                <Countdown
-                  date={new Date(1636567200000)}
-                  renderer={({ days, hours, minutes, seconds, completed }) => {
-                    return (
-                      <span className="text-wave-blue">
-                        Time left: {days}d {hours}h {minutes}m {seconds}s
-                      </span>
-                    );
                   }}
                 />
               </>

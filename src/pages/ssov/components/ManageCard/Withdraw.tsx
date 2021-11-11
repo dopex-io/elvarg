@@ -17,7 +17,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ ssov }) => {
+const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
@@ -30,9 +30,9 @@ const Withdraw = ({ ssov }) => {
       totalEpochDeposits,
     },
     userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
-    updateSsovData,
-    updateUserSsovData,
   } = context[ssov];
+  const { updateSsovData, updateUserSsovData } = context;
+
   const { updateAssetBalances } = useContext(AssetsContext);
   const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
 
@@ -68,8 +68,8 @@ const Withdraw = ({ ssov }) => {
         await newEthersTransaction(
           ssovContractWithSigner.withdrawForStrike(selectedEpoch, index)
         );
-        updateSsovData();
-        updateUserSsovData();
+        updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+        updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
       } catch (err) {
         console.log(err);
       }
@@ -81,10 +81,11 @@ const Withdraw = ({ ssov }) => {
       updateSsovData,
       updateUserSsovData,
       updateAssetBalances,
+      ssov,
     ]
   );
 
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   return (
     <Box>

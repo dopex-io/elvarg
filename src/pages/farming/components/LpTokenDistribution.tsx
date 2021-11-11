@@ -49,7 +49,7 @@ const LpTokenDistribution = ({
     }
   }, [DPX_WETHToken, rDPX_WETHToken, value, stakingAsset]);
 
-  if (stakingAsset === 'DPX') return null;
+  if (stakingAsset === 'DPX' || stakingAsset === 'RDPX') return null;
 
   return (
     <Box

@@ -32,7 +32,7 @@ interface ExerciseTableDataProps {
   pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
-  ssov: string;
+  ssov: 'dpx' | 'rdpx';
 }
 
 const ExerciseTableData = (props: ExerciseTableDataProps) => {
@@ -68,7 +68,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const Modal = MODALS[modalState.type];
-  const tokenSymbol = ssov === 'ssovDpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -82,10 +82,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img
-              src={ssov === 'ssovDpx' ? dpxIcon : rdpxIcon}
-              alt={tokenSymbol}
-            />
+            <img src={ssov === 'dpx' ? dpxIcon : rdpxIcon} alt={tokenSymbol} />
           </Box>
           <Typography variant="h5" className="text-white">
             {tokenSymbol}
