@@ -114,9 +114,9 @@ export const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
 
 export const UNISWAP_LINKS: { [key: string]: string } = {
   'DPX-WETH':
-    'https://app.sushi.com/add/ETH/0xEec2bE5c91ae7f8a338e1e5f3b5DE49d07AfdC81',
+    'https://app.sushi.com/add/ETH/0x6C2C06790b3E3E3c38e12Ee22F8183b37a13EE55',
   'rDPX-WETH':
-    'https://app.sushi.com/add/ETH/0x0ff5A8451A839f5F0BB3562689D9A44089738D11',
+    'https://app.sushi.com/add/ETH/0x32Eb7902D4134bf98A28b963D26de779AF92A212',
   DPX: 'https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
 };
 
