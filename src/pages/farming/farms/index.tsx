@@ -73,7 +73,8 @@ const Farms = () => {
         !accountAddress ||
         !DPX.userStakedBalance ||
         !DPX_WETH.userStakedBalance ||
-        !rDPX_WETH.userStakedBalance
+        !rDPX_WETH.userStakedBalance ||
+        !RDPX.userStakedBalance
       )
         return;
       let numberOfDeposits = 0;
@@ -86,6 +87,9 @@ const Farms = () => {
       if (rDPX_WETH.userStakedBalance > 0) {
         numberOfDeposits++;
       }
+      if (RDPX.userStakedBalance > 0) {
+        numberOfDeposits++;
+      }
       setYourDeposit(numberOfDeposits);
     })();
   }, [
@@ -93,16 +97,20 @@ const Farms = () => {
     DPX.userStakedBalance,
     DPX_WETH.userStakedBalance,
     rDPX_WETH.userStakedBalance,
+    RDPX.userStakedBalance,
   ]);
 
   useEffect(() => {
     (function () {
       if (!DPXPool.TVL || !DPX_WETHPool.TVL || !rDPX_WETHPool.TVL) return;
       setTotalTVL(
-        DPXPool.TVL.add(DPX_WETHPool.TVL).add(rDPX_WETHPool.TVL).toNumber()
+        DPXPool.TVL.add(DPX_WETHPool.TVL)
+          .add(rDPX_WETHPool.TVL)
+          .add(RDPXPool.TVL)
+          .toNumber()
       );
     })();
-  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL]);
+  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL, RDPXPool.TVL]);
 
   const handleClaimAll = useCallback(async () => {
     if (DPX.rewards[0] > 0 || DPX.rewards[1] > 0) {
@@ -255,10 +263,10 @@ const Farms = () => {
                   </Box>
                 </Box>
               ) : null}
-              {yourDeposit < 3 ? (
+              {yourDeposit < 4 ? (
                 <Box className="flex flex-col bg-cod-gray p-4 rounded-xl items-center">
                   <Typography variant="h6" className="text-center mb-4">
-                    Available Farms ({3 - yourDeposit})
+                    Available Farms ({4 - yourDeposit})
                   </Typography>
                   {accountAddress ? (
                     <Box className="flex flex-col lg:flex-row lg:space-x-4">

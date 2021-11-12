@@ -7,7 +7,7 @@ import format from 'date-fns/format';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import PurchaseDialog from '../ManageCard/PurchaseDialog';
+import PurchaseDialog from '../PurchaseDialog';
 import InfoBox from '../InfoBox';
 
 import dpxLogo from 'assets/tokens/dpx.svg';
@@ -73,11 +73,11 @@ function SsovCard(props: SsovCardProps) {
   const userEpochDepositsAmount = getUserReadableAmount(
     userEpochDeposits,
     18
-  ).toString();
+  ).toFixed(3);
   const totalEpochDepositsAmount = getUserReadableAmount(
     totalEpochDeposits,
     18
-  ).toString();
+  ).toFixed(3);
 
   const epochTimePeriod =
     epochTimes[0] && epochTimes[1]
@@ -197,9 +197,10 @@ function SsovCard(props: SsovCardProps) {
                   </Typography>
                   <Typography variant="caption" component="div">
                     <span className="text-wave-blue">
-                      {userEpochDepositsAmount}
+                      {formatAmount(userEpochDepositsAmount, 5)}
                     </span>{' '}
-                    {tokenSymbol} / {totalEpochDepositsAmount} {tokenSymbol}
+                    {tokenSymbol} / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
+                    {tokenSymbol}
                   </Typography>
                 </Box>
               </Box>

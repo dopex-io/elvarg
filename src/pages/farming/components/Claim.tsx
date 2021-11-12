@@ -29,7 +29,7 @@ const Claim = ({ open, handleClose, data }: Props) => {
   const { setStakingAsset } = useContext(FarmingContext);
 
   const userRewardDPX = useMemo(() => {
-    if (!accountAddress) return;
+    if (!accountAddress || !data.token.rewards) return;
     return getUserReadableAmount(
       data.token.rewards[0],
       data.token.selectedBaseAssetDecimals
@@ -41,7 +41,7 @@ const Claim = ({ open, handleClose, data }: Props) => {
   ]);
 
   const userRewardRDPX = useMemo(() => {
-    if (!accountAddress) return;
+    if (!accountAddress || !data.token.rewards) return;
     return getUserReadableAmount(
       data.token.rewards[1],
       data.token.selectedBaseAssetDecimals

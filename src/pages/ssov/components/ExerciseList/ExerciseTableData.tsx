@@ -94,8 +94,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(depositedAmount, 5)}
-          {' DPX'}
+          {formatAmount(depositedAmount, 5)} {tokenSymbol}
         </Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">

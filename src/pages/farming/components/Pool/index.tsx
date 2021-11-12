@@ -264,7 +264,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
         </Box>
       </Box>
       <Box className="flex flex-row justify-between w-full">
-        {accountAddress ? (
+        {accountAddress && token.rewards ? (
           <Box className="w-full mt-auto">
             {token.rewards[0] > 0 ||
             token.rewards[1] > 0 ||

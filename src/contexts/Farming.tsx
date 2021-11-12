@@ -83,6 +83,8 @@ export const FarmingProvider = (props) => {
 
       const stakingAsset = token.toUpperCase() + 'StakingRewards';
 
+      if (!contractAddresses[stakingAsset]) return;
+
       const stakingRewardsContract = StakingRewards__factory.connect(
         contractAddresses[stakingAsset],
         provider
@@ -323,6 +325,8 @@ export const FarmingProvider = (props) => {
       ]);
 
       const stakingAsset = token.toUpperCase() + 'StakingRewards';
+
+      if (!contractAddresses[stakingAsset]) return;
 
       const stakingRewardsContract = StakingRewards__factory.connect(
         contractAddresses[stakingAsset],

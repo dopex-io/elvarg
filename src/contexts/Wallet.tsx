@@ -12,6 +12,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider';
 import { Addresses } from '@dopex-io/sdk';
 
 import { INFURA_PROJECT_ID } from 'constants/index';
+import { useLocation } from 'react-router';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -25,6 +26,7 @@ interface WalletContextInterface {
   chainId?: number;
   blockTime?: number;
   epochInitTime?: number;
+  supportedChainIds?: number[];
 }
 
 export const WalletContext = createContext<WalletContextInterface>({});
@@ -37,20 +39,18 @@ const CHAIN_ID_TO_PROVIDERS = {
   '1337': 'http://127.0.0.1:8545',
 };
 
+const PAGE_TO_SUPPORTED_CHAIN_IDS = {
+  '/': [1, 42161],
+  '/farms': [1, 42161],
+  '/farms/stake': [1, 42161],
+  '/ssov': [42161],
+  '/ssov/manage/dpx': [42161],
+  '/ssov/manage/rdpx': [42161],
+  '/sale': [1],
+};
+
 const DEFAULT_CHAIN_ID =
   Number(process.env.REACT_APP_DEFAULT_CHAIN_ID) ?? 421611;
-
-const VALID_CHAIN_IDS = process.env.REACT_APP_VALID_CHAIN_IDS.split(',').map(
-  (i) => Number(i)
-);
-
-const CHAIN_ID_TO_NETWORK = {
-  1: 'mainnet',
-  42: 'kovan',
-  1337: 'hardhat',
-  42161: 'arbitrum',
-  421611: 'arbitrumRinkeby',
-};
 
 const providerOptions = {
   walletconnect: {
@@ -62,11 +62,15 @@ const providerOptions = {
 };
 
 export const WalletProvider = (props) => {
+  const location = useLocation();
+
+  console.log(Addresses[DEFAULT_CHAIN_ID]);
+
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
     wrongNetwork: false,
     chainId: DEFAULT_CHAIN_ID,
-    contractAddresses: Addresses[CHAIN_ID_TO_NETWORK[DEFAULT_CHAIN_ID]],
+    contractAddresses: Addresses[DEFAULT_CHAIN_ID],
     // ethers provider
     provider: new providers.MulticallProvider(
       ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]),
@@ -76,6 +80,7 @@ export const WalletProvider = (props) => {
         }),
       }
     ),
+    supportedChainIds: [],
   });
   const [blockTime, setBlockTime] = useState(0);
 
@@ -111,6 +116,16 @@ export const WalletProvider = (props) => {
           ? ethersProvider
           : new ethers.providers.Web3Provider(web3Provider, 'any');
       const { chainId } = await provider.getNetwork();
+
+      if (!PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)) {
+        setState((prevState) => ({
+          ...prevState,
+          wrongNetwork: true,
+          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
+        }));
+        return;
+      }
+
       const multicallProvider = new providers.MulticallProvider(provider, {
         ...(DEFAULT_CHAIN_ID === 1337 && {
           contract: require('addresses/core.json').MultiCallUtils,
@@ -133,14 +148,8 @@ export const WalletProvider = (props) => {
           ...require('addresses/farming.json'),
           ...require('addresses/tokensale.json'),
         };
-      } else if (VALID_CHAIN_IDS.includes(chainId)) {
-        contractAddresses = Addresses[CHAIN_ID_TO_NETWORK[chainId]];
       } else {
-        setState((prevState) => ({
-          ...prevState,
-          wrongNetwork: true,
-        }));
-        return;
+        contractAddresses = Addresses[chainId];
       }
 
       setState((prevState) => ({
@@ -155,7 +164,7 @@ export const WalletProvider = (props) => {
         }),
       }));
     },
-    []
+    [location.pathname]
   );
 
   const connect = useCallback(() => {
