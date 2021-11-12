@@ -172,10 +172,7 @@ export const FarmingProvider = (props) => {
       let DPXemitted;
       let RDPXemitted;
 
-      const rewardsDuration =
-        token === 'RDPX'
-          ? BigNumber.from(86400 * 90)
-          : BigNumber.from(86400 * 365);
+      const rewardsDuration = BigNumber.from(86400 * 365);
       const boost = token === 'RDPX' ? 2 : 1;
 
       DPXemitted = DPX.mul(rewardsDuration)
