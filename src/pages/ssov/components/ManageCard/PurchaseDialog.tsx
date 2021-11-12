@@ -63,6 +63,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
   const [
     userEpochStrikePurchasableAmount,
     setUserEpochStrikePurchasableAmount,
@@ -110,7 +111,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     validate: () => {
       const errors: any = {};
       if (state.totalCost.gt(userTokenBalance)) {
-        errors.amount = 'Insufficient DPX balance to pay for premium.';
+        errors.amount = `Insufficient ${tokenSymbol} balance to pay for premium.`;
       }
       return errors;
     },
@@ -238,9 +239,6 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     tokenPrice,
     formik.values.amount,
   ]);
-
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
-
   return (
     <Dialog
       open={open}
