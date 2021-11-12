@@ -16,20 +16,13 @@ import bridge from 'assets/icons/bridge.svg';
 
 import { BUILD } from 'constants/index';
 
-import addNetworkToMetaMask from 'utils/general/addNetworkToMetaMask';
+import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
 
-const CHAIN_ID_TO_NETWORK_NAME = {
-  1: 'Mainnet',
-  42: 'Kovan',
-  42161: 'Arbitrum',
-  421611: 'Testnet',
-};
-
-const CHAIN_ID_TO_NETWORK_ICON = {
-  1: ethDiamond,
-  42: ethDiamond,
-  42161: arbitrum,
-  421611: arbitrum,
+const CHAIN_ID_TO_NETWORK_DATA = {
+  1: { name: 'Mainnet', icon: ethDiamond },
+  42: { name: 'Kovan', icon: ethDiamond },
+  42161: { name: 'Arbitrum', icon: arbitrum },
+  421611: { name: 'Testnet', icon: arbitrum },
 };
 
 const MenuItem = ({
@@ -69,8 +62,10 @@ export default function NetworkButton() {
   const handleClose = useCallback(() => setAnchorEl(null), []);
 
   const handleClick = () => {
-    if (chainId !== 42161) {
-      addNetworkToMetaMask();
+    const toChainId = BUILD === 'main' ? 42161 : 421611;
+
+    if (chainId !== toChainId) {
+      changeOrAddNetworkToMetaMask(toChainId);
     }
   };
 
@@ -133,14 +128,14 @@ export default function NetworkButton() {
         color="cod-gray"
         startIcon={
           <img
-            src={CHAIN_ID_TO_NETWORK_ICON[chainId]}
-            alt={CHAIN_ID_TO_NETWORK_NAME[chainId]}
+            src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
+            alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
             style={{ width: 13, height: 'auto' }}
           />
         }
         onClick={handleOpen}
       >
-        {CHAIN_ID_TO_NETWORK_NAME[chainId]}
+        {CHAIN_ID_TO_NETWORK_DATA[chainId].name}
       </CustomButton>
       <Menu
         anchorEl={anchorEl}

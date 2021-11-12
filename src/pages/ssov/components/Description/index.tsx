@@ -5,7 +5,7 @@ import VaultBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
-import PurchaseDialog from '../ManageCard/PurchaseDialog';
+import PurchaseDialog from '../PurchaseDialog';
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 import Coin from 'assets/icons/Coin';

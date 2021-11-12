@@ -70,10 +70,10 @@ const TokenSale = () => {
   });
 
   const handleClaim = useCallback(async () => {
-    if (!signer || !accountAddress) return;
+    if (!signer || !accountAddress || !contractAddresses.TokenSale) return;
     try {
       await newEthersTransaction(
-        TokenSale__factory.connect(contractAddresses.tokenSale, signer).claim(
+        TokenSale__factory.connect(contractAddresses.TokenSale, signer).claim(
           accountAddress
         )
       );
@@ -81,7 +81,7 @@ const TokenSale = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [contractAddresses.tokenSale, updateUserData, accountAddress, signer]);
+  }, [contractAddresses.TokenSale, updateUserData, accountAddress, signer]);
 
   const depositShare = formik.values.amount
     ? (Number(deposits) / Number(weiDeposited)) * 100 || 0

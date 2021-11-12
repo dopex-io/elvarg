@@ -9,11 +9,10 @@ import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
 import { SsovProvider } from 'contexts/Ssov';
-// import { GeoLocationProvider } from 'contexts/GeoLocation';
 
 // import { BUILD } from 'constants/index';
 
-import WrongNetworkModal from 'components/WrongNetworkDialog';
+import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
 
 const Farming = lazy(() => import('pages/farming/farms'));
@@ -54,20 +53,29 @@ function AppRoutes() {
   return (
     <BrowserRouter forceRefresh={false}>
       <Suspense fallback={<PageLoader />}>
-        <FarmingProvider>
-          <SsovProvider>
-            <Switch>
-              <Route path="/" exact>
-                <Redirect to="/ssov" />
-              </Route>
-              <Route path="/sale" component={TokenSale} exact />
-              <Route path="/ssov" component={Ssov} exact />
-              <Route path="/ssov/manage/:asset" component={SsovManage} exact />
-              <Route path="/farms" component={Farming} exact />
-              <Route path="/farms/stake" component={FarmingStake} exact />
-            </Switch>
-          </SsovProvider>
-        </FarmingProvider>
+        <WalletProvider>
+          <AssetsProvider>
+            <FarmingProvider>
+              <SsovProvider>
+                <Switch>
+                  <Route path="/" exact>
+                    <Redirect to="/ssov" />
+                  </Route>
+                  <Route path="/sale" component={TokenSale} exact />
+                  <Route path="/ssov" component={Ssov} exact />
+                  <Route
+                    path="/ssov/manage/:asset"
+                    component={SsovManage}
+                    exact
+                  />
+                  <Route path="/farms" component={Farming} exact />
+                  <Route path="/farms/stake" component={FarmingStake} exact />
+                </Switch>
+              </SsovProvider>
+            </FarmingProvider>
+            <ChangeNetworkDialog />
+          </AssetsProvider>
+        </WalletProvider>
       </Suspense>
     </BrowserRouter>
   );
@@ -76,15 +84,8 @@ function AppRoutes() {
 const App = () => {
   return (
     <ApolloProvider client={client}>
-      <WalletProvider>
-        {/* <GeoLocationProvider> */}
-        <AssetsProvider>
-          <Toaster position="bottom-right" reverseOrder={true} />
-          <WrongNetworkModal />
-          <AppRoutes />
-        </AssetsProvider>
-        {/* </GeoLocationProvider> */}
-      </WalletProvider>
+      <Toaster position="bottom-right" reverseOrder={true} />
+      <AppRoutes />
     </ApolloProvider>
   );
 };

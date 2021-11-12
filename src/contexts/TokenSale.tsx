@@ -10,7 +10,6 @@ import { TokenSale__factory, ERC20__factory } from '@dopex-io/sdk';
 import { WalletContext } from './Wallet';
 
 interface TokenSaleExtra {
-  tokenSaleSdk?: any;
   updateUserData?: Function;
 }
 
@@ -59,10 +58,10 @@ export const TokenSaleProvider = (props) => {
   const [state, setState] = useState(initialData);
 
   const updateSaleData = useCallback(async () => {
-    if (!provider || !contractAddresses) return;
+    if (!provider || !contractAddresses || !contractAddresses.TokenSale) return;
 
     const readTokenSaleContract = TokenSale__factory.connect(
-      contractAddresses.tokenSale,
+      contractAddresses.TokenSale,
       provider
     );
 
@@ -86,7 +85,7 @@ export const TokenSaleProvider = (props) => {
     const blockTime = (async () =>
       (await provider.getBlock('latest')).timestamp)();
     const token = contractAddresses.DPX;
-    const dpxTokenSaleAddress = contractAddresses.tokenSale;
+    const dpxTokenSaleAddress = contractAddresses.TokenSale;
 
     setState((prevState) => ({
       ...prevState,
@@ -104,10 +103,16 @@ export const TokenSaleProvider = (props) => {
   }, [provider, contractAddresses]);
 
   const updateUserData = useCallback(async () => {
-    if (!provider || !accountAddress || !contractAddresses) return;
+    if (
+      !provider ||
+      !accountAddress ||
+      !contractAddresses ||
+      !contractAddresses.TokenSale
+    )
+      return;
 
     const readTokenSaleContract = TokenSale__factory.connect(
-      contractAddresses.tokenSale,
+      contractAddresses.TokenSale,
       provider
     );
 

@@ -7,7 +7,7 @@ import format from 'date-fns/format';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import PurchaseDialog from '../ManageCard/PurchaseDialog';
+import PurchaseDialog from '../PurchaseDialog';
 import InfoBox from '../InfoBox';
 
 import dpxLogo from 'assets/tokens/dpx.svg';
