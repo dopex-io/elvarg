@@ -277,7 +277,7 @@ export default function AppBar(props: AppBarProps) {
                 Connect Wallet
               </CustomButton>
             )}
-            <NetworkButton className="lg:block hidden ml-4 w-28" />
+            <NetworkButton className="lg:flex hidden ml-4 w-28" />
             <Box>
               <IconButton
                 aria-label="more"
