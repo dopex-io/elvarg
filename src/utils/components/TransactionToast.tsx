@@ -17,7 +17,7 @@ function TransactionToast({
     <span>
       <a
         href={`${
-          CHAIN_ID_TO_EXPLORER[Number(process.env.REACT_APP_DEFAULT_CHAIN_ID)]
+          CHAIN_ID_TO_EXPLORER[Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID)]
         }tx/${txHash}`}
         target={'_blank'}
         rel={'noreferrer'}

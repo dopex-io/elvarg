@@ -2,6 +2,9 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ApolloProvider } from '@apollo/client';
+import { ThemeProvider, StylesProvider } from '@material-ui/core/styles';
+
+import theme from './style/muiTheme';
 
 import { client } from 'graphql/apollo';
 
@@ -15,11 +18,11 @@ import { SsovProvider } from 'contexts/Ssov';
 import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
 
-const Farming = lazy(() => import('pages/farming/farms'));
-const FarmingStake = lazy(() => import('pages/farming/stake'));
-const TokenSale = lazy(() => import('pages/sale'));
-const Ssov = lazy(() => import('pages/ssov'));
-const SsovManage = lazy(() => import('pages/ssov/Manage'));
+const Farming = lazy(() => import('craPages/farming/farms'));
+const FarmingStake = lazy(() => import('craPages/farming/stake'));
+const TokenSale = lazy(() => import('craPages/sale'));
+const Ssov = lazy(() => import('craPages/ssov'));
+const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
@@ -83,10 +86,14 @@ function AppRoutes() {
 
 const App = () => {
   return (
-    <ApolloProvider client={client}>
-      <Toaster position="bottom-right" reverseOrder={true} />
-      <AppRoutes />
-    </ApolloProvider>
+    <StylesProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <ApolloProvider client={client}>
+          <Toaster position="bottom-right" reverseOrder={true} />
+          <AppRoutes />
+        </ApolloProvider>
+      </ThemeProvider>
+    </StylesProvider>
   );
 };
 

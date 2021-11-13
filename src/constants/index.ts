@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 
 import { round100, round1, round1000 } from 'utils/math/rounding';
 
-export const ASSETS_LIST = process.env.REACT_APP_ASSETS_LIST.split(',');
+export const ASSETS_LIST = process.env.NEXT_PUBLIC_ASSETS_LIST.split(',');
 
 export const BASE_ASSET_MAP = {
   WETH: {
@@ -120,7 +120,7 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
   DPX: 'https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
 };
 
-export const INFURA_PROJECT_ID = process.env.REACT_APP_INFURA_PROJECT_ID;
+export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
@@ -132,7 +132,7 @@ export const GREEK_SYMBOLS = {
 export const DELEGATE_INFO: string =
   'Auto exercising will charge 1% of the total P&L as fee. (This is temporary and will be reduced heavily during our final launch).';
 
-export const BUILD: string = process.env.REACT_APP_BUILD;
+export const BUILD: string = process.env.NEXT_PUBLIC_BUILD;
 
 export const S3_BUCKET_RESOURCES = {
   DPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/DPX.png',

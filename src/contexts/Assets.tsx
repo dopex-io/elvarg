@@ -105,22 +105,25 @@ export const AssetsProvider = (props) => {
       const pricePromises = [];
 
       for (let i = 0; i < state.baseAssets.length; i++) {
-        const asset = state.baseAssets[i];
+        const asset = ASSET_TO_COINGECKO_ID[state.baseAssets[i]];
         const promise = axios
           .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${ASSET_TO_COINGECKO_ID[asset]}&vs_currencies=usd,eth,btc`
+            `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd,eth,btc`
           )
           .then((payload) => {
+            let key;
+            if (payload.data.ethereum) {
+              key = 'ethereum';
+            } else {
+              key = 'bitcoin';
+            }
             return {
               price: ethersUtils
-                .parseUnits(
-                  String(payload.data[ASSET_TO_COINGECKO_ID[asset]].usd),
-                  8
-                )
+                .parseUnits(String(payload.data[key].usd), 8)
                 .toString(),
-              priceEth: payload.data[ASSET_TO_COINGECKO_ID[asset]].eth,
-              priceBtc: payload.data[ASSET_TO_COINGECKO_ID[asset]].btc,
-              priceUsd: payload.data[ASSET_TO_COINGECKO_ID[asset]].usd,
+              priceEth: payload.data[key].eth,
+              priceBtc: payload.data[key].btc,
+              priceUsd: payload.data[key].usd,
             };
           });
 

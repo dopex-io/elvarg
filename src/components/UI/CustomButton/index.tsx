@@ -30,4 +30,6 @@ const CustomButton: FC<CustomButtonProps> = forwardRef((props, ref) => {
   );
 });
 
+CustomButton.displayName = 'CustomButton';
+
 export default CustomButton;
