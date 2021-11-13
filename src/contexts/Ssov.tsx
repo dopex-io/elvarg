@@ -235,10 +235,7 @@ export const SsovProvider = (props) => {
       let DPXemitted;
       let RDPXemitted;
 
-      const rewardsDuration =
-        token === 'dpx'
-          ? BigNumber.from(86400 * 365)
-          : BigNumber.from(86400 * 90);
+      const rewardsDuration = BigNumber.from(86400 * 365);
       const boost = token === 'dpx' ? 1 : 2;
 
       DPXemitted = DPX.mul(rewardsDuration)
