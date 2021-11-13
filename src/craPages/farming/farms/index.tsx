@@ -203,27 +203,34 @@ const Farms = () => {
             </Box>
           </Box>
           {isLoading ? (
-            <Box className="flex flex-col lg:flex-row bg-cod-gray p-4 rounded-xl pt-8 mb-8 items-center w-min mx-auto">
+            <Box className="flex flex-col lg:flex-row bg-cod-gray p-4 rounded-xl pt-8 mb-8 items-center lg:w-full mx-auto">
               <Skeleton
                 variant="rect"
                 width={272}
                 height={313}
                 animation="wave"
-                className="mr-3 mb-3"
+                className="lg:mr-3 mb-3"
               />
               <Skeleton
                 variant="rect"
                 width={272}
                 height={313}
                 animation="wave"
-                className="mr-3 mb-3"
+                className="lg:mr-3 mb-3"
               />
               <Skeleton
                 variant="rect"
                 width={272}
                 height={313}
                 animation="wave"
-                className="mr-3 mb-3"
+                className="lg:mr-3 mb-3"
+              />
+              <Skeleton
+                variant="rect"
+                width={272}
+                height={313}
+                animation="wave"
+                className="mb-3"
               />
             </Box>
           ) : (
