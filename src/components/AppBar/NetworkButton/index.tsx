@@ -48,7 +48,7 @@ const MenuItem = ({
   );
 };
 
-export default function NetworkButton() {
+export default function NetworkButton({ className }: { className?: string }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const { chainId } = useContext(WalletContext);
@@ -73,7 +73,7 @@ export default function NetworkButton() {
         icon={
           <img src={'/assets/bridge.svg'} alt="Arbitrum" className="w-4 mr-3" />
         }
-        className="mb-6"
+        className="lg:mb-6 mb-0"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
       <MenuItem
@@ -95,7 +95,7 @@ export default function NetworkButton() {
         icon={
           <img src="/assets/arbitrum.svg" alt="Arbitrum" className="w-4 mr-3" />
         }
-        className="mb-6"
+        className="lg:mb-6 mb-0"
         endComponent={<Switch checked={chainId === 42161} className="ml-8" />}
         onClick={handleClick}
       />,
@@ -105,7 +105,7 @@ export default function NetworkButton() {
         icon={
           <img src="/assets/bridge.svg" alt="Arbitrum" className="w-4 mr-3" />
         }
-        className="mb-6"
+        className="lg:mb-6 mb-0"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
       <MenuItem
@@ -126,7 +126,7 @@ export default function NetworkButton() {
     <>
       <CustomButton
         size="medium"
-        className="ml-4 w-28"
+        className={cx('', className)}
         color="cod-gray"
         startIcon={
           <img

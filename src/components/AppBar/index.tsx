@@ -277,7 +277,7 @@ export default function AppBar(props: AppBarProps) {
                 Connect Wallet
               </CustomButton>
             )}
-            <NetworkButton />
+            <NetworkButton className="lg:block hidden ml-4 w-28" />
             <Box>
               <IconButton
                 aria-label="more"
@@ -349,6 +349,8 @@ export default function AppBar(props: AppBarProps) {
                     }
                   )}
                 </Box>
+                <Box className="border border-stieglitz" />
+                <NetworkButton className="mx-3" />
               </Menu>
             </Box>
             <Box className="flex flex-row">
