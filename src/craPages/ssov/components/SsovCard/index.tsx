@@ -86,11 +86,10 @@ function SsovCard(props: SsovCardProps) {
       : 'N/A';
 
   return (
-    <Box className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Border)}>
+    <Box className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Box)}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
-          styles.Box,
           className
         )}
       >

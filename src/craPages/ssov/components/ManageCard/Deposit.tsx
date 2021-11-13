@@ -1,10 +1,7 @@
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
-import cx from 'classnames';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -33,16 +30,6 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
-import styles from './styles.module.scss';
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    formControl: {
-      width: 279,
-    },
-  })
-);
-
 const SelectMenuProps = {
   PaperProps: {
     style: {
@@ -56,7 +43,6 @@ const SelectMenuProps = {
 };
 
 const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
-  const classes = useStyles();
   const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
@@ -286,45 +272,41 @@ const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
           ))}
         </Box>
         <Box>
-          <FormControl variant="outlined" className={cx(classes.formControl)}>
-            <Select
-              className={cx(
-                styles.SelectSize,
-                'bg-mineshaft rounded-md px-2 text-white'
-              )}
-              multiple
-              displayEmpty
-              disableUnderline
-              value={selectedStrikeIndexes}
-              onChange={handleSelectStrikes}
-              input={<Input />}
-              variant="outlined"
-              renderValue={() => {
-                return (
-                  <Typography
-                    variant="h6"
-                    className="text-white text-center w-full relative"
-                  >
-                    Strike Prices
-                  </Typography>
-                );
-              }}
-              MenuProps={SelectMenuProps}
-              classes={{ icon: 'absolute right-20 text-white' }}
-              label="strikes"
-            >
-              {strikes.map((strike, index) => (
-                <MenuItem key={index} value={index}>
-                  <Checkbox
-                    color="default"
-                    className="p-0 mr-2 text-white"
-                    checked={selectedStrikeIndexes.indexOf(index) > -1}
-                  />
-                  <ListItemText className="text-white" primary={strike} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Select
+            className="bg-mineshaft rounded-md px-2 text-white"
+            fullWidth
+            multiple
+            displayEmpty
+            disableUnderline
+            value={selectedStrikeIndexes}
+            onChange={handleSelectStrikes}
+            input={<Input />}
+            variant="outlined"
+            renderValue={() => {
+              return (
+                <Typography
+                  variant="h6"
+                  className="text-white text-center w-full relative"
+                >
+                  Strike Prices
+                </Typography>
+              );
+            }}
+            MenuProps={SelectMenuProps}
+            classes={{ icon: 'absolute right-16 text-white' }}
+            label="strikes"
+          >
+            {strikes.map((strike, index) => (
+              <MenuItem key={index} value={index}>
+                <Checkbox
+                  color="default"
+                  className="p-0 mr-2 text-white"
+                  checked={selectedStrikeIndexes.indexOf(index) > -1}
+                />
+                <ListItemText className="text-white" primary={strike} />
+              </MenuItem>
+            ))}
+          </Select>
           {error ? (
             <Typography
               variant="caption"

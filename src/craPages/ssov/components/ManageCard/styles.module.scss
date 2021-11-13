@@ -1,10 +1,8 @@
-.CardWidth {
-  width: 343px;
-}
-
-.SelectSize {
-  height: 38px;
-  width: 279px;
+.cardWidth {
+  width: 100%;
+  @media (min-width: 768px) {
+    width: 350px;
+  }
 }
 
 .optionTypeIndicator {

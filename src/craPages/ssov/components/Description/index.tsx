@@ -1,4 +1,5 @@
 import { useState, useContext } from 'react';
+import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 
 import VaultBox from '../InfoBox';
@@ -15,6 +16,8 @@ import { SsovContext } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import styles from './styles.module.scss';
 
 const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
@@ -49,7 +52,7 @@ const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   ];
 
   return (
-    <Box className="flex flex-col mr-10">
+    <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
       <Typography variant="h1" className="mb-6">
         {tokenSymbol} SSOV
       </Typography>
@@ -68,7 +71,8 @@ const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
       <Box className="flex flex-row">
         <CustomButton
           size="medium"
-          className="w-52 mb-6 mr-2"
+          className="mb-6 mr-2"
+          fullWidth
           onClick={() => {
             setPurchaseState(true);
           }}
@@ -78,7 +82,7 @@ const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
         <EpochSelector ssov={ssov} />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
-        {info.map((item, index) => {
+        {info.map((item) => {
           return item.toolTip ? (
             <VaultBox
               key={item.heading}

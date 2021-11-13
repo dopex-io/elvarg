@@ -187,9 +187,7 @@ const Stats = (props: { className?: string; ssov: string }) => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer
-          className={cx(styles.optionsTable, 'overflow-x-hidden bg-cod-gray')}
-        >
+        <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
           {isEmpty(epochStrikes) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
               {range(3).map((_, index) => (

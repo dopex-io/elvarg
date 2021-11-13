@@ -18,7 +18,7 @@ const Ssov = () => {
             option purchases and earn rewards from farms simultaneously.
           </Typography>
         </Box>
-        <Box className="flex space-x- space-x-24 justify-center">
+        <Box className="flex flex-col lg:flex-row lg:space-x-24 space-y-12 lg:space-y-0 justify-center items-center">
           <SsovCard ssov="dpx" />
           <SsovCard ssov="rdpx" />
         </Box>

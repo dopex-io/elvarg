@@ -136,9 +136,7 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer
-          className={cx(styles.optionsTable, 'overflow-x-hidden bg-cod-gray')}
-        >
+        <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
           {!accountAddress ? (
             <Box className="p-4 flex items-center justify-center">
               <WalletButton size="medium" />

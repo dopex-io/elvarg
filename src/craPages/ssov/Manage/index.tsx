@@ -17,13 +17,9 @@ const Manage = () => {
       <AppBar active="SSOV" />
       <Box className="py-12 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="flex flex-col mt-20">
-          <Box className="flex flex-row mb-4">
-            <Box className="w-1/2 flex flex-shrink">
-              <Description ssov={ssov} />
-            </Box>
-            <Box className="w-1/2 flex flex-row-reverse flex-shrink">
-              <ManageCard ssov={ssov} />
-            </Box>
+          <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
+            <Description ssov={ssov} />
+            <ManageCard ssov={ssov} />
           </Box>
           <ExerciseList ssov={ssov} />
           <Stats ssov={ssov} className="mt-4" />

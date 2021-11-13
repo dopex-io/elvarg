@@ -32,7 +32,7 @@ const ManageCard = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
     <Box
       className={cx(
         'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl',
-        styles.CardWidth
+        styles.cardWidth
       )}
     >
       <Box className="flex flex-row mb-4 justify-between">
