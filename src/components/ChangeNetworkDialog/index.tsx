@@ -8,9 +8,6 @@ import { WalletContext } from 'contexts/Wallet';
 
 import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
 
-import arbitrum from 'assets/icons/arbitrum.svg';
-import ethereum from 'assets/tokens/eth.svg';
-
 interface Props {
   imgSrc: string;
   name: string;
@@ -19,11 +16,11 @@ interface Props {
 
 const NETWORKS = {
   1: {
-    imgSrc: ethereum,
+    imgSrc: '/assets/eth.svg',
     name: 'Ethereum',
   },
   42161: {
-    imgSrc: arbitrum,
+    imgSrc: '/assets/arbitrum.svg',
     name: 'Arbitrum',
   },
 };
@@ -80,6 +77,7 @@ const ChangeNetworkDialog = () => {
 
           return (
             <NetworkOption
+              key={chainId}
               imgSrc={data.imgSrc}
               name={data.name}
               chainId={chainId}

@@ -22,10 +22,10 @@ To start the DApp you also need to setup an additional .env.local file:
 It should look like the following
 
 ```
-REACT_APP_INFURA_PROJECT_ID=#INSERT ID
-REACT_APP_DEFAULT_CHAIN_ID=1
-REACT_APP_ASSETS_LIST=USDT,DPX,RDPX
-REACT_APP_BUILD=#testnet or main
+NEXT_PUBLIC_INFURA_PROJECT_ID=#INSERT ID
+NEXT_PUBLIC_DEFAULT_CHAIN_ID=1
+NEXT_PUBLIC_ASSETS_LIST=USDT,DPX,RDPX
+NEXT_PUBLIC_BUILD=#testnet or main
 ```
 
 Then you can proceed to start the app:

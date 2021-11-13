@@ -29,9 +29,13 @@ app/src/addresses
 
 # Local Netlify folder
 .netlify
+out
 
 # Local Vercel folder
 .vercel
 
 # Generated GraphQL hooks
 /src/generated.ts
+
+# Local next.js folder
+.next

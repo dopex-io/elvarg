@@ -23,8 +23,6 @@ import formatAmount from 'utils/general/formatAmount';
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import Logo from 'assets/logo/logo.svg';
-
 import styles from './styles.module.scss';
 
 const AppLink = ({
@@ -201,7 +199,11 @@ export default function AppBar(props: AppBarProps) {
               className="flex items-center mr-6 cursor-pointer hover:no-underline"
               href="/"
             >
-              <img src={Logo} className="w-9 text-left" alt="logo" />
+              <img
+                src={'/assets/logo.svg'}
+                className="w-9 text-left"
+                alt="logo"
+              />
             </a>
             <Box className="space-x-10 mr-10 hidden lg:flex">
               {links.map((link) => {

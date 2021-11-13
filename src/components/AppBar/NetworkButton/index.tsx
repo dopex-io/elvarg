@@ -10,19 +10,15 @@ import Switch from 'components/UI/Switch';
 
 import { WalletContext } from 'contexts/Wallet';
 
-import ethDiamond from 'assets/tokens/eth_diamond.svg';
-import arbitrum from 'assets/icons/arbitrum.svg';
-import bridge from 'assets/icons/bridge.svg';
-
 import { BUILD } from 'constants/index';
 
 import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
 
 const CHAIN_ID_TO_NETWORK_DATA = {
-  1: { name: 'Mainnet', icon: ethDiamond },
-  42: { name: 'Kovan', icon: ethDiamond },
-  42161: { name: 'Arbitrum', icon: arbitrum },
-  421611: { name: 'Testnet', icon: arbitrum },
+  1: { name: 'Mainnet', icon: '/assets/eth.svg' },
+  42: { name: 'Kovan', icon: '/assets/eth.svg' },
+  42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
+  421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
 };
 
 const MenuItem = ({
@@ -74,7 +70,9 @@ export default function NetworkButton() {
       <MenuItem
         key={1}
         text="Asset Bridge"
-        icon={<img src={bridge} alt="Arbitrum" className="w-4 mr-3" />}
+        icon={
+          <img src={'/assets/bridge.svg'} alt="Arbitrum" className="w-4 mr-3" />
+        }
         className="mb-6"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
@@ -94,7 +92,9 @@ export default function NetworkButton() {
       <MenuItem
         key={1}
         text="Switch to L2 (Arbitrum)"
-        icon={<img src={arbitrum} alt="Arbitrum" className="w-4 mr-3" />}
+        icon={
+          <img src="/assets/arbitrum.svg" alt="Arbitrum" className="w-4 mr-3" />
+        }
         className="mb-6"
         endComponent={<Switch checked={chainId === 42161} className="ml-8" />}
         onClick={handleClick}
@@ -102,7 +102,9 @@ export default function NetworkButton() {
       <MenuItem
         key={2}
         text="Asset Bridge"
-        icon={<img src={bridge} alt="Arbitrum" className="w-4 mr-3" />}
+        icon={
+          <img src="/assets/bridge.svg" alt="Arbitrum" className="w-4 mr-3" />
+        }
         className="mb-6"
         onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
       />,
