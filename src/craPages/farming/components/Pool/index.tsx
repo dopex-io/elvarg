@@ -1,5 +1,5 @@
 import { useContext, useCallback, useState, MouseEvent } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
@@ -53,7 +53,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
 
   const Modal = MODALS[modalState.type];
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClose = useCallback(
     () => setModalState((prevState) => ({ ...prevState, open: false })),
@@ -286,7 +286,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
                   className="w-full lg:w-52"
                   onClick={() => {
                     handleStake();
-                    history.push('/farms/stake');
+                    navigate('/farms/stake');
                   }}
                 >
                   Stake

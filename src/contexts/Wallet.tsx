@@ -115,7 +115,10 @@ export const WalletProvider = (props) => {
           : new ethers.providers.Web3Provider(web3Provider, 'any');
       const { chainId } = await provider.getNetwork();
 
-      if (!PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)) {
+      if (
+        PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)
+      ) {
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,

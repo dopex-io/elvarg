@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 
@@ -29,7 +29,7 @@ interface SsovCardProps {
 
 function SsovCard(props: SsovCardProps) {
   const { className, ssov } = props;
-  const history = useHistory();
+  const navigate = useNavigate();
   const context = useContext(SsovContext);
   const {
     selectedEpoch,
@@ -206,9 +206,9 @@ function SsovCard(props: SsovCardProps) {
           <Box className="grid grid-cols-2 gap-2 my-4">
             <CustomButton
               size="medium"
-              onClick={() => {
-                history.push(`/ssov/manage/${ssov === 'dpx' ? 'dpx' : 'rdpx'}`);
-              }}
+              onClick={() =>
+                navigate(`/ssov/manage/${ssov === 'dpx' ? 'dpx' : 'rdpx'}`)
+              }
             >
               Deposit
             </CustomButton>

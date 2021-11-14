@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 import cx from 'classnames';
@@ -41,7 +41,8 @@ interface PoolCardProps {
 function PoolCard(props: PoolCardProps) {
   const { baseAssetOptionPoolSdk, baseAssetOptionPoolData, className } = props;
 
-  const history = useHistory();
+  const navigate = useNavigate();
+
   const [state, setState] = useState({
     putPoolReturn: 0,
     callPoolReturn: 0,
@@ -258,7 +259,7 @@ function PoolCard(props: PoolCardProps) {
               className="rounded-md h-10 float-right mt-1"
               onClick={() => {
                 handleChangeSelectedBaseAsset(selectedBaseAsset);
-                history.push('/pools/manage');
+                navigate('/pools/manage');
               }}
             >
               {userBasePoolDeposits > 0 ||

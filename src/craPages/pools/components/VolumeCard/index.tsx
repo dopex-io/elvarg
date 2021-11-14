@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -15,7 +15,7 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 function VolumeCard({ className }: { className?: string }) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const {
     userVolumePoolDeposits,
     totalVolumePoolDeposits,
@@ -74,7 +74,7 @@ function VolumeCard({ className }: { className?: string }) {
             size="medium"
             className="rounded-md h-10 float-right mt-1"
             onClick={() => {
-              history.push('/pools/volume');
+              navigate('/pools/volume');
             }}
           >
             {finalUserVolumePoolDeposits > 0 ? 'Manage' : 'Deposit'}
