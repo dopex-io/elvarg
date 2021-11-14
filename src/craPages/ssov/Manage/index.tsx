@@ -8,7 +8,7 @@ import ExerciseList from '../components/ExerciseList';
 import Stats from '../components/Stats';
 
 const Manage = () => {
-  const { asset } = useParams<{ asset: string }>();
+  const { asset } = useParams();
 
   const ssov = asset === 'rdpx' ? 'rdpx' : 'dpx';
 
