@@ -23,8 +23,6 @@ import formatAmount from 'utils/general/formatAmount';
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import Logo from 'assets/logo/logo.svg';
-
 import styles from './styles.module.scss';
 
 const AppLink = ({
@@ -201,7 +199,11 @@ export default function AppBar(props: AppBarProps) {
               className="flex items-center mr-6 cursor-pointer hover:no-underline"
               href="/"
             >
-              <img src={Logo} className="w-9 text-left" alt="logo" />
+              <img
+                src={'/assets/logo.svg'}
+                className="w-9 text-left"
+                alt="logo"
+              />
             </a>
             <Box className="space-x-10 mr-10 hidden lg:flex">
               {links.map((link) => {
@@ -275,7 +277,7 @@ export default function AppBar(props: AppBarProps) {
                 Connect Wallet
               </CustomButton>
             )}
-            <NetworkButton />
+            <NetworkButton className="lg:inline-flex hidden ml-4 w-28" />
             <Box>
               <IconButton
                 aria-label="more"
@@ -347,6 +349,8 @@ export default function AppBar(props: AppBarProps) {
                     }
                   )}
                 </Box>
+                <Box className="border border-stieglitz" />
+                <NetworkButton className="mx-3" />
               </Menu>
             </Box>
             <Box className="flex flex-row">

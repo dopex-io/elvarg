@@ -50,7 +50,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
 };
 
 const DEFAULT_CHAIN_ID =
-  Number(process.env.REACT_APP_DEFAULT_CHAIN_ID) ?? 421611;
+  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
 
 const providerOptions = {
   walletconnect: {
@@ -63,8 +63,6 @@ const providerOptions = {
 
 export const WalletProvider = (props) => {
   const location = useLocation();
-
-  console.log(Addresses[DEFAULT_CHAIN_ID]);
 
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
@@ -117,7 +115,10 @@ export const WalletProvider = (props) => {
           : new ethers.providers.Web3Provider(web3Provider, 'any');
       const { chainId } = await provider.getNetwork();
 
-      if (!PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)) {
+      if (
+        PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)
+      ) {
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,

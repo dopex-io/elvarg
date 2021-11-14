@@ -14,10 +14,6 @@ import { WalletContext } from 'contexts/Wallet';
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import dpxIcon from 'assets/tokens/dpx.svg';
-import rdpxIcon from 'assets/tokens/rdpx.svg';
-import ethIcon from 'assets/tokens/eth.svg';
-
 const WalletDialog = ({ open, handleClose, userBalances }) => {
   const { accountAddress, changeWallet, disconnect } =
     useContext(WalletContext);
@@ -90,20 +86,20 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
             balance={getUserReadableAmount(userBalances.DPX, 18).toString()}
             decimals={18}
             token="DPX"
-            iconSrc={dpxIcon}
+            iconSrc={'/assets/dpx.svg'}
             iconAlt="DPX"
           />
           <BalanceItem
             balance={getUserReadableAmount(userBalances.RDPX, 18).toString()}
             decimals={18}
             token="rDPX"
-            iconSrc={rdpxIcon}
+            iconSrc={'/assets/rdpx.svg'}
             iconAlt="rDPX"
           />
           <BalanceItem
             balance={getUserReadableAmount(userBalances.ETH, 18).toString()}
             token="ETH"
-            iconSrc={ethIcon}
+            iconSrc={'/assets/eth.svg'}
             iconAlt="ETH"
           />
         </Box>
