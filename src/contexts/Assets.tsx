@@ -23,6 +23,8 @@ interface AssetsContextInterface {
   selectedBaseAssetDecimals: number;
   baseAssets: string[];
   quoteAssets: string[];
+  tokens: string[];
+  tokenPrices: { price: number; change: number; name: string }[];
   baseAssetsWithPrices?: AssetData;
   userAssetBalances: { [key: string]: string };
   handleChangeSelectedBaseAsset?: Function;
@@ -35,6 +37,8 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
+  tokens: ['DPX', 'RDPX'],
+  tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
     WETH: '0',
@@ -48,6 +52,8 @@ const initialState: AssetsContextInterface = {
 const ASSET_TO_COINGECKO_ID = {
   WETH: 'ethereum',
   WBTC: 'bitcoin',
+  DPX: 'dopex',
+  RDPX: 'dopex-rebate-token',
 };
 
 export const AssetsContext =
@@ -95,6 +101,43 @@ export const AssetsProvider = (props) => {
   }, [provider, contractAddresses]);
 
   useEffect(() => {
+    const updateTokenPrices = async () => {
+      const pricePromises = [];
+
+      for (let i = 0; i < state.tokens.length; i++) {
+        const asset = ASSET_TO_COINGECKO_ID[state.tokens[i]];
+        const promise = axios
+          .get(
+            `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd&include_24hr_change=true`
+          )
+          .then((payload) => {
+            let key, name;
+            if (payload.data.dopex) {
+              key = 'dopex';
+              name = 'DPX';
+            } else {
+              key = 'dopex-rebate-token';
+              name = 'rDPX';
+            }
+            return {
+              name,
+              change: payload.data[key]['usd_24h_change'],
+              price: payload.data[key].usd,
+            };
+          });
+
+        pricePromises.push(promise);
+      }
+
+      const data = await Promise.all(pricePromises);
+
+      setState((prevState) => ({ ...prevState, tokenPrices: data }));
+    };
+
+    updateTokenPrices();
+  }, [state.tokens]);
+
+  useEffect(() => {
     if (!state.baseAssets.length || !provider || !contractAddresses) return;
 
     const getPrices = async () => {
@@ -108,7 +151,7 @@ export const AssetsProvider = (props) => {
         const asset = ASSET_TO_COINGECKO_ID[state.baseAssets[i]];
         const promise = axios
           .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd,eth,btc`
+            `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd,eth,btc&include_24hr_change=true`
           )
           .then((payload) => {
             let key;
@@ -118,6 +161,7 @@ export const AssetsProvider = (props) => {
               key = 'bitcoin';
             }
             return {
+              change: payload.data[key]['usd_24h_change'],
               price: ethersUtils
                 .parseUnits(String(payload.data[key].usd), 8)
                 .toString(),
