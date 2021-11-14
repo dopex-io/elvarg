@@ -126,7 +126,7 @@ export default function NetworkButton({ className }: { className?: string }) {
     <>
       <CustomButton
         size="medium"
-        className={cx('', className)}
+        className={className}
         color="cod-gray"
         startIcon={
           <img
