@@ -1,6 +1,6 @@
 import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
 import { useTable } from 'react-table';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -114,12 +114,9 @@ const OptionChain = ({ scrollToPurchasePanel }) => {
     setHiddenColumns(columnsToHide);
   }, [greeksToShow, setHiddenColumns, visibleColumns, showToggleView]);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const handleAddLiquidity = useCallback(
-    () => history.push('/pools'),
-    [history]
-  );
+  const handleAddLiquidity = useCallback(() => navigate('/pools'), [navigate]);
 
   return (
     <Box className="text-white bg-cod-gray rounded-xl pt-5 flex flex-col space-y-4 w-full">
