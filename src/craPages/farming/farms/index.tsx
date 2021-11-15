@@ -233,7 +233,6 @@ const Farms = () => {
                   <Typography variant="h6" className="text-center mb-4">
                     Your Deposits ({yourDeposit})
                   </Typography>
-
                   <Box className="flex flex-col lg:flex-row lg:space-x-4 h-full">
                     {DPX.userStakedBalance.gt(0) ? (
                       <Pool

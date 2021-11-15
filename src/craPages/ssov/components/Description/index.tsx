@@ -65,8 +65,7 @@ const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
         <br />
         <br />
         This farm simultaneously auto-compounds, farms and supplies{' '}
-        {tokenSymbol}
-        liquidity to our first options pool.
+        {tokenSymbol} liquidity to our first options pool.
       </Typography>
       <Box className="flex flex-row">
         <CustomButton
