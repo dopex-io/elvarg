@@ -340,7 +340,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
                 component="div"
                 className="text-stieglitz"
               >
-                Current Price ({tokenSymbol})
+                Oracle Price ({tokenSymbol})
               </Typography>
               <Typography variant="caption" component="div">
                 ${formatAmount(getUserReadableAmount(tokenPrice, 8))}
