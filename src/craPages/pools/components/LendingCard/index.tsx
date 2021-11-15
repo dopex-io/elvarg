@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Link from '@material-ui/core/Link';
@@ -11,7 +11,7 @@ import WalletButton from 'components/WalletButton';
 import formatAmount from 'utils/general/formatAmount';
 
 function LendingCard({ className }: { className?: string }) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const finalTotalVolumePoolDeposits = 1;
 
@@ -41,7 +41,7 @@ function LendingCard({ className }: { className?: string }) {
           size="medium"
           className="rounded-md h-10 float-right mt-1"
           onClick={() => {
-            history.push('/pools/volume');
+            navigate('/pools/volume');
           }}
         >
           {finalUserVolumePoolDeposits > 0 ? 'Manage' : 'Deposit'}

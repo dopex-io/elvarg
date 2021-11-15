@@ -14,7 +14,7 @@ import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
 import { SsovProvider } from 'contexts/Ssov';
 
-// import { BUILD } from 'constants/index';
+import { BUILD } from 'constants/index';
 
 import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
@@ -24,13 +24,13 @@ const FarmingStake = lazy(() => import('craPages/farming/stake'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
-// const Portfolio = lazy(() => import('pages/portfolio'));
-// const Options = lazy(() => import('pages/options'));
-// const Pools = lazy(() => import('pages/pools'));
-// const PoolsManage = lazy(() => import('pages/pools/manage'));
-// const PoolsVolume = lazy(() => import('pages/pools/volume'));
-// const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
-// const Swap = lazy(() => import('pages/swap'));
+const Portfolio = lazy(() => import('craPages/portfolio'));
+const Options = lazy(() => import('craPages/options'));
+const Pools = lazy(() => import('craPages/pools'));
+const PoolsManage = lazy(() => import('craPages/pools/manage'));
+const PoolsVolume = lazy(() => import('craPages/pools/volume'));
+const TestnetFaucet = lazy(() => import('craPages/testnet-faucet'));
+const Swap = lazy(() => import('craPages/swap'));
 
 const FarmRoutes = () => {
   return (
@@ -55,27 +55,29 @@ const SsovRoutes = () => {
 };
 
 function AppRoutes() {
-  // if (BUILD === 'testnet') {
-  //   return (
-  //     <BrowserRouter forceRefresh={false}>
-  //       <Suspense fallback={<PageLoader />}>
-  //         <Switch>
-  //           <Route path="/" component={Options} exact />
-  //           <Route path="/pools" component={Pools} exact />
-  //           <Route path="/pools/manage" component={PoolsManage} exact />
-  //           <Route path="/pools/volume" component={PoolsVolume} exact />
-  //           <Route path="/portfolio" component={Portfolio} exact />
-  //           <Route path="/faucet" component={TestnetFaucet} exact />
-  //           <Route path="/swap" component={Swap} exact />
-  //           <SsovProvider>
-  //             <Route path="/ssov" component={Ssov} exact />
-  //             <Route path="/ssov/manage" component={SsovManage} exact />
-  //           </SsovProvider>
-  //         </Switch>
-  //       </Suspense>
-  //     </BrowserRouter>
-  //   );
-  // }
+  if (BUILD === 'testnet') {
+    return (
+      <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
+          <WalletProvider>
+            <AssetsProvider>
+              <Routes>
+                <Route path="/" element={<Options />} />
+                <Route path="/pools" element={<Pools />} />
+                <Route path="/pools/manage" element={<PoolsManage />} />
+                <Route path="/pools/volume" element={<PoolsVolume />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/faucet" element={<TestnetFaucet />} />
+                <Route path="/swap" element={<Swap />} />
+                <Route path="ssov/*" element={<SsovRoutes />} />
+                <Route path="*" element={<Error statusCode={404} />} />
+              </Routes>
+            </AssetsProvider>
+          </WalletProvider>
+        </Suspense>
+      </BrowserRouter>
+    );
+  }
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>

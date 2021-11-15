@@ -40,7 +40,13 @@ const CHAIN_ID_TO_PROVIDERS = {
 };
 
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
-  '/': [1, 42161],
+  '/': [1, 42161, 421611],
+  '/pools': [421611],
+  '/pools/manage': [421611],
+  '/pools/volume': [421611],
+  '/portfolio': [421611],
+  '/faucet': [421611],
+  '/swap': [421611],
   '/farms': [1, 42161],
   '/farms/stake': [1, 42161],
   '/ssov': [42161],
