@@ -21,7 +21,6 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import WalletButton from 'components/WalletButton';
 import Input from 'components/UI/Input';
-import EpochSelector from 'craPages/pools/components/EpochSelector';
 import MaxApprove from 'components/MaxApprove';
 import ErrorBox from 'components/ErrorBox';
 
@@ -31,7 +30,7 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import calculateApy from 'utils/contracts/calculateApy';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import styles from './styles.module.scss';
 
@@ -144,7 +143,7 @@ const Margin = () => {
         }
       }
       const finalAmount = getContractReadableAmount(amount, usdtDecimals);
-      await newEthersTransaction(
+      await sendTx(
         ERC20__factory.connect(usdtContract.address, signer).approve(
           contractAddresses.Margin,
           maxApprove ? MAX_VALUE : finalAmount
@@ -179,7 +178,7 @@ const Margin = () => {
         setError('Insufficient Balance');
         return;
       }
-      await newEthersTransaction(
+      await sendTx(
         Margin__factory.connect(contractAddresses.Margin, signer).deposit(
           finalAmount
         )
@@ -206,7 +205,7 @@ const Margin = () => {
         setError('No deposits available');
         return;
       }
-      await newEthersTransaction(
+      await sendTx(
         Margin__factory.connect(contractAddresses.Margin, signer).withdraw(
           userMarginPoolDeposits
         )
