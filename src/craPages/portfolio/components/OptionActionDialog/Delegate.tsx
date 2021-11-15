@@ -12,7 +12,7 @@ import CustomButton from 'components/UI/CustomButton';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -86,7 +86,7 @@ const Delegate = ({ closeModal, data, icon }: DialogProps) => {
       );
 
       if (!getContractReadableAmount(amount, 18).lt(allowance)) {
-        await newEthersTransaction(
+        await sendTx(
           ERC20__factory.connect(data.optionsContract.address, signer).approve(
             contractAddresses.Delegator,
             MAX_VALUE
@@ -119,7 +119,7 @@ const Delegate = ({ closeModal, data, icon }: DialogProps) => {
       );
       const fAmount = getContractReadableAmount(amount, 18);
 
-      await newEthersTransaction(
+      await sendTx(
         delegator.delegate(data.optionsContractId, accountAddress, fAmount)
       );
 

@@ -111,8 +111,7 @@ export default function AppBar(props: AppBarProps) {
   const { active } = props;
   const { accountAddress, connect, wrongNetwork, chainId } =
     useContext(WalletContext);
-  const { selectedBaseAsset, baseAssetsWithPrices, userAssetBalances } =
-    useContext(AssetsContext);
+  const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
@@ -224,22 +223,18 @@ export default function AppBar(props: AppBarProps) {
           </Box>
           <Box className="flex items-center">
             <Box className="space-x-2 mr-4 hidden lg:flex">
-              {baseAssetsWithPrices
-                ? Object.keys(baseAssetsWithPrices).map((asset) => {
-                    return (
-                      <PriceTag
-                        key={baseAssetsWithPrices[asset].symbol}
-                        asset={baseAssetsWithPrices[asset].symbol}
-                        price={getUserReadableAmount(
-                          baseAssetsWithPrices[asset].price,
-                          8
-                        )}
-                      />
-                    );
-                  })
-                : null}
+              {tokenPrices.map((item) => {
+                return (
+                  <PriceTag
+                    key={item.name}
+                    asset={item.name}
+                    price={item.price}
+                    change={item.change}
+                  />
+                );
+              })}
             </Box>
-            {baseAssetsWithPrices ? (
+            {/* {baseAssetsWithPrices ? (
               <PriceTag
                 asset={baseAssetsWithPrices[selectedBaseAsset].symbol}
                 price={getUserReadableAmount(
@@ -248,7 +243,7 @@ export default function AppBar(props: AppBarProps) {
                 )}
                 className="mr-2 lg:hidden"
               />
-            ) : null}
+            ) : null} */}
             {accountAddress ? (
               <Box className="bg-cod-gray flex flex-row p-1 rounded-md items-center">
                 <Box className="bg-mineshaft flex-row px-2 py-2 rounded-md items-center mr-1 hidden lg:flex">

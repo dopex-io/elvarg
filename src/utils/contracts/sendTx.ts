@@ -1,9 +1,9 @@
 import toast from 'react-hot-toast';
 import { ContractTransaction } from 'ethers';
 
-import TransactionToast from 'utils/components/TransactionToast';
+import TransactionToast from 'components/TransactionToast';
 
-export async function newEthersTransaction(
+export default async function sendTx(
   transaction: Promise<ContractTransaction>,
   waitingMessage: string = 'Please confirm the transaction...',
   loadingMessage: string = 'Transaction pending...',

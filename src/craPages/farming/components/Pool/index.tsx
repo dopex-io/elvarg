@@ -20,7 +20,7 @@ import PoolShare from './PoolShare/PoolShare';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { UNISWAP_LINKS } from 'constants/index';
 
@@ -91,7 +91,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
       console.log('Insufficient Rewards');
     }
     try {
-      await newEthersTransaction(
+      await sendTx(
         StakingRewards__factory.connect(
           token.stakingRewardsContractAddress,
           signer

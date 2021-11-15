@@ -4,7 +4,7 @@ import { ethers, BigNumber } from 'ethers';
 
 import parseError from 'utils/general/parseError';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 import getTimePeriod from 'utils/contracts/getTimePeriod';
 
 import { AssetsContext } from 'contexts/Assets';
@@ -100,14 +100,14 @@ const useOptionSwap = (data) => {
         contractAddresses.OptionPoolBroker
       );
       if (usdtAllowance.lt(fee)) {
-        await newEthersTransaction(
+        await sendTx(
           ERC20__factory.connect(usdtContract.address, signer).approve(
             contractAddresses.OptionPoolBroker,
             MAX_VALUE
           )
         );
       }
-      await newEthersTransaction(
+      await sendTx(
         OptionPoolBroker__factory.connect(
           contractAddresses.OptionPoolBroker,
           signer

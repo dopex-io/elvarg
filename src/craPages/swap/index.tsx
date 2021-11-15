@@ -10,7 +10,7 @@ import BigNumber from 'bignumber.js';
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
@@ -99,11 +99,9 @@ export default function Swap() {
       .times(`1e${await token.decimals()}`)
       .toString();
 
-    await newEthersTransaction(
-      token.approve(contractAddresses.AssetSwapper, fAmount)
-    );
+    await sendTx(token.approve(contractAddresses.AssetSwapper, fAmount));
 
-    await newEthersTransaction(
+    await sendTx(
       assetSwapper.swapAsset(
         contractAddresses[formik.values.from],
         contractAddresses[formik.values.to],

@@ -20,7 +20,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -140,9 +140,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
 
   const handleApprove = useCallback(async () => {
     try {
-      await newEthersTransaction(
-        token.approve(ssovContractWithSigner.address, MAX_VALUE)
-      );
+      await sendTx(token.approve(ssovContractWithSigner.address, MAX_VALUE));
       setApproved(true);
     } catch (err) {
       console.log(err);
@@ -153,9 +151,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
   const handlePurchase = useCallback(async () => {
     const finalAmount = ethersUtils.parseEther(String(formik.values.amount));
     try {
-      await newEthersTransaction(
-        ssovContractWithSigner.purchase(strikeIndex, finalAmount)
-      );
+      await sendTx(ssovContractWithSigner.purchase(strikeIndex, finalAmount));
       updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
       updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
       updateUserEpochStrikePurchasableAmount();
@@ -340,7 +336,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
                 component="div"
                 className="text-stieglitz"
               >
-                Current Price ({tokenSymbol})
+                Oracle Price ({tokenSymbol})
               </Typography>
               <Typography variant="caption" component="div">
                 ${formatAmount(getUserReadableAmount(tokenPrice, 8))}

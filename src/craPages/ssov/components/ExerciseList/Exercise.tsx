@@ -15,7 +15,7 @@ import CustomButton from 'components/UI/CustomButton';
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
 
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -130,7 +130,7 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
   const handleApprove = useCallback(async () => {
     const finalAmount = getContractReadableAmount(inputValue, 18);
     try {
-      await newEthersTransaction(
+      await sendTx(
         epochStrikeToken.approve(
           ssovContractWithSigner.address,
           maxApprove ? MAX_VALUE : finalAmount.toString()
@@ -145,7 +145,7 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
   // Handle Exercise
   const handleExercise = useCallback(async () => {
     try {
-      await newEthersTransaction(
+      await sendTx(
         ssovContractWithSigner.exercise(
           strikeIndex,
           getContractReadableAmount(inputValue, 18).toString(),
