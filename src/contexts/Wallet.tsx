@@ -44,6 +44,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/pools': [421611],
   '/pools/manage': [421611],
   '/pools/volume': [421611],
+  '/pools/margin': [421611],
   '/portfolio': [421611],
   '/faucet': [421611],
   '/swap': [421611],

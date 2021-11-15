@@ -29,6 +29,7 @@ const Options = lazy(() => import('craPages/options'));
 const Pools = lazy(() => import('craPages/pools'));
 const PoolsManage = lazy(() => import('craPages/pools/manage'));
 const PoolsVolume = lazy(() => import('craPages/pools/volume'));
+const PoolsMargin = lazy(() => import('craPages/pools/margin'));
 const TestnetFaucet = lazy(() => import('craPages/testnet-faucet'));
 const Swap = lazy(() => import('craPages/swap'));
 
@@ -66,6 +67,7 @@ function AppRoutes() {
                 <Route path="/pools" element={<Pools />} />
                 <Route path="/pools/manage" element={<PoolsManage />} />
                 <Route path="/pools/volume" element={<PoolsVolume />} />
+                <Route path="/pools/margin" element={<PoolsMargin />} />
                 <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/faucet" element={<TestnetFaucet />} />
                 <Route path="/swap" element={<Swap />} />

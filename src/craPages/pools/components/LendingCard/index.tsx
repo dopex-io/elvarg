@@ -60,7 +60,7 @@ function LendingCard({ className }: { className?: string }) {
           size="medium"
           className="rounded-md h-10 float-right mt-1"
           onClick={() => {
-            navigate('/pools/volume');
+            navigate('/pools/margin');
           }}
         >
           {finalUserMarginPoolDeposits > 0 ? 'Manage' : 'Deposit'}
