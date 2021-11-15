@@ -118,6 +118,7 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
   'rDPX-WETH':
     'https://app.sushi.com/add/ETH/0x32eb7902d4134bf98a28b963d26de779af92a212',
   DPX: 'https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
+  RDPX: 'https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=0x32eb7902d4134bf98a28b963d26de779af92a212',
 };
 
 export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;

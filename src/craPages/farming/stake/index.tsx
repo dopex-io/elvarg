@@ -20,7 +20,6 @@ import Typography from 'components/UI/Typography';
 import MaxApprove from 'components/MaxApprove';
 import LpTokenDistribution from '../components/LpTokenDistribution';
 
-import Boosted from 'assets/farming/Boosted';
 import Dropdown from 'assets/farming/Dropdown';
 import Equal from 'assets/icons/Equal';
 
@@ -29,7 +28,7 @@ import { MAX_VALUE, UNISWAP_LINKS } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { FarmingContext } from 'contexts/Farming';
@@ -163,7 +162,7 @@ const Stake = () => {
   // function that handles token approval for staking
   const handleApprove = useCallback(async () => {
     try {
-      await newEthersTransaction(
+      await sendTx(
         ERC20__factory.connect(
           selectedToken.selectedBaseAssetContract.address,
           signer
@@ -180,7 +179,7 @@ const Stake = () => {
 
   const handleDeposit = useCallback(async () => {
     try {
-      await newEthersTransaction(
+      await sendTx(
         StakingRewards__factory.connect(
           selectedToken.stakingRewardsContractAddress,
           signer
@@ -206,7 +205,7 @@ const Stake = () => {
 
   const handleWithdraw = useCallback(async () => {
     try {
-      await newEthersTransaction(
+      await sendTx(
         StakingRewards__factory.connect(
           selectedToken.stakingRewardsContractAddress,
           signer
@@ -431,17 +430,6 @@ const Stake = () => {
           <FormHelperText className="text-right mt-1 mb-2 text-red-400">
             {formik.touched.amount && formik.errors.amount}
           </FormHelperText>
-          {formik.values.token === 'RDPX' ? (
-            <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
-              <Box className="mr-3">
-                <Boosted />
-              </Box>
-              <Typography variant="h5">
-                This yield program is currently incentivized with a 2x rewards
-                boost till the 15th of November.
-              </Typography>
-            </Box>
-          ) : null}
           <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
             <Box className="flex flex-col mb-2">
               <Box className="flex flex-row mb-2">

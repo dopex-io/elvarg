@@ -23,7 +23,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -177,7 +177,7 @@ const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
       18
     );
     try {
-      await newEthersTransaction(
+      await sendTx(
         token.approve(
           ssovContractWithSigner.address,
           maxApprove ? MAX_VALUE : finalAmount.toString()
@@ -198,7 +198,7 @@ const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
           ethersUtils.parseUnits(strikeDepositAmounts[index], 18).gt('0')
       );
 
-      await newEthersTransaction(
+      await sendTx(
         ssovContractWithSigner.depositMultiple(
           strikeIndexes,
           strikeIndexes.map((index) =>

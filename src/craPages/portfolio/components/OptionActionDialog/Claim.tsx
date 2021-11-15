@@ -9,7 +9,7 @@ import CustomButton from 'components/UI/CustomButton';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -45,9 +45,7 @@ const Claim = ({ closeModal, data, icon }: DialogProps) => {
         signer
       );
 
-      await newEthersTransaction(
-        delegator.claim(data.optionsContractId, accountAddress)
-      );
+      await sendTx(delegator.claim(data.optionsContractId, accountAddress));
 
       closeModal();
       updateOptionBalances();

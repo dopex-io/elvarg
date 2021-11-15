@@ -11,7 +11,7 @@ import CustomButton from 'components/UI/CustomButton';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -55,9 +55,7 @@ const Withdraw = ({ closeModal, data, icon }: DialogProps) => {
       );
       const fAmount = getContractReadableAmount(amount, 18);
 
-      await newEthersTransaction(
-        delegator.withdraw(data.optionsContractId, fAmount)
-      );
+      await sendTx(delegator.withdraw(data.optionsContractId, fAmount));
 
       closeModal();
       updateOptionBalances();

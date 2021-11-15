@@ -173,15 +173,12 @@ export const FarmingProvider = (props) => {
       let RDPXemitted;
 
       const rewardsDuration = BigNumber.from(86400 * 365);
-      const boost = token === 'RDPX' ? 2 : 1;
 
       DPXemitted = DPX.mul(rewardsDuration)
         .mul(Math.round(priceDPX))
-        .mul(boost)
         .div(oneEBigNumber(18));
       RDPXemitted = RDPX.mul(rewardsDuration)
         .mul(Math.round(priceRDPX))
-        .mul(boost)
         .div(oneEBigNumber(18));
 
       const denominator =

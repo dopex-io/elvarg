@@ -1,5 +1,5 @@
 import { useContext, useCallback, useState, MouseEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
@@ -20,7 +20,7 @@ import PoolShare from './PoolShare/PoolShare';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { UNISWAP_LINKS } from 'constants/index';
 
@@ -68,30 +68,28 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
     setAnchorEl(null);
   };
 
-  const handleStake = useCallback(
-    () =>
-      setData(() => ({
-        token: token.selectedBaseAsset,
-        isStake: true,
-      })),
-    [setData, token]
-  );
+  const handleStake = useCallback(() => {
+    setData(() => ({
+      token: token.selectedBaseAsset,
+      isStake: true,
+    }));
+    navigate('stake');
+  }, [setData, token, navigate]);
 
-  const handleUnstake = useCallback(
-    () =>
-      setData(() => ({
-        token: token.selectedBaseAsset,
-        isStake: false,
-      })),
-    [setData, token]
-  );
+  const handleUnstake = useCallback(() => {
+    setData(() => ({
+      token: token.selectedBaseAsset,
+      isStake: false,
+    }));
+    navigate('stake');
+  }, [setData, token, navigate]);
 
   const handleCompound = useCallback(async () => {
     if (token.rewards[0] === 0) {
       console.log('Insufficient Rewards');
     }
     try {
-      await newEthersTransaction(
+      await sendTx(
         StakingRewards__factory.connect(
           token.stakingRewardsContractAddress,
           signer
@@ -108,31 +106,41 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
     []
   );
 
-  const options: { name: string; to: () => {}; exclude?: string[] }[] = [
+  const options: { name: string; to: () => void; exclude?: string[] }[] = [
     {
       name: 'Stake',
       to: handleStake,
     },
     {
-      name: token.userStakedBalance?.gt(0) ? 'Unstake' : undefined,
-      to: token.userStakedBalance?.gt(0) ? handleUnstake : undefined,
-    },
-    {
       name: 'Add liquidity',
       to: () => window.open(UNISWAP_LINKS[token.selectedBaseAsset], '_blank'),
-      exclude: ['DPX'],
+      exclude: ['DPX', 'RDPX'],
     },
     {
       name: 'Buy DPX',
       to: () => window.open(UNISWAP_LINKS[token.selectedBaseAsset], '_blank'),
-      exclude: ['DPX-WETH', 'rDPX-WETH'],
+      exclude: ['DPX-WETH', 'rDPX-WETH', 'RDPX'],
+    },
+    {
+      name: 'Buy rDPX',
+      to: () => window.open(UNISWAP_LINKS[token.selectedBaseAsset], '_blank'),
+      exclude: ['DPX-WETH', 'rDPX-WETH', 'DPX'],
     },
     {
       name: 'Compound',
       to: handleCompound,
       exclude: ['DPX-WETH', 'rDPX-WETH'],
     },
+    ...(token.userStakedBalance?.gt(0)
+      ? [
+          {
+            name: 'Unstake',
+            to: handleUnstake,
+          },
+        ]
+      : []),
   ];
+
   return (
     <Box
       className={cx(
@@ -336,7 +344,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
                   onClick={option.to}
                   className="text-white hover:text-wave-blue"
                 >
-                  <Link to="/farms/stake">{option.name}</Link>
+                  {option.name}
                 </MenuItem>
               );
             })}

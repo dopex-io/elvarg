@@ -11,7 +11,7 @@ import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import parseError from 'utils/general/parseError';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -51,7 +51,7 @@ const Exercise = ({ closeModal, data, icon }: DialogProps) => {
       let currentBalance = await data.optionsContract.balanceOf(accountAddress);
 
       try {
-        await newEthersTransaction(
+        await sendTx(
           optionPoolBroker.exerciseOption(
             data.isPut,
             data.strike,
@@ -79,7 +79,7 @@ const Exercise = ({ closeModal, data, icon }: DialogProps) => {
 
       let currentBalance = await data.optionsContract.balanceOf(accountAddress);
 
-      await newEthersTransaction(
+      await sendTx(
         optionPoolBroker.exerciseOption(
           data.isPut,
           data.strike,

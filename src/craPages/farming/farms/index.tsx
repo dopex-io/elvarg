@@ -4,7 +4,7 @@ import Box from '@material-ui/core/Box';
 import Skeleton from '@material-ui/lab/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import Pool from '../components/Pool';
 import Typography from 'components/UI/Typography';
@@ -114,7 +114,7 @@ const Farms = () => {
           DPX.stakingRewardsContractAddress,
           signer
         );
-        await newEthersTransaction(stakingRewardsContract.getReward(2));
+        await sendTx(stakingRewardsContract.getReward(2));
         setStakingAsset('DPX');
       } catch (err) {
         console.log(err);
@@ -127,7 +127,7 @@ const Farms = () => {
           DPX_WETH.stakingRewardsContractAddress,
           signer
         );
-        await newEthersTransaction(stakingRewardsContract.getReward(2));
+        await sendTx(stakingRewardsContract.getReward(2));
         setStakingAsset('DPX-WETH');
       } catch (err) {
         console.log(err);
@@ -139,7 +139,7 @@ const Farms = () => {
           rDPX_WETH.stakingRewardsContractAddress,
           signer
         );
-        await newEthersTransaction(stakingRewardsContract.getReward(2));
+        await sendTx(stakingRewardsContract.getReward(2));
         setStakingAsset('rDPX-WETH');
       } catch (err) {
         console.log(err);
@@ -203,27 +203,34 @@ const Farms = () => {
             </Box>
           </Box>
           {isLoading ? (
-            <Box className="flex flex-col lg:flex-row bg-cod-gray p-4 rounded-xl pt-8 mb-8 items-center w-min mx-auto">
+            <Box className="flex flex-col lg:flex-row bg-cod-gray p-4 rounded-xl pt-8 mb-8 items-center lg:w-full mx-auto">
               <Skeleton
                 variant="rect"
                 width={272}
                 height={313}
                 animation="wave"
-                className="mr-3 mb-3"
+                className="lg:mr-3 mb-3"
               />
               <Skeleton
                 variant="rect"
                 width={272}
                 height={313}
                 animation="wave"
-                className="mr-3 mb-3"
+                className="lg:mr-3 mb-3"
               />
               <Skeleton
                 variant="rect"
                 width={272}
                 height={313}
                 animation="wave"
-                className="mr-3 mb-3"
+                className="lg:mr-3 mb-3"
+              />
+              <Skeleton
+                variant="rect"
+                width={272}
+                height={313}
+                animation="wave"
+                className="mb-3"
               />
             </Box>
           ) : (
@@ -233,7 +240,6 @@ const Farms = () => {
                   <Typography variant="h6" className="text-center mb-4">
                     Your Deposits ({yourDeposit})
                   </Typography>
-
                   <Box className="flex flex-col lg:flex-row lg:space-x-4 h-full">
                     {DPX.userStakedBalance.gt(0) ? (
                       <Pool

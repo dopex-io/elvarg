@@ -18,7 +18,7 @@ import { AssetsContext } from 'contexts/Assets';
 import parseError from 'utils/general/parseError';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 import { getWeeklyPool, getMonthlyPool } from 'utils/contracts/getPool';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 import getTimePeriod from 'utils/contracts/getTimePeriod';
@@ -274,14 +274,12 @@ const useOptionPurchase = () => {
             usdtContract.address,
             signer
           );
-          await newEthersTransaction(
-            signerUsdtContract.approve(router.address, MAX_VALUE)
-          );
+          await sendTx(signerUsdtContract.approve(router.address, MAX_VALUE));
         }
 
         const usdtBalance = await usdtContract.balanceOf(accountAddress);
 
-        await newEthersTransaction(
+        await sendTx(
           router.purchaseOption(usdtBalance, {
             useVolumePoolFunds: formik.values.useVolumePoolFunds,
             isPut: isPut,
@@ -312,14 +310,14 @@ const useOptionPurchase = () => {
             usdtContract.address,
             signer
           );
-          await newEthersTransaction(
+          await sendTx(
             signerUsdtContract.approve(monthlyPool.address, MAX_VALUE)
           );
         }
 
         const usdtBalance = await usdtContract.balanceOf(accountAddress);
 
-        await newEthersTransaction(
+        await sendTx(
           router.purchaseOption(usdtBalance, {
             useVolumePoolFunds: formik.values.useVolumePoolFunds,
             isPut: isPut,

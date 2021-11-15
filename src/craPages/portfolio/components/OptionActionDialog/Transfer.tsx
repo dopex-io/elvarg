@@ -11,7 +11,7 @@ import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -62,7 +62,7 @@ const Transfer = ({ closeModal, data, icon }: DialogProps) => {
         setError('Insufficient Balance');
         return;
       }
-      await newEthersTransaction(
+      await sendTx(
         ERC20__factory.connect(optionsContract.address, signer).transfer(
           recipientAddress,
           fAmount

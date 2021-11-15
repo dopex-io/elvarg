@@ -15,7 +15,7 @@ import CustomButton from 'components/UI/CustomButton';
 import BalanceTree from 'utils/merkle/balance-tree';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 
@@ -80,7 +80,7 @@ const ClaimRdpxModal = ({ open, handleClose }) => {
       } else {
         setLoading(true);
         try {
-          await newEthersTransaction(
+          await sendTx(
             merkleDistributorContract.claim(
               index,
               formik.values.address,
