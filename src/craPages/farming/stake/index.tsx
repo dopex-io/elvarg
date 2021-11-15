@@ -20,7 +20,6 @@ import Typography from 'components/UI/Typography';
 import MaxApprove from 'components/MaxApprove';
 import LpTokenDistribution from '../components/LpTokenDistribution';
 
-import Boosted from 'assets/farming/Boosted';
 import Dropdown from 'assets/farming/Dropdown';
 import Equal from 'assets/icons/Equal';
 
@@ -431,17 +430,6 @@ const Stake = () => {
           <FormHelperText className="text-right mt-1 mb-2 text-red-400">
             {formik.touched.amount && formik.errors.amount}
           </FormHelperText>
-          {formik.values.token === 'RDPX' ? (
-            <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
-              <Box className="mr-3">
-                <Boosted />
-              </Box>
-              <Typography variant="h5">
-                This yield program is currently incentivized with a 2x rewards
-                boost till the 15th of November.
-              </Typography>
-            </Box>
-          ) : null}
           <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
             <Box className="flex flex-col mb-2">
               <Box className="flex flex-row mb-2">

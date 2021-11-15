@@ -3,7 +3,6 @@ import cx from 'classnames';
 
 import Typography from 'components/UI/Typography';
 
-import Boosted from 'assets/farming/Boosted';
 interface FarmingHeaderProps {
   Icon: any;
   heading: string;
@@ -22,11 +21,6 @@ const FarmingHeader = ({ Icon, heading, className }: FarmingHeaderProps) => {
             {heading}
           </Typography>
         </Box>
-        {heading === 'rDPX' ? (
-          <Box>
-            <Boosted />
-          </Box>
-        ) : null}
       </Box>
     </Box>
   );

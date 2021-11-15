@@ -236,15 +236,12 @@ export const SsovProvider = (props) => {
       let RDPXemitted;
 
       const rewardsDuration = BigNumber.from(86400 * 365);
-      const boost = token === 'dpx' ? 1 : 2;
 
       DPXemitted = DPX.mul(rewardsDuration)
         .mul(Math.round(priceDPX))
-        .mul(boost)
         .div(oneEBigNumber(18));
       RDPXemitted = RDPX.mul(rewardsDuration)
         .mul(Math.round(priceRDPX))
-        .mul(boost)
         .div(oneEBigNumber(18));
 
       const denominator =
