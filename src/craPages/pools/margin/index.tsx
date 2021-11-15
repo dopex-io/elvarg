@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { getMessageFromCode } from 'eth-rpc-errors';
 import { useFormik } from 'formik';
 import { BigNumber } from 'ethers';
-import { ERC20__factory, VolumePool__factory } from '@dopex-io/sdk';
+import { ERC20__factory, Margin__factory } from '@dopex-io/sdk';
 import cx from 'classnames';
 import * as yup from 'yup';
 import Box from '@material-ui/core/Box';
@@ -30,6 +30,7 @@ import { MAX_VALUE } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import calculateApy from 'utils/contracts/calculateApy';
 import { newEthersTransaction } from 'utils/contracts/transactions';
 
 import styles from './styles.module.scss';
@@ -72,30 +73,27 @@ const Margin = () => {
   const { setFieldValue } = formik;
 
   const {
-    volumePoolSdk,
-    currentEpoch,
-    selectedEpoch,
-    userVolumePoolDeposits,
-    totalVolumePoolDeposits,
-    volumePoolDiscount,
-    updateVolumePoolData,
+    totalMarginPoolDeposits,
+    userMarginPoolDeposits,
+    marginPoolSupplyRate,
+    updateMarginPoolData,
   } = useContext(PoolsContext);
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
   const { usdtContract, usdtDecimals, userAssetBalances, updateAssetBalances } =
     useContext(AssetsContext);
 
-  const finalTotalVolumePoolDeposits = getUserReadableAmount(
-    totalVolumePoolDeposits,
+  const finalMarginPoolSupplyRate = calculateApy(marginPoolSupplyRate);
+  const finalTotalMarginPoolDeposits = getUserReadableAmount(
+    totalMarginPoolDeposits,
+    usdtDecimals
+  );
+  const finalUserMarginPoolDeposits = getUserReadableAmount(
+    userMarginPoolDeposits,
     usdtDecimals
   );
 
-  const finalUserVolumePoolDeposits = getUserReadableAmount(
-    userVolumePoolDeposits,
-    usdtDecimals
-  );
-
-  const isManage: boolean = finalUserVolumePoolDeposits > 0;
+  const isManage: boolean = finalUserMarginPoolDeposits > 0;
 
   const userBalance = useMemo(() => {
     return getUserReadableAmount(userAssetBalances['USDT'], usdtDecimals);
@@ -103,13 +101,13 @@ const Margin = () => {
 
   const handleMax = useCallback(() => {
     if (withdraw) {
-      setAmount(finalUserVolumePoolDeposits.toString());
-      setFieldValue('amount', Number(finalUserVolumePoolDeposits).toFixed(3));
+      setAmount(finalUserMarginPoolDeposits.toString());
+      setFieldValue('amount', Number(finalUserMarginPoolDeposits).toFixed(3));
     } else {
       setAmount(userBalance.toString());
       setFieldValue('amount', Number(userBalance).toFixed(3));
     }
-  }, [setFieldValue, userBalance, finalUserVolumePoolDeposits, withdraw]);
+  }, [setFieldValue, userBalance, finalUserMarginPoolDeposits, withdraw]);
 
   const inputHandleChange = useCallback(
     (e) => {
@@ -120,40 +118,17 @@ const Margin = () => {
   );
 
   useEffect(() => {
-    if (
-      !usdtContract ||
-      !volumePoolSdk ||
-      !contractAddresses ||
-      !accountAddress ||
-      !provider
-    )
-      return;
+    if (!usdtContract || !accountAddress || !contractAddresses.Margin) return;
     (async function () {
       const finalAmount = getContractReadableAmount(amount, usdtDecimals);
 
-      const dpxContract = ERC20__factory.connect(
-        contractAddresses.DPX,
-        provider
+      const usdtAllowance = await usdtContract.allowance(
+        accountAddress,
+        contractAddresses.Margin
       );
-
-      const [usdtAllowance, dpxAllowance, _volumePoolDpxDepositRequired] =
-        await Promise.all([
-          usdtContract.allowance(accountAddress, volumePoolSdk.address),
-          dpxContract.allowance(accountAddress, volumePoolSdk.address),
-          volumePoolSdk.volumePoolDpxDepositRequired(),
-        ]);
       setApproved(finalAmount.lte(usdtAllowance));
     })();
-  }, [
-    accountAddress,
-    amount,
-    volumePoolSdk,
-    usdtContract,
-    usdtDecimals,
-    contractAddresses,
-    provider,
-    userAssetBalances,
-  ]);
+  }, [accountAddress, amount, usdtContract, usdtDecimals, contractAddresses]);
 
   const handleApprove = useCallback(async () => {
     setError('');
@@ -171,7 +146,7 @@ const Margin = () => {
       const finalAmount = getContractReadableAmount(amount, usdtDecimals);
       await newEthersTransaction(
         ERC20__factory.connect(usdtContract.address, signer).approve(
-          volumePoolSdk?.address,
+          contractAddresses.Margin,
           maxApprove ? MAX_VALUE : finalAmount
         )
       );
@@ -179,7 +154,14 @@ const Margin = () => {
     } catch (err) {
       setError(`Something went wrong. Error: ${getMessageFromCode(err.code)}`);
     }
-  }, [signer, amount, maxApprove, volumePoolSdk, usdtContract, usdtDecimals]);
+  }, [
+    signer,
+    amount,
+    maxApprove,
+    contractAddresses,
+    usdtContract,
+    usdtDecimals,
+  ]);
 
   const handleDeposit = useCallback(async () => {
     setError('');
@@ -198,11 +180,11 @@ const Margin = () => {
         return;
       }
       await newEthersTransaction(
-        VolumePool__factory.connect(volumePoolSdk.address, signer).deposit(
+        Margin__factory.connect(contractAddresses.Margin, signer).deposit(
           finalAmount
         )
       );
-      updateVolumePoolData();
+      updateMarginPoolData();
       updateAssetBalances();
     } catch (err) {
       setError(`Something went wrong. Error: ${getMessageFromCode(err.code)}`);
@@ -211,42 +193,35 @@ const Margin = () => {
     amount,
     signer,
     usdtDecimals,
-    volumePoolSdk,
     updateAssetBalances,
     userAssetBalances,
-    updateVolumePoolData,
+    updateMarginPoolData,
+    contractAddresses,
   ]);
 
   const handleWithdraw = useCallback(async () => {
     setError('');
     try {
-      if (BigNumber.from(userVolumePoolDeposits).lte(0)) {
+      if (BigNumber.from(userMarginPoolDeposits).lte(0)) {
         setError('No deposits available');
         return;
       }
-      if (selectedEpoch >= currentEpoch) {
-        setError('Please withdraw in a past epoch');
-        return;
-      }
       await newEthersTransaction(
-        VolumePool__factory.connect(volumePoolSdk.address, signer).withdraw(
-          selectedEpoch,
-          false
+        Margin__factory.connect(contractAddresses.Margin, signer).withdraw(
+          userMarginPoolDeposits
         )
       );
-      updateVolumePoolData();
+      updateMarginPoolData();
       updateAssetBalances();
     } catch (err) {
       setError(`Something went wrong. Error: ${getMessageFromCode(err.code)}`);
     }
   }, [
-    volumePoolSdk,
     signer,
     updateAssetBalances,
-    selectedEpoch,
-    currentEpoch,
-    userVolumePoolDeposits,
-    updateVolumePoolData,
+    updateMarginPoolData,
+    contractAddresses,
+    userMarginPoolDeposits,
   ]);
 
   useEffect(() => {
@@ -256,17 +231,11 @@ const Margin = () => {
   }, [isManage]);
 
   useEffect(() => {
-    if (withdraw && !(finalUserVolumePoolDeposits === 0)) {
-      setAmount(finalUserVolumePoolDeposits.toString());
-      setFieldValue('amount', Number(finalUserVolumePoolDeposits).toFixed(3));
+    if (withdraw && !(finalUserMarginPoolDeposits === 0)) {
+      setAmount(finalUserMarginPoolDeposits.toString());
+      setFieldValue('amount', Number(finalUserMarginPoolDeposits).toFixed(3));
     }
-  }, [
-    withdraw,
-    selectedEpoch,
-    finalUserVolumePoolDeposits,
-    currentEpoch,
-    setFieldValue,
-  ]);
+  }, [withdraw, finalUserMarginPoolDeposits, setFieldValue]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -319,7 +288,7 @@ const Margin = () => {
             <Typography variant="h6" className="text-stieglitz mb-2">
               {isManage
                 ? withdraw
-                  ? `Deposited: ${formatAmount(finalUserVolumePoolDeposits)}`
+                  ? `Deposited: ${formatAmount(finalUserMarginPoolDeposits)}`
                   : `Balance: ${formatAmount(userBalance)}`
                 : `Balance: ${formatAmount(userBalance)}`}
             </Typography>
@@ -364,10 +333,10 @@ const Margin = () => {
               </Box>
               <Box className="flex justify-between">
                 <Typography variant="h6" className="text-stieglitz">
-                  Discount
+                  APY
                 </Typography>
                 <Typography variant="h6">
-                  {`${formatAmount(volumePoolDiscount)}%`}
+                  {`${formatAmount(finalUserMarginPoolDeposits)}%`}
                 </Typography>
               </Box>
               <Box className="flex justify-between">
@@ -375,29 +344,29 @@ const Margin = () => {
                   Deposits
                 </Typography>
                 <Typography variant="h6">
-                  {finalUserVolumePoolDeposits > 0 ? (
+                  {finalUserMarginPoolDeposits > 0 ? (
                     <Box>
                       <span className="text-wave-blue">
-                        ${formatAmount(finalUserVolumePoolDeposits)}
+                        ${formatAmount(finalUserMarginPoolDeposits)}
                       </span>
-                      {` / $${formatAmount(finalTotalVolumePoolDeposits)}`}
+                      {` / $${formatAmount(finalTotalMarginPoolDeposits)}`}
                     </Box>
                   ) : (
-                    `$${formatAmount(finalTotalVolumePoolDeposits)}`
+                    `$${formatAmount(finalTotalMarginPoolDeposits)}`
                   )}
                 </Typography>
               </Box>
               <Box className="rounded-xl w-full text-center flex flex-col bg-cod-gray p-4">
                 <Typography variant="h6">
-                  {finalUserVolumePoolDeposits > 0 ? (
+                  {finalUserMarginPoolDeposits > 0 ? (
                     <Box>
                       <span className="text-wave-blue">
-                        {formatAmount(finalUserVolumePoolDeposits)}
+                        {formatAmount(finalUserMarginPoolDeposits)}
                       </span>
-                      {` / ${formatAmount(finalTotalVolumePoolDeposits)}`}
+                      {` / ${formatAmount(finalTotalMarginPoolDeposits)}`}
                     </Box>
                   ) : (
-                    formatAmount(finalTotalVolumePoolDeposits)
+                    formatAmount(finalTotalMarginPoolDeposits)
                   )}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
@@ -411,8 +380,8 @@ const Margin = () => {
                 className="text-stieglitz"
                 component="div"
               >
-                Your deposit will be locked for the duration of this epoch. Once
-                it has elapsed it will be withdrawable.
+                The USDT lending pool lends USDT and collects interest from
+                users who buy options on margin.
               </Typography>
             </Box>
             <ErrorBox error={error} className="mb-4" />
@@ -422,36 +391,10 @@ const Margin = () => {
               </WalletButton>
             ) : isManage && withdraw ? (
               <Box className="flex flex-row">
-                {currentEpoch <= selectedEpoch ? (
-                  <Tooltip
-                    title="Withdraw will only be available for this epoch after it has elapsed"
-                    aria-label="withdraw"
-                    placement="top"
-                  >
-                    <span className="w-full">
-                      <CustomButton size="large" fullWidth disabled>
-                        Withdraw
-                      </CustomButton>
-                    </span>
-                  </Tooltip>
-                ) : (
-                  <CustomButton size="large" fullWidth onClick={handleWithdraw}>
-                    Withdraw
-                  </CustomButton>
-                )}
+                <CustomButton size="large" fullWidth onClick={handleWithdraw}>
+                  Withdraw
+                </CustomButton>
               </Box>
-            ) : selectedEpoch <= currentEpoch ? (
-              <Tooltip
-                title="Please deposit in the next epoch"
-                aria-label="deposit"
-                placement="top"
-              >
-                <Box className="w-full">
-                  <CustomButton size="large" className="w-full" disabled>
-                    Deposit
-                  </CustomButton>
-                </Box>
-              </Tooltip>
             ) : approved ? (
               <Box className="flex flex-row">
                 <CustomButton
@@ -480,9 +423,6 @@ const Margin = () => {
                 </Box>
               </Box>
             )}
-            <Box className="flex flex-row w-full justify-between items-end mt-4">
-              <EpochSelector />
-            </Box>
           </Box>
         </Box>
       </Box>

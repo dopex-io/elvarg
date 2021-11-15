@@ -79,6 +79,7 @@ type PoolsContextInterface = VolumePoolState &
     setSelectedEpoch?: Function;
     setTimePeriod?: Function;
     updateOptionPoolsData?: Function;
+    updateMarginPoolData?: Function;
     updateVolumePoolData?: Function;
     baseAssetsOptionPoolSdks: BaseAssetsOptionPoolSdks[];
     baseAssetsOptionPoolData: BaseAssetsOptionPoolData[];
@@ -338,6 +339,7 @@ export const PoolsProvider = (props) => {
       updateTotalVolumePoolData();
       updateUserVolumePoolData();
     },
+    updateMarginPoolData,
     ...volumePoolState,
     ...marginPoolState,
   };
