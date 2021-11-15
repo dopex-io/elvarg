@@ -56,8 +56,9 @@ const useOptionPurchase = () => {
   const [fees, setFees] = useState('0');
   const [userVolumePoolFunds, setUserVolumePoolFunds] = useState('0');
   const [txError, setTxError] = useState('');
+  const [collateralIndex, setCollateralIndex] = useState(0);
 
-  const { selectedOptionData, expiry } = useContext(OptionsContext);
+  const { selectedOptionData, expiry, marginData } = useContext(OptionsContext);
   const {
     selectedBaseAsset,
     selectedBaseAssetContract,
@@ -67,6 +68,18 @@ const useOptionPurchase = () => {
   } = useContext(AssetsContext);
   const { provider, accountAddress, contractAddresses, signer } =
     useContext(WalletContext);
+
+  const { collaterals } = marginData;
+  const marginAvailable = collaterals.length > 0;
+  const maxLeverage = useMemo(
+    () =>
+      marginData.maxLeverage !== '0' && marginData.minLeverage !== '0'
+        ? BigNumber.from(marginData.maxLeverage)
+            .div(marginData.minLeverage)
+            .toString()
+        : '0',
+    [marginData.maxLeverage, marginData.minLeverage]
+  );
 
   useEffect(() => {
     setIsPut(selectedOptionData.optionType === OptionTypeEnum.Put);
@@ -412,6 +425,11 @@ const useOptionPurchase = () => {
     handleUseVolumePool,
     handleDelegate,
     userVolumePoolFunds,
+    maxLeverage,
+    collaterals,
+    marginAvailable,
+    collateralIndex,
+    setCollateralIndex,
   };
 };
 

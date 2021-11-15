@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useContext } from 'react';
+import { forwardRef, useMemo, useContext, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import format from 'date-fns/format';
 import isEmpty from 'lodash/isEmpty';
@@ -50,9 +50,18 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     handleUseVolumePool,
     handleDelegate,
     userVolumePoolFunds,
+    maxLeverage,
+    marginAvailable,
+    collaterals,
+    collateralIndex,
+    setCollateralIndex,
   } = useOptionPurchase();
 
   const { baseAssetsWithPrices } = useContext(AssetsContext);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const open = useMemo(() => Boolean(anchorEl), [anchorEl]);
 
   const { finalCost, finalTotalCost, finalFees } = useMemo(() => {
     const _totalPrice = getUserReadableAmount(totalPrice, 6);
@@ -66,6 +75,14 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
       finalFees: `$${formatAmount(_fees, 3)}`,
     };
   }, [formik.values.useVolumePoolFunds, totalPrice, fees]);
+
+  const handleClick = useCallback((event) => {
+    setAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
 
   return (
     <div
@@ -181,17 +198,19 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
             </Box>
             <ErrorBox error={formik.values.error || txError} />
             <Box className="bg-umbra rounded-xl p-4 flex flex-col space-y-4">
-              <Box className="flex justify-between">
-                <Box className="flex space-x-2">
-                  <Typography variant="h6" component="span">
-                    Leverage up to 5x
-                  </Typography>
+              {marginAvailable && (
+                <Box className="flex justify-between">
+                  <Box className="flex space-x-2">
+                    <Typography variant="h6" component="span">
+                      Leverage up to {maxLeverage}x
+                    </Typography>
+                  </Box>
+                  <Switch
+                    checked={formik.values.margin ?? false}
+                    onChange={handleMargin}
+                  />
                 </Box>
-                <Switch
-                  checked={formik.values.margin ?? false}
-                  onChange={handleMargin}
-                />
-              </Box>
+              )}
               {formik.values.margin && (
                 <>
                   <Box className="flex justify-between">
@@ -235,7 +254,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                       Balance
                     </Typography>
                     <Typography variant="caption" component="div">
-                      {formatAmount(0)} {'DPX'}
+                      {formatAmount(0)} {collaterals[collateralIndex].symbol}
                     </Typography>
                   </Box>
                   <Box className="flex justify-between">
@@ -246,19 +265,30 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                       classes={{ label: 'uppercase' }}
                       aria-controls="expiry-menu"
                       aria-haspopup="true"
-                      // onClick={handleClick}
+                      onClick={handleClick}
                       endIcon={<ExpandMoreIcon />}
                     >
-                      {'DPX'}
+                      {collaterals[collateralIndex].symbol}
                     </CustomButton>
                     <Menu
                       id="expiry-menu"
-                      // anchorEl={anchorEl}
-                      open={false}
-                      // onClose={handleClose}
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
                       classes={{ paper: 'bg-cod-gray' }}
                     >
-                      <MenuItem>Custom Expiry</MenuItem>
+                      {collaterals.map((collateral, index) => (
+                        <MenuItem
+                          key={collateral.token}
+                          onClick={() => {
+                            setCollateralIndex(index);
+                            handleClose();
+                          }}
+                          className="text-white uppercase"
+                        >
+                          {collateral.symbol}
+                        </MenuItem>
+                      ))}
                     </Menu>
                   </Box>
                 </>
@@ -298,9 +328,9 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                   component="div"
                   className="text-stieglitz"
                 >
-                  This will lock {100} {'DPX'} as collateral for your trade.
-                  Please maintain sufficient collateral in order to avoid
-                  liquidation.
+                  This will lock {100} {collaterals[collateralIndex].symbol} as
+                  collateral for your trade. Please maintain sufficient
+                  collateral in order to avoid liquidation.
                 </Typography>
               </Box>
             )}
