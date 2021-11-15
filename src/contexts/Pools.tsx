@@ -13,8 +13,9 @@ import {
   OptionPoolFactory__factory,
   ERC20__factory,
   Dopex__factory,
+  Margin__factory,
 } from '@dopex-io/sdk';
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 
 import getAssetMapWithAddress from 'utils/general/getAssetMapWithAddress';
 
@@ -62,19 +63,26 @@ interface VolumePoolState {
   userVolumePoolDeposits: string;
 }
 
-type PoolsContextInterface = VolumePoolState & {
-  volumePoolSdk?: VolumePool;
-  currentEpoch?: number;
-  selectedEpoch?: number;
-  timePeriod?: TimePeriodEnum;
-  epochInitTime?: number;
-  setSelectedEpoch?: Function;
-  setTimePeriod?: Function;
-  updateOptionPoolsData?: Function;
-  updateVolumePoolData?: Function;
-  baseAssetsOptionPoolSdks: BaseAssetsOptionPoolSdks[];
-  baseAssetsOptionPoolData: BaseAssetsOptionPoolData[];
-};
+interface MarginPoolState {
+  marginPoolSupplyRate: string;
+  userMarginPoolDeposits: string;
+  totalMarginPoolDeposits: string;
+}
+
+type PoolsContextInterface = VolumePoolState &
+  MarginPoolState & {
+    volumePoolSdk?: VolumePool;
+    currentEpoch?: number;
+    selectedEpoch?: number;
+    timePeriod?: TimePeriodEnum;
+    epochInitTime?: number;
+    setSelectedEpoch?: Function;
+    setTimePeriod?: Function;
+    updateOptionPoolsData?: Function;
+    updateVolumePoolData?: Function;
+    baseAssetsOptionPoolSdks: BaseAssetsOptionPoolSdks[];
+    baseAssetsOptionPoolData: BaseAssetsOptionPoolData[];
+  };
 
 const initialData: PoolsContextInterface = {
   baseAssetsOptionPoolSdks: [],
@@ -82,6 +90,9 @@ const initialData: PoolsContextInterface = {
   totalVolumePoolDeposits: '0',
   volumePoolDiscount: '0',
   userVolumePoolDeposits: '0',
+  marginPoolSupplyRate: '0',
+  userMarginPoolDeposits: '0',
+  totalMarginPoolDeposits: '0',
 };
 
 export const PoolsContext = createContext<PoolsContextInterface>(initialData);
@@ -98,6 +109,11 @@ export const PoolsProvider = (props) => {
     totalVolumePoolDeposits: '0',
     volumePoolDiscount: '0',
     userVolumePoolDeposits: '0',
+  });
+  const [marginPoolState, setMarginPoolState] = useState<MarginPoolState>({
+    marginPoolSupplyRate: '0',
+    userMarginPoolDeposits: '0',
+    totalMarginPoolDeposits: '0',
   });
   const [baseAssetsOptionPoolSdks, setBaseAssetsOptionPoolSdks] = useState<
     BaseAssetsOptionPoolSdks[]
@@ -201,6 +217,34 @@ export const PoolsProvider = (props) => {
     });
   }, [baseAssetsOptionPoolSdks, accountAddress, selectedEpoch]);
 
+  const updateMarginPoolData = useCallback(async () => {
+    if (!provider || !contractAddresses?.Margin) return;
+
+    const margin = Margin__factory.connect(contractAddresses.Margin, provider);
+    const [supplyRate, totalFunds, totalSupply] = await Promise.all([
+      margin.supplyRate(),
+      margin.totalFunds(),
+      margin.totalSupply(),
+    ]);
+    let userMarginPoolDeposits = '0';
+    if (accountAddress) {
+      const balanceOf = await margin.balanceOf(accountAddress);
+      const exchangeRate = totalSupply.eq(BigNumber.from(0))
+        ? BigNumber.from(0)
+        : totalFunds.mul(ethers.utils.parseEther('1')).div(totalSupply);
+      userMarginPoolDeposits = exchangeRate
+        .mul(balanceOf)
+        .div(ethers.utils.parseEther('1'))
+        .toString();
+    }
+    setMarginPoolState((prevState) => ({
+      ...prevState,
+      userMarginPoolDeposits,
+      marginPoolSupplyRate: supplyRate.toString(),
+      totalMarginPoolDeposits: totalFunds.toString(),
+    }));
+  }, [provider, contractAddresses, accountAddress]);
+
   useEffect(() => {
     if (!contractAddresses || !provider) return;
     setVolumePoolSdk(
@@ -275,6 +319,10 @@ export const PoolsProvider = (props) => {
     updateTotalVolumePoolData();
   }, [updateTotalVolumePoolData]);
 
+  useEffect(() => {
+    updateMarginPoolData();
+  }, [updateMarginPoolData]);
+
   const contextValue = {
     volumePoolSdk,
     selectedEpoch,
@@ -291,6 +339,7 @@ export const PoolsProvider = (props) => {
       updateUserVolumePoolData();
     },
     ...volumePoolState,
+    ...marginPoolState,
   };
 
   return (

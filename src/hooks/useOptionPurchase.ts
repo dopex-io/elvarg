@@ -165,9 +165,8 @@ const useOptionPurchase = () => {
         ).lte(getContractReadableAmount(values.amount, 18))
       ) {
         errors.amount = 'Not enough liquidity';
-        // This else if can be deleted when the new router (that allows volume pool funds to be used) is deployed
-      } else if (values.useVolumePoolFunds && values.delegate) {
-        errors.amount = 'Please enable auto exercise after purchasing';
+      } else if (values.margin && values.delegate) {
+        errors.amount = 'Auto exercise cannot be enabled with margin';
       } else if (
         values.useVolumePoolFunds &&
         BigNumber.from(userVolumePoolFunds).lt(

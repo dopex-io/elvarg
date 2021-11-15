@@ -1,21 +1,40 @@
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Link from '@material-ui/core/Link';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 
+import { PoolsContext } from 'contexts/Pools';
+import { AssetsContext } from 'contexts/Assets';
+
 import Typography from 'components/UI/Typography';
 import Accordion from 'components/UI/Accordion';
 import WalletButton from 'components/WalletButton';
 
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import calculateApy from 'utils/contracts/calculateApy';
 
 function LendingCard({ className }: { className?: string }) {
   const navigate = useNavigate();
 
-  const finalTotalVolumePoolDeposits = 1;
+  const { usdtDecimals } = useContext(AssetsContext);
+  const {
+    totalMarginPoolDeposits,
+    userMarginPoolDeposits,
+    marginPoolSupplyRate,
+  } = useContext(PoolsContext);
 
-  const finalUserVolumePoolDeposits = 1;
+  const finalMarginPoolSupplyRate = calculateApy(marginPoolSupplyRate);
+  const finalTotalMarginPoolDeposits = getUserReadableAmount(
+    totalMarginPoolDeposits,
+    usdtDecimals
+  );
+  const finalUserMarginPoolDeposits = getUserReadableAmount(
+    userMarginPoolDeposits,
+    usdtDecimals
+  );
 
   return (
     <Box
@@ -44,7 +63,7 @@ function LendingCard({ className }: { className?: string }) {
             navigate('/pools/volume');
           }}
         >
-          {finalUserVolumePoolDeposits > 0 ? 'Manage' : 'Deposit'}
+          {finalUserMarginPoolDeposits > 0 ? 'Manage' : 'Deposit'}
         </WalletButton>
       </Box>
       <Accordion
@@ -70,7 +89,7 @@ function LendingCard({ className }: { className?: string }) {
             APY
           </Typography>
           <Typography variant="h4">
-            {5}
+            {finalMarginPoolSupplyRate}
             <span className="text-stieglitz">%</span>
           </Typography>
         </Box>
@@ -84,15 +103,15 @@ function LendingCard({ className }: { className?: string }) {
           </Typography>
           <Box className="border-cod-gray rounded-full border p-2 w-full text-center flex flex-col bg-cod-gray">
             <Typography variant="caption" component="div">
-              {finalUserVolumePoolDeposits > 0 ? (
+              {finalUserMarginPoolDeposits > 0 ? (
                 <Box>
                   <span className="text-wave-blue">
-                    {`${formatAmount(finalUserVolumePoolDeposits)} /`}
+                    {`${formatAmount(finalUserMarginPoolDeposits)} /`}
                   </span>
-                  {formatAmount(finalTotalVolumePoolDeposits)}
+                  {formatAmount(finalTotalMarginPoolDeposits)}
                 </Box>
               ) : (
-                formatAmount(finalTotalVolumePoolDeposits)
+                formatAmount(finalTotalMarginPoolDeposits)
               )}
             </Typography>
             <Typography
