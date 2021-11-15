@@ -4,7 +4,7 @@ import Box from '@material-ui/core/Box';
 import Skeleton from '@material-ui/lab/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import Pool from '../components/Pool';
 import Typography from 'components/UI/Typography';
@@ -114,7 +114,7 @@ const Farms = () => {
           DPX.stakingRewardsContractAddress,
           signer
         );
-        await newEthersTransaction(stakingRewardsContract.getReward(2));
+        await sendTx(stakingRewardsContract.getReward(2));
         setStakingAsset('DPX');
       } catch (err) {
         console.log(err);
@@ -127,7 +127,7 @@ const Farms = () => {
           DPX_WETH.stakingRewardsContractAddress,
           signer
         );
-        await newEthersTransaction(stakingRewardsContract.getReward(2));
+        await sendTx(stakingRewardsContract.getReward(2));
         setStakingAsset('DPX-WETH');
       } catch (err) {
         console.log(err);
@@ -139,7 +139,7 @@ const Farms = () => {
           rDPX_WETH.stakingRewardsContractAddress,
           signer
         );
-        await newEthersTransaction(stakingRewardsContract.getReward(2));
+        await sendTx(stakingRewardsContract.getReward(2));
         setStakingAsset('rDPX-WETH');
       } catch (err) {
         console.log(err);

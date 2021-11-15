@@ -30,7 +30,7 @@ import { MAX_VALUE } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import styles from './styles.module.scss';
 
@@ -183,7 +183,7 @@ const Volume = () => {
         }
       }
       const finalAmount = getContractReadableAmount(amount, usdtDecimals);
-      await newEthersTransaction(
+      await sendTx(
         ERC20__factory.connect(usdtContract.address, signer).approve(
           volumePoolSdk?.address,
           maxApprove ? MAX_VALUE : finalAmount
@@ -203,7 +203,7 @@ const Volume = () => {
         return;
       }
       const DpxContract = ERC20__factory.connect(contractAddresses.DPX, signer);
-      await newEthersTransaction(
+      await sendTx(
         DpxContract.approve(
           volumePoolSdk.address,
           maxApprove ? MAX_VALUE : volumePoolDpxDepositRequired
@@ -238,7 +238,7 @@ const Volume = () => {
         setError('Insufficient Balance');
         return;
       }
-      await newEthersTransaction(
+      await sendTx(
         VolumePool__factory.connect(volumePoolSdk.address, signer).deposit(
           finalAmount
         )
@@ -269,7 +269,7 @@ const Volume = () => {
         setError('Please withdraw in a past epoch');
         return;
       }
-      await newEthersTransaction(
+      await sendTx(
         VolumePool__factory.connect(volumePoolSdk.address, signer).withdraw(
           selectedEpoch,
           false

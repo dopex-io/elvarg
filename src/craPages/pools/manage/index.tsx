@@ -31,7 +31,7 @@ import { MAX_VALUE, BASE_ASSET_MAP } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import sanitizeValue from 'utils/contracts/sanitizeValue';
 
@@ -291,7 +291,7 @@ const Manage = () => {
       let finalAmount;
       if (isPut) {
         finalAmount = getContractReadableAmount(amount, usdtDecimals);
-        await newEthersTransaction(
+        await sendTx(
           ERC20__factory.connect(usdtContract.address, signer).approve(
             optionPoolSdk.address,
             maxApprove ? MAX_VALUE : finalAmount
@@ -306,7 +306,7 @@ const Manage = () => {
           contractAddresses[selectedBaseAsset],
           signer
         );
-        await newEthersTransaction(
+        await sendTx(
           baseAssetContract.approve(
             optionPoolSdk.address,
             maxApprove ? MAX_VALUE : sanitizeValue(finalAmount)
@@ -357,7 +357,7 @@ const Manage = () => {
         setError('Insufficient Balance');
         return;
       }
-      await newEthersTransaction(
+      await sendTx(
         OptionPool__factory.connect(
           optionPoolSdk.contract.address,
           signer
@@ -400,7 +400,7 @@ const Manage = () => {
           selectedBaseAssetDecimals
         );
       }
-      await newEthersTransaction(
+      await sendTx(
         OptionPool__factory.connect(
           optionPoolSdk.contract.address,
           signer
@@ -441,7 +441,7 @@ const Manage = () => {
           selectedBaseAssetDecimals
         );
       }
-      await newEthersTransaction(
+      await sendTx(
         OptionPool__factory.connect(
           optionPoolSdk.contract.address,
           signer

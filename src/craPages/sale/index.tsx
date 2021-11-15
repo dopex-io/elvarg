@@ -18,7 +18,7 @@ import { TokenSaleContext, TokenSaleProvider } from 'contexts/TokenSale';
 import useEthPrice from 'hooks/useEthPrice';
 
 import formatAmount from 'utils/general/formatAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 const TokenSale = () => {
   const {
@@ -72,7 +72,7 @@ const TokenSale = () => {
   const handleClaim = useCallback(async () => {
     if (!signer || !accountAddress || !contractAddresses.TokenSale) return;
     try {
-      await newEthersTransaction(
+      await sendTx(
         TokenSale__factory.connect(contractAddresses.TokenSale, signer).claim(
           accountAddress
         )

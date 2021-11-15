@@ -11,7 +11,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { FarmingContext } from 'contexts/Farming';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 export interface Props {
   open: boolean;
@@ -56,7 +56,7 @@ const Claim = ({ open, handleClose, data }: Props) => {
         signer
       );
 
-      await newEthersTransaction(stakingRewardsContract.getReward(2));
+      await sendTx(stakingRewardsContract.getReward(2));
 
       setStakingAsset(data.token.selectedBaseAsset);
 

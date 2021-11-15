@@ -11,7 +11,7 @@ import Typography from 'components/UI/Typography';
 import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -65,7 +65,7 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const handleWithdraw = useCallback(
     async (index) => {
       try {
-        await newEthersTransaction(
+        await sendTx(
           ssovContractWithSigner.withdrawForStrike(selectedEpoch, index)
         );
         updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');

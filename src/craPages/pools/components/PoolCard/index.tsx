@@ -28,7 +28,7 @@ import getValueSign from 'utils/general/getValueSign';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getRebateAmount from 'utils/contracts/getRebateAmount';
 import getRewardAmount from 'utils/contracts/getRewardAmount';
-import { newEthersTransaction } from 'utils/contracts/transactions';
+import sendTx from 'utils/contracts/sendTx';
 
 import styles from './styles.module.scss';
 
@@ -149,7 +149,7 @@ function PoolCard(props: PoolCardProps) {
       signer
     );
 
-    await newEthersTransaction(
+    await sendTx(
       optionPoolRebates.claimUserRebate(optionPoolSdk.address, selectedEpoch)
     );
   }, [accountAddress, selectedEpoch, optionPoolSdk, contractAddresses, signer]);
@@ -162,7 +162,7 @@ function PoolCard(props: PoolCardProps) {
       signer
     );
 
-    await newEthersTransaction(
+    await sendTx(
       dopexRewards.claimRewardForOptionPoolLiquidity(
         selectedEpoch,
         optionPoolSdk.address
