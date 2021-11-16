@@ -10,7 +10,6 @@ import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import { PoolsContext, PoolsProvider } from 'contexts/Pools';
 import { WalletContext } from 'contexts/Wallet';
