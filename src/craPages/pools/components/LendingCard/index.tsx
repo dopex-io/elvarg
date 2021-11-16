@@ -106,7 +106,7 @@ function LendingCard({ className }: { className?: string }) {
               {finalUserMarginPoolDeposits > 0 ? (
                 <Box>
                   <span className="text-wave-blue">
-                    {`${formatAmount(finalUserMarginPoolDeposits)} /`}
+                    {`${formatAmount(finalUserMarginPoolDeposits)} / `}
                   </span>
                   {formatAmount(finalTotalMarginPoolDeposits)}
                 </Box>

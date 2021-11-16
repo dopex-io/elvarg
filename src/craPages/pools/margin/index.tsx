@@ -201,13 +201,14 @@ const Margin = () => {
   const handleWithdraw = useCallback(async () => {
     setError('');
     try {
-      if (BigNumber.from(userMarginPoolDeposits).lte(0)) {
-        setError('No deposits available');
+      const finalAmount = getContractReadableAmount(amount, usdtDecimals);
+      if (finalAmount.gt(BigNumber.from(userMarginPoolDeposits))) {
+        setError('Insufficient deposits');
         return;
       }
       await sendTx(
         Margin__factory.connect(contractAddresses.Margin, signer).withdraw(
-          userMarginPoolDeposits
+          finalAmount
         )
       );
       updateMarginPoolData();
@@ -217,6 +218,7 @@ const Margin = () => {
     }
   }, [
     signer,
+    amount,
     updateAssetBalances,
     updateMarginPoolData,
     contractAddresses,
@@ -303,7 +305,6 @@ const Margin = () => {
           <Input
             id="amount"
             name="amount"
-            disabled={withdraw}
             value={formik.values.amount}
             onBlur={formik.handleBlur}
             onChange={inputHandleChange}
@@ -335,7 +336,7 @@ const Margin = () => {
                   APY
                 </Typography>
                 <Typography variant="h6">
-                  {`${formatAmount(finalUserMarginPoolDeposits)}%`}
+                  {`${formatAmount(finalMarginPoolSupplyRate)}%`}
                 </Typography>
               </Box>
               <Box className="flex justify-between">
