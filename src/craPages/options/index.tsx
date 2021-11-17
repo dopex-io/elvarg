@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import Head from 'next/head';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 
@@ -24,6 +25,9 @@ const OptionsPage = () => {
   return (
     <OptionsProvider>
       <Box className="min-h-screen bg-black">
+        <Head>
+          <title>Options | Dopex</title>
+        </Head>
         <AppBar active="options" />
         <Box
           className={cx(

@@ -1,4 +1,5 @@
 import { useState, useLayoutEffect } from 'react';
+import Head from 'next/head';
 import { useWindowSize } from 'react-use';
 import Box from '@material-ui/core/Box';
 import cx from 'classnames';
@@ -38,6 +39,9 @@ const Portfolio = () => {
   return (
     <PortfolioProvider>
       <Box className=" bg-black flex flex-col min-h-screen">
+        <Head>
+          <title>Portfolio | Dopex</title>
+        </Head>
         <AppBar active="portfolio" />
         <Box
           className={cx(

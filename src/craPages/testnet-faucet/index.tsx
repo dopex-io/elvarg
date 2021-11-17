@@ -1,4 +1,5 @@
 import { useContext, useState, useCallback, useMemo } from 'react';
+import Head from 'next/head';
 import c from 'classnames';
 import Box from '@material-ui/core/Box';
 import axios from 'axios';
@@ -9,6 +10,14 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
+
+function IndexPage() {
+  return (
+    <div>
+      <p>Hello world!</p>
+    </div>
+  );
+}
 
 const TestnetFaucet = () => {
   const { accountAddress } = useContext(WalletContext);
@@ -64,6 +73,9 @@ const TestnetFaucet = () => {
 
   return (
     <Box className="bg-black min-h-screen">
+      <Head>
+        <title>Faucet | Dopex</title>
+      </Head>
       <AppBar active="faucet" />
       <Box className="py-64 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className=" bg-cod-gray rounded-xl mx-auto flex flex-col p-10 max-w-md">

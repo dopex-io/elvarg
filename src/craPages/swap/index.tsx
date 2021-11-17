@@ -1,4 +1,5 @@
 import { useContext, useMemo } from 'react';
+import Head from 'next/head';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
@@ -133,6 +134,9 @@ export default function Swap() {
 
   return (
     <Box className="bg-black min-h-screen">
+      <Head>
+        <title>Swap | Dopex</title>
+      </Head>
       <AppBar active="swap" />
       <Box className="pt-48 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className=" bg-cod-gray rounded-xl mx-auto flex flex-col p-8 max-w-md">
