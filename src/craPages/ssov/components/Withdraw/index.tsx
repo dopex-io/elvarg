@@ -1,32 +1,87 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { Box, Input } from '@material-ui/core';
+import { useCallback, useContext, useMemo } from 'react';
+import Box from '@material-ui/core/Box';
+import Input from '@material-ui/core/Input';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
+import Dpx from 'assets/tokens/Dpx';
+import Rdpx from 'assets/tokens/Rdpx';
 
 import { STAT_NAMES } from 'constants/index';
 import { format } from 'date-fns';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { SsovContext } from 'contexts/Ssov';
+import { SSOVDelegator__factory } from '@dopex-io/sdk';
+import { WalletContext } from 'contexts/Wallet';
+import sendTx from 'utils/contracts/sendTx';
 
-const Withdraw = ({ open, handleClose }) => {
+const Withdraw = ({
+  open,
+  handleClose,
+  strikeIndex,
+  token,
+  exercisableAmount,
+  setDelegated,
+}) => {
+  const context = useContext(SsovContext);
+
+  const { signer, blockTime, contractAddresses } = useContext(WalletContext);
+
+  const {
+    selectedEpoch,
+    ssovData: { epochTimes, epochStrikes },
+    tokenPrice,
+  } = context[token.toLocaleLowerCase()];
+
   const stats = useMemo(() => {
     return {
-      strike: '$' + getUserReadableAmount(1, 8).toString(), // data.strike
-      price: '$' + getUserReadableAmount(1, 8).toString(), // data.assetPrice
-      pnl: '$' + formatAmount(1, 2), // data.pnl
+      strike:
+        '$' + getUserReadableAmount(epochStrikes[strikeIndex], 8).toString(),
+      price: '$' + getUserReadableAmount(tokenPrice, 8).toString(),
+      pnl:
+        '$' +
+        formatAmount(
+          (getUserReadableAmount(tokenPrice, 8) -
+            getUserReadableAmount(epochStrikes[strikeIndex], 8)) *
+            getUserReadableAmount(exercisableAmount, 18),
+          5
+        ),
       expiry: format(
-        new Date(Number(1634639094) * 1000),
+        new Date(epochTimes[1] * 1000),
         'd LLL yyyy'
-      ).toLocaleUpperCase(), // Date(Number(data.expiry))
-      amount: formatAmount(0.1, 5), // data.userBalance
+      ).toLocaleUpperCase(),
+      amount: formatAmount(exercisableAmount, 5),
     };
-  }, []); // data, optionsAmount
-  const [amount, setAmount] = useState('');
+  }, [epochStrikes, epochTimes, exercisableAmount, strikeIndex, tokenPrice]);
 
-  const handleWithdraw = useCallback(() => {}, []);
+  const handleWithdraw = useCallback(async () => {
+    const delegatorAddress =
+      token === 'DPX'
+        ? contractAddresses.SSOV.DPX.SSOVDelegator
+        : contractAddresses.SSOV.RDPX.SSOVDelegator;
+
+    const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
+
+    await sendTx(
+      delegator.withdraw(
+        selectedEpoch,
+        epochStrikes[strikeIndex],
+        exercisableAmount
+      )
+    );
+    setDelegated(false);
+  }, [
+    contractAddresses,
+    epochStrikes,
+    exercisableAmount,
+    selectedEpoch,
+    setDelegated,
+    signer,
+    strikeIndex,
+    token,
+  ]);
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
@@ -36,15 +91,10 @@ const Withdraw = ({ open, handleClose }) => {
         </Typography>
         <Box className="flex flex-col bg-umbra rounded-lg p-4">
           <Box className="flex mb-4">
-            {/* <img
-            src={`/static/svg/tokens/dpx.svg`}
-            alt="Symbol"
-            className="w-8 h-8 my-auto"
-          /> */}
+            {token == 'DPX' ? <Dpx /> : <Rdpx />}
             <span className="my-auto px-2 text-white">{'DPX'}</span>
-            {/* data.asset */}
+            {token}
             <span className="text-xs text-white bg-mineshaft rounded-md my-auto ml-2 p-2">
-              {/* {data.isPut ? 'PUT' : 'CALL'} */}
               {'CALL'}
             </span>
           </Box>
@@ -69,38 +119,14 @@ const Withdraw = ({ open, handleClose }) => {
             </Box>
           </Box>
         </Box>
-        <Typography
-          variant="h6"
-          className="text-wave-blue uppercase mt-2 mb-1 ml-1"
-          role="button"
-          onClick={() => {}}
-          // handleMax
-        >
-          Max
-        </Typography>
-        <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-4">
-          <Input
-            disableUnderline={true}
-            id="amount"
-            name="amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            type="number"
-            className="h-8 text-sm text-white font-mono w-full"
-            placeholder="Amount"
-          />
-        </Box>
-        <Typography variant="caption" className="px-3 mb-3 text-red-400">
-          {'error'}
-        </Typography>
         <Box className="flex">
           <CustomButton
             size="large"
-            //   disabled={
-            //     blockTime > (Number(data.expiry) - 3600) * 1000 ||
-            //     !amount ||
-            //     Number(amount) === 0
-            //   }
+            disabled={
+              blockTime > (Number(stats.expiry) - 3600) * 1000 ||
+              !stats.amount ||
+              Number(stats.amount) === 0
+            }
             onClick={handleWithdraw}
             className="w-full p-5 bottom-0 rounded-md ml-0.5"
           >

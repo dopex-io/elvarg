@@ -1,10 +1,14 @@
 import { useCallback, useMemo, useContext, useState } from 'react';
 import Box from '@material-ui/core/Box';
 import { SSOVDelegator__factory, ERC20__factory } from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
+import MaxApprove from 'components/MaxApprove';
+import Dpx from 'assets/tokens/Dpx';
+import Rdpx from 'assets/tokens/Rdpx';
 
 import { MAX_VALUE, SSOV_DELEGATE_INFO, STAT_NAMES } from 'constants/index';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -13,11 +17,6 @@ import { format } from 'date-fns';
 import sendTx from 'utils/contracts/sendTx';
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
-
-import Dpx from 'assets/tokens/Dpx';
-import Rdpx from 'assets/tokens/Rdpx';
-import MaxApprove from 'components/MaxApprove';
-import { BigNumber } from 'ethers';
 
 const Delegate = ({
   open,
@@ -36,7 +35,7 @@ const Delegate = ({
   const {
     selectedEpoch,
     ssovData: { epochTimes, epochStrikes },
-    userSsovData: { epochStrikeTokens, userEpochStrikeDeposits },
+    userSsovData: { epochStrikeTokens },
     tokenPrice,
   } = context[token.toLocaleLowerCase()];
 
@@ -83,8 +82,7 @@ const Delegate = ({
       setApproved(true);
     }
   }, [
-    contractAddresses.SSOV.DPX.SSOVDelegator,
-    contractAddresses.SSOV.RDPX.SSOVDelegator,
+    contractAddresses,
     epochStrikeTokens,
     exercisableAmount,
     signer,
@@ -93,9 +91,7 @@ const Delegate = ({
   ]);
 
   const handleDelegate = useCallback(async () => {
-    let delegatorAddress: string;
-
-    delegatorAddress =
+    const delegatorAddress =
       token === 'DPX'
         ? contractAddresses.SSOV.DPX.SSOVDelegator
         : contractAddresses.SSOV.RDPX.SSOVDelegator;
@@ -108,25 +104,15 @@ const Delegate = ({
         ).approve(delegatorAddress, exercisableAmount)
       );
 
-    // Max Approve delegator
-    await sendTx(
-      ERC20__factory.connect(
-        epochStrikeTokens[strikeIndex].address,
-        signer
-      ).approve(delegatorAddress, MAX_VALUE)
-    );
-
     const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
     // Delegate tokens for auto-exercise
     await sendTx(
-      delegator
-        .connect(signer)
-        .delegate(
-          selectedEpoch,
-          epochStrikes[strikeIndex],
-          BigNumber.from(exercisableAmount)
-        )
+      delegator.delegate(
+        selectedEpoch,
+        epochStrikes[strikeIndex],
+        BigNumber.from(exercisableAmount)
+      )
     );
     setDelegated(true);
   }, [
