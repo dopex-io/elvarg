@@ -4,12 +4,18 @@ import TableCell from '@material-ui/core/TableCell';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Exercise from './Exercise';
+import Delegate from 'craPages/ssov/components/Delegate';
+import Withdraw from 'craPages/ssov/components/Withdraw';
 
 const CustomizedTooltip = withStyles((theme) => ({
   tooltip: {
@@ -31,6 +37,7 @@ interface ExerciseTableDataProps {
   isExercisable: boolean;
   isPastEpoch: boolean;
   ssov: 'dpx' | 'rdpx';
+  isDelegated: boolean;
 }
 
 const ExerciseTableData = (props: ExerciseTableDataProps) => {
@@ -44,16 +51,24 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     isExercisable,
     isPastEpoch,
     ssov,
+    isDelegated,
   } = props;
 
   const [modalState, setModalState] = useState({
     open: false,
     type: 'EXERCISE',
+    token: '',
   });
 
   const MODALS = {
     EXERCISE: Exercise,
+    DELEGATE: Delegate,
+    WITHDRAW: Withdraw,
   };
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   const handleClose = useCallback(
     () => setModalState((prevState) => ({ ...prevState, open: false })),
@@ -61,12 +76,28 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleExercise = useCallback(
-    () => setModalState({ open: true, type: 'EXERCISE' }),
+    () => setModalState({ open: true, type: 'EXERCISE', token: tokenSymbol }),
+    [tokenSymbol]
+  );
+
+  const handleDelegate = useCallback(
+    () => setModalState({ open: true, type: 'DELEGATE', token: tokenSymbol }),
+    [tokenSymbol]
+  );
+
+  const handleWithdraw = useCallback(
+    () => setModalState({ open: true, type: 'WITHDRAW', token: tokenSymbol }),
+    [tokenSymbol]
+  );
+
+  const handleClickMenu = useCallback(
+    (event) => setAnchorEl(event.currentTarget),
     []
   );
 
+  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
+
   const Modal = MODALS[modalState.type];
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -75,6 +106,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         handleClose={handleClose}
         strikeIndex={strikeIndex}
         ssov={ssov}
+        token={tokenSymbol}
+        exercisableAmount={exercisableAmount}
         className="rounded-xl"
       />
       <TableCell align="left">
@@ -137,6 +170,33 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               </span>
             </CustomizedTooltip>
           )}
+          <IconButton
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleClickMenu}
+            className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft hidden sm:flex"
+          >
+            <MoreVertIcon className="fill-current text-white" />
+          </IconButton>
+          <Box>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleCloseMenu}
+              classes={{ paper: 'bg-umbra' }}
+            >
+              {isDelegated ? (
+                <MenuItem onClick={handleWithdraw} className="text-white">
+                  {'Withdraw'}
+                </MenuItem>
+              ) : (
+                <MenuItem onClick={handleDelegate} className="text-white">
+                  {'Auto-Exercise'}
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
         </Box>
       </TableCell>
     </TableRow>
