@@ -1,4 +1,5 @@
 import { useEffect, useContext, useState } from 'react';
+import Head from 'next/head';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import format from 'date-fns/format';
@@ -40,6 +41,9 @@ function Pools() {
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
+      <Head>
+        <title>Pools | Dopex</title>
+      </Head>
       <AppBar active="pools" />
       <Box
         className={cx(

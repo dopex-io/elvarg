@@ -1,4 +1,5 @@
 import { StakingRewards__factory } from '@dopex-io/sdk';
+import Head from 'next/head';
 import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import Skeleton from '@material-ui/lab/Skeleton';
@@ -168,6 +169,9 @@ const Farms = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
+      <Head>
+        <title>Farms | Dopex</title>
+      </Head>
       {showBanner && <FarmingMigrationBanner />}
       <AppBar active="farms" />
       <Box

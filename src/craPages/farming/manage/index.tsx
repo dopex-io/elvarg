@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
 import { ERC20__factory, StakingRewards__factory } from '@dopex-io/sdk';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
@@ -35,7 +36,7 @@ import { FarmingContext } from 'contexts/Farming';
 
 import styles from './styles.module.scss';
 
-const Stake = () => {
+const Manage = () => {
   const [approved, setApproved] = useState(false);
 
   const [maxApprove, setMaxApprove] = useState(false);
@@ -289,6 +290,9 @@ const Stake = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black h-screen">
+      <Head>
+        <title>Farms | Dopex</title>
+      </Head>
       <AppBar active="farms" />
       <Box className={c('mx-auto my-40 px-2', styles.cardSize)}>
         <Box className="bg-cod-gray sm:px-5 px-2 py-5 rounded-xl">
@@ -544,4 +548,4 @@ const Stake = () => {
   );
 };
 
-export default Stake;
+export default Manage;

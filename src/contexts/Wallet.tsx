@@ -49,7 +49,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/faucet': [421611],
   '/swap': [421611],
   '/farms': [1, 42161],
-  '/farms/stake': [1, 42161],
+  '/farms/manage': [1, 42161],
   '/ssov': [42161],
   '/ssov/manage/dpx': [42161],
   '/ssov/manage/rdpx': [42161],

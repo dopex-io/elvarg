@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
 import { Link } from 'react-router-dom';
 import { getMessageFromCode } from 'eth-rpc-errors';
 import { useFormik } from 'formik';
@@ -315,6 +316,9 @@ const Volume = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
+      <Head>
+        <title>Volume Pools | Dopex</title>
+      </Head>
       <AppBar active="pools" />
       <Box className={cx('mx-auto my-40 px-2', styles.cardSize)}>
         <Box className="flex flex-col mb-14 bg-cod-gray p-5 rounded-xl">
