@@ -37,7 +37,6 @@ interface ExerciseTableDataProps {
   isExercisable: boolean;
   isPastEpoch: boolean;
   ssov: 'dpx' | 'rdpx';
-  isDelegated: boolean;
 }
 
 const ExerciseTableData = (props: ExerciseTableDataProps) => {
@@ -51,7 +50,6 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     isExercisable,
     isPastEpoch,
     ssov,
-    isDelegated,
   } = props;
 
   const [modalState, setModalState] = useState({
@@ -59,6 +57,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     type: 'EXERCISE',
     token: '',
   });
+
+  const [delegated, setDelegated] = useState(false);
 
   const MODALS = {
     EXERCISE: Exercise,
@@ -108,6 +108,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         ssov={ssov}
         token={tokenSymbol}
         exercisableAmount={exercisableAmount}
+        setDelegated={setDelegated}
         className="rounded-xl"
       />
       <TableCell align="left">
@@ -150,10 +151,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 size="medium"
                 className="px-2"
                 onClick={handleExercise}
-                disabled={!isExercisable}
+                disabled={!isExercisable || delegated}
                 color={isExercisable ? 'primary' : 'cod-gray'}
               >
-                Exercise
+                {delegated ? 'Delegated' : 'Exercise'}
               </CustomButton>
             </span>
           ) : (
@@ -186,7 +187,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               onClose={handleCloseMenu}
               classes={{ paper: 'bg-umbra' }}
             >
-              {isDelegated ? (
+              {delegated ? (
                 <MenuItem onClick={handleWithdraw} className="text-white">
                   {'Withdraw'}
                 </MenuItem>

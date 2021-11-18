@@ -25,6 +25,7 @@ const Delegate = ({
   strikeIndex,
   token,
   exercisableAmount,
+  setDelegated,
 }) => {
   const { signer, blockTime, contractAddresses } = useContext(WalletContext);
 
@@ -94,8 +95,6 @@ const Delegate = ({
   const handleDelegate = useCallback(async () => {
     let delegatorAddress: string;
 
-    console.log(typeof exercisableAmount);
-
     delegatorAddress =
       token === 'DPX'
         ? contractAddresses.SSOV.DPX.SSOVDelegator
@@ -130,12 +129,14 @@ const Delegate = ({
         exercisableAmount
       )
     );
+    setDelegated(true);
   }, [
     approved,
     contractAddresses.SSOV.DPX.SSOVDelegator,
     contractAddresses.SSOV.RDPX.SSOVDelegator,
     epochStrikeTokens,
     exercisableAmount,
+    setDelegated,
     signer,
     strikeIndex,
     token,
