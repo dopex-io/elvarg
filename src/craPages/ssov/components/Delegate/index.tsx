@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useContext, useState } from 'react';
 import Box from '@material-ui/core/Box';
-import { Delegator__factory, ERC20__factory } from '@dopex-io/sdk';
+import { SSOVDelegator__factory, ERC20__factory } from '@dopex-io/sdk';
 
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
@@ -116,26 +116,26 @@ const Delegate = ({
       ).approve(delegatorAddress, MAX_VALUE)
     );
 
-    const delegator = Delegator__factory.connect(
-      contractAddresses.SSOV.DPX.SSOVDelegator,
-      signer
-    );
+    const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
     // Delegate tokens for auto-exercise
     await sendTx(
-      delegator.delegate(
-        epochStrikeTokens[strikeIndex].address,
-        await signer.getAddress(),
-        exercisableAmount
-      )
+      delegator
+        .connect(signer)
+        .delegate(
+          selectedEpoch,
+          epochStrikes[strikeIndex],
+          BigNumber.from(exercisableAmount)
+        )
     );
     setDelegated(true);
   }, [
     approved,
-    contractAddresses.SSOV.DPX.SSOVDelegator,
-    contractAddresses.SSOV.RDPX.SSOVDelegator,
+    contractAddresses,
     epochStrikeTokens,
+    epochStrikes,
     exercisableAmount,
+    selectedEpoch,
     setDelegated,
     signer,
     strikeIndex,
