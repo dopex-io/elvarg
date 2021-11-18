@@ -210,7 +210,7 @@ function SsovCard(props: SsovCardProps) {
                 navigate(`/ssov/manage/${ssov === 'dpx' ? 'dpx' : 'rdpx'}`)
               }
             >
-              Deposit
+              Manage
             </CustomButton>
             <CustomButton
               size="medium"

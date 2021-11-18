@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import Head from 'next/head';
 import Box from '@material-ui/core/Box';
 
 import AppBar from 'components/AppBar';
@@ -14,6 +15,9 @@ const Manage = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black h-screen">
+      <Head>
+        <title>SSOV | Dopex</title>
+      </Head>
       <AppBar active="SSOV" />
       <Box className="py-12 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="flex flex-col mt-20">

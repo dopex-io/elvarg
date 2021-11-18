@@ -73,7 +73,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
       token: token.selectedBaseAsset,
       isStake: true,
     }));
-    navigate('stake');
+    navigate('manage');
   }, [setData, token, navigate]);
 
   const handleUnstake = useCallback(() => {
@@ -81,7 +81,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
       token: token.selectedBaseAsset,
       isStake: false,
     }));
-    navigate('stake');
+    navigate('manage');
   }, [setData, token, navigate]);
 
   const handleCompound = useCallback(async () => {
@@ -294,7 +294,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
                   className="w-full lg:w-52"
                   onClick={() => {
                     handleStake();
-                    navigate('/farms/stake');
+                    navigate('/farms/manage');
                   }}
                 >
                   Stake

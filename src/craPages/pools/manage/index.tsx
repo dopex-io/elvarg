@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { getMessageFromCode } from 'eth-rpc-errors';
@@ -493,6 +494,9 @@ const Manage = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
+      <Head>
+        <title>Pools | Dopex</title>
+      </Head>
       <AppBar active="pools" />
       <Box className={cx('mx-auto my-40 px-2', styles.cardSize)}>
         <Box className="flex flex-col mb-14 bg-cod-gray p-5 rounded-xl">

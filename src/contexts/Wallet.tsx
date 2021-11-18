@@ -42,7 +42,7 @@ const CHAIN_ID_TO_PROVIDERS = {
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161],
   '/farms': [1, 42161],
-  '/farms/stake': [1, 42161],
+  '/farms/manage': [1, 42161],
   '/ssov': [42161],
   '/ssov/manage/dpx': [42161],
   '/ssov/manage/rdpx': [42161],

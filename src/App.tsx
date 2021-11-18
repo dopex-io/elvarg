@@ -20,7 +20,7 @@ import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
 
 const Farming = lazy(() => import('craPages/farming/farms'));
-const FarmingStake = lazy(() => import('craPages/farming/stake'));
+const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
@@ -37,7 +37,7 @@ const FarmRoutes = () => {
     <FarmingProvider>
       <Routes>
         <Route path="*" element={<Farming />} />
-        <Route path="stake" element={<FarmingStake />} />
+        <Route path="manage" element={<FarmingManage />} />
       </Routes>
     </FarmingProvider>
   );
