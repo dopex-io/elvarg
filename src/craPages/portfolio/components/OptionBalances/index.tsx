@@ -21,7 +21,8 @@ import { WalletContext } from 'contexts/Wallet';
 import { BASE_ASSET_MAP } from 'constants/index';
 
 const OptionsBalances = () => {
-  const { allOptions, delegatedOptions } = useContext(PortfolioContext);
+  const { allOptions, delegatedOptions, marginOptions } =
+    useContext(PortfolioContext);
   const { baseAssetsWithPrices } = useContext(AssetsContext);
   const { accountAddress, connect } = useContext(WalletContext);
 
@@ -46,14 +47,28 @@ const OptionsBalances = () => {
   const filteredDelegatedOptions = useMemo(() => {
     return delegatedOptions[Object.keys(delegatedOptions)[selectedIndex]] ?? [];
   }, [selectedIndex, delegatedOptions]);
+  const filteredMarginOptions = useMemo(() => {
+    return marginOptions[Object.keys(marginOptions)[selectedIndex]] ?? [];
+  }, [selectedIndex, marginOptions]);
 
   const filteredOptions = useMemo(() => {
     return filteredAllOptions
-      .map((item) => ({ ...item, isDelegated: false }))
+      .map((item) => ({ ...item, isDelegated: false, isMargin: false }))
       .concat(
-        filteredDelegatedOptions.map((item) => ({ ...item, isDelegated: true }))
+        filteredDelegatedOptions.map((item) => ({
+          ...item,
+          isDelegated: true,
+          isMargin: false,
+        }))
+      )
+      .concat(
+        filteredMarginOptions.map((item) => ({
+          ...item,
+          isDelegated: false,
+          isMargin: true,
+        }))
       );
-  }, [filteredAllOptions, filteredDelegatedOptions]);
+  }, [filteredAllOptions, filteredDelegatedOptions, filteredMarginOptions]);
 
   const handleClickListItem = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
