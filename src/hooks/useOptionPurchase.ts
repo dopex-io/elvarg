@@ -67,6 +67,7 @@ const useOptionPurchase = () => {
     selectedBaseAssetDecimals,
     usdtContract,
     userAssetBalances,
+    usdtDecimals,
   } = useContext(AssetsContext);
   const { provider, accountAddress, contractAddresses, signer } =
     useContext(WalletContext);
@@ -245,6 +246,38 @@ const useOptionPurchase = () => {
     selectedBaseAssetDecimals,
     poolState.weeklyPool,
   ]);
+
+  const collateralValue = useMemo(
+    () =>
+      formik.values.collateralIndex < collaterals.length
+        ? BigNumber.from(
+            collaterals[formik.values.collateralIndex]?.price ?? '0'
+          )
+            .mul(
+              getContractReadableAmount(
+                formik.values.collateralAmount,
+                collaterals[formik.values.collateralIndex].decimals
+              )
+            )
+            .div(ethers.utils.parseUnits('1', usdtDecimals))
+            .toString()
+        : '0',
+    [formik, collaterals, usdtDecimals]
+  );
+
+  const requiredCollateralValue = useMemo(
+    () =>
+      formik.values.collateralIndex < collaterals.length
+        ? BigNumber.from(totalPrice)
+            .mul(
+              collaterals[formik.values.collateralIndex]
+                ?.collateralizationRatio ?? '0'
+            )
+            .div('100')
+            .toString()
+        : totalPrice,
+    [totalPrice, collaterals, formik]
+  );
 
   const handleChange = useCallback(
     async (e) => {
@@ -487,6 +520,8 @@ const useOptionPurchase = () => {
     maxLeverage,
     collaterals,
     marginAvailable,
+    collateralValue,
+    requiredCollateralValue,
   };
 };
 

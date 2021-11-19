@@ -56,13 +56,24 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     handleCollateralIndex,
     handleLeverage,
     handleCollateralAmount,
+    collateralValue,
+    requiredCollateralValue,
   } = useOptionPurchase();
 
-  const { baseAssetsWithPrices } = useContext(AssetsContext);
+  const { baseAssetsWithPrices, usdtDecimals } = useContext(AssetsContext);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const open = useMemo(() => Boolean(anchorEl), [anchorEl]);
+
+  const finalCollateralValue = useMemo(
+    () => getUserReadableAmount(collateralValue, usdtDecimals),
+    [collateralValue, usdtDecimals]
+  );
+  const finalRequiredCollateralValue = useMemo(
+    () => getUserReadableAmount(requiredCollateralValue, usdtDecimals),
+    [requiredCollateralValue, usdtDecimals]
+  );
 
   const { finalCost, finalTotalCost, finalFees } = useMemo(() => {
     const _totalPrice = getUserReadableAmount(totalPrice, 6);
@@ -294,6 +305,32 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                         3
                       )}{' '}
                       {collaterals[formik.values.collateralIndex].symbol}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Collateral Value
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {'$'}
+                      {formatAmount(finalCollateralValue, 3)}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Minimum Collateral Value
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {'$'}
+                      {formatAmount(finalRequiredCollateralValue, 3)}
                     </Typography>
                   </Box>
                   <Box className="flex justify-between">
