@@ -1,7 +1,8 @@
-import { useCallback, useMemo, useContext, useState } from 'react';
+import { useCallback, useMemo, useContext, useState, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 import { SSOVDelegator__factory, ERC20__factory } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
+import { format } from 'date-fns';
 
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
@@ -10,13 +11,13 @@ import MaxApprove from 'components/MaxApprove';
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 
+import { WalletContext } from 'contexts/Wallet';
+import { SsovContext } from 'contexts/Ssov';
+
 import { MAX_VALUE, SSOV_DELEGATE_INFO, STAT_NAMES } from 'constants/index';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { format } from 'date-fns';
 import sendTx from 'utils/contracts/sendTx';
-import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
 
 const Delegate = ({
   open,
@@ -71,15 +72,17 @@ const Delegate = ({
       signer
     ).allowance(await signer.getAddress(), delegatorAddress);
 
-    if (allowance.lt(BigNumber.from(exercisableAmount))) {
+    if (allowance.lte(BigNumber.from(exercisableAmount))) {
       // Max Approve delegator
       await sendTx(
         ERC20__factory.connect(
           epochStrikeTokens[strikeIndex].address,
           signer
         ).approve(delegatorAddress, MAX_VALUE)
-      );
-      setApproved(true);
+      ).catch((e) => {
+        setApproved(false);
+        console.log(e);
+      });
     }
   }, [
     contractAddresses,
@@ -111,10 +114,13 @@ const Delegate = ({
       delegator.delegate(
         selectedEpoch,
         epochStrikes[strikeIndex],
-        BigNumber.from(exercisableAmount)
+        BigNumber.from(exercisableAmount),
+        await signer.getAddress()
       )
-    );
-    setDelegated(true);
+    ).catch((e) => {
+      setDelegated(false);
+      console.log(e);
+    });
   }, [
     approved,
     contractAddresses,
@@ -128,6 +134,63 @@ const Delegate = ({
     token,
   ]);
 
+  useEffect(() => {
+    const updateDelegatedState = async () => {
+      const delegatorAddress =
+        token === 'DPX'
+          ? contractAddresses.SSOV.DPX.SSOVDelegator
+          : contractAddresses.SSOV.RDPX.SSOVDelegator;
+      const delegator = SSOVDelegator__factory.connect(
+        delegatorAddress,
+        signer
+      );
+
+      const userStrike = ethers.utils.solidityKeccak256(
+        ['address', 'uint256'],
+        [await signer.getAddress(), epochStrikes[strikeIndex]]
+      );
+
+      const delegatedAmount = await delegator
+        .connect(signer)
+        .balances(userStrike, selectedEpoch);
+
+      if (delegatedAmount.toNumber() != 0) {
+        setDelegated(true);
+      }
+    };
+    updateDelegatedState();
+  }, [
+    approved,
+    contractAddresses,
+    epochStrikes,
+    selectedEpoch,
+    setDelegated,
+    signer,
+    strikeIndex,
+    token,
+  ]);
+
+  useEffect(() => {
+    const updateMaxApprovedState = async () => {
+      const delegatorAddress =
+        token === 'DPX'
+          ? contractAddresses.SSOV.DPX.SSOVDelegator
+          : contractAddresses.SSOV.RDPX.SSOVDelegator;
+
+      const allowance = await ERC20__factory.connect(
+        epochStrikeTokens[strikeIndex].address,
+        signer
+      ).allowance(await signer.getAddress(), delegatorAddress);
+
+      if (allowance.lt(MAX_VALUE)) {
+        setApproved(false);
+      } else {
+        setApproved(true);
+      }
+    };
+    updateMaxApprovedState();
+  }, [contractAddresses, epochStrikeTokens, signer, strikeIndex, token]);
+
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <Box className="flex flex-col">
@@ -137,10 +200,15 @@ const Delegate = ({
         <Box className="flex flex-col bg-umbra rounded-lg p-4">
           <Box className="flex mb-4">
             {token == 'DPX' ? <Dpx /> : <Rdpx />}
-            <span className="my-auto px-2 text-white">{token}</span>
-            <span className="text-xs text-white bg-mineshaft rounded-md my-auto ml-2 p-2">
+            <Typography variant="h5" className="my-auto px-2 text-white">
+              {token}
+            </Typography>
+            <Typography
+              variant="h5"
+              className="text-xs text-white bg-mineshaft rounded-md my-auto ml-2 p-2"
+            >
               {'CALL'}
-            </span>
+            </Typography>
           </Box>
           <Box className="p-2 rounded-lg flex flex-col text-white">
             <Box className="flex flex-col space-y-4">
@@ -182,7 +250,7 @@ const Delegate = ({
         >
           Delegate
         </CustomButton>
-        <Typography variant="h6" className="text-stieglitz self-end mt-3">
+        <Typography variant="h5" className="text-stieglitz self-end mt-3">
           Epoch {selectedEpoch}
         </Typography>
       </Box>

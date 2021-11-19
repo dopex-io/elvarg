@@ -1,6 +1,8 @@
 import { useCallback, useContext, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
+import { SSOVDelegator__factory } from '@dopex-io/sdk';
+import { ethers } from 'ethers';
+import format from 'date-fns/format';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -8,13 +10,12 @@ import Dialog from 'components/UI/Dialog';
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 
+import { SsovContext } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
+
 import { STAT_NAMES } from 'constants/index';
-import { format } from 'date-fns';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { SsovContext } from 'contexts/Ssov';
-import { SSOVDelegator__factory } from '@dopex-io/sdk';
-import { WalletContext } from 'contexts/Wallet';
 import sendTx from 'utils/contracts/sendTx';
 
 const Withdraw = ({
@@ -71,7 +72,21 @@ const Withdraw = ({
         exercisableAmount
       )
     );
-    setDelegated(false);
+
+    // Check user balance after withdrawal
+    const userStrike = ethers.utils.solidityKeccak256(
+      ['address', 'uint256'],
+      [await signer.getAddress(), epochStrikes[strikeIndex]]
+    );
+
+    const userBalance = await delegator
+      .connect(signer)
+      .balances(userStrike, selectedEpoch);
+
+    if (userBalance.toNumber() === 0) {
+      // Update delegated state
+      setDelegated(false);
+    }
   }, [
     contractAddresses,
     epochStrikes,
@@ -92,11 +107,15 @@ const Withdraw = ({
         <Box className="flex flex-col bg-umbra rounded-lg p-4">
           <Box className="flex mb-4">
             {token == 'DPX' ? <Dpx /> : <Rdpx />}
-            <span className="my-auto px-2 text-white">{'DPX'}</span>
-            {token}
-            <span className="text-xs text-white bg-mineshaft rounded-md my-auto ml-2 p-2">
+            <Typography variant="h5" className="my-auto px-2 text-white">
+              {token}
+            </Typography>
+            <Typography
+              variant="h6"
+              className="text-xs text-white bg-mineshaft rounded-md my-auto ml-2 p-2"
+            >
               {'CALL'}
-            </span>
+            </Typography>
           </Box>
           <Box className="p-2 rounded-lg flex flex-col text-white">
             <Box className="flex flex-col space-y-4">
@@ -104,13 +123,13 @@ const Withdraw = ({
                 return (
                   <Box key={key} className="flex justify-between">
                     <Typography
-                      variant="caption"
+                      variant="h6"
                       component="div"
                       className="text-stieglitz"
                     >
                       {STAT_NAMES.exercise[key]}
                     </Typography>
-                    <Typography variant="caption" component="div">
+                    <Typography variant="h6" component="div">
                       {stats[key]}
                     </Typography>
                   </Box>
@@ -128,7 +147,7 @@ const Withdraw = ({
               Number(stats.amount) === 0
             }
             onClick={handleWithdraw}
-            className="w-full p-5 bottom-0 rounded-md ml-0.5"
+            className="w-full p-5 bottom-0 rounded-md ml-0.5 mt-2"
           >
             Disable
           </CustomButton>
