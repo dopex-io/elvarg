@@ -53,8 +53,9 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     maxLeverage,
     marginAvailable,
     collaterals,
-    collateralIndex,
-    setCollateralIndex,
+    handleCollateralIndex,
+    handleLeverage,
+    handleCollateralAmount,
   } = useOptionPurchase();
 
   const { baseAssetsWithPrices } = useContext(AssetsContext);
@@ -214,48 +215,31 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
               {formik.values.margin && (
                 <>
                   <Box className="flex justify-between">
-                    <Button className="bg-mineshaft text-white mr-1">2x</Button>
-                    <Button className="bg-mineshaft text-white mr-1">5x</Button>
+                    <Button
+                      className="bg-mineshaft text-white mr-1"
+                      onClick={() => handleLeverage({ target: { value: 2 } })}
+                    >
+                      2x
+                    </Button>
+                    <Button
+                      className="bg-mineshaft text-white mr-1"
+                      onClick={() =>
+                        handleLeverage({
+                          target: { value: Number(maxLeverage) },
+                        })
+                      }
+                    >
+                      {maxLeverage}x
+                    </Button>
                     <MuiInput
+                      id="amount"
+                      name="amount"
+                      type="number"
                       disableUnderline={true}
+                      value={formik.values.leverage.toString()}
+                      onChange={handleLeverage}
                       className="h-10 w-full text-md text-white font-mono bg-mineshaft rounded-md p-1 px-2"
                     />
-                  </Box>
-                  <Box className="flex justify-between">
-                    <Typography
-                      variant="caption"
-                      component="div"
-                      className="text-stieglitz"
-                    >
-                      Collateral Required ($)
-                    </Typography>
-                    <Typography variant="caption" component="div">
-                      ${formatAmount(0)}
-                    </Typography>
-                  </Box>
-                  <Box className="flex justify-between">
-                    <Typography
-                      variant="caption"
-                      component="div"
-                      className="text-stieglitz"
-                    >
-                      Collateralization Ratio
-                    </Typography>
-                    <Typography variant="caption" component="div">
-                      {1}x
-                    </Typography>
-                  </Box>
-                  <Box className="flex justify-between">
-                    <Typography
-                      variant="caption"
-                      component="div"
-                      className="text-stieglitz"
-                    >
-                      Balance
-                    </Typography>
-                    <Typography variant="caption" component="div">
-                      {formatAmount(0)} {collaterals[collateralIndex].symbol}
-                    </Typography>
                   </Box>
                   <Box className="flex justify-between">
                     <CustomButton
@@ -268,7 +252,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                       onClick={handleClick}
                       endIcon={<ExpandMoreIcon />}
                     >
-                      {collaterals[collateralIndex].symbol}
+                      {collaterals[formik.values.collateralIndex].symbol}
                     </CustomButton>
                     <Menu
                       id="expiry-menu"
@@ -281,7 +265,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                         <MenuItem
                           key={collateral.token}
                           onClick={() => {
-                            setCollateralIndex(index);
+                            handleCollateralIndex(index);
                             handleClose();
                           }}
                           className="text-white uppercase"
@@ -290,6 +274,48 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                         </MenuItem>
                       ))}
                     </Menu>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Balance
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {formatAmount(
+                        getUserReadableAmount(
+                          userAssetBalances[
+                            collaterals[formik.values.collateralIndex].symbol
+                          ],
+                          collaterals[formik.values.collateralIndex].decimals
+                        ).toString(),
+                        3
+                      )}{' '}
+                      {collaterals[formik.values.collateralIndex].symbol}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Collateral Amount
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <MuiInput
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      disableUnderline={true}
+                      classes={{ input: 'text-right' }}
+                      value={formik.values.collateralAmount.toString()}
+                      onChange={handleCollateralAmount}
+                      className="h-10 w-full text-md text-white font-mono bg-mineshaft rounded-md p-1 px-3"
+                    />
                   </Box>
                 </>
               )}
@@ -328,7 +354,8 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                   component="div"
                   className="text-stieglitz"
                 >
-                  This will lock {100} {collaterals[collateralIndex].symbol} as
+                  This will lock {formik.values.collateralAmount.toString()}{' '}
+                  {collaterals[formik.values.collateralIndex].symbol} as
                   collateral for your trade. Please maintain sufficient
                   collateral in order to avoid liquidation.
                 </Typography>

@@ -59,7 +59,6 @@ const useOptionPurchase = () => {
   const [fees, setFees] = useState('0');
   const [userVolumePoolFunds, setUserVolumePoolFunds] = useState('0');
   const [txError, setTxError] = useState('');
-  const [collateralIndex, setCollateralIndex] = useState(0);
 
   const { selectedOptionData, expiry, marginData } = useContext(OptionsContext);
   const {
@@ -202,7 +201,7 @@ const useOptionPurchase = () => {
           Number(marginData.maxLeverage) / Number(marginData.minLeverage) ||
           values.leverage < 1)
       ) {
-        errors.amount = 'Invalid collateral selected';
+        errors.amount = 'Invalid leverage';
       }
 
       return errors;
@@ -260,6 +259,25 @@ const useOptionPurchase = () => {
     [formik]
   );
 
+  const handleCollateralAmount = useCallback(
+    async (e) => {
+      formik.setFieldValue('collateralAmount', Number(e.target.value));
+    },
+    [formik]
+  );
+
+  const handleLeverage = useCallback(
+    async (e) => {
+      formik.setFieldValue('leverage', Number(e.target.value));
+    },
+    [formik]
+  );
+
+  const handleCollateralIndex = useCallback(
+    (e) => formik.setFieldValue('collateralIndex', Number(e)),
+    [formik]
+  );
+
   const purchaseOptions = useCallback(async () => {
     if (!usdtContract || !signer) return;
     setTxError('');
@@ -278,7 +296,7 @@ const useOptionPurchase = () => {
       const leverage = formik.values.margin
         ? BigNumber.from(
             Math.round(
-              formik.values.margin * Number(marginData.minLeverage)
+              Number(formik.values.leverage) * Number(marginData.minLeverage)
             ).toString()
           )
         : BigNumber.from('0');
@@ -462,12 +480,13 @@ const useOptionPurchase = () => {
     handleMargin,
     handleUseVolumePool,
     handleDelegate,
+    handleCollateralIndex,
+    handleCollateralAmount,
+    handleLeverage,
     userVolumePoolFunds,
     maxLeverage,
     collaterals,
     marginAvailable,
-    collateralIndex,
-    setCollateralIndex,
   };
 };
 
