@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import {
   OptionPool,
+  ERC20,
   OptionPoolBroker__factory,
   ERC20__factory,
   VolumePool__factory,
   Dopex__factory,
   Router__factory,
+  Margin__factory,
 } from '@dopex-io/sdk';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
@@ -22,6 +24,7 @@ import sendTx from 'utils/contracts/sendTx';
 import { getWeeklyPool, getMonthlyPool } from 'utils/contracts/getPool';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 import getTimePeriod from 'utils/contracts/getTimePeriod';
+import getOptionPoolId from 'utils/contracts/getOptionPoolId';
 
 import { MAX_VALUE, STRIKE_PRECISION } from 'constants/index';
 
@@ -146,6 +149,9 @@ const useOptionPurchase = () => {
       useVolumePoolFunds: false,
       delegate: false,
       margin: false,
+      collateralAmount: 1,
+      collateralIndex: 0,
+      leverage: 1,
     },
     validate: (values) => {
       const errors: any = {};
@@ -181,6 +187,22 @@ const useOptionPurchase = () => {
         )
       ) {
         errors.amount = 'Not enough balance in wallet';
+      } else if (values.margin && !marginAvailable) {
+        errors.amount = 'Margin trading not available';
+      } else if (
+        values.margin &&
+        values.collateralIndex >= collaterals.length
+      ) {
+        errors.amount = 'Invalid collateral selected';
+      } else if (values.margin && values.collateralAmount < 0) {
+        errors.amount = 'Invalid collateral amount';
+      } else if (
+        values.margin &&
+        (values.leverage >
+          Number(marginData.maxLeverage) / Number(marginData.minLeverage) ||
+          values.leverage < 1)
+      ) {
+        errors.amount = 'Invalid collateral selected';
       }
 
       return errors;
@@ -242,10 +264,24 @@ const useOptionPurchase = () => {
     if (!usdtContract || !signer) return;
     setTxError('');
     try {
-      const amount = await getContractReadableAmount(
+      const amount = getContractReadableAmount(
         formik.values.amount,
         selectedBaseAssetDecimals
       );
+
+      const collateralAmount = formik.values.margin
+        ? getContractReadableAmount(
+            formik.values.collateralAmount,
+            collaterals[formik.values.collateralIndex].decimals
+          )
+        : BigNumber.from('0');
+      const leverage = formik.values.margin
+        ? BigNumber.from(
+            Math.round(
+              formik.values.margin * Number(marginData.minLeverage)
+            ).toString()
+          )
+        : BigNumber.from('0');
 
       const strike = BigNumber.from(selectedOptionData.strikePrice).mul(
         STRIKE_PRECISION
@@ -257,6 +293,23 @@ const useOptionPurchase = () => {
 
       const router = Router__factory.connect(contractAddresses.Router, signer);
 
+      const margin = contractAddresses.Margin
+        ? Margin__factory.connect(contractAddresses.Margin, signer)
+        : undefined;
+
+      const approveToken: ERC20 = formik.values.margin
+        ? ERC20__factory.connect(
+            collaterals[formik.values.collateralIndex].token,
+            signer
+          )
+        : ERC20__factory.connect(usdtContract.address, signer);
+      const approveContractAddress = formik.values.margin
+        ? margin.address
+        : router.address;
+      const approveAmount = formik.values.margin ? collateralAmount : amount;
+
+      let timePeriod: 'weekly' | 'monthly' | undefined;
+
       if (
         weeklyPool &&
         (await weeklyPool.contract.isValidExpiry(expiry / 1000)) &&
@@ -264,35 +317,7 @@ const useOptionPurchase = () => {
           await weeklyPool.contract.getCurrentEpoch()
         ))
       ) {
-        const allowance = await usdtContract.allowance(
-          accountAddress,
-          router.address
-        );
-
-        if (!amount.lt(allowance)) {
-          const signerUsdtContract = ERC20__factory.connect(
-            usdtContract.address,
-            signer
-          );
-          await sendTx(signerUsdtContract.approve(router.address, MAX_VALUE));
-        }
-
-        const usdtBalance = await usdtContract.balanceOf(accountAddress);
-
-        await sendTx(
-          router.purchaseOption(usdtBalance, {
-            useVolumePoolFunds: formik.values.useVolumePoolFunds,
-            isPut: isPut,
-            delegate: formik.values.delegate,
-            strike: strike,
-            expiry: expiry / 1000,
-            amount: amount,
-            timePeriod: getTimePeriod('weekly'),
-            baseAssetAddress: selectedBaseAssetContract.address,
-            quoteAssetAddress: usdtContract.address,
-            to: accountAddress,
-          })
-        );
+        timePeriod = 'weekly';
       } else if (
         monthlyPool &&
         (await monthlyPool.contract.isValidExpiry(expiry / 1000)) &&
@@ -300,39 +325,55 @@ const useOptionPurchase = () => {
           await monthlyPool.contract.getCurrentEpoch()
         ))
       ) {
-        const allowance = await usdtContract.allowance(
-          accountAddress,
-          monthlyPool.address
-        );
-
-        if (!amount.lt(allowance)) {
-          const signerUsdtContract = ERC20__factory.connect(
-            usdtContract.address,
-            signer
-          );
-          await sendTx(
-            signerUsdtContract.approve(monthlyPool.address, MAX_VALUE)
-          );
-        }
-
-        const usdtBalance = await usdtContract.balanceOf(accountAddress);
-
-        await sendTx(
-          router.purchaseOption(usdtBalance, {
-            useVolumePoolFunds: formik.values.useVolumePoolFunds,
-            isPut: isPut,
-            delegate: formik.values.delegate,
-            strike: strike,
-            expiry: expiry / 1000,
-            amount: amount,
-            timePeriod: getTimePeriod('monthly'),
-            baseAssetAddress: selectedBaseAssetContract.address,
-            quoteAssetAddress: usdtContract.address,
-            to: accountAddress,
-          })
-        );
+        timePeriod = 'monthly';
       } else {
         setTxError('Not enough liquidity');
+      }
+
+      if (timePeriod) {
+        const allowance = await approveToken.allowance(
+          accountAddress,
+          approveContractAddress
+        );
+
+        if (!approveAmount.lt(allowance)) {
+          await sendTx(approveToken.approve(approveContractAddress, MAX_VALUE));
+        }
+
+        if (formik.values.margin) {
+          await margin.openMarginPosition({
+            useVolumePoolFunds: formik.values.useVolumePoolFunds,
+            isPut: isPut,
+            amount: amount,
+            leverage: leverage,
+            strike: strike,
+            expiry: expiry / 1000,
+            collateralAmount: collateralAmount,
+            collateral: collaterals[formik.values.collateralIndex].token,
+            optionPoolId: getOptionPoolId(
+              selectedBaseAssetContract.address,
+              usdtContract.address,
+              timePeriod
+            ),
+          });
+        } else {
+          const usdtBalance = await usdtContract.balanceOf(accountAddress);
+
+          await sendTx(
+            router.purchaseOption(usdtBalance, {
+              useVolumePoolFunds: formik.values.useVolumePoolFunds,
+              isPut: isPut,
+              delegate: formik.values.delegate,
+              strike: strike,
+              expiry: expiry / 1000,
+              amount: amount,
+              timePeriod: getTimePeriod(timePeriod),
+              baseAssetAddress: selectedBaseAssetContract.address,
+              quoteAssetAddress: usdtContract.address,
+              to: accountAddress,
+            })
+          );
+        }
       }
     } catch (err) {
       setTxError(`Something went wrong. Error: ${parseError(err)}`);

@@ -75,6 +75,7 @@ export interface MarginData {
     collateralizationRatio: string;
     liquidationRatio: string;
     price: string;
+    decimals: number;
   }[];
 }
 
@@ -298,6 +299,11 @@ export const OptionsProvider = (props: React.ComponentProps<any>) => {
         ERC20__factory.connect(collateral, provider).symbol()
       )
     );
+    const collateralsDecimals = await Promise.all(
+      collaterals.map(async (collateral) =>
+        ERC20__factory.connect(collateral, provider).decimals()
+      )
+    );
     const collateralsPrices = await Promise.all(
       collaterals.map(async (collateral, index) => {
         if (collateralsSymbols[index] === 'USDT') {
@@ -321,6 +327,7 @@ export const OptionsProvider = (props: React.ComponentProps<any>) => {
       token: collateral,
       symbol: collateralsSymbols[index],
       price: collateralsPrices[index],
+      decimals: collateralsDecimals[index],
       collateralizationRatio:
         collateralsInfo[index].collateralizationRatio.toString(),
       liquidationRatio: collateralsInfo[index].liquidationRatio.toString(),
