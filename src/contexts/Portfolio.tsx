@@ -10,6 +10,7 @@ import {
   ERC20__factory,
   Delegator__factory,
   CALL_REWARD_KEYS,
+  Margin__factory,
 } from '@dopex-io/sdk';
 import { ApolloQueryResult } from '@apollo/client';
 import BigNumber from 'bignumber.js';
@@ -28,6 +29,7 @@ import {
   GetUserDataDocument,
 } from 'generated';
 import getOptionsContractId from 'utils/contracts/getOptionsContractId';
+import getPositionId from 'utils/contracts/getPositionId';
 
 type AllOptions = {
   [key: string]: OptionData[];
@@ -35,6 +37,16 @@ type AllOptions = {
 
 type DelegatedOptions = {
   [key: string]: (OptionData & { claimAmount: string })[];
+};
+
+type MarginOptions = {
+  [key: string]: (OptionData & {
+    collateral: string;
+    collateralAmount: string;
+    leverage: string;
+    borrowed: string;
+    borrowIndex: string;
+  })[];
 };
 
 interface PortfolioContextInterface {
@@ -47,6 +59,7 @@ interface PortfolioContextInterface {
   userTransactions: OptionPoolBrokerTransaction[];
   allOptions: AllOptions;
   delegatedOptions: DelegatedOptions;
+  marginOptions: MarginOptions;
   updateAssetBalances?: Function;
   updateOptionBalances?: Function;
 }
@@ -60,6 +73,7 @@ export const PortfolioContext = createContext<PortfolioContextInterface>({
   totalRdpxEarnedFromRebates: new BigNumber(0),
   allOptions: {},
   delegatedOptions: {},
+  marginOptions: {},
   userTransactions: [],
 });
 
@@ -72,6 +86,7 @@ export const PortfolioProvider = (props) => {
   const [delegatedOptions, setDelegatedOptions] = useState<DelegatedOptions>(
     {}
   );
+  const [marginOptions, setMarginOptions] = useState<MarginOptions>({});
   const [userTransactions, setUserTransactions] = useState<
     OptionPoolBrokerTransaction[]
   >([]);
@@ -99,6 +114,7 @@ export const PortfolioProvider = (props) => {
 
     const newAllOptions = {};
     const newDelegatedOptions = {};
+    const newMarginOptions: MarginOptions = {};
 
     await Promise.all(
       data.optionPools.map(async (op) => {
@@ -132,6 +148,7 @@ export const PortfolioProvider = (props) => {
         });
 
         let delegatedOptionsData = optionsData.map((item) => ({ ...item }));
+        let marginOptionsData = optionsData.map((item) => ({ ...item }));
 
         const balanceCalls = optionsData.map((item) => {
           return item.optionsContract.balanceOf(accountAddress);
@@ -153,6 +170,7 @@ export const PortfolioProvider = (props) => {
 
         newAllOptions[asset] = optionsData;
         newDelegatedOptions[asset] = [];
+        newMarginOptions[asset] = [];
 
         if (contractAddresses.Delegator) {
           const delegator = Delegator__factory.connect(
@@ -186,11 +204,53 @@ export const PortfolioProvider = (props) => {
 
           newDelegatedOptions[asset] = delegatedOptionsData;
         }
+
+        if (contractAddresses.Margin) {
+          const margin = Margin__factory.connect(
+            contractAddresses.Margin,
+            provider
+          );
+          const collaterals = await margin.getCollaterals();
+          await Promise.all(
+            collaterals.map(async (collateral) => {
+              const positionIds = marginOptionsData.map((item) =>
+                getPositionId(
+                  item.isPut,
+                  item.expiry,
+                  item.strike,
+                  op.address,
+                  collateral
+                )
+              );
+              const marginPositions = await Promise.all(
+                positionIds.map((positionId) =>
+                  margin.marginPositions(accountAddress, positionId)
+                )
+              );
+
+              const newMarginOptionsData = marginOptionsData
+                .map((item, index) => ({
+                  ...item,
+                  userBalance: marginPositions[index].amount.toString(),
+                  collateral: collateral,
+                  collateralAmount:
+                    marginPositions[index].collateralAmount.toString(),
+                  leverage: marginPositions[index].leverage.toString(),
+                  borrowed: marginPositions[index].borrowed.toString(),
+                  borrowIndex: marginPositions[index].borrowIndex.toString(),
+                }))
+                .filter((item) => Number(item.userBalance) > 0);
+
+              newMarginOptions[asset] = newMarginOptionsData;
+            })
+          );
+        }
       })
     );
 
     setAllOptions(newAllOptions);
     setDelegatedOptions(newDelegatedOptions);
+    setMarginOptions(newMarginOptions);
   }, [provider, accountAddress, baseAssets, contractAddresses]);
 
   useEffect(() => {
@@ -253,6 +313,7 @@ export const PortfolioProvider = (props) => {
     userTransactions,
     updateOptionBalances,
     allOptions,
+    marginOptions,
   };
 
   return (

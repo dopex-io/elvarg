@@ -256,7 +256,7 @@ const useOptionPurchase = () => {
             .mul(
               getContractReadableAmount(
                 formik.values.collateralAmount,
-                collaterals[formik.values.collateralIndex].decimals
+                collaterals[formik.values.collateralIndex]?.decimals ?? 0
               )
             )
             .div(ethers.utils.parseUnits('1', usdtDecimals))
