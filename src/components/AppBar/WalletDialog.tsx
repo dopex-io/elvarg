@@ -53,7 +53,7 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           </IconButton>
           <IconButton
             className="text-white focus:bg-transparent p-0"
-            href={`https://etherscan.io/address/${accountAddress}`}
+            href={`https://arbiscan.io/address/${accountAddress}`}
             target="_blank"
             rel="noreferrer noopener"
           >
