@@ -133,9 +133,6 @@ export const GREEK_SYMBOLS = {
 export const DELEGATE_INFO: string =
   'Auto exercising will charge 1% of the total P&L as fee. (This is temporary and will be reduced heavily during our final launch).';
 
-export const SSOV_DELEGATE_INFO: string =
-  'Auto-exercising will charge 0.1% of the total P&L as fee.';
-
 export const BUILD: string = process.env.NEXT_PUBLIC_BUILD;
 
 export const S3_BUCKET_RESOURCES = {

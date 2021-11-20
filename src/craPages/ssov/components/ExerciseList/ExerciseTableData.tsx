@@ -2,37 +2,28 @@ import { useCallback, useState } from 'react';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-
-import formatAmount from 'utils/general/formatAmount';
+import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
+import InfoPopover from 'components/UI/InfoPopover';
 import Exercise from './Exercise';
 import Delegate from 'craPages/ssov/components/Delegate';
 import Withdraw from 'craPages/ssov/components/Withdraw';
 
-const CustomizedTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: '#f5f5f9',
-    color: 'rgba(0, 0, 0, 0.87)',
-    maxWidth: 220,
-    fontSize: theme.typography.pxToRem(12),
-    border: '1px solid #dadde9',
-  },
-}))(Tooltip);
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface ExerciseTableDataProps {
   strikeIndex: number;
   strikePrice: number;
   depositedAmount: number;
   purchasedAmount: number;
-  exercisableAmount: number;
+  exercisableAmount: BigNumber;
   pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
@@ -60,7 +51,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const [delegated, setDelegated] = useState(false);
 
-  const MODALS = {
+  const DIALOGS = {
     EXERCISE: Exercise,
     DELEGATE: Delegate,
     WITHDRAW: Withdraw,
@@ -97,11 +88,11 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
-  const Modal = MODALS[modalState.type];
+  const Dialog = DIALOGS[modalState.type];
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
-      <Modal
+      <Dialog
         open={modalState.open}
         handleClose={handleClose}
         strikeIndex={strikeIndex}
@@ -137,7 +128,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(exercisableAmount, 5)}
+          {formatAmount(getUserReadableAmount(exercisableAmount, 18), 5)}
         </Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
@@ -158,20 +149,23 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               </CustomButton>
             </span>
           ) : (
-            <CustomizedTooltip title="Exercise is available for past epochs. Please wait until the current epoch expires.">
-              <span>
-                <CustomButton
-                  size="medium"
-                  disabled
-                  className="px-2"
-                  color={'cod-gray'}
-                >
-                  Exercise
-                </CustomButton>
-              </span>
-            </CustomizedTooltip>
+            <Box className="flex space-x-1">
+              <InfoPopover
+                className="my-auto"
+                id="exercise-info"
+                infoText={`Exercise is available only one hour before expiry of this epoch.`}
+              />
+              <CustomButton
+                size="medium"
+                disabled
+                className="px-2"
+                color={'cod-gray'}
+              >
+                Exercise
+              </CustomButton>
+            </Box>
           )}
-          {exercisableAmount !== 0 ? (
+          {exercisableAmount.eq(BigNumber.from(0)) ? (
             <IconButton
               aria-label="more"
               aria-controls="long-menu"
@@ -197,7 +191,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 <MenuItem
                   onClick={handleDelegate}
                   className="text-white"
-                  disabled={exercisableAmount === 0}
+                  disabled={!exercisableAmount.eq(BigNumber.from(0))}
                 >
                   {'Auto-Exercise'}
                 </MenuItem>

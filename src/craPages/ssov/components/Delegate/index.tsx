@@ -4,6 +4,9 @@ import { SSOVDelegator__factory, ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
+import { WalletContext } from 'contexts/Wallet';
+import { SsovContext } from 'contexts/Ssov';
+
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -11,13 +14,11 @@ import MaxApprove from 'components/MaxApprove';
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
-
-import { MAX_VALUE, SSOV_DELEGATE_INFO, STAT_NAMES } from 'constants/index';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import sendTx from 'utils/contracts/sendTx';
+
+import { MAX_VALUE, STAT_NAMES } from 'constants/index';
 
 const Delegate = ({
   open,
@@ -31,6 +32,7 @@ const Delegate = ({
 
   const context = useContext(SsovContext);
 
+  const [fees, setFees] = useState(['', '']);
   const [approved, setApproved] = useState(false);
 
   const {
@@ -44,7 +46,7 @@ const Delegate = ({
     return {
       strike:
         '$' + getUserReadableAmount(epochStrikes[strikeIndex], 8).toString(),
-      price: '$' + getUserReadableAmount(tokenPrice, 8).toString(),
+      price: '$' + formatAmount(getUserReadableAmount(tokenPrice, 8), 5),
       pnl:
         '$' +
         formatAmount(
@@ -57,7 +59,7 @@ const Delegate = ({
         new Date(epochTimes[1] * 1000),
         'd LLL yyyy'
       ).toLocaleUpperCase(),
-      amount: formatAmount(exercisableAmount, 18),
+      amount: formatAmount(getUserReadableAmount(exercisableAmount, 18), 5),
     };
   }, [tokenPrice, strikeIndex, epochStrikes, epochTimes, exercisableAmount]);
 
@@ -114,7 +116,7 @@ const Delegate = ({
       delegator.delegate(
         selectedEpoch,
         epochStrikes[strikeIndex],
-        BigNumber.from(exercisableAmount),
+        exercisableAmount,
         await signer.getAddress()
       )
     ).catch((e) => {
@@ -157,6 +159,14 @@ const Delegate = ({
       if (delegatedAmount.toNumber() != 0) {
         setDelegated(true);
       }
+
+      const exerciseFee = await delegator.exerciseFee();
+      const exerciseFeeCap = await delegator.exerciseFeeCap();
+
+      setFees([
+        getUserReadableAmount(exerciseFee, 10).toString(), // 1e8 / 1e10
+        getUserReadableAmount(exerciseFeeCap, 18).toString(),
+      ]);
     };
     updateDelegatedState();
   }, [
@@ -199,7 +209,7 @@ const Delegate = ({
         </Typography>
         <Box className="flex flex-col bg-umbra rounded-lg p-4">
           <Box className="flex mb-4">
-            {token == 'DPX' ? <Dpx /> : <Rdpx />}
+            <Box className="my-auto">{token == 'DPX' ? <Dpx /> : <Rdpx />}</Box>
             <Typography variant="h5" className="my-auto px-2 text-white">
               {token}
             </Typography>
@@ -231,12 +241,15 @@ const Delegate = ({
             </Box>
           </Box>
         </Box>
-        <Typography
-          variant="caption"
-          className="p-3 my-3 border border-mineshaft rounded-lg text-stieglitz"
-        >
-          {SSOV_DELEGATE_INFO}
-        </Typography>
+        <Box className="flex flex-col p-3 my-3 space-y-2 border border-mineshaft rounded-lg">
+          <Typography variant="caption" className="text-stieglitz">
+            {`Auto exercising will charge ${
+              fees[0]
+            }% of the total P&L as fee. There is also a fee cap of ${
+              fees[1] + ' doToken(s)'
+            } for large positions.`}
+          </Typography>
+        </Box>
         {!approved ? (
           <MaxApprove value={approved} setValue={handleApprove} />
         ) : null}

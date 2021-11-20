@@ -1,8 +1,11 @@
 import { useCallback, useContext, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import { SSOVDelegator__factory } from '@dopex-io/sdk';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import format from 'date-fns/format';
+
+import { SsovContext } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -10,13 +13,11 @@ import Dialog from 'components/UI/Dialog';
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 
-import { SsovContext } from 'contexts/Ssov';
-import { WalletContext } from 'contexts/Wallet';
-
-import { STAT_NAMES } from 'constants/index';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import sendTx from 'utils/contracts/sendTx';
+
+import { STAT_NAMES } from 'constants/index';
 
 const Withdraw = ({
   open,
@@ -40,7 +41,7 @@ const Withdraw = ({
     return {
       strike:
         '$' + getUserReadableAmount(epochStrikes[strikeIndex], 8).toString(),
-      price: '$' + getUserReadableAmount(tokenPrice, 8).toString(),
+      price: '$' + formatAmount(getUserReadableAmount(tokenPrice, 8), 5),
       pnl:
         '$' +
         formatAmount(
@@ -53,7 +54,7 @@ const Withdraw = ({
         new Date(epochTimes[1] * 1000),
         'd LLL yyyy'
       ).toLocaleUpperCase(),
-      amount: formatAmount(exercisableAmount, 5),
+      amount: formatAmount(getUserReadableAmount(exercisableAmount, 18), 5),
     };
   }, [epochStrikes, epochTimes, exercisableAmount, strikeIndex, tokenPrice]);
 
@@ -83,7 +84,7 @@ const Withdraw = ({
       .connect(signer)
       .balances(userStrike, selectedEpoch);
 
-    if (userBalance.toNumber() === 0) {
+    if (userBalance.eq(BigNumber.from(0))) {
       // Update delegated state
       setDelegated(false);
     }
@@ -106,7 +107,7 @@ const Withdraw = ({
         </Typography>
         <Box className="flex flex-col bg-umbra rounded-lg p-4">
           <Box className="flex mb-4">
-            {token == 'DPX' ? <Dpx /> : <Rdpx />}
+            <Box className="my-auto">{token == 'DPX' ? <Dpx /> : <Rdpx />}</Box>
             <Typography variant="h5" className="my-auto px-2 text-white">
               {token}
             </Typography>

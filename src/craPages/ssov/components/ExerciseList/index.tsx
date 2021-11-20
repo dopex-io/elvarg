@@ -11,6 +11,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 import Skeleton from '@material-ui/lab/Skeleton';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
@@ -30,7 +31,7 @@ interface userExercisableOption {
   strikePrice: number;
   depositedAmount: number;
   purchasedAmount: number;
-  exercisableAmount: number;
+  exercisableAmount: BigNumber;
   pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
@@ -77,12 +78,10 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
           userEpochCallsPurchased[strikeIndex],
           18
         );
-        const exercisableAmount = getUserReadableAmount(
-          //@ts-ignore
-          userEpochStrikeTokenBalanceArray[strikeIndex],
-          18
-        );
-        const isExercisable = exercisableAmount > 0 && tokenPrice.gt(strike);
+        const exercisableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
+        const isExercisable =
+          getUserReadableAmount(exercisableAmount, 18) > 0 &&
+          tokenPrice.gt(strike);
 
         const isPastEpoch = selectedEpoch < currentEpoch;
 
