@@ -15,7 +15,7 @@ import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const WalletDialog = ({ open, handleClose, userBalances }) => {
-  const { accountAddress, changeWallet, disconnect } =
+  const { accountAddress, changeWallet, disconnect, chainId } =
     useContext(WalletContext);
 
   const copyToClipboard = () => {
@@ -53,7 +53,9 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           </IconButton>
           <IconButton
             className="text-white focus:bg-transparent p-0"
-            href={`https://arbiscan.io/address/${accountAddress}`}
+            href={`https://${
+              chainId === 1 ? 'etherscan' : chainId === 42161 && 'arbiscan'
+            }.io/address/${accountAddress}`}
             target="_blank"
             rel="noreferrer noopener"
           >
