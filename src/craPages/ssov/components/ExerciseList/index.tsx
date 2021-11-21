@@ -79,9 +79,7 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
           18
         );
         const exercisableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
-        const isExercisable =
-          getUserReadableAmount(exercisableAmount, 18) > 0 &&
-          tokenPrice.gt(strike);
+        const isExercisable = exercisableAmount.gt(0) && tokenPrice.gt(strike);
 
         const isPastEpoch = selectedEpoch < currentEpoch;
 

@@ -189,7 +189,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 <MenuItem
                   onClick={handleDelegate}
                   className="text-white"
-                  disabled={!exercisableAmount.eq(BigNumber.from(0))}
+                  disabled={exercisableAmount.eq(BigNumber.from(0))}
                 >
                   {'Auto-Exercise'}
                 </MenuItem>
