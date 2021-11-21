@@ -192,14 +192,17 @@ const Delegate = ({
         signer
       ).allowance(await signer.getAddress(), delegatorAddress);
 
-      if (allowance.lt(MAX_VALUE)) {
-        setApproved(false);
-      } else {
-        setApproved(true);
-      }
+      setApproved(exercisableAmount.lte(allowance));
     };
     updateMaxApprovedState();
-  }, [contractAddresses, epochStrikeTokens, signer, strikeIndex, token]);
+  }, [
+    contractAddresses,
+    epochStrikeTokens,
+    exercisableAmount,
+    signer,
+    strikeIndex,
+    token,
+  ]);
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
@@ -215,7 +218,7 @@ const Delegate = ({
             </Typography>
             <Typography
               variant="h5"
-              className="text-xs text-white bg-mineshaft rounded-md my-auto ml-2 p-2"
+              className="text-xs text-white bg-mineshaft rounded-md my-auto p-2"
             >
               {'CALL'}
             </Typography>
