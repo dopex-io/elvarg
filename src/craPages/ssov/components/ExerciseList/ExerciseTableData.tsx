@@ -165,17 +165,15 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               </CustomButton>
             </Box>
           )}
-          {exercisableAmount.eq(BigNumber.from(0)) ? (
-            <IconButton
-              aria-label="more"
-              aria-controls="long-menu"
-              aria-haspopup="true"
-              onClick={handleClickMenu}
-              className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft hidden sm:flex"
-            >
-              <MoreVertIcon className="fill-current text-white" />
-            </IconButton>
-          ) : null}
+          <IconButton
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleClickMenu}
+            className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft hidden sm:flex"
+          >
+            <MoreVertIcon className="fill-current text-white" />
+          </IconButton>
           <Box>
             <Menu
               anchorEl={anchorEl}
