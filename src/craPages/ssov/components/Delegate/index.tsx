@@ -10,7 +10,6 @@ import { SsovContext } from 'contexts/Ssov';
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import MaxApprove from 'components/MaxApprove';
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 
@@ -81,10 +80,8 @@ const Delegate = ({
           epochStrikeTokens[strikeIndex].address,
           signer
         ).approve(delegatorAddress, MAX_VALUE)
-      ).catch((e) => {
-        setApproved(false);
-        console.log(e);
-      });
+      );
+      setApproved(true);
     }
   }, [
     contractAddresses,
@@ -101,13 +98,12 @@ const Delegate = ({
         ? contractAddresses.SSOV.DPX.SSOVDelegator
         : contractAddresses.SSOV.RDPX.SSOVDelegator;
 
-    if (!approved)
-      await sendTx(
-        ERC20__factory.connect(
-          epochStrikeTokens[strikeIndex].address,
-          signer
-        ).approve(delegatorAddress, exercisableAmount)
-      );
+    await sendTx(
+      ERC20__factory.connect(
+        epochStrikeTokens[strikeIndex].address,
+        signer
+      ).approve(delegatorAddress, MAX_VALUE)
+    );
 
     const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
@@ -124,7 +120,6 @@ const Delegate = ({
       console.log(e);
     });
   }, [
-    approved,
     contractAddresses,
     epochStrikeTokens,
     epochStrikes,
@@ -170,35 +165,10 @@ const Delegate = ({
     };
     updateDelegatedState();
   }, [
-    approved,
     contractAddresses,
     epochStrikes,
     selectedEpoch,
     setDelegated,
-    signer,
-    strikeIndex,
-    token,
-  ]);
-
-  useEffect(() => {
-    const updateMaxApprovedState = async () => {
-      const delegatorAddress =
-        token === 'DPX'
-          ? contractAddresses.SSOV.DPX.SSOVDelegator
-          : contractAddresses.SSOV.RDPX.SSOVDelegator;
-
-      const allowance = await ERC20__factory.connect(
-        epochStrikeTokens[strikeIndex].address,
-        signer
-      ).allowance(await signer.getAddress(), delegatorAddress);
-
-      setApproved(exercisableAmount.lte(allowance));
-    };
-    updateMaxApprovedState();
-  }, [
-    contractAddresses,
-    epochStrikeTokens,
-    exercisableAmount,
     signer,
     strikeIndex,
     token,
@@ -253,19 +223,29 @@ const Delegate = ({
             } for large positions.`}
           </Typography>
         </Box>
-        {!approved ? (
-          <MaxApprove value={approved} setValue={handleApprove} />
-        ) : null}
-        <CustomButton
-          size="large"
-          disabled={
-            blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
-          }
-          onClick={handleDelegate}
-          className=" p-5 bottom-0 rounded-md mr-0.5"
-        >
-          Delegate
-        </CustomButton>
+        {approved ? (
+          <CustomButton
+            size="large"
+            disabled={
+              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
+            }
+            onClick={handleDelegate}
+            className=" p-5 bottom-0 rounded-md"
+          >
+            Delegate
+          </CustomButton>
+        ) : (
+          <CustomButton
+            size="large"
+            disabled={
+              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
+            }
+            onClick={handleApprove}
+            className=" p-5 bottom-0 rounded-md"
+          >
+            Approve
+          </CustomButton>
+        )}
         <Typography variant="h5" className="text-stieglitz self-end mt-3">
           Epoch {selectedEpoch}
         </Typography>
