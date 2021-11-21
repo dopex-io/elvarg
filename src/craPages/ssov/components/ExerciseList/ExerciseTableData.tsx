@@ -145,7 +145,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 disabled={!isExercisable || delegated}
                 color={isExercisable ? 'primary' : 'cod-gray'}
               >
-                {delegated ? 'Delegated' : 'Exercise'}
+                {'Exercise'}
               </CustomButton>
             </span>
           ) : (
@@ -161,7 +161,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 className="px-2"
                 color={'cod-gray'}
               >
-                Exercise
+                {delegated ? 'Delegated' : 'Exercise'}
               </CustomButton>
             </Box>
           )}
