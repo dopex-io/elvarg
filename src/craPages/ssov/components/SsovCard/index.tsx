@@ -222,20 +222,9 @@ function SsovCard(props: SsovCardProps) {
               Buy Options
             </CustomButton>
           </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Epoch {selectedEpoch}
-            </Typography>
-            <Typography
-              variant="h6"
-              className="text-wave-blue text-right block"
-              component="a"
-              // @ts-ignore
-              href={`/ssov/manage/${ssov === 'dpx' ? 'dpx' : 'rdpx'}#balances`}
-            >
-              View Options
-            </Typography>
-          </Box>
+          <Typography variant="h6" className="text-stieglitz">
+            Epoch {selectedEpoch}
+          </Typography>
         </Box>
       </Box>
       {purchaseState && (

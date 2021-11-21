@@ -146,7 +146,19 @@ const Farms = () => {
         console.log(err);
       }
     }
-  }, [DPX, DPX_WETH, rDPX_WETH, setStakingAsset, signer]);
+    if (RDPX.rewards[0] > 0 || RDPX.rewards[1] > 0) {
+      try {
+        const stakingRewardsContract = StakingRewards__factory.connect(
+          RDPX.stakingRewardsContractAddress,
+          signer
+        );
+        await sendTx(stakingRewardsContract.getReward(2));
+        setStakingAsset('RDPX');
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, [DPX, DPX_WETH, rDPX_WETH, RDPX, setStakingAsset, signer]);
 
   const isLoading = useMemo(() => {
     if (accountAddress) {

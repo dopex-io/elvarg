@@ -86,7 +86,7 @@ const appLinks = {
 };
 
 const menuLinks = [
-  { name: 'Dopex.io', to: 'https://dopex.io' },
+  { name: 'Home', to: 'https://dopex.io' },
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
