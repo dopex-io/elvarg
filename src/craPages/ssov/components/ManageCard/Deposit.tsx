@@ -371,6 +371,14 @@ const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
                           This epoch has expired.
                         </span>
                       );
+                    } else if (hours < 1) {
+                      return (
+                        <span className="text-down-bad">
+                          Exercise window is now open.
+                          <br />
+                          Time remaining: {minutes}m {seconds}s
+                        </span>
+                      );
                     } else {
                       return (
                         <span className="text-wave-blue">
