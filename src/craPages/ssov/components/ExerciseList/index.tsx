@@ -17,6 +17,7 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
+import AutoExerciseAlert from '../Dialogs/AutoExerciseAlert';
 
 import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
@@ -37,8 +38,19 @@ interface userExercisableOption {
   isPastEpoch: boolean;
 }
 
+const ROWS_PER_PAGE = 5;
+
 const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const context = useContext(SsovContext);
+
+  const { accountAddress } = useContext(WalletContext);
+
+  const [userExercisableOptions, setUserExercisableOptions] = useState<
+    userExercisableOption[]
+  >([]);
+  const [page, setPage] = useState(0);
+  const [alert, setAlert] = useState(false);
+
   const {
     currentEpoch,
     selectedEpoch,
@@ -50,10 +62,11 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
     },
     tokenPrice,
   } = context[ssov];
-  const { accountAddress } = useContext(WalletContext);
-  const [userExercisableOptions, setUserExercisableOptions] = useState<
-    userExercisableOption[]
-  >([]);
+
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => setPage(newPage);
 
   useEffect(() => {
     if (!accountAddress || !isVaultReady) return;
@@ -67,6 +80,13 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
           })
           .filter((c) => c)
       );
+
+      for (let i = 0; i < userEpochStrikeTokenBalanceArray.length; i++) {
+        if (userEpochStrikeTokenBalanceArray[i].gt(0)) {
+          setAlert(true);
+          break;
+        }
+      }
 
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
@@ -113,17 +133,14 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
     isVaultReady,
   ]);
 
-  const ROWS_PER_PAGE = 5;
-  const [page, setPage] = useState(0);
-  const handleChangePage = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-
   return selectedEpoch > 0 ? (
     <Box className="bg-cod-gray w-full p-4 rounded-xl">
+      <AutoExerciseAlert
+        open={alert}
+        handleClose={() => {
+          setAlert(false);
+        }}
+      />
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Your Exercisable Options
