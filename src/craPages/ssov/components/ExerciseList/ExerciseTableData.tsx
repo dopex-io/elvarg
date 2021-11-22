@@ -83,13 +83,13 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleExercise = useCallback(
-    () =>
-      setDialogState({ open: true, type: 'AUTO_EXERCISE', token: tokenSymbol }),
+    () => setDialogState({ open: true, type: 'EXERCISE', token: tokenSymbol }),
     [tokenSymbol]
   );
 
   const handleAutoExercise = useCallback(
-    () => setDialogState({ open: true, type: 'DELEGATE', token: tokenSymbol }),
+    () =>
+      setDialogState({ open: true, type: 'AUTO_EXERCISE', token: tokenSymbol }),
     [tokenSymbol]
   );
 
