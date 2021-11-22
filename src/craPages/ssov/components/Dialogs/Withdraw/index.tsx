@@ -24,7 +24,7 @@ const Withdraw = ({
   handleClose,
   strikeIndex,
   token,
-  exercisableAmount,
+  delegatedAmount,
   setDelegated,
 }) => {
   const context = useContext(SsovContext);
@@ -42,21 +42,13 @@ const Withdraw = ({
       strike:
         '$' + getUserReadableAmount(epochStrikes[strikeIndex], 8).toString(),
       price: '$' + formatAmount(getUserReadableAmount(tokenPrice, 8), 5),
-      pnl:
-        '$' +
-        formatAmount(
-          (getUserReadableAmount(tokenPrice, 8) -
-            getUserReadableAmount(epochStrikes[strikeIndex], 8)) *
-            getUserReadableAmount(exercisableAmount, 18),
-          5
-        ),
       expiry: format(
         new Date(epochTimes[1] * 1000),
         'd LLL yyyy'
       ).toLocaleUpperCase(),
-      amount: formatAmount(getUserReadableAmount(exercisableAmount, 18), 5),
+      amount: formatAmount(getUserReadableAmount(delegatedAmount, 18), 5),
     };
-  }, [epochStrikes, epochTimes, exercisableAmount, strikeIndex, tokenPrice]);
+  }, [epochStrikes, epochTimes, delegatedAmount, strikeIndex, tokenPrice]);
 
   const handleWithdraw = useCallback(async () => {
     const delegatorAddress =
@@ -70,7 +62,7 @@ const Withdraw = ({
       delegator.withdraw(
         selectedEpoch,
         epochStrikes[strikeIndex],
-        exercisableAmount
+        delegatedAmount
       )
     );
 
@@ -91,7 +83,7 @@ const Withdraw = ({
   }, [
     contractAddresses,
     epochStrikes,
-    exercisableAmount,
+    delegatedAmount,
     selectedEpoch,
     setDelegated,
     signer,

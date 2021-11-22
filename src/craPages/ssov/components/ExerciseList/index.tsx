@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
+import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import TableHead from '@material-ui/core/TableHead';
@@ -11,7 +12,6 @@ import TablePagination from '@material-ui/core/TablePagination';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';

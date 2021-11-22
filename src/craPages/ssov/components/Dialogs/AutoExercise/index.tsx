@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useContext, useState, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 import { SSOVDelegator__factory, ERC20__factory } from '@dopex-io/sdk';
-import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -19,14 +18,12 @@ import sendTx from 'utils/contracts/sendTx';
 
 import { MAX_VALUE, STAT_NAMES } from 'constants/index';
 
-const Delegate = ({
+const AutoExercise = ({
   open,
   handleClose,
   strikeIndex,
   token,
   exercisableAmount,
-  setDelegated,
-  setDelegatedAmount,
 }) => {
   const { signer, blockTime, contractAddresses } = useContext(WalletContext);
 
@@ -47,14 +44,6 @@ const Delegate = ({
       strike:
         '$' + getUserReadableAmount(epochStrikes[strikeIndex], 8).toString(),
       price: '$' + formatAmount(getUserReadableAmount(tokenPrice, 8), 5),
-      pnl:
-        '$' +
-        formatAmount(
-          (getUserReadableAmount(tokenPrice, 8) -
-            getUserReadableAmount(epochStrikes[strikeIndex], 8)) *
-            getUserReadableAmount(exercisableAmount, 18),
-          5
-        ),
       expiry: format(
         new Date(epochTimes[1] * 1000),
         'd LLL yyyy'
@@ -93,6 +82,30 @@ const Delegate = ({
     token,
   ]);
 
+  useEffect(() => {
+    (async function () {
+      const delegatorAddress =
+        token === 'DPX'
+          ? contractAddresses.SSOV.DPX.SSOVDelegator
+          : contractAddresses.SSOV.RDPX.SSOVDelegator;
+
+      const delegator = SSOVDelegator__factory.connect(
+        delegatorAddress,
+        signer
+      );
+
+      const [exerciseFee, exerciseFeeCap] = await Promise.all([
+        delegator.exerciseFee(),
+        delegator.exerciseFeeCap(),
+      ]);
+
+      setFees([
+        getUserReadableAmount(exerciseFee, 1e8).toString(),
+        getUserReadableAmount(exerciseFeeCap, 18).toString(),
+      ]);
+    })();
+  }, [contractAddresses, signer, token]);
+
   const handleDelegate = useCallback(async () => {
     const delegatorAddress =
       token === 'DPX'
@@ -118,7 +131,6 @@ const Delegate = ({
         await signer.getAddress()
       )
     );
-    setDelegated(true);
   }, [
     approved,
     contractAddresses,
@@ -126,53 +138,6 @@ const Delegate = ({
     epochStrikes,
     exercisableAmount,
     selectedEpoch,
-    setDelegated,
-    signer,
-    strikeIndex,
-    token,
-  ]);
-
-  useEffect(() => {
-    const updateDelegatedState = async () => {
-      const delegatorAddress =
-        token === 'DPX'
-          ? contractAddresses.SSOV.DPX.SSOVDelegator
-          : contractAddresses.SSOV.RDPX.SSOVDelegator;
-      const delegator = SSOVDelegator__factory.connect(
-        delegatorAddress,
-        signer
-      );
-
-      const userStrike = ethers.utils.solidityKeccak256(
-        ['address', 'uint256'],
-        [await signer.getAddress(), epochStrikes[strikeIndex]]
-      );
-
-      const delegatedAmount = await delegator
-        .connect(signer)
-        .balances(userStrike, selectedEpoch);
-
-      setDelegated(delegatedAmount.gt(0));
-
-      if (!delegatedAmount.eq(0)) {
-        setDelegatedAmount(delegatedAmount);
-      }
-
-      const exerciseFee = await delegator.exerciseFee();
-      const exerciseFeeCap = await delegator.exerciseFeeCap();
-
-      setFees([
-        getUserReadableAmount(exerciseFee, 10).toString(), // 1e8 / 1e10
-        getUserReadableAmount(exerciseFeeCap, 18).toString(),
-      ]);
-    };
-    updateDelegatedState();
-  }, [
-    contractAddresses,
-    epochStrikes,
-    selectedEpoch,
-    setDelegated,
-    setDelegatedAmount,
     signer,
     strikeIndex,
     token,
@@ -219,7 +184,7 @@ const Delegate = ({
               variant="h5"
               className="text-xs text-white bg-mineshaft rounded-md my-auto p-2"
             >
-              {'CALL'}
+              CALL
             </Typography>
           </Box>
           <Box className="p-2 rounded-lg flex flex-col text-white">
@@ -257,7 +222,7 @@ const Delegate = ({
             onClick={handleDelegate}
             className=" p-5 bottom-0 rounded-md"
           >
-            {'Auto Exercise'}
+            Auto Exercise
           </CustomButton>
         ) : (
           <CustomButton
@@ -268,7 +233,7 @@ const Delegate = ({
             onClick={handleApprove}
             className=" p-5 bottom-0 rounded-md"
           >
-            {'Approve'}
+            Approve
           </CustomButton>
         )}
         <Typography variant="h5" className="text-stieglitz self-end mt-3">
@@ -279,4 +244,4 @@ const Delegate = ({
   );
 };
 
-export default Delegate;
+export default AutoExercise;
