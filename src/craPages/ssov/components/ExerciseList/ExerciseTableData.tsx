@@ -51,6 +51,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const [delegated, setDelegated] = useState(false);
 
+  const [delegatedAmount, setDelegatedAmount] = useState(BigNumber.from(0));
+
   const DIALOGS = {
     EXERCISE: Exercise,
     DELEGATE: Delegate,
@@ -100,6 +102,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         token={tokenSymbol}
         exercisableAmount={exercisableAmount}
         setDelegated={setDelegated}
+        setDelegatedAmount={setDelegatedAmount}
         className="rounded-xl"
       />
       <TableCell align="left">
@@ -128,7 +131,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(getUserReadableAmount(exercisableAmount, 18), 5)}
+          {delegated
+            ? formatAmount(getUserReadableAmount(exercisableAmount, 18), 5)
+            : formatAmount(getUserReadableAmount(delegatedAmount, 18), 5)}
         </Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
@@ -153,7 +158,11 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               <InfoPopover
                 className="my-auto"
                 id="exercise-info"
-                infoText={`Exercise is available only one hour before expiry of this epoch.`}
+                infoText={`Exercise is available only one hour before expiry of this epoch. ${
+                  delegated
+                    ? 'Delegated options will be auto-exercised on your behalf during the exercise window.'
+                    : ''
+                }`}
               />
               <CustomButton
                 size="medium"

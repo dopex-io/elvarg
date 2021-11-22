@@ -26,6 +26,7 @@ const Delegate = ({
   token,
   exercisableAmount,
   setDelegated,
+  setDelegatedAmount,
 }) => {
   const { signer, blockTime, contractAddresses } = useContext(WalletContext);
 
@@ -73,7 +74,7 @@ const Delegate = ({
       signer
     ).allowance(await signer.getAddress(), delegatorAddress);
 
-    if (allowance.lte(BigNumber.from(exercisableAmount))) {
+    if (allowance.lte(exercisableAmount)) {
       // Max Approve delegator
       await sendTx(
         ERC20__factory.connect(
@@ -98,12 +99,13 @@ const Delegate = ({
         ? contractAddresses.SSOV.DPX.SSOVDelegator
         : contractAddresses.SSOV.RDPX.SSOVDelegator;
 
-    await sendTx(
-      ERC20__factory.connect(
-        epochStrikeTokens[strikeIndex].address,
-        signer
-      ).approve(delegatorAddress, MAX_VALUE)
-    );
+    if (!approved)
+      await sendTx(
+        ERC20__factory.connect(
+          epochStrikeTokens[strikeIndex].address,
+          signer
+        ).approve(delegatorAddress, MAX_VALUE)
+      );
 
     const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
@@ -120,6 +122,7 @@ const Delegate = ({
       console.log(e);
     });
   }, [
+    approved,
     contractAddresses,
     epochStrikeTokens,
     epochStrikes,
@@ -153,6 +156,7 @@ const Delegate = ({
 
       if (delegatedAmount.toNumber() != 0) {
         setDelegated(true);
+        setDelegatedAmount(delegatedAmount);
       }
 
       const exerciseFee = await delegator.exerciseFee();
@@ -169,6 +173,32 @@ const Delegate = ({
     epochStrikes,
     selectedEpoch,
     setDelegated,
+    setDelegatedAmount,
+    signer,
+    strikeIndex,
+    token,
+  ]);
+
+  useEffect(() => {
+    const updateMaxApprovedState = async () => {
+      const delegatorAddress =
+        token === 'DPX'
+          ? contractAddresses.SSOV.DPX.SSOVDelegator
+          : contractAddresses.SSOV.RDPX.SSOVDelegator;
+
+      const allowance = await ERC20__factory.connect(
+        epochStrikeTokens[strikeIndex].address,
+        signer
+      ).allowance(await signer.getAddress(), delegatorAddress);
+
+      setApproved(allowance.gt(exercisableAmount));
+    };
+    updateMaxApprovedState();
+  }, [
+    approved,
+    contractAddresses,
+    epochStrikeTokens,
+    exercisableAmount,
     signer,
     strikeIndex,
     token,
@@ -232,7 +262,7 @@ const Delegate = ({
             onClick={handleDelegate}
             className=" p-5 bottom-0 rounded-md"
           >
-            Delegate
+            {'Auto Exercise'}
           </CustomButton>
         ) : (
           <CustomButton
@@ -243,7 +273,7 @@ const Delegate = ({
             onClick={handleApprove}
             className=" p-5 bottom-0 rounded-md"
           >
-            Approve
+            {'Approve'}
           </CustomButton>
         )}
         <Typography variant="h5" className="text-stieglitz self-end mt-3">
