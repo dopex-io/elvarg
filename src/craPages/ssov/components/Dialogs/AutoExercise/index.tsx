@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useContext, useState, useEffect } from 'react';
-import Box from '@material-ui/core/Box';
 import { SSOVDelegator__factory, ERC20__factory } from '@dopex-io/sdk';
-import { format } from 'date-fns';
+import format from 'date-fns/format';
+import Box from '@material-ui/core/Box';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
@@ -9,6 +9,7 @@ import { SsovContext } from 'contexts/Ssov';
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
+
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 
@@ -106,19 +107,11 @@ const AutoExercise = ({
     })();
   }, [contractAddresses, signer, token]);
 
-  const handleDelegate = useCallback(async () => {
+  const handleAutoExercise = useCallback(async () => {
     const delegatorAddress =
       token === 'DPX'
         ? contractAddresses.SSOV.DPX.SSOVDelegator
         : contractAddresses.SSOV.RDPX.SSOVDelegator;
-
-    if (!approved)
-      await sendTx(
-        ERC20__factory.connect(
-          epochStrikeTokens[strikeIndex].address,
-          signer
-        ).approve(delegatorAddress, MAX_VALUE)
-      );
 
     const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
@@ -132,9 +125,7 @@ const AutoExercise = ({
       )
     );
   }, [
-    approved,
     contractAddresses,
-    epochStrikeTokens,
     epochStrikes,
     exercisableAmount,
     selectedEpoch,
@@ -213,29 +204,17 @@ const AutoExercise = ({
             {`Auto exercising will charge ${fees[0]}% of the total P&L as fee. There is also a fee cap of ${fees[1]} ${token} for large positions.`}
           </Typography>
         </Box>
-        {approved ? (
-          <CustomButton
-            size="large"
-            disabled={
-              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
-            }
-            onClick={handleDelegate}
-            className=" p-5 bottom-0 rounded-md"
-          >
-            Auto Exercise
-          </CustomButton>
-        ) : (
-          <CustomButton
-            size="large"
-            disabled={
-              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
-            }
-            onClick={handleApprove}
-            className=" p-5 bottom-0 rounded-md"
-          >
-            Approve
-          </CustomButton>
-        )}
+        <CustomButton
+          size="large"
+          disabled={
+            blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
+          }
+          className=" p-5 bottom-0 rounded-md"
+          onClick={handleAutoExercise}
+          {...(approved
+            ? { onClick: handleAutoExercise, children: 'Auto Exercise' }
+            : { onClick: handleApprove, children: 'Approve' })}
+        />
         <Typography variant="h5" className="text-stieglitz self-end mt-3">
           Epoch {selectedEpoch}
         </Typography>

@@ -1,8 +1,8 @@
 import { useCallback, useContext, useMemo } from 'react';
-import Box from '@material-ui/core/Box';
 import { SSOVDelegator__factory } from '@dopex-io/sdk';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import format from 'date-fns/format';
+import Box from '@material-ui/core/Box';
 
 import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
@@ -67,7 +67,7 @@ const Withdraw = ({
     );
 
     // Check user balance after withdrawal
-    const userStrike = ethers.utils.solidityKeccak256(
+    const userStrike = ethersUtils.solidityKeccak256(
       ['address', 'uint256'],
       [await signer.getAddress(), epochStrikes[strikeIndex]]
     );
