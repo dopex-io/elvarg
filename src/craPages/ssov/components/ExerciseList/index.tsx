@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
+import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import TableHead from '@material-ui/core/TableHead';
@@ -30,7 +31,7 @@ interface userExercisableOption {
   strikePrice: number;
   depositedAmount: number;
   purchasedAmount: number;
-  exercisableAmount: number;
+  exercisableAmount: BigNumber;
   pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
@@ -77,12 +78,8 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
           userEpochCallsPurchased[strikeIndex],
           18
         );
-        const exercisableAmount = getUserReadableAmount(
-          //@ts-ignore
-          userEpochStrikeTokenBalanceArray[strikeIndex],
-          18
-        );
-        const isExercisable = exercisableAmount > 0 && tokenPrice.gt(strike);
+        const exercisableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
+        const isExercisable = exercisableAmount.gt(0) && tokenPrice.gt(strike);
 
         const isPastEpoch = selectedEpoch < currentEpoch;
 
