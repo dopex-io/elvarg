@@ -246,11 +246,7 @@ const Delegate = ({
         </Box>
         <Box className="flex flex-col p-3 my-3 space-y-2 border border-mineshaft rounded-lg">
           <Typography variant="caption" className="text-stieglitz">
-            {`Auto exercising will charge ${
-              fees[0]
-            }% of the total P&L as fee. There is also a fee cap of ${
-              fees[1] + ' doToken(s)'
-            } for large positions.`}
+            {`Auto exercising will charge ${fees[0]}% of the total P&L as fee. There is also a fee cap of ${fees[1]} ${token} for large positions.`}
           </Typography>
         </Box>
         {approved ? (
