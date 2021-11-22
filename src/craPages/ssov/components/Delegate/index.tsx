@@ -117,10 +117,8 @@ const Delegate = ({
         exercisableAmount,
         await signer.getAddress()
       )
-    ).catch((e) => {
-      setDelegated(false);
-      console.log(e);
-    });
+    );
+    setDelegated(true);
   }, [
     approved,
     contractAddresses,
@@ -154,8 +152,9 @@ const Delegate = ({
         .connect(signer)
         .balances(userStrike, selectedEpoch);
 
-      if (delegatedAmount.toNumber() != 0) {
-        setDelegated(true);
+      setDelegated(delegatedAmount.gt(0));
+
+      if (!delegatedAmount.eq(0)) {
         setDelegatedAmount(delegatedAmount);
       }
 
@@ -180,7 +179,7 @@ const Delegate = ({
   ]);
 
   useEffect(() => {
-    const updateMaxApprovedState = async () => {
+    const updateApprovedState = async () => {
       const delegatorAddress =
         token === 'DPX'
           ? contractAddresses.SSOV.DPX.SSOVDelegator
@@ -193,7 +192,7 @@ const Delegate = ({
 
       setApproved(allowance.gt(exercisableAmount));
     };
-    updateMaxApprovedState();
+    updateApprovedState();
   }, [
     approved,
     contractAddresses,
