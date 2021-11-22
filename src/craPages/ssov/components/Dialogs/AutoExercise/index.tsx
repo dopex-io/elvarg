@@ -204,17 +204,30 @@ const AutoExercise = ({
             {`Auto exercising will charge ${fees[0]}% of the total P&L as fee. There is also a fee cap of ${fees[1]} ${token} for large positions.`}
           </Typography>
         </Box>
-        <CustomButton
-          size="large"
-          disabled={
-            blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
-          }
-          className=" p-5 bottom-0 rounded-md"
-          onClick={handleAutoExercise}
-          {...(approved
-            ? { onClick: handleAutoExercise, children: 'Auto Exercise' }
-            : { onClick: handleApprove, children: 'Approve' })}
-        />
+        {approved ? (
+          <CustomButton
+            size="large"
+            disabled={
+              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
+            }
+            className=" p-5 bottom-0 rounded-md"
+            onClick={handleAutoExercise}
+          >
+            Auto Exercise
+          </CustomButton>
+        ) : (
+          <CustomButton
+            size="large"
+            disabled={
+              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
+            }
+            className=" p-5 bottom-0 rounded-md"
+            onClick={handleApprove}
+          >
+            Approve
+          </CustomButton>
+        )}
+
         <Typography variant="h5" className="text-stieglitz self-end mt-3">
           Epoch {selectedEpoch}
         </Typography>
