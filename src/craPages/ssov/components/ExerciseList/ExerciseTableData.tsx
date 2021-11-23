@@ -275,7 +275,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             aria-controls="long-menu"
             aria-haspopup="true"
             onClick={handleClickMenu}
-            className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft hidden sm:flex"
+            className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
           >
             <MoreVertIcon className="fill-current text-white" />
           </IconButton>
