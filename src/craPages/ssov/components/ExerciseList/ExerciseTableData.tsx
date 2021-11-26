@@ -18,6 +18,7 @@ import InfoPopover from 'components/UI/InfoPopover';
 import Exercise from '../Dialogs/Exercise';
 import AutoExercise from '../Dialogs/AutoExercise';
 import Withdraw from '../Dialogs/Withdraw';
+import Claim from '../Dialogs/Claim';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -39,6 +40,7 @@ const DIALOGS = {
   EXERCISE: Exercise,
   AUTO_EXERCISE: AutoExercise,
   WITHDRAW: Withdraw,
+  CLAIM: Claim,
 };
 
 const ExerciseTableData = (props: ExerciseTableDataProps) => {
@@ -95,6 +97,11 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const handleWithdraw = useCallback(
     () => setDialogState({ open: true, type: 'WITHDRAW', token: tokenSymbol }),
+    [tokenSymbol]
+  );
+
+  const handleClaim = useCallback(
+    () => setDialogState({ open: true, type: 'Claim', token: tokenSymbol }),
     [tokenSymbol]
   );
 
@@ -178,10 +185,16 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
         Withdraw
       </MenuItem>,
+      <MenuItem key="claim" onClick={handleClaim} className="text-white">
+        Claim
+      </MenuItem>,
     ],
     ALL: [
       <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
         Withdraw
+      </MenuItem>,
+      <MenuItem key="claim" onClick={handleClaim} className="text-white">
+        Claim
       </MenuItem>,
     ],
   };
