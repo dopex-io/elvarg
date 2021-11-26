@@ -2,7 +2,6 @@ import { useCallback, useContext } from 'react';
 import Box from '@material-ui/core/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
-import { utils as ethersUtils } from 'ethers';
 import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -21,7 +20,6 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const context = useContext(SsovContext);
   const {
     ssovContractWithSigner,
-    currentEpoch,
     selectedEpoch,
     ssovData: {
       epochTimes,
@@ -34,7 +32,6 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const { updateSsovData, updateUserSsovData } = context;
 
   const { updateAssetBalances } = useContext(AssetsContext);
-  const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
 
   // Ssov data for next epoch
 
@@ -130,8 +127,6 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
                 <CustomButton
                   size="large"
                   onClick={(e) => handleWithdraw(index)}
-                  disabled={!isWithdrawable}
-                  color={isWithdrawable ? 'primary' : 'cod-gray'}
                 >
                   Withdraw
                 </CustomButton>
