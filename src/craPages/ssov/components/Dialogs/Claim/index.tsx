@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { SSOVDelegator__factory } from '@dopex-io/sdk';
 import Box from '@material-ui/core/Box';
 
@@ -7,6 +7,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
+import Typography from 'components/UI/Typography';
 
 import sendTx from 'utils/contracts/sendTx';
 
@@ -46,7 +47,17 @@ const Claim = ({ open, handleClose, strikeIndex, token }) => {
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
-      <Box className="flex flex-col bg-umbra rounded-lg p-4">
+      <Box className="flex flex-col bg-umbra rounded-lg p-12">
+        <Box>
+          <Typography variant="h3" className="text-white mb-8">
+            Claim Exercised Options
+          </Typography>
+        </Box>
+        <Box>
+          <Typography variant="h5" className="mb-4">
+            You can claim the pnl for your exercised options from the delegator.
+          </Typography>
+        </Box>
         <Box className="flex">
           <CustomButton
             size="large"

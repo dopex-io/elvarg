@@ -101,7 +101,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleClaim = useCallback(
-    () => setDialogState({ open: true, type: 'Claim', token: tokenSymbol }),
+    () => setDialogState({ open: true, type: 'CLAIM', token: tokenSymbol }),
     [tokenSymbol]
   );
 
