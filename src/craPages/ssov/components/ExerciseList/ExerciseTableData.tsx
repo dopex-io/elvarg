@@ -245,7 +245,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {pnlAmount > 0 ? formatAmount(pnlAmount, 5) : 0} DPX
+          {pnlAmount > 0
+            ? `${formatAmount(pnlAmount, 5)} ${tokenSymbol}`
+            : `0 ${tokenSymbol}`}
         </Typography>
       </TableCell>
       <TableCell align="right">
