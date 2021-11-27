@@ -8,30 +8,36 @@ import Countdown from 'react-countdown';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 
-import { SsovContext } from 'contexts/Ssov';
+import { SsovContext, Ssov } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { SSOV_MAP } from 'constants/index';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
-  const context = useContext(SsovContext);
+const Withdraw = ({ ssov }: { ssov: Ssov }) => {
   const {
-    ssovContractWithSigner,
-    currentEpoch,
-    selectedEpoch,
-    ssovData: {
-      epochTimes,
-      epochStrikes,
-      totalEpochStrikeDeposits,
-      totalEpochDeposits,
-    },
-    userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
-  } = context[ssov];
-  const { updateSsovData, updateUserSsovData } = context;
+    updateSsovData,
+    updateUserSsovData,
+    selectedSsov,
+    ssovDataArray,
+    userSsovDataArray,
+    ssovSignerArray,
+  } = useContext(SsovContext);
+
+  const { currentEpoch, selectedEpoch } = ssov;
+  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
+  const {
+    epochTimes,
+    epochStrikes,
+    totalEpochStrikeDeposits,
+    totalEpochDeposits,
+  } = ssovDataArray[selectedSsov];
+  const { userEpochStrikeDeposits, userEpochDeposits } =
+    userSsovDataArray[selectedSsov];
 
   const { updateAssetBalances } = useContext(AssetsContext);
   const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
@@ -68,8 +74,8 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
         await sendTx(
           ssovContractWithSigner.withdrawForStrike(selectedEpoch, index)
         );
-        updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
-        updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+        updateSsovData();
+        updateUserSsovData();
       } catch (err) {
         console.log(err);
       }
@@ -81,11 +87,10 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
       updateSsovData,
       updateUserSsovData,
       updateAssetBalances,
-      ssov,
     ]
   );
 
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   return (
     <Box>

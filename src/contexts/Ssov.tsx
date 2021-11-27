@@ -23,94 +23,107 @@ import { WalletContext } from './Wallet';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-interface Ssov {
-  ssovData: {
-    epochTimes: {};
-    isEpochExpired: boolean;
-    isVaultReady: boolean;
-    epochStrikes: BigNumber[];
-    totalEpochStrikeDeposits: BigNumber[];
-    totalEpochCallsPurchased: BigNumber[];
-    totalEpochPremium: BigNumber[];
-    totalEpochDeposits: BigNumber;
-  };
-  userSsovData: {
-    userEpochDeposits: string;
-    epochStrikeTokens: ERC20[];
-    userEpochStrikeDeposits: BigNumber[];
-    userEpochCallsPurchased: BigNumber[];
-  };
+export interface Ssov {
+  tokenName?: string;
   ssovContract?: SSOV;
-  ssovContractWithSigner?: SSOV;
   currentEpoch?: number;
   selectedEpoch?: number;
   setSelectedEpoch?: Function;
-  token?: ERC20;
   tokenPrice?: BigNumber;
   ssovOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
-  APY?: string;
-}
-interface SsovContextInterface {
-  dpx: Ssov;
-  rdpx: Ssov;
-  updateSsovData?: Function;
-  updateUserSsovData?: Function;
 }
 
-const initialState = {
-  ssovData: {
-    epochTimes: {},
-    isEpochExpired: false,
-    isVaultReady: false,
-    epochStrikes: [],
-    totalEpochStrikeDeposits: [],
-    totalEpochDeposits: BigNumber.from(0),
-    totalEpochCallsPurchased: [],
-    totalEpochPremium: [],
-  },
-  userSsovData: {
+export interface SsovSigner {
+  token: ERC20;
+  ssovContractWithSigner?: SSOV;
+}
+
+export interface SsovData {
+  epochTimes: {};
+  isEpochExpired: boolean;
+  isVaultReady: boolean;
+  epochStrikes: BigNumber[];
+  totalEpochStrikeDeposits: BigNumber[];
+  totalEpochCallsPurchased: BigNumber[];
+  totalEpochPremium: BigNumber[];
+  totalEpochDeposits: BigNumber;
+  APY: string;
+}
+
+export interface UserSsovData {
+  userEpochDeposits: string;
+  epochStrikeTokens: ERC20[];
+  userEpochStrikeDeposits: BigNumber[];
+  userEpochCallsPurchased: BigNumber[];
+}
+
+interface SsovContextInterface {
+  ssovArray: Ssov[];
+  ssovDataArray: SsovData[];
+  userSsovDataArray: UserSsovData[];
+  ssovSignerArray: SsovSigner[];
+  selectedSsov?: number;
+  updateSsovData?: Function;
+  updateUserSsovData?: Function;
+  setSelectedSsov?: Function;
+}
+
+const initialUserSsovDataArray = [
+  {
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
     userEpochCallsPurchased: [],
     epochStrikeTokens: [],
   },
-};
+  {
+    userEpochStrikeDeposits: [],
+    userEpochDeposits: '0',
+    userEpochCallsPurchased: [],
+    epochStrikeTokens: [],
+  },
+];
+
+const initialSsovSignerArray = [
+  { token: null, ssovContractWithSigner: null },
+  { token: null, ssovContractWithSigner: null },
+];
 
 export const SsovContext = createContext<SsovContextInterface>({
-  dpx: initialState,
-  rdpx: initialState,
+  ssovArray: [],
+  ssovDataArray: [],
+  userSsovDataArray: initialUserSsovDataArray,
+  ssovSignerArray: initialSsovSignerArray,
+  selectedSsov: 0,
 });
 
 export const SsovProvider = (props) => {
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
-  const [stateDpx, setStateDpx] = useState(initialState);
-  const [stateRdpx, setStateRdpx] = useState(initialState);
 
-  const [ssovDpxContract, setSsovDpxContract] = useState<SSOV | null>(null);
-  const [ssovDpxContractWithSigner, setSsovDpxContractWithSigner] =
-    useState<SSOV | null>(null);
-  const [currentEpochDpx, setCurrentEpochDpx] = useState<number | null>(null);
-  const [selectedEpochDpx, setSelectedEpochDpx] = useState<number | null>(null);
-  const [dpxToken, setDpxToken] = useState<ERC20 | null>(null);
-
-  const [ssovRdpxContract, setSsovRdpxContract] = useState<SSOV | null>(null);
-  const [ssovRdpxContractWithSigner, setSsovRdpxContractWithSigner] =
-    useState<SSOV | null>(null);
-  const [currentEpochRdpx, setCurrentEpochRdpx] = useState<number | null>(null);
-  const [selectedEpochRdpx, setSelectedEpochRdpx] = useState<number | null>(
-    null
+  const [ssovContract, setSsovContract] = useState<SSOV | null>(null);
+  const [currentEpoch, setCurrentEpoch] = useState<number | null>(null);
+  const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
+  const [selectedSsov, setSelectedSsov] = useState<number | null>(null);
+  const [ssovArray, setSsovArray] = useState<Ssov[]>([]);
+  const [ssovDataArray, setSsovDataArray] = useState<SsovData[]>([]);
+  const [ssovSignerArray, setSsovSignerArray] = useState<SsovSigner[]>(
+    initialSsovSignerArray
   );
-  const [rdpxToken, setRdpxToken] = useState<ERC20 | null>(null);
+  const [userSsovDataArray, setUserSsovDataArray] = useState<UserSsovData[]>(
+    initialUserSsovDataArray
+  );
 
-  const updateUserSsovData = useCallback(
-    async (token) => {
-      const ssovContract = token === 'dpx' ? ssovDpxContract : ssovRdpxContract;
-      const selectedEpoch =
-        token === 'dpx' ? selectedEpochDpx : selectedEpochRdpx;
-      if (!ssovContract || !accountAddress || !selectedEpoch) return;
+  const updateUserSsovData = useCallback(async () => {
+    if (!contractAddresses || !accountAddress || !selectedEpoch) return;
 
+    const SSOVAddresses = contractAddresses.SSOV;
+    const userSsovData: UserSsovData[] = [];
+    for (const asset in SSOVAddresses) {
+      const ssovContract = SSOV__factory.connect(
+        SSOVAddresses[asset].Vault,
+        provider
+      );
       // current epoch
       const [
         userEpochStrikeDeposits,
@@ -128,40 +141,27 @@ export const SsovProvider = (props) => {
           BigNumber.from(0)
         )
         .toString();
-
-      const setState = token === 'dpx' ? setStateDpx : setStateRdpx;
-
-      setState((prevState) => {
-        return {
-          ...prevState,
-          userSsovData: {
-            userEpochDeposits,
-            userEpochStrikeDeposits,
-            userEpochCallsPurchased,
-            epochStrikeTokens: epochStrikeTokens.map((token) =>
-              ERC20__factory.connect(token, signer)
-            ),
-          },
-        };
+      userSsovData.push({
+        userEpochStrikeDeposits: userEpochStrikeDeposits,
+        userEpochCallsPurchased: userEpochCallsPurchased,
+        epochStrikeTokens: epochStrikeTokens.map((token) =>
+          ERC20__factory.connect(token, provider)
+        ),
+        userEpochDeposits: userEpochDeposits,
       });
-    },
-    [
-      ssovDpxContract,
-      ssovRdpxContract,
-      selectedEpochDpx,
-      selectedEpochRdpx,
-      accountAddress,
-      signer,
-    ]
-  );
+    }
+    setUserSsovDataArray(userSsovData);
+  }, [accountAddress, contractAddresses, provider, selectedEpoch]);
 
-  const updateSsovData = useCallback(
-    async (token) => {
-      const ssovContract = token === 'dpx' ? ssovDpxContract : ssovRdpxContract;
-      const selectedEpoch =
-        token === 'dpx' ? selectedEpochDpx : selectedEpochRdpx;
-      if (!ssovContract || !selectedEpoch) return;
-
+  const updateSsovData = useCallback(async () => {
+    if (!contractAddresses || !selectedEpoch) return;
+    const SSOVAddresses = contractAddresses.SSOV;
+    const ssovData: SsovData[] = [];
+    for (const asset in SSOVAddresses) {
+      const ssovContract = SSOV__factory.connect(
+        SSOVAddresses[asset].Vault,
+        provider
+      );
       // current epoch
       const [
         epochTimes,
@@ -186,7 +186,6 @@ export const SsovProvider = (props) => {
         ssovContract.getTotalEpochCallsPurchased(selectedEpoch),
         ssovContract.getTotalEpochPremium(selectedEpoch),
       ]);
-
       const stakingRewardsContract = StakingRewards__factory.connect(
         stakingRewardsAddress,
         provider
@@ -223,13 +222,34 @@ export const SsovProvider = (props) => {
           })
       );
 
+      // Add eth price
+      pricePromises.push(
+        axios
+          .get(
+            `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
+          )
+          .then((payload) => {
+            return payload.data.ethereum.usd;
+          })
+      );
+
       const prices = await Promise.all(pricePromises);
 
       let priceDPX = prices[0];
       let priceRDPX = prices[1];
+      let priceEth = prices[2];
+      let priceAsset;
+
+      if (asset === 'DPX') {
+        priceAsset = priceDPX;
+      } else if (asset === 'RDPX') {
+        priceAsset = priceRDPX;
+      } else {
+        priceAsset = priceEth;
+      }
 
       const TVL = totalSupply
-        .mul(Math.round(token === 'dpx' ? priceDPX : priceRDPX))
+        .mul(Math.round(priceAsset))
         .div(oneEBigNumber(18));
 
       let DPXemitted;
@@ -251,161 +271,113 @@ export const SsovProvider = (props) => {
 
       let APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
 
-      const setState = token === 'dpx' ? setStateDpx : setStateRdpx;
-
-      setState((prevState) => {
-        return {
-          ...prevState,
-          ssovData: {
-            epochTimes,
-            isEpochExpired,
-            isVaultReady,
-            epochStrikes,
-            totalEpochStrikeDeposits,
-            totalEpochDeposits,
-            totalEpochCallsPurchased,
-            totalEpochPremium,
-          },
-          APY,
-        };
+      ssovData.push({
+        epochTimes: epochTimes,
+        isEpochExpired: isEpochExpired,
+        isVaultReady: isVaultReady,
+        epochStrikes: epochStrikes,
+        totalEpochDeposits: totalEpochDeposits,
+        totalEpochStrikeDeposits: totalEpochStrikeDeposits,
+        totalEpochCallsPurchased: totalEpochCallsPurchased,
+        totalEpochPremium: totalEpochPremium,
+        APY: APY.toString(),
       });
-    },
-    [
-      ssovDpxContract,
-      ssovRdpxContract,
-      selectedEpochRdpx,
-      selectedEpochDpx,
-      provider,
-    ]
-  );
+    }
+    setSsovDataArray(ssovData);
+  }, [contractAddresses, selectedEpoch, provider]);
 
   useEffect(() => {
     if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
 
-    const SSOVAddresses = contractAddresses.SSOV;
+    async function update() {
+      const ssovArray: Ssov[] = [];
+      const SSOVAddresses = contractAddresses.SSOV;
 
-    if (!SSOVAddresses?.DPX?.Vault || !SSOVAddresses?.RDPX?.Vault) return;
+      for (const asset in SSOVAddresses) {
+        const _ssovContract = SSOV__factory.connect(
+          SSOVAddresses[asset].Vault,
+          provider
+        );
 
-    const _ssovDpxContract = SSOV__factory.connect(
-      SSOVAddresses.DPX.Vault,
-      provider
-    );
+        setSsovContract(_ssovContract);
 
-    const _ssovRdpxContract = SSOV__factory.connect(
-      SSOVAddresses.RDPX.Vault,
-      provider
-    );
+        // Epoch
+        try {
+          const [currentEpoch, TokenPrice] = await Promise.all([
+            _ssovContract.currentEpoch(),
+            _ssovContract.callStatic.getUsdPrice(
+              contractAddresses[asset.toUpperCase()]
+            ),
+          ]);
 
-    setSsovDpxContract(_ssovDpxContract);
-    setSsovRdpxContract(_ssovRdpxContract);
-
-    (async function () {
-      // Epoch
-      try {
-        const [
-          currentEpochDpx,
-          currentEpochRdpx,
-          dpxTokenPrice,
-          rdpxTokenPrice,
-        ] = await Promise.all([
-          _ssovDpxContract.currentEpoch(),
-          _ssovRdpxContract.currentEpoch(),
-          _ssovDpxContract.callStatic.getUsdPrice(contractAddresses.DPX),
-          _ssovDpxContract.callStatic.getUsdPrice(contractAddresses.RDPX),
-        ]);
-
-        setCurrentEpochDpx(Number(currentEpochDpx));
-        setSelectedEpochDpx(Number(currentEpochDpx));
-        setCurrentEpochRdpx(Number(currentEpochRdpx));
-        setSelectedEpochRdpx(Number(currentEpochRdpx));
-
-        setStateDpx((prevState) => ({
-          ...prevState,
-          APY: '0.00',
-          ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
-            SSOVAddresses.DPX.OptionPricing,
-            provider
-          ),
-          volatilityOracleContract: VolatilityOracle__factory.connect(
-            SSOVAddresses.DPX.VolatilityOracle,
-            provider
-          ),
-          tokenPrice: dpxTokenPrice,
-        }));
-
-        setStateRdpx((prevState) => ({
-          ...prevState,
-          APY: '0.00',
-          ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
-            SSOVAddresses.RDPX.OptionPricing,
-            provider
-          ),
-          volatilityOracleContract: VolatilityOracle__factory.connect(
-            SSOVAddresses.RDPX.VolatilityOracle,
-            provider
-          ),
-          tokenPrice: rdpxTokenPrice,
-        }));
-      } catch (err) {
-        console.log(err);
+          setCurrentEpoch(Number(currentEpoch));
+          setSelectedEpoch(Number(currentEpoch));
+          let tempSsov = {
+            tokenName: asset.toUpperCase(),
+            ssovContract: _ssovContract,
+            currentEpoch: Number(currentEpoch),
+            selectedEpoch: Number(currentEpoch),
+            setSelectedSsov: setSelectedSsov,
+            tokenPrice: TokenPrice,
+            ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
+              SSOVAddresses[asset].OptionPricing,
+              provider
+            ),
+            volatilityOracleContract: VolatilityOracle__factory.connect(
+              SSOVAddresses[asset].VolatilityOracle,
+              provider
+            ),
+          };
+          ssovArray.push({
+            ...tempSsov,
+          });
+        } catch (err) {
+          console.log(err);
+        }
       }
-    })();
-  }, [contractAddresses, provider]);
+      setSsovArray(ssovArray);
+    }
+
+    update();
+  }, [contractAddresses, provider, selectedEpoch]);
 
   useEffect(() => {
-    if (!contractAddresses || !accountAddress || !contractAddresses.SSOV)
-      return;
-
-    const dpxToken = ERC20__factory.connect(contractAddresses.DPX, signer);
-    const rdpxToken = ERC20__factory.connect(contractAddresses.RDPX, signer);
-
+    if (!contractAddresses || !signer || !contractAddresses.SSOV) return;
     const SSOVAddresses = contractAddresses.SSOV;
+    const ssovSignerArray = [];
 
-    if (!SSOVAddresses?.DPX?.Vault || !SSOVAddresses?.RDPX?.Vault) return;
+    for (const asset in SSOVAddresses) {
+      const _token = ERC20__factory.connect(contractAddresses[asset], signer);
+      const _ssovContractWithSigner = SSOV__factory.connect(
+        SSOVAddresses[asset].Vault,
+        signer
+      );
 
-    setSsovDpxContractWithSigner(
-      SSOV__factory.connect(SSOVAddresses.DPX.Vault, signer)
-    );
-
-    setSsovRdpxContractWithSigner(
-      SSOV__factory.connect(SSOVAddresses.RDPX.Vault, signer)
-    );
-
-    setDpxToken(dpxToken);
-    setRdpxToken(rdpxToken);
-  }, [contractAddresses, accountAddress, signer]);
-
-  useEffect(() => {
-    updateSsovData('dpx');
-    updateSsovData('rdpx');
-  }, [updateSsovData]);
+      ssovSignerArray.push({
+        token: _token,
+        ssovContractWithSigner: _ssovContractWithSigner,
+      });
+    }
+    setSsovSignerArray(ssovSignerArray);
+  }, [contractAddresses, signer, accountAddress]);
 
   useEffect(() => {
-    updateUserSsovData('dpx');
-    updateUserSsovData('rdpx');
+    updateUserSsovData();
   }, [updateUserSsovData]);
 
+  useEffect(() => {
+    updateSsovData();
+  }, [updateSsovData]);
+
   const contextValue = {
-    dpx: {
-      ...stateDpx,
-      ssovContract: ssovDpxContract,
-      ssovContractWithSigner: ssovDpxContractWithSigner,
-      currentEpoch: currentEpochDpx,
-      selectedEpoch: selectedEpochDpx,
-      setSelectedEpoch: setSelectedEpochDpx,
-      token: dpxToken,
-    },
-    rdpx: {
-      ...stateRdpx,
-      ssovContract: ssovRdpxContract,
-      ssovContractWithSigner: ssovRdpxContractWithSigner,
-      currentEpoch: currentEpochRdpx,
-      selectedEpoch: selectedEpochRdpx,
-      setSelectedEpoch: setSelectedEpochRdpx,
-      token: rdpxToken,
-    },
+    ssovArray,
+    ssovDataArray,
+    userSsovDataArray,
+    ssovSignerArray,
+    selectedSsov,
     updateSsovData,
     updateUserSsovData,
+    setSelectedSsov,
   };
 
   return (

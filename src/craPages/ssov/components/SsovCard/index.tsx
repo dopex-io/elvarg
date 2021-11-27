@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
@@ -10,34 +10,29 @@ import Typography from 'components/UI/Typography';
 import PurchaseDialog from '../PurchaseDialog';
 import InfoBox from '../InfoBox';
 
-import Dpx from 'assets/tokens/Dpx';
-import Rdpx from 'assets/tokens/Rdpx';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
-
-import { SsovContext } from 'contexts/Ssov';
+import { Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { SSOV_MAP } from 'constants/index';
 
 import styles from './styles.module.scss';
 
 interface SsovCardProps {
   className?: string;
-  ssov: 'dpx' | 'rdpx';
+  ssov: Ssov;
+  ssovData: SsovData;
+  userSsovData: UserSsovData;
 }
 
 function SsovCard(props: SsovCardProps) {
-  const { className, ssov } = props;
+  const { className, ssov, ssovData, userSsovData } = props;
   const navigate = useNavigate();
-  const context = useContext(SsovContext);
-  const {
-    selectedEpoch,
-    ssovData: { epochTimes, totalEpochDeposits },
-    userSsovData: { userEpochDeposits },
-    tokenPrice,
-    APY,
-  } = context[ssov];
+  const { selectedEpoch, tokenPrice, tokenName } = ssov;
+  const { epochTimes, totalEpochDeposits, APY } = ssovData;
+  const { userEpochDeposits } = userSsovData !== undefined ? userSsovData : 0;
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
   const TVL =
@@ -46,11 +41,11 @@ function SsovCard(props: SsovCardProps) {
         getUserReadableAmount(tokenPrice, 8)
       : 0;
 
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = tokenName;
 
   const info = [
     {
-      icon: ssov === 'dpx' ? Dpx : Rdpx,
+      icon: SSOV_MAP[ssov.tokenName].icon,
       heading: 'Asset',
       value: tokenSymbol,
     },
@@ -96,10 +91,7 @@ function SsovCard(props: SsovCardProps) {
         <Box>
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
-              <img
-                src={ssov === 'dpx' ? '/assets/dpx.svg' : '/assets/rdpx.svg'}
-                alt={tokenSymbol}
-              />
+              <img src={SSOV_MAP[ssov.tokenName].imageSrc} alt={tokenSymbol} />
             </Box>
             <Box className="flex items-center">
               <Typography variant="h5">{tokenSymbol} Options Vault</Typography>
@@ -206,9 +198,7 @@ function SsovCard(props: SsovCardProps) {
           <Box className="grid grid-cols-2 gap-2 my-4">
             <CustomButton
               size="medium"
-              onClick={() =>
-                navigate(`/ssov/manage/${ssov === 'dpx' ? 'dpx' : 'rdpx'}`)
-              }
+              onClick={() => navigate(`/ssov/manage/${tokenName}`)}
             >
               Manage
             </CustomButton>
@@ -230,6 +220,8 @@ function SsovCard(props: SsovCardProps) {
       {purchaseState && (
         <PurchaseDialog
           ssov={ssov}
+          userSsovData={userSsovData}
+          ssovData={ssovData}
           open={purchaseState}
           handleClose={
             (() => {

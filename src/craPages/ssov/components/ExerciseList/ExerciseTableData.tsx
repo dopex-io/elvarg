@@ -10,7 +10,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
+import { Ssov, SsovData } from 'contexts/Ssov';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -21,6 +21,7 @@ import Withdraw from '../Dialogs/Withdraw';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { SSOV_MAP } from 'constants/index';
 
 type DelegatedType = 'NONE' | 'PARTIAL' | 'ALL';
 interface ExerciseTableDataProps {
@@ -32,7 +33,8 @@ interface ExerciseTableDataProps {
   pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
-  ssov: 'dpx' | 'rdpx';
+  ssov: Ssov;
+  ssovData: SsovData;
 }
 
 const DIALOGS = {
@@ -52,23 +54,20 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     isExercisable,
     isPastEpoch,
     ssov,
+    ssovData,
   } = props;
 
   const { contractAddresses, signer } = useContext(WalletContext);
 
-  const context = useContext(SsovContext);
+  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
-
-  const {
-    selectedEpoch,
-    ssovData: { epochStrikes },
-  } = context[tokenSymbol.toLocaleLowerCase()];
+  const { selectedEpoch } = ssov;
+  const { epochStrikes } = ssovData;
 
   const [dialogState, setDialogState] = useState({
     open: false,
     type: 'EXERCISE',
-    token: '',
+    ssov: ssov,
   });
 
   const [delegated, setDelegated] = useState<DelegatedType>('NONE');
@@ -83,19 +82,18 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleExercise = useCallback(
-    () =>
-      setDialogState({ open: true, type: 'AUTO_EXERCISE', token: tokenSymbol }),
-    [tokenSymbol]
+    () => setDialogState({ open: true, type: 'AUTO_EXERCISE', ssov: ssov }),
+    [ssov]
   );
 
   const handleAutoExercise = useCallback(
-    () => setDialogState({ open: true, type: 'DELEGATE', token: tokenSymbol }),
-    [tokenSymbol]
+    () => setDialogState({ open: true, type: 'DELEGATE', ssov: ssov }),
+    [ssov]
   );
 
   const handleWithdraw = useCallback(
-    () => setDialogState({ open: true, type: 'WITHDRAW', token: tokenSymbol }),
-    [tokenSymbol]
+    () => setDialogState({ open: true, type: 'WITHDRAW', ssov: ssov }),
+    [ssov]
   );
 
   const handleClickMenu = useCallback(
@@ -110,9 +108,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   useEffect(() => {
     const updateDelegatedState = async () => {
       const delegatorAddress =
-        tokenSymbol === 'DPX'
-          ? contractAddresses.SSOV.DPX.SSOVDelegator
-          : contractAddresses.SSOV.RDPX.SSOVDelegator;
+        contractAddresses.SSOV[ssov.tokenName].SSOVDelegator;
 
       const delegator = SSOVDelegator__factory.connect(
         delegatorAddress,
@@ -201,10 +197,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img
-              src={ssov === 'dpx' ? '/assets/dpx.svg' : '/assets/rdpx.svg'}
-              alt={tokenSymbol}
-            />
+            <img src={SSOV_MAP[ssov.tokenName].imageSrc} alt={tokenSymbol} />
           </Box>
           <Typography variant="h5" className="text-white">
             {tokenSymbol}

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import IconButton from '@material-ui/core/IconButton';
@@ -10,12 +10,14 @@ import Typography from 'components/UI/Typography';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
 
-import { SsovContext } from 'contexts/Ssov';
+import { Ssov } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
 
 import styles from './styles.module.scss';
 
-const ManageCard = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
+const ManageCard = ({ ssov }: { ssov: Ssov }) => {
   const [isDeposit, setIsDeposit] = useState(true);
+  const { accountAddress } = useContext(WalletContext);
 
   const handleChangeToDeposit = useCallback(() => {
     setIsDeposit(true);
@@ -24,9 +26,7 @@ const ManageCard = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const handleChangeToWithdraw = useCallback(() => {
     setIsDeposit(false);
   }, []);
-
-  const context = useContext(SsovContext);
-  const { selectedEpoch } = context[ssov];
+  const { selectedEpoch } = ssov;
 
   return (
     <Box
@@ -63,7 +63,7 @@ const ManageCard = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
                 !isDeposit ? 'mr-1' : 'bg-umbra text-stieglitz hover:bg-umbra'
               )}
               onClick={handleChangeToWithdraw}
-              disabled={selectedEpoch < 1}
+              disabled={selectedEpoch < 1 || accountAddress === ''}
             >
               Withdraw
             </CustomButton>

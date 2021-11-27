@@ -10,32 +10,28 @@ import { WalletContext } from 'contexts/Wallet';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
-import Dpx from 'assets/tokens/Dpx';
-import Rdpx from 'assets/tokens/Rdpx';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import sendTx from 'utils/contracts/sendTx';
 
-import { STAT_NAMES } from 'constants/index';
+import { STAT_NAMES, SSOV_MAP } from 'constants/index';
 
 const Withdraw = ({
   open,
   handleClose,
   strikeIndex,
-  token,
+  ssov,
   delegatedAmount,
   setDelegated,
 }) => {
-  const context = useContext(SsovContext);
-
   const { signer, blockTime, contractAddresses } = useContext(WalletContext);
 
   const {
     selectedEpoch,
     ssovData: { epochTimes, epochStrikes },
     tokenPrice,
-  } = context[token.toLocaleLowerCase()];
+  } = ssov;
 
   const stats = useMemo(() => {
     return {
@@ -52,9 +48,7 @@ const Withdraw = ({
 
   const handleWithdraw = useCallback(async () => {
     const delegatorAddress =
-      token === 'DPX'
-        ? contractAddresses.SSOV.DPX.SSOVDelegator
-        : contractAddresses.SSOV.RDPX.SSOVDelegator;
+      contractAddresses.SSOV[ssov.tokenName].SSOVDelegator;
 
     const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
@@ -81,14 +75,13 @@ const Withdraw = ({
       setDelegated(false);
     }
   }, [
-    contractAddresses,
     epochStrikes,
     delegatedAmount,
     selectedEpoch,
     setDelegated,
     signer,
     strikeIndex,
-    token,
+    ssov,
   ]);
 
   return (
@@ -99,9 +92,9 @@ const Withdraw = ({
         </Typography>
         <Box className="flex flex-col bg-umbra rounded-lg p-4">
           <Box className="flex mb-4">
-            <Box className="my-auto">{token == 'DPX' ? <Dpx /> : <Rdpx />}</Box>
+            <Box className="my-auto">{SSOV_MAP[ssov.tokenName].icon}</Box>
             <Typography variant="h5" className="my-auto px-2 text-white">
-              {token}
+              {ssov.tokenName}
             </Typography>
             <Typography
               variant="h6"

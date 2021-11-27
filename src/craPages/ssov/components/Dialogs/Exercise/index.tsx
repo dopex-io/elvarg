@@ -13,7 +13,7 @@ import MaxApprove from 'components/MaxApprove';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
+import { SsovContext, Ssov } from 'contexts/Ssov';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -26,19 +26,24 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
-  ssov: 'dpx' | 'rdpx';
+  ssov: Ssov;
 }
 
 const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
-  const context = useContext(SsovContext);
   const {
-    ssovContractWithSigner,
-    selectedEpoch,
-    ssovData: { epochStrikes },
-    userSsovData: { epochStrikeTokens, userEpochStrikeDeposits },
-    tokenPrice,
-  } = context[ssov];
-  const { updateSsovData, updateUserSsovData } = context;
+    updateSsovData,
+    updateUserSsovData,
+    selectedSsov,
+    ssovDataArray,
+    userSsovDataArray,
+    ssovSignerArray,
+  } = useContext(SsovContext);
+  const { selectedEpoch, tokenPrice } = ssov;
+  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
+  const { epochStrikes } = ssovDataArray[selectedSsov];
+  const { epochStrikeTokens, userEpochStrikeDeposits } =
+    userSsovDataArray[selectedSsov];
+
   const { accountAddress } = useContext(WalletContext);
   const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
@@ -152,8 +157,8 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
           accountAddress
         )
       );
-      updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
-      updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+      updateSsovData();
+      updateUserSsovData();
       updateUserEpochStrikeTokenBalance();
       setInputValue('');
       formik.setFieldValue('amount', '');
@@ -169,7 +174,6 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     updateUserSsovData,
     updateUserEpochStrikeTokenBalance,
     formik,
-    ssov,
   ]);
 
   return (

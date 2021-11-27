@@ -16,10 +16,11 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { SsovContext } from 'contexts/Ssov';
+import { SsovContext, Ssov } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { SSOV_MAP } from 'constants/index';
 
 import styles from './styles.module.scss';
 
@@ -111,20 +112,17 @@ const StatsTableData = (
 
 const ROWS_PER_PAGE = 5;
 
-const Stats = (props: { className?: string; ssov: string }) => {
+const Stats = (props: { className?: string; ssov: Ssov }) => {
   const { className, ssov } = props;
-  const context = useContext(SsovContext);
+  const { ssovDataArray, selectedSsov } = useContext(SsovContext);
+  const { selectedEpoch, tokenPrice } = ssov;
   const {
-    selectedEpoch,
-    ssovData: {
-      epochTimes,
-      epochStrikes,
-      totalEpochPremium,
-      totalEpochStrikeDeposits,
-      totalEpochCallsPurchased,
-    },
-    tokenPrice,
-  } = context[ssov];
+    epochTimes,
+    epochStrikes,
+    totalEpochPremium,
+    totalEpochStrikeDeposits,
+    totalEpochCallsPurchased,
+  } = ssovDataArray[selectedSsov];
 
   const epochTime =
     epochTimes && epochTimes[0] && epochTimes[1]
@@ -276,12 +274,8 @@ const Stats = (props: { className?: string; ssov: string }) => {
                           totalPremiums={totalPremiums}
                           price={price}
                           epochTime={epochTime}
-                          imgSrc={
-                            ssov === 'dpx'
-                              ? '/assets/dpx.svg'
-                              : '/assets/rdpx.svg'
-                          }
-                          tokenSymbol={ssov === 'dpx' ? 'DPX' : 'rDPX'}
+                          imgSrc={SSOV_MAP[ssov.tokenName].imageSrc}
+                          tokenSymbol={SSOV_MAP[ssov.tokenName].tokenSymbol}
                         />
                       );
                     }

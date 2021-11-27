@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 
@@ -7,34 +7,43 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
-import Dpx from 'assets/tokens/Dpx';
-import Rdpx from 'assets/tokens/Rdpx';
+
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
-import { SsovContext } from 'contexts/Ssov';
+import { Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { SSOV_MAP } from 'constants/index';
 
 import styles from './styles.module.scss';
 
-const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
+const Description = ({
+  ssov,
+  ssovData,
+  userSsovData,
+}: {
+  ssov: Ssov;
+  ssovData: SsovData;
+  userSsovData: UserSsovData;
+}) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const context = useContext(SsovContext);
-  const { tokenPrice, APY, ssovData } = context[ssov];
 
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
+  const { tokenPrice } = ssov;
+  const { APY } = ssovData;
+
+  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   const TVL =
-    ssovData.totalEpochDeposits && tokenPrice
+    ssovData?.totalEpochDeposits && tokenPrice
       ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
         getUserReadableAmount(tokenPrice, 8)
       : 0;
 
   const info = [
     {
-      icon: ssov === 'dpx' ? Dpx : Rdpx,
+      icon: SSOV_MAP[ssov.tokenName].icon,
       heading: 'Asset',
       value: tokenSymbol,
     },
@@ -104,6 +113,8 @@ const Description = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
         <PurchaseDialog
           open={purchaseState}
           ssov={ssov}
+          ssovData={ssovData}
+          userSsovData={userSsovData}
           handleClose={
             (() => {
               setPurchaseState(false);
