@@ -252,24 +252,30 @@ export const SsovProvider = (props) => {
         .mul(Math.round(priceAsset))
         .div(oneEBigNumber(18));
 
-      let DPXemitted;
-      let RDPXemitted;
+      let APY;
 
-      const rewardsDuration = BigNumber.from(86400 * 365);
+      if (asset !== 'ETH') {
+        let DPXemitted;
+        let RDPXemitted;
 
-      DPXemitted = DPX.mul(rewardsDuration)
-        .mul(Math.round(priceDPX))
-        .div(oneEBigNumber(18));
-      RDPXemitted = RDPX.mul(rewardsDuration)
-        .mul(Math.round(priceRDPX))
-        .div(oneEBigNumber(18));
+        const rewardsDuration = BigNumber.from(86400 * 365);
 
-      const denominator =
-        TVL.toNumber() + DPXemitted.toNumber() + RDPXemitted.toNumber();
+        DPXemitted = DPX.mul(rewardsDuration)
+          .mul(Math.round(priceDPX))
+          .div(oneEBigNumber(18));
+        RDPXemitted = RDPX.mul(rewardsDuration)
+          .mul(Math.round(priceRDPX))
+          .div(oneEBigNumber(18));
 
-      let APR = (denominator / TVL.toNumber() - 1) * 100;
+        const denominator =
+          TVL.toNumber() + DPXemitted.toNumber() + RDPXemitted.toNumber();
 
-      let APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
+        let APR = (denominator / TVL.toNumber() - 1) * 100;
+
+        APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
+      } else {
+        APY = '3.60';
+      }
 
       ssovData.push({
         epochTimes: epochTimes,
