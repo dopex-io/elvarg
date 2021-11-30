@@ -1,8 +1,10 @@
+import { useContext } from 'react';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
-import { useContext } from 'react';
+
 import cx from 'classnames';
 import Skeleton from '@material-ui/lab/Skeleton';
+import Countdown from 'react-countdown';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
@@ -51,6 +53,8 @@ const Ssov = () => {
       </Box>
     );
 
+  const { epochTimes } = ssovDataArray[0];
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -67,6 +71,16 @@ const Ssov = () => {
             Supply option liquidity to an Option Vault. Collect premiums from
             option purchases and earn rewards from farms simultaneously.
           </Typography>
+          <Countdown
+            date={new Date((epochTimes[1] - 3600) * 1000)}
+            renderer={({ days, hours, minutes, seconds }) => {
+              return (
+                <span className="text-wave-blue">
+                  Time left to exercise: {days}d {hours}h {minutes}m {seconds}s
+                </span>
+              );
+            }}
+          />
         </Box>
         <Box className="flex flex-col lg:flex-row lg:space-x-24 space-y-12 lg:space-y-0 justify-center items-center">
           {ssovArray.map((ssov, index) => (

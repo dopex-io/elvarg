@@ -18,6 +18,7 @@ import InfoPopover from 'components/UI/InfoPopover';
 import Exercise from '../Dialogs/Exercise';
 import AutoExercise from '../Dialogs/AutoExercise';
 import Withdraw from '../Dialogs/Withdraw';
+import Claim from '../Dialogs/Claim';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -41,6 +42,7 @@ const DIALOGS = {
   EXERCISE: Exercise,
   AUTO_EXERCISE: AutoExercise,
   WITHDRAW: Withdraw,
+  CLAIM: Claim,
 };
 
 const ExerciseTableData = (props: ExerciseTableDataProps) => {
@@ -93,6 +95,11 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const handleWithdraw = useCallback(
     () => setDialogState({ open: true, type: 'WITHDRAW', ssov: ssov }),
+    [ssov]
+  );
+
+  const handleClaim = useCallback(
+    () => setDialogState({ open: true, type: 'CLAIM', ssov: ssov }),
     [ssov]
   );
 
@@ -149,6 +156,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     strikeIndex,
     tokenSymbol,
     exercisableAmount,
+    ssov.tokenName,
   ]);
 
   const menuItems = {
@@ -174,10 +182,16 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
         Withdraw
       </MenuItem>,
+      <MenuItem key="claim" onClick={handleClaim} className="text-white">
+        Claim
+      </MenuItem>,
     ],
     ALL: [
       <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
         Withdraw
+      </MenuItem>,
+      <MenuItem key="claim" onClick={handleClaim} className="text-white">
+        Claim
       </MenuItem>,
     ],
   };
@@ -225,7 +239,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {pnlAmount > 0 ? formatAmount(pnlAmount, 5) : 0} DPX
+          {pnlAmount > 0
+            ? `${formatAmount(pnlAmount, 5)} ${tokenSymbol}`
+            : `0 ${tokenSymbol}`}
         </Typography>
       </TableCell>
       <TableCell align="right">
@@ -268,7 +284,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             aria-controls="long-menu"
             aria-haspopup="true"
             onClick={handleClickMenu}
-            className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft hidden sm:flex"
+            className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
           >
             <MoreVertIcon className="fill-current text-white" />
           </IconButton>

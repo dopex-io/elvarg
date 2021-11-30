@@ -4,6 +4,7 @@ import format from 'date-fns/format';
 import Box from '@material-ui/core/Box';
 
 import { WalletContext } from 'contexts/Wallet';
+import { SsovContext } from 'contexts/Ssov';
 
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
@@ -24,16 +25,15 @@ const AutoExercise = ({
   exercisableAmount,
 }) => {
   const { signer, blockTime, contractAddresses } = useContext(WalletContext);
+  const { selectedSsov, ssovDataArray, userSsovDataArray } =
+    useContext(SsovContext);
 
   const [fees, setFees] = useState(['', '']);
   const [approved, setApproved] = useState(false);
 
-  const {
-    selectedEpoch,
-    ssovData: { epochTimes, epochStrikes },
-    userSsovData: { epochStrikeTokens },
-    tokenPrice,
-  } = ssov;
+  const { selectedEpoch, tokenPrice } = ssov;
+  const { epochTimes, epochStrikes } = ssovDataArray[selectedSsov];
+  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
 
   const stats = useMemo(() => {
     return {
@@ -67,7 +67,14 @@ const AutoExercise = ({
       );
       setApproved(true);
     }
-  }, [epochStrikeTokens, exercisableAmount, signer, strikeIndex, ssov]);
+  }, [
+    epochStrikeTokens,
+    exercisableAmount,
+    signer,
+    strikeIndex,
+    ssov,
+    contractAddresses.SSOV,
+  ]);
 
   useEffect(() => {
     (async function () {
@@ -183,17 +190,30 @@ const AutoExercise = ({
             {`Auto exercising will charge ${fees[0]}% of the total P&L as fee. There is also a fee cap of ${fees[1]} ${ssov.tokenName} for large positions.`}
           </Typography>
         </Box>
-        <CustomButton
-          size="large"
-          disabled={
-            blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
-          }
-          className=" p-5 bottom-0 rounded-md"
-          onClick={handleAutoExercise}
-          {...(approved
-            ? { onClick: handleAutoExercise, children: 'Auto Exercise' }
-            : { onClick: handleApprove, children: 'Approve' })}
-        />
+        {approved ? (
+          <CustomButton
+            size="large"
+            disabled={
+              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
+            }
+            className=" p-5 bottom-0 rounded-md"
+            onClick={handleAutoExercise}
+          >
+            Auto Exercise
+          </CustomButton>
+        ) : (
+          <CustomButton
+            size="large"
+            disabled={
+              blockTime > (Number(stats.expiry) - 3600) * 1000 || !stats.amount
+            }
+            className=" p-5 bottom-0 rounded-md"
+            onClick={handleApprove}
+          >
+            Approve
+          </CustomButton>
+        )}
+
         <Typography variant="h5" className="text-stieglitz self-end mt-3">
           Epoch {selectedEpoch}
         </Typography>

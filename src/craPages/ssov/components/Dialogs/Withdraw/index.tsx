@@ -26,12 +26,10 @@ const Withdraw = ({
   setDelegated,
 }) => {
   const { signer, blockTime, contractAddresses } = useContext(WalletContext);
+  const { selectedSsov, ssovDataArray } = useContext(SsovContext);
 
-  const {
-    selectedEpoch,
-    ssovData: { epochTimes, epochStrikes },
-    tokenPrice,
-  } = ssov;
+  const { selectedEpoch, tokenPrice } = ssov;
+  const { epochTimes, epochStrikes } = ssovDataArray[selectedSsov];
 
   const stats = useMemo(() => {
     return {

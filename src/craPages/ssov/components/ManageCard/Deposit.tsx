@@ -376,7 +376,7 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
                           This epoch has expired.
                         </span>
                       );
-                    } else if (hours < 1) {
+                    } else if (days < 1 && hours < 1) {
                       return (
                         <span className="text-down-bad">
                           Exercise window is now open.

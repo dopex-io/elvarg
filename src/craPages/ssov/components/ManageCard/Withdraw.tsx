@@ -2,7 +2,6 @@ import { useCallback, useContext } from 'react';
 import Box from '@material-ui/core/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
-import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -40,7 +39,6 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
     userSsovDataArray[selectedSsov];
 
   const { updateAssetBalances } = useContext(AssetsContext);
-  const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
 
   // Ssov data for next epoch
 
@@ -108,7 +106,7 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
         </Box>
         <Box>
           {strikes.map((strike, index) =>
-            BigNumber.from(userEpochStrikeDepositsAmounts[index]).gt(0) ? (
+            userEpochStrikeDeposits[index].gt(0) ? (
               <Box className="flex flex-row mt-3" key={index}>
                 <Box
                   className={cx(
@@ -135,8 +133,6 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
                 <CustomButton
                   size="large"
                   onClick={(e) => handleWithdraw(index)}
-                  disabled={!isWithdrawable}
-                  color={isWithdrawable ? 'primary' : 'cod-gray'}
                 >
                   Withdraw
                 </CustomButton>
