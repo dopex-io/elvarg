@@ -11,12 +11,15 @@ import AppBar from 'components/AppBar';
 import SsovCard from './components/SsovCard';
 import AutoExerciseBanner from 'components/Banners/AutoExerciseBanner';
 import { SsovContext } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
 
 import styles from './components/SsovCard/styles.module.scss';
 
 const Ssov = () => {
   const { ssovArray, ssovDataArray, userSsovDataArray } =
     useContext(SsovContext);
+
+  const { chainId } = useContext(WalletContext);
 
   if (ssovArray.length === 0 || ssovDataArray.length === 0)
     return (
@@ -37,17 +40,54 @@ const Ssov = () => {
             </Typography>
           </Box>
           <Box className="flex flex-col lg:flex-row lg:space-x-24 space-y-12 lg:space-y-0 justify-center items-center">
-            <Box className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Box)}>
-              <Box className="flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto">
-                <Skeleton
-                  variant="rect"
-                  width={330}
-                  height={560}
-                  animation="wave"
-                  className="lg:mr-3 mb-3 bg-cod-gray"
-                />
+            {chainId == 1 ? (
+              <Box
+                className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Box)}
+              >
+                <Box className="flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto">
+                  <Skeleton
+                    variant="rect"
+                    width={330}
+                    height={560}
+                    animation="wave"
+                    className="lg:mr-3 mb-3 bg-cod-gray"
+                  />
+                </Box>
               </Box>
-            </Box>
+            ) : (
+              <Box className="flex flex-row">
+                <Box
+                  className={cx(
+                    'p-0.5 rounded-xl mr-24',
+                    styles['WETH'],
+                    styles.Box
+                  )}
+                >
+                  <Box className="flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto">
+                    <Skeleton
+                      variant="rect"
+                      width={330}
+                      height={560}
+                      animation="wave"
+                      className="lg:mr-3 mb-3 bg-cod-gray"
+                    />
+                  </Box>
+                </Box>{' '}
+                <Box
+                  className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Box)}
+                >
+                  <Box className="flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto">
+                    <Skeleton
+                      variant="rect"
+                      width={330}
+                      height={560}
+                      animation="wave"
+                      className="lg:mr-3 mb-3 bg-cod-gray"
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>

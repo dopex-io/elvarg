@@ -65,7 +65,8 @@ const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
   ) => setPage(newPage);
 
   useEffect(() => {
-    if (!accountAddress || !isVaultReady) return;
+    if (!accountAddress || !isVaultReady || !(epochStrikeTokens.length > 0))
+      return;
 
     (async function () {
       const userEpochStrikeTokenBalanceArray = await Promise.all(

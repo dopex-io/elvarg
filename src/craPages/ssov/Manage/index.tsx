@@ -9,6 +9,7 @@ import ManageCard from '../components/ManageCard';
 import ExerciseList from '../components/ExerciseList';
 import Stats from '../components/Stats';
 import { SsovContext, Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
+import PageLoader from 'components/PageLoader';
 
 const Manage = () => {
   const { asset } = useParams();
@@ -43,11 +44,13 @@ const Manage = () => {
       userSsovData: userSsovDataArray[i],
     };
   }, [ssovArray, asset, ssovDataArray, userSsovDataArray, setSelectedSsov]);
-  console.log(ssov, ssovData, userSsovData, selectedSsov);
-  if (ssov === undefined || ssovData === undefined || selectedSsov === null)
-    return <Box className="overflow-x-hidden bg-black h-screen"></Box>;
 
-  console.log('enter manage');
+  if (ssov === undefined || ssovData === undefined || selectedSsov === null)
+    return (
+      <Box className="overflow-x-hidden bg-black h-screen">
+        <PageLoader />
+      </Box>
+    );
 
   return (
     <Box className="overflow-x-hidden bg-black h-screen">
