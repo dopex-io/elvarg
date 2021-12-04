@@ -10,12 +10,10 @@ import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 
-import Dpx from 'assets/tokens/Dpx';
-import Rdpx from 'assets/tokens/Rdpx';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import sendTx from 'utils/contracts/sendTx';
+import { SSOV_MAP } from 'constants/index';
 
 import { MAX_VALUE, STAT_NAMES } from 'constants/index';
 
@@ -23,22 +21,19 @@ const AutoExercise = ({
   open,
   handleClose,
   strikeIndex,
-  token,
+  ssov,
   exercisableAmount,
 }) => {
   const { signer, blockTime, contractAddresses } = useContext(WalletContext);
-
-  const context = useContext(SsovContext);
+  const { selectedSsov, ssovDataArray, userSsovDataArray } =
+    useContext(SsovContext);
 
   const [fees, setFees] = useState(['', '']);
   const [approved, setApproved] = useState(false);
 
-  const {
-    selectedEpoch,
-    ssovData: { epochTimes, epochStrikes },
-    userSsovData: { epochStrikeTokens },
-    tokenPrice,
-  } = context[token.toLocaleLowerCase()];
+  const { selectedEpoch, tokenPrice } = ssov;
+  const { epochTimes, epochStrikes } = ssovDataArray[selectedSsov];
+  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
 
   const stats = useMemo(() => {
     return {
@@ -55,9 +50,7 @@ const AutoExercise = ({
 
   const handleApprove = useCallback(async () => {
     const delegatorAddress =
-      token === 'DPX'
-        ? contractAddresses.SSOV.DPX.SSOVDelegator
-        : contractAddresses.SSOV.RDPX.SSOVDelegator;
+      contractAddresses.SSOV[ssov.tokenName].SSOVDelegator;
 
     const allowance = await ERC20__factory.connect(
       epochStrikeTokens[strikeIndex].address,
@@ -75,20 +68,18 @@ const AutoExercise = ({
       setApproved(true);
     }
   }, [
-    contractAddresses,
     epochStrikeTokens,
     exercisableAmount,
     signer,
     strikeIndex,
-    token,
+    ssov,
+    contractAddresses.SSOV,
   ]);
 
   useEffect(() => {
     (async function () {
       const delegatorAddress =
-        token === 'DPX'
-          ? contractAddresses.SSOV.DPX.SSOVDelegator
-          : contractAddresses.SSOV.RDPX.SSOVDelegator;
+        contractAddresses.SSOV[ssov.tokenName].SSOVDelegator;
 
       const delegator = SSOVDelegator__factory.connect(
         delegatorAddress,
@@ -105,13 +96,11 @@ const AutoExercise = ({
         getUserReadableAmount(exerciseFeeCap, 18).toString(),
       ]);
     })();
-  }, [contractAddresses, signer, token]);
+  }, [contractAddresses, signer, ssov]);
 
   const handleAutoExercise = useCallback(async () => {
     const delegatorAddress =
-      token === 'DPX'
-        ? contractAddresses.SSOV.DPX.SSOVDelegator
-        : contractAddresses.SSOV.RDPX.SSOVDelegator;
+      contractAddresses.SSOV[ssov.tokenName].SSOVDelegator;
 
     const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
@@ -125,21 +114,18 @@ const AutoExercise = ({
       )
     );
   }, [
-    contractAddresses,
     epochStrikes,
     exercisableAmount,
     selectedEpoch,
     signer,
     strikeIndex,
-    token,
+    ssov,
   ]);
 
   useEffect(() => {
     const updateApprovedState = async () => {
       const delegatorAddress =
-        token === 'DPX'
-          ? contractAddresses.SSOV.DPX.SSOVDelegator
-          : contractAddresses.SSOV.RDPX.SSOVDelegator;
+        contractAddresses.SSOV[ssov.tokenName].SSOVDelegator;
 
       const allowance = await ERC20__factory.connect(
         epochStrikeTokens[strikeIndex].address,
@@ -156,7 +142,7 @@ const AutoExercise = ({
     exercisableAmount,
     signer,
     strikeIndex,
-    token,
+    ssov,
   ]);
 
   return (
@@ -167,9 +153,9 @@ const AutoExercise = ({
         </Typography>
         <Box className="flex flex-col bg-umbra rounded-lg p-4">
           <Box className="flex mb-4">
-            <Box className="my-auto">{token == 'DPX' ? <Dpx /> : <Rdpx />}</Box>
+            <Box className="my-auto">{SSOV_MAP[ssov.tokenName].icon}</Box>
             <Typography variant="h5" className="my-auto px-2 text-white">
-              {token}
+              {ssov.tokenName}
             </Typography>
             <Typography
               variant="h5"
@@ -201,7 +187,7 @@ const AutoExercise = ({
         </Box>
         <Box className="flex flex-col p-3 my-3 space-y-2 border border-mineshaft rounded-lg">
           <Typography variant="caption" className="text-stieglitz">
-            {`Auto exercising will charge ${fees[0]}% of the total P&L as fee. There is also a fee cap of ${fees[1]} ${token} for large positions.`}
+            {`Auto exercising will charge ${fees[0]}% of the total P&L as fee. There is also a fee cap of ${fees[1]} ${ssov.tokenName} for large positions.`}
           </Typography>
         </Box>
         {approved ? (

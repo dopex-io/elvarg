@@ -11,21 +11,18 @@ import Typography from 'components/UI/Typography';
 
 import sendTx from 'utils/contracts/sendTx';
 
-const Claim = ({ open, handleClose, strikeIndex, token }) => {
-  const context = useContext(SsovContext);
+const Claim = ({ open, handleClose, strikeIndex, ssov }) => {
+  const { selectedSsov, ssovDataArray } = useContext(SsovContext);
 
   const { signer, contractAddresses } = useContext(WalletContext);
 
-  const {
-    selectedEpoch,
-    ssovData: { epochStrikes },
-  } = context[token.toLocaleLowerCase()];
+  const { selectedEpoch } = ssov;
+
+  const { epochStrikes } = ssovDataArray[selectedSsov];
 
   const handleClaim = useCallback(async () => {
     const delegatorAddress =
-      token === 'DPX'
-        ? contractAddresses.SSOV.DPX.SSOVDelegator
-        : contractAddresses.SSOV.RDPX.SSOVDelegator;
+      contractAddresses.SSOV[ssov.tokenName].SSOVDelegator;
 
     const delegator = SSOVDelegator__factory.connect(delegatorAddress, signer);
 
@@ -42,7 +39,7 @@ const Claim = ({ open, handleClose, strikeIndex, token }) => {
     selectedEpoch,
     signer,
     strikeIndex,
-    token,
+    ssov.tokenName,
   ]);
 
   return (

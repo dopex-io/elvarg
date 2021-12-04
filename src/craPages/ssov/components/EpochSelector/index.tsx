@@ -1,22 +1,20 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import cx from 'classnames';
 
-import { SsovContext } from 'contexts/Ssov';
+import { Ssov } from 'contexts/Ssov';
 
 export default function EpochSelector({
   className,
   ssov,
 }: {
   className?: string;
-  ssov: 'dpx' | 'rdpx';
+  ssov: Ssov;
 }) {
-  const context = useContext(SsovContext);
-
-  const { currentEpoch, selectedEpoch, setSelectedEpoch } = context[ssov];
+  const { currentEpoch, selectedEpoch, setSelectedEpoch } = ssov;
 
   const handleSelectChange = useCallback(
     (e) => {

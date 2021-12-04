@@ -17,34 +17,45 @@ import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
+import { SsovContext, Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { SSOV_MAP } from 'constants/index';
 
 import { MAX_VALUE } from 'constants/index';
 
 export interface Props {
   open: boolean;
   handleClose: () => {};
-  ssov: 'dpx' | 'rdpx';
+  ssov: Ssov;
+  userSsovData: UserSsovData;
+  ssovData: SsovData;
 }
 
-const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
-  const context = useContext(SsovContext);
+const PurchaseDialog = ({
+  open,
+  handleClose,
+  ssov,
+  ssovData,
+  userSsovData,
+}: Props) => {
+  const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
+    useContext(SsovContext);
   const {
-    ssovContractWithSigner,
     currentEpoch,
-    ssovData: { epochStrikes },
-    userSsovData: { epochStrikeTokens },
-    token,
     tokenPrice,
     ssovOptionPricingContract,
     volatilityOracleContract,
-  } = context[ssov];
-  const { updateSsovData, updateUserSsovData } = context;
+  } = ssov;
+  const { ssovContractWithSigner, token } =
+    ssovSignerArray === undefined
+      ? ssovSignerArray[selectedSsov]
+      : { ssovContractWithSigner: null, token: null };
+  const { epochStrikes } = ssovData;
+  const { epochStrikeTokens } = userSsovData;
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -60,7 +71,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
   const [
     userEpochStrikePurchasableAmount,
     setUserEpochStrikePurchasableAmount,
@@ -152,8 +163,8 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     const finalAmount = ethersUtils.parseEther(String(formik.values.amount));
     try {
       await sendTx(ssovContractWithSigner.purchase(strikeIndex, finalAmount));
-      updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
-      updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+      updateSsovData();
+      updateUserSsovData();
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
       formik.setFieldValue('amount', 0);
@@ -168,7 +179,6 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
     updateUserEpochStrikePurchasableAmount,
     updateAssetBalances,
     formik,
-    ssov,
   ]);
 
   // Calculate the Option Price & Fees
@@ -266,7 +276,7 @@ const PurchaseDialog = ({ open, handleClose, ssov }: Props) => {
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={ssov === 'dpx' ? '/assets/dpx.svg' : '/assets/rdpx.svg'}
+                  src={SSOV_MAP[ssov.tokenName].imageSrc}
                   alt={tokenSymbol}
                 />
               </Box>

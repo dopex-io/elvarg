@@ -19,7 +19,7 @@ import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 import AutoExerciseAlert from '../Dialogs/AutoExerciseAlert';
 
-import { SsovContext } from 'contexts/Ssov';
+import { Ssov, SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -40,10 +40,10 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
-const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
-  const context = useContext(SsovContext);
-
+const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
   const { accountAddress } = useContext(WalletContext);
+  const { selectedSsov, userSsovDataArray, ssovDataArray } =
+    useContext(SsovContext);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
@@ -51,17 +51,13 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   const [page, setPage] = useState(0);
   const [alert, setAlert] = useState(false);
 
+  const { currentEpoch, selectedEpoch, tokenPrice } = ssov;
+  const { isVaultReady, epochStrikes } = ssovDataArray[selectedSsov];
   const {
-    currentEpoch,
-    selectedEpoch,
-    ssovData: { isVaultReady, epochStrikes },
-    userSsovData: {
-      epochStrikeTokens,
-      userEpochStrikeDeposits,
-      userEpochCallsPurchased,
-    },
-    tokenPrice,
-  } = context[ssov];
+    epochStrikeTokens,
+    userEpochStrikeDeposits,
+    userEpochCallsPurchased,
+  } = userSsovDataArray[selectedSsov];
 
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
@@ -69,7 +65,8 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   ) => setPage(newPage);
 
   useEffect(() => {
-    if (!accountAddress || !isVaultReady) return;
+    if (!accountAddress || !isVaultReady || !(epochStrikeTokens.length > 0))
+      return;
 
     (async function () {
       const userEpochStrikeTokenBalanceArray = await Promise.all(
@@ -256,6 +253,7 @@ const ExerciseList = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
                           isExercisable={isExercisable}
                           isPastEpoch={isPastEpoch}
                           ssov={ssov}
+                          ssovData={ssovDataArray[selectedSsov]}
                         />
                       );
                     }

@@ -20,7 +20,7 @@ import DepositClosed from 'assets/icons/DepositClosed';
 import BasicInput from 'components/UI/BasicInput';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
+import { SsovContext, Ssov } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import sendTx from 'utils/contracts/sendTx';
@@ -28,7 +28,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
+import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -42,23 +42,29 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
-  const context = useContext(SsovContext);
+const Deposit = ({ ssov }: { ssov: Ssov }) => {
   const {
-    ssovContractWithSigner,
-    selectedEpoch,
-    token,
-    ssovData: {
-      epochTimes,
-      isVaultReady,
-      isEpochExpired,
-      epochStrikes,
-      totalEpochStrikeDeposits,
-      totalEpochDeposits,
-    },
-    userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
-  } = context[ssov];
-  const { updateSsovData, updateUserSsovData } = context;
+    updateSsovData,
+    updateUserSsovData,
+    selectedSsov,
+    ssovDataArray,
+    userSsovDataArray,
+    ssovSignerArray,
+  } = useContext(SsovContext);
+  const { selectedEpoch } = ssov;
+  const { ssovContractWithSigner, token } = ssovSignerArray[selectedSsov];
+  const { userEpochStrikeDeposits, userEpochDeposits } =
+    userSsovDataArray[selectedSsov];
+
+  const {
+    epochTimes,
+    isVaultReady,
+    isEpochExpired,
+    epochStrikes,
+    totalEpochStrikeDeposits,
+    totalEpochDeposits,
+  } = ssovDataArray[selectedEpoch];
+
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -70,7 +76,7 @@ const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   }>({});
   const [error, setError] = useState('');
 
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
+  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady || !isEpochExpired) return false;
@@ -210,8 +216,8 @@ const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
-      updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
-      updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+      updateSsovData();
+      updateUserSsovData();
     } catch (err) {
       console.log(err);
     }
@@ -222,7 +228,6 @@ const Deposit = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
     updateSsovData,
     updateUserSsovData,
     updateAssetBalances,
-    ssov,
   ]);
 
   return (
