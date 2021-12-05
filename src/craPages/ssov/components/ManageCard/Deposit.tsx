@@ -59,7 +59,6 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
   const {
     epochTimes,
     isVaultReady,
-    isEpochExpired,
     epochStrikes,
     totalEpochStrikeDeposits,
     totalEpochDeposits,
@@ -147,6 +146,13 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
   useEffect(() => {
     if (totalDepositAmount.gt(userTokenBalance)) {
       setError(`Deposit amount exceeds your current ${tokenSymbol} balance.`);
+    } else if (
+      tokenSymbol === 'ETH' &&
+      totalEpochDeposits
+        .add(totalDepositAmount)
+        .gt(getContractReadableAmount(25000, 18))
+    ) {
+      setError(`Deposit amount exceeds deposit limit.`);
     } else {
       setError('');
     }
@@ -275,7 +281,7 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
           Balance
         </Typography>
         <Typography variant="caption" component="div">
-          {formatAmount(getUserReadableAmount(userTokenBalance, 18))}{' '}
+          {formatAmount(getUserReadableAmount(userTokenBalance, 18), 3)}{' '}
           {tokenSymbol}
         </Typography>
       </Box>
@@ -438,7 +444,12 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
             {isVaultReady ? 'Closed' : 'Enter an amount'}
           </CustomButton>
         ) : approved ? (
-          <CustomButton size="large" className="w-full" onClick={handleDeposit}>
+          <CustomButton
+            size="large"
+            className="w-full"
+            disabled={Boolean(error)}
+            onClick={handleDeposit}
+          >
             Deposit
           </CustomButton>
         ) : (
