@@ -49,6 +49,7 @@ const PurchaseDialog = ({
     tokenPrice,
     ssovOptionPricingContract,
     volatilityOracleContract,
+    tokenName,
   } = ssov;
   const { ssovContractWithSigner, token } =
     ssovSignerArray === undefined
@@ -56,7 +57,7 @@ const PurchaseDialog = ({
       : { ssovContractWithSigner: null, token: null };
   const { epochStrikes } = ssovData;
   const { epochStrikeTokens } = userSsovData;
-  const { updateAssetBalances } = useContext(AssetsContext);
+  const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
   const [state, setState] = useState({
@@ -132,7 +133,10 @@ const PurchaseDialog = ({
     (async function () {
       const finalAmount = state.totalCost;
 
-      const userAmount = await token.balanceOf(accountAddress);
+      const userAmount =
+        tokenName === 'ETH'
+          ? BigNumber.from(userAssetBalances.ETH)
+          : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
@@ -144,10 +148,21 @@ const PurchaseDialog = ({
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        setApproved(false);
+        if (tokenName === 'ETH') {
+          setApproved(true);
+        } else {
+          setApproved(false);
+        }
       }
     })();
-  }, [accountAddress, state.totalCost, token, ssovContractWithSigner]);
+  }, [
+    accountAddress,
+    state.totalCost,
+    token,
+    ssovContractWithSigner,
+    tokenName,
+    userAssetBalances.ETH,
+  ]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -162,7 +177,26 @@ const PurchaseDialog = ({
   const handlePurchase = useCallback(async () => {
     const finalAmount = ethersUtils.parseEther(String(formik.values.amount));
     try {
-      await sendTx(ssovContractWithSigner.purchase(strikeIndex, finalAmount));
+      if (tokenName === 'ETH') {
+        await sendTx(
+          ssovContractWithSigner.purchase(
+            strikeIndex,
+            finalAmount,
+            accountAddress,
+            {
+              value: state.totalCost,
+            }
+          )
+        );
+      } else {
+        await sendTx(
+          ssovContractWithSigner.purchase(
+            strikeIndex,
+            finalAmount,
+            accountAddress
+          )
+        );
+      }
       updateSsovData();
       updateUserSsovData();
       updateUserEpochStrikePurchasableAmount();
@@ -179,6 +213,9 @@ const PurchaseDialog = ({
     updateUserEpochStrikePurchasableAmount,
     updateAssetBalances,
     formik,
+    accountAddress,
+    tokenName,
+    state.totalCost,
   ]);
 
   // Calculate the Option Price & Fees

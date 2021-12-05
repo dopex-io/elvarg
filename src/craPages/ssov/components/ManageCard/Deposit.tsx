@@ -51,7 +51,7 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
     userSsovDataArray,
     ssovSignerArray,
   } = useContext(SsovContext);
-  const { selectedEpoch } = ssov;
+  const { selectedEpoch, tokenName } = ssov;
   const { ssovContractWithSigner, token } = ssovSignerArray[selectedSsov];
   const { userEpochStrikeDeposits, userEpochDeposits } =
     userSsovDataArray[selectedSsov];
@@ -63,9 +63,9 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
     epochStrikes,
     totalEpochStrikeDeposits,
     totalEpochDeposits,
-  } = ssovDataArray[selectedEpoch];
+  } = ssovDataArray[selectedSsov];
 
-  const { updateAssetBalances } = useContext(AssetsContext);
+  const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
   const { accountAddress } = useContext(WalletContext);
 
   const [selectedStrikeIndexes, setSelectedStrikeIndexes] = useState<number[]>(
@@ -161,7 +161,11 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
         18
       );
 
-      let userAmount = await token.balanceOf(accountAddress);
+      let userAmount =
+        tokenName === 'ETH'
+          ? BigNumber.from(userAssetBalances.ETH)
+          : await token.balanceOf(accountAddress);
+
       setUserTokenBalance(userAmount);
 
       let allowance = await token.allowance(
@@ -172,10 +176,21 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        setApproved(false);
+        if (tokenName === 'ETH') {
+          setApproved(true);
+        } else {
+          setApproved(false);
+        }
       }
     })();
-  }, [accountAddress, totalDepositAmount, token, ssovContractWithSigner]);
+  }, [
+    accountAddress,
+    totalDepositAmount,
+    token,
+    ssovContractWithSigner,
+    userAssetBalances.ETH,
+    tokenName,
+  ]);
 
   const handleApprove = useCallback(async () => {
     const finalAmount = getContractReadableAmount(
@@ -204,14 +219,30 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
           ethersUtils.parseUnits(strikeDepositAmounts[index], 18).gt('0')
       );
 
-      await sendTx(
-        ssovContractWithSigner.depositMultiple(
-          strikeIndexes,
-          strikeIndexes.map((index) =>
-            ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
+      if (tokenName === 'ETH') {
+        await sendTx(
+          ssovContractWithSigner.depositMultiple(
+            strikeIndexes,
+            strikeIndexes.map((index) =>
+              ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
+            ),
+            accountAddress,
+            {
+              value: totalDepositAmount,
+            }
           )
-        )
-      );
+        );
+      } else {
+        await sendTx(
+          ssovContractWithSigner.depositMultiple(
+            strikeIndexes,
+            strikeIndexes.map((index) =>
+              ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
+            ),
+            accountAddress
+          )
+        );
+      }
 
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
@@ -228,6 +259,8 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
     updateSsovData,
     updateUserSsovData,
     updateAssetBalances,
+    accountAddress,
+    tokenName,
   ]);
 
   return (
