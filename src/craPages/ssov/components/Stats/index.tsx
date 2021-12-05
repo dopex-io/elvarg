@@ -142,7 +142,7 @@ const Stats = (props: { className?: string; ssov: Ssov }) => {
     [tokenPrice]
   );
 
-  const stats: StatsTableDataProps[] = useMemo(
+  const stats: any[] = useMemo(
     () =>
       epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);

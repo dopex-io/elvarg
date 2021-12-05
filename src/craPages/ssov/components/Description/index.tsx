@@ -84,6 +84,7 @@ const Description = ({
           onClick={() => {
             setPurchaseState(true);
           }}
+          disabled
         >
           Buy Call Options
         </CustomButton>

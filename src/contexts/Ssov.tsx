@@ -283,7 +283,7 @@ export const SsovProvider = (props) => {
 
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
       } else {
-        APY = '3.60';
+        APY = '7';
       }
 
       ssovData.push({

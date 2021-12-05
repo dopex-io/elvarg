@@ -79,9 +79,9 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
   const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   const isDepositWindowOpen = useMemo(() => {
-    if (isVaultReady || !isEpochExpired) return false;
+    if (isVaultReady) return false;
     return true;
-  }, [isVaultReady, isEpochExpired]);
+  }, [isVaultReady]);
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
@@ -261,6 +261,7 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
     updateAssetBalances,
     accountAddress,
     tokenName,
+    totalDepositAmount,
   ]);
 
   return (

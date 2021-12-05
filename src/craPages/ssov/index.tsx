@@ -9,7 +9,6 @@ import Countdown from 'react-countdown';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import SsovCard from './components/SsovCard';
-import AutoExerciseBanner from 'components/Banners/AutoExerciseBanner';
 import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
@@ -28,7 +27,6 @@ const Ssov = () => {
         </Head>
         <AppBar active="SSOV" />
         <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-          <AutoExerciseBanner />
           <Box className="text-center mx-auto max-w-xl mb-12 mt-8">
             <Typography variant="h1" className="mb-1">
               Single Staking Option Vaults
@@ -118,7 +116,6 @@ const Ssov = () => {
       </Head>
       <AppBar active="SSOV" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-        <AutoExerciseBanner />
         <Box className="text-center mx-auto max-w-xl mb-12 mt-8">
           <Typography variant="h1" className="mb-1">
             Single Staking Option Vaults

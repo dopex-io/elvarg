@@ -32,7 +32,8 @@ function SsovCard(props: SsovCardProps) {
   const navigate = useNavigate();
   const { selectedEpoch, tokenPrice, tokenName } = ssov;
   const { epochTimes, totalEpochDeposits, APY } = ssovData;
-  const { userEpochDeposits } = userSsovData !== undefined ? userSsovData : 0;
+  const { userEpochDeposits } =
+    userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
   const TVL =
@@ -208,6 +209,7 @@ function SsovCard(props: SsovCardProps) {
               onClick={() => {
                 setPurchaseState(true);
               }}
+              disabled
             >
               Buy Options
             </CustomButton>

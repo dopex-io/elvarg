@@ -17,7 +17,6 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
-import AutoExerciseAlert from '../Dialogs/AutoExerciseAlert';
 
 import { Ssov, SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
@@ -132,12 +131,6 @@ const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
 
   return selectedEpoch > 0 ? (
     <Box className="bg-cod-gray w-full p-4 rounded-xl">
-      <AutoExerciseAlert
-        open={alert}
-        handleClose={() => {
-          setAlert(false);
-        }}
-      />
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Your Exercisable Options
