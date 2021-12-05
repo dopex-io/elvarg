@@ -146,6 +146,7 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
 };
 
 export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
+export const FORTMATIC_ID = process.env.NEXT_PUBLIC_FORTMATIC_ID;
 
 export const GREEK_SYMBOLS = {
   delta: 'Δ',

@@ -4,8 +4,9 @@ import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { Addresses } from '@dopex-io/sdk';
+import Fortmatic from 'fortmatic';
 
-import { INFURA_PROJECT_ID } from 'constants/index';
+import { INFURA_PROJECT_ID, FORTMATIC_ID } from 'constants/index';
 import { useLocation } from 'react-router';
 
 interface WalletContextInterface {
@@ -52,6 +53,16 @@ const providerOptions = {
     package: WalletConnectProvider,
     options: {
       rpc: CHAIN_ID_TO_PROVIDERS,
+    },
+  },
+  fortmatic: {
+    package: Fortmatic,
+    options: {
+      key: FORTMATIC_ID,
+      network: {
+        // rpcUrl: 'https://arb1.arbitrum.io/rpc',
+        // chainId: 42161,
+      },
     },
   },
 };
@@ -165,14 +176,21 @@ export const WalletProvider = (props) => {
 
   const connect = useCallback(() => {
     web3Modal.connect().then(async (provider) => {
-      provider.on('accountsChanged', async () => {
-        await updateState({ web3Provider: provider, isUser: true });
-      });
+      if (!provider.fm) {
+        provider.on('accountsChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
 
-      provider.on('chainChanged', async () => {
+        provider.on('chainChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
         await updateState({ web3Provider: provider, isUser: true });
-      });
-      await updateState({ web3Provider: provider, isUser: true });
+      } else {
+        await updateState({
+          web3Provider: provider.fm.getProvider(),
+          isUser: true,
+        });
+      }
     });
   }, [updateState]);
 
