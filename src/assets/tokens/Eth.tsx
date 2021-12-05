@@ -1,8 +1,8 @@
 function Eth(props) {
   return (
     <svg
-      width="1535"
-      height="2500"
+      width={32}
+      height={32}
       viewBox="0 0 256 417"
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="xMidYMid"

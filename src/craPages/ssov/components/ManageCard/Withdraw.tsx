@@ -69,9 +69,7 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
   const handleWithdraw = useCallback(
     async (index) => {
       try {
-        await sendTx(
-          ssovContractWithSigner.withdrawForStrike(selectedEpoch, index)
-        );
+        await sendTx(ssovContractWithSigner.withdraw(selectedEpoch, index));
         updateSsovData();
         updateUserSsovData();
       } catch (err) {

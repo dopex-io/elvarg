@@ -20,7 +20,6 @@ const Ssov = () => {
     useContext(SsovContext);
 
   const { chainId } = useContext(WalletContext);
-
   if (ssovArray.length === 0 || ssovDataArray.length === 0)
     return (
       <Box className="bg-black min-h-screen">
@@ -28,7 +27,7 @@ const Ssov = () => {
           <title>SSOV | Dopex</title>
         </Head>
         <AppBar active="SSOV" />
-        <Box className="pt-1 pb-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
           <AutoExerciseBanner />
           <Box className="text-center mx-auto max-w-xl mb-12 mt-8">
             <Typography variant="h1" className="mb-1">
@@ -72,7 +71,24 @@ const Ssov = () => {
                       className="lg:mr-3 mb-3 bg-cod-gray"
                     />
                   </Box>
-                </Box>{' '}
+                </Box>
+                <Box
+                  className={cx(
+                    'p-0.5 rounded-xl mr-24',
+                    styles['WETH'],
+                    styles.Box
+                  )}
+                >
+                  <Box className="flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto">
+                    <Skeleton
+                      variant="rect"
+                      width={330}
+                      height={560}
+                      animation="wave"
+                      className="lg:mr-3 mb-3 bg-cod-gray"
+                    />
+                  </Box>
+                </Box>
                 <Box
                   className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Box)}
                 >
@@ -101,7 +117,7 @@ const Ssov = () => {
         <title>SSOV | Dopex</title>
       </Head>
       <AppBar active="SSOV" />
-      <Box className="pt-1 pb-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+      <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <AutoExerciseBanner />
         <Box className="text-center mx-auto max-w-xl mb-12 mt-8">
           <Typography variant="h1" className="mb-1">
