@@ -1,6 +1,8 @@
-import { useState, useContext, useMemo } from 'react';
+import { useState } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
+import { Tooltip } from '@material-ui/core';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import VaultBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
@@ -31,7 +33,7 @@ const Description = ({
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
   const { tokenPrice } = ssov;
-  const { APY } = ssovData;
+  const { APY, isVaultReady } = ssovData;
 
   const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
@@ -84,10 +86,20 @@ const Description = ({
           onClick={() => {
             setPurchaseState(true);
           }}
-          disabled
+          disabled={!isVaultReady}
         >
           Buy Call Options
         </CustomButton>
+        {!isVaultReady ? (
+          <Box className="flex mt-3">
+            <Tooltip
+              className="h-4 text-stieglitz"
+              title={'Options can not be bought during the deposit period'}
+            >
+              <InfoOutlinedIcon />
+            </Tooltip>
+          </Box>
+        ) : null}
         <EpochSelector ssov={ssov} />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
+import { Tooltip } from '@material-ui/core';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import format from 'date-fns/format';
 
@@ -31,7 +33,7 @@ function SsovCard(props: SsovCardProps) {
   const { className, ssov, ssovData, userSsovData } = props;
   const navigate = useNavigate();
   const { selectedEpoch, tokenPrice, tokenName } = ssov;
-  const { epochTimes, totalEpochDeposits, APY } = ssovData;
+  const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
@@ -191,16 +193,28 @@ function SsovCard(props: SsovCardProps) {
             >
               Manage
             </CustomButton>
-            <CustomButton
-              size="medium"
-              className={cx('', styles.Button)}
-              onClick={() => {
-                setPurchaseState(true);
-              }}
-              disabled
-            >
-              Buy Options
-            </CustomButton>
+            <Box className="flex flex-row">
+              <CustomButton
+                size="medium"
+                className={cx('w-full', styles.Button)}
+                onClick={() => {
+                  setPurchaseState(true);
+                }}
+                disabled={!isVaultReady}
+              >
+                Buy Options
+              </CustomButton>
+              {!isVaultReady ? (
+                <Box className="ml-1 flex items-center">
+                  <Tooltip
+                    className="h-4 text-stieglitz"
+                    title={'Options can not be bought during deposit period'}
+                  >
+                    <InfoOutlinedIcon />
+                  </Tooltip>
+                </Box>
+              ) : null}
+            </Box>
           </Box>
           <Typography variant="h6" className="text-stieglitz">
             Epoch {selectedEpoch}
