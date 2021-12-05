@@ -42,7 +42,7 @@ function SsovCard(props: SsovCardProps) {
         getUserReadableAmount(tokenPrice, 8)
       : 0;
 
-  const tokenSymbol = tokenName;
+  const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
 
   const info = [
     {
@@ -82,7 +82,7 @@ function SsovCard(props: SsovCardProps) {
       : 'N/A';
 
   return (
-    <Box className={cx('p-0.5 rounded-xl', styles['WETH'], styles.Box)}>
+    <Box className={cx('p-0.5 rounded-xl', styles[tokenName], styles.Box)}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -159,19 +159,7 @@ function SsovCard(props: SsovCardProps) {
                     component="div"
                     className="text-stieglitz"
                   >
-                    Epoch
-                  </Typography>
-                  <Typography variant="caption" component="div">
-                    Monthly
-                  </Typography>
-                </Box>
-                <Box className="flex flex-row justify-between mb-3">
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    className="text-stieglitz"
-                  >
-                    Next Epoch
+                    Epoch Duration
                   </Typography>
                   <Typography variant="caption" component="div">
                     {epochTimePeriod}

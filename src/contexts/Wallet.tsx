@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useMemo,
-  useState,
-  useEffect,
-  useCallback,
-} from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import Web3Modal from 'web3modal';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
@@ -44,8 +38,9 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
   '/ssov': [42161],
-  '/ssov/manage/dpx': [42161],
-  '/ssov/manage/rdpx': [42161],
+  '/ssov/manage/DPX': [42161],
+  '/ssov/manage/RDPX': [42161],
+  '/ssov/manage/ETH': [42161],
   '/sale': [1],
 };
 
@@ -60,6 +55,16 @@ const providerOptions = {
     },
   },
 };
+
+let web3Modal;
+
+if (typeof window !== 'undefined') {
+  web3Modal = new Web3Modal({
+    cacheProvider: true,
+    theme: 'dark',
+    providerOptions,
+  });
+}
 
 export const WalletProvider = (props) => {
   const location = useLocation();
@@ -81,16 +86,6 @@ export const WalletProvider = (props) => {
     supportedChainIds: [],
   });
   const [blockTime, setBlockTime] = useState(0);
-
-  const web3Modal = useMemo(
-    () =>
-      new Web3Modal({
-        cacheProvider: true,
-        theme: 'dark',
-        providerOptions,
-      }),
-    []
-  );
 
   useEffect(() => {
     if (!state.provider) return;
@@ -179,7 +174,7 @@ export const WalletProvider = (props) => {
       });
       await updateState({ web3Provider: provider, isUser: true });
     });
-  }, [web3Modal, updateState]);
+  }, [updateState]);
 
   const disconnect = useCallback(() => {
     web3Modal.clearCachedProvider();
@@ -191,7 +186,7 @@ export const WalletProvider = (props) => {
         ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID])
       ),
     }));
-  }, [web3Modal]);
+  }, []);
 
   const changeWallet = useCallback(() => {
     web3Modal.clearCachedProvider();
@@ -209,13 +204,13 @@ export const WalletProvider = (props) => {
           isUser: false,
         });
       });
-  }, [web3Modal, updateState, state.chainId]);
+  }, [updateState, state.chainId]);
 
   useEffect(() => {
     if (web3Modal.cachedProvider) {
       connect();
     }
-  }, [connect, web3Modal.cachedProvider]);
+  }, [connect]);
 
   const contextValue = {
     connect,
