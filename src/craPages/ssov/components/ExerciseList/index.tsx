@@ -48,7 +48,6 @@ const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
     userExercisableOption[]
   >([]);
   const [page, setPage] = useState(0);
-  const [alert, setAlert] = useState(false);
 
   const { currentEpoch, selectedEpoch, tokenPrice } = ssov;
   const { isVaultReady, epochStrikes } = ssovDataArray[selectedSsov];
@@ -76,13 +75,6 @@ const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
           })
           .filter((c) => c)
       );
-
-      for (let i = 0; i < userEpochStrikeTokenBalanceArray.length; i++) {
-        if (userEpochStrikeTokenBalanceArray[i].gt(0)) {
-          setAlert(true);
-          break;
-        }
-      }
 
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
@@ -129,7 +121,7 @@ const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
     isVaultReady,
   ]);
 
-  return selectedEpoch > 0 ? (
+  return selectedEpoch > 0 && isVaultReady ? (
     <Box className="bg-cod-gray w-full p-4 rounded-xl">
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
