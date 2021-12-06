@@ -5,8 +5,5 @@ export default function getContractReadableAmount(
   decimals: string | number
 ): BigNumber {
   if (!Number(amount)) return BigNumber.from(0);
-  const fAmount = utils.parseEther(String(amount));
-  return fAmount.div(
-    BigNumber.from(10).pow(BigNumber.from(18 - Number(decimals)))
-  );
+  return utils.parseUnits(String(amount), Number(decimals));
 }
