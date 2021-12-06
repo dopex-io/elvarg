@@ -26,6 +26,7 @@ const ManageCard = ({ ssov }: { ssov: Ssov }) => {
   const handleChangeToWithdraw = useCallback(() => {
     setIsDeposit(false);
   }, []);
+
   const { selectedEpoch } = ssov;
 
   return (

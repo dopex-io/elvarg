@@ -6,9 +6,7 @@ import {
   useCallback,
 } from 'react';
 import {
-  NativeSSOV,
   NativeSSOV__factory,
-  ERC20SSOV,
   ERC20SSOV__factory,
   SSOVOptionPricing__factory,
   VolatilityOracle__factory,
@@ -294,7 +292,8 @@ export const SsovProvider = (props) => {
 
         let APR = (denominator / TVL.toNumber() - 1) * 100;
 
-        APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
+        // APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
+        APY = 7;
       }
 
       ssovData.push({

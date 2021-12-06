@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
-import { Tooltip } from '@material-ui/core';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import format from 'date-fns/format';
 
@@ -29,8 +29,8 @@ interface SsovCardProps {
 }
 
 function SsovCard(props: SsovCardProps) {
-  const { className, ssov, ssovData, userSsovData } = props;
   const navigate = useNavigate();
+  const { className, ssov, ssovData, userSsovData } = props;
   const { selectedEpoch, tokenPrice, tokenName } = ssov;
   const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
   const { userEpochDeposits } =

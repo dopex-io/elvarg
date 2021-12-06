@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
-import { Tooltip } from '@material-ui/core';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import VaultBox from '../InfoBox';
 import Typography from 'components/UI/Typography';

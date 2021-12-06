@@ -72,11 +72,12 @@ const PurchaseDialog = ({
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
   const [
     userEpochStrikePurchasableAmount,
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
+
+  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   const strikes = useMemo(
     () =>
@@ -102,10 +103,6 @@ const PurchaseDialog = ({
     );
   }, [epochStrikeToken, ssovContractWithSigner]);
 
-  useEffect(() => {
-    updateUserEpochStrikePurchasableAmount();
-  }, [updateUserEpochStrikePurchasableAmount]);
-
   const formik = useFormik({
     initialValues: {
       amount: 0,
@@ -126,43 +123,6 @@ const PurchaseDialog = ({
     },
     onSubmit: noop,
   });
-
-  // Handles isApproved
-  useEffect(() => {
-    if (!token || !ssovContractWithSigner) return;
-    (async function () {
-      const finalAmount = state.totalCost;
-
-      const userAmount =
-        tokenName === 'ETH'
-          ? BigNumber.from(userAssetBalances.ETH)
-          : await token.balanceOf(accountAddress);
-
-      setUserTokenBalance(userAmount);
-
-      let allowance = await token.allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
-
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        if (tokenName === 'ETH') {
-          setApproved(true);
-        } else {
-          setApproved(false);
-        }
-      }
-    })();
-  }, [
-    accountAddress,
-    state.totalCost,
-    token,
-    ssovContractWithSigner,
-    tokenName,
-    userAssetBalances.ETH,
-  ]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -216,6 +176,47 @@ const PurchaseDialog = ({
     accountAddress,
     tokenName,
     state.totalCost,
+  ]);
+
+  useEffect(() => {
+    updateUserEpochStrikePurchasableAmount();
+  }, [updateUserEpochStrikePurchasableAmount]);
+
+  // Handles isApproved
+  useEffect(() => {
+    if (!token || !ssovContractWithSigner) return;
+    (async function () {
+      const finalAmount = state.totalCost;
+
+      const userAmount =
+        tokenName === 'ETH'
+          ? BigNumber.from(userAssetBalances.ETH)
+          : await token.balanceOf(accountAddress);
+
+      setUserTokenBalance(userAmount);
+
+      let allowance = await token.allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
+
+      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+        setApproved(true);
+      } else {
+        if (tokenName === 'ETH') {
+          setApproved(true);
+        } else {
+          setApproved(false);
+        }
+      }
+    })();
+  }, [
+    accountAddress,
+    state.totalCost,
+    token,
+    ssovContractWithSigner,
+    tokenName,
+    userAssetBalances.ETH,
   ]);
 
   // Calculate the Option Price & Fees
