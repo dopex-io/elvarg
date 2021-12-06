@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import { Tooltip } from '@material-ui/core';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import format from 'date-fns/format';
 
@@ -193,28 +192,27 @@ function SsovCard(props: SsovCardProps) {
             >
               Manage
             </CustomButton>
-            <Box className="flex flex-row">
-              <CustomButton
-                size="medium"
-                className={cx('w-full', styles.Button)}
-                onClick={() => {
-                  setPurchaseState(true);
-                }}
-                disabled={!isVaultReady}
-              >
-                Buy Options
-              </CustomButton>
-              {!isVaultReady ? (
-                <Box className="ml-1 flex items-center">
-                  <Tooltip
-                    className="h-4 text-stieglitz"
-                    title={'Options can not be bought during deposit period'}
-                  >
-                    <InfoOutlinedIcon />
-                  </Tooltip>
-                </Box>
-              ) : null}
-            </Box>
+            <Tooltip
+              className="text-stieglitz"
+              title={
+                !isVaultReady
+                  ? 'Options can not be bought during the deposit period'
+                  : ''
+              }
+            >
+              <Box className="w-full">
+                <CustomButton
+                  size="medium"
+                  className={cx('w-full', styles.Button)}
+                  onClick={() => {
+                    setPurchaseState(true);
+                  }}
+                  disabled={!isVaultReady}
+                >
+                  Buy Options
+                </CustomButton>
+              </Box>
+            </Tooltip>
           </Box>
           <Typography variant="h6" className="text-stieglitz">
             Epoch {selectedEpoch}

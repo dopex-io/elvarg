@@ -2,7 +2,6 @@ import { useState } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import { Tooltip } from '@material-ui/core';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import VaultBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
@@ -79,27 +78,28 @@ const Description = ({
         {tokenSymbol} liquidity to our first options pool.
       </Typography>
       <Box className="flex flex-row">
-        <CustomButton
-          size="medium"
-          className="mb-6 mr-2"
-          fullWidth
-          onClick={() => {
-            setPurchaseState(true);
-          }}
-          disabled={!isVaultReady}
+        <Tooltip
+          className="text-stieglitz"
+          title={
+            !isVaultReady
+              ? 'Options can not be bought during the deposit period'
+              : ''
+          }
         >
-          Buy Call Options
-        </CustomButton>
-        {!isVaultReady ? (
-          <Box className="flex mt-3">
-            <Tooltip
-              className="h-4 text-stieglitz"
-              title={'Options can not be bought during the deposit period'}
+          <Box className="w-full">
+            <CustomButton
+              size="medium"
+              className="mb-6 mr-2"
+              fullWidth
+              onClick={() => {
+                setPurchaseState(true);
+              }}
+              disabled={!isVaultReady}
             >
-              <InfoOutlinedIcon />
-            </Tooltip>
+              Buy Call Options
+            </CustomButton>
           </Box>
-        ) : null}
+        </Tooltip>
         <EpochSelector ssov={ssov} />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">

@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
@@ -26,25 +26,32 @@ const Manage = () => {
     ssov,
     ssovData,
     userSsovData,
+    index,
   }: {
     ssov: Ssov;
     ssovData: SsovData;
     userSsovData: UserSsovData;
+    index: number;
   } = useMemo(() => {
     if (ssovArray.length === 0)
       return {
         ssov: undefined,
         ssovData: undefined,
         userSsovData: undefined,
+        index: 0,
       };
     let i = ssovArray.findIndex((item) => item.tokenName === asset);
-    setSelectedSsov(i);
     return {
       ssov: ssovArray[i],
       ssovData: ssovDataArray[i],
       userSsovData: userSsovDataArray[i],
+      index: i,
     };
-  }, [ssovArray, asset, ssovDataArray, userSsovDataArray, setSelectedSsov]);
+  }, [ssovArray, asset, ssovDataArray, userSsovDataArray]);
+
+  useEffect(() => {
+    setSelectedSsov(index);
+  }, [index, setSelectedSsov]);
 
   if (ssov === undefined || ssovData === undefined || selectedSsov === null)
     return (
