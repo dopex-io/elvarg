@@ -37,7 +37,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX'],
+  tokens: ['DPX', 'RDPX', 'WETH'],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
@@ -115,6 +115,9 @@ export const AssetsProvider = (props) => {
             if (payload.data.dopex) {
               key = 'dopex';
               name = 'DPX';
+            } else if (payload.data.ethereum) {
+              key = 'ethereum';
+              name = 'ETH';
             } else {
               key = 'dopex-rebate-token';
               name = 'rDPX';
