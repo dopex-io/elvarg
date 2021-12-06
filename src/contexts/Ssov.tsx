@@ -281,16 +281,16 @@ export const SsovProvider = (props) => {
 
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
       } else {
-        const TVL = totalEpochDeposits
-          .mul(Math.round(priceEth))
-          .div(oneEBigNumber(18));
+        // const TVL = totalEpochDeposits
+        //   .mul(Math.round(priceEth))
+        //   .div(oneEBigNumber(18));
 
-        let rewardsEmitted = BigNumber.from('500'); // 500 DPX per month
-        rewardsEmitted = rewardsEmitted.mul(Math.round(priceDPX)).mul(12); // for 12 months
+        // let rewardsEmitted = BigNumber.from('500'); // 500 DPX per month
+        // rewardsEmitted = rewardsEmitted.mul(Math.round(priceDPX)).mul(12); // for 12 months
 
-        const denominator = TVL.toNumber() + rewardsEmitted.toNumber();
+        // const denominator = TVL.toNumber() + rewardsEmitted.toNumber();
 
-        let APR = (denominator / TVL.toNumber() - 1) * 100;
+        // let APR = (denominator / TVL.toNumber() - 1) * 100;
 
         // APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
         APY = 7;
