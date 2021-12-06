@@ -10,7 +10,7 @@ import SsovCard from './components/SsovCard';
 import { SsovContext } from 'contexts/Ssov';
 
 const Ssov = () => {
-  const { ssovArray, ssovDataArray, userSsovDataArray } =
+  const { ssovArray, ssovDataArray, userSsovDataArray, setSelectedSsov } =
     useContext(SsovContext);
 
   return (
@@ -47,6 +47,10 @@ const Ssov = () => {
                   ssov={ssov}
                   ssovData={ssovDataArray[index]}
                   userSsovData={userSsovDataArray[index]}
+                  setSelectedSsov={setSelectedSsov}
+                  ssovIndex={ssovArray.findIndex(
+                    (item) => item.tokenName === ssov.tokenName
+                  )}
                 />
               ))}
         </Box>

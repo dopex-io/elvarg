@@ -108,8 +108,6 @@ export const SsovProvider = (props) => {
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
 
-  const [ssovContract, setSsovContract] = useState(null);
-  const [currentEpoch, setCurrentEpoch] = useState<number | null>(null);
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsov, setSelectedSsov] = useState<number | null>(null);
   const [ssovArray, setSsovArray] = useState<Ssov[]>([]);
@@ -324,8 +322,6 @@ export const SsovProvider = (props) => {
             ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
             : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
 
-        setSsovContract(_ssovContract);
-
         // Epoch
         try {
           const [currentEpoch, TokenPrice] = await Promise.all([
@@ -337,7 +333,6 @@ export const SsovProvider = (props) => {
             ),
           ]);
 
-          setCurrentEpoch(Number(currentEpoch));
           if (Number(currentEpoch) === 0) {
             setSelectedEpoch(1);
           } else {

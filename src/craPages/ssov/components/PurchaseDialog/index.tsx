@@ -23,9 +23,8 @@ import { AssetsContext } from 'contexts/Assets';
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { SSOV_MAP } from 'constants/index';
 
-import { MAX_VALUE } from 'constants/index';
+import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
 export interface Props {
   open: boolean;
@@ -44,6 +43,9 @@ const PurchaseDialog = ({
 }: Props) => {
   const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
     useContext(SsovContext);
+  const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
+  const { accountAddress } = useContext(WalletContext);
+
   const {
     currentEpoch,
     tokenPrice,
@@ -52,13 +54,11 @@ const PurchaseDialog = ({
     tokenName,
   } = ssov;
   const { ssovContractWithSigner, token } =
-    ssovSignerArray === undefined
+    ssovSignerArray !== undefined
       ? ssovSignerArray[selectedSsov]
       : { ssovContractWithSigner: null, token: null };
   const { epochStrikes } = ssovData;
   const { epochStrikeTokens } = userSsovData;
-  const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
-  const { accountAddress } = useContext(WalletContext);
 
   const [state, setState] = useState({
     volatility: 0,
@@ -67,7 +67,7 @@ const PurchaseDialog = ({
     premium: BigNumber.from(0),
     totalCost: BigNumber.from(0),
   });
-  const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
+  const [strikeIndex, setStrikeIndex] = useState<number | null>(0);
   const [approved, setApproved] = useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
@@ -123,6 +123,43 @@ const PurchaseDialog = ({
     },
     onSubmit: noop,
   });
+
+  // Handles isApproved
+  useEffect(() => {
+    if (!token || !ssovContractWithSigner) return;
+    (async function () {
+      const finalAmount = state.totalCost;
+
+      const userAmount =
+        tokenName === 'ETH'
+          ? BigNumber.from(userAssetBalances.ETH)
+          : await token.balanceOf(accountAddress);
+
+      setUserTokenBalance(userAmount);
+
+      let allowance = await token.allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
+
+      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+        setApproved(true);
+      } else {
+        if (tokenName === 'ETH') {
+          setApproved(true);
+        } else {
+          setApproved(false);
+        }
+      }
+    })();
+  }, [
+    accountAddress,
+    state.totalCost,
+    token,
+    ssovContractWithSigner,
+    tokenName,
+    userAssetBalances.ETH,
+  ]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -223,6 +260,7 @@ const PurchaseDialog = ({
   useEffect(() => {
     if (
       strikeIndex === null ||
+      !ssovContractWithSigner ||
       !ssovOptionPricingContract ||
       !volatilityOracleContract
     )
@@ -345,7 +383,7 @@ const PurchaseDialog = ({
             <Select
               id="strike"
               name="strike"
-              value={strikeIndex || -1}
+              value={strikeIndex}
               onChange={(e) => setStrikeIndex(Number(e.target.value))}
               className="bg-mineshaft rounded-md p-1 text-white"
               fullWidth
@@ -387,7 +425,7 @@ const PurchaseDialog = ({
                 Oracle Price ({tokenSymbol})
               </Typography>
               <Typography variant="caption" component="div">
-                ${formatAmount(getUserReadableAmount(tokenPrice, 8))}
+                ${formatAmount(getUserReadableAmount(tokenPrice, 8), 3)}
               </Typography>
             </Box>
             {strikeIndex !== null && (
@@ -501,11 +539,13 @@ const PurchaseDialog = ({
                     component="div"
                     className="text-wave-blue"
                   >
-                    {formatAmount(getUserReadableAmount(userTokenBalance, 18))}{' '}
+                    {formatAmount(
+                      getUserReadableAmount(userTokenBalance, 18),
+                      3
+                    )}{' '}
                     {tokenSymbol}
                   </Typography>
                 </Box>
-
                 {formik.errors.amount ? (
                   <Box>
                     <Typography

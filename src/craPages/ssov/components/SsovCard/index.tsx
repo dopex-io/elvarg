@@ -26,11 +26,20 @@ interface SsovCardProps {
   ssov: Ssov;
   ssovData: SsovData;
   userSsovData: UserSsovData;
+  ssovIndex: number;
+  setSelectedSsov: Function;
 }
 
 function SsovCard(props: SsovCardProps) {
+  const {
+    className,
+    ssov,
+    ssovData,
+    userSsovData,
+    ssovIndex,
+    setSelectedSsov,
+  } = props;
   const navigate = useNavigate();
-  const { className, ssov, ssovData, userSsovData } = props;
   const { selectedEpoch, tokenPrice, tokenName } = ssov;
   const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
   const { userEpochDeposits } =
@@ -206,6 +215,7 @@ function SsovCard(props: SsovCardProps) {
                   className={cx('w-full', styles.Button)}
                   onClick={() => {
                     setPurchaseState(true);
+                    setSelectedSsov(ssovIndex);
                   }}
                   disabled={!isVaultReady}
                 >
