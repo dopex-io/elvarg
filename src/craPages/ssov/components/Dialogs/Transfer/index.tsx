@@ -17,6 +17,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
+import { SSOV_MAP } from 'constants/index';
+
 export interface Props {
   open: boolean;
   handleClose: () => {};
@@ -73,7 +75,7 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     setTransferAmount(userEpochStrikeTokenBalance);
   }, [userEpochStrikeTokenBalance]);
 
-  const handleApprove = async () => {
+  const handleApprove = useCallback(async () => {
     if (!accountAddress || !epochStrikeToken || !ssovContractWithSigner) return;
 
     const finalAmount = getContractReadableAmount(
@@ -93,9 +95,15 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [
+    transferAmount,
+    accountAddress,
+    epochStrikeToken,
+    ssovContractWithSigner,
+    recipient,
+  ]);
 
-  const handleTransfer = async () => {
+  const handleTransfer = useCallback(() => {
     if (!accountAddress || !epochStrikeToken) return;
     try {
       sendTx(epochStrikeToken.transfer(accountAddress, recipient));
@@ -108,7 +116,14 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [
+    accountAddress,
+    epochStrikeToken,
+    recipient,
+    updateSsovData,
+    updateUserEpochStrikeTokenBalance,
+    updateUserSsovData,
+  ]);
 
   useEffect(() => {
     updateUserEpochStrikeTokenBalance();
@@ -162,12 +177,14 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
             Max
           </Typography>
         </Box>
-
         <Box className="bg-umbra rounded-md flex flex-col p-4">
           <Box className="flex flex-row justify-between">
-            <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
-              <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={'/assets/dpx.svg'} alt="DPX" />
+            <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row">
+              <Box className="flex flex-row content-center items-center h-full w-full">
+                <img
+                  src={SSOV_MAP[ssov.tokenName].imageSrc}
+                  alt={ssov.tokenName}
+                />
               </Box>
             </Box>
             <Input
@@ -247,7 +264,6 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
             Transfer
           </CustomButton>
         )}
-
         <Box className="flex flex-row justify-between mt-4">
           <Typography variant="h6" className="text-stieglitz">
             Epoch {selectedEpoch}

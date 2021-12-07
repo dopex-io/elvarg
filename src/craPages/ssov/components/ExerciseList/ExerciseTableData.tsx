@@ -21,8 +21,6 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { SSOV_MAP } from 'constants/index';
 
-type DelegatedType = 'NONE' | 'PARTIAL' | 'ALL';
-
 interface ExerciseTableDataProps {
   strikeIndex: number;
   strikePrice: number;
@@ -109,42 +107,32 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const Dialog = DIALOGS[dialogState.type];
 
-  const menuItems = {
-    DEFAULT: [
-      <MenuItem
-        key="transfer-options"
-        onClick={handleTransfer}
-        className="text-white"
-        disabled={exercisableAmount.eq(BigNumber.from(0))}
-      >
-        Transfer
-      </MenuItem>,
-    ],
-    // PARTIAL: [
-    //   <MenuItem
-    //     key="auto-exercise"
-    //     onClick={handleAutoExercise}
-    //     className="text-white"
-    //     disabled={exercisableAmount.eq(BigNumber.from(0))}
-    //   >
-    //     Auto-Exercise
-    //   </MenuItem>,
-    //   <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
-    //     Withdraw
-    //   </MenuItem>,
-    //   <MenuItem key="claim" onClick={handleClaim} className="text-white">
-    //     Claim
-    //   </MenuItem>,
-    // ],
-    // ALL: [
-    //   <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
-    //     Withdraw
-    //   </MenuItem>,
-    //   <MenuItem key="claim" onClick={handleClaim} className="text-white">
-    //     Claim
-    //   </MenuItem>,
-    // ],
-  };
+  // const menuItems = {
+  // PARTIAL: [
+  //   <MenuItem
+  //     key="auto-exercise"
+  //     onClick={handleAutoExercise}
+  //     className="text-white"
+  //     disabled={exercisableAmount.eq(BigNumber.from(0))}
+  //   >
+  //     Auto-Exercise
+  //   </MenuItem>,
+  //   <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
+  //     Withdraw
+  //   </MenuItem>,
+  //   <MenuItem key="claim" onClick={handleClaim} className="text-white">
+  //     Claim
+  //   </MenuItem>,
+  // ],
+  // ALL: [
+  //   <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
+  //     Withdraw
+  //   </MenuItem>,
+  //   <MenuItem key="claim" onClick={handleClaim} className="text-white">
+  //     Claim
+  //   </MenuItem>,
+  // ],
+  // };
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -237,7 +225,15 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               onClose={handleCloseMenu}
               classes={{ paper: 'bg-umbra' }}
             >
-              {menuItems['DEFAULT']}
+              <MenuItem
+                key="transfer-options"
+                onClick={handleTransfer}
+                className="text-white"
+                disabled={exercisableAmount.eq(BigNumber.from(0))}
+              >
+                Transfer
+              </MenuItem>
+              ,
             </Menu>
           </Box>
         </Box>
