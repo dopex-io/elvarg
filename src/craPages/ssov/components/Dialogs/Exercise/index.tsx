@@ -38,16 +38,19 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     userSsovDataArray,
     ssovSignerArray,
   } = useContext(SsovContext);
+  const { accountAddress } = useContext(WalletContext);
+
   const { selectedEpoch, tokenPrice } = ssov;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens, userEpochStrikeDeposits } =
     userSsovDataArray[selectedSsov];
 
-  const { accountAddress } = useContext(WalletContext);
   const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
+  const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
+    useState<number>(0);
 
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
@@ -57,8 +60,6 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     18
   );
 
-  const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
-    useState<number>(0);
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
       setUserEpochStrikeTokenBalance(0);
@@ -113,25 +114,6 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     [formik]
   );
 
-  // Handles isApproved
-  useEffect(() => {
-    if (!epochStrikeToken || !ssovContractWithSigner) return;
-    (async function () {
-      const finalAmount = getContractReadableAmount(inputValue, 18);
-
-      let allowance = await epochStrikeToken.allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
-
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        setApproved(false);
-      }
-    })();
-  }, [accountAddress, inputValue, epochStrikeToken, ssovContractWithSigner]);
-
   const handleApprove = useCallback(async () => {
     const finalAmount = getContractReadableAmount(inputValue, 18);
     try {
@@ -175,6 +157,25 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     updateUserEpochStrikeTokenBalance,
     formik,
   ]);
+
+  // Handles isApproved
+  useEffect(() => {
+    if (!epochStrikeToken || !ssovContractWithSigner) return;
+    (async function () {
+      const finalAmount = getContractReadableAmount(inputValue, 18);
+
+      let allowance = await epochStrikeToken.allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
+
+      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+        setApproved(true);
+      } else {
+        setApproved(false);
+      }
+    })();
+  }, [accountAddress, inputValue, epochStrikeToken, ssovContractWithSigner]);
 
   return (
     <Dialog

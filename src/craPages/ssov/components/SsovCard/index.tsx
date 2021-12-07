@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import format from 'date-fns/format';
 
@@ -40,7 +41,7 @@ function SsovCard(props: SsovCardProps) {
   } = props;
   const navigate = useNavigate();
   const { selectedEpoch, tokenPrice, tokenName } = ssov;
-  const { epochTimes, totalEpochDeposits, APY } = ssovData;
+  const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
@@ -200,17 +201,28 @@ function SsovCard(props: SsovCardProps) {
             >
               Manage
             </CustomButton>
-            <CustomButton
-              size="medium"
-              className={cx('', styles.Button)}
-              onClick={() => {
-                setPurchaseState(true);
-                setSelectedSsov(ssovIndex);
-              }}
-              disabled
+            <Tooltip
+              className="text-stieglitz"
+              title={
+                !isVaultReady
+                  ? 'Options can not be bought during the deposit period'
+                  : ''
+              }
             >
-              Buy Options
-            </CustomButton>
+              <Box className="w-full">
+                <CustomButton
+                  size="medium"
+                  className={cx('w-full', styles.Button)}
+                  onClick={() => {
+                    setPurchaseState(true);
+                    setSelectedSsov(ssovIndex);
+                  }}
+                  disabled={!isVaultReady}
+                >
+                  Buy Options
+                </CustomButton>
+              </Box>
+            </Tooltip>
           </Box>
           <Typography variant="h6" className="text-stieglitz">
             Epoch {selectedEpoch}

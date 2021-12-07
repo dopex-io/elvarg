@@ -6,9 +6,7 @@ import {
   useCallback,
 } from 'react';
 import {
-  NativeSSOV,
   NativeSSOV__factory,
-  ERC20SSOV,
   ERC20SSOV__factory,
   SSOVOptionPricing__factory,
   VolatilityOracle__factory,
@@ -230,7 +228,7 @@ export const SsovProvider = (props) => {
 
       let priceDPX = prices[0];
       let priceRDPX = prices[1];
-      let priceEth = prices[2];
+      let priceETH = prices[2];
       let priceAsset;
 
       if (asset === 'DPX') {
@@ -238,7 +236,7 @@ export const SsovProvider = (props) => {
       } else if (asset === 'RDPX') {
         priceAsset = priceRDPX;
       } else {
-        priceAsset = priceEth;
+        priceAsset = priceETH;
       }
 
       let APY;
@@ -281,7 +279,18 @@ export const SsovProvider = (props) => {
 
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
       } else {
-        APY = '7';
+        const TVL = totalEpochDeposits
+          .mul(Math.round(priceETH))
+          .div(oneEBigNumber(18));
+
+        let rewardsEmitted = BigNumber.from('500'); // 500 DPX per month
+        rewardsEmitted = rewardsEmitted.mul(Math.round(priceDPX)).mul(12); // for 12 months
+
+        const denominator = TVL.toNumber() + rewardsEmitted.toNumber();
+
+        let APR = (denominator / TVL.toNumber() - 1) * 100;
+
+        APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
       }
 
       ssovData.push({

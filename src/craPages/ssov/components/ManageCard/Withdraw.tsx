@@ -27,7 +27,7 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
     ssovSignerArray,
   } = useContext(SsovContext);
 
-  const { currentEpoch, selectedEpoch } = ssov;
+  const { selectedEpoch } = ssov;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const {
     epochTimes,
@@ -65,6 +65,8 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
 
   const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
 
+  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
+
   // Handle Withdraw
   const handleWithdraw = useCallback(
     async (index) => {
@@ -85,8 +87,6 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
       updateAssetBalances,
     ]
   );
-
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   return (
     <Box>
