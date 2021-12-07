@@ -90,7 +90,7 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     try {
       await sendTx(epochStrikeToken.approve(recipient, finalAmount));
       if (
-        (await epochStrikeToken.allowance(accountAddress, recipient)).eq(
+        (await epochStrikeToken.allowance(accountAddress, recipient)).gte(
           BigNumber.from(finalAmount)
         )
       ) {
@@ -171,11 +171,7 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img src={'/assets/dpx.svg'} alt="DPX" />
               </Box>
-              <Typography variant="h5" className="text-white">
-                DoToken
-              </Typography>
             </Box>
-
             <Input
               disableUnderline={true}
               id="amount"
@@ -214,7 +210,6 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
             </Typography>
           </Box>
         )}
-
         <Box
           className={`${
             !error && 'mt-4'
