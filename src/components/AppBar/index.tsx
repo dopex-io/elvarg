@@ -109,7 +109,7 @@ interface AppBarProps {
 
 export default function AppBar(props: AppBarProps) {
   const { active } = props;
-  const { accountAddress, connect, wrongNetwork, chainId, ensName } =
+  const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
     useContext(WalletContext);
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
 
@@ -264,6 +264,9 @@ export default function AppBar(props: AppBarProps) {
                   className="text-white border-cod-gray hover:border-wave-blue border border-solid"
                   onClick={handleClick}
                 >
+                  {ensAvatar && (
+                    <img src={ensAvatar} className="w-5 mr-2" alt="logo" />
+                  )}
                   {walletButtonContent}
                 </Button>
               </Box>

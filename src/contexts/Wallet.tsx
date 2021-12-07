@@ -11,6 +11,7 @@ import { useLocation } from 'react-router';
 interface WalletContextInterface {
   accountAddress?: string;
   ensName?: string;
+  ensAvatar?: string;
   contractAddresses?: { [key: string]: any };
   provider?: ethers.providers.Provider;
   signer?: Signer;
@@ -86,8 +87,11 @@ export const WalletProvider = (props) => {
     ),
     supportedChainIds: [],
   });
+  const [ens, setEns] = useState<{
+    ensName: string;
+    ensAvatar: string;
+  }>({ ensName: '', ensAvatar: '' });
   const [blockTime, setBlockTime] = useState(0);
-  const [ensName, setEnsName] = useState<string>('');
 
   useEffect(() => {
     if (!state.provider) return;
@@ -220,18 +224,16 @@ export const WalletProvider = (props) => {
         const mainnetProvider = ethers.getDefaultProvider(
           CHAIN_ID_TO_PROVIDERS[1]
         );
+        const ensData = { ensName: '', ensAvatar: '' };
         try {
-          const getName: string = await mainnetProvider.lookupAddress(
-            state.accountAddress
-          );
-          if (getName) {
-            setEnsName(getName);
-          } else {
-            setEnsName('');
+          ensData.ensName =
+            (await mainnetProvider.lookupAddress(state.accountAddress)) ?? '';
+          if (ensData.ensName !== '') {
+            ensData.ensAvatar =
+              (await mainnetProvider.getAvatar(ensData.ensName)) ?? '';
           }
-        } catch (err) {
-          console.log(err);
-        }
+        } catch {}
+        setEns(ensData);
       }
     })();
   }, [state.accountAddress]);
@@ -241,7 +243,7 @@ export const WalletProvider = (props) => {
     disconnect,
     changeWallet,
     blockTime,
-    ensName,
+    ...ens,
     ...state,
   };
 
