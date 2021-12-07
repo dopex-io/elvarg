@@ -17,8 +17,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
-
 export interface Props {
   open: boolean;
   handleClose: () => {};
@@ -35,22 +33,21 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     userSsovDataArray,
     ssovSignerArray,
   } = useContext(SsovContext);
-  const { selectedEpoch, tokenPrice } = ssov;
-  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
-  const { epochStrikes } = ssovDataArray[selectedSsov];
-  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
-
   const { accountAddress, signer } = useContext(WalletContext);
+
   const [transferAmount, setTransferAmount] = useState(0);
   const [recipient, setRecipient] = useState('');
   const [approved, setApproved] = useState<boolean>(false);
-  const [maxApprove, setMaxApprove] = useState(false);
-
-  // const epochStrikeToken = epochStrikeTokens[strikeIndex];
-  const epochStrikeToken = epochStrikeTokens[strikeIndex];
-  const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<number>(0);
+
+  const { selectedEpoch } = ssov;
+  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
+  const { epochStrikes } = ssovDataArray[selectedSsov];
+  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
+  const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
+  const epochStrikeToken = epochStrikeTokens[strikeIndex];
+
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
       setUserEpochStrikeTokenBalance(0);
@@ -63,10 +60,6 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
       getUserReadableAmount(userEpochStrikeTokenBalance, 18)
     );
   }, [epochStrikeToken, accountAddress]);
-
-  useEffect(() => {
-    updateUserEpochStrikeTokenBalance();
-  }, [updateUserEpochStrikeTokenBalance]);
 
   const handleRecipientChange = useCallback((e) => {
     setRecipient(e.target.value.toString());
@@ -83,9 +76,10 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
   const handleApprove = async () => {
     if (!accountAddress || !epochStrikeToken || !ssovContractWithSigner) return;
 
-    const finalAmount = maxApprove
-      ? MAX_VALUE
-      : getContractReadableAmount(transferAmount, 18).toString();
+    const finalAmount = getContractReadableAmount(
+      transferAmount,
+      18
+    ).toString();
 
     try {
       await sendTx(epochStrikeToken.approve(recipient, finalAmount));
@@ -115,6 +109,10 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    updateUserEpochStrikeTokenBalance();
+  }, [updateUserEpochStrikeTokenBalance]);
 
   const error = useMemo(() => {
     let errorMessage;
