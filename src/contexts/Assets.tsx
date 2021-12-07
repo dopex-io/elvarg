@@ -24,7 +24,11 @@ interface AssetsContextInterface {
   baseAssets: string[];
   quoteAssets: string[];
   tokens: string[];
-  tokenPrices: { price: number; change: number; name: string }[];
+  tokenPrices: {
+    price: number;
+    name: string;
+    change24h: number;
+  }[];
   baseAssetsWithPrices?: AssetData;
   userAssetBalances: { [key: string]: string };
   handleChangeSelectedBaseAsset?: Function;
@@ -37,7 +41,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'WETH'],
+  tokens: ['DPX', 'rDPX', 'WETH'],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
@@ -53,7 +57,7 @@ const ASSET_TO_COINGECKO_ID = {
   WETH: 'ethereum',
   WBTC: 'bitcoin',
   DPX: 'dopex',
-  RDPX: 'dopex-rebate-token',
+  rDPX: 'dopex-rebate-token',
 };
 
 export const AssetsContext =
@@ -106,33 +110,23 @@ export const AssetsProvider = (props) => {
 
       for (let i = 0; i < state.tokens.length; i++) {
         const asset = ASSET_TO_COINGECKO_ID[state.tokens[i]];
-        const promise = axios
-          .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd&include_24hr_change=true`
-          )
-          .then((payload) => {
-            let key, name;
-            if (payload.data.dopex) {
-              key = 'dopex';
-              name = 'DPX';
-            } else if (payload.data.ethereum) {
-              key = 'ethereum';
-              name = 'ETH';
-            } else {
-              key = 'dopex-rebate-token';
-              name = 'rDPX';
-            }
-            return {
-              name,
-              change: payload.data[key]['usd_24h_change'],
-              price: payload.data[key].usd,
-            };
-          });
+        const promise = axios.get(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd&include_24hr_change=true`
+        );
 
         pricePromises.push(promise);
       }
 
-      const data = await Promise.all(pricePromises);
+      const prices = await Promise.all(pricePromises);
+
+      const data = prices.map((i, index) => {
+        const temp = i.data[ASSET_TO_COINGECKO_ID[state.tokens[index]]];
+        return {
+          name: state.tokens[index],
+          change24h: temp['usd_24h_change'],
+          price: temp.usd,
+        };
+      });
 
       setState((prevState) => ({ ...prevState, tokenPrices: data }));
     };

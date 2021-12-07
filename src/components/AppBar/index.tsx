@@ -229,7 +229,7 @@ export default function AppBar(props: AppBarProps) {
                     key={item.name}
                     asset={item.name}
                     price={item.price}
-                    change={item.change}
+                    change={item.change24h}
                   />
                 );
               })}
