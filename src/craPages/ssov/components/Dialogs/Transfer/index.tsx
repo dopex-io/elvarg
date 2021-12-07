@@ -14,7 +14,6 @@ import { SsovContext, Ssov } from 'contexts/Ssov';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { SSOV_MAP } from 'constants/index';
@@ -33,22 +32,38 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     selectedSsov,
     ssovDataArray,
     userSsovDataArray,
-    ssovSignerArray,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
 
   const [transferAmount, setTransferAmount] = useState(0);
   const [recipient, setRecipient] = useState('');
-  const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<number>(0);
 
   const { selectedEpoch } = ssov;
-  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
+
+  const error = useMemo(() => {
+    let errorMessage;
+    let recipientAddress = recipient.toLocaleLowerCase();
+    let _transferAmount = transferAmount.toString();
+    if (recipient !== '') {
+      try {
+        ethersUtils.getIcapAddress(recipientAddress);
+      } catch (err) {
+        errorMessage = 'Invalid address, please double check.';
+      }
+    }
+    if (_transferAmount !== '' || _transferAmount > '0') {
+      if (_transferAmount > userEpochStrikeTokenBalance.toString()) {
+        errorMessage = 'Transfer amount exceeds balance';
+      }
+    }
+    return errorMessage;
+  }, [recipient, transferAmount, userEpochStrikeTokenBalance]);
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
@@ -75,39 +90,12 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     setTransferAmount(userEpochStrikeTokenBalance);
   }, [userEpochStrikeTokenBalance]);
 
-  const handleApprove = useCallback(async () => {
-    if (!accountAddress || !epochStrikeToken || !ssovContractWithSigner) return;
-
-    const finalAmount = getContractReadableAmount(
-      transferAmount,
-      18
-    ).toString();
-
-    try {
-      await sendTx(epochStrikeToken.approve(recipient, finalAmount));
-      if (
-        (await epochStrikeToken.allowance(accountAddress, recipient)).gte(
-          BigNumber.from(finalAmount)
-        )
-      ) {
-        setApproved(true);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  }, [
-    transferAmount,
-    accountAddress,
-    epochStrikeToken,
-    ssovContractWithSigner,
-    recipient,
-  ]);
-
   const handleTransfer = useCallback(() => {
     if (!accountAddress || !epochStrikeToken) return;
     try {
-      sendTx(epochStrikeToken.transfer(accountAddress, recipient));
-
+      sendTx(
+        epochStrikeToken.connect(signer).transfer(accountAddress, recipient)
+      );
       updateSsovData();
       updateUserSsovData();
       updateUserEpochStrikeTokenBalance();
@@ -123,31 +111,12 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
     updateSsovData,
     updateUserEpochStrikeTokenBalance,
     updateUserSsovData,
+    signer,
   ]);
 
   useEffect(() => {
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
-
-  const error = useMemo(() => {
-    let errorMessage;
-    let recipientAddress = recipient.toLocaleLowerCase();
-    let _transferAmount = transferAmount.toString();
-    if (recipient !== '') {
-      try {
-        ethersUtils.getIcapAddress(recipientAddress);
-      } catch (err) {
-        errorMessage = 'Invalid address, please double check.';
-      }
-    }
-    if (_transferAmount !== '' || _transferAmount > '0') {
-      if (_transferAmount > userEpochStrikeTokenBalance.toString()) {
-        errorMessage = 'Transfer amount exceeds balance';
-      }
-    }
-    return errorMessage;
-  }, [recipient, transferAmount, userEpochStrikeTokenBalance]);
-
   return (
     <Dialog
       open={open}
@@ -242,28 +211,18 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
             fullWidth
           />
         </Box>
-        {!approved ? (
-          <CustomButton
-            className="w-full mb-4"
-            onClick={handleApprove}
-            size="xl"
-            disabled={
-              transferAmount > 0 && recipient !== '' && error === undefined
-                ? false
-                : true
-            }
-          >
-            Approve
-          </CustomButton>
-        ) : (
-          <CustomButton
-            className="w-full mb-4"
-            onClick={handleTransfer}
-            size="xl"
-          >
-            Transfer
-          </CustomButton>
-        )}
+        <CustomButton
+          className="w-full mb-4"
+          onClick={handleTransfer}
+          size="xl"
+          disabled={
+            transferAmount > 0 && recipient !== '' && error === undefined
+              ? false
+              : true
+          }
+        >
+          Transfer
+        </CustomButton>
         <Box className="flex flex-row justify-between mt-4">
           <Typography variant="h6" className="text-stieglitz">
             Epoch {selectedEpoch}
