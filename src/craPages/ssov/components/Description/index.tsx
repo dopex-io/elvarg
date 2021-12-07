@@ -31,15 +31,14 @@ const Description = ({
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
-  const { tokenPrice } = ssov;
+  const { cgTokenPrice } = ssov;
   const { APY, isVaultReady } = ssovData;
 
   const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   const TVL =
-    ssovData?.totalEpochDeposits && tokenPrice
-      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
+    ssovData?.totalEpochDeposits && cgTokenPrice
+      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) * cgTokenPrice
       : 0;
 
   const info = [

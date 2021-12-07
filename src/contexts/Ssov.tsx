@@ -16,12 +16,18 @@ import {
   SSOVOptionPricing,
   StakingRewards__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import axios from 'axios';
 
 import { WalletContext } from './Wallet';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+
+const TOKEN_TO_CG_ID = {
+  ETH: 'ethereum',
+  DPX: 'dopex',
+  RDPX: 'dopex-rebate-token',
+};
 
 export interface Ssov {
   tokenName?: string;
@@ -30,6 +36,7 @@ export interface Ssov {
   selectedEpoch?: number;
   setSelectedEpoch?: Function;
   tokenPrice?: BigNumber;
+  cgTokenPrice?: number;
   ssovOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
@@ -323,13 +330,15 @@ export const SsovProvider = (props) => {
 
         // Epoch
         try {
-          const [currentEpoch, TokenPrice] = await Promise.all([
+          const [currentEpoch, cgTokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
-            _ssovContract.callStatic.getUsdPrice(
-              asset === 'ETH'
-                ? contractAddresses['WETH']
-                : contractAddresses[asset.toUpperCase()]
-            ),
+            axios
+              .get(
+                `https://api.coingecko.com/api/v3/simple/price?ids=${TOKEN_TO_CG_ID[asset]}&vs_currencies=usd`
+              )
+              .then((payload) => {
+                return payload.data[TOKEN_TO_CG_ID[asset]].usd;
+              }),
           ]);
 
           if (Number(currentEpoch) === 0) {
@@ -344,7 +353,8 @@ export const SsovProvider = (props) => {
             selectedEpoch:
               Number(currentEpoch) === 0 ? 1 : Number(currentEpoch),
             setSelectedSsov: setSelectedSsov,
-            tokenPrice: TokenPrice,
+            tokenPrice: ethersUtils.parseUnits(String(cgTokenPrice), 8),
+            cgTokenPrice,
             ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
               SSOVAddresses[asset].OptionPricing,
               provider

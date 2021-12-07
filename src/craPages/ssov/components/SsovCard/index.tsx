@@ -40,16 +40,15 @@ function SsovCard(props: SsovCardProps) {
     setSelectedSsov,
   } = props;
   const navigate = useNavigate();
-  const { selectedEpoch, tokenPrice, tokenName } = ssov;
+  const { selectedEpoch, cgTokenPrice, tokenName } = ssov;
   const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
   const TVL =
-    totalEpochDeposits && tokenPrice
-      ? getUserReadableAmount(totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
+    totalEpochDeposits && cgTokenPrice
+      ? getUserReadableAmount(totalEpochDeposits, 18) * cgTokenPrice
       : 0;
 
   const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
