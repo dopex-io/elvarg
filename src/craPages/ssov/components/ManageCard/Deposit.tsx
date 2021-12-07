@@ -159,6 +159,19 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
     }
   }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner]);
 
+  const handleMax = useCallback(
+    (index: number) => {
+      setStrikeDepositAmounts((prevState) => ({
+        ...prevState,
+        [index]: getUserReadableAmount(
+          BigNumber.from(userAssetBalances[tokenSymbol.toLocaleUpperCase()]),
+          18
+        ).toString(),
+      }));
+    },
+    [userAssetBalances, tokenSymbol]
+  );
+
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     try {
@@ -296,7 +309,7 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
                   ${strikes[index]}
                 </Typography>
               </Box>
-              <Box className="border-umbra rounded-xl border w-24">
+              <Box className="flex border-umbra rounded-xl border w-36 space-x-2">
                 <BasicInput
                   disableUnderline={true}
                   value={strikeDepositAmounts[index] || ''}
@@ -309,6 +322,14 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
                   className="h-10 text-sm text-white ml-2 border-mineshaft border rounded-md"
                   classes={{ input: 'text-center' }}
                 />
+                <Typography
+                  variant="h6"
+                  className="text-wave-blue my-auto"
+                  role="button"
+                  onClick={(e) => handleMax(index)}
+                >
+                  MAX
+                </Typography>
               </Box>
             </Box>
           ))}
