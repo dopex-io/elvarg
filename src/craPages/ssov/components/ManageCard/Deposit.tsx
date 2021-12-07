@@ -240,6 +240,27 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
     }
   }, [totalDepositAmount, totalEpochDeposits, userTokenBalance, tokenSymbol]);
 
+  // Updates approved state
+  useEffect(() => {
+    (async () => {
+      const finalAmount = getContractReadableAmount(
+        totalDepositAmount.toString(),
+        18
+      );
+      const allowance = await token.allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
+      setApproved(allowance.gte(finalAmount) ? true : false);
+    })();
+  }, [
+    token,
+    accountAddress,
+    ssovContractWithSigner,
+    approved,
+    totalDepositAmount,
+  ]);
+
   // Handles isApproved
   useEffect(() => {
     if (!token || !ssovContractWithSigner || !accountAddress) return;
