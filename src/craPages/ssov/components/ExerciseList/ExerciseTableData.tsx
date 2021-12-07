@@ -107,33 +107,6 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const Dialog = DIALOGS[dialogState.type];
 
-  // const menuItems = {
-  // PARTIAL: [
-  //   <MenuItem
-  //     key="auto-exercise"
-  //     onClick={handleAutoExercise}
-  //     className="text-white"
-  //     disabled={exercisableAmount.eq(BigNumber.from(0))}
-  //   >
-  //     Auto-Exercise
-  //   </MenuItem>,
-  //   <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
-  //     Withdraw
-  //   </MenuItem>,
-  //   <MenuItem key="claim" onClick={handleClaim} className="text-white">
-  //     Claim
-  //   </MenuItem>,
-  // ],
-  // ALL: [
-  //   <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
-  //     Withdraw
-  //   </MenuItem>,
-  //   <MenuItem key="claim" onClick={handleClaim} className="text-white">
-  //     Claim
-  //   </MenuItem>,
-  // ],
-  // };
-
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
       <Dialog
