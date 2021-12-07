@@ -6,9 +6,7 @@ import {
   useCallback,
 } from 'react';
 import {
-  NativeSSOV,
   NativeSSOV__factory,
-  ERC20SSOV,
   ERC20SSOV__factory,
   SSOVOptionPricing__factory,
   VolatilityOracle__factory,
@@ -18,12 +16,18 @@ import {
   SSOVOptionPricing,
   StakingRewards__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import axios from 'axios';
 
 import { WalletContext } from './Wallet';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+
+const TOKEN_TO_CG_ID = {
+  ETH: 'ethereum',
+  DPX: 'dopex',
+  RDPX: 'dopex-rebate-token',
+};
 
 export interface Ssov {
   tokenName?: string;
@@ -32,6 +36,7 @@ export interface Ssov {
   selectedEpoch?: number;
   setSelectedEpoch?: Function;
   tokenPrice?: BigNumber;
+  cgTokenPrice?: number;
   ssovOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
@@ -230,7 +235,7 @@ export const SsovProvider = (props) => {
 
       let priceDPX = prices[0];
       let priceRDPX = prices[1];
-      let priceEth = prices[2];
+      let priceETH = prices[2];
       let priceAsset;
 
       if (asset === 'DPX') {
@@ -238,7 +243,7 @@ export const SsovProvider = (props) => {
       } else if (asset === 'RDPX') {
         priceAsset = priceRDPX;
       } else {
-        priceAsset = priceEth;
+        priceAsset = priceETH;
       }
 
       let APY;
@@ -281,7 +286,18 @@ export const SsovProvider = (props) => {
 
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
       } else {
-        APY = '7';
+        const TVL = totalEpochDeposits
+          .mul(Math.round(priceETH))
+          .div(oneEBigNumber(18));
+
+        let rewardsEmitted = BigNumber.from('500'); // 500 DPX per month
+        rewardsEmitted = rewardsEmitted.mul(Math.round(priceDPX)).mul(12); // for 12 months
+
+        const denominator = TVL.toNumber() + rewardsEmitted.toNumber();
+
+        let APR = (denominator / TVL.toNumber() - 1) * 100;
+
+        APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
       }
 
       ssovData.push({
@@ -314,13 +330,15 @@ export const SsovProvider = (props) => {
 
         // Epoch
         try {
-          const [currentEpoch, TokenPrice] = await Promise.all([
+          const [currentEpoch, cgTokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
-            _ssovContract.callStatic.getUsdPrice(
-              asset === 'ETH'
-                ? contractAddresses['WETH']
-                : contractAddresses[asset.toUpperCase()]
-            ),
+            axios
+              .get(
+                `https://api.coingecko.com/api/v3/simple/price?ids=${TOKEN_TO_CG_ID[asset]}&vs_currencies=usd`
+              )
+              .then((payload) => {
+                return payload.data[TOKEN_TO_CG_ID[asset]].usd;
+              }),
           ]);
 
           if (Number(currentEpoch) === 0) {
@@ -335,7 +353,8 @@ export const SsovProvider = (props) => {
             selectedEpoch:
               Number(currentEpoch) === 0 ? 1 : Number(currentEpoch),
             setSelectedSsov: setSelectedSsov,
-            tokenPrice: TokenPrice,
+            tokenPrice: ethersUtils.parseUnits(String(cgTokenPrice), 8),
+            cgTokenPrice,
             ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
               SSOVAddresses[asset].OptionPricing,
               provider

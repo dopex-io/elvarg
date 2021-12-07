@@ -1,6 +1,7 @@
-import { useState, useContext, useMemo } from 'react';
+import { useState } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import VaultBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
@@ -30,15 +31,14 @@ const Description = ({
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
-  const { tokenPrice } = ssov;
-  const { APY } = ssovData;
+  const { cgTokenPrice } = ssov;
+  const { APY, isVaultReady } = ssovData;
 
   const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
 
   const TVL =
-    ssovData?.totalEpochDeposits && tokenPrice
-      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
+    ssovData?.totalEpochDeposits && cgTokenPrice
+      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) * cgTokenPrice
       : 0;
 
   const info = [
@@ -77,17 +77,28 @@ const Description = ({
         {tokenSymbol} liquidity to our first options pool.
       </Typography>
       <Box className="flex flex-row">
-        <CustomButton
-          size="medium"
-          className="mb-6 mr-2"
-          fullWidth
-          onClick={() => {
-            setPurchaseState(true);
-          }}
-          disabled
+        <Tooltip
+          className="text-stieglitz"
+          title={
+            !isVaultReady
+              ? 'Options can not be bought during the deposit period'
+              : ''
+          }
         >
-          Buy Call Options
-        </CustomButton>
+          <Box className="w-full">
+            <CustomButton
+              size="medium"
+              className="mb-6 mr-2"
+              fullWidth
+              onClick={() => {
+                setPurchaseState(true);
+              }}
+              disabled={!isVaultReady}
+            >
+              Buy Call Options
+            </CustomButton>
+          </Box>
+        </Tooltip>
         <EpochSelector ssov={ssov} />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">

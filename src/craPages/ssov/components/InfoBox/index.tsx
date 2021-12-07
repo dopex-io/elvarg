@@ -1,6 +1,6 @@
 import Box from '@material-ui/core/Box';
 import cx from 'classnames';
-import { Tooltip } from '@material-ui/core';
+import Tooltip from '@material-ui/core/Tooltip';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
