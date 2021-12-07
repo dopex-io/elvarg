@@ -10,6 +10,7 @@ import { useLocation } from 'react-router';
 
 interface WalletContextInterface {
   accountAddress?: string;
+  ensName?: string;
   contractAddresses?: { [key: string]: any };
   provider?: ethers.providers.Provider;
   signer?: Signer;
@@ -86,6 +87,7 @@ export const WalletProvider = (props) => {
     supportedChainIds: [],
   });
   const [blockTime, setBlockTime] = useState(0);
+  const [ensName, setEnsName] = useState<string>('');
 
   useEffect(() => {
     if (!state.provider) return;
@@ -212,11 +214,34 @@ export const WalletProvider = (props) => {
     }
   }, [connect]);
 
+  useEffect(() => {
+    (async () => {
+      if (state.accountAddress) {
+        const mainnetProvider = ethers.getDefaultProvider(
+          CHAIN_ID_TO_PROVIDERS[1]
+        );
+        try {
+          const getName: string = await mainnetProvider.lookupAddress(
+            state.accountAddress
+          );
+          if (getName) {
+            setEnsName(getName);
+          } else {
+            setEnsName('');
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    })();
+  }, [state.accountAddress]);
+
   const contextValue = {
     connect,
     disconnect,
     changeWallet,
     blockTime,
+    ensName,
     ...state,
   };
 
