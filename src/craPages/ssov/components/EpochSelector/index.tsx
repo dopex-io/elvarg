@@ -5,16 +5,16 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import cx from 'classnames';
 
-import { Ssov } from 'contexts/Ssov';
+import { SsovProperties } from 'contexts/Ssov';
 
 export default function EpochSelector({
   className,
-  ssov,
+  ssovProperties,
 }: {
   className?: string;
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
 }) {
-  const { currentEpoch, selectedEpoch, setSelectedEpoch } = ssov;
+  const { currentEpoch, selectedEpoch, setSelectedEpoch } = ssovProperties;
 
   const handleSelectChange = useCallback(
     (e) => {
