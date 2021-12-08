@@ -1,15 +1,16 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
+// import Input from '@material-ui/core/Input';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import BigNumber from 'bignumber.js';
+// import { useFormik } from 'formik';
+// import * as yup from 'yup';
+// import BigNumber from 'bignumber.js';
+import { BigNumber } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import MaxApprove from 'components/MaxApprove';
+// import MaxApprove from 'components/MaxApprove';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -27,13 +28,19 @@ export interface Props {
   handleClose: () => {};
   strikeIndex: number;
   ssovProperties: SsovProperties;
+  // ssov: Ssov;
+  token: string;
+  settleableAmount: BigNumber;
 }
 
-const Exercise = ({
+const Settle = ({
   open,
   handleClose,
   strikeIndex,
   ssovProperties,
+  // ssov,
+  token,
+  settleableAmount = BigNumber.from(0),
 }: Props) => {
   const {
     updateSsovData,
@@ -51,9 +58,9 @@ const Exercise = ({
   const { epochStrikeTokens, userEpochStrikeDeposits } =
     userSsovDataArray[selectedSsov];
 
-  const [inputValue, setInputValue] = useState('0');
+  // const [inputValue, setInputValue] = useState('0');
   const [approved, setApproved] = useState<boolean>(false);
-  const [maxApprove, setMaxApprove] = useState(false);
+  // const [maxApprove, setMaxApprove] = useState(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<number>(0);
 
@@ -70,9 +77,10 @@ const Exercise = ({
       setUserEpochStrikeTokenBalance(0);
       return;
     }
-    const userEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
-      accountAddress
-    );
+    // const userEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
+    //   accountAddress
+    // );
+    const userEpochStrikeTokenBalance = getContractReadableAmount(50, 18);
     setUserEpochStrikeTokenBalance(
       getUserReadableAmount(userEpochStrikeTokenBalance, 18)
     );
@@ -81,106 +89,130 @@ const Exercise = ({
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
 
-  const PnL = currentPrice - (strikePrice * Number(inputValue)) / currentPrice;
+  // const PnL = currentPrice - (strikePrice * Number(inputValue)) / currentPrice;
+  const PnL =
+    currentPrice -
+    (strikePrice * getUserReadableAmount(settleableAmount, 18)) / currentPrice;
   const PnLPercent = PnL - 100 / userEpochStrikeDepositAmount;
 
   // Handle Input Amount
-  const validationSchema = yup.object({
-    amount: yup
-      .number()
-      .min(0, 'Amount has to be greater than 0')
-      .required('Amount is required'),
-  });
+  // const validationSchema = yup.object({
+  //   amount: yup
+  //     .number()
+  //     .min(0, 'Amount has to be greater than 0')
+  //     .required('Amount is required'),
+  // });
 
-  const formik = useFormik({
-    initialValues: {
-      amount: '',
-    },
-    enableReinitialize: true,
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
+  // const formik = useFormik({
+  //   initialValues: {
+  //     amount: '',
+  //   },
+  //   enableReinitialize: true,
+  //   validationSchema: validationSchema,
+  //   onSubmit: (values) => {
+  //     alert(JSON.stringify(values, null, 2));
+  //   },
+  // });
 
-  const handleMax = useCallback(() => {
-    setInputValue(userEpochStrikeTokenBalance.toString());
-    formik.setFieldValue(
-      'amount',
-      formatAmount(userEpochStrikeTokenBalance, 5)
-    );
-  }, [formik, userEpochStrikeTokenBalance]);
+  // const handleMax = useCallback(() => {
+  //   setInputValue(userEpochStrikeTokenBalance.toString());
+  //   formik.setFieldValue(
+  //     'amount',
+  //     formatAmount(userEpochStrikeTokenBalance, 5)
+  //   );
+  // }, [formik, userEpochStrikeTokenBalance]);
 
-  const inputHandleChange = useCallback(
-    (e) => {
-      formik.setFieldValue('amount', e.target.value);
-      setInputValue(e.target.value.toString());
-    },
-    [formik]
-  );
+  // const inputHandleChange = useCallback(
+  //   (e) => {
+  //     formik.setFieldValue('amount', e.target.value);
+  //     setInputValue(e.target.value.toString());
+  //   },
+  //   [formik]
+  // );
 
   const handleApprove = useCallback(async () => {
-    const finalAmount = getContractReadableAmount(inputValue, 18);
+    // const finalAmount = getContractReadableAmount(inputValue, 18);
     try {
       await sendTx(
         epochStrikeToken.approve(
           ssovContractWithSigner.address,
-          maxApprove ? MAX_VALUE : finalAmount.toString()
+          // maxApprove ? MAX_VALUE : settleableAmount.toString()
+          MAX_VALUE
         )
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [inputValue, maxApprove, epochStrikeToken, ssovContractWithSigner]);
+  }, [
+    // inputValue,
+    // settleableAmount,
+    // maxApprove,
+    epochStrikeToken,
+    ssovContractWithSigner,
+  ]);
 
   // Handle Exercise
-  const handleExercise = useCallback(async () => {
+  const handleSettle = useCallback(async () => {
     try {
       await sendTx(
-        ssovContractWithSigner.exercise(
+        ssovContractWithSigner.settle(
           strikeIndex,
-          getContractReadableAmount(inputValue, 18).toString(),
+          // getContractReadableAmount(inputValue, 18).toString(),
+          settleableAmount,
           accountAddress
         )
       );
       updateSsovData();
       updateUserSsovData();
       updateUserEpochStrikeTokenBalance();
-      setInputValue('');
-      formik.setFieldValue('amount', '');
+      // setInputValue('');
+      // formik.setFieldValue('amount', '');
     } catch (err) {
       console.log(err);
     }
   }, [
     ssovContractWithSigner,
     strikeIndex,
-    inputValue,
+    // inputValue,
+    settleableAmount,
     accountAddress,
     updateSsovData,
     updateUserSsovData,
     updateUserEpochStrikeTokenBalance,
-    formik,
+    // formik,
   ]);
 
   // Handles isApproved
   useEffect(() => {
     if (!epochStrikeToken || !ssovContractWithSigner) return;
     (async function () {
-      const finalAmount = getContractReadableAmount(inputValue, 18);
+      // const finalAmount = getContractReadableAmount(inputValue, 18);
 
       let allowance = await epochStrikeToken.allowance(
         accountAddress,
         ssovContractWithSigner.address
       );
 
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+      // if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+      if (
+        getContractReadableAmount(settleableAmount.toString(), 18).lte(
+          allowance
+        ) &&
+        !allowance.eq(0)
+      ) {
         setApproved(true);
       } else {
         setApproved(false);
       }
     })();
-  }, [accountAddress, inputValue, epochStrikeToken, ssovContractWithSigner]);
+  }, [
+    accountAddress,
+    // inputValue,
+    epochStrikeToken,
+    ssovContractWithSigner,
+    settleableAmount,
+  ]);
 
   return (
     <Dialog
@@ -190,39 +222,39 @@ const Exercise = ({
     >
       <Box className="flex flex-col">
         <Box className="flex flex-row items-center mb-4">
-          <IconButton className="p-0 pr-3 pb-1" onClick={handleClose}>
+          <IconButton className="p-0 mr-3 my-auto" onClick={handleClose}>
             <ArrowBackIcon
               className="text-stieglitz items-center"
               fontSize="large"
             />
           </IconButton>
-          <Typography variant="h3">Exercise</Typography>
+          <Typography variant="h3">Settle</Typography>
         </Box>
         <Box className="flex justify-between">
           <Typography variant="h6" className="text-stieglitz mb-2">
             Balance: {userEpochStrikeTokenBalance.toString()}
           </Typography>
-          <Typography
+          {/* <Typography
             variant="h6"
             className="text-wave-blue uppercase mb-2 mr-2"
             role="button"
             onClick={handleMax}
           >
             Max
-          </Typography>
+          </Typography> */}
         </Box>
 
-        <Box className="bg-umbra rounded-md flex flex-col mb-4 p-4">
+        <Box className="bg-umbra rounded-md flex flex-col mb-2 p-4">
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={'/assets/dpx.svg'} alt="DPX" />
+                <img src={`/assets/${token}.svg`} alt="DPX" />
               </Box>
               <Typography variant="h5" className="text-white">
-                DoToken
+                doToken
               </Typography>
             </Box>
-            <Input
+            {/* <Input
               disableUnderline={true}
               id="amount"
               name="amount"
@@ -234,7 +266,7 @@ const Exercise = ({
               type="number"
               className="h-12 text-2xl text-white ml-2"
               classes={{ input: 'text-right' }}
-            />
+            /> */}
           </Box>
           <Box className="flex flex-col">
             <Box className="flex flex-row justify-between mt-4">
@@ -267,10 +299,10 @@ const Exercise = ({
                 component="div"
                 className="text-stieglitz"
               >
-                Amount
+                Settlement Amount
               </Typography>
               <Typography variant="caption" component="div">
-                {inputValue}
+                {formatAmount(getUserReadableAmount(settleableAmount, 18), 5)}
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -303,40 +335,68 @@ const Exercise = ({
             </Box>
           </Box>
         </Box>
-        {inputValue.length === 0 ||
-        new BigNumber(inputValue).isZero() ||
-        new BigNumber(inputValue).isGreaterThan(userEpochStrikeTokenBalance) ||
-        strikePrice > currentPrice ? (
-          <CustomButton size="xl" className="w-full mb-4" disabled>
-            Exercise
-          </CustomButton>
-        ) : approved ? (
-          <CustomButton
-            size="xl"
-            className="w-full mb-4"
-            onClick={handleExercise}
-          >
-            Exercise
-          </CustomButton>
-        ) : (
-          <Box className="flex flex-col">
-            <MaxApprove value={maxApprove} setValue={setMaxApprove} />
-            <Box className="flex flex-row mt-2">
-              <CustomButton
-                size="large"
-                className="w-11/12 mr-1"
-                onClick={handleApprove}
-              >
-                Approve
-              </CustomButton>
-              <CustomButton size="large" className="w-11/12 ml-1" disabled>
-                Exercise
-              </CustomButton>
+        {
+          // inputValue.length === 0 ||
+          // new BigNumber(inputValue).isZero() ||
+          // new BigNumber(inputValue).isGreaterThan(userEpochStrikeTokenBalance) ||
+          settleableAmount.eq(BigNumber.from(0)) ||
+          // !settleableAmount.eq(
+          //   getContractReadableAmount(userEpochStrikeTokenBalance + 10, 18)
+          // ) ||
+          strikePrice < currentPrice ? (
+            <CustomButton size="xl" className="w-full mb-4" disabled>
+              Settle
+            </CustomButton>
+          ) : (
+            <Box>
+              <Box className="flex">
+                <CustomButton
+                  size="large"
+                  className="w-11/12 mr-1"
+                  disabled={!approved}
+                  onClick={handleSettle}
+                >
+                  Settle
+                </CustomButton>
+                <CustomButton
+                  size="large"
+                  className="w-11/12 ml-1"
+                  onClick={handleApprove}
+                  disabled={approved}
+                >
+                  Approve
+                </CustomButton>
+              </Box>
             </Box>
-          </Box>
-        )}
-        <Box className="flex flex-row justify-between mt-4">
-          <Typography variant="h6" className="text-stieglitz">
+          )
+          // approved ? (
+          //   <CustomButton
+          //     size="xl"
+          //     className="w-full mb-4"
+          //     onClick={handleSettle}
+          //   >
+          //     Settle
+          //   </CustomButton>
+          // ) : (
+          //   <Box className="flex flex-col">
+          //     {/* <MaxApprove value={maxApprove} setValue={setMaxApprove} /> */}
+          //     <Box className="flex mt-2">
+          //       <CustomButton
+          //         size="large"
+          //         className="w-11/12 mr-1"
+          //         onClick={handleApprove}
+          //       >
+          //         Approve
+          //       </CustomButton>
+          //       <CustomButton size="large" className="w-11/12 ml-1" disabled>
+          //         Settle
+          //       </CustomButton>
+          //     </Box>
+          //   </Box>
+          // )
+        }
+        <Box className="flex justify-between">
+          <Typography variant="h6" className="text-stieglitz pt-2">
             Epoch {selectedEpoch}
           </Typography>
         </Box>
@@ -345,4 +405,4 @@ const Exercise = ({
   );
 };
 
-export default Exercise;
+export default Settle;
