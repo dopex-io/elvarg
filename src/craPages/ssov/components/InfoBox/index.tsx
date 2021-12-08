@@ -35,7 +35,11 @@ const InfoBox = ({
         </Typography>
         {toolTip ? (
           <Box className="ml-1 flex items-center">
-            <Tooltip className="h-4 text-stieglitz" title={toolTip}>
+            <Tooltip
+              className="h-4 text-stieglitz"
+              title={toolTip}
+              arrow={true}
+            >
               <InfoOutlinedIcon />
             </Tooltip>
           </Box>

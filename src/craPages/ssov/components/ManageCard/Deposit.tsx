@@ -70,7 +70,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     []
   );
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
-    [key: number]: string;
+    [key: number]: BigNumber;
   }>({});
   const [error, setError] = useState('');
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
@@ -89,10 +89,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       selectedStrikeIndexes.reduce(
         (accumulator, currentIndex) =>
           accumulator.add(
-            ethersUtils.parseUnits(
-              strikeDepositAmounts[currentIndex] || '0',
-              18
-            )
+            strikeDepositAmounts[currentIndex] || BigNumber.from(0)
           ),
         BigNumber.from(0)
       ),
@@ -135,7 +132,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ) => {
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
-        [index]: e.target.value,
+        [index]: getContractReadableAmount(e.target.value, 18),
       }));
     },
     []
@@ -163,10 +160,9 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     (index: number) => {
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
-        [index]: getUserReadableAmount(
-          BigNumber.from(userAssetBalances[tokenSymbol.toLocaleUpperCase()]),
-          18
-        ).toString(),
+        [index]: BigNumber.from(
+          userAssetBalances[tokenSymbol.toLocaleUpperCase()]
+        ),
       }));
     },
     [userAssetBalances, tokenSymbol]
@@ -177,17 +173,14 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     try {
       const strikeIndexes = selectedStrikeIndexes.filter(
         (index) =>
-          strikeDepositAmounts[index] &&
-          ethersUtils.parseUnits(strikeDepositAmounts[index], 18).gt('0')
+          strikeDepositAmounts[index] && strikeDepositAmounts[index].gt('0')
       );
 
       if (tokenName === 'ETH') {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) =>
-              ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
-            ),
+            strikeIndexes.map((index) => strikeDepositAmounts[index]),
             accountAddress,
             {
               value: totalDepositAmount,
@@ -198,9 +191,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) =>
-              ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
-            ),
+            strikeIndexes.map((index) => strikeDepositAmounts[index]),
             accountAddress
           )
         );
@@ -333,7 +324,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               <Box className="flex border-umbra rounded-xl border w-36 space-x-2">
                 <BasicInput
                   disableUnderline={true}
-                  value={strikeDepositAmounts[index] || ''}
+                  value={getUserReadableAmount(strikeDepositAmounts[index], 18)}
                   placeholder="0"
                   inputProps={{
                     min: 0,

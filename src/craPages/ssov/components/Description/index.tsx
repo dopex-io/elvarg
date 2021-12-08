@@ -76,7 +76,7 @@ const Description = ({
         This farm simultaneously auto-compounds, farms and supplies{' '}
         {tokenSymbol} liquidity to our first options pool.
       </Typography>
-      <Box className="flex flex-row">
+      <Box className="flex flex-row mb-6">
         <Tooltip
           className="text-stieglitz"
           title={
@@ -84,11 +84,11 @@ const Description = ({
               ? 'Options can not be bought during the deposit period'
               : ''
           }
+          arrow={true}
         >
           <Box className="w-full">
             <CustomButton
               size="medium"
-              className="mb-6 mr-2"
               fullWidth
               onClick={() => {
                 setPurchaseState(true);
