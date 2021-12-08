@@ -17,7 +17,6 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
-// import Settle from '../../components/Dialogs/Settle';
 
 import { SsovProperties, SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
@@ -26,7 +25,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
 import styles from './styles.module.scss';
-// import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface userExercisableOption {
   strikeIndex: number;

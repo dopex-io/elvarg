@@ -14,7 +14,6 @@ import { SsovProperties, SsovData } from 'contexts/Ssov';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-// import Exercise from '../Dialogs/Exercise';
 import Transfer from '../Dialogs/Transfer';
 import Settle from '../Dialogs/Settle';
 
