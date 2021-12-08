@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useContext, useState, useMemo } from 'react';
 import { useFormik } from 'formik';
-import { utils as ethersUtils, BigNumber } from 'ethers';
+import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
@@ -49,7 +49,7 @@ const PurchaseDialog = ({
   const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress, provider } = useContext(WalletContext);
 
   const {
     currentEpoch,
@@ -279,9 +279,22 @@ const PurchaseDialog = ({
             Math.floor(Date.now() / 1000)
           );
 
-        const volatility = (
-          await volatilityOracleContract.getVolatility()
-        ).toNumber();
+        let volatility;
+        if (tokenName === 'ETH') {
+          const _abi = [
+            'function getVolatility(uint256) view returns (uint256)',
+          ];
+          const _temp = new ethers.Contract(
+            '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+            _abi,
+            provider
+          );
+          volatility = (await _temp.getVolatility(strike)).toNumber();
+        } else {
+          volatility = (
+            await volatilityOracleContract.getVolatility()
+          ).toNumber();
+        }
 
         const optionPrice = await ssovOptionPricingContract.getOptionPrice(
           false,
@@ -296,9 +309,9 @@ const PurchaseDialog = ({
           .div(tokenPrice);
 
         const fees = await ssovContractWithSigner.calculateFees(
-          premium,
           tokenPrice,
-          true
+          strike,
+          ethersUtils.parseEther(String(formik.values.amount))
         );
 
         setState({
@@ -322,6 +335,8 @@ const PurchaseDialog = ({
     volatilityOracleContract,
     tokenPrice,
     formik.values.amount,
+    provider,
+    tokenName,
   ]);
   return (
     <Dialog
