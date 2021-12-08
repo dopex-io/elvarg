@@ -12,7 +12,7 @@ import PurchaseDialog from '../PurchaseDialog';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
-import { Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
+import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -21,20 +21,20 @@ import { SSOV_MAP } from 'constants/index';
 import styles from './styles.module.scss';
 
 const Description = ({
-  ssov,
+  ssovProperties,
   ssovData,
   userSsovData,
 }: {
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
   ssovData: SsovData;
   userSsovData: UserSsovData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
-  const { cgTokenPrice } = ssov;
+  const { cgTokenPrice } = ssovProperties;
   const { APY, isVaultReady } = ssovData;
 
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const TVL =
     ssovData?.totalEpochDeposits && cgTokenPrice
@@ -43,7 +43,7 @@ const Description = ({
 
   const info = [
     {
-      icon: SSOV_MAP[ssov.tokenName].icon,
+      icon: SSOV_MAP[ssovProperties.tokenName].icon,
       heading: 'Asset',
       value: tokenSymbol,
     },
@@ -99,7 +99,7 @@ const Description = ({
             </CustomButton>
           </Box>
         </Tooltip>
-        <EpochSelector ssov={ssov} />
+        <EpochSelector ssovProperties={ssovProperties} />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {
@@ -124,7 +124,7 @@ const Description = ({
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
-          ssov={ssov}
+          ssovProperties={ssovProperties}
           ssovData={ssovData}
           userSsovData={userSsovData}
           handleClose={

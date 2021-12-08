@@ -20,7 +20,7 @@ import DepositOpen from 'assets/icons/DepositOpen';
 import DepositClosed from 'assets/icons/DepositClosed';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, Ssov } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import sendTx from 'utils/contracts/sendTx';
@@ -42,7 +42,7 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = ({ ssov }: { ssov: Ssov }) => {
+const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const {
     updateSsovData,
     updateUserSsovData,
@@ -54,7 +54,7 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
   const { accountAddress } = useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
 
-  const { selectedEpoch, tokenName } = ssov;
+  const { selectedEpoch, tokenName } = ssovProperties;
   const { ssovContractWithSigner, token } = ssovSignerArray[selectedSsov];
   const { userEpochStrikeDeposits, userEpochDeposits } =
     userSsovDataArray[selectedSsov];
@@ -99,7 +99,7 @@ const Deposit = ({ ssov }: { ssov: Ssov }) => {
     [selectedStrikeIndexes, strikeDepositAmounts]
   );
 
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()

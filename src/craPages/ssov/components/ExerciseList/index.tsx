@@ -18,7 +18,7 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
-import { Ssov, SsovContext } from 'contexts/Ssov';
+import { SsovProperties, SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -39,7 +39,11 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
-const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
+const ExerciseList = ({
+  ssovProperties,
+}: {
+  ssovProperties: SsovProperties;
+}) => {
   const { accountAddress } = useContext(WalletContext);
   const { selectedSsov, userSsovDataArray, ssovDataArray } =
     useContext(SsovContext);
@@ -49,7 +53,7 @@ const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
   >([]);
   const [page, setPage] = useState(0);
 
-  const { currentEpoch, selectedEpoch, tokenPrice } = ssov;
+  const { currentEpoch, selectedEpoch, tokenPrice } = ssovProperties;
   const { isVaultReady, epochStrikes } = ssovDataArray[selectedSsov];
   const {
     epochStrikeTokens,
@@ -237,7 +241,7 @@ const ExerciseList = ({ ssov }: { ssov: Ssov }) => {
                           exercisableAmount={exercisableAmount}
                           isExercisable={isExercisable}
                           isPastEpoch={isPastEpoch}
-                          ssov={ssov}
+                          ssovProperties={ssovProperties}
                           ssovData={ssovDataArray[selectedSsov]}
                         />
                       );

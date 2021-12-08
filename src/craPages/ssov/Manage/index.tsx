@@ -10,12 +10,17 @@ import ExerciseList from '../components/ExerciseList';
 import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
 
-import { SsovContext, Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
+import {
+  SsovContext,
+  SsovProperties,
+  SsovData,
+  UserSsovData,
+} from 'contexts/Ssov';
 
 const Manage = () => {
   const { asset } = useParams();
   const {
-    ssovArray,
+    ssovPropertiesArray,
     ssovDataArray,
     userSsovDataArray,
     setSelectedSsov,
@@ -23,37 +28,41 @@ const Manage = () => {
   } = useContext(SsovContext);
 
   const {
-    ssov,
+    ssovProperties,
     ssovData,
     userSsovData,
     index,
   }: {
-    ssov: Ssov;
+    ssovProperties: SsovProperties;
     ssovData: SsovData;
     userSsovData: UserSsovData;
     index: number;
   } = useMemo(() => {
-    if (ssovArray.length === 0)
+    if (ssovPropertiesArray.length === 0)
       return {
-        ssov: undefined,
+        ssovProperties: undefined,
         ssovData: undefined,
         userSsovData: undefined,
         index: 0,
       };
-    let i = ssovArray.findIndex((item) => item.tokenName === asset);
+    let i = ssovPropertiesArray.findIndex((item) => item.tokenName === asset);
     return {
-      ssov: ssovArray[i],
+      ssovProperties: ssovPropertiesArray[i],
       ssovData: ssovDataArray[i],
       userSsovData: userSsovDataArray[i],
       index: i,
     };
-  }, [ssovArray, asset, ssovDataArray, userSsovDataArray]);
+  }, [ssovPropertiesArray, asset, ssovDataArray, userSsovDataArray]);
 
   useEffect(() => {
     setSelectedSsov(index);
   }, [index, setSelectedSsov]);
 
-  if (ssov === undefined || ssovData === undefined || selectedSsov === null)
+  if (
+    ssovProperties === undefined ||
+    ssovData === undefined ||
+    selectedSsov === null
+  )
     return (
       <Box className="overflow-x-hidden bg-black h-screen">
         <PageLoader />
@@ -70,14 +79,16 @@ const Manage = () => {
         <Box className="flex flex-col mt-20">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
-              ssov={ssov}
+              ssovProperties={ssovProperties}
               ssovData={ssovData}
               userSsovData={userSsovData}
             />
-            <ManageCard ssov={ssov} />
+            <ManageCard ssovProperties={ssovProperties} />
           </Box>
-          {userSsovData === undefined ? null : <ExerciseList ssov={ssov} />}
-          <Stats ssov={ssov} className="mt-4" />
+          {userSsovData === undefined ? null : (
+            <ExerciseList ssovProperties={ssovProperties} />
+          )}
+          <Stats ssovProperties={ssovProperties} className="mt-4" />
         </Box>
       </Box>
     </Box>
