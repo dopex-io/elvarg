@@ -10,7 +10,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, Ssov } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/Ssov';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -22,10 +22,15 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
 }
 
-const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
+const Transfer = ({
+  open,
+  handleClose,
+  strikeIndex,
+  ssovProperties,
+}: Props) => {
   const {
     updateSsovData,
     updateUserSsovData,
@@ -40,7 +45,7 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<number>(0);
 
-  const { selectedEpoch } = ssov;
+  const { selectedEpoch } = ssovProperties;
   const { epochStrikes } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
@@ -148,12 +153,14 @@ const Transfer = ({ open, handleClose, strikeIndex, ssov }: Props) => {
         </Box>
         <Box className="bg-umbra rounded-md flex flex-col p-4">
           <Box className="flex flex-row justify-between">
-            <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row">
-              <Box className="flex flex-row content-center items-center h-full w-full">
-                <img
-                  src={SSOV_MAP[ssov.tokenName].imageSrc}
-                  alt={ssov.tokenName}
-                />
+            <Box className="h-12 bg-cod-gray rounded-xl p-3 flex flex-row space-x-2 w-24 justify-center items-center">
+              <img
+                className="flex"
+                src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
+                alt={ssovProperties.tokenName}
+              />
+              <Box className="text-stieglitz flex">
+                {ssovProperties.tokenName}
               </Box>
             </Box>
             <Input

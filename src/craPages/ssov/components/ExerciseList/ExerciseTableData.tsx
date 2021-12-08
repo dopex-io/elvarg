@@ -74,8 +74,13 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleTransfer = useCallback(
-    () => setDialogState({ open: true, type: 'TRANSFER', ssov: ssov }),
-    [ssov]
+    () =>
+      setDialogState({
+        open: true,
+        type: 'TRANSFER',
+        ssovProperties: ssovProperties,
+      }),
+    [ssovProperties]
   );
 
   const handleExercise = useCallback(
@@ -225,11 +230,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 key="transfer-options"
                 onClick={handleTransfer}
                 className="text-white"
-                disabled={exercisableAmount.eq(BigNumber.from(0))}
+                // disabled={exercisableAmount.eq(BigNumber.from(0))}
               >
                 Transfer
               </MenuItem>
-              ,
             </Menu>
           </Box>
         </Box>
