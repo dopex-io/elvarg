@@ -9,18 +9,18 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
 import { WalletContext } from 'contexts/Wallet';
-import { Ssov, SsovData } from 'contexts/Ssov';
+import { SsovProperties, SsovData } from 'contexts/Ssov';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
 import Exercise from '../Dialogs/Exercise';
+import Transfer from '../Dialogs/Transfer';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { SSOV_MAP } from 'constants/index';
 
-type DelegatedType = 'NONE' | 'PARTIAL' | 'ALL';
 interface ExerciseTableDataProps {
   strikeIndex: number;
   strikePrice: number;
@@ -30,12 +30,13 @@ interface ExerciseTableDataProps {
   pnlAmount: number;
   isExercisable: boolean;
   isPastEpoch: boolean;
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
   ssovData: SsovData;
 }
 
 const DIALOGS = {
   EXERCISE: Exercise,
+  TRANSFER: Transfer,
 };
 
 const ExerciseTableData = (props: ExerciseTableDataProps) => {
@@ -48,21 +49,21 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     pnlAmount,
     isExercisable,
     isPastEpoch,
-    ssov,
+    ssovProperties,
     ssovData,
   } = props;
 
   const { contractAddresses, signer } = useContext(WalletContext);
 
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
-  const { selectedEpoch } = ssov;
+  const { selectedEpoch } = ssovProperties;
   const { epochStrikes } = ssovData;
 
   const [dialogState, setDialogState] = useState({
     open: false,
     type: 'EXERCISE',
-    ssov: ssov,
+    ssovProperties: ssovProperties,
   });
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -72,71 +73,59 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     []
   );
 
-  const handleExercise = useCallback(
-    () => setDialogState({ open: true, type: 'AUTO_EXERCISE', ssov: ssov }),
+  const handleTransfer = useCallback(
+    () => setDialogState({ open: true, type: 'TRANSFER', ssov: ssov }),
     [ssov]
+  );
+
+  const handleExercise = useCallback(
+    () =>
+      setDialogState({
+        open: true,
+        type: 'AUTO_EXERCISE',
+        ssovProperties: ssovProperties,
+      }),
+    [ssovProperties]
   );
 
   const handleAutoExercise = useCallback(
-    () => setDialogState({ open: true, type: 'DELEGATE', ssov: ssov }),
-    [ssov]
+    () =>
+      setDialogState({
+        open: true,
+        type: 'DELEGATE',
+        ssovProperties: ssovProperties,
+      }),
+    [ssovProperties]
   );
 
   const handleWithdraw = useCallback(
-    () => setDialogState({ open: true, type: 'WITHDRAW', ssov: ssov }),
-    [ssov]
+    () =>
+      setDialogState({
+        open: true,
+        type: 'WITHDRAW',
+        ssovProperties: ssovProperties,
+      }),
+    [ssovProperties]
   );
 
   const handleClaim = useCallback(
-    () => setDialogState({ open: true, type: 'CLAIM', ssov: ssov }),
-    [ssov]
+    () =>
+      setDialogState({
+        open: true,
+        type: 'CLAIM',
+        ssovProperties: ssovProperties,
+      }),
+    [ssovProperties]
   );
 
-  // const handleClickMenu = useCallback(
-  //   (event) => setAnchorEl(event.currentTarget),
-  //   []
-  // );
+  const handleClickMenu = useCallback(
+    (event) => setAnchorEl(event.currentTarget),
+    []
+  );
 
-  // const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
+  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
   const Dialog = DIALOGS[dialogState.type];
-
-  // const menuItems = {
-  //   NONE: [
-  //     <MenuItem
-  //       key="auto-exercise"
-  //       onClick={handleAutoExercise}
-  //       className="text-white"
-  //       disabled={exercisableAmount.eq(BigNumber.from(0))}
-  //     >
-  //       Auto-Exercise
-  //     </MenuItem>,
-  //   ],
-  //   PARTIAL: [
-  //     <MenuItem
-  //       key="auto-exercise"
-  //       onClick={handleAutoExercise}
-  //       className="text-white"
-  //       disabled={exercisableAmount.eq(BigNumber.from(0))}
-  //     >
-  //       Auto-Exercise
-  //     </MenuItem>,
-  //     <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
-  //       Withdraw
-  //     </MenuItem>,
-  //     <MenuItem key="claim" onClick={handleClaim} className="text-white">
-  //       Claim
-  //     </MenuItem>,
-  //   ],
-  //   ALL: [
-  //     <MenuItem key="withdraw" onClick={handleWithdraw} className="text-white">
-  //       Withdraw
-  //     </MenuItem>,
-  //     <MenuItem key="claim" onClick={handleClaim} className="text-white">
-  //       Claim
-  //     </MenuItem>,
-  //   ],
-  // };
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -144,7 +133,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         open={dialogState.open}
         handleClose={handleClose}
         strikeIndex={strikeIndex}
-        ssov={ssov}
+        ssovProperties={ssovProperties}
         token={tokenSymbol}
         exercisableAmount={exercisableAmount}
         className="rounded-xl"
@@ -152,7 +141,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={SSOV_MAP[ssov.tokenName].imageSrc} alt={tokenSymbol} />
+            <img
+              src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
+              alt={tokenSymbol}
+            />
           </Box>
           <Typography variant="h5" className="text-white">
             {tokenSymbol}
@@ -213,7 +205,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               </CustomButton>
             </Box>
           )}
-          {/* <IconButton
+          <IconButton
             aria-label="more"
             aria-controls="long-menu"
             aria-haspopup="true"
@@ -229,9 +221,17 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               onClose={handleCloseMenu}
               classes={{ paper: 'bg-umbra' }}
             >
-              {menuItems[delegated]}
+              <MenuItem
+                key="transfer-options"
+                onClick={handleTransfer}
+                className="text-white"
+                disabled={exercisableAmount.eq(BigNumber.from(0))}
+              >
+                Transfer
+              </MenuItem>
+              ,
             </Menu>
-          </Box> */}
+          </Box>
         </Box>
       </TableCell>
     </TableRow>

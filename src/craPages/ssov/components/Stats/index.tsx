@@ -16,7 +16,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { SsovContext, Ssov } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -112,10 +112,13 @@ const StatsTableData = (
 
 const ROWS_PER_PAGE = 5;
 
-const Stats = (props: { className?: string; ssov: Ssov }) => {
-  const { className, ssov } = props;
+const Stats = (props: {
+  className?: string;
+  ssovProperties: SsovProperties;
+}) => {
+  const { className, ssovProperties } = props;
   const { ssovDataArray, selectedSsov } = useContext(SsovContext);
-  const { selectedEpoch, tokenPrice } = ssov;
+  const { selectedEpoch, tokenPrice } = ssovProperties;
   const {
     epochTimes,
     epochStrikes,
@@ -274,8 +277,10 @@ const Stats = (props: { className?: string; ssov: Ssov }) => {
                           totalPremiums={totalPremiums}
                           price={price}
                           epochTime={epochTime}
-                          imgSrc={SSOV_MAP[ssov.tokenName].imageSrc}
-                          tokenSymbol={SSOV_MAP[ssov.tokenName].tokenSymbol}
+                          imgSrc={SSOV_MAP[ssovProperties.tokenName].imageSrc}
+                          tokenSymbol={
+                            SSOV_MAP[ssovProperties.tokenName].tokenSymbol
+                          }
                         />
                       );
                     }

@@ -17,7 +17,12 @@ import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
+import {
+  SsovContext,
+  SsovProperties,
+  SsovData,
+  UserSsovData,
+} from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import sendTx from 'utils/contracts/sendTx';
@@ -29,7 +34,7 @@ import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 export interface Props {
   open: boolean;
   handleClose: () => {};
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
   userSsovData: UserSsovData;
   ssovData: SsovData;
 }
@@ -37,7 +42,7 @@ export interface Props {
 const PurchaseDialog = ({
   open,
   handleClose,
-  ssov,
+  ssovProperties,
   ssovData,
   userSsovData,
 }: Props) => {
@@ -52,7 +57,7 @@ const PurchaseDialog = ({
     ssovOptionPricingContract,
     volatilityOracleContract,
     tokenName,
-  } = ssov;
+  } = ssovProperties;
   const { ssovContractWithSigner, token } =
     ssovSignerArray !== undefined
       ? ssovSignerArray[selectedSsov]
@@ -77,7 +82,7 @@ const PurchaseDialog = ({
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
 
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const strikes = useMemo(
     () =>
@@ -352,7 +357,7 @@ const PurchaseDialog = ({
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={SSOV_MAP[ssov.tokenName].imageSrc}
+                  src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
                   alt={tokenSymbol}
                 />
               </Box>

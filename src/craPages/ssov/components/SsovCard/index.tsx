@@ -13,7 +13,7 @@ import InfoBox from '../InfoBox';
 
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
-import { Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
+import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -23,7 +23,7 @@ import styles from './styles.module.scss';
 
 interface SsovCardProps {
   className?: string;
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
   ssovData: SsovData;
   userSsovData: UserSsovData;
   ssovIndex: number;
@@ -33,14 +33,14 @@ interface SsovCardProps {
 function SsovCard(props: SsovCardProps) {
   const {
     className,
-    ssov,
+    ssovProperties,
     ssovData,
     userSsovData,
     ssovIndex,
     setSelectedSsov,
   } = props;
   const navigate = useNavigate();
-  const { selectedEpoch, cgTokenPrice, tokenName } = ssov;
+  const { selectedEpoch, cgTokenPrice, tokenName } = ssovProperties;
   const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
@@ -55,7 +55,7 @@ function SsovCard(props: SsovCardProps) {
 
   const info = [
     {
-      icon: SSOV_MAP[ssov.tokenName].icon,
+      icon: SSOV_MAP[ssovProperties.tokenName].icon,
       heading: 'Asset',
       value: tokenSymbol,
     },
@@ -101,7 +101,10 @@ function SsovCard(props: SsovCardProps) {
         <Box>
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
-              <img src={SSOV_MAP[ssov.tokenName].imageSrc} alt={tokenSymbol} />
+              <img
+                src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
+                alt={tokenSymbol}
+              />
             </Box>
             <Box className="flex items-center">
               <Typography variant="h5">{tokenSymbol} Options Vault</Typography>
@@ -230,7 +233,7 @@ function SsovCard(props: SsovCardProps) {
       </Box>
       {purchaseState && (
         <PurchaseDialog
-          ssov={ssov}
+          ssovProperties={ssovProperties}
           userSsovData={userSsovData}
           ssovData={ssovData}
           open={purchaseState}

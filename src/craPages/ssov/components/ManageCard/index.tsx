@@ -10,12 +10,12 @@ import Typography from 'components/UI/Typography';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
 
-import { Ssov } from 'contexts/Ssov';
+import { SsovProperties } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import styles from './styles.module.scss';
 
-const ManageCard = ({ ssov }: { ssov: Ssov }) => {
+const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const [isDeposit, setIsDeposit] = useState(true);
   const { accountAddress } = useContext(WalletContext);
 
@@ -27,7 +27,7 @@ const ManageCard = ({ ssov }: { ssov: Ssov }) => {
     setIsDeposit(false);
   }, []);
 
-  const { selectedEpoch } = ssov;
+  const { selectedEpoch } = ssovProperties;
 
   return (
     <Box
@@ -71,7 +71,11 @@ const ManageCard = ({ ssov }: { ssov: Ssov }) => {
           </Box>
         </Box>
       </Box>
-      {isDeposit ? <Deposit ssov={ssov} /> : <Withdraw ssov={ssov} />}
+      {isDeposit ? (
+        <Deposit ssovProperties={ssovProperties} />
+      ) : (
+        <Withdraw ssovProperties={ssovProperties} />
+      )}
     </Box>
   );
 };
