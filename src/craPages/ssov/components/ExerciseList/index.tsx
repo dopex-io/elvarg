@@ -251,17 +251,6 @@ const ExerciseList = ({
             </Table>
           )}
         </TableContainer>
-        {/* <Settle
-          open={true}
-          handleClose={() => {
-            return {};
-          }}
-          strikeIndex={0}
-          ssovProperties={ssovProperties}
-          token={'rDPX'}
-          settleableAmount={getContractReadableAmount(50, 18)}
-          // className="rounded-xl"
-        /> */}
         {userExercisableOptions.length > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"

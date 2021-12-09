@@ -41,14 +41,16 @@ const Settle = ({
     ssovDataArray,
     userSsovDataArray,
     ssovSignerArray,
+    ssovPropertiesArray,
   } = useContext(SsovContext);
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress, signer } = useContext(WalletContext);
 
   const { selectedEpoch, tokenPrice } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes } = ssovDataArray[selectedSsov];
-  const { epochStrikeTokens, userEpochStrikeDeposits } =
+  const { epochStrikeTokens /*, userEpochStrikeDeposits */ } =
     userSsovDataArray[selectedSsov];
+  const { ssovContract } = ssovPropertiesArray[selectedEpoch];
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
@@ -57,10 +59,10 @@ const Settle = ({
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
   const currentPrice = getUserReadableAmount(tokenPrice ?? 0, 8);
-  const userEpochStrikeDepositAmount = getUserReadableAmount(
-    userEpochStrikeDeposits[strikeIndex] ?? 0,
-    18
-  );
+  // const userEpochStrikeDepositAmount = getUserReadableAmount(
+  //   userEpochStrikeDeposits[strikeIndex] ?? 0,
+  //   18
+  // );
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
@@ -77,22 +79,28 @@ const Settle = ({
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL =
-    currentPrice -
-    (strikePrice * getUserReadableAmount(settleableAmount, 18)) / currentPrice;
-  const PnLPercent = PnL - 100 / userEpochStrikeDepositAmount;
+    ((currentPrice - strikePrice) *
+      getUserReadableAmount(settleableAmount, 18)) /
+    strikePrice;
+
+  // const PnLPercent = PnL - 100 / userEpochStrikeDepositAmount;
+
+  const PnLPercent = (PnL / getUserReadableAmount(settleableAmount, 18)) * 100;
 
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
-        epochStrikeToken.approve(ssovContractWithSigner.address, MAX_VALUE)
+        epochStrikeToken
+          .connect(signer)
+          .approve(ssovContract.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [epochStrikeToken, ssovContractWithSigner]);
+  }, [epochStrikeToken, signer, ssovContract]);
 
-  // Handle Exercise
+  // Handle Settle
   const handleSettle = useCallback(async () => {
     try {
       await sendTx(
@@ -120,23 +128,20 @@ const Settle = ({
 
   // Handles isApproved
   useEffect(() => {
-    if (!epochStrikeToken || !ssovContractWithSigner) return;
+    if (!epochStrikeToken || !ssovContract) return;
     (async function () {
       let allowance = await epochStrikeToken.allowance(
         accountAddress,
-        ssovContractWithSigner.address
+        ssovContract.address
       );
-      if (settleableAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        setApproved(false);
-      }
+      setApproved(settleableAmount.lte(allowance) && !allowance.eq(0));
     })();
   }, [
     accountAddress,
     epochStrikeToken,
-    ssovContractWithSigner,
+    ssovContract,
     settleableAmount,
+    approved,
   ]);
 
   return (
@@ -172,7 +177,7 @@ const Settle = ({
                 <img src={`/assets/${token}.svg`} alt={`${token}`} />
               </Box>
               <Typography variant="h5" className="text-white">
-                doToken
+                {`${token}-CALL${strikePrice}-EPOCH-${selectedEpoch}`}
               </Typography>
             </Box>
           </Box>
@@ -219,10 +224,10 @@ const Settle = ({
                 component="div"
                 className="text-stieglitz"
               >
-                Estimated Rewards
+                PNL
               </Typography>
               <Typography variant="caption" component="div">
-                {formatAmount(PnL, 5)} DPX
+                {formatAmount(PnL, 5)} {`${token}`}
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -231,7 +236,7 @@ const Settle = ({
                 component="div"
                 className="text-stieglitz"
               >
-                PNL
+                PNL%
               </Typography>
               <Typography
                 variant="caption"
@@ -243,36 +248,31 @@ const Settle = ({
             </Box>
           </Box>
         </Box>
-        {settleableAmount.eq(BigNumber.from(0)) ||
-        !settleableAmount.eq(userEpochStrikeTokenBalance) ||
-        strikePrice > currentPrice ? (
-          <CustomButton size="xl" className="w-full mb-4" disabled>
+        <Box className="flex mb-2">
+          <CustomButton
+            size="large"
+            className="w-11/12 mr-1"
+            disabled={
+              !approved ||
+              settleableAmount.eq(BigNumber.from(0)) ||
+              !settleableAmount.eq(userEpochStrikeTokenBalance) ||
+              strikePrice > currentPrice
+            }
+            onClick={handleSettle}
+          >
             Settle
           </CustomButton>
-        ) : (
-          <Box>
-            <Box className="flex">
-              <CustomButton
-                size="large"
-                className="w-11/12 mr-1"
-                disabled={!approved}
-                onClick={handleSettle}
-              >
-                Settle
-              </CustomButton>
-              <CustomButton
-                size="large"
-                className="w-11/12 ml-1"
-                onClick={handleApprove}
-                disabled={approved}
-              >
-                Approve
-              </CustomButton>
-            </Box>
-          </Box>
-        )}
+          <CustomButton
+            size="large"
+            className="w-11/12 ml-1"
+            onClick={handleApprove}
+            disabled={approved}
+          >
+            Approve
+          </CustomButton>
+        </Box>
         <Box className="flex justify-between">
-          <Typography variant="h6" className="text-stieglitz pt-2">
+          <Typography variant="h6" className="text-stieglitz">
             Epoch {selectedEpoch}
           </Typography>
         </Box>
