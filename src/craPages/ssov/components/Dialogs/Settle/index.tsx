@@ -78,8 +78,6 @@ const Settle = ({
       getUserReadableAmount(settleableAmount, 18)) /
     strikePrice;
 
-  const PnLPercent = (PnL / getUserReadableAmount(settleableAmount, 18)) * 100;
-
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
@@ -153,16 +151,6 @@ const Settle = ({
           </IconButton>
           <Typography variant="h3">Settle</Typography>
         </Box>
-        <Box className="flex justify-between">
-          <Typography variant="h6" className="text-stieglitz mb-2">
-            Balance:{' '}
-            {formatAmount(
-              getUserReadableAmount(userEpochStrikeTokenBalance, 18),
-              5
-            )}
-          </Typography>
-        </Box>
-
         <Box className="bg-umbra rounded-md flex flex-col mb-2 p-4">
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
@@ -221,22 +209,6 @@ const Settle = ({
               </Typography>
               <Typography variant="caption" component="div">
                 {formatAmount(PnL, 5)} {`${token}`}
-              </Typography>
-            </Box>
-            <Box className="flex flex-row justify-between mt-3">
-              <Typography
-                variant="caption"
-                component="div"
-                className="text-stieglitz"
-              >
-                PNL%
-              </Typography>
-              <Typography
-                variant="caption"
-                component="div"
-                className="text-wave-blue"
-              >
-                {formatAmount(PnLPercent, 5)}%
               </Typography>
             </Box>
           </Box>
