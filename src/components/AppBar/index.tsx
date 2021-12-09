@@ -20,7 +20,7 @@ import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
 import formatAmount from 'utils/general/formatAmount';
-import smartTrim from 'utils/general/smartTrim';
+import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import styles from './styles.module.scss';
@@ -109,7 +109,7 @@ interface AppBarProps {
 
 export default function AppBar(props: AppBarProps) {
   const { active } = props;
-  const { accountAddress, connect, wrongNetwork, chainId } =
+  const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
     useContext(WalletContext);
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
 
@@ -147,10 +147,10 @@ export default function AppBar(props: AppBarProps) {
     setWalletDialog(true);
   }, []);
 
-  let walletButtonContent = useMemo(() => {
+  const walletButtonContent = useMemo(() => {
     if (wrongNetwork) return 'Wrong Network';
-    if (accountAddress) return smartTrim(accountAddress, 10);
-  }, [accountAddress, wrongNetwork]);
+    if (accountAddress) return displayAddress(accountAddress, ensName);
+  }, [accountAddress, ensName, wrongNetwork]);
 
   const handleClaimRdpx = () => {
     setClaimRdpxDialog(true);
@@ -264,6 +264,13 @@ export default function AppBar(props: AppBarProps) {
                   className="text-white border-cod-gray hover:border-wave-blue border border-solid"
                   onClick={handleClick}
                 >
+                  {ensAvatar && (
+                    <img
+                      src={ensAvatar}
+                      className="w-5 mr-2"
+                      alt="ens avatar"
+                    />
+                  )}
                   {walletButtonContent}
                 </Button>
               </Box>
