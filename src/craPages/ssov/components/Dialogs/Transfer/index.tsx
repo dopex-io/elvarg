@@ -153,15 +153,16 @@ const Transfer = ({
         </Box>
         <Box className="bg-umbra rounded-md flex flex-col p-4">
           <Box className="flex flex-row justify-between">
-            <Box className="h-12 bg-cod-gray rounded-xl p-3 flex flex-row space-x-2 w-24 justify-center items-center">
-              <img
-                className="flex"
-                src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
-                alt={ssovProperties.tokenName}
-              />
-              <Box className="text-stieglitz flex">
-                {ssovProperties.tokenName}
+            <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
+              <Box className="flex flex-row h-8 w-8 mr-2">
+                <img
+                  src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
+                  alt={ssovProperties.tokenName}
+                />
               </Box>
+              <Typography variant="h5" className="text-white">
+                {ssovProperties.tokenName}
+              </Typography>
             </Box>
             <Input
               disableUnderline={true}
