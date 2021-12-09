@@ -14,8 +14,8 @@ import { SsovProperties, SsovData } from 'contexts/Ssov';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-import Exercise from '../Dialogs/Exercise';
 import Transfer from '../Dialogs/Transfer';
+import Settle from '../Dialogs/Settle';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -26,16 +26,16 @@ interface ExerciseTableDataProps {
   strikePrice: number;
   depositedAmount: number;
   purchasedAmount: number;
-  exercisableAmount: BigNumber;
+  settleableAmount: BigNumber;
   pnlAmount: number;
-  isExercisable: boolean;
+  isSettleable: boolean;
   isPastEpoch: boolean;
   ssovProperties: SsovProperties;
   ssovData: SsovData;
 }
 
 const DIALOGS = {
-  EXERCISE: Exercise,
+  SETTLE: Settle,
   TRANSFER: Transfer,
 };
 
@@ -45,9 +45,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     strikePrice,
     depositedAmount,
     purchasedAmount,
-    exercisableAmount,
+    settleableAmount,
     pnlAmount,
-    isExercisable,
+    isSettleable,
     isPastEpoch,
     ssovProperties,
     ssovData,
@@ -62,7 +62,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const [dialogState, setDialogState] = useState({
     open: false,
-    type: 'EXERCISE',
+    type: 'SETTLE',
     ssovProperties: ssovProperties,
   });
 
@@ -82,42 +82,11 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       }),
     [ssovProperties]
   );
-
-  const handleExercise = useCallback(
+  const handleSettle = useCallback(
     () =>
       setDialogState({
         open: true,
-        type: 'AUTO_EXERCISE',
-        ssovProperties: ssovProperties,
-      }),
-    [ssovProperties]
-  );
-
-  const handleAutoExercise = useCallback(
-    () =>
-      setDialogState({
-        open: true,
-        type: 'DELEGATE',
-        ssovProperties: ssovProperties,
-      }),
-    [ssovProperties]
-  );
-
-  const handleWithdraw = useCallback(
-    () =>
-      setDialogState({
-        open: true,
-        type: 'WITHDRAW',
-        ssovProperties: ssovProperties,
-      }),
-    [ssovProperties]
-  );
-
-  const handleClaim = useCallback(
-    () =>
-      setDialogState({
-        open: true,
-        type: 'CLAIM',
+        type: 'SETTLE',
         ssovProperties: ssovProperties,
       }),
     [ssovProperties]
@@ -140,7 +109,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         strikeIndex={strikeIndex}
         ssovProperties={ssovProperties}
         token={tokenSymbol}
-        exercisableAmount={exercisableAmount}
+        settleableAmount={settleableAmount}
         className="rounded-xl"
       />
       <TableCell align="left">
@@ -169,7 +138,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(getUserReadableAmount(exercisableAmount, 18), 5)}
+          {formatAmount(getUserReadableAmount(settleableAmount, 18), 5)}
         </Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
@@ -182,22 +151,20 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="right">
         <Box className="flex justify-end">
           {isPastEpoch ? (
-            <span>
-              <CustomButton
-                size="medium"
-                className="px-2"
-                onClick={handleExercise}
-                disabled={!isExercisable}
-                color={isExercisable ? 'primary' : 'cod-gray'}
-              >
-                {'Settle'}
-              </CustomButton>
-            </span>
+            <CustomButton
+              size="medium"
+              className="px-2"
+              onClick={handleSettle}
+              disabled={!isSettleable}
+              color={isSettleable ? 'primary' : 'cod-gray'}
+            >
+              Settle
+            </CustomButton>
           ) : (
             <Box className="flex space-x-1">
               <InfoPopover
                 className="my-auto"
-                id="exercise-info"
+                id="settle-info"
                 infoText="Settle is available only after expiry of this epoch."
               />
               <CustomButton
@@ -230,7 +197,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 key="transfer-options"
                 onClick={handleTransfer}
                 className="text-white"
-                disabled={exercisableAmount.eq(BigNumber.from(0))}
+                disabled={settleableAmount.eq(BigNumber.from(0))}
               >
                 Transfer
               </MenuItem>
