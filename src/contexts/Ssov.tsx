@@ -29,7 +29,7 @@ const TOKEN_TO_CG_ID = {
   RDPX: 'dopex-rebate-token',
 };
 
-export interface Ssov {
+export interface SsovProperties {
   tokenName?: string;
   ssovContract?: any;
   currentEpoch?: number;
@@ -66,7 +66,7 @@ export interface UserSsovData {
 }
 
 interface SsovContextInterface {
-  ssovArray: Ssov[];
+  ssovPropertiesArray: SsovProperties[];
   ssovDataArray: SsovData[];
   userSsovDataArray: UserSsovData[];
   ssovSignerArray: SsovSigner[];
@@ -104,7 +104,7 @@ const initialSsovSignerArray = [
 ];
 
 export const SsovContext = createContext<SsovContextInterface>({
-  ssovArray: [],
+  ssovPropertiesArray: [],
   ssovDataArray: [],
   userSsovDataArray: initialUserSsovDataArray,
   ssovSignerArray: initialSsovSignerArray,
@@ -117,7 +117,9 @@ export const SsovProvider = (props) => {
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsov, setSelectedSsov] = useState<number | null>(null);
-  const [ssovArray, setSsovArray] = useState<Ssov[]>([]);
+  const [ssovPropertiesArray, setSsovPropertiesArray] = useState<
+    SsovProperties[]
+  >([]);
   const [ssovDataArray, setSsovDataArray] = useState<SsovData[]>([]);
   const [ssovSignerArray, setSsovSignerArray] = useState<SsovSigner[]>(
     initialSsovSignerArray
@@ -319,7 +321,7 @@ export const SsovProvider = (props) => {
     if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
 
     async function update() {
-      const ssovArray: Ssov[] = [];
+      const ssovPropertiesArray: SsovProperties[] = [];
       const SSOVAddresses = contractAddresses.SSOV;
 
       for (const asset in SSOVAddresses) {
@@ -364,14 +366,14 @@ export const SsovProvider = (props) => {
               provider
             ),
           };
-          ssovArray.push({
+          ssovPropertiesArray.push({
             ...tempSsov,
           });
         } catch (err) {
           console.log(err);
         }
       }
-      setSsovArray(ssovArray);
+      setSsovPropertiesArray(ssovPropertiesArray);
     }
 
     update();
@@ -408,7 +410,7 @@ export const SsovProvider = (props) => {
   }, [updateSsovData]);
 
   const contextValue = {
-    ssovArray,
+    ssovPropertiesArray,
     ssovDataArray,
     userSsovDataArray,
     ssovSignerArray,

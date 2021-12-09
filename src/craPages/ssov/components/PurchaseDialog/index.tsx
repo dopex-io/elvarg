@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useContext, useState, useMemo } from 'react';
 import { useFormik } from 'formik';
-import { utils as ethersUtils, BigNumber } from 'ethers';
+import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
@@ -17,7 +17,12 @@ import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, Ssov, SsovData, UserSsovData } from 'contexts/Ssov';
+import {
+  SsovContext,
+  SsovProperties,
+  SsovData,
+  UserSsovData,
+} from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import sendTx from 'utils/contracts/sendTx';
@@ -29,7 +34,7 @@ import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 export interface Props {
   open: boolean;
   handleClose: () => {};
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
   userSsovData: UserSsovData;
   ssovData: SsovData;
 }
@@ -37,14 +42,14 @@ export interface Props {
 const PurchaseDialog = ({
   open,
   handleClose,
-  ssov,
+  ssovProperties,
   ssovData,
   userSsovData,
 }: Props) => {
   const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress, provider } = useContext(WalletContext);
 
   const {
     currentEpoch,
@@ -52,7 +57,7 @@ const PurchaseDialog = ({
     ssovOptionPricingContract,
     volatilityOracleContract,
     tokenName,
-  } = ssov;
+  } = ssovProperties;
   const { ssovContractWithSigner, token } =
     ssovSignerArray !== undefined
       ? ssovSignerArray[selectedSsov]
@@ -77,7 +82,7 @@ const PurchaseDialog = ({
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
 
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const strikes = useMemo(
     () =>
@@ -274,9 +279,22 @@ const PurchaseDialog = ({
             Math.floor(Date.now() / 1000)
           );
 
-        const volatility = (
-          await volatilityOracleContract.getVolatility()
-        ).toNumber();
+        let volatility;
+        if (tokenName === 'ETH') {
+          const _abi = [
+            'function getVolatility(uint256) view returns (uint256)',
+          ];
+          const _temp = new ethers.Contract(
+            '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+            _abi,
+            provider
+          );
+          volatility = (await _temp.getVolatility(strike)).toNumber();
+        } else {
+          volatility = (
+            await volatilityOracleContract.getVolatility()
+          ).toNumber();
+        }
 
         const optionPrice = await ssovOptionPricingContract.getOptionPrice(
           false,
@@ -291,9 +309,9 @@ const PurchaseDialog = ({
           .div(tokenPrice);
 
         const fees = await ssovContractWithSigner.calculateFees(
-          premium,
           tokenPrice,
-          true
+          strike,
+          ethersUtils.parseEther(String(formik.values.amount))
         );
 
         setState({
@@ -317,6 +335,8 @@ const PurchaseDialog = ({
     volatilityOracleContract,
     tokenPrice,
     formik.values.amount,
+    provider,
+    tokenName,
   ]);
   return (
     <Dialog
@@ -352,7 +372,7 @@ const PurchaseDialog = ({
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={SSOV_MAP[ssov.tokenName].imageSrc}
+                  src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
                   alt={tokenSymbol}
                 />
               </Box>

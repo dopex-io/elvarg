@@ -10,8 +10,12 @@ import SsovCard from './components/SsovCard';
 import { SsovContext } from 'contexts/Ssov';
 
 const Ssov = () => {
-  const { ssovArray, ssovDataArray, userSsovDataArray, setSelectedSsov } =
-    useContext(SsovContext);
+  const {
+    ssovPropertiesArray,
+    ssovDataArray,
+    userSsovDataArray,
+    setSelectedSsov,
+  } = useContext(SsovContext);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -30,7 +34,7 @@ const Ssov = () => {
           </Typography>
         </Box>
         <Box className="flex flex-col lg:flex-row lg:space-x-16 space-y-12 lg:space-y-0 justify-center items-center">
-          {ssovArray.length === 0 || ssovDataArray.length === 0
+          {ssovPropertiesArray.length === 0 || ssovDataArray.length === 0
             ? [0, 1, 2].map((i) => (
                 <Skeleton
                   key={i}
@@ -41,15 +45,15 @@ const Ssov = () => {
                   className="rounded-md bg-cod-gray"
                 />
               ))
-            : ssovArray.map((ssov, index) => (
+            : ssovPropertiesArray.map((ssovProperties, index) => (
                 <SsovCard
                   key={index}
-                  ssov={ssov}
+                  ssovProperties={ssovProperties}
                   ssovData={ssovDataArray[index]}
                   userSsovData={userSsovDataArray[index]}
                   setSelectedSsov={setSelectedSsov}
-                  ssovIndex={ssovArray.findIndex(
-                    (item) => item.tokenName === ssov.tokenName
+                  ssovIndex={ssovPropertiesArray.findIndex(
+                    (item) => item.tokenName === ssovProperties.tokenName
                   )}
                 />
               ))}

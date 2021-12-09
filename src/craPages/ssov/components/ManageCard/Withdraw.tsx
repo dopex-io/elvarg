@@ -7,7 +7,7 @@ import Countdown from 'react-countdown';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 
-import { SsovContext, Ssov } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import sendTx from 'utils/contracts/sendTx';
@@ -17,7 +17,7 @@ import { SSOV_MAP } from 'constants/index';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ ssov }: { ssov: Ssov }) => {
+const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const {
     updateSsovData,
     updateUserSsovData,
@@ -27,7 +27,7 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
     ssovSignerArray,
   } = useContext(SsovContext);
 
-  const { selectedEpoch } = ssov;
+  const { selectedEpoch } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const {
     epochTimes,
@@ -65,7 +65,7 @@ const Withdraw = ({ ssov }: { ssov: Ssov }) => {
 
   const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
 
-  const tokenSymbol = SSOV_MAP[ssov.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   // Handle Withdraw
   const handleWithdraw = useCallback(

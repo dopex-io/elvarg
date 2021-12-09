@@ -13,7 +13,7 @@ import MaxApprove from 'components/MaxApprove';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, Ssov } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/Ssov';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -26,10 +26,15 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
-  ssov: Ssov;
+  ssovProperties: SsovProperties;
 }
 
-const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
+const Exercise = ({
+  open,
+  handleClose,
+  strikeIndex,
+  ssovProperties,
+}: Props) => {
   const {
     updateSsovData,
     updateUserSsovData,
@@ -40,7 +45,7 @@ const Exercise = ({ open, handleClose, strikeIndex, ssov }: Props) => {
   } = useContext(SsovContext);
   const { accountAddress } = useContext(WalletContext);
 
-  const { selectedEpoch, tokenPrice } = ssov;
+  const { selectedEpoch, tokenPrice } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens, userEpochStrikeDeposits } =
