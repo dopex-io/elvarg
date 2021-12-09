@@ -183,7 +183,7 @@ const Settle = ({
               >
                 Strike Price
               </Typography>
-              <Typography variant="caption">
+              <Typography variant="caption" component="div">
                 ${formatAmount(strikePrice, 5)}
               </Typography>
             </Box>
