@@ -207,7 +207,11 @@ const Settle = ({
               >
                 PNL
               </Typography>
-              <Typography variant="caption" component="div">
+              <Typography
+                variant="caption"
+                component="div"
+                className="text-wave-blue"
+              >
                 {formatAmount(PnL, 5)} {`${token}`}
               </Typography>
             </Box>
