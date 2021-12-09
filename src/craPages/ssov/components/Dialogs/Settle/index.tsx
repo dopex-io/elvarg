@@ -48,8 +48,7 @@ const Settle = ({
   const { selectedEpoch, tokenPrice } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes } = ssovDataArray[selectedSsov];
-  const { epochStrikeTokens /*, userEpochStrikeDeposits */ } =
-    userSsovDataArray[selectedSsov];
+  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
   const { ssovContract } = ssovPropertiesArray[selectedEpoch];
 
   const [approved, setApproved] = useState<boolean>(false);
@@ -59,10 +58,6 @@ const Settle = ({
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
   const currentPrice = getUserReadableAmount(tokenPrice ?? 0, 8);
-  // const userEpochStrikeDepositAmount = getUserReadableAmount(
-  //   userEpochStrikeDeposits[strikeIndex] ?? 0,
-  //   18
-  // );
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
@@ -82,8 +77,6 @@ const Settle = ({
     ((currentPrice - strikePrice) *
       getUserReadableAmount(settleableAmount, 18)) /
     strikePrice;
-
-  // const PnLPercent = PnL - 100 / userEpochStrikeDepositAmount;
 
   const PnLPercent = (PnL / getUserReadableAmount(settleableAmount, 18)) * 100;
 

@@ -92,36 +92,6 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     [ssovProperties]
   );
 
-  // const handleAutoExercise = useCallback(
-  //   () =>
-  //     setDialogState({
-  //       open: true,
-  //       type: 'DELEGATE',
-  //       ssovProperties: ssovProperties,
-  //     }),
-  //   [ssovProperties]
-  // );
-
-  // const handleWithdraw = useCallback(
-  //   () =>
-  //     setDialogState({
-  //       open: true,
-  //       type: 'WITHDRAW',
-  //       ssovProperties: ssovProperties,
-  //     }),
-  //   [ssovProperties]
-  // );
-
-  // const handleClaim = useCallback(
-  //   () =>
-  //     setDialogState({
-  //       open: true,
-  //       type: 'CLAIM',
-  //       ssovProperties: ssovProperties,
-  //     }),
-  //   [ssovProperties]
-  // );
-
   const handleClickMenu = useCallback(
     (event) => setAnchorEl(event.currentTarget),
     []
