@@ -10,6 +10,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import debounce from 'lodash/debounce';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -38,6 +40,14 @@ export interface Props {
   userSsovData: UserSsovData;
   ssovData: SsovData;
 }
+
+const CustomSkeleton = ({ width, height = 4 }) => (
+  <Skeleton
+    variant="text"
+    animation="wave"
+    className={`bg-mineshaft w-${width} ml-8 h-${height} ounded-md opacity-30`}
+  />
+);
 
 const PurchaseDialog = ({
   open,
@@ -81,6 +91,8 @@ const PurchaseDialog = ({
     userEpochStrikePurchasableAmount,
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
+  const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
+    useState<Boolean>(false);
 
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
@@ -110,7 +122,7 @@ const PurchaseDialog = ({
 
   const formik = useFormik({
     initialValues: {
-      amount: 0,
+      amount: 1,
     },
     enableReinitialize: true,
     validationSchema: yup.object({
@@ -267,9 +279,22 @@ const PurchaseDialog = ({
       strikeIndex === null ||
       !ssovContractWithSigner ||
       !ssovOptionPricingContract ||
-      !volatilityOracleContract
-    )
+      !volatilityOracleContract ||
+      formik.values.amount === 0 ||
+      formik.values.amount.toString() === ''
+    ) {
+      setState((prev) => ({
+        ...prev,
+        volatility: 0,
+        optionPrice: BigNumber.from(0),
+        fees: BigNumber.from(0),
+        premium: BigNumber.from(0),
+        totalCost: BigNumber.from(0),
+      }));
       return;
+    }
+
+    setIsPurchaseStatsLoading(true);
 
     async function updateOptionPrice() {
       const strike = epochStrikes[strikeIndex];
@@ -321,12 +346,14 @@ const PurchaseDialog = ({
           fees,
           totalCost: premium.add(fees),
         });
+
+        setIsPurchaseStatsLoading(false);
       } catch (err) {
         console.log(err);
+        setIsPurchaseStatsLoading(false);
       }
     }
-
-    updateOptionPrice();
+    debounce(async () => await updateOptionPrice(), 500)();
   }, [
     strikeIndex,
     epochStrikes,
@@ -338,6 +365,7 @@ const PurchaseDialog = ({
     provider,
     tokenName,
   ]);
+
   return (
     <Dialog
       open={open}
@@ -471,7 +499,7 @@ const PurchaseDialog = ({
                     Amount
                   </Typography>
                   <Typography variant="caption" component="div">
-                    {formik.values.amount}
+                    {formik.values.amount ? formik.values.amount : 0}
                   </Typography>
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
@@ -482,9 +510,13 @@ const PurchaseDialog = ({
                   >
                     Volatility
                   </Typography>
-                  <Typography variant="caption" component="div">
-                    {state.volatility}
-                  </Typography>
+                  {isPurchaseStatsLoading ? (
+                    <CustomSkeleton width={8} />
+                  ) : (
+                    <Typography variant="caption" component="div">
+                      {state.volatility}
+                    </Typography>
+                  )}
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
                   <Typography
@@ -494,13 +526,17 @@ const PurchaseDialog = ({
                   >
                     Option Price
                   </Typography>
-                  <Typography variant="caption" component="div">
-                    $
-                    {formatAmount(
-                      getUserReadableAmount(state.optionPrice, 8),
-                      3
-                    )}
-                  </Typography>
+                  {isPurchaseStatsLoading ? (
+                    <CustomSkeleton width={24} />
+                  ) : (
+                    <Typography variant="caption" component="div">
+                      $
+                      {formatAmount(
+                        getUserReadableAmount(state.optionPrice, 8),
+                        3
+                      )}
+                    </Typography>
+                  )}
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
                   <Typography
@@ -510,13 +546,17 @@ const PurchaseDialog = ({
                   >
                     Fees
                   </Typography>
-                  <Typography variant="caption" component="div">
-                    $
-                    {formatAmount(
-                      getUserReadableAmount(state.fees.mul(tokenPrice), 26),
-                      3
-                    )}
-                  </Typography>
+                  {isPurchaseStatsLoading ? (
+                    <CustomSkeleton width={16} />
+                  ) : (
+                    <Typography variant="caption" component="div">
+                      $
+                      {formatAmount(
+                        getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                        3
+                      )}
+                    </Typography>
+                  )}
                 </Box>
                 <Box className="flex flex-row justify-between mb-4">
                   <Typography
@@ -526,25 +566,29 @@ const PurchaseDialog = ({
                   >
                     Total Cost
                   </Typography>
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    className="text-wave-blue"
-                  >
-                    {formatAmount(
-                      getUserReadableAmount(state.totalCost, 18),
-                      3
-                    )}{' '}
-                    {tokenSymbol} ($
-                    {formatAmount(
-                      getUserReadableAmount(
-                        state.totalCost.mul(tokenPrice),
-                        26
-                      ),
-                      3
-                    )}
-                    )
-                  </Typography>
+                  {isPurchaseStatsLoading ? (
+                    <CustomSkeleton width={36} />
+                  ) : (
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-wave-blue"
+                    >
+                      {formatAmount(
+                        getUserReadableAmount(state.totalCost, 18),
+                        3
+                      )}{' '}
+                      {tokenSymbol} ($
+                      {formatAmount(
+                        getUserReadableAmount(
+                          state.totalCost.mul(tokenPrice),
+                          26
+                        ),
+                        3
+                      )}
+                      )
+                    </Typography>
+                  )}
                 </Box>
                 <Box className="flex flex-row justify-between">
                   <Typography
@@ -607,6 +651,7 @@ const PurchaseDialog = ({
             size="xl"
             className="w-full mb-4"
             onClick={handlePurchase}
+            disabled={formik.values.amount === 0 || formik.values.amount === ''}
           >
             Purchase
           </CustomButton>
