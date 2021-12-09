@@ -265,7 +265,11 @@ export default function AppBar(props: AppBarProps) {
                   onClick={handleClick}
                 >
                   {ensAvatar && (
-                    <img src={ensAvatar} className="w-5 mr-2" alt="logo" />
+                    <img
+                      src={ensAvatar}
+                      className="w-5 mr-2"
+                      alt="ens avatar"
+                    />
                   )}
                   {walletButtonContent}
                 </Button>
