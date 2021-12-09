@@ -4,6 +4,7 @@ import { round100, round1, round1000 } from 'utils/math/rounding';
 import Dpx from 'assets/tokens/Dpx';
 import Rdpx from 'assets/tokens/Rdpx';
 import Eth from 'assets/tokens/Eth';
+import Bnb from 'assets/tokens/Bnb';
 
 export const ASSETS_LIST = process.env.NEXT_PUBLIC_ASSETS_LIST.split(',');
 
@@ -105,6 +106,12 @@ export const SSOV_MAP = {
     icon: Eth,
     imageSrc: '/assets/eth.svg',
     coinGeckoId: 'ethereum',
+  },
+  BNB: {
+    tokenSymbol: 'BNB',
+    icon: Bnb,
+    imageSrc: '/assets/bnb.svg',
+    coinGeckoId: 'binancecoin',
   },
 };
 

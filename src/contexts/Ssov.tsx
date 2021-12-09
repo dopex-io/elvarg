@@ -21,13 +21,8 @@ import axios from 'axios';
 
 import { WalletContext } from './Wallet';
 
+import { SSOV_MAP } from 'constants/index';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
-
-const TOKEN_TO_CG_ID = {
-  ETH: 'ethereum',
-  DPX: 'dopex',
-  RDPX: 'dopex-rebate-token',
-};
 
 export interface SsovProperties {
   tokenName?: string;
@@ -233,17 +228,30 @@ export const SsovProvider = (props) => {
           })
       );
 
+      pricePromises.push(
+        axios
+          .get(
+            `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd`
+          )
+          .then((payload) => {
+            return payload.data.binancecoin.usd;
+          })
+      );
+
       const prices = await Promise.all(pricePromises);
 
       let priceDPX = prices[0];
       let priceRDPX = prices[1];
       let priceETH = prices[2];
+      let priceBNB = prices[3];
       let priceAsset;
 
       if (asset === 'DPX') {
         priceAsset = priceDPX;
       } else if (asset === 'RDPX') {
         priceAsset = priceRDPX;
+      } else if (asset === 'BNB') {
+        priceAsset = priceBNB;
       } else {
         priceAsset = priceETH;
       }
@@ -336,10 +344,10 @@ export const SsovProvider = (props) => {
             _ssovContract.currentEpoch(),
             axios
               .get(
-                `https://api.coingecko.com/api/v3/simple/price?ids=${TOKEN_TO_CG_ID[asset]}&vs_currencies=usd`
+                `https://api.coingecko.com/api/v3/simple/price?ids=${SSOV_MAP[asset].coinGeckoId}&vs_currencies=usd`
               )
               .then((payload) => {
-                return payload.data[TOKEN_TO_CG_ID[asset]].usd;
+                return payload.data[SSOV_MAP[asset].coinGeckoId].usd;
               }),
           ]);
 
