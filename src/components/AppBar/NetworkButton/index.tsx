@@ -17,6 +17,7 @@ import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMeta
 const CHAIN_ID_TO_NETWORK_DATA = {
   1: { name: 'Mainnet', icon: '/assets/eth.svg' },
   42: { name: 'Kovan', icon: '/assets/eth.svg' },
+  56: { name: 'Binance Smart Chain', icon: '/assets/bsc.svg' },
   42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
 };
@@ -57,9 +58,7 @@ export default function NetworkButton({ className }: { className?: string }) {
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
 
-  const handleClick = () => {
-    const toChainId = BUILD === 'main' ? 42161 : 421611;
-
+  const handleClick = (toChainId: number) => {
     if (chainId !== toChainId) {
       changeOrAddNetworkToMetaMask(toChainId);
     }
@@ -96,8 +95,16 @@ export default function NetworkButton({ className }: { className?: string }) {
           <img src="/assets/arbitrum.svg" alt="Arbitrum" className="w-4 mr-3" />
         }
         className="lg:mb-6 mb-0"
-        endComponent={<Switch checked={chainId === 42161} className="ml-8" />}
-        onClick={handleClick}
+        endComponent={<Switch checked={chainId === 42161} className="ml-6" />}
+        onClick={() => handleClick(BUILD === 'main' ? 42161 : 421611)}
+      />,
+      <MenuItem
+        key={1}
+        text="Switch to BSC"
+        icon={<img src="/assets/bsc.svg" alt="BSC" className="w-4 mr-3" />}
+        className="lg:mb-6 mb-0"
+        endComponent={<Switch checked={chainId === 56} className="ml-20" />}
+        onClick={() => handleClick(56)}
       />,
       <MenuItem
         key={2}

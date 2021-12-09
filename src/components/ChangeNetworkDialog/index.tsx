@@ -19,6 +19,10 @@ const NETWORKS = {
     imgSrc: '/assets/eth.svg',
     name: 'Ethereum',
   },
+  56: {
+    imgSrc: '/assets/bsc.svg',
+    name: 'Binance Smart Chain',
+  },
   42161: {
     imgSrc: '/assets/arbitrum.svg',
     name: 'Arbitrum',

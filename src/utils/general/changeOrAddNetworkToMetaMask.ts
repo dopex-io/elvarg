@@ -4,6 +4,22 @@ const NETWORKS = {
   1: {
     chainId: '0x1',
   },
+  56: {
+    chainId: '0x38',
+    params: [
+      {
+        chainId: '0x38', // A 0x-prefixed hexadecimal string
+        chainName: 'Binance Smart Chain Mainnet',
+        nativeCurrency: {
+          name: 'Binance Coin',
+          symbol: 'BNB',
+          decimals: 18,
+        },
+        rpcUrls: ['https://bsc-dataseed1.binance.org/'],
+        blockExplorerUrls: ['https://bscscan.com/'],
+      },
+    ],
+  },
   42161: {
     chainId: '0xA4B1',
     params: [
