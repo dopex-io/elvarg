@@ -15,6 +15,10 @@ import {
   VolatilityOracle,
   SSOVOptionPricing,
   StakingRewards__factory,
+  CustomPriceOracle__factory,
+  ChainlinkAggregator__factory,
+  ChainlinkAggregator,
+  CustomPriceOracle,
 } from '@dopex-io/sdk';
 import { BigNumber, utils as ethersUtils } from 'ethers';
 import axios from 'axios';
@@ -330,9 +334,20 @@ export const SsovProvider = (props) => {
             ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
             : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
 
+        const oracleContract =
+          asset === 'ETH'
+            ? ChainlinkAggregator__factory.connect(
+                SSOVAddresses[asset].ChainlinkAggregator,
+                provider
+              )
+            : CustomPriceOracle__factory.connect(
+                SSOVAddresses[asset].CustomPriceOracle,
+                provider
+              );
+
         // Epoch
         try {
-          const [currentEpoch, cgTokenPrice] = await Promise.all([
+          const [currentEpoch, cgTokenPrice, tokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
             axios
               .get(
@@ -341,6 +356,9 @@ export const SsovProvider = (props) => {
               .then((payload) => {
                 return payload.data[TOKEN_TO_CG_ID[asset]].usd;
               }),
+            asset === 'ETH'
+              ? (oracleContract as ChainlinkAggregator).latestAnswer()
+              : (oracleContract as CustomPriceOracle).getPriceInUSD(),
           ]);
 
           if (Number(currentEpoch) === 0) {
@@ -355,7 +373,7 @@ export const SsovProvider = (props) => {
             selectedEpoch:
               Number(currentEpoch) === 0 ? 1 : Number(currentEpoch),
             setSelectedSsov: setSelectedSsov,
-            tokenPrice: ethersUtils.parseUnits(String(cgTokenPrice), 8),
+            tokenPrice,
             cgTokenPrice,
             ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
               SSOVAddresses[asset].OptionPricing,
