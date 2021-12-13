@@ -1,11 +1,6 @@
 module.exports = {
-  purge: {
-    content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html'],
-    options: {
-      safelist: ['bg-red-500', 'bg-green-500'],
-    },
-  },
-  darkMode: 'class',
+  safelist: ['bg-red-500', 'bg-emerald-500'],
+  content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html'],
   theme: {
     fontFamily: {
       sans: ['Ilisarniq'],
@@ -35,14 +30,6 @@ module.exports = {
       },
     },
   },
-  variants: {
-    extend: {
-      display: ['dark', 'group-hover'],
-      invert: ['dark'],
-      brightness: ['dark'],
-      filter: ['dark'],
-      borderWidth: ['hover'],
-    },
-  },
+
   plugins: [],
 };

@@ -225,18 +225,18 @@ export const SsovProvider = (props) => {
           provider
         );
 
-        const totalSupply = await stakingRewardsContract.totalSupply();
         let DPXemitted;
         let RDPXemitted;
+
+        let [DPX, RDPX, totalSupply] = await Promise.all([
+          stakingRewardsContract.rewardRateDPX(),
+          stakingRewardsContract.rewardRateRDPX(),
+          stakingRewardsContract.totalSupply(),
+        ]);
 
         const TVL = totalSupply
           .mul(Math.round(priceAsset))
           .div(oneEBigNumber(18));
-
-        let [DPX, RDPX] = await Promise.all([
-          stakingRewardsContract.rewardRateDPX(),
-          stakingRewardsContract.rewardRateRDPX(),
-        ]);
 
         const rewardsDuration = BigNumber.from(86400 * 365);
 
@@ -305,11 +305,11 @@ export const SsovProvider = (props) => {
         const oracleContract =
           asset === 'ETH'
             ? ChainlinkAggregator__factory.connect(
-                SSOVAddresses[asset].ChainlinkAggregator,
+                SSOVAddresses[asset].PriceOracle,
                 provider
               )
             : CustomPriceOracle__factory.connect(
-                SSOVAddresses[asset].CustomPriceOracle,
+                SSOVAddresses[asset].PriceOracle,
                 provider
               );
 

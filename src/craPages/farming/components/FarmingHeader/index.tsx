@@ -11,7 +11,7 @@ interface FarmingHeaderProps {
 
 const FarmingHeader = ({ Icon, heading, className }: FarmingHeaderProps) => {
   return (
-    <Box className={cx('flex flex-col mb-8 w-full', className)}>
+    <Box className={cx('flex flex-col mb-4 w-full', className)}>
       <Box className="w-full flex flex-row justify-between">
         <Box className="flex flex-row mr-1">
           <Box className="mr-2 h-8 max-w-14 flex flex-row">

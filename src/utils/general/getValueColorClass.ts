@@ -5,7 +5,7 @@ const getValueColorClass = (value: number): string => {
   if (value === 0) {
     return '';
   } else if (value > 0) {
-    return 'text-green-500';
+    return 'text-emerald-500';
   } else {
     return 'text-red-500';
   }
