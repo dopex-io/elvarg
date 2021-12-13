@@ -15,10 +15,10 @@ import {
   VolatilityOracle,
   SSOVOptionPricing,
   StakingRewards__factory,
-  CustomPriceOracle__factory,
+  PriceOracle__factory,
   ChainlinkAggregator__factory,
   ChainlinkAggregator,
-  CustomPriceOracle,
+  PriceOracle,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
@@ -300,12 +300,12 @@ export const SsovProvider = (props) => {
 
         const oracleContract =
           asset === 'ETH'
-            ? ChainlinkAggregator__factory.connect(
+            ? PriceOracle__factory.connect(
                 SSOVAddresses[asset].ChainlinkAggregator,
                 provider
               )
-            : CustomPriceOracle__factory.connect(
-                SSOVAddresses[asset].CustomPriceOracle,
+            : PriceOracle__factory.connect(
+                SSOVAddresses[asset].PriceOracle,
                 provider
               );
 
@@ -314,8 +314,8 @@ export const SsovProvider = (props) => {
           const [currentEpoch, tokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
             asset === 'ETH'
-              ? (oracleContract as ChainlinkAggregator).latestAnswer()
-              : (oracleContract as CustomPriceOracle).getPriceInUSD(),
+              ? (oracleContract as PriceOracle).getPriceInUSD()
+              : (oracleContract as PriceOracle).getPriceInUSD(),
           ]);
 
           if (Number(currentEpoch) === 0) {

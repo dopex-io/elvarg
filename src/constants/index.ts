@@ -159,6 +159,10 @@ export const DELEGATE_INFO: string =
 
 export const BUILD: string = process.env.NEXT_PUBLIC_BUILD;
 
+export const FIREBASE_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+
+export const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
 export const S3_BUCKET_RESOURCES = {
   DPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/DPX.png',
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
