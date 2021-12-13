@@ -93,8 +93,6 @@ export const FarmingProvider = (props) => {
         provider
       );
 
-      const totalTokens = await selectedBaseAssetContract.totalSupply();
-
       const stakingAsset = token.toUpperCase() + 'StakingRewards';
 
       if (!contractAddresses[stakingAsset]) return;
@@ -104,10 +102,15 @@ export const FarmingProvider = (props) => {
         provider
       );
 
-      const periodFinish = (
-        await stakingRewardsContract.periodFinish()
-      ).toNumber();
-      const totalSupply = await stakingRewardsContract.totalSupply();
+      let [periodFinishBigNumber, totalSupply, totalTokens] = await Promise.all(
+        [
+          stakingRewardsContract.periodFinish(),
+          stakingRewardsContract.totalSupply(),
+          selectedBaseAssetContract.totalSupply(),
+        ]
+      );
+
+      let periodFinish = periodFinishBigNumber.toNumber();
       let total = totalSupply;
 
       let priceLP = 100;
