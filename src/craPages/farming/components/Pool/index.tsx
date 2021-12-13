@@ -12,11 +12,12 @@ import { FarmingContext } from 'contexts/Farming';
 import { WalletContext } from 'contexts/Wallet';
 
 import Claim from '../Claim';
-import FarmingHeader from '../FarmingHeader/index';
-import CustomButton from 'components/UI/CustomButton';
-import Typography from 'components/UI/Typography';
 import LpTokenDistribution from '../LpTokenDistribution';
 import PoolShare from './PoolShare/PoolShare';
+import FarmingHeader from '../FarmingHeader';
+import CustomButton from 'components/UI/CustomButton';
+import Typography from 'components/UI/Typography';
+import RewardsCountdown from './RewardsCountdown/RewardsCountdown';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -37,7 +38,12 @@ const MODALS = {
   CLAIM: Claim,
 };
 
-const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
+const Pool = ({
+  Icon,
+  token,
+  poolInfo: { periodFinish, APR, TVL, stakingAsset },
+  className,
+}: PoolProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const open = Boolean(anchorEl);
@@ -50,7 +56,6 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
     open: false,
     type: 'CLAIM',
   });
-
   const Modal = MODALS[modalState.type];
 
   const navigate = useNavigate();
@@ -159,11 +164,13 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
       <Box className="w-full">
         <FarmingHeader
           Icon={Icon}
-          heading={
-            poolInfo.stakingAsset === 'RDPX' ? 'rDPX' : poolInfo.stakingAsset
-          }
+          heading={stakingAsset === 'RDPX' ? 'rDPX' : stakingAsset}
         />
       </Box>
+      <RewardsCountdown
+        periodFinish={periodFinish}
+        stakingAsset={stakingAsset}
+      />
       <Box className="border-cod-gray rounded-xl border p-4 flex flex-col justify-between w-full mb-4 h-full">
         {accountAddress ? (
           token.userStakedBalance > 0 ? (
@@ -196,7 +203,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
               </Box>
               <hr className="border-cod-gray mb-4" />
               <LpTokenDistribution
-                stakingAsset={poolInfo.stakingAsset}
+                stakingAsset={stakingAsset}
                 value={getUserReadableAmount(
                   token.userStakedBalance,
                   token.selectedBaseAssetDecimals
@@ -233,7 +240,7 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
               </Box>
               <hr className="border-cod-gray mb-4" />
               <LpTokenDistribution
-                stakingAsset={poolInfo.stakingAsset}
+                stakingAsset={stakingAsset}
                 value={getUserReadableAmount(
                   token.userStakedBalance,
                   token.selectedBaseAssetDecimals
@@ -250,21 +257,19 @@ const Pool = ({ Icon, token, poolInfo, className }: PoolProps) => {
                 Balance
               </Typography>
             </Box>
-            <LpTokenDistribution stakingAsset={poolInfo.stakingAsset} />
+            <LpTokenDistribution stakingAsset={stakingAsset} />
           </Box>
         )}
         <hr className="border-cod-gray mb-4" />
         <Box className="flex flex-row justify-between">
           <Box className="flex flex-col mr-2">
-            <Typography variant="h4">${formatAmount(poolInfo.TVL)}</Typography>
+            <Typography variant="h4">${formatAmount(TVL)}</Typography>
             <Typography variant="h6" className="text-stieglitz">
               TVL
             </Typography>
           </Box>
           <Box className="flex flex-col mr-4">
-            <Typography variant="h4">
-              {formatAmount(poolInfo.APR, 2)}%
-            </Typography>
+            <Typography variant="h4">{formatAmount(APR, 2)}%</Typography>
             <Typography variant="h6" className="text-stieglitz">
               APR
             </Typography>

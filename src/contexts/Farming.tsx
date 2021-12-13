@@ -46,20 +46,34 @@ export const FarmingProvider = (props) => {
   });
 
   const [poolsInfo, setPoolsInfo] = useState({
-    DPXPool: { APR: null, TVL: null, stakingAsset: 'DPX', tokenPrice: null },
+    DPXPool: {
+      APR: null,
+      TVL: null,
+      stakingAsset: 'DPX',
+      tokenPrice: null,
+      periodFinish: null,
+    },
     DPX_WETHPool: {
       APR: null,
       TVL: null,
       stakingAsset: 'DPX-WETH',
       tokenPrice: null,
+      periodFinish: null,
     },
     rDPX_WETHPool: {
       APR: null,
       TVL: null,
       stakingAsset: 'rDPX-WETH',
       tokenPrice: null,
+      periodFinish: null,
     },
-    RDPXPool: { APR: null, TVL: null, stakingAsset: 'RDPX', tokenPrice: null },
+    RDPXPool: {
+      APR: null,
+      TVL: null,
+      stakingAsset: 'RDPX',
+      tokenPrice: null,
+      periodFinish: null,
+    },
   });
 
   const [tokensInfo, setTokensInfo] = useState({
@@ -90,6 +104,9 @@ export const FarmingProvider = (props) => {
         provider
       );
 
+      const periodFinish = (
+        await stakingRewardsContract.periodFinish()
+      ).toNumber();
       const totalSupply = await stakingRewardsContract.totalSupply();
       let total = totalSupply;
 
@@ -196,6 +213,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
           DPX_WETHPool: {
             ...poolsInfo.DPX_WETHPool,
@@ -217,6 +235,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
           rDPX_WETHPool: {
             ...poolsInfo.rDPX_WETHPool,
@@ -256,6 +275,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
           RDPXPool: {
             ...poolsInfo.RDPXPool,
@@ -295,6 +315,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
         }));
       }
