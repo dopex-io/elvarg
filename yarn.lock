@@ -559,15 +559,10 @@
     "@babel/helper-validator-identifier" "^7.15.7"
     to-fast-properties "^2.0.0"
 
-"@dopex-io/sdk@../sdk":
-  version "1.0.0-alpha.37"
-  dependencies:
-    ethers "^5.5.1"
-
-"@dopex-io/sdk@^1.0.0-alpha.37":
-  version "1.0.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.37.tgz#e6091bf5fd3b52e82d74ed532781e4a6b45be0a2"
-  integrity sha512-WJPMN5KB9OISoXYeutXO6Ak51Q76jalGVrgcFpbZeLY0MXfexVBIhIbAS3f4xU/Q0wkwQeTIDqL2UgurnWhW7A==
+"@dopex-io/sdk@^1.0.0-alpha.40":
+  version "1.0.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.40.tgz#4828746eb36e6c325cae11205f1e586adc27dc0d"
+  integrity sha512-n1zuY3GF+hdlHY6ly7mZji9WZLDCeZmzr1YzhZEryKbXEbh36/avYiB0vyekNgamYGnvzt8rimA1MS1L/6M06w==
   dependencies:
     ethers "^5.5.1"
 

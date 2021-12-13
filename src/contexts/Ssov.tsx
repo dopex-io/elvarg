@@ -301,11 +301,11 @@ export const SsovProvider = (props) => {
         const oracleContract =
           asset === 'ETH'
             ? ChainlinkAggregator__factory.connect(
-                SSOVAddresses[asset].ChainlinkAggregator,
+                SSOVAddresses[asset].PriceOracle,
                 provider
               )
             : CustomPriceOracle__factory.connect(
-                SSOVAddresses[asset].CustomPriceOracle,
+                SSOVAddresses[asset].PriceOracle,
                 provider
               );
 
