@@ -31,9 +31,9 @@ interface userExercisableOption {
   strikePrice: number;
   depositedAmount: number;
   purchasedAmount: number;
-  exercisableAmount: BigNumber;
+  settleableAmount: BigNumber;
   pnlAmount: number;
-  isExercisable: boolean;
+  isSettleable: boolean;
   isPastEpoch: boolean;
 }
 
@@ -90,8 +90,8 @@ const ExerciseList = ({
           userEpochCallsPurchased[strikeIndex],
           18
         );
-        const exercisableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
-        const isExercisable = exercisableAmount.gt(0) && tokenPrice.gt(strike);
+        const settleableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
+        const isSettleable = settleableAmount.gt(0) && tokenPrice.gt(strike);
 
         const isPastEpoch = selectedEpoch < currentEpoch;
 
@@ -104,9 +104,9 @@ const ExerciseList = ({
           strikePrice,
           depositedAmount,
           purchasedAmount,
-          exercisableAmount,
+          settleableAmount,
           pnlAmount,
-          isExercisable,
+          isSettleable,
           isPastEpoch,
         };
       });
@@ -143,7 +143,7 @@ const ExerciseList = ({
             </Box>
           ) : isEmpty(userExercisableOptions) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
-              {range(3).map((_, index) => (
+              {range(4).map((_, index) => (
                 <Skeleton
                   key={index}
                   variant="text"
@@ -225,9 +225,9 @@ const ExerciseList = ({
                       strikePrice,
                       depositedAmount,
                       purchasedAmount,
-                      exercisableAmount,
+                      settleableAmount,
                       pnlAmount,
-                      isExercisable,
+                      isSettleable,
                       isPastEpoch,
                     }) => {
                       return (
@@ -238,8 +238,8 @@ const ExerciseList = ({
                           depositedAmount={depositedAmount}
                           purchasedAmount={purchasedAmount}
                           pnlAmount={pnlAmount}
-                          exercisableAmount={exercisableAmount}
-                          isExercisable={isExercisable}
+                          settleableAmount={settleableAmount}
+                          isSettleable={isSettleable}
                           isPastEpoch={isPastEpoch}
                           ssovProperties={ssovProperties}
                           ssovData={ssovDataArray[selectedSsov]}

@@ -70,7 +70,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     []
   );
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
-    [key: number]: string;
+    [key: number]: BigNumber;
   }>({});
   const [error, setError] = useState('');
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
@@ -89,10 +89,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       selectedStrikeIndexes.reduce(
         (accumulator, currentIndex) =>
           accumulator.add(
-            ethersUtils.parseUnits(
-              strikeDepositAmounts[currentIndex] || '0',
-              18
-            )
+            strikeDepositAmounts[currentIndex] || BigNumber.from(0)
           ),
         BigNumber.from(0)
       ),
@@ -135,7 +132,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ) => {
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
-        [index]: e.target.value,
+        [index]: getContractReadableAmount(e.target.value, 18),
       }));
     },
     []
@@ -159,22 +156,31 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     }
   }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner]);
 
+  const handleMax = useCallback(
+    (index: number) => {
+      setStrikeDepositAmounts((prevState) => ({
+        ...prevState,
+        [index]: BigNumber.from(
+          userAssetBalances[tokenSymbol.toLocaleUpperCase()]
+        ),
+      }));
+    },
+    [userAssetBalances, tokenSymbol]
+  );
+
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     try {
       const strikeIndexes = selectedStrikeIndexes.filter(
         (index) =>
-          strikeDepositAmounts[index] &&
-          ethersUtils.parseUnits(strikeDepositAmounts[index], 18).gt('0')
+          strikeDepositAmounts[index] && strikeDepositAmounts[index].gt('0')
       );
 
       if (tokenName === 'ETH') {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) =>
-              ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
-            ),
+            strikeIndexes.map((index) => strikeDepositAmounts[index]),
             accountAddress,
             {
               value: totalDepositAmount,
@@ -185,9 +191,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) =>
-              ethersUtils.parseUnits(strikeDepositAmounts[index], 18)
-            ),
+            strikeIndexes.map((index) => strikeDepositAmounts[index]),
             accountAddress
           )
         );
@@ -226,6 +230,27 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       setError('');
     }
   }, [totalDepositAmount, totalEpochDeposits, userTokenBalance, tokenSymbol]);
+
+  // Updates approved state
+  useEffect(() => {
+    (async () => {
+      const finalAmount = getContractReadableAmount(
+        totalDepositAmount.toString(),
+        18
+      );
+      const allowance = await token.allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
+      setApproved(allowance.gte(finalAmount) ? true : false);
+    })();
+  }, [
+    token,
+    accountAddress,
+    ssovContractWithSigner,
+    approved,
+    totalDepositAmount,
+  ]);
 
   // Handles isApproved
   useEffect(() => {
@@ -296,10 +321,10 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   ${strikes[index]}
                 </Typography>
               </Box>
-              <Box className="border-umbra rounded-xl border w-24">
+              <Box className="flex border-umbra rounded-xl border w-36 space-x-2">
                 <BasicInput
                   disableUnderline={true}
-                  value={strikeDepositAmounts[index] || ''}
+                  value={getUserReadableAmount(strikeDepositAmounts[index], 18)}
                   placeholder="0"
                   inputProps={{
                     min: 0,
@@ -309,6 +334,14 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   className="h-10 text-sm text-white ml-2 border-mineshaft border rounded-md"
                   classes={{ input: 'text-center' }}
                 />
+                <Typography
+                  variant="h6"
+                  className="text-wave-blue my-auto"
+                  role="button"
+                  onClick={(e) => handleMax(index)}
+                >
+                  MAX
+                </Typography>
               </Box>
             </Box>
           ))}

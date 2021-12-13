@@ -15,11 +15,15 @@ import {
   VolatilityOracle,
   SSOVOptionPricing,
   StakingRewards__factory,
+  CustomPriceOracle__factory,
+  ChainlinkAggregator__factory,
+  ChainlinkAggregator,
+  CustomPriceOracle,
 } from '@dopex-io/sdk';
-import { BigNumber, utils as ethersUtils } from 'ethers';
-import axios from 'axios';
+import { BigNumber } from 'ethers';
 
 import { WalletContext } from './Wallet';
+import { AssetsContext } from './Assets';
 
 import { SSOV_MAP } from 'constants/index';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
@@ -109,6 +113,7 @@ export const SsovContext = createContext<SsovContextInterface>({
 export const SsovProvider = (props) => {
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
+  const { tokenPrices } = useContext(AssetsContext);
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsov, setSelectedSsov] = useState<number | null>(null);
@@ -164,7 +169,7 @@ export const SsovProvider = (props) => {
   }, [accountAddress, contractAddresses, provider, selectedEpoch]);
 
   const updateSsovData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch) return;
+    if (!contractAddresses || !selectedEpoch || !tokenPrices.length) return;
     const SSOVAddresses = contractAddresses.SSOV;
     const ssovData: SsovData[] = [];
     for (const asset in SSOVAddresses) {
@@ -193,57 +198,10 @@ export const SsovProvider = (props) => {
         ssovContract.getTotalEpochPremium(selectedEpoch),
       ]);
 
-      // Add DPX price
-      const pricePromises = [];
-
-      pricePromises.push(
-        axios
-          .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=dopex&vs_currencies=usd`
-          )
-          .then((payload) => {
-            return payload.data.dopex.usd;
-          })
-      );
-
-      // Add rDPX price
-      pricePromises.push(
-        axios
-          .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=dopex-rebate-token&vs_currencies=usd`
-          )
-          .then((payload) => {
-            return payload.data['dopex-rebate-token'].usd;
-          })
-      );
-
-      // Add eth price
-      pricePromises.push(
-        axios
-          .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
-          )
-          .then((payload) => {
-            return payload.data.ethereum.usd;
-          })
-      );
-
-      pricePromises.push(
-        axios
-          .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd`
-          )
-          .then((payload) => {
-            return payload.data.binancecoin.usd;
-          })
-      );
-
-      const prices = await Promise.all(pricePromises);
-
-      let priceDPX = prices[0];
-      let priceRDPX = prices[1];
-      let priceETH = prices[2];
-      let priceBNB = prices[3];
+      let priceDPX = tokenPrices.find((o) => o.name === 'DPX').price;
+      let priceRDPX = tokenPrices.find((o) => o.name === 'RDPX').price;
+      let priceETH = tokenPrices.find((o) => o.name === 'ETH').price;
+      let priceBNB = tokenPrices.find((o) => o.name === 'BNB').price;
       let priceAsset;
 
       if (asset === 'DPX') {
@@ -323,10 +281,16 @@ export const SsovProvider = (props) => {
       });
     }
     setSsovDataArray(ssovData);
-  }, [contractAddresses, selectedEpoch, provider]);
+  }, [contractAddresses, selectedEpoch, provider, tokenPrices]);
 
   useEffect(() => {
-    if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
+    if (
+      !provider ||
+      !contractAddresses ||
+      !contractAddresses.SSOV ||
+      !tokenPrices.length
+    )
+      return;
 
     async function update() {
       const ssovPropertiesArray: SsovProperties[] = [];
@@ -338,17 +302,24 @@ export const SsovProvider = (props) => {
             ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
             : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
 
+        const oracleContract =
+          asset === 'ETH'
+            ? ChainlinkAggregator__factory.connect(
+                SSOVAddresses[asset].ChainlinkAggregator,
+                provider
+              )
+            : CustomPriceOracle__factory.connect(
+                SSOVAddresses[asset].CustomPriceOracle,
+                provider
+              );
+
         // Epoch
         try {
-          const [currentEpoch, cgTokenPrice] = await Promise.all([
+          const [currentEpoch, tokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
-            axios
-              .get(
-                `https://api.coingecko.com/api/v3/simple/price?ids=${SSOV_MAP[asset].coinGeckoId}&vs_currencies=usd`
-              )
-              .then((payload) => {
-                return payload.data[SSOV_MAP[asset].coinGeckoId].usd;
-              }),
+            asset === 'ETH' || asset === 'BNB'
+              ? (oracleContract as ChainlinkAggregator).latestAnswer()
+              : (oracleContract as CustomPriceOracle).getPriceInUSD(),
           ]);
 
           if (Number(currentEpoch) === 0) {
@@ -363,8 +334,8 @@ export const SsovProvider = (props) => {
             selectedEpoch:
               Number(currentEpoch) === 0 ? 1 : Number(currentEpoch),
             setSelectedSsov: setSelectedSsov,
-            tokenPrice: ethersUtils.parseUnits(String(cgTokenPrice), 8),
-            cgTokenPrice,
+            tokenPrice,
+            cgTokenPrice: tokenPrices.find((o) => o.name === asset).price,
             ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
               SSOVAddresses[asset].OptionPricing,
               provider
@@ -385,7 +356,7 @@ export const SsovProvider = (props) => {
     }
 
     update();
-  }, [contractAddresses, provider, selectedEpoch]);
+  }, [contractAddresses, provider, selectedEpoch, tokenPrices]);
 
   useEffect(() => {
     if (!contractAddresses || !signer || !contractAddresses.SSOV) return;

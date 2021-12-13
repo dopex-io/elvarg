@@ -11,12 +11,12 @@ import BalanceItem from 'components/BalanceItem';
 
 import { WalletContext } from 'contexts/Wallet';
 
-import smartTrim from 'utils/general/smartTrim';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
+import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const WalletDialog = ({ open, handleClose, userBalances }) => {
-  const { accountAddress, changeWallet, disconnect, chainId } =
+  const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
 
   const copyToClipboard = () => {
@@ -43,7 +43,7 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           variant="h5"
           className="text-white font-lg bg-umbra rounded-md py-2 px-4"
         >
-          {smartTrim(accountAddress, 10)}
+          {displayAddress(accountAddress, ensName)}
         </Typography>
         <Box className="flex space-x-2">
           <IconButton
