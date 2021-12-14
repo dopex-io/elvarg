@@ -8,19 +8,19 @@
 
 @font-face {
   font-family: Ilisarniq;
-  src: url('../assets/fonts/Ilisarniq-Regular.otf');
+  src: url('/fonts/Ilisarniq-Regular.otf');
   font-weight: 400;
 }
 
 @font-face {
   font-family: Ilisarniq;
-  src: url('../assets/fonts/Ilisarniq-Demi.otf');
+  src: url('/fonts/Ilisarniq-Demi.otf');
   font-weight: 500;
 }
 
 @font-face {
   font-family: Ilisarniq;
-  src: url('../assets/fonts/Ilisarniq-Bold.otf');
+  src: url('/fonts/Ilisarniq-Bold.otf');
   font-weight: 700;
 }
 
