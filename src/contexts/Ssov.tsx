@@ -15,10 +15,10 @@ import {
   VolatilityOracle,
   SSOVOptionPricing,
   StakingRewards__factory,
-  PriceOracle__factory,
+  CustomPriceOracle__factory,
   ChainlinkAggregator__factory,
   ChainlinkAggregator,
-  PriceOracle,
+  CustomPriceOracle,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
@@ -221,18 +221,18 @@ export const SsovProvider = (props) => {
           provider
         );
 
-        const totalSupply = await stakingRewardsContract.totalSupply();
         let DPXemitted;
         let RDPXemitted;
+
+        let [DPX, RDPX, totalSupply] = await Promise.all([
+          stakingRewardsContract.rewardRateDPX(),
+          stakingRewardsContract.rewardRateRDPX(),
+          stakingRewardsContract.totalSupply(),
+        ]);
 
         const TVL = totalSupply
           .mul(Math.round(priceAsset))
           .div(oneEBigNumber(18));
-
-        let [DPX, RDPX] = await Promise.all([
-          stakingRewardsContract.rewardRateDPX(),
-          stakingRewardsContract.rewardRateRDPX(),
-        ]);
 
         const rewardsDuration = BigNumber.from(86400 * 365);
 
@@ -300,11 +300,11 @@ export const SsovProvider = (props) => {
 
         const oracleContract =
           asset === 'ETH'
-            ? PriceOracle__factory.connect(
-                SSOVAddresses[asset].ChainlinkAggregator,
+            ? ChainlinkAggregator__factory.connect(
+                SSOVAddresses[asset].PriceOracle,
                 provider
               )
-            : PriceOracle__factory.connect(
+            : CustomPriceOracle__factory.connect(
                 SSOVAddresses[asset].PriceOracle,
                 provider
               );
@@ -314,8 +314,8 @@ export const SsovProvider = (props) => {
           const [currentEpoch, tokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
             asset === 'ETH'
-              ? (oracleContract as PriceOracle).getPriceInUSD()
-              : (oracleContract as PriceOracle).getPriceInUSD(),
+              ? (oracleContract as ChainlinkAggregator).latestAnswer()
+              : (oracleContract as CustomPriceOracle).getPriceInUSD(),
           ]);
 
           if (Number(currentEpoch) === 0) {

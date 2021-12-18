@@ -56,6 +56,18 @@ const SsovRoutes = () => {
   );
 };
 
+const OtcRoutes = () => {
+  return (
+    <SsovProvider>
+      <OtcProvider>
+        <Routes>
+          <Route path="*" element={<OtcPortal />} />
+        </Routes>
+      </OtcProvider>
+    </SsovProvider>
+  );
+};
+
 function AppRoutes() {
   // if (BUILD === 'testnet') {
   //   return (
@@ -89,7 +101,7 @@ function AppRoutes() {
                 <Route path="sale" element={<TokenSale />} />
                 <Route path="ssov/*" element={<SsovRoutes />} />
                 <Route path="farms/*" element={<FarmRoutes />} />
-                <Route path="otc/*" element={<OtcPortal />} />
+                <Route path="otc/*" element={<OtcRoutes />} />
                 <Route path="*" element={<Error statusCode={404} />} />
               </Routes>
               <ChangeNetworkDialog />

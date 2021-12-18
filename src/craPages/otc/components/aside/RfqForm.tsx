@@ -5,6 +5,9 @@ import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import { ERC20__factory } from '@dopex-io/sdk';
+import { addDoc, collection } from '@firebase/firestore';
+import * as yup from 'yup';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -13,51 +16,50 @@ import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
 
 import { AssetsContext } from 'contexts/Assets';
-import { PortfolioContext } from 'contexts/Portfolio';
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
+import { UserSsovData } from 'contexts/Ssov';
 
 import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
 
-const RfqForm = ({ selectedAsset }) => {
+import { db } from 'utils/firebase/initialize';
+
+interface RfqFormProps {
+  symbol: string;
+  icon: string;
+  ssovUserData: UserSsovData;
+}
+
+const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
   const { userAssetBalances } = useContext(AssetsContext);
-  // const { allOptions } = useContext(PortfolioContext);
-  const { accountAddress } = useContext(WalletContext);
-  const ssovContext = useContext(SsovContext);
+  const { accountAddress, provider } = useContext(WalletContext);
 
-  // const {
-  //   selectedEpoch,
-  //   ssovData: { epochTimes, epochStrikes },
-  //   userSsovData: { epochStrikeTokens },
-  //   tokenPrice,
-  // } = ssovContext[selectedAsset.toLocaleLowerCase()];
+  const [userOptionBalances, setUserOptionBalances] = useState([]);
+  const [processing, setProcessing] = useState(false);
 
-  // console.log(epochStrikeTokens);
+  const validationSchema = yup.object({
+    amount: yup
+      .number()
+      .min(0, 'Amount has to be greater than 0')
+      .required('Amount is required'),
+  });
 
   const formik = useFormik({
     initialValues: {
-      token: 'WETH',
+      optionSymbol: '-',
       isPut: false,
       isBuy: false,
       amount: 0,
       strike: 0,
-      dealer: accountAddress,
-      timestamp: new Date().getSeconds(),
+      timestamp: new Date(),
     },
-    validate: (data) => {
-      let errorMsg = '';
-      errorMsg =
-        data.amount === 0 || data.strike === 0 || data.dealer === ''
-          ? 'Missing Field(s)'
-          : '';
-    },
+    validationSchema: validationSchema,
     onSubmit: noop,
   });
 
   const handleTokenSelection = useCallback(
     (e) => {
-      formik.setFieldValue('token', e.target.value);
+      formik.setFieldValue('optionSymbol', e.target.value);
     },
     [formik]
   );
@@ -69,19 +71,47 @@ const RfqForm = ({ selectedAsset }) => {
     [formik]
   );
 
-  // const handleChangeStrike = useCallback(
-  //   (e) => {
-  //     formik.setFieldValue('strike', e.target.value);
-  //   },
-  //   [formik]
-  // );
-
   const handleBuyOrder = useCallback(
     (e) => {
       formik.setFieldValue('isBuy', e.target.checked);
     },
     [formik]
   );
+
+  const handleSubmit = useCallback(async () => {
+    setProcessing(true);
+    await addDoc(collection(db, 'orders'), {
+      optionSymbol: formik.values.optionSymbol,
+      isBuy: formik.values.isBuy,
+      isPut: formik.values.isPut,
+      amount: formik.values.amount,
+      dealer: accountAddress,
+      timestamp: formik.values.timestamp,
+    }).finally(() => {
+      setProcessing(false);
+    });
+  }, [formik, accountAddress]);
+
+  const ssovUserDataToAssetMapping = useCallback(async () => {
+    const data = ssovUserData.epochStrikeTokens.map(async (token, index) => {
+      const erc20Token = ERC20__factory.connect(token.address, provider);
+      const tokenSymbol = await erc20Token.symbol();
+      const tokenAddress = await erc20Token.address;
+
+      return {
+        token: tokenSymbol,
+        tokenAddress,
+        purchaseAmount: ssovUserData.userEpochCallsPurchased[index],
+      };
+    });
+    Promise.all(data).then((result) => {
+      setUserOptionBalances(result);
+    });
+  }, [ssovUserData, provider]);
+
+  useEffect(() => {
+    ssovUserDataToAssetMapping();
+  }, [ssovUserDataToAssetMapping]);
 
   return (
     <Box className="bg-cod-gray rounded-lg p-2">
@@ -108,80 +138,26 @@ const RfqForm = ({ selectedAsset }) => {
           Quantity
         </Typography>
         <Input
-          className="font-mono py-2 px-2"
+          className="py-2 px-2"
           value={formik.values.amount}
-          // defaultValue={formik.values.amount}
           onChange={handleChange}
           type="number"
           leftElement={
-            <Select
+            <Box
               id="token"
-              name="token"
-              value={formik.values.token}
-              onChange={handleTokenSelection}
-              className="w-2/3 h-12 bg-cod-gray rounded-lg p-2"
-              IconComponent={Dropdown}
-              variant="outlined"
-              classes={{ icon: 'mt-3 mr-1', root: 'p-0' }}
-              MenuProps={{
-                classes: { paper: 'bg-cod-gray' },
-                anchorOrigin: {
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                },
-                transformOrigin: {
-                  vertical: 'top',
-                  horizontal: 'left',
-                },
-                getContentAnchorEl: null,
-              }}
+              className="bg-cod-gray p-2 rounded-xl space-x-2 flex w-full"
             >
-              <MenuItem value="WETH">
-                <Box className="flex flex-row items-center">
-                  <Box className="flex flex-row h-8 w-8 mr-2">
-                    <img src={'/assets/eth.svg'} alt="WETH" />
-                  </Box>
-                  <Typography
-                    variant="h5"
-                    className="text-white hover:text-stieglitz"
-                  >
-                    ETH-2000-CALL-NOV30
-                  </Typography>
-                </Box>
-              </MenuItem>
-              <MenuItem value="DPX">
-                <Box className="flex flex-row items-center">
-                  <Box className="flex flex-row h-8 w-8 mr-2">
-                    <img src={'/assets/dpx.svg'} alt="DPX" />
-                  </Box>
-                  <Typography
-                    variant="h5"
-                    className="text-white hover:text-stieglitz"
-                  >
-                    DPX-1500-CALL-NOV30
-                  </Typography>
-                </Box>
-              </MenuItem>
-              <MenuItem value="rDPX">
-                <Box className="flex flex-row items-center">
-                  <Box className="flex flex-row h-8 w-8 mr-2">
-                    <img src={'/assets/rdpx.svg'} alt="rDPX" />
-                  </Box>
-                  <Typography
-                    variant="h5"
-                    className="text-white hover:text-stieglitz"
-                  >
-                    RDPX-66-CALL-DEC4
-                  </Typography>
-                </Box>
-              </MenuItem>
-            </Select>
+              <img src={icon} alt="token" />
+              <Typography variant="h5" className="text-white my-auto">
+                {symbol}
+              </Typography>
+            </Box>
           }
         />
         <Select
           id="token"
           name="token"
-          value={formik.values.token}
+          value={formik.values.optionSymbol}
           onChange={handleTokenSelection}
           className="flex bg-umbra rounded-lg p-2"
           IconComponent={Dropdown}
@@ -200,45 +176,17 @@ const RfqForm = ({ selectedAsset }) => {
             getContentAnchorEl: null,
           }}
         >
-          <MenuItem value="WETH">
-            <Box className="flex flex-row items-center">
-              <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={'/assets/eth.svg'} alt="WETH" />
-              </Box>
-              <Typography
-                variant="h6"
-                className="text-white hover:text-stieglitz"
-              >
-                ETH-2000-CALL-NOV30
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem value="DPX">
-            <Box className="flex flex-row items-center">
-              <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={'/assets/dpx.svg'} alt="DPX" />
-              </Box>
-              <Typography
-                variant="h6"
-                className="text-white hover:text-stieglitz"
-              >
-                DPX
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem value="rDPX">
-            <Box className="flex flex-row items-center">
-              <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={'/assets/rdpx.svg'} alt="rDPX" />
-              </Box>
-              <Typography
-                variant="h6"
-                className="text-white hover:text-stieglitz"
-              >
-                rDPX
-              </Typography>
-            </Box>
-          </MenuItem>
+          {userOptionBalances.map((option, index) => {
+            return (
+              <MenuItem value={option.token} key={index}>
+                <Box className="flex flex-row items-center">
+                  <Typography variant="h6" className="text-white ">
+                    {option.token}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            );
+          })}
         </Select>
         <Box className="flex justify-between px-2">
           <Box className="flex space-x-2">
@@ -260,8 +208,14 @@ const RfqForm = ({ selectedAsset }) => {
             footer={<Link to="/portfolio">Read More</Link>}
           />
         </Box>
-        <CustomButton size="medium" className="flex w-full">
-          <Typography variant="h6">Submit RFQ</Typography>
+        <CustomButton
+          size="medium"
+          className="flex w-full"
+          onClick={handleSubmit}
+        >
+          <Typography variant="h6">
+            {processing ? 'Processing' : 'Submit RFQ'}
+          </Typography>
         </CustomButton>
       </Box>
     </Box>

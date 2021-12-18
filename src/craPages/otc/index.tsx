@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext } from 'react';
+import { useState, useContext, useMemo, useCallback } from 'react';
 import Box from '@material-ui/core/Box';
 import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
 import HistoryIcon from '@material-ui/icons/History';
@@ -12,22 +12,11 @@ import RfqForm from './components/aside/RfqForm';
 import TradeHistory from './components/body/TradeHistory';
 
 import { OtcContext } from 'contexts/Otc';
+import { SsovContext } from 'contexts/Ssov';
 
 import content from './components/banner/content.json';
 
 const MARKETS_PLACEHOLDER = [
-  {
-    symbol: 'ETH',
-    icon: '/assets/eth.svg',
-    asset: 'Ethereum',
-    pair: 'ETH/USDT',
-  },
-  {
-    symbol: 'BTC',
-    icon: '/assets/btc.svg',
-    asset: 'Bitcoin',
-    pair: 'WBTC/USDT',
-  },
   {
     symbol: 'DPX',
     icon: '/assets/dpx.svg',
@@ -40,19 +29,44 @@ const MARKETS_PLACEHOLDER = [
     asset: 'Dopex Rebate Token',
     pair: 'rDPX/USDT',
   },
+  {
+    symbol: 'ETH',
+    icon: '/assets/eth.svg',
+    asset: 'Ethereum',
+    pair: 'ETH/USDT',
+  },
+  // {
+  //   symbol: 'BTC',
+  //   icon: '/assets/btc.svg',
+  //   asset: 'Bitcoin',
+  //   pair: 'WBTC/USDT',
+  // },
 ];
 
 const OTC = () => {
   const { users, validateUser } = useContext(OtcContext);
+  const { userSsovDataArray } = useContext(SsovContext);
 
   const [state, setState] = useState({
     trade: true,
     history: false,
   });
 
+  const [selectedToken, setSelectedToken] = useState(MARKETS_PLACEHOLDER[0]);
+
+  const filteredUserSsovData = useMemo(() => {
+    if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
+    else if (selectedToken.symbol === 'rDPX') return userSsovDataArray[1];
+    else return userSsovDataArray[2];
+  }, [userSsovDataArray, selectedToken]);
+
   const handleUpdateState = useCallback((trade, history) => {
     setState({ trade, history });
     return;
+  }, []);
+
+  const handleSelection = useCallback((token) => {
+    setSelectedToken(token);
   }, []);
 
   return (
@@ -91,22 +105,16 @@ const OTC = () => {
               <Typography variant="h5" className="text-stieglitz py-3">
                 Markets
               </Typography>
-              {/* <Typography
-                variant="h6"
-                role="button"
-                className="bg-black hover:bg-cod-gray rounded-lg py-4 flex"
-              >
-                <img src="/assets/eth.svg" alt="Ethereum" />
-                <Typography variant="h6" className="flex-col">
-                  {'ETH'}
-                </Typography>
-              </Typography> */}
               {MARKETS_PLACEHOLDER.map((token, index) => {
                 return (
                   <Box
                     key={index}
-                    className="flex hover:bg-cod-gray p-2 rounded-lg"
-                    onClick={() => {}}
+                    className={`flex hover:bg-cod-gray p-2 rounded-lg ${
+                      token.symbol === selectedToken.symbol
+                        ? 'bg-cod-gray'
+                        : null
+                    }`}
+                    onClick={() => handleSelection(token)}
                   >
                     <img
                       src={`${token.icon}`}
@@ -129,7 +137,11 @@ const OTC = () => {
             {state.trade ? <RfqTableData /> : <TradeHistory />}
           </Box>
           <Box className="flex flex-col col-span-2">
-            <RfqForm selectedAsset={'DPX'} />
+            <RfqForm
+              symbol={selectedToken.symbol}
+              icon={selectedToken.icon}
+              ssovUserData={filteredUserSsovData}
+            />
           </Box>
         </Box>
       </Box>
