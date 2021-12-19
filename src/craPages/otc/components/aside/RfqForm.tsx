@@ -81,12 +81,13 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
   const handleSubmit = useCallback(async () => {
     setProcessing(true);
     await addDoc(collection(db, 'orders'), {
-      optionSymbol: formik.values.optionSymbol,
+      option: formik.values.optionSymbol,
       isBuy: formik.values.isBuy,
       isPut: formik.values.isPut,
       amount: formik.values.amount,
       dealer: accountAddress,
       timestamp: formik.values.timestamp,
+      isFulfilled: false,
     }).finally(() => {
       setProcessing(false);
     });
@@ -180,7 +181,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
             return (
               <MenuItem value={option.token} key={index}>
                 <Box className="flex flex-row items-center">
-                  <Typography variant="h6" className="text-white ">
+                  <Typography variant="h5" className="text-white ">
                     {option.token}
                   </Typography>
                 </Box>
@@ -194,7 +195,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
               Buy Order
             </Typography>
             <InfoPopover
-              infoText="Toggle between buy and sell order"
+              infoText="Toggle between buy and sell order. Sell order amounts are in USDT."
               className=""
               id="rfq-buy-toggle"
             />

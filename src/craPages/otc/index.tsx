@@ -51,8 +51,11 @@ const OTC = () => {
     trade: true,
     history: false,
   });
-
   const [selectedToken, setSelectedToken] = useState(MARKETS_PLACEHOLDER[0]);
+  const [openChat, setOpenChat] = useState({
+    id: 0,
+    open: false,
+  });
 
   const filteredUserSsovData = useMemo(() => {
     if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
@@ -71,7 +74,7 @@ const OTC = () => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <AppBar active="otc" />
+      <AppBar active="OTC" />
       <Box className="container pt-24 mx-auto px-4 lg:px-0">
         <Box className="grid grid-cols-12 h-full gap-4">
           <Box className="flex flex-col col-span-2">
@@ -133,15 +136,36 @@ const OTC = () => {
               })}
             </Box>
           </Box>
-          <Box className="flex flex-col col-span-8">
-            {state.trade ? <RfqTableData /> : <TradeHistory />}
+          <Box className="flex flex-col col-span-8 space-y-4">
+            {state.trade ? (
+              <>
+                <Typography variant="h5" className="font-bold">
+                  Available RFQs
+                </Typography>
+                <RfqTableData setOpenChat={setOpenChat} />
+              </>
+            ) : (
+              <>
+                <Typography variant="h5" className="font-bold">
+                  Trade History
+                </Typography>
+                <TradeHistory />
+              </>
+            )}
           </Box>
-          <Box className="flex flex-col col-span-2">
-            <RfqForm
-              symbol={selectedToken.symbol}
-              icon={selectedToken.icon}
-              ssovUserData={filteredUserSsovData}
-            />
+          <Box className="flex flex-col col-span-2 space-y-4">
+            <Typography variant="h5" className="font-bold">
+              Create RFQ
+            </Typography>
+            {openChat.open ? (
+              <Typography variant="h5">Chat Room Placeholder</Typography>
+            ) : (
+              <RfqForm
+                symbol={selectedToken.symbol}
+                icon={selectedToken.icon}
+                ssovUserData={filteredUserSsovData}
+              />
+            )}
           </Box>
         </Box>
       </Box>

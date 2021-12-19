@@ -25,7 +25,7 @@ const TableHeader = ({
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
-      className="bg-cod-gray"
+      className="bg-cod-gray border-1 border-umbra py-1"
     >
       <Typography variant="h6" className={`${textColor}`}>
         {children}
@@ -71,7 +71,6 @@ const TradeHistory = () => {
       className={cx(styles.rfqTable, 'rounded-lg overflow-x-hidden')}
     >
       <Table
-        // sx={{ minWidth: 850 }}
         aria-label="trade history table"
         component={Paper}
         className="bg-umbra"
@@ -94,10 +93,7 @@ const TradeHistory = () => {
         </TableHead>
         <TableBody>
           {trades.map((row, index) => (
-            <TableRow
-              key={index}
-              //   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
+            <TableRow key={index}>
               <TableBodyCell align="left" textColor="white">
                 {row.isBuy ? 'Buy' : 'Sell'}
               </TableBodyCell>

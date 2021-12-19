@@ -40,13 +40,6 @@ export const OtcProvider = (props) => {
 
   const [state, setState] = useState<OtcContextInterface>(initialState);
 
-  // const {
-  //   selectedEpoch,
-  //   ssovData: { epochTimes, epochStrikes },
-  //   userSsovData: { epochStrikeTokens },
-  //   tokenPrice,
-  // } = context[state.token.toLocaleLowerCase()];
-
   useEffect(() => {
     const getOtcData = async () => {
       if (!db || !provider) return;
