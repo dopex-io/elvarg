@@ -5,21 +5,19 @@ import {
   useContext,
   createContext,
 } from 'react';
-import { getDocs, collection } from 'firebase/firestore';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { getDocs, collection, onSnapshot } from 'firebase/firestore';
 
 import { WalletContext } from './Wallet';
-// import { PortfolioContext } from './Portfolio';
-import { AssetsContext } from './Assets';
-import { SsovContext } from './Ssov';
 
 import { db } from 'utils/firebase/initialize';
 
 interface OtcContextInterface {
-  orders: Object[];
-  users: Object[];
-  trades: Object[];
+  orders: any[];
+  users: any[];
+  trades: any[];
   token: String;
-  user: String;
+  user: any;
   validateUser?: Function;
 }
 
@@ -28,17 +26,16 @@ const initialState: OtcContextInterface = {
   users: [],
   trades: [],
   token: 'DPX',
-  user: '',
+  user: undefined,
 };
 
 export const OtcContext = createContext<OtcContextInterface>(initialState);
 
 export const OtcProvider = (props) => {
   const { provider, accountAddress } = useContext(WalletContext);
-  const { userAssetBalances } = useContext(AssetsContext);
-  const context = useContext(SsovContext);
 
   const [state, setState] = useState<OtcContextInterface>(initialState);
+  const auth = getAuth();
 
   useEffect(() => {
     const getOtcData = async () => {
@@ -50,30 +47,46 @@ export const OtcProvider = (props) => {
       const users = (await getDocs(collection(db, 'users'))).docs.flatMap(
         (doc) => doc.data()
       );
-      const user = users.filter(
-        (data) => data.accountAddress === accountAddress
-      );
 
       setState((prevState) => ({
         ...prevState,
         orders,
         users,
-        user: user[0]?.userId,
       }));
     };
     getOtcData();
     return;
   }, [provider, accountAddress]);
 
-  const validateUser = useCallback(() => {
-    if (!accountAddress) return;
+  const validateUser = useCallback(async () => {
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.addScope(
+      'https://www.googleapis.com/auth/contacts.readonly'
+    );
 
-    return state.user ? true : false;
-  }, [accountAddress, state.user]);
+    if (!state.user || !accountAddress)
+      await signInWithPopup(auth, googleProvider)
+        .then((result) => {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          const user = result.user;
 
-  useEffect(() => {
-    validateUser();
-  }, [validateUser]);
+          setState((prevState) => ({ ...prevState, user: user }));
+        })
+        .catch((error) => {
+          // Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // The email of the user's account used.
+          const email = error.email;
+          // The AuthCredential type that was used.
+          const credential = GoogleAuthProvider.credentialFromError(error);
+          console.error('Error Code: ', errorCode);
+          console.error('Error Message: ', errorMessage);
+          console.error('Email: ', email);
+          console.error('Credential: ', credential);
+        });
+  }, [accountAddress, auth, state.user]);
 
   const contextValue = {
     ...state,

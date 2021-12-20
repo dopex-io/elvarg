@@ -44,6 +44,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/manage/RDPX': [42161],
   '/ssov/manage/ETH': [42161],
   '/sale': [1],
+  '/otc': [42161],
+  '/otc/chat/:uid': [42161],
 };
 
 const DEFAULT_CHAIN_ID =

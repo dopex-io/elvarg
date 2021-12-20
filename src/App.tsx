@@ -26,6 +26,7 @@ const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const OtcPortal = lazy(() => import('craPages/otc'));
+const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
@@ -62,6 +63,7 @@ const OtcRoutes = () => {
       <OtcProvider>
         <Routes>
           <Route path="*" element={<OtcPortal />} />
+          <Route path="chat/:uid" element={<OtcChatroom />} />
         </Routes>
       </OtcProvider>
     </SsovProvider>

@@ -35,12 +35,6 @@ const MARKETS_PLACEHOLDER = [
     asset: 'Ethereum',
     pair: 'ETH/USDT',
   },
-  // {
-  //   symbol: 'BTC',
-  //   icon: '/assets/btc.svg',
-  //   asset: 'Bitcoin',
-  //   pair: 'WBTC/USDT',
-  // },
 ];
 
 const OTC = () => {

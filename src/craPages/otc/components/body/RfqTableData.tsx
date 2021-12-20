@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useContext, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
@@ -9,12 +10,12 @@ import IconButton from '@material-ui/core/IconButton';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 import cx from 'classnames';
 import format from 'date-fns/format';
-import { collection, getDocs, DocumentData } from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';
 
+import { OtcContext } from 'contexts/Otc';
+
 import smartTrim from 'utils/general/smartTrim';
-import { db } from 'utils/firebase/initialize';
 
 import styles from './styles.module.scss';
 import CustomButton from 'components/UI/CustomButton';
@@ -46,7 +47,7 @@ const TableBodyCell = ({
     <TableCell
       align={align as TableCellProps['align']}
       component="td"
-      className="bg-cod-gray border-0"
+      className="bg-cod-gray border-0 py-2"
     >
       <Typography variant="h6" className={`${textColor}`}>
         {children}
@@ -56,28 +57,15 @@ const TableBodyCell = ({
 };
 
 const RfqTableData = ({ setOpenChat }) => {
-  const [orderData, setOrderData] = useState<DocumentData>([]);
-
-  useEffect(() => {
-    (async () => {
-      const querySnapshot = (
-        await getDocs(collection(db, 'orders'))
-      ).docs.flatMap((doc) => doc.data());
-      setOrderData(querySnapshot);
-    })();
-  }, []);
-
-  const openChatroom = useCallback(() => {
-    setOpenChat((prevState) => ({
-      ...prevState,
-      id: 1,
-      open: !prevState.open,
-    }));
-  }, [setOpenChat]);
+  const { orders, validateUser, user } = useContext(OtcContext);
+  const navigate = useNavigate();
 
   return (
     <TableContainer
-      className={cx(styles.rfqTable, 'rounded-lg overflow-x-hidden')}
+      className={cx(
+        styles.rfqTable,
+        'rounded-lg overflow-x-hidden border-umbra border-2 h-3/4'
+      )}
     >
       <Table aria-label="rfq-table" className="bg-umbra">
         <TableHead>
@@ -99,7 +87,7 @@ const RfqTableData = ({ setOpenChat }) => {
           </TableRow>
         </TableHead>
         <TableBody component="div">
-          {orderData.map((row, index) => (
+          {orders.map((row, index) => (
             <TableRow key={index}>
               <TableBodyCell align="left" textColor="white">
                 {row.isBuy ? 'Buy' : 'Sell'}
@@ -113,7 +101,9 @@ const RfqTableData = ({ setOpenChat }) => {
                   'd LLL yy'
                 )}
               </TableBodyCell>
-              <TableBodyCell align="left">{row.option}</TableBodyCell>
+              <TableBodyCell align="left">
+                {smartTrim(row.option, 20)}
+              </TableBodyCell>
               <TableBodyCell align="right">{row.amount}</TableBodyCell>
               <TableBodyCell align="center">
                 {smartTrim(row.dealer, 10)}
@@ -127,14 +117,17 @@ const RfqTableData = ({ setOpenChat }) => {
               <TableBodyCell align="right">
                 <IconButton
                   className="p-0 hover:opacity-50 transition ease-in-out"
-                  onClick={openChatroom}
+                  onClick={async () => {
+                    await validateUser();
+                    navigate(`/otc/chat/${row.uid}`);
+                  }}
                 >
                   <ChatBubbleIcon className="fill-current text-white p-1" />
                 </IconButton>
               </TableBodyCell>
               <TableBodyCell align="right">
                 <CustomButton
-                  size="medium"
+                  size="small"
                   disabled={row.isFulfilled}
                   color="umbra"
                   variant="outlined"

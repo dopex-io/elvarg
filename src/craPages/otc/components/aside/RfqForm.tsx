@@ -18,6 +18,7 @@ import Switch from 'components/UI/Switch';
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 import { UserSsovData } from 'contexts/Ssov';
+import { OtcContext } from 'contexts/Otc';
 
 import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
@@ -33,6 +34,7 @@ interface RfqFormProps {
 const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
   const { userAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider } = useContext(WalletContext);
+  const { validateUser, user } = useContext(OtcContext);
 
   const [userOptionBalances, setUserOptionBalances] = useState([]);
   const [processing, setProcessing] = useState(false);
@@ -46,10 +48,11 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
 
   const formik = useFormik({
     initialValues: {
-      optionSymbol: '-',
+      optionSymbol: '',
       isPut: false,
       isBuy: false,
       amount: 0,
+      price: 0,
       strike: 0,
       timestamp: new Date(),
     },
@@ -66,7 +69,13 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
 
   const handleChange = useCallback(
     (e) => {
-      formik.setFieldValue('amount', Number(e.target.value));
+      formik.setFieldValue('amount', e.target.value);
+    },
+    [formik]
+  );
+  const handleChangePrice = useCallback(
+    (e) => {
+      formik.setFieldValue('price', e.target.value);
     },
     [formik]
   );
@@ -79,19 +88,24 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
   );
 
   const handleSubmit = useCallback(async () => {
-    setProcessing(true);
-    await addDoc(collection(db, 'orders'), {
-      option: formik.values.optionSymbol,
-      isBuy: formik.values.isBuy,
-      isPut: formik.values.isPut,
-      amount: formik.values.amount,
-      dealer: accountAddress,
-      timestamp: formik.values.timestamp,
-      isFulfilled: false,
-    }).finally(() => {
-      setProcessing(false);
-    });
-  }, [formik, accountAddress]);
+    if (!user) validateUser();
+    else {
+      setProcessing(true);
+      await addDoc(collection(db, 'orders'), {
+        option: formik.values.optionSymbol,
+        isBuy: formik.values.isBuy,
+        isPut: formik.values.isPut,
+        amount: formik.values.amount,
+        price: formik.values.price + 'ETH',
+        dealer: accountAddress,
+        timestamp: formik.values.timestamp,
+        isFulfilled: false,
+        uid: user.uid,
+      }).finally(() => {
+        setProcessing(false);
+      });
+    }
+  }, [formik, user, validateUser, accountAddress]);
 
   const ssovUserDataToAssetMapping = useCallback(async () => {
     const data = ssovUserData.epochStrikeTokens.map(async (token, index) => {
@@ -155,6 +169,30 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
             </Box>
           }
         />
+        <Typography variant="h6" className="text-stieglitz">
+          Price
+        </Typography>
+        <Input
+          className="py-2 px-2"
+          value={formik.values.price}
+          onChange={handleChangePrice}
+          type="number"
+          placeholder="Price"
+          leftElement={
+            <Box
+              id="token"
+              className="bg-cod-gray p-2 rounded-xl space-x-2 flex w-full"
+            >
+              <img src={'assets/eth_diamond.svg'} alt="eth" />
+              <Typography variant="h5" className="text-white my-auto">
+                {'ETH'}
+              </Typography>
+            </Box>
+          }
+        />
+        <Typography variant="h6" className="text-stieglitz">
+          Option
+        </Typography>
         <Select
           id="token"
           name="token"
@@ -214,9 +252,13 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
           className="flex w-full"
           onClick={handleSubmit}
         >
-          <Typography variant="h6">
-            {processing ? 'Processing' : 'Submit RFQ'}
-          </Typography>
+          {user ? (
+            <Typography variant="h6">
+              {processing ? 'Processing' : 'Submit RFQ'}
+            </Typography>
+          ) : (
+            <Typography variant="h6">Login</Typography>
+          )}
         </CustomButton>
       </Box>
     </Box>
