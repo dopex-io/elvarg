@@ -8,18 +8,18 @@ import CustomButton from 'components/UI/CustomButton';
 import ClaimDialog from '../ClaimDialog';
 
 interface NftCardProps {
-  gif: any;
   nft: string;
   className?: string;
 }
 
-const NftCard = ({ gif, nft, className }: NftCardProps) => {
+const NftCard = ({ nft, className }: NftCardProps) => {
   const [claimDialog, setClaimDialog] = useState(false);
   const handleClaimDialogClose = () => setClaimDialog(false);
 
   const handleClaimDialog = () => {
     setClaimDialog(true);
   };
+
   const name =
     nft === 'DopexBridgoorNFT' ? 'Dopex Bridgoor NFT' : 'Dopex Halloween NFT';
 
@@ -31,19 +31,19 @@ const NftCard = ({ gif, nft, className }: NftCardProps) => {
         nft={nft}
         name={name}
       />
-      <Box className={cx('flex flex-col mb-4 w-full', className)}>
+      <Box className={cx('flex flex-col mb-4', className)}>
         <Box className="flex flex-col">
           <Typography className="mb-6 text-center" variant="h2">
             {name}
           </Typography>
           <Box className="mb-6">
             <Image
-              src={gif}
+              src={'/nfts/' + nft + '.gif'}
               alt={name}
               quality={100}
               height={500}
               width={400}
-            ></Image>
+            />
           </Box>
           <Box>
             <CustomButton
