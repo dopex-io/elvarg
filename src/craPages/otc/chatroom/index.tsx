@@ -1,17 +1,69 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
+import IconButton from '@material-ui/core/IconButton';
+import SendIcon from '@material-ui/icons/Send';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
+import Input from 'components/UI/Input';
 
 const Chatroom = () => {
   const chat = useParams();
+
+  const [loading, setLoading] = useState(true);
   return (
     <Box className="bg-black min-h-screen">
       <AppBar active="OTC" />
-      <Box className="container pt-24 mx-auto px-4 lg:px-0">
-        <Typography variant="h6">Chatroom placeholder {chat.uid}</Typography>
+      <Box className="container pt-24 mx-auto h-screen px-4 lg:px-0">
+        <Typography variant="h3" className="flex justify-center my-6">
+          Chatroom Placeholder
+        </Typography>
+        <Typography
+          variant="h5"
+          className="flex justify-center my-3 text-stieglitz"
+        >
+          Welcome to Chatroom {chat.uid}. You may place your bids/asks for the
+          given RFQ here and come to a settlement with this dealer.
+        </Typography>
+        <Box className="flex flex-col justify-between w-1/3 h-5/6 mx-auto bg-cod-gray rounded-xl">
+          <Box className="bg-umbra rounded-t-xl">
+            <Box className="flex justify-between">
+              <IconButton>
+                <ArrowBackIcon className="fill-current text-stieglitz" />
+              </IconButton>
+              <Typography variant="h4" className="p-4 my-auto">
+                Chat Session
+              </Typography>
+              <Typography variant="h6" className="text-stieglitz p-4 my-auto">
+                ID: {chat.uid}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className="h-full">
+            {loading ? (
+              <Box className="flex h-full justify-center">
+                <CircularProgress className="self-center" />
+              </Box>
+            ) : (
+              'Loaded'
+            )}
+          </Box>
+          <Box className="flex w-full rounded-b-xl bg-umbra">
+            <Input
+              type="text"
+              leftElement={
+                <IconButton>
+                  <SendIcon className="fill-current text-blue-400 mx-auto" />
+                </IconButton>
+              }
+              className="mx-auto w-full"
+              onSubmit={() => {}}
+            />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
