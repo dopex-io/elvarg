@@ -27,7 +27,9 @@ const ClaimModal = ({ open, handleClose, nft, name }) => {
   const [amount, setAmount] = useState(null);
   const [loading, setLoading] = useState(false);
   const addresses =
-    nft === 'DopexBridgoor' ? dopexBridgoorAddresses : dopexHalloweenAddresses;
+    nft === 'DopexBridgoorNFT'
+      ? dopexBridgoorAddresses
+      : dopexHalloweenAddresses;
 
   const formik = useFormik({
     initialValues: { address: '' },
@@ -120,7 +122,7 @@ const ClaimModal = ({ open, handleClose, nft, name }) => {
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <Typography variant="h3" className="mb-4">
-        Claim {name} NFT
+        Claim {name}
       </Typography>
       <Box className="flex flex-col space-y-6">
         <Typography variant="h5" component="p">

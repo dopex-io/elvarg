@@ -21,7 +21,7 @@ const NftCard = ({ gif, nft, className }: NftCardProps) => {
     setClaimDialog(true);
   };
   const name =
-    nft === 'DopexBridgoor' ? 'Dopex Bridgoor NFT' : 'Dopex Halloween NFT';
+    nft === 'DopexBridgoorNFT' ? 'Dopex Bridgoor NFT' : 'Dopex Halloween NFT';
 
   return (
     <>

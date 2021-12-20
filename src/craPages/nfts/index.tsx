@@ -25,10 +25,10 @@ const Nfts = () => {
         </Box>
         <Box className="flex flex-row lg:flex-row lg:space-x-16 space-y-12 lg:space-y-0 justify-center items-center">
           <Box>
-            <NftCard gif={bridgoor} nft={'DopexBridgoor'}></NftCard>
+            <NftCard gif={bridgoor} nft={'DopexBridgoorNFT'}></NftCard>
           </Box>
           <Box>
-            <NftCard gif={dopexGames} nft={'DopexHalloween'}></NftCard>
+            <NftCard gif={dopexGames} nft={'DopexHalloweenNFT'}></NftCard>
           </Box>
         </Box>
       </Box>
