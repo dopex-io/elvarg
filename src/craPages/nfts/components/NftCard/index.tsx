@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
+import { useState } from 'react';
 import Box from '@material-ui/core/Box';
 import cx from 'classnames';
 import Image from 'next/image';
@@ -21,7 +21,7 @@ const NftCard = ({ gif, nft, className }: NftCardProps) => {
     setClaimDialog(true);
   };
   const name =
-    nft === 'DopexBridgoor' ? 'Dopex Bridgoor' : 'Dopex Halloween Games';
+    nft === 'DopexBridgoor' ? 'Dopex Bridgoor NFT' : 'Dopex Halloween NFT';
 
   return (
     <>

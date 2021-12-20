@@ -26,7 +26,7 @@ const ClaimModal = ({ open, handleClose, nft, name }) => {
 
   const [amount, setAmount] = useState(null);
   const [loading, setLoading] = useState(false);
-  const Addresses =
+  const addresses =
     nft === 'DopexBridgoor' ? dopexBridgoorAddresses : dopexHalloweenAddresses;
 
   const formik = useFormik({
@@ -48,14 +48,14 @@ const ClaimModal = ({ open, handleClose, nft, name }) => {
   }, [formik.touched.address, formik.errors.address]);
 
   const handleClick = async () => {
-    const index = Addresses.findIndex(
+    const index = addresses.findIndex(
       (item) =>
         item.account.toLowerCase() === formik.values.address.toLowerCase()
     );
 
-    const availableAmount = index !== -1 ? Addresses[index].amount : '0';
+    const availableAmount = index !== -1 ? addresses[index].amount : '0';
 
-    const tree = new BalanceTree(Addresses);
+    const tree = new BalanceTree(addresses);
 
     if (index >= 0) {
       const dopexBaseNft = BaseNFT__factory.connect(

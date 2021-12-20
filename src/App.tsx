@@ -24,7 +24,7 @@ const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
-const Nft = lazy(() => import('craPages/nft'));
+const Nfts = lazy(() => import('craPages/nfts'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
@@ -55,13 +55,11 @@ const SsovRoutes = () => {
   );
 };
 
-const NftRoutes = () => {
+const NftsRoutes = () => {
   return (
-    <SsovProvider>
-      <Routes>
-        <Route path="*" element={<Nft />} />
-      </Routes>
-    </SsovProvider>
+    <Routes>
+      <Route path="*" element={<Nfts />} />
+    </Routes>
   );
 };
 function AppRoutes() {
@@ -96,7 +94,7 @@ function AppRoutes() {
               <Route path="sale" element={<TokenSale />} />
               <Route path="ssov/*" element={<SsovRoutes />} />
               <Route path="farms/*" element={<FarmRoutes />} />
-              <Route path="nft/*" element={<NftRoutes />} />
+              <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="*" element={<Error statusCode={404} />} />
             </Routes>
             <ChangeNetworkDialog />

@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
 
@@ -8,17 +7,17 @@ import bridgoor from 'assets/nft/bridgoor.gif';
 import dopexGames from 'assets/nft/dopex-halloween-games.gif';
 import NftCard from './components/NftCard';
 
-const Ssov = () => {
+const Nfts = () => {
   return (
     <Box className="bg-black min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
-      <AppBar active="NFT" />
+      <AppBar active="nfts" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="text-center mx-auto max-w-xl mb-12 mt-32">
           <Typography variant="h1" className="mb-1">
-            Dopex NFT
+            Dopex NFT's
           </Typography>
           <Typography variant="h5" className="text-stieglitz">
             Users that are eligible can mint the NFT's here
@@ -37,4 +36,4 @@ const Ssov = () => {
   );
 };
 
-export default Ssov;
+export default Nfts;
