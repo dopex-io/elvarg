@@ -82,6 +82,7 @@ const appLinks = {
   42161: [
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
+    { name: 'NFTs', to: '/nfts' },
   ],
 };
 
@@ -104,7 +105,8 @@ interface AppBarProps {
     | 'faucet'
     | 'SSOV'
     | 'leaderboard'
-    | 'swap';
+    | 'swap'
+    | 'NFTs';
 }
 
 export default function AppBar(props: AppBarProps) {
