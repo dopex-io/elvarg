@@ -56,8 +56,8 @@ const TableBodyCell = ({
   );
 };
 
-const RfqTableData = ({ setOpenChat }) => {
-  const { orders, validateUser, user } = useContext(OtcContext);
+const RfqTableData = () => {
+  const { orders, validateUser } = useContext(OtcContext);
   const navigate = useNavigate();
 
   return (
@@ -112,7 +112,7 @@ const RfqTableData = ({ setOpenChat }) => {
                 {'-'}
               </TableBodyCell>
               <TableBodyCell align="right" textColor="text-green-500">
-                {'-'}
+                {row.price}
               </TableBodyCell>
               <TableBodyCell align="right">
                 <IconButton

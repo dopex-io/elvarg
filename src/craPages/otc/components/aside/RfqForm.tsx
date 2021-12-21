@@ -6,7 +6,7 @@ import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { ERC20__factory } from '@dopex-io/sdk';
-import { addDoc, collection } from '@firebase/firestore';
+import { doc, addDoc, setDoc, collection } from '@firebase/firestore';
 import * as yup from 'yup';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -24,6 +24,7 @@ import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
 
 import { db } from 'utils/firebase/initialize';
+import { CircularProgress } from '@material-ui/core';
 
 interface RfqFormProps {
   symbol: string;
@@ -42,8 +43,13 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
   const validationSchema = yup.object({
     amount: yup
       .number()
-      .min(0, 'Amount has to be greater than 0')
+      .moreThan(0, 'Amount has to be greater than 0')
       .required('Amount is required'),
+    price: yup
+      .number()
+      .moreThan(0, 'Price has to be greater than 0')
+      .required('Strike is required'),
+    optionSymbol: yup.string().required('Option token required'),
   });
 
   const formik = useFormik({
@@ -104,6 +110,13 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
       }).finally(() => {
         setProcessing(false);
       });
+
+      await setDoc(doc(db, 'chatrooms', user.uid), {
+        admin: accountAddress,
+        uid: user.uid,
+      }).catch((e) => {
+        console.log('Already created chatroom... reverted with error: ', e);
+      });
     }
   }, [formik, user, validateUser, accountAddress]);
 
@@ -127,6 +140,10 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
   useEffect(() => {
     ssovUserDataToAssetMapping();
   }, [ssovUserDataToAssetMapping]);
+
+  useEffect(() => {
+    formik.setFieldValue('optionSymbol', userOptionBalances[0]?.token);
+  }, [userOptionBalances]);
 
   return (
     <Box className="bg-cod-gray rounded-lg p-2">
@@ -170,7 +187,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
           }
         />
         <Typography variant="h6" className="text-stieglitz">
-          Price
+          Bid
         </Typography>
         <Input
           className="py-2 px-2"
@@ -197,6 +214,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
           id="token"
           name="token"
           value={formik.values.optionSymbol}
+          defaultValue={userOptionBalances[0]?.token}
           onChange={handleTokenSelection}
           className="flex bg-umbra rounded-lg p-2"
           IconComponent={Dropdown}
@@ -247,14 +265,28 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
             footer={<Link to="/portfolio">Read More</Link>}
           />
         </Box>
+        <Box>
+          <Typography variant="h6" className="text-down-bad">
+            {formik.errors.amount ||
+              formik.errors.price ||
+              formik.errors.optionSymbol}
+          </Typography>
+        </Box>
         <CustomButton
           size="medium"
           className="flex w-full"
           onClick={handleSubmit}
+          disabled={
+            user &&
+            (processing ||
+              (!formik.errors.price &&
+                !formik.errors.amount &&
+                !formik.errors.optionSymbol))
+          }
         >
           {user ? (
             <Typography variant="h6">
-              {processing ? 'Processing' : 'Submit RFQ'}
+              {processing ? <CircularProgress size="24" /> : 'Submit RFQ'}
             </Typography>
           ) : (
             <Typography variant="h6">Login</Typography>

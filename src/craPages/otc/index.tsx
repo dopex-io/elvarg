@@ -11,7 +11,6 @@ import RfqTableData from './components/body/RfqTableData';
 import RfqForm from './components/aside/RfqForm';
 import TradeHistory from './components/body/TradeHistory';
 
-import { OtcContext } from 'contexts/Otc';
 import { SsovContext } from 'contexts/Ssov';
 
 import content from './components/banner/content.json';
@@ -38,7 +37,6 @@ const MARKETS_PLACEHOLDER = [
 ];
 
 const OTC = () => {
-  const { users, validateUser } = useContext(OtcContext);
   const { userSsovDataArray } = useContext(SsovContext);
 
   const [state, setState] = useState({
@@ -46,10 +44,6 @@ const OTC = () => {
     history: false,
   });
   const [selectedToken, setSelectedToken] = useState(MARKETS_PLACEHOLDER[0]);
-  const [openChat, setOpenChat] = useState({
-    id: 0,
-    open: false,
-  });
 
   const filteredUserSsovData = useMemo(() => {
     if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
@@ -136,7 +130,7 @@ const OTC = () => {
                 <Typography variant="h5" className="font-bold">
                   Available RFQs
                 </Typography>
-                <RfqTableData setOpenChat={setOpenChat} />
+                <RfqTableData />
               </>
             ) : (
               <>
@@ -151,15 +145,11 @@ const OTC = () => {
             <Typography variant="h5" className="font-bold">
               Create RFQ
             </Typography>
-            {openChat.open ? (
-              <Typography variant="h5">Chat Room Placeholder</Typography>
-            ) : (
-              <RfqForm
-                symbol={selectedToken.symbol}
-                icon={selectedToken.icon}
-                ssovUserData={filteredUserSsovData}
-              />
-            )}
+            <RfqForm
+              symbol={selectedToken.symbol}
+              icon={selectedToken.icon}
+              ssovUserData={filteredUserSsovData}
+            />
           </Box>
         </Box>
       </Box>
