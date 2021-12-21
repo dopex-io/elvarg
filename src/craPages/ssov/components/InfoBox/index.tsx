@@ -29,7 +29,7 @@ const InfoBox = ({
         {Icon ? (
           <Icon />
         ) : imgSrc ? (
-          <Image src={imgSrc} alt="logo" width={32} height={32} />
+          <Image src={imgSrc} alt="logo" width={38} height={38} />
         ) : null}
       </Box>
       <Box className="flex flex-row">
