@@ -20,6 +20,11 @@ export const BASE_ASSET_MAP = {
     symbol: 'LINK',
     _symbol: 'LINK',
   },
+  GOHM: {
+    fullName: 'Governance OHM',
+    symbol: 'GOHM',
+    _symbol: 'GOHM',
+  },
   YFI: {
     fullName: 'Yearn',
     symbol: 'YFI',
