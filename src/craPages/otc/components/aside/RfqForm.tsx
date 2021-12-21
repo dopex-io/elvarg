@@ -14,6 +14,7 @@ import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
+import ErrorBox from 'components/ErrorBox';
 
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
@@ -266,11 +267,13 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
           />
         </Box>
         <Box>
-          <Typography variant="h6" className="text-down-bad">
-            {formik.errors.amount ||
+          <ErrorBox
+            error={
+              formik.errors.amount ||
               formik.errors.price ||
-              formik.errors.optionSymbol}
-          </Typography>
+              formik.errors.optionSymbol
+            }
+          />
         </Box>
         <CustomButton
           size="medium"
@@ -279,9 +282,9 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
           disabled={
             user &&
             (processing ||
-              (!formik.errors.price &&
-                !formik.errors.amount &&
-                !formik.errors.optionSymbol))
+              Boolean(formik.errors.price) ||
+              Boolean(formik.errors.amount) ||
+              Boolean(formik.errors.optionSymbol))
           }
         >
           {user ? (
