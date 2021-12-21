@@ -45,22 +45,18 @@ const Ssov = () => {
                   className="rounded-md bg-cod-gray"
                 />
               ))
-            : ssovPropertiesArray
-                .reverse()
-                .map((ssovProperties, index) => (
-                  <SsovCard
-                    key={index}
-                    ssovProperties={ssovProperties}
-                    ssovData={ssovDataArray[ssovDataArray.length - index - 1]}
-                    userSsovData={
-                      userSsovDataArray[ssovDataArray.length - index - 1]
-                    }
-                    setSelectedSsov={setSelectedSsov}
-                    ssovIndex={ssovPropertiesArray.findIndex(
-                      (item) => item.tokenName === ssovProperties.tokenName
-                    )}
-                  />
-                ))}
+            : ssovPropertiesArray.map((ssovProperties, index) => (
+                <SsovCard
+                  key={index}
+                  ssovProperties={ssovProperties}
+                  ssovData={ssovDataArray[index]}
+                  userSsovData={userSsovDataArray[index]}
+                  setSelectedSsov={setSelectedSsov}
+                  ssovIndex={ssovPropertiesArray.findIndex(
+                    (item) => item.tokenName === ssovProperties.tokenName
+                  )}
+                />
+              ))}
         </Box>
       </Box>
     </Box>
