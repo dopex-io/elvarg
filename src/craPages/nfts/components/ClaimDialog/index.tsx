@@ -93,7 +93,6 @@ const ClaimModal = ({ open, handleClose, nft, name }) => {
           );
           setLoading(false);
         } catch {
-          console.log('enter4');
           setLoading(false);
         }
         setAmount(null);

@@ -33,9 +33,9 @@ const Ssov = () => {
             option purchases and earn rewards from farms simultaneously.
           </Typography>
         </Box>
-        <Box className="flex flex-col lg:flex-row lg:space-x-16 space-y-12 lg:space-y-0 justify-center items-center">
+        <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
           {ssovPropertiesArray.length === 0 || ssovDataArray.length === 0
-            ? [0, 1, 2].map((i) => (
+            ? [0, 1, 2, 3].map((i) => (
                 <Skeleton
                   key={i}
                   variant="rect"
@@ -45,18 +45,22 @@ const Ssov = () => {
                   className="rounded-md bg-cod-gray"
                 />
               ))
-            : ssovPropertiesArray.map((ssovProperties, index) => (
-                <SsovCard
-                  key={index}
-                  ssovProperties={ssovProperties}
-                  ssovData={ssovDataArray[index]}
-                  userSsovData={userSsovDataArray[index]}
-                  setSelectedSsov={setSelectedSsov}
-                  ssovIndex={ssovPropertiesArray.findIndex(
-                    (item) => item.tokenName === ssovProperties.tokenName
-                  )}
-                />
-              ))}
+            : ssovPropertiesArray
+                .reverse()
+                .map((ssovProperties, index) => (
+                  <SsovCard
+                    key={index}
+                    ssovProperties={ssovProperties}
+                    ssovData={ssovDataArray[ssovDataArray.length - index - 1]}
+                    userSsovData={
+                      userSsovDataArray[ssovDataArray.length - index - 1]
+                    }
+                    setSelectedSsov={setSelectedSsov}
+                    ssovIndex={ssovPropertiesArray.findIndex(
+                      (item) => item.tokenName === ssovProperties.tokenName
+                    )}
+                  />
+                ))}
         </Box>
       </Box>
     </Box>
