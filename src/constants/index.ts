@@ -1,10 +1,6 @@
 import { BigNumber } from 'ethers';
 
 import { round100, round1, round1000 } from 'utils/math/rounding';
-import Dpx from 'assets/tokens/Dpx';
-import Rdpx from 'assets/tokens/Rdpx';
-import Eth from 'assets/tokens/Eth';
-import Gohm from 'assets/tokens/Gohm';
 
 export const ASSETS_LIST = process.env.NEXT_PUBLIC_ASSETS_LIST.split(',');
 
@@ -91,25 +87,21 @@ export const STAT_NAMES = {
 export const SSOV_MAP = {
   DPX: {
     tokenSymbol: 'DPX',
-    icon: Dpx,
     imageSrc: '/assets/dpx.svg',
     coinGeckoId: 'dopex',
   },
   RDPX: {
     tokenSymbol: 'rDPX',
-    icon: Rdpx,
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
   },
   ETH: {
     tokenSymbol: 'ETH',
-    icon: Eth,
     imageSrc: '/assets/eth.svg',
     coinGeckoId: 'ethereum',
   },
   GOHM: {
     tokenSymbol: 'GOHM',
-    icon: Gohm,
     imageSrc: '/assets/gohm.svg',
     coinGeckoId: 'governance-ohm',
   },

@@ -4,26 +4,33 @@ import Tooltip from '@material-ui/core/Tooltip';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
+import Image from 'next/image';
 
 interface InfoBoxProps {
-  Icon: React.FC;
+  Icon?: React.FC;
+  imgSrc?: string;
   heading: string;
   value: string;
   className?: string;
-  toolTip?: string;
+  tooltip?: string;
 }
 
 const InfoBox = ({
   Icon,
+  imgSrc,
   heading,
   value,
   className,
-  toolTip,
+  tooltip,
 }: InfoBoxProps) => {
   return (
     <Box className={cx('flex flex-col p-4 bg-umbra rounded-xl', className)}>
-      <Box className="mb-2 h-10 max-w-14 flex flex-row">
-        <Icon />
+      <Box className="mb-2 flex flex-row">
+        {Icon ? (
+          <Icon />
+        ) : imgSrc ? (
+          <Image src={imgSrc} alt="logo" width={32} height={32} />
+        ) : null}
       </Box>
       <Box className="flex flex-row">
         <Typography
@@ -33,11 +40,11 @@ const InfoBox = ({
         >
           {heading}
         </Typography>
-        {toolTip ? (
+        {tooltip ? (
           <Box className="ml-1 flex items-center">
             <Tooltip
               className="h-4 text-stieglitz"
-              title={toolTip}
+              title={tooltip}
               arrow={true}
             >
               <InfoOutlinedIcon />

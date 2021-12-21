@@ -55,20 +55,20 @@ function SsovCard(props: SsovCardProps) {
 
   const info = [
     {
-      icon: SSOV_MAP[ssovProperties.tokenName].icon,
       heading: 'Asset',
       value: tokenSymbol,
+      imgSrc: SSOV_MAP[ssovProperties.tokenName].imageSrc,
     },
     {
-      icon: Action,
       heading: 'APY',
       value: `${APY ? `${APY}%` : '...'}`,
-      toolTip: 'This is the base APY calculated from the single staking farm',
+      Icon: Action,
+      tooltip: 'This is the base APY calculated from the single staking farm',
     },
     {
-      icon: Coin,
       heading: 'TVL',
       value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
+      Icon: Coin,
     },
   ];
 
@@ -137,22 +137,7 @@ function SsovCard(props: SsovCardProps) {
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
             {info.map((item) => {
-              return item.toolTip ? (
-                <InfoBox
-                  key={item.heading}
-                  Icon={item.icon}
-                  heading={item.heading}
-                  value={item.value}
-                  toolTip={item.toolTip}
-                />
-              ) : (
-                <InfoBox
-                  key={item.heading}
-                  Icon={item.icon}
-                  heading={item.heading}
-                  value={item.value}
-                />
-              );
+              return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
           <Box>
