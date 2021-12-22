@@ -1,7 +1,7 @@
 import { useContext, useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import cx from 'classnames';
-import { utils as ethersUtils } from 'ethers';
+import { utils as ethersUtils, BigNumber } from 'ethers';
 import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
@@ -9,16 +9,41 @@ import Input from '@material-ui/core/Input';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import { BaseNFT } from '@dopex-io/sdk';
 
 import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
+import { NftsContext } from 'contexts/Nfts';
 
-const TransferModal = ({ open, handleClose, userNftData }) => {
+const TransferModal = ({ open, handleClose, index }) => {
   const { accountAddress } = useContext(WalletContext);
+  const { userNftsData } = useContext(NftsContext);
 
   const [loading, setLoading] = useState(false);
-  const { tokenId, balance, nftContractSigner } = userNftData;
+  const {
+    nftContractSigner,
+    balance,
+    tokenId,
+  }: {
+    nftContractSigner: BaseNFT;
+    balance: BigNumber;
+    tokenId: BigNumber;
+  } = useMemo(() => {
+    if (userNftsData.length === 0) {
+      return {
+        nftContractSigner: null,
+        balance: BigNumber.from(0),
+        tokenId: BigNumber.from(0),
+      };
+    } else {
+      return {
+        nftContractSigner: userNftsData[index].nftContractSigner,
+        balance: userNftsData[index].balance,
+        tokenId: userNftsData[index].tokenId,
+      };
+    }
+  }, [userNftsData, index]);
 
   const formik = useFormik({
     initialValues: { address: '' },

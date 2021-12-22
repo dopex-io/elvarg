@@ -6,20 +6,14 @@ import {
   useEffect,
 } from 'react';
 import { BigNumber } from 'ethers';
-import axios from 'axios';
 
 import { BaseNFT__factory, BaseNFT } from '@dopex-io/sdk';
-import {
-  INFURA_IPFS_PROJECT_ID,
-  INFURA_IPFS_PROJECT_SECRET,
-} from 'constants/index';
 
 import { WalletContext } from './Wallet';
 
 export interface NftData {
   nftName: string;
   nftUri: string;
-  nftImageCid: string;
 }
 
 export interface UserNftData {
@@ -62,21 +56,10 @@ export const NftsProvider = (props) => {
         nftContract.name(),
         nftContract.tokenURI(0),
       ]);
-      const cid = nftUri.split('//')[1];
-
-      const header =
-        'Basic ' + INFURA_IPFS_PROJECT_ID + ':' + INFURA_IPFS_PROJECT_SECRET;
-      const metaData = await axios.get(
-        `https://ipfs.infura.io:5001/api/v0/cat?arg=${cid}`,
-        { headers: { Authorization: header } }
-      );
-
-      const nftImageCid = metaData.data.image.split('//')[1];
 
       nftsData.push({
         nftName: nftName,
         nftUri: nftUri,
-        nftImageCid: nftImageCid,
       });
     }
     setNftsData(nftsData);

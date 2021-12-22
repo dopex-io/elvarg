@@ -65,13 +65,13 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
       <ClaimDialog
         open={claimDialog}
         handleClose={handleClaimDialogClose}
-        userNftData={userNftsData[index]}
+        index={index}
         name={nftName}
       />
       <TransferDialog
         open={transferDialog}
         handleClose={handleTransferDialogClose}
-        userNftData={userNftsData[index]}
+        index={index}
       />
       <Box className={cx('flex flex-col mb-4', className)}>
         <Box className="flex flex-col">

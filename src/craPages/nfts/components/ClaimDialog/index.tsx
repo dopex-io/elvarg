@@ -10,17 +10,20 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import { BaseNFT } from '@dopex-io/sdk';
 
 import BalanceTree from 'utils/merkle/balance-tree';
 import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
+import { NftsContext } from 'contexts/Nfts';
 
 import dopexBridgoorAddresses from 'constants/dopexBridgoorAddresses.json';
 import dopexHalloweenAddresses from 'constants/dopexHalloweenAddresses.json';
 
-const ClaimModal = ({ open, handleClose, userNftData, name }) => {
+const ClaimModal = ({ open, handleClose, index, name }) => {
   const { accountAddress } = useContext(WalletContext);
+  const { userNftsData } = useContext(NftsContext);
 
   const [amount, setAmount] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -29,7 +32,21 @@ const ClaimModal = ({ open, handleClose, userNftData, name }) => {
       ? dopexBridgoorAddresses
       : dopexHalloweenAddresses;
 
-  const { nftContractSigner } = userNftData.nftContractSigner;
+  const {
+    nftContractSigner,
+  }: {
+    nftContractSigner: BaseNFT;
+  } = useMemo(() => {
+    if (userNftsData.length === 0) {
+      return {
+        nftContractSigner: null,
+      };
+    } else {
+      return {
+        nftContractSigner: userNftsData[index].nftContractSigner,
+      };
+    }
+  }, [userNftsData, index]);
 
   const formik = useFormik({
     initialValues: { address: '' },
