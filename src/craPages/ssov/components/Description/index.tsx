@@ -3,7 +3,7 @@ import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import VaultBox from '../InfoBox';
+import InfoBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
@@ -43,20 +43,20 @@ const Description = ({
 
   const info = [
     {
-      icon: SSOV_MAP[ssovProperties.tokenName].icon,
       heading: 'Asset',
       value: tokenSymbol,
+      imgSrc: SSOV_MAP[ssovProperties.tokenName].imageSrc,
     },
     {
-      icon: Action,
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
-      toolTip: 'This is the base APY calculated from the single staking farm',
+      Icon: Action,
+      tooltip: 'This is the base APY calculated from the single staking farm',
     },
     {
-      icon: Coin,
       heading: 'TVL',
       value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
+      Icon: Coin,
     },
   ];
 
@@ -103,22 +103,7 @@ const Description = ({
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {
-          return item.toolTip ? (
-            <VaultBox
-              key={item.heading}
-              Icon={item.icon}
-              heading={item.heading}
-              value={item.value}
-              toolTip={item.toolTip}
-            />
-          ) : (
-            <VaultBox
-              key={item.heading}
-              Icon={item.icon}
-              heading={item.heading}
-              value={item.value}
-            />
-          );
+          return <InfoBox key={item.heading} {...item} />;
         })}
       </Box>
       {purchaseState && (

@@ -46,20 +46,34 @@ export const FarmingProvider = (props) => {
   });
 
   const [poolsInfo, setPoolsInfo] = useState({
-    DPXPool: { APR: null, TVL: null, stakingAsset: 'DPX', tokenPrice: null },
+    DPXPool: {
+      APR: null,
+      TVL: null,
+      stakingAsset: 'DPX',
+      tokenPrice: null,
+      periodFinish: null,
+    },
     DPX_WETHPool: {
       APR: null,
       TVL: null,
       stakingAsset: 'DPX-WETH',
       tokenPrice: null,
+      periodFinish: null,
     },
     rDPX_WETHPool: {
       APR: null,
       TVL: null,
       stakingAsset: 'rDPX-WETH',
       tokenPrice: null,
+      periodFinish: null,
     },
-    RDPXPool: { APR: null, TVL: null, stakingAsset: 'RDPX', tokenPrice: null },
+    RDPXPool: {
+      APR: null,
+      TVL: null,
+      stakingAsset: 'RDPX',
+      tokenPrice: null,
+      periodFinish: null,
+    },
   });
 
   const [tokensInfo, setTokensInfo] = useState({
@@ -79,8 +93,6 @@ export const FarmingProvider = (props) => {
         provider
       );
 
-      const totalTokens = await selectedBaseAssetContract.totalSupply();
-
       const stakingAsset = token.toUpperCase() + 'StakingRewards';
 
       if (!contractAddresses[stakingAsset]) return;
@@ -90,7 +102,15 @@ export const FarmingProvider = (props) => {
         provider
       );
 
-      const totalSupply = await stakingRewardsContract.totalSupply();
+      let [periodFinishBigNumber, totalSupply, totalTokens] = await Promise.all(
+        [
+          stakingRewardsContract.periodFinish(),
+          stakingRewardsContract.totalSupply(),
+          selectedBaseAssetContract.totalSupply(),
+        ]
+      );
+
+      let periodFinish = periodFinishBigNumber.toNumber();
       let total = totalSupply;
 
       let priceLP = 100;
@@ -196,6 +216,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
           DPX_WETHPool: {
             ...poolsInfo.DPX_WETHPool,
@@ -217,6 +238,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
           rDPX_WETHPool: {
             ...poolsInfo.rDPX_WETHPool,
@@ -256,6 +278,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
           RDPXPool: {
             ...poolsInfo.RDPXPool,
@@ -295,6 +318,7 @@ export const FarmingProvider = (props) => {
             APR: APR,
             TVL: TVL,
             tokenPrice: priceLP,
+            periodFinish,
           },
         }));
       }

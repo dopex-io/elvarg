@@ -96,7 +96,7 @@ const Claim = ({ closeModal, data, icon }: DialogProps) => {
                   <Typography
                     variant="caption"
                     component="div"
-                    className={key === 'pnl' ? 'text-green-500' : ''}
+                    className={key === 'pnl' ? 'text-emerald-500' : ''}
                   >
                     {stats[key]}
                   </Typography>

@@ -27,6 +27,7 @@ const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const OtcPortal = lazy(() => import('craPages/otc'));
 const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
+const Nfts = lazy(() => import('craPages/nfts'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
@@ -70,6 +71,13 @@ const OtcRoutes = () => {
   );
 };
 
+const NftsRoutes = () => {
+  return (
+    <Routes>
+      <Route path="*" element={<Nfts />} />
+    </Routes>
+  );
+};
 function AppRoutes() {
   // if (BUILD === 'testnet') {
   //   return (
@@ -97,17 +105,16 @@ function AppRoutes() {
       <Suspense fallback={<PageLoader />}>
         <WalletProvider>
           <AssetsProvider>
-            <OtcProvider>
-              <Routes>
-                <Route path="/" element={<Navigate to="/ssov" />} />
-                <Route path="sale" element={<TokenSale />} />
-                <Route path="ssov/*" element={<SsovRoutes />} />
-                <Route path="farms/*" element={<FarmRoutes />} />
-                <Route path="otc/*" element={<OtcRoutes />} />
-                <Route path="*" element={<Error statusCode={404} />} />
-              </Routes>
-              <ChangeNetworkDialog />
-            </OtcProvider>
+            <Routes>
+              <Route path="/" element={<Navigate to="/ssov" />} />
+              <Route path="sale" element={<TokenSale />} />
+              <Route path="ssov/*" element={<SsovRoutes />} />
+              <Route path="farms/*" element={<FarmRoutes />} />
+              <Route path="nfts/*" element={<NftsRoutes />} />
+              <Route path="otc/*" element={<OtcRoutes />} />
+              <Route path="*" element={<Error statusCode={404} />} />
+            </Routes>
+            <ChangeNetworkDialog />
           </AssetsProvider>
         </WalletProvider>
       </Suspense>
