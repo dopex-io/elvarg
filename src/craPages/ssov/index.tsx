@@ -40,7 +40,7 @@ const Ssov = () => {
                   key={i}
                   variant="rect"
                   width={350}
-                  height={560}
+                  height={400}
                   animation="wave"
                   className="rounded-md bg-cod-gray"
                 />
