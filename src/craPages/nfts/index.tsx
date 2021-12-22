@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
 
@@ -5,7 +6,10 @@ import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import NftCard from './components/NftCard';
 
+import { NftsContext } from 'contexts/Nfts';
+
 const Nfts = () => {
+  const { nftsData } = useContext(NftsContext);
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -22,8 +26,9 @@ const Nfts = () => {
           </Typography>
         </Box>
         <Box className="flex flex-col lg:flex-row lg:space-x-16 justify-center items-center">
-          <NftCard nft="DopexBridgoorNFT" />
-          <NftCard nft="DopexHalloweenNFT" />
+          {nftsData.map((nftData, index) => (
+            <NftCard key={index} nftData={nftData} index={index} />
+          ))}
         </Box>
       </Box>
     </Box>
