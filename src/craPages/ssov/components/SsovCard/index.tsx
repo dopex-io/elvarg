@@ -107,33 +107,8 @@ function SsovCard(props: SsovCardProps) {
               />
             </Box>
             <Box className="flex items-center">
-              <Typography variant="h5">{tokenSymbol} Options Vault</Typography>
+              <Typography variant="h5">{tokenSymbol} SSOV</Typography>
             </Box>
-          </Box>
-          <Box className="border-umbra rounded-xl border p-4 flex flex-col mb-4">
-            <Typography variant="h6" className="mb-4">
-              Single Staking Vault
-            </Typography>
-            <Typography
-              variant="caption"
-              component="div"
-              className="mb-4 text-left text-stieglitz"
-            >
-              Returns are generated via an automated compound strategy in the{' '}
-              {tokenSymbol} farm where all yield is collectively used to sell
-              Call Options.
-            </Typography>
-            <Typography
-              variant="caption"
-              component="a"
-              className="text-wave-blue text-left"
-              // @ts-ignore
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://blog.dopex.io/introducing-single-staking-option-vaults-ssov-b90bbb0a9ae5"
-            >
-              Read More
-            </Typography>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
             {info.map((item) => {
