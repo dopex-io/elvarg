@@ -106,7 +106,7 @@ const TradeHistory = () => {
               <TableBodyCell align="right" textColor="text-down-bad">
                 {row.bid}
               </TableBodyCell>
-              <TableBodyCell align="right" textColor="text-green-500">
+              <TableBodyCell align="right" textColor="text-green-400">
                 {row.ask}
               </TableBodyCell>
               <TableBodyCell align="right">{row.counterParty}</TableBodyCell>

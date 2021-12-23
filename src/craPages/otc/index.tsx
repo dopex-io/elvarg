@@ -1,8 +1,7 @@
-import { useState, useContext, useMemo, useCallback } from 'react';
+import { useState, useContext, useMemo, useCallback, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
 import HistoryIcon from '@material-ui/icons/History';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
@@ -12,8 +11,10 @@ import RfqForm from './components/aside/RfqForm';
 import TradeHistory from './components/body/TradeHistory';
 
 import { SsovContext } from 'contexts/Ssov';
+import { OtcContext } from 'contexts/Otc';
 
 import content from './components/banner/content.json';
+import Register from './components/dialog/Register';
 
 const MARKETS_PLACEHOLDER = [
   {
@@ -38,12 +39,18 @@ const MARKETS_PLACEHOLDER = [
 
 const OTC = () => {
   const { userSsovDataArray } = useContext(SsovContext);
+  const { user } = useContext(OtcContext);
 
   const [state, setState] = useState({
     trade: true,
     history: false,
   });
   const [selectedToken, setSelectedToken] = useState(MARKETS_PLACEHOLDER[0]);
+
+  const [dialogState, setDialogState] = useState({
+    open: false,
+    handleClose: () => {},
+  });
 
   const filteredUserSsovData = useMemo(() => {
     if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
@@ -60,9 +67,21 @@ const OTC = () => {
     setSelectedToken(token);
   }, []);
 
+  const handleClose = useCallback(() => {
+    setDialogState((prevState) => ({ ...prevState, open: Boolean(user) }));
+  }, []);
+
+  useEffect(() => {
+    setDialogState({
+      open: !!user,
+      handleClose: handleClose,
+    });
+  }, [user, handleClose]);
+
   return (
     <Box className="bg-black min-h-screen">
       <AppBar active="OTC" />
+      <Register open={dialogState.open} handleClose={handleClose} />
       <Box className="container pt-24 mx-auto px-4 lg:px-0">
         <Box className="grid grid-cols-12 h-full gap-4">
           <Box className="flex flex-col col-span-2">

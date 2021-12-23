@@ -98,6 +98,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
     if (!user) validateUser();
     else {
       setProcessing(true);
+      console.log(user.username);
       await addDoc(collection(db, 'orders'), {
         option: formik.values.optionSymbol,
         isBuy: formik.values.isBuy,
@@ -107,7 +108,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
         dealer: accountAddress,
         timestamp: formik.values.timestamp,
         isFulfilled: false,
-        uid: user.uid,
+        username: user.username,
       }).finally(() => {
         setProcessing(false);
       });

@@ -1,6 +1,6 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { collection, query, addDoc, orderBy } from 'firebase/firestore';
+import { doc, collection, query, addDoc, orderBy } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -29,7 +29,7 @@ const Chatroom = () => {
   const chat = useParams();
   const navigate = useNavigate();
 
-  const { auth } = useContext(OtcContext);
+  const { validateUser, auth } = useContext(OtcContext);
 
   const validationSchema = yup.object({
     msg: yup.string().required('Cannot send empty message'),
@@ -38,7 +38,6 @@ const Chatroom = () => {
     initialValues: {
       msg: '',
       timestamp: 0,
-      uid: '',
     },
     validationSchema: validationSchema,
     onSubmit: noop,
@@ -53,8 +52,6 @@ const Chatroom = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const [currentUser, setCurrentUser] = useState({});
-
   const handleChange = useCallback(
     (e) => {
       formik.setFieldValue('msg', e.target.value);
@@ -66,16 +63,18 @@ const Chatroom = () => {
     await addDoc(collection(db, `chatrooms/${chat.uid}/messages`), {
       msg: formik.values.msg,
       timestamp: new Date(),
-      uid: formik.values.uid,
+      uid: auth.currentUser.uid,
     });
     formik.setFieldValue('msg', '');
-  }, [formik, chat.uid]);
+  }, [formik, chat.uid, auth]);
 
   useEffect(() => {
-    if (!msgs) setLoading(true);
-    else setLoading(false);
-    setCurrentUser(auth.currentUser);
-  }, [msgs, auth.currentUser]);
+    (async () => {
+      if (!msgs) setLoading(true);
+      else setLoading(false);
+      // await validateUser();
+    })();
+  }, [msgs, validateUser, formik]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -115,15 +114,15 @@ const Chatroom = () => {
                 return (
                   <Box
                     className={`flex my-2 mx-2 space-x-2 ${
-                      auth.currentUser.uid === chat.uid
+                      auth?.currentUser.uid === msg.uid
                         ? 'flex-end flex-row-reverse'
                         : null
                     }`}
                     key={index}
                   >
                     <Box
-                      className={`flex p-4 mx-2 rounded-3xl ${
-                        auth.currentUser.uid === chat.uid
+                      className={`flex py-2 px-4 mx-2 rounded-3xl ${
+                        auth?.currentUser.uid === msg.uid
                           ? 'bg-primary'
                           : 'bg-umbra'
                       }`}

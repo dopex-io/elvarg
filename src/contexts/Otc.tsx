@@ -8,12 +8,12 @@ import {
 } from 'react';
 import {
   getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
+  signInAnonymously,
+  // GoogleAuthProvider,
   // signOut,
   Auth,
 } from 'firebase/auth';
-import { doc, setDoc, getDocs, collection, getDoc } from 'firebase/firestore';
+import { getDocs, collection, addDoc } from 'firebase/firestore';
 
 import { WalletContext } from './Wallet';
 
@@ -23,10 +23,10 @@ interface OtcContextInterface {
   orders: any[];
   users: any[];
   trades: any[];
-  token: String;
+  token: string;
   user: any;
+  auth: any;
   validateUser?: Function;
-  auth: Auth;
 }
 
 const initialState: OtcContextInterface = {
@@ -34,7 +34,7 @@ const initialState: OtcContextInterface = {
   users: [],
   trades: [],
   token: 'DPX',
-  user: undefined,
+  user: '',
   auth: undefined,
 };
 
@@ -46,11 +46,6 @@ export const OtcProvider = (props) => {
   const [state, setState] = useState<OtcContextInterface>(initialState);
 
   const auth = getAuth();
-
-  const googleProvider = useMemo(() => {
-    return new GoogleAuthProvider();
-  }, []);
-  googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
   useEffect(() => {
     const getOtcData = async () => {
@@ -73,38 +68,54 @@ export const OtcProvider = (props) => {
     return;
   }, [provider, accountAddress]);
 
-  const signIn = useCallback(async () => {
-    if (!auth.currentUser) {
-      signInWithPopup(auth, googleProvider)
-        .then(async (result) => {
-          setState((prevState) => ({ ...prevState, user: result.user }));
-          const usersRef = doc(db, 'users', result.user.uid);
-          const snapShot = await getDoc(usersRef);
-          if (snapShot.exists) return;
-          await setDoc(doc(db, 'user', result.user.uid), {
-            accountAddress: accountAddress,
-            email: result.user.email,
-            uid: result.user.uid,
-          });
-        })
-        .catch((e) => console.log(GoogleAuthProvider.credentialFromError(e)));
-    }
-  }, [auth, googleProvider, accountAddress]);
+  // const signIn = useCallback(async () => {
+  //   if (!accountAddress) return;
 
+  //   if (!auth.currentUser) {
+  //   signInAnonymously(auth)
+  //     .then(async (result) => {
+  //       setState((prevState) => ({
+  //         ...prevState,
+  //         auth: auth,
+  //         user: auth.currentUser,
+  //       }));
+  //     })
+  //     .catch((e) => console.log(e));
+  //   }
+  // }, [auth, accountAddress]);
+
+  // Check if current address is already registered and registers them accordingly
   const validateUser = useCallback(async () => {
     if (!accountAddress) return;
 
-    if (!auth.currentUser) await signIn();
-    else console.log('Already signed in with user: ', auth.currentUser);
-  }, [accountAddress, auth.currentUser, signIn]);
+    const filteredUsers = state.users.filter(
+      (user) => user.accountAddress === accountAddress
+    );
+
+    if (filteredUsers.length === 0) {
+      // Create a new user in the database
+      // await addDoc(collection(db, 'users', auth.currentUser.uid), {
+      //   uid: auth.currentUser.uid,
+      //   accountAddress,
+      // });
+      // Sign in
+      // await signIn();
+      return false; // User does not exist
+    } else {
+      console.log('Already signed in with user: ', auth.currentUser);
+      setState((prevState) => ({ ...prevState, user: filteredUsers[0] }));
+      return true;
+    }
+  }, [accountAddress, auth, /* signIn,*/ state.users]);
 
   useEffect(() => {
-    setState((prevState) => ({ ...prevState, user: auth.currentUser }));
-  }, [auth.currentUser, auth, accountAddress]);
+    (async () => {
+      await validateUser();
+    })();
+  }, [validateUser]);
 
   const contextValue = {
     ...state,
-    auth,
     validateUser,
   };
   return (

@@ -111,7 +111,7 @@ const RfqTableData = () => {
               <TableBodyCell align="center" textColor="text-down-bad">
                 {'-'}
               </TableBodyCell>
-              <TableBodyCell align="right" textColor="text-green-500">
+              <TableBodyCell align="right" textColor="text-green-400">
                 {row.price}
               </TableBodyCell>
               <TableBodyCell align="right">
