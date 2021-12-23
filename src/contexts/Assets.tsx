@@ -40,7 +40,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'ETH', 'BNB'],
+  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB'],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
@@ -59,6 +59,7 @@ const ASSET_TO_COINGECKO_ID = {
   WBTC: 'bitcoin',
   DPX: 'dopex',
   RDPX: 'dopex-rebate-token',
+  GOHM: 'governance-ohm',
 };
 
 export const AssetsContext =
@@ -220,6 +221,7 @@ export const AssetsProvider = (props) => {
         DPX: '0',
         RDPX: '0',
         USDT: '0',
+        GOHM: '0',
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>

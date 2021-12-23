@@ -33,14 +33,14 @@ const Ssov = () => {
             option purchases and earn rewards from farms simultaneously.
           </Typography>
         </Box>
-        <Box className="flex flex-col lg:flex-row lg:space-x-16 space-y-12 lg:space-y-0 justify-center items-center">
+        <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
           {ssovPropertiesArray.length === 0 || ssovDataArray.length === 0
-            ? [0, 1, 2].map((i) => (
+            ? [0, 1, 2, 3].map((i) => (
                 <Skeleton
                   key={i}
                   variant="rect"
                   width={350}
-                  height={560}
+                  height={400}
                   animation="wave"
                   className="rounded-md bg-cod-gray"
                 />

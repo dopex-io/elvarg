@@ -75,32 +75,18 @@ interface SsovContextInterface {
   setSelectedSsov?: Function;
 }
 
-const initialUserSsovDataArray = [
-  {
+const initialUserSsovDataArray = [0, 1, 2, 3].map(() => {
+  return {
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
     userEpochCallsPurchased: [],
     epochStrikeTokens: [],
-  },
-  {
-    userEpochStrikeDeposits: [],
-    userEpochDeposits: '0',
-    userEpochCallsPurchased: [],
-    epochStrikeTokens: [],
-  },
-  {
-    userEpochStrikeDeposits: [],
-    userEpochDeposits: '0',
-    userEpochCallsPurchased: [],
-    epochStrikeTokens: [],
-  },
-];
+  };
+});
 
-const initialSsovSignerArray = [
-  { token: null, ssovContractWithSigner: null },
-  { token: null, ssovContractWithSigner: null },
-  { token: null, ssovContractWithSigner: null },
-];
+const initialSsovSignerArray = [0, 1, 2, 3].map(() => {
+  return { token: null, ssovContractWithSigner: null };
+});
 
 export const SsovContext = createContext<SsovContextInterface>({
   ssovPropertiesArray: [],
@@ -216,7 +202,7 @@ export const SsovProvider = (props) => {
 
       let APY;
 
-      if (asset !== 'ETH') {
+      if (asset !== 'ETH' && asset !== 'GOHM') {
         const stakingRewardsAddress = await ssovContract.getAddress(
           '0x5374616b696e6752657761726473000000000000000000000000000000000000' // StakingRewards
         );
@@ -253,7 +239,7 @@ export const SsovProvider = (props) => {
         let APR = (denominator / TVL.toNumber() - 1) * 100;
 
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
-      } else {
+      } else if (asset === 'ETH') {
         const TVL = totalEpochDeposits
           .mul(Math.round(priceETH))
           .div(oneEBigNumber(18));
@@ -266,6 +252,8 @@ export const SsovProvider = (props) => {
         let APR = (denominator / TVL.toNumber() - 1) * 100;
 
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
+      } else {
+        APY = 5091;
       }
 
       ssovData.push({
@@ -366,6 +354,7 @@ export const SsovProvider = (props) => {
     for (const asset in SSOVAddresses) {
       const tokenAddress =
         asset === 'ETH' ? contractAddresses['WETH'] : contractAddresses[asset];
+
       const _token = ERC20__factory.connect(tokenAddress, signer);
       const _ssovContractWithSigner =
         asset === 'ETH'

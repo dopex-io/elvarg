@@ -55,20 +55,20 @@ function SsovCard(props: SsovCardProps) {
 
   const info = [
     {
-      icon: SSOV_MAP[ssovProperties.tokenName].icon,
       heading: 'Asset',
       value: tokenSymbol,
+      imgSrc: SSOV_MAP[ssovProperties.tokenName].imageSrc,
     },
     {
-      icon: Action,
       heading: 'APY',
       value: `${APY ? `${APY}%` : '...'}`,
-      toolTip: 'This is the base APY calculated from the single staking farm',
+      Icon: Action,
+      tooltip: 'This is the base APY calculated from the single staking farm',
     },
     {
-      icon: Coin,
       heading: 'TVL',
       value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
+      Icon: Coin,
     },
   ];
 
@@ -107,52 +107,12 @@ function SsovCard(props: SsovCardProps) {
               />
             </Box>
             <Box className="flex items-center">
-              <Typography variant="h5">{tokenSymbol} Options Vault</Typography>
+              <Typography variant="h5">{tokenSymbol} SSOV</Typography>
             </Box>
-          </Box>
-          <Box className="border-umbra rounded-xl border p-4 flex flex-col mb-4">
-            <Typography variant="h6" className="mb-4">
-              Single Staking Vault
-            </Typography>
-            <Typography
-              variant="caption"
-              component="div"
-              className="mb-4 text-left text-stieglitz"
-            >
-              Returns are generated via an automated compound strategy in the{' '}
-              {tokenSymbol} farm where all yield is collectively used to sell
-              Call Options.
-            </Typography>
-            <Typography
-              variant="caption"
-              component="a"
-              className="text-wave-blue text-left"
-              // @ts-ignore
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://blog.dopex.io/introducing-single-staking-option-vaults-ssov-b90bbb0a9ae5"
-            >
-              Read More
-            </Typography>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
             {info.map((item) => {
-              return item.toolTip ? (
-                <InfoBox
-                  key={item.heading}
-                  Icon={item.icon}
-                  heading={item.heading}
-                  value={item.value}
-                  toolTip={item.toolTip}
-                />
-              ) : (
-                <InfoBox
-                  key={item.heading}
-                  Icon={item.icon}
-                  heading={item.heading}
-                  value={item.value}
-                />
-              );
+              return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
           <Box>
