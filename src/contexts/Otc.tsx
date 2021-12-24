@@ -13,7 +13,7 @@ import {
   // signOut,
   Auth,
 } from 'firebase/auth';
-import { getDocs, collection, addDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection, addDoc } from 'firebase/firestore';
 
 import { WalletContext } from './Wallet';
 
@@ -54,65 +54,47 @@ export const OtcProvider = (props) => {
       const orders = (await getDocs(collection(db, 'orders'))).docs.flatMap(
         (doc) => doc.data()
       );
-      const users = (await getDocs(collection(db, 'users'))).docs.flatMap(
-        (doc) => doc.data()
+      const usersDocs = (await getDocs(collection(db, 'users'))).docs.flatMap(
+        (doc) => doc
       );
+
+      const userDoc = usersDocs.find((user) => user.id === accountAddress);
+
+      const user = userDoc
+        ? {
+            accountAddress: userDoc.id,
+            username: userDoc.data().username,
+          }
+        : undefined;
 
       setState((prevState) => ({
         ...prevState,
         orders,
-        users,
+        users: usersDocs.map((user) => user.data()),
+        user,
       }));
     };
     getOtcData();
     return;
   }, [provider, accountAddress]);
 
-  // const signIn = useCallback(async () => {
-  //   if (!accountAddress) return;
-
-  //   if (!auth.currentUser) {
-  //   signInAnonymously(auth)
-  //     .then(async (result) => {
-  //       setState((prevState) => ({
-  //         ...prevState,
-  //         auth: auth,
-  //         user: auth.currentUser,
-  //       }));
-  //     })
-  //     .catch((e) => console.log(e));
-  //   }
-  // }, [auth, accountAddress]);
-
   // Check if current address is already registered and registers them accordingly
   const validateUser = useCallback(async () => {
     if (!accountAddress) return;
 
-    const filteredUsers = state.users.filter(
-      (user) => user.accountAddress === accountAddress
-    );
-
-    if (filteredUsers.length === 0) {
-      // Create a new user in the database
-      // await addDoc(collection(db, 'users', auth.currentUser.uid), {
-      //   uid: auth.currentUser.uid,
-      //   accountAddress,
-      // });
-      // Sign in
-      // await signIn();
+    if (!state.user) {
       return false; // User does not exist
     } else {
-      console.log('Already signed in with user: ', auth.currentUser);
-      setState((prevState) => ({ ...prevState, user: filteredUsers[0] }));
+      setState((prevState) => ({ ...prevState, user: state.user }));
       return true;
     }
-  }, [accountAddress, auth, /* signIn,*/ state.users]);
+  }, [accountAddress /*auth, signIn,*/, , state]);
 
-  useEffect(() => {
-    (async () => {
-      await validateUser();
-    })();
-  }, [validateUser]);
+  // useEffect(() => {
+  //   (async () => {
+  //     await validateUser();
+  //   })();
+  // }, [validateUser]);
 
   const contextValue = {
     ...state,

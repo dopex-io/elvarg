@@ -48,7 +48,7 @@ const OTC = () => {
   const [selectedToken, setSelectedToken] = useState(MARKETS_PLACEHOLDER[0]);
 
   const [dialogState, setDialogState] = useState({
-    open: false,
+    open: true,
     handleClose: () => {},
   });
 
@@ -68,15 +68,8 @@ const OTC = () => {
   }, []);
 
   const handleClose = useCallback(() => {
-    setDialogState((prevState) => ({ ...prevState, open: Boolean(user) }));
-  }, []);
-
-  useEffect(() => {
-    setDialogState({
-      open: !!user,
-      handleClose: handleClose,
-    });
-  }, [user, handleClose]);
+    setDialogState((prevState) => ({ ...prevState, open: false }));
+  }, [user]);
 
   return (
     <Box className="bg-black min-h-screen">

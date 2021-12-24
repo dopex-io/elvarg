@@ -64,7 +64,7 @@ const OtcRoutes = () => {
       <OtcProvider>
         <Routes>
           <Route path="*" element={<OtcPortal />} />
-          <Route path="chat/:uid" element={<OtcChatroom />} />
+          <Route path="chat/:id" element={<OtcChatroom />} />
         </Routes>
       </OtcProvider>
     </SsovProvider>

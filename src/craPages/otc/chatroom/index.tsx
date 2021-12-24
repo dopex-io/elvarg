@@ -29,7 +29,7 @@ const Chatroom = () => {
   const chat = useParams();
   const navigate = useNavigate();
 
-  const { validateUser, auth } = useContext(OtcContext);
+  const { validateUser, user } = useContext(OtcContext);
 
   const validationSchema = yup.object({
     msg: yup.string().required('Cannot send empty message'),
@@ -44,7 +44,7 @@ const Chatroom = () => {
   });
 
   const q = query(
-    collection(db, `chatrooms/${chat.uid}/messages`),
+    collection(db, `chatrooms/${chat.id}/messages`),
     orderBy('timestamp')
   );
 
@@ -60,19 +60,18 @@ const Chatroom = () => {
   );
 
   const handleSubmit = useCallback(async () => {
-    await addDoc(collection(db, `chatrooms/${chat.uid}/messages`), {
+    await addDoc(collection(db, `chatrooms/${chat.id}/${'messages'}`), {
       msg: formik.values.msg,
       timestamp: new Date(),
-      uid: auth.currentUser.uid,
+      username: user.username,
     });
     formik.setFieldValue('msg', '');
-  }, [formik, chat.uid, auth]);
+  }, [formik, chat, user]);
 
   useEffect(() => {
     (async () => {
       if (!msgs) setLoading(true);
       else setLoading(false);
-      // await validateUser();
     })();
   }, [msgs, validateUser, formik]);
 
@@ -87,7 +86,7 @@ const Chatroom = () => {
           variant="h5"
           className="flex justify-center my-3 text-stieglitz"
         >
-          Welcome to Chatroom {chat.uid}. You may place your bids/asks for the
+          Welcome to Chatroom {chat.id}. You may place your bids/asks for the
           given RFQ here and come to a settlement with this dealer.
         </Typography>
         <Box className="flex flex-col justify-between w-1/3 h-5/6 mx-auto bg-cod-gray rounded-xl">
@@ -100,7 +99,7 @@ const Chatroom = () => {
                 Chat Session
               </Typography>
               <Typography variant="h6" className="text-stieglitz p-4 my-auto">
-                ID: {chat.uid}
+                ID: {chat.id}
               </Typography>
             </Box>
           </Box>
@@ -109,12 +108,18 @@ const Chatroom = () => {
               <Box className="flex h-full justify-center">
                 <CircularProgress className="self-center" />
               </Box>
+            ) : msgs.length === 0 ? (
+              <Box className="flex justify-center pt-4">
+                <Typography variant="h5" className="text-stieglitz self-center">
+                  Be the first to message here
+                </Typography>
+              </Box>
             ) : (
               msgs.map((msg: any, index) => {
                 return (
                   <Box
                     className={`flex my-2 mx-2 space-x-2 ${
-                      auth?.currentUser.uid === msg.uid
+                      user?.username === msg.username
                         ? 'flex-end flex-row-reverse'
                         : null
                     }`}
@@ -122,7 +127,7 @@ const Chatroom = () => {
                   >
                     <Box
                       className={`flex py-2 px-4 mx-2 rounded-3xl ${
-                        auth?.currentUser.uid === msg.uid
+                        user?.username === msg.username
                           ? 'bg-primary'
                           : 'bg-umbra'
                       }`}

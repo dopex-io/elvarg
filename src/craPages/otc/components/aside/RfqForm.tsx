@@ -106,17 +106,31 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
         amount: formik.values.amount,
         price: formik.values.price + 'ETH',
         dealer: accountAddress,
+        username: user.username,
         timestamp: formik.values.timestamp,
         isFulfilled: false,
-        username: user.username,
       }).finally(() => {
         setProcessing(false);
       });
+      console.log({
+        option: formik.values.optionSymbol,
+        isBuy: formik.values.isBuy,
+        isPut: formik.values.isPut,
+        amount: formik.values.amount,
+        price: formik.values.price + 'ETH',
+        dealer: accountAddress,
+        username: user.username,
+        timestamp: formik.values.timestamp,
+        isFulfilled: false,
+      });
 
-      await setDoc(doc(db, 'chatrooms', user.uid), {
-        admin: accountAddress,
-        uid: user.uid,
-      }).catch((e) => {
+      await setDoc(
+        doc(db, 'chatrooms', user.username + '-' + formik.values.optionSymbol),
+        {
+          admin: accountAddress,
+          createdAt: new Date(),
+        }
+      ).catch((e) => {
         console.log('Already created chatroom... reverted with error: ', e);
       });
     }

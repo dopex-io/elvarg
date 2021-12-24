@@ -64,7 +64,7 @@ const RfqTableData = () => {
     <TableContainer
       className={cx(
         styles.rfqTable,
-        'rounded-lg overflow-x-hidden border-umbra border-2 h-3/4'
+        'rounded-lg overflow-x-hidden border-umbra border-2 max-h-3/5'
       )}
     >
       <Table aria-label="rfq-table" className="bg-umbra">
@@ -106,7 +106,7 @@ const RfqTableData = () => {
               </TableBodyCell>
               <TableBodyCell align="right">{row.amount}</TableBodyCell>
               <TableBodyCell align="center">
-                {smartTrim(row.dealer, 10)}
+                {smartTrim(row.username, 10)}
               </TableBodyCell>
               <TableBodyCell align="center" textColor="text-down-bad">
                 {'-'}
@@ -119,7 +119,7 @@ const RfqTableData = () => {
                   className="p-0 hover:opacity-50 transition ease-in-out"
                   onClick={async () => {
                     await validateUser();
-                    navigate(`/otc/chat/${row.uid}`);
+                    navigate(`/otc/chat/${row.username + '-' + row.option}`);
                   }}
                 >
                   <ChatBubbleIcon className="fill-current text-white p-1" />

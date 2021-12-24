@@ -1,16 +1,14 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useMemo, useContext, useCallback } from 'react';
 import Box from '@material-ui/core/Box';
-import Slide from '@material-ui/core/Slide';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
-import { doc, setDoc, addDoc, collection } from '@firebase/firestore';
+import { doc, setDoc } from '@firebase/firestore';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import Switch from 'components/UI/Switch';
 import Input from 'components/UI/Input';
 import ErrorBox from 'components/ErrorBox';
 
@@ -18,6 +16,8 @@ import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
 
 import { db } from 'utils/firebase/initialize';
+import { delay } from 'lodash';
+import InfoPopover from 'components/UI/InfoPopover';
 
 interface RegisterProps {
   open: boolean;
@@ -28,9 +28,9 @@ const Register = ({ open, handleClose }: RegisterProps) => {
   const { accountAddress } = useContext(WalletContext);
   const { user, users, validateUser } = useContext(OtcContext);
 
-  const [loading, setLoading] = useState(false);
-
-  console.log(users);
+  const [loading, setLoading] = useState(true);
+  const [validated, setValidated] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const validationSchema = yup.object({
     username: yup
@@ -46,12 +46,17 @@ const Register = ({ open, handleClose }: RegisterProps) => {
 
   const formik = useFormik({
     initialValues: {
-      username: '',
+      username: undefined,
       accountAddress: accountAddress,
     },
     validationSchema: validationSchema,
     onSubmit: noop,
   });
+
+  const usernameExists = useMemo(() => {
+    return users.find((user) => user.username === formik.values.username);
+  }, [users, formik.values.username]);
+
   const handleChange = useCallback(
     (e) => {
       formik.setFieldValue('username', e.target.value);
@@ -60,78 +65,100 @@ const Register = ({ open, handleClose }: RegisterProps) => {
   );
 
   const handleSubmit = useCallback(async () => {
-    console.log('called');
-    await setDoc(doc(db, 'users', accountAddress), {
-      username: formik.values.username,
-    }).then(() => {
+    try {
+      await setDoc(
+        doc(db, 'users', accountAddress),
+        {
+          username: formik.values.username,
+          createdAt: new Date(),
+        },
+        {
+          merge: false,
+        }
+      );
       handleClose();
-    });
+    } catch (e) {
+      setErrorMsg(e);
+    }
   }, [accountAddress, formik, handleClose]);
 
   useEffect(() => {
     setLoading(true);
     (async () => {
-      validateUser()
-        .then((result) => {
-          setLoading(false);
-          handleClose();
-        })
-        .catch((e) => {
-          console.log(e);
-          setLoading(false);
-        });
+      const validatedUser = await validateUser();
+      if (validatedUser) {
+        setValidated(true);
+        setLoading(false);
+        delay(handleClose, 1000);
+      }
+      delay(setLoading, 2000, false);
     })();
-  }, [validateUser, handleClose]);
+  }, [handleClose]);
+
+  useEffect(() => {
+    setErrorMsg(usernameExists ? 'Username already exists' : null);
+  }, [usernameExists]);
 
   return (
-    <Dialog open={open} handleClose={handleClose} showCloseIcon>
+    <Dialog open={open} handleClose={handleClose}>
       <Box className="flex flex-col space-y-4">
-        <Typography variant="h5" className="text-stieglitz">
-          Register
-        </Typography>
         {loading ? (
-          <CircularProgress size={32} className="mx-auto" />
+          <Box className="my-16 self-center">
+            <CircularProgress size={32} className="mx-auto" />
+          </Box>
         ) : (
           <Box className="space-y-4">
-            <Box className="flex flex-col">
-              <Input
-                onChange={handleChange}
-                leftElement={null}
-                type="text"
-                placeholder="Enter username"
-              />
-            </Box>
-            <Box>
-              <ErrorBox error={formik.errors.username} />
-            </Box>
-            <CustomButton
-              size="large"
-              className="flex w-full rounded-xl"
-              disabled={Boolean(formik.errors.username)}
-              onClick={handleSubmit}
-            >
-              Register
-            </CustomButton>
+            {validated ? (
+              <Box className="space-y-4 flex justify-center my-16">
+                <Box className="self-center text-center animate-pulse">
+                  <Typography variant="h3"> Welcome,</Typography>
+                  <Typography variant="h3" className="text-stieglitz">
+                    {user?.username}
+                  </Typography>
+                </Box>
+              </Box>
+            ) : (
+              <>
+                <Box className="flex flex-col space-y-4">
+                  <Typography variant="h5" className="text-stieglitz">
+                    Register
+                  </Typography>
+                  <Box className="flex justify-between">
+                    <Box className="flex space-x-2 my-auto">
+                      <Typography variant="h6" className="text-stieglitz">
+                        Username
+                      </Typography>
+                      <InfoPopover
+                        id="username"
+                        className="text-stieglitz"
+                        infoText="Create an alias/username to link to your wallet address"
+                      />
+                    </Box>
+                    <Input
+                      onChange={handleChange}
+                      leftElement={null}
+                      type="text"
+                      className="my-0 py-0 w-1/2"
+                    />
+                  </Box>
+                </Box>
+                <Box>
+                  <ErrorBox error={formik.errors.username || errorMsg} />
+                </Box>
+                <CustomButton
+                  size="large"
+                  className="flex w-full rounded-xl"
+                  disabled={
+                    Boolean(formik.errors.username) || Boolean(usernameExists)
+                  }
+                  onClick={handleSubmit}
+                >
+                  Register
+                </CustomButton>
+              </>
+            )}
           </Box>
         )}
-
-        {/* <Switch size="small" onClick={() => setChecked(!checked)} />
-        {!checked ? (
-          <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
-            <Box>
-              <Typography variant="h6">Hi</Typography>
-            </Box>
-          </Slide>
-        ) : (
-          <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
-            <Box>
-              <Typography variant="h6">
-                Before you can use the OTC, you must first register your address
-                to a username. Create and link your username here
-              </Typography>
-            </Box>
-          </Slide>
-        )} */}
       </Box>
     </Dialog>
   );
