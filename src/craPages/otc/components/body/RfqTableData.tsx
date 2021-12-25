@@ -18,7 +18,6 @@ import { OtcContext } from 'contexts/Otc';
 import smartTrim from 'utils/general/smartTrim';
 
 import styles from './styles.module.scss';
-import CustomButton from 'components/UI/CustomButton';
 
 const TableHeader = ({
   children,
@@ -83,7 +82,6 @@ const RfqTableData = () => {
             <TableHeader align="right">Bid</TableHeader>
             <TableHeader align="right">Ask</TableHeader>
             <TableHeader align="right">Chat</TableHeader>
-            <TableHeader align="right">Action</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody component="div">
@@ -124,18 +122,6 @@ const RfqTableData = () => {
                 >
                   <ChatBubbleIcon className="fill-current text-white p-1" />
                 </IconButton>
-              </TableBodyCell>
-              <TableBodyCell align="right">
-                <CustomButton
-                  size="small"
-                  disabled={row.isFulfilled}
-                  color="umbra"
-                  variant="outlined"
-                >
-                  <Typography variant="h6">
-                    {row.isFulfilled ? 'Closed' : 'Bid'}
-                  </Typography>
-                </CustomButton>
               </TableBodyCell>
             </TableRow>
           ))}

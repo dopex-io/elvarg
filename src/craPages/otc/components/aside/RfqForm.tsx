@@ -203,7 +203,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
           }
         />
         <Typography variant="h6" className="text-stieglitz">
-          Bid
+          Price
         </Typography>
         <Input
           className="py-2 px-2"
@@ -216,9 +216,9 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
               id="token"
               className="bg-cod-gray p-2 rounded-xl space-x-2 flex w-full"
             >
-              <img src={'assets/eth_diamond.svg'} alt="eth" />
+              <img src={'assets/usdt.svg'} alt="usdt" width="32" />
               <Typography variant="h5" className="text-white my-auto">
-                {'ETH'}
+                {'USDT'}
               </Typography>
             </Box>
           }

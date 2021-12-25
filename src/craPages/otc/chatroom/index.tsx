@@ -7,9 +7,10 @@ import * as yup from 'yup';
 import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import SendIcon from '@material-ui/icons/Send';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import format from 'date-fns/format';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
@@ -78,17 +79,7 @@ const Chatroom = () => {
   return (
     <Box className="bg-black min-h-screen">
       <AppBar active="OTC" />
-      <Box className="container pt-24 mx-auto h-screen px-4 lg:px-0">
-        <Typography variant="h3" className="flex justify-center my-6">
-          Chatroom Placeholder
-        </Typography>
-        <Typography
-          variant="h5"
-          className="flex justify-center my-3 text-stieglitz"
-        >
-          Welcome to Chatroom {chat.id}. You may place your bids/asks for the
-          given RFQ here and come to a settlement with this dealer.
-        </Typography>
+      <Box className="container pt-48 mx-auto h-screen px-4 lg:px-0">
         <Box className="flex flex-col justify-between w-1/3 h-5/6 mx-auto bg-cod-gray rounded-xl">
           <Box className="bg-umbra rounded-t-xl">
             <Box className="flex justify-between">
@@ -118,30 +109,47 @@ const Chatroom = () => {
               msgs.map((msg: any, index) => {
                 return (
                   <Box
-                    className={`flex my-2 mx-2 space-x-2 ${
+                    className={`flex my-2 space-x-2 ${
                       user?.username === msg.username
                         ? 'flex-end flex-row-reverse'
                         : null
                     }`}
                     key={index}
                   >
-                    <Box
-                      className={`flex py-2 px-4 mx-2 rounded-3xl ${
-                        user?.username === msg.username
-                          ? 'bg-primary'
-                          : 'bg-umbra'
-                      }`}
-                    >
-                      <Typography variant="h5" className="my-auto">
-                        {msg.msg}
+                    <Box className="flex flex-col">
+                      <Typography
+                        variant="h6"
+                        className={`px-4 text-stieglitz text-xs ${
+                          user?.username === msg.username ? 'self-end' : null
+                        }`}
+                      >
+                        {msg.username}
+                      </Typography>
+                      <Box
+                        className={`flex py-2 px-4 mx-2 rounded-3xl ${
+                          user?.username === msg.username
+                            ? 'bg-primary'
+                            : 'bg-umbra'
+                        }`}
+                      >
+                        <Typography variant="h5" className="my-auto">
+                          {msg.msg}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        variant="h6"
+                        className={`px-4 my-auto text-xs text-stieglitz ${
+                          user?.username === msg.username
+                            ? 'self-end'
+                            : 'self-start'
+                        }`}
+                      >
+                        {format(
+                          msg.timestamp.seconds * 1000,
+                          'hh:mm:aaa EEE d LLL'
+                        )}
                       </Typography>
                     </Box>
-                    <Typography
-                      variant="h6"
-                      className="my-auto text-xs text-stieglitz"
-                    >
-                      {new Date(msg.timestamp.seconds * 1000).toDateString()}
-                    </Typography>
                   </Box>
                 );
               })

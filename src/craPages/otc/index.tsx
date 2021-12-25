@@ -9,6 +9,8 @@ import OtcBanner from './components/banner';
 import RfqTableData from './components/body/RfqTableData';
 import RfqForm from './components/aside/RfqForm';
 import TradeHistory from './components/body/TradeHistory';
+import LiveRfq from './components/body/LiveRfq';
+import Switch from 'components/UI/Switch';
 
 import { SsovContext } from 'contexts/Ssov';
 import { OtcContext } from 'contexts/Otc';
@@ -52,6 +54,8 @@ const OTC = () => {
     handleClose: () => {},
   });
 
+  const [displayLive, setDisplayLive] = useState(false);
+
   const filteredUserSsovData = useMemo(() => {
     if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
     else if (selectedToken.symbol === 'rDPX') return userSsovDataArray[1];
@@ -70,6 +74,10 @@ const OTC = () => {
   const handleClose = useCallback(() => {
     setDialogState((prevState) => ({ ...prevState, open: false }));
   }, [user]);
+
+  const toggleLiveRfq = useCallback((e) => {
+    setDisplayLive(e.target.checked);
+  }, []);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -139,10 +147,35 @@ const OTC = () => {
           <Box className="flex flex-col col-span-8 space-y-4">
             {state.trade ? (
               <>
-                <Typography variant="h5" className="font-bold">
-                  Available RFQs
-                </Typography>
-                <RfqTableData />
+                <Box className="flex justify-between">
+                  <Typography variant="h5" className="font-bold">
+                    Available RFQs
+                  </Typography>
+                  <Box className="flex space-x-2 my-auto">
+                    <Typography
+                      variant="caption"
+                      className={`${
+                        displayLive ? 'text-stieglitz' : 'text-white'
+                      }`}
+                    >
+                      Indicative
+                    </Typography>
+                    <Switch
+                      aria-label="rfq-toggle"
+                      color="default"
+                      onClick={toggleLiveRfq}
+                    />
+                    <Typography
+                      variant="caption"
+                      className={`${
+                        !displayLive ? 'text-stieglitz' : 'text-white'
+                      }`}
+                    >
+                      Live
+                    </Typography>
+                  </Box>
+                </Box>
+                {displayLive ? <LiveRfq /> : <RfqTableData />}
               </>
             ) : (
               <>

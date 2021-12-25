@@ -11,13 +11,13 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import Input from 'components/UI/Input';
 import ErrorBox from 'components/ErrorBox';
+import InfoPopover from 'components/UI/InfoPopover';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
 
 import { db } from 'utils/firebase/initialize';
 import { delay } from 'lodash';
-import InfoPopover from 'components/UI/InfoPopover';
 
 interface RegisterProps {
   open: boolean;
