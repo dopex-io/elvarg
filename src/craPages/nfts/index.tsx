@@ -13,7 +13,7 @@ const Nfts = () => {
   return (
     <Box className="bg-black min-h-screen">
       <Head>
-        <title>SSOV | Dopex</title>
+        <title>NFT's | Dopex</title>
       </Head>
       <AppBar active="NFTs" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">

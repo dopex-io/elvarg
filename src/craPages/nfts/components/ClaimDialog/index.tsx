@@ -6,11 +6,11 @@ import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { BaseNFT } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import { BaseNFT } from '@dopex-io/sdk';
 
 import BalanceTree from 'utils/merkle/balance-tree';
 import sendTx from 'utils/contracts/sendTx';
