@@ -27,7 +27,7 @@ interface WalletContextInterface {
 
 export const WalletContext = createContext<WalletContextInterface>({});
 
-const CHAIN_ID_TO_PROVIDERS = {
+export const CHAIN_ID_TO_PROVIDERS = {
   '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,

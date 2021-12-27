@@ -13,6 +13,7 @@ import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
 import { SsovProvider } from 'contexts/Ssov';
+import { NftsProvider } from 'contexts/Nfts';
 
 // import { BUILD } from 'constants/index';
 
@@ -58,10 +59,12 @@ const SsovRoutes = () => {
 
 const NftsRoutes = () => {
   return (
-    <Routes>
-      <Route path="*" element={<Nfts />} />
-      <Route path="showcase" element={<NftsShowcase />} />
-    </Routes>
+    <NftsProvider>
+      <Routes>
+        <Route path="*" element={<Nfts />} />
+        <Route path="showcase" element={<NftsShowcase />} />
+      </Routes>
+    </NftsProvider>
   );
 };
 function AppRoutes() {

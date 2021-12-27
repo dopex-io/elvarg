@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
 import { useNavigate } from 'react-router-dom';
@@ -7,8 +8,11 @@ import AppBar from 'components/AppBar';
 import NftCard from './components/NftCard';
 import CustomButton from 'components/UI/CustomButton';
 
+import { NftsContext } from 'contexts/Nfts';
+
 const Nfts = () => {
   const navigate = useNavigate();
+  const { nftsData } = useContext(NftsContext);
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -24,9 +28,10 @@ const Nfts = () => {
             Users that are eligible can mint the NFT's here
           </Typography>
         </Box>
-        <Box className="flex flex-col lg:flex-row lg:space-x-16 justify-center items-center mb-12">
-          <NftCard nft="DopexBridgoorNFT" />
-          <NftCard nft="DopexHalloweenNFT" />
+        <Box className="flex flex-col lg:flex-row lg:space-x-16 justify-center items-center">
+          {nftsData.map((nftData, index) => (
+            <NftCard key={index} nftData={nftData} index={index} />
+          ))}
         </Box>
         <Box className="flex flex-row items-center">
           <Typography variant="h3" className="text-center">
