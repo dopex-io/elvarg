@@ -265,9 +265,16 @@ export const SsovProvider = (props) => {
             ['function circulatingSupply() view returns (uint256)'],
             mainnetProvider
           );
+
+          const [epoch, circulatingSupply] = await Promise.all([
+            stakingContract.epoch(),
+            sohmMainContract.circulatingSupply(),
+          ]);
+
           const stakingRebase =
-            Number((await stakingContract.epoch()).distribute.toString()) /
-            Number((await sohmMainContract.circulatingSupply()).toString());
+            Number(epoch.distribute.toString()) /
+            Number(circulatingSupply.toString());
+
           APY = Number(
             ((Math.pow(1 + stakingRebase, 365 * 3) - 1) * 100).toFixed(0)
           );
