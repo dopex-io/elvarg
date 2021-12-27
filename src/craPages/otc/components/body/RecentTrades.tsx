@@ -8,13 +8,8 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
 import cx from 'classnames';
 import format from 'date-fns/format';
-import IconButton from '@material-ui/core/IconButton';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 
 import Typography from 'components/UI/Typography';
-import InfoPopover from 'components/UI/InfoPopover';
 
 import smartTrim from 'utils/general/smartTrim';
 
@@ -58,12 +53,7 @@ const TableBodyCell = ({
 
 const RecentTrades = () => {
   return (
-    <TableContainer
-      className={cx(
-        styles.rfqTable,
-        'rounded-lg overflow-x-hidden border-umbra border-2 max-h-3/5'
-      )}
-    >
+    <TableContainer className="rounded-lg overflow-x-hidden border-umbra border-2 max-h-3/5">
       <Table aria-label="rfq-table" className="bg-umbra">
         <TableHead>
           <TableRow>

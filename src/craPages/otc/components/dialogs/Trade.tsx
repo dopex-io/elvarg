@@ -13,9 +13,24 @@ import smartTrim from 'utils/general/smartTrim';
 interface TradeProps {
   open: boolean;
   handleClose: () => void;
+  price: string;
+  amount: string;
+  optionSymbol: string;
+  username: string;
+  address: string;
+  isBuy: boolean;
 }
 
-const Trade = ({ open, handleClose }: TradeProps) => {
+const Trade = ({
+  open,
+  handleClose,
+  price,
+  amount,
+  optionSymbol,
+  username,
+  address,
+  isBuy,
+}: TradeProps) => {
   const [approved, setApproved] = useState(false);
 
   const handleTrade = useCallback(() => {
@@ -48,35 +63,31 @@ const Trade = ({ open, handleClose }: TradeProps) => {
                   <Typography variant="h6" className="text-stieglitz">
                     Option
                   </Typography>
-                  <Typography variant="h6">
-                    {'ETH-400000000000CALL-EPOCH1'}
-                  </Typography>
+                  <Typography variant="h6">{optionSymbol}</Typography>
                 </Box>
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
                     Amount
                   </Typography>
-                  <Typography variant="h6">{'14'}</Typography>
+                  <Typography variant="h6">{amount}</Typography>
                 </Box>
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
                     Ask Price
                   </Typography>
-                  <Typography variant="h6">{'267.51 USDT'}</Typography>
+                  <Typography variant="h6">{price}</Typography>
                 </Box>
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
                     Dealer Address
                   </Typography>
-                  <Typography variant="h6">
-                    {smartTrim('0x1f21Ee9021AAc21b2bdD', 10)}
-                  </Typography>
+                  <Typography variant="h6">{smartTrim(address, 10)}</Typography>
                 </Box>
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
                     Username
                   </Typography>
-                  <Typography variant="h6">{'halle.berry'}</Typography>
+                  <Typography variant="h6">{username}</Typography>
                 </Box>
               </Box>
             </Box>

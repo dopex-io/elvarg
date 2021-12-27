@@ -14,8 +14,6 @@ import Typography from 'components/UI/Typography';
 
 import { db } from 'utils/firebase/initialize';
 
-import styles from './styles.module.scss';
-
 const TableHeader = ({
   children,
   align = 'left',
@@ -52,7 +50,7 @@ const TableBodyCell = ({
   );
 };
 
-const TradeHistory = ({ timeWindow }: TradeHistoryProps) => {
+const TradeHistory = () => {
   const [trades, setTrades] = useState([]);
   useEffect(() => {
     const trades = async () => {
@@ -67,9 +65,7 @@ const TradeHistory = ({ timeWindow }: TradeHistoryProps) => {
     trades();
   }, []);
   return (
-    <TableContainer
-      className={cx(styles.rfqTable, 'rounded-lg overflow-x-hidden')}
-    >
+    <TableContainer className="rounded-lg border border-umbra overflow-x-hidden">
       <Table
         aria-label="trade history table"
         component={Paper}

@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import TableContainer from '@material-ui/core/TableContainer';
 import Table from '@material-ui/core/Table';
@@ -15,11 +14,9 @@ import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-import Trade from '../dialog/Trade';
+import Trade from '../dialogs/Trade';
 
 import smartTrim from 'utils/general/smartTrim';
-
-import styles from './styles.module.scss';
 
 const TableHeader = ({
   children,
@@ -30,7 +27,7 @@ const TableHeader = ({
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
-      className="bg-cod-gray border-1 border-umbra py-1"
+      className="bg-cod-gray border-umbra py-1"
     >
       <Typography variant="h6" className={`${textColor}`}>
         {children}
@@ -84,12 +81,7 @@ const LiveRfqTable = () => {
   }, [handleClose, handleCloseMenu]);
 
   return (
-    <TableContainer
-      className={cx(
-        styles.rfqTable,
-        'rounded-lg overflow-x-hidden border-umbra border-2 max-h-3/5'
-      )}
-    >
+    <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-3/5">
       <Table aria-label="rfq-table" className="bg-umbra">
         <TableHead>
           <TableRow>
@@ -125,6 +117,7 @@ const LiveRfqTable = () => {
               timestamp: { seconds: 12321 },
               option: 'ETH-CALL400000000000-EPOCH1',
               amount: '21',
+              address: '0x1f21Ee9021AAc21b2bdD',
               username: 'halle.berry',
               price: '1200USDT',
             },
@@ -179,7 +172,16 @@ const LiveRfqTable = () => {
                       Trade
                     </MenuItem>
                   </Menu>
-                  <Trade open={dialogState.open} handleClose={handleClose} />
+                  <Trade
+                    open={dialogState.open}
+                    handleClose={handleClose}
+                    price={row.price}
+                    amount={row.amount}
+                    optionSymbol={row.option}
+                    username={row.username}
+                    address={row.address}
+                    isBuy={row.isBuy}
+                  />
                 </Box>
               </TableBodyCell>
             </TableRow>

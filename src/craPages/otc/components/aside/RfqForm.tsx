@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import { ERC20__factory } from '@dopex-io/sdk';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { ERC20__factory, Escrow, ERC20Mock } from '@dopex-io/sdk';
 import { doc, addDoc, setDoc, collection } from '@firebase/firestore';
 import * as yup from 'yup';
 
@@ -15,6 +16,7 @@ import Input from 'components/UI/Input';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
 import ErrorBox from 'components/ErrorBox';
+import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
 
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
@@ -25,21 +27,25 @@ import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
 
 import { db } from 'utils/firebase/initialize';
-import { CircularProgress } from '@material-ui/core';
 
 interface RfqFormProps {
   symbol: string;
   icon: string;
   ssovUserData: UserSsovData;
+  isLive: boolean;
 }
 
-const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
+const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
   const { userAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider } = useContext(WalletContext);
   const { validateUser, user } = useContext(OtcContext);
 
   const [userOptionBalances, setUserOptionBalances] = useState([]);
   const [processing, setProcessing] = useState(false);
+  const [dialogState, setDialogState] = useState({
+    open: false,
+    handleClose: () => {},
+  });
 
   const validationSchema = yup.object({
     amount: yup
@@ -94,56 +100,69 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
     [formik]
   );
 
-  const handleSubmit = useCallback(async () => {
-    if (!user) validateUser();
-    else {
-      setProcessing(true);
-      await addDoc(collection(db, 'orders'), {
-        option: formik.values.optionSymbol,
-        isBuy: formik.values.isBuy,
-        isPut: formik.values.isPut,
-        amount: formik.values.amount,
-        price: formik.values.price + 'USDT',
-        dealer: accountAddress,
-        username: user.username,
-        timestamp: formik.values.timestamp,
-        isFulfilled: false,
-      }).finally(() => {
-        setProcessing(false);
-      });
+  const handleClose = useCallback(() => {
+    setDialogState((prevState) => ({ ...prevState, open: false }));
+    /// TODO: Cancel transaction and database update
+  }, []);
 
-      await setDoc(
-        doc(db, 'chatrooms', user.username + '-' + formik.values.optionSymbol),
-        {
-          admin: accountAddress,
-          createdAt: new Date(),
-        }
-      ).catch((e) => {
-        console.log('Already created chatroom... reverted with error: ', e);
-      });
-    }
-  }, [formik, user, validateUser, accountAddress]);
+  const handleSubmit = useCallback(
+    async (live: boolean) => {
+      if (!user) validateUser();
+      else {
+        setProcessing(true);
 
-  const ssovUserDataToAssetMapping = useCallback(async () => {
-    const data = ssovUserData.epochStrikeTokens.map(async (token, index) => {
-      const erc20Token = ERC20__factory.connect(token.address, provider);
-      const tokenSymbol = await erc20Token.symbol();
-      const tokenAddress = await erc20Token.address;
+        setDialogState((prevState) => ({ ...prevState, open: live }));
+        await addDoc(collection(db, 'orders'), {
+          option: formik.values.optionSymbol,
+          isBuy: formik.values.isBuy,
+          isPut: formik.values.isPut,
+          amount: formik.values.amount,
+          price: formik.values.price + 'USDT',
+          dealer: accountAddress,
+          username: user.username,
+          timestamp: formik.values.timestamp,
+          isFulfilled: false,
+          isLive: live,
+        }).finally(() => {
+          setProcessing(false);
+        });
 
-      return {
-        token: tokenSymbol,
-        tokenAddress,
-        purchaseAmount: ssovUserData.userEpochCallsPurchased[index],
-      };
-    });
-    Promise.all(data).then((result) => {
-      setUserOptionBalances(result);
-    });
-  }, [ssovUserData, provider]);
+        await setDoc(
+          doc(
+            db,
+            'chatrooms',
+            user.username + '-' + formik.values.optionSymbol
+          ),
+          {
+            admin: accountAddress,
+            createdAt: new Date(),
+          }
+        ).catch((e) => {
+          console.log('Already created chatroom... reverted with error: ', e);
+        });
+      }
+    },
+    [formik, user, validateUser, accountAddress]
+  );
 
   useEffect(() => {
-    ssovUserDataToAssetMapping();
-  }, [ssovUserDataToAssetMapping]);
+    (async () => {
+      const data = ssovUserData.epochStrikeTokens.map(async (token, index) => {
+        const erc20Token = ERC20__factory.connect(token.address, provider);
+        const tokenSymbol = await erc20Token.symbol();
+        const tokenAddress = erc20Token.address;
+
+        return {
+          token: tokenSymbol,
+          tokenAddress,
+          purchaseAmount: ssovUserData.userEpochCallsPurchased[index],
+        };
+      });
+      Promise.all(data).then((result) => {
+        setUserOptionBalances(result);
+      });
+    })();
+  }, [provider, ssovUserData]);
 
   useEffect(() => {
     formik.setFieldValue('optionSymbol', userOptionBalances[0]?.token);
@@ -167,6 +186,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
             className="w-full"
             color={formik.values.isPut ? 'down-bad' : 'umbra'}
             onClick={() => formik.setFieldValue('isPut', true)}
+            disabled
           >
             PUT
           </CustomButton>
@@ -207,7 +227,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
             >
               <img src={'assets/usdt.svg'} alt="usdt" width="32" />
               <Typography variant="h5" className="text-white my-auto">
-                {'USDT'}
+                USDT
               </Typography>
             </Box>
           }
@@ -282,7 +302,7 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
         <CustomButton
           size="medium"
           className="flex w-full"
-          onClick={handleSubmit}
+          onClick={() => handleSubmit(isLive)}
           disabled={
             user &&
             (processing ||
@@ -299,6 +319,15 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
             <Typography variant="h6">Login</Typography>
           )}
         </CustomButton>
+        <ConfirmRfqDialog
+          open={dialogState.open}
+          handleClose={handleClose}
+          option={formik.values.optionSymbol}
+          amount={formik.values.amount}
+          price={formik.values.price}
+          isBuy={formik.values.isBuy}
+          // token={'0x0'}
+        />
       </Box>
     </Box>
   );

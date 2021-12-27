@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useCallback } from 'react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -8,7 +8,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import IconButton from '@material-ui/core/IconButton';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
-import cx from 'classnames';
 import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
@@ -16,8 +15,6 @@ import Typography from 'components/UI/Typography';
 import { OtcContext } from 'contexts/Otc';
 
 import smartTrim from 'utils/general/smartTrim';
-
-import styles from './styles.module.scss';
 
 const TableHeader = ({
   children,
@@ -28,7 +25,7 @@ const TableHeader = ({
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
-      className="bg-cod-gray border-1 border-umbra py-1"
+      className="bg-cod-gray border-umbra py-1"
     >
       <Typography variant="h6" className={`${textColor}`}>
         {children}
@@ -60,12 +57,7 @@ const IndicativeRfqTable = () => {
   const navigate = useNavigate();
 
   return (
-    <TableContainer
-      className={cx(
-        styles.rfqTable,
-        'rounded-lg overflow-x-hidden border-umbra border-2 max-h-3/5'
-      )}
-    >
+    <TableContainer className="rounded-lg overflow-x-hidden border-umbra border h-1/2">
       <Table aria-label="rfq-table" className="bg-umbra">
         <TableHead>
           <TableRow>

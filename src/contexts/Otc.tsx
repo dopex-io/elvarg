@@ -4,28 +4,23 @@ import {
   useCallback,
   useContext,
   createContext,
-  useMemo,
 } from 'react';
-import {
-  getAuth,
-  signInAnonymously,
-  // GoogleAuthProvider,
-  // signOut,
-  Auth,
-} from 'firebase/auth';
-import { doc, getDoc, getDocs, collection, addDoc } from 'firebase/firestore';
+import { getDocs, collection, DocumentData } from 'firebase/firestore';
 
 import { WalletContext } from './Wallet';
 
 import { db } from 'utils/firebase/initialize';
 
 interface OtcContextInterface {
-  orders: any[];
-  users: any[];
-  trades: any[];
+  orders: DocumentData[];
+  users: DocumentData[];
+  trades: DocumentData[];
+  userTrades: DocumentData[];
   token: string;
-  user: any;
-  auth: any;
+  user: {
+    accountAddress: string;
+    username: string;
+  };
   validateUser?: Function;
 }
 
@@ -33,9 +28,9 @@ const initialState: OtcContextInterface = {
   orders: [],
   users: [],
   trades: [],
+  userTrades: [],
   token: 'DPX',
-  user: '',
-  auth: undefined,
+  user: undefined,
 };
 
 export const OtcContext = createContext<OtcContextInterface>(initialState);
@@ -45,18 +40,17 @@ export const OtcProvider = (props) => {
 
   const [state, setState] = useState<OtcContextInterface>(initialState);
 
-  const auth = getAuth();
-
   useEffect(() => {
     const getOtcData = async () => {
-      if (!db || !provider) return;
+      if (!db || !provider || !accountAddress) return;
 
-      const orders = (await getDocs(collection(db, 'orders'))).docs.flatMap(
-        (doc) => doc.data()
-      );
-      const usersDocs = (await getDocs(collection(db, 'users'))).docs.flatMap(
-        (doc) => doc
-      );
+      const orders: DocumentData[] = (
+        await getDocs(collection(db, 'orders'))
+      ).docs.flatMap((doc) => doc.data());
+
+      const usersDocs: DocumentData[] = (
+        await getDocs(collection(db, 'users'))
+      ).docs.flatMap((doc) => doc);
 
       const userDoc = usersDocs.find((user) => user.id === accountAddress);
 
@@ -67,18 +61,22 @@ export const OtcProvider = (props) => {
           }
         : undefined;
 
+      // TODO: Use in RecentTrades table
+      const userTrades: any = (
+        await getDocs(collection(db, `users/${accountAddress}/trades`))
+      ).docs.flatMap((doc) => doc.data());
+
       setState((prevState) => ({
         ...prevState,
         orders,
         users: usersDocs.map((user) => user.data()),
         user,
+        userTrades,
       }));
     };
     getOtcData();
-    return;
   }, [provider, accountAddress]);
 
-  // Check if current address is already registered and registers them accordingly
   const validateUser = useCallback(async () => {
     if (!accountAddress) return;
 
@@ -88,13 +86,7 @@ export const OtcProvider = (props) => {
       setState((prevState) => ({ ...prevState, user: state.user }));
       return true;
     }
-  }, [accountAddress /*auth, signIn,*/, , state]);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     await validateUser();
-  //   })();
-  // }, [validateUser]);
+  }, [accountAddress, state]);
 
   const contextValue = {
     ...state,

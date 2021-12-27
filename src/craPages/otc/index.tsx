@@ -19,7 +19,7 @@ import { SsovContext } from 'contexts/Ssov';
 import { OtcContext } from 'contexts/Otc';
 
 import content from './components/banner/content.json';
-import Register from './components/dialog/Register';
+import Register from './components/dialogs/Register';
 
 const MARKETS_PLACEHOLDER = [
   {
@@ -57,7 +57,7 @@ const OTC = () => {
     handleClose: () => {},
   });
 
-  const [displayLive, setDisplayLive] = useState(false);
+  const [isLive, setIsLive] = useState(false);
 
   const filteredUserSsovData = useMemo(() => {
     if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
@@ -75,10 +75,11 @@ const OTC = () => {
 
   const handleClose = useCallback(() => {
     setDialogState((prevState) => ({ ...prevState, open: false }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const toggleLiveRfq = useCallback((e) => {
-    setDisplayLive(e.target.checked);
+    setIsLive(e.target.checked);
   }, []);
 
   return (
@@ -113,7 +114,7 @@ const OTC = () => {
                 onClick={() => handleUpdateState(false, true)}
               >
                 <HistoryIcon className="mx-2" />
-                {'History'}
+                History
               </Typography>
               <Typography variant="h5" className="text-stieglitz py-3">
                 Markets
@@ -161,9 +162,7 @@ const OTC = () => {
                   <Box className="flex space-x-2 my-auto">
                     <Typography
                       variant="caption"
-                      className={`${
-                        displayLive ? 'text-stieglitz' : 'text-white'
-                      }`}
+                      className={`${isLive ? 'text-stieglitz' : 'text-white'}`}
                     >
                       Indicative
                     </Typography>
@@ -174,15 +173,13 @@ const OTC = () => {
                     />
                     <Typography
                       variant="caption"
-                      className={`${
-                        !displayLive ? 'text-stieglitz' : 'text-white'
-                      }`}
+                      className={`${!isLive ? 'text-stieglitz' : 'text-white'}`}
                     >
                       Live
                     </Typography>
                   </Box>
                 </Box>
-                {displayLive ? <LiveRfqTable /> : <IndicativeRfqTable />}
+                {isLive ? <LiveRfqTable /> : <IndicativeRfqTable />}
                 <Typography variant="h5" className="font-bold">
                   Recent Trades
                 </Typography>
@@ -198,13 +195,26 @@ const OTC = () => {
             )}
           </Box>
           <Box className="flex flex-col col-span-2 space-y-4">
-            <Typography variant="h5" className="font-bold">
-              Create RFQ
-            </Typography>
+            <Box className="flex justify-between">
+              <Typography variant="h5" className="font-bold">
+                Create RFQ
+              </Typography>
+              <Typography
+                variant="caption"
+                className={`p-1 px-3 rounded-r-xl rounded-l-xl border ${
+                  isLive
+                    ? 'text-down-bad bg-down-bad/[0.3] border-down-bad'
+                    : 'text-primary bg-primary/[0.3] border-primary'
+                }`}
+              >
+                {isLive ? 'Live' : 'Indicative'}
+              </Typography>
+            </Box>
             <RfqForm
               symbol={selectedToken.symbol}
               icon={selectedToken.icon}
               ssovUserData={filteredUserSsovData}
+              isLive={isLive}
             />
           </Box>
         </Box>

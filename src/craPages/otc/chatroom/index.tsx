@@ -1,6 +1,6 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, collection, query, addDoc, orderBy } from 'firebase/firestore';
+import { collection, query, addDoc, orderBy } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -20,11 +20,11 @@ import { OtcContext } from 'contexts/Otc';
 
 import { db } from 'utils/firebase/initialize';
 
-interface MessageType {
-  msg: string;
-  timestamp: any;
-  uid: string;
-}
+// interface MessageType {
+//   msg: string;
+//   timestamp: any;
+//   uid: string;
+// }
 
 const Chatroom = () => {
   const chat = useParams();
