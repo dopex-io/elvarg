@@ -25,6 +25,7 @@ const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const Nfts = lazy(() => import('craPages/nfts'));
+const NftsShowcase = lazy(() => import('craPages/nfts/showcase'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
@@ -59,6 +60,7 @@ const NftsRoutes = () => {
   return (
     <Routes>
       <Route path="*" element={<Nfts />} />
+      <Route path="showcase" element={<NftsShowcase />} />
     </Routes>
   );
 };
