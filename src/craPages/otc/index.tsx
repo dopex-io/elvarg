@@ -1,4 +1,5 @@
 import { useState, useContext, useMemo, useCallback, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
 import HistoryIcon from '@material-ui/icons/History';
@@ -6,11 +7,13 @@ import HistoryIcon from '@material-ui/icons/History';
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
 import OtcBanner from './components/banner';
-import RfqTableData from './components/body/RfqTableData';
+import IndicativeRfqTable from './components/body/IndicativeRfqTable';
 import RfqForm from './components/aside/RfqForm';
 import TradeHistory from './components/body/TradeHistory';
-import LiveRfq from './components/body/LiveRfq';
+import LiveRfqTable from './components/body/LiveRfqTable';
 import Switch from 'components/UI/Switch';
+import Accordion from 'components/UI/Accordion';
+import RecentTrades from './components/body/RecentTrades';
 
 import { SsovContext } from 'contexts/Ssov';
 import { OtcContext } from 'contexts/Otc';
@@ -64,7 +67,6 @@ const OTC = () => {
 
   const handleUpdateState = useCallback((trade, history) => {
     setState({ trade, history });
-    return;
   }, []);
 
   const handleSelection = useCallback((token) => {
@@ -84,7 +86,7 @@ const OTC = () => {
       <AppBar active="OTC" />
       <Register open={dialogState.open} handleClose={handleClose} />
       <Box className="container pt-24 mx-auto px-4 lg:px-0">
-        <Box className="grid grid-cols-12 h-full gap-4">
+        <Box className="grid grid-cols-12 gap-4">
           <Box className="flex flex-col col-span-2">
             <OtcBanner bannerContent={content.OTCIntro} />
             <Typography variant="h5" className="text-stieglitz py-3">
@@ -143,6 +145,11 @@ const OTC = () => {
                 );
               })}
             </Box>
+            <Accordion
+              summary="How does OTC options work?"
+              details="OTC markets consist of dealer-brokers and counter-parties. Dealer-brokers place orders to sell/buy a certain option, while counter-parties fulfill these orders via a p2p trade with these brokers via an ongoing open-trade. Settlement prices may be made via an agreement made through negotiations taken place in chatrooms."
+              footer={<Link to="/portfolio">Read More</Link>}
+            />
           </Box>
           <Box className="flex flex-col col-span-8 space-y-4">
             {state.trade ? (
@@ -175,7 +182,11 @@ const OTC = () => {
                     </Typography>
                   </Box>
                 </Box>
-                {displayLive ? <LiveRfq /> : <RfqTableData />}
+                {displayLive ? <LiveRfqTable /> : <IndicativeRfqTable />}
+                <Typography variant="h5" className="font-bold">
+                  Recent Trades
+                </Typography>
+                <RecentTrades />
               </>
             ) : (
               <>

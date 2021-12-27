@@ -8,7 +8,7 @@ import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
 import cx from 'classnames';
 import Paper from '@material-ui/core/Paper';
 import format from 'date-fns/format';
-import { getFirestore, collection, getDocs } from '@firebase/firestore';
+import { collection, getDocs } from '@firebase/firestore';
 
 import Typography from 'components/UI/Typography';
 
@@ -52,7 +52,7 @@ const TableBodyCell = ({
   );
 };
 
-const TradeHistory = () => {
+const TradeHistory = ({ timeWindow }: TradeHistoryProps) => {
   const [trades, setTrades] = useState([]);
   useEffect(() => {
     const trades = async () => {
@@ -98,7 +98,7 @@ const TradeHistory = () => {
                 {row.isBuy ? 'Buy' : 'Sell'}
               </TableBodyCell>
               <TableBodyCell align="left" textColor="white">
-                {format(new Date(), 'd LLL yy')}
+                {format(row.timestamp.seconds * 1000, 'd LLL yy')}
               </TableBodyCell>
               <TableBodyCell align="left">{row.base}</TableBodyCell>
               <TableBodyCell align="center">{row.dealer}</TableBodyCell>

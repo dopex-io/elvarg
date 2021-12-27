@@ -55,7 +55,7 @@ const TableBodyCell = ({
   );
 };
 
-const RfqTableData = () => {
+const IndicativeRfqTable = () => {
   const { orders, validateUser } = useContext(OtcContext);
   const navigate = useNavigate();
 
@@ -131,4 +131,4 @@ const RfqTableData = () => {
   );
 };
 
-export default RfqTableData;
+export default IndicativeRfqTable;

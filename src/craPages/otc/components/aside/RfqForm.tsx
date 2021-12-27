@@ -98,30 +98,18 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
     if (!user) validateUser();
     else {
       setProcessing(true);
-      console.log(user.username);
       await addDoc(collection(db, 'orders'), {
         option: formik.values.optionSymbol,
         isBuy: formik.values.isBuy,
         isPut: formik.values.isPut,
         amount: formik.values.amount,
-        price: formik.values.price + 'ETH',
+        price: formik.values.price + 'USDT',
         dealer: accountAddress,
         username: user.username,
         timestamp: formik.values.timestamp,
         isFulfilled: false,
       }).finally(() => {
         setProcessing(false);
-      });
-      console.log({
-        option: formik.values.optionSymbol,
-        isBuy: formik.values.isBuy,
-        isPut: formik.values.isPut,
-        amount: formik.values.amount,
-        price: formik.values.price + 'ETH',
-        dealer: accountAddress,
-        username: user.username,
-        timestamp: formik.values.timestamp,
-        isFulfilled: false,
       });
 
       await setDoc(
@@ -159,22 +147,23 @@ const RfqForm = ({ symbol, icon, ssovUserData }: RfqFormProps) => {
 
   useEffect(() => {
     formik.setFieldValue('optionSymbol', userOptionBalances[0]?.token);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userOptionBalances]);
 
   return (
     <Box className="bg-cod-gray rounded-lg p-2">
       <Box className="flex flex-col space-y-2">
-        <Box className="flex rounded-2xl">
+        <Box className="flex rounded-2xl space-x-2">
           <CustomButton
-            size="medium"
-            className="w-full mr-2"
+            size="small"
+            className="w-full"
             color={formik.values.isPut ? 'umbra' : 'primary'}
             onClick={() => formik.setFieldValue('isPut', false)}
           >
             CALL
           </CustomButton>
           <CustomButton
-            size="medium"
+            size="small"
             className="w-full"
             color={formik.values.isPut ? 'down-bad' : 'umbra'}
             onClick={() => formik.setFieldValue('isPut', true)}

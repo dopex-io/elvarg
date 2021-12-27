@@ -8,8 +8,6 @@ import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import AddIcon from '@material-ui/icons/Add';
-
 import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -22,7 +20,6 @@ import Trade from '../dialog/Trade';
 import smartTrim from 'utils/general/smartTrim';
 
 import styles from './styles.module.scss';
-import { TableFooter } from '@material-ui/core';
 
 const TableHeader = ({
   children,
@@ -60,7 +57,7 @@ const TableBodyCell = ({
   );
 };
 
-const LiveRfq = () => {
+const LiveRfqTable = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -106,17 +103,15 @@ const LiveRfq = () => {
             <TableHeader align="left">Option</TableHeader>
             <TableHeader align="center">Amount</TableHeader>
             <TableHeader align="right">Dealer</TableHeader>
-            {/* <TableHeader align="center">Counterparty</TableHeader> */}
-            {/* <TableHeader align="right">Bid</TableHeader> */}
             <TableHeader align="right">Ask</TableHeader>
             <TableHeader align="right">
-              <Box className="flex justify-between">
+              <Box className="flex justify-end space-x-2">
                 <Typography variant="h6" className="my-auto text-stieglitz">
                   Action
                 </Typography>
                 <InfoPopover
                   id="action"
-                  infoText="Initiate a P2P trade with this dealer"
+                  infoText="Initiate a P2P trade with selected dealer"
                 />
               </Box>
             </TableHeader>
@@ -154,12 +149,6 @@ const LiveRfq = () => {
               <TableBodyCell align="right">
                 {smartTrim(row.username, 10)}
               </TableBodyCell>
-              {/* <TableBodyCell align="center" textColor="text-green-500">
-                {smartTrim('-', 10)}
-              </TableBodyCell> */}
-              {/* <TableBodyCell align="center" textColor="text-down-bad">
-                {'-'}
-              </TableBodyCell> */}
               <TableBodyCell align="right" textColor="text-green-400">
                 {row.price}
               </TableBodyCell>
@@ -197,13 +186,8 @@ const LiveRfq = () => {
           ))}
         </TableBody>
       </Table>
-      {/* <TableFooter className="flex bg-cod-gray justify-center">
-        <IconButton size="small">
-          <AddIcon className="fill-current text-white" />
-        </IconButton>
-      </TableFooter> */}
     </TableContainer>
   );
 };
 
-export default LiveRfq;
+export default LiveRfqTable;
