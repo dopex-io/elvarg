@@ -24,22 +24,20 @@ const Nfts = () => {
           <Typography variant="h1" className="mb-1">
             Dopex NFT's
           </Typography>
-          <Typography variant="h5" className="text-stieglitz">
+          <Typography variant="h5" className="text-stieglitz mb-2">
             Users that are eligible can mint the NFT's here
           </Typography>
-        </Box>
-        <Box className="flex flex-col lg:flex-row lg:space-x-16 justify-center items-center">
-          {nftsData.map((nftData, index) => (
-            <NftCard key={index} nftData={nftData} index={index} />
-          ))}
-        </Box>
-        <Box className="flex flex-row items-center">
-          <Typography variant="h3" className="text-center">
+          <Typography variant="h5" className="text-center mb-2">
             To view some other Dopex NFT's checkout the showcase.
           </Typography>
           <CustomButton size="large" onClick={() => navigate(`/nfts/showcase`)}>
             Showcase
           </CustomButton>
+        </Box>
+        <Box className="flex flex-col lg:flex-row lg:space-x-16 justify-center items-center">
+          {nftsData.map((nftData, index) => (
+            <NftCard key={index} nftData={nftData} index={index} />
+          ))}
         </Box>
       </Box>
     </Box>

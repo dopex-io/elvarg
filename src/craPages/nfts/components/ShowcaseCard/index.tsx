@@ -21,7 +21,10 @@ const ShowcaseCard = ({ nft, className }: ShowcaseCardProps) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Typography className="text-center" variant="h3">
+            <Typography
+              className="text-center hover:text-stieglitz"
+              variant="h3"
+            >
               {nft.name}
             </Typography>
           </a>
