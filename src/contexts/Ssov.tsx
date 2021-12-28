@@ -21,6 +21,7 @@ import {
   CustomPriceOracle,
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
+import { providers } from '@0xsequence/multicall';
 
 import { WalletContext, CHAIN_ID_TO_PROVIDERS } from './Wallet';
 import { AssetsContext } from './Assets';
@@ -250,9 +251,10 @@ export const SsovProvider = (props) => {
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
       } else if (asset === 'GOHM') {
         try {
-          const mainnetProvider = ethers.getDefaultProvider(
-            CHAIN_ID_TO_PROVIDERS[1]
+          const mainnetProvider = new providers.MulticallProvider(
+            new ethers.providers.JsonRpcProvider(CHAIN_ID_TO_PROVIDERS[1], 1)
           );
+
           const stakingContract = new ethers.Contract(
             '0xB63cac384247597756545b500253ff8E607a8020',
             [
