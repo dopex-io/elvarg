@@ -112,6 +112,45 @@ export const SSOV_MAP = {
   },
 };
 
+export const SHOWCASE_NFTS = [
+  {
+    src: '/showcase/dopexHideout.jpeg',
+    uri: 'https://opensea.io/assets/0x495f947276749ce646f68ac8c248420045cb7b5e/61024412357358029745898008936110540827339189022866162497373623631431958790145',
+    name: 'Dopex Hideout',
+    horizontal: false,
+  },
+  {
+    src: '/showcase/dopexTeam.jpg',
+    uri: 'https://opensea.io/assets/0x803ef47f13a5edb8a7fa6e6705c63bba11dea6ff/1',
+    name: 'Dopex Team',
+    horizontal: true,
+  },
+  {
+    src: '/showcase/theMemesterpiece.jpeg',
+    uri: 'https://opensea.io/assets/0xd07dc4262bcdbf85190c01c996b4c06a461d2430/619411',
+    name: 'The Memesterpiece',
+    horizontal: false,
+  },
+  {
+    src: '/showcase/dpxMafia.jpeg',
+    uri: 'https://opensea.io/assets/0xd07dc4262bcdbf85190c01c996b4c06a461d2430/709255',
+    name: 'DPX Mafia',
+    horizontal: false,
+  },
+  {
+    src: '/showcase/dpxMoon.jpeg',
+    uri: 'https://opensea.io/assets/0xd07dc4262bcdbf85190c01c996b4c06a461d2430/660167',
+    name: 'Dopex Moon',
+    horizontal: true,
+  },
+  {
+    src: '/showcase/rdpxMafia.jpeg',
+    uri: 'https://opensea.io/assets/0xd07dc4262bcdbf85190c01c996b4c06a461d2430/709241',
+    name: 'rDPX Mafia',
+    horizontal: false,
+  },
+];
+
 export const OPTION_TYPE_NAMES = {
   0: 'Put',
   1: 'Call',
