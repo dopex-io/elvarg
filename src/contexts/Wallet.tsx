@@ -27,7 +27,7 @@ interface WalletContextInterface {
 
 export const WalletContext = createContext<WalletContextInterface>({});
 
-const CHAIN_ID_TO_PROVIDERS = {
+export const CHAIN_ID_TO_PROVIDERS = {
   '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
   '56': BSC_RPC_URL,
@@ -79,14 +79,7 @@ export const WalletProvider = (props) => {
     chainId: DEFAULT_CHAIN_ID,
     contractAddresses: Addresses[DEFAULT_CHAIN_ID],
     // ethers provider
-    provider: new providers.MulticallProvider(
-      ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]),
-      {
-        ...(DEFAULT_CHAIN_ID === 1337 && {
-          contract: require('addresses/core.json').MultiCallUtils,
-        }),
-      }
-    ),
+    provider: null,
     supportedChainIds: [],
   });
   const [ens, setEns] = useState<{
@@ -130,11 +123,7 @@ export const WalletProvider = (props) => {
         return;
       }
 
-      const multicallProvider = new providers.MulticallProvider(provider, {
-        ...(DEFAULT_CHAIN_ID === 1337 && {
-          contract: require('addresses/core.json').MultiCallUtils,
-        }),
-      });
+      const multicallProvider = new providers.MulticallProvider(provider);
       let signer: Signer | undefined;
       let address: string | undefined;
 
@@ -217,8 +206,16 @@ export const WalletProvider = (props) => {
   useEffect(() => {
     if (web3Modal.cachedProvider) {
       connect();
+    } else {
+      updateState({
+        web3Provider: CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID],
+        ethersProvider: ethers.getDefaultProvider(
+          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+        ),
+        isUser: false,
+      });
     }
-  }, [connect]);
+  }, [connect, updateState]);
 
   useEffect(() => {
     (async () => {

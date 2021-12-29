@@ -20,9 +20,10 @@ import {
   ChainlinkAggregator,
   CustomPriceOracle,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
+import { providers } from '@0xsequence/multicall';
 
-import { WalletContext } from './Wallet';
+import { WalletContext, CHAIN_ID_TO_PROVIDERS } from './Wallet';
 import { AssetsContext } from './Assets';
 
 import { SSOV_MAP } from 'constants/index';
@@ -252,8 +253,41 @@ export const SsovProvider = (props) => {
         let APR = (denominator / TVL.toNumber() - 1) * 100;
 
         APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
-      } else {
-        APY = 5091;
+      } else if (asset === 'GOHM') {
+        try {
+          const mainnetProvider = new providers.MulticallProvider(
+            new ethers.providers.JsonRpcProvider(CHAIN_ID_TO_PROVIDERS[1], 1)
+          );
+
+          const stakingContract = new ethers.Contract(
+            '0xB63cac384247597756545b500253ff8E607a8020',
+            [
+              'function epoch() view returns (uint256 length, uint256 number, uint256 end, uint256 distribute)',
+            ],
+            mainnetProvider
+          );
+          const sohmMainContract = new ethers.Contract(
+            '0x04906695D6D12CF5459975d7C3C03356E4Ccd460',
+            ['function circulatingSupply() view returns (uint256)'],
+            mainnetProvider
+          );
+
+          const [epoch, circulatingSupply] = await Promise.all([
+            stakingContract.epoch(),
+            sohmMainContract.circulatingSupply(),
+          ]);
+
+          const stakingRebase =
+            Number(epoch.distribute.toString()) /
+            Number(circulatingSupply.toString());
+
+          APY = Number(
+            ((Math.pow(1 + stakingRebase, 365 * 3) - 1) * 100).toFixed(0)
+          );
+        } catch (err) {
+          console.log(err);
+          APY = 5091;
+        }
       }
 
       ssovData.push({

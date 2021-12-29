@@ -131,6 +131,11 @@ export const AssetsProvider = (props) => {
     };
 
     updateTokenPrices();
+    const intervalId = setInterval(updateTokenPrices, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [state.tokens]);
 
   // useEffect(() => {
