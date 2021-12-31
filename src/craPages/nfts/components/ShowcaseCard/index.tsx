@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import Box from '@material-ui/core/Box';
 import cx from 'classnames';
 import Image from 'next/image';
-
-import Typography from 'components/UI/Typography';
 
 interface ShowcaseCardProps {
   nft: any;
@@ -21,32 +18,14 @@ const ShowcaseCard = ({ nft, className }: ShowcaseCardProps) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Typography
-              className="text-center hover:text-stieglitz"
-              variant="h3"
-            >
-              {nft.name}
-            </Typography>
+            <Box className="mb-6 items-center hover:opacity-100 opacity-75">
+              {nft.horizontal ? (
+                <Image src={nft.src} alt={nft.name} height={250} width={400} />
+              ) : (
+                <Image src={nft.src} alt={nft.name} height={350} width={250} />
+              )}
+            </Box>
           </a>
-          <Box className="mb-6 items-center">
-            {nft.horizontal ? (
-              <Image
-                src={nft.src}
-                alt={nft.name}
-                quality={100}
-                height={250}
-                width={350}
-              />
-            ) : (
-              <Image
-                src={nft.src}
-                alt={nft.name}
-                quality={100}
-                height={350}
-                width={250}
-              />
-            )}
-          </Box>
         </Box>
       </Box>
     </>
