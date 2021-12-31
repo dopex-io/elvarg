@@ -33,7 +33,7 @@ interface userExercisableOption {
   purchasedAmount: number;
   settleableAmount: BigNumber;
   totalPremiumsEarned: BigNumber;
-  pnlAmount: number;
+  pnlAmount: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
 }
@@ -98,13 +98,11 @@ const ExerciseList = ({
         );
         const settleableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
         const isSettleable = settleableAmount.gt(0) && tokenPrice.gt(strike);
-
         const isPastEpoch = selectedEpoch < currentEpoch;
-
-        const pnlAmount =
-          ((Number(tokenPrice.div(1e8)) - strikePrice) * purchasedAmount) /
-          Number(tokenPrice.div(1e8));
-
+        const pnlAmount = tokenPrice
+          .sub(strike)
+          .mul(userEpochCallsPurchased[strikeIndex])
+          .div(tokenPrice);
         const totalPremiumsEarned = userEpochStrikeDeposits[strikeIndex]
           .mul(totalEpochPremium[strikeIndex])
           .div(totalEpochStrikeDeposits[strikeIndex]);
