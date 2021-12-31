@@ -32,6 +32,7 @@ interface userExercisableOption {
   depositedAmount: number;
   purchasedAmount: number;
   settleableAmount: BigNumber;
+  totalPremiumsEarned: BigNumber;
   pnlAmount: number;
   isSettleable: boolean;
   isPastEpoch: boolean;
@@ -54,7 +55,12 @@ const ExerciseList = ({
   const [page, setPage] = useState(0);
 
   const { currentEpoch, selectedEpoch, tokenPrice } = ssovProperties;
-  const { isVaultReady, epochStrikes } = ssovDataArray[selectedSsov];
+  const {
+    isVaultReady,
+    epochStrikes,
+    totalEpochPremium,
+    totalEpochStrikeDeposits,
+  } = ssovDataArray[selectedSsov];
   const {
     epochStrikeTokens,
     userEpochStrikeDeposits,
@@ -99,12 +105,17 @@ const ExerciseList = ({
           ((Number(tokenPrice.div(1e8)) - strikePrice) * purchasedAmount) /
           Number(tokenPrice.div(1e8));
 
+        const totalPremiumsEarned = userEpochStrikeDeposits[strikeIndex]
+          .mul(totalEpochPremium[strikeIndex])
+          .div(totalEpochStrikeDeposits[strikeIndex]);
+
         return {
           strikeIndex,
           strikePrice,
           depositedAmount,
           purchasedAmount,
           settleableAmount,
+          totalPremiumsEarned,
           pnlAmount,
           isSettleable,
           isPastEpoch,
@@ -119,6 +130,8 @@ const ExerciseList = ({
     epochStrikeTokens,
     accountAddress,
     epochStrikes,
+    totalEpochStrikeDeposits,
+    totalEpochPremium,
     userEpochStrikeDeposits,
     userEpochCallsPurchased,
     tokenPrice,
@@ -204,6 +217,14 @@ const ExerciseList = ({
                     </Typography>
                   </TableCell>
                   <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      Premiums Earned
+                    </Typography>
+                  </TableCell>
+                  <TableCell
                     align="right"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
@@ -226,6 +247,7 @@ const ExerciseList = ({
                       depositedAmount,
                       purchasedAmount,
                       settleableAmount,
+                      totalPremiumsEarned,
                       pnlAmount,
                       isSettleable,
                       isPastEpoch,
@@ -237,6 +259,7 @@ const ExerciseList = ({
                           strikePrice={strikePrice}
                           depositedAmount={depositedAmount}
                           purchasedAmount={purchasedAmount}
+                          totalPremiumsEarned={totalPremiumsEarned}
                           pnlAmount={pnlAmount}
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}

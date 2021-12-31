@@ -28,6 +28,7 @@ interface ExerciseTableDataProps {
   purchasedAmount: number;
   settleableAmount: BigNumber;
   pnlAmount: number;
+  totalPremiumsEarned: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
   ssovProperties: SsovProperties;
@@ -44,6 +45,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     strikeIndex,
     strikePrice,
     depositedAmount,
+    totalPremiumsEarned,
     purchasedAmount,
     settleableAmount,
     pnlAmount,
@@ -145,6 +147,16 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Typography variant="h6">
           {pnlAmount > 0
             ? `${formatAmount(pnlAmount, 5)} ${tokenSymbol}`
+            : `0 ${tokenSymbol}`}
+        </Typography>
+      </TableCell>
+      <TableCell align="left" className="px-6 pt-2">
+        <Typography variant="h6">
+          {!totalPremiumsEarned.isZero()
+            ? `${formatAmount(
+                getUserReadableAmount(totalPremiumsEarned, 18),
+                5
+              )} ${tokenSymbol}`
             : `0 ${tokenSymbol}`}
         </Typography>
       </TableCell>
