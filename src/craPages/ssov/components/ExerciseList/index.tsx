@@ -213,14 +213,14 @@ const ExerciseList = ({
                       Exercisable
                     </Typography>
                   </TableCell>
-                  {/* <TableCell
+                  <TableCell
                     align="left"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
                     <Typography variant="h6" className="text-stieglitz">
                       Final PnL
                     </Typography>
-                  </TableCell> */}
+                  </TableCell>
                   <TableCell
                     align="left"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
