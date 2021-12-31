@@ -75,7 +75,6 @@ const Settle = ({
     .sub(epochStrikes[strikeIndex])
     .mul(settleableAmount)
     .div(settlementPrice);
-
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
