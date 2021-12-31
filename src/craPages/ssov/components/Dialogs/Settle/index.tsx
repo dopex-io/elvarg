@@ -3,6 +3,7 @@ import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { BigNumber } from 'ethers';
+import { ERC20SSOV } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -54,6 +55,7 @@ const Settle = ({
   const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<BigNumber>(BigNumber.from('0'));
+  const [settlementPrice, setSettlementPrice] = useState(0);
 
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
@@ -74,9 +76,9 @@ const Settle = ({
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL =
-    ((currentPrice - strikePrice) *
+    ((settlementPrice - strikePrice) *
       getUserReadableAmount(settleableAmount, 18)) /
-    strikePrice;
+    settlementPrice;
 
   const handleApprove = useCallback(async () => {
     try {
@@ -130,6 +132,18 @@ const Settle = ({
     approved,
   ]);
 
+  useEffect(() => {
+    async function updateSettlementPrice() {
+      const _price = await (
+        ssovContractWithSigner as ERC20SSOV
+      ).settlementPrices(1);
+
+      setSettlementPrice(getUserReadableAmount(_price, 8));
+    }
+
+    updateSettlementPrice();
+  }, [ssovContractWithSigner]);
+
   return (
     <Dialog
       open={open}
@@ -164,10 +178,10 @@ const Settle = ({
                 component="div"
                 className="text-stieglitz"
               >
-                Current Price
+                Settlement Price (Expiration Price)
               </Typography>
               <Typography variant="caption" component="div">
-                ${formatAmount(currentPrice, 5)}
+                ${formatAmount(settlementPrice, 5)}
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -219,8 +233,7 @@ const Settle = ({
             disabled={
               !approved ||
               settleableAmount.eq(BigNumber.from(0)) ||
-              !settleableAmount.eq(userEpochStrikeTokenBalance) ||
-              strikePrice > currentPrice
+              !settleableAmount.eq(userEpochStrikeTokenBalance)
             }
             onClick={handleSettle}
           >

@@ -143,13 +143,13 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
           {formatAmount(getUserReadableAmount(settleableAmount, 18), 5)}
         </Typography>
       </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
+      {/* <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
           {pnlAmount > 0
             ? `${formatAmount(pnlAmount, 5)} ${tokenSymbol}`
             : `0 ${tokenSymbol}`}
         </Typography>
-      </TableCell>
+      </TableCell> */}
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
           {!totalPremiumsEarned.isZero()
