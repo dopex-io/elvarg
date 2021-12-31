@@ -47,7 +47,7 @@ const Settle = ({
 
   const { selectedEpoch, tokenPrice } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
-  const { epochStrikes } = ssovDataArray[selectedSsov];
+  const { epochStrikes, settlementPrice } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
   const { ssovContract } = ssovPropertiesArray[selectedEpoch];
 
@@ -73,10 +73,10 @@ const Settle = ({
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
 
-  const PnL =
-    ((currentPrice - strikePrice) *
-      getUserReadableAmount(settleableAmount, 18)) /
-    strikePrice;
+  const PnL = settlementPrice
+    .sub(epochStrikes[strikeIndex])
+    .mul(settleableAmount)
+    .div(settlementPrice);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -207,7 +207,7 @@ const Settle = ({
                 component="div"
                 className="text-wave-blue"
               >
-                {formatAmount(PnL, 5)} {`${token}`}
+                {formatAmount(getUserReadableAmount(PnL, 18), 5)} {`${token}`}
               </Typography>
             </Box>
           </Box>
