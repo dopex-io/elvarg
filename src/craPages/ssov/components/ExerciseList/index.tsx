@@ -33,7 +33,7 @@ interface userExercisableOption {
   purchasedAmount: number;
   settleableAmount: BigNumber;
   totalPremiumsEarned: BigNumber;
-  pnlAmount: number;
+  pnlAmount: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
 }
@@ -60,6 +60,7 @@ const ExerciseList = ({
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
+    settlementPrice,
   } = ssovDataArray[selectedSsov];
   const {
     epochStrikeTokens,
@@ -98,13 +99,16 @@ const ExerciseList = ({
         );
         const settleableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
         const isSettleable = settleableAmount.gt(0) && tokenPrice.gt(strike);
-
         const isPastEpoch = selectedEpoch < currentEpoch;
-
-        const pnlAmount =
-          ((Number(tokenPrice.div(1e8)) - strikePrice) * purchasedAmount) /
-          Number(tokenPrice.div(1e8));
-
+        const pnlAmount = settlementPrice.isZero()
+          ? tokenPrice
+              .sub(strike)
+              .mul(userEpochCallsPurchased[strikeIndex])
+              .div(tokenPrice)
+          : settlementPrice
+              .sub(strike)
+              .mul(userEpochCallsPurchased[strikeIndex])
+              .div(settlementPrice);
         const totalPremiumsEarned = userEpochStrikeDeposits[strikeIndex]
           .mul(totalEpochPremium[strikeIndex])
           .div(totalEpochStrikeDeposits[strikeIndex]);
@@ -136,6 +140,7 @@ const ExerciseList = ({
     userEpochCallsPurchased,
     tokenPrice,
     isVaultReady,
+    settlementPrice,
   ]);
 
   return selectedEpoch > 0 && isVaultReady ? (

@@ -54,6 +54,7 @@ export interface SsovData {
   totalEpochCallsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   totalEpochDeposits: BigNumber;
+  settlementPrice: BigNumber;
   APY: string;
 }
 
@@ -173,6 +174,7 @@ export const SsovProvider = (props) => {
         totalEpochStrikeDeposits,
         totalEpochCallsPurchased,
         totalEpochPremium,
+        settlementPrice,
       ] = await Promise.all([
         ssovContract.getEpochTimes(selectedEpoch),
         ssovContract.isEpochExpired(selectedEpoch),
@@ -182,6 +184,7 @@ export const SsovProvider = (props) => {
         ssovContract.getTotalEpochStrikeDeposits(selectedEpoch),
         ssovContract.getTotalEpochCallsPurchased(selectedEpoch),
         ssovContract.getTotalEpochPremium(selectedEpoch),
+        ssovContract.settlementPrices(selectedEpoch),
       ]);
 
       let priceDPX = tokenPrices.find((o) => o.name === 'DPX').price;
@@ -298,6 +301,7 @@ export const SsovProvider = (props) => {
         totalEpochStrikeDeposits: totalEpochStrikeDeposits,
         totalEpochCallsPurchased: totalEpochCallsPurchased,
         totalEpochPremium: totalEpochPremium,
+        settlementPrice,
         APY: APY.toString(),
       });
     }

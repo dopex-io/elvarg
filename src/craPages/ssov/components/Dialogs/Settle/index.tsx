@@ -47,13 +47,12 @@ const Settle = ({
 
   const { selectedEpoch } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
-  const { epochStrikes } = ssovDataArray[selectedSsov];
+  const { epochStrikes, settlementPrice } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<BigNumber>(BigNumber.from('0'));
-  const [settlementPrice, setSettlementPrice] = useState(0);
 
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
@@ -72,11 +71,10 @@ const Settle = ({
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
 
-  const PnL =
-    ((settlementPrice - strikePrice) *
-      getUserReadableAmount(settleableAmount, 18)) /
-    settlementPrice;
-
+  const PnL = settlementPrice
+    .sub(epochStrikes[strikeIndex])
+    .mul(settleableAmount)
+    .div(settlementPrice);
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
@@ -129,18 +127,6 @@ const Settle = ({
     approved,
   ]);
 
-  useEffect(() => {
-    async function updateSettlementPrice() {
-      const _price = await (
-        ssovContractWithSigner as ERC20SSOV
-      ).settlementPrices(1);
-
-      setSettlementPrice(getUserReadableAmount(_price, 8));
-    }
-
-    updateSettlementPrice();
-  }, [ssovContractWithSigner]);
-
   return (
     <Dialog
       open={open}
@@ -178,7 +164,7 @@ const Settle = ({
                 Settlement Price (Expiration Price)
               </Typography>
               <Typography variant="caption" component="div">
-                ${formatAmount(settlementPrice, 5)}
+                ${formatAmount(getUserReadableAmount(settlementPrice, 18), 5)}
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -218,7 +204,7 @@ const Settle = ({
                 component="div"
                 className="text-wave-blue"
               >
-                {formatAmount(PnL, 5)} {`${token}`}
+                {formatAmount(getUserReadableAmount(PnL, 18), 5)} {`${token}`}
               </Typography>
             </Box>
           </Box>
