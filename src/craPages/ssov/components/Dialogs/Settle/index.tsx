@@ -3,6 +3,7 @@ import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { BigNumber } from 'ethers';
+import { ERC20SSOV } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -41,23 +42,21 @@ const Settle = ({
     ssovDataArray,
     userSsovDataArray,
     ssovSignerArray,
-    ssovPropertiesArray,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
 
-  const { selectedEpoch, tokenPrice } = ssovProperties;
+  const { selectedEpoch } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes, settlementPrice } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
-  const { ssovContract } = ssovPropertiesArray[selectedEpoch];
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<BigNumber>(BigNumber.from('0'));
+  const [settlementPrice, setSettlementPrice] = useState(0);
 
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
-  const currentPrice = getUserReadableAmount(tokenPrice ?? 0, 8);
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
@@ -77,19 +76,19 @@ const Settle = ({
     .sub(epochStrikes[strikeIndex])
     .mul(settleableAmount)
     .div(settlementPrice);
-
+        
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
         epochStrikeToken
           .connect(signer)
-          .approve(ssovContract.address, MAX_VALUE)
+          .approve(ssovContractWithSigner.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [epochStrikeToken, signer, ssovContract]);
+  }, [epochStrikeToken, signer, ssovContractWithSigner]);
 
   // Handle Settle
   const handleSettle = useCallback(async () => {
@@ -114,21 +113,33 @@ const Settle = ({
 
   // Handles isApproved
   useEffect(() => {
-    if (!epochStrikeToken || !ssovContract) return;
+    if (!epochStrikeToken || !ssovContractWithSigner) return;
     (async function () {
       let allowance = await epochStrikeToken.allowance(
         accountAddress,
-        ssovContract.address
+        ssovContractWithSigner.address
       );
       setApproved(settleableAmount.lte(allowance) && !allowance.eq(0));
     })();
   }, [
     accountAddress,
     epochStrikeToken,
-    ssovContract,
+    ssovContractWithSigner,
     settleableAmount,
     approved,
   ]);
+
+  useEffect(() => {
+    async function updateSettlementPrice() {
+      const _price = await (
+        ssovContractWithSigner as ERC20SSOV
+      ).settlementPrices(1);
+
+      setSettlementPrice(getUserReadableAmount(_price, 8));
+    }
+
+    updateSettlementPrice();
+  }, [ssovContractWithSigner]);
 
   return (
     <Dialog
@@ -164,10 +175,10 @@ const Settle = ({
                 component="div"
                 className="text-stieglitz"
               >
-                Current Price
+                Settlement Price (Expiration Price)
               </Typography>
               <Typography variant="caption" component="div">
-                ${formatAmount(currentPrice, 5)}
+                ${formatAmount(settlementPrice, 5)}
               </Typography>
             </Box>
             <Box className="flex flex-row justify-between mt-3">
@@ -219,8 +230,7 @@ const Settle = ({
             disabled={
               !approved ||
               settleableAmount.eq(BigNumber.from(0)) ||
-              !settleableAmount.eq(userEpochStrikeTokenBalance) ||
-              strikePrice > currentPrice
+              !settleableAmount.eq(userEpochStrikeTokenBalance)
             }
             onClick={handleSettle}
           >
