@@ -252,7 +252,10 @@ export const SsovProvider = (props) => {
       } else if (asset === 'GOHM') {
         try {
           const mainnetProvider = new providers.MulticallProvider(
-            new ethers.providers.JsonRpcProvider(CHAIN_ID_TO_PROVIDERS[1], 1)
+            new ethers.providers.JsonRpcProvider(
+              'https://eth-mainnet.gateway.pokt.network/v1/lb/61ceae3bb86d760039e05c85',
+              1
+            )
           );
 
           const stakingContract = new ethers.Contract(

@@ -219,7 +219,7 @@ export const WalletProvider = (props) => {
     (async () => {
       if (state.accountAddress) {
         const mainnetProvider = ethers.getDefaultProvider(
-          CHAIN_ID_TO_PROVIDERS[1]
+          'https://eth-mainnet.gateway.pokt.network/v1/lb/61ceae3bb86d760039e05c85'
         );
         const ensData = { ensName: '', ensAvatar: '' };
         try {
