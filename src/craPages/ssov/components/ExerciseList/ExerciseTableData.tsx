@@ -150,33 +150,15 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="right">
         <Box className="flex justify-end">
-          {isPastEpoch ? (
-            <CustomButton
-              size="medium"
-              className="px-2"
-              onClick={handleSettle}
-              disabled={!isSettleable}
-              color={isSettleable ? 'primary' : 'cod-gray'}
-            >
-              Settle
-            </CustomButton>
-          ) : (
-            <Box className="flex space-x-1">
-              <InfoPopover
-                className="my-auto"
-                id="settle-info"
-                infoText="Settle is available only after expiry of this epoch."
-              />
-              <CustomButton
-                size="medium"
-                disabled
-                className="px-2"
-                color={'cod-gray'}
-              >
-                Settle
-              </CustomButton>
-            </Box>
-          )}
+          <CustomButton
+            size="medium"
+            className="px-2"
+            onClick={handleSettle}
+            disabled={!isSettleable}
+            color={isSettleable ? 'primary' : 'cod-gray'}
+          >
+            Settle
+          </CustomButton>
           <IconButton
             aria-label="more"
             aria-controls="long-menu"
