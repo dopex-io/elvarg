@@ -42,15 +42,13 @@ const Settle = ({
     ssovDataArray,
     userSsovDataArray,
     ssovSignerArray,
-    ssovPropertiesArray,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
 
-  const { selectedEpoch, tokenPrice } = ssovProperties;
+  const { selectedEpoch } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
-  const { ssovContract } = ssovPropertiesArray[selectedEpoch];
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
@@ -59,7 +57,6 @@ const Settle = ({
 
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
-  const currentPrice = getUserReadableAmount(tokenPrice ?? 0, 8);
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
@@ -85,13 +82,13 @@ const Settle = ({
       await sendTx(
         epochStrikeToken
           .connect(signer)
-          .approve(ssovContract.address, MAX_VALUE)
+          .approve(ssovContractWithSigner.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [epochStrikeToken, signer, ssovContract]);
+  }, [epochStrikeToken, signer, ssovContractWithSigner]);
 
   // Handle Settle
   const handleSettle = useCallback(async () => {
@@ -116,18 +113,18 @@ const Settle = ({
 
   // Handles isApproved
   useEffect(() => {
-    if (!epochStrikeToken || !ssovContract) return;
+    if (!epochStrikeToken || !ssovContractWithSigner) return;
     (async function () {
       let allowance = await epochStrikeToken.allowance(
         accountAddress,
-        ssovContract.address
+        ssovContractWithSigner.address
       );
       setApproved(settleableAmount.lte(allowance) && !allowance.eq(0));
     })();
   }, [
     accountAddress,
     epochStrikeToken,
-    ssovContract,
+    ssovContractWithSigner,
     settleableAmount,
     approved,
   ]);
