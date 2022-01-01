@@ -72,7 +72,7 @@ const Settle = ({
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL = settlementPrice
-    .sub(epochStrikes[strikeIndex])
+    ?.sub(epochStrikes[strikeIndex])
     .mul(settleableAmount)
     .div(settlementPrice);
   const handleApprove = useCallback(async () => {
