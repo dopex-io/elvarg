@@ -74,7 +74,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                 className={cx(
                   !isDeposit ? 'mr-1' : 'bg-umbra text-stieglitz hover:bg-umbra'
                 )}
-                onClick={() => handleChangeToWithdraw}
+                onClick={handleChangeToWithdraw}
                 disabled={selectedEpoch < 1 || accountAddress === ''}
               >
                 Withdraw
