@@ -1,22 +1,26 @@
-import { useCallback, useState, useContext } from 'react';
+import { useCallback, useState, useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import IconButton from '@material-ui/core/IconButton';
 import Box from '@material-ui/core/Box';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Badge from '@material-ui/core/Badge';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
 
-import { SsovProperties } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import styles from './styles.module.scss';
 
 const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const [isDeposit, setIsDeposit] = useState(true);
+
+  const { selectedSsov, userSsovDataArray, ssovDataArray } =
+    useContext(SsovContext);
   const { accountAddress } = useContext(WalletContext);
 
   const handleChangeToDeposit = useCallback(() => {
@@ -28,7 +32,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   }, []);
 
   const { selectedEpoch } = ssovProperties;
-
+  const { userEpochDeposits } = userSsovDataArray[selectedSsov];
+  const { isEpochExpired } = ssovDataArray[selectedSsov];
+  const badgeContentProps = useMemo(
+    () =>
+      isEpochExpired && userEpochDeposits > '0' ? { badgeContent: '!' } : null,
+    [isEpochExpired, userEpochDeposits]
+  );
   return (
     <Box
       className={cx(
@@ -58,16 +68,18 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             >
               Deposit
             </CustomButton>
-            <CustomButton
-              size="medium"
-              className={cx(
-                !isDeposit ? 'mr-1' : 'bg-umbra text-stieglitz hover:bg-umbra'
-              )}
-              onClick={handleChangeToWithdraw}
-              disabled={selectedEpoch < 1 || accountAddress === ''}
-            >
-              Withdraw
-            </CustomButton>
+            <Badge color="secondary" {...badgeContentProps}>
+              <CustomButton
+                size="medium"
+                className={cx(
+                  !isDeposit ? 'mr-1' : 'bg-umbra text-stieglitz hover:bg-umbra'
+                )}
+                onClick={handleChangeToWithdraw}
+                disabled={selectedEpoch < 1 || accountAddress === ''}
+              >
+                Withdraw
+              </CustomButton>
+            </Badge>
           </Box>
         </Box>
       </Box>
