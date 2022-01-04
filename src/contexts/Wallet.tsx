@@ -28,10 +28,11 @@ interface WalletContextInterface {
 export const WalletContext = createContext<WalletContextInterface>({});
 
 export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1': 'https://apis-sj.ankr.com/cbf22bcd86ac47de8790b3363eddeca4/6a27f58735b553a64bed11a23f2dee20/eth/fast/main',
   '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '42161':
+    'https://apis.ankr.com/9871a77b8a714ade8d866ad980d01d07/6a27f58735b553a64bed11a23f2dee20/arbitrum/full/main',
   '1337': 'http://127.0.0.1:8545',
 };
 
