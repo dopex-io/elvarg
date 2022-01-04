@@ -71,10 +71,13 @@ const Settle = ({
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
 
-  const PnL = settlementPrice
-    ?.sub(epochStrikes[strikeIndex])
-    .mul(settleableAmount)
-    .div(settlementPrice);
+  const PnL = !settlementPrice.isZero()
+    ? settlementPrice
+        .sub(epochStrikes[strikeIndex])
+        .mul(settleableAmount)
+        .div(settlementPrice)
+    : BigNumber.from(0);
+
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(

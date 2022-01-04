@@ -60,7 +60,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const { selectedEpoch } = ssovProperties;
-  const { epochStrikes } = ssovData;
+  const { epochStrikes, isEpochExpired } = ssovData;
 
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -169,8 +169,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             size="medium"
             className="px-2"
             onClick={handleSettle}
-            disabled={!isSettleable}
-            color={isSettleable ? 'primary' : 'cod-gray'}
+            disabled={isEpochExpired && !isSettleable}
+            color={isEpochExpired && isSettleable ? 'primary' : 'cod-gray'}
           >
             Settle
           </CustomButton>
