@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
-import Image from 'next/image';
 
 import format from 'date-fns/format';
 
@@ -102,9 +101,8 @@ function SsovCard(props: SsovCardProps) {
         <Box>
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
-              <Image
-                height="35px"
-                width="35px"
+              <img
+                className="w-9 h-9"
                 src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
                 alt={tokenSymbol}
               />
