@@ -185,6 +185,13 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="right">
         <Box className="flex justify-end">
+          {!isEpochExpired && (
+            <InfoPopover
+              className="my-auto"
+              id="settle-info"
+              infoText="Settle is available only after expiry of this epoch."
+            />
+          )}
           <CustomButton
             size="medium"
             className="px-2"
