@@ -102,6 +102,7 @@ function SsovCard(props: SsovCardProps) {
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
+                className="w-9 h-9"
                 src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
                 alt={tokenSymbol}
               />
