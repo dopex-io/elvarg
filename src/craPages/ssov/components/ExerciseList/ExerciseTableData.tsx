@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState, useEffect } from 'react';
+import { useCallback, useContext, useState, useEffect, useMemo } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -101,6 +101,26 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
+  const settleableBooleans = useMemo(() => {
+    if (isEpochExpired) {
+      if (isSettleable) {
+        return {
+          settleButtonDisable: false,
+          settleButtonPrimaryColor: true,
+        };
+      } else {
+        return {
+          settleButtonDisable: true,
+          settleButtonPrimaryColor: false,
+        };
+      }
+    } else
+      return {
+        settleButtonDisable: true,
+        settleButtonPrimaryColor: false,
+      };
+  }, [isEpochExpired, isSettleable]);
+
   const Dialog = DIALOGS[dialogState.type];
 
   return (
@@ -169,8 +189,12 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             size="medium"
             className="px-2"
             onClick={handleSettle}
-            disabled={isEpochExpired && !isSettleable}
-            color={isEpochExpired && isSettleable ? 'primary' : 'cod-gray'}
+            disabled={settleableBooleans.settleButtonDisable}
+            color={
+              settleableBooleans.settleButtonPrimaryColor
+                ? 'primary'
+                : 'cod-gray'
+            }
           >
             Settle
           </CustomButton>
