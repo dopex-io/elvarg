@@ -17,6 +17,7 @@ import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
+import ssovInfo from '../../ssovInfo/ssovInfo.json';
 
 import styles from './styles.module.scss';
 
@@ -52,7 +53,7 @@ const Description = ({
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
-      tooltip: 'This is the base APY calculated from the single staking farm',
+      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -70,12 +71,7 @@ const Description = ({
         <span className="text-white">
           {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>{' '}
-        accepts user {tokenSymbol} deposits and stakes them in the {tokenSymbol}{' '}
-        Single Staking Farm.
-        <br />
-        <br />
-        This farm simultaneously auto-compounds, farms and supplies{' '}
-        {tokenSymbol} liquidity to our first options pool.
+        {ssovInfo[tokenSymbol].mainPageMessage}
       </Typography>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip
