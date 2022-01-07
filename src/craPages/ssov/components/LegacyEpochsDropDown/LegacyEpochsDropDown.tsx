@@ -32,7 +32,7 @@ const LegacyEpochsDropDown = () => {
           className="text-white text-lg h-10 hover:text-gray-400 hover:bg-umbra pb-3 bg-umbra px-8"
           onClick={handleClick}
         >
-          PREVIOUS EPOCHS
+          LEGACY EPOCHS
         </Button>
       </Box>
       <Menu
