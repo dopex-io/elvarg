@@ -14,11 +14,11 @@ const LegacyEpochsDropDown = () => {
   };
   const epochs = [
     {
-      name: 'November Epoch 1',
+      name: 'Epoch 1 (November)',
       to: 'https://ssov-epoch-1.dopex.io/',
     },
     {
-      name: 'December Epoch 2',
+      name: 'Epoch 2 (December',
       to: 'https://ssov-epoch-2.dopex.io/',
     },
   ];
