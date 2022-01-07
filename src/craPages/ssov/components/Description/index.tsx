@@ -76,7 +76,7 @@ const Description = ({
         This farm simultaneously auto-compounds, farms and supplies{' '}
         {tokenSymbol} liquidity to our first options pool.
       </Typography>
-      <Box className="flex flex-row mb-6">
+      <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip
           className="text-stieglitz"
           title={
@@ -86,10 +86,11 @@ const Description = ({
           }
           arrow={true}
         >
-          <Box className="w-full">
+          <Box className="w-full mr-2">
             <CustomButton
               size="medium"
               fullWidth
+              className="rounded-lg"
               onClick={() => {
                 setPurchaseState(true);
               }}
