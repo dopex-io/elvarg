@@ -35,7 +35,6 @@ export interface SsovProperties {
   selectedEpoch?: number;
   setSelectedEpoch?: Function;
   tokenPrice?: BigNumber;
-  cgTokenPrice?: number;
   ssovOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
@@ -309,13 +308,7 @@ export const SsovProvider = (props) => {
   }, [contractAddresses, selectedEpoch, provider, tokenPrices]);
 
   useEffect(() => {
-    if (
-      !provider ||
-      !contractAddresses ||
-      !contractAddresses.SSOV ||
-      !tokenPrices.length
-    )
-      return;
+    if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
 
     async function update() {
       const ssovPropertiesArray: SsovProperties[] = [];
@@ -360,7 +353,6 @@ export const SsovProvider = (props) => {
               Number(currentEpoch) === 0 ? 1 : Number(currentEpoch),
             setSelectedSsov: setSelectedSsov,
             tokenPrice,
-            cgTokenPrice: tokenPrices.find((o) => o.name === asset).price,
             ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
               SSOVAddresses[asset].OptionPricing,
               provider
@@ -381,7 +373,7 @@ export const SsovProvider = (props) => {
     }
 
     update();
-  }, [contractAddresses, provider, selectedEpoch, tokenPrices]);
+  }, [contractAddresses, provider, selectedEpoch]);
 
   useEffect(() => {
     if (!contractAddresses || !signer || !contractAddresses.SSOV) return;
