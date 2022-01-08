@@ -17,7 +17,7 @@ import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
-import ssovInfo from '../../ssovInfo/ssovInfo.json';
+import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
 import styles from './styles.module.scss';
 
