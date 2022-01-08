@@ -18,6 +18,7 @@ import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
+import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
 import styles from './styles.module.scss';
 
@@ -64,7 +65,7 @@ function SsovCard(props: SsovCardProps) {
       heading: 'APY',
       value: `${APY ? `${APY}%` : '...'}`,
       Icon: Action,
-      tooltip: 'This is the base APY calculated from the single staking farm',
+      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
