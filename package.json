@@ -25,7 +25,7 @@
     "classnames": "^2.2.6",
     "date-fns": "^2.16.1",
     "eth-rpc-errors": "^4.0.2",
-    "ethers": "5.5.2",
+    "ethers": "5.5.3",
     "formik": "^2.2.6",
     "fortmatic": "^2.2.1",
     "graphql": "^16.0.1",
