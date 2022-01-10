@@ -7,10 +7,12 @@ import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import debounce from 'lodash/debounce';
 import Skeleton from '@material-ui/lab/Skeleton';
 
@@ -33,6 +35,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
+import format from 'date-fns/format';
+import Menu from '@material-ui/core/Menu';
 
 export interface Props {
   open: boolean;
@@ -61,6 +65,8 @@ const PurchaseDialog = ({
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider } = useContext(WalletContext);
+  const [isStrikesMenuVisible, setIsStrikeMenuVisible] =
+    useState<boolean>(false);
 
   const {
     currentEpoch,
@@ -81,6 +87,7 @@ const PurchaseDialog = ({
     optionPrice: BigNumber.from(0),
     fees: BigNumber.from(0),
     premium: BigNumber.from(0),
+    expiry: 0,
     totalCost: BigNumber.from(0),
   });
   const [strikeIndex, setStrikeIndex] = useState<number | null>(0);
@@ -94,6 +101,7 @@ const PurchaseDialog = ({
   ] = useState(0);
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
@@ -187,6 +195,11 @@ const PurchaseDialog = ({
       console.log(err);
     }
   }, [token, ssovContractWithSigner]);
+
+  const setMaxAmount = () => {
+    const amount = state.optionPrice;
+    formik.setValues({ amount: amount });
+  };
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -290,6 +303,7 @@ const PurchaseDialog = ({
         optionPrice: BigNumber.from(0),
         fees: BigNumber.from(0),
         premium: BigNumber.from(0),
+        expiry: 0,
         totalCost: BigNumber.from(0),
       }));
       return;
@@ -345,6 +359,7 @@ const PurchaseDialog = ({
           optionPrice,
           premium,
           fees,
+          expiry,
           totalCost: premium.add(fees),
         });
 
@@ -376,20 +391,24 @@ const PurchaseDialog = ({
       <Box className="flex flex-col">
         <Box className="flex flex-row items-center mb-4">
           <Typography variant="h5">Buy Call Option</Typography>
-          <IconButton className="p-0 pb-1 mr-0 ml-auto" onClick={handleClose}>
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M0 15C0 15.55 0.45 16 1 16H6V14H1C0.45 14 0 14.45 0 15ZM0 3C0 3.55 0.45 4 1 4H10V2H1C0.45 2 0 2.45 0 3ZM10 17V16H17C17.55 16 18 15.55 18 15C18 14.45 17.55 14 17 14H10V13C10 12.45 9.55 12 9 12C8.45 12 8 12.45 8 13V17C8 17.55 8.45 18 9 18C9.55 18 10 17.55 10 17ZM4 7V8H1C0.45 8 0 8.45 0 9C0 9.55 0.45 10 1 10H4V11C4 11.55 4.45 12 5 12C5.55 12 6 11.55 6 11V7C6 6.45 5.55 6 5 6C4.45 6 4 6.45 4 7ZM18 9C18 8.45 17.55 8 17 8H8V10H17C17.55 10 18 9.55 18 9ZM13 6C13.55 6 14 5.55 14 5V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2H14V1C14 0.45 13.55 0 13 0C12.45 0 12 0.45 12 1V5C12 5.55 12.45 6 13 6Z"
-                fill="#3E3E3E"
-              />
-            </svg>
-          </IconButton>
+          <Tooltip title="Go to advanced mode" aria-label="add" placement="top">
+            <IconButton className="p-0 pb-1 mr-0 ml-auto" onClick={handleClose}>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                className="group"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 15C0 15.55 0.45 16 1 16H6V14H1C0.45 14 0 14.45 0 15ZM0 3C0 3.55 0.45 4 1 4H10V2H1C0.45 2 0 2.45 0 3ZM10 17V16H17C17.55 16 18 15.55 18 15C18 14.45 17.55 14 17 14H10V13C10 12.45 9.55 12 9 12C8.45 12 8 12.45 8 13V17C8 17.55 8.45 18 9 18C9.55 18 10 17.55 10 17ZM4 7V8H1C0.45 8 0 8.45 0 9C0 9.55 0.45 10 1 10H4V11C4 11.55 4.45 12 5 12C5.55 12 6 11.55 6 11V7C6 6.45 5.55 6 5 6C4.45 6 4 6.45 4 7ZM18 9C18 8.45 17.55 8 17 8H8V10H17C17.55 10 18 9.55 18 9ZM13 6C13.55 6 14 5.55 14 5V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2H14V1C14 0.45 13.55 0 13 0C12.45 0 12 0.45 12 1V5C12 5.55 12.45 6 13 6Z"
+                  fill="#3E3E3E"
+                  className="group-hover:fill-gray-400"
+                />
+              </svg>
+            </IconButton>
+          </Tooltip>
         </Box>
         <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3">
           <Box className="flex flex-row justify-between">
@@ -400,14 +419,14 @@ const PurchaseDialog = ({
                   alt={tokenSymbol}
                 />
               </Box>
-              <Typography variant="h5" className="text-white pb-1 pr-1">
+              <Typography variant="h5" className="text-white pb-1 pr-3">
                 {tokenSymbol}
               </Typography>
-              <IconButton className="opacity-40 p-0" onClick={handleClose}>
-                <ArrowDropDownIcon className={'fill-gray-100 mr-2'} />
-              </IconButton>
             </Box>
-            <Box className="bg-mineshaft flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex">
+            <Box
+              className="bg-mineshaft flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
+              onClick={setMaxAmount}
+            >
               <Typography variant="caption" component="div">
                 <span className="text-stieglitz pl-2.5 pr-2.5">MAX</span>
               </Typography>
@@ -431,21 +450,48 @@ const PurchaseDialog = ({
           <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
             <Box className={'w-5/6'}>
               <Typography variant="h5" className="text-white pb-1 pr-2">
-                $4,400
+                ${strikes[strikeIndex]}
               </Typography>
               <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
                 Strike Price
               </Typography>
             </Box>
-            <Box className="bg-mineshaft rounded-md items-center w-1/6 h-fit">
-              <IconButton className="p-0" onClick={handleClose}>
-                <ArrowDropDownIcon className={'fill-gray-100 h-50 pl-0.5'} />
+            <Box className="bg-mineshaft rounded-md items-center w-1/6 h-fit clickable">
+              <IconButton
+                className="p-0"
+                onClick={(e) => setAnchorEl(e.currentTarget)}
+              >
+                {anchorEl ? (
+                  <ArrowDropUpIcon className={'fill-gray-100 h-50 pl-0.5'} />
+                ) : (
+                  <ArrowDropDownIcon className={'fill-gray-100 h-50 pl-0.5'} />
+                )}
               </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={() => setAnchorEl(null)}
+                classes={{ paper: 'bg-umbra' }}
+                className="mt-12"
+              >
+                {strikes.map((strike, strikeIndex) => (
+                  <MenuItem
+                    key={strikeIndex}
+                    className="capitalize text-white cursor-default hover:bg-mineshaft cursor-pointer"
+                    onClick={() => {
+                      setStrikeIndex(strikeIndex);
+                      setAnchorEl(null);
+                    }}
+                  >
+                    ${strike}
+                  </MenuItem>
+                ))}
+              </Menu>
             </Box>
           </Box>
           <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
             <Typography variant="h5" className="text-white pb-1 pr-2">
-              21 Nov 2022
+              {format(new Date(state.expiry * 1000), 'MM/dd/yyyy')}
             </Typography>
             <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
               Expiry
@@ -460,7 +506,12 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                $5601
+                $
+                {formatAmount(
+                  Number(strikes[strikeIndex]) +
+                    getUserReadableAmount(state.optionPrice, 8),
+                  2
+                )}
               </Typography>
             </Box>
           </Box>
@@ -470,7 +521,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                $121
+                ${formatAmount(getUserReadableAmount(state.optionPrice, 8), 2)}
               </Typography>
             </Box>
           </Box>
@@ -557,7 +608,9 @@ const PurchaseDialog = ({
 
         <Box className="justify-between mt-4 text-center">
           <Typography variant="h6" component="div" className="text-stieglitz">
-            Balance: 23.1 ETH
+            Balance:{' '}
+            {formatAmount(getUserReadableAmount(userTokenBalance, 18), 3)}{' '}
+            {tokenSymbol}
           </Typography>
         </Box>
       </Box>
