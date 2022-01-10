@@ -15,7 +15,9 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import debounce from 'lodash/debounce';
 import Skeleton from '@material-ui/lab/Skeleton';
-
+import Slide from '@material-ui/core/Slide';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -102,7 +104,6 @@ const PurchaseDialog = ({
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const strikes = useMemo(
@@ -388,9 +389,9 @@ const PurchaseDialog = ({
       handleClose={handleClose}
       classes={{ paper: 'rounded m-0' }}
     >
-      <Box className="flex flex-col">
+      <Box>
         <Box className="flex flex-row items-center mb-4">
-          <Typography variant="h5">Buy Call Option</Typography>
+          <Typography variant="h5">Buy {tokenSymbol} Call Options</Typography>
           <Tooltip title="Go to advanced mode" aria-label="add" placement="top">
             <IconButton className="p-0 pb-1 mr-0 ml-auto" onClick={handleClose}>
               <svg
@@ -412,7 +413,7 @@ const PurchaseDialog = ({
         </Box>
         <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3">
           <Box className="flex flex-row justify-between">
-            <Box className="h-12 bg-cod-gray rounded-full pl-1.5 pr-1.5 pt-0 pb-0 flex flex-row items-center">
+            <Box className="h-12 bg-cod-gray rounded-full pl-1.5 pr-1.5 pt-0 pb-0 flex flex-row items-center cursor-pointer">
               <Box className="flex flex-row h-9 w-9 mr-2">
                 <img
                   src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
@@ -422,6 +423,9 @@ const PurchaseDialog = ({
               <Typography variant="h5" className="text-white pb-1 pr-3">
                 {tokenSymbol}
               </Typography>
+              <IconButton className="opacity-40 p-0">
+                <ArrowDropDownIcon className={'fill-gray-100 mr-2'} />
+              </IconButton>
             </Box>
             <Box
               className="bg-mineshaft flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
