@@ -52,18 +52,28 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
 const DEFAULT_CHAIN_ID =
   Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
 
-const providerOptions = {
-  walletconnect: {
-    package: WalletConnectProvider,
-    options: {
-      rpc: CHAIN_ID_TO_PROVIDERS,
-    },
-  },
-};
-
 let web3Modal;
 
 if (typeof window !== 'undefined') {
+  const providerOptions = {
+    walletconnect: {
+      package: WalletConnectProvider,
+      options: {
+        rpc: CHAIN_ID_TO_PROVIDERS,
+      },
+    },
+    ...(window.ethereum?.isCoin98 && {
+      injected: {
+        display: {
+          logo: '/wallets/Coin98.png',
+          name: 'Coin98',
+          description: 'Connect to your Coin98 Wallet',
+        },
+        package: null,
+      },
+    }),
+  };
+
   web3Modal = new Web3Modal({
     cacheProvider: true,
     theme: 'dark',
