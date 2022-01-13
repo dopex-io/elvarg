@@ -17,7 +17,7 @@ import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMeta
 const CHAIN_ID_TO_NETWORK_DATA = {
   1: { name: 'Mainnet', icon: '/assets/eth.svg' },
   42: { name: 'Kovan', icon: '/assets/eth.svg' },
-  56: { name: 'Binance Smart Chain', icon: '/assets/bsc.svg' },
+  56: { name: 'BSC', icon: '/assets/bsc.svg' },
   42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
 };
@@ -102,30 +102,29 @@ export default function NetworkButton({ className }: { className?: string }) {
         key={1}
         text="Switch to BSC"
         icon={<img src="/assets/bsc.svg" alt="BSC" className="w-4 mr-3" />}
-        className="lg:mb-6 mb-0"
         endComponent={<Switch checked={chainId === 56} className="ml-20" />}
         onClick={() => handleClick(56)}
       />,
-      <MenuItem
-        key={2}
-        text="Asset Bridge"
-        icon={
-          <img src="/assets/bridge.svg" alt="Arbitrum" className="w-4 mr-3" />
-        }
-        className="lg:mb-6 mb-0"
-        onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
-      />,
-      <MenuItem
-        key={3}
-        text="Learn More"
-        icon={<InfoIcon className="w-4 mr-3 text-stieglitz" />}
-        onClick={() =>
-          window.open(
-            'https://developer.offchainlabs.com/docs/mainnet',
-            '_blank'
-          )
-        }
-      />,
+      // <MenuItem
+      //   key={2}
+      //   text="Asset Bridge"
+      //   icon={
+      //     <img src="/assets/bridge.svg" alt="Arbitrum" className="w-4 mr-3" />
+      //   }
+      //   className="lg:mb-6 mb-0"
+      //   onClick={() => window.open('https://bridge.arbitrum.io', '_blank')}
+      // />,
+      // <MenuItem
+      //   key={3}
+      //   text="Learn More"
+      //   icon={<InfoIcon className="w-4 mr-3 text-stieglitz" />}
+      //   onClick={() =>
+      //     window.open(
+      //       'https://developer.offchainlabs.com/docs/mainnet',
+      //       '_blank'
+      //     )
+      //   }
+      // />,
     ],
   };
 
