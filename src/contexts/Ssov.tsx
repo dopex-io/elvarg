@@ -40,7 +40,7 @@ export interface SsovProperties {
 export interface SsovSigner {
   token: ERC20;
   ssovContractWithSigner?: any;
-  ssovRouterWithSigner?: BnbSSOVRouter;
+  ssovRouter?: BnbSSOVRouter;
 }
 
 export interface SsovData {
