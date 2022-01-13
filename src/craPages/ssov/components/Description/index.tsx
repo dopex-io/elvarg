@@ -37,10 +37,14 @@ const Description = ({
 
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
+  const totalEpochDeposits =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(ssovData.totalEpochDeposits, 8)
+      : getUserReadableAmount(ssovData.totalEpochDeposits, 18);
+
   const TVL =
     ssovData?.totalEpochDeposits && tokenPrice
-      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
+      ? totalEpochDeposits * getUserReadableAmount(tokenPrice, 8)
       : 0;
 
   const info = [
