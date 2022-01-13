@@ -100,9 +100,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const strikes = epochStrikes.map((strike) =>
-    tokenSymbol === 'BNB'
-      ? getUserReadableAmount(strike, 8).toString()
-      : getUserReadableAmount(strike, 18).toString()
+    getUserReadableAmount(strike, 8).toString()
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
@@ -565,7 +563,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   / {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
-                  {tokenSymbol === 'BNB' && 'vBNB'} ${strike}
+                  {strike}
                 </Typography>
               </Box>
             ))}
