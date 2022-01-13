@@ -47,13 +47,16 @@ function SsovCard(props: SsovCardProps) {
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
+  const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
+
+  const totalDeposits =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(totalEpochDeposits, 8)
+      : getUserReadableAmount(totalEpochDeposits, 18);
   const TVL =
     totalEpochDeposits && tokenPrice
-      ? getUserReadableAmount(totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
+      ? totalDeposits * getUserReadableAmount(tokenPrice, 8)
       : 0;
-
-  const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
 
   const info = [
     {
