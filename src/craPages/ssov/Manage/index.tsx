@@ -85,10 +85,13 @@ const Manage = () => {
             />
             <ManageCard ssovProperties={ssovProperties} />
           </Box>
-          {userSsovData === undefined ? null : (
+          {userSsovData === undefined ? null : ssovProperties.tokenName ===
+            'BNB' ? null : (
             <ExerciseList ssovProperties={ssovProperties} />
           )}
-          <Stats ssovProperties={ssovProperties} className="mt-4" />
+          {ssovProperties.tokenName !== 'BNB' ? (
+            <Stats ssovProperties={ssovProperties} className="mt-4" />
+          ) : null}
         </Box>
       </Box>
     </Box>
