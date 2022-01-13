@@ -403,19 +403,23 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           ) : null}
         </Box>
       </Box>
-      <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-left"
-        >
-          Allocation
-        </Typography>
-        <Typography variant="caption" component="div">
-          {getUserReadableAmount(totalDepositAmount, 8).toString()}{' '}
-          {tokenSymbol === 'BNB' && 'vBNB'}
-        </Typography>
-      </Box>
+
+      {tokenSymbol !== 'BNB' ? (
+        <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
+          <Typography
+            variant="caption"
+            component="div"
+            className="text-stieglitz text-left"
+          >
+            Allocation
+          </Typography>
+          <Typography variant="caption" component="div">
+            {getUserReadableAmount(totalDepositAmount, 8).toString()}{' '}
+            {tokenSymbol === 'BNB' && 'vBNB'}
+          </Typography>
+        </Box>
+      ) : null}
+
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
         <Box className="mr-4 mb-4">
           {isVaultReady ? <DepositClosed /> : <DepositOpen />}
