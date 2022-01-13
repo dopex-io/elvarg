@@ -403,7 +403,6 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           ) : null}
         </Box>
       </Box>
-
       {tokenSymbol !== 'BNB' ? (
         <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
           <Typography
