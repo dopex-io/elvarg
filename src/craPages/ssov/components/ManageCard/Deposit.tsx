@@ -419,7 +419,6 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           </Typography>
         </Box>
       ) : null}
-
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
         <Box className="mr-4 mb-4">
           {isVaultReady ? <DepositClosed /> : <DepositOpen />}
