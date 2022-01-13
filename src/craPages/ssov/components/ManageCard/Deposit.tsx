@@ -55,7 +55,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
 
   const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner, token, ssovRouterWithSigner } =
+  const { ssovContractWithSigner, token, ssovRouter } =
     ssovSignerArray[selectedSsov];
   const { userEpochStrikeDeposits, userEpochDeposits } =
     userSsovDataArray[selectedSsov];
@@ -185,9 +185,9 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             }
           )
         );
-      } else if (tokenName === 'BNB' && ssovRouterWithSigner) {
+      } else if (tokenName === 'BNB' && ssovRouter) {
         await sendTx(
-          ssovRouterWithSigner.depositMultiple(
+          ssovRouter.depositMultiple(
             strikeIndexes,
             strikeIndexes.map((index) => strikeDepositAmounts[index]),
             accountAddress,
@@ -223,7 +223,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     accountAddress,
     tokenName,
     totalDepositAmount,
-    ssovRouterWithSigner,
+    ssovRouter,
   ]);
 
   useEffect(() => {
@@ -483,7 +483,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           <CustomButton size="large" className="w-full" disabled>
             {isVaultReady ? 'Closed' : 'Enter an amount'}
           </CustomButton>
-        ) : approved ? (
+        ) : tokenSymbol === 'BNB' || approved ? (
           <CustomButton
             size="large"
             className="w-full"
@@ -494,15 +494,19 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           </CustomButton>
         ) : (
           <Box className="flex flex-col">
-            <MaxApprove value={maxApprove} setValue={setMaxApprove} />
+            {tokenSymbol !== 'BNB' ? (
+              <MaxApprove value={maxApprove} setValue={setMaxApprove} />
+            ) : null}
             <Box className="flex flex-row mt-2">
-              <CustomButton
-                size="large"
-                className="w-11/12 mr-1"
-                onClick={handleApprove}
-              >
-                Approve
-              </CustomButton>
+              {tokenSymbol !== 'BNB' ? (
+                <CustomButton
+                  size="large"
+                  className="w-11/12 mr-1"
+                  onClick={handleApprove}
+                >
+                  Approve
+                </CustomButton>
+              ) : null}
               <CustomButton size="large" className="w-11/12 ml-1" disabled>
                 Deposit
               </CustomButton>
