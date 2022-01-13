@@ -104,19 +104,16 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) => getUserReadableAmount(deposit, 8)
   );
 
-  const totalEpochDepositsAmount = getUserReadableAmount(
-    totalEpochDeposits,
-    18
-  );
+  const totalEpochDepositsAmount = getUserReadableAmount(totalEpochDeposits, 8);
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) => getUserReadableAmount(deposit, 8)
   );
 
-  const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
+  const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 8);
 
   // Handles strikes & deposit amounts
   const handleSelectStrikes = useCallback(
@@ -415,8 +412,8 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           Allocation
         </Typography>
         <Typography variant="caption" component="div">
-          {getUserReadableAmount(totalDepositAmount, 18).toString()}{' '}
-          {tokenSymbol}
+          {getUserReadableAmount(totalDepositAmount, 8).toString()}{' '}
+          {tokenSymbol === 'BNB' && 'vBNB'}
         </Typography>
       </Box>
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
@@ -527,7 +524,8 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               <span className="text-wave-blue">
                 {formatAmount(userEpochDepositsAmount, 5)}
               </span>{' '}
-              / {formatAmount(totalEpochDepositsAmount, 5)} {tokenSymbol}
+              / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
+              {tokenSymbol === 'BNB' && 'vBNB'}
             </Typography>
           </Box>
         </AccordionSummary>
@@ -545,7 +543,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   / {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
-                  {tokenSymbol} ${strike}
+                  {tokenSymbol === 'BNB' && 'vBNB'} ${strike}
                 </Typography>
               </Box>
             ))}

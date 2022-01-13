@@ -88,7 +88,9 @@ const Manage = () => {
           {userSsovData === undefined ? null : (
             <ExerciseList ssovProperties={ssovProperties} />
           )}
-          <Stats ssovProperties={ssovProperties} className="mt-4" />
+          {ssovProperties.tokenName !== 'BNB' ? (
+            <Stats ssovProperties={ssovProperties} className="mt-4" />
+          ) : null}
         </Box>
       </Box>
     </Box>
