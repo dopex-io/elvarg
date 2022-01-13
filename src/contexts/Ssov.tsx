@@ -184,34 +184,9 @@ export const SsovProvider = (props) => {
         ssovContract.settlementPrices(selectedEpoch),
       ]);
 
-      let bnbVaultAPY = 0;
-      if (asset === 'BNB') {
-        const vbnb = '0xA07c5b74C9B40447a954e1466938b865b6BBea36';
-        const vbnbContract = new ethers.Contract(
-          vbnb,
-          ['function supplyRatePerBlock() external view returns (uint)'],
-          provider
-        );
-        const blocksPerDay = 20 * 60 * 24;
-        const supplyRatePerBlock = await vbnbContract.supplyRatePerBlock();
-        bnbVaultAPY =
-          (Math.pow(
-            (supplyRatePerBlock.toString() / 1e18) * blocksPerDay + 1,
-            365 - 1
-          ) -
-            1) *
-          100;
-      }
-      const APY =
-        asset === 'BNB'
-          ? bnbVaultAPY.toFixed(2)
-          : await axios
-              .get(
-                `https://api.dopex.io/api/v1/ssov/apy?asset=${
-                  asset === 'BNB' ? 'DPX' : asset
-                }`
-              )
-              .then((res) => res.data.apy);
+      const APY = await axios
+        .get(`https://api.dopex.io/api/v1/ssov/apy?asset=${asset}`)
+        .then((res) => res.data.apy.toFixed(2));
 
       ssovData.push({
         epochTimes: epochTimes,
