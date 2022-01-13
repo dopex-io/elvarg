@@ -1,17 +1,24 @@
+import { useState, useContext } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
 import Menu from '@material-ui/core/Menu';
-import { useState } from 'react';
-import { Button } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+
+import { WalletContext } from 'contexts/Wallet';
 
 const LegacyEpochsDropDown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const { chainId } = useContext(WalletContext);
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const epochs = [
     {
       name: 'Epoch 1 (November)',
@@ -22,6 +29,8 @@ const LegacyEpochsDropDown = () => {
       to: 'https://ssov-epoch-2.dopex.io/',
     },
   ];
+
+  if (chainId !== 41216) return <></>;
 
   return (
     <Box className="flex items-center justify-center mb-5">
