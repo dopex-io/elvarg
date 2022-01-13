@@ -218,3 +218,11 @@ export const S3_BUCKET_RESOURCES = {
   DPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/DPX.png',
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
 };
+
+export const CHAIN_ID_TO_NETWORK_DATA = {
+  1: { name: 'Mainnet', icon: '/assets/eth.svg' },
+  42: { name: 'Kovan', icon: '/assets/eth.svg' },
+  56: { name: 'BSC', icon: '/assets/bsc.svg' },
+  42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
+  421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
+};

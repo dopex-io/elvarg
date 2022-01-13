@@ -23,6 +23,8 @@ interface WalletContextInterface {
   blockTime?: number;
   epochInitTime?: number;
   supportedChainIds?: number[];
+  changeNetwork?: boolean;
+  setChangeNetwork?: Function;
 }
 
 export const WalletContext = createContext<WalletContextInterface>({});
@@ -100,6 +102,7 @@ export const WalletProvider = (props) => {
     ensAvatar: string;
   }>({ ensName: '', ensAvatar: '' });
   const [blockTime, setBlockTime] = useState(0);
+  const [changeNetwork, setChangeNetwork] = useState(false);
 
   useEffect(() => {
     if (!state.provider) return;
@@ -164,6 +167,7 @@ export const WalletProvider = (props) => {
         provider: multicallProvider,
         chainId,
         contractAddresses,
+        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
         ...(isUser && {
           signer,
           accountAddress: address,
@@ -255,6 +259,8 @@ export const WalletProvider = (props) => {
     disconnect,
     changeWallet,
     blockTime,
+    changeNetwork,
+    setChangeNetwork,
     ...ens,
     ...state,
   };

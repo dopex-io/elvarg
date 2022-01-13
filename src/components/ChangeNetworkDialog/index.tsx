@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 
 import Dialog from 'components/UI/Dialog';
@@ -8,26 +8,13 @@ import { WalletContext } from 'contexts/Wallet';
 
 import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
 
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+
 interface Props {
   imgSrc: string;
   name: string;
   chainId: number;
 }
-
-const NETWORKS = {
-  1: {
-    imgSrc: '/assets/eth.svg',
-    name: 'Ethereum',
-  },
-  56: {
-    imgSrc: '/assets/bsc.svg',
-    name: 'Binance Smart Chain',
-  },
-  42161: {
-    imgSrc: '/assets/arbitrum.svg',
-    name: 'Arbitrum',
-  },
-};
 
 const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
   const handleClick = () => changeOrAddNetworkToMetaMask(chainId);
@@ -49,22 +36,21 @@ const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
 };
 
 const ChangeNetworkDialog = () => {
-  const [open, setOpen] = useState(false);
-
-  const { wrongNetwork, supportedChainIds } = useContext(WalletContext);
+  const { wrongNetwork, supportedChainIds, changeNetwork, setChangeNetwork } =
+    useContext(WalletContext);
 
   useEffect(() => {
-    setOpen(wrongNetwork);
-  }, [wrongNetwork]);
+    setChangeNetwork(wrongNetwork);
+  }, [wrongNetwork, setChangeNetwork]);
 
   const handleClose = useCallback(() => {
-    setOpen(false);
-  }, []);
+    setChangeNetwork(false);
+  }, [setChangeNetwork]);
 
   return (
     <Dialog
       width={450}
-      open={open}
+      open={changeNetwork}
       onClose={handleClose}
       aria-labelledby="wrong-network-dialog-title"
     >
@@ -72,17 +58,16 @@ const ChangeNetworkDialog = () => {
         Change Network
       </Typography>
       <Typography variant="h5" component="p" className="text-white mb-4">
-        The current page you are on does not support the network you are
-        connected to. Connect to a supported network below:
+        Connect to a supported network below:
       </Typography>
       <Box className="grid grid-cols-2 gap-4 mb-4">
         {supportedChainIds.map((chainId) => {
-          const data = NETWORKS[chainId];
+          const data = CHAIN_ID_TO_NETWORK_DATA[chainId];
 
           return (
             <NetworkOption
               key={chainId}
-              imgSrc={data.imgSrc}
+              imgSrc={data.icon}
               name={data.name}
               chainId={chainId}
             />
