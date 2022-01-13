@@ -1,5 +1,3 @@
-import { BUILD } from 'constants/index';
-
 const NETWORKS = {
   1: {
     chainId: '0x1',
@@ -68,7 +66,7 @@ export default async function changeOrAddNetworkToMetaMask(chainId: number) {
       try {
         await window.ethereum.request({
           method: 'wallet_addEthereumChain',
-          params: NETWORKS[BUILD].params,
+          params: NETWORKS[chainId].params,
         });
       } catch (addError) {
         // handle "add" error

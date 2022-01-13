@@ -14,10 +14,14 @@ interface Props {
   imgSrc: string;
   name: string;
   chainId: number;
+  setChangeNetwork: Function;
 }
 
-const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
-  const handleClick = () => changeOrAddNetworkToMetaMask(chainId);
+const NetworkOption = ({ imgSrc, name, chainId, setChangeNetwork }: Props) => {
+  const handleClick = () => {
+    changeOrAddNetworkToMetaMask(chainId);
+    setChangeNetwork(false);
+  };
 
   return (
     <Box
@@ -70,6 +74,7 @@ const ChangeNetworkDialog = () => {
               imgSrc={data.icon}
               name={data.name}
               chainId={chainId}
+              setChangeNetwork={setChangeNetwork}
             />
           );
         })}

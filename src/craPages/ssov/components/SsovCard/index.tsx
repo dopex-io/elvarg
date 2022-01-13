@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
-
 import format from 'date-fns/format';
+import { useNavigate } from 'react-router-dom';
+import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -13,10 +13,12 @@ import InfoBox from '../InfoBox';
 
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
+
 import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
@@ -42,7 +44,14 @@ function SsovCard(props: SsovCardProps) {
   } = props;
   const navigate = useNavigate();
   const { selectedEpoch, tokenPrice, tokenName } = ssovProperties;
-  const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
+  const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData
+    ? ssovData
+    : {
+        epochTimes: {},
+        isVaultReady: false,
+        totalEpochDeposits: BigNumber.from(0),
+        APY: '0',
+      };
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
