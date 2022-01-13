@@ -68,13 +68,13 @@ const PurchaseDialog = ({
     volatilityOracleContract,
     tokenName,
   } = ssovProperties;
-  const { ssovContractWithSigner, token, ssovRouterWithSigner } =
+  const { ssovContractWithSigner, token, ssovRouter } =
     ssovSignerArray !== undefined
       ? ssovSignerArray[selectedSsov]
       : {
           ssovContractWithSigner: null,
           token: null,
-          ssovRouterWithSigner: null,
+          ssovRouter: null,
         };
   const { epochStrikes } = ssovData;
   const { epochStrikeTokens } = userSsovData;
@@ -208,14 +208,9 @@ const PurchaseDialog = ({
         );
       } else if (tokenName === 'BNB') {
         await sendTx(
-          ssovRouterWithSigner.purchase(
-            strikeIndex,
-            finalAmount,
-            accountAddress,
-            {
-              value: state.totalCost,
-            }
-          )
+          ssovRouter.purchase(strikeIndex, finalAmount, accountAddress, {
+            value: state.totalCost,
+          })
         );
       } else {
         await sendTx(
@@ -245,7 +240,7 @@ const PurchaseDialog = ({
     accountAddress,
     tokenName,
     state.totalCost,
-    ssovRouterWithSigner,
+    ssovRouter,
   ]);
 
   useEffect(() => {
