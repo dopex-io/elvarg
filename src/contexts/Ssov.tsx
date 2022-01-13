@@ -18,6 +18,8 @@ import {
   ChainlinkAggregator__factory,
   ChainlinkAggregator,
   CustomPriceOracle,
+  BnbSSOVRouter,
+  BnbSSOVRouter__factory,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import axios from 'axios';
@@ -38,6 +40,7 @@ export interface SsovProperties {
 export interface SsovSigner {
   token: ERC20;
   ssovContractWithSigner?: any;
+  ssovRouterWithSigner?: BnbSSOVRouter;
 }
 
 export interface SsovData {
@@ -215,7 +218,7 @@ export const SsovProvider = (props) => {
             : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
 
         const oracleContract =
-          asset === 'ETH'
+          asset === 'ETH' || asset === 'BNB'
             ? ChainlinkAggregator__factory.connect(
                 SSOVAddresses[asset].PriceOracle,
                 provider
@@ -276,17 +279,26 @@ export const SsovProvider = (props) => {
 
     for (const asset in SSOVAddresses) {
       const tokenAddress =
-        asset === 'ETH' ? contractAddresses['WETH'] : contractAddresses[asset];
+        asset === 'ETH'
+          ? contractAddresses['WETH']
+          : asset === 'BNB'
+          ? contractAddresses['WBNB']
+          : contractAddresses[asset];
 
       const _token = ERC20__factory.connect(tokenAddress, signer);
       const _ssovContractWithSigner =
         asset === 'ETH'
           ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, signer)
           : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, signer);
+      const _ssovRouterWithSigner =
+        asset === 'BNB' && SSOVAddresses[asset].Router
+          ? BnbSSOVRouter__factory.connect(SSOVAddresses[asset].Router, signer)
+          : undefined;
 
       ssovSignerArray.push({
         token: _token,
         ssovContractWithSigner: _ssovContractWithSigner,
+        ssovRouter: _ssovRouterWithSigner,
       });
     }
     setSsovSignerArray(ssovSignerArray);

@@ -25,6 +25,11 @@ export const BASE_ASSET_MAP = {
     symbol: 'GOHM',
     _symbol: 'GOHM',
   },
+  BNB: {
+    fullName: 'Binance Coin',
+    symbol: 'BNB',
+    _symbol: 'BNB',
+  },
   YFI: {
     fullName: 'Yearn',
     symbol: 'YFI',

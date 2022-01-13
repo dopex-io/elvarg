@@ -66,7 +66,7 @@ export const AssetsContext =
   createContext<AssetsContextInterface>(initialState);
 
 export const AssetsProvider = (props) => {
-  const { provider, contractAddresses, accountAddress } =
+  const { provider, contractAddresses, accountAddress, chainId } =
     useContext(WalletContext);
   const [state, setState] = useState<AssetsContextInterface>(initialState);
 
@@ -217,10 +217,11 @@ export const AssetsProvider = (props) => {
     if (!provider || !accountAddress || !contractAddresses) return;
     (async function () {
       const assetAddresses = ASSETS_LIST.map((asset) => {
-        return contractAddresses[asset];
-      });
+        return contractAddresses[asset] ?? '';
+      }).filter((asset) => asset !== '');
       const userAssetBalances = {
         ETH: '0',
+        BNB: '0',
         WETH: '0',
         WBTC: '0',
         DPX: '0',
@@ -242,10 +243,15 @@ export const AssetsProvider = (props) => {
       userAssetBalances['ETH'] = (
         await provider.getBalance(accountAddress)
       ).toString();
+      if (chainId === 56) {
+        userAssetBalances['BNB'] = (
+          await provider.getBalance(accountAddress)
+        ).toString();
+      }
 
       setState((prevState) => ({ ...prevState, userAssetBalances }));
     })();
-  }, [accountAddress, provider, contractAddresses]);
+  }, [accountAddress, provider, contractAddresses, chainId]);
 
   useEffect(() => {
     updateAssetBalances();
