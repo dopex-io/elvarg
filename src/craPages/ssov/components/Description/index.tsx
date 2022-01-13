@@ -17,6 +17,7 @@ import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
+import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
 import styles from './styles.module.scss';
 
@@ -31,14 +32,15 @@ const Description = ({
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
-  const { cgTokenPrice } = ssovProperties;
+  const { tokenPrice } = ssovProperties;
   const { APY, isVaultReady } = ssovData;
 
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const TVL =
-    ssovData?.totalEpochDeposits && cgTokenPrice
-      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) * cgTokenPrice
+    ssovData?.totalEpochDeposits && tokenPrice
+      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
+        getUserReadableAmount(tokenPrice, 8)
       : 0;
 
   const info = [
@@ -51,7 +53,7 @@ const Description = ({
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
-      tooltip: 'This is the base APY calculated from the single staking farm',
+      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -69,14 +71,9 @@ const Description = ({
         <span className="text-white">
           {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>{' '}
-        accepts user {tokenSymbol} deposits and stakes them in the {tokenSymbol}{' '}
-        Single Staking Farm.
-        <br />
-        <br />
-        This farm simultaneously auto-compounds, farms and supplies{' '}
-        {tokenSymbol} liquidity to our first options pool.
+        {ssovInfo[tokenSymbol].mainPageMessage}
       </Typography>
-      <Box className="flex flex-row mb-6">
+      <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip
           className="text-stieglitz"
           title={
@@ -86,10 +83,11 @@ const Description = ({
           }
           arrow={true}
         >
-          <Box className="w-full">
+          <Box className="w-full mr-2">
             <CustomButton
               size="medium"
               fullWidth
+              className="rounded-lg"
               onClick={() => {
                 setPurchaseState(true);
               }}

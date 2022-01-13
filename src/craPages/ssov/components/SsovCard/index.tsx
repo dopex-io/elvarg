@@ -18,6 +18,7 @@ import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
+import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
 import styles from './styles.module.scss';
 
@@ -40,15 +41,16 @@ function SsovCard(props: SsovCardProps) {
     setSelectedSsov,
   } = props;
   const navigate = useNavigate();
-  const { selectedEpoch, cgTokenPrice, tokenName } = ssovProperties;
+  const { selectedEpoch, tokenPrice, tokenName } = ssovProperties;
   const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
 
   const TVL =
-    totalEpochDeposits && cgTokenPrice
-      ? getUserReadableAmount(totalEpochDeposits, 18) * cgTokenPrice
+    totalEpochDeposits && tokenPrice
+      ? getUserReadableAmount(totalEpochDeposits, 18) *
+        getUserReadableAmount(tokenPrice, 8)
       : 0;
 
   const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
@@ -63,7 +65,7 @@ function SsovCard(props: SsovCardProps) {
       heading: 'APY',
       value: `${APY ? `${APY}%` : '...'}`,
       Icon: Action,
-      tooltip: 'This is the base APY calculated from the single staking farm',
+      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -102,6 +104,7 @@ function SsovCard(props: SsovCardProps) {
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
+                className="w-9 h-9"
                 src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
                 alt={tokenSymbol}
               />

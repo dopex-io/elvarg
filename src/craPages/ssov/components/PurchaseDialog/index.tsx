@@ -333,7 +333,7 @@ const PurchaseDialog = ({
           .mul(ethersUtils.parseEther(String(formik.values.amount)))
           .div(tokenPrice);
 
-        const fees = await ssovContractWithSigner.calculateFees(
+        const fees = await ssovContractWithSigner.calculatePurchaseFees(
           tokenPrice,
           strike,
           ethersUtils.parseEther(String(formik.values.amount))

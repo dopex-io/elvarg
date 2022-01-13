@@ -83,7 +83,6 @@ const appLinks = {
   42161: [
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
-    { name: 'NFTs', to: '/nfts' },
   ],
 };
 
@@ -92,10 +91,12 @@ const menuLinks = [
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Dopex NFTs', to: '/nfts' },
+  { name: 'Community NFTs', to: '/nfts/community' },
 ];
 
 interface AppBarProps {
-  active:
+  active?:
     | 'options'
     | 'pools'
     | 'rewards'
@@ -106,8 +107,7 @@ interface AppBarProps {
     | 'faucet'
     | 'SSOV'
     | 'leaderboard'
-    | 'swap'
-    | 'NFTs';
+    | 'swap';
 }
 
 export default function AppBar(props: AppBarProps) {

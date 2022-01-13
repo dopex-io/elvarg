@@ -44,25 +44,38 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/manage/DPX': [42161],
   '/ssov/manage/RDPX': [42161],
   '/ssov/manage/ETH': [42161],
+  '/ssov/manage/GOHM': [42161],
   '/ssov/manage/BNB': [56],
+  '/nfts': [42161],
+  '/nfts/community': [42161, 1, 42, 1337],
   '/sale': [1],
 };
 
 const DEFAULT_CHAIN_ID =
   Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
 
-const providerOptions = {
-  walletconnect: {
-    package: WalletConnectProvider,
-    options: {
-      rpc: CHAIN_ID_TO_PROVIDERS,
-    },
-  },
-};
-
 let web3Modal;
 
 if (typeof window !== 'undefined') {
+  const providerOptions = {
+    walletconnect: {
+      package: WalletConnectProvider,
+      options: {
+        rpc: CHAIN_ID_TO_PROVIDERS,
+      },
+    },
+    ...(window.ethereum?.isCoin98 && {
+      injected: {
+        display: {
+          logo: '/wallets/Coin98.png',
+          name: 'Coin98',
+          description: 'Connect to your Coin98 Wallet',
+        },
+        package: null,
+      },
+    }),
+  };
+
   web3Modal = new Web3Modal({
     cacheProvider: true,
     theme: 'dark',
@@ -221,7 +234,7 @@ export const WalletProvider = (props) => {
     (async () => {
       if (state.accountAddress) {
         const mainnetProvider = ethers.getDefaultProvider(
-          CHAIN_ID_TO_PROVIDERS[1]
+          'https://eth-mainnet.gateway.pokt.network/v1/lb/61ceae3bb86d760039e05c85'
         );
         const ensData = { ensName: '', ensAvatar: '' };
         try {
