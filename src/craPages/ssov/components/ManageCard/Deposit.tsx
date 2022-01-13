@@ -55,7 +55,8 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
 
   const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner, token } = ssovSignerArray[selectedSsov];
+  const { ssovContractWithSigner, token, ssovRouterWithSigner } =
+    ssovSignerArray[selectedSsov];
   const { userEpochStrikeDeposits, userEpochDeposits } =
     userSsovDataArray[selectedSsov];
   const {
@@ -187,6 +188,17 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             }
           )
         );
+      } else if (tokenName === 'BNB' && ssovRouterWithSigner) {
+        await sendTx(
+          ssovRouterWithSigner.depositMultiple(
+            strikeIndexes,
+            strikeIndexes.map((index) => strikeDepositAmounts[index]),
+            accountAddress,
+            {
+              value: totalDepositAmount,
+            }
+          )
+        );
       } else {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
@@ -214,6 +226,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     accountAddress,
     tokenName,
     totalDepositAmount,
+    ssovRouterWithSigner,
   ]);
 
   useEffect(() => {
@@ -262,7 +275,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       );
 
       let userAmount =
-        tokenName === 'ETH'
+        tokenName === 'ETH' || tokenName === 'BNB'
           ? BigNumber.from(userAssetBalances.ETH)
           : await token.balanceOf(accountAddress);
 
@@ -276,7 +289,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (tokenName === 'ETH') {
+        if (tokenName === 'ETH' || tokenName === 'BNB') {
           setApproved(true);
         } else {
           setApproved(false);

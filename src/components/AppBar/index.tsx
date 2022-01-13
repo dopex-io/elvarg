@@ -65,6 +65,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'sale', to: '/sale' },
   ],
+  56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
     { name: 'options', to: '/' },
     { name: 'pools', to: '/pools' },

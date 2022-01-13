@@ -14,5 +14,9 @@
   "GOHM": {
     "aprToolTipMessage": "This is the base APY calculated from GOHM's rebase APY",
     "mainPageMessage": "Deposit gOHM into strikes providing liquidity into option pools and earn premiums in gOHM from each option purchase."
+  },
+  "BNB": {
+    "aprToolTipMessage": "This is the base APY calculated from Venus's BNB APY",
+    "mainPageMessage": "Deposit BNB into strikes providing liquidity into option pools and earn premiums in VBNB from each option purchase."
   }
 }

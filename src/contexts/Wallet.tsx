@@ -5,7 +5,7 @@ import { providers } from '@0xsequence/multicall';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { Addresses } from '@dopex-io/sdk';
 
-import { INFURA_PROJECT_ID } from 'constants/index';
+import { INFURA_PROJECT_ID, BSC_RPC_URL } from 'constants/index';
 import { useLocation } from 'react-router';
 
 interface WalletContextInterface {
@@ -30,6 +30,7 @@ export const WalletContext = createContext<WalletContextInterface>({});
 export const CHAIN_ID_TO_PROVIDERS = {
   '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '56': BSC_RPC_URL,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '1337': 'http://127.0.0.1:8545',
@@ -39,11 +40,12 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
-  '/ssov': [42161],
+  '/ssov': [42161, 56],
   '/ssov/manage/DPX': [42161],
   '/ssov/manage/RDPX': [42161],
   '/ssov/manage/ETH': [42161],
   '/ssov/manage/GOHM': [42161],
+  '/ssov/manage/BNB': [56],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 42, 1337],
   '/sale': [1],

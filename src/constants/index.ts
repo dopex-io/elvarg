@@ -25,6 +25,11 @@ export const BASE_ASSET_MAP = {
     symbol: 'GOHM',
     _symbol: 'GOHM',
   },
+  BNB: {
+    fullName: 'Binance Coin',
+    symbol: 'BNB',
+    _symbol: 'BNB',
+  },
   YFI: {
     fullName: 'Yearn',
     symbol: 'YFI',
@@ -104,6 +109,11 @@ export const SSOV_MAP = {
     tokenSymbol: 'ETH',
     imageSrc: '/assets/eth.svg',
     coinGeckoId: 'ethereum',
+  },
+  BNB: {
+    tokenSymbol: 'BNB',
+    imageSrc: '/assets/bnb.svg',
+    coinGeckoId: 'binancecoin',
   },
   GOHM: {
     tokenSymbol: 'GOHM',
@@ -189,6 +199,8 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
 };
 
 export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
+
+export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
 export const GREEK_SYMBOLS = {
   delta: 'Δ',

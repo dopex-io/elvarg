@@ -1,10 +1,4 @@
-const CHAIN_ID_TO_EXPLORER = {
-  421611: 'https://testnet.arbiscan.io/',
-  42161: 'https://arbiscan.io/',
-  42: 'https://kovan.etherscan.io/',
-  1: 'https://etherscan.io/',
-  1337: '',
-};
+import getExplorerUrl from 'utils/general/getExplorerUrl';
 
 function TransactionToast({
   message,
@@ -16,9 +10,9 @@ function TransactionToast({
   return (
     <span>
       <a
-        href={`${
-          CHAIN_ID_TO_EXPLORER[Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID)]
-        }tx/${txHash}`}
+        href={`${getExplorerUrl(
+          Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID)
+        )}tx/${txHash}`}
         target={'_blank'}
         rel={'noreferrer'}
       >
