@@ -100,20 +100,34 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const strikes = epochStrikes.map((strike) =>
-    getUserReadableAmount(strike, 8).toString()
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(strike, 8).toString()
+      : getUserReadableAmount(strike, 18).toString()
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 8)
+    (deposit) =>
+      tokenSymbol === 'BNB'
+        ? getUserReadableAmount(deposit, 8).toString()
+        : getUserReadableAmount(deposit, 18).toString()
   );
 
-  const totalEpochDepositsAmount = getUserReadableAmount(totalEpochDeposits, 8);
+  const totalEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(totalEpochDeposits, 8).toString()
+      : getUserReadableAmount(totalEpochDeposits, 18).toString();
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 8)
+    (deposit) =>
+      tokenSymbol === 'BNB'
+        ? getUserReadableAmount(deposit, 8).toString()
+        : getUserReadableAmount(deposit, 18).toString()
   );
 
-  const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 8);
+  const userEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(userEpochDeposits, 8).toString()
+      : getUserReadableAmount(userEpochDeposits, 18).toString();
 
   // Handles strikes & deposit amounts
   const handleSelectStrikes = useCallback(
@@ -413,7 +427,9 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             Allocation
           </Typography>
           <Typography variant="caption" component="div">
-            {getUserReadableAmount(totalDepositAmount, 8).toString()}{' '}
+            {tokenSymbol === 'BNB'
+              ? getUserReadableAmount(totalDepositAmount, 8).toString()
+              : getUserReadableAmount(totalDepositAmount, 18).toString()}{' '}
             {tokenSymbol === 'BNB' && 'vBNB'}
           </Typography>
         </Box>

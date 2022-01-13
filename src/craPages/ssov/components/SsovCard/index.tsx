@@ -75,14 +75,15 @@ function SsovCard(props: SsovCardProps) {
   ];
 
   // Ssov data for next epoch
-  const userEpochDepositsAmount = getUserReadableAmount(
-    userEpochDeposits,
-    18
-  ).toFixed(3);
-  const totalEpochDepositsAmount = getUserReadableAmount(
-    totalEpochDeposits,
-    18
-  ).toFixed(3);
+  const userEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(userEpochDeposits, 8).toFixed(3)
+      : getUserReadableAmount(userEpochDeposits, 18).toFixed(3);
+
+  const totalEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(totalEpochDeposits, 8).toFixed(3)
+      : getUserReadableAmount(totalEpochDeposits, 18).toFixed(3);
 
   const epochTimePeriod =
     epochTimes[0] && epochTimes[1]
