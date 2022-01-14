@@ -158,6 +158,7 @@ const PurchaseDialog = ({
   const [token, setToken] = useState<ERC20>(
     ssovSignerArray[selectedSsov].token
   );
+  const ssovToken = ssovSignerArray[selectedSsov].token;
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
   const {
     currentEpoch,
@@ -334,9 +335,20 @@ const PurchaseDialog = ({
     }
   }, [token, ssovContractWithSigner]);
 
-  const setMaxAmount = () => {
-    const amount = state.optionPrice;
-    formik.setValues({ amount: amount });
+  const getTokenDetails = async (erc20) => {
+    const symbol = await erc20.symbol();
+    for (let i = 0; i <= tokens.length; i++) {
+      console.log(tokens[i]);
+      if (symbol.toLowerCase() === tokens[i].symbol.toLowerCase())
+        return tokens[i];
+    }
+  };
+
+  const setMaxAmount = async () => {
+    const details = await getTokenDetails(token);
+    const optionPrice = await getUserReadableAmount(state.optionPrice, 8);
+    const amount = details['valueInUsd'] / optionPrice;
+    formik.setValues({ amount: amount.toFixed(5) });
   };
 
   // Handle Purchase
@@ -557,27 +569,21 @@ const PurchaseDialog = ({
             </Tooltip>
           </Box>
 
-          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3">
+          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
             <Box className="flex flex-row justify-between">
               <Box
-                className="h-12 bg-cod-gray rounded-full pl-1.5 pr-1.5 pt-0 pb-0 flex flex-row items-center cursor-pointer group"
+                className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer group"
                 onClick={() => setIsChoosingToken(true)}
               >
-                <Box className="flex flex-row h-9 w-9 mr-2">
+                <Box className="flex flex-row h-10 w-10">
                   <img
                     src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
                     alt={tokenSymbol}
                   />
                 </Box>
-                <Typography variant="h5" className="text-white pb-1 pr-3">
-                  {tokenSymbol}
-                </Typography>
-                <IconButton className="opacity-40 p-0 group-hover:opacity-70">
-                  <ArrowDropDownIcon className={'fill-gray-100 mr-2'} />
-                </IconButton>
               </Box>
               <Box
-                className="bg-mineshaft flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
+                className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
                 onClick={setMaxAmount}
               >
                 <Typography variant="caption" component="div">
@@ -616,7 +622,7 @@ const PurchaseDialog = ({
               <Box className="ml-auto mr-0">
                 <Typography
                   variant="h6"
-                  className="text-stieglitz text-sm pl-1 pt-2"
+                  className="text-stieglitz text-sm pl-1 pt-2 pr-3"
                 >
                   Option Size
                 </Typography>
@@ -633,7 +639,7 @@ const PurchaseDialog = ({
                   Strike Price
                 </Typography>
               </Box>
-              <Box className="bg-mineshaft rounded-md items-center w-1/6 h-fit clickable">
+              <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
                 <IconButton
                   className="p-0"
                   onClick={(e) => setAnchorEl(e.currentTarget)}
@@ -1200,7 +1206,7 @@ const PurchaseDialog = ({
               value={''}
               onChange={() => null}
               className="h-11 text-lg text-white w-full text-base bg-umbra pl-3 pr-3 rounded-md"
-              placeholder="Search or paste token addresses"
+              placeholder="Search by token name"
               classes={{ input: 'text-white' }}
               startAdornment={
                 <Box className="mr-3 opacity-30 w-18">
