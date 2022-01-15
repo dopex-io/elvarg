@@ -21,8 +21,10 @@ import {
   BnbSSOVRouter,
   BnbSSOVRouter__factory,
 } from '@dopex-io/sdk';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import axios from 'axios';
+
+import formatAmount from 'utils/general/formatAmount';
 
 import { WalletContext } from './Wallet';
 
@@ -188,7 +190,7 @@ export const SsovProvider = (props) => {
 
       const APY = await axios
         .get(`https://api.dopex.io/api/v1/ssov/apy?asset=${asset}`)
-        .then((res) => res.data.apy.toFixed(2));
+        .then((res) => formatAmount(res.data.apy, 2));
 
       ssovData.push({
         epochTimes: epochTimes,
