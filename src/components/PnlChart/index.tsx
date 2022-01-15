@@ -71,21 +71,10 @@ const PnlChart = (props: PnlChartProps) => {
   );
 
   return (
-    <Box className="h-40">
+    <Box className="h-52">
       <Box className="flex justify-between mb-4">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz"
-        >
-          Est. Profit & Loss
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className={getValueColorClass(state.pnl)}
-        >
-          {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
+        <Typography variant="h6" className="text-stieglitz font-small">
+          Calculator
         </Typography>
       </Box>
       <ResponsiveContainer width="100%" height="35%" className="mb-4">
@@ -108,15 +97,28 @@ const PnlChart = (props: PnlChartProps) => {
         >
           {symbol} Price
         </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-wave-blue"
-        >
+        <Typography variant="caption" component="div" className="text-white">
           ${formatAmount(state.price, 3)}
         </Typography>
       </Box>
       <Box className="flex justify-between mb-4">
+        <Typography
+          variant="caption"
+          component="div"
+          className="text-stieglitz"
+        >
+          Estimated PnL
+        </Typography>
+        <Typography
+          variant="caption"
+          component="div"
+          className={getValueColorClass(state.pnl)}
+        >
+          {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
+        </Typography>
+      </Box>
+
+      <Box className="flex justify-between mb-1">
         <Typography
           variant="caption"
           component="div"

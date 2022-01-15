@@ -1,4 +1,11 @@
-import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
+import {
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import Button from '@material-ui/core/Button';
@@ -114,6 +121,7 @@ export default function AppBar(props: AppBarProps) {
   const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
     useContext(WalletContext);
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
+  const ssovTokens = ['ETH', 'DPX', 'RDPX', 'GOHM', 'BNB'];
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
@@ -225,16 +233,17 @@ export default function AppBar(props: AppBarProps) {
           </Box>
           <Box className="flex items-center">
             <Box className="space-x-2 mr-4 hidden lg:flex">
-              {tokenPrices.map((item) => {
-                return (
-                  <PriceTag
-                    key={item.name}
-                    asset={item.name}
-                    price={item.price}
-                    change={item.change24h}
-                  />
-                );
-              })}
+              {tokenPrices.map(
+                (item) =>
+                  ssovTokens.includes(item['name']) && (
+                    <PriceTag
+                      key={item.name}
+                      asset={item.name}
+                      price={item.price}
+                      change={item.change24h}
+                    />
+                  )
+              )}
             </Box>
             {/* {baseAssetsWithPrices ? (
               <PriceTag

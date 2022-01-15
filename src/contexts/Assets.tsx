@@ -40,7 +40,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM'],
+  tokens: ['DPX', 'RDPX', 'ETH', 'WETH', 'GOHM', 'USDC', 'USDT', 'MIM', 'FRAX'],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
@@ -49,15 +49,36 @@ const initialState: AssetsContextInterface = {
     DPX: '0',
     RDPX: '0',
     USDT: '0',
+    USDC: '0',
+    MIM: '0',
+    FRAX: '0',
   },
 };
 
 const ASSET_TO_COINGECKO_ID = {
   ETH: 'ethereum',
+  WETH: 'weth',
   WBTC: 'bitcoin',
+  USDT: 'tether',
+  USDC: 'usd-coin',
+  MIM: 'magic-internet-money',
+  FRAX: 'frax',
   DPX: 'dopex',
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
+};
+
+export const ASSET_TO_NAME = {
+  ETH: 'Ethereum',
+  WETH: 'Wrapped Etheruem',
+  WBTC: 'Wrapped Bitcoin',
+  USDT: 'Tether USD',
+  USDC: 'Circle USD',
+  MIM: 'Magic Internet Money',
+  FRAX: 'Frax USD',
+  DPX: 'Dopex Governance',
+  RDPX: 'Dopex Rebate',
+  GOHM: 'OHM Governance',
 };
 
 export const AssetsContext =
@@ -112,9 +133,13 @@ export const AssetsProvider = (props) => {
         cgIds.push(ASSET_TO_COINGECKO_ID[state.tokens[i]]);
       }
 
+      cgIds.push('weth');
+
       const payload = await axios.get(
         `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
       );
+
+      console.log(payload.data);
 
       const data = Object.keys(payload.data).map((_key, index) => {
         const temp = payload.data[ASSET_TO_COINGECKO_ID[state.tokens[index]]];
@@ -220,10 +245,13 @@ export const AssetsProvider = (props) => {
       const userAssetBalances = {
         ETH: '0',
         WETH: '0',
+        USDC: '0',
+        USDT: '0',
+        MIM: '0',
+        FRAX: '0',
         WBTC: '0',
         DPX: '0',
         RDPX: '0',
-        USDT: '0',
         GOHM: '0',
       };
 
