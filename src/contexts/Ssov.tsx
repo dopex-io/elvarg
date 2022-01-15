@@ -38,7 +38,7 @@ export interface SsovProperties {
 }
 
 export interface SsovSigner {
-  token: ERC20;
+  token: ERC20[];
   ssovContractWithSigner?: any;
   ssovRouter?: BnbSSOVRouter;
 }
@@ -133,6 +133,8 @@ export const SsovProvider = (props) => {
         ssovContract.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
         ssovContract.getEpochStrikeTokens(selectedEpoch),
       ]);
+
+      console.log(contractAddresses);
 
       const userEpochDeposits = userEpochStrikeDeposits
         .reduce(
@@ -280,12 +282,15 @@ export const SsovProvider = (props) => {
     for (const asset in SSOVAddresses) {
       const tokenAddress =
         asset === 'ETH'
-          ? contractAddresses['WETH']
+          ? [contractAddresses['WETH']]
           : asset === 'BNB'
-          ? contractAddresses['WBNB']
-          : contractAddresses[asset];
+          ? [contractAddresses['WBNB'], contractAddresses['VBNB']]
+          : [contractAddresses[asset]];
+      const _token = tokenAddress.map((tokenAddress) =>
+        ERC20__factory.connect(tokenAddress, signer)
+      );
+      console.log(_token);
 
-      const _token = ERC20__factory.connect(tokenAddress, signer);
       const _ssovContractWithSigner =
         asset === 'ETH'
           ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, signer)

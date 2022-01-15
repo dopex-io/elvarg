@@ -30,6 +30,11 @@ export const BASE_ASSET_MAP = {
     symbol: 'BNB',
     _symbol: 'BNB',
   },
+  VBNB: {
+    fullName: 'Venus BNB',
+    symbol: 'VBNB',
+    _symbol: 'VBNB',
+  },
   YFI: {
     fullName: 'Yearn',
     symbol: 'YFI',

@@ -9,6 +9,8 @@ import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
@@ -31,6 +33,7 @@ const Description = ({
   userSsovData: UserSsovData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
+  const { convertToBNB } = useBnbSsovConversion();
 
   const { tokenPrice } = ssovProperties;
   const { APY, isVaultReady } = ssovData;
@@ -43,7 +46,9 @@ const Description = ({
       : getUserReadableAmount(ssovData.totalEpochDeposits, 18);
 
   const TVL =
-    ssovData?.totalEpochDeposits && tokenPrice
+    ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
+      ? convertToBNB(totalEpochDeposits) * tokenPrice.toNumber()
+      : tokenPrice
       ? totalEpochDeposits * getUserReadableAmount(tokenPrice, 8)
       : 0;
 
