@@ -229,6 +229,7 @@ export const AssetsProvider = (props) => {
         USDT: '0',
         GOHM: '0',
         VBNB: '0',
+        GMX: '0',
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>

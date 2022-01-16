@@ -18,5 +18,9 @@
   "BNB": {
     "aprToolTipMessage": "This is the base APY calculated from Venus's BNB APY",
     "mainPageMessage": "Deposit BNB into strikes providing liquidity into option pools and earn premiums in VBNB from each option purchase."
+  },
+  "GMX": {
+    "aprToolTipMessage": "This is the base APY calculated from GMX staking",
+    "mainPageMessage": "Deposit GMX into strikes providing liquidity into option pools and earn premiums from each option purchase."
   }
 }

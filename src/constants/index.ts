@@ -137,6 +137,12 @@ export const SSOV_MAP = {
     coinGeckoId: 'governance-ohm',
     tokens: ['GOHM'],
   },
+  GMX: {
+    tokenSymbol: 'GMX',
+    imageSrc: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11857.png',
+    coinGeckoId: 'gmx',
+    tokens: ['GMX'],
+  },
 };
 
 export const SHOWCASE_NFTS = [

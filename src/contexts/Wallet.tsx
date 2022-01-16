@@ -48,6 +48,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/manage/ETH': [42161],
   '/ssov/manage/GOHM': [42161],
   '/ssov/manage/BNB': [56],
+  '/ssov/manage/GMX': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 42, 1337],
   '/sale': [1],

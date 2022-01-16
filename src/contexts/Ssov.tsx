@@ -78,7 +78,7 @@ interface SsovContextInterface {
   setSelectedSsov?: Function;
 }
 
-const initialUserSsovDataArray = [0, 1, 2, 3].map(() => {
+const initialUserSsovDataArray = [0, 1, 2, 3, 4].map(() => {
   return {
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
@@ -87,7 +87,7 @@ const initialUserSsovDataArray = [0, 1, 2, 3].map(() => {
   };
 });
 
-const initialSsovSignerArray = [0, 1, 2, 3].map(() => {
+const initialSsovSignerArray = [0, 1, 2, 3, 4].map(() => {
   return { token: null, ssovContractWithSigner: null };
 });
 
@@ -189,7 +189,11 @@ export const SsovProvider = (props) => {
       ]);
 
       const APY = await axios
-        .get(`https://api.dopex.io/api/v1/ssov/apy?asset=${asset}`)
+        .get(
+          `https://api.dopex.io/api/v1/ssov/apy?asset=${
+            asset === 'GMX' ? 'DPX' : asset
+          }`
+        )
         .then((res) => formatAmount(res.data.apy, 2));
 
       ssovData.push({
