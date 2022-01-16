@@ -557,12 +557,12 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@dopex-io/sdk@^1.0.0-alpha.48":
-  version "1.0.0-alpha.48"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.48.tgz#5a1e59a292aca18e8ae9ea5a42ebc29b59a3beac"
-  integrity sha512-VrjS3IslW1K4wxrXPFJqbiwRdYJ4OxFor+XM6IXErh1rLudWh5k+SXp6zkXr7erFluhrhA50kWyRFqPW+a3TLQ==
+"@dopex-io/sdk@^1.0.0-alpha.50":
+  version "1.0.0-alpha.50"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.50.tgz#ba2459cd59fb4f066f2d090b9e2dc3f260ecac4a"
+  integrity sha512-ciOnmhB1MDSg5fY7rA+DbPxWO+6MH2xi2ECYm29IziWRaqgnXgc3Mlf0ZoRDWsICJzG9DKMJle6JJPKTmLHbig==
   dependencies:
-    ethers "^5.5.1"
+    ethers "^5.5.3"
 
 "@emotion/hash@^0.8.0":
   version "0.8.0"
@@ -4032,7 +4032,7 @@ ethereumjs-vm@^2.3.4:
     rustbn.js "~0.2.0"
     safe-buffer "^5.1.1"
 
-ethers@5.5.3, ethers@^5.5.1, ethers@^5.5.2:
+ethers@5.5.3, ethers@^5.5.2, ethers@^5.5.3:
   version "5.5.3"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.5.3.tgz#1e361516711c0c3244b6210e7e3ecabf0c75fca0"
   integrity sha512-fTT4WT8/hTe/BLwRUtl7I5zlpF3XC3P/Xwqxc5AIP2HGlH15qpmjs0Ou78az93b1rLITzXLFxoNX63B8ZbUd7g==

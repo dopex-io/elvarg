@@ -50,6 +50,8 @@ const StatsTableData = (
     tokenSymbol,
   } = props;
 
+  let tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
+
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
       <TableCell align="left">
@@ -58,7 +60,7 @@ const StatsTableData = (
             <img src={imgSrc} alt="DPX" />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenSymbol}
+            {tokenName === 'vBNB' ? 'BNB' : tokenName}
           </Typography>
         </Box>
       </TableCell>
@@ -67,7 +69,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {tokenSymbol}
+          {formatAmount(totalDeposits, 5)} {tokenName}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
@@ -86,7 +88,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)} {tokenSymbol}
+          {formatAmount(totalPremiums, 5)} {tokenName}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
@@ -118,7 +120,7 @@ const Stats = (props: {
 }) => {
   const { className, ssovProperties } = props;
   const { ssovDataArray, selectedSsov } = useContext(SsovContext);
-  const { selectedEpoch, tokenPrice } = ssovProperties;
+  const { selectedEpoch, tokenPrice, tokenName } = ssovProperties;
   const {
     epochTimes,
     epochStrikes,
@@ -149,18 +151,31 @@ const Stats = (props: {
     () =>
       epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
-        const totalDeposits = getUserReadableAmount(
-          totalEpochStrikeDeposits[strikeIndex] ?? 0,
-          18
-        );
-        const totalPurchased = getUserReadableAmount(
-          totalEpochCallsPurchased[strikeIndex] ?? 0,
-          18
-        );
-        const totalPremiums = getUserReadableAmount(
-          totalEpochPremium[strikeIndex] ?? 0,
-          18
-        );
+        const totalDeposits =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(
+                totalEpochStrikeDeposits[strikeIndex] ?? 0,
+                8
+              )
+            : getUserReadableAmount(
+                totalEpochStrikeDeposits[strikeIndex] ?? 0,
+                18
+              );
+        const totalPurchased =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(
+                totalEpochCallsPurchased[strikeIndex] ?? 0,
+                8
+              )
+            : getUserReadableAmount(
+                totalEpochCallsPurchased[strikeIndex] ?? 0,
+                18
+              );
+
+        const totalPremiums =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 8)
+            : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
         return {
           strikeIndex,
           strikePrice,
@@ -174,6 +189,7 @@ const Stats = (props: {
       totalEpochStrikeDeposits,
       totalEpochCallsPurchased,
       totalEpochPremium,
+      tokenName,
     ]
   );
 

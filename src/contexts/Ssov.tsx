@@ -21,10 +21,14 @@ import {
   BnbSSOVRouter,
   BnbSSOVRouter__factory,
 } from '@dopex-io/sdk';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import axios from 'axios';
 
+import formatAmount from 'utils/general/formatAmount';
+
 import { WalletContext } from './Wallet';
+
+import { SSOV_MAP } from 'constants/index';
 
 export interface SsovProperties {
   tokenName?: string;
@@ -38,7 +42,7 @@ export interface SsovProperties {
 }
 
 export interface SsovSigner {
-  token: ERC20;
+  token: ERC20[];
   ssovContractWithSigner?: any;
   ssovRouter?: BnbSSOVRouter;
 }
@@ -186,7 +190,7 @@ export const SsovProvider = (props) => {
 
       const APY = await axios
         .get(`https://api.dopex.io/api/v1/ssov/apy?asset=${asset}`)
-        .then((res) => res.data.apy.toFixed(2));
+        .then((res) => formatAmount(res.data.apy, 2));
 
       ssovData.push({
         epochTimes: epochTimes,
@@ -278,14 +282,15 @@ export const SsovProvider = (props) => {
     const ssovSignerArray = [];
 
     for (const asset in SSOVAddresses) {
-      const tokenAddress =
-        asset === 'ETH'
-          ? contractAddresses['WETH']
-          : asset === 'BNB'
-          ? contractAddresses['WBNB']
-          : contractAddresses[asset];
+      const tokens = SSOV_MAP[asset].tokens;
 
-      const _token = ERC20__factory.connect(tokenAddress, signer);
+      const _tokens = tokens.map((tokenName: string) => {
+        return (
+          contractAddresses[tokenName] &&
+          ERC20__factory.connect(contractAddresses[tokenName], signer)
+        );
+      });
+
       const _ssovContractWithSigner =
         asset === 'ETH'
           ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, signer)
@@ -296,7 +301,7 @@ export const SsovProvider = (props) => {
           : undefined;
 
       ssovSignerArray.push({
-        token: _token,
+        token: _tokens,
         ssovContractWithSigner: _ssovContractWithSigner,
         ssovRouter: _ssovRouterWithSigner,
       });

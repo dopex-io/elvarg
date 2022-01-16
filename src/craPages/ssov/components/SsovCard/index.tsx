@@ -22,6 +22,8 @@ import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+
 import styles from './styles.module.scss';
 
 interface SsovCardProps {
@@ -55,6 +57,7 @@ function SsovCard(props: SsovCardProps) {
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
+  const { convertToBNB } = useBnbSsovConversion();
 
   const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
 
@@ -62,8 +65,11 @@ function SsovCard(props: SsovCardProps) {
     tokenSymbol === 'BNB'
       ? getUserReadableAmount(totalEpochDeposits, 8)
       : getUserReadableAmount(totalEpochDeposits, 18);
+
   const TVL =
-    totalEpochDeposits && tokenPrice
+    ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
+      ? convertToBNB(totalDeposits) * tokenPrice.toNumber()
+      : tokenPrice
       ? totalDeposits * getUserReadableAmount(tokenPrice, 8)
       : 0;
 

@@ -228,6 +228,7 @@ export const AssetsProvider = (props) => {
         RDPX: '0',
         USDT: '0',
         GOHM: '0',
+        VBNB: '0',
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>
@@ -246,6 +247,12 @@ export const AssetsProvider = (props) => {
       if (chainId === 56) {
         userAssetBalances['BNB'] = (
           await provider.getBalance(accountAddress)
+        ).toString();
+        userAssetBalances['VBNB'] = (
+          await ERC20__factory.connect(
+            contractAddresses['VBNB'],
+            provider
+          ).balanceOf(accountAddress)
         ).toString();
       }
 

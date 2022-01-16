@@ -10,6 +10,7 @@ import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
+import BnbSsovDeposit from './bnbSsov/BnbSsovDeposit';
 
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
@@ -31,7 +32,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     setIsDeposit(false);
   }, []);
 
-  const { selectedEpoch } = ssovProperties;
+  const { selectedEpoch, tokenName } = ssovProperties;
   const { userEpochDeposits } = userSsovDataArray[selectedSsov];
   const { isEpochExpired } = ssovDataArray[selectedSsov];
   const badgeContentProps = useMemo(
@@ -84,7 +85,11 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         </Box>
       </Box>
       {isDeposit ? (
-        <Deposit ssovProperties={ssovProperties} />
+        tokenName === 'BNB' ? (
+          <BnbSsovDeposit ssovProperties={ssovProperties} />
+        ) : (
+          <Deposit ssovProperties={ssovProperties} />
+        )
       ) : (
         <Withdraw ssovProperties={ssovProperties} />
       )}

@@ -145,51 +145,18 @@ const PurchaseDialog = ({
     onSubmit: noop,
   });
 
-  // Handles isApproved
-  useEffect(() => {
-    if (!token || !ssovContractWithSigner) return;
-    (async function () {
-      const finalAmount = state.totalCost;
-
-      const userAmount =
-        tokenName === 'ETH'
-          ? BigNumber.from(userAssetBalances.ETH)
-          : await token.balanceOf(accountAddress);
-
-      setUserTokenBalance(userAmount);
-
-      let allowance = await token.allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
-
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        if (tokenName === 'ETH') {
-          setApproved(true);
-        } else {
-          setApproved(false);
-        }
-      }
-    })();
-  }, [
-    accountAddress,
-    state.totalCost,
-    token,
-    ssovContractWithSigner,
-    tokenName,
-    userAssetBalances.ETH,
-  ]);
-
   const handleApprove = useCallback(async () => {
     try {
-      await sendTx(token.approve(ssovContractWithSigner.address, MAX_VALUE));
+      await sendTx(
+        tokenSymbol === 'BNB'
+          ? token[1].approve(ssovContractWithSigner.address, MAX_VALUE)
+          : token[0].approve(ssovContractWithSigner.address, MAX_VALUE)
+      );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [token, ssovContractWithSigner]);
+  }, [token, ssovContractWithSigner, tokenSymbol]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -256,14 +223,22 @@ const PurchaseDialog = ({
       const userAmount =
         tokenName === 'ETH'
           ? BigNumber.from(userAssetBalances.ETH)
-          : await token.balanceOf(accountAddress);
+          : tokenSymbol === 'BNB'
+          ? await token[1].balanceOf(accountAddress)
+          : await token[0].balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance = await token.allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
+      let allowance =
+        tokenSymbol === 'BNB'
+          ? await token[1].allowance(
+              accountAddress,
+              ssovContractWithSigner.address
+            )
+          : await token[0].allowance(
+              accountAddress,
+              ssovContractWithSigner.address
+            );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
@@ -282,6 +257,7 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     tokenName,
     userAssetBalances.ETH,
+    tokenSymbol,
   ]);
 
   // Calculate the Option Price & Fees
@@ -416,7 +392,7 @@ const PurchaseDialog = ({
                 />
               </Box>
               <Typography variant="h5" className="text-white">
-                {tokenSymbol}
+                {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol}
               </Typography>
             </Box>
             <Input
@@ -589,7 +565,7 @@ const PurchaseDialog = ({
                         getUserReadableAmount(state.totalCost, 18),
                         3
                       )}{' '}
-                      {tokenSymbol} ($
+                      {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} ($
                       {formatAmount(
                         getUserReadableAmount(
                           state.totalCost.mul(tokenPrice),
