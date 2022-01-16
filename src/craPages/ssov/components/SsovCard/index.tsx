@@ -171,8 +171,9 @@ function SsovCard(props: SsovCardProps) {
                     <span className="text-wave-blue">
                       {formatAmount(userEpochDepositsAmount, 5)}
                     </span>{' '}
-                    {tokenSymbol} / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-                    {tokenSymbol}
+                    {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} /{' '}
+                    {formatAmount(totalEpochDepositsAmount, 5)}{' '}
+                    {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol}
                   </Typography>
                 </Box>
               </Box>
