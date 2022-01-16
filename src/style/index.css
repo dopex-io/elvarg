@@ -44,3 +44,7 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
 }
+
+.MuiTooltip-tooltip {
+  background: #1e1e1e;
+}

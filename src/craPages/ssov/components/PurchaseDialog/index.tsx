@@ -41,14 +41,10 @@ import formatAmount from 'utils/general/formatAmount';
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 import format from 'date-fns/format';
 import Menu from '@material-ui/core/Menu';
-import {
-  ChainlinkAggregator__factory,
-  ERC20,
-  ERC20__factory,
-  ERC20SSOV__factory,
-} from '@dopex-io/sdk';
-import TokenSelector from '../../../../components/TokenSelector';
+import { ERC20 } from '@dopex-io/sdk';
 import ZapIn from '../../../../components/ZapIn';
+import { useDebounce } from 'use-debounce';
+import axios from 'axios';
 
 export interface Props {
   open: boolean;
@@ -112,8 +108,22 @@ const PurchaseDialog = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
   const ssovTokenName = ssovProperties.tokenName;
+  const [tokenSymbol, setTokenSymbol] = useState<string>(ssovTokenSymbol);
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
-  const [purchasePower, setPurchasePower] = useState<number>(0);
+  const [quote, setQuote] = useState<object>({});
+  const [path, setPath] = useState<object>({});
+  const [isApprovalRequired, setisApprovalRequired] = useState<boolean>(false);
+  const isZapActive =
+    tokenSymbol.toUpperCase() !== ssovTokenSymbol.toUpperCase();
+
+  const handleTokenChange = async () => {
+    const symbol = token === 'ETH' ? 'ETH' : await token.symbol();
+    setTokenSymbol(symbol);
+  };
+
+  useEffect(() => {
+    handleTokenChange();
+  }, [token]);
 
   const strikes = useMemo(
     () =>
@@ -157,6 +167,53 @@ const PurchaseDialog = ({
     },
     onSubmit: noop,
   });
+
+  const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 500);
+
+  useEffect(
+    () => {
+      if (debouncedZapInAmount[0] === formik.values.zapInAmount) getQuote();
+    },
+    [debouncedZapInAmount] // Only call effect if debounced search term changes
+  );
+
+  const getQuote = async () => {
+    const fromTokenAddress =
+      token === 'ETH'
+        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : token.address;
+    const fromTokenSymbol =
+      token === 'ETH'
+        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : await token.symbol();
+    const fromTokenDecimals = token === 'ETH' ? 18 : await token.decimals();
+    const toTokenDecimals = await ssovToken.decimals();
+    if (debouncedZapInAmount[0] === quote['inAmount']) return;
+    if (fromTokenAddress === ssovToken.address) return;
+    const { data } = await axios.get(
+      `https://open-api.openocean.finance/v1/cross/quote?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${ssovToken.address}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=0.5&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}`
+    );
+    setQuote(data['data']);
+  };
+
+  const getPath = async () => {
+    const fromTokenAddress =
+      token === 'ETH'
+        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : token.address;
+    const fromTokenSymbol =
+      token === 'ETH'
+        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : await token.symbol();
+    const fromTokenDecimals = token === 'ETH' ? 18 : await token.decimals();
+    const toTokenDecimals = await ssovToken.decimals();
+    if (fromTokenAddress === ssovToken.address) return;
+    const { data } = await axios.get(
+      `https://open-api.openocean.finance/v1/cross/swap?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${ssovToken.address}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=0.5&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}&account=${accountAddress}`
+    );
+    if (data['code'] === 206) setisApprovalRequired(true);
+    else setPath(data['data']);
+  };
 
   // Handles isApproved
   useEffect(() => {
@@ -427,8 +484,66 @@ const PurchaseDialog = ({
         <Box>
           <Box className="flex flex-row items-center mb-4">
             <Typography variant="h5">Buy Call Option</Typography>
+            {isZapActive && (
+              <Box
+                className="rounded-md flex r-0 ml-auto p-1.5 border border-neutral-800 bg-neutral-700 cursor-pointer hover:bg-neutral-600"
+                onClick={() => setToken(ssovToken)}
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mr-2.5 mt-0.5"
+                >
+                  <path
+                    d="M7.99989 0.514648C3.86739 0.514648 0.514893 3.86715 0.514893 7.99965C0.514893 12.1321 3.86739 15.4846 7.99989 15.4846C12.1324 15.4846 15.4849 12.1321 15.4849 7.99965C15.4849 3.86715 12.1324 0.514648 7.99989 0.514648Z"
+                    fill="url(#paint0_linear_1773_40187)"
+                  />
+                  <path
+                    d="M5.46553 11.5537L7.01803 8.86466L5.29031 7.86716C5.04999 7.72841 5.03761 7.37485 5.27827 7.22801L10.3573 3.95096C10.6829 3.73194 11.0803 4.1086 10.8816 4.45285L9.3103 7.17433L10.9601 8.12683C11.2004 8.26558 11.21 8.6089 10.9824 8.76324L6.00008 12.0528C5.66419 12.2746 5.26678 11.8979 5.46553 11.5537Z"
+                    fill="white"
+                  />
+                  <defs>
+                    <linearGradient
+                      id="paint0_linear_1773_40187"
+                      x1="15.4849"
+                      y1="17.6232"
+                      x2="0.399917"
+                      y2="0.616632"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#002EFF" />
+                      <stop offset="1" stopColor="#22E1FF" />
+                    </linearGradient>
+                  </defs>
+                </svg>
 
-            <IconButton className="p-0 pb-1 mr-0 ml-auto" onClick={handleClose}>
+                <Typography variant="h6" className="text-white text-xs">
+                  Zap Out
+                </Typography>
+
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="ml-3 mr-1 mt-0.5"
+                >
+                  <path
+                    d="M6.00002 0.166748C2.77419 0.166748 0.166687 2.77425 0.166687 6.00008C0.166687 9.22592 2.77419 11.8334 6.00002 11.8334C9.22585 11.8334 11.8334 9.22592 11.8334 6.00008C11.8334 2.77425 9.22585 0.166748 6.00002 0.166748ZM8.50835 8.50842C8.28085 8.73592 7.91335 8.73592 7.68585 8.50842L6.00002 6.82258L4.31419 8.50842C4.08669 8.73592 3.71919 8.73592 3.49169 8.50842C3.26419 8.28092 3.26419 7.91342 3.49169 7.68592L5.17752 6.00008L3.49169 4.31425C3.26419 4.08675 3.26419 3.71925 3.49169 3.49175C3.71919 3.26425 4.08669 3.26425 4.31419 3.49175L6.00002 5.17758L7.68585 3.49175C7.91335 3.26425 8.28085 3.26425 8.50835 3.49175C8.73585 3.71925 8.73585 4.08675 8.50835 4.31425L6.82252 6.00008L8.50835 7.68592C8.73002 7.90758 8.73002 8.28092 8.50835 8.50842Z"
+                    fill="#8E8E8E"
+                  />
+                </svg>
+              </Box>
+            )}
+
+            <IconButton
+              className="p-0 pb-1 mr-0 ml-4 mt-0.5"
+              onClick={handleClose}
+            >
               <svg
                 width="14"
                 height="14"
@@ -480,7 +595,7 @@ const PurchaseDialog = ({
               />
             </Box>
             <Box className="flex flex-row justify-between">
-              <Box>
+              <Box className="flex">
                 <Typography
                   variant="h6"
                   className="text-stieglitz text-sm pl-1 pt-2"
@@ -491,8 +606,41 @@ const PurchaseDialog = ({
                       getUserReadableAmount(userTokenBalance, 18),
                       3
                     )}{' '}
+                    {isZapActive && <span>{tokenSymbol} </span>}
                   </span>
                 </Typography>
+                {isZapActive && (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="mt-3 ml-1"
+                  >
+                    <path
+                      d="M6.00001 0.178345C2.78584 0.178345 0.178345 2.78584 0.178345 6.00001C0.178345 9.21418 2.78584 11.8217 6.00001 11.8217C9.21418 11.8217 11.8217 9.21418 11.8217 6.00001C11.8217 2.78584 9.21418 0.178345 6.00001 0.178345Z"
+                      fill="url(#paint0_linear_1600_23889)"
+                    />
+                    <path
+                      d="M4.02883 8.76422L5.23633 6.67277L3.89254 5.89694C3.70563 5.78902 3.696 5.51403 3.88318 5.39982L7.8335 2.85101C8.08677 2.68065 8.39587 2.97362 8.24129 3.24136L7.0192 5.35807L8.30236 6.09891C8.48928 6.20682 8.49677 6.47384 8.31969 6.59389L4.44458 9.15245C4.18334 9.32493 3.87424 9.03197 4.02883 8.76422Z"
+                      fill="white"
+                    />
+                    <defs>
+                      <linearGradient
+                        id="paint0_linear_1600_23889"
+                        x1="11.8217"
+                        y1="13.485"
+                        x2="0.0889196"
+                        y2="0.257665"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stopColor="#002EFF" />
+                        <stop offset="1" stopColor="#22E1FF" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                )}
               </Box>
               <Box className="ml-auto mr-0">
                 <Typography
@@ -706,7 +854,7 @@ const PurchaseDialog = ({
                   variant="h6"
                   className="text-stieglitz ml-0 mr-auto"
                 >
-                  Total
+                  Total ($)
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
@@ -725,7 +873,7 @@ const PurchaseDialog = ({
                   variant="h6"
                   className="text-stieglitz ml-0 mr-auto"
                 >
-                  Fees
+                  Fees ($)
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
@@ -734,6 +882,24 @@ const PurchaseDialog = ({
                       getUserReadableAmount(state.fees.mul(tokenPrice), 26),
                       0
                     )}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box className={'flex mb-2'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Total
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {formatAmount(
+                      getUserReadableAmount(state.totalCost, 18),
+                      2
+                    )}{' '}
+                    {ssovTokenSymbol}
                   </Typography>
                 </Box>
               </Box>
@@ -809,22 +975,44 @@ const PurchaseDialog = ({
               </svg>
 
               <Typography variant="h6" className="text-white">
-                Zap In
+                {isZapActive ? (
+                  <span>
+                    1 {tokenSymbol} = {quote['outAmount']} {ssovTokenSymbol}
+                  </span>
+                ) : (
+                  'Zap In'
+                )}
               </Typography>
 
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="mr-0 ml-auto mt-0.5"
-              >
-                <path
-                  d="M8 4.25C7.5875 4.25 7.25 4.5875 7.25 5V7.25H5C4.5875 7.25 4.25 7.5875 4.25 8C4.25 8.4125 4.5875 8.75 5 8.75H7.25V11C7.25 11.4125 7.5875 11.75 8 11.75C8.4125 11.75 8.75 11.4125 8.75 11V8.75H11C11.4125 8.75 11.75 8.4125 11.75 8C11.75 7.5875 11.4125 7.25 11 7.25H8.75V5C8.75 4.5875 8.4125 4.25 8 4.25ZM8 0.5C3.86 0.5 0.5 3.86 0.5 8C0.5 12.14 3.86 15.5 8 15.5C12.14 15.5 15.5 12.14 15.5 8C15.5 3.86 12.14 0.5 8 0.5ZM8 14C4.6925 14 2 11.3075 2 8C2 4.6925 4.6925 2 8 2C11.3075 2 14 4.6925 14 8C14 11.3075 11.3075 14 8 14Z"
-                  fill="white"
-                />
-              </svg>
+              {isZapActive ? (
+                <svg
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mr-1 ml-auto mt-1.5"
+                >
+                  <path
+                    d="M5.28997 0.70998L0.699971 5.29998C0.309971 5.68998 0.309971 6.31998 0.699971 6.70998C1.08997 7.09998 1.71997 7.09998 2.10997 6.70998L5.99997 2.82998L9.87997 6.70998C10.27 7.09998 10.9 7.09998 11.29 6.70998C11.68 6.31998 11.68 5.68998 11.29 5.29998L6.69997 0.70998C6.31997 0.31998 5.67997 0.31998 5.28997 0.70998Z"
+                    fill="#8E8E8E"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mr-0 ml-auto mt-0.5"
+                >
+                  <path
+                    d="M8 4.25C7.5875 4.25 7.25 4.5875 7.25 5V7.25H5C4.5875 7.25 4.25 7.5875 4.25 8C4.25 8.4125 4.5875 8.75 5 8.75H7.25V11C7.25 11.4125 7.5875 11.75 8 11.75C8.4125 11.75 8.75 11.4125 8.75 11V8.75H11C11.4125 8.75 11.75 8.4125 11.75 8C11.75 7.5875 11.4125 7.25 11 7.25H8.75V5C8.75 4.5875 8.4125 4.25 8 4.25ZM8 0.5C3.86 0.5 0.5 3.86 0.5 8C0.5 12.14 3.86 15.5 8 15.5C12.14 15.5 15.5 12.14 15.5 8C15.5 3.86 12.14 0.5 8 0.5ZM8 14C4.6925 14 2 11.3075 2 8C2 4.6925 4.6925 2 8 2C11.3075 2 14 4.6925 14 8C14 11.3075 11.3075 14 8 14Z"
+                    fill="white"
+                  />
+                </svg>
+              )}
             </Box>
 
             <Box className="flex">
@@ -855,8 +1043,13 @@ const PurchaseDialog = ({
                 !(formik.values.optionsAmount > 0) ? 'mineshaft' : 'primary'
               }
               disabled={!(formik.values.optionsAmount > 0)}
+              onClick={handlePurchase}
             >
-              {formik.values.optionsAmount > 0 ? 'Purchase' : 'Enter an amount'}
+              {formik.values.optionsAmount > 0
+                ? isApprovalRequired
+                  ? 'Approve'
+                  : 'Purchase'
+                : 'Enter an amount'}
             </CustomButton>
           </Box>
         </Box>
@@ -864,15 +1057,14 @@ const PurchaseDialog = ({
 
       {isZapInVisible && (
         <ZapIn
-          open={isZapInVisible}
           setOpen={setIsZapInVisible}
           ssovToken={ssovToken}
           setToken={setToken}
           token={token}
-          state={state}
           userTokenBalance={userTokenBalance}
-          purchasePower={purchasePower}
+          quote={quote}
           formik={formik}
+          getPath={getPath}
         />
       )}
     </Dialog>

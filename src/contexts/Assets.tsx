@@ -139,8 +139,6 @@ export const AssetsProvider = (props) => {
         `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
       );
 
-      console.log(payload.data);
-
       const data = Object.keys(payload.data).map((_key, index) => {
         const temp = payload.data[ASSET_TO_COINGECKO_ID[state.tokens[index]]];
         return {

@@ -11,57 +11,46 @@ import Box from '@material-ui/core/Box';
 import Typography from '../UI/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import Input from '@material-ui/core/Input';
-import SearchIcon from '@material-ui/icons/Search';
-import Slide from '@material-ui/core/Slide';
 import formatAmount from '../../utils/general/formatAmount';
 import Tooltip from '@material-ui/core/Tooltip';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
-import { ERC20, ERC20__factory } from '@dopex-io/sdk';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { ERC20 } from '@dopex-io/sdk';
 import { WalletContext } from '../../contexts/Wallet';
 import TokenSelector from '../TokenSelector';
-import { SSOV_MAP } from '../../constants';
-import PnlChart from '../PnlChart';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import format from 'date-fns/format';
 import CustomButton from '../UI/CustomButton';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import noop from 'lodash/noop';
 import { BigNumber } from 'ethers';
-import Skeleton from '@material-ui/lab/Skeleton';
 import { LoaderIcon } from 'react-hot-toast';
+import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
 
 export interface Props {
-  open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setToken: Dispatch<SetStateAction<ERC20>>;
   token: ERC20 | any;
   ssovToken: ERC20;
-  state: { totalCost: BigNumber };
   userTokenBalance: BigNumber;
-  purchasePower: number;
   formik: any;
+  quote: object;
+  getPath: () => {};
 }
 
 const ZapIn = ({
-  open,
   setOpen,
   setToken,
   ssovToken,
   token,
-  state,
   userTokenBalance,
-  purchasePower,
+  quote,
   formik,
+  getPath,
 }: Props) => {
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
   const [tokenSymbol, setTokenSymbol] = useState<string>('');
   const [ssovTokenSymbol, setSsovTokenSymbol] = useState<string>('');
+  const [swapSymbols, setSwapSymbols] = useState<string[]>([]);
+  const [swapSteps, setSwapSteps] = useState<object[]>([]);
+  const { chainId } = useContext(WalletContext);
 
   const updateTokenSymbol = async () => {
     const symbol = token === 'ETH' ? 'ETH' : await token.symbol();
@@ -73,10 +62,40 @@ const ZapIn = ({
     setSsovTokenSymbol(symbol);
   };
 
+  const extractPath = () => {
+    if (!quote['path'] || !quote['path']['routes']) return;
+    const symbols = [];
+    const steps = [];
+    quote['path'].routes[0]['subRoutes'].map((route) => {
+      const fromTokenAddress = route['from'];
+      const toTokenAddress = route['to'];
+      const fromTokenSymbol = getSymbolFromAddress(fromTokenAddress, chainId);
+      const toTokenSymbol = getSymbolFromAddress(toTokenAddress, chainId);
+      const step = { pair: fromTokenSymbol + ' - ' + toTokenSymbol, dexes: [] };
+      route.dexes.map((record) => {
+        step['dexes'].push({
+          name: record['dex'],
+          percentage: (record['parts'] / route['parts']) * 100,
+        });
+      });
+      steps.push(step);
+      if (!symbols.includes(fromTokenSymbol) && fromTokenSymbol)
+        symbols.push(fromTokenSymbol);
+      if (!symbols.includes(toTokenSymbol) && toTokenSymbol)
+        symbols.push(toTokenSymbol);
+    });
+    setSwapSteps(steps);
+    setSwapSymbols(symbols);
+  };
+
   useEffect(() => {
     updateTokenSymbol();
     updateSsovTokenSymbol();
   }, [token]);
+
+  useEffect(() => {
+    extractPath();
+  }, [quote]);
 
   return (
     <Box>
@@ -208,7 +227,11 @@ const ZapIn = ({
                     />
                   </svg>
                   <Typography variant="h6" className="text-white font-lg">
-                    1 {tokenSymbol} = {ssovTokenSymbol}
+                    1 {tokenSymbol} ={' '}
+                    {quote
+                      ? (quote['outAmount'] / quote['inAmount']).toFixed(8)
+                      : '-'}{' '}
+                    {ssovTokenSymbol}
                   </Typography>
 
                   <svg
@@ -238,7 +261,9 @@ const ZapIn = ({
                       variant="h6"
                       className="text-white mr-auto ml-0 pr-1"
                     >
-                      0.076
+                      {quote
+                        ? (quote['outAmount'] / quote['inAmount']).toFixed(8)
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -255,7 +280,13 @@ const ZapIn = ({
                       variant="h6"
                       className="text-white mr-auto ml-0 pr-1"
                     >
-                      0.075
+                      {quote
+                        ? (
+                            quote['outAmount'] /
+                            quote['inAmount'] /
+                            1.005
+                          ).toFixed(8)
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -279,37 +310,74 @@ const ZapIn = ({
                   <Typography variant="h6" className="text-gray-300 opacity-80">
                     Router
                   </Typography>
-                  <Box className="flex">
-                    <Box className="rounded-md flex flex-col mb-1 p-1 border border-neutral-800 bg-neutral-700 mt-3">
-                      <img src="/assets/sushi.svg" className="w-6 h-6" />
+                  <Tooltip
+                    classes={{ touch: '!bg-umbra' }}
+                    title={
+                      <Box className="w-64 pb-3 pt-0 p-2">
+                        {swapSteps.map((step) => (
+                          <Box>
+                            <Typography
+                              variant="h6"
+                              className="text-white mb-2 mt-3"
+                            >
+                              {step['pair']}
+                            </Typography>
+                            <Box className="rounded-md flex flex-col p-3 border border-neutral-800 bg-neutral-800">
+                              {step['dexes'].map((dex) => (
+                                <Box className="flex">
+                                  <img
+                                    src={
+                                      '/assets/' +
+                                      dex['name'].toLowerCase() +
+                                      '.svg'
+                                    }
+                                    className="w-4 h-4 mt-1 mr-3 rounded-sm"
+                                  />
+
+                                  <Typography
+                                    variant="h6"
+                                    className="text-white opacity-60 mb-1"
+                                  >
+                                    {' '}
+                                    {dex['name']}
+                                  </Typography>
+
+                                  <Typography
+                                    variant="h6"
+                                    className="text-white ml-auto mr-0"
+                                  >
+                                    {' '}
+                                    {dex['percentage']}%
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Box>
+                          </Box>
+                        ))}
+                      </Box>
+                    }
+                  >
+                    <Box className="flex">
+                      {swapSymbols.slice(0, 3).map((symbol, index) => (
+                        <Box key={symbol} className="flex mr-2">
+                          <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700 mt-3">
+                            <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
+                              <img
+                                src={`/assets/${symbol.toLowerCase()}.svg`}
+                                className="w-5 h-5"
+                              />
+                            </Box>
+                            <Typography
+                              variant="h6"
+                              className="text-white  pl-2 pr-2 pt-0.5 text-sm"
+                            >
+                              {symbol}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
                     </Box>
-                    <svg
-                      width="34"
-                      height="6"
-                      viewBox="0 0 34 6"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mt-6 ml-4 mr-4 fill-white opacity-30"
-                    >
-                      <path d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM33.5 3L28.5 0.113249V5.88675L33.5 3ZM3 3.5H29V2.5H3V3.5Z" />
-                    </svg>
-                    <Box className="rounded-md flex flex-col mb-1 p-1 border border-neutral-800 bg-neutral-700 mt-3">
-                      <img src="/assets/curve.svg" className="w-6 h-6" />
-                    </Box>
-                    <svg
-                      width="34"
-                      height="6"
-                      viewBox="0 0 34 6"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mt-6 ml-4 mr-4 fill-white opacity-30"
-                    >
-                      <path d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM33.5 3L28.5 0.113249V5.88675L33.5 3ZM3 3.5H29V2.5H3V3.5Z" />
-                    </svg>
-                    <Box className="rounded-md flex flex-col mb-1 p-1 border border-neutral-800 bg-neutral-700 mt-3">
-                      <img src="/assets/uniswap.svg" className="w-6 h-6" />
-                    </Box>
-                  </Box>
+                  </Tooltip>
                 </Box>
               </Box>
             </Box>
@@ -328,7 +396,7 @@ const ZapIn = ({
                   ? formik.values.zapInAmount
                     ? formik.values.zapInAmount
                     : '0'
-                  : purchasePower}{' '}
+                  : quote['outAmount']}{' '}
                 {ssovTokenSymbol}
               </Typography>
             </Box>
@@ -357,6 +425,17 @@ const ZapIn = ({
             <CustomButton
               size="medium"
               className="w-full mt-4 !rounded-md"
+              onClick={async () => {
+                const canProceed =
+                  formik.values.zapInAmount > 0 &&
+                  formik.values.zapInAmount <=
+                    getUserReadableAmount(userTokenBalance, 18);
+
+                if (canProceed) {
+                  setOpen(false);
+                  await getPath();
+                }
+              }}
               color={
                 !(formik.values.zapInAmount > 0) ||
                 formik.values.zapInAmount >=
