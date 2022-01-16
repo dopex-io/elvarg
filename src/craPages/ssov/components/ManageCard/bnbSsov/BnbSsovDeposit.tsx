@@ -263,7 +263,6 @@ const BnbSsovDeposit = ({
   // Updates approved state
   useEffect(() => {
     (async () => {
-      console.log('toatals', totalDepositAmount.toString());
       const finalAmount = BigNumber.from(totalDepositAmount.toString());
       if (selected.vbnb) {
         const allowance = await token[1].allowance(

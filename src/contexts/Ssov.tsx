@@ -28,6 +28,8 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { WalletContext } from './Wallet';
 
+import { SSOV_MAP } from 'constants/index';
+
 export interface SsovProperties {
   tokenName?: string;
   ssovContract?: any;
@@ -135,8 +137,6 @@ export const SsovProvider = (props) => {
         ssovContract.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
         ssovContract.getEpochStrikeTokens(selectedEpoch),
       ]);
-
-      console.log(contractAddresses);
 
       const userEpochDeposits = userEpochStrikeDeposits
         .reduce(
@@ -282,16 +282,14 @@ export const SsovProvider = (props) => {
     const ssovSignerArray = [];
 
     for (const asset in SSOVAddresses) {
-      const tokenAddress =
-        asset === 'ETH'
-          ? [contractAddresses['WETH']]
-          : asset === 'BNB'
-          ? [contractAddresses['WBNB'], contractAddresses['VBNB']]
-          : [contractAddresses[asset]];
-      const _token = tokenAddress.map((tokenAddress) =>
-        ERC20__factory.connect(tokenAddress, signer)
-      );
-      console.log(_token);
+      const tokens = SSOV_MAP[asset].tokens;
+
+      const _tokens = tokens.map((tokenName: string) => {
+        return (
+          contractAddresses[tokenName] &&
+          ERC20__factory.connect(contractAddresses[tokenName], signer)
+        );
+      });
 
       const _ssovContractWithSigner =
         asset === 'ETH'
@@ -303,7 +301,7 @@ export const SsovProvider = (props) => {
           : undefined;
 
       ssovSignerArray.push({
-        token: _token,
+        token: _tokens,
         ssovContractWithSigner: _ssovContractWithSigner,
         ssovRouter: _ssovRouterWithSigner,
       });

@@ -60,7 +60,7 @@ const StatsTableData = (
             <img src={imgSrc} alt="DPX" />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenName}
+            {tokenName === 'vBNB' ? 'BNB' : tokenName}
           </Typography>
         </Box>
       </TableCell>

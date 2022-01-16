@@ -19,7 +19,7 @@ import CustomButton from 'components/UI/CustomButton';
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
-import currency from 'constants/currency/currency.json';
+import { CURRENCIES_MAP } from 'constants/index';
 
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -262,7 +262,9 @@ export default function AppBar(props: AppBarProps) {
                       3
                     )}{' '}
                     <span className="text-stieglitz">
-                      {currency[chainId] ? currency[chainId] : 'ETH'}
+                      {CURRENCIES_MAP[chainId]
+                        ? CURRENCIES_MAP[chainId]
+                        : 'ETH'}
                     </span>
                   </Typography>
                 </Box>

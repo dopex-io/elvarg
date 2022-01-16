@@ -1,8 +1,15 @@
+import { ETHVolatilityOracle__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
 import { round100, round1, round1000 } from 'utils/math/rounding';
 
 export const ASSETS_LIST = process.env.NEXT_PUBLIC_ASSETS_LIST.split(',');
+
+export const CURRENCIES_MAP = {
+  '1': 'ETH',
+  '42161': 'ETH',
+  '56': 'BNB',
+};
 
 export const BASE_ASSET_MAP = {
   WETH: {
@@ -104,26 +111,31 @@ export const SSOV_MAP = {
     tokenSymbol: 'DPX',
     imageSrc: '/assets/dpx.svg',
     coinGeckoId: 'dopex',
+    tokens: ['DPX'],
   },
   RDPX: {
     tokenSymbol: 'rDPX',
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
+    tokens: ['RDPX'],
   },
   ETH: {
     tokenSymbol: 'ETH',
     imageSrc: '/assets/eth.svg',
     coinGeckoId: 'ethereum',
+    tokens: ['WETH'],
   },
   BNB: {
     tokenSymbol: 'BNB',
     imageSrc: '/assets/bnb.svg',
     coinGeckoId: 'binancecoin',
+    tokens: ['WBNB', 'VBNB'],
   },
   GOHM: {
     tokenSymbol: 'GOHM',
     imageSrc: '/assets/gohm.svg',
     coinGeckoId: 'governance-ohm',
+    tokens: ['GOHM'],
   },
 };
 
