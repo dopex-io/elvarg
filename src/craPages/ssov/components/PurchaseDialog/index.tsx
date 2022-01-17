@@ -148,16 +148,12 @@ const PurchaseDialog = ({
 
   const handleApprove = useCallback(async () => {
     try {
-      await sendTx(
-        tokenSymbol === 'BNB'
-          ? token[1].approve(ssovContractWithSigner.address, MAX_VALUE)
-          : token[0].approve(ssovContractWithSigner.address, MAX_VALUE)
-      );
+      await sendTx(token[0].approve(ssovContractWithSigner.address, MAX_VALUE));
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [token, ssovContractWithSigner, tokenSymbol]);
+  }, [token, ssovContractWithSigner]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -175,12 +171,6 @@ const PurchaseDialog = ({
           )
         );
       } else if (tokenName === 'BNB') {
-        console.log(
-          strikeIndex,
-          finalAmount.toString(),
-          accountAddress,
-          state.totalCost.toString()
-        );
         await sendTx(
           ssovRouter.purchase(strikeIndex, finalAmount, accountAddress, {
             value: state.totalCost,
@@ -241,21 +231,15 @@ const PurchaseDialog = ({
         return;
       }
 
-      let allowance =
-        tokenSymbol === 'BNB'
-          ? await token[1].allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            )
-          : await token[0].allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            );
+      let allowance = await token[0].allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (tokenName === 'ETH') {
+        if (tokenName === 'ETH' || tokenName === 'BNB') {
           setApproved(true);
         } else {
           setApproved(false);
@@ -339,17 +323,17 @@ const PurchaseDialog = ({
           ethersUtils.parseEther(String(formik.values.amount))
         );
 
-        const abi = [
-          'function bnbToVbnb(uint256 bnbAmount) public view returns (uint256)',
-          ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
-        ];
-        const bnbSsov = new ethers.Contract(
-          '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
-          abi,
-          provider
-        );
-
-        fees = await bnbSsov.vbnbToBnb(fees);
+        if (tokenName === 'BNB') {
+          const abi = [
+            ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
+          ];
+          const bnbSsov = new ethers.Contract(
+            '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
+            abi,
+            provider
+          );
+          fees = await bnbSsov.vbnbToBnb(fees);
+        }
 
         setState({
           volatility,
@@ -616,10 +600,7 @@ const PurchaseDialog = ({
                     className="text-wave-blue"
                   >
                     {formatAmount(
-                      getUserReadableAmount(
-                        userTokenBalance,
-                        tokenName === 'BNB' ? 8 : 18
-                      ),
+                      getUserReadableAmount(userTokenBalance, 18),
                       3
                     )}{' '}
                     {tokenSymbol}

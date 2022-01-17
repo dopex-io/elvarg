@@ -18,6 +18,8 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
@@ -49,8 +51,7 @@ const StatsTableData = (
     imgSrc,
     tokenSymbol,
   } = props;
-
-  let tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
+  const { convertToBNB } = useBnbSsovConversion();
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -60,7 +61,7 @@ const StatsTableData = (
             <img src={imgSrc} alt="DPX" />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenName === 'vBNB' ? 'BNB' : tokenName}
+            {tokenSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -69,11 +70,13 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {tokenName}
+          {formatAmount(totalDeposits, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalDeposits * price, 2)}
+          {tokenSymbol === 'BNB'
+            ? formatAmount(convertToBNB(totalDeposits * 1e8) * price, 2)
+            : formatAmount(totalDeposits * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
@@ -81,18 +84,29 @@ const StatsTableData = (
         <Box component="h6" className="text-xs text-stieglitz">
           {formatAmount(
             totalDeposits > 0 ? 100 * (totalPurchased / totalDeposits) : 0,
-            0
+            totalDeposits > 0
+              ? 100 *
+                  (totalPurchased /
+                    (tokenSymbol === 'BNB'
+                      ? totalDeposits * 1e10
+                      : totalDeposits))
+              : 0
           )}
           {'%'}
         </Box>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)} {tokenName}
+          {formatAmount(totalPremiums, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalPremiums * price, 2)}
+          {formatAmount(
+            tokenSymbol === 'BNB'
+              ? convertToBNB(totalPremiums * 1e8)
+              : totalPremiums * price,
+            2
+          )}
         </Box>
       </TableCell>
       <TableCell align="right" className="px-6 pt-2">
@@ -161,21 +175,16 @@ const Stats = (props: {
                 totalEpochStrikeDeposits[strikeIndex] ?? 0,
                 18
               );
-        const totalPurchased =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(
-                totalEpochCallsPurchased[strikeIndex] ?? 0,
-                8
-              )
-            : getUserReadableAmount(
-                totalEpochCallsPurchased[strikeIndex] ?? 0,
-                18
-              );
+        const totalPurchased = getUserReadableAmount(
+          totalEpochCallsPurchased[strikeIndex] ?? 0,
+          18
+        );
 
         const totalPremiums =
           tokenName === 'BNB'
             ? getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 8)
             : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
+
         return {
           strikeIndex,
           strikePrice,
