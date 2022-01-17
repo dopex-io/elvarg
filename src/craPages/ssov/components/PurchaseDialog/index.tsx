@@ -529,10 +529,7 @@ const PurchaseDialog = ({
                     <Typography variant="caption" component="div">
                       $
                       {formatAmount(
-                        getUserReadableAmount(
-                          state.fees.mul(tokenPrice),
-                          tokenName === 'BNB' ? 16 : 26
-                        ),
+                        getUserReadableAmount(state.fees.mul(tokenPrice), 26),
                         3
                       )}
                     </Typography>
