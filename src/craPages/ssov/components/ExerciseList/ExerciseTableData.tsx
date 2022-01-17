@@ -146,7 +146,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenSymbol}
+            {tokenSymbol === 'vBNB' ? 'BNB' : tokenSymbol}
           </Typography>
         </Box>
       </TableCell>
