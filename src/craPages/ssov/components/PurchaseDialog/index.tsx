@@ -147,16 +147,12 @@ const PurchaseDialog = ({
 
   const handleApprove = useCallback(async () => {
     try {
-      await sendTx(
-        tokenSymbol === 'BNB'
-          ? token[1].approve(ssovContractWithSigner.address, MAX_VALUE)
-          : token[0].approve(ssovContractWithSigner.address, MAX_VALUE)
-      );
+      await sendTx(token[0].approve(ssovContractWithSigner.address, MAX_VALUE));
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [token, ssovContractWithSigner, tokenSymbol]);
+  }, [token, ssovContractWithSigner]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -229,21 +225,15 @@ const PurchaseDialog = ({
 
       setUserTokenBalance(userAmount);
 
-      let allowance =
-        tokenSymbol === 'BNB'
-          ? await token[1].allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            )
-          : await token[0].allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            );
+      let allowance = await token[0].allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (tokenName === 'ETH') {
+        if (tokenName === 'ETH' || tokenName === 'BNB') {
           setApproved(true);
         } else {
           setApproved(false);
@@ -392,7 +382,7 @@ const PurchaseDialog = ({
                 />
               </Box>
               <Typography variant="h5" className="text-white">
-                {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol}
+                {tokenSymbol}
               </Typography>
             </Box>
             <Input
@@ -565,17 +555,14 @@ const PurchaseDialog = ({
                       className="text-wave-blue"
                     >
                       {formatAmount(
-                        getUserReadableAmount(
-                          state.totalCost,
-                          tokenName === 'BNB' ? 8 : 18
-                        ),
+                        getUserReadableAmount(state.totalCost, 18),
                         3
                       )}{' '}
-                      {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} ($
+                      {tokenSymbol} ($
                       {formatAmount(
                         getUserReadableAmount(
                           state.totalCost.mul(tokenPrice),
-                          tokenName === 'BNB' ? 16 : 26
+                          26
                         ),
                         3
                       )}

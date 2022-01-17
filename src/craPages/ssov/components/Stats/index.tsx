@@ -81,7 +81,13 @@ const StatsTableData = (
         <Box component="h6" className="text-xs text-stieglitz">
           {formatAmount(
             totalDeposits > 0 ? 100 * (totalPurchased / totalDeposits) : 0,
-            0
+            totalDeposits > 0
+              ? 100 *
+                  (totalPurchased /
+                    (tokenSymbol === 'BNB'
+                      ? totalDeposits * 1e10
+                      : totalDeposits))
+              : 0
           )}
           {'%'}
         </Box>
@@ -161,16 +167,10 @@ const Stats = (props: {
                 totalEpochStrikeDeposits[strikeIndex] ?? 0,
                 18
               );
-        const totalPurchased =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(
-                totalEpochCallsPurchased[strikeIndex] ?? 0,
-                8
-              )
-            : getUserReadableAmount(
-                totalEpochCallsPurchased[strikeIndex] ?? 0,
-                18
-              );
+        const totalPurchased = getUserReadableAmount(
+          totalEpochCallsPurchased[strikeIndex] ?? 0,
+          18
+        );
 
         const totalPremiums =
           tokenName === 'BNB'
