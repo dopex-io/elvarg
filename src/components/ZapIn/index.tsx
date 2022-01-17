@@ -61,20 +61,46 @@ const ZapIn = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showSwapSteps, setShowSwapSteps] = useState<boolean>(true);
 
+  const getDEXfrom1InchName = (name) => {
+    const parser = {
+      ARBITRUM_UNISWAP_V3: {
+        name: 'Uniswap V3',
+        picture: 'uniswap.svg',
+      },
+      ARBITRUM_BALANCER_V2: {
+        name: 'Balancer V2',
+        picture: 'balancer.svg',
+      },
+      ARBITRUM_SUSHISWAP: {
+        name: 'Sushiswap',
+        picture: 'sushiswap.svg',
+      },
+      ARBITRUM_CURVE: {
+        name: 'Curve',
+        picture: 'curve.svg',
+      },
+      ARBITRUM_DODO: {
+        name: 'DODO',
+        picture: 'dodo.svg',
+      },
+    };
+    return parser[name];
+  };
+
   const extractPath = () => {
-    if (!quote['path'] || !quote['path']['routes']) return;
+    if (!quote['protocols']) return;
     const symbols = [];
     const steps = [];
-    quote['path'].routes[0]['subRoutes'].map((route) => {
-      const fromTokenAddress = route['from'];
-      const toTokenAddress = route['to'];
+    quote['protocols'][0].map((route) => {
+      const fromTokenAddress = route[0]['fromTokenAddress'];
+      const toTokenAddress = route[0]['toTokenAddress'];
       const fromTokenSymbol = getSymbolFromAddress(fromTokenAddress, chainId);
-      const toTokenSymbol = getSymbolFromAddress(toTokenAddress, chainId);
+      let toTokenSymbol = getSymbolFromAddress(toTokenAddress, chainId);
       const step = { pair: fromTokenSymbol + ' - ' + toTokenSymbol, dexes: [] };
-      route.dexes.map((record) => {
+      route.map((record) => {
         step['dexes'].push({
-          name: record['dex'],
-          percentage: (record['parts'] / route['parts']) * 100,
+          name: record['name'],
+          percentage: record['part'],
         });
       });
       steps.push(step);
@@ -274,8 +300,17 @@ const ZapIn = ({
                   </svg>
                   <Typography variant="h6" className="text-white font-lg">
                     1 {tokenName} ={' '}
-                    {quote
-                      ? (quote['outAmount'] / quote['inAmount']).toFixed(8)
+                    {quote['toToken']
+                      ? (
+                          getUserReadableAmount(
+                            quote['toTokenAmount'],
+                            quote['toToken']['decimals']
+                          ) /
+                          getUserReadableAmount(
+                            quote['fromTokenAmount'],
+                            quote['fromToken']['decimals']
+                          )
+                        ).toFixed(8)
                       : '-'}{' '}
                     {ssovTokenName}
                   </Typography>
@@ -312,10 +347,17 @@ const ZapIn = ({
                           variant="h6"
                           className="text-white mr-auto ml-0 pr-1"
                         >
-                          {quote
-                            ? (quote['outAmount'] / quote['inAmount']).toFixed(
-                                8
-                              )
+                          {quote['toToken']
+                            ? (
+                                getUserReadableAmount(
+                                  quote['toTokenAmount'],
+                                  quote['toToken']['decimals']
+                                ) /
+                                getUserReadableAmount(
+                                  quote['fromTokenAmount'],
+                                  quote['fromToken']['decimals']
+                                )
+                              ).toFixed(8)
                             : '-'}
                         </Typography>
                       </Box>
@@ -333,10 +375,16 @@ const ZapIn = ({
                           variant="h6"
                           className="text-white mr-auto ml-0 pr-1"
                         >
-                          {quote
+                          {quote['toToken']
                             ? (
-                                quote['outAmount'] /
-                                quote['inAmount'] /
+                                getUserReadableAmount(
+                                  quote['toTokenAmount'],
+                                  quote['toToken']['decimals']
+                                ) /
+                                getUserReadableAmount(
+                                  quote['fromTokenAmount'],
+                                  quote['fromToken']['decimals']
+                                ) /
                                 (1 + slippageTolerance / 100)
                               ).toFixed(8)
                             : '-'}
@@ -384,8 +432,8 @@ const ZapIn = ({
                                       <img
                                         src={
                                           '/assets/' +
-                                          dex['name'].toLowerCase() +
-                                          '.svg'
+                                          getDEXfrom1InchName(dex['name'])
+                                            ?.picture
                                         }
                                         className="w-4 h-4 mt-1 mr-3 rounded-sm"
                                       />
@@ -395,7 +443,7 @@ const ZapIn = ({
                                         className="text-white opacity-60 mb-1"
                                       >
                                         {' '}
-                                        {dex['name']}
+                                        {getDEXfrom1InchName(dex['name'])?.name}
                                       </Typography>
 
                                       <Typography
@@ -489,10 +537,7 @@ const ZapIn = ({
                   formik.values.zapInAmount <=
                     getUserReadableAmount(userTokenBalance, 18);
 
-                if (canProceed) {
-                  setOpen(false);
-                  await getPath();
-                }
+                if (canProceed) setOpen(false);
               }}
               color={
                 !(formik.values.zapInAmount > 0) ||

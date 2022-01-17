@@ -117,9 +117,14 @@ const PurchaseDialog = ({
   const [isApprovalRequired, setisApprovalRequired] = useState<boolean>(false);
   const isZapActive = tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
-  const purchasePower = isZapActive
-    ? quote['outAmount'] / (1 + slippageTolerance / 100)
-    : getUserReadableAmount(userTokenBalance, 18);
+  const purchasePower =
+    isZapActive && quote['toToken']
+      ? getUserReadableAmount(
+          quote['toTokenAmount'],
+          quote['toToken']['decimals']
+        ) /
+        (1 + slippageTolerance / 100)
+      : getUserReadableAmount(userTokenBalance, 18);
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
   const handleTokenChange = async () => {
@@ -189,36 +194,42 @@ const PurchaseDialog = ({
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const fromTokenSymbol = IS_NATIVE(token)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : await token.symbol();
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     const toTokenAddress = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
-    const toTokenDecimals = await ssovToken.decimals();
+    if (fromTokenAddress === toTokenAddress) return;
     const { data } = await axios.get(
-      `https://open-api.openocean.finance/v1/cross/quote?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${toTokenAddress}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=0.01&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}`
+      `https://api.1inch.exchange/v4.0/42161/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+        debouncedZapInAmount[0] * 10 ** fromTokenDecimals
+      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
-    setQuote(data['data']);
+    setQuote(data);
   };
 
   const getPath = async () => {
+    if (!isZapActive) return;
     setIsFetchingPath(true);
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const fromTokenSymbol = IS_NATIVE(token) ? token : await token.symbol();
+    const toTokenAddress = IS_NATIVE(ssovTokenName)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : ssovToken.address;
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
-    const toTokenDecimals = await ssovToken.decimals();
     if (fromTokenAddress === ssovToken.address) return;
     const { data } = await axios.get(
-      `https://open-api.openocean.finance/v1/cross/swap?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${ssovToken.address}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=${slippageTolerance}&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}&account=${accountAddress}`
+      `https://api.1inch.exchange/v4.0/42161/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+        debouncedZapInAmount[0] * 10 ** fromTokenDecimals
+      )}&fromAddress=${accountAddress}&slippage=${slippageTolerance}&disableEstimate=true`
     );
-    if (data['code'] === 206) setisApprovalRequired(true);
-    else setPath(data['data']);
+    setPath(data);
     setIsFetchingPath(false);
   };
+
+  useEffect(() => {
+    getPath();
+  }, [isZapInVisible]);
 
   const openZapIn = async () => {
     if (isZapActive) {
@@ -1016,7 +1027,15 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white">
                 {isZapActive ? (
                   <span>
-                    1 {tokenName} = {quote['outAmount']} {ssovTokenSymbol}
+                    1 {tokenName} ={' '}
+                    {formatAmount(
+                      getUserReadableAmount(
+                        quote['toTokenAmount'],
+                        quote['toToken']['decimals']
+                      ),
+                      8
+                    )}{' '}
+                    {ssovTokenSymbol}
                   </span>
                 ) : (
                   'Zap In'
