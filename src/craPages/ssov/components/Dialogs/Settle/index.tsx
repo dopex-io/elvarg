@@ -17,6 +17,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 export interface Props {
   open: boolean;
@@ -44,8 +45,9 @@ const Settle = ({
     ssovSignerArray,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
+  const { convertToVBNB } = useBnbSsovConversion();
 
-  const { selectedEpoch } = ssovProperties;
+  const { selectedEpoch, tokenName } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const { epochStrikes, settlementPrice } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
@@ -207,7 +209,16 @@ const Settle = ({
                 component="div"
                 className="text-wave-blue"
               >
-                {formatAmount(getUserReadableAmount(PnL, 18), 5)} {`${token}`}
+                {formatAmount(
+                  tokenName === 'BNB'
+                    ? getUserReadableAmount(
+                        convertToVBNB(Number(PnL.toString())),
+                        8
+                      )
+                    : getUserReadableAmount(PnL, 18),
+                  5
+                )}{' '}
+                {`${tokenName === 'BNB' ? 'vBNB' : token}`}
               </Typography>
             </Box>
           </Box>

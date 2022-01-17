@@ -11,6 +11,7 @@ import BalanceItem from 'components/BalanceItem';
 
 import { WalletContext } from 'contexts/Wallet';
 
+import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -53,9 +54,7 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           </IconButton>
           <IconButton
             className="text-white focus:bg-transparent p-0"
-            href={`https://${
-              chainId === 1 ? 'etherscan' : chainId === 42161 && 'arbiscan'
-            }.io/address/${accountAddress}`}
+            href={`${getExplorerUrl(chainId)}/address/${accountAddress}`}
             target="_blank"
             rel="noreferrer noopener"
           >

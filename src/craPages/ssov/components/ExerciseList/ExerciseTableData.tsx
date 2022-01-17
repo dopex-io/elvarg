@@ -57,7 +57,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const { contractAddresses, signer } = useContext(WalletContext);
 
-  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const tokenSymbol =
+    SSOV_MAP[ssovProperties.tokenName].tokenSymbol === 'BNB'
+      ? 'vBNB'
+      : SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const { selectedEpoch } = ssovProperties;
   const { epochStrikes, isEpochExpired } = ssovData;
@@ -167,7 +170,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Typography variant="h6">
           {pnlAmount.gte(0)
             ? `${formatAmount(
-                getUserReadableAmount(pnlAmount, 18),
+                tokenSymbol === 'vBNB'
+                  ? getUserReadableAmount(pnlAmount, 8)
+                  : getUserReadableAmount(pnlAmount, 18),
                 5
               )} ${tokenSymbol}`
             : `0 ${tokenSymbol}`}
@@ -177,7 +182,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Typography variant="h6">
           {!totalPremiumsEarned.isZero()
             ? `${formatAmount(
-                getUserReadableAmount(totalPremiumsEarned, 18),
+                tokenSymbol === 'vBNB'
+                  ? getUserReadableAmount(totalPremiumsEarned, 8)
+                  : getUserReadableAmount(totalPremiumsEarned, 18),
                 5
               )} ${tokenSymbol}`
             : `0 ${tokenSymbol}`}

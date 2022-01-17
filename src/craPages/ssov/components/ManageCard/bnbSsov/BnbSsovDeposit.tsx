@@ -28,6 +28,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
 const SelectMenuProps = {
@@ -42,7 +44,11 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
+const BnbSsovDeposit = ({
+  ssovProperties,
+}: {
+  ssovProperties: SsovProperties;
+}) => {
   const {
     updateSsovData,
     updateUserSsovData,
@@ -53,6 +59,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   } = useContext(SsovContext);
   const { accountAddress } = useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
+  const { convertToVBNB } = useBnbSsovConversion();
 
   const { selectedEpoch, tokenName } = ssovProperties;
   const { ssovContractWithSigner, token, ssovRouter } =
@@ -79,6 +86,10 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
+  const [selected, setSelected] = useState({
+    bnb: true,
+    vbnb: false,
+  });
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady) return false;
@@ -104,28 +115,35 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) =>
-      tokenSymbol === 'BNB'
-        ? getUserReadableAmount(deposit, 8).toString()
-        : getUserReadableAmount(deposit, 18).toString()
+    (deposit) => getUserReadableAmount(deposit, 8).toString()
   );
 
-  const totalEpochDepositsAmount =
-    tokenSymbol === 'BNB'
-      ? getUserReadableAmount(totalEpochDeposits, 8).toString()
-      : getUserReadableAmount(totalEpochDeposits, 18).toString();
+  const totalEpochDepositsAmount = getUserReadableAmount(
+    totalEpochDeposits,
+    8
+  ).toString();
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) =>
-      tokenSymbol === 'BNB'
-        ? getUserReadableAmount(deposit, 8).toString()
-        : getUserReadableAmount(deposit, 18).toString()
+    (deposit) => getUserReadableAmount(deposit, 8).toString()
   );
 
-  const userEpochDepositsAmount =
-    tokenSymbol === 'BNB'
-      ? getUserReadableAmount(userEpochDeposits, 8).toString()
-      : getUserReadableAmount(userEpochDeposits, 18).toString();
+  const userEpochDepositsAmount = getUserReadableAmount(
+    userEpochDeposits,
+    8
+  ).toString();
+
+  const selectBnb = () => {
+    setSelected({
+      bnb: true,
+      vbnb: false,
+    });
+  };
+  const selectVbnb = () => {
+    setSelected({
+      bnb: false,
+      vbnb: true,
+    });
+  };
 
   // Handles strikes & deposit amounts
   const handleSelectStrikes = useCallback(
@@ -142,20 +160,22 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ) => {
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
-        [index]: getContractReadableAmount(e.target.value, 18),
+        [index]: selected.vbnb
+          ? getContractReadableAmount(e.target.value, 8)
+          : getContractReadableAmount(e.target.value, 18),
       }));
     },
-    []
+    [selected.vbnb]
   );
 
   const handleApprove = useCallback(async () => {
     const finalAmount = getContractReadableAmount(
       totalDepositAmount.toString(),
-      18
+      8
     );
     try {
       await sendTx(
-        token[0].approve(
+        token[1].approve(
           ssovContractWithSigner.address,
           maxApprove ? MAX_VALUE : finalAmount.toString()
         )
@@ -170,12 +190,12 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     (index: number) => {
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
-        [index]: BigNumber.from(
-          userAssetBalances[tokenSymbol.toLocaleUpperCase()]
-        ),
+        [index]: selected.bnb
+          ? BigNumber.from(userAssetBalances['BNB'])
+          : BigNumber.from(userAssetBalances['VBNB']),
       }));
     },
-    [userAssetBalances, tokenSymbol]
+    [userAssetBalances, selected.bnb]
   );
 
   // Handle Deposit
@@ -186,18 +206,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           strikeDepositAmounts[index] && strikeDepositAmounts[index].gt('0')
       );
 
-      if (tokenName === 'ETH') {
-        await sendTx(
-          ssovContractWithSigner.depositMultiple(
-            strikeIndexes,
-            strikeIndexes.map((index) => strikeDepositAmounts[index]),
-            accountAddress,
-            {
-              value: totalDepositAmount,
-            }
-          )
-        );
-      } else if (tokenName === 'BNB' && ssovRouter) {
+      if (selected.bnb) {
         await sendTx(
           ssovRouter.depositMultiple(
             strikeIndexes,
@@ -208,7 +217,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             }
           )
         );
-      } else {
+      } else if (selected.vbnb) {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
@@ -233,44 +242,44 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     updateUserSsovData,
     updateAssetBalances,
     accountAddress,
-    tokenName,
     totalDepositAmount,
     ssovRouter,
+    selected.vbnb,
+    selected.bnb,
   ]);
 
   useEffect(() => {
     if (totalDepositAmount.gt(userTokenBalance)) {
-      setError(`Deposit amount exceeds your current ${tokenSymbol} balance.`);
-    } else if (
-      tokenSymbol === 'ETH' &&
-      totalEpochDeposits
-        .add(totalDepositAmount)
-        .gt(getContractReadableAmount(25000, 18))
-    ) {
-      setError(`Deposit amount exceeds deposit limit.`);
+      setError(
+        `Deposit amount exceeds your current ${
+          selected.bnb ? 'BNB' : 'vBNB'
+        } balance.`
+      );
     } else {
       setError('');
     }
-  }, [totalDepositAmount, totalEpochDeposits, userTokenBalance, tokenSymbol]);
+  }, [totalDepositAmount, totalEpochDeposits, userTokenBalance, selected.bnb]);
 
   // Updates approved state
   useEffect(() => {
     (async () => {
-      const finalAmount = getContractReadableAmount(
-        totalDepositAmount.toString(),
-        18
-      );
-      const allowance = await token[0].allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
-      setApproved(allowance.gte(finalAmount) ? true : false);
+      const finalAmount = BigNumber.from(totalDepositAmount.toString());
+      if (selected.vbnb) {
+        const allowance = await token[1].allowance(
+          accountAddress,
+          ssovContractWithSigner.address
+        );
+        setApproved(allowance.gte(finalAmount) ? true : false);
+      } else {
+        setApproved(true);
+      }
     })();
   }, [
     token,
     accountAddress,
     ssovContractWithSigner,
     approved,
+    selected.vbnb,
     totalDepositAmount,
   ]);
 
@@ -278,27 +287,30 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   useEffect(() => {
     if (!token || !ssovContractWithSigner || !accountAddress) return;
     (async function () {
-      const finalAmount = getContractReadableAmount(
-        totalDepositAmount.toString(),
-        18
-      );
+      const finalAmount = selected.vbnb
+        ? getContractReadableAmount(totalDepositAmount.toString(), 8)
+        : getContractReadableAmount(totalDepositAmount.toString(), 18);
 
-      let userAmount =
-        tokenName === 'ETH' || tokenName === 'BNB'
-          ? BigNumber.from(userAssetBalances.ETH)
-          : await token[0].balanceOf(accountAddress);
+      let userAmount = selected.vbnb
+        ? await token[1].balanceOf(accountAddress)
+        : BigNumber.from(userAssetBalances.BNB);
 
       setUserTokenBalance(userAmount);
 
-      let allowance = await token[0].allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
+      let allowance = selected.vbnb
+        ? await token[1].allowance(
+            accountAddress,
+            ssovContractWithSigner.address
+          )
+        : await token[0].allowance(
+            accountAddress,
+            ssovContractWithSigner.address
+          );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (tokenName === 'ETH' || tokenName === 'BNB') {
+        if (!selected.vbnb) {
           setApproved(true);
         } else {
           setApproved(false);
@@ -312,11 +324,13 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovContractWithSigner,
     userAssetBalances.ETH,
     tokenName,
+    selected.vbnb,
+    userAssetBalances.BNB,
   ]);
 
   return (
     <Box>
-      <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
+      <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-">
         <Typography
           variant="caption"
           component="div"
@@ -324,17 +338,44 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         >
           Balance
         </Typography>
-        <Typography variant="caption" component="div">
-          {formatAmount(getUserReadableAmount(userTokenBalance, 18), 3)}{' '}
-          {tokenSymbol}
-        </Typography>
+
+        {selected.bnb ? (
+          <Typography variant="caption" component="div">
+            {' '}
+            {formatAmount(
+              getUserReadableAmount(userTokenBalance, 18),
+              3
+            )} BNB{' '}
+          </Typography>
+        ) : (
+          <Typography variant="caption" component="div">
+            {' '}
+            {formatAmount(
+              getUserReadableAmount(userTokenBalance, 8),
+              3
+            )} vBNB{' '}
+          </Typography>
+        )}
+      </Box>
+      <Box className="h-10 p-1 rounded-lg bg-umbra my-2 flex items-center justify-center">
+        <Box
+          onClick={selectBnb}
+          className={`text-center flex-1 w-4 transition ease-in-out ${
+            selected.bnb && 'border-b-2'
+          } hover:bg-mineshaft duration-300 p-2 rounded-sm`}
+        >
+          <Typography variant="h6">BNB</Typography>
+        </Box>
+        <Box
+          onClick={selectVbnb}
+          className={`text-center flex-1 transition ease-in-out ${
+            selected.vbnb && 'border-b-2'
+          } hover:bg-mineshaft duration-300 p-2 rounded-sm`}
+        >
+          <Typography variant="h6">vBNB</Typography>
+        </Box>
       </Box>
       <Box className="bg-umbra flex flex-col p-4 rounded-xl justify-between mb-2">
-        <Box className="flex flex-row mb-4">
-          <Typography variant="h6" className="mr-2 text-stieglitz">
-            Select Strike Prices
-          </Typography>
-        </Box>
         <Box>
           {selectedStrikeIndexes.map((index) => (
             <Box key={index} className="flex flex-row justify-between pb-3">
@@ -346,7 +387,10 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               <Box className="flex border-umbra rounded-xl border w-36 space-x-2">
                 <BasicInput
                   disableUnderline={true}
-                  value={getUserReadableAmount(strikeDepositAmounts[index], 18)}
+                  value={getUserReadableAmount(
+                    strikeDepositAmounts[index],
+                    selected.bnb ? 18 : 8
+                  )}
                   placeholder="0"
                   inputProps={{
                     min: 0,
@@ -415,23 +459,24 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           ) : null}
         </Box>
       </Box>
-      {tokenSymbol !== 'BNB' ? (
-        <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
-          <Typography
-            variant="caption"
-            component="div"
-            className="text-stieglitz text-left"
-          >
-            Allocation
-          </Typography>
-          <Typography variant="caption" component="div">
-            {tokenSymbol === 'BNB'
-              ? getUserReadableAmount(totalDepositAmount, 8).toString()
-              : getUserReadableAmount(totalDepositAmount, 18).toString()}{' '}
-            {tokenSymbol === 'BNB' && 'vBNB'}
-          </Typography>
-        </Box>
-      ) : null}
+      <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
+        <Typography
+          variant="caption"
+          component="div"
+          className="text-stieglitz text-left"
+        >
+          Allocation
+        </Typography>
+        <Typography variant="caption" component="div">
+          {selected.bnb
+            ? formatAmount(
+                convertToVBNB(Number(totalDepositAmount.toString())),
+                5
+              )
+            : getUserReadableAmount(totalDepositAmount, 8).toString()}{' '}
+          {tokenSymbol === 'BNB' && 'vBNB'}
+        </Typography>
+      </Box>
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
         <Box className="mr-4 mb-4">
           {isVaultReady ? <DepositClosed /> : <DepositOpen />}
@@ -499,7 +544,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           <CustomButton size="large" className="w-full" disabled>
             {isVaultReady ? 'Closed' : 'Enter an amount'}
           </CustomButton>
-        ) : tokenSymbol === 'BNB' || approved ? (
+        ) : approved ? (
           <CustomButton
             size="large"
             className="w-full"
@@ -510,20 +555,26 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           </CustomButton>
         ) : (
           <Box className="flex flex-col">
-            {tokenSymbol !== 'BNB' ? (
+            {selected.vbnb ? (
               <MaxApprove value={maxApprove} setValue={setMaxApprove} />
             ) : null}
             <Box className="flex flex-row mt-2">
-              {tokenSymbol !== 'BNB' ? (
+              {selected.bnb ? null : (
                 <CustomButton
                   size="large"
                   className="w-11/12 mr-1"
                   onClick={handleApprove}
+                  disabled={approved}
                 >
                   Approve
                 </CustomButton>
-              ) : null}
-              <CustomButton size="large" className="w-11/12 ml-1" disabled>
+              )}
+
+              <CustomButton
+                size="large"
+                className={selected.bnb ? 'w-full' : 'w-11/12'}
+                disabled={selected.bnb ? false : !approved}
+              >
                 Deposit
               </CustomButton>
             </Box>
@@ -574,4 +625,4 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 };
 
-export default Deposit;
+export default BnbSsovDeposit;

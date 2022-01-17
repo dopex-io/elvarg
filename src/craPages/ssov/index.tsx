@@ -37,7 +37,7 @@ const Ssov = () => {
         <LegacyEpochsDropDown />
         <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
           {ssovPropertiesArray.length === 0 || ssovDataArray.length === 0
-            ? [0, 1, 2, 3].map((i) => (
+            ? [0, 1, 2, 3, 4, 5].map((i) => (
                 <Skeleton
                   key={i}
                   variant="rect"
