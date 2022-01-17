@@ -539,7 +539,10 @@ const PurchaseDialog = ({
                     <Typography variant="caption" component="div">
                       $
                       {formatAmount(
-                        getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                        getUserReadableAmount(
+                          state.fees.mul(tokenPrice),
+                          tokenName === 'BNB' ? 16 : 26
+                        ),
                         3
                       )}
                     </Typography>
@@ -562,14 +565,17 @@ const PurchaseDialog = ({
                       className="text-wave-blue"
                     >
                       {formatAmount(
-                        getUserReadableAmount(state.totalCost, 18),
+                        getUserReadableAmount(
+                          state.totalCost,
+                          tokenName === 'BNB' ? 8 : 18
+                        ),
                         3
                       )}{' '}
                       {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} ($
                       {formatAmount(
                         getUserReadableAmount(
                           state.totalCost.mul(tokenPrice),
-                          26
+                          tokenName === 'BNB' ? 16 : 26
                         ),
                         3
                       )}
@@ -591,7 +597,10 @@ const PurchaseDialog = ({
                     className="text-wave-blue"
                   >
                     {formatAmount(
-                      getUserReadableAmount(userTokenBalance, 18),
+                      getUserReadableAmount(
+                        userTokenBalance,
+                        tokenName === 'BNB' ? 8 : 18
+                      ),
                       3
                     )}{' '}
                     {tokenSymbol}
