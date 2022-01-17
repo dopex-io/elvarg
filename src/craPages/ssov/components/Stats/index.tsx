@@ -103,7 +103,12 @@ const StatsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalPremiums * price, 2)}
+          {formatAmount(
+            tokenSymbol === 'BNB'
+              ? convertToBNB(totalPremiums * 1e8)
+              : totalPremiums * price,
+            2
+          )}
         </Box>
       </TableCell>
       <TableCell align="right" className="px-6 pt-2">
