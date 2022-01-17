@@ -137,6 +137,7 @@ const PurchaseDialog = ({
     }),
     validate: () => {
       const errors: any = {};
+      console.log('asdas', userTokenBalance.toString());
       if (state.totalCost.gt(userTokenBalance)) {
         errors.amount = `Insufficient ${tokenSymbol} balance to pay for premium.`;
       }
@@ -188,7 +189,6 @@ const PurchaseDialog = ({
       updateUserSsovData();
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
-      formik.setFieldValue('amount', 0);
     } catch (err) {
       console.log(err);
     }
@@ -213,6 +213,7 @@ const PurchaseDialog = ({
   // Handles isApproved
   useEffect(() => {
     if (!token || !ssovContractWithSigner) return;
+
     (async function () {
       const finalAmount = state.totalCost;
 
@@ -225,10 +226,21 @@ const PurchaseDialog = ({
 
       setUserTokenBalance(userAmount);
 
-      let allowance = await token[0].allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
+      if (tokenName === 'BNB') {
+        setApproved(true);
+        return;
+      }
+
+      let allowance =
+        tokenSymbol === 'BNB'
+          ? await token[1].allowance(
+              accountAddress,
+              ssovContractWithSigner.address
+            )
+          : await token[0].allowance(
+              accountAddress,
+              ssovContractWithSigner.address
+            );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
@@ -311,11 +323,23 @@ const PurchaseDialog = ({
           .mul(ethersUtils.parseEther(String(formik.values.amount)))
           .div(tokenPrice);
 
-        const fees = await ssovContractWithSigner.calculatePurchaseFees(
+        let fees = await ssovContractWithSigner.calculatePurchaseFees(
           tokenPrice,
           strike,
           ethersUtils.parseEther(String(formik.values.amount))
         );
+
+        const abi = [
+          'function bnbToVbnb(uint256 bnbAmount) public view returns (uint256)',
+          ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
+        ];
+        const bnbSsov = new ethers.Contract(
+          '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
+          abi,
+          provider
+        );
+
+        fees = await bnbSsov.vbnbToBnb(fees);
 
         setState({
           volatility,
@@ -531,7 +555,7 @@ const PurchaseDialog = ({
                       $
                       {formatAmount(
                         getUserReadableAmount(state.fees.mul(tokenPrice), 26),
-                        3
+                        10
                       )}
                     </Typography>
                   )}
