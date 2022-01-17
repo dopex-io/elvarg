@@ -231,16 +231,10 @@ const PurchaseDialog = ({
         return;
       }
 
-      let allowance =
-        tokenSymbol === 'BNB'
-          ? await token[1].allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            )
-          : await token[0].allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            );
+      let allowance = await token[0].allowance(
+        accountAddress,
+        ssovContractWithSigner.address
+      );
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);

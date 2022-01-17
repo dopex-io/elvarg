@@ -53,8 +53,6 @@ const StatsTableData = (
   } = props;
   const { convertToBNB } = useBnbSsovConversion();
 
-  let tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
-
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
       <TableCell align="left">
@@ -63,7 +61,7 @@ const StatsTableData = (
             <img src={imgSrc} alt="DPX" />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenName === 'vBNB' ? 'BNB' : tokenName}
+            {tokenSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -72,7 +70,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {tokenName}
+          {formatAmount(totalDeposits, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
@@ -99,7 +97,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)} {tokenName}
+          {formatAmount(totalPremiums, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
