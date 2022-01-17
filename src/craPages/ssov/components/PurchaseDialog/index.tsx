@@ -137,6 +137,7 @@ const PurchaseDialog = ({
     }),
     validate: () => {
       const errors: any = {};
+      console.log('asdas', userTokenBalance.toString());
       if (state.totalCost.gt(userTokenBalance)) {
         errors.amount = `Insufficient ${tokenSymbol} balance to pay for premium.`;
       }
@@ -174,6 +175,12 @@ const PurchaseDialog = ({
           )
         );
       } else if (tokenName === 'BNB') {
+        console.log(
+          strikeIndex,
+          finalAmount.toString(),
+          accountAddress,
+          state.totalCost.toString()
+        );
         await sendTx(
           ssovRouter.purchase(strikeIndex, finalAmount, accountAddress, {
             value: state.totalCost,
@@ -192,7 +199,6 @@ const PurchaseDialog = ({
       updateUserSsovData();
       updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
-      formik.setFieldValue('amount', 0);
     } catch (err) {
       console.log(err);
     }
@@ -217,10 +223,7 @@ const PurchaseDialog = ({
   // Handles isApproved
   useEffect(() => {
     if (!token || !ssovContractWithSigner) return;
-    if (tokenName === 'BNB') {
-      setApproved(true);
-      return;
-    }
+
     (async function () {
       const finalAmount = state.totalCost;
 
@@ -228,10 +231,15 @@ const PurchaseDialog = ({
         tokenName === 'ETH'
           ? BigNumber.from(userAssetBalances.ETH)
           : tokenSymbol === 'BNB'
-          ? await token[1].balanceOf(accountAddress)
+          ? BigNumber.from(userAssetBalances.BNB)
           : await token[0].balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
+
+      if (tokenName === 'BNB') {
+        setApproved(true);
+        return;
+      }
 
       let allowance =
         tokenSymbol === 'BNB'
@@ -261,6 +269,7 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     tokenName,
     userAssetBalances.ETH,
+    userAssetBalances.BNB,
     tokenSymbol,
   ]);
 
@@ -324,11 +333,23 @@ const PurchaseDialog = ({
           .mul(ethersUtils.parseEther(String(formik.values.amount)))
           .div(tokenPrice);
 
-        const fees = await ssovContractWithSigner.calculatePurchaseFees(
+        let fees = await ssovContractWithSigner.calculatePurchaseFees(
           tokenPrice,
           strike,
           ethersUtils.parseEther(String(formik.values.amount))
         );
+
+        const abi = [
+          'function bnbToVbnb(uint256 bnbAmount) public view returns (uint256)',
+          ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
+        ];
+        const bnbSsov = new ethers.Contract(
+          '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
+          abi,
+          provider
+        );
+
+        fees = await bnbSsov.vbnbToBnb(fees);
 
         setState({
           volatility,
