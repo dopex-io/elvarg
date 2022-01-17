@@ -220,7 +220,7 @@ const PurchaseDialog = ({
         tokenName === 'ETH'
           ? BigNumber.from(userAssetBalances.ETH)
           : tokenSymbol === 'BNB'
-          ? await token[1].balanceOf(accountAddress)
+          ? BigNumber.from(userAssetBalances.BNB)
           : await token[0].balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
@@ -247,6 +247,7 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     tokenName,
     userAssetBalances.ETH,
+    userAssetBalances.BNB,
     tokenSymbol,
   ]);
 
@@ -581,10 +582,7 @@ const PurchaseDialog = ({
                     className="text-wave-blue"
                   >
                     {formatAmount(
-                      getUserReadableAmount(
-                        userTokenBalance,
-                        tokenName === 'BNB' ? 8 : 18
-                      ),
+                      getUserReadableAmount(userTokenBalance, 18),
                       3
                     )}{' '}
                     {tokenSymbol}
