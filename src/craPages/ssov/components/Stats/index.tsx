@@ -37,7 +37,6 @@ interface StatsTableDataProps {
 }
 
 const YEAR_SECONDS = 31536000;
-
 const StatsTableData = (
   props: StatsTableDataProps & { price: number; epochTime: number }
 ) => {
@@ -52,7 +51,7 @@ const StatsTableData = (
     tokenSymbol,
   } = props;
   const { convertToBNB } = useBnbSsovConversion();
-
+  const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
       <TableCell align="left">
@@ -70,7 +69,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {tokenSymbol}
+          {formatAmount(totalDeposits, 5)} {tokenName}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
@@ -97,7 +96,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)} {tokenSymbol}
+          {formatAmount(totalPremiums, 5)} {tokenName}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
