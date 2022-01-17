@@ -18,6 +18,8 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
@@ -49,6 +51,7 @@ const StatsTableData = (
     imgSrc,
     tokenSymbol,
   } = props;
+  const { convertToBNB } = useBnbSsovConversion();
 
   let tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
 
@@ -73,7 +76,9 @@ const StatsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalDeposits * price, 2)}
+          {tokenSymbol === 'BNB'
+            ? formatAmount(convertToBNB(totalDeposits * 1e8) * price, 2)
+            : formatAmount(totalDeposits * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
