@@ -184,6 +184,7 @@ const Stats = (props: {
           tokenName === 'BNB'
             ? getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 8)
             : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
+
         return {
           strikeIndex,
           strikePrice,
