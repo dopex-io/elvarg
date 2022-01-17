@@ -1,4 +1,3 @@
-import { SsovData, SsovProperties, UserSsovData } from '../../contexts/Ssov';
 import {
   Dispatch,
   SetStateAction,
@@ -6,8 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { ASSET_TO_NAME, AssetsContext } from '../../contexts/Assets';
 import Box from '@material-ui/core/Box';
+import Slider from '@material-ui/core/Slider';
+import Popover from '@material-ui/core/Popover';
 import Typography from '../UI/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import Input from '@material-ui/core/Input';
@@ -51,6 +51,7 @@ const ZapIn = ({
   const [swapSymbols, setSwapSymbols] = useState<string[]>([]);
   const [swapSteps, setSwapSteps] = useState<object[]>([]);
   const { chainId } = useContext(WalletContext);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const updateTokenSymbol = async () => {
     const symbol = token === 'ETH' ? 'ETH' : await token.symbol();
@@ -125,7 +126,7 @@ const ZapIn = ({
             >
               <IconButton
                 className="p-0 pb-1 mr-0 ml-auto"
-                onClick={() => setOpen(false)}
+                onClick={(event) => setAnchorEl(event.currentTarget)}
               >
                 <svg
                   width="18"
@@ -143,6 +144,58 @@ const ZapIn = ({
                 </svg>
               </IconButton>
             </Tooltip>
+            <Popover
+              anchorEl={anchorEl}
+              open={!!anchorEl}
+              classes={{ paper: 'bg-umbra rounded-md' }}
+              onClose={() => setAnchorEl(null)}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+            >
+              <Box className="w-52 p-3">
+                <Box className="flex">
+                  <Typography
+                    variant="h5"
+                    className="text-white text-xs pt-2 pb-1"
+                  >
+                    Max. slippage: {formik.values.slippageTolerance}%
+                  </Typography>
+                  <IconButton
+                    className="p-0 pb-1 mr-0 ml-auto"
+                    onClick={() => setAnchorEl(null)}
+                  >
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="group"
+                    >
+                      <path
+                        d="M13.3002 0.709727C12.9102 0.319727 12.2802 0.319727 11.8902 0.709727L7.00022 5.58973L2.11022 0.699727C1.72022 0.309727 1.09021 0.309727 0.700215 0.699727C0.310215 1.08973 0.310215 1.71973 0.700215 2.10973L5.59022 6.99973L0.700215 11.8897C0.310215 12.2797 0.310215 12.9097 0.700215 13.2997C1.09021 13.6897 1.72022 13.6897 2.11022 13.2997L7.00022 8.40973L11.8902 13.2997C12.2802 13.6897 12.9102 13.6897 13.3002 13.2997C13.6902 12.9097 13.6902 12.2797 13.3002 11.8897L8.41021 6.99973L13.3002 2.10973C13.6802 1.72973 13.6802 1.08973 13.3002 0.709727Z"
+                        fill="#3E3E3E"
+                        className="group-hover:fill-white opacity-70"
+                      />
+                    </svg>
+                  </IconButton>
+                </Box>
+                <Slider
+                  size="small"
+                  value={formik.values.slippageTolerance}
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  onChange={(e, value) =>
+                    formik.setFieldValue('slippageTolerance', value)
+                  }
+                />
+              </Box>
+            </Popover>
           </Box>
 
           <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">

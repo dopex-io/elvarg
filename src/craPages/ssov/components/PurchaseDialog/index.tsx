@@ -26,7 +26,7 @@ import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import {
   SsovContext,
   SsovProperties,
@@ -68,7 +68,9 @@ const PurchaseDialog = ({
   const { accountAddress, provider } = useContext(WalletContext);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [token, setToken] = useState<ERC20 | any>(
-    ssovSignerArray[selectedSsov].token
+    IS_NATIVE(ssovProperties.tokenName)
+      ? ssovProperties.tokenName
+      : ssovSignerArray[selectedSsov].token
   );
   const ssovToken = ssovSignerArray[selectedSsov].token;
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
@@ -117,7 +119,7 @@ const PurchaseDialog = ({
     tokenSymbol.toUpperCase() !== ssovTokenSymbol.toUpperCase();
 
   const handleTokenChange = async () => {
-    const symbol = token === 'ETH' ? 'ETH' : await token.symbol();
+    const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenSymbol(symbol);
   };
 
@@ -153,6 +155,7 @@ const PurchaseDialog = ({
     initialValues: {
       optionsAmount: 1,
       zapInAmount: 1,
+      slippageTolerance: 0.3,
     },
     enableReinitialize: true,
     validationSchema: yup.object({
@@ -169,24 +172,31 @@ const PurchaseDialog = ({
   });
 
   const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 500);
+  const debouncedSlippageTolerance = useDebounce(
+    formik.values.slippageTolerance,
+    500
+  );
 
   useEffect(
     () => {
-      if (debouncedZapInAmount[0] === formik.values.zapInAmount) getQuote();
+      if (
+        debouncedZapInAmount[0] === formik.values.zapInAmount ||
+        debouncedSlippageTolerance[0] === formik.values.slippageTolerance
+      )
+        getQuote();
     },
-    [debouncedZapInAmount] // Only call effect if debounced search term changes
+    [debouncedZapInAmount, debouncedSlippageTolerance] // Only call effect if debounced search term changes
   );
 
   const getQuote = async () => {
-    const fromTokenAddress =
-      token === 'ETH'
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : token.address;
-    const fromTokenSymbol =
-      token === 'ETH'
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : await token.symbol();
-    const fromTokenDecimals = token === 'ETH' ? 18 : await token.decimals();
+    if (debouncedZapInAmount[0] === 0) return;
+    const fromTokenAddress = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const fromTokenSymbol = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : await token.symbol();
+    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     const toTokenDecimals = await ssovToken.decimals();
     if (debouncedZapInAmount[0] === quote['inAmount']) return;
     if (fromTokenAddress === ssovToken.address) return;
@@ -197,15 +207,13 @@ const PurchaseDialog = ({
   };
 
   const getPath = async () => {
-    const fromTokenAddress =
-      token === 'ETH'
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : token.address;
-    const fromTokenSymbol =
-      token === 'ETH'
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : await token.symbol();
-    const fromTokenDecimals = token === 'ETH' ? 18 : await token.decimals();
+    const fromTokenAddress = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const fromTokenSymbol = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : await token.symbol();
+    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     const toTokenDecimals = await ssovToken.decimals();
     if (fromTokenAddress === ssovToken.address) return;
     const { data } = await axios.get(
@@ -221,25 +229,20 @@ const PurchaseDialog = ({
     (async function () {
       const finalAmount = state.totalCost;
 
-      const userAmount =
-        token === 'ETH'
-          ? BigNumber.from(userAssetBalances.ETH)
-          : await token.balanceOf(accountAddress);
+      const userAmount = IS_NATIVE(token)
+        ? BigNumber.from(userAssetBalances.ETH)
+        : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance =
-        token === 'ETH'
-          ? 0
-          : await token.allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            );
+      let allowance = IS_NATIVE(token)
+        ? BigInt(0)
+        : await token.allowance(accountAddress, ssovContractWithSigner.address);
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (token === 'ETH') {
+        if (IS_NATIVE(token)) {
           setApproved(true);
         } else {
           setApproved(false);
@@ -295,7 +298,7 @@ const PurchaseDialog = ({
       String(formik.values.optionsAmount)
     );
     try {
-      if (ssovTokenName === 'ETH') {
+      if (IS_NATIVE(token)) {
         await sendTx(
           ssovContractWithSigner.purchase(
             strikeIndex,
@@ -346,25 +349,20 @@ const PurchaseDialog = ({
     (async function () {
       const finalAmount = state.totalCost;
 
-      const userAmount =
-        token === 'ETH'
-          ? BigNumber.from(userAssetBalances.ETH)
-          : await token.balanceOf(accountAddress);
+      const userAmount = IS_NATIVE(token)
+        ? BigNumber.from(userAssetBalances.ETH)
+        : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance =
-        token === 'ETH'
-          ? 0
-          : await token.allowance(
-              accountAddress,
-              ssovContractWithSigner.address
-            );
+      let allowance = IS_NATIVE(token)
+        ? 0
+        : await token.allowance(accountAddress, ssovContractWithSigner.address);
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (token === 'ETH') {
+        if (IS_NATIVE(token)) {
           setApproved(true);
         } else {
           setApproved(false);
@@ -412,7 +410,7 @@ const PurchaseDialog = ({
           );
 
         let volatility;
-        if (ssovTokenName === 'ETH') {
+        if (IS_NATIVE(ssovTokenName)) {
           const _abi = [
             'function getVolatility(uint256) view returns (uint256)',
           ];
@@ -541,7 +539,11 @@ const PurchaseDialog = ({
             )}
 
             <IconButton
-              className="p-0 pb-1 mr-0 ml-4 mt-0.5"
+              className={
+                isZapActive
+                  ? 'p-0 pb-1 mr-0 mt-0.5 ml-4'
+                  : 'p-0 pb-1 mr-0 mt-0.5 ml-auto'
+              }
               onClick={handleClose}
             >
               <svg

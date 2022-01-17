@@ -81,6 +81,10 @@ export const ASSET_TO_NAME = {
   GOHM: 'OHM Governance',
 };
 
+export const IS_NATIVE = (asset) => {
+  return ['ETH', 'BNB'].includes(asset);
+};
+
 export const AssetsContext =
   createContext<AssetsContextInterface>(initialState);
 
