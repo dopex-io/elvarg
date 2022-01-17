@@ -242,18 +242,13 @@ export const AssetsProvider = (props) => {
         userAssetBalances[ASSETS_LIST[i]] = balances[i].toString();
       }
 
-      userAssetBalances['ETH'] = (
-        await provider.getBalance(accountAddress)
-      ).toString();
       if (chainId === 56) {
         userAssetBalances['BNB'] = (
           await provider.getBalance(accountAddress)
         ).toString();
-        userAssetBalances['VBNB'] = (
-          await ERC20__factory.connect(
-            contractAddresses['VBNB'],
-            provider
-          ).balanceOf(accountAddress)
+      } else {
+        userAssetBalances['ETH'] = (
+          await provider.getBalance(accountAddress)
         ).toString();
       }
 

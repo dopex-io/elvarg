@@ -1,4 +1,3 @@
-import { ETHVolatilityOracle__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
 import { round100, round1, round1000 } from 'utils/math/rounding';
@@ -139,7 +138,7 @@ export const SSOV_MAP = {
   },
   GMX: {
     tokenSymbol: 'GMX',
-    imageSrc: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11857.png',
+    imageSrc: '/assets/gmx.svg',
     coinGeckoId: 'gmx',
     tokens: ['GMX'],
   },

@@ -55,7 +55,8 @@ const ChangeNetworkDialog = () => {
     <Dialog
       width={450}
       open={changeNetwork}
-      onClose={handleClose}
+      handleClose={handleClose}
+      showCloseIcon
       aria-labelledby="wrong-network-dialog-title"
     >
       <Typography variant="h3" className="mb-4">
