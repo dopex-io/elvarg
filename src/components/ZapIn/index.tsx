@@ -22,6 +22,7 @@ import CustomButton from '../UI/CustomButton';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
+import Slide from '@material-ui/core/Slide';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -32,36 +33,33 @@ export interface Props {
   formik: any;
   quote: object;
   getPath: () => {};
+  slippageTolerance: number;
+  setSlippageTolerance: Dispatch<SetStateAction<number>>;
+  tokenName: string;
+  ssovTokenName: string;
+  purchasePower: number;
 }
 
 const ZapIn = ({
   setOpen,
   setToken,
-  ssovToken,
-  token,
+  ssovTokenName,
+  tokenName,
   userTokenBalance,
   quote,
   formik,
   getPath,
+  slippageTolerance,
+  setSlippageTolerance,
+  purchasePower,
 }: Props) => {
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
-  const [tokenSymbol, setTokenSymbol] = useState<string>('');
-  const [ssovTokenSymbol, setSsovTokenSymbol] = useState<string>('');
   const [swapSymbols, setSwapSymbols] = useState<string[]>([]);
   const [swapSteps, setSwapSteps] = useState<object[]>([]);
   const { chainId } = useContext(WalletContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  const updateTokenSymbol = async () => {
-    const symbol = token === 'ETH' ? 'ETH' : await token.symbol();
-    setTokenSymbol(symbol);
-  };
-
-  const updateSsovTokenSymbol = async () => {
-    const symbol = await ssovToken.symbol();
-    setSsovTokenSymbol(symbol);
-  };
+  const [showSwapSteps, setShowSwapSteps] = useState<boolean>(true);
 
   const extractPath = () => {
     if (!quote['path'] || !quote['path']['routes']) return;
@@ -88,11 +86,6 @@ const ZapIn = ({
     setSwapSteps(steps);
     setSwapSymbols(symbols);
   };
-
-  useEffect(() => {
-    updateTokenSymbol();
-    updateSsovTokenSymbol();
-  }, [token]);
 
   useEffect(() => {
     extractPath();
@@ -160,7 +153,7 @@ const ZapIn = ({
                     variant="h5"
                     className="text-white text-xs pt-2 pb-1"
                   >
-                    Max. slippage: {formik.values.slippageTolerance}%
+                    Max. slippage: {slippageTolerance}%
                   </Typography>
                   <IconButton
                     className="p-0 pb-1 mr-0 ml-auto"
@@ -184,15 +177,13 @@ const ZapIn = ({
                 </Box>
                 <Slider
                   size="small"
-                  value={formik.values.slippageTolerance}
+                  value={slippageTolerance}
                   min={0.1}
                   max={5}
                   step={0.1}
                   aria-label="Small"
                   valueLabelDisplay="auto"
-                  onChange={(e, value) =>
-                    formik.setFieldValue('slippageTolerance', value)
-                  }
+                  onChange={(e, value) => setSlippageTolerance(value)}
                 />
               </Box>
             </Popover>
@@ -205,17 +196,17 @@ const ZapIn = ({
                 onClick={() => setIsTokenSelectorVisible(true)}
               >
                 <Box className="flex flex-row h-10 w-10 mr-3">
-                  {tokenSymbol !== '' ? (
+                  {tokenName !== '' ? (
                     <img
-                      src={'/assets/' + tokenSymbol.toLowerCase() + '.svg'}
-                      alt={tokenSymbol}
+                      src={'/assets/' + tokenName.toLowerCase() + '.svg'}
+                      alt={tokenName}
                     />
                   ) : (
                     <LoaderIcon className="mt-3.5 ml-3.5" />
                   )}
                 </Box>
                 <Typography variant="h5" className="text-white pb-1 pr-2">
-                  {tokenSymbol}
+                  {tokenName}
                 </Typography>
                 <IconButton className="opacity-40 p-0 group-hover:opacity-70">
                   <ArrowDropDownIcon className={'fill-gray-100 mr-2'} />
@@ -260,12 +251,14 @@ const ZapIn = ({
             </Box>
           </Box>
 
-          {tokenSymbol !== '' &&
-          ssovTokenSymbol != '' &&
-          ssovTokenSymbol !== tokenSymbol ? (
+          {tokenName !== '' &&
+          ssovTokenName != '' &&
+          ssovTokenName !== tokenName ? (
             <Box>
               <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
-                <Box className="flex w-full">
+                <Box
+                  className={showSwapSteps ? 'flex w-full' : 'flex w-full pb-4'}
+                >
                   <svg
                     width="18"
                     height="18"
@@ -280,11 +273,11 @@ const ZapIn = ({
                     />
                   </svg>
                   <Typography variant="h6" className="text-white font-lg">
-                    1 {tokenSymbol} ={' '}
+                    1 {tokenName} ={' '}
                     {quote
                       ? (quote['outAmount'] / quote['inAmount']).toFixed(8)
                       : '-'}{' '}
-                    {ssovTokenSymbol}
+                    {ssovTokenName}
                   </Typography>
 
                   <svg
@@ -293,145 +286,157 @@ const ZapIn = ({
                     viewBox="0 0 12 8"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="mr-0 ml-auto mt-1"
+                    className="mr-0 ml-auto mt-1 group cursor-pointer"
+                    onClick={() => setShowSwapSteps(!showSwapSteps)}
                   >
+                    true
                     <path
                       d="M9.87998 1.28957L5.99998 5.16957L2.11998 1.28957C1.72998 0.89957 1.09998 0.89957 0.70998 1.28957C0.31998 1.67957 0.31998 2.30957 0.70998 2.69957L5.29998 7.28957C5.68998 7.67957 6.31998 7.67957 6.70998 7.28957L11.3 2.69957C11.69 2.30957 11.69 1.67957 11.3 1.28957C10.91 0.90957 10.27 0.89957 9.87998 1.28957Z"
                       fill="white"
+                      className="group-hover:fill-gray-400"
                     />
                   </svg>
                 </Box>
 
-                <Box className={'flex mb-2 mt-4'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Expected Rate
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0 pr-1"
-                    >
-                      {quote
-                        ? (quote['outAmount'] / quote['inAmount']).toFixed(8)
-                        : '-'}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box className={'flex mb-2 mt-2'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Minimum Rate
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0 pr-1"
-                    >
-                      {quote
-                        ? (
-                            quote['outAmount'] /
-                            quote['inAmount'] /
-                            1.005
-                          ).toFixed(8)
-                        : '-'}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box className={'flex mb-2 mt-2'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Max Price Slippage
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0 pr-1"
-                    >
-                      0.3%
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box className="rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 mt-4">
-                  <Typography variant="h6" className="text-gray-300 opacity-80">
-                    Router
-                  </Typography>
-                  <Tooltip
-                    classes={{ touch: '!bg-umbra' }}
-                    title={
-                      <Box className="w-64 pb-3 pt-0 p-2">
-                        {swapSteps.map((step) => (
-                          <Box>
-                            <Typography
-                              variant="h6"
-                              className="text-white mb-2 mt-3"
-                            >
-                              {step['pair']}
-                            </Typography>
-                            <Box className="rounded-md flex flex-col p-3 border border-neutral-800 bg-neutral-800">
-                              {step['dexes'].map((dex) => (
-                                <Box className="flex">
-                                  <img
-                                    src={
-                                      '/assets/' +
-                                      dex['name'].toLowerCase() +
-                                      '.svg'
-                                    }
-                                    className="w-4 h-4 mt-1 mr-3 rounded-sm"
-                                  />
-
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white opacity-60 mb-1"
-                                  >
-                                    {' '}
-                                    {dex['name']}
-                                  </Typography>
-
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white ml-auto mr-0"
-                                  >
-                                    {' '}
-                                    {dex['percentage']}%
-                                  </Typography>
-                                </Box>
-                              ))}
-                            </Box>
-                          </Box>
-                        ))}
+                {showSwapSteps && (
+                  <Box>
+                    <Box className={'flex mb-2 mt-4'}>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz ml-0 mr-auto"
+                      >
+                        Expected Rate
+                      </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0 pr-1"
+                        >
+                          {quote
+                            ? (quote['outAmount'] / quote['inAmount']).toFixed(
+                                8
+                              )
+                            : '-'}
+                        </Typography>
                       </Box>
-                    }
-                  >
-                    <Box className="flex">
-                      {swapSymbols.slice(0, 3).map((symbol, index) => (
-                        <Box key={symbol} className="flex mr-2">
-                          <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700 mt-3">
-                            <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
-                              <img
-                                src={`/assets/${symbol.toLowerCase()}.svg`}
-                                className="w-5 h-5"
-                              />
-                            </Box>
-                            <Typography
-                              variant="h6"
-                              className="text-white  pl-2 pr-2 pt-0.5 text-sm"
-                            >
-                              {symbol}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      ))}
                     </Box>
-                  </Tooltip>
-                </Box>
+
+                    <Box className={'flex mb-2 mt-2'}>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz ml-0 mr-auto"
+                      >
+                        Minimum Rate
+                      </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0 pr-1"
+                        >
+                          {quote
+                            ? (
+                                quote['outAmount'] /
+                                quote['inAmount'] /
+                                (1 + slippageTolerance / 100)
+                              ).toFixed(8)
+                            : '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box className={'flex mb-2 mt-2'}>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz ml-0 mr-auto"
+                      >
+                        Max. Price Slippage
+                      </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0 pr-1"
+                        >
+                          {slippageTolerance}%
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box className="rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 mt-4">
+                      <Typography
+                        variant="h6"
+                        className="text-gray-300 opacity-80"
+                      >
+                        Router
+                      </Typography>
+                      <Tooltip
+                        classes={{ touch: '!bg-umbra' }}
+                        title={
+                          <Box className="w-64 pb-3 pt-0 p-2">
+                            {swapSteps.map((step) => (
+                              <Box key={step['pair']}>
+                                <Typography
+                                  variant="h6"
+                                  className="text-white mb-2 mt-3"
+                                >
+                                  {step['pair']}
+                                </Typography>
+                                <Box className="rounded-md flex flex-col p-3 border border-neutral-800 bg-neutral-800">
+                                  {step['dexes'].map((dex) => (
+                                    <Box className="flex">
+                                      <img
+                                        src={
+                                          '/assets/' +
+                                          dex['name'].toLowerCase() +
+                                          '.svg'
+                                        }
+                                        className="w-4 h-4 mt-1 mr-3 rounded-sm"
+                                      />
+
+                                      <Typography
+                                        variant="h6"
+                                        className="text-white opacity-60 mb-1"
+                                      >
+                                        {' '}
+                                        {dex['name']}
+                                      </Typography>
+
+                                      <Typography
+                                        variant="h6"
+                                        className="text-white ml-auto mr-0"
+                                      >
+                                        {' '}
+                                        {dex['percentage']}%
+                                      </Typography>
+                                    </Box>
+                                  ))}
+                                </Box>
+                              </Box>
+                            ))}
+                          </Box>
+                        }
+                      >
+                        <Box className="flex">
+                          {swapSymbols.slice(0, 3).map((symbol, index) => (
+                            <Box key={symbol} className="flex mr-2">
+                              <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700 mt-3">
+                                <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
+                                  <img
+                                    src={`/assets/${symbol.toLowerCase()}.svg`}
+                                    className="w-5 h-5"
+                                  />
+                                </Box>
+                                <Typography
+                                  variant="h6"
+                                  className="text-white  pl-2 pr-2 pt-0.5 text-sm"
+                                >
+                                  {symbol}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                )}
               </Box>
             </Box>
           ) : (
@@ -445,12 +450,12 @@ const ZapIn = ({
               </Typography>
 
               <Typography variant="h6" className="text-white mr-0 ml-auto">
-                {tokenSymbol === ssovTokenSymbol
+                {tokenName === ssovTokenName
                   ? formik.values.zapInAmount
                     ? formik.values.zapInAmount
                     : '0'
-                  : quote['outAmount']}{' '}
-                {ssovTokenSymbol}
+                  : purchasePower.toFixed(8)}{' '}
+                {ssovTokenName}
               </Typography>
             </Box>
 

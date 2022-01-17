@@ -41,7 +41,7 @@ import formatAmount from 'utils/general/formatAmount';
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 import format from 'date-fns/format';
 import Menu from '@material-ui/core/Menu';
-import { ERC20 } from '@dopex-io/sdk';
+import { Addresses, ERC20, ERC20__factory } from '@dopex-io/sdk';
 import ZapIn from '../../../../components/ZapIn';
 import { useDebounce } from 'use-debounce';
 import axios from 'axios';
@@ -65,14 +65,14 @@ const PurchaseDialog = ({
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances, tokenPrices, tokens } =
     useContext(AssetsContext);
-  const { accountAddress, provider } = useContext(WalletContext);
+  const { accountAddress, provider, chainId } = useContext(WalletContext);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovProperties.tokenName)
       ? ssovProperties.tokenName
-      : ssovSignerArray[selectedSsov].token
+      : ssovSignerArray[selectedSsov].token[0]
   );
-  const ssovToken = ssovSignerArray[selectedSsov].token;
+  const ssovToken = ssovSignerArray[selectedSsov].token[0];
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
   const {
     currentEpoch,
@@ -110,17 +110,22 @@ const PurchaseDialog = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
   const ssovTokenName = ssovProperties.tokenName;
-  const [tokenSymbol, setTokenSymbol] = useState<string>(ssovTokenSymbol);
+  const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
   const [isApprovalRequired, setisApprovalRequired] = useState<boolean>(false);
-  const isZapActive =
-    tokenSymbol.toUpperCase() !== ssovTokenSymbol.toUpperCase();
+  const isZapActive = tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
+  const purchasePower = isZapActive
+    ? quote['outAmount'] / (1 + slippageTolerance / 100)
+    : getUserReadableAmount(userTokenBalance, 18);
+  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
   const handleTokenChange = async () => {
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
-    setTokenSymbol(symbol);
+    setTokenName(symbol);
+    await getQuote();
   };
 
   useEffect(() => {
@@ -155,7 +160,6 @@ const PurchaseDialog = ({
     initialValues: {
       optionsAmount: 1,
       zapInAmount: 1,
-      slippageTolerance: 0.3,
     },
     enableReinitialize: true,
     validationSchema: yup.object({
@@ -171,25 +175,17 @@ const PurchaseDialog = ({
     onSubmit: noop,
   });
 
-  const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 500);
-  const debouncedSlippageTolerance = useDebounce(
-    formik.values.slippageTolerance,
-    500
-  );
+  const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 1000);
+  const [latestZapInAmount, setLatestZapInAmount] = useState<number>(0);
 
-  useEffect(
-    () => {
-      if (
-        debouncedZapInAmount[0] === formik.values.zapInAmount ||
-        debouncedSlippageTolerance[0] === formik.values.slippageTolerance
-      )
-        getQuote();
-    },
-    [debouncedZapInAmount, debouncedSlippageTolerance] // Only call effect if debounced search term changes
-  );
+  useEffect(() => {
+    if (debouncedZapInAmount[0] !== latestZapInAmount) {
+      getQuote();
+      setLatestZapInAmount(debouncedZapInAmount[0]);
+    }
+  }, [debouncedZapInAmount]);
 
   const getQuote = async () => {
-    if (debouncedZapInAmount[0] === 0) return;
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
@@ -197,30 +193,49 @@ const PurchaseDialog = ({
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : await token.symbol();
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
+    const toTokenAddress = IS_NATIVE(ssovTokenName)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : ssovToken.address;
     const toTokenDecimals = await ssovToken.decimals();
-    if (debouncedZapInAmount[0] === quote['inAmount']) return;
-    if (fromTokenAddress === ssovToken.address) return;
     const { data } = await axios.get(
-      `https://open-api.openocean.finance/v1/cross/quote?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${ssovToken.address}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=0.5&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}`
+      `https://open-api.openocean.finance/v1/cross/quote?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${toTokenAddress}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=0.01&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}`
     );
     setQuote(data['data']);
   };
 
   const getPath = async () => {
+    setIsFetchingPath(true);
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const fromTokenSymbol = IS_NATIVE(token)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : await token.symbol();
+    const fromTokenSymbol = IS_NATIVE(token) ? token : await token.symbol();
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     const toTokenDecimals = await ssovToken.decimals();
     if (fromTokenAddress === ssovToken.address) return;
     const { data } = await axios.get(
-      `https://open-api.openocean.finance/v1/cross/swap?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${ssovToken.address}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=0.5&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}&account=${accountAddress}`
+      `https://open-api.openocean.finance/v1/cross/swap?inTokenSymbol=${fromTokenSymbol}&inTokenAddress=${fromTokenAddress}&outTokenSymbol=${ssovTokenSymbol}&outTokenAddress=${ssovToken.address}&amount=${debouncedZapInAmount[0]}&gasPrice=5&slippage=${slippageTolerance}&exChange=openoceanv2&chainId=42161&withRoute=true&out_token_decimals=${toTokenDecimals}&in_token_decimals=${fromTokenDecimals}&account=${accountAddress}`
     );
     if (data['code'] === 206) setisApprovalRequired(true);
     else setPath(data['data']);
+    setIsFetchingPath(false);
+  };
+
+  const openZapIn = async () => {
+    if (isZapActive) {
+      setIsZapInVisible(true);
+    } else {
+      const filteredTokens = tokens.filter(function (item) {
+        return item !== ssovTokenSymbol && Addresses[chainId][item];
+      });
+      const randomToken = ERC20__factory.connect(
+        Addresses[chainId][
+          filteredTokens[Math.floor(Math.random() * filteredTokens.length)]
+        ],
+        provider
+      );
+      setToken(randomToken);
+      setIsZapInVisible(true);
+    }
   };
 
   // Handles isApproved
@@ -236,7 +251,7 @@ const PurchaseDialog = ({
       setUserTokenBalance(userAmount);
 
       let allowance = IS_NATIVE(token)
-        ? BigInt(0)
+        ? BigNumber.from(0)
         : await token.allowance(accountAddress, ssovContractWithSigner.address);
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
@@ -356,7 +371,7 @@ const PurchaseDialog = ({
       setUserTokenBalance(userAmount);
 
       let allowance = IS_NATIVE(token)
-        ? 0
+        ? BigNumber.from(0)
         : await token.allowance(accountAddress, ssovContractWithSigner.address);
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
@@ -485,7 +500,10 @@ const PurchaseDialog = ({
             {isZapActive && (
               <Box
                 className="rounded-md flex r-0 ml-auto p-1.5 border border-neutral-800 bg-neutral-700 cursor-pointer hover:bg-neutral-600"
-                onClick={() => setToken(ssovToken)}
+                onClick={() => {
+                  if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
+                  else setToken(ssovToken);
+                }}
               >
                 <svg
                   width="15"
@@ -608,7 +626,7 @@ const PurchaseDialog = ({
                       getUserReadableAmount(userTokenBalance, 18),
                       3
                     )}{' '}
-                    {isZapActive && <span>{tokenSymbol} </span>}
+                    {isZapActive && <span>{tokenName} </span>}
                   </span>
                 </Typography>
                 {isZapActive && (
@@ -906,6 +924,25 @@ const PurchaseDialog = ({
                 </Box>
               </Box>
 
+              {isZapActive && (
+                <Box className={'flex mb-2'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    Purchase Power
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {formatAmount(purchasePower, 2)} {ssovTokenSymbol}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+
               <Box className={'flex'}>
                 <Typography
                   variant="h6"
@@ -943,7 +980,7 @@ const PurchaseDialog = ({
 
             <Box
               className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 cursor-pointer hover:bg-neutral-600"
-              onClick={() => setIsZapInVisible(true)}
+              onClick={openZapIn}
             >
               <svg
                 width="18"
@@ -979,7 +1016,7 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white">
                 {isZapActive ? (
                   <span>
-                    1 {tokenSymbol} = {quote['outAmount']} {ssovTokenSymbol}
+                    1 {tokenName} = {quote['outAmount']} {ssovTokenSymbol}
                   </span>
                 ) : (
                   'Zap In'
@@ -1042,13 +1079,25 @@ const PurchaseDialog = ({
               size="medium"
               className="w-full mt-4 !rounded-md"
               color={
-                !(formik.values.optionsAmount > 0) ? 'mineshaft' : 'primary'
+                !(formik.values.optionsAmount > 0) ||
+                isFetchingPath ||
+                getUserReadableAmount(state.totalCost, 18) > purchasePower
+                  ? 'mineshaft'
+                  : 'primary'
               }
-              disabled={!(formik.values.optionsAmount > 0)}
+              disabled={
+                !(formik.values.optionsAmount > 0) ||
+                isFetchingPath ||
+                getUserReadableAmount(state.totalCost, 18) > purchasePower
+              }
               onClick={handlePurchase}
             >
               {formik.values.optionsAmount > 0
-                ? isApprovalRequired
+                ? isFetchingPath
+                  ? 'Finding the best route...'
+                  : getUserReadableAmount(state.totalCost, 18) > purchasePower
+                  ? 'Insufficient balance'
+                  : isApprovalRequired
                   ? 'Approve'
                   : 'Purchase'
                 : 'Enter an amount'}
@@ -1060,13 +1109,17 @@ const PurchaseDialog = ({
       {isZapInVisible && (
         <ZapIn
           setOpen={setIsZapInVisible}
-          ssovToken={ssovToken}
+          ssovTokenName={ssovTokenName}
+          tokenName={tokenName}
           setToken={setToken}
           token={token}
           userTokenBalance={userTokenBalance}
           quote={quote}
           formik={formik}
           getPath={getPath}
+          setSlippageTolerance={setSlippageTolerance}
+          slippageTolerance={slippageTolerance}
+          purchasePower={purchasePower}
         />
       )}
     </Dialog>

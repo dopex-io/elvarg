@@ -1,5 +1,11 @@
 import { SsovData, SsovProperties, UserSsovData } from '../../contexts/Ssov';
-import { Dispatch, SetStateAction, useContext, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { ASSET_TO_NAME, AssetsContext } from '../../contexts/Assets';
 import Box from '@material-ui/core/Box';
 import Typography from '../UI/Typography';
