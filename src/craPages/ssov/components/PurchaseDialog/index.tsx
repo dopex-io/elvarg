@@ -323,17 +323,17 @@ const PurchaseDialog = ({
           ethersUtils.parseEther(String(formik.values.amount))
         );
 
-        const abi = [
-          'function bnbToVbnb(uint256 bnbAmount) public view returns (uint256)',
-          ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
-        ];
-        const bnbSsov = new ethers.Contract(
-          '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
-          abi,
-          provider
-        );
-
-        fees = await bnbSsov.vbnbToBnb(fees);
+        if (tokenName === 'BNB') {
+          const abi = [
+            ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
+          ];
+          const bnbSsov = new ethers.Contract(
+            '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
+            abi,
+            provider
+          );
+          fees = await bnbSsov.vbnbToBnb(fees);
+        }
 
         setState({
           volatility,
