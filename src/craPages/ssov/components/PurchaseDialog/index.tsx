@@ -217,6 +217,10 @@ const PurchaseDialog = ({
   // Handles isApproved
   useEffect(() => {
     if (!token || !ssovContractWithSigner) return;
+    if (tokenName === 'BNB') {
+      setApproved(true);
+      return;
+    }
     (async function () {
       const finalAmount = state.totalCost;
 
@@ -392,7 +396,7 @@ const PurchaseDialog = ({
                 />
               </Box>
               <Typography variant="h5" className="text-white">
-                {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol}
+                {tokenSymbol}
               </Typography>
             </Box>
             <Input
@@ -539,11 +543,8 @@ const PurchaseDialog = ({
                     <Typography variant="caption" component="div">
                       $
                       {formatAmount(
-                        getUserReadableAmount(
-                          state.fees.mul(tokenPrice),
-                          tokenName === 'BNB' ? 16 : 26
-                        ),
-                        3
+                        getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                        10
                       )}
                     </Typography>
                   )}
@@ -565,17 +566,14 @@ const PurchaseDialog = ({
                       className="text-wave-blue"
                     >
                       {formatAmount(
-                        getUserReadableAmount(
-                          state.totalCost,
-                          tokenName === 'BNB' ? 8 : 18
-                        ),
+                        getUserReadableAmount(state.totalCost, 18),
                         3
                       )}{' '}
-                      {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} ($
+                      {tokenSymbol} ($
                       {formatAmount(
                         getUserReadableAmount(
                           state.totalCost.mul(tokenPrice),
-                          tokenName === 'BNB' ? 16 : 26
+                          26
                         ),
                         3
                       )}
