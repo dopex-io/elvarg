@@ -13,7 +13,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-interface Props extends MaterialDialogProps {
+interface Props extends Omit<MaterialDialogProps, 'onClose'> {
   width?: number;
   showCloseIcon?: boolean;
   handleClose?: () => void;

@@ -21,6 +21,8 @@ import ExerciseTableData from './ExerciseTableData';
 import { SsovProperties, SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
@@ -54,7 +56,7 @@ const ExerciseList = ({
   >([]);
   const [page, setPage] = useState(0);
 
-  const { currentEpoch, selectedEpoch, tokenPrice } = ssovProperties;
+  const { currentEpoch, selectedEpoch, tokenPrice, tokenName } = ssovProperties;
   const {
     isVaultReady,
     epochStrikes,
@@ -89,10 +91,10 @@ const ExerciseList = ({
 
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
-        const depositedAmount = getUserReadableAmount(
-          userEpochStrikeDeposits[strikeIndex],
-          18
-        );
+        const depositedAmount =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 8)
+            : getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 18);
         const purchasedAmount = getUserReadableAmount(
           userEpochCallsPurchased[strikeIndex],
           18
@@ -141,6 +143,7 @@ const ExerciseList = ({
     tokenPrice,
     isVaultReady,
     settlementPrice,
+    tokenName,
   ]);
 
   return selectedEpoch > 0 && isVaultReady ? (

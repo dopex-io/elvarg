@@ -4,6 +4,12 @@ import { round100, round1, round1000 } from 'utils/math/rounding';
 
 export const ASSETS_LIST = process.env.NEXT_PUBLIC_ASSETS_LIST.split(',');
 
+export const CURRENCIES_MAP = {
+  '1': 'ETH',
+  '42161': 'ETH',
+  '56': 'BNB',
+};
+
 export const BASE_ASSET_MAP = {
   WETH: {
     fullName: 'Ethereum',
@@ -24,6 +30,16 @@ export const BASE_ASSET_MAP = {
     fullName: 'Governance OHM',
     symbol: 'GOHM',
     _symbol: 'GOHM',
+  },
+  BNB: {
+    fullName: 'Binance Coin',
+    symbol: 'BNB',
+    _symbol: 'BNB',
+  },
+  VBNB: {
+    fullName: 'Venus BNB',
+    symbol: 'VBNB',
+    _symbol: 'VBNB',
   },
   YFI: {
     fullName: 'Yearn',
@@ -94,21 +110,37 @@ export const SSOV_MAP = {
     tokenSymbol: 'DPX',
     imageSrc: '/assets/dpx.svg',
     coinGeckoId: 'dopex',
+    tokens: ['DPX'],
   },
   RDPX: {
     tokenSymbol: 'rDPX',
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
+    tokens: ['RDPX'],
   },
   ETH: {
     tokenSymbol: 'ETH',
     imageSrc: '/assets/eth.svg',
     coinGeckoId: 'ethereum',
+    tokens: ['WETH'],
+  },
+  BNB: {
+    tokenSymbol: 'BNB',
+    imageSrc: '/assets/bnb.svg',
+    coinGeckoId: 'binancecoin',
+    tokens: ['WBNB', 'VBNB'],
   },
   GOHM: {
     tokenSymbol: 'GOHM',
     imageSrc: '/assets/gohm.svg',
     coinGeckoId: 'governance-ohm',
+    tokens: ['GOHM'],
+  },
+  GMX: {
+    tokenSymbol: 'GMX',
+    imageSrc: '/assets/gmx.svg',
+    coinGeckoId: 'gmx',
+    tokens: ['GMX'],
   },
 };
 
@@ -190,6 +222,8 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
 
 export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
+export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
+
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
   theta: 'θ',
@@ -205,4 +239,12 @@ export const BUILD: string = process.env.NEXT_PUBLIC_BUILD;
 export const S3_BUCKET_RESOURCES = {
   DPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/DPX.png',
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
+};
+
+export const CHAIN_ID_TO_NETWORK_DATA = {
+  1: { name: 'Mainnet', icon: '/assets/eth.svg' },
+  42: { name: 'Kovan', icon: '/assets/eth.svg' },
+  56: { name: 'BSC', icon: '/assets/bsc.svg' },
+  42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
+  421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
 };

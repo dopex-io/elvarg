@@ -27,7 +27,7 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovSignerArray,
   } = useContext(SsovContext);
 
-  const { selectedEpoch } = ssovProperties;
+  const { selectedEpoch, tokenName } = ssovProperties;
   const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
   const {
     epochTimes,
@@ -51,7 +51,10 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) =>
+      tokenName === 'BNB'
+        ? getUserReadableAmount(deposit, 8)
+        : getUserReadableAmount(deposit, 18)
   );
 
   const totalEpochDepositsAmount = getUserReadableAmount(
@@ -60,10 +63,16 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) =>
+      tokenName === 'BNB'
+        ? getUserReadableAmount(deposit, 8)
+        : getUserReadableAmount(deposit, 18)
   );
 
-  const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
+  const userEpochDepositsAmount =
+    tokenName === 'BNB'
+      ? getUserReadableAmount(userEpochDeposits, 8)
+      : getUserReadableAmount(userEpochDeposits, 18);
 
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 

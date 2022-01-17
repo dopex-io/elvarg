@@ -9,6 +9,8 @@ import CustomButton from 'components/UI/CustomButton';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
@@ -17,6 +19,7 @@ import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
+import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
 import styles from './styles.module.scss';
 
@@ -30,16 +33,23 @@ const Description = ({
   userSsovData: UserSsovData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
+  const { convertToBNB } = useBnbSsovConversion();
 
   const { tokenPrice } = ssovProperties;
   const { APY, isVaultReady } = ssovData;
 
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
+  const totalEpochDeposits =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(ssovData.totalEpochDeposits, 8)
+      : getUserReadableAmount(ssovData.totalEpochDeposits, 18);
+
   const TVL =
-    ssovData?.totalEpochDeposits && tokenPrice
-      ? getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
+    ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
+      ? convertToBNB(totalEpochDeposits) * tokenPrice.toNumber()
+      : tokenPrice
+      ? totalEpochDeposits * getUserReadableAmount(tokenPrice, 8)
       : 0;
 
   const info = [
@@ -52,7 +62,7 @@ const Description = ({
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
-      tooltip: 'This is the base APY calculated from the single staking farm',
+      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -70,12 +80,7 @@ const Description = ({
         <span className="text-white">
           {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>{' '}
-        accepts user {tokenSymbol} deposits and stakes them in the {tokenSymbol}{' '}
-        Single Staking Farm.
-        <br />
-        <br />
-        This farm simultaneously auto-compounds, farms and supplies{' '}
-        {tokenSymbol} liquidity to our first options pool.
+        {ssovInfo[tokenSymbol].mainPageMessage}
       </Typography>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip
