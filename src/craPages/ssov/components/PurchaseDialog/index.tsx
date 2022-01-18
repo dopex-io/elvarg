@@ -4,22 +4,12 @@ import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
-import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
-import Tooltip from '@material-ui/core/Tooltip';
-import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import SearchIcon from '@material-ui/icons/Search';
 import debounce from 'lodash/debounce';
-import Skeleton from '@material-ui/lab/Skeleton';
-import Slide from '@material-ui/core/Slide';
-import Collapse from '@material-ui/core/Collapse';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -63,7 +53,7 @@ const PurchaseDialog = ({
 }: Props) => {
   const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
     useContext(SsovContext);
-  const { updateAssetBalances, userAssetBalances, tokenPrices, tokens } =
+  const { updateAssetBalances, userAssetBalances, tokens } =
     useContext(AssetsContext);
   const { accountAddress, provider, chainId } = useContext(WalletContext);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
@@ -74,12 +64,8 @@ const PurchaseDialog = ({
   );
   const ssovToken = ssovSignerArray[selectedSsov].token[0];
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
-  const {
-    currentEpoch,
-    tokenPrice,
-    ssovOptionPricingContract,
-    volatilityOracleContract,
-  } = ssovProperties;
+  const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
+    ssovProperties;
   const { ssovContractWithSigner } =
     ssovSignerArray !== undefined
       ? ssovSignerArray[selectedSsov]
@@ -101,10 +87,7 @@ const PurchaseDialog = ({
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const [
-    userEpochStrikePurchasableAmount,
-    setUserEpochStrikePurchasableAmount,
-  ] = useState(0);
+
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -142,24 +125,6 @@ const PurchaseDialog = ({
       epochStrikes.map((strike) => getUserReadableAmount(strike, 8).toString()),
     [epochStrikes]
   );
-
-  const epochStrikeToken = useMemo(
-    () => (strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null),
-    [strikeIndex, epochStrikeTokens]
-  );
-
-  const updateUserEpochStrikePurchasableAmount = useCallback(async () => {
-    if (!epochStrikeToken || !ssovContractWithSigner) {
-      setUserEpochStrikePurchasableAmount(0);
-      return;
-    }
-    const vaultEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
-      ssovContractWithSigner.address
-    );
-    setUserEpochStrikePurchasableAmount(
-      getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
-    );
-  }, [epochStrikeToken, ssovContractWithSigner]);
 
   const formik = useFormik({
     initialValues: {
@@ -200,7 +165,7 @@ const PurchaseDialog = ({
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
     const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/42161/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
         debouncedZapInAmount[0] * 10 ** fromTokenDecimals
       )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
@@ -219,7 +184,7 @@ const PurchaseDialog = ({
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     if (fromTokenAddress === ssovToken.address) return;
     const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/42161/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+      `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
         debouncedZapInAmount[0] * 10 ** fromTokenDecimals
       )}&fromAddress=${accountAddress}&slippage=${slippageTolerance}&disableEstimate=true`
     );
@@ -301,22 +266,7 @@ const PurchaseDialog = ({
     }
   }, [token, ssovContractWithSigner]);
 
-  const getTokenDetails = async (erc20) => {
-    return null;
-    const symbol = await erc20.symbol();
-    for (let i = 0; i <= tokens.length; i++) {
-      console.log(tokens[i]);
-      if (symbol.toLowerCase() === tokens[i].symbol.toLowerCase())
-        return tokens[i];
-    }
-  };
-
-  const setMaxAmount = async () => {
-    const details = await getTokenDetails(token);
-    const optionPrice = await getUserReadableAmount(state.optionPrice, 8);
-    const amount = details['valueInUsd'] / optionPrice;
-    formik.setValues({ optionsAmount: amount.toFixed(5) });
-  };
+  const setMaxAmount = async () => {};
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -346,7 +296,6 @@ const PurchaseDialog = ({
       }
       updateSsovData();
       updateUserSsovData();
-      updateUserEpochStrikePurchasableAmount();
       updateAssetBalances();
       formik.setFieldValue('optionsAmount', 0);
     } catch (err) {
@@ -357,17 +306,12 @@ const PurchaseDialog = ({
     strikeIndex,
     updateSsovData,
     updateUserSsovData,
-    updateUserEpochStrikePurchasableAmount,
     updateAssetBalances,
     formik,
     accountAddress,
     ssovTokenName,
     state.totalCost,
   ]);
-
-  useEffect(() => {
-    updateUserEpochStrikePurchasableAmount();
-  }, [updateUserEpochStrikePurchasableAmount]);
 
   // Handles isApproved
   useEffect(() => {
@@ -436,7 +380,7 @@ const PurchaseDialog = ({
           );
 
         let volatility;
-        if (IS_NATIVE(ssovTokenName)) {
+        if (ssovTokenName === 'ETH') {
           const _abi = [
             'function getVolatility(uint256) view returns (uint256)',
           ];
@@ -481,7 +425,6 @@ const PurchaseDialog = ({
 
         setIsPurchaseStatsLoading(false);
       } catch (err) {
-        console.log(err);
         setIsPurchaseStatsLoading(false);
       }
     }
@@ -1028,13 +971,10 @@ const PurchaseDialog = ({
                 {isZapActive ? (
                   <span>
                     1 {tokenName} ={' '}
-                    {formatAmount(
-                      getUserReadableAmount(
-                        quote['toTokenAmount'],
-                        quote['toToken']['decimals']
-                      ),
-                      8
-                    )}{' '}
+                    {getUserReadableAmount(
+                      quote['toTokenAmount'],
+                      quote['toToken']['decimals']
+                    ).toFixed(8)}{' '}
                     {ssovTokenSymbol}
                   </span>
                 ) : (
@@ -1135,7 +1075,6 @@ const PurchaseDialog = ({
           userTokenBalance={userTokenBalance}
           quote={quote}
           formik={formik}
-          getPath={getPath}
           setSlippageTolerance={setSlippageTolerance}
           slippageTolerance={slippageTolerance}
           purchasePower={purchasePower}

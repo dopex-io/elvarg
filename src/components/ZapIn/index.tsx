@@ -22,17 +22,14 @@ import CustomButton from '../UI/CustomButton';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
-import Slide from '@material-ui/core/Slide';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setToken: Dispatch<SetStateAction<ERC20>>;
   token: ERC20 | any;
-  ssovToken: ERC20;
   userTokenBalance: BigNumber;
   formik: any;
   quote: object;
-  getPath: () => {};
   slippageTolerance: number;
   setSlippageTolerance: Dispatch<SetStateAction<number>>;
   tokenName: string;
@@ -48,7 +45,6 @@ const ZapIn = ({
   userTokenBalance,
   quote,
   formik,
-  getPath,
   slippageTolerance,
   setSlippageTolerance,
   purchasePower,
@@ -202,14 +198,13 @@ const ZapIn = ({
                   </IconButton>
                 </Box>
                 <Slider
-                  size="small"
                   value={slippageTolerance}
                   min={0.1}
                   max={5}
                   step={0.1}
                   aria-label="Small"
                   valueLabelDisplay="auto"
-                  onChange={(e, value) => setSlippageTolerance(value)}
+                  onChange={(e, value: number) => setSlippageTolerance(value)}
                 />
               </Box>
             </Popover>
@@ -428,7 +423,7 @@ const ZapIn = ({
                                 </Typography>
                                 <Box className="rounded-md flex flex-col p-3 border border-neutral-800 bg-neutral-800">
                                   {step['dexes'].map((dex) => (
-                                    <Box className="flex">
+                                    <Box className="flex" key={dex['name']}>
                                       <img
                                         src={
                                           '/assets/' +
