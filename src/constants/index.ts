@@ -243,7 +243,7 @@ export const S3_BUCKET_RESOURCES = {
 
 export const DISPLAY_TOKENS = {
   42161: ['DPX', 'RDPX', 'ETH'],
-  65: ['BNB', 'VBNB'],
+  56: ['BNB', 'VBNB'],
 };
 
 export const CHAIN_ID_TO_NETWORK_DATA = {
