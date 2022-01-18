@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useContext, useState, useMemo } from 'react';
+import { useEffect, useContext, useState, useMemo } from 'react';
 import { useFormik } from 'formik';
 import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
@@ -72,7 +72,6 @@ const PurchaseDialog = ({
       : { ssovContractWithSigner: null };
 
   const { epochStrikes } = ssovData;
-  const { epochStrikeTokens } = userSsovData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -97,7 +96,6 @@ const PurchaseDialog = ({
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
-  const [isApprovalRequired, setisApprovalRequired] = useState<boolean>(false);
   const isZapActive = tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const purchasePower =
@@ -148,13 +146,6 @@ const PurchaseDialog = ({
   const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 1000);
   const [latestZapInAmount, setLatestZapInAmount] = useState<number>(0);
 
-  useEffect(() => {
-    if (debouncedZapInAmount[0] !== latestZapInAmount) {
-      getQuote();
-      setLatestZapInAmount(debouncedZapInAmount[0]);
-    }
-  }, [debouncedZapInAmount]);
-
   const getQuote = async () => {
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -192,10 +183,6 @@ const PurchaseDialog = ({
     setIsFetchingPath(false);
   };
 
-  useEffect(() => {
-    getPath();
-  }, [isZapInVisible]);
-
   const openZapIn = async () => {
     if (isZapActive) {
       setIsZapInVisible(true);
@@ -214,62 +201,24 @@ const PurchaseDialog = ({
     }
   };
 
-  // Handles isApproved
-  useEffect(() => {
-    if (!token || !ssovContractWithSigner) return;
-    (async function () {
-      const finalAmount = state.totalCost;
-
-      const userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances.ETH)
-        : await token.balanceOf(accountAddress);
-
-      setUserTokenBalance(userAmount);
-
-      let allowance = IS_NATIVE(token)
-        ? BigNumber.from(0)
-        : await token.allowance(accountAddress, ssovContractWithSigner.address);
-
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        if (IS_NATIVE(token)) {
-          setApproved(true);
-        } else {
-          setApproved(false);
-        }
-      }
-    })();
-  }, [
-    accountAddress,
-    state.totalCost,
-    token,
-    ssovContractWithSigner,
-    userAssetBalances.ETH,
-  ]);
-
-  useEffect(() => {
-    updateEstimatedGasCost();
-  }, [accountAddress]);
-
   const updateEstimatedGasCost = async () => {
     const feeData = await provider.getFeeData();
     setEstimatedGasCost(700000 * feeData['gasPrice'].toNumber());
   };
 
-  const handleApprove = useCallback(async () => {
+  const handleApprove = async () => {
     try {
-      await sendTx(token.approve(ssovContractWithSigner.address, MAX_VALUE));
-      setApproved(true);
+      const routerAddress = isZapActive
+        ? Addresses[chainId]['SSOV'][ssovTokenName]['Router']
+        : ssovContractWithSigner.address;
+      await sendTx(token.approve(routerAddress, MAX_VALUE));
+      setTimeout(checkAllowance, 3000);
     } catch (err) {
       console.log(err);
     }
-  }, [token, ssovContractWithSigner]);
+  };
 
-  const setMaxAmount = async () => {};
-
-  // Handle Purchase
-  const handlePurchase = useCallback(async () => {
+  const handlePurchase = async () => {
     const finalAmount = ethersUtils.parseEther(
       String(formik.values.optionsAmount)
     );
@@ -286,59 +235,47 @@ const PurchaseDialog = ({
           )
         );
       } else {
-        await sendTx(
-          ssovContractWithSigner.purchase(
-            strikeIndex,
-            finalAmount,
-            accountAddress
-          )
-        );
+        // TODO: to implement
       }
-      updateSsovData();
-      updateUserSsovData();
-      updateAssetBalances();
-      formik.setFieldValue('optionsAmount', 0);
+      await updateSsovData();
+      await updateUserSsovData();
+      await updateAssetBalances();
+      formik.setFieldValue('optionsAmount', 1);
     } catch (err) {
       console.log(err);
     }
-  }, [
-    ssovContractWithSigner,
-    strikeIndex,
-    updateSsovData,
-    updateUserSsovData,
-    updateAssetBalances,
-    formik,
-    accountAddress,
-    ssovTokenName,
-    state.totalCost,
-  ]);
+  };
+
+  const checkAllowance = async () => {
+    const finalAmount = state.totalCost;
+
+    const userAmount = IS_NATIVE(token)
+      ? BigNumber.from(userAssetBalances.ETH)
+      : await token.balanceOf(accountAddress);
+
+    setUserTokenBalance(userAmount);
+
+    let allowance = IS_NATIVE(token)
+      ? BigNumber.from(0)
+      : await token.allowance(accountAddress, ssovContractWithSigner.address);
+
+    if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+      setApproved(true);
+    } else {
+      if (IS_NATIVE(token)) {
+        setApproved(true);
+      } else {
+        setApproved(false);
+      }
+    }
+  };
+
+  const setMaxAmount = async () => {};
 
   // Handles isApproved
   useEffect(() => {
     if (!token || !ssovContractWithSigner) return;
-    (async function () {
-      const finalAmount = state.totalCost;
-
-      const userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances.ETH)
-        : await token.balanceOf(accountAddress);
-
-      setUserTokenBalance(userAmount);
-
-      let allowance = IS_NATIVE(token)
-        ? BigNumber.from(0)
-        : await token.allowance(accountAddress, ssovContractWithSigner.address);
-
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        if (IS_NATIVE(token)) {
-          setApproved(true);
-        } else {
-          setApproved(false);
-        }
-      }
-    })();
+    checkAllowance();
   }, [
     accountAddress,
     state.totalCost,
@@ -440,6 +377,55 @@ const PurchaseDialog = ({
     provider,
     ssovTokenName,
   ]);
+
+  // Handles isApproved
+  useEffect(() => {
+    if (!token || !ssovContractWithSigner) return;
+    (async function () {
+      const finalAmount = state.totalCost;
+
+      const userAmount = IS_NATIVE(token)
+        ? BigNumber.from(userAssetBalances.ETH)
+        : await token.balanceOf(accountAddress);
+
+      setUserTokenBalance(userAmount);
+
+      let allowance = IS_NATIVE(token)
+        ? BigNumber.from(0)
+        : await token.allowance(accountAddress, ssovContractWithSigner.address);
+
+      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+        setApproved(true);
+      } else {
+        if (IS_NATIVE(token)) {
+          setApproved(true);
+        } else {
+          setApproved(false);
+        }
+      }
+    })();
+  }, [
+    accountAddress,
+    state.totalCost,
+    token,
+    ssovContractWithSigner,
+    userAssetBalances.ETH,
+  ]);
+
+  useEffect(() => {
+    updateEstimatedGasCost();
+  }, [accountAddress]);
+
+  useEffect(() => {
+    getPath();
+  }, [isZapInVisible]);
+
+  useEffect(() => {
+    if (debouncedZapInAmount[0] !== latestZapInAmount) {
+      getQuote();
+      setLatestZapInAmount(debouncedZapInAmount[0]);
+    }
+  }, [debouncedZapInAmount]);
 
   return (
     <Dialog
@@ -1049,16 +1035,23 @@ const PurchaseDialog = ({
                 isFetchingPath ||
                 getUserReadableAmount(state.totalCost, 18) > purchasePower
               }
-              onClick={handlePurchase}
+              onClick={
+                formik.values.optionsAmount > 0 &&
+                getUserReadableAmount(state.totalCost, 18) < purchasePower
+                  ? approved
+                    ? handlePurchase
+                    : handleApprove
+                  : null
+              }
             >
               {formik.values.optionsAmount > 0
                 ? isFetchingPath
                   ? 'Finding the best route...'
                   : getUserReadableAmount(state.totalCost, 18) > purchasePower
                   ? 'Insufficient balance'
-                  : isApprovalRequired
-                  ? 'Approve'
-                  : 'Purchase'
+                  : approved
+                  ? 'Purchase'
+                  : 'Approve'
                 : 'Enter an amount'}
             </CustomButton>
           </Box>
