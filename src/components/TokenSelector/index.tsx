@@ -1,12 +1,5 @@
-import { SsovData, SsovProperties, UserSsovData } from '../../contexts/Ssov';
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import { ASSET_TO_NAME, AssetsContext } from '../../contexts/Assets';
+import { Dispatch, SetStateAction, useContext, useState } from 'react';
+import { ASSET_TO_NAME, AssetsContext, IS_NATIVE } from '../../contexts/Assets';
 import Box from '@material-ui/core/Box';
 import Typography from '../UI/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -22,7 +15,7 @@ import { WalletContext } from '../../contexts/Wallet';
 export interface Props {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  setToken: Dispatch<SetStateAction<ERC20>>;
+  setToken: Dispatch<SetStateAction<ERC20 | string>>;
 }
 
 const TokenSelector = ({ open, setOpen, setToken }: Props) => {
@@ -92,8 +85,8 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
                       className="flex mt-2 mb-2 hover:bg-mineshaft pb-2 pt-2 pr-3 pl-2 mr-4 rounded-md cursor-pointer"
                       onClick={() => {
                         setToken(
-                          symbol === 'ETH'
-                            ? 'ETH'
+                          IS_NATIVE(symbol)
+                            ? symbol
                             : ERC20__factory.connect(
                                 contractAddresses[symbol],
                                 provider
