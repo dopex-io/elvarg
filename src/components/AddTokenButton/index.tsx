@@ -43,12 +43,12 @@ function AddTokenButton({
   return (
     <IconButton
       className={cx(
-        'text-white border-cod-gray hover:border-wave-blue border rounded-lg border-solid p-0.5',
+        'text-white border-transparent hover:border-wave-blue border rounded-full border-solid p-0',
         className
       )}
       onClick={addToken}
     >
-      <MetaMask className="w-6 h-6" />
+      <img src={options.image} className="w-6" alt={options.symbol} />
     </IconButton>
   );
 }

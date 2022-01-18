@@ -136,6 +136,9 @@ const PurchaseDialog = ({
     }),
     validate: () => {
       const errors: any = {};
+      if (state.totalCost.gt(userTokenBalance)) {
+        errors.amount = `Insufficient ${tokenSymbol} balance to pay for premium.`;
+      }
       return errors;
     },
     onSubmit: noop,
