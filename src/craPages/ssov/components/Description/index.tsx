@@ -118,7 +118,6 @@ const Description = ({
           open={purchaseState}
           ssovProperties={ssovProperties}
           ssovData={ssovData}
-          userSsovData={userSsovData}
           handleClose={
             (() => {
               setPurchaseState(false);

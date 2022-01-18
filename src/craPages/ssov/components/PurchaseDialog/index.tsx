@@ -40,7 +40,6 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   ssovProperties: SsovProperties;
-  userSsovData: UserSsovData;
   ssovData: SsovData;
 }
 
@@ -49,7 +48,6 @@ const PurchaseDialog = ({
   handleClose,
   ssovProperties,
   ssovData,
-  userSsovData,
 }: Props) => {
   const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
     useContext(SsovContext);
@@ -270,7 +268,21 @@ const PurchaseDialog = ({
     }
   };
 
-  const setMaxAmount = async () => {};
+  const setMaxAmount = async () => {
+    const strike = epochStrikes[strikeIndex];
+    const fees = await ssovContractWithSigner.calculatePurchaseFees(
+      tokenPrice,
+      strike,
+      ethersUtils.parseEther(String(1))
+    );
+    let amount =
+      (purchasePower /
+        (getUserReadableAmount(fees, 18) +
+          getUserReadableAmount(state.optionPrice, 8) /
+            getUserReadableAmount(tokenPrice, 8))) *
+      0.99;
+    formik.setFieldValue('optionsAmount', amount.toFixed(2));
+  };
 
   // Handles isApproved
   useEffect(() => {
@@ -857,7 +869,7 @@ const PurchaseDialog = ({
                   <Typography variant="h6" className="text-white mr-auto ml-0">
                     {formatAmount(
                       getUserReadableAmount(state.totalCost, 18),
-                      2
+                      5
                     )}{' '}
                     {ssovTokenSymbol}
                   </Typography>
@@ -877,7 +889,7 @@ const PurchaseDialog = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      {formatAmount(purchasePower, 2)} {ssovTokenSymbol}
+                      {formatAmount(purchasePower, 5)} {ssovTokenSymbol}
                     </Typography>
                   </Box>
                 </Box>

@@ -536,14 +536,14 @@ const ZapIn = ({
               }}
               color={
                 !(formik.values.zapInAmount > 0) ||
-                formik.values.zapInAmount >=
+                formik.values.zapInAmount >
                   getUserReadableAmount(userTokenBalance, 18)
                   ? 'mineshaft'
                   : 'primary'
               }
               disabled={
                 !(formik.values.zapInAmount > 0) ||
-                formik.values.zapInAmount >=
+                formik.values.zapInAmount >
                   getUserReadableAmount(userTokenBalance, 18)
               }
             >
