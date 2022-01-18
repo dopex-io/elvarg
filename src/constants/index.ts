@@ -241,6 +241,11 @@ export const S3_BUCKET_RESOURCES = {
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
 };
 
+export const DISPLAY_TOKENS = {
+  42161: ['DPX', 'RDPX', 'ETH'],
+  65: ['BNB', 'VBNB'],
+};
+
 export const CHAIN_ID_TO_NETWORK_DATA = {
   1: { name: 'Mainnet', icon: '/assets/eth.svg' },
   42: { name: 'Kovan', icon: '/assets/eth.svg' },
