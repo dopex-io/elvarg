@@ -111,7 +111,7 @@ const PurchaseDialog = ({
         ) /
         (1 + slippageTolerance / 100)
       : getUserReadableAmount(userTokenBalance, 18);
-  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
+  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(true);
 
   const strikes = useMemo(
     () =>
@@ -1147,18 +1147,39 @@ const PurchaseDialog = ({
                   : null
               }
             >
-              {formik.values.optionsAmount > 0
-                ? isFetchingPath
-                  ? 'Finding the best route...'
-                  : getUserReadableAmount(state.totalCost, 18) > purchasePower
-                  ? 'Insufficient balance'
-                  : approved
-                  ? userEpochStrikePurchasableAmount <
-                    formik.values.optionsAmount
-                    ? 'Not enough liquidity'
-                    : 'Purchase'
-                  : 'Approve'
-                : 'Enter an amount'}
+              {formik.values.optionsAmount > 0 ? (
+                isFetchingPath ? (
+                  <Box className={'flex'}>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M11.7081 2.29182C10.3497 0.93349 8.42473 0.150156 6.30807 0.366823C3.24973 0.675156 0.733066 3.15849 0.3914 6.21682C-0.0669337 10.2585 3.05807 13.6668 6.99973 13.6668C9.65807 13.6668 11.9414 12.1085 13.0081 9.86682C13.2747 9.30849 12.8747 8.66682 12.2581 8.66682C11.9497 8.66682 11.6581 8.83349 11.5247 9.10849C10.5831 11.1335 8.32473 12.4168 5.85807 11.8668C4.00807 11.4585 2.5164 9.95016 2.12473 8.10016C1.42473 4.86682 3.88307 2.00016 6.99973 2.00016C8.38307 2.00016 9.6164 2.57516 10.5164 3.48349L9.25807 4.74182C8.73307 5.26682 9.09973 6.16682 9.8414 6.16682H12.8331C13.2914 6.16682 13.6664 5.79182 13.6664 5.33349V2.34182C13.6664 1.60016 12.7664 1.22516 12.2414 1.75016L11.7081 2.29182Z"
+                        fill="#8E8E8E"
+                      />
+                    </svg>
+                    <span className="ml-2">Elaborating best route...</span>
+                  </Box>
+                ) : getUserReadableAmount(state.totalCost, 18) >
+                  purchasePower ? (
+                  'Insufficient balance'
+                ) : approved ? (
+                  userEpochStrikePurchasableAmount <
+                  formik.values.optionsAmount ? (
+                    'Not enough liquidity'
+                  ) : (
+                    'Purchase'
+                  )
+                ) : (
+                  'Approve'
+                )
+              ) : (
+                'Enter an amount'
+              )}
             </CustomButton>
           </Box>
         </Box>
