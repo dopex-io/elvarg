@@ -351,8 +351,8 @@ const ZapIn = ({
                             y2="0.796421"
                             gradientUnits="userSpaceOnUse"
                           >
-                            <stop stop-color="#002EFF" />
-                            <stop offset="1" stop-color="#22E1FF" />
+                            <stop stopColor="#002EFF" />
+                            <stop offset="1" stopColor="#22E1FF" />
                           </linearGradient>
                         </defs>
                       </svg>
