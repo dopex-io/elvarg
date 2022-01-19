@@ -844,6 +844,17 @@ const PurchaseDialog = ({
             </svg>
           </Box>
 
+          {!isLiquidityEnough && (
+            <Box className="text-center mb-4">
+              <Typography
+                variant="h6"
+                className="text-red-500 font-medium pl-14 pr-14"
+              >
+                Your order exceeds available liquidity for this strike price.
+              </Typography>
+            </Box>
+          )}
+
           <Box className="rounded-xl p-4 border border-neutral-800 w-full  bg-umbra">
             <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
               <Box className={'flex mb-2'}>
