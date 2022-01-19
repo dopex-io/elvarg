@@ -8,9 +8,10 @@ import SearchIcon from '@material-ui/icons/Search';
 import Slide from '@material-ui/core/Slide';
 import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
-import { ERC20, ERC20__factory } from '@dopex-io/sdk';
+import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { WalletContext } from '../../contexts/Wallet';
+import { Add } from '@material-ui/icons';
 
 export interface Props {
   open: boolean;
@@ -19,7 +20,7 @@ export interface Props {
 }
 
 const TokenSelector = ({ open, setOpen, setToken }: Props) => {
-  const { contractAddresses, provider } = useContext(WalletContext);
+  const { contractAddresses, provider, chainId } = useContext(WalletContext);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
   const getValueInUsd = (symbol) => {
@@ -79,6 +80,7 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
               })
               .map(
                 (symbol) =>
+                  Addresses[chainId][symbol] &&
                   symbol.includes(searchTerm.toUpperCase()) && (
                     <Box
                       key={symbol}
