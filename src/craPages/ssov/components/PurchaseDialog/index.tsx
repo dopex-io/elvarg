@@ -17,12 +17,7 @@ import PnlChart from 'components/PnlChart';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
-import {
-  SsovContext,
-  SsovProperties,
-  SsovData,
-  UserSsovData,
-} from 'contexts/Ssov';
+import { SsovContext, SsovProperties, SsovData } from 'contexts/Ssov';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -137,7 +132,7 @@ const PurchaseDialog = ({
     validate: () => {
       const errors: any = {};
       if (state.totalCost.gt(userTokenBalance)) {
-        errors.amount = `Insufficient ${tokenSymbol} balance to pay for premium.`;
+        errors.amount = `Insufficient ${tokenName} balance to pay for premium.`;
       }
       return errors;
     },
