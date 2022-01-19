@@ -73,7 +73,7 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
           />
         </Box>
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-          <Scrollbars style={{ height: 400 }}>
+          <Scrollbars style={{ height: '50rem' }}>
             {tokens
               .sort((a, b) => {
                 return getValueInUsd(b) - getValueInUsd(a);

@@ -125,7 +125,7 @@ const ZapIn = ({
     <Box>
       {!isTokenSelectorVisible && (
         <Box>
-          <Box className="flex flex-row items-center mb-4">
+          <Box className="flex flex-row items-center mb-4 pt-1">
             <svg
               width="15"
               height="15"
@@ -280,323 +280,324 @@ const ZapIn = ({
             </Box>
           </Box>
 
-          {tokenName !== '' &&
-          ssovTokenName != '' &&
-          ssovTokenName !== tokenName ? (
-            <Box>
-              <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
-                <Box
-                  className={
-                    showSwapSteps
-                      ? 'flex w-full cursor-pointer'
-                      : 'flex w-full pb-4 cursor-pointer'
-                  }
-                  onClick={() => setShowSwapSteps(!showSwapSteps)}
-                >
-                  {isPriceImpactHigh && !isPriceImpactExtreme && (
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 16 15"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mr-2 mt-0.5"
-                    >
-                      <path
-                        d="M1.72494 14.5001H14.2749C15.5583 14.5001 16.3583 13.1084 15.7166 12.0001L9.4416 1.1584C8.79994 0.0500651 7.19994 0.0500651 6.55827 1.1584L0.283272 12.0001C-0.358395 13.1084 0.441605 14.5001 1.72494 14.5001ZM7.99994 8.66673C7.5416 8.66673 7.1666 8.29173 7.1666 7.8334V6.16673C7.1666 5.7084 7.5416 5.3334 7.99994 5.3334C8.45827 5.3334 8.83327 5.7084 8.83327 6.16673V7.8334C8.83327 8.29173 8.45827 8.66673 7.99994 8.66673ZM8.83327 12.0001H7.1666V10.3334H8.83327V12.0001Z"
-                        fill="#F09242"
-                      />
-                    </svg>
-                  )}
+          <Box className="h-[30.8rem]">
+            {tokenName !== '' &&
+              ssovTokenName != '' &&
+              ssovTokenName !== tokenName && (
+                <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
+                  <Box
+                    className={
+                      showSwapSteps
+                        ? 'flex w-full cursor-pointer'
+                        : 'flex w-full pb-4 cursor-pointer'
+                    }
+                    onClick={() => setShowSwapSteps(!showSwapSteps)}
+                  >
+                    {isPriceImpactHigh && !isPriceImpactExtreme && (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 16 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="mr-2 mt-0.5"
+                      >
+                        <path
+                          d="M1.72494 14.5001H14.2749C15.5583 14.5001 16.3583 13.1084 15.7166 12.0001L9.4416 1.1584C8.79994 0.0500651 7.19994 0.0500651 6.55827 1.1584L0.283272 12.0001C-0.358395 13.1084 0.441605 14.5001 1.72494 14.5001ZM7.99994 8.66673C7.5416 8.66673 7.1666 8.29173 7.1666 7.8334V6.16673C7.1666 5.7084 7.5416 5.3334 7.99994 5.3334C8.45827 5.3334 8.83327 5.7084 8.83327 6.16673V7.8334C8.83327 8.29173 8.45827 8.66673 7.99994 8.66673ZM8.83327 12.0001H7.1666V10.3334H8.83327V12.0001Z"
+                          fill="#F09242"
+                        />
+                      </svg>
+                    )}
 
-                  {isPriceImpactExtreme && (
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 16 15"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mr-2 mt-0.5 opacity-90"
-                    >
-                      <path
-                        d="M1.72543 14.5001H14.2754C15.5588 14.5001 16.3588 13.1084 15.7171 12.0001L9.44209 1.1584C8.80043 0.0500651 7.20043 0.0500651 6.55876 1.1584L0.28376 12.0001C-0.357907 13.1084 0.442093 14.5001 1.72543 14.5001ZM8.00043 8.66673C7.54209 8.66673 7.16709 8.29173 7.16709 7.8334V6.16673C7.16709 5.7084 7.54209 5.3334 8.00043 5.3334C8.45876 5.3334 8.83376 5.7084 8.83376 6.16673V7.8334C8.83376 8.29173 8.45876 8.66673 8.00043 8.66673ZM8.83376 12.0001H7.16709V10.3334H8.83376V12.0001Z"
-                        fill="#e14040"
-                      />
-                    </svg>
-                  )}
+                    {isPriceImpactExtreme && (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 16 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="mr-2 mt-0.5 opacity-90"
+                      >
+                        <path
+                          d="M1.72543 14.5001H14.2754C15.5588 14.5001 16.3588 13.1084 15.7171 12.0001L9.44209 1.1584C8.80043 0.0500651 7.20043 0.0500651 6.55876 1.1584L0.28376 12.0001C-0.357907 13.1084 0.442093 14.5001 1.72543 14.5001ZM8.00043 8.66673C7.54209 8.66673 7.16709 8.29173 7.16709 7.8334V6.16673C7.16709 5.7084 7.54209 5.3334 8.00043 5.3334C8.45876 5.3334 8.83376 5.7084 8.83376 6.16673V7.8334C8.83376 8.29173 8.45876 8.66673 8.00043 8.66673ZM8.83376 12.0001H7.16709V10.3334H8.83376V12.0001Z"
+                          fill="#e14040"
+                        />
+                      </svg>
+                    )}
 
-                  {!isPriceImpactExtreme && !isPriceImpactHigh && (
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 18 18"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mt-0.5 mr-2"
-                    >
-                      <path
-                        d="M9.00026 0.683105C4.40859 0.683105 0.683594 4.4081 0.683594 8.99977C0.683594 13.5914 4.40859 17.3164 9.00026 17.3164C13.5919 17.3164 17.3169 13.5914 17.3169 8.99977C17.3169 4.4081 13.5919 0.683105 9.00026 0.683105Z"
-                        fill="url(#paint0_linear_1773_40187)"
-                      />
-                      <path
-                        d="M6.18436 12.9491L7.90936 9.96128L5.98967 8.85294C5.72265 8.69878 5.70889 8.30593 5.9763 8.14278L11.6196 4.50161C11.9814 4.25825 12.423 4.67677 12.2022 5.05926L10.4563 8.08314L12.2894 9.14147C12.5564 9.29564 12.5671 9.67709 12.3142 9.84858L6.7783 13.5037C6.40509 13.7501 5.96353 13.3316 6.18436 12.9491Z"
-                        fill="white"
-                      />
-                      <defs>
-                        <linearGradient
-                          id="paint0_linear_1773_40187"
-                          x1="17.3169"
-                          y1="19.6926"
-                          x2="0.555844"
-                          y2="0.796421"
-                          gradientUnits="userSpaceOnUse"
-                        >
-                          <stop stop-color="#002EFF" />
-                          <stop offset="1" stop-color="#22E1FF" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  )}
+                    {!isPriceImpactExtreme && !isPriceImpactHigh && (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="mt-0.5 mr-2"
+                      >
+                        <path
+                          d="M9.00026 0.683105C4.40859 0.683105 0.683594 4.4081 0.683594 8.99977C0.683594 13.5914 4.40859 17.3164 9.00026 17.3164C13.5919 17.3164 17.3169 13.5914 17.3169 8.99977C17.3169 4.4081 13.5919 0.683105 9.00026 0.683105Z"
+                          fill="url(#paint0_linear_1773_40187)"
+                        />
+                        <path
+                          d="M6.18436 12.9491L7.90936 9.96128L5.98967 8.85294C5.72265 8.69878 5.70889 8.30593 5.9763 8.14278L11.6196 4.50161C11.9814 4.25825 12.423 4.67677 12.2022 5.05926L10.4563 8.08314L12.2894 9.14147C12.5564 9.29564 12.5671 9.67709 12.3142 9.84858L6.7783 13.5037C6.40509 13.7501 5.96353 13.3316 6.18436 12.9491Z"
+                          fill="white"
+                        />
+                        <defs>
+                          <linearGradient
+                            id="paint0_linear_1773_40187"
+                            x1="17.3169"
+                            y1="19.6926"
+                            x2="0.555844"
+                            y2="0.796421"
+                            gradientUnits="userSpaceOnUse"
+                          >
+                            <stop stop-color="#002EFF" />
+                            <stop offset="1" stop-color="#22E1FF" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    )}
 
-                  <Typography variant="h6" className="text-white font-lg">
-                    1 {tokenName} ={' '}
-                    {quote['toToken']
-                      ? formatAmount(
-                          getUserReadableAmount(
-                            quote['toTokenAmount'],
-                            quote['toToken']['decimals']
-                          ) /
+                    <Typography variant="h6" className="text-white font-lg">
+                      1 {tokenName} ={' '}
+                      {quote['toToken']
+                        ? formatAmount(
                             getUserReadableAmount(
-                              quote['fromTokenAmount'],
-                              quote['fromToken']['decimals']
-                            ),
-                          8
-                        )
-                      : '-'}{' '}
-                    {ssovTokenName}{' '}
-                    <span className="opacity-70">
-                      (~${formatAmount(getUserReadableAmount(tokenPrice, 8), 2)}
-                      )
-                    </span>
-                  </Typography>
+                              quote['toTokenAmount'],
+                              quote['toToken']['decimals']
+                            ) /
+                              getUserReadableAmount(
+                                quote['fromTokenAmount'],
+                                quote['fromToken']['decimals']
+                              ),
+                            8
+                          )
+                        : '-'}{' '}
+                      {ssovTokenName}{' '}
+                      <span className="opacity-70">
+                        (~$
+                        {formatAmount(getUserReadableAmount(tokenPrice, 8), 2)})
+                      </span>
+                    </Typography>
 
-                  {!showSwapSteps ? (
-                    <svg
-                      width="12"
-                      height="8"
-                      viewBox="0 0 12 8"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mr-0 ml-auto mt-2 group"
-                      onClick={() => setShowSwapSteps(!showSwapSteps)}
-                    >
-                      true
-                      <path
-                        d="M9.87998 1.28957L5.99998 5.16957L2.11998 1.28957C1.72998 0.89957 1.09998 0.89957 0.70998 1.28957C0.31998 1.67957 0.31998 2.30957 0.70998 2.69957L5.29998 7.28957C5.68998 7.67957 6.31998 7.67957 6.70998 7.28957L11.3 2.69957C11.69 2.30957 11.69 1.67957 11.3 1.28957C10.91 0.90957 10.27 0.89957 9.87998 1.28957Z"
-                        fill="white"
-                        className="group-hover:fill-gray-400"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      width="12"
-                      height="8"
-                      viewBox="0 0 12 8"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mr-0 ml-auto mt-2 group"
-                      onClick={() => setShowSwapSteps(!showSwapSteps)}
-                    >
-                      <path
-                        d="M5.28973 0.70998L0.699727 5.29998C0.309727 5.68998 0.309727 6.31998 0.699727 6.70998C1.08973 7.09998 1.71973 7.09998 2.10973 6.70998L5.99973 2.82998L9.87973 6.70998C10.2697 7.09998 10.8997 7.09998 11.2897 6.70998C11.6797 6.31998 11.6797 5.68998 11.2897 5.29998L6.69973 0.70998C6.31973 0.31998 5.67973 0.31998 5.28973 0.70998Z"
-                        fill="white"
-                        className="group-hover:fill-gray-400"
-                      />
-                    </svg>
-                  )}
-                </Box>
-
-                {showSwapSteps && (
-                  <Box>
-                    <Box className={'flex mb-2 mt-4'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
+                    {!showSwapSteps ? (
+                      <svg
+                        width="12"
+                        height="8"
+                        viewBox="0 0 12 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="mr-0 ml-auto mt-2 group"
+                        onClick={() => setShowSwapSteps(!showSwapSteps)}
                       >
-                        Expected Rate
-                      </Typography>
-                      <Box className={'text-right'}>
+                        true
+                        <path
+                          d="M9.87998 1.28957L5.99998 5.16957L2.11998 1.28957C1.72998 0.89957 1.09998 0.89957 0.70998 1.28957C0.31998 1.67957 0.31998 2.30957 0.70998 2.69957L5.29998 7.28957C5.68998 7.67957 6.31998 7.67957 6.70998 7.28957L11.3 2.69957C11.69 2.30957 11.69 1.67957 11.3 1.28957C10.91 0.90957 10.27 0.89957 9.87998 1.28957Z"
+                          fill="white"
+                          className="group-hover:fill-gray-400"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="12"
+                        height="8"
+                        viewBox="0 0 12 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="mr-0 ml-auto mt-2 group"
+                        onClick={() => setShowSwapSteps(!showSwapSteps)}
+                      >
+                        <path
+                          d="M5.28973 0.70998L0.699727 5.29998C0.309727 5.68998 0.309727 6.31998 0.699727 6.70998C1.08973 7.09998 1.71973 7.09998 2.10973 6.70998L5.99973 2.82998L9.87973 6.70998C10.2697 7.09998 10.8997 7.09998 11.2897 6.70998C11.6797 6.31998 11.6797 5.68998 11.2897 5.29998L6.69973 0.70998C6.31973 0.31998 5.67973 0.31998 5.28973 0.70998Z"
+                          fill="white"
+                          className="group-hover:fill-gray-400"
+                        />
+                      </svg>
+                    )}
+                  </Box>
+
+                  {showSwapSteps && (
+                    <Box>
+                      <Box className={'flex mb-2 mt-4'}>
                         <Typography
                           variant="h6"
-                          className="text-white mr-auto ml-0 pr-1"
+                          className="text-stieglitz ml-0 mr-auto"
                         >
-                          {quote['toToken']
-                            ? formatAmount(
-                                getUserReadableAmount(
-                                  quote['toTokenAmount'],
-                                  quote['toToken']['decimals']
-                                ) /
-                                  getUserReadableAmount(
-                                    quote['fromTokenAmount'],
-                                    quote['fromToken']['decimals']
-                                  ),
-                                8
-                              )
-                            : '-'}
+                          Expected Rate
                         </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box className={'flex mb-2 mt-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Minimum Rate
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0 pr-1"
-                        >
-                          {quote['toToken']
-                            ? formatAmount(
-                                getUserReadableAmount(
-                                  quote['toTokenAmount'],
-                                  quote['toToken']['decimals']
-                                ) /
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0 pr-1"
+                          >
+                            {quote['toToken']
+                              ? formatAmount(
                                   getUserReadableAmount(
-                                    quote['fromTokenAmount'],
-                                    quote['fromToken']['decimals']
+                                    quote['toTokenAmount'],
+                                    quote['toToken']['decimals']
                                   ) /
-                                  (1 + slippageTolerance / 100),
-                                8
-                              )
-                            : '-'}
-                        </Typography>
+                                    getUserReadableAmount(
+                                      quote['fromTokenAmount'],
+                                      quote['fromToken']['decimals']
+                                    ),
+                                  8
+                                )
+                              : '-'}
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                    <Box className={'flex mb-2 mt-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Max. Slippage Tolerance
-                      </Typography>
-                      <Box className={'text-right'}>
+
+                      <Box className={'flex mb-2 mt-2'}>
                         <Typography
                           variant="h6"
-                          className="text-white mr-auto ml-0 pr-1"
+                          className="text-stieglitz ml-0 mr-auto"
                         >
-                          {formatAmount(slippageTolerance, 2)}%
+                          Minimum Rate
                         </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0 pr-1"
+                          >
+                            {quote['toToken']
+                              ? formatAmount(
+                                  getUserReadableAmount(
+                                    quote['toTokenAmount'],
+                                    quote['toToken']['decimals']
+                                  ) /
+                                    getUserReadableAmount(
+                                      quote['fromTokenAmount'],
+                                      quote['fromToken']['decimals']
+                                    ) /
+                                    (1 + slippageTolerance / 100),
+                                  8
+                                )
+                              : '-'}
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                    <Box className={'flex mb-2 mt-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Price Impact
-                      </Typography>
-                      <Box className={'text-right'}>
+                      <Box className={'flex mb-2 mt-2'}>
                         <Typography
                           variant="h6"
-                          className={
-                            isPriceImpactHigh
-                              ? isPriceImpactExtreme
-                                ? 'text-red-500 mr-auto ml-0 pr-1'
-                                : 'text-yellow-400 mr-auto ml-0 pr-1'
-                              : 'text-white mr-auto ml-0 pr-1'
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Max. Slippage Tolerance
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0 pr-1"
+                          >
+                            {formatAmount(slippageTolerance, 2)}%
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box className={'flex mb-2 mt-2'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Price Impact
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className={
+                              isPriceImpactHigh
+                                ? isPriceImpactExtreme
+                                  ? 'text-red-500 mr-auto ml-0 pr-1'
+                                  : 'text-yellow-400 mr-auto ml-0 pr-1'
+                                : 'text-white mr-auto ml-0 pr-1'
+                            }
+                          >
+                            {formatAmount(priceImpact, 2)}%
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box className="rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 mt-4">
+                        <Typography
+                          variant="h6"
+                          className="text-gray-300 opacity-80"
+                        >
+                          Router
+                        </Typography>
+                        <Tooltip
+                          classes={{ touch: '!bg-umbra' }}
+                          title={
+                            <Box className="w-64 pb-3 pt-0 p-2">
+                              {swapSteps.map((step) => (
+                                <Box key={step['pair']}>
+                                  <Typography
+                                    variant="h6"
+                                    className="text-white mb-2 mt-3"
+                                  >
+                                    {step['pair']}
+                                  </Typography>
+                                  <Box className="rounded-md flex flex-col p-3 border border-neutral-800 bg-neutral-800">
+                                    {step['dexes'].map((dex) => (
+                                      <Box className="flex" key={dex['name']}>
+                                        <img
+                                          src={
+                                            '/assets/' +
+                                            getDEXfrom1InchName(dex['name'])
+                                              ?.picture
+                                          }
+                                          className="w-4 h-4 mt-1 mr-3 rounded-sm"
+                                        />
+
+                                        <Typography
+                                          variant="h6"
+                                          className="text-white opacity-60 mb-1"
+                                        >
+                                          {' '}
+                                          {
+                                            getDEXfrom1InchName(dex['name'])
+                                              ?.name
+                                          }
+                                        </Typography>
+
+                                        <Typography
+                                          variant="h6"
+                                          className="text-white ml-auto mr-0"
+                                        >
+                                          {' '}
+                                          {dex['percentage']}%
+                                        </Typography>
+                                      </Box>
+                                    ))}
+                                  </Box>
+                                </Box>
+                              ))}
+                            </Box>
                           }
                         >
-                          {formatAmount(priceImpact, 2)}%
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box className="rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 mt-4">
-                      <Typography
-                        variant="h6"
-                        className="text-gray-300 opacity-80"
-                      >
-                        Router
-                      </Typography>
-                      <Tooltip
-                        classes={{ touch: '!bg-umbra' }}
-                        title={
-                          <Box className="w-64 pb-3 pt-0 p-2">
-                            {swapSteps.map((step) => (
-                              <Box key={step['pair']}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-white mb-2 mt-3"
-                                >
-                                  {step['pair']}
-                                </Typography>
-                                <Box className="rounded-md flex flex-col p-3 border border-neutral-800 bg-neutral-800">
-                                  {step['dexes'].map((dex) => (
-                                    <Box className="flex" key={dex['name']}>
-                                      <img
-                                        src={
-                                          '/assets/' +
-                                          getDEXfrom1InchName(dex['name'])
-                                            ?.picture
-                                        }
-                                        className="w-4 h-4 mt-1 mr-3 rounded-sm"
-                                      />
-
-                                      <Typography
-                                        variant="h6"
-                                        className="text-white opacity-60 mb-1"
-                                      >
-                                        {' '}
-                                        {getDEXfrom1InchName(dex['name'])?.name}
-                                      </Typography>
-
-                                      <Typography
-                                        variant="h6"
-                                        className="text-white ml-auto mr-0"
-                                      >
-                                        {' '}
-                                        {dex['percentage']}%
-                                      </Typography>
-                                    </Box>
-                                  ))}
+                          <Box className="flex">
+                            {swapSymbols.slice(0, 3).map((symbol, index) => (
+                              <Box key={symbol} className="flex mr-2">
+                                <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700 mt-3">
+                                  <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
+                                    <img
+                                      src={`/assets/${symbol.toLowerCase()}.svg`}
+                                      className="w-5 h-5"
+                                    />
+                                  </Box>
+                                  <Typography
+                                    variant="h6"
+                                    className="text-white  pl-2 pr-2 pt-0.5 text-sm"
+                                  >
+                                    {symbol}
+                                  </Typography>
                                 </Box>
                               </Box>
                             ))}
                           </Box>
-                        }
-                      >
-                        <Box className="flex">
-                          {swapSymbols.slice(0, 3).map((symbol, index) => (
-                            <Box key={symbol} className="flex mr-2">
-                              <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700 mt-3">
-                                <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
-                                  <img
-                                    src={`/assets/${symbol.toLowerCase()}.svg`}
-                                    className="w-5 h-5"
-                                  />
-                                </Box>
-                                <Typography
-                                  variant="h6"
-                                  className="text-white  pl-2 pr-2 pt-0.5 text-sm"
-                                >
-                                  {symbol}
-                                </Typography>
-                              </Box>
-                            </Box>
-                          ))}
-                        </Box>
-                      </Tooltip>
+                        </Tooltip>
+                      </Box>
                     </Box>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          ) : (
-            <Box className="h-96" />
-          )}
+                  )}
+                </Box>
+              )}
+          </Box>
 
           <Box className="rounded-xl p-4 border border-neutral-800 w-full  bg-umbra">
             <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 cursor-pointer">
@@ -671,11 +672,13 @@ const ZapIn = ({
       )}
 
       {isTokenSelectorVisible && (
-        <TokenSelector
-          open={isTokenSelectorVisible}
-          setOpen={setIsTokenSelectorVisible}
-          setToken={setToken}
-        />
+        <Box className="h-[70.8rem]">
+          <TokenSelector
+            open={isTokenSelectorVisible}
+            setOpen={setIsTokenSelectorVisible}
+            setToken={setToken}
+          />
+        </Box>
       )}
     </Box>
   );
