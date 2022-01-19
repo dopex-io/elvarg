@@ -1049,11 +1049,18 @@ const PurchaseDialog = ({
                 {isZapActive ? (
                   <span>
                     1 {tokenName} ={' '}
-                    {getUserReadableAmount(
-                      quote['toTokenAmount'],
-                      quote['toToken']['decimals']
-                    ).toFixed(8)}{' '}
-                    {ssovTokenSymbol}
+                    {formatAmount(
+                      getUserReadableAmount(
+                        quote['toTokenAmount'],
+                        quote['toToken']['decimals']
+                      ),
+                      8
+                    )}{' '}
+                    {ssovTokenSymbol}{' '}
+                    <span className="opacity-70">
+                      (~${formatAmount(getUserReadableAmount(tokenPrice, 8), 2)}
+                      )
+                    </span>
                   </span>
                 ) : (
                   'Zap In'
@@ -1171,6 +1178,7 @@ const PurchaseDialog = ({
           setSlippageTolerance={setSlippageTolerance}
           slippageTolerance={slippageTolerance}
           purchasePower={purchasePower}
+          tokenPrice={tokenPrice}
         />
       )}
     </Dialog>
