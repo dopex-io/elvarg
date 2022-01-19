@@ -102,6 +102,7 @@ const PurchaseDialog = ({
   const [path, setPath] = useState<object>({});
   const isZapActive = tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
+  const [priceImpact, setPriceImpact] = useState<number>(0);
   const purchasePower =
     isZapActive && quote['toToken']
       ? getUserReadableAmount(
@@ -183,12 +184,38 @@ const PurchaseDialog = ({
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
+    if (debouncedZapInAmount[0] === 0) {
+      setQuote({});
+      return;
+    }
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
         debouncedZapInAmount[0] * 10 ** fromTokenDecimals
       )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
     setQuote(data);
+  };
+
+  const getPriceImpact = async () => {
+    const fromTokenAddress = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
+    const toTokenAddress = IS_NATIVE(ssovTokenName)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : ssovToken.address;
+    if (fromTokenAddress === toTokenAddress) return;
+    const { data } = await axios.get(
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+        10 ** fromTokenDecimals
+      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+    );
+    const quotePrice = quote['toTokenAmount'] / quote['fromTokenAmount'];
+    const dataPrice = data['toTokenAmount'] / data['fromTokenAmount'];
+    setPriceImpact(
+      100 *
+        (Math.min(quotePrice, dataPrice) / Math.max(quotePrice, dataPrice) - 1)
+    );
   };
 
   const getPath = async () => {
@@ -313,6 +340,10 @@ const PurchaseDialog = ({
       0.99;
     formik.setFieldValue('optionsAmount', amount.toFixed(2));
   };
+
+  useEffect(() => {
+    getPriceImpact();
+  }, [quote]);
 
   useEffect(() => {
     handleTokenChange();
@@ -1135,6 +1166,7 @@ const PurchaseDialog = ({
           token={token}
           userTokenBalance={userTokenBalance}
           quote={quote}
+          priceImpact={priceImpact}
           formik={formik}
           setSlippageTolerance={setSlippageTolerance}
           slippageTolerance={slippageTolerance}

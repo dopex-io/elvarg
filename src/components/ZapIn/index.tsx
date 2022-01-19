@@ -31,6 +31,7 @@ export interface Props {
   formik: any;
   quote: object;
   slippageTolerance: number;
+  priceImpact: number;
   setSlippageTolerance: Dispatch<SetStateAction<number>>;
   tokenName: string;
   ssovTokenName: string;
@@ -45,6 +46,7 @@ const ZapIn = ({
   userTokenBalance,
   quote,
   formik,
+  priceImpact,
   slippageTolerance,
   setSlippageTolerance,
   purchasePower,
@@ -415,7 +417,7 @@ const ZapIn = ({
                         variant="h6"
                         className="text-stieglitz ml-0 mr-auto"
                       >
-                        Max. Price Slippage
+                        Max. Slippage Tolerance
                       </Typography>
                       <Box className={'text-right'}>
                         <Typography
@@ -423,6 +425,22 @@ const ZapIn = ({
                           className="text-white mr-auto ml-0 pr-1"
                         >
                           {slippageTolerance}%
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box className={'flex mb-2 mt-2'}>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz ml-0 mr-auto"
+                      >
+                        Price Impact
+                      </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0 pr-1"
+                        >
+                          {formatAmount(priceImpact, 2)}%
                         </Typography>
                       </Box>
                     </Box>
