@@ -200,7 +200,7 @@ const ZapIn = ({
                 <Slider
                   value={slippageTolerance}
                   min={0.1}
-                  max={5}
+                  max={1}
                   step={0.1}
                   aria-label="Small"
                   valueLabelDisplay="auto"
@@ -278,7 +278,12 @@ const ZapIn = ({
             <Box>
               <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
                 <Box
-                  className={showSwapSteps ? 'flex w-full' : 'flex w-full pb-4'}
+                  className={
+                    showSwapSteps
+                      ? 'flex w-full cursor-pointer'
+                      : 'flex w-full pb-4 cursor-pointer'
+                  }
+                  onClick={() => setShowSwapSteps(!showSwapSteps)}
                 >
                   <svg
                     width="18"
@@ -293,6 +298,7 @@ const ZapIn = ({
                       fill="#F09242"
                     />
                   </svg>
+
                   <Typography variant="h6" className="text-white font-lg">
                     1 {tokenName} ={' '}
                     {quote['toToken']
@@ -310,22 +316,40 @@ const ZapIn = ({
                     {ssovTokenName}
                   </Typography>
 
-                  <svg
-                    width="12"
-                    height="8"
-                    viewBox="0 0 12 8"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="mr-0 ml-auto mt-1 group cursor-pointer"
-                    onClick={() => setShowSwapSteps(!showSwapSteps)}
-                  >
-                    true
-                    <path
-                      d="M9.87998 1.28957L5.99998 5.16957L2.11998 1.28957C1.72998 0.89957 1.09998 0.89957 0.70998 1.28957C0.31998 1.67957 0.31998 2.30957 0.70998 2.69957L5.29998 7.28957C5.68998 7.67957 6.31998 7.67957 6.70998 7.28957L11.3 2.69957C11.69 2.30957 11.69 1.67957 11.3 1.28957C10.91 0.90957 10.27 0.89957 9.87998 1.28957Z"
-                      fill="white"
-                      className="group-hover:fill-gray-400"
-                    />
-                  </svg>
+                  {!showSwapSteps ? (
+                    <svg
+                      width="12"
+                      height="8"
+                      viewBox="0 0 12 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="mr-0 ml-auto mt-2 group"
+                      onClick={() => setShowSwapSteps(!showSwapSteps)}
+                    >
+                      true
+                      <path
+                        d="M9.87998 1.28957L5.99998 5.16957L2.11998 1.28957C1.72998 0.89957 1.09998 0.89957 0.70998 1.28957C0.31998 1.67957 0.31998 2.30957 0.70998 2.69957L5.29998 7.28957C5.68998 7.67957 6.31998 7.67957 6.70998 7.28957L11.3 2.69957C11.69 2.30957 11.69 1.67957 11.3 1.28957C10.91 0.90957 10.27 0.89957 9.87998 1.28957Z"
+                        fill="white"
+                        className="group-hover:fill-gray-400"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="12"
+                      height="8"
+                      viewBox="0 0 12 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="mr-0 ml-auto mt-2 group"
+                      onClick={() => setShowSwapSteps(!showSwapSteps)}
+                    >
+                      <path
+                        d="M5.28973 0.70998L0.699727 5.29998C0.309727 5.68998 0.309727 6.31998 0.699727 6.70998C1.08973 7.09998 1.71973 7.09998 2.10973 6.70998L5.99973 2.82998L9.87973 6.70998C10.2697 7.09998 10.8997 7.09998 11.2897 6.70998C11.6797 6.31998 11.6797 5.68998 11.2897 5.29998L6.69973 0.70998C6.31973 0.31998 5.67973 0.31998 5.28973 0.70998Z"
+                        fill="white"
+                        className="group-hover:fill-gray-400"
+                      />
+                    </svg>
+                  )}
                 </Box>
 
                 {showSwapSteps && (
