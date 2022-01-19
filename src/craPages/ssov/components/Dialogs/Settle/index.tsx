@@ -211,7 +211,7 @@ const Settle = ({
               >
                 {formatAmount(
                   tokenName === 'BNB'
-                    ? getUserReadableAmount(convertToVBNB(PnL).toString(), 8)
+                    ? getUserReadableAmount(convertToVBNB(PnL), 8)
                     : getUserReadableAmount(PnL, 18),
                   5
                 )}{' '}
