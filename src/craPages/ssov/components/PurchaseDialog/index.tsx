@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useMemo } from 'react';
+import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 import { useFormik } from 'formik';
 import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
@@ -17,7 +17,12 @@ import PnlChart from 'components/PnlChart';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
-import { SsovContext, SsovProperties, SsovData } from 'contexts/Ssov';
+import {
+  SsovContext,
+  SsovProperties,
+  SsovData,
+  UserSsovData,
+} from 'contexts/Ssov';
 
 import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -35,6 +40,7 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   ssovProperties: SsovProperties;
+  userSsovData: UserSsovData;
   ssovData: SsovData;
 }
 
@@ -42,6 +48,7 @@ const PurchaseDialog = ({
   open,
   handleClose,
   ssovProperties,
+  userSsovData,
   ssovData,
 }: Props) => {
   const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
@@ -82,6 +89,10 @@ const PurchaseDialog = ({
 
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
+  const [
+    userEpochStrikePurchasableAmount,
+    setUserEpochStrikePurchasableAmount,
+  ] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
   const ssovTokenName = ssovProperties.tokenName;
@@ -101,21 +112,37 @@ const PurchaseDialog = ({
       : getUserReadableAmount(userTokenBalance, 18);
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
+  const strikes = useMemo(
+    () =>
+      epochStrikes.map((strike) => getUserReadableAmount(strike, 8).toString()),
+    [epochStrikes]
+  );
+
+  const { epochStrikeTokens } = userSsovData;
+
+  const epochStrikeToken = useMemo(
+    () => (strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null),
+    [strikeIndex, epochStrikeTokens]
+  );
+
   const handleTokenChange = async () => {
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
     await getQuote();
   };
 
-  useEffect(() => {
-    handleTokenChange();
-  }, [token]);
-
-  const strikes = useMemo(
-    () =>
-      epochStrikes.map((strike) => getUserReadableAmount(strike, 8).toString()),
-    [epochStrikes]
-  );
+  const updateUserEpochStrikePurchasableAmount = async () => {
+    if (!epochStrikeToken || !ssovContractWithSigner) {
+      setUserEpochStrikePurchasableAmount(0);
+      return;
+    }
+    const vaultEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
+      ssovContractWithSigner.address
+    );
+    setUserEpochStrikePurchasableAmount(
+      getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
+    );
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -138,6 +165,11 @@ const PurchaseDialog = ({
     },
     onSubmit: noop,
   });
+
+  const isLiquidityEnough =
+    formik.values.optionsAmount < userEpochStrikePurchasableAmount;
+  const isPurchasePowerEnough =
+    purchasePower >= getUserReadableAmount(state.totalCost, 18);
 
   const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 1000);
   const [latestZapInAmount, setLatestZapInAmount] = useState<number>(0);
@@ -281,6 +313,14 @@ const PurchaseDialog = ({
       0.99;
     formik.setFieldValue('optionsAmount', amount.toFixed(2));
   };
+
+  useEffect(() => {
+    handleTokenChange();
+  }, [token]);
+
+  useEffect(() => {
+    updateUserEpochStrikePurchasableAmount();
+  }, [strikeIndex]);
 
   // Handles isApproved
   useEffect(() => {
@@ -1034,22 +1074,26 @@ const PurchaseDialog = ({
               size="medium"
               className="w-full mt-4 !rounded-md"
               color={
-                !(formik.values.optionsAmount > 0) ||
+                formik.values.optionsAmount <= 0 ||
                 isFetchingPath ||
-                getUserReadableAmount(state.totalCost, 18) > purchasePower
+                !isPurchasePowerEnough ||
+                !isLiquidityEnough
                   ? 'mineshaft'
                   : 'primary'
               }
               disabled={
-                !(formik.values.optionsAmount > 0) ||
+                formik.values.optionsAmount <= 0 ||
                 isFetchingPath ||
-                getUserReadableAmount(state.totalCost, 18) > purchasePower
+                !isPurchasePowerEnough ||
+                !isLiquidityEnough
               }
               onClick={
-                formik.values.optionsAmount > 0 &&
-                getUserReadableAmount(state.totalCost, 18) < purchasePower
+                formik.values.optionsAmount > 0 && isPurchasePowerEnough
                   ? approved
-                    ? handlePurchase
+                    ? userEpochStrikePurchasableAmount <
+                      formik.values.optionsAmount
+                      ? null
+                      : handlePurchase
                     : handleApprove
                   : null
               }
@@ -1060,7 +1104,10 @@ const PurchaseDialog = ({
                   : getUserReadableAmount(state.totalCost, 18) > purchasePower
                   ? 'Insufficient balance'
                   : approved
-                  ? 'Purchase'
+                  ? userEpochStrikePurchasableAmount <
+                    formik.values.optionsAmount
+                    ? 'Not enough liquidity'
+                    : 'Purchase'
                   : 'Approve'
                 : 'Enter an amount'}
             </CustomButton>

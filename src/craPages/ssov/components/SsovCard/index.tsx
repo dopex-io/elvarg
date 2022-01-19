@@ -217,6 +217,7 @@ function SsovCard(props: SsovCardProps) {
       {purchaseState && (
         <PurchaseDialog
           ssovProperties={ssovProperties}
+          userSsovData={userSsovData}
           ssovData={ssovData}
           open={purchaseState}
           handleClose={

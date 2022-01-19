@@ -116,6 +116,7 @@ const Description = ({
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
+          userSsovData={userSsovData}
           ssovProperties={ssovProperties}
           ssovData={ssovData}
           handleClose={
