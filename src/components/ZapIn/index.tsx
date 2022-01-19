@@ -280,7 +280,7 @@ const ZapIn = ({
             </Box>
           </Box>
 
-          <Box className="h-[30.8rem]">
+          <Box className="h-[32.2rem]">
             {tokenName !== '' &&
               ssovTokenName != '' &&
               ssovTokenName !== tokenName && (
