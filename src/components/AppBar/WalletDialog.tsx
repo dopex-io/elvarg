@@ -1,9 +1,8 @@
-import { useCallback, useContext } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import {} from '@dopex-io/sdk';
 import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
 import LaunchIcon from '@material-ui/icons/Launch';
-import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
+import delay from 'lodash/delay';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -15,11 +14,17 @@ import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import { DISPLAY_TOKENS } from 'constants/index';
+
 const WalletDialog = ({ open, handleClose, userBalances }) => {
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
 
+  const [copyState, setCopyState] = useState('Copy Address');
+
   const copyToClipboard = () => {
+    setCopyState('Copied');
+    delay(() => setCopyState('Copy Address'), 500);
     navigator.clipboard.writeText(accountAddress);
   };
 
@@ -41,68 +46,70 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
       <Box className="flex items-center justify-between mb-4">
         <Typography
           variant="h5"
-          className="text-white font-lg bg-umbra rounded-md py-2 px-4"
+          className="bg-umbra rounded-xl border border-mineshaft border-opacity-50 py-1 px-2"
         >
           {displayAddress(accountAddress, ensName)}
         </Typography>
         <Box className="flex space-x-2">
-          <IconButton
-            className="text-white focus:bg-transparent p-0"
+          <Typography
+            className="bg-mineshaft bg-opacity-10 rounded-xl border border-mineshaft border-opacity-20 hover:border-opacity-40 px-2 py-1 my-auto"
+            variant="caption"
             onClick={copyToClipboard}
+            role="button"
           >
-            <FileCopyRoundedIcon className="p-1 text-stieglitz hover:text-white transition duration-150 ease-in-out" />
-          </IconButton>
-          <IconButton
-            className="text-white focus:bg-transparent p-0"
-            href={`${getExplorerUrl(chainId)}/address/${accountAddress}`}
-            target="_blank"
-            rel="noreferrer noopener"
+            {copyState}
+          </Typography>
+          <Typography
+            className="bg-mineshaft bg-opacity-10 rounded-xl border border-mineshaft border-opacity-20 hover:border-opacity-40 px-2 py-1 my-auto"
+            variant="caption"
+            onClick={copyToClipboard}
+            role="button"
           >
-            <LaunchIcon className="p-1 text-stieglitz hover:text-white transition duration-150 ease-in-out" />
-          </IconButton>
+            <a
+              href={`${getExplorerUrl(chainId)}/address/${accountAddress}`}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <LaunchIcon className="p-0 m-0 w-3 h-3" /> Explorer
+            </a>
+          </Typography>
         </Box>
       </Box>
       <Box className="flex justify-between mb-4">
         <Typography
-          className="text-wave-blue px-2 py-1 my-auto"
-          variant="h5"
+          className="text-wave-blue bg-wave-blue bg-opacity-10 rounded-xl border border-wave-blue border-opacity-20 hover:border-opacity-40 px-2 py-1 my-auto"
+          variant="caption"
           onClick={changeWalletClick}
           role="button"
         >
           Change Wallet
         </Typography>
         <Typography
-          className="text-down-bad bg-down-bad bg-opacity-10 rounded-md px-2 py-1 my-auto"
-          variant="h5"
+          className="text-down-bad bg-down-bad bg-opacity-10 rounded-xl border border-down-bad border-opacity-20 hover:border-opacity-40 px-2 py-1 my-auto"
+          variant="caption"
           onClick={disconnectWalletClick}
           role="button"
         >
           Disconnect
         </Typography>
       </Box>
-      <Box className="flex flex-col w-full space-y-4">
-        <Typography variant="h4">Balances</Typography>
-        <Box className="flex flex-col justify-left space-y-4">
-          <BalanceItem
-            balance={getUserReadableAmount(userBalances.DPX, 18).toString()}
-            decimals={18}
-            token="DPX"
-            iconSrc={'/assets/dpx.svg'}
-            iconAlt="DPX"
-          />
-          <BalanceItem
-            balance={getUserReadableAmount(userBalances.RDPX, 18).toString()}
-            decimals={18}
-            token="rDPX"
-            iconSrc={'/assets/rdpx.svg'}
-            iconAlt="rDPX"
-          />
-          <BalanceItem
-            balance={getUserReadableAmount(userBalances.ETH, 18).toString()}
-            token="ETH"
-            iconSrc={'/assets/eth.svg'}
-            iconAlt="ETH"
-          />
+      <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
+        <Box className="flex flex-col space-y-4">
+          {DISPLAY_TOKENS[chainId]?.map((key: any, index) => {
+            return (
+              <BalanceItem
+                key={index}
+                balance={getUserReadableAmount(
+                  userBalances[key],
+                  chainId === 56 ? 8 : 18
+                ).toString()}
+                decimals={18}
+                token={key}
+                iconSrc={`/assets/${key}.svg`}
+                iconAlt={key}
+              />
+            );
+          })}
         </Box>
       </Box>
     </Dialog>

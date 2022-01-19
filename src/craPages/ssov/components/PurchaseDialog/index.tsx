@@ -137,7 +137,6 @@ const PurchaseDialog = ({
     }),
     validate: () => {
       const errors: any = {};
-      console.log('asdas', userTokenBalance.toString());
       if (state.totalCost.gt(userTokenBalance)) {
         errors.amount = `Insufficient ${tokenSymbol} balance to pay for premium.`;
       }

@@ -23,28 +23,29 @@ const BalanceItem = (props: BalanceItemProps) => {
   const upperCaseToken = token.toUpperCase();
 
   return (
-    <Box className="flex lg:flex-row flex-col bg-umbra rounded-xl px-4 py-3 lg:items-center">
-      <Box className="mr-3 h-8 flex flex-row items-center mb-2 lg:mb-0">
-        <img src={iconSrc} alt={iconAlt} className="mr-3" />
-        <Typography variant="h5" className="text-stieglitz font-bold mr-3">
-          {token}
-        </Typography>
-        {decimals && contractAddresses && contractAddresses[upperCaseToken] && (
+    <Box className="flex justify-between bg-umbra lg:items-center mx-2">
+      <Box className="flex items-center">
+        {decimals && contractAddresses && contractAddresses[upperCaseToken] ? (
           <AddTokenButton
             options={{
               address: contractAddresses[upperCaseToken],
               symbol: token,
               decimals: decimals,
-              image: S3_BUCKET_RESOURCES[upperCaseToken],
+              image: S3_BUCKET_RESOURCES[token],
             }}
           />
+        ) : (
+          <img src={iconSrc} alt={iconAlt} className="w-6" />
         )}
+        <Typography
+          variant="h6"
+          className="text-stieglitz font-bold my-auto ml-2"
+        >
+          {token}
+        </Typography>
       </Box>
-      <Typography
-        variant="h5"
-        className="text-white mb-1 text-left lg:text-right w-full ml-1 lg:ml-0"
-      >
-        {balance}
+      <Typography variant="h6" className="text-white my-auto">
+        {balance === '0' ? 0 : Number(balance).toFixed(5)}
       </Typography>
     </Box>
   );
