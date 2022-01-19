@@ -111,7 +111,7 @@ const PurchaseDialog = ({
         ) /
         (1 + slippageTolerance / 100)
       : getUserReadableAmount(userTokenBalance, 18);
-  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(true);
+  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
   const strikes = useMemo(
     () =>
