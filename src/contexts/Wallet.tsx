@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import Web3Modal from 'web3modal';
+import WalletLink from 'walletlink';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -63,6 +64,12 @@ if (typeof window !== 'undefined') {
   const providerOptions = {
     walletconnect: {
       package: WalletConnectProvider,
+      options: {
+        rpc: CHAIN_ID_TO_PROVIDERS,
+      },
+    },
+    walletlink: {
+      package: WalletLink,
       options: {
         rpc: CHAIN_ID_TO_PROVIDERS,
       },

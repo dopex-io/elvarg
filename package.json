@@ -40,6 +40,7 @@
     "react-use": "^17.2.4",
     "recharts": "^2.0.9",
     "sass": "^1.43.2",
+    "walletlink": "^2.4.4",
     "web3modal": "^1.9.4",
     "yup": "^0.32.9"
   },
