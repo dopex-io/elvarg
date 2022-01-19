@@ -74,16 +74,16 @@ const StatsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {tokenSymbol === 'BNB'
-            ? formatAmount(
-                Number(
-                  convertToBNB(
-                    ethers.utils.parseUnits(totalDeposits.toString(), 8)
-                  )
-                ) * price,
-                2
-              )
-            : formatAmount(totalDeposits * price, 2)}
+          {formatAmount(
+            tokenSymbol === 'BNB'
+              ? (convertToBNB(ethers.utils.parseEther(totalDeposits.toString()))
+                  .div(oneEBigNumber(6))
+                  .toNumber() /
+                  1e4) *
+                  price
+              : totalDeposits * price,
+            2
+          )}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
