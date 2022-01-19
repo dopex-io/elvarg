@@ -21,8 +21,6 @@ import ExerciseTableData from './ExerciseTableData';
 import { SsovProperties, SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
