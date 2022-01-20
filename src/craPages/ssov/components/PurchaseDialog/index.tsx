@@ -55,7 +55,7 @@ const PurchaseDialog = ({
 }: Props) => {
   const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
     useContext(SsovContext);
-  const { updateAssetBalances, userAssetBalances, tokens } =
+  const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const { accountAddress, provider, chainId } = useContext(WalletContext);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
@@ -66,6 +66,7 @@ const PurchaseDialog = ({
   );
   const ssovToken = ssovSignerArray[selectedSsov].token[0];
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
+  const [estimatedGasCostInUsd, setEstimatedGasCostInUsd] = useState<number>(0);
   const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
     ssovProperties;
   const { ssovContractWithSigner } =
@@ -133,6 +134,14 @@ const PurchaseDialog = ({
     setTokenName(symbol);
     await getQuote();
   };
+
+  const selectedTokenPrice: number = useMemo(() => {
+    let price = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === tokenName) price = record['price'];
+    });
+    return price;
+  }, [tokenPrices, tokenName]);
 
   const updateUserEpochStrikePurchasableAmount = async () => {
     if (!epochStrikeToken || !ssovContractWithSigner) {
@@ -261,7 +270,14 @@ const PurchaseDialog = ({
 
   const updateEstimatedGasCost = async () => {
     const feeData = await provider.getFeeData();
-    setEstimatedGasCost(700000 * feeData['gasPrice'].toNumber());
+    setEstimatedGasCost(
+      getUserReadableAmount(700000 * feeData['gasPrice'].toNumber(), 18)
+    );
+    let ethPriceInUsd = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === 'ETH') ethPriceInUsd = record['price'];
+    });
+    setEstimatedGasCostInUsd(estimatedGasCost * ethPriceInUsd);
   };
 
   const handleApprove = async () => {
@@ -896,7 +912,7 @@ const PurchaseDialog = ({
         </svg>
       </Box>
 
-      <Box className="rounded-xl p-4 border border-neutral-800 w-full  bg-umbra">
+      <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
@@ -984,7 +1000,10 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0 flex">
-                ⧫ {formatAmount(getUserReadableAmount(estimatedGasCost, 18), 5)}
+                <span className="opacity-70 mr-2">
+                  ~${formatAmount(estimatedGasCostInUsd, 0)}
+                </span>
+                {formatAmount(estimatedGasCost, 5)} ETH
               </Typography>
             </Box>
           </Box>
@@ -1039,7 +1058,7 @@ const PurchaseDialog = ({
                   )}{' '}
                 {ssovTokenSymbol}{' '}
                 <span className="opacity-70">
-                  (~${formatAmount(getUserReadableAmount(tokenPrice, 8), 2)})
+                  (~${formatAmount(selectedTokenPrice, 2)})
                 </span>
               </span>
             ) : (
@@ -1174,7 +1193,7 @@ const PurchaseDialog = ({
             setSlippageTolerance={setSlippageTolerance}
             slippageTolerance={slippageTolerance}
             purchasePower={purchasePower}
-            tokenPrice={tokenPrice}
+            selectedTokenPrice={selectedTokenPrice}
           />
         </Box>
       </Slide>

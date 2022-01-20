@@ -37,7 +37,7 @@ export interface Props {
   tokenName: string;
   ssovTokenName: string;
   purchasePower: number;
-  tokenPrice: BigNumber;
+  selectedTokenPrice: number;
 }
 
 const ZapIn = ({
@@ -52,14 +52,13 @@ const ZapIn = ({
   slippageTolerance,
   setSlippageTolerance,
   purchasePower,
-  tokenPrice,
+  selectedTokenPrice,
 }: Props) => {
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
   const [swapSymbols, setSwapSymbols] = useState<string[]>([]);
   const [swapSteps, setSwapSteps] = useState<object[]>([]);
   const { chainId } = useContext(WalletContext);
-  const { tokenPrices } = useContext(AssetsContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showSwapSteps, setShowSwapSteps] = useState<boolean>(true);
   const isPriceImpactHigh = priceImpact < -2;
@@ -376,7 +375,7 @@ const ZapIn = ({
                       {ssovTokenName}{' '}
                       <span className="opacity-70">
                         (~$
-                        {formatAmount(getUserReadableAmount(tokenPrice, 8), 2)})
+                        {formatAmount(selectedTokenPrice, 2)})
                       </span>
                     </Typography>
 
@@ -440,7 +439,7 @@ const ZapIn = ({
                                       quote['fromTokenAmount'],
                                       quote['fromToken']['decimals']
                                     ),
-                                  8
+                                  18
                                 )
                               : '-'}
                           </Typography>
@@ -470,7 +469,7 @@ const ZapIn = ({
                                       quote['fromToken']['decimals']
                                     ) /
                                     (1 + slippageTolerance / 100),
-                                  8
+                                  18
                                 )
                               : '-'}
                           </Typography>

@@ -49,6 +49,18 @@ input[type='number'] {
   background: #1e1e1e;
 }
 
+.Mui-checked {
+  color: #22e1ff !important;
+}
+
+.MuiLinearProgress-barColorPrimary {
+  background-color: #22e1ff !important;
+}
+
+.MuiLinearProgress-colorPrimary {
+  background-color: #3e3e3e;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
   background-color: #2f2d2d;
