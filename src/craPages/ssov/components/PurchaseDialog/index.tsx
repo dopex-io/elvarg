@@ -497,6 +497,15 @@ const PurchaseDialog = ({
   ]);
 
   useEffect(() => {
+    if (
+      !isZapInVisible &&
+      formik.values.zapInAmount > getUserReadableAmount(userTokenBalance, 18)
+    ) {
+      setTokenName(ssovTokenSymbol);
+    }
+  }, [isZapInVisible]);
+
+  useEffect(() => {
     updateEstimatedGasCost();
   }, [accountAddress]);
 
