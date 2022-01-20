@@ -9,9 +9,7 @@ import Slide from '@material-ui/core/Slide';
 import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
 import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { WalletContext } from '../../contexts/Wallet';
-import { Add } from '@material-ui/icons';
 
 export interface Props {
   open: boolean;
@@ -73,7 +71,7 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
           />
         </Box>
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-          <Scrollbars style={{ height: '50rem' }}>
+          <Box>
             {tokens
               .sort((a, b) => {
                 return getValueInUsd(b) - getValueInUsd(a);
@@ -141,7 +139,7 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
                     </Box>
                   )
               )}
-          </Scrollbars>
+          </Box>
         </Slide>
       </Box>
     )

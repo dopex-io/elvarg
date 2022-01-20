@@ -93,11 +93,15 @@ const PnlChart = (props: PnlChartProps) => {
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz"
+          className="text-stieglitz text-xs"
         >
           {symbol} Price
         </Typography>
-        <Typography variant="caption" component="div" className="text-white">
+        <Typography
+          variant="caption"
+          component="div"
+          className="text-white text-xs"
+        >
           ${formatAmount(state.price, 3)}
         </Typography>
       </Box>
@@ -105,7 +109,7 @@ const PnlChart = (props: PnlChartProps) => {
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz"
+          className="text-stieglitz text-xs"
         >
           Estimated PnL
         </Typography>
@@ -114,7 +118,9 @@ const PnlChart = (props: PnlChartProps) => {
           component="div"
           className={getValueColorClass(state.pnl)}
         >
-          {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
+          <span className="text-xs">
+            {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
+          </span>
         </Typography>
       </Box>
 
@@ -122,14 +128,14 @@ const PnlChart = (props: PnlChartProps) => {
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz"
+          className="text-stieglitz text-xs"
         >
           Breakeven
         </Typography>
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz"
+          className="text-stieglitz text-xs"
         >
           ${formatAmount(breakEven, 3)}
         </Typography>

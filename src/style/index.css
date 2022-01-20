@@ -48,3 +48,16 @@ input[type='number'] {
 .MuiTooltip-tooltip {
   background: #1e1e1e;
 }
+
+::-webkit-scrollbar {
+  width: 12px;
+  background-color: #2f2d2d;
+}
+
+*::-webkit-scrollbar-track {
+  background: #2f2d2d;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #1e1e1e;
+}
