@@ -82,7 +82,7 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
                   symbol.includes(searchTerm.toUpperCase()) && (
                     <Box
                       key={symbol}
-                      className="flex mt-2 mb-2 hover:bg-mineshaft pb-2 pt-2 pr-3 pl-2 mr-4 rounded-md cursor-pointer"
+                      className="flex mt-2 mb-2 hover:bg-mineshaft p-2 rounded-md cursor-pointer"
                       onClick={() => {
                         setToken(
                           IS_NATIVE(symbol)

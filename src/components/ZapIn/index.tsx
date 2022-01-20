@@ -672,7 +672,7 @@ const ZapIn = ({
       )}
 
       {isTokenSelectorVisible && (
-        <Box className="h-[70.8rem]">
+        <Box className="h-[52.8rem]">
           <TokenSelector
             open={isTokenSelectorVisible}
             setOpen={setIsTokenSelectorVisible}
