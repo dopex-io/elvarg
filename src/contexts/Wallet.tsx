@@ -1,13 +1,13 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import Web3Modal from 'web3modal';
-import WalletLink from 'walletlink';
+import { useLocation } from 'react-router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
-import WalletConnectProvider from '@walletconnect/web3-provider';
 import { Addresses } from '@dopex-io/sdk';
+import Web3Modal from 'web3modal';
+import WalletLink from 'walletlink';
+import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import { INFURA_PROJECT_ID, BSC_RPC_URL } from 'constants/index';
-import { useLocation } from 'react-router';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -51,7 +51,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/manage/BNB': [56],
   '/ssov/manage/GMX': [42161],
   '/nfts': [42161],
-  '/nfts/community': [42161, 1, 42, 1337],
+  '/nfts/community': [42161, 1],
   '/sale': [1],
 };
 
