@@ -71,8 +71,8 @@ const PnlChart = (props: PnlChartProps) => {
   );
 
   return (
-    <Box className="h-52">
-      <Box className="flex justify-between mb-4">
+    <Box className="h-[11.25rem]">
+      <Box className="flex justify-between">
         <Typography variant="h6" className="text-stieglitz font-small">
           Calculator
         </Typography>
@@ -89,7 +89,7 @@ const PnlChart = (props: PnlChartProps) => {
           <Line type="monotone" dataKey="value" stroke="white" dot={false} />
         </LineChart>
       </ResponsiveContainer>
-      <Box className="flex justify-between mb-4">
+      <Box className="flex justify-between mb-3.5">
         <Typography
           variant="caption"
           component="div"
@@ -105,7 +105,7 @@ const PnlChart = (props: PnlChartProps) => {
           ${formatAmount(state.price, 3)}
         </Typography>
       </Box>
-      <Box className="flex justify-between mb-4">
+      <Box className="flex justify-between mb-3.5">
         <Typography
           variant="caption"
           component="div"
@@ -124,7 +124,7 @@ const PnlChart = (props: PnlChartProps) => {
         </Typography>
       </Box>
 
-      <Box className="flex justify-between mb-1">
+      <Box className="flex justify-between mb-0.5">
         <Typography
           variant="caption"
           component="div"

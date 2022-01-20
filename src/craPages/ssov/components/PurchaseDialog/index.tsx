@@ -517,7 +517,7 @@ const PurchaseDialog = ({
       handleClose={handleClose}
       classes={{
         paper: 'rounded m-0',
-        paperScrollPaper: 'overflow-x-hidden h-[56rem]',
+        paperScrollPaper: 'overflow-x-hidden',
       }}
     >
       <Box className="flex flex-row items-center mb-4">
@@ -701,7 +701,7 @@ const PurchaseDialog = ({
       <Box>
         {debouncedIsChartVisible[0] && (
           <Slide direction="left" in={isChartVisible}>
-            <Box className="p-3 bg-cod-gray mb-1 rounded-md border border-neutral-800">
+            <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
               <PnlChart
                 breakEven={
                   Number(strikes[strikeIndex]) +
@@ -719,7 +719,7 @@ const PurchaseDialog = ({
 
         {!debouncedIsChartVisible[0] && (
           <Slide direction="left" in={!isChartVisible}>
-            <Box className="h-[14.88rem]">
+            <Box className="h-[12.88rem]">
               <Box className={'flex'}>
                 <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
                   <Box className={'w-5/6'}>
@@ -864,7 +864,7 @@ const PurchaseDialog = ({
         )}
       </Box>
 
-      <Box className="flex mt-7 mb-5">
+      <Box className="flex mt-5 mb-5">
         <svg
           className={
             isChartVisible
