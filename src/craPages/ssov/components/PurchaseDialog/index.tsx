@@ -37,6 +37,8 @@ import ZapIn from '../../../../components/ZapIn';
 import { useDebounce } from 'use-debounce';
 import axios from 'axios';
 import styles from './styles.module.scss';
+import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
+import ZapInButton from '../../../../components/ZapInButton';
 
 export interface Props {
   open: boolean;
@@ -65,8 +67,6 @@ const PurchaseDialog = ({
       : ssovSignerArray[selectedSsov].token[0]
   );
   const ssovToken = ssovSignerArray[selectedSsov].token[0];
-  const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
-  const [estimatedGasCostInUsd, setEstimatedGasCostInUsd] = useState<number>(0);
   const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
     ssovProperties;
   const { ssovContractWithSigner } =
@@ -103,7 +103,9 @@ const PurchaseDialog = ({
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
-  const isZapActive = tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
+  const isZapActive: boolean = useMemo(() => {
+    return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
+  }, [tokenName, ssovTokenSymbol]);
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const [priceImpact, setPriceImpact] = useState<number>(0);
   const purchasePower =
@@ -266,18 +268,6 @@ const PurchaseDialog = ({
       setToken(randomToken);
       setIsZapInVisible(true);
     }
-  };
-
-  const updateEstimatedGasCost = async () => {
-    const feeData = await provider.getFeeData();
-    setEstimatedGasCost(
-      getUserReadableAmount(700000 * feeData['gasPrice'].toNumber(), 18)
-    );
-    let ethPriceInUsd = 0;
-    tokenPrices.map((record) => {
-      if (record['name'] === 'ETH') ethPriceInUsd = record['price'];
-    });
-    setEstimatedGasCostInUsd(estimatedGasCost * ethPriceInUsd);
   };
 
   const handleApprove = async () => {
@@ -520,10 +510,6 @@ const PurchaseDialog = ({
       setTokenName(ssovTokenSymbol);
     }
   }, [isZapInVisible]);
-
-  useEffect(() => {
-    updateEstimatedGasCost();
-  }, [accountAddress]);
 
   useEffect(() => {
     getPath();
@@ -978,124 +964,17 @@ const PurchaseDialog = ({
             </Box>
           </Box>
 
-          <Box className={'flex'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto flex"
-            >
-              <svg
-                width="12"
-                height="13"
-                viewBox="0 0 12 13"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="mt-1.5 mr-2"
-              >
-                <path
-                  d="M11.1801 2.82L11.1867 2.81333L9.06008 0.686667C8.86675 0.493333 8.54675 0.493333 8.35341 0.686667C8.16008 0.88 8.16008 1.2 8.35341 1.39333L9.40675 2.44667C8.70675 2.71333 8.23341 3.42667 8.35341 4.25333C8.46008 4.98667 9.08675 5.58 9.82008 5.66C10.1334 5.69333 10.4067 5.64 10.6667 5.52667V10.3333C10.6667 10.7 10.3667 11 10.0001 11C9.63342 11 9.33342 10.7 9.33342 10.3333V7.33333C9.33342 6.6 8.73341 6 8.00008 6H7.33342V1.33333C7.33342 0.6 6.73342 0 6.00008 0H2.00008C1.26675 0 0.666748 0.6 0.666748 1.33333V11.3333C0.666748 11.7 0.966748 12 1.33341 12H6.66675C7.03341 12 7.33342 11.7 7.33342 11.3333V7H8.33342V10.24C8.33342 11.1133 8.96008 11.9067 9.82675 11.9933C10.8267 12.0933 11.6667 11.3133 11.6667 10.3333V4C11.6667 3.54 11.4801 3.12 11.1801 2.82ZM6.00008 4.66667H2.00008V2C2.00008 1.63333 2.30008 1.33333 2.66675 1.33333H5.33342C5.70008 1.33333 6.00008 1.63333 6.00008 2V4.66667ZM10.0001 4.66667C9.63342 4.66667 9.33342 4.36667 9.33342 4C9.33342 3.63333 9.63342 3.33333 10.0001 3.33333C10.3667 3.33333 10.6667 3.63333 10.6667 4C10.6667 4.36667 10.3667 4.66667 10.0001 4.66667Z"
-                  fill="#6DFFB9"
-                />
-              </svg>{' '}
-              Est. Gas Cost
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0 flex">
-                <span className="opacity-70 mr-2">
-                  ~${formatAmount(estimatedGasCostInUsd, 0)}
-                </span>
-                {formatAmount(estimatedGasCost, 5)} ETH
-              </Typography>
-            </Box>
-          </Box>
+          <EstimatedGasCostButton gas={700000} />
         </Box>
 
-        <Box
-          className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 cursor-pointer hover:bg-neutral-600"
-          onClick={openZapIn}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="mr-3 mt-0.5"
-          >
-            <path
-              d="M7.99989 0.514648C3.86739 0.514648 0.514893 3.86715 0.514893 7.99965C0.514893 12.1321 3.86739 15.4846 7.99989 15.4846C12.1324 15.4846 15.4849 12.1321 15.4849 7.99965C15.4849 3.86715 12.1324 0.514648 7.99989 0.514648Z"
-              fill="url(#paint0_linear_1773_40187)"
-            />
-            <path
-              d="M5.46553 11.5537L7.01803 8.86466L5.29031 7.86716C5.04999 7.72841 5.03761 7.37485 5.27827 7.22801L10.3573 3.95096C10.6829 3.73194 11.0803 4.1086 10.8816 4.45285L9.3103 7.17433L10.9601 8.12683C11.2004 8.26558 11.21 8.6089 10.9824 8.76324L6.00008 12.0528C5.66419 12.2746 5.26678 11.8979 5.46553 11.5537Z"
-              fill="white"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear_1773_40187"
-                x1="15.4849"
-                y1="17.6232"
-                x2="0.399917"
-                y2="0.616632"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#002EFF" />
-                <stop offset="1" stopColor="#22E1FF" />
-              </linearGradient>
-            </defs>
-          </svg>
-
-          <Typography variant="h6" className="text-white">
-            {isZapActive ? (
-              <span>
-                1 {tokenName} ={' '}
-                {quote['toTokenAmount'] &&
-                  formatAmount(
-                    getUserReadableAmount(
-                      quote['toTokenAmount'],
-                      quote['toToken']['decimals']
-                    ),
-                    8
-                  )}{' '}
-                {ssovTokenSymbol}{' '}
-                <span className="opacity-70">
-                  (~${formatAmount(selectedTokenPrice, 2)})
-                </span>
-              </span>
-            ) : (
-              'Zap In'
-            )}
-          </Typography>
-
-          {isZapActive ? (
-            <svg
-              width="12"
-              height="8"
-              viewBox="0 0 12 8"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="mr-1 ml-auto mt-1.5 rotate-90"
-            >
-              <path
-                d="M5.28997 0.70998L0.699971 5.29998C0.309971 5.68998 0.309971 6.31998 0.699971 6.70998C1.08997 7.09998 1.71997 7.09998 2.10997 6.70998L5.99997 2.82998L9.87997 6.70998C10.27 7.09998 10.9 7.09998 11.29 6.70998C11.68 6.31998 11.68 5.68998 11.29 5.29998L6.69997 0.70998C6.31997 0.31998 5.67997 0.31998 5.28997 0.70998Z"
-                fill="#8E8E8E"
-              />
-            </svg>
-          ) : (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="mr-0 ml-auto mt-0.5 "
-            >
-              <path
-                d="M8 4.25C7.5875 4.25 7.25 4.5875 7.25 5V7.25H5C4.5875 7.25 4.25 7.5875 4.25 8C4.25 8.4125 4.5875 8.75 5 8.75H7.25V11C7.25 11.4125 7.5875 11.75 8 11.75C8.4125 11.75 8.75 11.4125 8.75 11V8.75H11C11.4125 8.75 11.75 8.4125 11.75 8C11.75 7.5875 11.4125 7.25 11 7.25H8.75V5C8.75 4.5875 8.4125 4.25 8 4.25ZM8 0.5C3.86 0.5 0.5 3.86 0.5 8C0.5 12.14 3.86 15.5 8 15.5C12.14 15.5 15.5 12.14 15.5 8C15.5 3.86 12.14 0.5 8 0.5ZM8 14C4.6925 14 2 11.3075 2 8C2 4.6925 4.6925 2 8 2C11.3075 2 14 4.6925 14 8C14 11.3075 11.3075 14 8 14Z"
-                fill="white"
-              />
-            </svg>
-          )}
-        </Box>
+        <ZapInButton
+          openZapIn={openZapIn}
+          isZapActive={isZapActive}
+          quote={quote}
+          tokenName={tokenName}
+          ssovTokenSymbol={ssovTokenSymbol}
+          selectedTokenPrice={selectedTokenPrice}
+        />
 
         <Box className="flex">
           <Box className="flex text-center p-2 mr-2 mt-1">
