@@ -564,7 +564,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               )}
             </Box>
             <Box className="mt-2.5 flex">
-              <Box className={isZapActive ? 'w-3/4 mr-3' : ''}>
+              <Box className={isZapActive ? 'w-3/4 mr-3' : 'w-full'}>
                 <Select
                   className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
                   fullWidth
@@ -587,7 +587,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   }}
                   MenuProps={SelectMenuProps}
                   classes={{
-                    icon: 'absolute right-7 text-white scale-x-75',
+                    icon: isZapActive
+                      ? 'absolute right-7 text-white scale-x-75'
+                      : 'absolute right-16 text-white scale-x-75',
                     select: 'overflow-hidden',
                   }}
                   label="strikes"
