@@ -537,6 +537,7 @@ const ZapIn = ({
                                     {step['dexes'].map((dex) => (
                                       <Box className="flex" key={dex['name']}>
                                         <img
+                                          alt={dex['name']}
                                           src={
                                             '/assets/' +
                                             getDEXfrom1InchName(dex['name'])
@@ -579,6 +580,7 @@ const ZapIn = ({
                                     <img
                                       src={`/assets/${symbol.toLowerCase()}.svg`}
                                       className="w-5 h-5"
+                                      alt={symbol}
                                     />
                                   </Box>
                                   <Typography

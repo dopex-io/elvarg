@@ -28,7 +28,7 @@ const EstimatedGasCostButton = ({ gas }: Props) => {
       if (record['name'] === 'ETH') ethPriceInUsd = record['price'];
     });
     return estimatedGasCost * ethPriceInUsd;
-  }, [estimatedGasCost]);
+  }, [estimatedGasCost, tokenPrices]);
 
   useEffect(() => {
     updateEstimatedGasCost();
