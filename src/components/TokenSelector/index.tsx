@@ -15,9 +15,10 @@ export interface Props {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setToken: Dispatch<SetStateAction<ERC20 | string>>;
+  isInDialog: boolean;
 }
 
-const TokenSelector = ({ open, setOpen, setToken }: Props) => {
+const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
   const { contractAddresses, provider, chainId } = useContext(WalletContext);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
@@ -71,7 +72,7 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
           />
         </Box>
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-          <Box>
+          <Box className={isInDialog ? '' : 'h-[33rem] overflow-y-scroll'}>
             {tokens
               .sort((a, b) => {
                 return getValueInUsd(b) - getValueInUsd(a);
@@ -82,7 +83,11 @@ const TokenSelector = ({ open, setOpen, setToken }: Props) => {
                   symbol.includes(searchTerm.toUpperCase()) && (
                     <Box
                       key={symbol}
-                      className="flex mt-2 mb-2 hover:bg-mineshaft p-2 rounded-md cursor-pointer"
+                      className={
+                        isInDialog
+                          ? 'flex mt-2 mb-2 hover:bg-mineshaft p-2 rounded-md cursor-pointer'
+                          : 'flex mt-2 mb-2 mr-2 hover:bg-mineshaft p-2 pr-3 rounded-md cursor-pointer'
+                      }
                       onClick={() => {
                         setToken(
                           IS_NATIVE(symbol)

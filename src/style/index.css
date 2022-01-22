@@ -63,13 +63,16 @@ input[type='number'] {
 
 ::-webkit-scrollbar {
   width: 12px;
-  background-color: #2f2d2d;
+  background-color: #1e1e1e;
+  border-radius: 5px;
 }
 
 *::-webkit-scrollbar-track {
-  background: #2f2d2d;
+  background-color: #1e1e1e;
+  border-radius: 5px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #1e1e1e;
+  background-color: #2f2d2d;
+  border-radius: 5px;
 }

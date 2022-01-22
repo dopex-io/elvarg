@@ -22,7 +22,6 @@ import CustomButton from '../UI/CustomButton';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
-import { AssetsContext } from '../../contexts/Assets';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -38,6 +37,7 @@ export interface Props {
   ssovTokenName: string;
   purchasePower: number;
   selectedTokenPrice: number;
+  isInDialog: boolean;
 }
 
 const ZapIn = ({
@@ -53,6 +53,7 @@ const ZapIn = ({
   setSlippageTolerance,
   purchasePower,
   selectedTokenPrice,
+  isInDialog,
 }: Props) => {
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
@@ -279,7 +280,7 @@ const ZapIn = ({
             </Box>
           </Box>
 
-          <Box className="h-[30.2rem]">
+          <Box className={isInDialog ? 'h-[30.2rem]' : 'h-[20.2rem]'}>
             {tokenName !== '' &&
               ssovTokenName != '' &&
               ssovTokenName !== tokenName && (
@@ -671,11 +672,12 @@ const ZapIn = ({
       )}
 
       {isTokenSelectorVisible && (
-        <Box className="h-[52.8rem]">
+        <Box className={isInDialog ? 'h-[52.8rem]' : 'h-[38.8rem]'}>
           <TokenSelector
             open={isTokenSelectorVisible}
             setOpen={setIsTokenSelectorVisible}
             setToken={setToken}
+            isInDialog={isInDialog}
           />
         </Box>
       )}

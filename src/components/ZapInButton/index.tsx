@@ -4,7 +4,7 @@ import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
 
 export interface Props {
-  openZapIn: () => {};
+  openZapIn: () => void;
   isZapActive: boolean;
   quote: object;
   tokenName: string;
@@ -31,7 +31,7 @@ const ZapInButton = ({
         viewBox="0 0 16 16"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="mr-3 mt-0.5"
+        className="mr-2 mt-0.5"
       >
         <path
           d="M7.99989 0.514648C3.86739 0.514648 0.514893 3.86715 0.514893 7.99965C0.514893 12.1321 3.86739 15.4846 7.99989 15.4846C12.1324 15.4846 15.4849 12.1321 15.4849 7.99965C15.4849 3.86715 12.1324 0.514648 7.99989 0.514648Z"
