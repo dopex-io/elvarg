@@ -267,7 +267,10 @@ export default function AppBar(props: AppBarProps) {
                     className="mr-2"
                   >
                     {formatAmount(
-                      getUserReadableAmount(userAssetBalances.ETH, 18),
+                      getUserReadableAmount(
+                        userAssetBalances[CURRENCIES_MAP[chainId]],
+                        18
+                      ),
                       3
                     )}{' '}
                     <span className="text-stieglitz">
