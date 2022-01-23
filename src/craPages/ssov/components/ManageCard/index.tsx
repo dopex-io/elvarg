@@ -135,7 +135,8 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
     tokenPrices.map((record) => {
-      if (record['name'] === tokenName) price = record['price'];
+      if (record['name'].toUpperCase() === tokenName.toUpperCase())
+        price = record['price'];
     });
     return price;
   }, [tokenPrices, tokenName]);
@@ -490,7 +491,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         styles.cardWidth
       )}
     >
-      <Tabs activeIndex={activeIndex}>
+      <Tabs activeIndex={activeIndex} panelIscroll={false}>
         {['deposit', 'withdraw'].includes(activeTab) && (
           <Box className={isZapInVisible ? 'hidden' : 'flex'}>
             <Box className={isZapActive ? 'w-2/3 mr-2' : 'w-full'}>

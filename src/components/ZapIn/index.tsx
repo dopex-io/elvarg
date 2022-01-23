@@ -579,7 +579,9 @@ const ZapIn = ({
                                   <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
                                     <img
                                       src={`/assets/${symbol.toLowerCase()}.svg`}
-                                      className="w-5 h-5"
+                                      className={
+                                        isInDialog ? 'w-5 h-5' : 'w-[2rem]'
+                                      }
                                       alt={symbol}
                                     />
                                   </Box>
