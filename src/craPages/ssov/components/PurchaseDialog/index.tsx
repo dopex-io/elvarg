@@ -253,17 +253,31 @@ const PurchaseDialog = ({
     setIsFetchingPath(false);
   };
 
-  const openZapIn = async () => {
+  const getValueInUsd = (symbol) => {
+    let value = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === symbol) {
+        value =
+          (record['price'] * parseInt(userAssetBalances[symbol])) / 10 ** 18;
+      }
+    });
+    return value;
+  };
+
+  const openZapIn = () => {
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = tokens.filter(function (item) {
-        return item !== ssovTokenSymbol && Addresses[chainId][item];
-      });
+      const filteredTokens = tokens
+        .filter(function (item) {
+          return item !== ssovTokenSymbol && Addresses[chainId][item];
+        })
+        .sort((a, b) => {
+          return getValueInUsd(b) - getValueInUsd(a);
+        });
+
       const randomToken = ERC20__factory.connect(
-        Addresses[chainId][
-          filteredTokens[Math.floor(Math.random() * filteredTokens.length)]
-        ],
+        Addresses[chainId][filteredTokens[0]],
         provider
       );
       setToken(randomToken);

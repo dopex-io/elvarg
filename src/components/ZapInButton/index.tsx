@@ -70,7 +70,7 @@ const ZapInButton = ({
               )}{' '}
             {ssovTokenSymbol}{' '}
             <span className="opacity-70">
-              (~${formatAmount(selectedTokenPrice, 2)})
+              (~${formatAmount(selectedTokenPrice, 0)})
             </span>
           </span>
         ) : (
