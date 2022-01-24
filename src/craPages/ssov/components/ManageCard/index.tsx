@@ -36,7 +36,7 @@ import cx from 'classnames';
 import styles from './styles.module.scss';
 import Withdraw from './Withdraw';
 import ZapIn from '../../../../components/ZapIn';
-import { useFormik } from 'formik';
+import { isNaN, useFormik } from 'formik';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
 import axios from 'axios';
@@ -95,7 +95,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     []
   );
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
-    [key: number]: BigNumber;
+    [key: number]: number | string;
   }>({});
   const [error, setError] = useState('');
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
@@ -150,6 +150,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   }, [activeTab, selectedStrikeIndexes, isZapInVisible]);
 
   const isDepositWindowOpen = useMemo(() => {
+    //TODO REMOVE
+    return true;
+
     if (isVaultReady) return false;
     return true;
   }, [isVaultReady]);
@@ -184,17 +187,15 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     setQuote(data);
   };
 
-  const totalDepositAmount = useMemo(
-    () =>
-      selectedStrikeIndexes.reduce(
-        (accumulator, currentIndex) =>
-          accumulator.add(
-            strikeDepositAmounts[currentIndex] || BigNumber.from(0)
-          ),
-        BigNumber.from(0)
-      ),
-    [selectedStrikeIndexes, strikeDepositAmounts]
-  );
+  const contractReadableStrikeDepositAmounts = useMemo(() => {
+    const readable: {
+      [key: number]: BigNumber;
+    } = {};
+    Object.keys(strikeDepositAmounts).map((key) => {
+      readable[key] = getContractReadableAmount(strikeDepositAmounts[key], 18);
+    });
+    return readable;
+  }, [strikeDepositAmounts]);
 
   const isZapActive: boolean = useMemo(() => {
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
@@ -213,6 +214,18 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
   );
+
+  const totalDepositAmount = useMemo(() => {
+    let total = 0;
+    Object.keys(strikeDepositAmounts).map((strike) => {
+      total += parseFloat(strikeDepositAmounts[strike]);
+    });
+    return total;
+  }, [strikeDepositAmounts]);
+
+  const isPurchasePowerEnough = useMemo(() => {
+    return purchasePower >= totalDepositAmount;
+  }, [purchasePower, totalDepositAmount]);
 
   const getValueInUsd = (symbol) => {
     let value = 0;
@@ -305,9 +318,16 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       e?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
       value?: number
     ) => {
+      let input = e
+        ? [',', '.'].includes(e.target.value[e.target.value.length - 1])
+          ? e.target.value
+          : parseFloat(e.target.value.replace(',', '.'))
+        : value;
+      if (e && parseFloat(e.target.value) === 0) input = e.target.value;
+      if (isNaN(input)) input = 0;
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
-        [index]: getContractReadableAmount(e ? e.target.value : value, 18),
+        [index]: input,
       }));
     },
     []
@@ -331,31 +351,22 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     }
   }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner]);
 
-  const handleMax = useCallback(
-    (index: number) => {
-      setStrikeDepositAmounts((prevState) => ({
-        ...prevState,
-        [index]: BigNumber.from(
-          userAssetBalances[ssovTokenSymbol.toLocaleUpperCase()]
-        ),
-      }));
-    },
-    [userAssetBalances, ssovTokenSymbol]
-  );
-
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     try {
       const strikeIndexes = selectedStrikeIndexes.filter(
         (index) =>
-          strikeDepositAmounts[index] && strikeDepositAmounts[index].gt('0')
+          contractReadableStrikeDepositAmounts[index] &&
+          contractReadableStrikeDepositAmounts[index].gt('0')
       );
 
       if (tokenName === 'ETH') {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) => strikeDepositAmounts[index]),
+            strikeIndexes.map(
+              (index) => contractReadableStrikeDepositAmounts[index]
+            ),
             accountAddress,
             {
               value: totalDepositAmount,
@@ -366,7 +377,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         await sendTx(
           ssovRouter.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) => strikeDepositAmounts[index]),
+            strikeIndexes.map(
+              (index) => contractReadableStrikeDepositAmounts[index]
+            ),
             accountAddress,
             {
               value: totalDepositAmount,
@@ -377,7 +390,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) => strikeDepositAmounts[index]),
+            strikeIndexes.map(
+              (index) => contractReadableStrikeDepositAmounts[index]
+            ),
             accountAddress
           )
         );
@@ -393,7 +408,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   }, [
     selectedStrikeIndexes,
     ssovContractWithSigner,
-    strikeDepositAmounts,
+    contractReadableStrikeDepositAmounts,
     updateSsovData,
     updateUserSsovData,
     updateAssetBalances,
@@ -433,28 +448,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       setTokenName(ssovTokenSymbol);
     }
   }, [isZapInVisible]);
-
-  useEffect(() => {
-    if (totalDepositAmount.gt(userTokenBalance)) {
-      setError(
-        `Deposit amount exceeds your current ${ssovTokenSymbol} balance.`
-      );
-    } else if (
-      ssovTokenSymbol === 'ETH' &&
-      totalEpochDeposits
-        .add(totalDepositAmount)
-        .gt(getContractReadableAmount(25000, 18))
-    ) {
-      setError(`Deposit amount exceeds deposit limit.`);
-    } else {
-      setError('');
-    }
-  }, [
-    totalDepositAmount,
-    totalEpochDeposits,
-    userTokenBalance,
-    ssovTokenSymbol,
-  ]);
 
   useEffect(() => {
     handleTokenChange();
@@ -812,10 +805,8 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                         name="address"
                         className="ml-auto mr-0 w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
                         classes={{ input: 'text-white text-xs text-right' }}
-                        value={getUserReadableAmount(
-                          strikeDepositAmounts[index],
-                          18
-                        )}
+                        value={strikeDepositAmounts[index]}
+                        placeholder="0"
                         onChange={(e) => inputStrikeDepositAmount(index, e)}
                       />
 
@@ -1028,8 +1019,18 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                 <CustomButton
                   size="medium"
                   className="w-full mt-4 !rounded-md"
-                  color={approved ? 'mineshaft' : 'primary'}
-                  disabled={true}
+                  color={
+                    (isPurchasePowerEnough || !approved) &&
+                    isDepositWindowOpen &&
+                    totalDepositAmount > 0
+                      ? 'primary'
+                      : 'mineshaft'
+                  }
+                  disabled={
+                    !isPurchasePowerEnough ||
+                    !isDepositWindowOpen ||
+                    totalDepositAmount < 0
+                  }
                   onClick={null}
                 >
                   {!isDepositWindowOpen && isVaultReady && (
@@ -1065,6 +1066,15 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                       )}
                     />
                   )}
+                  {isDepositWindowOpen
+                    ? approved
+                      ? totalDepositAmount === 0
+                        ? 'Insert an amount'
+                        : isPurchasePowerEnough
+                        ? 'Deposit'
+                        : 'Insufficient balance'
+                      : 'Approve'
+                    : '-'}
                 </CustomButton>
               </Box>
             </Box>
