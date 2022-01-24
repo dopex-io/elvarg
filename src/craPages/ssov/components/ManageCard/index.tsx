@@ -150,9 +150,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   }, [activeTab, selectedStrikeIndexes, isZapInVisible]);
 
   const isDepositWindowOpen = useMemo(() => {
-    //TODO REMOVE
-    return true;
-
     if (isVaultReady) return false;
     return true;
   }, [isVaultReady]);
