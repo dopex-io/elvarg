@@ -114,6 +114,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const ssovToken = ssovSignerArray[selectedSsov].token[0];
+  const [latestZapInAmount, setLatestZapInAmount] = useState<number>(0);
   const formik = useFormik({
     initialValues: {
       zapInAmount: 1,
@@ -179,6 +180,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         debouncedZapInAmount[0] * 10 ** fromTokenDecimals
       )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
+    console.log(data);
     setQuote(data);
   };
 
@@ -401,6 +403,28 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovRouter,
   ]);
 
+  const getPriceImpact = async () => {
+    const fromTokenAddress = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
+    const toTokenAddress = IS_NATIVE(ssovTokenName)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : ssovToken.address;
+    if (fromTokenAddress === toTokenAddress) return;
+    const { data } = await axios.get(
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+        10 ** fromTokenDecimals
+      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+    );
+    const quotePrice = quote['toTokenAmount'] / quote['fromTokenAmount'];
+    const dataPrice = data['toTokenAmount'] / data['fromTokenAmount'];
+    setPriceImpact(
+      100 *
+        (Math.min(quotePrice, dataPrice) / Math.max(quotePrice, dataPrice) - 1)
+    );
+  };
+
   useEffect(() => {
     if (
       !isZapInVisible &&
@@ -435,6 +459,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   useEffect(() => {
     handleTokenChange();
   }, [token]);
+
+  useEffect(() => {
+    getPriceImpact();
+  }, [quote]);
 
   // Updates approved state
   useEffect(() => {
@@ -499,6 +527,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     userAssetBalances.ETH,
     tokenName,
   ]);
+
+  useEffect(() => {
+    if (debouncedZapInAmount[0] !== latestZapInAmount) {
+      getQuote();
+      setLatestZapInAmount(debouncedZapInAmount[0]);
+    }
+  }, [debouncedZapInAmount]);
 
   return (
     <Box

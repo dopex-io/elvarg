@@ -580,7 +580,9 @@ const ZapIn = ({
                                     <img
                                       src={`/assets/${symbol.toLowerCase()}.svg`}
                                       className={
-                                        isInDialog ? 'w-5 h-5' : 'w-[2rem]'
+                                        isInDialog
+                                          ? 'w-4 h-4 mt-0.5'
+                                          : 'w-[1.2rem] mt-[0.05rem]'
                                       }
                                       alt={symbol}
                                     />
