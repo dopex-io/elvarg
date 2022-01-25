@@ -1071,7 +1071,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                         ? 'Deposit'
                         : 'Insufficient balance'
                       : 'Approve'
-                    : '-'}
+                    : ''}
                 </CustomButton>
               </Box>
             </Box>
