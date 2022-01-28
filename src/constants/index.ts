@@ -142,6 +142,12 @@ export const SSOV_MAP = {
     coinGeckoId: 'gmx',
     tokens: ['GMX'],
   },
+  AVAX: {
+    tokenSymbol: 'Avax',
+    imageSrc: '/assets/avax.svg',
+    coiGeckoId: 'avalanche-2',
+    tokens: ['AVAX'],
+  },
 };
 
 export const SHOWCASE_NFTS = [
@@ -224,6 +230,8 @@ export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
 export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
+export const AVALANCHE_RPC_URL = 'https://rpc.ankr.com/avalanche';
+
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
   theta: 'θ',
@@ -252,4 +260,5 @@ export const CHAIN_ID_TO_NETWORK_DATA = {
   56: { name: 'BSC', icon: '/assets/bsc.svg' },
   42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
+  43114: { name: 'Avalanche', icon: '/assets/avax.svg' },
 };

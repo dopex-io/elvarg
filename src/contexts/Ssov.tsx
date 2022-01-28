@@ -221,12 +221,12 @@ export const SsovProvider = (props) => {
 
       for (const asset in SSOVAddresses) {
         const _ssovContract =
-          asset === 'ETH'
+          asset === 'ETH' || asset === 'AVAX'
             ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
             : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
 
         const oracleContract =
-          asset === 'ETH' || asset === 'BNB'
+          asset === 'ETH' || asset === 'BNB' || asset === 'AVAX'
             ? ChainlinkAggregator__factory.connect(
                 SSOVAddresses[asset].PriceOracle,
                 provider
@@ -240,7 +240,7 @@ export const SsovProvider = (props) => {
         try {
           const [currentEpoch, tokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
-            asset === 'ETH' || asset === 'BNB'
+            asset === 'ETH' || asset === 'BNB' || asset === 'AVAX'
               ? (oracleContract as ChainlinkAggregator).latestAnswer()
               : (oracleContract as CustomPriceOracle).getPriceInUSD(),
           ]);
@@ -296,7 +296,7 @@ export const SsovProvider = (props) => {
       });
 
       const _ssovContractWithSigner =
-        asset === 'ETH'
+        asset === 'ETH' || asset === 'AVAX'
           ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, signer)
           : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, signer);
       const _ssovRouterWithSigner =

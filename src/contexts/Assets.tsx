@@ -40,7 +40,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX'],
+  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX', 'AVAX'],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
@@ -51,6 +51,7 @@ const initialState: AssetsContextInterface = {
     USDT: '0',
     BNB: '0',
     GMX: '0',
+    AVAX: '0',
   },
 };
 
@@ -61,6 +62,8 @@ const ASSET_TO_COINGECKO_ID = {
   DPX: 'dopex',
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
+  GMX: 'gmx',
+  AVAX: 'avalanche-2',
 };
 
 export const AssetsContext =
@@ -111,10 +114,9 @@ export const AssetsProvider = (props) => {
     const updateTokenPrices = async () => {
       const cgIds = [];
 
-      for (let i = 0; i < state.tokens.length; i++) {
+      for (let i = 0; i < 3; i++) {
         cgIds.push(ASSET_TO_COINGECKO_ID[state.tokens[i]]);
       }
-
       const payload = await axios.get(
         `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
       );
@@ -123,7 +125,7 @@ export const AssetsProvider = (props) => {
         const temp = payload.data[ASSET_TO_COINGECKO_ID[state.tokens[index]]];
         return {
           name: state.tokens[index],
-          change24h: temp['usd_24h_change'],
+          change24h: temp['usd'],
           price: temp.usd,
         };
       });
@@ -231,6 +233,7 @@ export const AssetsProvider = (props) => {
         GOHM: '0',
         VBNB: '0',
         GMX: '0',
+        AVAX: '0',
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>
@@ -245,6 +248,10 @@ export const AssetsProvider = (props) => {
 
       if (chainId === 56) {
         userAssetBalances['BNB'] = (
+          await provider.getBalance(accountAddress)
+        ).toString();
+      } else if (chainId === 43114) {
+        userAssetBalances['AVAX'] = (
           await provider.getBalance(accountAddress)
         ).toString();
       } else {

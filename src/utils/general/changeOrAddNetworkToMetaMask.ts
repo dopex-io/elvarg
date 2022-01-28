@@ -50,6 +50,22 @@ const NETWORKS = {
       },
     ],
   },
+  43114: {
+    chainId: '0xA86A',
+    params: [
+      {
+        chainId: '0xA86A',
+        chainName: 'Avalanche',
+        nativeCurrency: {
+          name: 'Avalanche',
+          symbol: 'AVAX',
+          decimals: 18,
+        },
+        rpcUrls: ['https://rpc.ankr.com/avalanche'],
+        blockExplorerUrls: ['https://snowtrace.io/'],
+      },
+    ],
+  },
 };
 
 export default async function changeOrAddNetworkToMetaMask(chainId: number) {

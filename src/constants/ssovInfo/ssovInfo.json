@@ -22,5 +22,9 @@
   "GMX": {
     "aprToolTipMessage": "This is the base APY calculated from GMX staking",
     "mainPageMessage": "Deposit GMX into strikes providing liquidity into option pools and earn premiums from each option purchase."
+  },
+  "AVAX": {
+    "aprToolTipMessage": "This is the base APY calculated from TraderJoe's AVAX APY",
+    "mainPageMessage": "Deposit AVAX into strikes providing liquidity into option pools and earn premiums from each option purchase."
   }
 }
