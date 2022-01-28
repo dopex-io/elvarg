@@ -1,5 +1,5 @@
 import { useContext, useState, useMemo, useCallback } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import TableHead from '@material-ui/core/TableHead';
@@ -23,6 +23,7 @@ import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import styles from './styles.module.scss';
 
@@ -73,9 +74,16 @@ const StatsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {tokenSymbol === 'BNB'
-            ? formatAmount(convertToBNB(totalDeposits * 1e8) * price, 2)
-            : formatAmount(totalDeposits * price, 2)}
+          {formatAmount(
+            tokenSymbol === 'BNB'
+              ? (convertToBNB(ethers.utils.parseEther(totalDeposits.toString()))
+                  .div(oneEBigNumber(6))
+                  .toNumber() /
+                  1e4) *
+                  price
+              : totalDeposits * price,
+            2
+          )}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
@@ -83,13 +91,7 @@ const StatsTableData = (
         <Box component="h6" className="text-xs text-stieglitz">
           {formatAmount(
             totalDeposits > 0 ? 100 * (totalPurchased / totalDeposits) : 0,
-            totalDeposits > 0
-              ? 100 *
-                  (totalPurchased /
-                    (tokenSymbol === 'BNB'
-                      ? totalDeposits * 1e10
-                      : totalDeposits))
-              : 0
+            5
           )}
           {'%'}
         </Box>
@@ -102,7 +104,11 @@ const StatsTableData = (
           {'$'}
           {formatAmount(
             tokenSymbol === 'BNB'
-              ? convertToBNB(totalPremiums * 1e8)
+              ? (convertToBNB(ethers.utils.parseEther(totalPremiums.toString()))
+                  .div(oneEBigNumber(6))
+                  .toNumber() /
+                  1e4) *
+                  price
               : totalPremiums * price,
             2
           )}
@@ -132,6 +138,7 @@ const Stats = (props: {
   ssovProperties: SsovProperties;
 }) => {
   const { className, ssovProperties } = props;
+  const { convertToVBNB } = useBnbSsovConversion();
   const { ssovDataArray, selectedSsov } = useContext(SsovContext);
   const { selectedEpoch, tokenPrice, tokenName } = ssovProperties;
   const {
@@ -174,10 +181,13 @@ const Stats = (props: {
                 totalEpochStrikeDeposits[strikeIndex] ?? 0,
                 18
               );
-        const totalPurchased = getUserReadableAmount(
-          totalEpochCallsPurchased[strikeIndex] ?? 0,
-          18
-        );
+        const totalPurchased =
+          tokenName === 'BNB'
+            ? convertToVBNB(totalEpochCallsPurchased[strikeIndex]) ?? 0
+            : getUserReadableAmount(
+                totalEpochCallsPurchased[strikeIndex] ?? 0,
+                18
+              );
 
         const totalPremiums =
           tokenName === 'BNB'
@@ -198,6 +208,7 @@ const Stats = (props: {
       totalEpochCallsPurchased,
       totalEpochPremium,
       tokenName,
+      convertToVBNB,
     ]
   );
 

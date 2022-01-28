@@ -469,10 +469,7 @@ const BnbSsovDeposit = ({
         </Typography>
         <Typography variant="caption" component="div">
           {selected.bnb
-            ? formatAmount(
-                convertToVBNB(Number(totalDepositAmount.toString())),
-                5
-              )
+            ? formatAmount(convertToVBNB(totalDepositAmount).toString(), 5)
             : getUserReadableAmount(totalDepositAmount, 8).toString()}{' '}
           {tokenSymbol === 'BNB' && 'vBNB'}
         </Typography>

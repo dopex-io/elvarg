@@ -21,8 +21,6 @@ import ExerciseTableData from './ExerciseTableData';
 import { SsovProperties, SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
@@ -100,7 +98,8 @@ const ExerciseList = ({
           18
         );
         const settleableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
-        const isSettleable = settleableAmount.gt(0) && tokenPrice.gt(strike);
+        const isSettleable =
+          settleableAmount.gt(0) && settlementPrice.gt(strike);
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
           ? tokenPrice

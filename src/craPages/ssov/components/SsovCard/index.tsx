@@ -61,17 +61,12 @@ function SsovCard(props: SsovCardProps) {
 
   const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
 
-  const totalDeposits =
-    tokenSymbol === 'BNB'
-      ? getUserReadableAmount(totalEpochDeposits, 8)
-      : getUserReadableAmount(totalEpochDeposits, 18);
-
-  const TVL =
-    ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
-      ? convertToBNB(totalDeposits) * tokenPrice.toNumber()
-      : tokenPrice
-      ? totalDeposits * getUserReadableAmount(tokenPrice, 8)
-      : 0;
+  const TVL = tokenPrice
+    ? ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
+      ? convertToBNB(totalEpochDeposits).mul(tokenPrice).div(1e8).toString()
+      : getUserReadableAmount(totalEpochDeposits, 18) *
+        getUserReadableAmount(tokenPrice, 8)
+    : 0;
 
   const info = [
     {

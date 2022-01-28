@@ -1,12 +1,16 @@
 import { WalletContext } from 'contexts/Wallet';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 const useBnbSsovConversion = () => {
   const { contractAddresses, provider } = useContext(WalletContext);
-  const [oneBnbtoVbnb, setOneBnbtoVbnb] = useState<String>('0');
-  const [oneVbnbtoBnb, setOneVbnbtoBnb] = useState<String>('0');
+  const [oneBnbtoVbnb, setOneBnbtoVbnb] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
+  const [oneVbnbtoBnb, setOneVbnbtoBnb] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
 
   useEffect(() => {
     if (!contractAddresses.SSOV.BNB || !provider) return;
@@ -21,17 +25,17 @@ const useBnbSsovConversion = () => {
         abi,
         provider
       );
-      setOneVbnbtoBnb((await bnbSsov.vbnbToBnb(oneEBigNumber(8))).toString());
-      setOneBnbtoVbnb((await bnbSsov.bnbToVbnb(oneEBigNumber(18))).toString());
+      setOneVbnbtoBnb(await bnbSsov.vbnbToBnb(oneEBigNumber(8)));
+      setOneBnbtoVbnb(await bnbSsov.bnbToVbnb(oneEBigNumber(18)));
     })();
   }, [contractAddresses.SSOV, provider]);
 
-  const convertToBNB = (amount: number) => {
-    return (amount * Number(oneVbnbtoBnb)) / 1e26;
+  const convertToBNB = (amount: BigNumber) => {
+    return amount.mul(oneVbnbtoBnb).div(oneEBigNumber(26));
   };
 
-  const convertToVBNB = (amount: number) => {
-    return (amount * Number(oneBnbtoVbnb)) / 1e26;
+  const convertToVBNB = (amount: BigNumber) => {
+    return amount.mul(oneBnbtoVbnb).div(oneEBigNumber(26));
   };
 
   return {
