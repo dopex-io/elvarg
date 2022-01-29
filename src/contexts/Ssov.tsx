@@ -14,18 +14,21 @@ import {
   ERC20,
   VolatilityOracle,
   SSOVOptionPricing,
-  StakingRewards__factory,
   CustomPriceOracle__factory,
   ChainlinkAggregator__factory,
   ChainlinkAggregator,
   CustomPriceOracle,
+  BnbSSOVRouter,
+  BnbSSOVRouter__factory,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+import axios from 'axios';
+
+import formatAmount from 'utils/general/formatAmount';
 
 import { WalletContext } from './Wallet';
-import { AssetsContext } from './Assets';
 
-import oneEBigNumber from 'utils/math/oneEBigNumber';
+import { SSOV_MAP } from 'constants/index';
 
 export interface SsovProperties {
   tokenName?: string;
@@ -34,14 +37,14 @@ export interface SsovProperties {
   selectedEpoch?: number;
   setSelectedEpoch?: Function;
   tokenPrice?: BigNumber;
-  cgTokenPrice?: number;
   ssovOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
 
 export interface SsovSigner {
-  token: ERC20;
+  token: ERC20[];
   ssovContractWithSigner?: any;
+  ssovRouter?: BnbSSOVRouter;
 }
 
 export interface SsovData {
@@ -53,6 +56,7 @@ export interface SsovData {
   totalEpochCallsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   totalEpochDeposits: BigNumber;
+  settlementPrice: BigNumber;
   APY: string;
 }
 
@@ -74,7 +78,7 @@ interface SsovContextInterface {
   setSelectedSsov?: Function;
 }
 
-const initialUserSsovDataArray = [0, 1, 2, 3].map(() => {
+const initialUserSsovDataArray = [0, 1, 2, 3, 4].map(() => {
   return {
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
@@ -83,7 +87,7 @@ const initialUserSsovDataArray = [0, 1, 2, 3].map(() => {
   };
 });
 
-const initialSsovSignerArray = [0, 1, 2, 3].map(() => {
+const initialSsovSignerArray = [0, 1, 2, 3, 4].map(() => {
   return { token: null, ssovContractWithSigner: null };
 });
 
@@ -98,7 +102,6 @@ export const SsovContext = createContext<SsovContextInterface>({
 export const SsovProvider = (props) => {
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
-  const { tokenPrices } = useContext(AssetsContext);
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsov, setSelectedSsov] = useState<number | null>(null);
@@ -154,7 +157,7 @@ export const SsovProvider = (props) => {
   }, [accountAddress, contractAddresses, provider, selectedEpoch]);
 
   const updateSsovData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch || !tokenPrices.length) return;
+    if (!contractAddresses || !selectedEpoch) return;
     const SSOVAddresses = contractAddresses.SSOV;
     const ssovData: SsovData[] = [];
     for (const asset in SSOVAddresses) {
@@ -172,6 +175,7 @@ export const SsovProvider = (props) => {
         totalEpochStrikeDeposits,
         totalEpochCallsPurchased,
         totalEpochPremium,
+        settlementPrice,
       ] = await Promise.all([
         ssovContract.getEpochTimes(selectedEpoch),
         ssovContract.isEpochExpired(selectedEpoch),
@@ -181,76 +185,16 @@ export const SsovProvider = (props) => {
         ssovContract.getTotalEpochStrikeDeposits(selectedEpoch),
         ssovContract.getTotalEpochCallsPurchased(selectedEpoch),
         ssovContract.getTotalEpochPremium(selectedEpoch),
+        ssovContract.settlementPrices(selectedEpoch),
       ]);
 
-      let priceDPX = tokenPrices.find((o) => o.name === 'DPX').price;
-      let priceRDPX = tokenPrices.find((o) => o.name === 'RDPX').price;
-      let priceETH = tokenPrices.find((o) => o.name === 'ETH').price;
-      let priceAsset;
-
-      if (asset === 'DPX') {
-        priceAsset = priceDPX;
-      } else if (asset === 'RDPX') {
-        priceAsset = priceRDPX;
-      } else {
-        priceAsset = priceETH;
-      }
-
-      let APY;
-
-      if (asset !== 'ETH' && asset !== 'GOHM') {
-        const stakingRewardsAddress = await ssovContract.getAddress(
-          '0x5374616b696e6752657761726473000000000000000000000000000000000000' // StakingRewards
-        );
-        const stakingRewardsContract = StakingRewards__factory.connect(
-          stakingRewardsAddress,
-          provider
-        );
-
-        let DPXemitted;
-        let RDPXemitted;
-
-        let [DPX, RDPX, totalSupply] = await Promise.all([
-          stakingRewardsContract.rewardRateDPX(),
-          stakingRewardsContract.rewardRateRDPX(),
-          stakingRewardsContract.totalSupply(),
-        ]);
-
-        const TVL = totalSupply
-          .mul(Math.round(priceAsset))
-          .div(oneEBigNumber(18));
-
-        const rewardsDuration = BigNumber.from(86400 * 365);
-
-        DPXemitted = DPX.mul(rewardsDuration)
-          .mul(Math.round(priceDPX))
-          .div(oneEBigNumber(18));
-        RDPXemitted = RDPX.mul(rewardsDuration)
-          .mul(Math.round(priceRDPX))
-          .div(oneEBigNumber(18));
-
-        const denominator =
-          TVL.toNumber() + DPXemitted.toNumber() + RDPXemitted.toNumber();
-
-        let APR = (denominator / TVL.toNumber() - 1) * 100;
-
-        APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
-      } else if (asset === 'ETH') {
-        const TVL = totalEpochDeposits
-          .mul(Math.round(priceETH))
-          .div(oneEBigNumber(18));
-
-        let rewardsEmitted = BigNumber.from('500'); // 500 DPX per month
-        rewardsEmitted = rewardsEmitted.mul(Math.round(priceDPX)).mul(12); // for 12 months
-
-        const denominator = TVL.toNumber() + rewardsEmitted.toNumber();
-
-        let APR = (denominator / TVL.toNumber() - 1) * 100;
-
-        APY = Number((((1 + APR / 365 / 100) ** 365 - 1) * 100).toFixed(2));
-      } else {
-        APY = 5091;
-      }
+      const APY = await axios
+        .get(
+          `https://api.dopex.io/api/v1/ssov/apy?asset=${
+            asset === 'GMX' ? 'DPX' : asset
+          }`
+        )
+        .then((res) => formatAmount(res.data.apy, 2));
 
       ssovData.push({
         epochTimes: epochTimes,
@@ -261,20 +205,15 @@ export const SsovProvider = (props) => {
         totalEpochStrikeDeposits: totalEpochStrikeDeposits,
         totalEpochCallsPurchased: totalEpochCallsPurchased,
         totalEpochPremium: totalEpochPremium,
-        APY: APY.toString(),
+        settlementPrice,
+        APY,
       });
     }
     setSsovDataArray(ssovData);
-  }, [contractAddresses, selectedEpoch, provider, tokenPrices]);
+  }, [contractAddresses, selectedEpoch, provider]);
 
   useEffect(() => {
-    if (
-      !provider ||
-      !contractAddresses ||
-      !contractAddresses.SSOV ||
-      !tokenPrices.length
-    )
-      return;
+    if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
 
     async function update() {
       const ssovPropertiesArray: SsovProperties[] = [];
@@ -287,7 +226,7 @@ export const SsovProvider = (props) => {
             : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
 
         const oracleContract =
-          asset === 'ETH'
+          asset === 'ETH' || asset === 'BNB'
             ? ChainlinkAggregator__factory.connect(
                 SSOVAddresses[asset].PriceOracle,
                 provider
@@ -301,7 +240,7 @@ export const SsovProvider = (props) => {
         try {
           const [currentEpoch, tokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
-            asset === 'ETH'
+            asset === 'ETH' || asset === 'BNB'
               ? (oracleContract as ChainlinkAggregator).latestAnswer()
               : (oracleContract as CustomPriceOracle).getPriceInUSD(),
           ]);
@@ -319,7 +258,6 @@ export const SsovProvider = (props) => {
               Number(currentEpoch) === 0 ? 1 : Number(currentEpoch),
             setSelectedSsov: setSelectedSsov,
             tokenPrice,
-            cgTokenPrice: tokenPrices.find((o) => o.name === asset).price,
             ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
               SSOVAddresses[asset].OptionPricing,
               provider
@@ -340,7 +278,7 @@ export const SsovProvider = (props) => {
     }
 
     update();
-  }, [contractAddresses, provider, selectedEpoch, tokenPrices]);
+  }, [contractAddresses, provider, selectedEpoch]);
 
   useEffect(() => {
     if (!contractAddresses || !signer || !contractAddresses.SSOV) return;
@@ -348,18 +286,28 @@ export const SsovProvider = (props) => {
     const ssovSignerArray = [];
 
     for (const asset in SSOVAddresses) {
-      const tokenAddress =
-        asset === 'ETH' ? contractAddresses['WETH'] : contractAddresses[asset];
+      const tokens = SSOV_MAP[asset].tokens;
 
-      const _token = ERC20__factory.connect(tokenAddress, signer);
+      const _tokens = tokens.map((tokenName: string) => {
+        return (
+          contractAddresses[tokenName] &&
+          ERC20__factory.connect(contractAddresses[tokenName], signer)
+        );
+      });
+
       const _ssovContractWithSigner =
         asset === 'ETH'
           ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, signer)
           : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, signer);
+      const _ssovRouterWithSigner =
+        asset === 'BNB' && SSOVAddresses[asset].Router
+          ? BnbSSOVRouter__factory.connect(SSOVAddresses[asset].Router, signer)
+          : undefined;
 
       ssovSignerArray.push({
-        token: _token,
+        token: _tokens,
         ssovContractWithSigner: _ssovContractWithSigner,
+        ssovRouter: _ssovRouterWithSigner,
       });
     }
     setSsovSignerArray(ssovSignerArray);

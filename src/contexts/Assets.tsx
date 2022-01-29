@@ -40,7 +40,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM'],
+  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX'],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
@@ -49,11 +49,14 @@ const initialState: AssetsContextInterface = {
     DPX: '0',
     RDPX: '0',
     USDT: '0',
+    BNB: '0',
+    GMX: '0',
   },
 };
 
 const ASSET_TO_COINGECKO_ID = {
   ETH: 'ethereum',
+  BNB: 'binancecoin',
   WBTC: 'bitcoin',
   DPX: 'dopex',
   RDPX: 'dopex-rebate-token',
@@ -64,7 +67,7 @@ export const AssetsContext =
   createContext<AssetsContextInterface>(initialState);
 
 export const AssetsProvider = (props) => {
-  const { provider, contractAddresses, accountAddress } =
+  const { provider, contractAddresses, accountAddress, chainId } =
     useContext(WalletContext);
   const [state, setState] = useState<AssetsContextInterface>(initialState);
 
@@ -129,6 +132,11 @@ export const AssetsProvider = (props) => {
     };
 
     updateTokenPrices();
+    const intervalId = setInterval(updateTokenPrices, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [state.tokens]);
 
   // useEffect(() => {
@@ -210,16 +218,19 @@ export const AssetsProvider = (props) => {
     if (!provider || !accountAddress || !contractAddresses) return;
     (async function () {
       const assetAddresses = ASSETS_LIST.map((asset) => {
-        return contractAddresses[asset];
-      });
+        return contractAddresses[asset] ?? '';
+      }).filter((asset) => asset !== '');
       const userAssetBalances = {
         ETH: '0',
+        BNB: '0',
         WETH: '0',
         WBTC: '0',
         DPX: '0',
         RDPX: '0',
         USDT: '0',
         GOHM: '0',
+        VBNB: '0',
+        GMX: '0',
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>
@@ -232,13 +243,19 @@ export const AssetsProvider = (props) => {
         userAssetBalances[ASSETS_LIST[i]] = balances[i].toString();
       }
 
-      userAssetBalances['ETH'] = (
-        await provider.getBalance(accountAddress)
-      ).toString();
+      if (chainId === 56) {
+        userAssetBalances['BNB'] = (
+          await provider.getBalance(accountAddress)
+        ).toString();
+      } else {
+        userAssetBalances['ETH'] = (
+          await provider.getBalance(accountAddress)
+        ).toString();
+      }
 
       setState((prevState) => ({ ...prevState, userAssetBalances }));
     })();
-  }, [accountAddress, provider, contractAddresses]);
+  }, [accountAddress, provider, contractAddresses, chainId]);
 
   useEffect(() => {
     updateAssetBalances();

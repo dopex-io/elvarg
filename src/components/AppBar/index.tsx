@@ -19,6 +19,8 @@ import CustomButton from 'components/UI/CustomButton';
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
+import { CURRENCIES_MAP } from 'constants/index';
+
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -65,6 +67,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'sale', to: '/sale' },
   ],
+  56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
     { name: 'options', to: '/' },
     { name: 'pools', to: '/pools' },
@@ -83,7 +86,6 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'OTC', to: '/otc' },
-    { name: 'NFTs', to: '/nfts' },
   ],
 };
 
@@ -92,10 +94,12 @@ const menuLinks = [
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Dopex NFTs', to: '/nfts' },
+  { name: 'Community NFTs', to: '/nfts/community' },
 ];
 
 interface AppBarProps {
-  active:
+  active?:
     | 'options'
     | 'pools'
     | 'rewards'
@@ -107,8 +111,7 @@ interface AppBarProps {
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
-    | 'OTC'
-    | 'NFTs';
+    | 'OTC';
 }
 
 export default function AppBar(props: AppBarProps) {
@@ -257,10 +260,17 @@ export default function AppBar(props: AppBarProps) {
                     className="mr-2"
                   >
                     {formatAmount(
-                      getUserReadableAmount(userAssetBalances.ETH, 18),
+                      getUserReadableAmount(
+                        userAssetBalances[CURRENCIES_MAP[chainId]],
+                        18
+                      ),
                       3
                     )}{' '}
-                    <span className="text-stieglitz">ETH</span>
+                    <span className="text-stieglitz">
+                      {CURRENCIES_MAP[chainId]
+                        ? CURRENCIES_MAP[chainId]
+                        : 'ETH'}
+                    </span>
                   </Typography>
                 </Box>
                 <Button

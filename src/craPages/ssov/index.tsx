@@ -6,6 +6,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import SsovCard from './components/SsovCard';
+import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochsDropDown';
 
 import { SsovContext } from 'contexts/Ssov';
 
@@ -24,7 +25,7 @@ const Ssov = () => {
       </Head>
       <AppBar active="SSOV" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-        <Box className="text-center mx-auto max-w-xl mb-12 mt-32">
+        <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
           <Typography variant="h1" className="mb-1">
             Single Staking Option Vaults
           </Typography>
@@ -33,14 +34,15 @@ const Ssov = () => {
             option purchases and earn rewards from farms simultaneously.
           </Typography>
         </Box>
+        <LegacyEpochsDropDown />
         <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
           {ssovPropertiesArray.length === 0 || ssovDataArray.length === 0
-            ? [0, 1, 2, 3].map((i) => (
+            ? [0, 1, 2, 3, 4, 5].map((i) => (
                 <Skeleton
                   key={i}
                   variant="rect"
                   width={350}
-                  height={560}
+                  height={400}
                   animation="wave"
                   className="rounded-md bg-cod-gray"
                 />

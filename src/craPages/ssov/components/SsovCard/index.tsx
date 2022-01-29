@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
-
 import format from 'date-fns/format';
+import { useNavigate } from 'react-router-dom';
+import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -13,11 +13,16 @@ import InfoBox from '../InfoBox';
 
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
+
 import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
 import { SSOV_MAP } from 'constants/index';
+import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
+
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 import styles from './styles.module.scss';
 
@@ -40,18 +45,28 @@ function SsovCard(props: SsovCardProps) {
     setSelectedSsov,
   } = props;
   const navigate = useNavigate();
-  const { selectedEpoch, cgTokenPrice, tokenName } = ssovProperties;
-  const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData;
+  const { selectedEpoch, tokenPrice, tokenName } = ssovProperties;
+  const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData
+    ? ssovData
+    : {
+        epochTimes: {},
+        isVaultReady: false,
+        totalEpochDeposits: BigNumber.from(0),
+        APY: '0',
+      };
   const { userEpochDeposits } =
     userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-
-  const TVL =
-    totalEpochDeposits && cgTokenPrice
-      ? getUserReadableAmount(totalEpochDeposits, 18) * cgTokenPrice
-      : 0;
+  const { convertToBNB } = useBnbSsovConversion();
 
   const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
+
+  const TVL = tokenPrice
+    ? ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
+      ? convertToBNB(totalEpochDeposits).mul(tokenPrice).div(1e8).toString()
+      : getUserReadableAmount(totalEpochDeposits, 18) *
+        getUserReadableAmount(tokenPrice, 8)
+    : 0;
 
   const info = [
     {
@@ -63,7 +78,7 @@ function SsovCard(props: SsovCardProps) {
       heading: 'APY',
       value: `${APY ? `${APY}%` : '...'}`,
       Icon: Action,
-      tooltip: 'This is the base APY calculated from the single staking farm',
+      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -73,14 +88,15 @@ function SsovCard(props: SsovCardProps) {
   ];
 
   // Ssov data for next epoch
-  const userEpochDepositsAmount = getUserReadableAmount(
-    userEpochDeposits,
-    18
-  ).toFixed(3);
-  const totalEpochDepositsAmount = getUserReadableAmount(
-    totalEpochDeposits,
-    18
-  ).toFixed(3);
+  const userEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(userEpochDeposits, 8).toFixed(3)
+      : getUserReadableAmount(userEpochDeposits, 18).toFixed(3);
+
+  const totalEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(totalEpochDeposits, 8).toFixed(3)
+      : getUserReadableAmount(totalEpochDeposits, 18).toFixed(3);
 
   const epochTimePeriod =
     epochTimes[0] && epochTimes[1]
@@ -102,38 +118,14 @@ function SsovCard(props: SsovCardProps) {
           <Box className="flex flex-row mb-4">
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
+                className="w-9 h-9"
                 src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
                 alt={tokenSymbol}
               />
             </Box>
             <Box className="flex items-center">
-              <Typography variant="h5">{tokenSymbol} Options Vault</Typography>
+              <Typography variant="h5">{tokenSymbol} SSOV</Typography>
             </Box>
-          </Box>
-          <Box className="border-umbra rounded-xl border p-4 flex flex-col mb-4">
-            <Typography variant="h6" className="mb-4">
-              Single Staking Vault
-            </Typography>
-            <Typography
-              variant="caption"
-              component="div"
-              className="mb-4 text-left text-stieglitz"
-            >
-              Returns are generated via an automated compound strategy in the{' '}
-              {tokenSymbol} farm where all yield is collectively used to sell
-              Call Options.
-            </Typography>
-            <Typography
-              variant="caption"
-              component="a"
-              className="text-wave-blue text-left"
-              // @ts-ignore
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://blog.dopex.io/introducing-single-staking-option-vaults-ssov-b90bbb0a9ae5"
-            >
-              Read More
-            </Typography>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
             {info.map((item) => {
@@ -174,8 +166,9 @@ function SsovCard(props: SsovCardProps) {
                     <span className="text-wave-blue">
                       {formatAmount(userEpochDepositsAmount, 5)}
                     </span>{' '}
-                    {tokenSymbol} / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-                    {tokenSymbol}
+                    {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} /{' '}
+                    {formatAmount(totalEpochDepositsAmount, 5)}{' '}
+                    {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol}
                   </Typography>
                 </Box>
               </Box>

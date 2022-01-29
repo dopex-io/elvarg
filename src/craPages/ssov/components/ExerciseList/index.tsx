@@ -32,7 +32,8 @@ interface userExercisableOption {
   depositedAmount: number;
   purchasedAmount: number;
   settleableAmount: BigNumber;
-  pnlAmount: number;
+  totalPremiumsEarned: BigNumber;
+  pnlAmount: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
 }
@@ -53,8 +54,14 @@ const ExerciseList = ({
   >([]);
   const [page, setPage] = useState(0);
 
-  const { currentEpoch, selectedEpoch, tokenPrice } = ssovProperties;
-  const { isVaultReady, epochStrikes } = ssovDataArray[selectedSsov];
+  const { currentEpoch, selectedEpoch, tokenPrice, tokenName } = ssovProperties;
+  const {
+    isVaultReady,
+    epochStrikes,
+    totalEpochPremium,
+    totalEpochStrikeDeposits,
+    settlementPrice,
+  } = ssovDataArray[selectedSsov];
   const {
     epochStrikeTokens,
     userEpochStrikeDeposits,
@@ -82,22 +89,30 @@ const ExerciseList = ({
 
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
-        const depositedAmount = getUserReadableAmount(
-          userEpochStrikeDeposits[strikeIndex],
-          18
-        );
+        const depositedAmount =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 8)
+            : getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 18);
         const purchasedAmount = getUserReadableAmount(
           userEpochCallsPurchased[strikeIndex],
           18
         );
         const settleableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
-        const isSettleable = settleableAmount.gt(0) && tokenPrice.gt(strike);
-
+        const isSettleable =
+          settleableAmount.gt(0) && settlementPrice.gt(strike);
         const isPastEpoch = selectedEpoch < currentEpoch;
-
-        const pnlAmount =
-          ((Number(tokenPrice.div(1e8)) - strikePrice) * purchasedAmount) /
-          Number(tokenPrice.div(1e8));
+        const pnlAmount = settlementPrice.isZero()
+          ? tokenPrice
+              .sub(strike)
+              .mul(userEpochCallsPurchased[strikeIndex])
+              .div(tokenPrice)
+          : settlementPrice
+              .sub(strike)
+              .mul(userEpochCallsPurchased[strikeIndex])
+              .div(settlementPrice);
+        const totalPremiumsEarned = userEpochStrikeDeposits[strikeIndex]
+          .mul(totalEpochPremium[strikeIndex])
+          .div(totalEpochStrikeDeposits[strikeIndex]);
 
         return {
           strikeIndex,
@@ -105,6 +120,7 @@ const ExerciseList = ({
           depositedAmount,
           purchasedAmount,
           settleableAmount,
+          totalPremiumsEarned,
           pnlAmount,
           isSettleable,
           isPastEpoch,
@@ -119,10 +135,14 @@ const ExerciseList = ({
     epochStrikeTokens,
     accountAddress,
     epochStrikes,
+    totalEpochStrikeDeposits,
+    totalEpochPremium,
     userEpochStrikeDeposits,
     userEpochCallsPurchased,
     tokenPrice,
     isVaultReady,
+    settlementPrice,
+    tokenName,
   ]);
 
   return selectedEpoch > 0 && isVaultReady ? (
@@ -204,6 +224,14 @@ const ExerciseList = ({
                     </Typography>
                   </TableCell>
                   <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
+                      Premiums Earned
+                    </Typography>
+                  </TableCell>
+                  <TableCell
                     align="right"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
@@ -226,6 +254,7 @@ const ExerciseList = ({
                       depositedAmount,
                       purchasedAmount,
                       settleableAmount,
+                      totalPremiumsEarned,
                       pnlAmount,
                       isSettleable,
                       isPastEpoch,
@@ -237,6 +266,7 @@ const ExerciseList = ({
                           strikePrice={strikePrice}
                           depositedAmount={depositedAmount}
                           purchasedAmount={purchasedAmount}
+                          totalPremiumsEarned={totalPremiumsEarned}
                           pnlAmount={pnlAmount}
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}

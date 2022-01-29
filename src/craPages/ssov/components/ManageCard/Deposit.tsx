@@ -55,7 +55,8 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
 
   const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner, token } = ssovSignerArray[selectedSsov];
+  const { ssovContractWithSigner, token, ssovRouter } =
+    ssovSignerArray[selectedSsov];
   const { userEpochStrikeDeposits, userEpochDeposits } =
     userSsovDataArray[selectedSsov];
   const {
@@ -103,19 +104,28 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) =>
+      tokenSymbol === 'BNB'
+        ? getUserReadableAmount(deposit, 8).toString()
+        : getUserReadableAmount(deposit, 18).toString()
   );
 
-  const totalEpochDepositsAmount = getUserReadableAmount(
-    totalEpochDeposits,
-    18
-  );
+  const totalEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(totalEpochDeposits, 8).toString()
+      : getUserReadableAmount(totalEpochDeposits, 18).toString();
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) =>
+      tokenSymbol === 'BNB'
+        ? getUserReadableAmount(deposit, 8).toString()
+        : getUserReadableAmount(deposit, 18).toString()
   );
 
-  const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
+  const userEpochDepositsAmount =
+    tokenSymbol === 'BNB'
+      ? getUserReadableAmount(userEpochDeposits, 8).toString()
+      : getUserReadableAmount(userEpochDeposits, 18).toString();
 
   // Handles strikes & deposit amounts
   const handleSelectStrikes = useCallback(
@@ -145,7 +155,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     );
     try {
       await sendTx(
-        token.approve(
+        token[0].approve(
           ssovContractWithSigner.address,
           maxApprove ? MAX_VALUE : finalAmount.toString()
         )
@@ -187,6 +197,17 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             }
           )
         );
+      } else if (tokenName === 'BNB' && ssovRouter) {
+        await sendTx(
+          ssovRouter.depositMultiple(
+            strikeIndexes,
+            strikeIndexes.map((index) => strikeDepositAmounts[index]),
+            accountAddress,
+            {
+              value: totalDepositAmount,
+            }
+          )
+        );
       } else {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
@@ -214,6 +235,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     accountAddress,
     tokenName,
     totalDepositAmount,
+    ssovRouter,
   ]);
 
   useEffect(() => {
@@ -238,7 +260,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         totalDepositAmount.toString(),
         18
       );
-      const allowance = await token.allowance(
+      const allowance = await token[0].allowance(
         accountAddress,
         ssovContractWithSigner.address
       );
@@ -262,13 +284,13 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       );
 
       let userAmount =
-        tokenName === 'ETH'
+        tokenName === 'ETH' || tokenName === 'BNB'
           ? BigNumber.from(userAssetBalances.ETH)
-          : await token.balanceOf(accountAddress);
+          : await token[0].balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance = await token.allowance(
+      let allowance = await token[0].allowance(
         accountAddress,
         ssovContractWithSigner.address
       );
@@ -276,7 +298,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (tokenName === 'ETH') {
+        if (tokenName === 'ETH' || tokenName === 'BNB') {
           setApproved(true);
         } else {
           setApproved(false);
@@ -393,19 +415,23 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           ) : null}
         </Box>
       </Box>
-      <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-left"
-        >
-          Allocation
-        </Typography>
-        <Typography variant="caption" component="div">
-          {getUserReadableAmount(totalDepositAmount, 18).toString()}{' '}
-          {tokenSymbol}
-        </Typography>
-      </Box>
+      {tokenSymbol !== 'BNB' ? (
+        <Box className="bg-umbra flex flex-row p-4 rounded-xl justify-between mb-2">
+          <Typography
+            variant="caption"
+            component="div"
+            className="text-stieglitz text-left"
+          >
+            Allocation
+          </Typography>
+          <Typography variant="caption" component="div">
+            {tokenSymbol === 'BNB'
+              ? getUserReadableAmount(totalDepositAmount, 8).toString()
+              : getUserReadableAmount(totalDepositAmount, 18).toString()}{' '}
+            {tokenSymbol === 'BNB' && 'vBNB'}
+          </Typography>
+        </Box>
+      ) : null}
       <Box className="`flex flex-row border-umbra rounded-xl border p-4 mb-2">
         <Box className="mr-4 mb-4">
           {isVaultReady ? <DepositClosed /> : <DepositOpen />}
@@ -473,7 +499,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           <CustomButton size="large" className="w-full" disabled>
             {isVaultReady ? 'Closed' : 'Enter an amount'}
           </CustomButton>
-        ) : approved ? (
+        ) : tokenSymbol === 'BNB' || approved ? (
           <CustomButton
             size="large"
             className="w-full"
@@ -484,15 +510,19 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           </CustomButton>
         ) : (
           <Box className="flex flex-col">
-            <MaxApprove value={maxApprove} setValue={setMaxApprove} />
+            {tokenSymbol !== 'BNB' ? (
+              <MaxApprove value={maxApprove} setValue={setMaxApprove} />
+            ) : null}
             <Box className="flex flex-row mt-2">
-              <CustomButton
-                size="large"
-                className="w-11/12 mr-1"
-                onClick={handleApprove}
-              >
-                Approve
-              </CustomButton>
+              {tokenSymbol !== 'BNB' ? (
+                <CustomButton
+                  size="large"
+                  className="w-11/12 mr-1"
+                  onClick={handleApprove}
+                >
+                  Approve
+                </CustomButton>
+              ) : null}
               <CustomButton size="large" className="w-11/12 ml-1" disabled>
                 Deposit
               </CustomButton>
@@ -514,7 +544,8 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               <span className="text-wave-blue">
                 {formatAmount(userEpochDepositsAmount, 5)}
               </span>{' '}
-              / {formatAmount(totalEpochDepositsAmount, 5)} {tokenSymbol}
+              / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
+              {tokenSymbol === 'BNB' && 'vBNB'}
             </Typography>
           </Box>
         </AccordionSummary>
@@ -532,7 +563,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   / {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
-                  {tokenSymbol} ${strike}
+                  {strike}
                 </Typography>
               </Box>
             ))}

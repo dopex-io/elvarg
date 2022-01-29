@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState, useEffect } from 'react';
+import { useCallback, useContext, useState, useEffect, useMemo } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -27,7 +27,8 @@ interface ExerciseTableDataProps {
   depositedAmount: number;
   purchasedAmount: number;
   settleableAmount: BigNumber;
-  pnlAmount: number;
+  pnlAmount: BigNumber;
+  totalPremiumsEarned: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
   ssovProperties: SsovProperties;
@@ -44,6 +45,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     strikeIndex,
     strikePrice,
     depositedAmount,
+    totalPremiumsEarned,
     purchasedAmount,
     settleableAmount,
     pnlAmount,
@@ -55,10 +57,13 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const { contractAddresses, signer } = useContext(WalletContext);
 
-  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const tokenSymbol =
+    SSOV_MAP[ssovProperties.tokenName].tokenSymbol === 'BNB'
+      ? 'vBNB'
+      : SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   const { selectedEpoch } = ssovProperties;
-  const { epochStrikes } = ssovData;
+  const { epochStrikes, isEpochExpired } = ssovData;
 
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -99,6 +104,26 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
+  const settleableBooleans = useMemo(() => {
+    if (isEpochExpired) {
+      if (isSettleable) {
+        return {
+          settleButtonDisable: false,
+          settleButtonPrimaryColor: true,
+        };
+      } else {
+        return {
+          settleButtonDisable: true,
+          settleButtonPrimaryColor: false,
+        };
+      }
+    } else
+      return {
+        settleButtonDisable: true,
+        settleButtonPrimaryColor: false,
+      };
+  }, [isEpochExpired, isSettleable]);
+
   const Dialog = DIALOGS[dialogState.type];
 
   return (
@@ -121,7 +146,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenSymbol}
+            {tokenSymbol === 'vBNB' ? 'BNB' : tokenSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -143,40 +168,50 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {pnlAmount > 0
-            ? `${formatAmount(pnlAmount, 5)} ${tokenSymbol}`
+          {pnlAmount.gte(0)
+            ? `${formatAmount(
+                tokenSymbol === 'vBNB'
+                  ? getUserReadableAmount(pnlAmount, 8)
+                  : getUserReadableAmount(pnlAmount, 18),
+                5
+              )} ${tokenSymbol}`
+            : `0 ${tokenSymbol}`}
+        </Typography>
+      </TableCell>
+      <TableCell align="left" className="px-6 pt-2">
+        <Typography variant="h6">
+          {!totalPremiumsEarned.isZero()
+            ? `${formatAmount(
+                tokenSymbol === 'vBNB'
+                  ? getUserReadableAmount(totalPremiumsEarned, 8)
+                  : getUserReadableAmount(totalPremiumsEarned, 18),
+                5
+              )} ${tokenSymbol}`
             : `0 ${tokenSymbol}`}
         </Typography>
       </TableCell>
       <TableCell align="right">
         <Box className="flex justify-end">
-          {isPastEpoch ? (
-            <CustomButton
-              size="medium"
-              className="px-2"
-              onClick={handleSettle}
-              disabled={!isSettleable}
-              color={isSettleable ? 'primary' : 'cod-gray'}
-            >
-              Settle
-            </CustomButton>
-          ) : (
-            <Box className="flex space-x-1">
-              <InfoPopover
-                className="my-auto"
-                id="settle-info"
-                infoText="Settle is available only after expiry of this epoch."
-              />
-              <CustomButton
-                size="medium"
-                disabled
-                className="px-2"
-                color={'cod-gray'}
-              >
-                Settle
-              </CustomButton>
-            </Box>
+          {!isEpochExpired && (
+            <InfoPopover
+              className="my-auto"
+              id="settle-info"
+              infoText="Settle is available only after expiry of this epoch."
+            />
           )}
+          <CustomButton
+            size="medium"
+            className="px-2"
+            onClick={handleSettle}
+            disabled={settleableBooleans.settleButtonDisable}
+            color={
+              settleableBooleans.settleButtonPrimaryColor
+                ? 'primary'
+                : 'cod-gray'
+            }
+          >
+            Settle
+          </CustomButton>
           <IconButton
             aria-label="more"
             aria-controls="long-menu"

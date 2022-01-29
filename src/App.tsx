@@ -14,6 +14,7 @@ import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
 import { SsovProvider } from 'contexts/Ssov';
 import { OtcProvider } from 'contexts/Otc';
+import { NftsProvider } from 'contexts/Nfts';
 
 // import { BUILD } from 'constants/index';
 
@@ -28,6 +29,7 @@ const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const OtcPortal = lazy(() => import('craPages/otc'));
 const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
 const Nfts = lazy(() => import('craPages/nfts'));
+const CommunityNfts = lazy(() => import('craPages/nfts/community'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
@@ -73,9 +75,12 @@ const OtcRoutes = () => {
 
 const NftsRoutes = () => {
   return (
-    <Routes>
-      <Route path="*" element={<Nfts />} />
-    </Routes>
+    <NftsProvider>
+      <Routes>
+        <Route path="*" element={<Nfts />} />
+        <Route path="community" element={<CommunityNfts />} />
+      </Routes>
+    </NftsProvider>
   );
 };
 function AppRoutes() {

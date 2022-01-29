@@ -4,7 +4,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
-import Image from 'next/image';
 
 interface InfoBoxProps {
   Icon?: React.FC;
@@ -29,7 +28,7 @@ const InfoBox = ({
         {Icon ? (
           <Icon />
         ) : imgSrc ? (
-          <Image src={imgSrc} alt="logo" width={38} height={38} />
+          <img src={imgSrc} alt="logo" className="w-10 h-10" />
         ) : null}
       </Box>
       <Box className="flex flex-row">

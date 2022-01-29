@@ -6,7 +6,7 @@ import noop from 'lodash/noop';
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { BaseNFT__factory } from '@dopex-io/sdk';
+import { BaseNFT } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -16,20 +16,37 @@ import BalanceTree from 'utils/merkle/balance-tree';
 import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
+import { NftsContext } from 'contexts/Nfts';
 
 import dopexBridgoorAddresses from 'constants/dopexBridgoorAddresses.json';
 import dopexHalloweenAddresses from 'constants/dopexHalloweenAddresses.json';
 
-const ClaimModal = ({ open, handleClose, nft, name }) => {
-  const { accountAddress, signer, contractAddresses } =
-    useContext(WalletContext);
+const ClaimModal = ({ open, handleClose, index, name }) => {
+  const { accountAddress } = useContext(WalletContext);
+  const { userNftsData } = useContext(NftsContext);
 
   const [amount, setAmount] = useState(null);
   const [loading, setLoading] = useState(false);
   const addresses =
-    nft === 'DopexBridgoorNFT'
+    name === 'Dopex Bridgoor NFT'
       ? dopexBridgoorAddresses
       : dopexHalloweenAddresses;
+
+  const {
+    nftContractSigner,
+  }: {
+    nftContractSigner: BaseNFT;
+  } = useMemo(() => {
+    if (userNftsData.length === 0) {
+      return {
+        nftContractSigner: null,
+      };
+    } else {
+      return {
+        nftContractSigner: userNftsData[index].nftContractSigner,
+      };
+    }
+  }, [userNftsData, index]);
 
   const formik = useFormik({
     initialValues: { address: '' },
@@ -60,15 +77,10 @@ const ClaimModal = ({ open, handleClose, nft, name }) => {
     const tree = new BalanceTree(addresses);
 
     if (index >= 0) {
-      const dopexBaseNft = BaseNFT__factory.connect(
-        contractAddresses[nft],
-        signer
-      );
-
       if (!amount || amount === '0') {
         try {
           setLoading(true);
-          await dopexBaseNft.callStatic.claim(
+          await nftContractSigner.callStatic.claim(
             index,
             formik.values.address,
             availableAmount,
@@ -84,7 +96,7 @@ const ClaimModal = ({ open, handleClose, nft, name }) => {
         setLoading(true);
         try {
           await sendTx(
-            dopexBaseNft.claim(
+            nftContractSigner.claim(
               index,
               formik.values.address,
               availableAmount,
