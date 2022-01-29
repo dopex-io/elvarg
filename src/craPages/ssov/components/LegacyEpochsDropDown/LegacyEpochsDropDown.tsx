@@ -28,10 +28,11 @@ const LegacyEpochsDropDown = () => {
       name: 'Epoch 2 (December)',
       to: 'https://ssov-epoch-2.dopex.io/',
     },
+    {
+      name: 'Epoch 3 (January)',
+      to: 'https://ssov-epoch-3.dopex.io/',
+    },
   ];
-
-  if (chainId !== 41216) return <></>;
-  if (chainId.toString() !== '56') return <></>;
 
   return (
     <Box className="flex items-center justify-center mb-5">
