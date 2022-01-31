@@ -186,7 +186,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           strikeDepositAmounts[index] && strikeDepositAmounts[index].gt('0')
       );
 
-      if (tokenName === 'ETH') {
+      if (tokenName === 'ETH' || tokenName === 'AVAX') {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
