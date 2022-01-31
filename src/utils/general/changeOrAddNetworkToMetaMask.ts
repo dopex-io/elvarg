@@ -53,7 +53,22 @@ const NETWORKS = {
 };
 
 export default async function changeOrAddNetworkToMetaMask(chainId: number) {
-  if (!window && !window.ethereum) return;
+  if (!window) return;
+  if (!window.ethereum) {
+    const walletlink = new window.WalletLink({
+      appName: 'Dopex',
+      appLogoUrl: '/assets/dpx.svg',
+    });
+
+    let rpcUrl = null;
+    if (chainId === 1)
+      rpcUrl = `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_PROJECT_ID}`;
+    else if (chainId === 56) rpcUrl = process.env.NEXT_PUBLIC_BSC_RPC_URL;
+    else if (chainId === 42161)
+      rpcUrl = `https://arbitrum-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_PROJECT_ID}`;
+
+    window.ethereum = walletlink.makeWeb3Provider(rpcUrl, chainId);
+  }
 
   try {
     await window.ethereum.request({
