@@ -189,11 +189,7 @@ export const SsovProvider = (props) => {
       ]);
 
       const APY = await axios
-        .get(
-          `https://api.dopex.io/api/v1/ssov/apy?asset=${
-            asset === 'AVAX' ? 'DPX' : asset
-          }`
-        )
+        .get(`https://api.dopex.io/api/v1/ssov/apy?asset=${asset}`)
         .then((res) => formatAmount(res.data.apy, 2));
 
       ssovData.push({
