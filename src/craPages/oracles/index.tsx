@@ -111,14 +111,6 @@ const TOKENS = [
     imgAlt: 'rDPX',
   },
   {
-    tokenSymbol: 'BNB',
-    type: 'chainlink',
-    contractUrl:
-      'https://bscscan.com/address/0x0567f2323251f0aab15c8dfb1967e4e8a7d42aee',
-    imgSrc: '/assets/bnb.svg',
-    imgAlt: 'BNB',
-  },
-  {
     tokenSymbol: 'gOHM',
     type: 'chainlink',
     contractUrl:
@@ -133,6 +125,14 @@ const TOKENS = [
       'https://arbiscan.io/address/0x60E07B25Ba79bf8D40831cdbDA60CF49571c7Ee0',
     imgSrc: '/assets/gmx.svg',
     imgAlt: 'GMX',
+  },
+  {
+    tokenSymbol: 'BNB',
+    type: 'chainlink',
+    contractUrl:
+      'https://bscscan.com/address/0x0567f2323251f0aab15c8dfb1967e4e8a7d42aee',
+    imgSrc: '/assets/bnb.svg',
+    imgAlt: 'BNB',
   },
 ];
 
@@ -246,7 +246,7 @@ const Oracles = () => {
                 Oracles
               </Typography>
             </Box>
-            <Box className="grid grid-cols-2 gap-20">
+            <Box className="grid md:grid-cols-2 gap-20">
               {TOKENS.map((token) => {
                 return (
                   <PriceCard
