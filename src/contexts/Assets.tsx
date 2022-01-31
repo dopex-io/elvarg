@@ -40,7 +40,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX'],
+  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX'],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
