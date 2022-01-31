@@ -93,25 +93,38 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           Disconnect
         </Typography>
       </Box>
-      <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
-        <Box className="flex flex-col space-y-4">
-          {DISPLAY_TOKENS[chainId]?.map((key: any, index) => {
-            return (
-              <BalanceItem
-                key={index}
-                balance={getUserReadableAmount(
-                  userBalances[key],
-                  chainId === 56 ? 8 : 18
-                ).toString()}
-                decimals={18}
-                token={key}
-                iconSrc={`/assets/${key}.svg`}
-                iconAlt={key}
-              />
-            );
-          })}
+      {DISPLAY_TOKENS[chainId]?.length > 0 ? (
+        <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
+          <Box className="flex flex-col space-y-4">
+            {DISPLAY_TOKENS[chainId]?.map((key: any, index) => {
+              return (
+                <BalanceItem
+                  key={index}
+                  balance={getUserReadableAmount(
+                    userBalances[key],
+                    chainId === 56 ? 8 : 18
+                  ).toString()}
+                  decimals={18}
+                  token={key}
+                  iconSrc={`/assets/${key.toLowerCase()}.svg`}
+                  iconAlt={key}
+                />
+              );
+            })}
+          </Box>
         </Box>
-      </Box>
+      ) : null}
+      {!window?.ethereum?.isMetaMask ? (
+        <Box className="mt-2 mb-2 flex">
+          <Typography
+            className="text-yellow bg-opacity-10 rounded-xl w-full"
+            variant="caption"
+          >
+            If you are using Wallet Connect you can choose the desired network
+            clicking on the dropdown menu immediately after you scan the QR Code
+          </Typography>
+        </Box>
+      ) : null}
     </Dialog>
   );
 };

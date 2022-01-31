@@ -80,6 +80,17 @@ const ChangeNetworkDialog = () => {
           );
         })}
       </Box>
+      {!window?.ethereum?.isMetaMask ? (
+        <Box className="mt-2 mb-2 flex">
+          <Typography
+            className="text-yellow bg-opacity-10 rounded-xl w-full"
+            variant="caption"
+          >
+            If you are using Wallet Connect you can choose the desired network
+            clicking on the dropdown menu immediately after you scan the QR Code
+          </Typography>
+        </Box>
+      ) : null}
     </Dialog>
   );
 };
