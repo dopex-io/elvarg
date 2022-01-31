@@ -114,7 +114,7 @@ export const AssetsProvider = (props) => {
     const updateTokenPrices = async () => {
       const cgIds = [];
 
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < state.tokens.length; i++) {
         cgIds.push(ASSET_TO_COINGECKO_ID[state.tokens[i]]);
       }
       const payload = await axios.get(
@@ -125,7 +125,7 @@ export const AssetsProvider = (props) => {
         const temp = payload.data[ASSET_TO_COINGECKO_ID[state.tokens[index]]];
         return {
           name: state.tokens[index],
-          change24h: temp['usd'],
+          change24h: temp['usd_24h_change'],
           price: temp.usd,
         };
       });

@@ -230,7 +230,7 @@ export default function AppBar(props: AppBarProps) {
           </Box>
           <Box className="flex items-center">
             <Box className="space-x-2 mr-4 hidden lg:flex">
-              {tokenPrices.map((item) => {
+              {tokenPrices.slice(0, 3).map((item) => {
                 return (
                   <PriceTag
                     key={item.name}
