@@ -93,6 +93,7 @@ const menuLinks = [
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Price Oracles', to: '/oracles' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
 ];
