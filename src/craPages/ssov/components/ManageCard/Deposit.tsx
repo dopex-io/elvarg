@@ -260,10 +260,15 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         totalDepositAmount.toString(),
         18
       );
-      const allowance = await token[0].allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
+      let allowance;
+      if (token[0] == null) {
+        allowance = BigNumber.from(MAX_VALUE);
+      } else {
+        allowance = await token[0].allowance(
+          accountAddress,
+          ssovContractWithSigner.address
+        );
+      }
       setApproved(allowance.gte(finalAmount) ? true : false);
     })();
   }, [
@@ -283,22 +288,30 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         18
       );
 
-      let userAmount =
-        tokenName === 'ETH' || tokenName === 'BNB'
-          ? BigNumber.from(userAssetBalances.ETH)
-          : await token[0].balanceOf(accountAddress);
+      let userAmount = BigNumber.from(
+        userAssetBalances[tokenName.toLocaleUpperCase()]
+      );
+
+      // tokenName === 'ETH' || tokenName === 'BNB' || tokenName == 'AVAX'
+      //   ? BigNumber.from(userAssetBalances.ETH)
+      //   : await token[0].balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance = await token[0].allowance(
-        accountAddress,
-        ssovContractWithSigner.address
-      );
+      let allowance;
+      if (token[0] == null) {
+        allowance = BigNumber.from(MAX_VALUE);
+      } else {
+        allowance = await token[0].allowance(
+          accountAddress,
+          ssovContractWithSigner.address
+        );
+      }
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (tokenName === 'ETH' || tokenName === 'BNB') {
+        if (tokenName === 'ETH' || tokenName === 'BNB' || tokenName == 'AVAX') {
           setApproved(true);
         } else {
           setApproved(false);

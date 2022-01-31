@@ -191,7 +191,7 @@ export const SsovProvider = (props) => {
       const APY = await axios
         .get(
           `https://api.dopex.io/api/v1/ssov/apy?asset=${
-            asset === 'GMX' ? 'DPX' : asset
+            asset === 'AVAX' ? 'DPX' : asset
           }`
         )
         .then((res) => formatAmount(res.data.apy, 2));
@@ -289,10 +289,14 @@ export const SsovProvider = (props) => {
       const tokens = SSOV_MAP[asset].tokens;
 
       const _tokens = tokens.map((tokenName: string) => {
-        return (
-          contractAddresses[tokenName] &&
-          ERC20__factory.connect(contractAddresses[tokenName], signer)
-        );
+        if (tokenName === 'ETH' || tokenName === 'AVAX') {
+          return null;
+        } else {
+          return (
+            contractAddresses[tokenName] &&
+            ERC20__factory.connect(contractAddresses[tokenName], signer)
+          );
+        }
       });
 
       const _ssovContractWithSigner =

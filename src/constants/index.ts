@@ -8,6 +8,7 @@ export const CURRENCIES_MAP = {
   '1': 'ETH',
   '42161': 'ETH',
   '56': 'BNB',
+  '43114': 'AVAX',
 };
 
 export const BASE_ASSET_MAP = {
@@ -45,6 +46,11 @@ export const BASE_ASSET_MAP = {
     fullName: 'Yearn',
     symbol: 'YFI',
     _symbol: 'YFI',
+  },
+  AVAX: {
+    fullName: 'AVAX',
+    symbol: 'AVAX',
+    _symbol: 'AVAX',
   },
 };
 
@@ -143,7 +149,7 @@ export const SSOV_MAP = {
     tokens: ['GMX'],
   },
   AVAX: {
-    tokenSymbol: 'Avax',
+    tokenSymbol: 'AVAX',
     imageSrc: '/assets/avax.svg',
     coiGeckoId: 'avalanche-2',
     tokens: ['AVAX'],
@@ -260,7 +266,7 @@ export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
 export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
-export const AVALANCHE_RPC_URL = 'https://rpc.ankr.com/avalanche';
+export const AVALANCHE_RPC_URL = process.env.AVALANCHE_RPC_URL;
 
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
@@ -282,6 +288,7 @@ export const S3_BUCKET_RESOURCES = {
 export const DISPLAY_TOKENS = {
   42161: ['DPX', 'RDPX', 'ETH'],
   56: ['BNB', 'VBNB'],
+  43114: ['AVAX'],
 };
 
 export const CHAIN_ID_TO_NETWORK_DATA = {
