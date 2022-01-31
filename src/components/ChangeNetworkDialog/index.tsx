@@ -80,7 +80,7 @@ const ChangeNetworkDialog = () => {
           );
         })}
       </Box>
-      {!window?.ethereum?.isMetaMask && (
+      {!window?.ethereum?.isMetaMask ? (
         <Box className="mt-2 mb-2 flex">
           <Typography
             className="text-yellow bg-opacity-10 rounded-xl w-full"
@@ -90,7 +90,7 @@ const ChangeNetworkDialog = () => {
             clicking on the dropdown menu immediately after you scan the QR Code
           </Typography>
         </Box>
-      )}
+      ) : null}
     </Dialog>
   );
 };

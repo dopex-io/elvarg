@@ -93,7 +93,7 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           Disconnect
         </Typography>
       </Box>
-      {DISPLAY_TOKENS[chainId]?.length > 0 && (
+      {DISPLAY_TOKENS[chainId]?.length > 0 ? (
         <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
           <Box className="flex flex-col space-y-4">
             {DISPLAY_TOKENS[chainId]?.map((key: any, index) => {
@@ -113,8 +113,8 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
             })}
           </Box>
         </Box>
-      )}
-      {!window?.ethereum?.isMetaMask && (
+      ) : null}
+      {!window?.ethereum?.isMetaMask ? (
         <Box className="mt-2 mb-2 flex">
           <Typography
             className="text-yellow bg-opacity-10 rounded-xl w-full"
@@ -124,7 +124,7 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
             clicking on the dropdown menu immediately after you scan the QR Code
           </Typography>
         </Box>
-      )}
+      ) : null}
     </Dialog>
   );
 };
