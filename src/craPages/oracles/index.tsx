@@ -10,88 +10,7 @@ import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import Chart from './components/Chart';
 import PageLoader from 'components/PageLoader';
-
-const PreviousUpdatesDialog = ({ data, open, handleClose }) => {
-  return (
-    <Dialog open={open} handleClose={handleClose} showCloseIcon>
-      <Typography variant="h3" className="mb-3">
-        Previous Updates
-      </Typography>
-      <Box className="h-96">
-        {data.map((item) => {
-          return (
-            <Box key={item.timestamp} className="mb-4">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Price: </span> $ {item.price}
-              </Typography>
-              <Typography variant="h5">
-                <span className="text-stieglitz">Updated At: </span>
-                {new Date(item.timestamp * 1000).toUTCString()}
-              </Typography>
-            </Box>
-          );
-        })}
-      </Box>
-    </Dialog>
-  );
-};
-
-const PriceCard = ({ data }: { data: any }) => {
-  const [dialogState, setDialogState] = useState({ open: false, data: [] });
-
-  return (
-    <Box className="border border-umbra rounded p-4 flex flex-col space-y-3">
-      <PreviousUpdatesDialog
-        data={dialogState.data}
-        open={dialogState.open}
-        handleClose={() => setDialogState({ data: [], open: false })}
-      />
-      <Typography variant="h3" className="flex space-x-2 mb-4" component="div">
-        <img src={data.imgSrc} alt={data.imgAlt} className="w-8 h-8" />
-        <span>{data.tokenSymbol}</span>
-      </Typography>
-      <Typography variant="h5">
-        <span className="text-stieglitz">Current Price: </span>$
-        {ethers.utils.formatUnits(data.currentPrice, 8)}
-      </Typography>
-      {data?.lastUpdated ? (
-        <Typography variant="h5">
-          <span className="text-stieglitz">Last Updated At: </span>
-          {new Date(data.lastUpdated * 1000).toUTCString()}
-        </Typography>
-      ) : null}
-      <a href={data.contractUrl} target="_blank" rel="noopener noreferrer">
-        <Typography variant="h5" className="text-stieglitz">
-          Contract Explorer Link <LaunchIcon className="w-4 mb-1" />
-        </Typography>
-      </a>
-      {data?.allData ? (
-        <>
-          <Typography
-            variant="h5"
-            className="text-wave-blue"
-            role="button"
-            onClick={() => {
-              setDialogState({ open: true, data: data.allData });
-            }}
-          >
-            Previous Updates
-          </Typography>
-          <Box className="w-100 h-32">
-            <Chart data={data.allData} />
-          </Box>
-        </>
-      ) : null}
-      <Typography
-        variant="h5"
-        className="text-stieglitz flex justify-end"
-        component="div"
-      >
-        Powered by <span className="capitalize ml-1">{data.type}</span>
-      </Typography>
-    </Box>
-  );
-};
+import OracleCard from './components/OracleCard';
 
 const TOKENS = [
   {
@@ -134,6 +53,14 @@ const TOKENS = [
     imgSrc: '/assets/bnb.svg',
     imgAlt: 'BNB',
   },
+  {
+    tokenSymbol: 'AVAX',
+    type: 'chainlink',
+    contractUrl:
+      'https://snowtrace.io/address/0x0A77230d17318075983913bC2145DB16C7366156',
+    imgSrc: '/assets/avax.svg',
+    imgAlt: 'AVAX',
+  },
 ];
 
 const Oracles = () => {
@@ -164,30 +91,48 @@ const Oracles = () => {
         'any'
       );
 
+      const avaxProvider = ethers.getDefaultProvider(
+        process.env.NEXT_PUBLIC_AVAX_RPC_URL,
+        'any'
+      );
+
+      const chainlinkAbi = [
+        'function latestRoundData() public view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)',
+      ];
+
+      const avaxOracle = new ethers.Contract(
+        '0x0A77230d17318075983913bC2145DB16C7366156',
+        chainlinkAbi,
+        avaxProvider
+      );
+
       const bnbOracle = new ethers.Contract(
         '0x0567f2323251f0aab15c8dfb1967e4e8a7d42aee',
-        [
-          'function latestRoundData() public view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)',
-        ],
+        chainlinkAbi,
         bscProvider
       );
 
+      const oracleAbi = [
+        'function getPriceInUSD() external view returns (uint256)',
+      ];
+
       const gohmOracle = new ethers.Contract(
         '0x6cb7d5bd21664e0201347bd93d66ce18bc48a807',
-        ['function getPriceInUSD() external view returns (uint256)'],
+        oracleAbi,
         arbProvider
       );
 
       const gmxOracle = new ethers.Contract(
         '0x60E07B25Ba79bf8D40831cdbDA60CF49571c7Ee0',
-        ['function getPriceInUSD() external view returns (uint256)'],
+        oracleAbi,
         arbProvider
       );
 
-      const [bnbData, gohmData, gmxData] = await Promise.all([
+      const [bnbData, gohmData, gmxData, avaxData] = await Promise.all([
         bnbOracle.latestRoundData(),
         gohmOracle.getPriceInUSD(),
         gmxOracle.getPriceInUSD(),
+        avaxOracle.latestRoundData(),
       ]);
 
       const _state = {
@@ -200,6 +145,10 @@ const Oracles = () => {
         },
         GMX: {
           currentPrice: gmxData,
+        },
+        AVAX: {
+          currentPrice: avaxData.answer,
+          lastUpdated: avaxData.updatedAt.toNumber(),
         },
         DPX: {
           currentPrice:
@@ -249,7 +198,7 @@ const Oracles = () => {
             <Box className="grid md:grid-cols-2 gap-20">
               {TOKENS.map((token) => {
                 return (
-                  <PriceCard
+                  <OracleCard
                     key={token.tokenSymbol}
                     data={{ ...token, ...state[token.tokenSymbol] }}
                   />
