@@ -292,10 +292,6 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         userAssetBalances[tokenName.toLocaleUpperCase()]
       );
 
-      // tokenName === 'ETH' || tokenName === 'BNB' || tokenName == 'AVAX'
-      //   ? BigNumber.from(userAssetBalances.ETH)
-      //   : await token[0].balanceOf(accountAddress);
-
       setUserTokenBalance(userAmount);
 
       let allowance;
