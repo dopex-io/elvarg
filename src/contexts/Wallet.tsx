@@ -45,7 +45,7 @@ export const CHAIN_ID_TO_PROVIDERS = {
 };
 
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
-  '/': [1, 42161],
+  '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
   '/ssov': [42161, 56, 43114],
@@ -57,9 +57,9 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/manage/GMX': [42161],
   '/ssov/manage/AVAX': [43114],
   '/nfts': [42161],
-  '/nfts/community': [42161, 1],
+  '/nfts/community': [42161, 1, 43114],
   '/sale': [1],
-  '/oracles': [1, 42161, 56],
+  '/oracles': [1, 42161, 56, 43114],
 };
 
 const DEFAULT_CHAIN_ID =
