@@ -266,7 +266,7 @@ export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
 export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
-export const AVALANCHE_RPC_URL = process.env.AVALANCHE_RPC_URL;
+export const AVAX_RPC_URL = process.env.NEXT_PUBLIC_AVAX_RPC_URL;
 
 export const GREEK_SYMBOLS = {
   delta: 'Δ',

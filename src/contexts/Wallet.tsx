@@ -7,11 +7,7 @@ import Web3Modal from 'web3modal';
 import WalletLink from 'walletlink';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import {
-  INFURA_PROJECT_ID,
-  BSC_RPC_URL,
-  AVALANCHE_RPC_URL,
-} from 'constants/index';
+import { INFURA_PROJECT_ID, BSC_RPC_URL, AVAX_RPC_URL } from 'constants/index';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -41,7 +37,7 @@ export const CHAIN_ID_TO_PROVIDERS = {
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '1337': 'http://127.0.0.1:8545',
-  '43114': AVALANCHE_RPC_URL,
+  '43114': AVAX_RPC_URL,
 };
 
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
