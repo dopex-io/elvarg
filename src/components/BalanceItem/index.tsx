@@ -31,7 +31,7 @@ const BalanceItem = (props: BalanceItemProps) => {
               address: contractAddresses[upperCaseToken],
               symbol: token,
               decimals: decimals,
-              image: S3_BUCKET_RESOURCES[token],
+              image: S3_BUCKET_RESOURCES[token] || '/assets/unknown.webp',
             }}
           />
         ) : (

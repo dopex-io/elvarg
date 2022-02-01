@@ -6,13 +6,13 @@ import {
   useCallback,
 } from 'react';
 import { ERC20, ERC20__factory } from '@dopex-io/sdk';
-import axios from 'axios';
 
 import { WalletContext } from './Wallet';
 
 import { ASSETS_LIST } from 'constants/index';
 
 import { AssetData } from 'types';
+import axios from 'axios';
 
 interface AssetsContextInterface {
   usdtContract?: ERC20;
@@ -46,6 +46,7 @@ const initialState: AssetsContextInterface = {
     'ETH',
     'WETH',
     'GOHM',
+    'AVAX',
     'BNB',
     'GMX',
     'USDC',
@@ -66,6 +67,7 @@ const initialState: AssetsContextInterface = {
     FRAX: '0',
     BNB: '0',
     GMX: '0',
+    AVAX: '0',
   },
 };
 
@@ -82,6 +84,7 @@ const ASSET_TO_COINGECKO_ID = {
   DPX: 'dopex',
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
+  AVAX: 'avalanche-2',
 };
 
 export const ASSET_TO_NAME = {
@@ -96,10 +99,11 @@ export const ASSET_TO_NAME = {
   DPX: 'Dopex Governance',
   RDPX: 'Dopex Rebate',
   GOHM: 'OHM Governance',
+  AVAX: 'Avalanche',
 };
 
 export const IS_NATIVE = (asset) => {
-  return ['ETH', 'BNB'].includes(asset);
+  return ['ETH', 'BNB', 'AVAX'].includes(asset);
 };
 
 export const AssetsContext =
@@ -275,6 +279,7 @@ export const AssetsProvider = (props) => {
         GOHM: '0',
         VBNB: '0',
         GMX: '0',
+        AVAX: '0',
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>
@@ -289,6 +294,10 @@ export const AssetsProvider = (props) => {
 
       if (chainId === 56) {
         userAssetBalances['BNB'] = (
+          await provider.getBalance(accountAddress)
+        ).toString();
+      } else if (chainId === 43114) {
+        userAssetBalances['AVAX'] = (
           await provider.getBalance(accountAddress)
         ).toString();
       } else {

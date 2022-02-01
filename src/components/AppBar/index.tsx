@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  ReactNode,
-  useEffect,
-} from 'react';
+import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import Button from '@material-ui/core/Button';
@@ -93,6 +86,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
   ],
+  43114: [{ name: 'SSOV', to: '/ssov' }],
 };
 
 const menuLinks = [
@@ -100,6 +94,7 @@ const menuLinks = [
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Price Oracles', to: '/oracles' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
 ];
@@ -124,7 +119,11 @@ export default function AppBar(props: AppBarProps) {
   const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
     useContext(WalletContext);
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
-  const ssovTokens = ['ETH', 'DPX', 'RDPX', 'GOHM', 'BNB'];
+  const ssovTokens = {
+    42161: ['ETH', 'DPX', 'RDPX', 'GOHM', 'GMX'],
+    56: ['BNB'],
+    43114: ['AVAX'],
+  };
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
@@ -238,7 +237,7 @@ export default function AppBar(props: AppBarProps) {
             <Box className="space-x-2 mr-4 hidden lg:flex">
               {tokenPrices.map(
                 (item) =>
-                  ssovTokens.includes(item['name']) && (
+                  ssovTokens[chainId].includes(item['name']) && (
                     <PriceTag
                       key={item.name}
                       asset={item.name}
