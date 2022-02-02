@@ -155,24 +155,20 @@ const Oracles = () => {
             _dopexOraclesData[0][_dopexOraclesData[0].length - 1].twap,
           lastUpdated:
             _dopexOraclesData[0][_dopexOraclesData[0].length - 1].timestamp,
-          allData: _dopexOraclesData[0]
-            .map((item) => ({
-              price: ethers.utils.formatUnits(item.twap, 8),
-              timestamp: item.timestamp,
-            }))
-            .reverse(),
+          allData: _dopexOraclesData[0].map((item) => ({
+            price: ethers.utils.formatUnits(item.twap, 8),
+            timestamp: item.timestamp,
+          })),
         },
         rDPX: {
           currentPrice:
             _dopexOraclesData[1][_dopexOraclesData[1].length - 1].twap,
           lastUpdated:
             _dopexOraclesData[1][_dopexOraclesData[1].length - 1].timestamp,
-          allData: _dopexOraclesData[1]
-            .map((item) => ({
-              price: Number(ethers.utils.formatUnits(item.twap, 8)),
-              timestamp: item.timestamp,
-            }))
-            .reverse(),
+          allData: _dopexOraclesData[1].map((item) => ({
+            price: Number(ethers.utils.formatUnits(item.twap, 8)),
+            timestamp: item.timestamp,
+          })),
         },
       };
 

@@ -14,7 +14,7 @@ const PreviousUpdatesDialog = ({ data, open, handleClose }) => {
         Previous Updates
       </Typography>
       <Box className="h-96">
-        {data.map((item) => {
+        {data.reverse().map((item) => {
           return (
             <Box key={item.timestamp} className="mb-4">
               <Typography variant="h5">
