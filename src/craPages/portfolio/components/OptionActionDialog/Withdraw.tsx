@@ -11,7 +11,8 @@ import CustomButton from 'components/UI/CustomButton';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -28,6 +29,8 @@ const Withdraw = ({ closeModal, data, icon }: DialogProps) => {
   const [error, setError] = useState('');
 
   const optionsAmount = getUserReadableAmount(data.userBalance, 18);
+
+  const sendTx = useSendTx();
 
   const stats = useMemo(() => {
     return {
@@ -70,6 +73,7 @@ const Withdraw = ({ closeModal, data, icon }: DialogProps) => {
     closeModal,
     updateOptionBalances,
     signer,
+    sendTx,
   ]);
 
   return (

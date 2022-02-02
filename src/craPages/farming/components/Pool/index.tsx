@@ -21,7 +21,8 @@ import RewardsCountdown from './RewardsCountdown/RewardsCountdown';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { UNISWAP_LINKS } from 'constants/index';
 
@@ -59,6 +60,8 @@ const Pool = ({
   const Modal = MODALS[modalState.type];
 
   const navigate = useNavigate();
+
+  const sendTx = useSendTx();
 
   const handleClose = useCallback(
     () => setModalState((prevState) => ({ ...prevState, open: false })),
@@ -104,7 +107,7 @@ const Pool = ({
     } catch (err) {
       console.log(err);
     }
-  }, [token, setStakingAsset, signer]);
+  }, [token, setStakingAsset, signer, sendTx]);
 
   const handleClaim = useCallback(
     () => setModalState({ open: true, type: 'CLAIM' }),
