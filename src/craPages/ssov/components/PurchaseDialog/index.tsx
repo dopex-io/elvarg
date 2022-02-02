@@ -27,7 +27,8 @@ import {
 } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -100,6 +101,8 @@ const PurchaseDialog = ({
 
   const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
+  const sendTx = useSendTx();
+
   const strikes = useMemo(
     () =>
       epochStrikes.map((strike) => getUserReadableAmount(strike, 8).toString()),
@@ -152,7 +155,7 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [token, ssovContractWithSigner]);
+  }, [token, sendTx, ssovContractWithSigner]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -203,6 +206,7 @@ const PurchaseDialog = ({
     tokenName,
     state.totalCost,
     ssovRouter,
+    sendTx,
   ]);
 
   useEffect(() => {

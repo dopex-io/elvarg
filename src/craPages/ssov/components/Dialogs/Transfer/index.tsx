@@ -12,9 +12,10 @@ import CustomButton from 'components/UI/CustomButton';
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 
-import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { SSOV_MAP } from 'constants/index';
 
@@ -44,7 +45,7 @@ const Transfer = ({
   const [recipient, setRecipient] = useState('');
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<number>(0);
-
+  const sendTx = useSendTx();
   const { selectedEpoch } = ssovProperties;
   const { epochStrikes } = ssovDataArray[selectedSsov];
   const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
@@ -117,6 +118,7 @@ const Transfer = ({
     updateUserEpochStrikeTokenBalance,
     updateUserSsovData,
     signer,
+    sendTx,
   ]);
 
   useEffect(() => {

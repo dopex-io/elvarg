@@ -11,7 +11,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import { BaseNFT } from '@dopex-io/sdk';
 
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { NftsContext } from 'contexts/Nfts';
@@ -44,6 +44,8 @@ const TransferModal = ({ open, handleClose, index }) => {
       };
     }
   }, [userNftsData, index]);
+
+  const sendTx = useSendTx();
 
   const formik = useFormik({
     initialValues: { address: '' },

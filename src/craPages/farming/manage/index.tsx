@@ -29,7 +29,8 @@ import { MAX_VALUE, UNISWAP_LINKS } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { FarmingContext } from 'contexts/Farming';
@@ -59,6 +60,8 @@ const Manage = () => {
     setStakingAsset,
     setPool,
   } = useContext(FarmingContext);
+
+  const sendTx = useSendTx();
 
   const validationSchema = yup.object({
     amount: yup
@@ -176,7 +179,7 @@ const Manage = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [maxApprove, selectedToken, signer, formik.values.amount]);
+  }, [maxApprove, selectedToken, signer, formik.values.amount, sendTx]);
 
   const handleDeposit = useCallback(async () => {
     try {
@@ -202,6 +205,7 @@ const Manage = () => {
     selectedToken.selectedBaseAsset,
     selectedToken.stakingRewardsContractAddress,
     signer,
+    sendTx,
   ]);
 
   const handleWithdraw = useCallback(async () => {
@@ -228,6 +232,7 @@ const Manage = () => {
     setStakingAsset,
     formik,
     signer,
+    sendTx,
   ]);
 
   const handleStake = useCallback(() => {

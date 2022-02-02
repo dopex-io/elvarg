@@ -12,9 +12,10 @@ import CustomButton from 'components/UI/CustomButton';
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 
-import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
 import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
@@ -56,6 +57,8 @@ const Settle = ({
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<BigNumber>(BigNumber.from('0'));
 
+  const sendTx = useSendTx();
+
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
 
@@ -91,7 +94,7 @@ const Settle = ({
     } catch (err) {
       console.log(err);
     }
-  }, [epochStrikeToken, signer, ssovContractWithSigner]);
+  }, [epochStrikeToken, signer, ssovContractWithSigner, sendTx]);
 
   // Handle Settle
   const handleSettle = useCallback(async () => {
@@ -112,6 +115,7 @@ const Settle = ({
     updateSsovData,
     updateUserSsovData,
     updateUserEpochStrikeTokenBalance,
+    sendTx,
   ]);
 
   // Handles isApproved
