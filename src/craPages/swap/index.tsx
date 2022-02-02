@@ -11,7 +11,7 @@ import BigNumber from 'bignumber.js';
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
@@ -56,6 +56,8 @@ const SWAP_ASSETS_DECIMALS = {
 export default function Swap() {
   const { contractAddresses, signer } = useContext(WalletContext);
   const { userAssetBalances, baseAssetsWithPrices } = useContext(AssetsContext);
+
+  const sendTx = useSendTx();
 
   const formik = useFormik({
     initialValues: {

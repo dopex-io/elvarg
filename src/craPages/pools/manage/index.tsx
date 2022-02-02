@@ -32,7 +32,8 @@ import { MAX_VALUE, BASE_ASSET_MAP } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import sanitizeValue from 'utils/contracts/sanitizeValue';
 
@@ -125,6 +126,8 @@ const Manage = () => {
       ...baseAssetsOptionPoolData[i],
     };
   }, [baseAssetsOptionPoolSdks, selectedBaseAsset, baseAssetsOptionPoolData]);
+
+  const sendTx = useSendTx();
 
   const formik = useFormik({
     initialValues: {
@@ -330,6 +333,7 @@ const Manage = () => {
     selectedBaseAssetDecimals,
     usdtContract,
     usdtDecimals,
+    sendTx,
   ]);
 
   const handleDeposit = useCallback(async () => {
@@ -380,6 +384,7 @@ const Manage = () => {
     updateAssetBalances,
     userAssetBalances,
     selectedBaseAsset,
+    sendTx,
   ]);
 
   const handleWithdrawRequest = useCallback(async () => {
@@ -421,6 +426,7 @@ const Manage = () => {
     selectedBaseAssetDecimals,
     usdtDecimals,
     updateOptionPoolsData,
+    sendTx,
   ]);
 
   const handleWithdraw = useCallback(async () => {
@@ -463,6 +469,7 @@ const Manage = () => {
     selectedBaseAssetDecimals,
     usdtDecimals,
     updateOptionPoolsData,
+    sendTx,
   ]);
 
   const userBalance =

@@ -13,7 +13,8 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import BalanceTree from 'utils/merkle/balance-tree';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { NftsContext } from 'contexts/Nfts';
@@ -24,6 +25,8 @@ import dopexHalloweenAddresses from 'constants/dopexHalloweenAddresses.json';
 const ClaimModal = ({ open, handleClose, index, name }) => {
   const { accountAddress } = useContext(WalletContext);
   const { userNftsData } = useContext(NftsContext);
+
+  const sendTx = useSendTx();
 
   const [amount, setAmount] = useState(null);
   const [loading, setLoading] = useState(false);

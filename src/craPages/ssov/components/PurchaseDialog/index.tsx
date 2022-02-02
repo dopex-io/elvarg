@@ -24,7 +24,8 @@ import {
   UserSsovData,
 } from 'contexts/Ssov';
 
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -118,6 +119,8 @@ const PurchaseDialog = ({
         (1 + slippageTolerance / 100)
       : getUserReadableAmount(userTokenBalance, 18);
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
+
+  const sendTx = useSendTx();
 
   const strikes = useMemo(
     () =>
@@ -324,6 +327,10 @@ const PurchaseDialog = ({
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    updateUserEpochStrikePurchasableAmount();
+  }, [updateUserEpochStrikePurchasableAmount]);
 
   const checkAllowance = async () => {
     const finalAmount = state.totalCost;

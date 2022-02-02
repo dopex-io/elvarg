@@ -23,12 +23,12 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
@@ -59,7 +59,9 @@ const BnbSsovDeposit = ({
   } = useContext(SsovContext);
   const { accountAddress } = useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
+
   const { convertToVBNB } = useBnbSsovConversion();
+  const sendTx = useSendTx();
 
   const { selectedEpoch, tokenName } = ssovProperties;
   const { ssovContractWithSigner, token, ssovRouter } =
@@ -184,7 +186,7 @@ const BnbSsovDeposit = ({
     } catch (err) {
       console.log(err);
     }
-  }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner]);
+  }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner, sendTx]);
 
   const handleMax = useCallback(
     (index: number) => {
@@ -246,6 +248,7 @@ const BnbSsovDeposit = ({
     ssovRouter,
     selected.vbnb,
     selected.bnb,
+    sendTx,
   ]);
 
   useEffect(() => {
