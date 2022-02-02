@@ -19,7 +19,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -73,6 +73,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     userSsovDataArray,
     ssovSignerArray,
   } = useContext(SsovContext);
+  const sendTx = useSendTx();
   const { accountAddress, chainId, provider, contractAddresses } =
     useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
