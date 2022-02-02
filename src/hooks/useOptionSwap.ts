@@ -4,8 +4,9 @@ import { ethers, BigNumber } from 'ethers';
 
 import parseError from 'utils/general/parseError';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
 import getTimePeriod from 'utils/contracts/getTimePeriod';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
@@ -21,6 +22,8 @@ const useOptionSwap = (data) => {
     useContext(WalletContext);
 
   const [loading, setLoading] = useState(false);
+
+  const sendTx = useSendTx();
 
   const swapCall = async (
     amountToSwap: string,

@@ -5,7 +5,8 @@ import Box from '@material-ui/core/Box';
 import Skeleton from '@material-ui/lab/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import Pool from '../components/Pool';
 import Typography from 'components/UI/Typography';
@@ -29,6 +30,8 @@ const Farms = () => {
     DPX_WETHPool,
     rDPX_WETHPool,
   } = useContext(FarmingContext);
+
+  const sendTx = useSendTx();
 
   const { accountAddress, signer, chainId } = useContext(WalletContext);
 
@@ -158,7 +161,7 @@ const Farms = () => {
         console.log(err);
       }
     }
-  }, [DPX, DPX_WETH, rDPX_WETH, RDPX, setStakingAsset, signer]);
+  }, [DPX, DPX_WETH, rDPX_WETH, RDPX, setStakingAsset, signer, sendTx]);
 
   const isLoading = useMemo(() => {
     if (accountAddress) {
