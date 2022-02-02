@@ -30,7 +30,13 @@ import format from 'date-fns/format';
 import { LinearProgress } from '@material-ui/core';
 import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
 import ZapInButton from '../../../../components/ZapInButton';
-import { Addresses, ERC20, ERC20__factory } from '@dopex-io/sdk';
+import {
+  Addresses,
+  ERC20,
+  ERC20__factory,
+  ERC20SSOV1inchRouter__factory,
+  Aggregation1inchRouterV4__factory,
+} from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import cx from 'classnames';
 import styles from './styles.module.scss';
@@ -74,14 +80,23 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovSignerArray,
   } = useContext(SsovContext);
   const sendTx = useSendTx();
-  const { accountAddress, chainId, provider, contractAddresses } =
+  const { accountAddress, chainId, provider, contractAddresses, signer } =
     useContext(WalletContext);
+  const aggregation1inchRouter = Aggregation1inchRouterV4__factory.connect(
+    Addresses[chainId]['1inchRouter'],
+    signer
+  );
+  const erc20SSOV1inchRouter = ERC20SSOV1inchRouter__factory.connect(
+    '0xC296C505207E34FE8aFaC9d0B1ceD6ff17d0e89a',
+    signer
+  ); // TODO CHANGE WITH SDK ADDRESS
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const containerRef = React.useRef(null);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const { ssovContractWithSigner, ssovRouter } = ssovSignerArray[selectedSsov];
+  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
   const { userEpochStrikeDeposits, userEpochDeposits } =
     userSsovDataArray[selectedSsov];
   const {
@@ -103,8 +118,8 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     BigNumber.from('0')
   );
   const [approved, setApproved] = useState<boolean>(false);
-  const [maxApprove, setMaxApprove] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
+  const [path, setPath] = useState<object>({});
   const [activeTab, setActiveTab] = useState<string>('deposit');
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [priceImpact, setPriceImpact] = useState<number>(0);
@@ -198,7 +213,11 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const isZapActive: boolean = useMemo(() => {
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   }, [tokenName, ssovTokenSymbol]);
+
   const ssovTokenName = ssovProperties.tokenName;
+  const spender = isZapActive
+    ? erc20SSOV1inchRouter.address
+    : ssovContractWithSigner.address;
 
   const purchasePower =
     isZapActive && quote['toToken']
@@ -332,22 +351,18 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 
   const handleApprove = useCallback(async () => {
-    const finalAmount = getContractReadableAmount(
-      totalDepositAmount.toString(),
-      18
-    );
     try {
       await sendTx(
-        token.approve(
-          ssovContractWithSigner.address,
-          maxApprove ? MAX_VALUE : finalAmount.toString()
+        ERC20__factory.connect(token.address, signer).approve(
+          spender,
+          MAX_VALUE
         )
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner]);
+  }, [totalDepositAmount, token, ssovContractWithSigner, sendTx]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -358,7 +373,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
 
-      if (tokenName === 'ETH') {
+      if (token === 'ETH') {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
@@ -371,7 +386,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             }
           )
         );
-      } else if (tokenName === 'BNB' && ssovRouter) {
+      } else if (token === 'BNB' && ssovRouter) {
         await sendTx(
           ssovRouter.depositMultiple(
             strikeIndexes,
@@ -385,16 +400,24 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           )
         );
       } else {
+        const decoded = aggregation1inchRouter.interface.decodeFunctionData(
+          'swap',
+          path['tx']['data']
+        );
+
         await sendTx(
-          ssovContractWithSigner.depositMultiple(
-            strikeIndexes,
-            strikeIndexes.map(
-              (index) => contractReadableStrikeDepositAmounts[index]
-            ),
+          erc20SSOV1inchRouter.swapAndDeposit(
+            ssovProperties.ssovContract.address,
+            ssovToken.address,
+            decoded[0],
+            decoded[1],
+            decoded[2],
+            2,
             accountAddress
           )
         );
       }
+
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
@@ -415,6 +438,28 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     totalDepositAmount,
     ssovRouter,
   ]);
+
+  const getPath = async () => {
+    if (!isZapActive) return;
+    setIsFetchingPath(true);
+    const fromTokenAddress = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const toTokenAddress = IS_NATIVE(ssovTokenName)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : ssovToken.address;
+    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
+    if (fromTokenAddress === ssovToken.address) return;
+    const { data } = await axios.get(
+      `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+        debouncedZapInAmount[0] * 10 ** fromTokenDecimals
+      )}&fromAddress=${
+        erc20SSOV1inchRouter.address
+      }&slippage=${slippageTolerance}&disableEstimate=true`
+    );
+    setPath(data);
+    setIsFetchingPath(false);
+  };
 
   const getPriceImpact = async () => {
     const fromTokenAddress = IS_NATIVE(token)
@@ -437,6 +482,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         (Math.min(quotePrice, dataPrice) / Math.max(quotePrice, dataPrice) - 1)
     );
   };
+
+  useEffect(() => {
+    getPath();
+  }, [isZapInVisible]);
 
   useEffect(() => {
     if (
@@ -466,10 +515,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
-        const allowance = await token.allowance(
-          accountAddress,
-          ssovContractWithSigner.address
-        );
+        const allowance = await token.allowance(accountAddress, spender);
         setApproved(allowance.gte(finalAmount) ? true : false);
       }
     })();
@@ -498,7 +544,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
 
       let allowance = IS_NATIVE(token)
         ? BigNumber.from(0)
-        : await token.allowance(accountAddress, ssovContractWithSigner.address);
+        : await token.allowance(accountAddress, spender);
 
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
@@ -1047,7 +1093,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                     !isDepositWindowOpen ||
                     totalDepositAmount <= 0
                   }
-                  onClick={null}
+                  onClick={approved ? handleDeposit : handleApprove}
                 >
                   {!isDepositWindowOpen && isVaultReady && (
                     <Countdown
