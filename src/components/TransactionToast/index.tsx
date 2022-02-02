@@ -3,16 +3,16 @@ import getExplorerUrl from 'utils/general/getExplorerUrl';
 function TransactionToast({
   message,
   txHash,
+  chainId,
 }: {
   message: string;
   txHash: string;
+  chainId: number;
 }) {
   return (
     <span>
       <a
-        href={`${getExplorerUrl(
-          Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID)
-        )}tx/${txHash}`}
+        href={`${getExplorerUrl(chainId)}tx/${txHash}`}
         target={'_blank'}
         rel={'noreferrer'}
       >
