@@ -1002,16 +1002,34 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                       />
                     </svg>
                   </Box>
-                  <Typography variant="h6" className="text-stieglitz">
-                    Deposits for Epoch {ssovProperties.currentEpoch + 1} will
-                    open on
-                    <br />
-                    <span className="text-white">
-                      {epochTimes[1]
-                        ? format(new Date(epochTimes[1] * 1000), 'd LLLL yyyy')
-                        : '-'}
-                    </span>
-                  </Typography>
+                  {!isDepositWindowOpen ? (
+                    <Typography variant="h6" className="text-stieglitz">
+                      Deposits for Epoch {ssovProperties.currentEpoch + 1} will
+                      open on
+                      <br />
+                      <span className="text-white">
+                        {epochTimes[1]
+                          ? format(
+                              new Date(epochTimes[1] * 1000),
+                              'd LLLL yyyy'
+                            )
+                          : '-'}
+                      </span>
+                    </Typography>
+                  ) : (
+                    <Typography variant="h6" className="text-stieglitz">
+                      Withdrawals are locked until end of Epoch{' '}
+                      {ssovProperties.currentEpoch + 1} {'   '}
+                      <span className="text-white">
+                        {epochTimes[1]
+                          ? format(
+                              new Date(epochTimes[1] * 1000),
+                              'd LLLL yyyy'
+                            )
+                          : '-'}
+                      </span>
+                    </Typography>
+                  )}
                 </Box>
 
                 <CustomButton
@@ -1027,7 +1045,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   disabled={
                     !isPurchasePowerEnough ||
                     !isDepositWindowOpen ||
-                    totalDepositAmount < 0
+                    totalDepositAmount <= 0
                   }
                   onClick={null}
                 >
