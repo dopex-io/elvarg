@@ -40,7 +40,7 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX', 'USDTMock'],
+  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX','AVAX', 'USDTMock'],
   tokenPrices: [],
   userAssetBalances: {
     // ETH: '0',
@@ -52,6 +52,7 @@ const initialState: AssetsContextInterface = {
     ERC20Mock: '0',
     // BNB: '0',
     // GMX: '0',
+    // AVAX: '0'
   },
 };
 
@@ -62,6 +63,8 @@ const ASSET_TO_COINGECKO_ID = {
   DPX: 'dopex',
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
+  GMX: 'gmx',
+  AVAX: 'avalanche-2',
 };
 
 export const AssetsContext =
@@ -115,7 +118,6 @@ export const AssetsProvider = (props) => {
       for (let i = 0; i < state.tokens.length; i++) {
         cgIds.push(ASSET_TO_COINGECKO_ID[state.tokens[i]]);
       }
-
       const payload = await axios.get(
         `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
       );
@@ -233,6 +235,7 @@ export const AssetsProvider = (props) => {
         // GOHM: '0',
         // VBNB: '0',
         // GMX: '0'
+        // AVAX: '0',
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>
@@ -247,6 +250,10 @@ export const AssetsProvider = (props) => {
 
       if (chainId === 56) {
         userAssetBalances['BNB'] = (
+          await provider.getBalance(accountAddress)
+        ).toString();
+      } else if (chainId === 43114) {
+        userAssetBalances['AVAX'] = (
           await provider.getBalance(accountAddress)
         ).toString();
       } else {
