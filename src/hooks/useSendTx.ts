@@ -17,7 +17,7 @@ const useSendTx = () => {
     ) => {
       let toastId: string;
       if (wrongNetwork) {
-        console.log('Error: Wrong Network');
+        toast.error('Wrong Network');
         return;
       }
       try {
