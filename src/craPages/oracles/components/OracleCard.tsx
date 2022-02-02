@@ -14,19 +14,22 @@ const PreviousUpdatesDialog = ({ data, open, handleClose }) => {
         Previous Updates
       </Typography>
       <Box className="h-96">
-        {data.reverse().map((item) => {
-          return (
-            <Box key={item.timestamp} className="mb-4">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Price: </span> $ {item.price}
-              </Typography>
-              <Typography variant="h5">
-                <span className="text-stieglitz">Updated At: </span>
-                {new Date(item.timestamp * 1000).toUTCString()}
-              </Typography>
-            </Box>
-          );
-        })}
+        {data
+          .slice()
+          .reverse()
+          .map((item) => {
+            return (
+              <Box key={item.timestamp} className="mb-4">
+                <Typography variant="h5">
+                  <span className="text-stieglitz">Price: </span> $ {item.price}
+                </Typography>
+                <Typography variant="h5">
+                  <span className="text-stieglitz">Updated At: </span>
+                  {new Date(item.timestamp * 1000).toUTCString()}
+                </Typography>
+              </Box>
+            );
+          })}
       </Box>
     </Dialog>
   );
