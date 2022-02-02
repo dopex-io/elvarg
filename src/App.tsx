@@ -62,14 +62,14 @@ const SsovRoutes = () => {
 
 const OtcRoutes = () => {
   return (
-    <SsovProvider>
-      <OtcProvider>
-        <Routes>
-          <Route path="*" element={<OtcPortal />} />
-          <Route path="chat/:id" element={<OtcChatroom />} />
-        </Routes>
-      </OtcProvider>
-    </SsovProvider>
+    // <SsovProvider>
+    <OtcProvider>
+      <Routes>
+        <Route path="*" element={<OtcPortal />} />
+        <Route path="chat/:id" element={<OtcChatroom />} />
+      </Routes>
+    </OtcProvider>
+    // </SsovProvider>
   );
 };
 
@@ -119,7 +119,7 @@ function AppRoutes() {
               <Route path="otc/*" element={<OtcRoutes />} />
               <Route path="*" element={<Error statusCode={404} />} />
             </Routes>
-            <ChangeNetworkDialog />
+            {/* <ChangeNetworkDialog /> */}
           </AssetsProvider>
         </WalletProvider>
       </Suspense>

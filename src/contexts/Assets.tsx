@@ -40,17 +40,18 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX'],
+  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX', 'USDTMock'],
   tokenPrices: [],
   userAssetBalances: {
-    ETH: '0',
-    WETH: '0',
-    WBTC: '0',
-    DPX: '0',
-    RDPX: '0',
-    USDT: '0',
-    BNB: '0',
-    GMX: '0',
+    // ETH: '0',
+    // WETH: '0',
+    // WBTC: '0',
+    // DPX: '0',
+    // RDPX: '0',
+    USDTMock: '0',
+    ERC20Mock: '0',
+    // BNB: '0',
+    // GMX: '0',
   },
 };
 
@@ -217,20 +218,21 @@ export const AssetsProvider = (props) => {
   const updateAssetBalances = useCallback(async () => {
     if (!provider || !accountAddress || !contractAddresses) return;
     (async function () {
-      const assetAddresses = ASSETS_LIST.map((asset) => {
-        return contractAddresses[asset] ?? '';
-      }).filter((asset) => asset !== '');
+      const assetAddresses = ASSETS_LIST.map(
+        (asset) => contractAddresses[asset] ?? ''
+      ).filter((asset) => asset !== '');
       const userAssetBalances = {
-        ETH: '0',
-        BNB: '0',
-        WETH: '0',
-        WBTC: '0',
-        DPX: '0',
-        RDPX: '0',
-        USDT: '0',
-        GOHM: '0',
-        VBNB: '0',
-        GMX: '0',
+        // ETH: '0',
+        // BNB: '0',
+        // WETH: '0',
+        // WBTC: '0',
+        // DPX: '0',
+        // RDPX: '0',
+        USDTMock: '0',
+        // ERC20Mock: '0',
+        // GOHM: '0',
+        // VBNB: '0',
+        // GMX: '0'
       };
 
       const balanceCalls = assetAddresses.map((assetAddress) =>

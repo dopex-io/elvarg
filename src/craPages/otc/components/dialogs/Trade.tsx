@@ -50,7 +50,7 @@ const Trade = ({
           <>
             <Box className="flex flex-col space-y-3">
               <Typography variant="h5" className="text-stieglitz">
-                Trade
+                Settle
               </Typography>
               <Box className="flex m-2 space-x-2">
                 <Typography variant="caption" className="text-stieglitz">

@@ -6,7 +6,7 @@ import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { ERC20__factory, Escrow, ERC20Mock } from '@dopex-io/sdk';
+import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 import { doc, addDoc, setDoc, collection } from '@firebase/firestore';
 import * as yup from 'yup';
 
@@ -18,7 +18,6 @@ import Switch from 'components/UI/Switch';
 import ErrorBox from 'components/ErrorBox';
 import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
 
-import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 import { UserSsovData } from 'contexts/Ssov';
 import { OtcContext } from 'contexts/Otc';
@@ -26,21 +25,23 @@ import { OtcContext } from 'contexts/Otc';
 import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
 
-import { db } from 'utils/firebase/initialize';
+// import { db } from 'utils/firebase/initialize';
+import sendTx from 'utils/contracts/sendTx';
+import { BigNumber } from 'ethers';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface RfqFormProps {
   symbol: string;
   icon: string;
-  ssovUserData: UserSsovData;
+  ssovUserData?: UserSsovData;
   isLive: boolean;
 }
 
 const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
-  const { userAssetBalances } = useContext(AssetsContext);
-  const { accountAddress, provider } = useContext(WalletContext);
-  const { validateUser, user } = useContext(OtcContext);
-
-  const [userOptionBalances, setUserOptionBalances] = useState([]);
+  const { contractAddresses, accountAddress, provider, signer } =
+    useContext(WalletContext);
+  const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
+  const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -56,17 +57,17 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
       .number()
       .moreThan(0, 'Price has to be greater than 0')
       .required('Strike is required'),
-    optionSymbol: yup.string().required('Option token required'),
+    base: yup.string().required('Option token required'),
   });
 
   const formik = useFormik({
     initialValues: {
-      optionSymbol: '',
       isPut: false,
       isBuy: false,
-      amount: 0,
+      quote: '',
       price: 0,
-      strike: 0,
+      base: '',
+      amount: 0,
       timestamp: new Date(),
     },
     validationSchema: validationSchema,
@@ -75,12 +76,12 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
 
   const handleTokenSelection = useCallback(
     (e) => {
-      formik.setFieldValue('optionSymbol', e.target.value);
+      formik.setFieldValue('base', e.target.value);
     },
     [formik]
   );
 
-  const handleChange = useCallback(
+  const handleChangeAmount = useCallback(
     (e) => {
       formik.setFieldValue('amount', e.target.value);
     },
@@ -105,69 +106,129 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
     /// TODO: Cancel transaction and database update
   }, []);
 
-  const handleSubmit = useCallback(
-    async (live: boolean) => {
-      if (!user) validateUser();
-      else {
-        setProcessing(true);
+  const handleApprove = useCallback(async () => {
+    const approveAmount = getContractReadableAmount(formik.values.amount, 18);
+    const asset = ERC20__factory.connect(
+      formik.values.isBuy ? formik.values.quote : formik.values.base,
+      provider
+    );
 
-        setDialogState((prevState) => ({ ...prevState, open: live }));
-        await addDoc(collection(db, 'orders'), {
-          option: formik.values.optionSymbol,
-          isBuy: formik.values.isBuy,
-          isPut: formik.values.isPut,
-          amount: formik.values.amount,
-          price: formik.values.price + 'USDT',
-          dealer: accountAddress,
-          username: user.username,
-          timestamp: formik.values.timestamp,
-          isFulfilled: false,
-          isLive: live,
-        }).finally(() => {
+    try {
+      await sendTx(
+        asset
+          .connect(signer)
+          .approve(selectedEscrowData.selectedEscrow, approveAmount)
+      ).then(() => {
+        setApproved(true);
+        setProcessing(false);
+      });
+    } catch (e) {
+      console.log(`Something went wrong. ERR_CODE ${e}`);
+    }
+  }, [formik.values, provider, selectedEscrowData, signer]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!user) validateUser();
+    else {
+      setProcessing(true);
+
+      const escrow = Escrow__factory.connect(
+        selectedEscrowData.selectedEscrow,
+        provider
+      );
+
+      const usdt = ERC20__factory.connect(selectedEscrowData.quote, provider);
+
+      if (isLive) {
+        try {
+          await sendTx(
+            escrow
+              .connect(signer)
+              .deposit(
+                selectedEscrowData.quote,
+                formik.values.base,
+                BigNumber.from(formik.values.price),
+                BigNumber.from(formik.values.amount)
+              )
+          )
+            .then(async () => {
+              // await addDoc(collection(db, 'orders'), {
+              //   option: formik.values.optionSymbol,
+              //   isBuy: formik.values.isBuy,
+              //   isPut: formik.values.isPut,
+              //   amount: formik.values.amount,
+              //   price: formik.values.price + 'USDT',
+              //   dealer: accountAddress,
+              //   username: user.username,
+              //   timestamp: formik.values.timestamp,
+              //   isFulfilled: false,
+              //   isLive,
+              // });
+            })
+            .catch(() => {
+              console.log('Failed to update db');
+            });
+        } catch (e) {
+          console.log('Deposit Failed');
           setProcessing(false);
-        });
-
-        await setDoc(
-          doc(
-            db,
-            'chatrooms',
-            user.username + '-' + formik.values.optionSymbol
-          ),
-          {
-            admin: accountAddress,
-            createdAt: new Date(),
-          }
-        ).catch((e) => {
-          console.log('Already created chatroom... reverted with error: ', e);
-        });
+        }
       }
-    },
-    [formik, user, validateUser, accountAddress]
-  );
 
+      // await setDoc(
+      //   doc(
+      //     db,
+      //     'chatrooms',
+      //     user.username + '-' + formik.values.optionSymbol
+      //   ),
+      //   {
+      //     admin: accountAddress,
+      //     createdAt: new Date(),
+      //   }
+      // ).catch((e) => {
+      //   console.log('Already created chatroom... reverted with error: ', e);
+      // });
+    }
+  }, [
+    user,
+    validateUser,
+    selectedEscrowData.selectedEscrow,
+    selectedEscrowData.quote,
+    provider,
+    isLive,
+    signer,
+    formik.values,
+  ]);
+
+  // Check allowance
   useEffect(() => {
     (async () => {
-      const data = ssovUserData.epochStrikeTokens.map(async (token, index) => {
-        const erc20Token = ERC20__factory.connect(token.address, provider);
-        const tokenSymbol = await erc20Token.symbol();
-        const tokenAddress = erc20Token.address;
-
-        return {
-          token: tokenSymbol,
-          tokenAddress,
-          purchaseAmount: ssovUserData.userEpochCallsPurchased[index],
-        };
-      });
-      Promise.all(data).then((result) => {
-        setUserOptionBalances(result);
-      });
+      try {
+        const erc20 = ERC20__factory.connect(
+          formik.values.isBuy ? selectedEscrowData?.quote : formik.values.base,
+          provider
+        );
+        const allowance = await erc20.allowance(
+          accountAddress,
+          selectedEscrowData?.selectedEscrow
+        );
+        setApproved(
+          allowance.gte(
+            getContractReadableAmount(
+              formik.values.isBuy ? formik.values.price : formik.values.amount,
+              18
+            )
+          )
+        );
+      } catch (e) {
+        console.log(e);
+      }
     })();
-  }, [provider, ssovUserData]);
+  }, [accountAddress, formik.values, provider, selectedEscrowData]);
 
   useEffect(() => {
-    formik.setFieldValue('optionSymbol', userOptionBalances[0]?.token);
+    formik.setFieldValue('quote', selectedEscrowData.quote);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userOptionBalances]);
+  }, [formik.values]);
 
   return (
     <Box className="bg-cod-gray rounded-lg p-2">
@@ -196,27 +257,53 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
         </Typography>
         <Input
           className="py-2 px-2"
-          value={formik.values.amount}
-          onChange={handleChange}
+          value={formik.values.amount ?? 0}
+          onChange={handleChangeAmount}
           type="number"
           leftElement={
-            <Box
-              id="token"
-              className="bg-cod-gray p-2 rounded-xl space-x-2 flex w-full"
+            <Select
+              id="base"
+              name="base"
+              defaultValue={selectedEscrowData.bases[0]?.symbol ?? ''}
+              onChange={handleTokenSelection}
+              className="bg-cod-gray rounded-lg p-2 w-1/2"
+              IconComponent={Dropdown}
+              variant="outlined"
+              classes={{ icon: 'mt-3 mr-1', root: 'p-0' }}
+              MenuProps={{
+                classes: { paper: 'bg-cod-gray' },
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                getContentAnchorEl: null,
+              }}
             >
-              <img src={icon} alt="token" />
-              <Typography variant="h5" className="text-white my-auto">
-                {symbol}
-              </Typography>
-            </Box>
+              {selectedEscrowData.bases?.map((option, index) => {
+                return (
+                  <MenuItem value={option.symbol} key={index}>
+                    <Box className="flex flex-row items-center">
+                      <Typography variant="caption" className="text-white">
+                        {option.symbol}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                );
+              })}
+            </Select>
           }
         />
+
         <Typography variant="h6" className="text-stieglitz">
           Price
         </Typography>
         <Input
           className="py-2 px-2"
-          value={formik.values.price}
+          value={formik.values.price ?? 0}
           onChange={handleChangePrice}
           type="number"
           placeholder="Price"
@@ -225,51 +312,12 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
               id="token"
               className="bg-cod-gray p-2 rounded-xl space-x-2 flex w-full"
             >
-              <img src={'assets/usdt.svg'} alt="usdt" width="32" />
               <Typography variant="h5" className="text-white my-auto">
-                USDT
+                {selectedEscrowData.symbol}
               </Typography>
             </Box>
           }
         />
-        <Typography variant="h6" className="text-stieglitz">
-          Option
-        </Typography>
-        <Select
-          id="token"
-          name="token"
-          value={formik.values.optionSymbol}
-          defaultValue={userOptionBalances[0]?.token}
-          onChange={handleTokenSelection}
-          className="flex bg-umbra rounded-lg p-2"
-          IconComponent={Dropdown}
-          variant="outlined"
-          classes={{ icon: 'mt-3 mr-1', root: 'p-0' }}
-          MenuProps={{
-            classes: { paper: 'bg-cod-gray' },
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'left',
-            },
-            transformOrigin: {
-              vertical: 'top',
-              horizontal: 'left',
-            },
-            getContentAnchorEl: null,
-          }}
-        >
-          {userOptionBalances.map((option, index) => {
-            return (
-              <MenuItem value={option.token} key={index}>
-                <Box className="flex flex-row items-center">
-                  <Typography variant="h5" className="text-white ">
-                    {option.token}
-                  </Typography>
-                </Box>
-              </MenuItem>
-            );
-          })}
-        </Select>
         <Box className="flex justify-between px-2">
           <Box className="flex space-x-2">
             <Typography variant="h6" className="text-stieglitz my-auto">
@@ -277,11 +325,14 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
             </Typography>
             <InfoPopover
               infoText="Toggle between buy and sell order. Sell order amounts are in USDT."
-              className=""
               id="rfq-buy-toggle"
             />
           </Box>
-          <Switch className="my-auto" onClick={handleBuyOrder} />
+          <Switch
+            className="my-auto"
+            defaultChecked={true}
+            onClick={handleBuyOrder}
+          />
         </Box>
         <Box>
           <Accordion
@@ -293,40 +344,47 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
         <Box>
           <ErrorBox
             error={
-              formik.errors.amount ||
-              formik.errors.price ||
-              formik.errors.optionSymbol
+              formik.errors.amount || formik.errors.price || formik.errors.base
             }
           />
         </Box>
-        <CustomButton
-          size="medium"
-          className="flex w-full"
-          onClick={() => handleSubmit(isLive)}
-          disabled={
-            user &&
-            (processing ||
-              Boolean(formik.errors.price) ||
-              Boolean(formik.errors.amount) ||
-              Boolean(formik.errors.optionSymbol))
-          }
-        >
-          {user ? (
-            <Typography variant="h6">
-              {processing ? <CircularProgress size="24" /> : 'Submit RFQ'}
-            </Typography>
-          ) : (
-            <Typography variant="h6">Login</Typography>
-          )}
-        </CustomButton>
+        {approved ? (
+          <CustomButton
+            size="medium"
+            className="flex w-full"
+            onClick={handleSubmit}
+            disabled={
+              user &&
+              (processing ||
+                Boolean(formik.errors.price) ||
+                Boolean(formik.errors.amount) ||
+                Boolean(formik.errors.base))
+            }
+          >
+            {user ? (
+              <Typography variant="h6">
+                {processing ? <CircularProgress size="24" /> : 'Submit RFQ'}
+              </Typography>
+            ) : (
+              <Typography variant="h6">Login</Typography>
+            )}
+          </CustomButton>
+        ) : (
+          <CustomButton
+            size="medium"
+            className="flex w-full"
+            onClick={handleApprove}
+          >
+            <Typography variant="h6">Approve</Typography>
+          </CustomButton>
+        )}
         <ConfirmRfqDialog
           open={dialogState.open}
           handleClose={handleClose}
-          option={formik.values.optionSymbol}
+          option={formik.values.base}
           amount={formik.values.amount}
           price={formik.values.price}
           isBuy={formik.values.isBuy}
-          // token={'0x0'}
         />
       </Box>
     </Box>

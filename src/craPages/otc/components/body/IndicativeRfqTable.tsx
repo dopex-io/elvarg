@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -7,7 +7,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import IconButton from '@material-ui/core/IconButton';
-import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+// import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
@@ -54,10 +57,28 @@ const TableBodyCell = ({
 
 const IndicativeRfqTable = () => {
   const { orders, validateUser } = useContext(OtcContext);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
 
+  const handleClickMenu = useCallback(
+    (event) => setAnchorEl(event.currentTarget),
+    []
+  );
+
+  const navigateToChat = useCallback(
+    async (row) => {
+      await validateUser();
+      // broken link
+      navigate(`/otc/chat/${row.username + '-' + row.option}`);
+    },
+    [navigate, validateUser]
+  );
+
+  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
+
   return (
-    <TableContainer className="rounded-lg overflow-x-hidden border-umbra border h-1/2">
+    <TableContainer className="rounded-lg overflow-x-hidden border-umbra border max-h-80">
       <Table aria-label="rfq-table" className="bg-umbra">
         <TableHead>
           <TableRow>
@@ -73,7 +94,7 @@ const IndicativeRfqTable = () => {
             <TableHeader align="center">Dealer</TableHeader>
             <TableHeader align="right">Bid</TableHeader>
             <TableHeader align="right">Ask</TableHeader>
-            <TableHeader align="right">Chat</TableHeader>
+            <TableHeader align="right">Actions</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody component="div">
@@ -106,14 +127,37 @@ const IndicativeRfqTable = () => {
               </TableBodyCell>
               <TableBodyCell align="right">
                 <IconButton
-                  className="p-0 hover:opacity-50 transition ease-in-out"
-                  onClick={async () => {
-                    await validateUser();
-                    navigate(`/otc/chat/${row.username + '-' + row.option}`);
-                  }}
+                  aria-label="more"
+                  aria-controls="long-menu"
+                  aria-haspopup="true"
+                  onClick={handleClickMenu}
+                  className="long-menu rounded-md bg-cod-gray py-1 px-0 hover:bg-opacity-80 hover:bg-mineshaft"
                 >
-                  <ChatBubbleIcon className="fill-current text-white p-1" />
+                  <MoreVertIcon className="fill-current text-white" />
                 </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleCloseMenu}
+                  classes={{ paper: 'bg-mineshaft' }}
+                  keepMounted
+                >
+                  <MenuItem
+                    key="transfer-options"
+                    onClick={() => navigateToChat(row)}
+                    className="text-white rounded px-3 py-1"
+                    disabled={row.isFulfilled}
+                  >
+                    Chat
+                  </MenuItem>
+                  <MenuItem
+                    key="place-bid"
+                    onClick={() => {}}
+                    className="text-white rounded px-3 py-1"
+                  >
+                    Bid
+                  </MenuItem>
+                </Menu>
               </TableBodyCell>
             </TableRow>
           ))}

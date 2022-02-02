@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import Box from '@material-ui/core/Box';
 import TableContainer from '@material-ui/core/TableContainer';
 import Table from '@material-ui/core/Table';
@@ -15,6 +15,8 @@ import format from 'date-fns/format';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
 import Trade from '../dialogs/Trade';
+
+import { OtcContext } from 'contexts/Otc';
 
 import smartTrim from 'utils/general/smartTrim';
 
@@ -60,6 +62,7 @@ const LiveRfqTable = () => {
     open: false,
     handleClose: () => {},
   });
+  const { selectedEscrowData } = useContext(OtcContext);
 
   const handleClickMenu = useCallback(
     (event) => setAnchorEl(event.currentTarget),
@@ -81,7 +84,7 @@ const LiveRfqTable = () => {
   }, [handleClose, handleCloseMenu]);
 
   return (
-    <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-3/5">
+    <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-80">
       <Table aria-label="rfq-table" className="bg-umbra">
         <TableHead>
           <TableRow>
@@ -164,7 +167,7 @@ const LiveRfqTable = () => {
                     keepMounted
                   >
                     <MenuItem
-                      key="transfer-options"
+                      key="open-trade"
                       onClick={handleTrade}
                       className="text-white rounded p-0 mx-4"
                       disabled={row.isFulfilled}

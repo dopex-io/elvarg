@@ -53,8 +53,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/nfts': [42161],
   '/nfts/community': [42161, 1],
   '/sale': [1],
-  '/otc': [42161],
-  '/otc/chat/:id': [42161],
+  '/otc': [42161, 421611],
+  '/otc/chat/:id': [42161, 421611],
 };
 
 const DEFAULT_CHAIN_ID =

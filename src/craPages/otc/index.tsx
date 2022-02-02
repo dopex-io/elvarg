@@ -22,28 +22,34 @@ import content from './components/banner/content.json';
 import Register from './components/dialogs/Register';
 
 const MARKETS_PLACEHOLDER = [
+  // {
+  //   symbol: 'DPX',
+  //   icon: '/assets/dpx.svg',
+  //   asset: 'Dopex Governance Token',
+  //   pair: 'DPX/USDT',
+  // },
   {
-    symbol: 'DPX',
-    icon: '/assets/dpx.svg',
-    asset: 'Dopex Governance Token',
-    pair: 'DPX/USDT',
+    symbol: 'USDT',
+    icon: '/assets/usdt.svg',
+    asset: 'USD Tether',
+    pair: 'USDT/USDT',
   },
-  {
-    symbol: 'rDPX',
-    icon: '/assets/rdpx.svg',
-    asset: 'Dopex Rebate Token',
-    pair: 'rDPX/USDT',
-  },
-  {
-    symbol: 'ETH',
-    icon: '/assets/eth.svg',
-    asset: 'Ethereum',
-    pair: 'ETH/USDT',
-  },
+  // {
+  //   symbol: 'rDPX',
+  //   icon: '/assets/rdpx.svg',
+  //   asset: 'Dopex Rebate Token',
+  //   pair: 'rDPX/USDT',
+  // },
+  // {
+  //   symbol: 'ETH',
+  //   icon: '/assets/eth.svg',
+  //   asset: 'Ethereum',
+  //   pair: 'ETH/USDT',
+  // },
 ];
 
 const OTC = () => {
-  const { userSsovDataArray } = useContext(SsovContext);
+  // const { userSsovDataArray } = useContext(SsovContext);
   const { user } = useContext(OtcContext);
 
   const [state, setState] = useState({
@@ -59,11 +65,11 @@ const OTC = () => {
 
   const [isLive, setIsLive] = useState(false);
 
-  const filteredUserSsovData = useMemo(() => {
-    if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
-    else if (selectedToken.symbol === 'rDPX') return userSsovDataArray[1];
-    else return userSsovDataArray[2];
-  }, [userSsovDataArray, selectedToken]);
+  // const filteredUserSsovData = useMemo(() => {
+  //   if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
+  //   else if (selectedToken.symbol === 'rDPX') return userSsovDataArray[1];
+  //   else return userSsovDataArray[2];
+  // }, [userSsovDataArray, selectedToken]);
 
   const handleUpdateState = useCallback((trade, history) => {
     setState({ trade, history });
@@ -93,64 +99,68 @@ const OTC = () => {
             <Typography variant="h5" className="text-stieglitz py-3">
               Views
             </Typography>
-            <Box className="grid grid-rows-2">
-              <Typography
-                variant="h6"
-                role="button"
-                className={`bg-black hover:bg-cod-gray rounded-lg py-4 ${
-                  state.trade ? 'bg-cod-gray' : null
-                }`}
-                onClick={() => handleUpdateState(true, false)}
-              >
-                <SwapHorizIcon className="mx-2" />
-                {'Trade'}
-              </Typography>
-              <Typography
-                variant="h6"
-                role="button"
-                className={`bg-black hover:bg-cod-gray rounded-lg py-4 ${
-                  state.history ? 'bg-cod-gray' : null
-                }`}
-                onClick={() => handleUpdateState(false, true)}
-              >
-                <HistoryIcon className="mx-2" />
-                History
-              </Typography>
-              <Typography variant="h5" className="text-stieglitz py-3">
-                Markets
-              </Typography>
-              {MARKETS_PLACEHOLDER.map((token, index) => {
-                return (
-                  <Box
-                    key={index}
-                    className={`flex hover:bg-cod-gray p-2 rounded-lg ${
-                      token.symbol === selectedToken.symbol
-                        ? 'bg-cod-gray'
-                        : null
-                    }`}
-                    onClick={() => handleSelection(token)}
-                  >
-                    <img
-                      src={`${token.icon}`}
-                      alt={`${token.asset}`}
-                      className="p-2 h-12"
-                    />
-                    <Box className="flex flex-col" role="button">
-                      <Typography variant="h5">{`${token.symbol}`}</Typography>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz"
-                      >{`${token.asset}`}</Typography>
+            <Box className="flex flex-col justify-between space-y-4">
+              <Box>
+                <Typography
+                  variant="h6"
+                  role="button"
+                  className={`bg-black hover:bg-cod-gray rounded-lg py-4 ${
+                    state.trade ? 'bg-cod-gray' : null
+                  }`}
+                  onClick={() => handleUpdateState(true, false)}
+                >
+                  <SwapHorizIcon className="mx-2" />
+                  Trade
+                </Typography>
+                <Typography
+                  variant="h6"
+                  role="button"
+                  className={`bg-black hover:bg-cod-gray rounded-lg py-4 ${
+                    state.history ? 'bg-cod-gray' : null
+                  }`}
+                  onClick={() => handleUpdateState(false, true)}
+                >
+                  <HistoryIcon className="mx-2" />
+                  History
+                </Typography>
+                <Typography variant="h5" className="text-stieglitz py-3">
+                  Markets
+                </Typography>
+                {MARKETS_PLACEHOLDER.map((token, index) => {
+                  return (
+                    <Box
+                      key={index}
+                      className={`flex hover:bg-cod-gray p-2 rounded-lg ${
+                        token.symbol === selectedToken.symbol
+                          ? 'bg-cod-gray'
+                          : null
+                      }`}
+                      onClick={() => handleSelection(token)}
+                    >
+                      <img
+                        src={`${token.icon}`}
+                        alt={`${token.asset}`}
+                        className="p-2 h-12"
+                      />
+                      <Box className="flex flex-col" role="button">
+                        <Typography variant="h5">{`${token.symbol}`}</Typography>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz"
+                        >{`${token.asset}`}</Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                );
-              })}
+                  );
+                })}
+              </Box>
+              <Accordion
+                summary="How does OTC options work?"
+                details="OTC markets consist of dealer-brokers and counter-parties. Dealer-brokers place orders to sell/buy a certain option, while counter-parties fulfill these orders via a p2p trade with these brokers via an ongoing open-trade. Settlement prices may be made via an agreement made through negotiations taken place in chatrooms."
+                footer={<Link to="/portfolio">Read More</Link>}
+              />
             </Box>
-            <Accordion
-              summary="How does OTC options work?"
-              details="OTC markets consist of dealer-brokers and counter-parties. Dealer-brokers place orders to sell/buy a certain option, while counter-parties fulfill these orders via a p2p trade with these brokers via an ongoing open-trade. Settlement prices may be made via an agreement made through negotiations taken place in chatrooms."
-              footer={<Link to="/portfolio">Read More</Link>}
-            />
+            {/* <Box className="rounded-xl"> */}
+            {/* </Box> */}
           </Box>
           <Box className="flex flex-col col-span-8 space-y-4">
             {state.trade ? (
@@ -213,7 +223,7 @@ const OTC = () => {
             <RfqForm
               symbol={selectedToken.symbol}
               icon={selectedToken.icon}
-              ssovUserData={filteredUserSsovData}
+              // ssovUserData={filteredUserSsovData}
               isLive={isLive}
             />
           </Box>
