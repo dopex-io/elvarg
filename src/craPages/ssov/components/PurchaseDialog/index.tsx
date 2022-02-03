@@ -178,6 +178,17 @@ const PurchaseDialog = ({
             value: state.totalCost,
           })
         );
+      } else if (tokenName === 'AVAX') {
+        await sendTx(
+          ssovContractWithSigner.purchase(
+            strikeIndex,
+            finalAmount,
+            accountAddress,
+            {
+              value: state.totalCost,
+            }
+          )
+        );
       } else {
         await sendTx(
           ssovContractWithSigner.purchase(
@@ -225,11 +236,13 @@ const PurchaseDialog = ({
           ? BigNumber.from(userAssetBalances.ETH)
           : tokenSymbol === 'BNB'
           ? BigNumber.from(userAssetBalances.BNB)
+          : tokenSymbol === 'AVAX'
+          ? BigNumber.from(userAssetBalances.AVAX)
           : await token[0].balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      if (tokenName === 'BNB') {
+      if (tokenName === 'BNB' || tokenName === 'AVAX') {
         setApproved(true);
         return;
       }
@@ -257,6 +270,7 @@ const PurchaseDialog = ({
     tokenName,
     userAssetBalances.ETH,
     userAssetBalances.BNB,
+    userAssetBalances.AVAX,
     tokenSymbol,
   ]);
 
