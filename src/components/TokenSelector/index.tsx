@@ -22,6 +22,7 @@ const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
   const { contractAddresses, provider, chainId } = useContext(WalletContext);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
+
   const getValueInUsd = (symbol) => {
     let value = 0;
     tokenPrices.map((record) => {
@@ -79,7 +80,7 @@ const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
               })
               .map(
                 (symbol) =>
-                  Addresses[chainId][symbol] &&
+                  (Addresses[chainId][symbol] || IS_NATIVE(symbol)) &&
                   symbol.includes(searchTerm.toUpperCase()) && (
                     <Box
                       key={symbol}

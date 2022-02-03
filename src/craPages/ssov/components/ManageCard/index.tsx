@@ -196,7 +196,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         debouncedZapInAmount[0] * 10 ** fromTokenDecimals
       )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
-    console.log(data);
+
     setQuote(data);
   };
 
@@ -215,12 +215,15 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   }, [tokenName, ssovTokenSymbol]);
 
   const ssovTokenName = ssovProperties.tokenName;
+  const [denominationTokenName, setDenomationTokenName] =
+    useState<string>(ssovTokenName);
+
   const spender = isZapActive
     ? erc20SSOV1inchRouter.address
     : ssovContractWithSigner.address;
 
   const purchasePower =
-    isZapActive && quote['toToken']
+    isZapActive && quote['toToken'] && denominationTokenName === ssovTokenName
       ? getUserReadableAmount(
           quote['toTokenAmount'],
           quote['toToken']['decimals']
@@ -373,49 +376,87 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
 
-      if (token === 'ETH') {
-        await sendTx(
-          ssovContractWithSigner.depositMultiple(
-            strikeIndexes,
-            strikeIndexes.map(
-              (index) => contractReadableStrikeDepositAmounts[index]
-            ),
-            accountAddress,
-            {
-              value: totalDepositAmount,
-            }
-          )
-        );
-      } else if (token === 'BNB' && ssovRouter) {
-        await sendTx(
-          ssovRouter.depositMultiple(
-            strikeIndexes,
-            strikeIndexes.map(
-              (index) => contractReadableStrikeDepositAmounts[index]
-            ),
-            accountAddress,
-            {
-              value: totalDepositAmount,
-            }
-          )
-        );
+      if (ssovTokenName === tokenName) {
+        if (IS_NATIVE(ssovTokenName)) {
+          await sendTx(
+            ssovContractWithSigner.depositMultiple(
+              strikeIndexes,
+              strikeIndexes.map((index) => strikeDepositAmounts[index]),
+              accountAddress
+            )
+          );
+        } else {
+          await sendTx(
+            ssovRouter.depositMultiple(
+              strikeIndexes,
+              strikeIndexes.map((index) => strikeDepositAmounts[index]),
+              accountAddress,
+              {
+                value: getContractReadableAmount(totalDepositAmount, 18),
+              }
+            )
+          );
+        }
       } else {
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
           path['tx']['data']
         );
 
-        await sendTx(
-          erc20SSOV1inchRouter.swapAndDeposit(
-            ssovProperties.ssovContract.address,
-            ssovToken.address,
-            decoded[0],
-            decoded[1],
-            decoded[2],
-            2,
-            accountAddress
-          )
-        );
+        const toTokenAmount: BigNumber = BigNumber.from(path['toTokenAmount']);
+        const price =
+          parseFloat(path['toTokenAmount']) /
+          parseFloat(path['fromTokenAmount']);
+        let total = BigNumber.from('0');
+        let amounts = [];
+        strikeIndexes.map((index) => {
+          const amount = getContractReadableAmount(
+            // @ts-ignore
+            strikeDepositAmounts[index] *
+              (denominationTokenName !== ssovTokenName ? price : 1),
+            18
+          );
+          amounts.push(amount);
+          total = total.add(amount);
+        });
+
+        if (total.gt(toTokenAmount)) {
+          const difference = total.sub(toTokenAmount);
+          const toSubtract = difference.div(amounts.length);
+          for (let i in amounts) amounts[i] = amounts[i].sub(toSubtract);
+        }
+
+        if (IS_NATIVE(tokenName)) {
+          console.log(totalDepositAmount);
+          await sendTx(
+            erc20SSOV1inchRouter.swapNativeAndDepositMultiple(
+              ssovProperties.ssovContract.address,
+              ssovToken.address,
+              decoded[0],
+              decoded[1],
+              decoded[2],
+              strikeIndexes,
+              amounts,
+              accountAddress,
+              {
+                value: getContractReadableAmount(totalDepositAmount, 18),
+              }
+            )
+          );
+        } else {
+          await sendTx(
+            erc20SSOV1inchRouter.swapAndDepositMultiple(
+              ssovProperties.ssovContract.address,
+              ssovToken.address,
+              decoded[0],
+              decoded[1],
+              decoded[2],
+              strikeIndexes,
+              amounts,
+              accountAddress
+            )
+          );
+        }
       }
 
       setStrikeDepositAmounts(() => ({}));
@@ -451,8 +492,8 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     if (fromTokenAddress === ssovToken.address) return;
     const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
-        debouncedZapInAmount[0] * 10 ** fromTokenDecimals
+      `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+        totalDepositAmount * 10 ** fromTokenDecimals
       )}&fromAddress=${
         erc20SSOV1inchRouter.address
       }&slippage=${slippageTolerance}&disableEstimate=true`
@@ -485,16 +526,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible]);
-
-  useEffect(() => {
-    if (
-      !isZapInVisible &&
-      formik.values.zapInAmount > getUserReadableAmount(userTokenBalance, 18)
-    ) {
-      setTokenName(ssovTokenSymbol);
-    }
-  }, [isZapInVisible]);
+  }, [strikeDepositAmounts]);
 
   useEffect(() => {
     handleTokenChange();
@@ -639,11 +671,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                     variant="h6"
                     className="text-white ml-auto mr-0 text-[0.72rem]"
                   >
-                    {formatAmount(
-                      getUserReadableAmount(userTokenBalance, 18),
-                      4
-                    )}{' '}
-                    {tokenName}
+                    {getUserReadableAmount(userTokenBalance, 18)} {tokenName}
                   </Typography>
                   {isZapActive && (
                     <svg
@@ -741,18 +769,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                         fullWidth
                         displayEmpty
                         disableUnderline
-                        value={[tokenName]}
+                        value={[denominationTokenName]}
                         onChange={(e) => {
                           const symbol = e.target.value;
-                          if (typeof symbol === 'string')
-                            setToken(
-                              IS_NATIVE(symbol)
-                                ? symbol
-                                : ERC20__factory.connect(
-                                    contractAddresses[symbol],
-                                    provider
-                                  )
-                            );
+                          setDenomationTokenName(symbol.toString());
                         }}
                         input={<Input />}
                         variant="outlined"
@@ -762,7 +782,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                               variant="h6"
                               className="text-white text-center w-full relative"
                             >
-                              {tokenName}
+                              {denominationTokenName}
                             </Typography>
                           );
                         }}
@@ -773,43 +793,61 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                         }}
                         label="tokens"
                       >
-                        {tokens
-                          .sort((a, b) => {
-                            return getValueInUsd(b) - getValueInUsd(a);
-                          })
-                          .map((symbol) => (
-                            <MenuItem
-                              key={symbol}
-                              value={symbol}
-                              className="pb-2 pt-2"
-                            >
-                              <Checkbox
-                                className={
-                                  tokenName.toUpperCase() ===
-                                  symbol.toUpperCase()
-                                    ? 'p-0 text-white'
-                                    : 'p-0 text-white border'
-                                }
-                                checked={
-                                  tokenName.toUpperCase() ===
-                                  symbol.toUpperCase()
-                                }
-                              />
-                              <Typography
-                                variant="h5"
-                                className="text-white text-left w-full relative ml-3"
-                              >
-                                {symbol}
-                              </Typography>
-                            </MenuItem>
-                          ))}
+                        <MenuItem
+                          key={tokenName}
+                          value={tokenName}
+                          className="pb-2 pt-2"
+                        >
+                          <Checkbox
+                            className={
+                              denominationTokenName.toUpperCase() ===
+                              tokenName.toUpperCase()
+                                ? 'p-0 text-white'
+                                : 'p-0 text-white border'
+                            }
+                            checked={
+                              denominationTokenName.toUpperCase() ===
+                              tokenName.toUpperCase()
+                            }
+                          />
+                          <Typography
+                            variant="h5"
+                            className="text-white text-left w-full relative ml-3"
+                          >
+                            {tokenName}
+                          </Typography>
+                        </MenuItem>
+                        <MenuItem
+                          key={ssovTokenName}
+                          value={ssovTokenName}
+                          className="pb-2 pt-2"
+                        >
+                          <Checkbox
+                            className={
+                              denominationTokenName.toUpperCase() ===
+                              ssovTokenName.toUpperCase()
+                                ? 'p-0 text-white'
+                                : 'p-0 text-white border'
+                            }
+                            checked={
+                              denominationTokenName.toUpperCase() ===
+                              ssovTokenName.toUpperCase()
+                            }
+                          />
+                          <Typography
+                            variant="h5"
+                            className="text-white text-left w-full relative ml-3"
+                          >
+                            {ssovTokenName}
+                          </Typography>
+                        </MenuItem>
                       </Select>
                     </Box>
                   )}
                 </Box>
                 <Box className="mt-3">
                   {selectedStrikeIndexes.map((index) => (
-                    <Box className="flex mb-3 group">
+                    <Box className="flex mb-3 group" key={index}>
                       <Button
                         className="p-2 pl-4 pr-4 bg-mineshaft text-white hover:bg-mineshaft hover:opacity-80 font-normal cursor-pointer"
                         disableRipple
@@ -844,73 +882,76 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                         />
                       </svg>
 
-                      <Input
-                        disableUnderline={true}
-                        name="address"
-                        className="ml-auto mr-0 w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
-                        classes={{ input: 'text-white text-xs text-right' }}
-                        value={strikeDepositAmounts[index]}
-                        placeholder="0"
-                        onChange={(e) => inputStrikeDepositAmount(index, e)}
-                      />
-
-                      <Box
-                        className="absolute left-[10.2rem] mt-[0.48rem] hidden hover:opacity-90 group-hover:block"
-                        onClick={() =>
-                          inputStrikeDepositAmount(
-                            index,
-                            null,
-                            parseFloat(
-                              getUserReadableAmount(userTokenBalance).toFixed(3)
-                            )
-                          )
-                        }
-                      >
-                        <img
-                          src="/assets/max.svg"
-                          alt="MAX"
-                          className="cursor-pointer"
+                      <Box className="ml-auto mr-0">
+                        <Input
+                          disableUnderline={true}
+                          name="address"
+                          className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
+                          classes={{ input: 'text-white text-xs text-right' }}
+                          value={strikeDepositAmounts[index]}
+                          placeholder="0"
+                          onChange={(e) => inputStrikeDepositAmount(index, e)}
                         />
-                      </Box>
-                      <Box
-                        className="absolute left-[12.4rem] mt-[0.48rem] hidden hover:opacity-90 group-hover:block"
-                        onClick={() =>
-                          inputStrikeDepositAmount(
-                            index,
-                            null,
-                            parseFloat(
-                              (
-                                getUserReadableAmount(userTokenBalance) / 2
-                              ).toFixed(3)
+                        <Box
+                          className="absolute left-[10.2rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
+                          onClick={() =>
+                            inputStrikeDepositAmount(
+                              index,
+                              null,
+                              parseFloat(
+                                (
+                                  getUserReadableAmount(userTokenBalance) * 0.99
+                                ).toFixed(10)
+                              )
                             )
-                          )
-                        }
-                      >
-                        <img
-                          src="/assets/half.svg"
-                          alt="half"
-                          className="cursor-pointer"
-                        />
-                      </Box>
-                      <Box
-                        className="absolute left-[13.8rem] mt-[0.48rem] hidden hover:opacity-90 group-hover:block"
-                        onClick={() =>
-                          inputStrikeDepositAmount(
-                            index,
-                            null,
-                            parseFloat(
-                              (
-                                getUserReadableAmount(userTokenBalance) / 3
-                              ).toFixed(3)
+                          }
+                        >
+                          <img
+                            src="/assets/max.svg"
+                            alt="MAX"
+                            className="cursor-pointer"
+                          />
+                        </Box>
+                        <Box
+                          className="absolute left-[12.4rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
+                          onClick={() =>
+                            inputStrikeDepositAmount(
+                              index,
+                              null,
+                              parseFloat(
+                                (
+                                  getUserReadableAmount(userTokenBalance) / 2
+                                ).toFixed(10)
+                              )
                             )
-                          )
-                        }
-                      >
-                        <img
-                          src="/assets/third.svg"
-                          alt="third"
-                          className="cursor-pointer"
-                        />
+                          }
+                        >
+                          <img
+                            src="/assets/half.svg"
+                            alt="half"
+                            className="cursor-pointer"
+                          />
+                        </Box>
+                        <Box
+                          className="absolute left-[13.8rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
+                          onClick={() =>
+                            inputStrikeDepositAmount(
+                              index,
+                              null,
+                              parseFloat(
+                                (
+                                  getUserReadableAmount(userTokenBalance) / 3
+                                ).toFixed(10)
+                              )
+                            )
+                          }
+                        >
+                          <img
+                            src="/assets/third.svg"
+                            alt="third"
+                            className="cursor-pointer"
+                          />
+                        </Box>
                       </Box>
                     </Box>
                   ))}

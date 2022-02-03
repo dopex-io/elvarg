@@ -22,6 +22,7 @@ import CustomButton from '../UI/CustomButton';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
+import { AssetsContext } from '../../contexts/Assets';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -60,6 +61,7 @@ const ZapIn = ({
   const [swapSymbols, setSwapSymbols] = useState<string[]>([]);
   const [swapSteps, setSwapSteps] = useState<object[]>([]);
   const { chainId } = useContext(WalletContext);
+  const { userAssetBalances } = useContext(AssetsContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showSwapSteps, setShowSwapSteps] = useState<boolean>(true);
   const isPriceImpactHigh = priceImpact < -2;
@@ -181,7 +183,7 @@ const ZapIn = ({
                 <Box className="flex">
                   <Typography
                     variant="h5"
-                    className="text-white text-xs pt-2 pb-1"
+                    className="text-white text-xs pt-1 pb-1"
                   >
                     Max. slippage: {slippageTolerance}%
                   </Typography>
@@ -218,13 +220,13 @@ const ZapIn = ({
             </Popover>
           </Box>
 
-          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-1">
             <Box className="flex flex-row justify-between">
               <Box
-                className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer group"
+                className="h-11 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer group"
                 onClick={() => setIsTokenSelectorVisible(true)}
               >
-                <Box className="flex flex-row h-10 w-10 mr-3">
+                <Box className="flex flex-row h-9 w-9 mr-1.5">
                   {tokenName !== '' ? (
                     <img
                       src={'/assets/' + tokenName.toLowerCase() + '.svg'}
@@ -234,7 +236,7 @@ const ZapIn = ({
                     <LoaderIcon className="mt-3.5 ml-3.5" />
                   )}
                 </Box>
-                <Typography variant="h5" className="text-white pb-1 pr-2">
+                <Typography variant="h5" className="text-white pb-1 pr-1.5">
                   {tokenName}
                 </Typography>
                 <IconButton className="opacity-40 p-0 group-hover:opacity-70">
@@ -249,13 +251,11 @@ const ZapIn = ({
                 placeholder="0"
                 type="number"
                 className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
-                value={formik.values.zapInAmount}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.zapInAmount &&
-                  Boolean(formik.errors.zapInAmount)
-                }
+                value={getUserReadableAmount(
+                  userAssetBalances[tokenName],
+                  18
+                ).toFixed(6)}
+                readOnly={true}
                 classes={{ input: 'text-right' }}
               />
             </Box>
@@ -263,7 +263,7 @@ const ZapIn = ({
               <Box>
                 <Typography
                   variant="h6"
-                  className="text-stieglitz text-sm pl-1 pt-2"
+                  className="text-stieglitz text-sm pl-1 pt-1"
                 >
                   Swap from
                 </Typography>
@@ -271,10 +271,9 @@ const ZapIn = ({
               <Box className="ml-auto mr-0">
                 <Typography
                   variant="h6"
-                  className="text-stieglitz text-sm pl-1 pt-2 pr-3"
+                  className="text-stieglitz text-sm pl-1 pt-1 pr-3"
                 >
-                  Balance:{' '}
-                  {formatAmount(getUserReadableAmount(userTokenBalance, 18), 3)}{' '}
+                  Balance
                 </Typography>
               </Box>
             </Box>
@@ -646,32 +645,11 @@ const ZapIn = ({
               size="medium"
               className="w-full mt-4 !rounded-md"
               onClick={async () => {
-                const canProceed =
-                  formik.values.zapInAmount > 0 &&
-                  formik.values.zapInAmount <=
-                    getUserReadableAmount(userTokenBalance, 18);
-
-                if (canProceed) setOpen(false);
+                setOpen(false);
               }}
-              color={
-                !(formik.values.zapInAmount > 0) ||
-                formik.values.zapInAmount >
-                  getUserReadableAmount(userTokenBalance, 18)
-                  ? 'mineshaft'
-                  : 'primary'
-              }
-              disabled={
-                !(formik.values.zapInAmount > 0) ||
-                formik.values.zapInAmount >
-                  getUserReadableAmount(userTokenBalance, 18)
-              }
+              color={'primary'}
             >
-              {formik.values.zapInAmount > 0
-                ? formik.values.zapInAmount <=
-                  getUserReadableAmount(userTokenBalance, 18)
-                  ? 'Save'
-                  : 'Insufficient balance'
-                : 'Enter an amount'}
+              Save
             </CustomButton>
           </Box>
         </Box>
