@@ -41,29 +41,15 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
       selectedEscrowData.selectedEscrow,
       provider
     );
-    console.log(
-      data.dealerBase.address,
-      data.dealerQuote.address,
-      '0x37715194Ecde27C1B92591e2B77937C51BB92c72',
-      getUserReadableAmount(
-        data.isBuy ? data.dealerSendAmount : data.dealerReceiveAmount,
-        18
-      ).toString(),
-      getUserReadableAmount(
-        !data.isBuy ? data.dealerSendAmount : data.dealerReceiveAmount,
-        18
-      ).toString()
-    );
-
     await sendTx(
       escrow
         .connect(signer)
         .settle(
           data.dealerBase.address,
           data.dealerQuote.address,
-          '0x37715194Ecde27C1B92591e2B77937C51BB92c72',
-          data.isBuy ? data.dealerReceiveAmount : data.dealerSendAmount,
-          !data.isBuy ? data.dealerReceiveAmount : data.dealerSendAmount
+          data.dealer,
+          data.dealerReceiveAmount,
+          data.dealerSendAmount
         )
     );
   }, [signer, provider, data, selectedEscrowData]);
@@ -73,11 +59,11 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
     await sendTx(
       userQuote
         .connect(signer)
-        .approve(accountAddress, data.dealerReceiveAmount)
+        .approve(selectedEscrowData.selectedEscrow, data.dealerReceiveAmount)
     ).then(() => {
       setApproved(true);
     });
-  }, [data, provider, signer, accountAddress]);
+  }, [data, provider, signer, selectedEscrowData.selectedEscrow]);
 
   useEffect(() => {
     (async () => {

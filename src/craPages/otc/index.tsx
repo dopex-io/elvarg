@@ -107,10 +107,11 @@ const OTC = () => {
                 <Typography
                   variant="h6"
                   role="button"
-                  className={`bg-black hover:bg-cod-gray rounded-lg py-4 ${
+                  className={`bg-black hover:bg-cod-gray rounded-lg py-4 text-stieglitz ${
                     state.history ? 'bg-cod-gray' : null
                   }`}
-                  onClick={() => handleUpdateState(false, true)}
+                  onClick={() => {}}
+                  // handleUpdateState(false, true)
                 >
                   <HistoryIcon className="mx-2" />
                   History
@@ -210,11 +211,7 @@ const OTC = () => {
                 {isLive ? 'Live' : 'Indicative'}
               </Typography>
             </Box>
-            <RfqForm
-              symbol={selectedToken.symbol}
-              icon={selectedToken.icon}
-              isLive={isLive}
-            />
+            <RfqForm isLive={isLive} />
           </Box>
         </Box>
       </Box>

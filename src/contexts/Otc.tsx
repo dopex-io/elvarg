@@ -106,7 +106,7 @@ export const OtcProvider = (props) => {
   );
   const [userDepositsData, setUserDepositsData] = useState([]);
   const [openTradesData, setOpenTradesData] = useState([]);
-  const [selectedEscrowData, setSelectedEscrowData] = useState({});
+  const [selectedEscrowData, setSelectedEscrowData] = useState<any>({});
 
   const loadContractData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
@@ -195,41 +195,56 @@ export const OtcProvider = (props) => {
 
     setUserDepositsData(userAssetDeposits);
 
-    // Settleable Orders. Replace accountAddress here
-    const openTrades = (
-      await Promise.all(
-        assetPairs.map(async (pair) => ({
-          isBuy: pair.token1 === quote,
-          dealerQuote: {
-            address: pair.token1,
-            symbol: await ERC20__factory.connect(
-              pair.token1,
-              provider
-            ).symbol(),
-          },
-          dealerBase: {
-            address: pair.token2,
-            symbol: await ERC20__factory.connect(
-              pair.token2,
-              provider
-            ).symbol(),
-          },
-          dealerReceiveAmount: await escrows[
-            currentEscrowIndex
-          ].pendingBalances(pair.token2, pair.token1, accountAddress),
-          dealerSendAmount: await escrows[currentEscrowIndex].balances(
-            pair.token1,
-            pair.token2,
-            accountAddress
-          ),
-          dealer: accountAddress,
-        }))
-      )
-    ).filter(
-      (result: any) =>
-        result.dealerReceiveAmount.gt(BigNumber.from(0)) ||
-        result.dealerSendAmount.gt(BigNumber.from(0))
-    );
+    // Fetch all registered users
+    const users: string[] = (
+      await getDocs(collection(db, 'users'))
+    ).docs.flatMap((doc) => doc.id);
+
+    let openTrades = [];
+
+    // Get all open orders, filter them for each user registered in the db -- expensive
+    for (let i = 0; i < users.length; i++) {
+      openTrades.push(
+        (
+          await Promise.all(
+            assetPairs.map(async (pair) => ({
+              isBuy: pair.token1 === quote,
+              dealerQuote: {
+                address: pair.token1,
+                symbol: await ERC20__factory.connect(
+                  pair.token1,
+                  provider
+                ).symbol(),
+              },
+              dealerBase: {
+                address: pair.token2,
+                symbol: await ERC20__factory.connect(
+                  pair.token2,
+                  provider
+                ).symbol(),
+              },
+              dealerReceiveAmount: await escrows[
+                currentEscrowIndex
+              ].pendingBalances(pair.token2, pair.token1, users[i]),
+              dealerSendAmount: await escrows[currentEscrowIndex].balances(
+                pair.token1,
+                pair.token2,
+                users[i]
+              ),
+              dealer: users[i],
+            }))
+          )
+        ).filter(
+          (result: any) =>
+            result.dealerReceiveAmount.gt(BigNumber.from(0)) ||
+            result.dealerSendAmount.gt(BigNumber.from(0))
+        )
+      );
+    }
+
+    openTrades = openTrades
+      .flat()
+      .filter((item) => item.dealer != accountAddress);
 
     setOpenTradesData(openTrades);
 
@@ -244,7 +259,6 @@ export const OtcProvider = (props) => {
       ...prevState,
       factoryContract: factory,
       escrows,
-      assetPairs,
       escrowCount,
     }));
   }, [accountAddress, contractAddresses, provider]);

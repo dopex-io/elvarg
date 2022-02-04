@@ -131,7 +131,7 @@ const LiveRfqTable = () => {
               <TableBodyCell align="right">
                 <Box className="flex justify-end">
                   <CustomButton
-                    size="medium"
+                    size="small"
                     key="open-trade"
                     onClick={() => {
                       setIndex(i);

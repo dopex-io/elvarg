@@ -143,7 +143,9 @@ const Register = ({ open, handleClose }: RegisterProps) => {
                   </Box>
                 </Box>
                 <Box>
-                  <ErrorBox error={formik.errors.username || errorMsg} />
+                  <ErrorBox
+                    error={String(formik.errors.username || errorMsg)}
+                  />
                 </Box>
                 <CustomButton
                   size="large"

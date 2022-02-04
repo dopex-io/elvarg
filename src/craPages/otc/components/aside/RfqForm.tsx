@@ -28,7 +28,7 @@ import InfoPopover from 'components/UI/InfoPopover';
 import sendTx from 'utils/contracts/sendTx';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-const RfqForm = () => {
+const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const { accountAddress, provider, signer } = useContext(WalletContext);
   const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
   const [approved, setApproved] = useState(false);
@@ -316,9 +316,12 @@ const RfqForm = () => {
         </Box>
         <Box>
           <ErrorBox
-            error={
-              formik.errors.amount || formik.errors.price || formik.errors.base
-            }
+            error={String(
+              formik.errors.amount ||
+                formik.errors.price ||
+                formik.errors.base ||
+                ''
+            )}
           />
         </Box>
         {approved ? (
