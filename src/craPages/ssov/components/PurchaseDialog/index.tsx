@@ -53,6 +53,7 @@ import styles from './styles.module.scss';
 import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
 import ZapInButton from '../../../../components/ZapInButton';
 import ZapOutButton from '../../../../components/ZapOutButton';
+import getContractReadableAmount from '../../../../utils/contracts/getContractReadableAmount';
 
 export interface Props {
   open: boolean;
@@ -92,10 +93,10 @@ const PurchaseDialog = ({
   const ssovToken = ssovSignerArray[selectedSsov].token[0];
   const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
     ssovProperties;
-  const { ssovContractWithSigner } =
+  const { ssovContractWithSigner, ssovRouter } =
     ssovSignerArray !== undefined
       ? ssovSignerArray[selectedSsov]
-      : { ssovContractWithSigner: null };
+      : { ssovContractWithSigner: null, ssovRouter: null };
 
   const { epochStrikes } = ssovData;
 
@@ -129,6 +130,9 @@ const PurchaseDialog = ({
   const isZapActive: boolean = useMemo(() => {
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   }, [tokenName, ssovTokenSymbol]);
+  const spender = isZapActive
+    ? erc20SSOV1inchRouter.address
+    : ssovContractWithSigner.address;
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const purchasePower = useMemo(() => {
     if (isZapActive) {
@@ -238,7 +242,12 @@ const PurchaseDialog = ({
     const toTokenAddress = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
-    const amount = state.totalCost;
+    console.log(state.totalCost.toString());
+    const amount =
+      (quote['toTokenAmount'] / quote['fromTokenAmount']) *
+      parseInt(state.totalCost.toString());
+    console.log(amount);
+
     try {
       const { data } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
@@ -284,71 +293,141 @@ const PurchaseDialog = ({
 
   const handleApprove = async () => {
     try {
-      const routerAddress = isZapActive
-        ? Addresses[chainId]['SSOV'][ssovTokenName]['Router']
-        : ssovContractWithSigner.address;
-      await sendTx(token.approve(routerAddress, MAX_VALUE));
-      setTimeout(checkAllowance, 3000);
+      await sendTx(token.approve(spender, MAX_VALUE));
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handlePurchase = async () => {
-    const finalAmount = ethersUtils.parseEther(
-      String(formik.values.optionsAmount)
-    );
+  const handlePurchase = useCallback(async () => {
     try {
-      if (IS_NATIVE(token)) {
-        await sendTx(
-          ssovContractWithSigner.purchase(
-            strikeIndex,
-            finalAmount,
-            accountAddress,
-            {
+      if (ssovTokenName === tokenName) {
+        if (tokenName === 'BNB') {
+          await sendTx(
+            ssovRouter.purchase(strikeIndex, state.totalCost, accountAddress, {
               value: state.totalCost,
-            }
-          )
-        );
+            })
+          );
+        } else if (IS_NATIVE(ssovTokenName)) {
+          await sendTx(
+            ssovContractWithSigner.purchase(
+              strikeIndex,
+              state.totalCost,
+              accountAddress,
+              {
+                value: state.totalCost,
+              }
+            )
+          );
+        } else {
+          await sendTx(
+            ssovContractWithSigner.purchase(
+              strikeIndex,
+              state.totalCost,
+              accountAddress
+            )
+          );
+        }
       } else {
-        // TODO: to implement
+        console.log(path);
+
+        const decoded = aggregation1inchRouter.interface.decodeFunctionData(
+          'swap',
+          path['tx']['data']
+        );
+
+        const toTokenAmount: BigNumber = BigNumber.from(path['toTokenAmount']);
+        const price =
+          parseFloat(path['toTokenAmount']) /
+          parseFloat(path['fromTokenAmount']);
+
+        if (IS_NATIVE(tokenName)) {
+          const value = state.totalCost.div(
+            getContractReadableAmount(price, 18)
+          );
+
+          await sendTx(
+            erc20SSOV1inchRouter.swapNativeAndPurchase(
+              ssovProperties.ssovContract.address,
+              ssovToken.address,
+              decoded[0],
+              decoded[1],
+              decoded[2],
+              {
+                strikeIndex: strikeIndex,
+                amount: getContractReadableAmount(
+                  formik.values.optionsAmount * 0.2,
+                  18
+                ),
+                to: accountAddress,
+              },
+              {
+                value: value,
+              }
+            )
+          );
+        } else {
+          console.log(formik.values.optionsAmount);
+          await sendTx(
+            erc20SSOV1inchRouter.swapAndPurchase(
+              ssovProperties.ssovContract.address,
+              ssovToken.address,
+              decoded[0],
+              decoded[1],
+              decoded[2],
+              {
+                strikeIndex: strikeIndex,
+                amount: getContractReadableAmount(
+                  formik.values.optionsAmount,
+                  18
+                ),
+                to: accountAddress,
+              }
+            )
+          );
+        }
       }
-      await updateSsovData();
-      await updateUserSsovData();
-      await updateAssetBalances();
-      formik.setFieldValue('optionsAmount', 1);
+
+      //formik.setFieldValue('optionsAmount', 0);
+      //updateSsovData();
+      //updateUserSsovData();
+      //updateAssetBalances();
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [
+    state.totalCost,
+    ssovContractWithSigner,
+    updateSsovData,
+    updateUserSsovData,
+    updateAssetBalances,
+    accountAddress,
+    tokenName,
+    strikeIndex,
+  ]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
   }, [updateUserEpochStrikePurchasableAmount]);
 
-  const checkAllowance = async () => {
-    const finalAmount = state.totalCost;
+  // Updates approved state
+  useEffect(() => {
+    (async () => {
+      if (!purchasePower) return;
 
-    const userAmount = IS_NATIVE(token)
-      ? BigNumber.from(userAssetBalances.ETH)
-      : await token.balanceOf(accountAddress);
+      const finalAmount = getContractReadableAmount(
+        purchasePower.toString(),
+        18
+      );
 
-    setUserTokenBalance(userAmount);
-
-    let allowance = IS_NATIVE(token)
-      ? BigNumber.from(0)
-      : await token.allowance(accountAddress, ssovContractWithSigner.address);
-
-    if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-      setApproved(true);
-    } else {
       if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
-        setApproved(false);
+        const allowance = await token.allowance(accountAddress, spender);
+        setApproved(allowance.gte(finalAmount));
       }
-    }
-  };
+    })();
+  }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
 
   const setMaxAmount = async () => {
     const strike = epochStrikes[strikeIndex];
@@ -373,18 +452,6 @@ const PurchaseDialog = ({
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
   }, [strikeIndex]);
-
-  // Handles isApproved
-  useEffect(() => {
-    if (!token || !ssovContractWithSigner) return;
-    checkAllowance();
-  }, [
-    accountAddress,
-    state.totalCost,
-    token,
-    ssovContractWithSigner,
-    userAssetBalances.ETH,
-  ]);
 
   // Calculate the Option Price & Fees
   useEffect(() => {

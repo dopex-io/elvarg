@@ -318,15 +318,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       );
 
       if (ssovTokenName === tokenName) {
-        if (IS_NATIVE(ssovTokenName)) {
-          await sendTx(
-            ssovContractWithSigner.depositMultiple(
-              strikeIndexes,
-              strikeIndexes.map((index) => strikeDepositAmounts[index]),
-              accountAddress
-            )
-          );
-        } else {
+        if (ssovTokenName === 'BNB') {
           await sendTx(
             ssovRouter.depositMultiple(
               strikeIndexes,
@@ -335,6 +327,14 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               {
                 value: getContractReadableAmount(totalDepositAmount, 18),
               }
+            )
+          );
+        } else if (IS_NATIVE(ssovTokenName)) {
+          await sendTx(
+            ssovContractWithSigner.depositMultiple(
+              strikeIndexes,
+              strikeIndexes.map((index) => strikeDepositAmounts[index]),
+              accountAddress
             )
           );
         }
