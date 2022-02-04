@@ -1009,13 +1009,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   {!isDepositWindowOpen && isVaultReady && (
                     <Countdown
                       date={new Date(epochTimes[1] * 1000)}
-                      renderer={({
-                        days,
-                        hours,
-                        minutes,
-                        seconds,
-                        completed,
-                      }) => (
+                      renderer={({ days, hours, minutes }) => (
                         <Box className="text-stieglitz flex">
                           <svg
                             className="mr-2"

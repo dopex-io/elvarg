@@ -1,5 +1,11 @@
-import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
-import { useFormik } from 'formik';
+import React, {
+  useEffect,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
+import { isNaN, useFormik } from 'formik';
 import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
@@ -33,7 +39,13 @@ import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 import format from 'date-fns/format';
 import Menu from '@material-ui/core/Menu';
 import Slide from '@material-ui/core/Slide';
-import { Addresses, ERC20, ERC20__factory } from '@dopex-io/sdk';
+import {
+  Addresses,
+  ERC20,
+  ERC20__factory,
+  ERC20SSOV1inchRouter__factory,
+  Aggregation1inchRouterV4__factory,
+} from '@dopex-io/sdk';
 import ZapIn from '../../../../components/ZapIn';
 import { useDebounce } from 'use-debounce';
 import axios from 'axios';
@@ -61,7 +73,16 @@ const PurchaseDialog = ({
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
-  const { accountAddress, provider, chainId } = useContext(WalletContext);
+  const { accountAddress, provider, chainId, signer } =
+    useContext(WalletContext);
+  const aggregation1inchRouter = Aggregation1inchRouterV4__factory.connect(
+    Addresses[chainId]['1inchRouter'],
+    signer
+  );
+  const erc20SSOV1inchRouter = ERC20SSOV1inchRouter__factory.connect(
+    Addresses[chainId]['ERC20SSOV1inchRouter'],
+    signer
+  );
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovProperties.tokenName)
@@ -109,15 +130,17 @@ const PurchaseDialog = ({
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   }, [tokenName, ssovTokenSymbol]);
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
-  const [priceImpact, setPriceImpact] = useState<number>(0);
-  const purchasePower =
-    isZapActive && quote['toToken']
-      ? getUserReadableAmount(
-          quote['toTokenAmount'],
-          quote['toToken']['decimals']
-        ) /
-        (1 + slippageTolerance / 100)
-      : getUserReadableAmount(userTokenBalance, 18);
+  const purchasePower = useMemo(() => {
+    if (isZapActive) {
+      let price: number;
+      if (path['toToken'])
+        price = path['toTokenAmount'] / path['fromTokenAmount'];
+      else if (quote['toToken'])
+        price = quote['toTokenAmount'] / quote['fromTokenAmount'];
+      return price * getUserReadableAmount(userAssetBalances[tokenName], 18);
+    }
+  }, [isZapActive, quote, path, slippageTolerance, userTokenBalance]);
+
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
   const sendTx = useSendTx();
@@ -165,7 +188,6 @@ const PurchaseDialog = ({
   const formik = useFormik({
     initialValues: {
       optionsAmount: 1,
-      zapInAmount: 1,
     },
     enableReinitialize: true,
     validationSchema: yup.object({
@@ -189,51 +211,22 @@ const PurchaseDialog = ({
   const isPurchasePowerEnough =
     purchasePower >= getUserReadableAmount(state.totalCost, 18);
 
-  const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 1000);
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
-  const [latestZapInAmount, setLatestZapInAmount] = useState<number>(0);
 
   const getQuote = async () => {
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     const toTokenAddress = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
-    if (debouncedZapInAmount[0] === 0) {
-      setQuote({});
-      return;
-    }
+    const amount = (10 ** 18).toString();
     const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
-        debouncedZapInAmount[0] * 10 ** fromTokenDecimals
-      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
-    setQuote(data);
-  };
 
-  const getPriceImpact = async () => {
-    const fromTokenAddress = IS_NATIVE(token)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : token.address;
-    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
-    const toTokenAddress = IS_NATIVE(ssovTokenName)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : ssovToken.address;
-    if (fromTokenAddress === toTokenAddress) return;
-    const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
-        10 ** fromTokenDecimals
-      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
-    );
-    const quotePrice = quote['toTokenAmount'] / quote['fromTokenAmount'];
-    const dataPrice = data['toTokenAmount'] / data['fromTokenAmount'];
-    setPriceImpact(
-      100 *
-        (Math.min(quotePrice, dataPrice) / Math.max(quotePrice, dataPrice) - 1)
-    );
+    setQuote(data);
   };
 
   const getPath = async () => {
@@ -245,16 +238,15 @@ const PurchaseDialog = ({
     const toTokenAddress = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
-    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
-    if (fromTokenAddress === ssovToken.address) return;
-    // if (isNaN(amount) || amount <= 0) return;
-
-    const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
-        debouncedZapInAmount[0] * 10 ** fromTokenDecimals
-      )}&fromAddress=${accountAddress}&slippage=${slippageTolerance}&disableEstimate=true`
-    );
-    setPath(data);
+    const amount = state.totalCost;
+    try {
+      const { data } = await axios.get(
+        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
+      );
+      setPath(data);
+    } catch (err) {
+      setPath({ error: 'Invalid amounts' });
+    }
     setIsFetchingPath(false);
   };
 
@@ -375,10 +367,6 @@ const PurchaseDialog = ({
   };
 
   useEffect(() => {
-    getPriceImpact();
-  }, [quote]);
-
-  useEffect(() => {
     handleTokenChange();
   }, [token]);
 
@@ -479,7 +467,7 @@ const PurchaseDialog = ({
         setIsPurchaseStatsLoading(false);
       }
     }
-    debounce(async () => await updateOptionPrice(), 500)();
+    debounce(async () => await updateOptionPrice(), 1000)();
   }, [
     strikeIndex,
     epochStrikes,
@@ -537,14 +525,7 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible]);
-
-  useEffect(() => {
-    if (debouncedZapInAmount[0] !== latestZapInAmount) {
-      getQuote();
-      setLatestZapInAmount(debouncedZapInAmount[0]);
-    }
-  }, [debouncedZapInAmount]);
+  }, [state.totalCost]);
 
   return (
     <Dialog
@@ -942,6 +923,8 @@ const PurchaseDialog = ({
           openZapIn={openZapIn}
           isZapActive={isZapActive}
           quote={quote}
+          path={path}
+          isFetchingPath={isFetchingPath}
           tokenName={tokenName}
           ssovTokenSymbol={ssovTokenSymbol}
           selectedTokenPrice={selectedTokenPrice}
@@ -1038,8 +1021,6 @@ const PurchaseDialog = ({
             token={token}
             userTokenBalance={userTokenBalance}
             quote={quote}
-            priceImpact={priceImpact}
-            formik={formik}
             setSlippageTolerance={setSlippageTolerance}
             slippageTolerance={slippageTolerance}
             purchasePower={purchasePower}
