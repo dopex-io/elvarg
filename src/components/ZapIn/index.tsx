@@ -29,7 +29,6 @@ export interface Props {
   setToken: Dispatch<SetStateAction<ERC20>>;
   token: ERC20 | any;
   userTokenBalance: BigNumber;
-  formik: any;
   quote: object;
   slippageTolerance: number;
   setSlippageTolerance: Dispatch<SetStateAction<number>>;
