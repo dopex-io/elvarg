@@ -32,7 +32,6 @@ export interface Props {
   formik: any;
   quote: object;
   slippageTolerance: number;
-  priceImpact: number;
   setSlippageTolerance: Dispatch<SetStateAction<number>>;
   tokenName: string;
   ssovTokenName: string;
@@ -46,10 +45,7 @@ const ZapIn = ({
   setToken,
   ssovTokenName,
   tokenName,
-  userTokenBalance,
   quote,
-  formik,
-  priceImpact,
   slippageTolerance,
   setSlippageTolerance,
   purchasePower,
@@ -64,8 +60,6 @@ const ZapIn = ({
   const { userAssetBalances } = useContext(AssetsContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showSwapSteps, setShowSwapSteps] = useState<boolean>(true);
-  const isPriceImpactHigh = priceImpact < -2;
-  const isPriceImpactExtreme = priceImpact < -10;
 
   const getDEXfrom1InchName = (name) => {
     const parser = {
@@ -292,70 +286,36 @@ const ZapIn = ({
                     }
                     onClick={() => setShowSwapSteps(!showSwapSteps)}
                   >
-                    {isPriceImpactHigh && !isPriceImpactExtreme && (
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 16 15"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="mr-2 mt-0.5"
-                      >
-                        <path
-                          d="M1.72494 14.5001H14.2749C15.5583 14.5001 16.3583 13.1084 15.7166 12.0001L9.4416 1.1584C8.79994 0.0500651 7.19994 0.0500651 6.55827 1.1584L0.283272 12.0001C-0.358395 13.1084 0.441605 14.5001 1.72494 14.5001ZM7.99994 8.66673C7.5416 8.66673 7.1666 8.29173 7.1666 7.8334V6.16673C7.1666 5.7084 7.5416 5.3334 7.99994 5.3334C8.45827 5.3334 8.83327 5.7084 8.83327 6.16673V7.8334C8.83327 8.29173 8.45827 8.66673 7.99994 8.66673ZM8.83327 12.0001H7.1666V10.3334H8.83327V12.0001Z"
-                          fill="#F09242"
-                        />
-                      </svg>
-                    )}
-
-                    {isPriceImpactExtreme && (
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 16 15"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="mr-2 mt-0.5 opacity-90"
-                      >
-                        <path
-                          d="M1.72543 14.5001H14.2754C15.5588 14.5001 16.3588 13.1084 15.7171 12.0001L9.44209 1.1584C8.80043 0.0500651 7.20043 0.0500651 6.55876 1.1584L0.28376 12.0001C-0.357907 13.1084 0.442093 14.5001 1.72543 14.5001ZM8.00043 8.66673C7.54209 8.66673 7.16709 8.29173 7.16709 7.8334V6.16673C7.16709 5.7084 7.54209 5.3334 8.00043 5.3334C8.45876 5.3334 8.83376 5.7084 8.83376 6.16673V7.8334C8.83376 8.29173 8.45876 8.66673 8.00043 8.66673ZM8.83376 12.0001H7.16709V10.3334H8.83376V12.0001Z"
-                          fill="#e14040"
-                        />
-                      </svg>
-                    )}
-
-                    {!isPriceImpactExtreme && !isPriceImpactHigh && (
-                      <svg
-                        width="15"
-                        height="15"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="mt-1 mr-2"
-                      >
-                        <path
-                          d="M7.99989 0.515015C3.86739 0.515015 0.514893 3.86751 0.514893 8.00001C0.514893 12.1325 3.86739 15.485 7.99989 15.485C12.1324 15.485 15.4849 12.1325 15.4849 8.00001C15.4849 3.86751 12.1324 0.515015 7.99989 0.515015Z"
-                          fill="url(#paint0_linear_1600_23889)"
-                        />
-                        <path
-                          d="M5.46553 11.5539L7.01803 8.8649L5.29031 7.8674C5.04999 7.72865 5.03761 7.3751 5.27827 7.22826L10.3573 3.95121C10.6829 3.73218 11.0803 4.10885 10.8816 4.45309L9.3103 7.17458L10.9601 8.12708C11.2004 8.26583 11.21 8.60914 10.9824 8.76348L6.00008 12.0531C5.66419 12.2748 5.26678 11.8982 5.46553 11.5539Z"
-                          fill="white"
-                        />
-                        <defs>
-                          <linearGradient
-                            id="paint0_linear_1600_23889"
-                            x1="15.4849"
-                            y1="17.6236"
-                            x2="0.399917"
-                            y2="0.616998"
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop stopColor="#002EFF" />
-                            <stop offset="1" stopColor="#22E1FF" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    )}
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="mt-1 mr-2"
+                    >
+                      <path
+                        d="M7.99989 0.515015C3.86739 0.515015 0.514893 3.86751 0.514893 8.00001C0.514893 12.1325 3.86739 15.485 7.99989 15.485C12.1324 15.485 15.4849 12.1325 15.4849 8.00001C15.4849 3.86751 12.1324 0.515015 7.99989 0.515015Z"
+                        fill="url(#paint0_linear_1600_23889)"
+                      />
+                      <path
+                        d="M5.46553 11.5539L7.01803 8.8649L5.29031 7.8674C5.04999 7.72865 5.03761 7.3751 5.27827 7.22826L10.3573 3.95121C10.6829 3.73218 11.0803 4.10885 10.8816 4.45309L9.3103 7.17458L10.9601 8.12708C11.2004 8.26583 11.21 8.60914 10.9824 8.76348L6.00008 12.0531C5.66419 12.2748 5.26678 11.8982 5.46553 11.5539Z"
+                        fill="white"
+                      />
+                      <defs>
+                        <linearGradient
+                          id="paint0_linear_1600_23889"
+                          x1="15.4849"
+                          y1="17.6236"
+                          x2="0.399917"
+                          y2="0.616998"
+                          gradientUnits="userSpaceOnUse"
+                        >
+                          <stop stopColor="#002EFF" />
+                          <stop offset="1" stopColor="#22E1FF" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
 
                     <Typography variant="h6" className="text-white font-lg">
                       1 {tokenName} ={' '}
@@ -491,28 +451,6 @@ const ZapIn = ({
                           </Typography>
                         </Box>
                       </Box>
-                      <Box className={'flex mb-2 mt-2'}>
-                        <Typography
-                          variant="h6"
-                          className="text-stieglitz ml-0 mr-auto"
-                        >
-                          Price Impact
-                        </Typography>
-                        <Box className={'text-right'}>
-                          <Typography
-                            variant="h6"
-                            className={
-                              isPriceImpactHigh
-                                ? isPriceImpactExtreme
-                                  ? 'text-red-500 mr-auto ml-0 pr-1'
-                                  : 'text-yellow-400 mr-auto ml-0 pr-1'
-                                : 'text-white mr-auto ml-0 pr-1'
-                            }
-                          >
-                            {formatAmount(priceImpact, 2)}%
-                          </Typography>
-                        </Box>
-                      </Box>
                       <Box className="rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 mt-4">
                         <Typography
                           variant="h6"
@@ -612,9 +550,7 @@ const ZapIn = ({
 
               <Typography variant="h6" className="text-white mr-0 ml-auto">
                 {tokenName === ssovTokenName
-                  ? formik.values.zapInAmount
-                    ? formatAmount(formik.values.zapInAmount, 8)
-                    : '0'
+                  ? '-'
                   : formatAmount(purchasePower, 8)}{' '}
                 {ssovTokenName}
               </Typography>

@@ -247,6 +247,8 @@ const PurchaseDialog = ({
       : ssovToken.address;
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     if (fromTokenAddress === ssovToken.address) return;
+    // if (isNaN(amount) || amount <= 0) return;
+
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
         debouncedZapInAmount[0] * 10 ** fromTokenDecimals

@@ -27,7 +27,6 @@ import formatAmount from 'utils/general/formatAmount';
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 import Button from '@material-ui/core/Button';
 import format from 'date-fns/format';
-import { LinearProgress } from '@material-ui/core';
 import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
 import ZapInButton from '../../../../components/ZapInButton';
 import {
@@ -42,11 +41,8 @@ import cx from 'classnames';
 import styles from './styles.module.scss';
 import Withdraw from './Withdraw';
 import ZapIn from '../../../../components/ZapIn';
-import { isNaN, useFormik } from 'formik';
-import * as yup from 'yup';
-import noop from 'lodash/noop';
+import { isNaN } from 'formik';
 import axios from 'axios';
-import { useDebounce } from 'use-debounce';
 import ZapOutButton from '../../../../components/ZapOutButton';
 import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
 import AltZapIcon from '../../../../components/Icons/AltZapIcon';
@@ -61,14 +57,6 @@ const SelectMenuProps = {
   classes: {
     paper: 'bg-mineshaft',
   },
-};
-
-const MAX_DEPOSIT = {
-  ETH: 25000,
-  RPDX: 100000,
-  DPX: 100000,
-  GMX: 100000,
-  BNB: 100000,
 };
 
 const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
@@ -93,20 +81,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   ); // TODO CHANGE WITH SDK ADDRESS
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
-  const containerRef = React.useRef(null);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const { ssovContractWithSigner, ssovRouter } = ssovSignerArray[selectedSsov];
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
-  const { userEpochStrikeDeposits, userEpochDeposits } =
-    userSsovDataArray[selectedSsov];
-  const {
-    epochTimes,
-    isVaultReady,
-    epochStrikes,
-    totalEpochStrikeDeposits,
-    totalEpochDeposits,
-  } = ssovDataArray[selectedSsov];
+  const { userEpochDeposits } = userSsovDataArray[selectedSsov];
+  const { epochTimes, isVaultReady, epochStrikes, totalEpochDeposits } =
+    ssovDataArray[selectedSsov];
 
   const [selectedStrikeIndexes, setSelectedStrikeIndexes] = useState<number[]>(
     []
@@ -114,7 +95,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
     [key: number]: number | string;
   }>({});
-  const [error, setError] = useState('');
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
@@ -123,7 +103,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const [path, setPath] = useState<object>({});
   const [activeTab, setActiveTab] = useState<string>('deposit');
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
-  const [priceImpact, setPriceImpact] = useState<number>(0);
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovProperties.tokenName)
       ? ssovProperties.tokenName
@@ -131,25 +110,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const ssovToken = ssovSignerArray[selectedSsov].token[0];
-  const [latestZapInAmount, setLatestZapInAmount] = useState<number>(0);
-  const formik = useFormik({
-    initialValues: {
-      zapInAmount: 1,
-    },
-    enableReinitialize: true,
-    validationSchema: yup.object({
-      optionsAmount: yup
-        .number()
-        .min(0, 'Amount has to be greater than 0')
-        .required('Amount is required'),
-    }),
-    validate: () => {
-      const errors: any = {};
-      return errors;
-    },
-    onSubmit: noop,
-  });
-  const debouncedZapInAmount = useDebounce(formik.values.zapInAmount, 1000);
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -183,19 +143,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     const toTokenAddress = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
-    if (debouncedZapInAmount[0] === 0) {
-      setQuote({});
-      return;
-    }
+    const amount = (10 ** 18).toString();
     const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
-        debouncedZapInAmount[0] * 10 ** fromTokenDecimals
-      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
 
     setQuote(data);
@@ -286,24 +240,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     await getQuote();
   };
 
-  const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) =>
-      ssovTokenSymbol === 'BNB'
-        ? getUserReadableAmount(deposit, 8).toString()
-        : getUserReadableAmount(deposit, 18).toString()
-  );
-
   const totalEpochDepositsAmount =
     ssovTokenSymbol === 'BNB'
       ? getUserReadableAmount(totalEpochDeposits, 8).toString()
       : getUserReadableAmount(totalEpochDeposits, 18).toString();
-
-  const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) =>
-      ssovTokenSymbol === 'BNB'
-        ? getUserReadableAmount(deposit, 8).toString()
-        : getUserReadableAmount(deposit, 18).toString()
-  );
 
   const userEpochDepositsAmount =
     ssovTokenSymbol === 'BNB'
@@ -505,45 +445,18 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       );
       setPath(data);
     } catch (err) {
-      console.log(err);
-      setPath({});
+      setPath({ error: 'Invalid amounts' });
     }
     setIsFetchingPath(false);
   };
 
-  const getPriceImpact = async () => {
-    const fromTokenAddress = IS_NATIVE(token)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : token.address;
-    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
-    const toTokenAddress = IS_NATIVE(ssovTokenName)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : ssovToken.address;
-    if (fromTokenAddress === toTokenAddress) return;
-    const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
-        10 ** fromTokenDecimals
-      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
-    );
-    const quotePrice = quote['toTokenAmount'] / quote['fromTokenAmount'];
-    const dataPrice = data['toTokenAmount'] / data['fromTokenAmount'];
-    setPriceImpact(
-      100 *
-        (Math.min(quotePrice, dataPrice) / Math.max(quotePrice, dataPrice) - 1)
-    );
-  };
-
   useEffect(() => {
     getPath();
-  }, [strikeDepositAmounts]);
+  }, [strikeDepositAmounts, denominationTokenName]);
 
   useEffect(() => {
     handleTokenChange();
   }, [token]);
-
-  useEffect(() => {
-    getPriceImpact();
-  }, [quote]);
 
   // Updates approved state
   useEffect(() => {
@@ -605,13 +518,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     userAssetBalances.ETH,
     tokenName,
   ]);
-
-  useEffect(() => {
-    if (debouncedZapInAmount[0] !== latestZapInAmount) {
-      getQuote();
-      setLatestZapInAmount(debouncedZapInAmount[0]);
-    }
-  }, [debouncedZapInAmount]);
 
   return (
     <Box
@@ -680,9 +586,15 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                     variant="h6"
                     className="text-white ml-auto mr-0 text-[0.72rem]"
                   >
-                    {getUserReadableAmount(userTokenBalance, 18)} {tokenName}
+                    {denominationTokenName !== ssovTokenName
+                      ? getUserReadableAmount(
+                          userAssetBalances[denominationTokenName],
+                          18
+                        )
+                      : purchasePower}{' '}
+                    {denominationTokenName}
                   </Typography>
-                  {isZapActive && <AltZapIcon className={'mt-1 ml-2'} />}
+                  {isZapActive ? <AltZapIcon className={'mt-1 ml-2'} /> : null}
                 </Box>
                 <Box className="mt-2 flex">
                   <Box className={isZapActive ? 'w-3/4 mr-3' : 'w-full'}>
@@ -877,9 +789,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                               index,
                               null,
                               parseFloat(
-                                (
-                                  getUserReadableAmount(userTokenBalance) * 0.99
-                                ).toFixed(10)
+                                (denominationTokenName !== ssovTokenName
+                                  ? getUserReadableAmount(
+                                      userAssetBalances[denominationTokenName],
+                                      18
+                                    )
+                                  : purchasePower * 0.99
+                                ).toFixed(4)
                               )
                             )
                           }
@@ -897,9 +813,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                               index,
                               null,
                               parseFloat(
-                                (
-                                  getUserReadableAmount(userTokenBalance) / 2
-                                ).toFixed(10)
+                                (denominationTokenName !== ssovTokenName
+                                  ? getUserReadableAmount(
+                                      userAssetBalances[denominationTokenName],
+                                      18
+                                    )
+                                  : purchasePower / 2
+                                ).toFixed(4)
                               )
                             )
                           }
@@ -917,9 +837,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                               index,
                               null,
                               parseFloat(
-                                (
-                                  getUserReadableAmount(userTokenBalance) / 3
-                                ).toFixed(10)
+                                (denominationTokenName !== ssovTokenName
+                                  ? getUserReadableAmount(
+                                      userAssetBalances[denominationTokenName],
+                                      18
+                                    )
+                                  : purchasePower / 3
+                                ).toFixed(4)
                               )
                             )
                           }
@@ -1000,41 +924,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                       </Typography>
                     </Box>
                   </Box>
-
-                  {false && (
-                    <Box className={'flex mb-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Deposit Limit
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0"
-                        >
-                          {formatAmount(totalEpochDepositsAmount, 0)}{' '}
-                          <span className="opacity-50">
-                            / {formatAmount(MAX_DEPOSIT[ssovTokenSymbol], 4)}
-                          </span>
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
-
-                  {false && (
-                    <Box className="mt-1">
-                      <LinearProgress
-                        value={
-                          (100 * parseFloat(totalEpochDepositsAmount)) /
-                          MAX_DEPOSIT[ssovTokenSymbol]
-                        }
-                        variant="determinate"
-                        className="rounded-sm"
-                      />
-                    </Box>
-                  )}
                 </Box>
               </Box>
 
@@ -1047,6 +936,8 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   openZapIn={openZapIn}
                   isZapActive={isZapActive}
                   quote={quote}
+                  path={path}
+                  isFetchingPath={isFetchingPath}
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
@@ -1110,7 +1001,8 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   disabled={
                     !isPurchasePowerEnough ||
                     !isDepositWindowOpen ||
-                    totalDepositAmount <= 0
+                    totalDepositAmount <= 0 ||
+                    path['error']
                   }
                   onClick={approved ? handleDeposit : handleApprove}
                 >
@@ -1172,8 +1064,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               token={token}
               userTokenBalance={userTokenBalance}
               quote={quote}
-              priceImpact={priceImpact}
-              formik={formik}
               setSlippageTolerance={setSlippageTolerance}
               slippageTolerance={slippageTolerance}
               purchasePower={purchasePower}
