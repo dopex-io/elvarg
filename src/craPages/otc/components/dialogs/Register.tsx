@@ -111,7 +111,7 @@ const Register = ({ open, handleClose }: RegisterProps) => {
             {validated ? (
               <Box className="space-y-4 flex justify-center my-16">
                 <Box className="self-center text-center animate-pulse">
-                  <Typography variant="h3"> Welcome,</Typography>
+                  <Typography variant="h3">Welcome</Typography>
                   <Typography variant="h3" className="text-stieglitz">
                     {user?.username}
                   </Typography>

@@ -13,9 +13,8 @@ import TradeHistory from './components/body/TradeHistory';
 import LiveRfqTable from './components/body/LiveRfqTable';
 import Switch from 'components/UI/Switch';
 import Accordion from 'components/UI/Accordion';
-import RecentTrades from './components/body/RecentTrades';
+import UserDeposits from './components/body/UserDeposits';
 
-import { SsovContext } from 'contexts/Ssov';
 import { OtcContext } from 'contexts/Otc';
 
 import content from './components/banner/content.json';
@@ -49,7 +48,6 @@ const MARKETS_PLACEHOLDER = [
 ];
 
 const OTC = () => {
-  // const { userSsovDataArray } = useContext(SsovContext);
   const { user } = useContext(OtcContext);
 
   const [state, setState] = useState({
@@ -64,12 +62,6 @@ const OTC = () => {
   });
 
   const [isLive, setIsLive] = useState(false);
-
-  // const filteredUserSsovData = useMemo(() => {
-  //   if (selectedToken.symbol === 'DPX') return userSsovDataArray[0];
-  //   else if (selectedToken.symbol === 'rDPX') return userSsovDataArray[1];
-  //   else return userSsovDataArray[2];
-  // }, [userSsovDataArray, selectedToken]);
 
   const handleUpdateState = useCallback((trade, history) => {
     setState({ trade, history });
@@ -159,8 +151,6 @@ const OTC = () => {
                 footer={<Link to="/portfolio">Read More</Link>}
               />
             </Box>
-            {/* <Box className="rounded-xl"> */}
-            {/* </Box> */}
           </Box>
           <Box className="flex flex-col col-span-8 space-y-4">
             {state.trade ? (
@@ -171,7 +161,7 @@ const OTC = () => {
                   </Typography>
                   <Box className="flex space-x-2 my-auto">
                     <Typography
-                      variant="caption"
+                      variant="h6"
                       className={`${isLive ? 'text-stieglitz' : 'text-white'}`}
                     >
                       Indicative
@@ -182,7 +172,7 @@ const OTC = () => {
                       onClick={toggleLiveRfq}
                     />
                     <Typography
-                      variant="caption"
+                      variant="h6"
                       className={`${!isLive ? 'text-stieglitz' : 'text-white'}`}
                     >
                       Live
@@ -191,9 +181,9 @@ const OTC = () => {
                 </Box>
                 {isLive ? <LiveRfqTable /> : <IndicativeRfqTable />}
                 <Typography variant="h5" className="font-bold">
-                  Recent Trades
+                  Your Orders
                 </Typography>
-                <RecentTrades />
+                <UserDeposits />
               </>
             ) : (
               <>
@@ -210,7 +200,7 @@ const OTC = () => {
                 Create RFQ
               </Typography>
               <Typography
-                variant="caption"
+                variant="h6"
                 className={`p-1 px-3 rounded-r-xl rounded-l-xl border ${
                   isLive
                     ? 'text-down-bad bg-down-bad/[0.3] border-down-bad'
@@ -223,7 +213,6 @@ const OTC = () => {
             <RfqForm
               symbol={selectedToken.symbol}
               icon={selectedToken.icon}
-              // ssovUserData={filteredUserSsovData}
               isLive={isLive}
             />
           </Box>

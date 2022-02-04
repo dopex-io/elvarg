@@ -66,11 +66,7 @@ const TradeHistory = () => {
   }, []);
   return (
     <TableContainer className="rounded-lg border border-umbra overflow-x-hidden">
-      <Table
-        aria-label="trade history table"
-        component={Paper}
-        className="bg-umbra"
-      >
+      <Table aria-label="trade history table" className="bg-umbra">
         <TableHead className="bg-umbra">
           <TableRow className="bg-umbra">
             <TableHeader align="left" textColor="white">

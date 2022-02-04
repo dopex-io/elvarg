@@ -58,6 +58,7 @@ const TableBodyCell = ({
 const IndicativeRfqTable = () => {
   const { orders, validateUser } = useContext(OtcContext);
 
+  const [index, setIndex] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
 
@@ -67,12 +68,14 @@ const IndicativeRfqTable = () => {
   );
 
   const navigateToChat = useCallback(
-    async (row) => {
+    async (i) => {
       await validateUser();
       // broken link
-      navigate(`/otc/chat/${row.username + '-' + row.option}`);
+      navigate(
+        `/otc/chat/${orders[index].username + '-' + orders[index].option}`
+      );
     },
-    [navigate, validateUser]
+    [index, navigate, orders, validateUser]
   );
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
@@ -97,9 +100,9 @@ const IndicativeRfqTable = () => {
             <TableHeader align="right">Actions</TableHeader>
           </TableRow>
         </TableHead>
-        <TableBody component="div">
-          {orders.map((row, index) => (
-            <TableRow key={index}>
+        <TableBody>
+          {orders.map((row, i) => (
+            <TableRow key={i}>
               <TableBodyCell align="left" textColor="white">
                 {row.isBuy ? 'Buy' : 'Sell'}
               </TableBodyCell>
@@ -144,7 +147,10 @@ const IndicativeRfqTable = () => {
                 >
                   <MenuItem
                     key="transfer-options"
-                    onClick={() => navigateToChat(row)}
+                    onClick={() => {
+                      setIndex(i);
+                      navigateToChat(index);
+                    }}
                     className="text-white rounded px-3 py-1"
                     disabled={row.isFulfilled}
                   >

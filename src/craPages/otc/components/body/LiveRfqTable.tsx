@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext } from 'react';
+import { useState, useCallback, useContext, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 import TableContainer from '@material-ui/core/TableContainer';
 import Table from '@material-ui/core/Table';
@@ -6,19 +6,16 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import format from 'date-fns/format';
+import CustomButton from 'components/UI/CustomButton';
 
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-import Trade from '../dialogs/Trade';
+import Settle from '../dialogs/Settle';
 
 import { OtcContext } from 'contexts/Otc';
 
 import smartTrim from 'utils/general/smartTrim';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const TableHeader = ({
   children,
@@ -57,12 +54,21 @@ const TableBodyCell = ({
 };
 
 const LiveRfqTable = () => {
+  const { openTradesData } = useContext(OtcContext);
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [index, setIndex] = useState(0);
+  const [openTrades, setOpenTrades] = useState([]);
+
   const [dialogState, setDialogState] = useState({
     open: false,
+    data: {},
     handleClose: () => {},
   });
-  const { selectedEscrowData } = useContext(OtcContext);
+
+  const handleClose = useCallback(() => {
+    setDialogState((prevState) => ({ ...prevState, open: false, data: {} }));
+  }, []);
 
   const handleClickMenu = useCallback(
     (event) => setAnchorEl(event.currentTarget),
@@ -71,17 +77,9 @@ const LiveRfqTable = () => {
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
-  const handleClose = useCallback(() => {
-    setDialogState((prevState) => ({ ...prevState, open: false }));
-  }, []);
-
-  const handleTrade = useCallback(() => {
-    setDialogState({
-      open: true,
-      handleClose: handleClose,
-    });
-    handleCloseMenu();
-  }, [handleClose, handleCloseMenu]);
+  useEffect(() => {
+    setOpenTrades(openTradesData);
+  }, [openTradesData]);
 
   return (
     <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-80">
@@ -91,14 +89,11 @@ const LiveRfqTable = () => {
             <TableHeader align="left" textColor="white">
               RFQ
             </TableHeader>
-            <TableHeader align="left">Status</TableHeader>
-            <TableHeader align="left" textColor="white">
-              Time
-            </TableHeader>
-            <TableHeader align="left">Option</TableHeader>
+            <TableHeader align="left">Base</TableHeader>
             <TableHeader align="center">Amount</TableHeader>
-            <TableHeader align="right">Dealer</TableHeader>
+            <TableHeader align="right">Quote</TableHeader>
             <TableHeader align="right">Ask</TableHeader>
+            <TableHeader align="right">Dealer</TableHeader>
             <TableHeader align="right">
               <Box className="flex justify-end space-x-2">
                 <Typography variant="h6" className="my-auto text-stieglitz">
@@ -113,77 +108,47 @@ const LiveRfqTable = () => {
           </TableRow>
         </TableHead>
         <TableBody component="div">
-          {[
-            {
-              isBuy: true,
-              isFulfilled: false,
-              timestamp: { seconds: 12321 },
-              option: 'ETH-CALL400000000000-EPOCH1',
-              amount: '21',
-              address: '0x1f21Ee9021AAc21b2bdD',
-              username: 'halle.berry',
-              price: '1200USDT',
-            },
-          ].map((row, index) => (
-            <TableRow key={index}>
+          {openTrades.map((row, i) => (
+            <TableRow key={i}>
               <TableBodyCell align="left" textColor="white">
                 {row.isBuy ? 'Buy' : 'Sell'}
               </TableBodyCell>
               <TableBodyCell align="left">
-                {row.isFulfilled ? 'Fulfilled' : 'Pending'}
+                {smartTrim(row.dealerBase.symbol, 18)}
               </TableBodyCell>
-              <TableBodyCell align="left" textColor="white">
-                {format(
-                  new Date(Number(row.timestamp.seconds) * 1000),
-                  'd LLL yy'
-                )}
+              <TableBodyCell align="center" textColor="text-green-400">
+                {getUserReadableAmount(row.dealerReceiveAmount, 18).toString()}
               </TableBodyCell>
-              <TableBodyCell align="left">
-                {smartTrim(row.option, 18)}
-              </TableBodyCell>
-              <TableBodyCell align="center">{row.amount}</TableBodyCell>
               <TableBodyCell align="right">
-                {smartTrim(row.username, 10)}
+                {smartTrim(row.dealerQuote.symbol, 18)}
               </TableBodyCell>
-              <TableBodyCell align="right" textColor="text-green-400">
-                {row.price}
+              <TableBodyCell align="right" textColor="text-down-bad">
+                {getUserReadableAmount(row.dealerSendAmount, 18).toString()}
+              </TableBodyCell>
+              <TableBodyCell align="right">
+                {smartTrim(row.dealer, 8)}
               </TableBodyCell>
               <TableBodyCell align="right">
                 <Box className="flex justify-end">
-                  <IconButton
-                    aria-label="more"
-                    aria-controls="long-menu"
-                    aria-haspopup="true"
-                    onClick={handleClickMenu}
-                    className="long-menu rounded-md bg-cod-gray py-1 px-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
+                  <CustomButton
+                    size="medium"
+                    key="open-trade"
+                    onClick={() => {
+                      setIndex(i);
+                      setDialogState({
+                        open: true,
+                        data: openTradesData[index],
+                        handleClose,
+                      });
+                    }}
+                    className="text-white rounded px-2 py-0"
                   >
-                    <MoreVertIcon className="fill-current text-white" />
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleCloseMenu}
-                    classes={{ paper: 'bg-mineshaft' }}
-                    keepMounted
-                  >
-                    <MenuItem
-                      key="open-trade"
-                      onClick={handleTrade}
-                      className="text-white rounded p-0 mx-4"
-                      disabled={row.isFulfilled}
-                    >
-                      Trade
-                    </MenuItem>
-                  </Menu>
-                  <Trade
+                    Trade
+                  </CustomButton>
+                  <Settle
                     open={dialogState.open}
                     handleClose={handleClose}
-                    price={row.price}
-                    amount={row.amount}
-                    optionSymbol={row.option}
-                    username={row.username}
-                    address={row.address}
-                    isBuy={row.isBuy}
+                    data={openTradesData[index]}
                   />
                 </Box>
               </TableBodyCell>

@@ -19,7 +19,6 @@ import ErrorBox from 'components/ErrorBox';
 import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
 
 import { WalletContext } from 'contexts/Wallet';
-import { UserSsovData } from 'contexts/Ssov';
 import { OtcContext } from 'contexts/Otc';
 
 import Dropdown from 'assets/farming/Dropdown';
@@ -27,19 +26,10 @@ import InfoPopover from 'components/UI/InfoPopover';
 
 // import { db } from 'utils/firebase/initialize';
 import sendTx from 'utils/contracts/sendTx';
-import { BigNumber } from 'ethers';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-interface RfqFormProps {
-  symbol: string;
-  icon: string;
-  ssovUserData?: UserSsovData;
-  isLive: boolean;
-}
-
-const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
-  const { contractAddresses, accountAddress, provider, signer } =
-    useContext(WalletContext);
+const RfqForm = () => {
+  const { accountAddress, provider, signer } = useContext(WalletContext);
   const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
   const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -63,7 +53,7 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
   const formik = useFormik({
     initialValues: {
       isPut: false,
-      isBuy: false,
+      isBuy: true,
       quote: '',
       price: 0,
       base: '',
@@ -76,9 +66,15 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
 
   const handleTokenSelection = useCallback(
     (e) => {
-      formik.setFieldValue('base', e.target.value);
+      if (formik.values.isBuy) {
+        formik.setFieldValue('base', e.target.value);
+        formik.setFieldValue('quote', selectedEscrowData.quote);
+      } else {
+        formik.setFieldValue('base', selectedEscrowData.quote);
+        formik.setFieldValue('quote', e.target.value);
+      }
     },
-    [formik]
+    [formik, selectedEscrowData]
   );
 
   const handleChangeAmount = useCallback(
@@ -103,7 +99,6 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
 
   const handleClose = useCallback(() => {
     setDialogState((prevState) => ({ ...prevState, open: false }));
-    /// TODO: Cancel transaction and database update
   }, []);
 
   const handleApprove = useCallback(async () => {
@@ -137,64 +132,40 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
         provider
       );
 
-      const usdt = ERC20__factory.connect(selectedEscrowData.quote, provider);
+      const [userQuote, userBase] = [
+        formik.values.isBuy ? formik.values.quote : formik.values.base,
+        formik.values.isBuy ? formik.values.base : formik.values.quote,
+      ];
 
-      if (isLive) {
-        try {
-          await sendTx(
-            escrow
-              .connect(signer)
-              .deposit(
-                selectedEscrowData.quote,
-                formik.values.base,
-                BigNumber.from(formik.values.price),
-                BigNumber.from(formik.values.amount)
-              )
-          )
-            .then(async () => {
-              // await addDoc(collection(db, 'orders'), {
-              //   option: formik.values.optionSymbol,
-              //   isBuy: formik.values.isBuy,
-              //   isPut: formik.values.isPut,
-              //   amount: formik.values.amount,
-              //   price: formik.values.price + 'USDT',
-              //   dealer: accountAddress,
-              //   username: user.username,
-              //   timestamp: formik.values.timestamp,
-              //   isFulfilled: false,
-              //   isLive,
-              // });
-            })
-            .catch(() => {
-              console.log('Failed to update db');
-            });
-        } catch (e) {
-          console.log('Deposit Failed');
+      const [depositAmount, receiveAmount] = [
+        formik.values.isBuy
+          ? getContractReadableAmount(formik.values.price, 18)
+          : getContractReadableAmount(formik.values.amount, 18),
+        formik.values.isBuy
+          ? getContractReadableAmount(formik.values.amount, 18)
+          : getContractReadableAmount(formik.values.price, 18),
+      ];
+
+      try {
+        await sendTx(
+          escrow
+            .connect(signer)
+            .deposit(userQuote, userBase, depositAmount, receiveAmount)
+        ).catch(() => {
+          console.log('Failed to update db');
           setProcessing(false);
-        }
+        });
+      } catch (e) {
+        console.log('Deposit Failed');
+        setProcessing(false);
       }
-
-      // await setDoc(
-      //   doc(
-      //     db,
-      //     'chatrooms',
-      //     user.username + '-' + formik.values.optionSymbol
-      //   ),
-      //   {
-      //     admin: accountAddress,
-      //     createdAt: new Date(),
-      //   }
-      // ).catch((e) => {
-      //   console.log('Already created chatroom... reverted with error: ', e);
-      // });
+      setProcessing(false);
     }
   }, [
     user,
     validateUser,
     selectedEscrowData.selectedEscrow,
-    selectedEscrowData.quote,
     provider,
-    isLive,
     signer,
     formik.values,
   ]);
@@ -202,6 +173,8 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
   // Check allowance
   useEffect(() => {
     (async () => {
+      if (!formik.values.base || !formik.values.price || !formik.values.amount)
+        return;
       try {
         const erc20 = ERC20__factory.connect(
           formik.values.isBuy ? selectedEscrowData?.quote : formik.values.base,
@@ -264,12 +237,12 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
             <Select
               id="base"
               name="base"
-              defaultValue={selectedEscrowData.bases[0]?.symbol ?? ''}
+              defaultValue={''}
               onChange={handleTokenSelection}
               className="bg-cod-gray rounded-lg p-2 w-1/2"
               IconComponent={Dropdown}
               variant="outlined"
-              classes={{ icon: 'mt-3 mr-1', root: 'p-0' }}
+              classes={{ icon: 'mt-3', root: 'p-0' }}
               MenuProps={{
                 classes: { paper: 'bg-cod-gray' },
                 anchorOrigin: {
@@ -285,9 +258,9 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
             >
               {selectedEscrowData.bases?.map((option, index) => {
                 return (
-                  <MenuItem value={option.symbol} key={index}>
+                  <MenuItem value={option.address} key={index}>
                     <Box className="flex flex-row items-center">
-                      <Typography variant="caption" className="text-white">
+                      <Typography variant="h6" className="text-white">
                         {option.symbol}
                       </Typography>
                     </Box>
@@ -330,7 +303,7 @@ const RfqForm = ({ symbol, icon, ssovUserData, isLive }: RfqFormProps) => {
           </Box>
           <Switch
             className="my-auto"
-            defaultChecked={true}
+            checked={formik.values.checked}
             onClick={handleBuyOrder}
           />
         </Box>
