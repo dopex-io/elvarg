@@ -49,6 +49,7 @@ import axios from 'axios';
 import { useDebounce } from 'use-debounce';
 import ZapOutButton from '../../../../components/ZapOutButton';
 import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
+import AltZapIcon from '../../../../components/Icons/AltZapIcon';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -427,7 +428,12 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
         }
 
         if (IS_NATIVE(tokenName)) {
-          console.log(totalDepositAmount);
+          const value = getContractReadableAmount(
+            totalDepositAmount /
+              (denominationTokenName === ssovTokenName ? price : 1),
+            18
+          );
+
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndDepositMultiple(
               ssovProperties.ssovContract.address,
@@ -439,7 +445,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               amounts,
               accountAddress,
               {
-                value: getContractReadableAmount(totalDepositAmount, 18),
+                value: value,
               }
             )
           );
@@ -491,14 +497,17 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       : ssovToken.address;
     const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
     if (fromTokenAddress === ssovToken.address) return;
-    const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
-        totalDepositAmount * 10 ** fromTokenDecimals
-      )}&fromAddress=${
-        erc20SSOV1inchRouter.address
-      }&slippage=${slippageTolerance}&disableEstimate=true`
-    );
-    setPath(data);
+    const amount = Math.round(totalDepositAmount * 10 ** fromTokenDecimals);
+    if (isNaN(amount) || amount <= 0) return;
+    try {
+      const { data } = await axios.get(
+        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
+      );
+      setPath(data);
+    } catch (err) {
+      console.log(err);
+      setPath({});
+    }
     setIsFetchingPath(false);
   };
 
@@ -642,7 +651,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                 </Box>
               </Box>
             </Box>
-            {isZapActive && (
+            {isZapActive ? (
               <Box className="w-1/3">
                 <ZapOutButton
                   isZapActive={isZapActive}
@@ -652,7 +661,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   }}
                 />
               </Box>
-            )}
+            ) : null}
           </Box>
         )}
 
@@ -673,38 +682,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   >
                     {getUserReadableAmount(userTokenBalance, 18)} {tokenName}
                   </Typography>
-                  {isZapActive && (
-                    <svg
-                      className="mt-1 ml-2"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7.00001 0.34668C3.32668 0.34668 0.34668 3.32668 0.34668 7.00001C0.34668 10.6733 3.32668 13.6533 7.00001 13.6533C10.6733 13.6533 13.6533 10.6733 13.6533 7.00001C13.6533 3.32668 10.6733 0.34668 7.00001 0.34668Z"
-                        fill="url(#paint0_linear_1600_23889)"
-                      />
-                      <path
-                        d="M4.7472 10.1591L6.12719 7.76884L4.59144 6.88217C4.37782 6.75884 4.36682 6.44457 4.58074 6.31404L9.09539 3.40111C9.38485 3.20642 9.7381 3.54123 9.56143 3.84723L8.16477 6.26633L9.63124 7.11299C9.84486 7.23633 9.85342 7.54149 9.65104 7.67868L5.22234 10.6028C4.92378 10.7999 4.57053 10.4651 4.7472 10.1591Z"
-                        fill="white"
-                      />
-                      <defs>
-                        <linearGradient
-                          id="paint0_linear_1600_23889"
-                          x1="13.6533"
-                          y1="15.5543"
-                          x2="0.24448"
-                          y2="0.437332"
-                          gradientUnits="userSpaceOnUse"
-                        >
-                          <stop stopColor="#002EFF" />
-                          <stop offset="1" stopColor="#22E1FF" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  )}
+                  {isZapActive && <AltZapIcon className={'mt-1 ml-2'} />}
                 </Box>
                 <Box className="mt-2 flex">
                   <Box className={isZapActive ? 'w-3/4 mr-3' : 'w-full'}>
@@ -762,7 +740,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                     </Select>
                   </Box>
 
-                  {isZapActive && (
+                  {isZapActive ? (
                     <Box className="w-1/4">
                       <Select
                         className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
@@ -843,7 +821,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                         </MenuItem>
                       </Select>
                     </Box>
-                  )}
+                  ) : null}
                 </Box>
                 <Box className="mt-3">
                   {selectedStrikeIndexes.map((index) => (
