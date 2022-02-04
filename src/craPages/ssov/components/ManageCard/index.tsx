@@ -69,16 +69,16 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovSignerArray,
   } = useContext(SsovContext);
   const sendTx = useSendTx();
-  const { accountAddress, chainId, provider, contractAddresses, signer } =
+  const { accountAddress, chainId, provider, signer } =
     useContext(WalletContext);
   const aggregation1inchRouter = Aggregation1inchRouterV4__factory.connect(
     Addresses[chainId]['1inchRouter'],
     signer
   );
   const erc20SSOV1inchRouter = ERC20SSOV1inchRouter__factory.connect(
-    '0xC296C505207E34FE8aFaC9d0B1ceD6ff17d0e89a',
+    Addresses[chainId]['ERC20SSOV1inchRouter'],
     signer
-  ); // TODO CHANGE WITH SDK ADDRESS
+  );
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;

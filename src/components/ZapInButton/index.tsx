@@ -76,8 +76,9 @@ const ZapInButton = ({
       title={
         !slippage ? (
           <span>
-            You will swap {quote['fromToken']['symbol']} to{' '}
-            {quote['toToken']['symbol']}{' '}
+            You will swap{' '}
+            {quote['fromToken'] ? quote['fromToken']['symbol'] : '-'} to{' '}
+            {quote['toToken'] ? quote['toToken']['symbol'] : '-'}{' '}
           </span>
         ) : slippageStatus === 'inactive' ? (
           <span>
