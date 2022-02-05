@@ -45,11 +45,11 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
       escrow
         .connect(signer)
         .settle(
-          data.dealerBase.address,
           data.dealerQuote.address,
+          data.dealerBase.address,
           data.dealer,
-          data.dealerReceiveAmount,
-          data.dealerSendAmount
+          data.dealerSendAmount,
+          data.dealerReceiveAmount
         )
     );
   }, [signer, provider, data, selectedEscrowData]);
@@ -88,32 +88,34 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
               <Typography variant="h5" className="text-stieglitz">
                 Settle
               </Typography>
-              <Box className="flex flex-col space-y-2 bg-umbra p-3 rounded-xl">
+              <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
-                    Base
+                    Dealer&apos;s base
                   </Typography>
                   <Typography variant="h6">{data.dealerBase.symbol}</Typography>
                 </Box>
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
-                    Send Amount
+                    Receive
                   </Typography>
                   <Typography variant="h6">
-                    {getUserReadableAmount(data.dealerSendAmount, 18)}
+                    {getUserReadableAmount(data.dealerSendAmount, 18)}{' '}
+                    {data.dealerQuote.symbol}
                   </Typography>
                 </Box>
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
-                    Ask
+                    Send
                   </Typography>
                   <Typography variant="h6">
-                    {getUserReadableAmount(data.dealerReceiveAmount, 18)}
+                    {getUserReadableAmount(data.dealerReceiveAmount, 18)}{' '}
+                    {data.dealerBase.symbol}
                   </Typography>
                 </Box>
                 <Box className="flex justify-between space-x-2 my-auto">
                   <Typography variant="h6" className="text-stieglitz">
-                    Dealer Address
+                    Dealer&apos;s Address
                   </Typography>
                   <Typography variant="h6">
                     {smartTrim(data.dealer, 10)}

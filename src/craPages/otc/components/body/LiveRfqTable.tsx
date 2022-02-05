@@ -70,13 +70,6 @@ const LiveRfqTable = () => {
     setDialogState((prevState) => ({ ...prevState, open: false, data: {} }));
   }, []);
 
-  const handleClickMenu = useCallback(
-    (event) => setAnchorEl(event.currentTarget),
-    []
-  );
-
-  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
-
   useEffect(() => {
     setOpenTrades(openTradesData);
   }, [openTradesData]);
@@ -114,16 +107,18 @@ const LiveRfqTable = () => {
                 {row.isBuy ? 'Buy' : 'Sell'}
               </TableBodyCell>
               <TableBodyCell align="left">
-                {smartTrim(row.dealerBase.symbol, 18)}
+                {smartTrim(row.dealerBase.symbol, 24)}
               </TableBodyCell>
               <TableBodyCell align="center" textColor="text-green-400">
-                {getUserReadableAmount(row.dealerReceiveAmount, 18).toString()}
+                {getUserReadableAmount(row.dealerReceiveAmount, 18).toString()}{' '}
+                {row.isBuy ? 'Tokens' : row.dealerBase.symbol}
               </TableBodyCell>
               <TableBodyCell align="right">
-                {smartTrim(row.dealerQuote.symbol, 18)}
+                {smartTrim(row.dealerQuote.symbol, 12)}
               </TableBodyCell>
               <TableBodyCell align="right" textColor="text-down-bad">
-                {getUserReadableAmount(row.dealerSendAmount, 18).toString()}
+                {getUserReadableAmount(row.dealerSendAmount, 18).toString()}{' '}
+                {row.isBuy ? row.dealerQuote.symbol : 'Tokens'}
               </TableBodyCell>
               <TableBodyCell align="right">
                 {smartTrim(row.dealer, 8)}

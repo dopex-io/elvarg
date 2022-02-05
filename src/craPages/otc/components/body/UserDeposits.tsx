@@ -74,80 +74,86 @@ const UserDeposits = () => {
   }, [userDepositsData]);
 
   return (
-    <TableContainer className="rounded-lg overflow-x-hidden border-umbra border-2 max-h-3/5">
+    <>
       {userDepositsData.length === 0 ? (
-        [0, 1, 2].map((i) => (
-          <Skeleton
-            key={i}
-            variant="rect"
-            component={Box}
-            animation="wave"
-            className="rounded-md bg-cod-gray"
-          />
-        ))
+        <Box className="bg-cod-gray px-2 pt-2 rounded-lg">
+          {[0, 1, 2, 4, 5].map((i) => (
+            <Skeleton
+              key={i}
+              variant="rect"
+              component={Box}
+              animation="wave"
+              className="rounded-md bg-umbra mb-2 py-4"
+            />
+          ))}
+        </Box>
       ) : (
-        <Table aria-label="rfq-table" className="bg-umbra">
-          <TableHead>
-            <TableRow>
-              <TableHeader align="left" textColor="white">
-                RFQ
-              </TableHeader>
-              <TableHeader align="left">Base</TableHeader>
-              <TableHeader align="center">Amount</TableHeader>
-              <TableHeader align="right">Quote</TableHeader>
-              <TableHeader align="right">Ask</TableHeader>
-              <TableHeader align="right">Dealer</TableHeader>
-              <TableHeader align="right">Withdraw</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody component="tbody">
-            {userDeposits.map((row, i) => {
-              return (
-                <TableRow key={i}>
-                  <TableBodyCell align="left" textColor="white">
-                    {row.isBuy ? 'Buy' : 'Sell'}
-                  </TableBodyCell>
-                  <TableBodyCell align="left">{row.base.symbol}</TableBodyCell>
-                  <TableBodyCell align="center" textColor="text-green-400">
-                    {getUserReadableAmount(row.amount, 18).toString()}
-                  </TableBodyCell>
-                  <TableBodyCell align="right" textColor="text-white">
-                    {row.quote.symbol}
-                  </TableBodyCell>
-                  <TableBodyCell align="right" textColor="text-down-bad">
-                    {getUserReadableAmount(row.price, 18).toString()}{' '}
-                  </TableBodyCell>
-                  <TableBodyCell align="right">
-                    {smartTrim(row.dealer, 8)}
-                  </TableBodyCell>
-                  <TableBodyCell align="right">
-                    <CustomButton
-                      size="small"
-                      color="mineshaft"
-                      onClick={() => {
-                        setIndex(i);
-                        setDialogState({
-                          open: true,
-                          data: userDepositsData[index],
-                          handleClose,
-                        });
-                      }}
-                    >
-                      Withdraw
-                    </CustomButton>
-                    <Withdraw
-                      open={dialogState.open}
-                      handleClose={handleClose}
-                      data={userDepositsData[index]}
-                    />
-                  </TableBodyCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+        <TableContainer className="rounded-lg overflow-x-hidden border-umbra border-2 max-h-3/5">
+          <Table aria-label="rfq-table" className="bg-umbra">
+            <TableHead>
+              <TableRow>
+                <TableHeader align="left" textColor="white">
+                  RFQ
+                </TableHeader>
+                <TableHeader align="left">Base</TableHeader>
+                <TableHeader align="center">Amount</TableHeader>
+                <TableHeader align="right">Quote</TableHeader>
+                <TableHeader align="right">Ask</TableHeader>
+                <TableHeader align="right">Dealer</TableHeader>
+                <TableHeader align="right">Withdraw</TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody component="tbody">
+              {userDeposits.map((row, i) => {
+                return (
+                  <TableRow key={i}>
+                    <TableBodyCell align="left" textColor="white">
+                      {row.isBuy ? 'Buy' : 'Sell'}
+                    </TableBodyCell>
+                    <TableBodyCell align="left">
+                      {row.base.symbol}
+                    </TableBodyCell>
+                    <TableBodyCell align="center" textColor="text-green-400">
+                      {getUserReadableAmount(row.amount, 18).toString()}
+                    </TableBodyCell>
+                    <TableBodyCell align="right" textColor="text-white">
+                      {row.quote.symbol}
+                    </TableBodyCell>
+                    <TableBodyCell align="right" textColor="text-down-bad">
+                      {getUserReadableAmount(row.price, 18).toString()}{' '}
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
+                      {smartTrim(row.dealer, 8)}
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
+                      <CustomButton
+                        size="small"
+                        color="mineshaft"
+                        onClick={() => {
+                          setIndex(i);
+                          setDialogState({
+                            open: true,
+                            data: userDepositsData[index],
+                            handleClose,
+                          });
+                        }}
+                      >
+                        Withdraw
+                      </CustomButton>
+                      <Withdraw
+                        open={dialogState.open}
+                        handleClose={handleClose}
+                        data={userDepositsData[index]}
+                      />
+                    </TableBodyCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
-    </TableContainer>
+    </>
   );
 };
 

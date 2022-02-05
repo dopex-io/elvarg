@@ -24,7 +24,6 @@ import { OtcContext } from 'contexts/Otc';
 import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
 
-// import { db } from 'utils/firebase/initialize';
 import sendTx from 'utils/contracts/sendTx';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
@@ -36,6 +35,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const [dialogState, setDialogState] = useState({
     open: false,
     handleClose: () => {},
+    data: {},
   });
 
   const validationSchema = yup.object({
@@ -55,8 +55,10 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
       isPut: false,
       isBuy: true,
       quote: '',
+      quoteSymbol: '',
       price: 0,
       base: '',
+      baseSymbol: '',
       amount: 0,
       timestamp: new Date(),
     },
@@ -66,12 +68,20 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
 
   const handleTokenSelection = useCallback(
     (e) => {
+      const selection = selectedEscrowData.bases.find(
+        (value) => value.address === e.target.value
+      );
+
       if (formik.values.isBuy) {
         formik.setFieldValue('base', e.target.value);
+        formik.setFieldValue('baseSymbol', selection.symbol);
         formik.setFieldValue('quote', selectedEscrowData.quote);
+        formik.setFieldValue('quoteSymbol', selectedEscrowData.symbol);
       } else {
         formik.setFieldValue('base', selectedEscrowData.quote);
+        formik.setFieldValue('baseSymbol', selectedEscrowData.symbol);
         formik.setFieldValue('quote', e.target.value);
+        formik.setFieldValue('quoteSymbol', selection.symbol);
       }
     },
     [formik, selectedEscrowData]
@@ -146,18 +156,43 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           : getContractReadableAmount(formik.values.price, 18),
       ];
 
-      try {
-        await sendTx(
-          escrow
-            .connect(signer)
-            .deposit(userQuote, userBase, depositAmount, receiveAmount)
-        ).catch(() => {
-          console.log('Failed to update db');
+      if (isLive)
+        try {
+          await sendTx(
+            escrow
+              .connect(signer)
+              .deposit(userQuote, userBase, depositAmount, receiveAmount)
+          ).catch(() => {
+            console.log('Failed to update db');
+            setProcessing(false);
+          });
+        } catch (e) {
+          console.log('Deposit Failed');
           setProcessing(false);
+        }
+      else {
+        console.log(formik.values);
+        setDialogState({
+          open: true,
+          handleClose,
+          data: {
+            isBuy: formik.values.isBuy,
+            quote: {
+              address: formik.values.quote,
+              symbol: formik.values.quoteSymbol,
+            },
+            price: formik.values.price,
+            base: {
+              address: formik.values.base,
+              symbol: formik.values.baseSymbol,
+            },
+            amount: formik.values.amount,
+            dealer: accountAddress,
+            username: user.username,
+            timestamp: formik.values.timestamp,
+            isFulfilled: false,
+          },
         });
-      } catch (e) {
-        console.log('Deposit Failed');
-        setProcessing(false);
       }
       setProcessing(false);
     }
@@ -166,8 +201,11 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     validateUser,
     selectedEscrowData.selectedEscrow,
     provider,
-    signer,
     formik.values,
+    isLive,
+    signer,
+    handleClose,
+    accountAddress,
   ]);
 
   // Check allowance
@@ -324,43 +362,66 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             )}
           />
         </Box>
-        {approved ? (
-          <CustomButton
-            size="medium"
-            className="flex w-full"
-            onClick={handleSubmit}
-            disabled={
-              user &&
-              (processing ||
-                Boolean(formik.errors.price) ||
-                Boolean(formik.errors.amount) ||
-                Boolean(formik.errors.base))
-            }
-          >
-            {user ? (
-              <Typography variant="h6">
-                {processing ? <CircularProgress size="24" /> : 'Submit RFQ'}
-              </Typography>
-            ) : (
-              <Typography variant="h6">Login</Typography>
-            )}
-          </CustomButton>
+        {isLive ? (
+          approved ? (
+            <CustomButton
+              size="medium"
+              className="flex w-full"
+              onClick={handleSubmit}
+              disabled={
+                user &&
+                (processing ||
+                  Boolean(formik.errors.price) ||
+                  Boolean(formik.errors.amount) ||
+                  Boolean(formik.errors.base))
+              }
+            >
+              {user ? (
+                <Typography variant="h6">
+                  {processing ? <CircularProgress size="24" /> : 'Submit'}
+                </Typography>
+              ) : (
+                <Typography variant="h6">Login</Typography>
+              )}
+            </CustomButton>
+          ) : (
+            <CustomButton
+              size="medium"
+              className="flex w-full"
+              onClick={handleApprove}
+            >
+              <Typography variant="h6">Approve</Typography>
+            </CustomButton>
+          )
         ) : (
           <CustomButton
             size="medium"
             className="flex w-full"
-            onClick={handleApprove}
+            onClick={() =>
+              setDialogState((prevState) => ({ ...prevState, open: true }))
+            }
           >
-            <Typography variant="h6">Approve</Typography>
+            <Typography variant="h6">Submit</Typography>
           </CustomButton>
         )}
         <ConfirmRfqDialog
           open={dialogState.open}
           handleClose={handleClose}
-          option={formik.values.base}
-          amount={formik.values.amount}
-          price={formik.values.price}
-          isBuy={formik.values.isBuy}
+          data={{
+            isBuy: formik.values.isBuy,
+            quote: {
+              address: formik.values.quote,
+              symbol: formik.values.quoteSymbol,
+            },
+            price: formik.values.price,
+            base: {
+              address: formik.values.base,
+              symbol: formik.values.baseSymbol,
+            },
+            amount: formik.values.amount,
+            username: user?.username,
+            address: accountAddress,
+          }}
         />
       </Box>
     </Box>

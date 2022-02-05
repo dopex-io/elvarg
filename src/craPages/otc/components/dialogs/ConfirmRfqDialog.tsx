@@ -1,156 +1,137 @@
 import { useContext, useCallback, useState, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
-import { BigNumber } from 'ethers';
-import { ERC20, ERC20__factory, Escrow, Escrow__factory } from '@dopex-io/sdk';
+import { addDoc, collection, doc, getDocs } from 'firebase/firestore';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
-import { WalletContext } from 'contexts/Wallet';
-import sendTx from 'utils/contracts/sendTx';
-// import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { OtcContext } from 'contexts/Otc';
+
+import { db } from 'utils/firebase/initialize';
+import smartTrim from 'utils/general/smartTrim';
 
 interface ConfirmRfqDialogProps {
   open: boolean;
   handleClose: () => void;
-  amount: string;
-  price: string;
-  option: string;
-  isBuy: boolean;
-  token?: ERC20;
+  data: {
+    isBuy: string;
+    quote: {
+      address: string;
+      symbol: string;
+    };
+    price: string;
+    base: {
+      address: string;
+      symbol: string;
+    };
+    amount: string;
+    address: string;
+    username: string;
+  };
 }
 
 const ConfirmRfqDialog = ({
   open,
   handleClose,
-  option,
-  amount,
-  price,
-  isBuy,
-  token,
+  data,
 }: ConfirmRfqDialogProps) => {
-  const { accountAddress, provider, signer, contractAddresses } =
-    useContext(WalletContext);
+  const { user } = useContext(OtcContext);
 
-  const [approved, setApproved] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
-  const handleApprove = useCallback(async () => {
-    const quote = isBuy
-      ? ERC20__factory.connect(contractAddresses.USDT, provider)
-      : token;
-    const escrow = Escrow__factory.connect(contractAddresses.Escrow, provider);
-    await sendTx(
-      quote.connect(signer).approve(escrow.address, isBuy ? price : amount)
-    ).catch((e) => {
-      console.log(e);
+  const handleSubmit = useCallback(async () => {
+    await addDoc(collection(db, 'orders'), {
+      isBuy: data.isBuy,
+      isFulfilled: false,
+      base: data.base.symbol,
+      amount: data.amount,
+      quote: data.quote.symbol,
+      price: data.price,
+      timestamp: new Date(),
+      dealer: user.username,
+      dealerAddress: user.accountAddress,
+    }).then((result) => {
+      if (result.id) {
+        setDisabled(true);
+      }
     });
-    setApproved(!approved);
-  }, [
-    isBuy,
-    contractAddresses,
-    provider,
-    signer,
-    token,
-    price,
-    amount,
-    approved,
-  ]);
+  }, [data, user]);
 
-  const handleConfirmOrder = useCallback(async () => {
-    const quote = isBuy
-      ? ERC20__factory.connect(contractAddresses.USDT, provider)
-      : token;
-
-    const base = !isBuy
-      ? ERC20__factory.connect(contractAddresses.USDT, provider)
-      : token;
-
-    const escrow = Escrow__factory.connect(contractAddresses.Escrow, provider);
-
-    const allowance = await quote.allowance(
-      isBuy ? quote.address : base.address,
-      accountAddress
-    );
-
-    if (allowance > BigNumber.from(price))
-      await sendTx(
-        escrow
-          .connect(signer)
-          .deposit(
-            quote.address,
-            base.address,
-            isBuy ? price : amount,
-            isBuy ? amount : price
-          )
-      );
-  }, [
-    amount,
-    price,
-    provider,
-    contractAddresses,
-    token,
-    isBuy,
-    accountAddress,
-    signer,
-  ]);
+  useEffect(() => {
+    (async () => {
+      const querySnapshot = await getDocs(collection(db, 'orders'));
+      querySnapshot.forEach((doc) => {
+        if (
+          doc.data().base === data.base.symbol &&
+          doc.data().quote === data.quote.symbol
+        )
+          setDisabled(true);
+      });
+    })();
+  }, [data.base.symbol, data.quote.symbol]);
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <Box className="flex flex-col space-y-4">
-        <Typography variant="h5">Confirm Trade</Typography>
-        <Box className="flex flex-col space-y-2 bg-umbra rounded-lg p-2">
+        <Typography variant="h5">Create RFQ</Typography>
+        <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
-              Option
+              Quote
             </Typography>
-            <Typography variant="h6">{option}</Typography>
+            <Typography variant="h6">
+              {smartTrim(data.quote.symbol, 20)}
+            </Typography>
+          </Box>
+          <Box className="flex justify-between">
+            <Typography variant="h6" className="text-stieglitz">
+              Base
+            </Typography>
+            <Typography variant="h6">
+              {smartTrim(data.base.symbol, 20)}
+            </Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Quantity
             </Typography>
-            <Typography variant="h6">{amount}</Typography>
+            <Typography variant="h6">
+              {data.amount} {'doTokens'}
+            </Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Price
             </Typography>
-            <Typography variant="h6">{price}</Typography>
+            <Typography variant="h6">
+              {data.price} {data.quote.symbol}
+            </Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Order Type
             </Typography>
-            <Typography variant="h6">{isBuy ? 'Buy' : 'Sell'}</Typography>
+            <Typography variant="h6">{data.isBuy ? 'Buy' : 'Sell'}</Typography>
           </Box>
         </Box>
         <Box className="border border-umbra rounded-xl p-2">
           <Typography variant="h6" className="text-stieglitz text-center">
-            By confirming this transaction, you will deposit your collateral to
-            an escrow & create an open order to be fulfilled by a counter-party.
-            You can withdraw your funds at any time before completion of the
-            trade.
+            By confirming, you are posting an indicative Request-for-Quote
+            before making a live trade. Users can bid against your RFQ. You may
+            choose the best offer before initiating a live trade.
           </Typography>
         </Box>
-        <Box className="flex space-x-2">
-          <CustomButton
-            size="medium"
-            className="w-1/2"
-            disabled={!approved}
-            onClick={handleConfirmOrder}
-          >
-            Confirm
-          </CustomButton>
-          <CustomButton
-            size="medium"
-            className="w-1/2"
-            disabled={approved}
-            onClick={handleApprove}
-          >
-            Approve
-          </CustomButton>
-        </Box>
+        <CustomButton
+          size="medium"
+          className="rounded-xl"
+          onClick={handleSubmit}
+          disabled={
+            !data.base || !data.amount || !data.price || !data.quote || disabled
+          }
+        >
+          {disabled ? 'Added' : 'Confirm'}
+        </CustomButton>
       </Box>
     </Dialog>
   );

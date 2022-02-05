@@ -20,12 +20,6 @@ import { OtcContext } from 'contexts/Otc';
 
 import { db } from 'utils/firebase/initialize';
 
-// interface MessageType {
-//   msg: string;
-//   timestamp: any;
-//   uid: string;
-// }
-
 const Chatroom = () => {
   const chat = useParams();
   const navigate = useNavigate();
@@ -82,15 +76,15 @@ const Chatroom = () => {
       <Box className="container pt-48 mx-auto h-screen px-4 lg:px-0">
         <Box className="flex flex-col justify-between w-1/3 h-5/6 mx-auto bg-cod-gray rounded-xl">
           <Box className="bg-umbra rounded-t-xl">
-            <Box className="flex justify-between">
+            <Box className="flex space-x-2">
               <IconButton onClick={() => navigate('/otc')}>
                 <ArrowBackIcon className="fill-current text-stieglitz" />
               </IconButton>
-              <Typography variant="h4" className="p-4 my-auto">
+              <Typography variant="h6" className="my-auto">
                 Chat Session
               </Typography>
-              <Typography variant="h6" className="text-stieglitz p-4 my-auto">
-                ID: {chat.id}
+              <Typography variant="h6" className="text-stieglitz my-auto">
+                {chat.id.split('-')[0]}
               </Typography>
             </Box>
           </Box>
@@ -126,7 +120,7 @@ const Chatroom = () => {
                         {msg.username}
                       </Typography>
                       <Box
-                        className={`flex py-2 px-4 mx-2 rounded-3xl ${
+                        className={`py-2 px-4 mx-2 rounded-3xl ${
                           user?.username === msg.username
                             ? 'bg-primary'
                             : 'bg-umbra'
