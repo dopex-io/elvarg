@@ -383,10 +383,10 @@ const PurchaseDialog = ({
         }
       }
 
-      //formik.setFieldValue('optionsAmount', 0);
-      //updateSsovData();
-      //updateUserSsovData();
-      //updateAssetBalances();
+      formik.setFieldValue('optionsAmount', 0);
+      updateSsovData();
+      updateUserSsovData();
+      updateAssetBalances();
     } catch (err) {
       console.log(err);
     }
@@ -438,13 +438,13 @@ const PurchaseDialog = ({
   }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
 
   const setMaxAmount = async () => {
-    const strike = epochStrikes[strikeIndex];
-    const fees = await ssovContractWithSigner.calculatePurchaseFees(
+    const strike: BigNumber = epochStrikes[strikeIndex];
+    const fees: BigNumber = await ssovContractWithSigner.calculatePurchaseFees(
       tokenPrice,
       strike,
       ethersUtils.parseEther(String(1))
     );
-    let amount =
+    let amount: number =
       (purchasePower /
         (getUserReadableAmount(fees, 18) +
           getUserReadableAmount(state.optionPrice, 8) /
