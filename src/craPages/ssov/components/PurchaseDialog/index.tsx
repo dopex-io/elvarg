@@ -85,6 +85,7 @@ const PurchaseDialog = ({
     signer
   );
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
+  const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovProperties.tokenName)
       ? ssovProperties.tokenName
@@ -405,6 +406,19 @@ const PurchaseDialog = ({
     tokenName,
     strikeIndex,
   ]);
+
+  const checkDEXAggregatorStatus = async () => {
+    try {
+      await axios.get(`https://api.1inch.exchange/v4.0/${chainId}`);
+      setIsZapInAvailable(true);
+    } catch (err) {
+      setIsZapInAvailable(false);
+    }
+  };
+
+  useEffect(() => {
+    checkDEXAggregatorStatus();
+  }, []);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
@@ -995,6 +1009,7 @@ const PurchaseDialog = ({
           tokenName={tokenName}
           ssovTokenSymbol={ssovTokenSymbol}
           selectedTokenPrice={selectedTokenPrice}
+          isZapInAvailable={isZapInAvailable}
         />
 
         <Box className="flex">
