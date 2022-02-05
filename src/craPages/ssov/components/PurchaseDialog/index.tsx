@@ -243,19 +243,22 @@ const PurchaseDialog = ({
     const toTokenAddress = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
-    console.log(state.totalCost.toString());
-    const amount =
+
+    let amount: number =
       (quote['toTokenAmount'] / quote['fromTokenAmount']) *
       parseInt(state.totalCost.toString());
-    console.log(amount);
 
-    try {
+    let attempts: number = 0;
+    while (true) {
       const { data } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
       );
-      setPath(data);
-    } catch (err) {
-      setPath({ error: 'Invalid amounts' });
+      if (BigNumber.from(data['toTokenAmount']).gte(state.totalCost)) {
+        setPath(data);
+        break;
+      }
+      attempts += 1;
+      amount = parseInt((amount * 1.01).toString());
     }
     setIsFetchingPath(false);
   };
@@ -330,14 +333,11 @@ const PurchaseDialog = ({
           );
         }
       } else {
-        console.log(path);
-
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
           path['tx']['data']
         );
 
-        const toTokenAmount: BigNumber = BigNumber.from(path['toTokenAmount']);
         const price =
           parseFloat(path['toTokenAmount']) /
           parseFloat(path['fromTokenAmount']);
