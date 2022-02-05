@@ -82,6 +82,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(true);
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const { ssovContractWithSigner, ssovRouter } = ssovSignerArray[selectedSsov];
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
@@ -426,6 +427,15 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovRouter,
   ]);
 
+  const checkDEXAggregatorStatus = async () => {
+    try {
+      await axios.get(`https://api.1inch.exchange/v4.0/${chainId}`);
+      setIsZapInAvailable(true);
+    } catch (err) {
+      setIsZapInAvailable(false);
+    }
+  };
+
   const getPath = async () => {
     if (!isZapActive) return;
     setIsFetchingPath(true);
@@ -449,6 +459,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     }
     setIsFetchingPath(false);
   };
+
+  useEffect(() => {
+    checkDEXAggregatorStatus();
+  }, []);
 
   useEffect(() => {
     getPath();
@@ -941,6 +955,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
+                  isZapInAvailable={isZapInAvailable}
                 />
 
                 <Box className="flex">
