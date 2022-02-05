@@ -158,7 +158,7 @@ const ZapInButton = ({
     )
   ) : (
     <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">
-      <RedTriangleIcon className="mt-0.5 mr-2.5" />
+      <YellowTriangleIcon className="mt-0.5 mr-2.5" />
       <Typography variant="h6" className="text-white">
         Zap in is not available
       </Typography>
