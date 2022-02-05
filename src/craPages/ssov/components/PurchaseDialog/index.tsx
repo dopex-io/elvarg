@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { isNaN, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
@@ -20,6 +20,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
+import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
@@ -133,6 +134,8 @@ const PurchaseDialog = ({
   }, [tokenName, ssovTokenSymbol]);
   const spender = isZapActive
     ? erc20SSOV1inchRouter.address
+    : ssovTokenName === 'BNB'
+    ? ssovRouter.address
     : ssovContractWithSigner.address;
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const purchasePower = useMemo(() => {
@@ -263,17 +266,6 @@ const PurchaseDialog = ({
     setIsFetchingPath(false);
   };
 
-  const getValueInUsd = (symbol) => {
-    let value = 0;
-    tokenPrices.map((record) => {
-      if (record['name'] === symbol) {
-        value =
-          (record['price'] * parseInt(userAssetBalances[symbol])) / 10 ** 18;
-      }
-    });
-    return value;
-  };
-
   const openZapIn = () => {
     if (isZapActive) {
       setIsZapInVisible(true);
@@ -283,7 +275,10 @@ const PurchaseDialog = ({
           return item !== ssovTokenSymbol && Addresses[chainId][item];
         })
         .sort((a, b) => {
-          return getValueInUsd(b) - getValueInUsd(a);
+          return (
+            getValueInUsdFromSymbol(b, tokenPrices, userAssetBalances) -
+            getValueInUsdFromSymbol(a, tokenPrices, userAssetBalances)
+          );
         });
 
       const randomToken = ERC20__factory.connect(
@@ -357,7 +352,7 @@ const PurchaseDialog = ({
               {
                 strikeIndex: strikeIndex,
                 amount: getContractReadableAmount(
-                  formik.values.optionsAmount * 0.2,
+                  formik.values.optionsAmount,
                   18
                 ),
                 to: accountAddress,
@@ -368,7 +363,6 @@ const PurchaseDialog = ({
             )
           );
         } else {
-          console.log(formik.values.optionsAmount);
           await sendTx(
             erc20SSOV1inchRouter.swapAndPurchase(
               ssovProperties.ssovContract.address,

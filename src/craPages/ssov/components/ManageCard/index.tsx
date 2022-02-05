@@ -23,6 +23,7 @@ import useSendTx from 'hooks/useSendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 import Button from '@material-ui/core/Button';
@@ -176,6 +177,8 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
 
   const spender = isZapActive
     ? erc20SSOV1inchRouter.address
+    : ssovTokenName === 'BNB'
+    ? ssovRouter.address
     : ssovContractWithSigner.address;
 
   const purchasePower =
@@ -203,17 +206,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     return purchasePower >= totalDepositAmount;
   }, [purchasePower, totalDepositAmount]);
 
-  const getValueInUsd = (symbol) => {
-    let value = 0;
-    tokenPrices.map((record) => {
-      if (record['name'] === symbol) {
-        value =
-          (record['price'] * parseInt(userAssetBalances[symbol])) / 10 ** 18;
-      }
-    });
-    return value;
-  };
-
   const openZapIn = () => {
     if (isZapActive) {
       setIsZapInVisible(true);
@@ -223,7 +215,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           return item !== ssovTokenSymbol && Addresses[chainId][item];
         })
         .sort((a, b) => {
-          return getValueInUsd(b) - getValueInUsd(a);
+          return (
+            getValueInUsdFromSymbol(b, tokenPrices, userAssetBalances) -
+            getValueInUsdFromSymbol(a, tokenPrices, getValueInUsdFromSymbol)
+          );
         });
 
       const randomToken = ERC20__factory.connect(
@@ -475,7 +470,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   // Updates approved state
   useEffect(() => {
     (async () => {
-      const finalAmount = getContractReadableAmount(
+      const finalAmount: BigNumber = getContractReadableAmount(
         totalDepositAmount.toString(),
         18
       );
@@ -483,8 +478,11 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
-        const allowance = await token.allowance(accountAddress, spender);
-        setApproved(allowance.gte(finalAmount) ? true : false);
+        const allowance: BigNumber = await token.allowance(
+          accountAddress,
+          spender
+        );
+        setApproved(allowance.gte(finalAmount));
       }
     })();
   }, [
