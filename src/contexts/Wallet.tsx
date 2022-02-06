@@ -24,7 +24,7 @@ interface WalletContextInterface {
   blockTime?: number;
   epochInitTime?: number;
   supportedChainIds?: number[];
-  changeNetwork?: boolean;
+  changeNetwork?: 'user' | 'wrong-network' | 'close';
   setChangeNetwork?: Function;
 }
 
@@ -113,7 +113,9 @@ export const WalletProvider = (props) => {
     ensAvatar: string;
   }>({ ensName: '', ensAvatar: '' });
   const [blockTime, setBlockTime] = useState(0);
-  const [changeNetwork, setChangeNetwork] = useState(false);
+  const [changeNetwork, setChangeNetwork] = useState<
+    'user' | 'wrong-network' | 'close'
+  >('close');
 
   useEffect(() => {
     if (!state.provider) return;
