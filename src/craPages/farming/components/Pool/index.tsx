@@ -77,6 +77,7 @@ const Pool = ({
   };
 
   const handleStake = useCallback(() => {
+    if (token.selectedBaseAsset === 'RDPX') return;
     setData(() => ({
       token: token.selectedBaseAsset,
       isStake: true,
@@ -117,7 +118,12 @@ const Pool = ({
   const options: { name: string; to: () => void; exclude?: string[] }[] = [
     {
       name: 'Stake',
-      to: handleStake,
+      to:
+        token.selectedBaseAsset === 'RDPX'
+          ? () => {
+              return;
+            }
+          : handleStake,
     },
     {
       name: 'Add liquidity',
@@ -304,6 +310,7 @@ const Pool = ({
                     handleStake();
                     navigate('/farms/manage');
                   }}
+                  disabled={token?.selectedBaseAsset === 'RDPX' ? true : false}
                 >
                   Stake
                 </CustomButton>
