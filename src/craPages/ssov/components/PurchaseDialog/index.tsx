@@ -259,9 +259,6 @@ const PurchaseDialog = ({
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
       );
 
-      console.log(data['toTokenAmount']);
-      console.log('total cost: ' + state.totalCost.toString());
-
       if (BigNumber.from(data['toTokenAmount']).gte(state.totalCost)) {
         setPath(data);
         break;
@@ -339,14 +336,8 @@ const PurchaseDialog = ({
           path['tx']['data']
         );
 
-        const price =
-          parseFloat(path['toTokenAmount']) /
-          parseFloat(path['fromTokenAmount']);
-
         if (IS_NATIVE(tokenName)) {
-          const value = state.totalCost.div(
-            getContractReadableAmount(price, 18)
-          );
+          const value = path['fromTokenAmount'];
 
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndPurchase(
