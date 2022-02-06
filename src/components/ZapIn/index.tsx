@@ -548,10 +548,7 @@ const ZapIn = ({
               </Typography>
 
               <Typography variant="h6" className="text-white mr-0 ml-auto">
-                {tokenName === ssovTokenName
-                  ? '-'
-                  : formatAmount(purchasePower, 8)}{' '}
-                {ssovTokenName}
+                {formatAmount(purchasePower, 8)} {ssovTokenName}
               </Typography>
             </Box>
 

@@ -138,7 +138,7 @@ const PurchaseDialog = ({
     ? ssovRouter.address
     : ssovContractWithSigner.address;
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
-  const purchasePower = useMemo(() => {
+  const purchasePower: number = useMemo(() => {
     if (isZapActive) {
       let price: number;
       if (path['toToken'])
@@ -146,6 +146,8 @@ const PurchaseDialog = ({
       else if (quote['toToken'])
         price = quote['toTokenAmount'] / quote['fromTokenAmount'];
       return price * getUserReadableAmount(userAssetBalances[tokenName], 18);
+    } else {
+      return parseFloat(getUserReadableAmount(userTokenBalance, 18).toString());
     }
   }, [isZapActive, quote, path, slippageTolerance, userTokenBalance]);
 
@@ -248,14 +250,18 @@ const PurchaseDialog = ({
       : ssovToken.address;
 
     let amount: number =
-      (quote['toTokenAmount'] / quote['fromTokenAmount']) *
-      parseInt(state.totalCost.toString());
+      parseInt(state.totalCost.toString()) /
+      (quote['toTokenAmount'] / quote['fromTokenAmount']);
 
     let attempts: number = 0;
     while (true) {
       const { data } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
       );
+
+      console.log(data['toTokenAmount']);
+      console.log('total cost: ' + state.totalCost.toString());
+
       if (BigNumber.from(data['toTokenAmount']).gte(state.totalCost)) {
         setPath(data);
         break;
