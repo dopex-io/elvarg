@@ -10,7 +10,7 @@ export default function NetworkButton({ className }: { className?: string }) {
   const { chainId, setChangeNetwork } = useContext(WalletContext);
 
   const handleOpen = useCallback(
-    () => setChangeNetwork(true),
+    () => setChangeNetwork('user'),
     [setChangeNetwork]
   );
 
