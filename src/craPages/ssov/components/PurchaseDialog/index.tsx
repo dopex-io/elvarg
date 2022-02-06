@@ -255,12 +255,15 @@ const PurchaseDialog = ({
 
     let attempts: number = 0;
     while (true) {
-      const { data } = await axios.get(
-        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
-      );
-
-      if (BigNumber.from(data['toTokenAmount']).gte(state.totalCost)) {
-        setPath(data);
+      try {
+        const { data } = await axios.get(
+          `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
+        );
+        if (BigNumber.from(data['toTokenAmount']).gte(state.totalCost)) {
+          setPath(data);
+          break;
+        }
+      } catch (err) {
         break;
       }
       attempts += 1;
@@ -338,6 +341,9 @@ const PurchaseDialog = ({
 
         if (IS_NATIVE(tokenName)) {
           const value = path['fromTokenAmount'];
+
+          console.log(path);
+          console.log(value);
 
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndPurchase(
