@@ -424,8 +424,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
 
   const checkDEXAggregatorStatus = async () => {
     try {
-      await axios.get(`https://api.1inch.exchange/v4.0/${chainId}`);
-      setIsZapInAvailable(true);
+      const { status } = await axios.get(
+        `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
+      );
+      setIsZapInAvailable(status === 200);
     } catch (err) {
       setIsZapInAvailable(false);
     }
