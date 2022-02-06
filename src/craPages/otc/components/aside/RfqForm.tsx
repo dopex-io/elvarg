@@ -171,7 +171,6 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           setProcessing(false);
         }
       else {
-        console.log(formik.values);
         setDialogState({
           open: true,
           handleClose,
@@ -321,8 +320,13 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           leftElement={
             <Box
               id="token"
-              className="bg-cod-gray p-2 rounded-xl space-x-2 flex w-full"
+              className="bg-cod-gray p-2 rounded-xl space-x-2 flex"
             >
+              <img
+                src={`/assets/${selectedEscrowData.symbol?.toLocaleLowerCase()}.svg`}
+                alt={selectedEscrowData.symbol}
+                className="my-auto"
+              />
               <Typography variant="h5" className="text-white my-auto">
                 {selectedEscrowData.symbol}
               </Typography>
@@ -335,7 +339,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
               Buy Order
             </Typography>
             <InfoPopover
-              infoText="Toggle between buy and sell order. Sell order amounts are in USDT."
+              infoText="Toggle between buy and sell order. Sell orders are settled in USDT."
               id="rfq-buy-toggle"
             />
           </Box>

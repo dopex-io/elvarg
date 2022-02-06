@@ -123,7 +123,7 @@ const UserDeposits = () => {
                       {getUserReadableAmount(row.price, 18).toString()}{' '}
                     </TableBodyCell>
                     <TableBodyCell align="right">
-                      {smartTrim(row.dealer, 8)}
+                      {smartTrim(row.dealer, 10)}
                     </TableBodyCell>
                     <TableBodyCell align="right">
                       <CustomButton

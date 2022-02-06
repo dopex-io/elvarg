@@ -87,7 +87,7 @@ const OTC = () => {
       <Box className="container pt-24 mx-auto px-4 lg:px-0">
         <Box className="grid grid-cols-12 gap-4">
           <Box className="flex flex-col col-span-2">
-            <OtcBanner bannerContent={content.OTCIntro} />
+            <OtcBanner bannerContent={content.banner} />
             <Typography variant="h5" className="text-stieglitz py-3">
               Views
             </Typography>
@@ -148,7 +148,10 @@ const OTC = () => {
               </Box>
               <Accordion
                 summary="How does OTC options work?"
-                details="OTC markets consist of dealer-brokers and counter-parties. Dealer-brokers place orders to sell/buy a certain option, while counter-parties fulfill these orders via a p2p trade with these brokers via an ongoing open-trade. Settlement prices may be made via an agreement made through negotiations taken place in chatrooms."
+                details={`OTC markets consist of dealer-brokers and counter-parties. 
+                Dealer-brokers place orders to sell/buy a certain option, while counter-parties 
+                fulfill these orders via a p2p trade with these brokers via an ongoing open-trade. 
+                Settlement prices may be made via an agreement made through negotiations taken place in chatrooms.`}
                 footer={<Link to="/portfolio">Read More</Link>}
               />
             </Box>
@@ -202,7 +205,7 @@ const OTC = () => {
               </Typography>
               <Typography
                 variant="h6"
-                className={`p-1 px-3 rounded-r-xl rounded-l-xl border ${
+                className={`p-1 px-3 rounded-r-2xl rounded-l-2xl border ${
                   isLive
                     ? 'text-down-bad bg-down-bad/[0.3] border-down-bad'
                     : 'text-primary bg-primary/[0.3] border-primary'

@@ -202,7 +202,7 @@ export const OtcProvider = (props) => {
 
     let openTrades = [];
 
-    // Get all open orders, filter them for each user registered in the db -- expensive
+    // Get all open orders, filter them for each user registered in the db (expensive)
     for (let i = 0; i < users.length; i++) {
       openTrades.push(
         (

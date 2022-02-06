@@ -93,10 +93,11 @@ const Register = ({ open, handleClose }: RegisterProps) => {
       }
       delay(setLoading, 2000, false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleClose]);
 
   useEffect(() => {
-    setErrorMsg(usernameExists ? 'Username already exists' : null);
+    setErrorMsg(usernameExists ? 'Username already exists' : '');
   }, [usernameExists]);
 
   return (

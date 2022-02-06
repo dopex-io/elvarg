@@ -1,6 +1,6 @@
 import { useContext, useCallback, useState, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
-import { addDoc, collection, doc, getDocs } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -41,35 +41,77 @@ const ConfirmRfqDialog = ({
   const [disabled, setDisabled] = useState(false);
 
   const handleSubmit = useCallback(async () => {
-    await addDoc(collection(db, 'orders'), {
-      isBuy: data.isBuy,
-      isFulfilled: false,
-      base: data.base.symbol,
-      amount: data.amount,
-      quote: data.quote.symbol,
-      price: data.price,
-      timestamp: new Date(),
-      dealer: user.username,
-      dealerAddress: user.accountAddress,
-    }).then((result) => {
-      if (result.id) {
-        setDisabled(true);
-      }
+    const newDocRef = doc(collection(db, 'orders')); // generated document id
+
+    await setDoc(
+      doc(db, 'orders', newDocRef.id),
+      {
+        isBuy: data.isBuy,
+        isFulfilled: false,
+        base: data.base.symbol,
+        amount: data.amount,
+        quote: data.quote.symbol,
+        price: data.price,
+        timestamp: new Date(),
+        dealer: user.username,
+        dealerAddress: user.accountAddress,
+      },
+      { merge: true }
+    ).then(async () => {
+      setDisabled(true);
+      await setDoc(
+        doc(db, 'chatrooms', user.username + '-' + data.base.symbol),
+        {
+          admin: user.username,
+          createdAt: new Date(),
+          isFulfilled: false,
+        }
+      ).catch((e) => {
+        console.log('Already created chatroom... reverted with error: ', e);
+      });
     });
   }, [data, user]);
 
   useEffect(() => {
     (async () => {
+      let docId;
       const querySnapshot = await getDocs(collection(db, 'orders'));
       querySnapshot.forEach((doc) => {
+        const base = data.isBuy ? data.base.symbol : data.quote.symbol;
+        const baseAmount = data.isBuy ? data.price : data.amount;
+        const quote = !data.isBuy ? data.base.symbol : data.quote.symbol;
+        const quoteAmount = !data.isBuy ? data.price : data.amount;
+        // console.log(
+        //   doc.data().isBuy,
+        //   data.isBuy,
+        //   '\n',
+        //   doc.data().base,
+        //   data.isBuy ? data.base.symbol : data.quote.symbol,
+        //   '\n',
+        //   doc.data().quote,
+        //   !data.isBuy ? data.base.symbol : data.quote.symbol,
+        //   '\n',
+        //   doc.data().dealer,
+        //   user?.username,
+        //   '\n',
+        //   doc.data().amount,
+        //   data.amount
+        // );
         if (
-          doc.data().base === data.base.symbol &&
-          doc.data().quote === data.quote.symbol
+          doc.data().base === base &&
+          doc.data().quote === quote &&
+          doc.data().dealer === user.username &&
+          doc.data().amount === baseAmount &&
+          doc.data().price === quoteAmount &&
+          doc.data().isBuy === data.isBuy
         )
-          setDisabled(true);
+          docId = doc.id;
       });
+
+      if (docId) setDisabled(true);
+      else setDisabled(false);
     })();
-  }, [data.base.symbol, data.quote.symbol]);
+  }, [data, data.base.symbol, data.quote.symbol, user]);
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
@@ -130,7 +172,7 @@ const ConfirmRfqDialog = ({
             !data.base || !data.amount || !data.price || !data.quote || disabled
           }
         >
-          {disabled ? 'Added' : 'Confirm'}
+          {disabled ? 'Already Created' : 'Confirm'}
         </CustomButton>
       </Box>
     </Dialog>

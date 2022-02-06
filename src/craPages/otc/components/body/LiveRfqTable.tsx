@@ -56,7 +56,6 @@ const TableBodyCell = ({
 const LiveRfqTable = () => {
   const { openTradesData } = useContext(OtcContext);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [index, setIndex] = useState(0);
   const [openTrades, setOpenTrades] = useState([]);
 
@@ -90,7 +89,7 @@ const LiveRfqTable = () => {
             <TableHeader align="right">
               <Box className="flex justify-end space-x-2">
                 <Typography variant="h6" className="my-auto text-stieglitz">
-                  Action
+                  Trade
                 </Typography>
                 <InfoPopover
                   id="action"
@@ -121,7 +120,7 @@ const LiveRfqTable = () => {
                 {row.isBuy ? row.dealerQuote.symbol : 'Tokens'}
               </TableBodyCell>
               <TableBodyCell align="right">
-                {smartTrim(row.dealer, 8)}
+                {smartTrim(row.dealer, 10)}
               </TableBodyCell>
               <TableBodyCell align="right">
                 <Box className="flex justify-end">
