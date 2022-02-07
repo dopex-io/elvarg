@@ -73,18 +73,24 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const sendTx = useSendTx();
   const { accountAddress, chainId, provider, signer } =
     useContext(WalletContext);
-  const aggregation1inchRouter = Aggregation1inchRouterV4__factory.connect(
-    Addresses[chainId]['1inchRouter'],
-    signer
-  );
-  const erc20SSOV1inchRouter = ERC20SSOV1inchRouter__factory.connect(
-    Addresses[chainId]['ERC20SSOV1inchRouter'],
-    signer
-  );
-  const nativeSSOV1inchRouter = NativeSSOV1inchRouter__factory.connect(
-    Addresses[chainId]['NativeSSOV1inchRouter'],
-    signer
-  );
+  const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
+    ? Aggregation1inchRouterV4__factory.connect(
+        Addresses[chainId]['1inchRouter'],
+        signer
+      )
+    : null;
+  const erc20SSOV1inchRouter = Addresses[chainId]['ERC20SSOV1inchRouter']
+    ? ERC20SSOV1inchRouter__factory.connect(
+        Addresses[chainId]['ERC20SSOV1inchRouter'],
+        signer
+      )
+    : null;
+  const nativeSSOV1inchRouter = Addresses[chainId]['NativeSSOV1inchRouter']
+    ? NativeSSOV1inchRouter__factory.connect(
+        Addresses[chainId]['NativeSSOV1inchRouter'],
+        signer
+      )
+    : null;
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
@@ -434,7 +440,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       const { status } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
       );
-      setIsZapInAvailable(status === 200);
+      setIsZapInAvailable(
+        !!(status === 200 && (erc20SSOV1inchRouter || nativeSSOV1inchRouter))
+      );
     } catch (err) {
       setIsZapInAvailable(false);
     }
