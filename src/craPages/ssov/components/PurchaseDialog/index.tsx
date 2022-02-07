@@ -394,21 +394,35 @@ const PurchaseDialog = ({
           );
         } else {
           await sendTx(
-            erc20SSOV1inchRouter.swapAndPurchase(
-              ssovProperties.ssovContract.address,
-              ssovToken.address,
-              decoded[0],
-              decoded[1],
-              decoded[2],
-              {
-                strikeIndex: strikeIndex,
-                amount: getContractReadableAmount(
-                  formik.values.optionsAmount,
-                  18
-                ),
-                to: accountAddress,
-              }
-            )
+            IS_NATIVE(ssovTokenName)
+              ? nativeSSOV1inchRouter.swapAndPurchase(
+                  decoded[0],
+                  decoded[1],
+                  decoded[2],
+                  {
+                    strikeIndex: strikeIndex,
+                    amount: getContractReadableAmount(
+                      formik.values.optionsAmount,
+                      18
+                    ),
+                    to: accountAddress,
+                  }
+                )
+              : erc20SSOV1inchRouter.swapAndPurchase(
+                  ssovProperties.ssovContract.address,
+                  ssovToken.address,
+                  decoded[0],
+                  decoded[1],
+                  decoded[2],
+                  {
+                    strikeIndex: strikeIndex,
+                    amount: getContractReadableAmount(
+                      formik.values.optionsAmount,
+                      18
+                    ),
+                    to: accountAddress,
+                  }
+                )
           );
         }
       }
