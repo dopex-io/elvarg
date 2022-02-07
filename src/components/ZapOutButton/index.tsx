@@ -17,7 +17,7 @@ const ZapOutButton = ({ isZapActive, handleClick }: Props) => {
           : 'flex r-0 ml-auto p-1.5 pt-1 border opacity-0'
       }
     >
-      <ZapIcon className="mr-[0.3rem] mt-[0.18rem]" />
+      <ZapIcon className="mr-[0.3rem] mt-[0.18rem]" id="1" />
 
       <Typography variant="h6" className="text-white text-[0.7rem]">
         Zap Out

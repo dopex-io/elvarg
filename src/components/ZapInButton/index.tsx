@@ -1,16 +1,16 @@
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '../UI/Typography';
+import { useMemo } from 'react';
 import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
+import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
+import Typography from '../UI/Typography';
 import ZapIcon from '../Icons/ZapIcon';
 import PlusIcon from '../Icons/PlusIcon';
 import ArrowUpIcon from '../Icons/ArrowUpIcon';
-import { useMemo } from 'react';
 import RedTriangleIcon from '../Icons/RedTriangleIcon';
 import YellowTriangleIcon from '../Icons/YellowTriangleIcon';
 import ReloadIcon from '../Icons/ReloadIcon';
-import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
 
 export interface Props {
   openZapIn: () => void;
@@ -130,7 +130,7 @@ const ZapInButton = ({
           onClick={openZapIn}
         >
           {slippageStatus === 'inactive' ? (
-            <ZapIcon className="mt-1 mr-2.5" />
+            <ZapIcon className="mt-1 mr-2.5" id="2" />
           ) : null}
           {slippageStatus === 'high' ? (
             <YellowTriangleIcon className="mt-0.5 mr-2.5" />

@@ -49,6 +49,7 @@ import ZapOutButton from '../../../../components/ZapOutButton';
 import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
 import AltZapIcon from '../../../../components/Icons/AltZapIcon';
 import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
+import ZapIcon from '../../../../components/Icons/ZapIcon';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -632,7 +633,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                       : purchasePower}{' '}
                     {denominationTokenName}
                   </Typography>
-                  {isZapActive ? <AltZapIcon className={'mt-1 ml-2'} /> : null}
+                  {isZapActive ? <ZapIcon className={'mt-1 ml-2'} /> : null}
                 </Box>
                 <Box className="mt-2 flex">
                   <Box className={isZapActive ? 'w-3/4 mr-3' : 'w-full'}>
