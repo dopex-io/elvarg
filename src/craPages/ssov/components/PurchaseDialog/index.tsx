@@ -810,11 +810,11 @@ const PurchaseDialog = ({
                     >
                       {anchorEl ? (
                         <ArrowDropUpIcon
-                          className={'fill-gray-100 h-50 pl-0.5'}
+                          className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
                         />
                       ) : (
                         <ArrowDropDownIcon
-                          className={'fill-gray-100 h-50 pl-0.5'}
+                          className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
                         />
                       )}
                     </IconButton>
