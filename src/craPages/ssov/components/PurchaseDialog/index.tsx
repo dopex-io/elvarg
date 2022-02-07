@@ -302,6 +302,8 @@ const PurchaseDialog = ({
         : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
 
+    if (!quote['toToken']) return;
+
     let amount: number =
       parseInt(state.totalCost.toString()) /
       10 **
@@ -414,6 +416,7 @@ const PurchaseDialog = ({
         }
       } else {
         let bestPath = await getPath();
+        if (!bestPath) return;
 
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
@@ -496,6 +499,7 @@ const PurchaseDialog = ({
     accountAddress,
     tokenName,
     strikeIndex,
+    isZapActive,
   ]);
 
   const checkDEXAggregatorStatus = async () => {
@@ -514,6 +518,10 @@ const PurchaseDialog = ({
   useEffect(() => {
     checkDEXAggregatorStatus();
   }, []);
+
+  useEffect(() => {
+    getPath();
+  }, [isZapInVisible]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
