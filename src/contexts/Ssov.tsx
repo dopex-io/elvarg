@@ -14,10 +14,6 @@ import {
   ERC20,
   VolatilityOracle,
   SSOVOptionPricing,
-  CustomPriceOracle__factory,
-  ChainlinkAggregator__factory,
-  ChainlinkAggregator,
-  CustomPriceOracle,
   BnbSSOVRouter,
   BnbSSOVRouter__factory,
 } from '@dopex-io/sdk';
@@ -222,24 +218,11 @@ export const SsovProvider = (props) => {
             ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
             : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
 
-        const oracleContract =
-          asset === 'ETH' || asset === 'BNB' || asset === 'AVAX'
-            ? ChainlinkAggregator__factory.connect(
-                SSOVAddresses[asset].PriceOracle,
-                provider
-              )
-            : CustomPriceOracle__factory.connect(
-                SSOVAddresses[asset].PriceOracle,
-                provider
-              );
-
         // Epoch
         try {
           const [currentEpoch, tokenPrice] = await Promise.all([
             _ssovContract.currentEpoch(),
-            asset === 'ETH' || asset === 'BNB' || asset === 'AVAX'
-              ? (oracleContract as ChainlinkAggregator).latestAnswer()
-              : (oracleContract as CustomPriceOracle).getPriceInUSD(),
+            _ssovContract.getUsdPrice(),
           ]);
 
           if (Number(currentEpoch) === 0) {
