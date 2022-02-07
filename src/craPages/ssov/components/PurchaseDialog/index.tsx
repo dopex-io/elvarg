@@ -274,6 +274,8 @@ const PurchaseDialog = ({
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
+    console.log(getDecimalsFromSymbol(tokenName, chainId));
+    console.log(tokenName);
     const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(

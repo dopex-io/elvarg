@@ -91,8 +91,12 @@ const ZapIn = ({
         name: 'Pangolin',
         picture: 'pangolin.svg',
       },
+      WAULTSWAP: {
+        name: 'Wault Swap',
+        picture: 'wault.svg',
+      },
     };
-    return parser[name];
+    return parser[name] || { name: name, picture: 'unknown.svg' };
   };
 
   const extractPath = () => {
