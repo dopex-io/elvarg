@@ -57,6 +57,8 @@ import ZapInButton from '../../../../components/ZapInButton';
 import ZapOutButton from '../../../../components/ZapOutButton';
 import getContractReadableAmount from '../../../../utils/contracts/getContractReadableAmount';
 import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
+import { Add } from '@material-ui/icons';
+import useBnbSsovConversion from '../../../../hooks/useBnbSsovConversion';
 
 export interface Props {
   open: boolean;
@@ -99,6 +101,7 @@ const PurchaseDialog = ({
     : null;
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
+  const bnbSsovConversion = useBnbSsovConversion();
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovProperties.tokenName)
       ? ssovProperties.tokenName
@@ -161,22 +164,23 @@ const PurchaseDialog = ({
         price =
           getUserReadableAmount(
             path['toTokenAmount'],
-            getDecimalsFromSymbol(path['toToken']['symbol'], chainId)
+            quote['toToken']['decimals']
           ) /
           getUserReadableAmount(
             path['fromTokenAmount'],
-            getDecimalsFromSymbol(path['fromToken']['symbol'], chainId)
+            path['fromToken']['decimals']
           );
       else if (quote['toToken'])
         price =
           getUserReadableAmount(
             quote['toTokenAmount'],
-            getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+            quote['toToken']['decimals']
           ) /
           getUserReadableAmount(
             quote['fromTokenAmount'],
-            getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+            quote['fromToken']['decimals']
           );
+
       return (
         price *
         getUserReadableAmount(
@@ -271,11 +275,11 @@ const PurchaseDialog = ({
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
     const toTokenAddress: string = IS_NATIVE(ssovTokenName)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      ? ssovTokenName === 'BNB'
+        ? Addresses[chainId]['VBNB']
+        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
-    console.log(getDecimalsFromSymbol(tokenName, chainId));
-    console.log(tokenName);
     const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
@@ -293,18 +297,29 @@ const PurchaseDialog = ({
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
     const toTokenAddress: string = IS_NATIVE(ssovTokenName)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      ? ssovTokenName === 'BNB'
+        ? Addresses[chainId]['VBNB']
+        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
 
     let amount: number =
       parseInt(state.totalCost.toString()) /
-      (quote['toTokenAmount'] / quote['fromTokenAmount']);
+      10 **
+        getDecimalsFromSymbol(
+          ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol,
+          chainId
+        ) /
+      (parseInt(quote['toTokenAmount']) /
+        10 ** parseInt(quote['toToken']['decimals']) /
+        parseInt(quote['fromTokenAmount']));
 
     let attempts: number = 0;
     let bestPath: {} = {};
-    const minAmount: number = Math.round(
+    let minAmount: number = Math.round(
       parseInt(state.totalCost.toString()) * 1.01
     );
+    if (ssovTokenSymbol === 'BNB') minAmount = Math.round(minAmount / 10 ** 10);
+
     while (true) {
       try {
         const { data } = await axios.get(
@@ -312,7 +327,7 @@ const PurchaseDialog = ({
             amount
           )}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
         );
-        if (parseInt(data['toTokenAmount']) > minAmount) {
+        if (parseInt(data['toTokenAmount']) > minAmount || attempts > 10) {
           bestPath = data;
           break;
         }
@@ -321,7 +336,7 @@ const PurchaseDialog = ({
         break;
       }
       attempts += 1;
-      amount = parseInt((amount * 1.01).toString());
+      amount = Math.round(amount * 1.01);
     }
 
     setPath(bestPath);
@@ -399,12 +414,6 @@ const PurchaseDialog = ({
         }
       } else {
         let bestPath = await getPath();
-        if (ssovTokenName === 'BNB') {
-          const { data } = await axios.get(
-            `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${bestPath['fromToken']['address']}&toTokenAddress=${Addresses[chainId]['VBNB']}&amount=${bestPath['fromTokenAmount']}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
-          );
-          bestPath = data;
-        }
 
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
@@ -452,7 +461,9 @@ const PurchaseDialog = ({
                 )
               : erc20SSOV1inchRouter.swapAndPurchase(
                   ssovProperties.ssovContract.address,
-                  ssovToken.address,
+                  ssovTokenSymbol === 'BNB'
+                    ? Addresses[chainId]['VBNB']
+                    : ssovToken.address,
                   decoded[0],
                   decoded[1],
                   decoded[2],
@@ -515,8 +526,10 @@ const PurchaseDialog = ({
       if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
-        const allowance = await token.allowance(accountAddress, spender);
-        setApproved(allowance.gt(BigNumber.from('0')));
+        const allowance = parseInt(
+          (await token.allowance(accountAddress, spender)).toString()
+        );
+        setApproved(allowance > 0);
       }
     })();
   }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
@@ -606,11 +619,38 @@ const PurchaseDialog = ({
           .mul(ethersUtils.parseEther(String(formik.values.optionsAmount)))
           .div(tokenPrice);
 
-        const fees = await ssovContractWithSigner.calculatePurchaseFees(
+        let fees = await ssovContractWithSigner.calculatePurchaseFees(
           tokenPrice,
           strike,
           ethersUtils.parseEther(String(formik.values.optionsAmount))
         );
+
+        if (ssovTokenSymbol === 'BNB') {
+          const abi = [
+            ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
+          ];
+          const bnbSsov = new ethers.Contract(
+            '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
+            abi,
+            provider
+          );
+          fees = await bnbSsov.vbnbToBnb(fees);
+        }
+
+        let totalCost = premium.add(fees);
+        if (isZapActive && ssovTokenSymbol === 'BNB') {
+          const bnbToVBnb =
+            parseInt(
+              bnbSsovConversion
+                .convertToVBNB(BigNumber.from('100000000000000000000'))
+                .toString()
+            ) / 99.5; // keep 0.5% of extra margin for the router
+          totalCost = BigNumber.from(
+            Math.round(
+              parseInt(premium.add(fees).toString()) * bnbToVBnb
+            ).toString()
+          );
+        }
 
         setState({
           volatility,
@@ -618,11 +658,12 @@ const PurchaseDialog = ({
           premium,
           fees,
           expiry,
-          totalCost: premium.add(fees),
+          totalCost: totalCost,
         });
 
         setIsPurchaseStatsLoading(false);
       } catch (err) {
+        console.log(err);
         setIsPurchaseStatsLoading(false);
       }
     }
@@ -1069,7 +1110,7 @@ const PurchaseDialog = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                {ssovTokenSymbol}
+                {ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol}
               </Typography>
             </Box>
           </Box>
@@ -1080,7 +1121,8 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(purchasePower, 5)} {ssovTokenSymbol}
+                {formatAmount(purchasePower, 5)}{' '}
+                {ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol}
               </Typography>
             </Box>
           </Box>

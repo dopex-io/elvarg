@@ -70,7 +70,8 @@ const ZapInButton = ({
   }, [pathPrice, quotePrice]);
 
   const slippageStatus: string = useMemo(() => {
-    if (Math.abs(slippage) > 3) return 'high';
+    if (slippage <= -100) return 'inactive';
+    else if (Math.abs(slippage) > 3) return 'high';
     else if (Math.abs(slippage) > 20) return 'extreme';
     return 'inactive';
   }, [slippage]);
