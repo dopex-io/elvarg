@@ -416,7 +416,10 @@ const PurchaseDialog = ({
         }
       } else {
         let bestPath = await getPath();
-        if (!bestPath) return;
+        if (!bestPath) {
+          setIsFetchingPath(false);
+          return;
+        }
 
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
