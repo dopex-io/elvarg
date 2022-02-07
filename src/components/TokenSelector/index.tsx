@@ -10,6 +10,7 @@ import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
 import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
 import { WalletContext } from '../../contexts/Wallet';
+import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
 
 export interface Props {
   open: boolean;
@@ -28,7 +29,8 @@ const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
     tokenPrices.map((record) => {
       if (record['name'] === symbol) {
         value =
-          (record['price'] * parseInt(userAssetBalances[symbol])) / 10 ** 18;
+          (record['price'] * parseInt(userAssetBalances[symbol])) /
+          10 ** getDecimalsFromSymbol(symbol, chainId);
       }
     });
     return value;
@@ -130,7 +132,7 @@ const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
                           {formatAmount(
                             getUserReadableAmount(
                               userAssetBalances[symbol],
-                              18
+                              getDecimalsFromSymbol(symbol, chainId)
                             ),
                             3
                           )}{' '}

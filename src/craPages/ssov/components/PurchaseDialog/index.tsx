@@ -56,6 +56,7 @@ import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButto
 import ZapInButton from '../../../../components/ZapInButton';
 import ZapOutButton from '../../../../components/ZapOutButton';
 import getContractReadableAmount from '../../../../utils/contracts/getContractReadableAmount';
+import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
 
 export interface Props {
   open: boolean;
@@ -145,9 +146,9 @@ const PurchaseDialog = ({
   }, [tokenName, ssovTokenSymbol]);
 
   const spender: string = isZapActive
-    ? IS_NATIVE(ssovTokenName)
-      ? nativeSSOV1inchRouter.address
-      : erc20SSOV1inchRouter.address
+    ? IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB'
+      ? nativeSSOV1inchRouter?.address
+      : erc20SSOV1inchRouter?.address
     : ssovTokenName === 'BNB'
     ? ssovRouter.address
     : ssovContractWithSigner.address;
@@ -157,12 +158,39 @@ const PurchaseDialog = ({
     if (isZapActive) {
       let price: number;
       if (path['toToken'])
-        price = path['toTokenAmount'] / path['fromTokenAmount'];
+        price =
+          getUserReadableAmount(
+            path['toTokenAmount'],
+            getDecimalsFromSymbol(path['toToken']['symbol'], chainId)
+          ) /
+          getUserReadableAmount(
+            path['fromTokenAmount'],
+            getDecimalsFromSymbol(path['fromToken']['symbol'], chainId)
+          );
       else if (quote['toToken'])
-        price = quote['toTokenAmount'] / quote['fromTokenAmount'];
-      return price * getUserReadableAmount(userAssetBalances[tokenName], 18);
+        price =
+          getUserReadableAmount(
+            quote['toTokenAmount'],
+            getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+          ) /
+          getUserReadableAmount(
+            quote['fromTokenAmount'],
+            getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+          );
+      return (
+        price *
+        getUserReadableAmount(
+          userAssetBalances[tokenName],
+          getDecimalsFromSymbol(tokenName, chainId)
+        )
+      );
     } else {
-      return parseFloat(getUserReadableAmount(userTokenBalance, 18).toString());
+      return parseFloat(
+        getUserReadableAmount(
+          userTokenBalance,
+          getDecimalsFromSymbol(tokenName, chainId)
+        ).toString()
+      );
     }
   }, [isZapActive, quote, path, slippageTolerance, userTokenBalance]);
 
@@ -246,7 +274,7 @@ const PurchaseDialog = ({
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
-    const amount: number = 10 ** 18;
+    const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
         amount
@@ -368,7 +396,13 @@ const PurchaseDialog = ({
           );
         }
       } else {
-        const bestPath = await getPath();
+        let bestPath = await getPath();
+        if (ssovTokenName === 'BNB') {
+          const { data } = await axios.get(
+            `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${bestPath['fromToken']['address']}&toTokenAddress=${Addresses[chainId]['VBNB']}&amount=${bestPath['fromTokenAmount']}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
+          );
+          bestPath = data;
+        }
 
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
@@ -400,7 +434,7 @@ const PurchaseDialog = ({
           );
         } else {
           await sendTx(
-            IS_NATIVE(ssovTokenName)
+            IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB'
               ? nativeSSOV1inchRouter.swapAndPurchase(
                   decoded[0],
                   decoded[1],
@@ -476,17 +510,11 @@ const PurchaseDialog = ({
   useEffect(() => {
     (async () => {
       if (!purchasePower) return;
-
-      const finalAmount = getContractReadableAmount(
-        purchasePower.toString(),
-        18
-      );
-
       if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
         const allowance = await token.allowance(accountAddress, spender);
-        setApproved(allowance.gte(finalAmount));
+        setApproved(allowance.gt(BigNumber.from('0')));
       }
     })();
   }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
@@ -646,7 +674,11 @@ const PurchaseDialog = ({
   useEffect(() => {
     if (
       !isZapInVisible &&
-      formik.values.zapInAmount > getUserReadableAmount(userTokenBalance, 18)
+      formik.values.zapInAmount >
+        getUserReadableAmount(
+          userTokenBalance,
+          getDecimalsFromSymbol(tokenName, chainId)
+        )
     ) {
       setTokenName(ssovTokenSymbol);
     }
@@ -742,7 +774,13 @@ const PurchaseDialog = ({
             >
               Balance:{' '}
               <span className="text-white">
-                {formatAmount(getUserReadableAmount(userTokenBalance, 18), 3)}{' '}
+                {formatAmount(
+                  getUserReadableAmount(
+                    userTokenBalance,
+                    getDecimalsFromSymbol(tokenName, chainId)
+                  ),
+                  3
+                )}{' '}
                 {isZapActive && <span>{tokenName} </span>}
               </span>
             </Typography>
@@ -1058,6 +1096,7 @@ const PurchaseDialog = ({
           ssovTokenSymbol={ssovTokenSymbol}
           selectedTokenPrice={selectedTokenPrice}
           isZapInAvailable={isZapInAvailable}
+          chainId={chainId}
         />
 
         <Box className="flex">

@@ -10,6 +10,7 @@ import { useMemo } from 'react';
 import RedTriangleIcon from '../Icons/RedTriangleIcon';
 import YellowTriangleIcon from '../Icons/YellowTriangleIcon';
 import ReloadIcon from '../Icons/ReloadIcon';
+import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
 
 export interface Props {
   openZapIn: () => void;
@@ -21,6 +22,7 @@ export interface Props {
   ssovTokenSymbol: number;
   selectedTokenPrice: number;
   isZapInAvailable: boolean;
+  chainId: number;
 }
 
 const ZapInButton = ({
@@ -33,13 +35,34 @@ const ZapInButton = ({
   ssovTokenSymbol,
   selectedTokenPrice,
   isZapInAvailable,
+  chainId,
 }: Props) => {
   const pathPrice: number = useMemo(() => {
-    return path['toTokenAmount'] / path['fromTokenAmount'];
+    if (!path['toTokenAmount']) return 0;
+    return (
+      getUserReadableAmount(
+        path['toTokenAmount'],
+        getDecimalsFromSymbol(path['toToken']['symbol'], chainId)
+      ) /
+      getUserReadableAmount(
+        path['fromTokenAmount'],
+        getDecimalsFromSymbol(path['fromToken']['symbol'], chainId)
+      )
+    );
   }, [path]);
 
   const quotePrice: number = useMemo(() => {
-    return quote['toTokenAmount'] / quote['fromTokenAmount'];
+    if (!quote['toTokenAmount']) return 0;
+    return (
+      getUserReadableAmount(
+        quote['toTokenAmount'],
+        getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+      ) /
+      getUserReadableAmount(
+        quote['fromTokenAmount'],
+        getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+      )
+    );
   }, [quote]);
 
   const slippage: number = useMemo(() => {

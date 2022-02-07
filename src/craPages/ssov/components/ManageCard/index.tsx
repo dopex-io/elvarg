@@ -48,6 +48,7 @@ import axios from 'axios';
 import ZapOutButton from '../../../../components/ZapOutButton';
 import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
 import AltZapIcon from '../../../../components/Icons/AltZapIcon';
+import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -160,7 +161,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
-    const amount = (10 ** 18).toString();
+    const amount = (10 ** getDecimalsFromSymbol(tokenName, chainId)).toString();
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
@@ -187,9 +188,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     useState<string>(ssovTokenName);
 
   const spender: string = isZapActive
-    ? IS_NATIVE(ssovTokenName)
-      ? nativeSSOV1inchRouter.address
-      : erc20SSOV1inchRouter.address
+    ? IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB'
+      ? nativeSSOV1inchRouter?.address
+      : erc20SSOV1inchRouter?.address
     : ssovTokenName === 'BNB'
     ? ssovRouter.address
     : ssovContractWithSigner.address;
@@ -201,7 +202,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           quote['toToken']['decimals']
         ) /
         (1 + slippageTolerance / 100)
-      : getUserReadableAmount(userTokenBalance, 18);
+      : getUserReadableAmount(
+          userTokenBalance,
+          getDecimalsFromSymbol(tokenName, chainId)
+        );
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -334,7 +338,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               strikeIndexes.map((index) => strikeDepositAmounts[index]),
               accountAddress,
               {
-                value: getContractReadableAmount(totalDepositAmount, 18),
+                value: getContractReadableAmount(
+                  totalDepositAmount,
+                  getDecimalsFromSymbol(ssovTokenName, chainId)
+                ),
               }
             )
           );
@@ -364,7 +371,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             // @ts-ignore
             strikeDepositAmounts[index] *
               (denominationTokenName !== ssovTokenName ? price : 1),
-            18
+            getDecimalsFromSymbol(ssovTokenName, chainId)
           );
           amounts.push(amount);
           total = total.add(amount);
@@ -380,7 +387,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           const value = getContractReadableAmount(
             totalDepositAmount /
               (denominationTokenName === ssovTokenName ? price : 1),
-            18
+            getDecimalsFromSymbol(tokenName, chainId)
           );
 
           await sendTx(
@@ -457,7 +464,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     const toTokenAddress = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
-    const fromTokenDecimals = IS_NATIVE(token) ? 18 : await token.decimals();
+    const fromTokenDecimals = IS_NATIVE(token)
+      ? getDecimalsFromSymbol(token, chainId)
+      : await token.decimals();
     if (fromTokenAddress === ssovToken.address) return;
     const amount = Math.round(totalDepositAmount * 10 ** fromTokenDecimals);
     if (isNaN(amount) || amount <= 0) return;
@@ -489,7 +498,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     (async () => {
       const finalAmount: BigNumber = getContractReadableAmount(
         totalDepositAmount.toString(),
-        18
+        getDecimalsFromSymbol(ssovTokenName, chainId)
       );
 
       if (IS_NATIVE(token)) {
@@ -516,7 +525,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     (async function () {
       const finalAmount = getContractReadableAmount(
         totalDepositAmount.toString(),
-        18
+        getDecimalsFromSymbol(ssovTokenName, chainId)
       );
 
       let userAmount = IS_NATIVE(token)
@@ -618,7 +627,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                     {denominationTokenName !== ssovTokenName
                       ? getUserReadableAmount(
                           userAssetBalances[denominationTokenName],
-                          18
+                          getDecimalsFromSymbol(denominationTokenName, chainId)
                         )
                       : purchasePower}{' '}
                     {denominationTokenName}
@@ -971,6 +980,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
                   isZapInAvailable={isZapInAvailable}
+                  chainId={chainId}
                 />
 
                 <Box className="flex">

@@ -5,11 +5,9 @@ import {
   useContext,
   useCallback,
 } from 'react';
-import { ERC20, ERC20__factory } from '@dopex-io/sdk';
+import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
-
-import { ASSETS_LIST } from 'constants/index';
 
 import { AssetData } from 'types';
 import axios from 'axios';
@@ -112,6 +110,7 @@ export const AssetsContext =
 export const AssetsProvider = (props) => {
   const { provider, contractAddresses, accountAddress, chainId } =
     useContext(WalletContext);
+
   const [state, setState] = useState<AssetsContextInterface>(initialState);
 
   const handleChangeSelectedBaseAsset = useCallback(
@@ -262,9 +261,6 @@ export const AssetsProvider = (props) => {
   const updateAssetBalances = useCallback(async () => {
     if (!provider || !accountAddress || !contractAddresses) return;
     (async function () {
-      const assetAddresses = ASSETS_LIST.map((asset) => {
-        return contractAddresses[asset] ?? '';
-      }).filter((asset) => asset !== '');
       const userAssetBalances = {
         ETH: '0',
         BNB: '0',
@@ -282,6 +278,18 @@ export const AssetsProvider = (props) => {
         AVAX: '0',
       };
 
+      const assets = Object.keys(userAssetBalances)
+        .map((asset) => {
+          return Addresses[chainId][asset] ? asset : '';
+        })
+        .filter((asset) => asset !== '');
+
+      const assetAddresses = Object.keys(userAssetBalances)
+        .map((asset) => {
+          return Addresses[chainId][asset] ?? '';
+        })
+        .filter((asset) => asset !== '');
+
       const balanceCalls = assetAddresses.map((assetAddress) =>
         ERC20__factory.connect(assetAddress, provider).balanceOf(accountAddress)
       );
@@ -289,7 +297,7 @@ export const AssetsProvider = (props) => {
       const balances = await Promise.all(balanceCalls);
 
       for (let i = 0; i < assetAddresses.length; i++) {
-        userAssetBalances[ASSETS_LIST[i]] = balances[i].toString();
+        userAssetBalances[assets[i]] = balances[i].toString();
       }
 
       if (chainId === 56) {

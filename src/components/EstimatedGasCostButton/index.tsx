@@ -37,7 +37,8 @@ const EstimatedGasCostButton = ({ gas }: Props) => {
   return (
     <Box className={'flex'}>
       <Typography variant="h6" className="text-stieglitz ml-0 mr-auto flex">
-        <img src="/assets/gasicon.svg" className="mt-1.5 mr-2" /> Est. Gas Cost
+        <img src="/assets/gasicon.svg" className="mt-1.5 mr-2 h-[0.8rem]" />{' '}
+        Est. Gas Cost
       </Typography>
       <Box className={'text-right'}>
         <Typography variant="h6" className="text-white mr-auto ml-0 flex">

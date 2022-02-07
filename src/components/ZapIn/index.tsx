@@ -23,6 +23,7 @@ import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
 import { AssetsContext } from '../../contexts/Assets';
+import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -81,6 +82,14 @@ const ZapIn = ({
       ARBITRUM_DODO: {
         name: 'DODO',
         picture: 'dodo.svg',
+      },
+      TRADERJOE: {
+        name: 'Trader JOE',
+        picture: 'traderjoe.svg',
+      },
+      PANGOLIN: {
+        name: 'Pangolin',
+        picture: 'pangolin.svg',
       },
     };
     return parser[name];
@@ -222,7 +231,11 @@ const ZapIn = ({
                 <Box className="flex flex-row h-9 w-9 mr-1.5">
                   {tokenName !== '' ? (
                     <img
-                      src={'/assets/' + tokenName.toLowerCase() + '.svg'}
+                      src={
+                        '/assets/' +
+                        tokenName.toLowerCase().split('.e')[0] +
+                        '.svg'
+                      }
                       alt={tokenName}
                     />
                   ) : (
@@ -246,7 +259,7 @@ const ZapIn = ({
                 className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
                 value={getUserReadableAmount(
                   userAssetBalances[tokenName],
-                  18
+                  getDecimalsFromSymbol(tokenName, chainId)
                 ).toFixed(6)}
                 readOnly={true}
                 classes={{ input: 'text-right' }}
