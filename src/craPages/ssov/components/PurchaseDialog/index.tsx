@@ -45,6 +45,7 @@ import {
   ERC20,
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
+  NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
 } from '@dopex-io/sdk';
 import ZapIn from '../../../../components/ZapIn';
@@ -83,6 +84,10 @@ const PurchaseDialog = ({
   );
   const erc20SSOV1inchRouter = ERC20SSOV1inchRouter__factory.connect(
     Addresses[chainId]['ERC20SSOV1inchRouter'],
+    signer
+  );
+  const nativeSSOV1inchRouter = NativeSSOV1inchRouter__factory.connect(
+    Addresses[chainId]['NativeSSOV1inchRouter'],
     signer
   );
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
@@ -132,11 +137,15 @@ const PurchaseDialog = ({
   const isZapActive: boolean = useMemo(() => {
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   }, [tokenName, ssovTokenSymbol]);
-  const spender = isZapActive
-    ? erc20SSOV1inchRouter.address
+
+  const spender: string = isZapActive
+    ? IS_NATIVE(ssovTokenName)
+      ? nativeSSOV1inchRouter.address
+      : erc20SSOV1inchRouter.address
     : ssovTokenName === 'BNB'
     ? ssovRouter.address
     : ssovContractWithSigner.address;
+
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
   const purchasePower: number = useMemo(() => {
     if (isZapActive) {
@@ -224,16 +233,18 @@ const PurchaseDialog = ({
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
   const getQuote = async () => {
-    const fromTokenAddress = IS_NATIVE(token)
+    const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const toTokenAddress = IS_NATIVE(ssovTokenName)
+    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
-    const amount = (10 ** 18).toString();
+    const amount: number = 10 ** 18;
     const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+        amount
+      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
 
     setQuote(data);
@@ -242,10 +253,10 @@ const PurchaseDialog = ({
   const getPath = async () => {
     if (!isZapActive) return;
     setIsFetchingPath(true);
-    const fromTokenAddress = IS_NATIVE(token)
+    const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const toTokenAddress = IS_NATIVE(ssovTokenName)
+    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
 
@@ -254,22 +265,32 @@ const PurchaseDialog = ({
       (quote['toTokenAmount'] / quote['fromTokenAmount']);
 
     let attempts: number = 0;
+    let bestPath: {} = {};
+    const minAmount: number = Math.round(
+      parseInt(state.totalCost.toString()) * 1.01
+    );
     while (true) {
       try {
         const { data } = await axios.get(
-          `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
+          `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+            amount
+          )}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
         );
-        if (BigNumber.from(data['toTokenAmount']).gte(state.totalCost)) {
-          setPath(data);
+        if (parseInt(data['toTokenAmount']) > minAmount) {
+          bestPath = data;
           break;
         }
       } catch (err) {
+        console.log(err);
         break;
       }
       attempts += 1;
       amount = parseInt((amount * 1.01).toString());
     }
+
+    setPath(bestPath);
     setIsFetchingPath(false);
+    return bestPath;
   };
 
   const openZapIn = () => {
@@ -289,20 +310,27 @@ const PurchaseDialog = ({
 
       const randomToken = ERC20__factory.connect(
         Addresses[chainId][filteredTokens[0]],
-        provider
+        signer
       );
+
       setToken(randomToken);
       setIsZapInVisible(true);
     }
   };
 
-  const handleApprove = async () => {
+  const handleApprove = useCallback(async () => {
     try {
-      await sendTx(token.approve(spender, MAX_VALUE));
+      await sendTx(
+        ERC20__factory.connect(token.address, signer).approve(
+          spender,
+          MAX_VALUE
+        )
+      );
+      setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [token, signer, sendTx, spender]);
 
   const handlePurchase = useCallback(async () => {
     try {
@@ -334,16 +362,15 @@ const PurchaseDialog = ({
           );
         }
       } else {
+        const bestPath = await getPath();
+
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
-          path['tx']['data']
+          bestPath['tx']['data']
         );
 
         if (IS_NATIVE(tokenName)) {
-          const value = path['fromTokenAmount'];
-
-          console.log(path);
-          console.log(value);
+          const value = bestPath['fromTokenAmount'];
 
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndPurchase(

@@ -35,6 +35,7 @@ import {
   ERC20,
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
+  NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
 } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
@@ -78,6 +79,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
   const erc20SSOV1inchRouter = ERC20SSOV1inchRouter__factory.connect(
     Addresses[chainId]['ERC20SSOV1inchRouter'],
+    signer
+  );
+  const nativeSSOV1inchRouter = NativeSSOV1inchRouter__factory.connect(
+    Addresses[chainId]['NativeSSOV1inchRouter'],
     signer
   );
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
@@ -175,8 +180,10 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const [denominationTokenName, setDenomationTokenName] =
     useState<string>(ssovTokenName);
 
-  const spender = isZapActive
-    ? erc20SSOV1inchRouter.address
+  const spender: string = isZapActive
+    ? IS_NATIVE(ssovTokenName)
+      ? nativeSSOV1inchRouter.address
+      : erc20SSOV1inchRouter.address
     : ssovTokenName === 'BNB'
     ? ssovRouter.address
     : ssovContractWithSigner.address;
@@ -448,7 +455,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     if (isNaN(amount) || amount <= 0) return;
     try {
       const { data } = await axios.get(
-        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${erc20SSOV1inchRouter.address}&slippage=${slippageTolerance}&disableEstimate=true`
+        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
       );
       setPath(data);
     } catch (err) {
