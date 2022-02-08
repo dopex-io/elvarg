@@ -44,3 +44,35 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
 }
+
+.MuiTooltip-tooltip {
+  background: #1e1e1e;
+}
+
+.Mui-checked {
+  color: #22e1ff !important;
+}
+
+.MuiLinearProgress-barColorPrimary {
+  background-color: #22e1ff !important;
+}
+
+.MuiLinearProgress-colorPrimary {
+  background-color: #3e3e3e;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #2f2d2d;
+  border-radius: 5px;
+}

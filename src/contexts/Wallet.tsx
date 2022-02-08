@@ -108,6 +108,7 @@ export const WalletProvider = (props) => {
     provider: null,
     supportedChainIds: [],
   });
+
   const [ens, setEns] = useState<{
     ensName: string;
     ensAvatar: string;

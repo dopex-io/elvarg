@@ -5,14 +5,12 @@ import {
   useContext,
   useCallback,
 } from 'react';
-import { ERC20, ERC20__factory } from '@dopex-io/sdk';
-import axios from 'axios';
+import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
 
-import { ASSETS_LIST } from 'constants/index';
-
 import { AssetData } from 'types';
+import axios from 'axios';
 
 interface AssetsContextInterface {
   usdtContract?: ERC20;
@@ -40,7 +38,20 @@ const initialState: AssetsContextInterface = {
   selectedBaseAssetDecimals: 18,
   baseAssets: ['WETH', 'WBTC'],
   quoteAssets: ['USDT'],
-  tokens: ['DPX', 'RDPX', 'ETH', 'GOHM', 'BNB', 'GMX', 'AVAX'],
+  tokens: [
+    'DPX',
+    'RDPX',
+    'ETH',
+    'WETH',
+    'GOHM',
+    'AVAX',
+    'BNB',
+    'GMX',
+    'USDC',
+    'USDT',
+    'MIM',
+    'FRAX',
+  ],
   tokenPrices: [],
   userAssetBalances: {
     ETH: '0',
@@ -49,6 +60,9 @@ const initialState: AssetsContextInterface = {
     DPX: '0',
     RDPX: '0',
     USDT: '0',
+    USDC: '0',
+    MIM: '0',
+    FRAX: '0',
     BNB: '0',
     GMX: '0',
     AVAX: '0',
@@ -57,13 +71,37 @@ const initialState: AssetsContextInterface = {
 
 const ASSET_TO_COINGECKO_ID = {
   ETH: 'ethereum',
+  WETH: 'weth',
   BNB: 'binancecoin',
   WBTC: 'bitcoin',
+  USDT: 'tether',
+  USDC: 'usd-coin',
+  GMX: 'gmx',
+  MIM: 'magic-internet-money',
+  FRAX: 'frax',
   DPX: 'dopex',
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
-  GMX: 'gmx',
   AVAX: 'avalanche-2',
+};
+
+export const ASSET_TO_NAME = {
+  ETH: 'Ethereum',
+  WETH: 'Wrapped Etheruem',
+  WBTC: 'Wrapped Bitcoin',
+  USDT: 'Tether USD',
+  USDC: 'Circle USD',
+  GMX: 'GMX',
+  MIM: 'Magic Internet Money',
+  FRAX: 'Frax USD',
+  DPX: 'Dopex Governance',
+  RDPX: 'Dopex Rebate',
+  GOHM: 'OHM Governance',
+  AVAX: 'Avalanche',
+};
+
+export const IS_NATIVE = (asset) => {
+  return ['ETH', 'BNB', 'AVAX'].includes(asset);
 };
 
 export const AssetsContext =
@@ -72,6 +110,7 @@ export const AssetsContext =
 export const AssetsProvider = (props) => {
   const { provider, contractAddresses, accountAddress, chainId } =
     useContext(WalletContext);
+
   const [state, setState] = useState<AssetsContextInterface>(initialState);
 
   const handleChangeSelectedBaseAsset = useCallback(
@@ -117,6 +156,9 @@ export const AssetsProvider = (props) => {
       for (let i = 0; i < state.tokens.length; i++) {
         cgIds.push(ASSET_TO_COINGECKO_ID[state.tokens[i]]);
       }
+
+      cgIds.push('weth');
+
       const payload = await axios.get(
         `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
       );
@@ -219,22 +261,34 @@ export const AssetsProvider = (props) => {
   const updateAssetBalances = useCallback(async () => {
     if (!provider || !accountAddress || !contractAddresses) return;
     (async function () {
-      const assetAddresses = ASSETS_LIST.map((asset) => {
-        return contractAddresses[asset] ?? '';
-      }).filter((asset) => asset !== '');
       const userAssetBalances = {
         ETH: '0',
         BNB: '0',
         WETH: '0',
+        USDC: '0',
+        USDT: '0',
+        MIM: '0',
+        FRAX: '0',
         WBTC: '0',
         DPX: '0',
         RDPX: '0',
-        USDT: '0',
         GOHM: '0',
         VBNB: '0',
         GMX: '0',
         AVAX: '0',
       };
+
+      const assets = Object.keys(userAssetBalances)
+        .map((asset) => {
+          return Addresses[chainId][asset] ? asset : '';
+        })
+        .filter((asset) => asset !== '');
+
+      const assetAddresses = Object.keys(userAssetBalances)
+        .map((asset) => {
+          return Addresses[chainId][asset] ?? '';
+        })
+        .filter((asset) => asset !== '');
 
       const balanceCalls = assetAddresses.map((assetAddress) =>
         ERC20__factory.connect(assetAddress, provider).balanceOf(accountAddress)
@@ -243,7 +297,7 @@ export const AssetsProvider = (props) => {
       const balances = await Promise.all(balanceCalls);
 
       for (let i = 0; i < assetAddresses.length; i++) {
-        userAssetBalances[ASSETS_LIST[i]] = balances[i].toString();
+        userAssetBalances[assets[i]] = balances[i].toString();
       }
 
       if (chainId === 56) {

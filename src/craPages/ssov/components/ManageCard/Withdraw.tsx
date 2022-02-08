@@ -172,7 +172,7 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           <Typography
             variant="caption"
             component="div"
-            className="mb-4 text-stieglitz text-left"
+            className="mb-1 text-stieglitz text-left"
           >
             Withdrawals can only be processed for past epochs. Expiry for the
             selected epoch is {epochEndTime}.
