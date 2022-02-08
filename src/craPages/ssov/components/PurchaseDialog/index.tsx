@@ -64,8 +64,6 @@ import BigCrossIcon from '../../../../components/Icons/BigCrossIcon';
 import ZapIcon from '../../../../components/Icons/ZapIcon';
 import CircleIcon from '../../../../components/Icons/CircleIcon';
 import AlarmIcon from '../../../../components/Icons/AlarmIcon';
-import ReloadIcon from '../../../../components/Icons/ReloadIcon';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 export interface Props {
   open: boolean;
@@ -247,6 +245,20 @@ const PurchaseDialog = ({
     );
   }, [state.totalCost, path]);
 
+  const zapInPurchasePower: number = useMemo(() => {
+    if (!path['toTokenAmount']) return 0;
+    const price =
+      getUserReadableAmount(
+        path['toTokenAmount'],
+        quote['toToken']['decimals']
+      ) /
+      getUserReadableAmount(
+        path['fromTokenAmount'],
+        path['fromToken']['decimals']
+      );
+    return purchasePower / price;
+  }, [purchasePower, path]);
+
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
     tokenPrices.map((record) => {
@@ -263,6 +275,7 @@ const PurchaseDialog = ({
     const vaultEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
       ssovContractWithSigner.address
     );
+
     setUserEpochStrikePurchasableAmount(
       getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
     );
@@ -857,19 +870,11 @@ const PurchaseDialog = ({
               variant="h6"
               className="text-stieglitz text-sm pl-1 pt-2"
             >
-              Balance:{' '}
+              Available:{' '}
               <span className="text-white">
-                {formatAmount(
-                  getUserReadableAmount(
-                    userTokenBalance,
-                    getDecimalsFromSymbol(tokenName, chainId)
-                  ),
-                  3
-                )}{' '}
-                {isZapActive && <span>{tokenName} </span>}
+                {formatAmount(userEpochStrikePurchasableAmount, 3)}{' '}
               </span>
             </Typography>
-            {isZapActive && <ZapIcon className="mt-3 ml-1" id="5" />}
           </Box>
           <Box className="ml-auto mr-0">
             <Typography
@@ -1080,18 +1085,22 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
+
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Total ($)
+              Purchase Power
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                $
                 {formatAmount(
-                  getUserReadableAmount(state.optionPrice, 8) *
-                    formik.values.optionsAmount,
-                  0
-                )}
+                  isZapActive ? zapInPurchasePower : purchasePower,
+                  5
+                )}{' '}
+                {isZapActive
+                  ? tokenName
+                  : ssovTokenSymbol === 'BNB'
+                  ? 'vBNB'
+                  : ssovTokenSymbol}
               </Typography>
             </Box>
           </Box>
@@ -1113,24 +1122,16 @@ const PurchaseDialog = ({
 
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Total
+              Total ($)
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                {ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Purchase Power
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(purchasePower, 5)}{' '}
-                {ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol}
+                $
+                {formatAmount(
+                  getUserReadableAmount(state.optionPrice, 8) *
+                    formik.values.optionsAmount,
+                  0
+                )}
               </Typography>
             </Box>
           </Box>
@@ -1150,7 +1151,19 @@ const PurchaseDialog = ({
                 </Typography>
               </Box>
             </Box>
-          ) : null}
+          ) : (
+            <Box className={'flex mb-2'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Total
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
+                  {ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol}
+                </Typography>
+              </Box>
+            </Box>
+          )}
 
           <EstimatedGasCostButton gas={700000} />
         </Box>

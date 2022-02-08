@@ -272,7 +272,7 @@ const ZapIn = ({
             </Box>
           </Box>
 
-          <Box className={isInDialog ? 'h-[32.2rem]' : 'h-[20.2rem]'}>
+          <Box className={isInDialog ? 'h-[30.2rem]' : 'h-[20.2rem]'}>
             {tokenName !== '' &&
               ssovTokenName != '' &&
               ssovTokenName !== tokenName && (
