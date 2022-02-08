@@ -47,7 +47,6 @@ import { isNaN } from 'formik';
 import axios from 'axios';
 import ZapOutButton from '../../../../components/ZapOutButton';
 import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
-import AltZapIcon from '../../../../components/Icons/AltZapIcon';
 import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
 import ZapIcon from '../../../../components/Icons/ZapIcon';
 
