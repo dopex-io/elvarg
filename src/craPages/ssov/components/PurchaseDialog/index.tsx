@@ -1088,25 +1088,6 @@ const PurchaseDialog = ({
 
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Purchase Power
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(
-                  isZapActive ? zapInPurchasePower : purchasePower,
-                  5
-                )}{' '}
-                {isZapActive
-                  ? tokenName
-                  : ssovTokenSymbol === 'BNB'
-                  ? 'vBNB'
-                  : ssovTokenSymbol}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Fees ($)
             </Typography>
             <Box className={'text-right'}>
@@ -1136,12 +1117,27 @@ const PurchaseDialog = ({
             </Box>
           </Box>
 
+          <Box className={'flex mb-2'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Purchase Power
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(
+                  isZapActive ? zapInPurchasePower : purchasePower,
+                  5
+                )}{' '}
+                {isZapActive
+                  ? tokenName
+                  : ssovTokenSymbol === 'BNB'
+                  ? 'vBNB'
+                  : ssovTokenSymbol}
+              </Typography>
+            </Box>
+          </Box>
+
           {isZapActive ? (
             <Box className={'flex mb-2'}>
-              <ZapIcon
-                id="6"
-                className="ml-[-0.1rem] mt-[0.2rem] mr-[0.3rem]"
-              />
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
                 Total
               </Typography>
