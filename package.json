@@ -13,7 +13,7 @@
     "postinstall": "husky install"
   },
   "dependencies": {
-    "@0xsequence/multicall": "^0.35.0",
+    "@0xsequence/multicall": "^0.36.2",
     "@apollo/client": "^3.4.7",
     "@dopex-io/sdk": "^1.0.0-alpha.62",
     "@material-ui/core": "^4.11.2",
@@ -60,7 +60,7 @@
     "@typescript-eslint/parser": "^5.9.0",
     "autoprefixer": "^10.4.0",
     "eslint": "8.8.0",
-    "eslint-config-next": "12.0.9",
+    "eslint-config-next": "12.0.10",
     "husky": "^7.0.1",
     "lint-staged": "^12.0.1",
     "postcss": "^8.3.11",
