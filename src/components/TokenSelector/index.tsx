@@ -45,7 +45,7 @@ const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
             className="p-0 pb-1 mr-0 ml-auto"
             onClick={() => setOpen(false)}
           >
-            <img src="/assets/dark-cross.svg" />
+            <img src="/assets/dark-cross.svg" alt={'Cancel'} />
           </IconButton>
         </Box>
         <Box className="mb-2">

@@ -49,7 +49,7 @@ const ZapInButton = ({
         getDecimalsFromSymbol(path['fromToken']['symbol'], chainId)
       )
     );
-  }, [path]);
+  }, [path, chainId]);
 
   const quotePrice: number = useMemo(() => {
     if (!quote['toTokenAmount']) return 0;
@@ -63,7 +63,7 @@ const ZapInButton = ({
         getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
       )
     );
-  }, [quote]);
+  }, [quote, chainId]);
 
   const slippage: number = useMemo(() => {
     return (pathPrice / quotePrice - 1) * 100;

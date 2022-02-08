@@ -23,7 +23,11 @@ const ZapOutButton = ({ isZapActive, handleClick }: Props) => {
         Cancel
       </Typography>
 
-      <img src="/assets/cross.svg" className="ml-2 mr-1.5 mt-[0.18rem]" />
+      <img
+        src="/assets/cross.svg"
+        className="ml-2 mr-1.5 mt-[0.18rem]"
+        alt={'Cancel'}
+      />
     </Box>
   );
 };

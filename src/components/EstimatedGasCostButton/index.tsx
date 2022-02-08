@@ -32,12 +32,16 @@ const EstimatedGasCostButton = ({ gas }: Props) => {
 
   useEffect(() => {
     updateEstimatedGasCost();
-  }, []);
+  }, [updateEstimatedGasCost]);
 
   return (
     <Box className={'flex'}>
       <Typography variant="h6" className="text-stieglitz ml-0 mr-auto flex">
-        <img src="/assets/gasicon.svg" className="mt-1.5 mr-2 h-[0.8rem]" />{' '}
+        <img
+          src="/assets/gasicon.svg"
+          className="mt-1.5 mr-2 h-[0.8rem]"
+          alt={'Gas'}
+        />{' '}
         Est. Gas Cost
       </Typography>
       <Box className={'text-right'}>
