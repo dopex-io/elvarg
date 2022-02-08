@@ -632,7 +632,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                       : purchasePower}{' '}
                     {denominationTokenName}
                   </Typography>
-                  {isZapActive ? <ZapIcon className={'mt-1 ml-2'} /> : null}
+                  {isZapActive ? (
+                    <ZapIcon className={'mt-1 ml-2'} id="4" />
+                  ) : null}
                 </Box>
                 <Box className="mt-2 flex">
                   <Box className={isZapActive ? 'w-3/4 mr-3' : 'w-full'}>
