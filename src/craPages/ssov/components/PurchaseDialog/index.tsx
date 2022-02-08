@@ -947,7 +947,7 @@ const PurchaseDialog = ({
                       {strikes.map((strike, strikeIndex) => (
                         <MenuItem
                           key={strikeIndex}
-                          className="capitalize text-white cursor-default hover:bg-mineshaft cursor-pointer"
+                          className="capitalize text-white hover:bg-mineshaft cursor-pointer"
                           onClick={() => {
                             setStrikeIndex(strikeIndex);
                             setAnchorEl(null);
