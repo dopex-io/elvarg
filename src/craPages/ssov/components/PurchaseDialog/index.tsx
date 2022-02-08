@@ -228,6 +228,25 @@ const PurchaseDialog = ({
     await getQuote();
   };
 
+  const zapInTotalCost: number = useMemo(() => {
+    if (!path['toTokenAmount']) return 0;
+    const price =
+      getUserReadableAmount(
+        path['toTokenAmount'],
+        quote['toToken']['decimals']
+      ) /
+      getUserReadableAmount(
+        path['fromTokenAmount'],
+        path['fromToken']['decimals']
+      );
+    return (
+      getUserReadableAmount(
+        state.totalCost,
+        getDecimalsFromSymbol(ssovTokenSymbol, chainId)
+      ) / price
+    );
+  }, [state.totalCost, path]);
+
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
     tokenPrices.map((record) => {
@@ -1116,6 +1135,23 @@ const PurchaseDialog = ({
             </Box>
           </Box>
 
+          {isZapActive ? (
+            <Box className={'flex mb-2'}>
+              <ZapIcon
+                id="6"
+                className="ml-[-0.1rem] mt-[0.2rem] mr-[0.3rem]"
+              />
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Total
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {formatAmount(zapInTotalCost, 5)} {tokenName}
+                </Typography>
+              </Box>
+            </Box>
+          ) : null}
+
           <EstimatedGasCostButton gas={700000} />
         </Box>
 
@@ -1205,6 +1241,7 @@ const PurchaseDialog = ({
             purchasePower={purchasePower}
             selectedTokenPrice={selectedTokenPrice}
             isInDialog={true}
+            ssovToken={ssovToken}
           />
         </Box>
       </Slide>

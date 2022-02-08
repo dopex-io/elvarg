@@ -16,7 +16,7 @@ import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import { ERC20 } from '@dopex-io/sdk';
 import { WalletContext } from '../../contexts/Wallet';
-import { AssetsContext } from '../../contexts/Assets';
+import { AssetsContext, IS_NATIVE } from '../../contexts/Assets';
 import TokenSelector from '../TokenSelector';
 import CustomButton from '../UI/CustomButton';
 import Typography from '../UI/Typography';
@@ -34,7 +34,7 @@ import AlarmIcon from '../Icons/AlarmIcon';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  setToken: Dispatch<SetStateAction<ERC20>>;
+  setToken: Dispatch<SetStateAction<ERC20 | string>>;
   token: ERC20 | any;
   userTokenBalance: BigNumber;
   quote: object;
@@ -45,6 +45,7 @@ export interface Props {
   purchasePower: number;
   selectedTokenPrice: number;
   isInDialog: boolean;
+  ssovToken: ERC20;
 }
 
 const ZapIn = ({
@@ -58,6 +59,7 @@ const ZapIn = ({
   purchasePower,
   selectedTokenPrice,
   isInDialog,
+  ssovToken,
 }: Props) => {
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
@@ -143,7 +145,11 @@ const ZapIn = ({
           <Box className="flex flex-row items-center mb-4 pt-1">
             <ArrowLeftIcon
               className={'mr-2 cursor-pointer'}
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
+                else setToken(ssovToken);
+              }}
             />
 
             <Typography variant="h5">Zap In</Typography>
@@ -266,7 +272,7 @@ const ZapIn = ({
             </Box>
           </Box>
 
-          <Box className={isInDialog ? 'h-[30.2rem]' : 'h-[20.2rem]'}>
+          <Box className={isInDialog ? 'h-[32.2rem]' : 'h-[20.2rem]'}>
             {tokenName !== '' &&
               ssovTokenName != '' &&
               ssovTokenName !== tokenName && (
