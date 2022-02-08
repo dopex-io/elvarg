@@ -1,6 +1,7 @@
 import {
   Dispatch,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -108,7 +109,7 @@ const ZapIn = ({
     return parser[name] || { name: name, picture: 'unknown.svg' };
   };
 
-  const extractPath = () => {
+  const extractPath = useCallback(() => {
     if (!quote['protocols']) return;
     const symbols = [];
     const steps = [];
@@ -132,11 +133,11 @@ const ZapIn = ({
     });
     setSwapSteps(steps);
     setSwapSymbols(symbols);
-  };
+  }, [chainId, quote]);
 
   useEffect(() => {
     extractPath();
-  }, [quote]);
+  }, [extractPath, quote]);
 
   return (
     <Box>

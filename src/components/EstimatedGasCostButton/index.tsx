@@ -15,13 +15,6 @@ const EstimatedGasCostButton = ({ gas }: Props) => {
   const { provider } = useContext(WalletContext);
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
 
-  const updateEstimatedGasCost = async () => {
-    const feeData = await provider.getFeeData();
-    setEstimatedGasCost(
-      getUserReadableAmount(gas * feeData['gasPrice'].toNumber(), 18)
-    );
-  };
-
   const estimatedGasCostInUsd = useMemo(() => {
     let ethPriceInUsd = 0;
     tokenPrices.map((record) => {
@@ -31,8 +24,14 @@ const EstimatedGasCostButton = ({ gas }: Props) => {
   }, [estimatedGasCost, tokenPrices]);
 
   useEffect(() => {
+    const updateEstimatedGasCost = async () => {
+      const feeData = await provider.getFeeData();
+      setEstimatedGasCost(
+        getUserReadableAmount(gas * feeData['gasPrice'].toNumber(), 18)
+      );
+    };
     updateEstimatedGasCost();
-  }, [updateEstimatedGasCost]);
+  }, [provider, gas]);
 
   return (
     <Box className={'flex'}>
