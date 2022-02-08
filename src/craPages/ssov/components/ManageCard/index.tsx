@@ -1080,6 +1080,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
               purchasePower={purchasePower}
               selectedTokenPrice={selectedTokenPrice}
               isInDialog={false}
+              ssovToken={ssovToken}
             />
           </Panel>
         </PanelList>
