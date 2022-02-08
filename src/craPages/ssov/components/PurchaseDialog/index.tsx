@@ -580,7 +580,7 @@ const PurchaseDialog = ({
         (getUserReadableAmount(fees, 18) +
           getUserReadableAmount(state.optionPrice, 8) /
             getUserReadableAmount(tokenPrice, 8))) *
-      0.99;
+      0.97; // margin of safety;
     formik.setFieldValue('optionsAmount', amount.toFixed(2));
   };
 
