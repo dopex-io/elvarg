@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
-import { useMemo } from 'react';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
 import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
@@ -10,7 +11,6 @@ import PlusIcon from '../Icons/PlusIcon';
 import ArrowUpIcon from '../Icons/ArrowUpIcon';
 import RedTriangleIcon from '../Icons/RedTriangleIcon';
 import YellowTriangleIcon from '../Icons/YellowTriangleIcon';
-import ReloadIcon from '../Icons/ReloadIcon';
 
 export interface Props {
   openZapIn: () => void;
@@ -91,11 +91,9 @@ const ZapInButton = ({
         </Typography>
       </Box>
     ) : isFetchingPath ? (
-      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">
-        <ReloadIcon className="mt-1 mr-2.5" />
-        <Typography variant="h6" className="text-white">
-          Fetching best route...
-        </Typography>
+      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 text-white">
+        <CircularProgress color="inherit" size="17px" className="mr-3 mt-0.5" />
+        <Typography variant="h6">Fetching best route...</Typography>
       </Box>
     ) : (
       <Tooltip
@@ -129,13 +127,13 @@ const ZapInButton = ({
           className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 cursor-pointer hover:bg-neutral-600"
           onClick={openZapIn}
         >
-          {slippageStatus === 'inactive' ? (
+          {slippageStatus === 'inactive' || !isZapActive ? (
             <ZapIcon className="mt-1 mr-2.5" id="2" />
           ) : null}
-          {slippageStatus === 'high' ? (
+          {slippageStatus === 'high' && isZapActive ? (
             <YellowTriangleIcon className="mt-0.5 mr-2.5" />
           ) : null}
-          {slippageStatus === 'extreme' ? (
+          {slippageStatus === 'extreme' && isZapActive ? (
             <RedTriangleIcon className="mt-0.5 mr-2.5" />
           ) : null}
 

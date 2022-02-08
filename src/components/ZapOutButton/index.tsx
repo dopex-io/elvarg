@@ -20,7 +20,7 @@ const ZapOutButton = ({ isZapActive, handleClick }: Props) => {
       <ZapIcon className="mr-[0.3rem] mt-[0.18rem]" id="1" />
 
       <Typography variant="h6" className="text-white text-[0.7rem]">
-        Zap Out
+        Cancel
       </Typography>
 
       <img src="/assets/cross.svg" className="ml-2 mr-1.5 mt-[0.18rem]" />

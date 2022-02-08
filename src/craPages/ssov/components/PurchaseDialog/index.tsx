@@ -65,6 +65,7 @@ import ZapIcon from '../../../../components/Icons/ZapIcon';
 import CircleIcon from '../../../../components/Icons/CircleIcon';
 import AlarmIcon from '../../../../components/Icons/AlarmIcon';
 import ReloadIcon from '../../../../components/Icons/ReloadIcon';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 export interface Props {
   open: boolean;
@@ -356,23 +357,39 @@ const PurchaseDialog = ({
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = tokens
+      const filteredTokens = ['ETH']
+        .concat(tokens)
         .filter(function (item) {
-          return item !== ssovTokenSymbol && Addresses[chainId][item];
+          return (
+            item !== ssovTokenSymbol &&
+            (Addresses[chainId][item] || IS_NATIVE(item))
+          );
         })
         .sort((a, b) => {
           return (
-            getValueInUsdFromSymbol(b, tokenPrices, userAssetBalances) -
-            getValueInUsdFromSymbol(a, tokenPrices, userAssetBalances)
+            getValueInUsdFromSymbol(
+              b,
+              tokenPrices,
+              userAssetBalances,
+              getDecimalsFromSymbol(b, chainId)
+            ) -
+            getValueInUsdFromSymbol(
+              a,
+              tokenPrices,
+              userAssetBalances,
+              getDecimalsFromSymbol(a, chainId)
+            )
           );
         });
 
-      const randomToken = ERC20__factory.connect(
-        Addresses[chainId][filteredTokens[0]],
-        signer
-      );
+      const selectedToken = IS_NATIVE(filteredTokens[0])
+        ? filteredTokens[0]
+        : ERC20__factory.connect(
+            Addresses[chainId][filteredTokens[0]],
+            provider
+          );
 
-      setToken(randomToken);
+      setToken(selectedToken);
       setIsZapInVisible(true);
     }
   };
@@ -1154,8 +1171,7 @@ const PurchaseDialog = ({
           {formik.values.optionsAmount > 0 ? (
             isFetchingPath ? (
               <Box className={'flex'}>
-                <ReloadIcon className="" />
-                <span className="ml-2">Elaborating best route...</span>
+                <span>Purchase</span>
               </Box>
             ) : getUserReadableAmount(state.totalCost, 18) > purchasePower ? (
               'Insufficient balance'

@@ -234,22 +234,38 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = tokens
+      const filteredTokens = ['ETH']
+        .concat(tokens)
         .filter(function (item) {
-          return item !== ssovTokenSymbol && Addresses[chainId][item];
+          return (
+            item !== ssovTokenSymbol &&
+            (Addresses[chainId][item] || IS_NATIVE(item))
+          );
         })
         .sort((a, b) => {
           return (
-            getValueInUsdFromSymbol(b, tokenPrices, userAssetBalances) -
-            getValueInUsdFromSymbol(a, tokenPrices, getValueInUsdFromSymbol)
+            getValueInUsdFromSymbol(
+              b,
+              tokenPrices,
+              userAssetBalances,
+              getDecimalsFromSymbol(b, chainId)
+            ) -
+            getValueInUsdFromSymbol(
+              a,
+              tokenPrices,
+              getValueInUsdFromSymbol,
+              getDecimalsFromSymbol(b, chainId)
+            )
           );
         });
 
-      const randomToken = ERC20__factory.connect(
-        Addresses[chainId][filteredTokens[0]],
-        provider
-      );
-      setToken(randomToken);
+      const selectedToken = IS_NATIVE(filteredTokens[0])
+        ? filteredTokens[0]
+        : ERC20__factory.connect(
+            Addresses[chainId][filteredTokens[0]],
+            provider
+          );
+      setToken(selectedToken);
       setIsZapInVisible(true);
     }
   };
