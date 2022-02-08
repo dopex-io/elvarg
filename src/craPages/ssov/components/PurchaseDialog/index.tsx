@@ -201,7 +201,15 @@ const PurchaseDialog = ({
         ).toString()
       );
     }
-  }, [isZapActive, quote, path, slippageTolerance, userTokenBalance]);
+  }, [
+    isZapActive,
+    path,
+    quote,
+    userAssetBalances,
+    tokenName,
+    chainId,
+    userTokenBalance,
+  ]);
 
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
@@ -220,11 +228,38 @@ const PurchaseDialog = ({
     [strikeIndex, epochStrikeTokens]
   );
 
-  const handleTokenChange = async () => {
+  const getQuote = useCallback(async () => {
+    const fromTokenAddress: string = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
+      ? ssovTokenName === 'BNB'
+        ? Addresses[chainId]['VBNB']
+        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : ssovToken.address;
+    if (fromTokenAddress === toTokenAddress) return;
+    const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
+    const { data } = await axios.get(
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+        amount
+      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+    );
+
+    setQuote(data);
+  }, [
+    accountAddress,
+    chainId,
+    ssovToken.address,
+    ssovTokenName,
+    token,
+    tokenName,
+  ]);
+
+  const handleTokenChange = useCallback(async () => {
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
     await getQuote();
-  };
+  }, [getQuote, token]);
 
   const zapInTotalCost: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
@@ -243,7 +278,7 @@ const PurchaseDialog = ({
         getDecimalsFromSymbol(ssovTokenSymbol, chainId)
       ) / price
     );
-  }, [state.totalCost, path]);
+  }, [path, quote, state.totalCost, ssovTokenSymbol, chainId]);
 
   const zapInPurchasePower: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
@@ -257,7 +292,7 @@ const PurchaseDialog = ({
         path['fromToken']['decimals']
       );
     return purchasePower / price;
-  }, [purchasePower, path]);
+  }, [path, quote, purchasePower]);
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -267,7 +302,7 @@ const PurchaseDialog = ({
     return price;
   }, [tokenPrices, tokenName]);
 
-  const updateUserEpochStrikePurchasableAmount = async () => {
+  const updateUserEpochStrikePurchasableAmount = useCallback(async () => {
     if (!epochStrikeToken || !ssovContractWithSigner) {
       setUserEpochStrikePurchasableAmount(0);
       return;
@@ -279,7 +314,7 @@ const PurchaseDialog = ({
     setUserEpochStrikePurchasableAmount(
       getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
     );
-  };
+  }, [epochStrikeToken, ssovContractWithSigner]);
 
   const formik = useFormik({
     initialValues: {
@@ -309,27 +344,7 @@ const PurchaseDialog = ({
 
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
-  const getQuote = async () => {
-    const fromTokenAddress: string = IS_NATIVE(token)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : token.address;
-    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
-      ? ssovTokenName === 'BNB'
-        ? Addresses[chainId]['VBNB']
-        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : ssovToken.address;
-    if (fromTokenAddress === toTokenAddress) return;
-    const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
-    const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
-        amount
-      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
-    );
-
-    setQuote(data);
-  };
-
-  const getPath = async () => {
+  const getPath = useCallback(async () => {
     if (!isZapActive) return;
     setIsFetchingPath(true);
     const fromTokenAddress: string = IS_NATIVE(token)
@@ -383,7 +398,18 @@ const PurchaseDialog = ({
     setPath(bestPath);
     setIsFetchingPath(false);
     return bestPath;
-  };
+  }, [
+    chainId,
+    isZapActive,
+    quote,
+    slippageTolerance,
+    spender,
+    ssovToken.address,
+    ssovTokenName,
+    ssovTokenSymbol,
+    state.totalCost,
+    token,
+  ]);
 
   const openZapIn = () => {
     if (isZapActive) {
@@ -549,18 +575,29 @@ const PurchaseDialog = ({
       console.log(err);
     }
   }, [
-    state.totalCost,
-    ssovContractWithSigner,
+    ssovTokenName,
+    tokenName,
+    formik,
     updateSsovData,
     updateUserSsovData,
     updateAssetBalances,
-    accountAddress,
-    tokenName,
+    sendTx,
+    ssovRouter,
     strikeIndex,
-    isZapActive,
+    state.totalCost,
+    accountAddress,
+    ssovContractWithSigner,
+    getPath,
+    aggregation1inchRouter.interface,
+    erc20SSOV1inchRouter,
+    ssovProperties.ssovContract.address,
+    ssovToken.address,
+    nativeSSOV1inchRouter,
+    ssovTokenSymbol,
+    chainId,
   ]);
 
-  const checkDEXAggregatorStatus = async () => {
+  const checkDEXAggregatorStatus = useCallback(async () => {
     try {
       const { status } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
@@ -571,15 +608,15 @@ const PurchaseDialog = ({
     } catch (err) {
       setIsZapInAvailable(false);
     }
-  };
+  }, [chainId, erc20SSOV1inchRouter, nativeSSOV1inchRouter]);
 
   useEffect(() => {
     checkDEXAggregatorStatus();
-  }, []);
+  }, [checkDEXAggregatorStatus]);
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible]);
+  }, [getPath]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
@@ -598,7 +635,7 @@ const PurchaseDialog = ({
         setApproved(allowance > 0);
       }
     })();
-  }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
+  }, [accountAddress, purchasePower, spender, token]);
 
   const setMaxAmount = async () => {
     const strike: BigNumber = epochStrikes[strikeIndex];
@@ -618,11 +655,11 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     handleTokenChange();
-  }, [token]);
+  }, [handleTokenChange]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
-  }, [strikeIndex]);
+  }, [updateUserEpochStrikePurchasableAmount]);
 
   // Calculate the Option Price & Fees
   useEffect(() => {
@@ -735,15 +772,18 @@ const PurchaseDialog = ({
     }
     debounce(async () => await updateOptionPrice(), 1000)();
   }, [
-    strikeIndex,
+    bnbSsovConversion,
     epochStrikes,
+    formik.values.optionsAmount,
+    isZapActive,
+    provider,
     ssovContractWithSigner,
     ssovOptionPricingContract,
-    volatilityOracleContract,
-    tokenPrice,
-    formik.values.optionsAmount,
-    provider,
     ssovTokenName,
+    ssovTokenSymbol,
+    strikeIndex,
+    tokenPrice,
+    volatilityOracleContract,
   ]);
 
   // Handles isApproved
@@ -791,11 +831,18 @@ const PurchaseDialog = ({
     ) {
       setTokenName(ssovTokenSymbol);
     }
-  }, [isZapInVisible]);
+  }, [
+    chainId,
+    formik.values.zapInAmount,
+    isZapInVisible,
+    ssovTokenSymbol,
+    tokenName,
+    userTokenBalance,
+  ]);
 
   useEffect(() => {
     getPath();
-  }, [state.totalCost]);
+  }, [getPath]);
 
   return (
     <Dialog

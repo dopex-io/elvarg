@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-
 import {
   Addresses,
   ERC20,
@@ -14,7 +13,6 @@ import {
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
 } from '@dopex-io/sdk';
-
 import Countdown from 'react-countdown';
 import cx from 'classnames';
 import format from 'date-fns/format';
@@ -131,6 +129,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const ssovToken = ssovSignerArray[selectedSsov].token[0];
+  const ssovTokenName = ssovProperties.tokenName;
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -160,7 +159,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     }
   }, [activeTab, isZapInVisible]);
 
-  const getQuote = async () => {
+  const getQuote = useCallback(async () => {
     const fromTokenAddress = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
@@ -174,7 +173,14 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     );
 
     setQuote(data);
-  };
+  }, [
+    accountAddress,
+    chainId,
+    ssovToken.address,
+    ssovTokenName,
+    token,
+    tokenName,
+  ]);
 
   const contractReadableStrikeDepositAmounts = useMemo(() => {
     const readable: {
@@ -190,7 +196,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   }, [tokenName, ssovTokenSymbol]);
 
-  const ssovTokenName = ssovProperties.tokenName;
   const [denominationTokenName, setDenomationTokenName] =
     useState<string>(ssovTokenName);
 
@@ -270,11 +275,11 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     }
   };
 
-  const handleTokenChange = async () => {
+  const handleTokenChange = useCallback(async () => {
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
     await getQuote();
-  };
+  }, [getQuote, token]);
 
   const totalEpochDepositsAmount =
     ssovTokenSymbol === 'BNB'
@@ -342,7 +347,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     } catch (err) {
       console.log(err);
     }
-  }, [totalDepositAmount, token, ssovContractWithSigner, sendTx]);
+  }, [sendTx, token.address, signer, spender]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -454,18 +459,28 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     }
   }, [
     selectedStrikeIndexes,
-    ssovContractWithSigner,
-    contractReadableStrikeDepositAmounts,
+    ssovTokenName,
+    tokenName,
+    updateAssetBalances,
     updateSsovData,
     updateUserSsovData,
-    updateAssetBalances,
-    accountAddress,
-    tokenName,
-    totalDepositAmount,
+    contractReadableStrikeDepositAmounts,
+    sendTx,
     ssovRouter,
+    accountAddress,
+    totalDepositAmount,
+    chainId,
+    strikeDepositAmounts,
+    ssovContractWithSigner,
+    aggregation1inchRouter.interface,
+    path,
+    denominationTokenName,
+    erc20SSOV1inchRouter,
+    ssovProperties.ssovContract.address,
+    ssovToken.address,
   ]);
 
-  const checkDEXAggregatorStatus = async () => {
+  const checkDEXAggregatorStatus = useCallback(async () => {
     try {
       const { status } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
@@ -476,9 +491,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     } catch (err) {
       setIsZapInAvailable(false);
     }
-  };
+  }, [chainId, erc20SSOV1inchRouter, nativeSSOV1inchRouter]);
 
-  const getPath = async () => {
+  const getPath = useCallback(async () => {
     if (!isZapActive) return;
     setIsFetchingPath(true);
     const fromTokenAddress = IS_NATIVE(token)
@@ -502,19 +517,28 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       setPath({ error: 'Invalid amounts' });
     }
     setIsFetchingPath(false);
-  };
+  }, [
+    chainId,
+    isZapActive,
+    slippageTolerance,
+    spender,
+    ssovToken.address,
+    ssovTokenName,
+    token,
+    totalDepositAmount,
+  ]);
 
   useEffect(() => {
     checkDEXAggregatorStatus();
-  }, []);
+  }, [checkDEXAggregatorStatus]);
 
   useEffect(() => {
     getPath();
-  }, [strikeDepositAmounts, denominationTokenName]);
+  }, [strikeDepositAmounts, denominationTokenName, getPath]);
 
   useEffect(() => {
     handleTokenChange();
-  }, [token]);
+  }, [handleTokenChange]);
 
   // Updates approved state
   useEffect(() => {
@@ -540,6 +564,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovContractWithSigner,
     approved,
     totalDepositAmount,
+    chainId,
+    spender,
+    ssovTokenName,
   ]);
 
   // Handles isApproved
@@ -578,6 +605,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovContractWithSigner,
     userAssetBalances.ETH,
     tokenName,
+    ssovTokenName,
+    chainId,
+    spender,
   ]);
 
   return (

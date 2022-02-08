@@ -1,8 +1,11 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Box from '@material-ui/core/Box';
+
 import Typography from '../UI/Typography';
+
 import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
+
 import { WalletContext } from '../../contexts/Wallet';
 import { AssetsContext } from '../../contexts/Assets';
 
@@ -15,12 +18,12 @@ const EstimatedGasCostButton = ({ gas }: Props) => {
   const { provider } = useContext(WalletContext);
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
 
-  const updateEstimatedGasCost = async () => {
+  const updateEstimatedGasCost = useCallback(async () => {
     const feeData = await provider.getFeeData();
     setEstimatedGasCost(
       getUserReadableAmount(gas * feeData['gasPrice'].toNumber(), 18)
     );
-  };
+  }, [gas, provider]);
 
   const estimatedGasCostInUsd = useMemo(() => {
     let ethPriceInUsd = 0;

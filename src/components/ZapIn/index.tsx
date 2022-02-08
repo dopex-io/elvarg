@@ -1,6 +1,7 @@
 import {
   Dispatch,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -15,15 +16,19 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import { ERC20 } from '@dopex-io/sdk';
+
 import { WalletContext } from '../../contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from '../../contexts/Assets';
+
 import TokenSelector from '../TokenSelector';
 import CustomButton from '../UI/CustomButton';
 import Typography from '../UI/Typography';
+
 import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
 import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
 import formatAmount from '../../utils/general/formatAmount';
+
 import ArrowLeftIcon from '../Icons/ArrowLeftIcon';
 import SettingsIcon from '../Icons/SettingsIcon';
 import CrossIcon from '../Icons/CrossIcon';
@@ -108,7 +113,7 @@ const ZapIn = ({
     return parser[name] || { name: name, picture: 'unknown.svg' };
   };
 
-  const extractPath = () => {
+  const extractPath = useCallback(() => {
     if (!quote['protocols']) return;
     const symbols = [];
     const steps = [];
@@ -132,11 +137,11 @@ const ZapIn = ({
     });
     setSwapSteps(steps);
     setSwapSymbols(symbols);
-  };
+  }, [chainId, quote]);
 
   useEffect(() => {
     extractPath();
-  }, [quote]);
+  }, [extractPath]);
 
   return (
     <Box>
@@ -276,7 +281,7 @@ const ZapIn = ({
             {tokenName !== '' &&
               ssovTokenName != '' &&
               ssovTokenName !== tokenName && (
-                <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
+                <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full">
                   <Box
                     className={
                       showSwapSteps
