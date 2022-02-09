@@ -107,7 +107,7 @@ const OTC = () => {
                 <Typography
                   variant="h6"
                   role="button"
-                  className={`bg-black hover:bg-cod-gray rounded-lg py-4 text-stieglitz ${
+                  className={`bg-black rounded-lg py-4 text-stieglitz ${
                     state.history ? 'bg-cod-gray' : null
                   }`}
                   onClick={() => {}}
@@ -161,7 +161,7 @@ const OTC = () => {
               <>
                 <Box className="flex justify-between">
                   <Typography variant="h5" className="font-bold">
-                    Available RFQs
+                    {isLive ? 'Live' : 'Indicative'} RFQs
                   </Typography>
                   <Box className="flex space-x-2 my-auto">
                     <Typography

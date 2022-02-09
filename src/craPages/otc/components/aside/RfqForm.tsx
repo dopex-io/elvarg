@@ -7,7 +7,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
-import { doc, addDoc, setDoc, collection } from '@firebase/firestore';
+// import { doc, addDoc, setDoc, collection } from '@firebase/firestore';
 import * as yup from 'yup';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -30,6 +30,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const { accountAddress, provider, signer } = useContext(WalletContext);
   const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
+
   const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [dialogState, setDialogState] = useState({
@@ -267,7 +268,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
         </Typography>
         <Input
           className="py-2 px-2"
-          value={formik.values.amount ?? 0}
+          value={formik.values.amount || 0}
           onChange={handleChangeAmount}
           type="number"
           leftElement={
@@ -313,7 +314,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
         </Typography>
         <Input
           className="py-2 px-2"
-          value={formik.values.price ?? 0}
+          value={formik.values.price || 0}
           onChange={handleChangePrice}
           type="number"
           placeholder="Price"
@@ -325,7 +326,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
               <img
                 src={`/assets/${selectedEscrowData.symbol?.toLocaleLowerCase()}.svg`}
                 alt={selectedEscrowData.symbol}
-                className="my-auto"
+                className="my-auto w-1/2"
               />
               <Typography variant="h5" className="text-white my-auto">
                 {selectedEscrowData.symbol}

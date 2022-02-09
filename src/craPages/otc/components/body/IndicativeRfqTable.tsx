@@ -14,6 +14,7 @@ import format from 'date-fns/format';
 import TableFooter from '@material-ui/core/TableFooter';
 import Box from '@material-ui/core/Box';
 import TablePagination from '@material-ui/core/TablePagination';
+import { collection, getDocs } from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
@@ -23,6 +24,7 @@ import CloseRfqDialog from '../dialogs/CloseRfqDialog';
 import { OtcContext } from 'contexts/Otc';
 
 import smartTrim from 'utils/general/smartTrim';
+import { db } from 'utils/firebase/initialize';
 
 const ROWS_PER_PAGE = 5;
 
@@ -98,14 +100,21 @@ const IndicativeRfqTable = () => {
   }, []);
 
   const navigateToChat = useCallback(
-    async (i) => {
+    async (data: any) => {
       await validateUser();
-      // broken link
-      navigate(
-        `/otc/chat/${filteredOrders[i].dealer + '-' + filteredOrders[i].base}`
+
+      const docRef = (await getDocs(collection(db, 'chatrooms'))).docs.flatMap(
+        (doc) => doc
       );
+
+      const orderDoc = docRef.find((rfq: any) => {
+        return rfq.get('timestamp')?.seconds === data.timestamp.seconds;
+      }, data.timestamp.seconds);
+
+      if (orderDoc) navigate(`/otc/chat/${orderDoc.id}`);
+      else console.log('Something went wrong');
     },
-    [filteredOrders, navigate, validateUser]
+    [navigate, validateUser]
   );
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
@@ -124,10 +133,10 @@ const IndicativeRfqTable = () => {
                 Time
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
-              <TableHeader align="right">Amount</TableHeader>
-              <TableHeader align="center">Dealer</TableHeader>
+              <TableHeader align="center">Amount</TableHeader>
               <TableHeader align="right">Ask</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
+              <TableHeader align="right">Dealer</TableHeader>
               <TableHeader align="right">Actions</TableHeader>
             </TableRow>
           </TableHead>
@@ -153,8 +162,14 @@ const IndicativeRfqTable = () => {
                       )}
                     </TableBodyCell>
                     <TableBodyCell align="left">{row.base}</TableBodyCell>
-                    <TableBodyCell align="right">{row.amount}</TableBodyCell>
-                    <TableBodyCell align="center">
+                    <TableBodyCell align="center" textColor="text-green-400">
+                      {row.amount}
+                    </TableBodyCell>
+                    <TableBodyCell align="right" textColor="text-down-bad">
+                      {row.price}
+                    </TableBodyCell>
+                    <TableBodyCell align="right">{row.quote}</TableBodyCell>
+                    <TableBodyCell align="right">
                       <Box className="flex-col">
                         <Typography variant="h6">
                           {smartTrim(row.dealer, 10)}
@@ -164,29 +179,25 @@ const IndicativeRfqTable = () => {
                         </Typography>
                       </Box>
                     </TableBodyCell>
-                    <TableBodyCell align="right" textColor="text-green-400">
-                      {row.price}
-                    </TableBodyCell>
-                    <TableBodyCell align="right">{row.quote}</TableBodyCell>
                     <TableBodyCell align="right">
                       <CustomButton
                         size="small"
                         key="transfer-options"
                         color="umbra"
                         onClick={() => {
-                          navigateToChat(i);
+                          navigateToChat(row);
                         }}
-                        className="text-white rounded px-3 py-1"
+                        className="text-white rounded px-3 py-1 hover:bg-mineshaft"
                         disabled={row.isFulfilled}
                       >
                         Enter Chat
                       </CustomButton>
                       <IconButton
                         size="small"
-                        key="cancel"
                         onClick={handleClickMenu}
-                        className="text-white rounded px-0 ml-1 py-1 bg-umbra"
+                        className="text-white rounded px-0 ml-1 py-1 bg-umbra hover:bg-mineshaft"
                         // disabled={row.isFulfilled}
+                        disableRipple
                       >
                         <MoreVertIcon className="fill-current text-white p-0 m-0" />
                       </IconButton>
@@ -196,7 +207,7 @@ const IndicativeRfqTable = () => {
                         onClose={handleCloseMenu}
                         classes={{ paper: 'bg-umbra text-white' }}
                       >
-                        <MenuItem
+                        {/* <MenuItem
                           className="px-2 py-1"
                           onClick={() =>
                             setDialogState((prevState) => ({
@@ -207,7 +218,7 @@ const IndicativeRfqTable = () => {
                           disabled
                         >
                           Close
-                        </MenuItem>
+                        </MenuItem> */}
                         <MenuItem
                           className="px-2 py-1"
                           onClick={() => {}} //todo: place bids and display highest bid in table?

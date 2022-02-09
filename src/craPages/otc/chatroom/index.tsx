@@ -5,8 +5,11 @@ import {
   query,
   addDoc,
   orderBy,
-  // where,
   getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
 } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { useFormik } from 'formik';
@@ -18,6 +21,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import SendIcon from '@material-ui/icons/Send';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import format from 'date-fns/format';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
@@ -26,12 +30,13 @@ import Input from 'components/UI/Input';
 import { OtcContext } from 'contexts/Otc';
 
 import { db } from 'utils/firebase/initialize';
+import CustomButton from 'components/UI/CustomButton';
 
 const Chatroom = () => {
   const chat = useParams();
   const navigate = useNavigate();
 
-  const { validateUser, user } = useContext(OtcContext);
+  const { validateUser, user, orders } = useContext(OtcContext);
 
   const validationSchema = yup.object({
     msg: yup.string().required('Cannot send empty message'),
@@ -52,6 +57,7 @@ const Chatroom = () => {
 
   const [msgs] = useCollectionData(q, { idField: 'id' });
 
+  const [admin, setAdmin] = useState('');
   const [loading, setLoading] = useState(true);
   const [fulfilled, setFulfilled] = useState(false);
 
@@ -61,6 +67,27 @@ const Chatroom = () => {
     },
     [formik]
   );
+
+  const handleDelete = useCallback(async () => {
+    await updateDoc(doc(db, 'chatrooms', chat.id), {
+      isFulfilled: true,
+    });
+
+    const querySnapshot = (
+      await getDocs(collection(db, 'orders'))
+    ).docs.flatMap((doc) => doc);
+
+    const chatroomData = (await getDoc(doc(db, 'chatrooms', chat.id))).data();
+
+    const result = querySnapshot.find(
+      (doc) => doc.data().timestamp.seconds === chatroomData.timestamp.seconds
+    );
+
+    if (result) await deleteDoc(doc(db, 'orders', result.id));
+    else console.log('Something went wrong.');
+
+    setFulfilled(true);
+  }, [chat]);
 
   const handleSubmit = useCallback(async () => {
     await addDoc(collection(db, `chatrooms/${chat.id}/${'messages'}`), {
@@ -76,7 +103,6 @@ const Chatroom = () => {
       if (!msgs) setLoading(true);
       else setLoading(false);
 
-      // chat.id.split('-')[0] + '-', chat.id.split(/-(.+)/)[1];
       const querySnapshot = await getDocs(collection(db, 'chatrooms'));
       let chatrooms = [];
       querySnapshot.forEach((doc) => {
@@ -89,25 +115,21 @@ const Chatroom = () => {
         })
         .pop();
 
-      console.log(chatroomData);
-
-      setFulfilled(chatroomData?.data.isFulfilled);
+      setFulfilled(chatroomData.data.isFulfilled);
     })();
   }, [msgs, validateUser, formik, chat.id]);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     const q = query(
-  //       collection(db, 'chatrooms'),
-  //       where('isFulfilled', '==', true)
-  //     );
-  //     const querySnapshot = await getDocs(q);
-  //     querySnapshot.forEach((doc) => {
-  //       // console.log(doc.id, ' => ', doc.data());
-  //       console.log(doc.id, chat.id);
-  //     });
-  //   })();
-  // }, [chat.id, user]);
+  useEffect(() => {
+    (async () => {
+      const docRef = (await getDocs(collection(db, 'chatrooms'))).docs.flatMap(
+        (doc) => doc
+      );
+      const result = docRef.find((doc) => doc.get('dealer') === user?.username);
+
+      if (result) setAdmin(result.get('dealer'));
+      else setAdmin('');
+    })();
+  }, [user]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -115,16 +137,38 @@ const Chatroom = () => {
       <Box className="container pt-48 mx-auto h-screen px-4 lg:px-0">
         <Box className="flex flex-col justify-between w-1/3 h-5/6 mx-auto bg-cod-gray rounded-xl">
           <Box className="bg-umbra rounded-t-xl">
-            <Box className="flex space-x-4">
-              <IconButton onClick={() => navigate('/otc')}>
-                <ArrowBackIcon className="fill-current text-stieglitz" />
-              </IconButton>
-              <Typography variant="h6" className="my-auto">
-                Chat Session
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz my-auto">
-                {chat.id.split('-')[0]}
-              </Typography>
+            <Box className="flex justify-between">
+              <Box className="flex space-x-4">
+                <IconButton onClick={() => navigate('/otc')} disableRipple>
+                  <ArrowBackIcon className="fill-current text-stieglitz" />
+                </IconButton>
+                <Typography variant="h6" className="my-auto">
+                  Chat Session
+                </Typography>
+                <Typography variant="h6" className="text-stieglitz my-auto">
+                  {chat.id}
+                </Typography>
+              </Box>
+              {user?.username === admin ? (
+                <Box className="my-auto pr-3">
+                  <Tooltip
+                    className="text-stieglitz"
+                    title={fulfilled ? 'Close this RFQ and chatroom' : ''}
+                    arrow={true}
+                  >
+                    <Box className="rounded-md hover:bg-down-bad hover:bg-opacity-0 bg-opacity-0">
+                      <CustomButton
+                        size="small"
+                        color="down-bad"
+                        onClick={handleDelete}
+                        disabled={fulfilled}
+                      >
+                        Close RFQ
+                      </CustomButton>
+                    </Box>
+                  </Tooltip>
+                </Box>
+              ) : null}
             </Box>
           </Box>
           <Box className="h-full overflow-y-scroll flex flex-col-reverse">
@@ -134,7 +178,10 @@ const Chatroom = () => {
               </Box>
             ) : msgs.length === 0 ? (
               <Box className="flex justify-center pt-4">
-                <Typography variant="h5" className="text-stieglitz self-center">
+                <Typography
+                  variant="h5"
+                  className="text-stieglitz self-center pb-4"
+                >
                   Be the first to message here
                 </Typography>
               </Box>
