@@ -314,6 +314,9 @@ const Manage = () => {
               <Box className="flex flex-row">
                 <CustomButton
                   size="medium"
+                  disabled={
+                    selectedToken.selectedBaseAsset === 'RDPX' ? true : false
+                  }
                   className={c(
                     isStake
                       ? 'mr-1'
