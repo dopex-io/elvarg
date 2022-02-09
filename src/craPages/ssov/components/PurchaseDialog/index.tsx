@@ -445,26 +445,32 @@ const PurchaseDialog = ({
       if (ssovTokenName === tokenName) {
         if (tokenName === 'BNB') {
           await sendTx(
-            ssovRouter.purchase(strikeIndex, state.totalCost, accountAddress, {
-              value: state.totalCost,
-            })
-          );
-        } else if (IS_NATIVE(ssovTokenName)) {
-          await sendTx(
-            ssovContractWithSigner.purchase(
+            ssovRouter.purchase(
               strikeIndex,
-              state.totalCost,
+              getContractReadableAmount(formik.values.optionsAmount, 18),
               accountAddress,
               {
                 value: state.totalCost,
               }
             )
           );
+        } else if (IS_NATIVE(ssovTokenName)) {
+          await sendTx(
+            ssovContractWithSigner.purchase(
+              strikeIndex,
+              getContractReadableAmount(formik.values.optionsAmount, 18),
+              accountAddress,
+              {
+                value: state.totalCost,
+              }
+            )
+          );
+          ``;
         } else {
           await sendTx(
             ssovContractWithSigner.purchase(
               strikeIndex,
-              state.totalCost,
+              getContractReadableAmount(formik.values.optionsAmount, 18),
               accountAddress
             )
           );
