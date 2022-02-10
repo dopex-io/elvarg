@@ -820,6 +820,7 @@ const PurchaseDialog = ({
             if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
             else setToken(ssovToken);
           }}
+          size="fat"
         />
 
         <IconButton
