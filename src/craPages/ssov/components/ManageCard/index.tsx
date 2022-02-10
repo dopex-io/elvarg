@@ -626,6 +626,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                     if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
                     else setToken(ssovToken);
                   }}
+                  size="fat"
                 />
               </Box>
             ) : null}

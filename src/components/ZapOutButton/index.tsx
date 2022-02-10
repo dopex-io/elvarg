@@ -5,15 +5,18 @@ import ZapIcon from '../Icons/ZapIcon';
 export interface Props {
   isZapActive: boolean;
   handleClick: () => void;
+  size: 'slim' | 'fat';
 }
 
-const ZapOutButton = ({ isZapActive, handleClick }: Props) => {
+const ZapOutButton = ({ isZapActive, handleClick, size }: Props) => {
   return (
     <Box
       onClick={handleClick}
       className={
         isZapActive
-          ? 'rounded-md flex r-0 ml-auto p-1.5 pt-[0.4rem] pb-[0.4rem] pr-0 border border-neutral-800 bg-neutral-700 cursor-pointer hover:bg-neutral-600'
+          ? size === 'slim'
+            ? 'rounded-md flex r-0 ml-auto p-2 pt-[0.3rem] pb-[0.3rem] pr-0 border border-neutral-800 bg-neutral-700 cursor-pointer hover:bg-neutral-600'
+            : 'rounded-md flex r-0 ml-auto p-1.5 pt-[0.4rem] pb-[0.4rem] pr-0 border border-neutral-800 bg-neutral-700 cursor-pointer hover:bg-neutral-600'
           : 'flex r-0 ml-auto p-1.5 pt-1 border opacity-0'
       }
     >

@@ -61,7 +61,6 @@ import {
 import useSendTx from 'hooks/useSendTx';
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 import BigCrossIcon from '../../../../components/Icons/BigCrossIcon';
-import ZapIcon from '../../../../components/Icons/ZapIcon';
 import CircleIcon from '../../../../components/Icons/CircleIcon';
 import AlarmIcon from '../../../../components/Icons/AlarmIcon';
 
