@@ -71,45 +71,69 @@ const MetavaultDescription = ({
 
   return (
     <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
-      <Typography variant="h1" className="mb-6">
-        {tokenSymbol} SSOV
-      </Typography>
-      <Typography variant="h5" className="text-stieglitz mb-6">
-        <span className="text-white">{tokenSymbol} Metavault</span> accepts{' '}
-        {tokenSymbol} deposits and will direct yield from SIngle Staking Farm
-        towards call options from SSOV
-      </Typography>
-      <Box className="flex justify-center items-center flex-row mb-6">
-        <Tooltip
-          className="text-stieglitz"
-          title={
-            !isVaultReady
-              ? 'Options can not be bought during the deposit period'
-              : ''
-          }
-          arrow={true}
-        >
-          <Box className="w-full mr-2">
-            <CustomButton
-              size="medium"
-              fullWidth
-              className="rounded-lg"
-              onClick={() => {
-                setPurchaseState(true);
-              }}
-              disabled={!isVaultReady}
-            >
-              Buy Call Options
-            </CustomButton>
+      <Box className={'flex'}>
+        <img
+          src={`/assets/${tokenSymbol.toLowerCase()}.svg`}
+          className="w-[4rem] h-[4rem]  border-[2px] border-[#ffffff33] rounded-full"
+        />
+        <Typography variant="h2" className="mt-[0.8rem] ml-4">
+          {tokenSymbol} SSOV
+        </Typography>
+      </Box>
+
+      <Box className={'mt-6 max-w-screen-sm'}>
+        <Typography variant="h5" className="text-stieglitz">
+          <span className="text-white">{tokenSymbol} Metavault</span> accepts{' '}
+          {tokenSymbol} deposits and will direct yield from SIngle Staking Farm
+          towards call options from SSOV
+        </Typography>
+      </Box>
+
+      <Box className={'flex-col mt-10 grid lg:grid-cols-3 grid-cols-1'}>
+        <Box className={'md:pr-7'}>
+          <Box className={'flex'}>
+            <img
+              src={'/assets/refresh.svg'}
+              className={'w-3 h-4 mr-2 mt-1.5'}
+            />
+            <Typography variant="h5" className="text-white">
+              Autosync
+            </Typography>
           </Box>
-        </Tooltip>
-        <EpochSelector ssovProperties={ssovProperties} />
+          <Typography variant="h5" className="text-stieglitz mt-3">
+            Set and forget with autosync. It will continuously rool your yield
+            into every epoch with the same dollar cost average strategy
+          </Typography>
+        </Box>
+        <Box className={'md:pr-7'}>
+          <Box className={'flex'}>
+            <img src={'/assets/pause.svg'} className={'w-4 h-4 mr-2 mt-1.5'} />
+            <Typography variant="h5" className="text-white">
+              Active/Paused
+            </Typography>
+          </Box>
+          <Typography variant="h5" className="text-stieglitz mt-3">
+            When paused your vault will stop its strategy and continue to stake
+            and autocompound your farm rewards instead
+          </Typography>
+        </Box>
+        <Box className={''}>
+          <Box className={'flex'}>
+            <img
+              src={'/assets/white-alarm.svg'}
+              className={'w-4 h-4 mr-2 mt-1.5'}
+            />
+            <Typography variant="h5" className="text-white">
+              Settle anytime
+            </Typography>
+          </Box>
+          <Typography variant="h5" className="text-stieglitz mt-3">
+            These options periodically appear in your wallet which you can
+            settle at anytime
+          </Typography>
+        </Box>
       </Box>
-      <Box className="grid grid-cols-3 gap-2 mb-6">
-        {info.map((item) => {
-          return <InfoBox key={item.heading} {...item} />;
-        })}
-      </Box>
+
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
