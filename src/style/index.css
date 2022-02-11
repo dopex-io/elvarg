@@ -24,6 +24,12 @@
   font-weight: 700;
 }
 
+@font-face {
+  font-family: VT323;
+  src: url('/fonts/VT323-Regular.ttf');
+  font-weight: 700;
+}
+
 body {
   overflow-y: auto;
   overflow-x: hidden;
