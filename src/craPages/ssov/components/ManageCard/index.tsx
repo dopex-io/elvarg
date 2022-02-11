@@ -968,7 +968,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
 
               <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
                 <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
-                  <EstimatedGasCostButton gas={500000} />
+                  <EstimatedGasCostButton gas={500000} chainId={chainId} />
                 </Box>
 
                 <ZapInButton
