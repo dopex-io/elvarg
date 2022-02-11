@@ -59,9 +59,8 @@ import {
 } from 'contexts/Ssov';
 
 import useSendTx from 'hooks/useSendTx';
-import { MAX_VALUE, SSOV_MAP } from 'constants/index';
+import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
 import BigCrossIcon from '../../../../components/Icons/BigCrossIcon';
-import ZapIcon from '../../../../components/Icons/ZapIcon';
 import CircleIcon from '../../../../components/Icons/CircleIcon';
 import AlarmIcon from '../../../../components/Icons/AlarmIcon';
 
@@ -759,7 +758,7 @@ const PurchaseDialog = ({
       const finalAmount = state.totalCost;
 
       const userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances.ETH)
+        ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]])
         : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
@@ -1167,7 +1166,7 @@ const PurchaseDialog = ({
             </Box>
           )}
 
-          <EstimatedGasCostButton gas={700000} />
+          <EstimatedGasCostButton gas={700000} chainId={chainId} />
         </Box>
 
         <ZapInButton
