@@ -31,6 +31,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const { accountAddress, provider, signer } = useContext(WalletContext);
   const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
 
+  const [selection, setSelection] = useState('');
   const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [dialogState, setDialogState] = useState({
@@ -72,6 +73,8 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
       const selection = selectedEscrowData.bases.find(
         (value) => value.address === e.target.value
       );
+
+      setSelection(e.target.value);
 
       if (formik.values.isBuy) {
         formik.setFieldValue('base', e.target.value);
@@ -242,7 +245,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   }, [formik.values]);
 
   return (
-    <Box className="bg-cod-gray rounded-lg p-2">
+    <Box className="bg-cod-gray rounded-lg p-2 border border-umbra">
       <Box className="flex flex-col space-y-2">
         <Box className="flex rounded-2xl space-x-2">
           <CustomButton
@@ -275,12 +278,15 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             <Select
               id="base"
               name="base"
-              defaultValue={''}
+              fullWidth
+              disableUnderline
+              value={selection}
+              label="Option"
               onChange={handleTokenSelection}
-              className="bg-cod-gray rounded-lg p-2 w-1/2"
+              className="bg-cod-gray rounded-lg p-2 w-1/2 text-white"
               IconComponent={Dropdown}
               variant="outlined"
-              classes={{ icon: 'mt-3', root: 'p-0' }}
+              classes={{ icon: 'mt-3 text-white', root: 'p-0' }}
               MenuProps={{
                 classes: { paper: 'bg-cod-gray' },
                 anchorOrigin: {
@@ -296,12 +302,14 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             >
               {selectedEscrowData.bases?.map((option, index) => {
                 return (
-                  <MenuItem value={option.address} key={index}>
-                    <Box className="flex flex-row items-center">
-                      <Typography variant="h6" className="text-white">
-                        {option.symbol}
-                      </Typography>
-                    </Box>
+                  <MenuItem
+                    value={option.address}
+                    key={index}
+                    className="text-white"
+                  >
+                    <Typography variant="h6" className="text-white">
+                      {option.symbol}
+                    </Typography>
                   </MenuItem>
                 );
               })}

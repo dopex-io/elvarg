@@ -205,7 +205,7 @@ const OTC = () => {
               </Typography>
               <Typography
                 variant="h6"
-                className={`p-1 px-3 rounded-r-2xl rounded-l-2xl border ${
+                className={`py-0 px-3 rounded-r-2xl rounded-l-2xl border ${
                   isLive
                     ? 'text-down-bad bg-down-bad/[0.3] border-down-bad'
                     : 'text-primary bg-primary/[0.3] border-primary'

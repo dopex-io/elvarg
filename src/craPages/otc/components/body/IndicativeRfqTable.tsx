@@ -134,7 +134,7 @@ const IndicativeRfqTable = () => {
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
               <TableHeader align="center">Amount</TableHeader>
-              <TableHeader align="right">Ask</TableHeader>
+              <TableHeader align="center">Ask Price</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
               <TableHeader align="right">Dealer</TableHeader>
               <TableHeader align="right">Actions</TableHeader>
@@ -165,7 +165,7 @@ const IndicativeRfqTable = () => {
                     <TableBodyCell align="center" textColor="text-green-400">
                       {row.amount}
                     </TableBodyCell>
-                    <TableBodyCell align="right" textColor="text-down-bad">
+                    <TableBodyCell align="center" textColor="text-down-bad">
                       {row.price}
                     </TableBodyCell>
                     <TableBodyCell align="right">{row.quote}</TableBodyCell>

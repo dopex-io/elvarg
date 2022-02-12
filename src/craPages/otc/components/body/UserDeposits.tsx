@@ -106,10 +106,10 @@ const UserDeposits = () => {
                 <TableHeader align="left" textColor="white">
                   RFQ
                 </TableHeader>
-                <TableHeader align="left">Base</TableHeader>
+                <TableHeader align="left">Option</TableHeader>
                 <TableHeader align="center">Amount</TableHeader>
+                <TableHeader align="right">Ask Price</TableHeader>
                 <TableHeader align="right">Quote</TableHeader>
-                <TableHeader align="right">Ask</TableHeader>
                 <TableHeader align="right">Dealer</TableHeader>
                 <TableHeader align="right">Actions</TableHeader>
               </TableRow>
@@ -128,7 +128,7 @@ const UserDeposits = () => {
                           {row.isBuy ? 'Buy' : 'Sell'}
                         </TableBodyCell>
                         <TableBodyCell align="left">
-                          {row.base.symbol}
+                          {row.isBuy ? row.base.symbol : row.quote.symbol}
                         </TableBodyCell>
                         <TableBodyCell
                           align="center"
@@ -136,11 +136,11 @@ const UserDeposits = () => {
                         >
                           {getUserReadableAmount(row.amount, 18).toString()}
                         </TableBodyCell>
-                        <TableBodyCell align="right" textColor="text-white">
-                          {row.quote.symbol}
-                        </TableBodyCell>
                         <TableBodyCell align="right" textColor="text-down-bad">
                           {getUserReadableAmount(row.price, 18).toString()}{' '}
+                        </TableBodyCell>
+                        <TableBodyCell align="right">
+                          {row.isBuy ? row.quote.symbol : row.base.symbol}
                         </TableBodyCell>
                         <TableBodyCell align="right">
                           {smartTrim(row.dealer, 10)}
