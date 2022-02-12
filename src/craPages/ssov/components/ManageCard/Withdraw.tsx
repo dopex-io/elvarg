@@ -10,10 +10,11 @@ import Typography from 'components/UI/Typography';
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
+
+import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
@@ -39,6 +40,8 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     userSsovDataArray[selectedSsov];
 
   const { updateAssetBalances } = useContext(AssetsContext);
+
+  const sendTx = useSendTx();
 
   // Ssov data for next epoch
 
@@ -94,6 +97,7 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       updateSsovData,
       updateUserSsovData,
       updateAssetBalances,
+      sendTx,
     ]
   );
 
@@ -168,7 +172,7 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
           <Typography
             variant="caption"
             component="div"
-            className="mb-4 text-stieglitz text-left"
+            className="mb-1 text-stieglitz text-left"
           >
             Withdrawals can only be processed for past epochs. Expiry for the
             selected epoch is {epochEndTime}.

@@ -16,7 +16,7 @@ const useStyles = makeStyles(() => ({
 interface Props extends Omit<MaterialDialogProps, 'onClose'> {
   width?: number;
   showCloseIcon?: boolean;
-  handleClose?: () => void;
+  handleClose?: (e, reason) => void;
 }
 
 const Dialog = ({
@@ -28,6 +28,8 @@ const Dialog = ({
   ...props
 }: Props) => {
   const { backDrop } = useStyles();
+
+  const onClick = (e) => handleClose(e, 'closeIconClick');
 
   return (
     <MaterialDialog
@@ -44,7 +46,7 @@ const Dialog = ({
         <IconButton
           aria-label="close"
           className="absolute text-white right-0 top-1"
-          onClick={handleClose}
+          onClick={onClick}
         >
           <CloseIcon className="fill-current text-stieglitz" />
         </IconButton>

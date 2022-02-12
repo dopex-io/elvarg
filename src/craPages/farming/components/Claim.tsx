@@ -11,9 +11,9 @@ import CustomButton from 'components/UI/CustomButton';
 import { WalletContext } from 'contexts/Wallet';
 import { FarmingContext } from 'contexts/Farming';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 export interface Props {
   open: boolean;
   handleClose: () => {};
@@ -25,6 +25,7 @@ export interface Props {
 const Claim = ({ open, handleClose, data }: Props) => {
   const { accountAddress, signer } = useContext(WalletContext);
   const { setStakingAsset } = useContext(FarmingContext);
+  const sendTx = useSendTx();
 
   const userRewardDPX = useMemo(() => {
     if (!accountAddress || !data.token.rewards) return;
@@ -71,6 +72,7 @@ const Claim = ({ open, handleClose, data }: Props) => {
     handleClose,
     data.token.selectedBaseAsset,
     setStakingAsset,
+    sendTx,
   ]);
 
   return accountAddress ? (

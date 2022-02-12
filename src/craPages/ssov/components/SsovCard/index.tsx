@@ -8,6 +8,7 @@ import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
+import WalletButton from 'components/WalletButton';
 import PurchaseDialog from '../PurchaseDialog';
 import InfoBox from '../InfoBox';
 
@@ -190,7 +191,7 @@ function SsovCard(props: SsovCardProps) {
               }
             >
               <Box className="w-full">
-                <CustomButton
+                <WalletButton
                   size="medium"
                   className={cx('w-full', styles.Button)}
                   onClick={() => {
@@ -200,7 +201,7 @@ function SsovCard(props: SsovCardProps) {
                   disabled={!isVaultReady}
                 >
                   Buy Options
-                </CustomButton>
+                </WalletButton>
               </Box>
             </Tooltip>
           </Box>

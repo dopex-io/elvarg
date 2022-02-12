@@ -23,10 +23,11 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
@@ -79,6 +80,8 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [maxApprove, setMaxApprove] = useState(false);
+
+  const sendTx = useSendTx();
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady) return false;
@@ -164,7 +167,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     } catch (err) {
       console.log(err);
     }
-  }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner]);
+  }, [totalDepositAmount, maxApprove, token, ssovContractWithSigner, sendTx]);
 
   const handleMax = useCallback(
     (index: number) => {
@@ -236,6 +239,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     tokenName,
     totalDepositAmount,
     ssovRouter,
+    sendTx,
   ]);
 
   useEffect(() => {

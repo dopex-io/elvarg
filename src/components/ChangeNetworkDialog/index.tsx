@@ -44,19 +44,23 @@ const ChangeNetworkDialog = () => {
     useContext(WalletContext);
 
   useEffect(() => {
-    setChangeNetwork(wrongNetwork);
+    setChangeNetwork(wrongNetwork ? 'wrong-network' : 'close');
   }, [wrongNetwork, setChangeNetwork]);
 
-  const handleClose = useCallback(() => {
-    setChangeNetwork(false);
-  }, [setChangeNetwork]);
+  const handleClose = useCallback(
+    (_, reason) => {
+      if (reason === 'backdropClick') return;
+      setChangeNetwork('close');
+    },
+    [setChangeNetwork]
+  );
 
   return (
     <Dialog
       width={450}
-      open={changeNetwork}
+      open={changeNetwork !== 'close'}
       handleClose={handleClose}
-      showCloseIcon
+      showCloseIcon={changeNetwork === 'user'}
       aria-labelledby="wrong-network-dialog-title"
     >
       <Typography variant="h3" className="mb-4">

@@ -28,7 +28,8 @@ import getValueSign from 'utils/general/getValueSign';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getRebateAmount from 'utils/contracts/getRebateAmount';
 import getRewardAmount from 'utils/contracts/getRewardAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
@@ -79,6 +80,8 @@ function PoolCard(props: PoolCardProps) {
 
   const [rebateAmount, setRebateAmount] = useState<string>('0');
   const [rewardAmount, setRewardAmount] = useState<string>('0');
+
+  const sendTx = useSendTx();
 
   const asset = BASE_ASSET_MAP[selectedBaseAsset];
 
@@ -152,7 +155,14 @@ function PoolCard(props: PoolCardProps) {
     await sendTx(
       optionPoolRebates.claimUserRebate(optionPoolSdk.address, selectedEpoch)
     );
-  }, [accountAddress, selectedEpoch, optionPoolSdk, contractAddresses, signer]);
+  }, [
+    accountAddress,
+    selectedEpoch,
+    optionPoolSdk,
+    contractAddresses,
+    signer,
+    sendTx,
+  ]);
 
   const claimReward = useCallback(async () => {
     if (!accountAddress || !signer) return;
@@ -168,7 +178,14 @@ function PoolCard(props: PoolCardProps) {
         optionPoolSdk.address
       )
     );
-  }, [signer, accountAddress, selectedEpoch, optionPoolSdk, contractAddresses]);
+  }, [
+    signer,
+    accountAddress,
+    selectedEpoch,
+    optionPoolSdk,
+    contractAddresses,
+    sendTx,
+  ]);
 
   useEffect(() => {
     let isMounted: boolean = true;

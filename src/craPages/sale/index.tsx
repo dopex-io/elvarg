@@ -17,9 +17,9 @@ import { WalletContext } from 'contexts/Wallet';
 import { TokenSaleContext, TokenSaleProvider } from 'contexts/TokenSale';
 
 import useEthPrice from 'hooks/useEthPrice';
+import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
-import sendTx from 'utils/contracts/sendTx';
 
 const TokenSale = () => {
   const {
@@ -38,6 +38,7 @@ const TokenSale = () => {
     useContext(WalletContext);
 
   const ethPrice = useEthPrice();
+  const sendTx = useSendTx();
 
   const saleStartedWhitelist = blockTime >= saleWhitelistStart ? true : false;
 
@@ -82,7 +83,13 @@ const TokenSale = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [contractAddresses.TokenSale, updateUserData, accountAddress, signer]);
+  }, [
+    contractAddresses.TokenSale,
+    updateUserData,
+    accountAddress,
+    signer,
+    sendTx,
+  ]);
 
   const depositShare = formik.values.amount
     ? (Number(deposits) / Number(weiDeposited)) * 100 || 0

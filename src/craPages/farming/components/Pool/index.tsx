@@ -21,7 +21,8 @@ import RewardsCountdown from './RewardsCountdown/RewardsCountdown';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { UNISWAP_LINKS } from 'constants/index';
 
@@ -60,6 +61,8 @@ const Pool = ({
 
   const navigate = useNavigate();
 
+  const sendTx = useSendTx();
+
   const handleClose = useCallback(
     () => setModalState((prevState) => ({ ...prevState, open: false })),
     []
@@ -74,6 +77,7 @@ const Pool = ({
   };
 
   const handleStake = useCallback(() => {
+    if (token.selectedBaseAsset === 'RDPX') return;
     setData(() => ({
       token: token.selectedBaseAsset,
       isStake: true,
@@ -104,7 +108,7 @@ const Pool = ({
     } catch (err) {
       console.log(err);
     }
-  }, [token, setStakingAsset, signer]);
+  }, [token, setStakingAsset, signer, sendTx]);
 
   const handleClaim = useCallback(
     () => setModalState({ open: true, type: 'CLAIM' }),
@@ -114,7 +118,12 @@ const Pool = ({
   const options: { name: string; to: () => void; exclude?: string[] }[] = [
     {
       name: 'Stake',
-      to: handleStake,
+      to:
+        token.selectedBaseAsset === 'RDPX'
+          ? () => {
+              return;
+            }
+          : handleStake,
     },
     {
       name: 'Add liquidity',
@@ -269,7 +278,9 @@ const Pool = ({
             </Typography>
           </Box>
           <Box className="flex flex-col mr-4">
-            <Typography variant="h4">{formatAmount(APR, 2)}%</Typography>
+            <Typography variant="h4">
+              {stakingAsset === 'RDPX' ? 0 : formatAmount(APR, 2)}%
+            </Typography>
             <Typography variant="h6" className="text-stieglitz">
               APR
             </Typography>
@@ -301,6 +312,7 @@ const Pool = ({
                     handleStake();
                     navigate('/farms/manage');
                   }}
+                  disabled={token?.selectedBaseAsset === 'RDPX' ? true : false}
                 >
                   Stake
                 </CustomButton>

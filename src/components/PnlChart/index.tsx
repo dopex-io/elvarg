@@ -71,21 +71,10 @@ const PnlChart = (props: PnlChartProps) => {
   );
 
   return (
-    <Box className="h-40">
-      <Box className="flex justify-between mb-4">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz"
-        >
-          Est. Profit & Loss
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className={getValueColorClass(state.pnl)}
-        >
-          {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
+    <Box className="h-[11.25rem]">
+      <Box className="flex justify-between">
+        <Typography variant="h6" className="text-stieglitz font-small">
+          Calculator
         </Typography>
       </Box>
       <ResponsiveContainer width="100%" height="35%" className="mb-4">
@@ -100,34 +89,53 @@ const PnlChart = (props: PnlChartProps) => {
           <Line type="monotone" dataKey="value" stroke="white" dot={false} />
         </LineChart>
       </ResponsiveContainer>
-      <Box className="flex justify-between mb-4">
+      <Box className="flex justify-between mb-3.5">
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz"
+          className="text-stieglitz text-xs"
         >
           {symbol} Price
         </Typography>
         <Typography
           variant="caption"
           component="div"
-          className="text-wave-blue"
+          className="text-white text-xs"
         >
           ${formatAmount(state.price, 3)}
         </Typography>
       </Box>
-      <Box className="flex justify-between mb-4">
+      <Box className="flex justify-between mb-3.5">
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz"
+          className="text-stieglitz text-xs"
+        >
+          Estimated PnL
+        </Typography>
+        <Typography
+          variant="caption"
+          component="div"
+          className={getValueColorClass(state.pnl)}
+        >
+          <span className="text-xs">
+            {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
+          </span>
+        </Typography>
+      </Box>
+
+      <Box className="flex justify-between mb-0.5">
+        <Typography
+          variant="caption"
+          component="div"
+          className="text-stieglitz text-xs"
         >
           Breakeven
         </Typography>
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz"
+          className="text-stieglitz text-xs"
         >
           ${formatAmount(breakEven, 3)}
         </Typography>

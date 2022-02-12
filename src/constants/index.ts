@@ -2,8 +2,6 @@ import { BigNumber } from 'ethers';
 
 import { round100, round1, round1000 } from 'utils/math/rounding';
 
-export const ASSETS_LIST = process.env.NEXT_PUBLIC_ASSETS_LIST.split(',');
-
 export const CURRENCIES_MAP = {
   '1': 'ETH',
   '42161': 'ETH',

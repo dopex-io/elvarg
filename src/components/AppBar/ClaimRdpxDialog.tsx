@@ -15,7 +15,8 @@ import CustomButton from 'components/UI/CustomButton';
 import BalanceTree from 'utils/merkle/balance-tree';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 
@@ -41,6 +42,8 @@ const ClaimRdpxModal = ({ open, handleClose }) => {
     },
     onSubmit: noop,
   });
+
+  const sendTx = useSendTx();
 
   const isAddressError = useMemo(() => {
     return formik.touched.address && Boolean(formik.errors.address);

@@ -11,7 +11,8 @@ import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import parseError from 'utils/general/parseError';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -27,6 +28,8 @@ const Exercise = ({ closeModal, data, icon }: DialogProps) => {
   const { updateOptionBalances } = useContext(PortfolioContext);
 
   const [error, setError] = useState('');
+
+  const sendTx = useSendTx();
 
   const stats = useMemo(() => {
     return {
@@ -68,7 +71,7 @@ const Exercise = ({ closeModal, data, icon }: DialogProps) => {
       }
     }
     callExercise();
-  }, [accountAddress, signer, data, contractAddresses]);
+  }, [accountAddress, signer, data, contractAddresses, sendTx]);
 
   const handleClick = async () => {
     try {
