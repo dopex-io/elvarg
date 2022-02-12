@@ -54,6 +54,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/manage/AVAX': [43114],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
+  '/nfts/diamondpepes': [42161],
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
 };
