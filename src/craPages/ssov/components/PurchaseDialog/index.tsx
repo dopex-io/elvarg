@@ -738,7 +738,7 @@ const PurchaseDialog = ({
         setIsPurchaseStatsLoading(false);
       }
     }
-    debounce(async () => await updateOptionPrice(), 1000)();
+    updateOptionPrice();
   }, [
     strikeIndex,
     epochStrikes,
