@@ -124,6 +124,7 @@ export default function AppBar(props: AppBarProps) {
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
   const ssovTokens = {
     42161: ['ETH', 'DPX', 'RDPX', 'GOHM', 'GMX'],
+    421611: ['USDTMock'],
     56: ['BNB'],
     43114: ['AVAX'],
   };

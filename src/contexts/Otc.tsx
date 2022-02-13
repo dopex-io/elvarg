@@ -115,12 +115,12 @@ export const OtcProvider = (props) => {
       contractAddresses.EscrowFactory,
       provider
     );
+
     const escrowCount = (await factory.ESCROW_COUNT()).toNumber();
+
     const currentEscrowIndex = escrowCount > 0 ? escrowCount - 1 : escrowCount;
     const escrowAddresses: Promise<string[]> = Promise.all(
-      range(escrowCount).map(
-        async (_, index) => await factory.escrows(index + 1)
-      )
+      range(escrowCount).map(async (_, index) => await factory.escrows(index))
     );
 
     const escrows: Escrow[] = (await escrowAddresses).map((escrow) =>

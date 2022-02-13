@@ -10,7 +10,7 @@ import Typography from 'components/UI/Typography';
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 import CustomButton from 'components/UI/CustomButton';
 import smartTrim from 'utils/general/smartTrim';
 
@@ -34,6 +34,8 @@ interface WithdrawProps {
 }
 
 const Withdraw = ({ open, handleClose, data }: WithdrawProps) => {
+  const sendTx = useSendTx();
+
   const { selectedEscrowData } = useContext(OtcContext);
   const { provider, signer } = useContext(WalletContext);
 
@@ -48,7 +50,7 @@ const Withdraw = ({ open, handleClose, data }: WithdrawProps) => {
         .connect(signer)
         .withdraw(data.quote.address, data.base.address, data.price)
     );
-  }, [selectedEscrowData.selectedEscrow, provider, data, signer]);
+  }, [selectedEscrowData.selectedEscrow, provider, data, signer, sendTx]);
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>

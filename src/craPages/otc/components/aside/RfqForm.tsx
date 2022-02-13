@@ -24,10 +24,12 @@ import { OtcContext } from 'contexts/Otc';
 import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
 
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 const RfqForm = ({ isLive }: { isLive: boolean }) => {
+  const sendTx = useSendTx();
+
   const { accountAddress, provider, signer } = useContext(WalletContext);
   const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
 
@@ -134,7 +136,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     } catch (e) {
       console.log(`Something went wrong. ERR_CODE ${e}`);
     }
-  }, [formik.values, provider, selectedEscrowData, signer]);
+  }, [formik.values, provider, selectedEscrowData, signer, sendTx]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) validateUser();
@@ -209,6 +211,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     signer,
     handleClose,
     accountAddress,
+    sendTx,
   ]);
 
   // Check allowance

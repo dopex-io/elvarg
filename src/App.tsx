@@ -112,12 +112,13 @@ function AppRoutes() {
         <WalletProvider>
           <AssetsProvider>
             <Routes>
-              <Route path="/" element={<Navigate to="/ssov" />} />
+              <Route path="/ssov" element={<Navigate to="/ssov" />} />
               <Route path="sale" element={<TokenSale />} />
               <Route path="ssov/*" element={<SsovRoutes />} />
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />
+              <Route path="/" element={<Navigate to="/otc" />} />
               <Route path="otc/*" element={<OtcRoutes />} />
               <Route path="*" element={<Error statusCode={404} />} />
             </Routes>

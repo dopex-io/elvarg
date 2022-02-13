@@ -10,7 +10,7 @@ import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 
 interface TradeProps {
   open: boolean;
@@ -32,6 +32,8 @@ interface TradeProps {
 }
 
 const Settle = ({ open, handleClose, data }: TradeProps) => {
+  const sendTx = useSendTx();
+
   const { selectedEscrowData } = useContext(OtcContext);
   const { signer, provider, accountAddress } = useContext(WalletContext);
   const [approved, setApproved] = useState(false);
@@ -52,7 +54,7 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
           data.dealerReceiveAmount
         )
     );
-  }, [signer, provider, data, selectedEscrowData]);
+  }, [signer, provider, data, selectedEscrowData, sendTx]);
 
   const handleApprove = useCallback(async () => {
     const userQuote = ERC20__factory.connect(data.dealerBase.address, provider);
@@ -63,7 +65,7 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
     ).then(() => {
       setApproved(true);
     });
-  }, [data, provider, signer, selectedEscrowData.selectedEscrow]);
+  }, [data, provider, signer, selectedEscrowData.selectedEscrow, sendTx]);
 
   useEffect(() => {
     (async () => {
