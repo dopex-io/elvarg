@@ -6,8 +6,106 @@ import AppBar from 'components/AppBar';
 import styles from './styles.module.scss';
 import CustomButton from '../../../components/UI/CustomButton';
 import { Tooltip } from '@material-ui/core';
+import {
+  Addresses,
+  Aggregation1inchRouterV4__factory,
+  ERC20,
+  ERC20__factory,
+  ERC20SSOV1inchRouter__factory,
+} from '@dopex-io/sdk';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { WalletContext } from '../../../contexts/Wallet';
+import axios from 'axios';
+import { IS_NATIVE } from '../../../contexts/Assets';
+import getDecimalsFromSymbol from '../../../utils/general/getDecimalsFromSymbol';
 
 const DiamondPepesNfts = () => {
+  const { accountAddress, provider, chainId, signer } =
+    useContext(WalletContext);
+  const baseToken = ERC20__factory.connect(
+    Addresses[chainId]['RDPX-WETH'],
+    provider
+  );
+  const baseTokenName = 'RDPX-WETH';
+  const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
+  const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
+  const [token, setToken] = useState<ERC20 | any>(baseToken);
+  const [tokenName, setTokenName] = useState<string>('RDPX-WETH');
+  const [quote, setQuote] = useState<object>({});
+  const [path, setPath] = useState<object>({});
+  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
+
+  const isZapActive: boolean = useMemo(() => {
+    return tokenName.toUpperCase() !== baseTokenName.toUpperCase();
+  }, [tokenName]);
+
+  const getQuote = async () => {
+    const fromTokenAddress: string = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const toTokenAddress: string = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+    if (fromTokenAddress === toTokenAddress) return;
+    const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
+    const { data } = await axios.get(
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+        amount
+      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+    );
+
+    setQuote(data);
+  };
+
+  const getPath = async () => {
+    if (!isZapActive) return;
+    setIsFetchingPath(true);
+    const fromTokenAddress: string = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const toTokenAddress: string = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+  };
+
+  const handleTokenChange = async () => {
+    const symbol = IS_NATIVE(token) ? token : await token.symbol();
+    setTokenName(symbol);
+    await getQuote();
+  };
+
+  const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
+    ? Aggregation1inchRouterV4__factory.connect(
+        Addresses[chainId]['1inchRouter'],
+        signer
+      )
+    : null;
+
+  const nft1inchRouter = Addresses[chainId]['nft1inchRouter']
+    ? ERC20SSOV1inchRouter__factory.connect(
+        // TODO: change this
+        Addresses[chainId]['nft1inchRouter'],
+        signer
+      )
+    : null;
+
+  const checkDEXAggregatorStatus = async () => {
+    try {
+      const { status } = await axios.get(
+        `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
+      );
+      setIsZapInAvailable(
+        !!(status === 200 && (nft1inchRouter || nft1inchRouter))
+      );
+    } catch (err) {
+      setIsZapInAvailable(false);
+    }
+  };
+
+  useEffect(() => {
+    checkDEXAggregatorStatus();
+  }, []);
+
+  useEffect(() => {
+    getPath();
+  }, [isZapInVisible]);
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
