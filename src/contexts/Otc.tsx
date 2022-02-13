@@ -109,7 +109,7 @@ export const OtcProvider = (props) => {
   const [selectedEscrowData, setSelectedEscrowData] = useState<any>({});
 
   const loadContractData = useCallback(async () => {
-    if (!provider || !contractAddresses) return;
+    if (!provider || !contractAddresses || !accountAddress) return;
 
     const factory: EscrowFactory = EscrowFactory__factory.connect(
       contractAddresses.EscrowFactory,

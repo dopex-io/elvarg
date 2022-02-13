@@ -16,6 +16,7 @@ import Accordion from 'components/UI/Accordion';
 import UserDeposits from './components/body/UserDeposits';
 
 import { OtcContext } from 'contexts/Otc';
+import { WalletContext } from 'contexts/Wallet';
 
 import content from './components/banner/content.json';
 import Register from './components/dialogs/Register';
@@ -49,6 +50,7 @@ const MARKETS_PLACEHOLDER = [
 
 const OTC = () => {
   const { user } = useContext(OtcContext);
+  const { accountAddress } = useContext(WalletContext);
 
   const [state, setState] = useState({
     trade: true,
@@ -83,7 +85,9 @@ const OTC = () => {
   return (
     <Box className="bg-black min-h-screen">
       <AppBar active="OTC" />
-      <Register open={dialogState.open} handleClose={handleClose} />
+      {accountAddress ? (
+        <Register open={dialogState.open} handleClose={handleClose} />
+      ) : null}
       <Box className="container pt-24 mx-auto px-4 lg:px-0">
         <Box className="grid grid-cols-12 gap-4">
           <Box className="flex flex-col col-span-2">

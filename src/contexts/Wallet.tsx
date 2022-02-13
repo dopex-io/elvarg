@@ -7,7 +7,10 @@ import Web3Modal from 'web3modal';
 import WalletLink from 'walletlink';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { INFURA_PROJECT_ID, BSC_RPC_URL /*, AVAX_RPC_URL*/ } from 'constants/index';
+import {
+  INFURA_PROJECT_ID,
+  BSC_RPC_URL /*, AVAX_RPC_URL*/,
+} from 'constants/index';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -60,8 +63,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/oracles': [1, 42161, 56 /*, 43114*/],
 };
 
-const DEFAULT_CHAIN_ID =
-  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
+const DEFAULT_CHAIN_ID = 421611;
 
 let web3Modal;
 

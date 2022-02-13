@@ -416,8 +416,11 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             onClick={() =>
               setDialogState((prevState) => ({ ...prevState, open: true }))
             }
+            disabled={!accountAddress}
           >
-            <Typography variant="h6">Submit</Typography>
+            <Typography variant="h6">
+              {!accountAddress ? 'Please Login' : 'Submit'}
+            </Typography>
           </CustomButton>
         )}
         <ConfirmRfqDialog
