@@ -1171,25 +1171,19 @@ const PurchaseDialog = ({
               : null
           }
         >
-          {optionsAmount > 0 ? (
-            isFetchingPath ? (
-              <Box className={'flex'}>
-                <span>Purchase</span>
-              </Box>
-            ) : getUserReadableAmount(state.totalCost, 18) > purchasePower ? (
-              'Insufficient balance'
-            ) : approved ? (
-              userEpochStrikePurchasableAmount < optionsAmount ? (
-                'Not enough liquidity'
-              ) : (
-                'Purchase'
-              )
-            ) : (
-              'Approve'
-            )
-          ) : (
-            'Enter an amount'
-          )}
+          {isPurchaseStatsLoading
+            ? 'Loading prices...'
+            : optionsAmount > 0
+            ? isFetchingPath
+              ? 'Purchase'
+              : getUserReadableAmount(state.totalCost, 18) > purchasePower
+              ? 'Insufficient balance'
+              : approved
+              ? userEpochStrikePurchasableAmount < optionsAmount
+                ? 'Not enough liquidity'
+                : 'Purchase'
+              : 'Approve'
+            : 'Enter an amount'}
         </CustomButton>
       </Box>
 
