@@ -621,90 +621,6 @@ const PurchaseDialog = ({
     formik.setFieldValue('optionsAmount', amount.toFixed(2));
   };
 
-  async function updateOptionPrice() {
-    setIsPurchaseStatsLoading(true);
-    const strike = epochStrikes[strikeIndex];
-    try {
-      const expiry = await ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
-        Math.floor(Date.now() / 1000)
-      );
-
-      let volatility;
-      if (ssovTokenName === 'ETH') {
-        const _abi = ['function getVolatility(uint256) view returns (uint256)'];
-        const _temp = new ethers.Contract(
-          '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
-          _abi,
-          provider
-        );
-        volatility = (await _temp.getVolatility(strike)).toNumber();
-      } else {
-        volatility = (
-          await volatilityOracleContract.getVolatility()
-        ).toNumber();
-      }
-
-      const optionPrice = await ssovOptionPricingContract.getOptionPrice(
-        false,
-        expiry,
-        strike,
-        tokenPrice,
-        volatility
-      );
-
-      const premium = optionPrice
-        .mul(ethersUtils.parseEther(String(formik.values.optionsAmount)))
-        .div(tokenPrice);
-
-      let fees = await ssovContractWithSigner.calculatePurchaseFees(
-        tokenPrice,
-        strike,
-        ethersUtils.parseEther(String(formik.values.optionsAmount))
-      );
-
-      if (ssovTokenSymbol === 'BNB') {
-        const abi = [
-          ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
-        ];
-        const bnbSsov = new ethers.Contract(
-          '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
-          abi,
-          provider
-        );
-        fees = await bnbSsov.vbnbToBnb(fees);
-      }
-
-      let totalCost = premium.add(fees);
-      if (isZapActive && ssovTokenSymbol === 'BNB') {
-        const bnbToVBnb =
-          parseInt(
-            bnbSsovConversion
-              .convertToVBNB(BigNumber.from('100000000000000000000'))
-              .toString()
-          ) / 99.5; // keep 0.5% of extra margin for the router
-        totalCost = BigNumber.from(
-          Math.round(
-            parseInt(premium.add(fees).toString()) * bnbToVBnb
-          ).toString()
-        );
-      }
-
-      setState({
-        volatility,
-        optionPrice,
-        premium,
-        fees,
-        expiry,
-        totalCost: totalCost,
-      });
-
-      setIsPurchaseStatsLoading(false);
-    } catch (err) {
-      console.log(err);
-      setIsPurchaseStatsLoading(false);
-    }
-  }
-
   useEffect(() => {
     handleTokenChange();
   }, [token]);
@@ -735,7 +651,94 @@ const PurchaseDialog = ({
       return;
     }
 
-    debounce(async () => await updateOptionPrice(), 500)();
+    setIsPurchaseStatsLoading(true);
+
+    async function updateOptionPrice() {
+      const strike = epochStrikes[strikeIndex];
+      try {
+        const expiry =
+          await ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
+            Math.floor(Date.now() / 1000)
+          );
+
+        let volatility;
+        if (ssovTokenName === 'ETH') {
+          const _abi = [
+            'function getVolatility(uint256) view returns (uint256)',
+          ];
+          const _temp = new ethers.Contract(
+            '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+            _abi,
+            provider
+          );
+          volatility = (await _temp.getVolatility(strike)).toNumber();
+        } else {
+          volatility = (
+            await volatilityOracleContract.getVolatility()
+          ).toNumber();
+        }
+
+        const optionPrice = await ssovOptionPricingContract.getOptionPrice(
+          false,
+          expiry,
+          strike,
+          tokenPrice,
+          volatility
+        );
+
+        const premium = optionPrice
+          .mul(ethersUtils.parseEther(String(formik.values.optionsAmount)))
+          .div(tokenPrice);
+
+        let fees = await ssovContractWithSigner.calculatePurchaseFees(
+          tokenPrice,
+          strike,
+          ethersUtils.parseEther(String(formik.values.optionsAmount))
+        );
+
+        if (ssovTokenSymbol === 'BNB') {
+          const abi = [
+            ' function vbnbToBnb(uint256 vbnbAmount) public view returns (uint256)',
+          ];
+          const bnbSsov = new ethers.Contract(
+            '0x43a5cfb83d0decaaead90e0cc6dca60a2405442b',
+            abi,
+            provider
+          );
+          fees = await bnbSsov.vbnbToBnb(fees);
+        }
+
+        let totalCost = premium.add(fees);
+        if (isZapActive && ssovTokenSymbol === 'BNB') {
+          const bnbToVBnb =
+            parseInt(
+              bnbSsovConversion
+                .convertToVBNB(BigNumber.from('100000000000000000000'))
+                .toString()
+            ) / 99.5; // keep 0.5% of extra margin for the router
+          totalCost = BigNumber.from(
+            Math.round(
+              parseInt(premium.add(fees).toString()) * bnbToVBnb
+            ).toString()
+          );
+        }
+
+        setState({
+          volatility,
+          optionPrice,
+          premium,
+          fees,
+          expiry,
+          totalCost: totalCost,
+        });
+
+        setIsPurchaseStatsLoading(false);
+      } catch (err) {
+        console.log(err);
+        setIsPurchaseStatsLoading(false);
+      }
+    }
+    updateOptionPrice();
   }, [
     strikeIndex,
     epochStrikes,
@@ -743,7 +746,7 @@ const PurchaseDialog = ({
     ssovOptionPricingContract,
     volatilityOracleContract,
     tokenPrice,
-    formik.values,
+    formik.values.optionsAmount,
     provider,
     ssovTokenName,
   ]);
@@ -1195,7 +1198,6 @@ const PurchaseDialog = ({
             formik.values.optionsAmount <= 0 ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
-            isPurchaseStatsLoading ||
             !isLiquidityEnough
               ? 'mineshaft'
               : 'primary'
@@ -1204,8 +1206,7 @@ const PurchaseDialog = ({
             formik.values.optionsAmount <= 0 ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
-            !isLiquidityEnough ||
-            !!isPurchaseStatsLoading
+            !isLiquidityEnough
           }
           onClick={
             formik.values.optionsAmount > 0 && isPurchasePowerEnough
@@ -1217,19 +1218,25 @@ const PurchaseDialog = ({
               : null
           }
         >
-          {isPurchaseStatsLoading
-            ? 'Loading prices...'
-            : formik.values.optionsAmount > 0
-            ? isFetchingPath
-              ? 'Purchase'
-              : getUserReadableAmount(state.totalCost, 18) > purchasePower
-              ? 'Insufficient balance'
-              : approved
-              ? userEpochStrikePurchasableAmount < formik.values.optionsAmount
-                ? 'Not enough liquidity'
-                : 'Purchase'
-              : 'Approve'
-            : 'Enter an amount'}
+          {formik.values.optionsAmount > 0 ? (
+            isFetchingPath ? (
+              <Box className={'flex'}>
+                <span>Purchase</span>
+              </Box>
+            ) : getUserReadableAmount(state.totalCost, 18) > purchasePower ? (
+              'Insufficient balance'
+            ) : approved ? (
+              userEpochStrikePurchasableAmount < formik.values.optionsAmount ? (
+                'Not enough liquidity'
+              ) : (
+                'Purchase'
+              )
+            ) : (
+              'Approve'
+            )
+          ) : (
+            'Enter an amount'
+          )}
         </CustomButton>
       </Box>
 
