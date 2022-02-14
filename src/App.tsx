@@ -23,7 +23,7 @@ import PageLoader from 'components/PageLoader';
 const Farming = lazy(() => import('craPages/farming/farms'));
 const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
-const Ssov = lazy(() => import('craPages/ssov'));
+const Ssov = lazy(() => import('craPages/ssov/fire'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));

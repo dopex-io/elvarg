@@ -1,103 +1,45 @@
-import { useState } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
 import format from 'date-fns/format';
-import { useNavigate } from 'react-router-dom';
-import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/WalletButton';
-import PurchaseDialog from '../PurchaseDialog';
 import InfoBox from '../InfoBox';
 
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
-import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
-
 import styles from './styles.module.scss';
 
-interface SsovCardProps {
-  className?: string;
-  ssovProperties: SsovProperties;
-  ssovData: SsovData;
-  userSsovData: UserSsovData;
-  ssovIndex: number;
-  setSelectedSsov: Function;
-}
+function SsovCard(props) {
+  const { className, data } = props;
 
-function SsovCard(props: SsovCardProps) {
-  const {
-    className,
-    ssovProperties,
-    ssovData,
-    userSsovData,
-    ssovIndex,
-    setSelectedSsov,
-  } = props;
-  const navigate = useNavigate();
-  const { selectedEpoch, tokenPrice, tokenName } = ssovProperties;
-  const { epochTimes, totalEpochDeposits, APY, isVaultReady } = ssovData
-    ? ssovData
-    : {
-        epochTimes: {},
-        isVaultReady: false,
-        totalEpochDeposits: BigNumber.from(0),
-        APY: '0',
-      };
-  const { userEpochDeposits } =
-    userSsovData !== undefined ? userSsovData : { userEpochDeposits: 0 };
-  const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { convertToBNB } = useBnbSsovConversion();
-
-  const tokenSymbol = tokenName === 'RDPX' ? 'rDPX' : tokenName;
-
-  const TVL = tokenPrice
-    ? ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
-      ? convertToBNB(totalEpochDeposits).mul(tokenPrice).div(1e8).toString()
-      : getUserReadableAmount(totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
-    : 0;
+  const { currentEpoch, totalEpochDeposits, epochTimes, apy, tvl, name, type } =
+    data;
 
   const info = [
     {
       heading: 'Asset',
-      value: tokenSymbol,
-      imgSrc: SSOV_MAP[ssovProperties.tokenName].imageSrc,
+      value: name,
+      imgSrc: SSOV_MAP[name].imageSrc,
     },
     {
       heading: 'APY',
-      value: `${APY ? `${APY}%` : '...'}`,
+      value: `${apy === 0 ? '...' : `${apy}%`}`,
       Icon: Action,
-      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
+      tooltip: ssovInfo[name].aprToolTipMessage,
     },
     {
       heading: 'TVL',
-      value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
+      value: tvl === 0 ? '...' : formatAmount(tvl),
       Icon: Coin,
     },
   ];
-
-  // Ssov data for next epoch
-  const userEpochDepositsAmount =
-    tokenSymbol === 'BNB'
-      ? getUserReadableAmount(userEpochDeposits, 8).toFixed(3)
-      : getUserReadableAmount(userEpochDeposits, 18).toFixed(3);
-
-  const totalEpochDepositsAmount =
-    tokenSymbol === 'BNB'
-      ? getUserReadableAmount(totalEpochDeposits, 8).toFixed(3)
-      : getUserReadableAmount(totalEpochDeposits, 18).toFixed(3);
 
   const epochTimePeriod =
     epochTimes[0] && epochTimes[1]
@@ -108,7 +50,7 @@ function SsovCard(props: SsovCardProps) {
       : 'N/A';
 
   return (
-    <Box className={cx('p-0.5 rounded-xl', styles[tokenName], styles.Box)}>
+    <Box className={cx('p-0.5 rounded-xl', styles[name], styles.Box)}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -120,12 +62,24 @@ function SsovCard(props: SsovCardProps) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
-                alt={tokenSymbol}
+                src={SSOV_MAP[name].imageSrc}
+                alt={name}
               />
             </Box>
             <Box className="flex items-center">
-              <Typography variant="h5">{tokenSymbol} SSOV</Typography>
+              <Typography variant="h5" className="mr-2">
+                {name} SSOV
+              </Typography>
+              <Typography
+                variant="h5"
+                component="div"
+                className={cx(
+                  'capitalize px-2 py-1 rounded-md',
+                  type === 'put' ? 'bg-red-500' : 'bg-green-500'
+                )}
+              >
+                {type + 's'}
+              </Typography>
             </Box>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
@@ -133,96 +87,54 @@ function SsovCard(props: SsovCardProps) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Box>
-            <Box className="bg-umbra shadow-none rounded-lg">
-              <Typography
-                variant="caption"
-                component="div"
-                className="text-stieglitz text-sm px-4 pt-2"
-              >
-                Vault Properties
-              </Typography>
-              <Box className="flex flex-col w-full p-4">
-                <Box className="flex flex-row justify-between mb-3">
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    className="text-stieglitz"
-                  >
-                    Epoch Duration
-                  </Typography>
-                  <Typography variant="caption" component="div">
-                    {epochTimePeriod}
-                  </Typography>
-                </Box>
-                <Box className="flex flex-row justify-between">
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    className="text-stieglitz"
-                  >
-                    Deposits
-                  </Typography>
-                  <Typography variant="caption" component="div">
-                    <span className="text-wave-blue">
-                      {formatAmount(userEpochDepositsAmount, 5)}
-                    </span>{' '}
-                    {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} /{' '}
-                    {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-                    {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol}
-                  </Typography>
-                </Box>
+          {/* <Box className="bg-umbra shadow-none rounded-lg">
+            <Typography
+              variant="caption"
+              component="div"
+              className="text-stieglitz text-sm px-4 pt-2"
+            >
+              Vault Properties
+            </Typography>
+            <Box className="flex flex-col w-full p-4">
+              <Box className="flex flex-row justify-between mb-3">
+                <Typography
+                  variant="caption"
+                  component="div"
+                  className="text-stieglitz"
+                >
+                  Epoch Duration
+                </Typography>
+                <Typography variant="caption" component="div">
+                  {epochTimePeriod}
+                </Typography>
+              </Box>
+              <Box className="flex flex-row justify-between">
+                <Typography
+                  variant="caption"
+                  component="div"
+                  className="text-stieglitz"
+                >
+                  Deposits
+                </Typography>
+                <Typography variant="caption" component="div">
+                  {formatAmount(totalEpochDeposits, 5)} {name}{' '}
+                </Typography>
               </Box>
             </Box>
-          </Box>
-          <Box className="grid grid-cols-2 gap-2 my-4">
-            <CustomButton
-              size="medium"
-              onClick={() => navigate(`/ssov/manage/${tokenName}`)}
-            >
-              Manage
-            </CustomButton>
-            <Tooltip
-              className="text-stieglitz"
-              title={
-                !isVaultReady
-                  ? 'Options can not be bought during the deposit period'
-                  : ''
-              }
-            >
-              <Box className="w-full">
-                <WalletButton
-                  size="medium"
-                  className={cx('w-full', styles.Button)}
-                  onClick={() => {
-                    setPurchaseState(true);
-                    setSelectedSsov(ssovIndex);
-                  }}
-                  disabled={!isVaultReady}
-                >
-                  Buy Options
-                </WalletButton>
-              </Box>
-            </Tooltip>
-          </Box>
+          </Box> */}
+          <CustomButton
+            size="medium"
+            className="my-4"
+            href={`/ssov/manage/${name}`}
+            fullWidth
+          >
+            Manage
+          </CustomButton>
           <Typography variant="h6" className="text-stieglitz">
-            Epoch {selectedEpoch}
+            Epoch {currentEpoch}
           </Typography>
         </Box>
       </Box>
-      {purchaseState && (
-        <PurchaseDialog
-          ssovProperties={ssovProperties}
-          userSsovData={userSsovData}
-          ssovData={ssovData}
-          open={purchaseState}
-          handleClose={
-            (() => {
-              setPurchaseState(false);
-            }) as any
-          }
-        />
-      )}
     </Box>
   );
 }

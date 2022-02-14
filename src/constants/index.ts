@@ -152,6 +152,12 @@ export const SSOV_MAP = {
     coiGeckoId: 'avalanche-2',
     tokens: ['AVAX'],
   },
+  BTC: {
+    tokenSymbol: 'BTC',
+    imageSrc: '/assets/btc.svg',
+    coiGeckoId: 'bitcoin',
+    tokens: ['BTC'],
+  },
 };
 
 export const SHOWCASE_NFTS = [
