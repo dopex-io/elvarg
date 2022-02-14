@@ -1152,12 +1152,14 @@ const PurchaseDialog = ({
             optionsAmount <= 0 ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
+            isPurchaseStatsLoading ||
             !isLiquidityEnough
               ? 'mineshaft'
               : 'primary'
           }
           disabled={
             optionsAmount <= 0 ||
+            !!isPurchaseStatsLoading ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
             !isLiquidityEnough
