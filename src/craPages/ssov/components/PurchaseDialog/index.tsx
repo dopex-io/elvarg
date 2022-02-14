@@ -15,11 +15,9 @@ import {
   Aggregation1inchRouterV4__factory,
 } from '@dopex-io/sdk';
 
-import { useFormik } from 'formik';
 import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
-import debounce from 'lodash/debounce';
 import format from 'date-fns/format';
 import { useDebounce } from 'use-debounce';
 import axios from 'axios';
@@ -280,29 +278,12 @@ const PurchaseDialog = ({
     );
   };
 
-  const formik = useFormik({
-    initialValues: {
-      optionsAmount: 1,
-    },
-    enableReinitialize: true,
-    validationSchema: yup.object({
-      optionsAmount: yup
-        .number()
-        .min(0, 'Amount has to be greater than 0')
-        .required('Amount is required'),
-    }),
-    validate: () => {
-      const errors: any = {};
-      if (state.totalCost.gt(userTokenBalance)) {
-        errors.amount = `Insufficient ${tokenName} balance to pay for premium.`;
-      }
-      return errors;
-    },
-    onSubmit: noop,
-  });
+  const [rawOptionsAmount, setRawOptionsAmount] = useState<string>('1');
+  const optionsAmount: number = useMemo(() => {
+    return parseFloat(rawOptionsAmount) || 0;
+  }, [rawOptionsAmount]);
 
-  const isLiquidityEnough =
-    formik.values.optionsAmount < userEpochStrikePurchasableAmount;
+  const isLiquidityEnough = optionsAmount < userEpochStrikePurchasableAmount;
   const isPurchasePowerEnough =
     purchasePower >= getUserReadableAmount(state.totalCost, 18);
 
@@ -446,7 +427,7 @@ const PurchaseDialog = ({
           await sendTx(
             ssovRouter.purchase(
               strikeIndex,
-              getContractReadableAmount(formik.values.optionsAmount, 18),
+              getContractReadableAmount(optionsAmount, 18),
               accountAddress,
               {
                 value: state.totalCost,
@@ -457,7 +438,7 @@ const PurchaseDialog = ({
           await sendTx(
             ssovContractWithSigner.purchase(
               strikeIndex,
-              getContractReadableAmount(formik.values.optionsAmount, 18),
+              getContractReadableAmount(optionsAmount, 18),
               accountAddress,
               {
                 value: state.totalCost,
@@ -469,7 +450,7 @@ const PurchaseDialog = ({
           await sendTx(
             ssovContractWithSigner.purchase(
               strikeIndex,
-              getContractReadableAmount(formik.values.optionsAmount, 18),
+              getContractReadableAmount(optionsAmount, 18),
               accountAddress
             )
           );
@@ -498,10 +479,7 @@ const PurchaseDialog = ({
               decoded[2],
               {
                 strikeIndex: strikeIndex,
-                amount: getContractReadableAmount(
-                  formik.values.optionsAmount,
-                  18
-                ),
+                amount: getContractReadableAmount(optionsAmount, 18),
                 to: accountAddress,
               },
               {
@@ -518,10 +496,7 @@ const PurchaseDialog = ({
                   decoded[2],
                   {
                     strikeIndex: strikeIndex,
-                    amount: getContractReadableAmount(
-                      formik.values.optionsAmount,
-                      18
-                    ),
+                    amount: getContractReadableAmount(optionsAmount, 18),
                     to: accountAddress,
                   }
                 )
@@ -535,10 +510,7 @@ const PurchaseDialog = ({
                   decoded[2],
                   {
                     strikeIndex: strikeIndex,
-                    amount: getContractReadableAmount(
-                      formik.values.optionsAmount,
-                      18
-                    ),
+                    amount: getContractReadableAmount(optionsAmount, 18),
                     to: accountAddress,
                   }
                 )
@@ -546,7 +518,7 @@ const PurchaseDialog = ({
         }
       }
 
-      formik.setFieldValue('optionsAmount', 0);
+      setRawOptionsAmount('0');
       updateSsovData();
       updateUserSsovData();
       updateAssetBalances();
@@ -606,6 +578,7 @@ const PurchaseDialog = ({
   }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
 
   const setMaxAmount = async () => {
+    if (isPurchaseStatsLoading) return;
     const strike: BigNumber = epochStrikes[strikeIndex];
     const fees: BigNumber = await ssovContractWithSigner.calculatePurchaseFees(
       tokenPrice,
@@ -618,7 +591,7 @@ const PurchaseDialog = ({
           getUserReadableAmount(state.optionPrice, 8) /
             getUserReadableAmount(tokenPrice, 8))) *
       0.97; // margin of safety;
-    formik.setFieldValue('optionsAmount', amount.toFixed(2));
+    setRawOptionsAmount(amount.toFixed(2));
   };
 
   useEffect(() => {
@@ -636,8 +609,8 @@ const PurchaseDialog = ({
       !ssovContractWithSigner ||
       !ssovOptionPricingContract ||
       !volatilityOracleContract ||
-      formik.values.optionsAmount === 0 ||
-      formik.values.optionsAmount.toString() === ''
+      optionsAmount === 0 ||
+      optionsAmount.toString() === ''
     ) {
       setState((prev) => ({
         ...prev,
@@ -687,13 +660,13 @@ const PurchaseDialog = ({
         );
 
         const premium = optionPrice
-          .mul(ethersUtils.parseEther(String(formik.values.optionsAmount)))
+          .mul(ethersUtils.parseEther(String(optionsAmount)))
           .div(tokenPrice);
 
         let fees = await ssovContractWithSigner.calculatePurchaseFees(
           tokenPrice,
           strike,
-          ethersUtils.parseEther(String(formik.values.optionsAmount))
+          ethersUtils.parseEther(String(optionsAmount))
         );
 
         if (ssovTokenSymbol === 'BNB') {
@@ -742,11 +715,11 @@ const PurchaseDialog = ({
   }, [
     strikeIndex,
     epochStrikes,
+    optionsAmount,
     ssovContractWithSigner,
     ssovOptionPricingContract,
     volatilityOracleContract,
     tokenPrice,
-    formik.values.optionsAmount,
     provider,
     ssovTokenName,
   ]);
@@ -784,19 +757,6 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     userAssetBalances.ETH,
   ]);
-
-  useEffect(() => {
-    if (
-      !isZapInVisible &&
-      formik.values.zapInAmount >
-        getUserReadableAmount(
-          userTokenBalance,
-          getDecimalsFromSymbol(tokenName, chainId)
-        )
-    ) {
-      setTokenName(ssovTokenSymbol);
-    }
-  }, [isZapInVisible]);
 
   useEffect(() => {
     getPath();
@@ -859,13 +819,8 @@ const PurchaseDialog = ({
             placeholder="0"
             type="number"
             className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
-            value={formik.values.optionsAmount}
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.optionsAmount &&
-              Boolean(formik.errors.optionsAmount)
-            }
+            value={rawOptionsAmount}
+            onChange={(e) => setRawOptionsAmount(e.target.value)}
             classes={{ input: 'text-right' }}
           />
         </Box>
@@ -902,7 +857,7 @@ const PurchaseDialog = ({
                   getUserReadableAmount(state.optionPrice, 8)
                 }
                 optionPrice={getUserReadableAmount(state.optionPrice, 8)}
-                amount={formik.values.optionsAmount}
+                amount={optionsAmount}
                 isPut={false}
                 price={getUserReadableAmount(tokenPrice, 8)}
                 symbol={ssovTokenSymbol}
@@ -1086,7 +1041,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(formik.values.optionsAmount, 0)}
+                {formatAmount(optionsAmount, 3)}
               </Typography>
             </Box>
           </Box>
@@ -1114,8 +1069,7 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 $
                 {formatAmount(
-                  getUserReadableAmount(state.optionPrice, 8) *
-                    formik.values.optionsAmount,
+                  getUserReadableAmount(state.optionPrice, 8) * optionsAmount,
                   0
                 )}
               </Typography>
@@ -1195,48 +1149,44 @@ const PurchaseDialog = ({
           size="medium"
           className="w-full mt-4 !rounded-md"
           color={
-            formik.values.optionsAmount <= 0 ||
+            optionsAmount <= 0 ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
+            isPurchaseStatsLoading ||
             !isLiquidityEnough
               ? 'mineshaft'
               : 'primary'
           }
           disabled={
-            formik.values.optionsAmount <= 0 ||
+            optionsAmount <= 0 ||
+            !!isPurchaseStatsLoading ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
             !isLiquidityEnough
           }
           onClick={
-            formik.values.optionsAmount > 0 && isPurchasePowerEnough
+            optionsAmount > 0 && isPurchasePowerEnough
               ? approved
-                ? userEpochStrikePurchasableAmount < formik.values.optionsAmount
+                ? userEpochStrikePurchasableAmount < optionsAmount
                   ? null
                   : handlePurchase
                 : handleApprove
               : null
           }
         >
-          {formik.values.optionsAmount > 0 ? (
-            isFetchingPath ? (
-              <Box className={'flex'}>
-                <span>Purchase</span>
-              </Box>
-            ) : getUserReadableAmount(state.totalCost, 18) > purchasePower ? (
-              'Insufficient balance'
-            ) : approved ? (
-              userEpochStrikePurchasableAmount < formik.values.optionsAmount ? (
-                'Not enough liquidity'
-              ) : (
-                'Purchase'
-              )
-            ) : (
-              'Approve'
-            )
-          ) : (
-            'Enter an amount'
-          )}
+          {isPurchaseStatsLoading
+            ? 'Loading prices...'
+            : optionsAmount > 0
+            ? isFetchingPath
+              ? 'Purchase'
+              : getUserReadableAmount(state.totalCost, 18) > purchasePower
+              ? 'Insufficient balance'
+              : approved
+              ? userEpochStrikePurchasableAmount < optionsAmount
+                ? 'Not enough liquidity'
+                : 'Purchase'
+              : 'Approve'
+            : 'Enter an amount'}
         </CustomButton>
       </Box>
 
