@@ -578,6 +578,7 @@ const PurchaseDialog = ({
   }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
 
   const setMaxAmount = async () => {
+    if (isPurchaseStatsLoading) return;
     const strike: BigNumber = epochStrikes[strikeIndex];
     const fees: BigNumber = await ssovContractWithSigner.calculatePurchaseFees(
       tokenPrice,
