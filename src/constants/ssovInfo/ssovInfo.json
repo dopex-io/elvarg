@@ -7,7 +7,7 @@
     "aprToolTipMessage": "This is the base APY calculated from DPX rewards distribution for this SSOV",
     "mainPageMessage": "Deposit ETH into strikes providing liquidity into option pools to earn DPX rewards and premiums in ETH from each option purchase."
   },
-  "rDPX": {
+  "RDPX": {
     "aprToolTipMessage": "This is the base APY calculated from the rDPX single staking farm",
     "mainPageMessage": "Deposit rDPX into strikes providing liquidity into option pools to earn staked auto-compounded DPX and rDPX rewards and premiums in rDPX from each option purchase."
   },
@@ -26,5 +26,9 @@
   "AVAX": {
     "aprToolTipMessage": "This is the base APY calculated from TraderJoe's AVAX APY",
     "mainPageMessage": "Deposit AVAX into strikes providing liquidity into option pools and earn premiums from each option purchase."
+  },
+  "BTC": {
+    "aprToolTipMessage": "This is the base APY calculated from Curve 2Pool Fees and Rewards",
+    "mainPageMessage": "Deposit Curve 2Pool LP into strikes providing liquidity into option pools and earn premiums from each option purchase."
   }
 }

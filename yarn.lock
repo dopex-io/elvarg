@@ -1280,10 +1280,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
-"@dopex-io/sdk@^1.0.0-alpha.62":
-  version "1.0.0-alpha.62"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.62.tgz#0477381e465e7ea599edfd0116fc28c73b80b651"
-  integrity sha512-zkLJWrO0ykvYdIJAwFlFSao7WP82o2gKglb8vJFgdz9r4QBrtIDxISvXX5OPW44D22O/ak9ZsTED5a4vfkzHnw==
+"@dopex-io/sdk@^1.0.0-alpha.64":
+  version "1.0.0-alpha.64"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.64.tgz#a60a8ec1b6d6fee40788ae9a50a54b171e75ae50"
+  integrity sha512-NHqbAoUfwfxL68c/GtS6i9SIIbfXhB8eEsxzIeOyE5e4g0yfYg0zFRVf01G78GTk5XabGEUUG6Xb/PkiSSTusg==
   dependencies:
     ethers "^5.5.3"
 
