@@ -324,7 +324,6 @@ export const SsovProvider = (props) => {
         ),
       ];
 
-      console.log(_tokens, 'finally');
       const _ssovContractWithSigner = Curve2PoolSsovPut__factory.connect(
         SSOVAddresses[asset].Vault,
         signer

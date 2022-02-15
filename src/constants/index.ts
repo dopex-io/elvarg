@@ -113,31 +113,31 @@ export const SSOV_PUTS_MAP = {
     tokenSymbol: 'rDPX',
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
-    tokens: ['CRV2POOL'],
+    tokens: ['2CRV'],
   },
   GOHM: {
     tokenSymbol: 'GOHM',
     imageSrc: '/assets/gohm.svg',
     coinGeckoId: 'governance-ohm',
-    tokens: ['CRV2POOL'],
+    tokens: ['2CRV'],
   },
   ETH: {
     tokenSymbol: 'DPX',
     imageSrc: '/assets/dpx.svg',
     coinGeckoId: 'dopex',
-    tokens: ['CRV2POOL'],
+    tokens: ['2CRV'],
   },
   BTC: {
     tokenSymbol: 'BTC',
     imageSrc: '/assets/btc.svg',
     coiGeckoId: 'bitcoin',
-    tokens: ['CRV2POOL'],
+    tokens: ['2CRV'],
   },
   GMX: {
     tokenSymbol: 'GMX',
     imageSrc: '/assets/gmx.svg',
     coinGeckoId: 'gmx',
-    tokens: ['CRV2POOL'],
+    tokens: ['2CRV'],
   },
 };
 export const SSOV_MAP = {

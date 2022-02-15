@@ -81,7 +81,6 @@ const ZapInButton = ({
     extreme: 'text-red-500',
     inactive: 'text-green-500',
   };
-
   return isZapInAvailable ? (
     path['error'] ? (
       <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">

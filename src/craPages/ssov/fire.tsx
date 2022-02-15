@@ -64,7 +64,6 @@ const Ssov = () => {
                   <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
                     {ssovs
                       ? ssovs[key].map((ssov, index) => {
-                          console.log(ssov);
                           return <SsovCard key={index} data={{ ...ssov }} />;
                         })
                       : null}
