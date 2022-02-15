@@ -84,9 +84,9 @@ const ZapInButton = ({
   return isZapInAvailable ? (
     path['error'] ? (
       <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">
-        <RedTriangleIcon className="mt-0.5 mr-2.5" />
+        <RedTriangleIcon className="ml-6 mt-0.5 mr-2.5" />
         <Typography variant="h6" className="text-white">
-          Impossible to find a route
+          Zap in Currently Disabled
         </Typography>
       </Box>
     ) : isFetchingPath ? (

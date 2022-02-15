@@ -21,7 +21,7 @@ import format from 'date-fns/format';
 import { isNaN } from 'formik';
 import axios from 'axios';
 import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
@@ -68,6 +68,10 @@ const SelectMenuProps = {
     paper: 'bg-mineshaft',
   },
 };
+
+const usdcAddress = '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8';
+const usdtAddress = '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9';
+const crv2Address = '0x7f90122bf0700f9e7e1f688fe926940e8839f353';
 
 const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const {
@@ -188,12 +192,12 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
 
   const isZapActive: boolean = useMemo(() => {
     return (
-      tokenName.toUpperCase() !== ssovDepositPurchaseTokens[0].toUpperCase()
+      tokenName.toUpperCase() === ssovDepositPurchaseTokens[0].toUpperCase()
     );
   }, [tokenName, ssovDepositPurchaseTokens]);
 
   const [denominationTokenName, setDenomationTokenName] =
-    useState<string>(ssovTokenName);
+    useState<string>('2CRV');
 
   const spender: string = isZapActive
     ? ssovRouter.address
@@ -328,10 +332,21 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   );
 
   const handleApprove = useCallback(async () => {
+    if (!ssovContractWithSigner || !ssovRouter) return;
+    let currentToken = crv2Address;
+    if (denominationTokenName === 'USDT') {
+      currentToken = usdtAddress;
+    } else if (denominationTokenName === 'USDC') {
+      currentToken = usdcAddress;
+    } else if (denominationTokenName === '2CRV') {
+      currentToken = crv2Address;
+    }
     try {
       await sendTx(
-        ERC20__factory.connect(token.address, signer).approve(
-          spender,
+        ERC20__factory.connect(currentToken, signer).approve(
+          denominationTokenName === '2CRV'
+            ? ssovContractWithSigner.address
+            : ssovRouter.address,
           MAX_VALUE
         )
       );
@@ -339,90 +354,71 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     } catch (err) {
       console.log(err);
     }
-  }, [token, sendTx, signer, spender]);
-
+  }, [
+    sendTx,
+    signer,
+    spender,
+    denominationTokenName,
+    ssovRouter.address,
+    ssovContractWithSigner.address,
+  ]);
+  const strikeIndexes = selectedStrikeIndexes.filter(
+    (index) =>
+      contractReadableStrikeDepositAmounts[index] &&
+      contractReadableStrikeDepositAmounts[index].gt('0')
+  );
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
+    let currentToken;
+    if (denominationTokenName === 'USDT') {
+      currentToken = usdtAddress;
+    } else if (denominationTokenName === 'USDC') {
+      currentToken = usdcAddress;
+    } else if (denominationTokenName === '2CRV') {
+      currentToken = crv2Address;
+    }
+
     try {
       const strikeIndexes = selectedStrikeIndexes.filter(
         (index) =>
           contractReadableStrikeDepositAmounts[index] &&
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
-
-      if (ssovTokenName !== tokenName) {
+      if (denominationTokenName === '2CRV') {
+        console.log('direct with contract');
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
-            strikeIndexes.map((index) => strikeDepositAmounts[index]),
+            strikeIndexes.map((index) =>
+              getContractReadableAmount(
+                strikeDepositAmounts[index],
+                getDecimalsFromSymbol(denominationTokenName, chainId)
+              )
+            ),
             accountAddress
           )
         );
-      } else {
-        const decoded = aggregation1inchRouter.interface.decodeFunctionData(
-          'swap',
-          path['tx']['data']
+      } else if (
+        denominationTokenName === 'USDT' ||
+        denominationTokenName === 'USDC'
+      ) {
+        await sendTx(
+          ssovRouter.swapAndDepositMultipleFromSingle(
+            getContractReadableAmount(
+              totalDepositAmount,
+              getDecimalsFromSymbol(denominationTokenName, chainId)
+            ),
+            currentToken,
+            strikeIndexes,
+            strikeIndexes.map((index) =>
+              ethers.utils
+                .parseEther(strikeDepositAmounts[index].toString())
+                .sub(ethers.utils.parseEther('0.01'))
+            ),
+            accountAddress,
+            ssovProperties.ssovContract.address
+          )
         );
-
-        const toTokenAmount: BigNumber = BigNumber.from(path['toTokenAmount']);
-        const price =
-          parseFloat(path['toTokenAmount']) /
-          parseFloat(path['fromTokenAmount']);
-        let total = BigNumber.from('0');
-        let amounts = [];
-        strikeIndexes.map((index) => {
-          const amount = getContractReadableAmount(
-            // @ts-ignore
-            strikeDepositAmounts[index] *
-              (denominationTokenName !== ssovTokenName ? price : 1),
-            getDecimalsFromSymbol(ssovTokenName, chainId)
-          );
-          amounts.push(amount);
-          total = total.add(amount);
-        });
-
-        if (total.gt(toTokenAmount)) {
-          const difference = total.sub(toTokenAmount);
-          const toSubtract = difference.div(amounts.length);
-          for (let i in amounts) amounts[i] = amounts[i].sub(toSubtract);
-        }
-
-        if (IS_NATIVE(tokenName)) {
-          const value = getContractReadableAmount(
-            totalDepositAmount /
-              (denominationTokenName === ssovTokenName ? price : 1),
-            getDecimalsFromSymbol(tokenName, chainId)
-          );
-
-          await sendTx(
-            erc20SSOV1inchRouter.swapNativeAndDepositMultiple(
-              ssovProperties.ssovContract.address,
-              ssovToken.address,
-              decoded[0],
-              decoded[1],
-              decoded[2],
-              strikeIndexes,
-              amounts,
-              accountAddress,
-              {
-                value: value,
-              }
-            )
-          );
-        } else {
-          await sendTx(
-            erc20SSOV1inchRouter.swapAndDepositMultiple(
-              ssovProperties.ssovContract.address,
-              ssovToken.address,
-              decoded[0],
-              decoded[1],
-              decoded[2],
-              strikeIndexes,
-              amounts,
-              accountAddress
-            )
-          );
-        }
       }
 
       setStrikeDepositAmounts(() => ({}));
@@ -441,18 +437,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     updateUserSsovData,
     updateAssetBalances,
     accountAddress,
-    tokenName,
-    totalDepositAmount,
-    aggregation1inchRouter.interface,
-    chainId,
     denominationTokenName,
-    erc20SSOV1inchRouter,
-    path,
     sendTx,
     ssovProperties.ssovContract.address,
-    ssovToken.address,
-    ssovTokenName,
     strikeDepositAmounts,
+    ssovRouter,
+    totalDepositAmount,
+    chainId,
   ]);
 
   const checkDEXAggregatorStatus = useCallback(async () => {
@@ -467,107 +458,49 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       setIsZapInAvailable(false);
     }
   }, [erc20SSOV1inchRouter, chainId, nativeSSOV1inchRouter]);
-  const getPath = useCallback(async () => {
-    if (isZapActive) {
-      setIsFetchingPath(true);
-      const fromTokenAddress = IS_NATIVE(token)
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : token.address;
-      const toTokenAddress = ssovToken.address;
-      const fromTokenDecimals = IS_NATIVE(token)
-        ? getDecimalsFromSymbol(token, chainId)
-        : await token.decimals();
-      if (fromTokenAddress === ssovToken.address) return;
-      const amount = Math.round(totalDepositAmount * 10 ** fromTokenDecimals);
-      if (isNaN(amount) || amount <= 0) return;
-      try {
-        const { data } = await axios.get(
-          `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
-        );
-        setPath(data);
-      } catch (err) {
-        setPath({ error: 'Invalid amounts' });
-      }
-    }
-    setIsFetchingPath(false);
-  }, [
-    isZapActive,
-    chainId,
-    ssovToken.address,
-    token,
-    totalDepositAmount,
-    slippageTolerance,
-    spender,
-  ]);
 
   useEffect(() => {
     checkDEXAggregatorStatus();
   }, [checkDEXAggregatorStatus]);
 
   useEffect(() => {
-    getPath();
-  }, [getPath, strikeDepositAmounts, denominationTokenName]);
-
-  useEffect(() => {
     handleTokenChange();
   }, [token, handleTokenChange]);
 
-  // Updates approved state
-  useEffect(() => {
-    (async () => {
-      const finalAmount: BigNumber = getContractReadableAmount(
-        totalDepositAmount.toString(),
-        getDecimalsFromSymbol(ssovTokenName, chainId)
-      );
-
-      if (IS_NATIVE(token)) {
-        setApproved(true);
-      } else {
-        const allowance: BigNumber = await token.allowance(
-          accountAddress,
-          spender
-        );
-        setApproved(allowance.gte(finalAmount));
-      }
-    })();
-  }, [
-    token,
-    accountAddress,
-    ssovContractWithSigner,
-    approved,
-    totalDepositAmount,
-    chainId,
-    spender,
-    ssovTokenName,
-  ]);
-
   // Handles isApproved
   useEffect(() => {
-    if (!token || !ssovContractWithSigner || !accountAddress) return;
+    if (!token || !ssovContractWithSigner || !ssovRouter || !accountAddress)
+      return;
+
+    let currentToken;
+    if (denominationTokenName === 'USDT') {
+      currentToken = usdtAddress;
+    } else if (denominationTokenName === 'USDC') {
+      currentToken = usdcAddress;
+    } else if (denominationTokenName === '2CRV') {
+      currentToken = crv2Address;
+    }
     (async function () {
       const finalAmount = getContractReadableAmount(
         totalDepositAmount.toString(),
         getDecimalsFromSymbol(ssovTokenName, chainId)
       );
-
-      let userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances.ETH)
-        : await token.balanceOf(accountAddress);
+      let _token = ERC20__factory.connect(currentToken, provider);
+      let userAmount = await _token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance = IS_NATIVE(token)
-        ? BigNumber.from(0)
-        : await token.allowance(accountAddress, spender);
-
+      let allowance = await _token.allowance(
+        accountAddress,
+        denominationTokenName === '2CRV'
+          ? ssovContractWithSigner.address
+          : ssovRouter.address
+      );
       if (finalAmount.lte(allowance) && !allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (IS_NATIVE(token)) {
-          setApproved(true);
-        } else {
-          setApproved(false);
-        }
+        console.log(allowance.toString());
+        setApproved(false);
       }
     })();
   }, [
@@ -580,6 +513,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     chainId,
     spender,
     ssovTokenName,
+    denominationTokenName,
+    provider,
+    ssovRouter,
   ]);
 
   return (
@@ -620,7 +556,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                 </Box>
               </Box>
             </Box>
-            {isZapActive ? (
+            {!isZapActive ? (
               <Box className="w-1/3">
                 <ZapOutButton
                   isZapActive={isZapActive}
@@ -749,51 +685,69 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                         label="tokens"
                       >
                         <MenuItem
-                          key={tokenName}
-                          value={tokenName}
+                          key={'USDC'}
+                          value={'USDC'}
                           className="pb-2 pt-2"
                         >
                           <Checkbox
                             className={
-                              denominationTokenName.toUpperCase() ===
-                              tokenName.toUpperCase()
+                              denominationTokenName.toUpperCase() === 'USDC'
                                 ? 'p-0 text-white'
                                 : 'p-0 text-white border'
                             }
                             checked={
-                              denominationTokenName.toUpperCase() ===
-                              tokenName.toUpperCase()
+                              denominationTokenName.toUpperCase() === 'USDC'
                             }
                           />
                           <Typography
                             variant="h5"
                             className="text-white text-left w-full relative ml-3"
                           >
-                            {tokenName}
+                            {'USDC'}
                           </Typography>
                         </MenuItem>
                         <MenuItem
-                          key={ssovTokenName}
-                          value={ssovTokenName}
+                          key={'USDT'}
+                          value={'USDT'}
                           className="pb-2 pt-2"
                         >
                           <Checkbox
                             className={
-                              denominationTokenName.toUpperCase() ===
-                              ssovTokenName.toUpperCase()
+                              denominationTokenName.toUpperCase() === 'USDT'
                                 ? 'p-0 text-white'
                                 : 'p-0 text-white border'
                             }
                             checked={
-                              denominationTokenName.toUpperCase() ===
-                              ssovTokenName.toUpperCase()
+                              denominationTokenName.toUpperCase() === 'USDT'
                             }
                           />
                           <Typography
                             variant="h5"
                             className="text-white text-left w-full relative ml-3"
                           >
-                            {ssovTokenName}
+                            {'USDT'}
+                          </Typography>
+                        </MenuItem>
+                        <MenuItem
+                          key={'2CRV'}
+                          value={'2CRV'}
+                          className="pb-2 pt-2"
+                        >
+                          <Checkbox
+                            className={
+                              denominationTokenName.toUpperCase() === '2CRV'
+                                ? 'p-0 text-white'
+                                : 'p-0 text-white border'
+                            }
+                            checked={
+                              denominationTokenName.toUpperCase() === '2CRV'
+                            }
+                          />
+                          <Typography
+                            variant="h5"
+                            className="text-white text-left w-full relative ml-3"
+                          >
+                            {'2CRV'}
                           </Typography>
                         </MenuItem>
                       </Select>
@@ -976,7 +930,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   openZapIn={openZapIn}
                   isZapActive={isZapActive}
                   quote={quote}
-                  path={path}
+                  path={{ error: true }}
                   isFetchingPath={isFetchingPath}
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
@@ -984,7 +938,6 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   isZapInAvailable={isZapInAvailable}
                   chainId={chainId}
                 />
-
                 <Box className="flex">
                   <Box className="flex text-center p-2 mr-2 mt-1">
                     <LockerIcon />
@@ -1018,23 +971,15 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                     </Typography>
                   )}
                 </Box>
-
                 <CustomButton
                   size="medium"
                   className="w-full mt-4 !rounded-md"
                   color={
-                    (isPurchasePowerEnough || !approved) &&
-                    isDepositWindowOpen &&
-                    totalDepositAmount > 0
+                    isDepositWindowOpen && totalDepositAmount > 0
                       ? 'primary'
                       : 'mineshaft'
                   }
-                  disabled={
-                    !isPurchasePowerEnough ||
-                    !isDepositWindowOpen ||
-                    totalDepositAmount <= 0 ||
-                    path['error']
-                  }
+                  disabled={!isDepositWindowOpen || totalDepositAmount <= 0}
                   onClick={approved ? handleDeposit : handleApprove}
                 >
                   {!isDepositWindowOpen && isVaultReady && (
@@ -1053,13 +998,11 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                   )}
                   {isDepositWindowOpen
                     ? approved
-                      ? totalDepositAmount === 0
-                        ? 'Insert an amount'
-                        : isPurchasePowerEnough
+                      ? totalDepositAmount > 0
                         ? 'Deposit'
-                        : 'Insufficient balance'
+                        : 'Insert an amount'
                       : 'Approve'
-                    : ''}
+                    : 'Deposits are closed'}
                 </CustomButton>
               </Box>
             </Box>
