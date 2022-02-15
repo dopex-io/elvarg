@@ -66,7 +66,7 @@ function SsovCard(props) {
                 alt={name}
               />
             </Box>
-            <Box className="flex items-center">
+            <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h5" className="mr-2">
                 {name} SSOV
               </Typography>
@@ -75,7 +75,7 @@ function SsovCard(props) {
                 component="div"
                 className={cx(
                   'capitalize px-2 py-1 rounded-md',
-                  type === 'put' ? 'bg-red-500' : 'bg-green-500'
+                  type === 'put' ? 'bg-down-bad' : 'bg-emerald-500'
                 )}
               >
                 {type + 's'}
