@@ -28,6 +28,7 @@ import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 
 import { OtcContext } from 'contexts/Otc';
+import { WalletContext } from 'contexts/Wallet';
 
 import { db } from 'utils/firebase/initialize';
 import CustomButton from 'components/UI/CustomButton';
@@ -36,7 +37,8 @@ const Chatroom = () => {
   const chat = useParams();
   const navigate = useNavigate();
 
-  const { validateUser, user, orders } = useContext(OtcContext);
+  const { validateUser, user } = useContext(OtcContext);
+  const { accountAddress } = useContext(WalletContext);
 
   const validationSchema = yup.object({
     msg: yup.string().required('Cannot send empty message'),
@@ -57,7 +59,7 @@ const Chatroom = () => {
 
   const [msgs] = useCollectionData(q, { idField: 'id' });
 
-  const [admin, setAdmin] = useState('');
+  const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [fulfilled, setFulfilled] = useState(false);
 
@@ -100,9 +102,6 @@ const Chatroom = () => {
 
   useEffect(() => {
     (async () => {
-      if (!msgs) setLoading(true);
-      else setLoading(false);
-
       const querySnapshot = await getDocs(collection(db, 'chatrooms'));
       let chatrooms = [];
       querySnapshot.forEach((doc) => {
@@ -110,12 +109,12 @@ const Chatroom = () => {
       });
 
       const chatroomData = chatrooms
-        .filter((document) => {
-          return document.id === chat.id;
-        })
+        .filter((document) => document.id === chat.id)
         .pop();
 
       setFulfilled(chatroomData.data.isFulfilled);
+
+      setLoading(!msgs);
     })();
   }, [msgs, validateUser, formik, chat.id]);
 
@@ -124,12 +123,11 @@ const Chatroom = () => {
       const docRef = (await getDocs(collection(db, 'chatrooms'))).docs.flatMap(
         (doc) => doc
       );
-      const result = docRef.find((doc) => doc.get('dealer') === user?.username);
+      const result = docRef.find((doc) => doc.id === chat.id);
 
-      if (result) setAdmin(result.get('dealer'));
-      else setAdmin('');
+      setAdmin(result.data().dealerAddress === accountAddress);
     })();
-  }, [user]);
+  }, [user, accountAddress, chat.id]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -149,7 +147,7 @@ const Chatroom = () => {
                   {chat.id}
                 </Typography>
               </Box>
-              {user?.username === admin ? (
+              {admin && (
                 <Box className="my-auto pr-3">
                   <Tooltip
                     className="text-stieglitz"
@@ -161,17 +159,17 @@ const Chatroom = () => {
                         size="small"
                         color="down-bad"
                         onClick={handleDelete}
-                        disabled={fulfilled}
+                        disabled={fulfilled || loading}
                       >
                         Close RFQ
                       </CustomButton>
                     </Box>
                   </Tooltip>
                 </Box>
-              ) : null}
+              )}
             </Box>
           </Box>
-          <Box className="h-full overflow-y-scroll flex flex-col-reverse">
+          <Box className="h-full overflow-y-scroll flex flex-col-reverse p-0">
             {loading ? (
               <Box className="flex h-full justify-center">
                 <CircularProgress className="self-center" />
