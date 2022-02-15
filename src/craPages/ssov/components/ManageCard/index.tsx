@@ -856,7 +856,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                                   ? getUserReadableAmount(
                                       userAssetBalances[denominationTokenName],
                                       18
-                                    )
+                                    ) / 2
                                   : purchasePower / 2
                                 ).toFixed(4)
                               )
@@ -880,7 +880,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                                   ? getUserReadableAmount(
                                       userAssetBalances[denominationTokenName],
                                       18
-                                    )
+                                    ) / 3
                                   : purchasePower / 3
                                 ).toFixed(4)
                               )
