@@ -31,12 +31,11 @@ const Ssov = () => {
   useEffect(() => {
     async function getData() {
       const data = await axios
-        .get('http://localhost:3000/api/v1/ssov')
+        .get('https://api.dopex.io/api/v1/ssov')
         .then((payload) => payload.data);
 
       setSsovs(data);
     }
-
     getData();
   }, []);
 

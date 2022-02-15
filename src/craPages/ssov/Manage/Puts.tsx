@@ -4,10 +4,10 @@ import Head from 'next/head';
 import Box from '@material-ui/core/Box';
 
 import AppBar from 'components/AppBar';
-import Description from '../components/Description';
-import ManageCard from '../components/ManageCard';
-import ExerciseList from '../components/ExerciseList';
-import Stats from '../components/Stats';
+import Description from '../ssov-p/components/Description';
+import ManageCard from '../ssov-p/components/ManageCard';
+import ExerciseList from '../ssov-p/components/ExerciseList';
+import Stats from '../ssov-p/components/Stats';
 import PageLoader from 'components/PageLoader';
 
 import {
@@ -15,7 +15,7 @@ import {
   SsovProperties,
   SsovData,
   UserSsovData,
-} from 'contexts/Ssov';
+} from 'contexts/SsovPuts';
 
 const Manage = () => {
   const { asset } = useParams();
@@ -85,10 +85,10 @@ const Manage = () => {
             />
             <ManageCard ssovProperties={ssovProperties} />
           </Box>
-          {userSsovData === undefined ? null : (
+          {/* {userSsovData === undefined ? null : (
             <ExerciseList ssovProperties={ssovProperties} />
-          )}
-          <Stats ssovProperties={ssovProperties} className="mt-4" />
+          )} */}
+          {/* <Stats ssovProperties={ssovProperties} className="mt-4" /> */}
         </Box>
       </Box>
     </Box>

@@ -108,7 +108,38 @@ export const STAT_NAMES = {
     expiry: 'New Expiry',
   },
 };
-
+export const SSOV_PUTS_MAP = {
+  RDPX: {
+    tokenSymbol: 'rDPX',
+    imageSrc: '/assets/rdpx.svg',
+    coinGeckoId: 'dopex-rebate-token',
+    tokens: ['CRV2POOL'],
+  },
+  GOHM: {
+    tokenSymbol: 'GOHM',
+    imageSrc: '/assets/gohm.svg',
+    coinGeckoId: 'governance-ohm',
+    tokens: ['CRV2POOL'],
+  },
+  ETH: {
+    tokenSymbol: 'DPX',
+    imageSrc: '/assets/dpx.svg',
+    coinGeckoId: 'dopex',
+    tokens: ['CRV2POOL'],
+  },
+  BTC: {
+    tokenSymbol: 'BTC',
+    imageSrc: '/assets/btc.svg',
+    coiGeckoId: 'bitcoin',
+    tokens: ['CRV2POOL'],
+  },
+  GMX: {
+    tokenSymbol: 'GMX',
+    imageSrc: '/assets/gmx.svg',
+    coinGeckoId: 'gmx',
+    tokens: ['CRV2POOL'],
+  },
+};
 export const SSOV_MAP = {
   DPX: {
     tokenSymbol: 'DPX',

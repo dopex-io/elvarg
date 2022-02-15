@@ -6,17 +6,17 @@ import {
   useCallback,
 } from 'react';
 import {
-  NativeSSOV__factory,
-  ERC20SSOV__factory,
   SSOVOptionPricing__factory,
   VolatilityOracle__factory,
   ERC20__factory,
   ERC20,
   VolatilityOracle,
   SSOVOptionPricing,
-  BnbSSOVRouter,
-  BnbSSOVRouter__factory,
 } from '@dopex-io/sdk';
+
+import { Curve2PoolSsovPut__factory } from 'contexts/temp-types/factories/Curve2PoolSsovPut__factory';
+import { Curve2PoolSsovPut1inchRouter } from './temp-types/Curve2PoolSsovPut1inchRouter';
+
 import { BigNumber } from 'ethers';
 import axios from 'axios';
 
@@ -24,7 +24,8 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { WalletContext } from './Wallet';
 
-import { SSOV_MAP } from 'constants/index';
+import { SSOV_PUTS_MAP } from 'constants/index';
+import { Curve2PoolSsovPut1inchRouter__factory } from './temp-types/factories/Curve2PoolSsovPut1inchRouter__factory';
 
 export interface SsovProperties {
   tokenName?: string;
@@ -40,7 +41,7 @@ export interface SsovProperties {
 export interface SsovSigner {
   token: ERC20[];
   ssovContractWithSigner?: any;
-  ssovRouter?: BnbSSOVRouter;
+  ssovRouter?: Curve2PoolSsovPut1inchRouter;
 }
 
 export interface SsovData {
@@ -49,7 +50,7 @@ export interface SsovData {
   isVaultReady: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
-  totalEpochCallsPurchased: BigNumber[];
+  totalEpochPutsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   totalEpochDeposits: BigNumber;
   settlementPrice: BigNumber;
@@ -60,7 +61,7 @@ export interface UserSsovData {
   userEpochDeposits: string;
   epochStrikeTokens: ERC20[];
   userEpochStrikeDeposits: BigNumber[];
-  userEpochCallsPurchased: BigNumber[];
+  userEpochPutsPurchased: BigNumber[];
 }
 
 interface SsovContextInterface {
@@ -78,7 +79,7 @@ const initialUserSsovDataArray = [0, 1, 2, 3, 4].map(() => {
   return {
     userEpochStrikeDeposits: [],
     userEpochDeposits: '0',
-    userEpochCallsPurchased: [],
+    userEpochPutsPurchased: [],
     epochStrikeTokens: [],
   };
 });
@@ -86,7 +87,51 @@ const initialUserSsovDataArray = [0, 1, 2, 3, 4].map(() => {
 const initialSsovSignerArray = [0, 1, 2, 3, 4].map(() => {
   return { token: null, ssovContractWithSigner: null };
 });
-
+// '0x9D973C4C04df928F18081e952B407D718D2dAE4E',
+// '0xc8067b488A77D84e85AeDBb2dE5d094A5e1c469A',
+// '0x4F06645416a38a020CfFaa97cE4DAD04c1Be9906',
+// '0x29d5D552bde776abF45C75Fe4fE01A3B59F26798',
+// '0x920063B722d4FA90866f2aA3c150d129a10546ff',
+const contractAddresses = {
+  CRV2POOL: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
+  SSOV: {
+    RDPX: {
+      Vault: '0x9D973C4C04df928F18081e952B407D718D2dAE4E',
+      VolatilityOracle: '0x39801002866657f95cB111bff0f3B7218cB6da1C',
+      OptionPricing: '0x2b99e3D67dAD973c1B9747Da742B7E26c8Bdd67B',
+      Router: '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
+      tokens: ['CRV2POOL'],
+    },
+    ETH: {
+      Vault: '0xc8067b488A77D84e85AeDBb2dE5d094A5e1c469A',
+      VolatilityOracle: '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+      OptionPricing: '0x2b99e3D67dAD973c1B9747Da742B7E26c8Bdd67B',
+      Router: '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
+      tokens: ['CRV2POOL'],
+    },
+    GOHM: {
+      Vault: '0x4F06645416a38a020CfFaa97cE4DAD04c1Be9906',
+      VolatilityOracle: '0x746c3914d3c11139178B1aeDd6f3f7EACF756ABF',
+      OptionPricing: '0x2b99e3D67dAD973c1B9747Da742B7E26c8Bdd67B',
+      Router: '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
+      tokens: ['CRV2POOL'],
+    },
+    GMX: {
+      Vault: '0x29d5d552bde776abf45c75fe4fe01a3b59f26798',
+      VolatilityOracle: '0x6BC4eF91db2A18cBF557d3339F263872A8F112e4',
+      OptionPricing: '0x2b99e3D67dAD973c1B9747Da742B7E26c8Bdd67B',
+      Router: '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
+      tokens: ['CRV2POOL'],
+    },
+    BTC: {
+      Vault: '0x920063B722d4FA90866f2aA3c150d129a10546ff',
+      VolatilityOracle: '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+      OptionPricing: '0x2b99e3D67dAD973c1B9747Da742B7E26c8Bdd67B',
+      Router: '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
+      tokens: ['CRV2POOL'],
+    },
+  },
+};
 export const SsovContext = createContext<SsovContextInterface>({
   ssovPropertiesArray: [],
   ssovDataArray: [],
@@ -96,8 +141,7 @@ export const SsovContext = createContext<SsovContextInterface>({
 });
 
 export const SsovProvider = (props) => {
-  const { accountAddress, contractAddresses, provider, signer } =
-    useContext(WalletContext);
+  const { accountAddress, provider, signer } = useContext(WalletContext);
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsov, setSelectedSsov] = useState<number | null>(null);
@@ -118,19 +162,19 @@ export const SsovProvider = (props) => {
     const SSOVAddresses = contractAddresses.SSOV;
     const userSsovData: UserSsovData[] = [];
     for (const asset in SSOVAddresses) {
-      const ssovContract =
-        asset === 'ETH'
-          ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
-          : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
+      const ssovContract = Curve2PoolSsovPut__factory.connect(
+        SSOVAddresses[asset].Vault,
+        provider
+      );
 
       // current epoch
       const [
         userEpochStrikeDeposits,
-        userEpochCallsPurchased,
+        userEpochCPutsPurchased,
         epochStrikeTokens,
       ] = await Promise.all([
         ssovContract.getUserEpochDeposits(selectedEpoch, accountAddress),
-        ssovContract.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+        ssovContract.getUserEpochPutsPurchased(selectedEpoch, accountAddress),
         ssovContract.getEpochStrikeTokens(selectedEpoch),
       ]);
 
@@ -142,7 +186,7 @@ export const SsovProvider = (props) => {
         .toString();
       userSsovData.push({
         userEpochStrikeDeposits: userEpochStrikeDeposits,
-        userEpochCallsPurchased: userEpochCallsPurchased,
+        userEpochPutsPurchased: userEpochCPutsPurchased,
         epochStrikeTokens: epochStrikeTokens.map((token) =>
           ERC20__factory.connect(token, provider)
         ),
@@ -150,17 +194,17 @@ export const SsovProvider = (props) => {
       });
     }
     setUserSsovDataArray(userSsovData);
-  }, [accountAddress, contractAddresses, provider, selectedEpoch]);
+  }, [accountAddress, provider, selectedEpoch]);
 
   const updateSsovData = useCallback(async () => {
     if (!contractAddresses || !selectedEpoch) return;
     const SSOVAddresses = contractAddresses.SSOV;
     const ssovData: SsovData[] = [];
     for (const asset in SSOVAddresses) {
-      const ssovContract =
-        asset === 'ETH'
-          ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
-          : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
+      const ssovContract = Curve2PoolSsovPut__factory.connect(
+        SSOVAddresses[asset].Vault,
+        provider
+      );
       // current epoch
       const [
         epochTimes,
@@ -169,7 +213,7 @@ export const SsovProvider = (props) => {
         epochStrikes,
         totalEpochDeposits,
         totalEpochStrikeDeposits,
-        totalEpochCallsPurchased,
+        totalEpochPutsPurchased,
         totalEpochPremium,
         settlementPrice,
       ] = await Promise.all([
@@ -179,8 +223,8 @@ export const SsovProvider = (props) => {
         ssovContract.getEpochStrikes(selectedEpoch),
         ssovContract.totalEpochDeposits(selectedEpoch),
         ssovContract.getTotalEpochStrikeDeposits(selectedEpoch),
-        ssovContract.getTotalEpochCallsPurchased(selectedEpoch),
-        ssovContract.getTotalEpochPremium(selectedEpoch),
+        ssovContract.getTotalEpochPutsPurchased(selectedEpoch),
+        ssovContract.totalEpochPremium(selectedEpoch),
         ssovContract.settlementPrices(selectedEpoch),
       ]);
 
@@ -189,6 +233,11 @@ export const SsovProvider = (props) => {
         .then((res) => formatAmount(res.data.apy, 2))
         .catch(() => '0');
 
+      const _totalEpochStrikePremium = await Promise.all(
+        epochStrikes.map((strike) =>
+          ssovContract.totalEpochStrikePremium(selectedEpoch, strike)
+        )
+      );
       ssovData.push({
         epochTimes: epochTimes,
         isEpochExpired: isEpochExpired,
@@ -196,14 +245,14 @@ export const SsovProvider = (props) => {
         epochStrikes: epochStrikes,
         totalEpochDeposits: totalEpochDeposits,
         totalEpochStrikeDeposits: totalEpochStrikeDeposits,
-        totalEpochCallsPurchased: totalEpochCallsPurchased,
-        totalEpochPremium: totalEpochPremium,
+        totalEpochPutsPurchased: totalEpochPutsPurchased,
+        totalEpochPremium: _totalEpochStrikePremium,
         settlementPrice,
         APY,
       });
     }
     setSsovDataArray(ssovData);
-  }, [contractAddresses, selectedEpoch, provider]);
+  }, [selectedEpoch, provider]);
 
   useEffect(() => {
     if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
@@ -213,10 +262,10 @@ export const SsovProvider = (props) => {
       const SSOVAddresses = contractAddresses.SSOV;
 
       for (const asset in SSOVAddresses) {
-        const _ssovContract =
-          asset === 'ETH' || asset === 'AVAX'
-            ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, provider)
-            : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, provider);
+        const _ssovContract = Curve2PoolSsovPut__factory.connect(
+          SSOVAddresses[asset].Vault,
+          provider
+        );
 
         // Epoch
         try {
@@ -230,6 +279,7 @@ export const SsovProvider = (props) => {
           } else {
             setSelectedEpoch(Number(currentEpoch));
           }
+
           let tempSsov = {
             tokenName: asset.toUpperCase(),
             ssovContract: _ssovContract,
@@ -258,7 +308,7 @@ export const SsovProvider = (props) => {
     }
 
     update();
-  }, [contractAddresses, provider, selectedEpoch]);
+  }, [provider, selectedEpoch]);
 
   useEffect(() => {
     if (!contractAddresses || !signer || !contractAddresses.SSOV) return;
@@ -266,27 +316,24 @@ export const SsovProvider = (props) => {
     const ssovSignerArray = [];
 
     for (const asset in SSOVAddresses) {
-      const tokens = SSOV_MAP[asset].tokens;
+      const tokens = SSOV_PUTS_MAP[asset].tokens;
+      const _tokens = [
+        ERC20__factory.connect(
+          '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
+          signer
+        ),
+      ];
 
-      const _tokens = tokens.map((tokenName: string) => {
-        if (tokenName === 'ETH' || tokenName === 'AVAX') {
-          return null;
-        } else {
-          return (
-            contractAddresses[tokenName] &&
-            ERC20__factory.connect(contractAddresses[tokenName], signer)
-          );
-        }
-      });
-
-      const _ssovContractWithSigner =
-        asset === 'ETH' || asset === 'AVAX'
-          ? NativeSSOV__factory.connect(SSOVAddresses[asset].Vault, signer)
-          : ERC20SSOV__factory.connect(SSOVAddresses[asset].Vault, signer);
+      console.log(_tokens, 'finally');
+      const _ssovContractWithSigner = Curve2PoolSsovPut__factory.connect(
+        SSOVAddresses[asset].Vault,
+        signer
+      );
       const _ssovRouterWithSigner =
-        asset === 'BNB' && SSOVAddresses[asset].Router
-          ? BnbSSOVRouter__factory.connect(SSOVAddresses[asset].Router, signer)
-          : undefined;
+        Curve2PoolSsovPut1inchRouter__factory.connect(
+          SSOVAddresses[asset].Router,
+          signer
+        );
 
       ssovSignerArray.push({
         token: _tokens,
@@ -295,7 +342,7 @@ export const SsovProvider = (props) => {
       });
     }
     setSsovSignerArray(ssovSignerArray);
-  }, [contractAddresses, signer, accountAddress]);
+  }, [signer, accountAddress]);
 
   useEffect(() => {
     updateUserSsovData();
