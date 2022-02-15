@@ -357,10 +357,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   }, [
     sendTx,
     signer,
-    spender,
     denominationTokenName,
-    ssovRouter.address,
-    ssovContractWithSigner.address,
+    ssovRouter,
+    ssovContractWithSigner,
   ]);
   const strikeIndexes = selectedStrikeIndexes.filter(
     (index) =>
@@ -548,7 +547,9 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
                       ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
                       : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   }
-                  onClick={() => setActiveTab('withdraw')}
+                  onClick={() =>
+                    isVaultReady === true ? setActiveTab('withdraw') : ''
+                  }
                 >
                   <Typography variant="h6" className="text-xs font-normal">
                     Withdraw

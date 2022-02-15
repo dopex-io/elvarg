@@ -58,13 +58,13 @@ const Description = ({
     },
     {
       heading: 'Farm APY',
-      value: `${!APY ? '...' : APY.toString() + '%'}`,
+      value: `...`,
       Icon: Action,
       tooltip: ssovInfo[tokenSymbol]?.aprToolTipMessage,
     },
     {
       heading: 'TVL',
-      value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
+      value: `...`,
       Icon: Coin,
     },
   ];
