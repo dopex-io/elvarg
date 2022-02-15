@@ -280,6 +280,7 @@ export const AssetsProvider = (props) => {
         VBNB: '0',
         GMX: '0',
         AVAX: '0',
+        '2CRV': '0',
       };
 
       const assets = Object.keys(userAssetBalances)

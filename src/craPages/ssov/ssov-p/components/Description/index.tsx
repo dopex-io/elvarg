@@ -100,7 +100,7 @@ const Description = ({
               }}
               disabled={!isVaultReady}
             >
-              Buy Call Options
+              Buy Put Options
             </CustomButton>
           </Box>
         </Tooltip>
