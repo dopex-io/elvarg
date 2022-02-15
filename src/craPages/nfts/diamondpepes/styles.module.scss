@@ -1,17 +1,51 @@
-.title {
-  text-shadow: 0px -6px 54px rgba(105, 173, 184, 0.94);
-  line-height: 5.5rem;
+.pepeText {
+  background: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  background-image: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  text-transform: uppercase;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.pepeButton:hover {
+  opacity: 0.9;
+}
+
+.pepeButton {
+  background: #43609a;
+  box-shadow: inset 2px 2px 0px #7193d6, inset -3px -3px 0px #213459;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+  width: 100%;
+  font-family: Minecraft, serif;
+  padding: 0.7rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  text-transform: uppercase;
+  z-index: 50;
+  position: relative;
+}
+
+.pepeButton:disabled {
+  background: #343c4d;
+  box-shadow: inset 2px 2px 0px #1b2740, inset -3px -3px 0px #19243c;
+  color: #78859e;
+  border: 1px solid #000000;
+  cursor: not-allowed;
 }
 
 @media (min-width: 700px) {
   .backgroundOverlay {
+    position: absolute;
     min-height: 100vh;
-    background: radial-gradient(
-      72.18% 72.18% at 50% 100%,
-      rgba(0, 46, 255, 0.31) 0%,
-      #282f43 0.01%,
-      rgba(41, 49, 70, 0) 100%
-    );
+    width: 100%;
+    opacity: 0.3;
+    background: linear-gradient(0deg, #141832 0%, rgba(20, 24, 50, 0) 107.46%),
+      url('/assets/pepebg.png');
+    z-index: 0;
   }
   .mobileBackgroundOverlay {
     display: none;

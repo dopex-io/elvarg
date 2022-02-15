@@ -6,7 +6,6 @@ module.exports = {
       sans: ['Ilisarniq'],
       serif: ['Ilisarniq'],
       mono: ['JetBrains Mono', 'monospace'],
-      display: ['VT323'],
     },
     extend: {
       colors: {

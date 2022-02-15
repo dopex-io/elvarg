@@ -30,6 +30,18 @@
   font-weight: 700;
 }
 
+@font-face {
+  font-family: PressStart2P;
+  src: url('/fonts/PressStart2P-Regular.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Minecraft;
+  src: url('/fonts/Minecraft.ttf');
+  font-weight: 400;
+}
+
 body {
   overflow-y: auto;
   overflow-x: hidden;
