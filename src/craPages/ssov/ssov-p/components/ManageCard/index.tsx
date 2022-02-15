@@ -412,7 +412,13 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             strikeIndexes.map((index) =>
               ethers.utils
                 .parseEther(strikeDepositAmounts[index].toString())
-                .sub(ethers.utils.parseEther('0.01'))
+                .sub(
+                  ethers.utils.parseEther(
+                    (
+                      parseInt(strikeDepositAmounts[index].toString()) * 0.01
+                    ).toString()
+                  )
+                )
             ),
             accountAddress,
             ssovProperties.ssovContract.address

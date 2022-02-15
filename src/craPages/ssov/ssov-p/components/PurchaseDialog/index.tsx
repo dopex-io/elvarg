@@ -749,7 +749,7 @@ const PurchaseDialog = ({
       }}
     >
       <Box className="flex flex-row items-center mb-4">
-        <Typography variant="h5">Buy Call Option</Typography>
+        <Typography variant="h5">Buy Put Option</Typography>
 
         <ZapOutButton
           isZapActive={isZapActive}
