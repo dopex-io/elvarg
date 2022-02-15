@@ -57,20 +57,22 @@ const Ssov = () => {
         </Box>
         <LegacyEpochsDropDown />
         {ssovs
-          ? Object.keys(ssovs).map((key) => {
-              return (
-                <Box key={key} className="mb-4">
-                  <NetworkHeader chainId={Number(key)} />
-                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-                    {ssovs
-                      ? ssovs[key].map((ssov, index) => {
-                          return <SsovCard key={index} data={{ ...ssov }} />;
-                        })
-                      : null}
+          ? Object.keys(ssovs)
+              .sort((a, b) => (a > b ? 1 : -1))
+              .map((key) => {
+                return (
+                  <Box key={key} className="mb-12">
+                    <NetworkHeader chainId={Number(key)} />
+                    <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+                      {ssovs
+                        ? ssovs[key].map((ssov, index) => {
+                            return <SsovCard key={index} data={{ ...ssov }} />;
+                          })
+                        : null}
+                    </Box>
                   </Box>
-                </Box>
-              );
-            })
+                );
+              })
           : null}
       </Box>
     </Box>
