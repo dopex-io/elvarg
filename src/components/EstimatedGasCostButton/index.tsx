@@ -24,7 +24,7 @@ const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
         tokenPriceInUsd = record['price'];
     });
     return estimatedGasCost * tokenPriceInUsd;
-  }, [estimatedGasCost, tokenPrices]);
+  }, [estimatedGasCost, tokenPrices, chainId]);
 
   useEffect(() => {
     const updateEstimatedGasCost = async () => {
