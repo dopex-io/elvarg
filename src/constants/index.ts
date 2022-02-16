@@ -299,6 +299,8 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
 
 export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
+export const ANKR_KEY = process.env.NEXT_PUBLIC_ANKR_KEY;
+
 export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
 export const AVAX_RPC_URL = process.env.NEXT_PUBLIC_AVAX_RPC_URL;
