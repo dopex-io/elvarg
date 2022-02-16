@@ -19,10 +19,11 @@ export interface Props {
   isFetchingPath: boolean;
   path: object;
   tokenName: string;
-  ssovTokenSymbol: number;
+  ssovTokenSymbol: string;
   selectedTokenPrice: number;
   isZapInAvailable: boolean;
   chainId: number;
+  background?: string;
 }
 
 const ZapInButton = ({
@@ -36,6 +37,7 @@ const ZapInButton = ({
   selectedTokenPrice,
   isZapInAvailable,
   chainId,
+  background = 'bg-neutral-700',
 }: Props) => {
   const pathPrice: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
@@ -84,14 +86,18 @@ const ZapInButton = ({
 
   return isZapInAvailable ? (
     path['error'] ? (
-      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">
+      <Box
+        className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full ${background}`}
+      >
         <RedTriangleIcon className="mt-0.5 mr-2.5" />
         <Typography variant="h6" className="text-white">
           Impossible to find a route
         </Typography>
       </Box>
     ) : isFetchingPath ? (
-      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 text-white">
+      <Box
+        className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full text-white ${background}`}
+      >
         <CircularProgress color="inherit" size="17px" className="mr-3 mt-0.5" />
         <Typography variant="h6">Fetching best route...</Typography>
       </Box>
@@ -124,7 +130,7 @@ const ZapInButton = ({
         placement={'top'}
       >
         <Box
-          className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 cursor-pointer hover:bg-neutral-600"
+          className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full cursor-pointer ${background} hover:opacity-90`}
           onClick={openZapIn}
         >
           {slippageStatus === 'inactive' || !isZapActive ? (
@@ -179,7 +185,9 @@ const ZapInButton = ({
       </Tooltip>
     )
   ) : (
-    <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">
+    <Box
+      className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full ${background}`}
+    >
       <YellowTriangleIcon className="mt-0.5 mr-2.5" />
       <Typography variant="h6" className="text-white">
         Zap is temporarily not available

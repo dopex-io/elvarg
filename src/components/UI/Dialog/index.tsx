@@ -15,6 +15,7 @@ const useStyles = makeStyles(() => ({
 
 interface Props extends Omit<MaterialDialogProps, 'onClose'> {
   width?: number;
+  background?: string;
   showCloseIcon?: boolean;
   handleClose?: (e, reason) => void;
 }
@@ -22,6 +23,7 @@ interface Props extends Omit<MaterialDialogProps, 'onClose'> {
 const Dialog = ({
   classes,
   children,
+  background = 'bg-cod-gray',
   handleClose,
   showCloseIcon = false,
   width,
@@ -37,7 +39,7 @@ const Dialog = ({
       classes={{
         ...classes,
         root: backDrop,
-        paper: 'bg-cod-gray rounded-2xl p-4',
+        paper: background + ' rounded-2xl p-4',
       }}
       PaperProps={{ style: { width: width || 400 } }}
       onClose={handleClose}
