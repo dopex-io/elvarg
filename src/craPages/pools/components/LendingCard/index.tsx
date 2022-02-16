@@ -42,11 +42,7 @@ function LendingCard({ className }: { className?: string }) {
     >
       <Box className="flex flex-row mb-4 justify-between">
         <Box className="flex flex-row">
-          <img
-            className="w-10 h-10 mt-1"
-            src={'/assets/usdtlending.svg'}
-            alt={'USDT'}
-          />
+          <img className="w-10 h-10 mt-1" src="/assets/usdt.svg" alt="USDT" />
           <Box className="mx-2 h-8 flex flex-col">
             <Typography variant="h5" className="text-white">
               USDT Lending Pool

@@ -85,7 +85,7 @@ function Pools() {
             onClick={() => setSelectedPool(SelectedPool.VOLUME_POOLS)}
           />
           <PoolSelectorButton
-            startIcon={<img src={'/assets/usdtlending.svg'} alt="USDT" />}
+            startIcon={<img src={'/assets/usdt.svg'} alt="USDT" />}
             title={'Lending Pools'}
             subtitle={'USDT'}
             isSelected={selectedPool === SelectedPool.LENDING_POOLS}
