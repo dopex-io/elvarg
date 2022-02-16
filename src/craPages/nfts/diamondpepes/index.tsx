@@ -5,15 +5,15 @@ import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import styles from './styles.module.scss';
 import { Tooltip } from '@material-ui/core';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { DiamondPepeContext } from '../../../contexts/DiamondPepe';
 import { DiamondPepeProvider } from '../../../contexts/DiamondPepe';
+import PurchaseDialog from '../components/PurchaseDialog';
 
 const DiamondPepesNfts = () => {
   const { data, userData } = useContext(DiamondPepeContext);
-
-  console.log(data);
-  console.log(userData);
+  const [isPurchaseDialogVisible, setIsPurchaseDialogVisible] =
+    useState<boolean>(false);
 
   const boxes = [
     { title: 'Genesis', subTitle: 'Collection' },
@@ -29,6 +29,16 @@ const DiamondPepesNfts = () => {
         <Head>
           <title>Diamond Pepes NFTs | Dopex</title>
         </Head>
+        <PurchaseDialog
+          open={isPurchaseDialogVisible}
+          handleClose={
+            (() => {
+              setIsPurchaseDialogVisible(false);
+            }) as any
+          }
+          userData={userData}
+          data={data}
+        />
         <Box>
           <Box className={styles.backgroundOverlay} />
           <Box className={styles.mobileBackgroundOverlay} />
@@ -102,7 +112,12 @@ const DiamondPepesNfts = () => {
 
                 <Box className="ml-5 mb-5 md:mt-10 md:mb-0">
                   <Tooltip title={'Not open yet'}>
-                    <button className={styles.pepeButton}>Deposit</button>
+                    <button
+                      className={styles.pepeButton}
+                      onClick={() => setIsPurchaseDialogVisible(true)}
+                    >
+                      Deposit
+                    </button>
                   </Tooltip>
                 </Box>
               </Box>
