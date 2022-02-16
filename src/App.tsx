@@ -77,24 +77,18 @@ const NftsRoutes = () => {
 function AppRoutes() {
   // if (BUILD === 'testnet') {
   //   return (
-  //     <BrowserRouter>
+  //     <BrowserRouter forceRefresh={false}>
   //       <Suspense fallback={<PageLoader />}>
-  //         <WalletProvider>
-  //           <AssetsProvider>
-  //             <Routes>
-  //               <Route path="/" element={<Options />} />
-  //               <Route path="/pools" element={<Pools />} />
-  //               <Route path="/pools/manage" element={<PoolsManage />} />
-  //               <Route path="/pools/volume" element={<PoolsVolume />} />
-  //               <Route path="/pools/margin" element={<PoolsMargin />} />
-  //               <Route path="/portfolio" element={<Portfolio />} />
-  //               <Route path="/faucet" element={<TestnetFaucet />} />
-  //               <Route path="/swap" element={<Swap />} />
-  //               <Route path="ssov/*" element={<SsovRoutes />} />
-  //               <Route path="*" element={<Error statusCode={404} />} />
-  //             </Routes>
-  //           </AssetsProvider>
-  //         </WalletProvider>
+  //         <Route path="/" element={<Options />} />
+  //         <Route path="/pools" element={<Pools />} />
+  //         <Route path="/pools/manage" element={<PoolsManage />} />
+  //         <Route path="/pools/volume" element={<PoolsVolume />} />
+  //         <Route path="/pools/margin" element={<PoolsMargin />} />
+  //         <Route path="/portfolio" element={<Portfolio />} />
+  //         <Route path="/faucet" element={<TestnetFaucet />} />
+  //         <Route path="/swap" element={<Swap />} />
+  //         <Route path="ssov/*" element={<SsovRoutes />} />
+  //         <Route path="*" element={<Error statusCode={404} />} />
   //       </Suspense>
   //     </BrowserRouter>
   //   );
