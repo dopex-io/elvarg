@@ -12,7 +12,6 @@ import CustomButton from 'components/UI/CustomButton';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -20,6 +19,7 @@ import { PortfolioContext } from 'contexts/Portfolio';
 import { STAT_NAMES, MAX_VALUE, DELEGATE_INFO } from 'constants/index';
 
 import { DialogProps } from '.';
+import useSendTx from 'hooks/useSendTx';
 
 const AddCollateral = ({ closeModal, data, icon }: DialogProps) => {
   const { accountAddress, contractAddresses, blockTime, signer } =
@@ -29,6 +29,8 @@ const AddCollateral = ({ closeModal, data, icon }: DialogProps) => {
   const [amount, setAmount] = useState('');
   const [approved, setApproved] = useState(false);
   const [error, setError] = useState('');
+
+  const sendTx = useSendTx();
 
   const optionsAmount = getUserReadableAmount(data.userBalance, 18);
 
@@ -108,6 +110,7 @@ const AddCollateral = ({ closeModal, data, icon }: DialogProps) => {
     contractAddresses,
     setApproved,
     updateOptionBalances,
+    sendTx,
   ]);
 
   const handleAdd = useCallback(async () => {
@@ -137,6 +140,7 @@ const AddCollateral = ({ closeModal, data, icon }: DialogProps) => {
     closeModal,
     updateOptionBalances,
     signer,
+    sendTx,
   ]);
 
   return (

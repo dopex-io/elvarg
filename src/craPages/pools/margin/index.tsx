@@ -29,9 +29,9 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import calculateApy from 'utils/contracts/calculateApy';
-import sendTx from 'utils/contracts/sendTx';
 
 import styles from './styles.module.scss';
+import useSendTx from 'hooks/useSendTx';
 
 export interface Props {
   open: boolean;
@@ -49,6 +49,8 @@ const Margin = () => {
   const [error, setError] = useState('');
   const [approved, setApproved] = useState(false);
   const [maxApprove, setMaxApprove] = useState(false);
+
+  const sendTx = useSendTx();
 
   const validationSchema = yup.object({
     amount: yup
@@ -159,6 +161,7 @@ const Margin = () => {
     contractAddresses,
     usdtContract,
     usdtDecimals,
+    sendTx,
   ]);
 
   const handleDeposit = useCallback(async () => {
@@ -195,6 +198,7 @@ const Margin = () => {
     userAssetBalances,
     updateMarginPoolData,
     contractAddresses,
+    sendTx,
   ]);
 
   const handleWithdraw = useCallback(async () => {
@@ -222,6 +226,8 @@ const Margin = () => {
     updateMarginPoolData,
     contractAddresses,
     userMarginPoolDeposits,
+    usdtDecimals,
+    sendTx,
   ]);
 
   useEffect(() => {

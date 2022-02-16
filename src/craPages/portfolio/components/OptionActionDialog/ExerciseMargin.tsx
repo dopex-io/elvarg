@@ -11,7 +11,6 @@ import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import parseError from 'utils/general/parseError';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -20,6 +19,7 @@ import { BASE_ASSET_MAP, STAT_NAMES } from 'constants/index';
 import getTimePeriod from 'utils/contracts/getTimePeriod';
 
 import { DialogProps } from '.';
+import useSendTx from 'hooks/useSendTx';
 
 const ExerciseMargin = ({ closeModal, data, icon }: DialogProps) => {
   const { accountAddress, contractAddresses, signer } =
@@ -27,6 +27,8 @@ const ExerciseMargin = ({ closeModal, data, icon }: DialogProps) => {
   const { updateOptionBalances } = useContext(PortfolioContext);
 
   const [error, setError] = useState('');
+
+  const sendTx = useSendTx();
 
   const stats = useMemo(() => {
     return {
@@ -68,7 +70,7 @@ const ExerciseMargin = ({ closeModal, data, icon }: DialogProps) => {
       }
     }
     callExercise();
-  }, [accountAddress, signer, data, contractAddresses]);
+  }, [accountAddress, signer, data, contractAddresses, sendTx]);
 
   const handleClick = async () => {
     try {
