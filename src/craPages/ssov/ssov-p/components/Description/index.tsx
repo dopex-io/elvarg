@@ -3,9 +3,9 @@ import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import InfoBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 
@@ -17,9 +17,9 @@ import Action from 'assets/icons/Action';
 import { SsovProperties, SsovData, UserSsovData } from 'contexts/SsovPuts';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
+
 import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
+import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
 

@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-
 import {
   Addresses,
   ERC20,
@@ -14,15 +13,6 @@ import {
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
 } from '@dopex-io/sdk';
-
-import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
-import * as yup from 'yup';
-import noop from 'lodash/noop';
-import format from 'date-fns/format';
-import { useDebounce } from 'use-debounce';
-import axios from 'axios';
-import styles from './styles.module.scss';
-
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -31,53 +21,61 @@ import Menu from '@material-ui/core/Menu';
 import Slide from '@material-ui/core/Slide';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
+import format from 'date-fns/format';
+import { useDebounce } from 'use-debounce';
+import axios from 'axios';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
-import ZapIn from '../../../../components/ZapIn';
-import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
-import ZapInButton from '../../../../components/ZapInButton';
-import ZapOutButton from '../../../../components/ZapOutButton';
-import getContractReadableAmount from '../../../../utils/contracts/getContractReadableAmount';
-import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
-import useBnbSsovConversion from '../../../../hooks/useBnbSsovConversion';
+import ZapIn from 'components/ZapIn';
+import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import ZapInButton from 'components/ZapInButton';
+import ZapOutButton from 'components/ZapOutButton';
+import BigCrossIcon from 'components/Icons/BigCrossIcon';
+import CircleIcon from 'components/Icons/CircleIcon';
+import AlarmIcon from 'components/Icons/AlarmIcon';
+
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
 import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import {
   SsovContext,
-  SsovProperties,
   SsovData,
-  UserSsovData,
+  SsovUserData,
+  SsovEpochData,
 } from 'contexts/Ssov';
 
-import useSendTx from 'hooks/useSendTx';
 import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
-import BigCrossIcon from '../../../../components/Icons/BigCrossIcon';
-import CircleIcon from '../../../../components/Icons/CircleIcon';
-import AlarmIcon from '../../../../components/Icons/AlarmIcon';
+
+import styles from './styles.module.scss';
 
 export interface Props {
   open: boolean;
   handleClose: () => {};
-  ssovProperties: SsovProperties;
-  userSsovData: UserSsovData;
   ssovData: SsovData;
+  ssovUserData: SsovUserData;
+  ssovEpochData: SsovEpochData;
 }
 
 const PurchaseDialog = ({
   open,
   handleClose,
-  ssovProperties,
-  userSsovData,
   ssovData,
+  ssovUserData,
+  ssovEpochData,
 }: Props) => {
-  const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
+  const { updateSsovData, updateSsovUserData, selectedSsov, ssovSigner } =
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -105,19 +103,14 @@ const PurchaseDialog = ({
   const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
   const bnbSsovConversion = useBnbSsovConversion();
   const [token, setToken] = useState<ERC20 | any>(
-    IS_NATIVE(ssovProperties.tokenName)
-      ? ssovProperties.tokenName
-      : ssovSignerArray[selectedSsov].token[0]
+    IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovSigner.token[0]
   );
-  const ssovToken = ssovSignerArray[selectedSsov].token[0];
+  const ssovToken = ssovSigner.token[0];
   const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
-    ssovProperties;
-  const { ssovContractWithSigner, ssovRouter } =
-    ssovSignerArray !== undefined
-      ? ssovSignerArray[selectedSsov]
-      : { ssovContractWithSigner: null, ssovRouter: null };
+    ssovData;
+  const { ssovContractWithSigner, ssovRouter } = ssovSigner;
 
-  const { epochStrikes } = ssovData;
+  const { epochStrikes } = ssovEpochData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -140,8 +133,8 @@ const PurchaseDialog = ({
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
-  const ssovTokenName = ssovProperties.tokenName;
+  const ssovTokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
+  const ssovTokenName = ssovData.tokenName;
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
@@ -210,7 +203,7 @@ const PurchaseDialog = ({
     [epochStrikes]
   );
 
-  const { epochStrikeTokens } = userSsovData;
+  const { epochStrikeTokens } = ssovUserData;
 
   const epochStrikeToken = useMemo(
     () => (strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null),
@@ -472,7 +465,7 @@ const PurchaseDialog = ({
 
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndPurchase(
-              ssovProperties.ssovContract.address,
+              ssovData.ssovContract.address,
               ssovToken.address,
               decoded[0],
               decoded[1],
@@ -501,7 +494,7 @@ const PurchaseDialog = ({
                   }
                 )
               : erc20SSOV1inchRouter.swapAndPurchase(
-                  ssovProperties.ssovContract.address,
+                  ssovData.ssovContract.address,
                   ssovTokenSymbol === 'BNB'
                     ? Addresses[chainId]['VBNB']
                     : ssovToken.address,
@@ -520,7 +513,7 @@ const PurchaseDialog = ({
 
       setRawOptionsAmount('0');
       updateSsovData();
-      updateUserSsovData();
+      updateSsovUserData();
       updateAssetBalances();
     } catch (err) {
       console.log(err);
@@ -529,7 +522,7 @@ const PurchaseDialog = ({
     state.totalCost,
     ssovContractWithSigner,
     updateSsovData,
-    updateUserSsovData,
+    updateSsovUserData,
     updateAssetBalances,
     accountAddress,
     tokenName,
@@ -799,7 +792,7 @@ const PurchaseDialog = ({
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-10">
               <img
-                src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
+                src={SSOV_MAP[ssovData.tokenName].imageSrc}
                 alt={ssovTokenSymbol}
               />
             </Box>

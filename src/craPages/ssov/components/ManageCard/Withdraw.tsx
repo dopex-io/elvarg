@@ -7,43 +7,42 @@ import Countdown from 'react-countdown';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
 import { SSOV_MAP } from 'constants/index';
 
 import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
+const Withdraw = () => {
   const {
     updateSsovData,
-    updateUserSsovData,
-    selectedSsov,
-    ssovDataArray,
-    userSsovDataArray,
-    ssovSignerArray,
+    updateSsovUserData,
+    ssovEpochData,
+    ssovData,
+    ssovUserData,
+    ssovSigner,
+    selectedEpoch,
   } = useContext(SsovContext);
 
-  const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
+  const { tokenName } = ssovData;
+  const { ssovContractWithSigner } = ssovSigner;
   const {
     epochTimes,
     epochStrikes,
     totalEpochStrikeDeposits,
     totalEpochDeposits,
-  } = ssovDataArray[selectedSsov];
-  const { userEpochStrikeDeposits, userEpochDeposits } =
-    userSsovDataArray[selectedSsov];
+  } = ssovEpochData;
+  const { userEpochStrikeDeposits, userEpochDeposits } = ssovUserData;
 
   const { updateAssetBalances } = useContext(AssetsContext);
 
   const sendTx = useSendTx();
-
-  // Ssov data for next epoch
 
   const epochEndTime = epochTimes[1]
     ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
@@ -77,7 +76,7 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       ? getUserReadableAmount(userEpochDeposits, 8)
       : getUserReadableAmount(userEpochDeposits, 18);
 
-  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
   // Handle Withdraw
   const handleWithdraw = useCallback(
@@ -85,7 +84,7 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       try {
         await sendTx(ssovContractWithSigner.withdraw(selectedEpoch, index));
         updateSsovData();
-        updateUserSsovData();
+        updateSsovUserData();
       } catch (err) {
         console.log(err);
       }
@@ -95,7 +94,7 @@ const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       ssovContractWithSigner,
       selectedEpoch,
       updateSsovData,
-      updateUserSsovData,
+      updateSsovUserData,
       updateAssetBalances,
       sendTx,
     ]
