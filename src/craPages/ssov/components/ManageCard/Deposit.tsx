@@ -9,7 +9,7 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { BigNumber, utils as ethersUtils } from 'ethers';
+import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -20,7 +20,7 @@ import DepositOpen from 'assets/icons/DepositOpen';
 import DepositClosed from 'assets/icons/DepositClosed';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -43,30 +43,29 @@ const SelectMenuProps = {
   },
 };
 
-const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
+const Deposit = () => {
   const {
     updateSsovData,
-    updateUserSsovData,
-    selectedSsov,
-    ssovDataArray,
-    userSsovDataArray,
-    ssovSignerArray,
+    updateSsovUserData,
+    ssovEpochData,
+    ssovUserData,
+    ssovSigner,
+    ssovData,
+    selectedEpoch,
   } = useContext(SsovContext);
   const { accountAddress } = useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
 
-  const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner, token, ssovRouter } =
-    ssovSignerArray[selectedSsov];
-  const { userEpochStrikeDeposits, userEpochDeposits } =
-    userSsovDataArray[selectedSsov];
+  const { tokenName } = ssovData;
+  const { ssovContractWithSigner, token, ssovRouter } = ssovSigner;
+  const { userEpochStrikeDeposits, userEpochDeposits } = ssovUserData;
   const {
     epochTimes,
     isVaultReady,
     epochStrikes,
     totalEpochStrikeDeposits,
     totalEpochDeposits,
-  } = ssovDataArray[selectedSsov];
+  } = ssovEpochData;
 
   const [selectedStrikeIndexes, setSelectedStrikeIndexes] = useState<number[]>(
     []
@@ -100,7 +99,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     [selectedStrikeIndexes, strikeDepositAmounts]
   );
 
-  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -224,7 +223,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
       updateSsovData();
-      updateUserSsovData();
+      updateSsovUserData();
     } catch (err) {
       console.log(err);
     }
@@ -233,7 +232,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     ssovContractWithSigner,
     strikeDepositAmounts,
     updateSsovData,
-    updateUserSsovData,
+    updateSsovUserData,
     updateAssetBalances,
     accountAddress,
     tokenName,
@@ -326,7 +325,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     totalDepositAmount,
     token,
     ssovContractWithSigner,
-    userAssetBalances.ETH,
+    userAssetBalances,
     tokenName,
   ]);
 

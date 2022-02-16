@@ -3,14 +3,14 @@ import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { BigNumber, utils as ethersUtils } from 'ethers';
+import { utils as ethersUtils } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -23,32 +23,29 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
-  ssovProperties: SsovProperties;
 }
 
-const Transfer = ({
-  open,
-  handleClose,
-  strikeIndex,
-  ssovProperties,
-}: Props) => {
+const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const {
     updateSsovData,
-    updateUserSsovData,
-    selectedSsov,
-    ssovDataArray,
-    userSsovDataArray,
+    updateSsovUserData,
+    ssovEpochData,
+    ssovUserData,
+    ssovData,
+    selectedEpoch,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
+
+  const sendTx = useSendTx();
 
   const [transferAmount, setTransferAmount] = useState('0');
   const [recipient, setRecipient] = useState('');
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<string>('0');
-  const sendTx = useSendTx();
-  const { selectedEpoch } = ssovProperties;
-  const { epochStrikes } = ssovDataArray[selectedSsov];
-  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
+
+  const { epochStrikes } = ssovEpochData;
+  const { epochStrikeTokens } = ssovUserData;
+
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
 
@@ -103,7 +100,7 @@ const Transfer = ({
           .transfer(recipient, ethersUtils.parseEther(String(transferAmount)))
       );
       updateSsovData();
-      updateUserSsovData();
+      updateSsovUserData();
       updateUserEpochStrikeTokenBalance();
       setTransferAmount('0');
       setRecipient('');
@@ -116,7 +113,7 @@ const Transfer = ({
     recipient,
     updateSsovData,
     updateUserEpochStrikeTokenBalance,
-    updateUserSsovData,
+    updateSsovUserData,
     signer,
     sendTx,
     transferAmount,
@@ -125,6 +122,7 @@ const Transfer = ({
   useEffect(() => {
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
+
   return (
     <Dialog
       open={open}
@@ -159,12 +157,12 @@ const Transfer = ({
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
-                  alt={ssovProperties.tokenName}
+                  src={SSOV_MAP[ssovData.tokenName].imageSrc}
+                  alt={ssovData.tokenName}
                 />
               </Box>
               <Typography variant="h5" className="text-white">
-                {ssovProperties.tokenName}
+                {ssovData.tokenName}
               </Typography>
             </Box>
             <Input

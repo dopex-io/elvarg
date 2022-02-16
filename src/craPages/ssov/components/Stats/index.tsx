@@ -9,20 +9,21 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TablePagination from '@material-ui/core/TablePagination';
+import Skeleton from '@material-ui/lab/Skeleton';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import Skeleton from '@material-ui/lab/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
 import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
+import { SSOV_MAP } from 'constants/index';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { SSOV_MAP } from 'constants/index';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import styles from './styles.module.scss';
@@ -38,6 +39,7 @@ interface StatsTableDataProps {
 }
 
 const YEAR_SECONDS = 31536000;
+
 const StatsTableData = (
   props: StatsTableDataProps & { price: number; epochTime: number }
 ) => {
@@ -51,8 +53,11 @@ const StatsTableData = (
     imgSrc,
     tokenSymbol,
   } = props;
+
   const { convertToBNB } = useBnbSsovConversion();
+
   const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
+
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
       <TableCell align="left">
@@ -133,21 +138,21 @@ const StatsTableData = (
 
 const ROWS_PER_PAGE = 5;
 
-const Stats = (props: {
-  className?: string;
-  ssovProperties: SsovProperties;
-}) => {
-  const { className, ssovProperties } = props;
+const Stats = (props: { className?: string }) => {
+  const { className } = props;
+
   const { convertToVBNB } = useBnbSsovConversion();
-  const { ssovDataArray, selectedSsov } = useContext(SsovContext);
-  const { selectedEpoch, tokenPrice, tokenName } = ssovProperties;
+
+  const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovContext);
+
+  const { tokenPrice, tokenName } = ssovData;
   const {
     epochTimes,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
     totalEpochCallsPurchased,
-  } = ssovDataArray[selectedSsov];
+  } = ssovEpochData;
 
   const epochTime =
     epochTimes && epochTimes[0] && epochTimes[1]
@@ -312,10 +317,8 @@ const Stats = (props: {
                           totalPremiums={totalPremiums}
                           price={price}
                           epochTime={epochTime}
-                          imgSrc={SSOV_MAP[ssovProperties.tokenName].imageSrc}
-                          tokenSymbol={
-                            SSOV_MAP[ssovProperties.tokenName].tokenSymbol
-                          }
+                          imgSrc={SSOV_MAP[ssovData.tokenName].imageSrc}
+                          tokenSymbol={SSOV_MAP[ssovData.tokenName].tokenSymbol}
                         />
                       );
                     }

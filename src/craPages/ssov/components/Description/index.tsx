@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import InfoBox from '../InfoBox';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import WalletButton from 'components/WalletButton';
+import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 
@@ -14,47 +14,57 @@ import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
-import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
+import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
 import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
+import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
 
 const Description = ({
-  ssovProperties,
   ssovData,
-  userSsovData,
+  ssovEpochData,
+  ssovUserData,
 }: {
-  ssovProperties: SsovProperties;
   ssovData: SsovData;
-  userSsovData: UserSsovData;
+  ssovEpochData: SsovEpochData;
+  ssovUserData: SsovUserData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { convertToBNB } = useBnbSsovConversion();
 
-  const { tokenPrice } = ssovProperties;
-  const { APY, isVaultReady } = ssovData;
+  const { tokenPrice } = ssovData;
+  const { APY, isVaultReady } = ssovEpochData;
 
-  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const tokenSymbol = useMemo(
+    () => SSOV_MAP[ssovData.tokenName].tokenSymbol,
+    [ssovData]
+  );
 
-  const TVL = tokenPrice
-    ? ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
-      ? convertToBNB(ssovData.totalEpochDeposits)
+  const TVL: number = useMemo(() => {
+    if (tokenPrice && ssovEpochData) {
+      if (tokenSymbol === 'BNB') {
+        return convertToBNB(ssovEpochData.totalEpochDeposits)
           .mul(tokenPrice)
           .div(1e8)
-          .toString()
-      : getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
-    : 0;
+          .toNumber();
+      } else {
+        getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
+          getUserReadableAmount(tokenPrice, 8);
+      }
+    } else {
+      return 0;
+    }
+  }, [ssovEpochData, convertToBNB, tokenPrice, tokenSymbol]);
 
   const info = [
     {
       heading: 'Asset',
       value: tokenSymbol,
-      imgSrc: SSOV_MAP[ssovProperties.tokenName].imageSrc,
+      imgSrc: SSOV_MAP[ssovData.tokenName].imageSrc,
     },
     {
       heading: 'Farm APY',
@@ -91,7 +101,7 @@ const Description = ({
           arrow={true}
         >
           <Box className="w-full mr-2">
-            <CustomButton
+            <WalletButton
               size="medium"
               fullWidth
               className="rounded-lg"
@@ -101,10 +111,10 @@ const Description = ({
               disabled={!isVaultReady}
             >
               Buy Call Options
-            </CustomButton>
+            </WalletButton>
           </Box>
         </Tooltip>
-        <EpochSelector ssovProperties={ssovProperties} />
+        <EpochSelector />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {
@@ -114,9 +124,9 @@ const Description = ({
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
-          userSsovData={userSsovData}
-          ssovProperties={ssovProperties}
+          ssovUserData={ssovUserData}
           ssovData={ssovData}
+          ssovEpochData={ssovEpochData}
           handleClose={
             (() => {
               setPurchaseState(false);

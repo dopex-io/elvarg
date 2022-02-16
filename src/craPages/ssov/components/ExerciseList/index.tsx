@@ -18,7 +18,7 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
-import { SsovProperties, SsovContext } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -40,13 +40,9 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
-const ExerciseList = ({
-  ssovProperties,
-}: {
-  ssovProperties: SsovProperties;
-}) => {
+const ExerciseList = () => {
   const { accountAddress } = useContext(WalletContext);
-  const { selectedSsov, userSsovDataArray, ssovDataArray } =
+  const { selectedSsov, ssovUserData, ssovData, ssovEpochData, selectedEpoch } =
     useContext(SsovContext);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
@@ -54,19 +50,19 @@ const ExerciseList = ({
   >([]);
   const [page, setPage] = useState(0);
 
-  const { currentEpoch, selectedEpoch, tokenPrice, tokenName } = ssovProperties;
+  const { currentEpoch, tokenPrice, tokenName } = ssovData;
   const {
     isVaultReady,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
     settlementPrice,
-  } = ssovDataArray[selectedSsov];
+  } = ssovEpochData;
   const {
     epochStrikeTokens,
     userEpochStrikeDeposits,
     userEpochCallsPurchased,
-  } = userSsovDataArray[selectedSsov];
+  } = ssovUserData;
 
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
@@ -271,8 +267,6 @@ const ExerciseList = ({
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}
                           isPastEpoch={isPastEpoch}
-                          ssovProperties={ssovProperties}
-                          ssovData={ssovDataArray[selectedSsov]}
                         />
                       );
                     }

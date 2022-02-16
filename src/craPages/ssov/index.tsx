@@ -1,22 +1,43 @@
-import { useContext } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
-import Skeleton from '@material-ui/lab/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import SsovCard from './components/SsovCard';
 import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochsDropDown';
 
-import { SsovContext } from 'contexts/Ssov';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+
+const NetworkHeader = ({ chainId }: { chainId: number }) => {
+  return (
+    <Box className="flex space-x-4 mb-8">
+      <img
+        className="w-8 h-8"
+        src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
+        alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
+      />
+      <Typography variant="h4">
+        {CHAIN_ID_TO_NETWORK_DATA[chainId].name}
+      </Typography>
+    </Box>
+  );
+};
 
 const Ssov = () => {
-  const {
-    ssovPropertiesArray,
-    ssovDataArray,
-    userSsovDataArray,
-    setSelectedSsov,
-  } = useContext(SsovContext);
+  const [ssovs, setSsovs] = useState(null);
+
+  useEffect(() => {
+    async function getData() {
+      const data = await axios
+        .get('https://api.dopex.io/api/v1/ssov')
+        .then((payload) => payload.data);
+
+      setSsovs(data);
+    }
+    getData();
+  }, []);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -35,31 +56,24 @@ const Ssov = () => {
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
-        <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-          {ssovPropertiesArray.length === 0 || ssovDataArray.length === 0
-            ? [0, 1, 2, 3, 4, 5].map((i) => (
-                <Skeleton
-                  key={i}
-                  variant="rect"
-                  width={350}
-                  height={400}
-                  animation="wave"
-                  className="rounded-md bg-cod-gray"
-                />
-              ))
-            : ssovPropertiesArray.map((ssovProperties, index) => (
-                <SsovCard
-                  key={index}
-                  ssovProperties={ssovProperties}
-                  ssovData={ssovDataArray[index]}
-                  userSsovData={userSsovDataArray[index]}
-                  setSelectedSsov={setSelectedSsov}
-                  ssovIndex={ssovPropertiesArray.findIndex(
-                    (item) => item.tokenName === ssovProperties.tokenName
-                  )}
-                />
-              ))}
-        </Box>
+        {ssovs
+          ? Object.keys(ssovs)
+              .sort((a, b) => (a > b ? 1 : -1))
+              .map((key) => {
+                return (
+                  <Box key={key} className="mb-12">
+                    <NetworkHeader chainId={Number(key)} />
+                    <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+                      {ssovs
+                        ? ssovs[key].map((ssov, index) => {
+                            return <SsovCard key={index} data={{ ...ssov }} />;
+                          })
+                        : null}
+                    </Box>
+                  </Box>
+                );
+              })
+          : null}
       </Box>
     </Box>
   );

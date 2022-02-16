@@ -12,7 +12,7 @@ import Action from 'assets/icons/Action';
 import formatAmount from 'utils/general/formatAmount';
 
 import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
+import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
 

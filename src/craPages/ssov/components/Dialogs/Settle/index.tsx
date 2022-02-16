@@ -3,14 +3,13 @@ import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { BigNumber } from 'ethers';
-import { ERC20SSOV } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -24,7 +23,6 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
-  ssovProperties: SsovProperties;
   token: string;
   settleableAmount: BigNumber;
 }
@@ -33,25 +31,25 @@ const Settle = ({
   open,
   handleClose,
   strikeIndex,
-  ssovProperties,
   token,
   settleableAmount,
 }: Props) => {
   const {
     updateSsovData,
-    updateUserSsovData,
-    selectedSsov,
-    ssovDataArray,
-    userSsovDataArray,
-    ssovSignerArray,
+    updateSsovUserData,
+    ssovData,
+    ssovEpochData,
+    ssovUserData,
+    ssovSigner,
+    selectedEpoch,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
   const { convertToVBNB } = useBnbSsovConversion();
 
-  const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
-  const { epochStrikes, settlementPrice } = ssovDataArray[selectedSsov];
-  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
+  const { tokenName } = ssovData;
+  const { ssovContractWithSigner } = ssovSigner;
+  const { epochStrikes, settlementPrice } = ssovEpochData;
+  const { epochStrikeTokens } = ssovUserData;
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
@@ -103,7 +101,7 @@ const Settle = ({
         ssovContractWithSigner.settle(strikeIndex, settleableAmount, 1)
       );
       updateSsovData();
-      updateUserSsovData();
+      updateSsovUserData();
       updateUserEpochStrikeTokenBalance();
     } catch (err) {
       console.log(err);
@@ -113,7 +111,7 @@ const Settle = ({
     strikeIndex,
     settleableAmount,
     updateSsovData,
-    updateUserSsovData,
+    updateSsovUserData,
     updateUserEpochStrikeTokenBalance,
     sendTx,
   ]);
