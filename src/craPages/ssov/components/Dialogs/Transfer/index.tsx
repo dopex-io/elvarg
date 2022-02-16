@@ -41,10 +41,10 @@ const Transfer = ({
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
 
-  const [transferAmount, setTransferAmount] = useState(0);
+  const [transferAmount, setTransferAmount] = useState('0');
   const [recipient, setRecipient] = useState('');
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
-    useState<number>(0);
+    useState<string>('0');
   const sendTx = useSendTx();
   const { selectedEpoch } = ssovProperties;
   const { epochStrikes } = ssovDataArray[selectedSsov];
@@ -73,15 +73,13 @@ const Transfer = ({
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
-      setUserEpochStrikeTokenBalance(0);
+      setUserEpochStrikeTokenBalance('0');
       return;
     }
     const userEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
       accountAddress
     );
-    setUserEpochStrikeTokenBalance(
-      getUserReadableAmount(userEpochStrikeTokenBalance, 18)
-    );
+    setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance.toString());
   }, [epochStrikeToken, accountAddress]);
 
   const handleRecipientChange = useCallback((e) => {
@@ -100,12 +98,14 @@ const Transfer = ({
     if (!accountAddress || !epochStrikeToken) return;
     try {
       sendTx(
-        epochStrikeToken.connect(signer).transfer(accountAddress, recipient)
+        epochStrikeToken
+          .connect(signer)
+          .transfer(recipient, ethersUtils.parseEther(String(transferAmount)))
       );
       updateSsovData();
       updateUserSsovData();
       updateUserEpochStrikeTokenBalance();
-      setTransferAmount(0);
+      setTransferAmount('0');
       setRecipient('');
     } catch (err) {
       console.log(err);
@@ -119,6 +119,7 @@ const Transfer = ({
     updateUserSsovData,
     signer,
     sendTx,
+    transferAmount,
   ]);
 
   useEffect(() => {
@@ -225,11 +226,7 @@ const Transfer = ({
           className="w-full mb-4"
           onClick={handleTransfer}
           size="xl"
-          disabled={
-            transferAmount > 0 && recipient !== '' && error === undefined
-              ? false
-              : true
-          }
+          disabled={recipient !== '' && error === undefined ? false : true}
         >
           Transfer
         </CustomButton>

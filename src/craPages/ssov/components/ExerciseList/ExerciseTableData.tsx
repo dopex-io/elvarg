@@ -232,7 +232,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 key="transfer-options"
                 onClick={handleTransfer}
                 className="text-white"
-                disabled={settleableAmount.eq(BigNumber.from(0))}
+                // disabled={settleableAmount.eq(BigNumber.from(0))}
               >
                 Transfer
               </MenuItem>
