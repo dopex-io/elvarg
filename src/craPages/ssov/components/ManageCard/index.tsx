@@ -120,7 +120,9 @@ const ManageCard = () => {
 
   const ssovTokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
   const { ssovContractWithSigner, ssovRouter } = ssovSigner;
-  const { userEpochDeposits } = ssovUserData;
+  const userEpochDeposits = ssovUserData
+    ? ssovUserData.userEpochDeposits
+    : BigNumber.from(0);
   const { epochTimes, isVaultReady, epochStrikes, totalEpochDeposits } =
     ssovEpochData;
 
@@ -203,7 +205,7 @@ const ManageCard = () => {
       : erc20SSOV1inchRouter?.address
     : ssovTokenName === 'BNB'
     ? ssovRouter.address
-    : ssovContractWithSigner.address;
+    : ssovContractWithSigner?.address;
 
   const purchasePower =
     isZapActive && quote['toToken'] && denominationTokenName === ssovTokenName
@@ -1064,9 +1066,7 @@ const ManageCard = () => {
               </Box>
             </Box>
           </Panel>
-          <Panel>
-            <Withdraw />
-          </Panel>
+          <Panel>{ssovUserData ? <Withdraw /> : null}</Panel>
           <Panel>
             <ZapIn
               setOpen={setIsZapInVisible}

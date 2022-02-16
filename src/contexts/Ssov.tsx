@@ -109,7 +109,11 @@ export const SsovProvider = (props) => {
   const [ssovData, setSsovData] = useState<SsovData>();
   const [ssovEpochData, setSsovEpochData] = useState<SsovEpochData>();
   const [ssovUserData, setSsovUserData] = useState<SsovUserData>();
-  const [ssovSigner, setSsovSigner] = useState<SsovSigner>();
+  const [ssovSigner, setSsovSigner] = useState<SsovSigner>({
+    token: [],
+    ssovContractWithSigner: null,
+    ssovRouter: null,
+  });
 
   const updateSsovUserData = useCallback(async () => {
     if (!contractAddresses || !accountAddress || !selectedEpoch) return;

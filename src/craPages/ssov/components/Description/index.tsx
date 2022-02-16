@@ -4,7 +4,7 @@ import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
@@ -101,7 +101,7 @@ const Description = ({
           arrow={true}
         >
           <Box className="w-full mr-2">
-            <CustomButton
+            <WalletButton
               size="medium"
               fullWidth
               className="rounded-lg"
@@ -111,7 +111,7 @@ const Description = ({
               disabled={!isVaultReady}
             >
               Buy Call Options
-            </CustomButton>
+            </WalletButton>
           </Box>
         </Tooltip>
         <EpochSelector />
