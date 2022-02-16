@@ -2,25 +2,25 @@
 
 @font-face {
   font-family: Ilisarniq;
-  src: url('../assets/fonts/Ilisarniq-Light.otf');
+  src: url('/fonts/Ilisarniq-Light.otf');
   font-weight: 300;
 }
 
 @font-face {
   font-family: Ilisarniq;
-  src: url('../assets/fonts/Ilisarniq-Regular.otf');
+  src: url('/fonts/Ilisarniq-Regular.otf');
   font-weight: 400;
 }
 
 @font-face {
   font-family: Ilisarniq;
-  src: url('../assets/fonts/Ilisarniq-Demi.otf');
+  src: url('/fonts/Ilisarniq-Demi.otf');
   font-weight: 500;
 }
 
 @font-face {
   font-family: Ilisarniq;
-  src: url('../assets/fonts/Ilisarniq-Bold.otf');
+  src: url('/fonts/Ilisarniq-Bold.otf');
   font-weight: 700;
 }
 
@@ -43,4 +43,36 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type='number'] {
   -moz-appearance: textfield;
+}
+
+.MuiTooltip-tooltip {
+  background: #1e1e1e;
+}
+
+.Mui-checked {
+  color: #22e1ff !important;
+}
+
+.MuiLinearProgress-barColorPrimary {
+  background-color: #22e1ff !important;
+}
+
+.MuiLinearProgress-colorPrimary {
+  background-color: #3e3e3e;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #2f2d2d;
+  border-radius: 5px;
 }

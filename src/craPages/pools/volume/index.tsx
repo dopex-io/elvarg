@@ -31,7 +31,8 @@ import { MAX_VALUE } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
@@ -55,6 +56,8 @@ const Volume = () => {
   const [dpxApproved, setDPXApproved] = useState(false);
   const [hasDPX, setHasDPX] = useState(false);
   const [maxApprove, setMaxApprove] = useState(false);
+
+  const sendTx = useSendTx();
 
   const validationSchema = yup.object({
     amount: yup
@@ -194,7 +197,15 @@ const Volume = () => {
     } catch (err) {
       setError(`Something went wrong. Error: ${getMessageFromCode(err.code)}`);
     }
-  }, [signer, amount, maxApprove, volumePoolSdk, usdtContract, usdtDecimals]);
+  }, [
+    signer,
+    amount,
+    maxApprove,
+    volumePoolSdk,
+    usdtContract,
+    usdtDecimals,
+    sendTx,
+  ]);
 
   const handleDPXApprove = useCallback(async () => {
     setError('');
@@ -221,6 +232,7 @@ const Volume = () => {
     contractAddresses,
     signer,
     hasDPX,
+    sendTx,
   ]);
 
   const handleDeposit = useCallback(async () => {
@@ -257,6 +269,7 @@ const Volume = () => {
     updateAssetBalances,
     userAssetBalances,
     updateVolumePoolData,
+    sendTx,
   ]);
 
   const handleWithdraw = useCallback(async () => {
@@ -289,6 +302,7 @@ const Volume = () => {
     currentEpoch,
     userVolumePoolDeposits,
     updateVolumePoolData,
+    sendTx,
   ]);
 
   useEffect(() => {

@@ -2,39 +2,46 @@ import { useCallback, useContext } from 'react';
 import Box from '@material-ui/core/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
-import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 
-import { SsovContext } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
-import sendTx from 'utils/contracts/sendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { SSOV_MAP } from 'constants/index';
+
+import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
-  const context = useContext(SsovContext);
+const Withdraw = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
   const {
-    ssovContractWithSigner,
-    currentEpoch,
-    selectedEpoch,
-    ssovData: {
-      epochTimes,
-      epochStrikes,
-      totalEpochStrikeDeposits,
-      totalEpochDeposits,
-    },
-    userSsovData: { userEpochStrikeDeposits, userEpochDeposits },
-  } = context[ssov];
-  const { updateSsovData, updateUserSsovData } = context;
+    updateSsovData,
+    updateUserSsovData,
+    selectedSsov,
+    ssovDataArray,
+    userSsovDataArray,
+    ssovSignerArray,
+  } = useContext(SsovContext);
+
+  const { selectedEpoch, tokenName } = ssovProperties;
+  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
+  const {
+    epochTimes,
+    epochStrikes,
+    totalEpochStrikeDeposits,
+    totalEpochDeposits,
+  } = ssovDataArray[selectedSsov];
+  const { userEpochStrikeDeposits, userEpochDeposits } =
+    userSsovDataArray[selectedSsov];
 
   const { updateAssetBalances } = useContext(AssetsContext);
-  const isWithdrawable = currentEpoch > selectedEpoch && selectedEpoch > 0;
+
+  const sendTx = useSendTx();
 
   // Ssov data for next epoch
 
@@ -47,7 +54,10 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) =>
+      tokenName === 'BNB'
+        ? getUserReadableAmount(deposit, 8)
+        : getUserReadableAmount(deposit, 18)
   );
 
   const totalEpochDepositsAmount = getUserReadableAmount(
@@ -56,20 +66,26 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
   );
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) => getUserReadableAmount(deposit, 18)
+    (deposit) =>
+      tokenName === 'BNB'
+        ? getUserReadableAmount(deposit, 8)
+        : getUserReadableAmount(deposit, 18)
   );
 
-  const userEpochDepositsAmount = getUserReadableAmount(userEpochDeposits, 18);
+  const userEpochDepositsAmount =
+    tokenName === 'BNB'
+      ? getUserReadableAmount(userEpochDeposits, 8)
+      : getUserReadableAmount(userEpochDeposits, 18);
+
+  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
 
   // Handle Withdraw
   const handleWithdraw = useCallback(
     async (index) => {
       try {
-        await sendTx(
-          ssovContractWithSigner.withdrawForStrike(selectedEpoch, index)
-        );
-        updateSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
-        updateUserSsovData(ssov === 'dpx' ? 'dpx' : 'rdpx');
+        await sendTx(ssovContractWithSigner.withdraw(selectedEpoch, index));
+        updateSsovData();
+        updateUserSsovData();
       } catch (err) {
         console.log(err);
       }
@@ -81,11 +97,9 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
       updateSsovData,
       updateUserSsovData,
       updateAssetBalances,
-      ssov,
+      sendTx,
     ]
   );
-
-  const tokenSymbol = ssov === 'dpx' ? 'DPX' : 'rDPX';
 
   return (
     <Box>
@@ -103,7 +117,7 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
         </Box>
         <Box>
           {strikes.map((strike, index) =>
-            BigNumber.from(userEpochStrikeDepositsAmounts[index]).gt(0) ? (
+            userEpochStrikeDeposits[index].gt(0) ? (
               <Box className="flex flex-row mt-3" key={index}>
                 <Box
                   className={cx(
@@ -130,8 +144,6 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
                 <CustomButton
                   size="large"
                   onClick={(e) => handleWithdraw(index)}
-                  disabled={!isWithdrawable}
-                  color={isWithdrawable ? 'primary' : 'cod-gray'}
                 >
                   Withdraw
                 </CustomButton>
@@ -160,7 +172,7 @@ const Withdraw = ({ ssov }: { ssov: 'dpx' | 'rdpx' }) => {
           <Typography
             variant="caption"
             component="div"
-            className="mb-4 text-stieglitz text-left"
+            className="mb-1 text-stieglitz text-left"
           >
             Withdrawals can only be processed for past epochs. Expiry for the
             selected epoch is {epochEndTime}.

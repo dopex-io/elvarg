@@ -6,13 +6,14 @@ import { StakingRewards__factory } from '@dopex-io/sdk';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import BalanceItem from 'components/BalanceItem';
+import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
 import { FarmingContext } from 'contexts/Farming';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+import useSendTx from 'hooks/useSendTx';
 
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 export interface Props {
   open: boolean;
   handleClose: () => {};
@@ -24,6 +25,7 @@ export interface Props {
 const Claim = ({ open, handleClose, data }: Props) => {
   const { accountAddress, signer } = useContext(WalletContext);
   const { setStakingAsset } = useContext(FarmingContext);
+  const sendTx = useSendTx();
 
   const userRewardDPX = useMemo(() => {
     if (!accountAddress || !data.token.rewards) return;
@@ -70,6 +72,7 @@ const Claim = ({ open, handleClose, data }: Props) => {
     handleClose,
     data.token.selectedBaseAsset,
     setStakingAsset,
+    sendTx,
   ]);
 
   return accountAddress ? (
@@ -77,7 +80,7 @@ const Claim = ({ open, handleClose, data }: Props) => {
       <Typography variant="h4" className="mb-6">
         Claim Rewards
       </Typography>
-      <Box className="flex flex-col justify-left mb-8 space-y-4">
+      <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2 flex flex-col space-y-4 mb-4">
         <BalanceItem
           token="DPX"
           balance={userRewardDPX}
@@ -92,17 +95,17 @@ const Claim = ({ open, handleClose, data }: Props) => {
         />
       </Box>
       <Box className="flex flex-row">
-        <Button
+        <CustomButton
           onClick={handleClaim}
-          color="primary"
-          variant="contained"
           fullWidth
+          size="medium"
           className="h-10 mr-3"
         >
           Claim
-        </Button>
+        </CustomButton>
         <Button
           onClick={handleClose}
+          size="medium"
           color="primary"
           variant="outlined"
           fullWidth

@@ -11,7 +11,8 @@ import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext } from 'contexts/Portfolio';
@@ -31,6 +32,8 @@ const Transfer = ({ closeModal, data, icon }: DialogProps) => {
     expiry: '',
     amount: '',
   });
+
+  const sendTx = useSendTx();
 
   useEffect(() => {
     setModalData({

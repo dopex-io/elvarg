@@ -11,14 +11,6 @@ import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
 
-function IndexPage() {
-  return (
-    <div>
-      <p>Hello world!</p>
-    </div>
-  );
-}
-
 const TestnetFaucet = () => {
   const { accountAddress } = useContext(WalletContext);
 

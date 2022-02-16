@@ -1,11 +1,12 @@
+import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { StakingRewards__factory } from '@dopex-io/sdk';
 import Head from 'next/head';
-import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import Skeleton from '@material-ui/lab/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
-import sendTx from 'utils/contracts/sendTx';
+
+import useSendTx from 'hooks/useSendTx';
 
 import Pool from '../components/Pool';
 import Typography from 'components/UI/Typography';
@@ -29,6 +30,8 @@ const Farms = () => {
     DPX_WETHPool,
     rDPX_WETHPool,
   } = useContext(FarmingContext);
+
+  const sendTx = useSendTx();
 
   const { accountAddress, signer, chainId } = useContext(WalletContext);
 
@@ -146,7 +149,19 @@ const Farms = () => {
         console.log(err);
       }
     }
-  }, [DPX, DPX_WETH, rDPX_WETH, setStakingAsset, signer]);
+    if (RDPX.rewards[0] > 0 || RDPX.rewards[1] > 0) {
+      try {
+        const stakingRewardsContract = StakingRewards__factory.connect(
+          RDPX.stakingRewardsContractAddress,
+          signer
+        );
+        await sendTx(stakingRewardsContract.getReward(2));
+        setStakingAsset('RDPX');
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, [DPX, DPX_WETH, rDPX_WETH, RDPX, setStakingAsset, signer, sendTx]);
 
   const isLoading = useMemo(() => {
     if (accountAddress) {
@@ -244,7 +259,10 @@ const Farms = () => {
                   <Typography variant="h6" className="text-center mb-4">
                     Your Deposits ({yourDeposit})
                   </Typography>
-                  <Box className="flex flex-col lg:flex-row lg:space-x-4 h-full">
+                  <Box
+                    className="flex flex-col lg:flex-row lg:space-x-4 h-full"
+                    style={{ height: '-webkit-fill-available' }}
+                  >
                     {DPX.userStakedBalance.gt(0) ? (
                       <Pool
                         token={DPX}
@@ -282,7 +300,10 @@ const Farms = () => {
                     Available Farms ({4 - yourDeposit})
                   </Typography>
                   {accountAddress ? (
-                    <Box className="flex flex-col lg:flex-row lg:space-x-4">
+                    <Box
+                      className="flex flex-col lg:flex-row lg:space-x-4"
+                      style={{ height: '-webkit-fill-available' }}
+                    >
                       {DPX.userStakedBalance.eq(0) ? (
                         <Pool
                           token={DPX}
@@ -313,7 +334,10 @@ const Farms = () => {
                       ) : null}
                     </Box>
                   ) : (
-                    <Box className="flex flex-col lg:flex-row lg:space-x-4">
+                    <Box
+                      className="flex flex-col lg:flex-row lg:space-x-4"
+                      style={{ height: '-webkit-fill-available' }}
+                    >
                       <Pool
                         token={DPX}
                         Icon={'/assets/dpx.svg'}

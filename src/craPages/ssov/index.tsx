@@ -1,19 +1,31 @@
+import { useContext } from 'react';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import SsovCard from './components/SsovCard';
+import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochsDropDown';
+
+import { SsovContext } from 'contexts/Ssov';
 
 const Ssov = () => {
+  const {
+    ssovPropertiesArray,
+    ssovDataArray,
+    userSsovDataArray,
+    setSelectedSsov,
+  } = useContext(SsovContext);
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
       <AppBar active="SSOV" />
-      <Box className="py-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-        <Box className="text-center mx-auto max-w-xl mb-12">
+      <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
           <Typography variant="h1" className="mb-1">
             Single Staking Option Vaults
           </Typography>
@@ -22,9 +34,31 @@ const Ssov = () => {
             option purchases and earn rewards from farms simultaneously.
           </Typography>
         </Box>
-        <Box className="flex flex-col lg:flex-row lg:space-x-24 space-y-12 lg:space-y-0 justify-center items-center">
-          <SsovCard ssov="dpx" />
-          <SsovCard ssov="rdpx" />
+        <LegacyEpochsDropDown />
+        <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+          {ssovPropertiesArray.length === 0 || ssovDataArray.length === 0
+            ? [0, 1, 2, 3, 4, 5].map((i) => (
+                <Skeleton
+                  key={i}
+                  variant="rect"
+                  width={350}
+                  height={400}
+                  animation="wave"
+                  className="rounded-md bg-cod-gray"
+                />
+              ))
+            : ssovPropertiesArray.map((ssovProperties, index) => (
+                <SsovCard
+                  key={index}
+                  ssovProperties={ssovProperties}
+                  ssovData={ssovDataArray[index]}
+                  userSsovData={userSsovDataArray[index]}
+                  setSelectedSsov={setSelectedSsov}
+                  ssovIndex={ssovPropertiesArray.findIndex(
+                    (item) => item.tokenName === ssovProperties.tokenName
+                  )}
+                />
+              ))}
         </Box>
       </Box>
     </Box>

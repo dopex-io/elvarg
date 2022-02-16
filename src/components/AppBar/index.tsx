@@ -19,8 +19,10 @@ import CustomButton from 'components/UI/CustomButton';
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
+import { CURRENCIES_MAP } from 'constants/index';
+
 import formatAmount from 'utils/general/formatAmount';
-import smartTrim from 'utils/general/smartTrim';
+import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import styles from './styles.module.scss';
@@ -65,6 +67,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'sale', to: '/sale' },
   ],
+  56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
     { name: 'options', to: '/' },
     { name: 'pools', to: '/pools' },
@@ -83,17 +86,21 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
   ],
+  43114: [{ name: 'SSOV', to: '/ssov' }],
 };
 
 const menuLinks = [
-  { name: 'Dopex.io', to: 'https://dopex.io' },
+  { name: 'Home', to: 'https://dopex.io' },
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Price Oracles', to: '/oracles' },
+  { name: 'Dopex NFTs', to: '/nfts' },
+  { name: 'Community NFTs', to: '/nfts/community' },
 ];
 
 interface AppBarProps {
-  active:
+  active?:
     | 'options'
     | 'pools'
     | 'rewards'
@@ -109,9 +116,14 @@ interface AppBarProps {
 
 export default function AppBar(props: AppBarProps) {
   const { active } = props;
-  const { accountAddress, connect, wrongNetwork, chainId } =
+  const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
     useContext(WalletContext);
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
+  const ssovTokens = {
+    42161: ['ETH', 'DPX', 'RDPX', 'GOHM', 'GMX'],
+    56: ['BNB'],
+    43114: ['AVAX'],
+  };
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
@@ -147,10 +159,10 @@ export default function AppBar(props: AppBarProps) {
     setWalletDialog(true);
   }, []);
 
-  let walletButtonContent = useMemo(() => {
+  const walletButtonContent = useMemo(() => {
     if (wrongNetwork) return 'Wrong Network';
-    if (accountAddress) return smartTrim(accountAddress, 10);
-  }, [accountAddress, wrongNetwork]);
+    if (accountAddress) return displayAddress(accountAddress, ensName);
+  }, [accountAddress, ensName, wrongNetwork]);
 
   const handleClaimRdpx = () => {
     setClaimRdpxDialog(true);
@@ -223,16 +235,17 @@ export default function AppBar(props: AppBarProps) {
           </Box>
           <Box className="flex items-center">
             <Box className="space-x-2 mr-4 hidden lg:flex">
-              {tokenPrices.map((item) => {
-                return (
-                  <PriceTag
-                    key={item.name}
-                    asset={item.name}
-                    price={item.price}
-                    change={item.change}
-                  />
-                );
-              })}
+              {tokenPrices.map(
+                (item) =>
+                  ssovTokens[chainId].includes(item['name']) && (
+                    <PriceTag
+                      key={item.name}
+                      asset={item.name}
+                      price={item.price}
+                      change={item.change24h}
+                    />
+                  )
+              )}
             </Box>
             {/* {baseAssetsWithPrices ? (
               <PriceTag
@@ -253,10 +266,17 @@ export default function AppBar(props: AppBarProps) {
                     className="mr-2"
                   >
                     {formatAmount(
-                      getUserReadableAmount(userAssetBalances.ETH, 18),
+                      getUserReadableAmount(
+                        userAssetBalances[CURRENCIES_MAP[chainId]],
+                        18
+                      ),
                       3
                     )}{' '}
-                    <span className="text-stieglitz">ETH</span>
+                    <span className="text-stieglitz">
+                      {CURRENCIES_MAP[chainId]
+                        ? CURRENCIES_MAP[chainId]
+                        : 'ETH'}
+                    </span>
                   </Typography>
                 </Box>
                 <Button
@@ -264,6 +284,13 @@ export default function AppBar(props: AppBarProps) {
                   className="text-white border-cod-gray hover:border-wave-blue border border-solid"
                   onClick={handleClick}
                 >
+                  {ensAvatar && (
+                    <img
+                      src={ensAvatar}
+                      className="w-5 mr-2"
+                      alt="ens avatar"
+                    />
+                  )}
                   {walletButtonContent}
                 </Button>
               </Box>

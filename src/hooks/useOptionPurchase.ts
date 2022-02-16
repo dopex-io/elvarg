@@ -20,11 +20,12 @@ import { AssetsContext } from 'contexts/Assets';
 import parseError from 'utils/general/parseError';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
-import sendTx from 'utils/contracts/sendTx';
 import { getWeeklyPool, getMonthlyPool } from 'utils/contracts/getPool';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 import getTimePeriod from 'utils/contracts/getTimePeriod';
 import getOptionPoolId from 'utils/contracts/getOptionPoolId';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE, STRIKE_PRECISION } from 'constants/index';
 
@@ -83,6 +84,8 @@ const useOptionPurchase = () => {
         : '0',
     [marginData.maxLeverage, marginData.minLeverage]
   );
+
+  const sendTx = useSendTx();
 
   useEffect(() => {
     setIsPut(selectedOptionData.optionType === OptionTypeEnum.Put);
@@ -443,6 +446,9 @@ const useOptionPurchase = () => {
     poolState,
     contractAddresses,
     signer,
+    collaterals,
+    marginData,
+    sendTx,
   ]);
 
   const availableOptions = useMemo(() => {
