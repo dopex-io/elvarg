@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useContext } from 'react';
+import { forwardRef, useMemo, useContext, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import format from 'date-fns/format';
 import isEmpty from 'lodash/isEmpty';
@@ -6,8 +6,14 @@ import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Button from '@material-ui/core/Button';
+import MuiInput from '@material-ui/core/Input';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import PnlChart from 'components/PnlChart';
+import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 import Accordion from 'components/UI/Accordion';
@@ -40,12 +46,34 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     selectedOptionData,
     totalPrice,
     userAssetBalances,
+    handleMargin,
     handleUseVolumePool,
     handleDelegate,
     userVolumePoolFunds,
+    maxLeverage,
+    marginAvailable,
+    collaterals,
+    handleCollateralIndex,
+    handleLeverage,
+    handleCollateralAmount,
+    collateralValue,
+    requiredCollateralValue,
   } = useOptionPurchase();
 
-  const { baseAssetsWithPrices } = useContext(AssetsContext);
+  const { baseAssetsWithPrices, usdtDecimals } = useContext(AssetsContext);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const open = useMemo(() => Boolean(anchorEl), [anchorEl]);
+
+  const finalCollateralValue = useMemo(
+    () => getUserReadableAmount(collateralValue, usdtDecimals),
+    [collateralValue, usdtDecimals]
+  );
+  const finalRequiredCollateralValue = useMemo(
+    () => getUserReadableAmount(requiredCollateralValue, usdtDecimals),
+    [requiredCollateralValue, usdtDecimals]
+  );
 
   const { finalCost, finalTotalCost, finalFees } = useMemo(() => {
     const _totalPrice = getUserReadableAmount(totalPrice, 6);
@@ -59,6 +87,14 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
       finalFees: `$${formatAmount(_fees, 3)}`,
     };
   }, [formik.values.useVolumePoolFunds, totalPrice, fees]);
+
+  const handleClick = useCallback((event) => {
+    setAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
 
   return (
     <div
@@ -174,6 +210,195 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
             </Box>
             <ErrorBox error={formik.values.error || txError} />
             <Box className="bg-umbra rounded-xl p-4 flex flex-col space-y-4">
+              {marginAvailable && (
+                <Box className="flex justify-between">
+                  <Box className="flex space-x-2">
+                    <Typography variant="h6" component="span">
+                      Leverage up to {maxLeverage}x
+                    </Typography>
+                  </Box>
+                  <Switch
+                    checked={formik.values.margin ?? false}
+                    onChange={handleMargin}
+                  />
+                </Box>
+              )}
+              {formik.values.margin && (
+                <>
+                  <Box className="flex justify-between">
+                    <Button
+                      className="bg-mineshaft text-white mr-1"
+                      onClick={() => handleLeverage({ target: { value: 2 } })}
+                    >
+                      2x
+                    </Button>
+                    <Button
+                      className="bg-mineshaft text-white mr-1"
+                      onClick={() =>
+                        handleLeverage({
+                          target: { value: Number(maxLeverage) },
+                        })
+                      }
+                    >
+                      {maxLeverage}x
+                    </Button>
+                    <MuiInput
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      disableUnderline={true}
+                      value={formik.values.leverage.toString()}
+                      onChange={handleLeverage}
+                      className="h-10 w-full text-md text-white font-mono bg-mineshaft rounded-md p-1 px-2"
+                    />
+                  </Box>
+                  <Box className="flex justify-between">
+                    <CustomButton
+                      size="medium"
+                      color="mineshaft"
+                      className="w-full"
+                      classes={{ label: 'uppercase' }}
+                      aria-controls="expiry-menu"
+                      aria-haspopup="true"
+                      onClick={handleClick}
+                      endIcon={<ExpandMoreIcon />}
+                    >
+                      {collaterals[formik.values.collateralIndex].symbol}
+                    </CustomButton>
+                    <Menu
+                      id="expiry-menu"
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                      classes={{ paper: 'bg-cod-gray' }}
+                    >
+                      {collaterals.map((collateral, index) => (
+                        <MenuItem
+                          key={collateral.token}
+                          onClick={() => {
+                            handleCollateralIndex(index);
+                            handleClose();
+                          }}
+                          className="text-white uppercase"
+                        >
+                          {collateral.symbol}
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Balance
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {formatAmount(
+                        getUserReadableAmount(
+                          userAssetBalances[
+                            collaterals[formik.values.collateralIndex].symbol
+                          ],
+                          collaterals[formik.values.collateralIndex].decimals
+                        ).toString(),
+                        3
+                      )}{' '}
+                      {collaterals[formik.values.collateralIndex].symbol}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Collateral Value
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {'$'}
+                      {formatAmount(finalCollateralValue, 3)}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Minimum Collateral Value
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      {'$'}
+                      {formatAmount(finalRequiredCollateralValue, 3)}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      className="text-stieglitz"
+                    >
+                      Collateral Amount
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between">
+                    <MuiInput
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      disableUnderline={true}
+                      classes={{ input: 'text-right' }}
+                      value={formik.values.collateralAmount.toString()}
+                      onChange={handleCollateralAmount}
+                      className="h-10 w-full text-md text-white font-mono bg-mineshaft rounded-md p-1 px-3"
+                    />
+                  </Box>
+                </>
+              )}
+              <Box className="flex justify-between">
+                <Box className="flex space-x-2">
+                  <Typography variant="h6" component="span">
+                    Use Volume Pool Funds
+                  </Typography>
+                </Box>
+                <Switch
+                  checked={formik.values.useVolumePoolFunds ?? false}
+                  onChange={handleUseVolumePool}
+                />
+              </Box>
+              {!formik.values.margin && (
+                <Box className="flex justify-between">
+                  <Box className="flex space-x-2">
+                    <Typography variant="h6" component="span">
+                      Auto Exercise
+                    </Typography>
+                    <Tooltip title={DELEGATE_INFO} placement="bottom">
+                      <InfoOutlinedIcon className="h-3 w-3 mt-1.5" />
+                    </Tooltip>
+                  </Box>
+                  <Switch
+                    checked={formik.values.delegate ?? false}
+                    onChange={handleDelegate}
+                  />
+                </Box>
+              )}
+            </Box>
+            {formik.values.margin && (
+              <Box className="rounded-xl border border-umbra p-4 flex flex-col space-y-4">
+                <Typography
+                  variant="caption"
+                  component="div"
+                  className="text-stieglitz"
+                >
+                  This will lock {formik.values.collateralAmount.toString()}{' '}
+                  {collaterals[formik.values.collateralIndex].symbol} as
+                  collateral for your trade. Please maintain sufficient
+                  collateral in order to avoid liquidation.
+                </Typography>
+              </Box>
+            )}
+            <Box className="bg-umbra rounded-xl p-4 flex flex-col space-y-4">
               <Box className="flex justify-between">
                 <Typography
                   variant="caption"
@@ -274,27 +499,6 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                   <span className="opacity-60">USDT</span>
                 </Typography>
               </Box>
-            </Box>
-            <Box className="flex space-x-2">
-              <Switch
-                checked={formik.values.useVolumePoolFunds ?? false}
-                onChange={handleUseVolumePool}
-              />
-              <Typography variant="h6" component="span">
-                Use Volume Pool Funds
-              </Typography>
-            </Box>
-            <Box className="flex space-x-2">
-              <Switch
-                checked={formik.values.delegate ?? false}
-                onChange={handleDelegate}
-              />
-              <Typography variant="h6" component="span">
-                Auto Exercise
-              </Typography>
-              <Tooltip title={DELEGATE_INFO} placement="bottom">
-                <InfoOutlinedIcon className="h-3 w-3 mt-1.5" />
-              </Tooltip>
             </Box>
             <WalletButton
               size="large"

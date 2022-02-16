@@ -33,6 +33,7 @@ const Oracles = lazy(() => import('craPages/oracles'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
+// const PoolsMargin = lazy(() => import('craPages/pools/margin'));
 // const PoolsManage = lazy(() => import('pages/pools/manage'));
 // const PoolsVolume = lazy(() => import('pages/pools/volume'));
 // const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
@@ -78,19 +79,16 @@ function AppRoutes() {
   //   return (
   //     <BrowserRouter forceRefresh={false}>
   //       <Suspense fallback={<PageLoader />}>
-  //         <Switch>
-  //           <Route path="/" component={Options} exact />
-  //           <Route path="/pools" component={Pools} exact />
-  //           <Route path="/pools/manage" component={PoolsManage} exact />
-  //           <Route path="/pools/volume" component={PoolsVolume} exact />
-  //           <Route path="/portfolio" component={Portfolio} exact />
-  //           <Route path="/faucet" component={TestnetFaucet} exact />
-  //           <Route path="/swap" component={Swap} exact />
-  //           <SsovProvider>
-  //             <Route path="/ssov" component={Ssov} exact />
-  //             <Route path="/ssov/manage" component={SsovManage} exact />
-  //           </SsovProvider>
-  //         </Switch>
+  //         <Route path="/" element={<Options />} />
+  //         <Route path="/pools" element={<Pools />} />
+  //         <Route path="/pools/manage" element={<PoolsManage />} />
+  //         <Route path="/pools/volume" element={<PoolsVolume />} />
+  //         <Route path="/pools/margin" element={<PoolsMargin />} />
+  //         <Route path="/portfolio" element={<Portfolio />} />
+  //         <Route path="/faucet" element={<TestnetFaucet />} />
+  //         <Route path="/swap" element={<Swap />} />
+  //         <Route path="ssov/*" element={<SsovRoutes />} />
+  //         <Route path="*" element={<Error statusCode={404} />} />
   //       </Suspense>
   //     </BrowserRouter>
   //   );
