@@ -9,18 +9,19 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { BigNumber, utils as ethersUtils } from 'ethers';
+import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import MaxApprove from 'components/MaxApprove';
 import BasicInput from 'components/UI/BasicInput';
+
 import DepositOpen from 'assets/icons/DepositOpen';
 import DepositClosed from 'assets/icons/DepositClosed';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext, SsovProperties } from 'contexts/SsovPuts';
 import { AssetsContext } from 'contexts/Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -200,17 +201,6 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
             }
           )
         );
-      } else if (tokenName === 'BNB' && ssovRouter) {
-        await sendTx(
-          ssovRouter.depositMultiple(
-            strikeIndexes,
-            strikeIndexes.map((index) => strikeDepositAmounts[index]),
-            accountAddress,
-            {
-              value: totalDepositAmount,
-            }
-          )
-        );
       } else {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
@@ -238,7 +228,6 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     accountAddress,
     tokenName,
     totalDepositAmount,
-    ssovRouter,
     sendTx,
   ]);
 
@@ -326,7 +315,7 @@ const Deposit = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
     totalDepositAmount,
     token,
     ssovContractWithSigner,
-    userAssetBalances.ETH,
+    userAssetBalances,
     tokenName,
   ]);
 

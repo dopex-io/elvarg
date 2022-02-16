@@ -20,7 +20,7 @@ import DepositOpen from 'assets/icons/DepositOpen';
 import DepositClosed from 'assets/icons/DepositClosed';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -44,18 +44,15 @@ const SelectMenuProps = {
   },
 };
 
-const BnbSsovDeposit = ({
-  ssovProperties,
-}: {
-  ssovProperties: SsovProperties;
-}) => {
+const BnbSsovDeposit = () => {
   const {
     updateSsovData,
-    updateUserSsovData,
-    selectedSsov,
-    ssovDataArray,
-    userSsovDataArray,
-    ssovSignerArray,
+    updateSsovUserData,
+    ssovEpochData,
+    ssovUserData,
+    ssovSigner,
+    selectedEpoch,
+    ssovData,
   } = useContext(SsovContext);
   const { accountAddress } = useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances } = useContext(AssetsContext);
@@ -63,18 +60,16 @@ const BnbSsovDeposit = ({
   const { convertToVBNB } = useBnbSsovConversion();
   const sendTx = useSendTx();
 
-  const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner, token, ssovRouter } =
-    ssovSignerArray[selectedSsov];
-  const { userEpochStrikeDeposits, userEpochDeposits } =
-    userSsovDataArray[selectedSsov];
+  const { tokenName } = ssovData;
+  const { ssovContractWithSigner, token, ssovRouter } = ssovSigner;
+  const { userEpochStrikeDeposits, userEpochDeposits } = ssovUserData;
   const {
     epochTimes,
     isVaultReady,
     epochStrikes,
     totalEpochStrikeDeposits,
     totalEpochDeposits,
-  } = ssovDataArray[selectedSsov];
+  } = ssovEpochData;
 
   const [selectedStrikeIndexes, setSelectedStrikeIndexes] = useState<number[]>(
     []
@@ -110,7 +105,7 @@ const BnbSsovDeposit = ({
     [selectedStrikeIndexes, strikeDepositAmounts]
   );
 
-  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const tokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -232,7 +227,7 @@ const BnbSsovDeposit = ({
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
       updateSsovData();
-      updateUserSsovData();
+      updateSsovUserData();
     } catch (err) {
       console.log(err);
     }
@@ -241,7 +236,7 @@ const BnbSsovDeposit = ({
     ssovContractWithSigner,
     strikeDepositAmounts,
     updateSsovData,
-    updateUserSsovData,
+    updateSsovUserData,
     updateAssetBalances,
     accountAddress,
     totalDepositAmount,

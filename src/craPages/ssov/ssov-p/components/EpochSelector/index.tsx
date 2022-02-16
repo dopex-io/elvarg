@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import cx from 'classnames';
 
-import { SsovProperties } from 'contexts/Ssov';
+import { SsovProperties } from 'contexts/SsovPuts';
 
 export default function EpochSelector({
   className,
