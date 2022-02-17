@@ -68,7 +68,7 @@ export interface Props {
   handleClose: () => {};
   data: Data;
   userData: UserData;
-  timeRemaining: string;
+  timeRemaining: JSX.Element;
 }
 
 const PurchaseDialog = ({
