@@ -18,7 +18,6 @@ import cx from 'classnames';
 import format from 'date-fns/format';
 import { isNaN } from 'formik';
 import axios from 'axios';
-import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
 import { BigNumber } from 'ethers';
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
@@ -69,6 +68,22 @@ const SelectMenuProps = {
   },
 };
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box>{children}</Box>}
+    </div>
+  );
+}
+
 const ManageCard = () => {
   const { accountAddress, chainId, provider, signer } =
     useContext(WalletContext);
@@ -77,7 +92,6 @@ const ManageCard = () => {
   const {
     updateSsovData,
     updateSsovUserData,
-    selectedSsov,
     ssovData,
     ssovEpochData,
     ssovUserData,
@@ -129,7 +143,7 @@ const ManageCard = () => {
   const [approved, setApproved] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
-  const [activeTab, setActiveTab] = useState<string>('deposit');
+  const [activeTab, setActiveTab] = useState(0);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovSigner.token[0]
@@ -148,22 +162,14 @@ const ManageCard = () => {
 
   const extraHeight: number = useMemo(() => {
     if (isZapInVisible) return 10;
-    if (activeTab === 'deposit') return selectedStrikeIndexes.length * 2.6;
-    else if (activeTab === 'withdraw') return 0;
+    if (activeTab === 0) return selectedStrikeIndexes.length * 2.6;
+    else if (activeTab === 1) return 0;
   }, [activeTab, selectedStrikeIndexes, isZapInVisible]);
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady) return false;
     return true;
   }, [isVaultReady]);
-
-  const activeIndex: number = useMemo(() => {
-    if (isZapInVisible) return 2;
-    else {
-      if (activeTab === 'deposit') return 0;
-      else return 1;
-    }
-  }, [activeTab, isZapInVisible]);
 
   const getQuote = async () => {
     const fromTokenAddress = IS_NATIVE(token)
@@ -592,53 +598,66 @@ const ManageCard = () => {
         styles.cardWidth
       )}
     >
-      <Tabs activeIndex={activeIndex} panelIscroll={false}>
-        {['deposit', 'withdraw'].includes(activeTab) && (
-          <Box className={isZapInVisible ? 'hidden' : 'flex'}>
-            <Box className={isZapActive ? 'w-2/3 mr-2' : 'w-full'}>
-              <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
-                <Box
-                  className={
-                    activeTab === 'deposit'
-                      ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                      : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                  }
-                  onClick={() => setActiveTab('deposit')}
-                >
-                  <Typography variant="h6" className="text-xs font-normal">
-                    Deposit
-                  </Typography>
-                </Box>
-                <Box
-                  className={
-                    activeTab === 'withdraw'
-                      ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                      : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                  }
-                  onClick={() => setActiveTab('withdraw')}
-                >
-                  <Typography variant="h6" className="text-xs font-normal">
-                    Withdraw
-                  </Typography>
-                </Box>
-              </Box>
+      <Box className={isZapInVisible ? 'hidden' : 'flex'}>
+        <Box className={isZapActive ? 'w-2/3 mr-2' : 'w-full'}>
+          <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
+            <Box
+              className={
+                activeTab === 0
+                  ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
+                  : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+              }
+              onClick={() => setActiveTab(0)}
+            >
+              <Typography variant="h6" className="text-xs font-normal">
+                Deposit
+              </Typography>
             </Box>
-            {isZapActive ? (
-              <Box className="w-1/3">
-                <ZapOutButton
-                  isZapActive={isZapActive}
-                  handleClick={() => {
-                    if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
-                    else setToken(ssovToken);
-                  }}
-                />
-              </Box>
-            ) : null}
+            <Box
+              className={
+                activeTab === 1
+                  ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
+                  : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+              }
+              onClick={() => setActiveTab(1)}
+            >
+              <Typography variant="h6" className="text-xs font-normal">
+                Withdraw
+              </Typography>
+            </Box>
           </Box>
-        )}
-
-        <PanelList style={{ height: 32 + extraHeight + 'rem' }}>
-          <Panel>
+        </Box>
+        {isZapActive ? (
+          <Box className="w-1/3">
+            <ZapOutButton
+              isZapActive={isZapActive}
+              handleClick={() => {
+                if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
+                else setToken(ssovToken);
+              }}
+            />
+          </Box>
+        ) : null}
+      </Box>
+      {isZapInVisible ? (
+        <ZapIn
+          setOpen={setIsZapInVisible}
+          ssovTokenName={ssovTokenName}
+          tokenName={tokenName}
+          setToken={setToken}
+          token={token}
+          userTokenBalance={userTokenBalance}
+          quote={quote}
+          setSlippageTolerance={setSlippageTolerance}
+          slippageTolerance={slippageTolerance}
+          purchasePower={purchasePower}
+          selectedTokenPrice={selectedTokenPrice}
+          isInDialog={false}
+          ssovToken={ssovToken}
+        />
+      ) : (
+        <>
+          <TabPanel value={activeTab} index={0}>
             <Box>
               <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
                 <Box className="flex">
@@ -814,7 +833,6 @@ const ManageCard = () => {
                         <TransparentCrossIcon className="ml-2" />
                       </Button>
                       <ArrowRightIcon className="ml-4 mt-2.5" />
-
                       <Box className="ml-auto mr-0">
                         <Input
                           disableUnderline={true}
@@ -968,12 +986,10 @@ const ManageCard = () => {
                   </Box>
                 </Box>
               </Box>
-
               <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
                 <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
                   <EstimatedGasCostButton gas={500000} chainId={chainId} />
                 </Box>
-
                 <ZapInButton
                   openZapIn={openZapIn}
                   isZapActive={isZapActive}
@@ -986,7 +1002,6 @@ const ManageCard = () => {
                   isZapInAvailable={isZapInAvailable}
                   chainId={chainId}
                 />
-
                 <Box className="flex">
                   <Box className="flex text-center p-2 mr-2 mt-1">
                     <LockerIcon />
@@ -1020,7 +1035,6 @@ const ManageCard = () => {
                     </Typography>
                   )}
                 </Box>
-
                 <CustomButton
                   size="medium"
                   className="w-full mt-4 !rounded-md"
@@ -1045,7 +1059,6 @@ const ManageCard = () => {
                       renderer={({ days, hours, minutes }) => (
                         <Box className="text-stieglitz flex">
                           <WhiteLockerIcon className="mr-2" />
-
                           <span className="opacity-70">
                             {days}D {hours}H {minutes}M
                           </span>
@@ -1065,27 +1078,12 @@ const ManageCard = () => {
                 </CustomButton>
               </Box>
             </Box>
-          </Panel>
-          <Panel>{ssovUserData ? <Withdraw /> : null}</Panel>
-          <Panel>
-            <ZapIn
-              setOpen={setIsZapInVisible}
-              ssovTokenName={ssovTokenName}
-              tokenName={tokenName}
-              setToken={setToken}
-              token={token}
-              userTokenBalance={userTokenBalance}
-              quote={quote}
-              setSlippageTolerance={setSlippageTolerance}
-              slippageTolerance={slippageTolerance}
-              purchasePower={purchasePower}
-              selectedTokenPrice={selectedTokenPrice}
-              isInDialog={false}
-              ssovToken={ssovToken}
-            />
-          </Panel>
-        </PanelList>
-      </Tabs>
+          </TabPanel>
+          <TabPanel value={activeTab} index={1}>
+            {ssovUserData ? <Withdraw /> : null}
+          </TabPanel>
+        </>
+      )}
     </Box>
   );
 };

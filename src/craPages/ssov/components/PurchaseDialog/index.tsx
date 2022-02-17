@@ -858,7 +858,6 @@ const PurchaseDialog = ({
             </Box>
           </Slide>
         )}
-
         {!debouncedIsChartVisible[0] && (
           <Slide direction="left" in={!isChartVisible}>
             <Box className="h-[12.88rem]">
@@ -923,7 +922,6 @@ const PurchaseDialog = ({
                   </Typography>
                 </Box>
               </Box>
-
               <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
                 <Box className={'flex mb-2'}>
                   <Typography
@@ -966,7 +964,6 @@ const PurchaseDialog = ({
                     </Typography>
                   </Box>
                 </Box>
-
                 <Box className={'flex mb-2'}>
                   <Typography
                     variant="h6"
@@ -983,7 +980,6 @@ const PurchaseDialog = ({
                     </Typography>
                   </Box>
                 </Box>
-
                 <Box className={'flex'}>
                   <Typography
                     variant="h6"
@@ -1005,7 +1001,6 @@ const PurchaseDialog = ({
           </Slide>
         )}
       </Box>
-
       <Box className="flex mt-5 mb-5">
         <CircleIcon
           className={
@@ -1015,7 +1010,6 @@ const PurchaseDialog = ({
           }
           onClick={() => setIsChartVisible(false)}
         />
-
         <CircleIcon
           className={
             isChartVisible
@@ -1025,7 +1019,6 @@ const PurchaseDialog = ({
           onClick={() => setIsChartVisible(true)}
         />
       </Box>
-
       <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
           <Box className={'flex mb-2'}>
@@ -1038,7 +1031,6 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Fees ($)
@@ -1053,7 +1045,6 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Total ($)
@@ -1068,7 +1059,6 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Purchase Power
@@ -1087,7 +1077,6 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-
           {isZapActive ? (
             <Box className={'flex mb-2'}>
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
@@ -1112,10 +1101,8 @@ const PurchaseDialog = ({
               </Box>
             </Box>
           )}
-
           <EstimatedGasCostButton gas={700000} chainId={chainId} />
         </Box>
-
         <ZapInButton
           openZapIn={openZapIn}
           isZapActive={isZapActive}
@@ -1128,7 +1115,6 @@ const PurchaseDialog = ({
           isZapInAvailable={isZapInAvailable}
           chainId={chainId}
         />
-
         <Box className="flex">
           <Box className="flex text-center p-2 mr-2 mt-1">
             <AlarmIcon />
