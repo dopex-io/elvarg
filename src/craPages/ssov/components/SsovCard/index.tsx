@@ -125,11 +125,7 @@ function SsovCard(props) {
           <CustomButton
             size="medium"
             className="my-4"
-            href={`${
-              type === 'put'
-                ? `/ssov/puts/manage/${name}`
-                : `/ssov/manage/${name}`
-            }`}
+            href={`/ssov/${type}/${name}`}
             fullWidth
           >
             Manage

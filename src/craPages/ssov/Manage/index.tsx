@@ -13,13 +13,13 @@ import PageLoader from 'components/PageLoader';
 import { SsovContext } from 'contexts/Ssov';
 
 const Manage = () => {
-  const { asset } = useParams();
+  const { asset, type } = useParams();
   const { ssovData, ssovEpochData, ssovUserData, setSelectedSsov } =
     useContext(SsovContext);
 
   useEffect(() => {
-    setSelectedSsov({ token: asset, type: 'CALL' });
-  }, [setSelectedSsov, asset]);
+    setSelectedSsov({ token: asset, type: type.toUpperCase() });
+  }, [setSelectedSsov, asset, type]);
 
   if (ssovData === undefined || ssovEpochData === undefined)
     return (
