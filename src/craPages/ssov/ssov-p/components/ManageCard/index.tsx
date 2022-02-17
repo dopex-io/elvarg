@@ -192,7 +192,7 @@ const ManageCard = ({ ssovProperties }: { ssovProperties: SsovProperties }) => {
 
   const isZapActive: boolean = useMemo(() => {
     return (
-      tokenName.toUpperCase() === ssovDepositPurchaseTokens[0].toUpperCase()
+      tokenName.toUpperCase() !== ssovDepositPurchaseTokens[0].toUpperCase()
     );
   }, [tokenName, ssovDepositPurchaseTokens]);
 
