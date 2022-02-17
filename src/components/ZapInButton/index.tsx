@@ -105,7 +105,9 @@ const ZapInButton = ({
       <Tooltip
         className="text-stieglitz"
         title={
-          !slippage ? (
+          !quote['toToken'] ? (
+            ''
+          ) : !slippage ? (
             <span>
               You will swap{' '}
               {quote['fromToken'] ? quote['fromToken']['symbol'] : '-'} to{' '}

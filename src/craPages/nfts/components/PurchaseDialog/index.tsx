@@ -13,6 +13,7 @@ import {
   ERC20SSOV1inchRouter__factory,
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
+  DiamondPepeNFTs1inchRouter__factory,
 } from '@dopex-io/sdk';
 
 import { useFormik } from 'formik';
@@ -39,7 +40,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
-import ZapIn from '../../../../components/ZapIn';
+import ZapIn from '../ZapIn';
 import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
 import ZapInButton from '../../../../components/ZapInButton';
 import ZapOutButton from '../../../../components/ZapOutButton';
@@ -49,32 +50,34 @@ import useBnbSsovConversion from '../../../../hooks/useBnbSsovConversion';
 import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { Data, UserData } from '../../diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
-import {
-  SsovContext,
-  SsovProperties,
-  SsovData,
-  UserSsovData,
-} from 'contexts/Ssov';
 
 import useSendTx from 'hooks/useSendTx';
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 import BigCrossIcon from '../../../../components/Icons/BigCrossIcon';
 import CircleIcon from '../../../../components/Icons/CircleIcon';
 import AlarmIcon from '../../../../components/Icons/AlarmIcon';
-import { Data, UserData } from '../../../../contexts/DiamondPepe';
 import { LoaderIcon } from 'react-hot-toast';
+import ZapIcon from '../../../../components/Icons/ZapIcon';
 
 export interface Props {
   open: boolean;
   handleClose: () => {};
   data: Data;
   userData: UserData;
+  timeRemaining: string;
 }
 
-const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
+const PurchaseDialog = ({
+  open,
+  handleClose,
+  data,
+  userData,
+  timeRemaining,
+}: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer } =
@@ -85,10 +88,14 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
         signer
       )
     : null;
-  const diamondPepeNfts1inchRouter = null;
-  const baseTokenName: string = 'RDPX-WETH';
+  const diamondPepeNfts1inchRouter =
+    DiamondPepeNFTs1inchRouter__factory.connect(
+      Addresses[chainId]['1inchRouter'],
+      signer
+    );
+  const baseTokenName: string = 'SLP';
   const baseToken: ERC20 = ERC20__factory.connect(
-    Addresses[chainId][baseTokenName],
+    Addresses[chainId]['RDPX-WETH'],
     provider
   );
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
@@ -107,8 +114,12 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
   }, [rawAmount]);
 
   const isZapActive: boolean = useMemo(() => {
-    return tokenName.toUpperCase() !== baseTokenName.toUpperCase();
-  }, [tokenName, baseTokenName]);
+    return (
+      tokenName !== 'RDPX-WETH' &&
+      tokenName != 'SLP' &&
+      tokenName.toUpperCase() !== baseTokenName.toUpperCase()
+    );
+  }, [tokenName, baseTokenName, path]);
 
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
@@ -120,7 +131,7 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
   const purchasePower: number = useMemo(() => {
     if (isZapActive) {
       let price: number;
-      if (path['toToken'])
+      if (path['toToken'] && quote['toToken'])
         price =
           getUserReadableAmount(
             path['toTokenAmount'],
@@ -169,7 +180,7 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
   };
 
   const zapInTotalCost: number = useMemo(() => {
-    if (!path['toTokenAmount']) return 0;
+    if (!path['toTokenAmount'] || !quote['toTokenAmount']) return 0;
     const price =
       getUserReadableAmount(
         path['toTokenAmount'],
@@ -183,7 +194,7 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
   }, [path]);
 
   const zapInPurchasePower: number = useMemo(() => {
-    if (!path['toTokenAmount']) return 0;
+    if (!path['toTokenAmount'] || !quote['toTokenAmount']) return 0;
     const price =
       getUserReadableAmount(
         path['toTokenAmount'],
@@ -208,8 +219,9 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
     const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const toTokenAddress: string = Addresses[chainId][baseTokenName];
+    const toTokenAddress: string = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
+    if (fromTokenAddress === baseToken.address) return;
     if (fromTokenAddress === toTokenAddress) return;
 
     const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
@@ -223,14 +235,25 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
   };
 
   const getPath = async () => {
-    if (!isZapActive) return;
     setIsFetchingPath(true);
     const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const toTokenAddress: string = Addresses[chainId][baseTokenName];
+    const toTokenAddress: string = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
-    if (!quote['toToken']) return;
+    try {
+      const { data } = await axios.get(
+        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
+          userTokenBalance.toString()
+        )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+      );
+
+      setPath(data);
+    } catch (err) {
+      console.log(err);
+    }
+
+    setIsFetchingPath(false);
   };
 
   const openZapIn = () => {
@@ -242,6 +265,7 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
         .filter(function (item) {
           return (
             item !== baseTokenName &&
+            !['RDPX', 'ETH', 'DPX'].includes(item.toUpperCase()) &&
             (Addresses[chainId][item] || IS_NATIVE(item))
           );
         })
@@ -333,7 +357,7 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible]);
+  }, [isZapInVisible, token, isZapActive]);
 
   // Updates approved state
   useEffect(() => {
@@ -350,11 +374,42 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
     })();
   }, [token, accountAddress, spender, approved, purchasePower]);
 
-  const setMaxAmount = async () => {};
+  const setMaxAmount = async () => {
+    setRawAmount((purchasePower * 0.99).toFixed(3));
+  };
 
   useEffect(() => {
     handleTokenChange();
   }, [token]);
+
+  // Handles isApproved
+  useEffect(() => {
+    if (!token) return;
+    (async function () {
+      const userAmount = IS_NATIVE(token)
+        ? BigNumber.from(userAssetBalances.ETH)
+        : await token.balanceOf(accountAddress);
+
+      setUserTokenBalance(userAmount);
+
+      let allowance = IS_NATIVE(token)
+        ? BigNumber.from(0)
+        : await token.allowance(
+            accountAddress,
+            diamondPepeNfts1inchRouter.address
+          );
+
+      if (!allowance.eq(0)) {
+        setApproved(true);
+      } else {
+        if (IS_NATIVE(token)) {
+          setApproved(true);
+        } else {
+          setApproved(false);
+        }
+      }
+    })();
+  }, [accountAddress, token, userAssetBalances]);
 
   useEffect(() => {
     if (
@@ -385,7 +440,7 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
         <ZapOutButton
           isZapActive={isZapActive}
           handleClick={() => {
-            setToken(baseTokenName);
+            setToken(baseToken);
           }}
           background={'bg-[#343C4D]'}
         />
@@ -468,27 +523,41 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
             </Box>
           </Box>
         )}
-        <PanelList style={{ height: 37 + extraHeight + 'rem' }}>
+        <PanelList style={{ height: 39 + extraHeight + 'rem' }}>
           <Panel>
             <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
               <Box className="flex flex-row justify-between">
                 <Box
-                  className="h-11 w-[25rem] bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer group"
+                  className={`h-11 ${
+                    isZapActive ? 'w-[15rem]' : 'w-[25rem]'
+                  } bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer group`}
                   onClick={() => setIsTokenSelectorVisible(true)}
                 >
-                  <Box className="flex flex-row h-9 w-[3rem] mr-1">
+                  <Box
+                    className={`flex flex-row h-9 ${
+                      isZapActive ? '' : 'w-[3rem]'
+                    } mr-1`}
+                  >
                     {tokenName !== '' ? (
                       <img
-                        src={'/assets/rdpx_lp.svg'}
+                        src={
+                          isZapActive
+                            ? `/assets/${tokenName.toLowerCase()}.svg`
+                            : '/assets/rdpx_lp.png'
+                        }
                         alt={tokenName}
-                        className="ml-1"
+                        className={isZapActive ? '' : 'ml-1'}
                       />
                     ) : (
                       <LoaderIcon className="mt-3.5 ml-3.5" />
                     )}
                   </Box>
                   <Typography variant="h5" className="text-white pb-1 pr-1.5">
-                    {'RDPX LP'}
+                    {isZapActive ? (
+                      <span className={'ml-1'}>{tokenName}</span>
+                    ) : (
+                      'rDPX LP'
+                    )}
                   </Typography>
                 </Box>
                 <Box
@@ -517,7 +586,14 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                     variant="h6"
                     className="text-[#78859E] text-sm pl-1 pt-2"
                   >
-                    LP Token
+                    {isZapActive ? (
+                      <div className={'flex'}>
+                        <ZapIcon id={'6'} className={'mt-0.5 mr-1.5'} />
+                        Zap is active
+                      </div>
+                    ) : (
+                      'LP Token'
+                    )}
                   </Typography>
                 </Box>
                 <Box className="ml-auto mr-0">
@@ -525,7 +601,10 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                     variant="h6"
                     className="text-[#78859E] text-sm pl-1 pt-2 pr-3"
                   >
-                    Balance: <span className="text-white">1</span>
+                    Balance:{' '}
+                    <span className="text-white">
+                      {formatAmount(purchasePower, 2)}
+                    </span>
                   </Typography>
                 </Box>
               </Box>
@@ -536,7 +615,10 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                 <Box className="rounded-tl-xl flex p-3 border border-[#232935] w-full">
                   <Box className={'w-5/6'}>
                     <Typography variant="h5" className="text-white pb-1 pr-2">
-                      {getUserReadableAmount(userData.deposited, 18)}
+                      {formatAmount(
+                        getUserReadableAmount(userData.deposits, 18),
+                        2
+                      )}
                     </Typography>
                     <Typography
                       variant="h6"
@@ -548,7 +630,12 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                 </Box>
                 <Box className="rounded-tr-xl flex flex-col p-3 border border-[#232935] w-full">
                   <Typography variant="h5" className="text-white pb-1 pr-2">
-                    -
+                    {formatAmount(
+                      (100 * getUserReadableAmount(userData.deposits, 18)) /
+                        getUserReadableAmount(data.totalDeposits, 18),
+                      2
+                    )}
+                    %
                   </Typography>
                   <Typography variant="h6" className="text-[#78859E] pb-1 pr-2">
                     Pool share
@@ -557,11 +644,6 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
               </Box>
 
               <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-[#232935] w-full">
-                <Box className={'flex mb-2'}>
-                  <Typography variant="h6" className="text-white ml-0 mr-auto">
-                    1 LP = 4.351 ETH
-                  </Typography>
-                </Box>
                 <Box className={'flex mb-2'}>
                   <Typography
                     variant="h6"
@@ -574,7 +656,11 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      2 LP
+                      {formatAmount(
+                        getUserReadableAmount(data.mintPrice, 18),
+                        8
+                      )}{' '}
+                      LP
                     </Typography>
                   </Box>
                 </Box>
@@ -591,7 +677,7 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      2d 22h 22m
+                      {timeRemaining}
                     </Typography>
                   </Box>
                 </Box>
@@ -608,16 +694,20 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      1231.11 LP <span className="opacity-50">/ 2500 LP</span>
+                      {formatAmount(
+                        getUserReadableAmount(data.totalDeposits, 18),
+                        0
+                      ).replace('.', '')}{' '}
+                      LP <span className="opacity-50">/ 2500 LP</span>
                     </Typography>
                   </Box>
                 </Box>
               </Box>
             </Box>
 
-            <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-4">
+            <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-12">
               <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
-                <EstimatedGasCostButton gas={700000} />
+                <EstimatedGasCostButton gas={2000000} />
               </Box>
 
               <ZapInButton
@@ -625,9 +715,9 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
                 isZapActive={isZapActive}
                 quote={quote}
                 path={path}
-                isFetchingPath={isFetchingPath}
+                isFetchingPath={isZapActive ? isFetchingPath : false}
                 tokenName={tokenName}
-                ssovTokenSymbol={baseTokenName}
+                ssovTokenSymbol={'ETH'}
                 selectedTokenPrice={selectedTokenPrice}
                 isZapInAvailable={isZapInAvailable}
                 chainId={chainId}
@@ -674,6 +764,13 @@ const PurchaseDialog = ({ open, handleClose, data, userData }: Props) => {
             selectedTokenPrice={selectedTokenPrice}
             isInDialog={true}
             ssovToken={baseToken}
+            background={[
+              'bg-[#181C24]',
+              'bg-[#232935]',
+              'bg-[#232935]',
+              'bg-[#181C24]',
+              'bg-[#232935]',
+            ]}
           />
         </Box>
       </Slide>

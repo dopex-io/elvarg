@@ -17,9 +17,18 @@ export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setToken: Dispatch<SetStateAction<ERC20 | string>>;
   isInDialog: boolean;
+  tokensToExclude: string[];
+  enableSearch: boolean;
 }
 
-const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
+const TokenSelector = ({
+  open,
+  setOpen,
+  setToken,
+  isInDialog,
+  tokensToExclude,
+  enableSearch = true,
+}: Props) => {
   const { contractAddresses, provider, chainId } = useContext(WalletContext);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
@@ -48,93 +57,95 @@ const TokenSelector = ({ open, setOpen, setToken, isInDialog }: Props) => {
             <img src="/assets/dark-cross.svg" alt={'Cancel'} />
           </IconButton>
         </Box>
-        <Box className="mb-2">
-          <Input
-            disableUnderline={true}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-11 text-lg text-white w-full text-base bg-umbra pl-3 pr-3 rounded-md"
-            placeholder="Search by token name"
-            classes={{ input: 'text-white' }}
-            startAdornment={
-              <Box className="mr-3 opacity-30 w-18">
-                <SearchIcon />
-              </Box>
-            }
-          />
-        </Box>
+        {enableSearch ? (
+          <Box className="mb-2">
+            <Input
+              disableUnderline={true}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-11 text-lg text-white w-full text-base bg-umbra pl-3 pr-3 rounded-md"
+              placeholder="Search by token name"
+              classes={{ input: 'text-white' }}
+              startAdornment={
+                <Box className="mr-3 opacity-30 w-18">
+                  <SearchIcon />
+                </Box>
+              }
+            />
+          </Box>
+        ) : null}
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
           <Box className={isInDialog ? '' : 'h-[36rem] overflow-y-scroll'}>
             {tokens
               .sort((a, b) => {
                 return getValueInUsd(b) - getValueInUsd(a);
               })
-              .map(
-                (symbol) =>
-                  (Addresses[chainId][symbol] || IS_NATIVE(symbol)) &&
-                  symbol.includes(searchTerm.toUpperCase()) && (
-                    <Box
-                      key={symbol}
-                      className={
-                        isInDialog
-                          ? 'flex mt-2 mb-2 hover:bg-mineshaft p-2 rounded-md cursor-pointer'
-                          : 'flex mt-2 mb-2 mr-2 hover:bg-mineshaft p-2 pr-3 rounded-md cursor-pointer'
-                      }
-                      onClick={() => {
-                        setToken(
-                          IS_NATIVE(symbol)
-                            ? symbol
-                            : ERC20__factory.connect(
-                                contractAddresses[symbol],
-                                provider
-                              )
-                        );
-                        setOpen(false);
-                      }}
-                    >
-                      <Box className="flex">
-                        {' '}
-                        <Box className="flex flex-row h-11 w-11 mr-2">
-                          <img
-                            src={'/assets/' + symbol.toLowerCase() + '.svg'}
-                            alt={ASSET_TO_NAME[symbol]}
-                            className="border-0.5 border-gray-200 pb-0.5 pt-0.5 w-auto"
-                          />
-                        </Box>
-                        <Box className="ml-1">
-                          <Typography
-                            variant="h5"
-                            className="text-white font-medium"
-                          >
-                            {symbol}
-                          </Typography>
-                          <Typography variant="h6" className="text-gray-400">
-                            {ASSET_TO_NAME[symbol]}
-                          </Typography>
-                        </Box>{' '}
+              .map((symbol) =>
+                (Addresses[chainId][symbol] || IS_NATIVE(symbol)) &&
+                symbol.includes(searchTerm.toUpperCase()) &&
+                !tokensToExclude.includes(symbol.toUpperCase()) ? (
+                  <Box
+                    key={symbol}
+                    className={
+                      isInDialog
+                        ? 'flex mt-2 mb-2 hover:bg-mineshaft p-2 rounded-md cursor-pointer'
+                        : 'flex mt-2 mb-2 mr-2 hover:bg-mineshaft p-2 pr-3 rounded-md cursor-pointer'
+                    }
+                    onClick={() => {
+                      setToken(
+                        IS_NATIVE(symbol)
+                          ? symbol
+                          : ERC20__factory.connect(
+                              contractAddresses[symbol],
+                              provider
+                            )
+                      );
+                      setOpen(false);
+                    }}
+                  >
+                    <Box className="flex">
+                      {' '}
+                      <Box className="flex flex-row h-11 w-11 mr-2">
+                        <img
+                          src={'/assets/' + symbol.toLowerCase() + '.svg'}
+                          alt={ASSET_TO_NAME[symbol]}
+                          className="border-0.5 border-gray-200 pb-0.5 pt-0.5 w-auto"
+                        />
                       </Box>
-                      <Box className="ml-auto mr-0 text-right">
+                      <Box className="ml-1">
                         <Typography
                           variant="h5"
                           className="text-white font-medium"
                         >
-                          {formatAmount(
-                            getUserReadableAmount(
-                              userAssetBalances[symbol],
-                              getDecimalsFromSymbol(symbol, chainId)
-                            ),
-                            3
-                          )}{' '}
+                          {symbol}
                         </Typography>
-                        <Typography
-                          variant="h6"
-                          className="text-gray-500 font-small"
-                        >
-                          ${formatAmount(getValueInUsd(symbol), 2)}{' '}
+                        <Typography variant="h6" className="text-gray-400">
+                          {ASSET_TO_NAME[symbol]}
                         </Typography>
-                      </Box>
+                      </Box>{' '}
                     </Box>
-                  )
+                    <Box className="ml-auto mr-0 text-right">
+                      <Typography
+                        variant="h5"
+                        className="text-white font-medium"
+                      >
+                        {formatAmount(
+                          getUserReadableAmount(
+                            userAssetBalances[symbol],
+                            getDecimalsFromSymbol(symbol, chainId)
+                          ),
+                          3
+                        )}{' '}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        className="text-gray-500 font-small"
+                      >
+                        ${formatAmount(getValueInUsd(symbol), 2)}{' '}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : null
               )}
           </Box>
         </Slide>
