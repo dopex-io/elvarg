@@ -17,8 +17,8 @@ export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setToken: Dispatch<SetStateAction<ERC20 | string>>;
   isInDialog: boolean;
-  tokensToExclude: string[];
-  enableSearch: boolean;
+  tokensToExclude?: string[];
+  enableSearch?: boolean;
 }
 
 const TokenSelector = ({
@@ -26,7 +26,7 @@ const TokenSelector = ({
   setOpen,
   setToken,
   isInDialog,
-  tokensToExclude,
+  tokensToExclude = [],
   enableSearch = true,
 }: Props) => {
   const { contractAddresses, provider, chainId } = useContext(WalletContext);
