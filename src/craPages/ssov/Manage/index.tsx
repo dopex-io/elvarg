@@ -14,8 +14,13 @@ import { SsovContext } from 'contexts/Ssov';
 
 const Manage = () => {
   const { asset, type } = useParams();
-  const { ssovData, ssovEpochData, ssovUserData, setSelectedSsov } =
-    useContext(SsovContext);
+  const {
+    ssovData,
+    ssovEpochData,
+    ssovUserData,
+    setSelectedSsov,
+    selectedSsov,
+  } = useContext(SsovContext);
 
   useEffect(() => {
     setSelectedSsov({ token: asset, type: type.toUpperCase() });
@@ -45,7 +50,7 @@ const Manage = () => {
             <ManageCard />
           </Box>
           {ssovUserData === undefined ? null : <ExerciseList />}
-          <Stats className="mt-4" />
+          {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
         </Box>
       </Box>
     </Box>
