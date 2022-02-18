@@ -8,10 +8,12 @@ import React, {
 import {
   Addresses,
   ERC20,
+  Curve2PoolSsovPut1inchRouter,
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
+  Curve2PoolSsovPut,
 } from '@dopex-io/sdk';
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
@@ -38,11 +40,12 @@ import BigCrossIcon from 'components/Icons/BigCrossIcon';
 import CircleIcon from 'components/Icons/CircleIcon';
 import AlarmIcon from 'components/Icons/AlarmIcon';
 
+import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
-import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import useSendTx from 'hooks/useSendTx';
@@ -79,8 +82,11 @@ const PurchaseDialog = ({
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
-  const { accountAddress, provider, chainId, signer } =
+  const { accountAddress, provider, chainId, signer, contractAddresses } =
     useContext(WalletContext);
+
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
+
   const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
     ? Aggregation1inchRouterV4__factory.connect(
         Addresses[chainId]['1inchRouter'],
@@ -143,7 +149,9 @@ const PurchaseDialog = ({
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   }, [tokenName, ssovTokenSymbol]);
 
-  const spender: string = isZapActive
+  const spender: string = isPut
+    ? ssovData.ssovContract.address
+    : isZapActive
     ? IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB'
       ? nativeSSOV1inchRouter?.address
       : erc20SSOV1inchRouter?.address
@@ -210,11 +218,38 @@ const PurchaseDialog = ({
     [strikeIndex, epochStrikeTokens]
   );
 
-  const handleTokenChange = async () => {
+  const getQuote = useCallback(async () => {
+    const fromTokenAddress: string = IS_NATIVE(token)
+      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : token.address;
+    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
+      ? ssovTokenName === 'BNB'
+        ? contractAddresses['VBNB']
+        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      : ssovToken.address;
+    if (fromTokenAddress === toTokenAddress) return;
+    const amount: number = 10 ** getTokenDecimals(tokenName);
+    const { data } = await axios.get(
+      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+        amount
+      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+    );
+
+    setQuote(data);
+  }, [
+    accountAddress,
+    ssovToken.address,
+    ssovTokenName,
+    token,
+    tokenName,
+    contractAddresses,
+  ]);
+
+  const handleTokenChange = useCallback(async () => {
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
     await getQuote();
-  };
+  }, [getQuote, token]);
 
   const zapInTotalCost: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
@@ -281,26 +316,6 @@ const PurchaseDialog = ({
     purchasePower >= getUserReadableAmount(state.totalCost, 18);
 
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
-
-  const getQuote = async () => {
-    const fromTokenAddress: string = IS_NATIVE(token)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : token.address;
-    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
-      ? ssovTokenName === 'BNB'
-        ? Addresses[chainId]['VBNB']
-        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : ssovToken.address;
-    if (fromTokenAddress === toTokenAddress) return;
-    const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
-    const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
-        amount
-      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
-    );
-
-    setQuote(data);
-  };
 
   const getPath = async () => {
     if (!isZapActive) return;
@@ -402,10 +417,10 @@ const PurchaseDialog = ({
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
-        ERC20__factory.connect(token.address, signer).approve(
-          spender,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(
+          isPut ? '0x7f90122bf0700f9e7e1f688fe926940e8839f353' : token.address,
+          signer
+        ).approve(spender, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
@@ -415,7 +430,15 @@ const PurchaseDialog = ({
 
   const handlePurchase = useCallback(async () => {
     try {
-      if (ssovTokenName === tokenName) {
+      if (isPut) {
+        await sendTx(
+          (ssovContractWithSigner as Curve2PoolSsovPut).purchase(
+            strikeIndex,
+            getContractReadableAmount(optionsAmount, 18),
+            accountAddress
+          )
+        );
+      } else if (ssovTokenName === tokenName) {
         if (tokenName === 'BNB') {
           await sendTx(
             ssovRouter.purchase(
@@ -589,7 +612,7 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     handleTokenChange();
-  }, [token]);
+  }, [handleTokenChange]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
@@ -645,16 +668,20 @@ const PurchaseDialog = ({
         }
 
         const optionPrice = await ssovOptionPricingContract.getOptionPrice(
-          false,
+          isPut,
           expiry,
           strike,
           tokenPrice,
           volatility
         );
 
-        const premium = optionPrice
+        let premium = optionPrice
           .mul(ethersUtils.parseEther(String(optionsAmount)))
-          .div(tokenPrice);
+          .div(isPut ? ssovData.lpPrice : tokenPrice);
+
+        if (isPut) {
+          premium = premium.mul(BigNumber.from(1e10));
+        }
 
         let fees = await ssovContractWithSigner.calculatePurchaseFees(
           tokenPrice,
@@ -695,7 +722,7 @@ const PurchaseDialog = ({
           premium,
           fees,
           expiry,
-          totalCost: totalCost,
+          totalCost,
         });
 
         setIsPurchaseStatsLoading(false);
@@ -715,6 +742,8 @@ const PurchaseDialog = ({
     tokenPrice,
     provider,
     ssovTokenName,
+    isPut,
+    ssovData,
   ]);
 
   // Handles isApproved
@@ -765,8 +794,7 @@ const PurchaseDialog = ({
       }}
     >
       <Box className="flex flex-row items-center mb-4">
-        <Typography variant="h5">Buy Call Option</Typography>
-
+        <Typography variant="h5">Buy Options</Typography>
         <ZapOutButton
           isZapActive={isZapActive}
           handleClick={() => {
@@ -774,7 +802,6 @@ const PurchaseDialog = ({
             else setToken(ssovToken);
           }}
         />
-
         <IconButton
           className={
             isZapActive
@@ -786,7 +813,6 @@ const PurchaseDialog = ({
           <BigCrossIcon className="" />
         </IconButton>
       </Box>
-
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
@@ -839,7 +865,6 @@ const PurchaseDialog = ({
           </Box>
         </Box>
       </Box>
-
       <Box>
         {debouncedIsChartVisible[0] && (
           <Slide direction="left" in={isChartVisible}>
@@ -976,7 +1001,7 @@ const PurchaseDialog = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      Call
+                      {selectedSsov.type}
                     </Typography>
                   </Box>
                 </Box>
@@ -1039,8 +1064,13 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 $
                 {formatAmount(
-                  getUserReadableAmount(state.fees.mul(tokenPrice), 26),
-                  0
+                  isPut
+                    ? getUserReadableAmount(
+                        state.fees.mul(ssovData.lpPrice),
+                        36
+                      )
+                    : getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                  6
                 )}
               </Typography>
             </Box>
@@ -1059,24 +1089,26 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Purchase Power
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(
-                  isZapActive ? zapInPurchasePower : purchasePower,
-                  5
-                )}{' '}
-                {isZapActive
-                  ? tokenName
-                  : ssovTokenSymbol === 'BNB'
-                  ? 'vBNB'
-                  : ssovTokenSymbol}
+          {!isPut ? (
+            <Box className={'flex mb-2'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Purchase Power
               </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {formatAmount(
+                    isZapActive ? zapInPurchasePower : purchasePower,
+                    5
+                  )}{' '}
+                  {isZapActive
+                    ? tokenName
+                    : ssovTokenSymbol === 'BNB'
+                    ? 'vBNB'
+                    : ssovTokenSymbol}
+                </Typography>
+              </Box>
             </Box>
-          </Box>
+          ) : null}
           {isZapActive ? (
             <Box className={'flex mb-2'}>
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
@@ -1096,7 +1128,11 @@ const PurchaseDialog = ({
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
                   {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                  {ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol}
+                  {isPut
+                    ? '2CRV'
+                    : ssovTokenSymbol === 'BNB'
+                    ? 'vBNB'
+                    : ssovTokenSymbol}
                 </Typography>
               </Box>
             </Box>
@@ -1112,7 +1148,7 @@ const PurchaseDialog = ({
           tokenName={tokenName}
           ssovTokenSymbol={ssovTokenSymbol}
           selectedTokenPrice={selectedTokenPrice}
-          isZapInAvailable={isZapInAvailable}
+          isZapInAvailable={isPut ? false : isZapInAvailable}
           chainId={chainId}
         />
         <Box className="flex">
@@ -1168,7 +1204,6 @@ const PurchaseDialog = ({
             : 'Enter an amount'}
         </CustomButton>
       </Box>
-
       <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>
         <Box className={styles.zapIn}>
           <ZapIn
