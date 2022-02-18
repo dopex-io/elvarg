@@ -38,7 +38,6 @@ const Description = ({
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { convertToBNB } = useBnbSsovConversion();
 
-  const { tokenPrice } = ssovData;
   const { APY, isVaultReady } = ssovEpochData;
 
   const tokenSymbol = useMemo(
@@ -49,20 +48,27 @@ const Description = ({
   const isPut = useMemo(() => type === 'PUT', [type]);
 
   const TVL: number = useMemo(() => {
-    if (tokenPrice && ssovEpochData) {
-      if (tokenSymbol === 'BNB') {
+    if (ssovData.tokenPrice && ssovEpochData) {
+      if (isPut) {
+        return (
+          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
+          getUserReadableAmount(ssovData.lpPrice, 18)
+        );
+      } else if (tokenSymbol === 'BNB') {
         return convertToBNB(ssovEpochData.totalEpochDeposits)
-          .mul(tokenPrice)
+          .mul(ssovData.tokenPrice)
           .div(1e8)
           .toNumber();
       } else {
-        getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
-          getUserReadableAmount(tokenPrice, 8);
+        return (
+          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
+          getUserReadableAmount(ssovData.tokenPrice, 8)
+        );
       }
     } else {
       return 0;
     }
-  }, [ssovEpochData, convertToBNB, tokenPrice, tokenSymbol]);
+  }, [ssovEpochData, convertToBNB, ssovData, tokenSymbol, isPut]);
 
   const info = [
     {
@@ -72,7 +78,7 @@ const Description = ({
     },
     {
       heading: 'Farm APY',
-      value: isPut ? '...' : `${!APY ? '...' : APY.toString() + '%'}`,
+      value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
       tooltip: isPut
         ? 'Curve 2Pool Fee APY and Curve Rewards'

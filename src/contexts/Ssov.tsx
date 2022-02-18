@@ -46,6 +46,7 @@ export interface SsovData {
   ssovContract?: any;
   currentEpoch?: number;
   tokenPrice?: BigNumber;
+  lpPrice?: BigNumber;
   ssovOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
@@ -219,7 +220,11 @@ export const SsovProvider = (props) => {
     ]);
 
     const APY = await axios
-      .get(`https://api.dopex.io/api/v1/ssov/apy?asset=${selectedSsov.token}`)
+      .get(
+        `https://api.dopex.io/api/v1/ssov/apy?asset=${
+          selectedSsov.token
+        }&type=${selectedSsov.type.toLowerCase()}`
+      )
       .then((res) => formatAmount(res.data.apy, 2))
       .catch(() => '0');
 
@@ -257,7 +262,6 @@ export const SsovProvider = (props) => {
           ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
           : ERC20SSOV__factory.connect(ssovAddresses.Vault, provider);
 
-      // Epoch
       try {
         const [currentEpoch, tokenPrice] = await Promise.all([
           _ssovContract.currentEpoch(),
@@ -274,6 +278,9 @@ export const SsovProvider = (props) => {
           ssovContract: _ssovContract,
           currentEpoch: Number(currentEpoch),
           tokenPrice,
+          ...(selectedSsov.type === 'PUT' && {
+            lpPrice: await (_ssovContract as Curve2PoolSsovPut).getLpPrice(),
+          }),
           ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
             ssovAddresses.OptionPricing,
             provider
