@@ -12,7 +12,6 @@ import { client } from 'graphql/apollo';
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
-import { SsovProvider } from 'contexts/Ssov';
 import { NftsProvider } from 'contexts/Nfts';
 
 // import { BUILD } from 'constants/index';
@@ -51,12 +50,10 @@ const FarmRoutes = () => {
 
 const SsovRoutes = () => {
   return (
-    <SsovProvider>
-      <Routes>
-        <Route path="*" element={<Ssov />} />
-        <Route path=":type/:asset" element={<SsovManage />} />
-      </Routes>
-    </SsovProvider>
+    <Routes>
+      <Route path="*" element={<Ssov />} />
+      <Route path=":type/:asset" element={<SsovManage />} />
+    </Routes>
   );
 };
 

@@ -33,8 +33,8 @@ import getTotalEpochPremium from 'utils/contracts/ssov-p/getTotalEpochPremium';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
 export interface Ssov {
-  token: string;
-  type: 'CALL' | 'PUT';
+  token?: string;
+  type?: 'CALL' | 'PUT';
 }
 export interface SsovSigner {
   token: ERC20[];
@@ -100,7 +100,7 @@ const initialSsovSigner = {
 export const SsovContext = createContext<SsovContextInterface>({
   ssovUserData: initialSsovUserData,
   ssovSigner: initialSsovSigner,
-  selectedSsov: { token: 'DPX', type: 'CALL' },
+  selectedSsov: {},
 });
 
 export const SsovProvider = (props) => {
@@ -111,7 +111,7 @@ export const SsovProvider = (props) => {
   const [selectedSsov, setSelectedSsov] = useState<{
     token: string;
     type: 'CALL' | 'PUT';
-  }>({ token: 'DPX', type: 'CALL' });
+  }>();
 
   const [ssovData, setSsovData] = useState<SsovData>();
   const [ssovEpochData, setSsovEpochData] = useState<SsovEpochData>();
@@ -123,12 +123,20 @@ export const SsovProvider = (props) => {
   });
 
   const updateSsovUserData = useCallback(async () => {
-    if (!contractAddresses || !accountAddress || !selectedEpoch) return;
+    if (
+      !contractAddresses ||
+      !accountAddress ||
+      !selectedEpoch ||
+      !selectedSsov
+    )
+      return;
 
     const ssovAddresses =
       contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
         selectedSsov.token
       ];
+
+    if (!ssovAddresses) return;
 
     let _ssovUserData;
 
@@ -183,12 +191,14 @@ export const SsovProvider = (props) => {
   ]);
 
   const updateSsovEpochData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch) return;
+    if (!contractAddresses || !selectedEpoch || !selectedSsov) return;
 
     const ssovAddresses =
       contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
         selectedSsov.token
       ];
+
+    if (!ssovAddresses) return;
 
     const ssovContract =
       selectedSsov.type === 'PUT'
@@ -253,7 +263,13 @@ export const SsovProvider = (props) => {
   }, [contractAddresses, selectedEpoch, provider, selectedSsov]);
 
   useEffect(() => {
-    if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
+    if (
+      !provider ||
+      !contractAddresses ||
+      !contractAddresses.SSOV ||
+      !selectedSsov
+    )
+      return;
 
     async function update() {
       let _ssovData: SsovData;
@@ -262,6 +278,8 @@ export const SsovProvider = (props) => {
         contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
           selectedSsov.token
         ];
+
+      if (!ssovAddresses) return;
 
       const _ssovContract =
         selectedSsov.type === 'PUT'
@@ -309,7 +327,13 @@ export const SsovProvider = (props) => {
   }, [contractAddresses, provider, selectedEpoch, selectedSsov]);
 
   useEffect(() => {
-    if (!contractAddresses || !signer || !contractAddresses.SSOV) return;
+    if (
+      !contractAddresses ||
+      !signer ||
+      !contractAddresses.SSOV ||
+      !selectedSsov
+    )
+      return;
 
     const SSOVAddresses =
       selectedSsov.type === 'PUT'
@@ -331,16 +355,20 @@ export const SsovProvider = (props) => {
       }
     });
 
+    const ssovAddresses =
+      contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
+        selectedSsov.token
+      ];
+
+    if (!ssovAddresses) return;
+
     const _ssovContractWithSigner =
-      selectedSsov.token === 'ETH' || selectedSsov.token === 'AVAX'
-        ? NativeSSOV__factory.connect(
-            SSOVAddresses[selectedSsov.token].Vault,
-            signer
-          )
-        : ERC20SSOV__factory.connect(
-            SSOVAddresses[selectedSsov.token].Vault,
-            signer
-          );
+      selectedSsov.type === 'PUT'
+        ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, signer)
+        : isNativeSsov(selectedSsov.token)
+        ? NativeSSOV__factory.connect(ssovAddresses.Vault, signer)
+        : ERC20SSOV__factory.connect(ssovAddresses.Vault, signer);
+
     const _ssovRouterWithSigner =
       selectedSsov.token === 'BNB' && SSOVAddresses[selectedSsov.token].Router
         ? BnbSSOVRouter__factory.connect(
