@@ -16,15 +16,20 @@ import {
   SSOVOptionPricing,
   BnbSSOVRouter,
   BnbSSOVRouter__factory,
+  Curve2PoolSsovPut__factory,
+  Curve2PoolSsovPut,
+  ERC20SSOV,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import axios from 'axios';
 
-import formatAmount from 'utils/general/formatAmount';
-
 import { WalletContext } from './Wallet';
 
 import { SSOV_MAP } from 'constants/index';
+
+import formatAmount from 'utils/general/formatAmount';
+import isNativeSsov from 'utils/contracts/isNativeSsov';
+import getTotalEpochPremium from 'utils/contracts/ssov-p/getTotalEpochPremium';
 
 export interface Ssov {
   token: string;
@@ -51,7 +56,7 @@ export interface SsovEpochData {
   isVaultReady: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
-  totalEpochCallsPurchased: BigNumber[];
+  totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   totalEpochDeposits: BigNumber;
   settlementPrice: BigNumber;
@@ -171,20 +176,17 @@ export const SsovProvider = (props) => {
   const updateSsovEpochData = useCallback(async () => {
     if (!contractAddresses || !selectedEpoch) return;
 
-    const SSOVAddresses = contractAddresses.SSOV;
-
-    let _ssovEpochData: SsovEpochData;
+    const ssovAddresses =
+      contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
+        selectedSsov.token
+      ];
 
     const ssovContract =
-      selectedSsov.token === 'ETH'
-        ? NativeSSOV__factory.connect(
-            SSOVAddresses[selectedSsov.token].Vault,
-            provider
-          )
-        : ERC20SSOV__factory.connect(
-            SSOVAddresses[selectedSsov.token].Vault,
-            provider
-          );
+      selectedSsov.type === 'PUT'
+        ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, provider)
+        : isNativeSsov(selectedSsov.token)
+        ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
+        : ERC20SSOV__factory.connect(ssovAddresses.Vault, provider);
 
     const [
       epochTimes,
@@ -193,7 +195,7 @@ export const SsovProvider = (props) => {
       epochStrikes,
       totalEpochDeposits,
       totalEpochStrikeDeposits,
-      totalEpochCallsPurchased,
+      totalEpochOptionsPurchased,
       totalEpochPremium,
       settlementPrice,
     ] = await Promise.all([
@@ -203,8 +205,16 @@ export const SsovProvider = (props) => {
       ssovContract.getEpochStrikes(selectedEpoch),
       ssovContract.totalEpochDeposits(selectedEpoch),
       ssovContract.getTotalEpochStrikeDeposits(selectedEpoch),
-      ssovContract.getTotalEpochCallsPurchased(selectedEpoch),
-      ssovContract.getTotalEpochPremium(selectedEpoch),
+      selectedSsov.type === 'PUT'
+        ? (ssovContract as Curve2PoolSsovPut).getTotalEpochPutsPurchased(
+            selectedEpoch
+          )
+        : (ssovContract as ERC20SSOV).getTotalEpochCallsPurchased(
+            selectedEpoch
+          ),
+      selectedSsov.type === 'PUT'
+        ? getTotalEpochPremium(ssovContract as Curve2PoolSsovPut, selectedEpoch)
+        : (ssovContract as ERC20SSOV).getTotalEpochPremium(selectedEpoch),
       ssovContract.settlementPrices(selectedEpoch),
     ]);
 
@@ -213,21 +223,21 @@ export const SsovProvider = (props) => {
       .then((res) => formatAmount(res.data.apy, 2))
       .catch(() => '0');
 
-    _ssovEpochData = {
-      epochTimes: epochTimes,
-      isEpochExpired: isEpochExpired,
-      isVaultReady: isVaultReady,
-      epochStrikes: epochStrikes,
-      totalEpochDeposits: totalEpochDeposits,
-      totalEpochStrikeDeposits: totalEpochStrikeDeposits,
-      totalEpochCallsPurchased: totalEpochCallsPurchased,
-      totalEpochPremium: totalEpochPremium,
+    const _ssovEpochData = {
+      epochTimes,
+      isEpochExpired,
+      isVaultReady,
+      epochStrikes,
+      totalEpochDeposits,
+      totalEpochStrikeDeposits,
+      totalEpochOptionsPurchased,
+      totalEpochPremium,
       settlementPrice,
       APY,
     };
 
     setSsovEpochData(_ssovEpochData);
-  }, [contractAddresses, selectedEpoch, provider, selectedSsov.token]);
+  }, [contractAddresses, selectedEpoch, provider, selectedSsov]);
 
   useEffect(() => {
     if (!provider || !contractAddresses || !contractAddresses.SSOV) return;
@@ -235,18 +245,17 @@ export const SsovProvider = (props) => {
     async function update() {
       let _ssovData: SsovData;
 
-      const SSOVAddresses = contractAddresses.SSOV;
+      const ssovAddresses =
+        contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
+          selectedSsov.token
+        ];
 
       const _ssovContract =
-        selectedSsov.token === 'ETH' || selectedSsov.token === 'AVAX'
-          ? NativeSSOV__factory.connect(
-              SSOVAddresses[selectedSsov.token].Vault,
-              provider
-            )
-          : ERC20SSOV__factory.connect(
-              SSOVAddresses[selectedSsov.token].Vault,
-              provider
-            );
+        selectedSsov.type === 'PUT'
+          ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, provider)
+          : isNativeSsov(selectedSsov.token)
+          ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
+          : ERC20SSOV__factory.connect(ssovAddresses.Vault, provider);
 
       // Epoch
       try {
@@ -266,11 +275,11 @@ export const SsovProvider = (props) => {
           currentEpoch: Number(currentEpoch),
           tokenPrice,
           ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
-            SSOVAddresses[selectedSsov.token].OptionPricing,
+            ssovAddresses.OptionPricing,
             provider
           ),
           volatilityOracleContract: VolatilityOracle__factory.connect(
-            SSOVAddresses[selectedSsov.token].VolatilityOracle,
+            ssovAddresses.VolatilityOracle,
             provider
           ),
         };
@@ -282,12 +291,15 @@ export const SsovProvider = (props) => {
     }
 
     update();
-  }, [contractAddresses, provider, selectedEpoch, selectedSsov.token]);
+  }, [contractAddresses, provider, selectedEpoch, selectedSsov]);
 
   useEffect(() => {
     if (!contractAddresses || !signer || !contractAddresses.SSOV) return;
 
-    const SSOVAddresses = contractAddresses.SSOV;
+    const SSOVAddresses =
+      selectedSsov.type === 'PUT'
+        ? contractAddresses['2CRV-SSOV-P']
+        : contractAddresses.SSOV;
 
     let _ssovSigner;
 
@@ -329,7 +341,7 @@ export const SsovProvider = (props) => {
     };
 
     setSsovSigner(_ssovSigner);
-  }, [contractAddresses, signer, accountAddress, selectedSsov.token]);
+  }, [contractAddresses, signer, accountAddress, selectedSsov]);
 
   useEffect(() => {
     updateSsovUserData();

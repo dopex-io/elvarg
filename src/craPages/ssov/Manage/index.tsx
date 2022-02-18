@@ -13,13 +13,18 @@ import PageLoader from 'components/PageLoader';
 import { SsovContext } from 'contexts/Ssov';
 
 const Manage = () => {
-  const { asset } = useParams();
-  const { ssovData, ssovEpochData, ssovUserData, setSelectedSsov } =
-    useContext(SsovContext);
+  const { asset, type } = useParams();
+  const {
+    ssovData,
+    ssovEpochData,
+    ssovUserData,
+    setSelectedSsov,
+    selectedSsov,
+  } = useContext(SsovContext);
 
   useEffect(() => {
-    setSelectedSsov({ token: asset, type: 'CALL' });
-  }, [setSelectedSsov, asset]);
+    setSelectedSsov({ token: asset, type: type.toUpperCase() });
+  }, [setSelectedSsov, asset, type]);
 
   if (ssovData === undefined || ssovEpochData === undefined)
     return (
@@ -41,11 +46,12 @@ const Manage = () => {
               ssovData={ssovData}
               ssovEpochData={ssovEpochData}
               ssovUserData={ssovUserData}
+              type={selectedSsov.type}
             />
             <ManageCard />
           </Box>
           {ssovUserData === undefined ? null : <ExerciseList />}
-          <Stats className="mt-4" />
+          {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
         </Box>
       </Box>
     </Box>

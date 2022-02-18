@@ -28,10 +28,12 @@ const Description = ({
   ssovData,
   ssovEpochData,
   ssovUserData,
+  type,
 }: {
   ssovData: SsovData;
   ssovEpochData: SsovEpochData;
   ssovUserData: SsovUserData;
+  type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { convertToBNB } = useBnbSsovConversion();
@@ -43,6 +45,8 @@ const Description = ({
     () => SSOV_MAP[ssovData.tokenName].tokenSymbol,
     [ssovData]
   );
+
+  const isPut = useMemo(() => type === 'PUT', [type]);
 
   const TVL: number = useMemo(() => {
     if (tokenPrice && ssovEpochData) {
@@ -68,9 +72,11 @@ const Description = ({
     },
     {
       heading: 'Farm APY',
-      value: `${!APY ? '...' : APY.toString() + '%'}`,
+      value: isPut ? '...' : `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
-      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
+      tooltip: isPut
+        ? 'Curve 2Pool Fee APY and Curve Rewards'
+        : ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -81,14 +87,25 @@ const Description = ({
 
   return (
     <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
-      <Typography variant="h1" className="mb-6">
-        {tokenSymbol} SSOV
+      <Typography variant="h1" className="mb-6 flex items-center space-x-3">
+        <span>{tokenSymbol} SSOV</span>
+        <span
+          className={cx(
+            'text-lg text-black p-1.5 rounded-md',
+            isPut ? 'bg-down-bad' : 'bg-emerald-500'
+          )}
+        >
+          {type + 'S'}
+        </span>
       </Typography>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
           {tokenSymbol} Single Staking Option Vault (SSOV)
-        </span>{' '}
-        {ssovInfo[tokenSymbol].mainPageMessage}
+        </span>
+        <br />
+        {isPut
+          ? 'Deposit 2CRV (or USDT, USDC) into strikes providing liquidity into option pools to earn Fee APY, Curve rewards and premiums in 2CRV from each option purchase.'
+          : ssovInfo[tokenSymbol].mainPageMessage}
       </Typography>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip
@@ -110,7 +127,7 @@ const Description = ({
               }}
               disabled={!isVaultReady}
             >
-              Buy Call Options
+              Buy {type} Options
             </WalletButton>
           </Box>
         </Tooltip>

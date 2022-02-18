@@ -12,13 +12,14 @@ import {
   ERC20SSOV1inchRouter__factory,
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
+  Curve2PoolSsovPut1inchRouter__factory,
 } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import cx from 'classnames';
 import format from 'date-fns/format';
 import { isNaN } from 'formik';
 import axios from 'axios';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -36,6 +37,7 @@ import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 import ZapInButton from 'components/ZapInButton';
 import ZapIn from 'components/ZapIn';
 import ZapOutButton from 'components/ZapOutButton';
+import Curve2PoolDepositSelector from './Curve2PoolDepositSelector';
 import Withdraw from './Withdraw';
 
 import useSendTx from 'hooks/useSendTx';
@@ -55,6 +57,7 @@ import LockerIcon from 'components/Icons/LockerIcon';
 import WhiteLockerIcon from 'components/Icons/WhiteLockerIcon';
 
 import styles from './styles.module.scss';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -96,9 +99,12 @@ const ManageCard = () => {
     ssovEpochData,
     ssovUserData,
     ssovSigner,
+    selectedSsov,
   } = useContext(SsovContext);
 
   const sendTx = useSendTx();
+
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov.type]);
 
   const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
     ? Aggregation1inchRouterV4__factory.connect(
@@ -148,6 +154,8 @@ const ManageCard = () => {
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovSigner.token[0]
   );
+  const [depositTokenName, setDepositTokenName] = useState<string>('2CRV');
+
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const ssovToken = ssovSigner.token[0];
 
@@ -159,12 +167,6 @@ const ManageCard = () => {
     });
     return price;
   }, [tokenPrices, tokenName]);
-
-  const extraHeight: number = useMemo(() => {
-    if (isZapInVisible) return 10;
-    if (activeTab === 0) return selectedStrikeIndexes.length * 2.6;
-    else if (activeTab === 1) return 0;
-  }, [activeTab, selectedStrikeIndexes, isZapInVisible]);
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady) return false;
@@ -202,16 +204,38 @@ const ManageCard = () => {
   }, [tokenName, ssovTokenSymbol]);
 
   const ssovTokenName = ssovData.tokenName;
-  const [denominationTokenName, setDenomationTokenName] =
+  const [denominationTokenName, setDenominationTokenName] =
     useState<string>(ssovTokenName);
 
-  const spender: string = isZapActive
-    ? IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB'
-      ? nativeSSOV1inchRouter?.address
-      : erc20SSOV1inchRouter?.address
-    : ssovTokenName === 'BNB'
-    ? ssovRouter.address
-    : ssovContractWithSigner?.address;
+  const spender = useMemo(() => {
+    if (isPut) {
+      if (depositTokenName === '2CRV') {
+        return ssovData.ssovContract.address;
+      } else {
+        return '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564';
+      }
+    } else if (isZapActive) {
+      if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
+        return nativeSSOV1inchRouter?.address;
+      } else {
+        erc20SSOV1inchRouter?.address;
+      }
+    } else if (ssovTokenName === 'BNB') {
+      return ssovRouter.address;
+    } else {
+      return ssovContractWithSigner?.address;
+    }
+  }, [
+    depositTokenName,
+    erc20SSOV1inchRouter,
+    isPut,
+    isZapActive,
+    nativeSSOV1inchRouter,
+    ssovContractWithSigner,
+    ssovData,
+    ssovRouter,
+    ssovTokenName,
+  ]);
 
   const purchasePower =
     isZapActive && quote['toToken'] && denominationTokenName === ssovTokenName
@@ -354,6 +378,84 @@ const ManageCard = () => {
       console.log(err);
     }
   }, [token, sendTx, signer, spender]);
+
+  const handlePutDeposit = useCallback(async () => {
+    try {
+      const strikeIndexes = selectedStrikeIndexes.filter(
+        (index) =>
+          contractReadableStrikeDepositAmounts[index] &&
+          contractReadableStrikeDepositAmounts[index].gt('0')
+      );
+      if (denominationTokenName === '2CRV') {
+        await sendTx(
+          ssovContractWithSigner.depositMultiple(
+            strikeIndexes,
+            strikeIndexes.map((index) =>
+              getContractReadableAmount(
+                strikeDepositAmounts[index],
+                getDecimalsFromSymbol(denominationTokenName, chainId)
+              )
+            ),
+            accountAddress
+          )
+        );
+      } else if (
+        denominationTokenName === 'USDT' ||
+        denominationTokenName === 'USDC'
+      ) {
+        const curve2PoolSsovPut1inchRouter =
+          Curve2PoolSsovPut1inchRouter__factory.connect(
+            '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
+            signer
+          );
+
+        await sendTx(
+          curve2PoolSsovPut1inchRouter.swapAndDepositMultipleFromSingle(
+            getContractReadableAmount(
+              totalDepositAmount,
+              getDecimalsFromSymbol(denominationTokenName, chainId)
+            ),
+            Addresses[chainId][depositTokenName],
+            strikeIndexes,
+            strikeIndexes.map((index) =>
+              ethers.utils
+                .parseEther(strikeDepositAmounts[index].toString())
+                .sub(
+                  ethers.utils.parseEther(
+                    (
+                      parseInt(strikeDepositAmounts[index].toString()) * 0.01
+                    ).toString()
+                  )
+                )
+            ),
+            accountAddress,
+            ssovData.ssovContract
+          )
+        );
+      }
+      setStrikeDepositAmounts(() => ({}));
+      setSelectedStrikeIndexes(() => []);
+      updateAssetBalances();
+      updateSsovUserData();
+    } catch (err) {
+      console.log(err);
+    }
+  }, [
+    accountAddress,
+    chainId,
+    contractReadableStrikeDepositAmounts,
+    denominationTokenName,
+    depositTokenName,
+    selectedStrikeIndexes,
+    sendTx,
+    signer,
+    ssovContractWithSigner,
+    ssovData,
+    strikeDepositAmounts,
+    totalDepositAmount,
+    updateAssetBalances,
+    updateSsovUserData,
+  ]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -559,7 +661,7 @@ const ManageCard = () => {
     (async function () {
       const finalAmount = getContractReadableAmount(
         totalDepositAmount.toString(),
-        getDecimalsFromSymbol(ssovTokenName, chainId)
+        getTokenDecimals(ssovTokenName)
       );
 
       let userAmount = IS_NATIVE(token)
@@ -583,12 +685,39 @@ const ManageCard = () => {
       }
     })();
   }, [
+    spender,
     accountAddress,
     totalDepositAmount,
     token,
     ssovContractWithSigner,
     userAssetBalances.ETH,
     tokenName,
+    ssovTokenName,
+  ]);
+
+  const userBalance = useMemo(() => {
+    {
+      if (isPut) {
+        return ethers.utils.formatUnits(
+          userAssetBalances[depositTokenName],
+          getTokenDecimals(depositTokenName)
+        );
+      } else {
+        return denominationTokenName !== ssovTokenName
+          ? getUserReadableAmount(
+              userAssetBalances[denominationTokenName],
+              getTokenDecimals(denominationTokenName)
+            )
+          : purchasePower;
+      }
+    }
+  }, [
+    purchasePower,
+    denominationTokenName,
+    ssovTokenName,
+    userAssetBalances,
+    depositTokenName,
+    isPut,
   ]);
 
   return (
@@ -671,20 +800,17 @@ const ManageCard = () => {
                     variant="h6"
                     className="text-white ml-auto mr-0 text-[0.72rem]"
                   >
-                    {denominationTokenName !== ssovTokenName
-                      ? getUserReadableAmount(
-                          userAssetBalances[denominationTokenName],
-                          getDecimalsFromSymbol(denominationTokenName, chainId)
-                        )
-                      : purchasePower}{' '}
-                    {denominationTokenName}
+                    {userBalance}{' '}
+                    {isPut ? depositTokenName : denominationTokenName}
                   </Typography>
                   {isZapActive ? (
                     <ZapIcon className={'mt-1 ml-2'} id="4" />
                   ) : null}
                 </Box>
                 <Box className="mt-2 flex">
-                  <Box className={isZapActive ? 'w-3/4 mr-3' : 'w-full'}>
+                  <Box
+                    className={isPut || isZapActive ? 'w-3/4 mr-3' : 'w-full'}
+                  >
                     <Select
                       className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
                       fullWidth
@@ -707,9 +833,7 @@ const ManageCard = () => {
                       }}
                       MenuProps={SelectMenuProps}
                       classes={{
-                        icon: isZapActive
-                          ? 'absolute right-7 text-white scale-x-75'
-                          : 'absolute right-16 text-white scale-x-75',
+                        icon: 'absolute right-7 text-white',
                         select: 'overflow-hidden',
                       }}
                       label="strikes"
@@ -738,7 +862,12 @@ const ManageCard = () => {
                       ))}
                     </Select>
                   </Box>
-                  {isZapActive ? (
+                  {selectedSsov.type === 'PUT' ? (
+                    <Curve2PoolDepositSelector
+                      depositTokenName={depositTokenName}
+                      setDepositTokenName={setDepositTokenName}
+                    />
+                  ) : isZapActive ? (
                     <Box className="w-1/4">
                       <Select
                         className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
@@ -748,7 +877,7 @@ const ManageCard = () => {
                         value={[denominationTokenName]}
                         onChange={(e) => {
                           const symbol = e.target.value;
-                          setDenomationTokenName(symbol.toString());
+                          setDenominationTokenName(symbol.toString());
                         }}
                         input={<Input />}
                         variant="outlined"
@@ -843,78 +972,6 @@ const ManageCard = () => {
                           placeholder="0"
                           onChange={(e) => inputStrikeDepositAmount(index, e)}
                         />
-                        <Box
-                          className="absolute left-[10.2rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
-                          onClick={() =>
-                            inputStrikeDepositAmount(
-                              index,
-                              null,
-                              parseFloat(
-                                (denominationTokenName !== ssovTokenName
-                                  ? getUserReadableAmount(
-                                      userAssetBalances[denominationTokenName],
-                                      18
-                                    )
-                                  : purchasePower * 0.99
-                                ).toFixed(4)
-                              )
-                            )
-                          }
-                        >
-                          <img
-                            src="/assets/max.svg"
-                            alt="MAX"
-                            className="cursor-pointer"
-                          />
-                        </Box>
-                        <Box
-                          className="absolute left-[12.4rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
-                          onClick={() =>
-                            inputStrikeDepositAmount(
-                              index,
-                              null,
-                              parseFloat(
-                                (denominationTokenName !== ssovTokenName
-                                  ? getUserReadableAmount(
-                                      userAssetBalances[denominationTokenName],
-                                      18
-                                    ) / 2
-                                  : purchasePower / 2
-                                ).toFixed(4)
-                              )
-                            )
-                          }
-                        >
-                          <img
-                            src="/assets/half.svg"
-                            alt="half"
-                            className="cursor-pointer"
-                          />
-                        </Box>
-                        <Box
-                          className="absolute left-[13.8rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
-                          onClick={() =>
-                            inputStrikeDepositAmount(
-                              index,
-                              null,
-                              parseFloat(
-                                (denominationTokenName !== ssovTokenName
-                                  ? getUserReadableAmount(
-                                      userAssetBalances[denominationTokenName],
-                                      18
-                                    ) / 3
-                                  : purchasePower / 3
-                                ).toFixed(4)
-                              )
-                            )
-                          }
-                        >
-                          <img
-                            src="/assets/third.svg"
-                            alt="third"
-                            className="cursor-pointer"
-                          />
-                        </Box>
                       </Box>
                     </Box>
                   ))}
@@ -999,7 +1056,7 @@ const ManageCard = () => {
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
-                  isZapInAvailable={isZapInAvailable}
+                  isZapInAvailable={isPut ? false : isZapInAvailable}
                   chainId={chainId}
                 />
                 <Box className="flex">

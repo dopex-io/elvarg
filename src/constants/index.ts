@@ -108,6 +108,7 @@ export const STAT_NAMES = {
     expiry: 'New Expiry',
   },
 };
+
 export const SSOV_PUTS_MAP = {
   RDPX: {
     tokenSymbol: 'rDPX',
@@ -140,6 +141,7 @@ export const SSOV_PUTS_MAP = {
     tokens: ['2CRV'],
   },
 };
+
 export const SSOV_MAP = {
   DPX: {
     tokenSymbol: 'DPX',
@@ -335,4 +337,11 @@ export const CHAIN_ID_TO_NETWORK_DATA = {
   42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/assets/avax.svg' },
+};
+
+export const TOKEN_DECIMALS = {
+  VBNB: 8,
+  WBTC: 8,
+  USDT: 6,
+  USDC: 6,
 };

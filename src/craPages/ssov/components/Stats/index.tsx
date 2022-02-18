@@ -151,7 +151,7 @@ const Stats = (props: { className?: string }) => {
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
-    totalEpochCallsPurchased,
+    totalEpochOptionsPurchased,
   } = ssovEpochData;
 
   const epochTime =
@@ -188,9 +188,9 @@ const Stats = (props: { className?: string }) => {
               );
         const totalPurchased =
           tokenName === 'BNB'
-            ? convertToVBNB(totalEpochCallsPurchased[strikeIndex]) ?? 0
+            ? convertToVBNB(totalEpochOptionsPurchased[strikeIndex]) ?? 0
             : getUserReadableAmount(
-                totalEpochCallsPurchased[strikeIndex] ?? 0,
+                totalEpochOptionsPurchased[strikeIndex] ?? 0,
                 18
               );
 
@@ -210,7 +210,7 @@ const Stats = (props: { className?: string }) => {
     [
       epochStrikes,
       totalEpochStrikeDeposits,
-      totalEpochCallsPurchased,
+      totalEpochOptionsPurchased,
       totalEpochPremium,
       tokenName,
       convertToVBNB,

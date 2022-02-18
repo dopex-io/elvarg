@@ -28,6 +28,7 @@ const Withdraw = () => {
     ssovUserData,
     ssovSigner,
     selectedEpoch,
+    selectedSsov,
   } = useContext(SsovContext);
 
   const { tokenName } = ssovData;
@@ -47,6 +48,8 @@ const Withdraw = () => {
   const epochEndTime = epochTimes[1]
     ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
     : 'N/A';
+
+  const isPut = selectedSsov.type === 'PUT';
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -111,7 +114,8 @@ const Withdraw = () => {
             <span className="text-wave-blue">
               {formatAmount(userEpochDepositsAmount, 5)}
             </span>{' '}
-            / {formatAmount(totalEpochDepositsAmount, 5)} {tokenSymbol}
+            / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
+            {isPut ? '2CRV' : tokenSymbol}
           </Typography>
         </Box>
         <Box>
@@ -153,7 +157,8 @@ const Withdraw = () => {
                 key={index}
               >
                 <Typography variant="h6">
-                  {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
+                  {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}{' '}
+                  {isPut ? '2CRV' : tokenSymbol}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
                   {tokenSymbol} ${strike}

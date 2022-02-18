@@ -13,7 +13,6 @@ import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
 import { SsovProvider } from 'contexts/Ssov';
-import { SsovProvider as SsovPutsProvider } from 'contexts/SsovPuts';
 import { NftsProvider } from 'contexts/Nfts';
 
 // import { BUILD } from 'constants/index';
@@ -26,7 +25,7 @@ const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
-const SsovPutsManage = lazy(() => import('craPages/ssov/Manage/Puts'));
+// const SsovPutsManage = lazy(() => import('craPages/ssov/Manage/Puts'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
 const Oracles = lazy(() => import('craPages/oracles'));
@@ -53,13 +52,10 @@ const FarmRoutes = () => {
 const SsovRoutes = () => {
   return (
     <SsovProvider>
-      <SsovPutsProvider>
-        <Routes>
-          <Route path="*" element={<Ssov />} />
-          <Route path="manage/:asset" element={<SsovManage />} />
-          <Route path="puts/manage/:asset" element={<SsovPutsManage />} />
-        </Routes>
-      </SsovPutsProvider>
+      <Routes>
+        <Route path="*" element={<Ssov />} />
+        <Route path=":type/:asset" element={<SsovManage />} />
+      </Routes>
     </SsovProvider>
   );
 };
