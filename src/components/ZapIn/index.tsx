@@ -152,7 +152,6 @@ const ZapIn = ({
                 else setToken(ssovToken);
               }}
             />
-
             <Typography variant="h5">Zap In</Typography>
             <Tooltip
               title="Go to advanced mode"
@@ -209,7 +208,6 @@ const ZapIn = ({
               </Box>
             </Popover>
           </Box>
-
           <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-1">
             <Box className="flex flex-row justify-between">
               <Box
@@ -237,7 +235,6 @@ const ZapIn = ({
                   <ArrowDropDownIcon className={'fill-gray-100 mr-2'} />
                 </IconButton>
               </Box>
-
               <Input
                 disableUnderline
                 id="zapInAmount"
@@ -272,12 +269,11 @@ const ZapIn = ({
               </Box>
             </Box>
           </Box>
-
           <Box className={isInDialog ? 'h-[30.2rem]' : 'h-[20.2rem]'}>
             {tokenName !== '' &&
               ssovTokenName != '' &&
               ssovTokenName !== tokenName && (
-                <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
+                <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full">
                   <Box
                     className={
                       showSwapSteps
@@ -287,7 +283,6 @@ const ZapIn = ({
                     onClick={() => setShowSwapSteps(!showSwapSteps)}
                   >
                     <ZapIcon className="mt-1 mr-2" id="3" />
-
                     <Typography variant="h6" className="text-white font-lg">
                       1 {tokenName} ={' '}
                       {quote['toToken']
@@ -324,7 +319,6 @@ const ZapIn = ({
                       />
                     )}
                   </Box>
-
                   {showSwapSteps && (
                     <Box>
                       <Box className={'flex mb-2 mt-4'}>
@@ -355,7 +349,6 @@ const ZapIn = ({
                           </Typography>
                         </Box>
                       </Box>
-
                       <Box className={'flex mb-2 mt-2'}>
                         <Typography
                           variant="h6"
@@ -491,7 +484,6 @@ const ZapIn = ({
                 </Box>
               )}
           </Box>
-
           <Box className="rounded-xl p-4 border border-neutral-800 w-full  bg-umbra">
             <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 cursor-pointer">
               <Typography variant="h6" className="text-gray-400 opacity-70">
@@ -527,7 +519,6 @@ const ZapIn = ({
           </Box>
         </Box>
       )}
-
       {isTokenSelectorVisible && (
         <Box className={isInDialog ? 'h-[52.8rem]' : 'h-[38.8rem]'}>
           <TokenSelector

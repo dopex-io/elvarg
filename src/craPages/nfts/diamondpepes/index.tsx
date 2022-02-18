@@ -9,7 +9,11 @@ import { Tooltip } from '@material-ui/core';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import PurchaseDialog from '../components/PurchaseDialog';
 import { BigNumber } from 'ethers';
-import { DiamondPepeNFTs__factory } from '@dopex-io/sdk';
+import {
+  DiamondPepeNFTs__factory,
+  UniswapPair__factory,
+  Addresses,
+} from '@dopex-io/sdk';
 import { WalletContext } from '../../../contexts/Wallet';
 import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
 import Countdown from 'react-countdown';
@@ -17,26 +21,35 @@ import formatAmount from '../../../utils/general/formatAmount';
 import { Data, UserData, initialData } from '../diamondpepes/interfaces';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, contractAddresses, provider, signer } =
+  const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [isPurchaseDialogVisible, setIsPurchaseDialogVisible] =
     useState<boolean>(false);
+  const pepeContract = DiamondPepeNFTs__factory.connect(
+    '0x3429d0b92e051d3ca10C01Ef8fa4dfEB7ECB5ce3',
+    provider
+  );
 
   const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
-    const pepeContract = DiamondPepeNFTs__factory.connect(
-      '0x3429d0b92e051d3ca10C01Ef8fa4dfEB7ECB5ce3',
-      provider
-    );
     const isDepositPeriod = await pepeContract.depositPeriod();
     const isFarmingPeriod = await pepeContract.farmingPeriod();
     const maxLpDeposits = await pepeContract.maxLpDeposits();
     const mintPrice = await pepeContract.mintPrice();
     const totalDeposits = await pepeContract.totalDeposits();
 
+    const lp = UniswapPair__factory.connect(
+      Addresses[chainId]['RDPX-WETH'],
+      provider
+    );
+    const lpReserves = await lp.getReserves();
+    const lpTotalSupply = await lp.totalSupply();
+
     setData({
+      lpReserves: lpReserves,
+      lpSupply: lpTotalSupply,
       isDepositPeriod: isDepositPeriod,
       isFarmingPeriod: isFarmingPeriod,
       maxLpDeposits: maxLpDeposits,
@@ -118,6 +131,7 @@ const DiamondPepesNfts = () => {
         <title>Diamond Pepes NFTs | Dopex</title>
       </Head>
       <PurchaseDialog
+        pepeContract={pepeContract}
         timeRemaining={timeRemaining}
         open={isPurchaseDialogVisible}
         handleClose={

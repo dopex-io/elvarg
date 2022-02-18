@@ -5,12 +5,14 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { providers } from '@0xsequence/multicall';
 import { ethers } from 'ethers';
 import {
   OptionPoolBroker__factory,
   OptionPoolFactory__factory,
   OptionPricingCustom__factory,
+  ERC20__factory,
+  Margin__factory,
+  DopexOracle__factory,
 } from '@dopex-io/sdk';
 import addDays from 'date-fns/addDays';
 
@@ -64,10 +66,30 @@ export interface OptionDataItem {
   putIv: number;
 }
 
+export interface MarginData {
+  maxLeverage: string;
+  minLeverage: string;
+  collaterals: {
+    token: string;
+    symbol: string;
+    collateralizationRatio: string;
+    liquidationRatio: string;
+    price: string;
+    decimals: number;
+  }[];
+}
+
+const defaultMarginData: MarginData = {
+  maxLeverage: '0',
+  minLeverage: '0',
+  collaterals: [],
+};
+
 export const OptionsContext = createContext<{
   selectedOptionData: SelectedOptionData;
   optionData: OptionDataItem[];
   optionType: OptionTypeEnum;
+  marginData: MarginData;
   loading: boolean;
   expiry?: number;
   setSelectedOptionData?: Function;
@@ -79,6 +101,7 @@ export const OptionsContext = createContext<{
   selectedOptionData: {},
   optionData: [],
   optionType: OptionTypeEnum.Call,
+  marginData: defaultMarginData,
   expiry: 0,
   loading: true,
 });
@@ -87,6 +110,7 @@ export const OptionsProvider = (props: React.ComponentProps<any>) => {
   const [selectedOptionData, setSelectedOptionData] =
     useState<SelectedOptionData>({});
   const [optionData, setOptionData] = useState<OptionDataItem[]>([]);
+  const [marginData, setMarginData] = useState<MarginData>(defaultMarginData);
   const [optionType, setOptionType] = useState(OptionTypeEnum.Call);
   const [loading, setLoading] = useState(true);
   const [expiry, setExpiry] = useState(0);
@@ -136,7 +160,7 @@ export const OptionsProvider = (props: React.ComponentProps<any>) => {
 
     const optionPricing = OptionPricingCustom__factory.connect(
       contractAddresses.OptionPricingCustom,
-      new providers.MulticallProvider(provider)
+      provider
     );
 
     const optionPoolBroker = OptionPoolBroker__factory.connect(
@@ -254,9 +278,75 @@ export const OptionsProvider = (props: React.ComponentProps<any>) => {
     provider,
   ]);
 
+  const loadMarginData = useCallback(async () => {
+    if (
+      !provider ||
+      !contractAddresses?.Margin ||
+      !contractAddresses?.DopexOracle
+    )
+      return;
+    const margin = Margin__factory.connect(contractAddresses.Margin, provider);
+    const [maxLeverage, minLeverage, collaterals] = await Promise.all([
+      margin.maxLeverage(),
+      margin.minLeverage(),
+      margin.getCollaterals(),
+    ]);
+    const collateralsInfo = await Promise.all(
+      collaterals.map(async (collateral) => margin.collateralAssets(collateral))
+    );
+    const collateralsSymbols = await Promise.all(
+      collaterals.map(async (collateral) =>
+        ERC20__factory.connect(collateral, provider).symbol()
+      )
+    );
+    const collateralsDecimals = await Promise.all(
+      collaterals.map(async (collateral) =>
+        ERC20__factory.connect(collateral, provider).decimals()
+      )
+    );
+    const collateralsPrices = await Promise.all(
+      collaterals.map(async (collateral, index) => {
+        if (collateralsSymbols[index] === 'USDT') {
+          return ethers.utils
+            .parseUnits(
+              '1',
+              await ERC20__factory.connect(collateral, provider).decimals()
+            )
+            .toString();
+        } else {
+          return (
+            await DopexOracle__factory.connect(
+              contractAddresses.DopexOracle,
+              provider
+            ).getLastPrice(collateralsSymbols[index], 'USDT')
+          ).toString();
+        }
+      })
+    );
+    const newCollaterals = collaterals.map((collateral, index) => ({
+      token: collateral,
+      symbol: collateralsSymbols[index],
+      price: collateralsPrices[index],
+      decimals: collateralsDecimals[index],
+      collateralizationRatio:
+        collateralsInfo[index].collateralizationRatio.toString(),
+      liquidationRatio: collateralsInfo[index].liquidationRatio.toString(),
+    }));
+    setMarginData((prevState) => ({
+      ...prevState,
+      maxLeverage: maxLeverage.toString(),
+      minLeverage: minLeverage.toString(),
+      collaterals: newCollaterals,
+    }));
+  }, [provider, contractAddresses]);
+
   useEffect(() => {
     loadOptionData();
   }, [loadOptionData]);
+
+  useEffect(() => {
+    loadMarginData();
+  }, [loadMarginData]);
 
   return (
     <OptionsContext.Provider
@@ -264,6 +354,7 @@ export const OptionsProvider = (props: React.ComponentProps<any>) => {
         selectedOptionData,
         optionData,
         optionType,
+        marginData,
         loading,
         expiry,
         setSelectedOptionData,

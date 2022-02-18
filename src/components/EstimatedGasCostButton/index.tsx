@@ -5,23 +5,26 @@ import formatAmount from '../../utils/general/formatAmount';
 import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
 import { WalletContext } from '../../contexts/Wallet';
 import { AssetsContext } from '../../contexts/Assets';
+import { CURRENCIES_MAP } from 'constants/index';
 
 export interface Props {
   gas: number;
+  chainId: number;
 }
 
-const EstimatedGasCostButton = ({ gas }: Props) => {
+const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
   const { tokenPrices } = useContext(AssetsContext);
   const { provider } = useContext(WalletContext);
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
 
   const estimatedGasCostInUsd = useMemo(() => {
-    let ethPriceInUsd = 0;
+    let tokenPriceInUsd = 0;
     tokenPrices.map((record) => {
-      if (record['name'] === 'ETH') ethPriceInUsd = record['price'];
+      if (record['name'] === CURRENCIES_MAP[chainId.toString()])
+        tokenPriceInUsd = record['price'];
     });
-    return estimatedGasCost * ethPriceInUsd;
-  }, [estimatedGasCost, tokenPrices]);
+    return estimatedGasCost * tokenPriceInUsd;
+  }, [estimatedGasCost, tokenPrices, chainId]);
 
   useEffect(() => {
     const updateEstimatedGasCost = async () => {
@@ -48,7 +51,8 @@ const EstimatedGasCostButton = ({ gas }: Props) => {
           <span className="opacity-70 mr-2">
             ~${formatAmount(estimatedGasCostInUsd, 2)}
           </span>
-          {formatAmount(estimatedGasCost, 5)} ETH
+          {formatAmount(estimatedGasCost, 5)}{' '}
+          {CURRENCIES_MAP[chainId.toString()]}
         </Typography>
       </Box>
     </Box>

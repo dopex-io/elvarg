@@ -557,7 +557,7 @@ const ZapIn = ({
             setOpen={setIsTokenSelectorVisible}
             setToken={setToken}
             isInDialog={isInDialog}
-            tokensToExclude={['ETH', 'RDPX', 'DPX']}
+            tokensToExclude={['RDPX', 'DPX', '2CRV']}
             enableSearch={false}
           />
         </Box>

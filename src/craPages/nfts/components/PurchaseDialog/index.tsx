@@ -14,6 +14,7 @@ import {
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
   DiamondPepeNFTs1inchRouter__factory,
+  UniswapPair__factory,
 } from '@dopex-io/sdk';
 
 import { useFormik } from 'formik';
@@ -31,6 +32,7 @@ import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import Menu from '@material-ui/core/Menu';
 import Slide from '@material-ui/core/Slide';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -42,6 +44,7 @@ import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
 import ZapIn from '../ZapIn';
 import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
+import ArrowRightIcon from '../../../../components/Icons/ArrowRightIcon';
 import ZapInButton from '../../../../components/ZapInButton';
 import ZapOutButton from '../../../../components/ZapOutButton';
 import getContractReadableAmount from '../../../../utils/contracts/getContractReadableAmount';
@@ -54,6 +57,7 @@ import { Data, UserData } from '../../diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+import { DiamondPepeNFTs } from '@dopex-io/sdk';
 
 import useSendTx from 'hooks/useSendTx';
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
@@ -69,6 +73,7 @@ export interface Props {
   data: Data;
   userData: UserData;
   timeRemaining: JSX.Element;
+  pepeContract: DiamondPepeNFTs;
 }
 
 const PurchaseDialog = ({
@@ -77,6 +82,7 @@ const PurchaseDialog = ({
   data,
   userData,
   timeRemaining,
+  pepeContract,
 }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -121,12 +127,36 @@ const PurchaseDialog = ({
     );
   }, [tokenName, baseTokenName, path]);
 
+  const spender: string = useMemo(
+    () =>
+      isZapActive ? diamondPepeNfts1inchRouter.address : pepeContract.address,
+    [isZapActive]
+  );
+
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
 
-  const spender: string = isZapActive ? 'router' : 'normal contract';
-
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
+
+  const obtainableLP: number = useMemo(() => {
+    if (amount <= 0 || isNaN(amount)) return 0;
+    else if (tokenName === baseTokenName)
+      return getUserReadableAmount(amount, 18);
+    else if (!path['toTokenAmount'] && tokenName !== 'ETH') return 0;
+    else {
+      const wethAmount =
+        tokenName === 'ETH'
+          ? userTokenBalance.toString()
+          : path['toTokenAmount'];
+      const wethForLPToken =
+        parseInt(data.lpSupply.toString()) /
+        10 ** 18 /
+        (parseInt(data.lpReserves[1].mul(BigNumber.from(2)).toString()) /
+          10 ** 18);
+      const LPTokenForWeth = 1 / wethForLPToken;
+      return getUserReadableAmount(wethAmount / LPTokenForWeth, 18);
+    }
+  }, [amount, path, userTokenBalance]);
 
   const purchasePower: number = useMemo(() => {
     if (isZapActive) {
@@ -193,20 +223,6 @@ const PurchaseDialog = ({
     return 0;
   }, [path]);
 
-  const zapInPurchasePower: number = useMemo(() => {
-    if (!path['toTokenAmount'] || !quote['toTokenAmount']) return 0;
-    const price =
-      getUserReadableAmount(
-        path['toTokenAmount'],
-        quote['toToken']['decimals']
-      ) /
-      getUserReadableAmount(
-        path['fromTokenAmount'],
-        path['fromToken']['decimals']
-      );
-    return purchasePower / price;
-  }, [purchasePower, path]);
-
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
     tokenPrices.map((record) => {
@@ -241,10 +257,14 @@ const PurchaseDialog = ({
       : token.address;
     const toTokenAddress: string = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
+    if (fromTokenAddress === baseToken.address) return;
+    if (fromTokenAddress === toTokenAddress) return;
+
     try {
       const { data } = await axios.get(
-        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${BigInt(
-          userTokenBalance.toString()
+        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${getContractReadableAmount(
+          amount,
+          getDecimalsFromSymbol(tokenName, chainId)
         )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
       );
 
@@ -265,7 +285,7 @@ const PurchaseDialog = ({
         .filter(function (item) {
           return (
             item !== baseTokenName &&
-            !['RDPX', 'ETH', 'DPX'].includes(item.toUpperCase()) &&
+            !['RDPX', 'ETH', 'DPX', '2CRV'].includes(item.toUpperCase()) &&
             (Addresses[chainId][item] || IS_NATIVE(item))
           );
         })
@@ -315,12 +335,7 @@ const PurchaseDialog = ({
 
   const handleApprove = useCallback(async () => {
     try {
-      await sendTx(
-        ERC20__factory.connect(token.address, signer).approve(
-          spender,
-          MAX_VALUE
-        )
-      );
+      await sendTx(token.connect(signer).approve(spender, MAX_VALUE));
       setApproved(true);
     } catch (err) {
       console.log(err);
@@ -330,7 +345,27 @@ const PurchaseDialog = ({
   const handlePurchase = useCallback(async () => {
     try {
       if (baseTokenName === tokenName) {
+        await sendTx(
+          pepeContract
+            .connect(signer)
+            .depositLP(getContractReadableAmount(amount, 18))
+        );
+      } else if (IS_NATIVE(token)) {
+        await sendTx(
+          pepeContract
+            .connect(signer)
+            .depositWeth({ value: getContractReadableAmount(amount, 18) })
+        );
       } else {
+        const decoded = aggregation1inchRouter.interface.decodeFunctionData(
+          'swap',
+          path['tx']['data']
+        );
+        await sendTx(
+          diamondPepeNfts1inchRouter
+            .connect(signer)
+            .swapAndDeposit(decoded[0], decoded[1], decoded[2])
+        );
       }
 
       setRawAmount('0');
@@ -357,25 +392,14 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible, token, isZapActive]);
-
-  // Updates approved state
-  useEffect(() => {
-    (async () => {
-      if (!purchasePower) return;
-      if (IS_NATIVE(token)) {
-        setApproved(true);
-      } else {
-        const allowance = parseInt(
-          (await token.allowance(accountAddress, spender)).toString()
-        );
-        setApproved(allowance > 0);
-      }
-    })();
-  }, [token, accountAddress, spender, approved, purchasePower]);
+  }, [isZapInVisible, token, isZapActive, amount]);
 
   const setMaxAmount = async () => {
-    setRawAmount((purchasePower * 0.99).toFixed(3));
+    const amount = getUserReadableAmount(
+      userTokenBalance,
+      getDecimalsFromSymbol(tokenName, chainId)
+    );
+    setRawAmount((IS_NATIVE(token) ? amount * 0.99 : amount).toFixed(3));
   };
 
   useEffect(() => {
@@ -394,15 +418,14 @@ const PurchaseDialog = ({
 
       let allowance = IS_NATIVE(token)
         ? BigNumber.from(0)
-        : await token.allowance(
-            accountAddress,
-            diamondPepeNfts1inchRouter.address
-          );
+        : await token.allowance(accountAddress, spender);
 
-      if (!allowance.eq(0)) {
+      if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
-        if (IS_NATIVE(token)) {
+        console.log(allowance);
+        if (allowance.gt(0)) {
+          console.log('all');
           setApproved(true);
         } else {
           setApproved(false);
@@ -465,7 +488,7 @@ const PurchaseDialog = ({
                 <Box
                   className={
                     activeTab === 'deposit'
-                      ? 'text-center w-1/3 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
+                      ? 'text-center w-1/3 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
                       : 'text-center w-1/3 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   }
                   onClick={() => setActiveTab('deposit')}
@@ -561,7 +584,7 @@ const PurchaseDialog = ({
                   </Typography>
                 </Box>
                 <Box
-                  className="bg-[#43609A] hover:opacity-90 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
+                  className="bg-[#43609A] hover:opacity-90 flex-row ml-3 mt-1 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
                   onClick={setMaxAmount}
                 >
                   <Typography variant="caption" component="div">
@@ -603,7 +626,13 @@ const PurchaseDialog = ({
                   >
                     Balance:{' '}
                     <span className="text-white">
-                      {formatAmount(purchasePower, 2)}
+                      {formatAmount(
+                        getUserReadableAmount(
+                          userTokenBalance,
+                          getDecimalsFromSymbol(tokenName, chainId)
+                        ),
+                        2
+                      )}
                     </span>
                   </Typography>
                 </Box>
@@ -614,12 +643,32 @@ const PurchaseDialog = ({
               <Box className={'flex'}>
                 <Box className="rounded-tl-xl flex p-3 border border-[#232935] w-full">
                   <Box className={'w-5/6'}>
-                    <Typography variant="h5" className="text-white pb-1 pr-2">
-                      {formatAmount(
-                        getUserReadableAmount(userData.deposits, 18),
-                        2
-                      )}
-                    </Typography>
+                    {obtainableLP === 0 ? (
+                      <Typography variant="h5" className="text-white pb-1 pr-2">
+                        {formatAmount(
+                          getUserReadableAmount(userData.deposits, 18),
+                          2
+                        )}
+                      </Typography>
+                    ) : (
+                      <Box className="flex">
+                        <ArrowRightIcon
+                          className={'mt-2 mr-2'}
+                          fill={'#22E1FF'}
+                        />
+                        <Typography
+                          variant="h5"
+                          className="text-[#22E1FF] pb-1 pr-2"
+                        >
+                          {formatAmount(
+                            obtainableLP +
+                              getUserReadableAmount(userData.deposits, 18),
+                            2
+                          )}{' '}
+                          LP
+                        </Typography>
+                      </Box>
+                    )}
                     <Typography
                       variant="h6"
                       className="text-[#78859E] pb-1 pr-2"
@@ -629,14 +678,37 @@ const PurchaseDialog = ({
                   </Box>
                 </Box>
                 <Box className="rounded-tr-xl flex flex-col p-3 border border-[#232935] w-full">
-                  <Typography variant="h5" className="text-white pb-1 pr-2">
-                    {formatAmount(
-                      (100 * getUserReadableAmount(userData.deposits, 18)) /
-                        getUserReadableAmount(data.totalDeposits, 18),
-                      2
-                    )}
-                    %
-                  </Typography>
+                  {obtainableLP === 0 ? (
+                    <Typography variant="h5" className="text-white pb-1 pr-2">
+                      {formatAmount(
+                        (100 * getUserReadableAmount(userData.deposits, 18)) /
+                          getUserReadableAmount(data.totalDeposits, 18),
+                        2
+                      )}
+                      %
+                    </Typography>
+                  ) : (
+                    <Box className="flex">
+                      <ArrowRightIcon
+                        className={'mt-2 mr-2'}
+                        fill={'#22E1FF'}
+                      />
+                      <Typography
+                        variant="h5"
+                        className="text-[#22E1FF] pb-1 pr-2"
+                      >
+                        {formatAmount(
+                          (100 *
+                            (getUserReadableAmount(userData.deposits, 18) +
+                              obtainableLP)) /
+                            getUserReadableAmount(data.totalDeposits, 18),
+                          2
+                        )}
+                        %
+                      </Typography>
+                    </Box>
+                  )}
+
                   <Typography variant="h6" className="text-[#78859E] pb-1 pr-2">
                     Pool share
                   </Typography>
@@ -698,16 +770,28 @@ const PurchaseDialog = ({
                         getUserReadableAmount(data.totalDeposits, 18),
                         0
                       ).replace('.', '')}{' '}
-                      LP <span className="opacity-50">/ 2500 LP</span>
+                      LP{' '}
+                      <span className="opacity-50">
+                        / {getUserReadableAmount(data.maxLpDeposits, 18)} LP
+                      </span>
                     </Typography>
                   </Box>
                 </Box>
+
+                <LinearProgress
+                  variant="determinate"
+                  className={'mt-3 rounded-sm'}
+                  value={
+                    (100 * getUserReadableAmount(data.totalDeposits, 18)) /
+                    getUserReadableAmount(data.maxLpDeposits, 18)
+                  }
+                />
               </Box>
             </Box>
 
             <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-12">
               <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
-                <EstimatedGasCostButton gas={2000000} />
+                <EstimatedGasCostButton gas={2000000} chainId={chainId} />
               </Box>
 
               <ZapInButton
@@ -736,12 +820,10 @@ const PurchaseDialog = ({
                 size="medium"
                 className={styles.pepeButton}
                 disabled={amount <= 0 || isFetchingPath}
-                onClick={
-                  amount ? (approved ? null : handlePurchase) : handleApprove
-                }
+                onClick={approved ? handlePurchase : handleApprove}
               >
                 <Typography variant="h5" className={styles.pepeButtonText}>
-                  Purchase
+                  {approved ? 'PURCHASE' : 'APPROVE'}
                 </Typography>
               </CustomButton>
             </Box>

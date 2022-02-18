@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-
 import {
   Addresses,
   ERC20,
@@ -14,17 +13,6 @@ import {
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
 } from '@dopex-io/sdk';
-
-import { useFormik } from 'formik';
-import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
-import * as yup from 'yup';
-import noop from 'lodash/noop';
-import debounce from 'lodash/debounce';
-import format from 'date-fns/format';
-import { useDebounce } from 'use-debounce';
-import axios from 'axios';
-import styles from './styles.module.scss';
-
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -33,54 +21,61 @@ import Menu from '@material-ui/core/Menu';
 import Slide from '@material-ui/core/Slide';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
+import format from 'date-fns/format';
+import { useDebounce } from 'use-debounce';
+import axios from 'axios';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
-import ZapIn from '../../../../components/ZapIn';
-import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
-import ZapInButton from '../../../../components/ZapInButton';
-import ZapOutButton from '../../../../components/ZapOutButton';
-import getContractReadableAmount from '../../../../utils/contracts/getContractReadableAmount';
-import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
-import useBnbSsovConversion from '../../../../hooks/useBnbSsovConversion';
+import ZapIn from 'components/ZapIn';
+import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import ZapInButton from 'components/ZapInButton';
+import ZapOutButton from 'components/ZapOutButton';
+import BigCrossIcon from 'components/Icons/BigCrossIcon';
+import CircleIcon from 'components/Icons/CircleIcon';
+import AlarmIcon from 'components/Icons/AlarmIcon';
+
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
 import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import {
   SsovContext,
-  SsovProperties,
   SsovData,
-  UserSsovData,
+  SsovUserData,
+  SsovEpochData,
 } from 'contexts/Ssov';
 
-import useSendTx from 'hooks/useSendTx';
-import { MAX_VALUE, SSOV_MAP } from 'constants/index';
-import BigCrossIcon from '../../../../components/Icons/BigCrossIcon';
-import ZapIcon from '../../../../components/Icons/ZapIcon';
-import CircleIcon from '../../../../components/Icons/CircleIcon';
-import AlarmIcon from '../../../../components/Icons/AlarmIcon';
+import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
+
+import styles from './styles.module.scss';
 
 export interface Props {
   open: boolean;
   handleClose: () => {};
-  ssovProperties: SsovProperties;
-  userSsovData: UserSsovData;
   ssovData: SsovData;
+  ssovUserData: SsovUserData;
+  ssovEpochData: SsovEpochData;
 }
 
 const PurchaseDialog = ({
   open,
   handleClose,
-  ssovProperties,
-  userSsovData,
   ssovData,
+  ssovUserData,
+  ssovEpochData,
 }: Props) => {
-  const { updateSsovData, updateUserSsovData, selectedSsov, ssovSignerArray } =
+  const { updateSsovData, updateSsovUserData, selectedSsov, ssovSigner } =
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -108,19 +103,14 @@ const PurchaseDialog = ({
   const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
   const bnbSsovConversion = useBnbSsovConversion();
   const [token, setToken] = useState<ERC20 | any>(
-    IS_NATIVE(ssovProperties.tokenName)
-      ? ssovProperties.tokenName
-      : ssovSignerArray[selectedSsov].token[0]
+    IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovSigner.token[0]
   );
-  const ssovToken = ssovSignerArray[selectedSsov].token[0];
+  const ssovToken = ssovSigner.token[0];
   const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
-    ssovProperties;
-  const { ssovContractWithSigner, ssovRouter } =
-    ssovSignerArray !== undefined
-      ? ssovSignerArray[selectedSsov]
-      : { ssovContractWithSigner: null, ssovRouter: null };
+    ssovData;
+  const { ssovContractWithSigner, ssovRouter } = ssovSigner;
 
-  const { epochStrikes } = ssovData;
+  const { epochStrikes } = ssovEpochData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -143,8 +133,8 @@ const PurchaseDialog = ({
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const ssovTokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
-  const ssovTokenName = ssovProperties.tokenName;
+  const ssovTokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
+  const ssovTokenName = ssovData.tokenName;
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
@@ -213,7 +203,7 @@ const PurchaseDialog = ({
     [epochStrikes]
   );
 
-  const { epochStrikeTokens } = userSsovData;
+  const { epochStrikeTokens } = ssovUserData;
 
   const epochStrikeToken = useMemo(
     () => (strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null),
@@ -281,29 +271,12 @@ const PurchaseDialog = ({
     );
   };
 
-  const formik = useFormik({
-    initialValues: {
-      optionsAmount: 1,
-    },
-    enableReinitialize: true,
-    validationSchema: yup.object({
-      optionsAmount: yup
-        .number()
-        .min(0, 'Amount has to be greater than 0')
-        .required('Amount is required'),
-    }),
-    validate: () => {
-      const errors: any = {};
-      if (state.totalCost.gt(userTokenBalance)) {
-        errors.amount = `Insufficient ${tokenName} balance to pay for premium.`;
-      }
-      return errors;
-    },
-    onSubmit: noop,
-  });
+  const [rawOptionsAmount, setRawOptionsAmount] = useState<string>('1');
+  const optionsAmount: number = useMemo(() => {
+    return parseFloat(rawOptionsAmount) || 0;
+  }, [rawOptionsAmount]);
 
-  const isLiquidityEnough =
-    formik.values.optionsAmount < userEpochStrikePurchasableAmount;
+  const isLiquidityEnough = optionsAmount < userEpochStrikePurchasableAmount;
   const isPurchasePowerEnough =
     purchasePower >= getUserReadableAmount(state.totalCost, 18);
 
@@ -447,7 +420,7 @@ const PurchaseDialog = ({
           await sendTx(
             ssovRouter.purchase(
               strikeIndex,
-              getContractReadableAmount(formik.values.optionsAmount, 18),
+              getContractReadableAmount(optionsAmount, 18),
               accountAddress,
               {
                 value: state.totalCost,
@@ -458,7 +431,7 @@ const PurchaseDialog = ({
           await sendTx(
             ssovContractWithSigner.purchase(
               strikeIndex,
-              getContractReadableAmount(formik.values.optionsAmount, 18),
+              getContractReadableAmount(optionsAmount, 18),
               accountAddress,
               {
                 value: state.totalCost,
@@ -470,7 +443,7 @@ const PurchaseDialog = ({
           await sendTx(
             ssovContractWithSigner.purchase(
               strikeIndex,
-              getContractReadableAmount(formik.values.optionsAmount, 18),
+              getContractReadableAmount(optionsAmount, 18),
               accountAddress
             )
           );
@@ -492,17 +465,14 @@ const PurchaseDialog = ({
 
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndPurchase(
-              ssovProperties.ssovContract.address,
+              ssovData.ssovContract.address,
               ssovToken.address,
               decoded[0],
               decoded[1],
               decoded[2],
               {
                 strikeIndex: strikeIndex,
-                amount: getContractReadableAmount(
-                  formik.values.optionsAmount,
-                  18
-                ),
+                amount: getContractReadableAmount(optionsAmount, 18),
                 to: accountAddress,
               },
               {
@@ -519,15 +489,12 @@ const PurchaseDialog = ({
                   decoded[2],
                   {
                     strikeIndex: strikeIndex,
-                    amount: getContractReadableAmount(
-                      formik.values.optionsAmount,
-                      18
-                    ),
+                    amount: getContractReadableAmount(optionsAmount, 18),
                     to: accountAddress,
                   }
                 )
               : erc20SSOV1inchRouter.swapAndPurchase(
-                  ssovProperties.ssovContract.address,
+                  ssovData.ssovContract.address,
                   ssovTokenSymbol === 'BNB'
                     ? Addresses[chainId]['VBNB']
                     : ssovToken.address,
@@ -536,10 +503,7 @@ const PurchaseDialog = ({
                   decoded[2],
                   {
                     strikeIndex: strikeIndex,
-                    amount: getContractReadableAmount(
-                      formik.values.optionsAmount,
-                      18
-                    ),
+                    amount: getContractReadableAmount(optionsAmount, 18),
                     to: accountAddress,
                   }
                 )
@@ -547,9 +511,9 @@ const PurchaseDialog = ({
         }
       }
 
-      formik.setFieldValue('optionsAmount', 0);
+      setRawOptionsAmount('0');
       updateSsovData();
-      updateUserSsovData();
+      updateSsovUserData();
       updateAssetBalances();
     } catch (err) {
       console.log(err);
@@ -558,7 +522,7 @@ const PurchaseDialog = ({
     state.totalCost,
     ssovContractWithSigner,
     updateSsovData,
-    updateUserSsovData,
+    updateSsovUserData,
     updateAssetBalances,
     accountAddress,
     tokenName,
@@ -607,6 +571,7 @@ const PurchaseDialog = ({
   }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
 
   const setMaxAmount = async () => {
+    if (isPurchaseStatsLoading) return;
     const strike: BigNumber = epochStrikes[strikeIndex];
     const fees: BigNumber = await ssovContractWithSigner.calculatePurchaseFees(
       tokenPrice,
@@ -619,7 +584,7 @@ const PurchaseDialog = ({
           getUserReadableAmount(state.optionPrice, 8) /
             getUserReadableAmount(tokenPrice, 8))) *
       0.97; // margin of safety;
-    formik.setFieldValue('optionsAmount', amount.toFixed(2));
+    setRawOptionsAmount(amount.toFixed(2));
   };
 
   useEffect(() => {
@@ -637,8 +602,8 @@ const PurchaseDialog = ({
       !ssovContractWithSigner ||
       !ssovOptionPricingContract ||
       !volatilityOracleContract ||
-      formik.values.optionsAmount === 0 ||
-      formik.values.optionsAmount.toString() === ''
+      optionsAmount === 0 ||
+      optionsAmount.toString() === ''
     ) {
       setState((prev) => ({
         ...prev,
@@ -688,13 +653,13 @@ const PurchaseDialog = ({
         );
 
         const premium = optionPrice
-          .mul(ethersUtils.parseEther(String(formik.values.optionsAmount)))
+          .mul(ethersUtils.parseEther(String(optionsAmount)))
           .div(tokenPrice);
 
         let fees = await ssovContractWithSigner.calculatePurchaseFees(
           tokenPrice,
           strike,
-          ethersUtils.parseEther(String(formik.values.optionsAmount))
+          ethersUtils.parseEther(String(optionsAmount))
         );
 
         if (ssovTokenSymbol === 'BNB') {
@@ -739,15 +704,15 @@ const PurchaseDialog = ({
         setIsPurchaseStatsLoading(false);
       }
     }
-    debounce(async () => await updateOptionPrice(), 1000)();
+    updateOptionPrice();
   }, [
     strikeIndex,
     epochStrikes,
+    optionsAmount,
     ssovContractWithSigner,
     ssovOptionPricingContract,
     volatilityOracleContract,
     tokenPrice,
-    formik.values.optionsAmount,
     provider,
     ssovTokenName,
   ]);
@@ -759,7 +724,7 @@ const PurchaseDialog = ({
       const finalAmount = state.totalCost;
 
       const userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances.ETH)
+        ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]])
         : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
@@ -785,19 +750,6 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     userAssetBalances.ETH,
   ]);
-
-  useEffect(() => {
-    if (
-      !isZapInVisible &&
-      formik.values.zapInAmount >
-        getUserReadableAmount(
-          userTokenBalance,
-          getDecimalsFromSymbol(tokenName, chainId)
-        )
-    ) {
-      setTokenName(ssovTokenSymbol);
-    }
-  }, [isZapInVisible]);
 
   useEffect(() => {
     getPath();
@@ -840,7 +792,7 @@ const PurchaseDialog = ({
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-10">
               <img
-                src={SSOV_MAP[ssovProperties.tokenName].imageSrc}
+                src={SSOV_MAP[ssovData.tokenName].imageSrc}
                 alt={ssovTokenSymbol}
               />
             </Box>
@@ -860,13 +812,8 @@ const PurchaseDialog = ({
             placeholder="0"
             type="number"
             className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
-            value={formik.values.optionsAmount}
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.optionsAmount &&
-              Boolean(formik.errors.optionsAmount)
-            }
+            value={rawOptionsAmount}
+            onChange={(e) => setRawOptionsAmount(e.target.value)}
             classes={{ input: 'text-right' }}
           />
         </Box>
@@ -903,7 +850,7 @@ const PurchaseDialog = ({
                   getUserReadableAmount(state.optionPrice, 8)
                 }
                 optionPrice={getUserReadableAmount(state.optionPrice, 8)}
-                amount={formik.values.optionsAmount}
+                amount={optionsAmount}
                 isPut={false}
                 price={getUserReadableAmount(tokenPrice, 8)}
                 symbol={ssovTokenSymbol}
@@ -911,7 +858,6 @@ const PurchaseDialog = ({
             </Box>
           </Slide>
         )}
-
         {!debouncedIsChartVisible[0] && (
           <Slide direction="left" in={!isChartVisible}>
             <Box className="h-[12.88rem]">
@@ -976,7 +922,6 @@ const PurchaseDialog = ({
                   </Typography>
                 </Box>
               </Box>
-
               <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
                 <Box className={'flex mb-2'}>
                   <Typography
@@ -1019,7 +964,6 @@ const PurchaseDialog = ({
                     </Typography>
                   </Box>
                 </Box>
-
                 <Box className={'flex mb-2'}>
                   <Typography
                     variant="h6"
@@ -1036,7 +980,6 @@ const PurchaseDialog = ({
                     </Typography>
                   </Box>
                 </Box>
-
                 <Box className={'flex'}>
                   <Typography
                     variant="h6"
@@ -1058,7 +1001,6 @@ const PurchaseDialog = ({
           </Slide>
         )}
       </Box>
-
       <Box className="flex mt-5 mb-5">
         <CircleIcon
           className={
@@ -1068,7 +1010,6 @@ const PurchaseDialog = ({
           }
           onClick={() => setIsChartVisible(false)}
         />
-
         <CircleIcon
           className={
             isChartVisible
@@ -1078,7 +1019,6 @@ const PurchaseDialog = ({
           onClick={() => setIsChartVisible(true)}
         />
       </Box>
-
       <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
           <Box className={'flex mb-2'}>
@@ -1087,11 +1027,10 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(formik.values.optionsAmount, 0)}
+                {formatAmount(optionsAmount, 3)}
               </Typography>
             </Box>
           </Box>
-
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Fees ($)
@@ -1106,7 +1045,6 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Total ($)
@@ -1115,14 +1053,12 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 $
                 {formatAmount(
-                  getUserReadableAmount(state.optionPrice, 8) *
-                    formik.values.optionsAmount,
+                  getUserReadableAmount(state.optionPrice, 8) * optionsAmount,
                   0
                 )}
               </Typography>
             </Box>
           </Box>
-
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Purchase Power
@@ -1141,7 +1077,6 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-
           {isZapActive ? (
             <Box className={'flex mb-2'}>
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
@@ -1166,10 +1101,8 @@ const PurchaseDialog = ({
               </Box>
             </Box>
           )}
-
-          <EstimatedGasCostButton gas={700000} />
+          <EstimatedGasCostButton gas={700000} chainId={chainId} />
         </Box>
-
         <ZapInButton
           openZapIn={openZapIn}
           isZapActive={isZapActive}
@@ -1182,7 +1115,6 @@ const PurchaseDialog = ({
           isZapInAvailable={isZapInAvailable}
           chainId={chainId}
         />
-
         <Box className="flex">
           <Box className="flex text-center p-2 mr-2 mt-1">
             <AlarmIcon />
@@ -1196,48 +1128,44 @@ const PurchaseDialog = ({
           size="medium"
           className="w-full mt-4 !rounded-md"
           color={
-            formik.values.optionsAmount <= 0 ||
+            optionsAmount <= 0 ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
+            isPurchaseStatsLoading ||
             !isLiquidityEnough
               ? 'mineshaft'
               : 'primary'
           }
           disabled={
-            formik.values.optionsAmount <= 0 ||
+            optionsAmount <= 0 ||
+            !!isPurchaseStatsLoading ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
             !isLiquidityEnough
           }
           onClick={
-            formik.values.optionsAmount > 0 && isPurchasePowerEnough
+            optionsAmount > 0 && isPurchasePowerEnough
               ? approved
-                ? userEpochStrikePurchasableAmount < formik.values.optionsAmount
+                ? userEpochStrikePurchasableAmount < optionsAmount
                   ? null
                   : handlePurchase
                 : handleApprove
               : null
           }
         >
-          {formik.values.optionsAmount > 0 ? (
-            isFetchingPath ? (
-              <Box className={'flex'}>
-                <span>Purchase</span>
-              </Box>
-            ) : getUserReadableAmount(state.totalCost, 18) > purchasePower ? (
-              'Insufficient balance'
-            ) : approved ? (
-              userEpochStrikePurchasableAmount < formik.values.optionsAmount ? (
-                'Not enough liquidity'
-              ) : (
-                'Purchase'
-              )
-            ) : (
-              'Approve'
-            )
-          ) : (
-            'Enter an amount'
-          )}
+          {isPurchaseStatsLoading
+            ? 'Loading prices...'
+            : optionsAmount > 0
+            ? isFetchingPath
+              ? 'Purchase'
+              : getUserReadableAmount(state.totalCost, 18) > purchasePower
+              ? 'Insufficient balance'
+              : approved
+              ? userEpochStrikePurchasableAmount < optionsAmount
+                ? 'Not enough liquidity'
+                : 'Purchase'
+              : 'Approve'
+            : 'Enter an amount'}
         </CustomButton>
       </Box>
 

@@ -19,14 +19,7 @@ yarn
 
 To start the DApp you also need to setup an additional .env.local file:
 
-It should look like the following
-
-```
-NEXT_PUBLIC_INFURA_PROJECT_ID=#INSERT ID
-NEXT_PUBLIC_DEFAULT_CHAIN_ID=1
-NEXT_PUBLIC_ASSETS_LIST=USDT,DPX,RDPX
-NEXT_PUBLIC_BUILD=#testnet or main
-```
+It should look like the `env.example`
 
 Then you can proceed to start the app:
 

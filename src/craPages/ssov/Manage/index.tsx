@@ -1,4 +1,4 @@
-import { useContext, useMemo, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
@@ -10,59 +10,23 @@ import ExerciseList from '../components/ExerciseList';
 import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
 
-import {
-  SsovContext,
-  SsovProperties,
-  SsovData,
-  UserSsovData,
-} from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
 const Manage = () => {
-  const { asset } = useParams();
+  const { asset, type } = useParams();
   const {
-    ssovPropertiesArray,
-    ssovDataArray,
-    userSsovDataArray,
+    ssovData,
+    ssovEpochData,
+    ssovUserData,
     setSelectedSsov,
     selectedSsov,
   } = useContext(SsovContext);
 
-  const {
-    ssovProperties,
-    ssovData,
-    userSsovData,
-    index,
-  }: {
-    ssovProperties: SsovProperties;
-    ssovData: SsovData;
-    userSsovData: UserSsovData;
-    index: number;
-  } = useMemo(() => {
-    if (ssovPropertiesArray.length === 0)
-      return {
-        ssovProperties: undefined,
-        ssovData: undefined,
-        userSsovData: undefined,
-        index: 0,
-      };
-    let i = ssovPropertiesArray.findIndex((item) => item.tokenName === asset);
-    return {
-      ssovProperties: ssovPropertiesArray[i],
-      ssovData: ssovDataArray[i],
-      userSsovData: userSsovDataArray[i],
-      index: i,
-    };
-  }, [ssovPropertiesArray, asset, ssovDataArray, userSsovDataArray]);
-
   useEffect(() => {
-    setSelectedSsov(index);
-  }, [index, setSelectedSsov]);
+    setSelectedSsov({ token: asset, type: type.toUpperCase() });
+  }, [setSelectedSsov, asset, type]);
 
-  if (
-    ssovProperties === undefined ||
-    ssovData === undefined ||
-    selectedSsov === null
-  )
+  if (ssovData === undefined || ssovEpochData === undefined)
     return (
       <Box className="overflow-x-hidden bg-black h-screen">
         <PageLoader />
@@ -79,16 +43,15 @@ const Manage = () => {
         <Box className="flex flex-col mt-20">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
-              ssovProperties={ssovProperties}
               ssovData={ssovData}
-              userSsovData={userSsovData}
+              ssovEpochData={ssovEpochData}
+              ssovUserData={ssovUserData}
+              type={selectedSsov.type}
             />
-            <ManageCard ssovProperties={ssovProperties} />
+            <ManageCard />
           </Box>
-          {userSsovData === undefined ? null : (
-            <ExerciseList ssovProperties={ssovProperties} />
-          )}
-          <Stats ssovProperties={ssovProperties} className="mt-4" />
+          {ssovUserData === undefined ? null : <ExerciseList />}
+          {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
         </Box>
       </Box>
     </Box>

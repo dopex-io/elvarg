@@ -26,7 +26,7 @@ const TokenSelector = ({
   setOpen,
   setToken,
   isInDialog,
-  tokensToExclude = [],
+  tokensToExclude = ['2CRV'],
   enableSearch = true,
 }: Props) => {
   const { contractAddresses, provider, chainId } = useContext(WalletContext);

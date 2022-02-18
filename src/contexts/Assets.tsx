@@ -51,6 +51,7 @@ const initialState: AssetsContextInterface = {
     'USDT',
     'MIM',
     'FRAX',
+    '2CRV',
   ],
   tokenPrices: [],
   userAssetBalances: {
@@ -66,6 +67,7 @@ const initialState: AssetsContextInterface = {
     BNB: '0',
     GMX: '0',
     AVAX: '0',
+    '2CRV': '0',
   },
 };
 
@@ -83,6 +85,7 @@ const ASSET_TO_COINGECKO_ID = {
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
   AVAX: 'avalanche-2',
+  '2CRV': 'Curve-2-pool-token',
 };
 
 export const ASSET_TO_NAME = {
@@ -98,6 +101,7 @@ export const ASSET_TO_NAME = {
   RDPX: 'Dopex Rebate',
   GOHM: 'OHM Governance',
   AVAX: 'Avalanche',
+  '2CRV': 'Curve2 Pool Token',
 };
 
 export const IS_NATIVE = (asset) => {
@@ -276,6 +280,7 @@ export const AssetsProvider = (props) => {
         VBNB: '0',
         GMX: '0',
         AVAX: '0',
+        '2CRV': '0',
       };
 
       const assets = Object.keys(userAssetBalances)

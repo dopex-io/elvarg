@@ -7,7 +7,7 @@ import Web3Modal from 'web3modal';
 import WalletLink from 'walletlink';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { INFURA_PROJECT_ID, BSC_RPC_URL, AVAX_RPC_URL } from 'constants/index';
+import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -31,13 +31,13 @@ interface WalletContextInterface {
 export const WalletContext = createContext<WalletContextInterface>({});
 
 export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1': `https://rpc.ankr.com/eth/${ANKR_KEY}`,
   '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '56': BSC_RPC_URL,
+  '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
+  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '1337': 'http://127.0.0.1:8545',
-  '43114': AVAX_RPC_URL,
 };
 
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
@@ -51,6 +51,11 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/manage/GOHM': [42161],
   '/ssov/manage/BNB': [56],
   '/ssov/manage/GMX': [42161],
+  '/ssov/puts/manage/RDPX': [42161],
+  '/ssov/puts/manage/GOHM': [42161],
+  '/ssov/puts/manage/BTC': [42161],
+  '/ssov/puts/manage/GMX': [42161],
+  '/ssov/puts/manage/ETH': [42161],
   '/ssov/manage/AVAX': [43114],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
@@ -154,7 +159,9 @@ export const WalletProvider = (props) => {
         return;
       }
 
-      const multicallProvider = new providers.MulticallProvider(provider);
+      const multicallProvider = new providers.MulticallProvider(
+        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[chainId])
+      );
       let signer: Signer | undefined;
       let address: string | undefined;
 

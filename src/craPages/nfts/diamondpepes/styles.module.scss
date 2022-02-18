@@ -60,11 +60,12 @@
   bottom: 0px;
   z-index: 0;
   background: radial-gradient(
-    89.45% 27.82% at 50.13% 0%,
-    rgba(20, 62, 253, 0.31) 0%,
-    #282f43 0.01%,
-    rgba(41, 49, 70, 0) 100%
-  ), url('/assets/pepebg.png');
+      89.45% 27.82% at 50.13% 0%,
+      rgba(20, 62, 253, 0.31) 0%,
+      #282f43 0.01%,
+      rgba(41, 49, 70, 0) 100%
+    ),
+    url('/assets/pepebg.png');
   background-position: bottom;
   background-size: 100vh;
   background-repeat: no-repeat;

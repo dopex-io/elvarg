@@ -109,6 +109,39 @@ export const STAT_NAMES = {
   },
 };
 
+export const SSOV_PUTS_MAP = {
+  RDPX: {
+    tokenSymbol: 'rDPX',
+    imageSrc: '/assets/rdpx.svg',
+    coinGeckoId: 'dopex-rebate-token',
+    tokens: ['2CRV'],
+  },
+  GOHM: {
+    tokenSymbol: 'GOHM',
+    imageSrc: '/assets/gohm.svg',
+    coinGeckoId: 'governance-ohm',
+    tokens: ['2CRV'],
+  },
+  ETH: {
+    tokenSymbol: 'DPX',
+    imageSrc: '/assets/dpx.svg',
+    coinGeckoId: 'dopex',
+    tokens: ['2CRV'],
+  },
+  BTC: {
+    tokenSymbol: 'BTC',
+    imageSrc: '/assets/btc.svg',
+    coiGeckoId: 'bitcoin',
+    tokens: ['2CRV'],
+  },
+  GMX: {
+    tokenSymbol: 'GMX',
+    imageSrc: '/assets/gmx.svg',
+    coinGeckoId: 'gmx',
+    tokens: ['2CRV'],
+  },
+};
+
 export const SSOV_MAP = {
   DPX: {
     tokenSymbol: 'DPX',
@@ -151,6 +184,12 @@ export const SSOV_MAP = {
     imageSrc: '/assets/avax.svg',
     coiGeckoId: 'avalanche-2',
     tokens: ['AVAX'],
+  },
+  BTC: {
+    tokenSymbol: 'BTC',
+    imageSrc: '/assets/btc.svg',
+    coiGeckoId: 'bitcoin',
+    tokens: ['BTC'],
   },
 };
 
@@ -262,6 +301,8 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
 
 export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
+export const ANKR_KEY = process.env.NEXT_PUBLIC_ANKR_KEY;
+
 export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
 export const AVAX_RPC_URL = process.env.NEXT_PUBLIC_AVAX_RPC_URL;
@@ -296,4 +337,11 @@ export const CHAIN_ID_TO_NETWORK_DATA = {
   42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/assets/avax.svg' },
+};
+
+export const TOKEN_DECIMALS = {
+  VBNB: 8,
+  WBTC: 8,
+  USDT: 6,
+  USDC: 6,
 };
