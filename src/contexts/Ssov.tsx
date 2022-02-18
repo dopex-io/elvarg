@@ -23,12 +23,13 @@ import {
 import { BigNumber } from 'ethers';
 import axios from 'axios';
 
-import formatAmount from 'utils/general/formatAmount';
-
 import { WalletContext } from './Wallet';
 
 import { SSOV_MAP } from 'constants/index';
+
+import formatAmount from 'utils/general/formatAmount';
 import isNativeSsov from 'utils/contracts/isNativeSsov';
+import getTotalEpochPremium from 'utils/contracts/ssov-p/getTotalEpochPremium';
 
 export interface Ssov {
   token: string;
@@ -195,6 +196,7 @@ export const SsovProvider = (props) => {
       totalEpochDeposits,
       totalEpochStrikeDeposits,
       totalEpochOptionsPurchased,
+      totalEpochPremium,
       settlementPrice,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
@@ -210,6 +212,9 @@ export const SsovProvider = (props) => {
         : (ssovContract as ERC20SSOV).getTotalEpochCallsPurchased(
             selectedEpoch
           ),
+      selectedSsov.type === 'PUT'
+        ? getTotalEpochPremium(ssovContract as Curve2PoolSsovPut, selectedEpoch)
+        : (ssovContract as ERC20SSOV).getTotalEpochPremium(selectedEpoch),
       ssovContract.settlementPrices(selectedEpoch),
     ]);
 
@@ -226,7 +231,7 @@ export const SsovProvider = (props) => {
       totalEpochDeposits,
       totalEpochStrikeDeposits,
       totalEpochOptionsPurchased,
-      totalEpochPremium: [],
+      totalEpochPremium,
       settlementPrice,
       APY,
     };
