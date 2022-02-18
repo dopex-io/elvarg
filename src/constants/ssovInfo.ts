@@ -1,4 +1,10 @@
 const ssovInfo = {
+  CRV: {
+    aprToolTipMessage:
+      'This is the base APY calculated from the DPX single staking farm',
+    mainPageMessage:
+      'Deposit DPX into strikes providing liquidity into option pools to earn staked auto-compounded DPX and RDPX rewards and premiums in DPX from each option purchase.',
+  },
   DPX: {
     aprToolTipMessage:
       'This is the base APY calculated from the DPX single staking farm',
