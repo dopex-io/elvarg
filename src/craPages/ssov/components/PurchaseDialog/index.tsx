@@ -313,8 +313,9 @@ const PurchaseDialog = ({
   }, [rawOptionsAmount]);
 
   const isLiquidityEnough = optionsAmount < userEpochStrikePurchasableAmount;
-  const isPurchasePowerEnough =
-    purchasePower >= getUserReadableAmount(state.totalCost, 18);
+  const isPurchasePowerEnough = !isPut
+    ? purchasePower >= getUserReadableAmount(state.totalCost, 18)
+    : true;
 
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
@@ -1194,19 +1195,21 @@ const PurchaseDialog = ({
               : null
           }
         >
-          {isPurchaseStatsLoading
-            ? 'Loading prices...'
-            : optionsAmount > 0
-            ? isFetchingPath
-              ? 'Purchase'
-              : getUserReadableAmount(state.totalCost, 18) > purchasePower
-              ? 'Insufficient balance'
-              : approved
-              ? userEpochStrikePurchasableAmount < optionsAmount
-                ? 'Not enough liquidity'
-                : 'Purchase'
-              : 'Approve'
-            : 'Enter an amount'}
+          {!isPut
+            ? isPurchaseStatsLoading
+              ? 'Loading prices...'
+              : optionsAmount > 0
+              ? isFetchingPath
+                ? 'Purchase'
+                : getUserReadableAmount(state.totalCost, 18) > purchasePower
+                ? 'Insufficient balance'
+                : approved
+                ? userEpochStrikePurchasableAmount < optionsAmount
+                  ? 'Not enough liquidity'
+                  : 'Purchase'
+                : 'Approve'
+              : 'Enter an amount'
+            : 'Purchase'}
         </CustomButton>
       </Box>
       <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>
