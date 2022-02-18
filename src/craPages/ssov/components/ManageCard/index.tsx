@@ -307,6 +307,7 @@ const ManageCard = () => {
   };
 
   const handleTokenChange = async () => {
+    if (!token) return;
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
     await getQuote();
@@ -633,7 +634,7 @@ const ManageCard = () => {
 
   useEffect(() => {
     handleTokenChange();
-  }, [token]);
+  }, [handleTokenChange]);
 
   // Updates approved state
   useEffect(() => {

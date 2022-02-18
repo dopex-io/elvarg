@@ -57,6 +57,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/put/BTC': [42161],
   '/ssov/put/GMX': [42161],
   '/ssov/put/ETH': [42161],
+  '/ssov/put/CRV': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
   '/sale': [1],

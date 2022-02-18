@@ -238,7 +238,7 @@ const PurchaseDialog = ({
     setQuote(data);
   }, [
     accountAddress,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     token,
     tokenName,
@@ -246,6 +246,7 @@ const PurchaseDialog = ({
   ]);
 
   const handleTokenChange = useCallback(async () => {
+    if (!token) return;
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
     await getQuote();
@@ -651,7 +652,11 @@ const PurchaseDialog = ({
           );
 
         let volatility;
-        if (ssovTokenName === 'ETH') {
+        if (isPut) {
+          volatility = (
+            await ssovData.ssovContract.getVolatility(strike)
+          ).toNumber();
+        } else if (ssovTokenName === 'ETH') {
           const _abi = [
             'function getVolatility(uint256) view returns (uint256)',
           ];
