@@ -758,24 +758,41 @@ const PurchaseDialog = ({
     if (!token || !ssovContractWithSigner) return;
     (async function () {
       const finalAmount = state.totalCost;
-
-      const userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]])
-        : await token.balanceOf(accountAddress);
-
-      setUserTokenBalance(userAmount);
-
-      let allowance = IS_NATIVE(token)
-        ? BigNumber.from(0)
-        : await token.allowance(accountAddress, ssovContractWithSigner.address);
-
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        if (IS_NATIVE(token)) {
+      if (isPut) {
+        const _token = ERC20__factory.connect(
+          '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
+          provider
+        );
+        const allowance = await _token.allowance(accountAddress, spender);
+        if (finalAmount.lte(allowance)) {
           setApproved(true);
         } else {
           setApproved(false);
+        }
+      } else {
+        const userAmount = IS_NATIVE(token)
+          ? BigNumber.from(
+              userAssetBalances[CURRENCIES_MAP[chainId.toString()]]
+            )
+          : await token.balanceOf(accountAddress);
+
+        setUserTokenBalance(userAmount);
+
+        let allowance = IS_NATIVE(token)
+          ? BigNumber.from(0)
+          : await token.allowance(
+              accountAddress,
+              ssovContractWithSigner.address
+            );
+
+        if (finalAmount.lte(allowance) && !allowance.eq(0)) {
+          setApproved(true);
+        } else {
+          if (IS_NATIVE(token)) {
+            setApproved(true);
+          } else {
+            setApproved(false);
+          }
         }
       }
     })();
@@ -784,7 +801,11 @@ const PurchaseDialog = ({
     state.totalCost,
     token,
     ssovContractWithSigner,
-    userAssetBalances.ETH,
+    userAssetBalances,
+    chainId,
+    isPut,
+    provider,
+    spender,
   ]);
 
   useEffect(() => {
