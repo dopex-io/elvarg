@@ -30,6 +30,7 @@ import { SSOV_MAP } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import isNativeSsov from 'utils/contracts/isNativeSsov';
 import getTotalEpochPremium from 'utils/contracts/ssov-p/getTotalEpochPremium';
+import isZeroAddress from 'utils/contracts/isZeroAddress';
 
 export interface Ssov {
   token: string;
@@ -68,7 +69,7 @@ export interface SsovUserData {
   userEpochDeposits: string;
   epochStrikeTokens: ERC20[];
   userEpochStrikeDeposits: BigNumber[];
-  userEpochCallsPurchased: BigNumber[];
+  userEpochOptionsPurchased: BigNumber[];
 }
 
 interface SsovContextInterface {
@@ -87,7 +88,7 @@ interface SsovContextInterface {
 const initialSsovUserData = {
   userEpochStrikeDeposits: [],
   userEpochDeposits: '0',
-  userEpochCallsPurchased: [],
+  userEpochOptionsPurchased: [],
   epochStrikeTokens: [],
 };
 
@@ -124,28 +125,35 @@ export const SsovProvider = (props) => {
   const updateSsovUserData = useCallback(async () => {
     if (!contractAddresses || !accountAddress || !selectedEpoch) return;
 
-    const SSOVAddresses = contractAddresses.SSOV;
+    const ssovAddresses =
+      contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
+        selectedSsov.token
+      ];
 
     let _ssovUserData;
 
     const ssovContract =
-      selectedSsov.token === 'ETH'
-        ? NativeSSOV__factory.connect(
-            SSOVAddresses[selectedSsov.token].Vault,
-            provider
-          )
-        : ERC20SSOV__factory.connect(
-            SSOVAddresses[selectedSsov.token].Vault,
-            provider
-          );
+      selectedSsov.type === 'PUT'
+        ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, provider)
+        : isNativeSsov(selectedSsov.token)
+        ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
+        : ERC20SSOV__factory.connect(ssovAddresses.Vault, provider);
 
     const [
       userEpochStrikeDeposits,
-      userEpochCallsPurchased,
+      userEpochOptionsPurchased,
       epochStrikeTokens,
     ] = await Promise.all([
       ssovContract.getUserEpochDeposits(selectedEpoch, accountAddress),
-      ssovContract.getUserEpochCallsPurchased(selectedEpoch, accountAddress),
+      selectedSsov.type === 'PUT'
+        ? (ssovContract as Curve2PoolSsovPut).getUserEpochPutsPurchased(
+            selectedEpoch,
+            accountAddress
+          )
+        : (ssovContract as ERC20SSOV).getUserEpochCallsPurchased(
+            selectedEpoch,
+            accountAddress
+          ),
       ssovContract.getEpochStrikeTokens(selectedEpoch),
     ]);
 
@@ -157,11 +165,11 @@ export const SsovProvider = (props) => {
       .toString();
 
     _ssovUserData = {
-      userEpochStrikeDeposits: userEpochStrikeDeposits,
-      userEpochCallsPurchased: userEpochCallsPurchased,
-      epochStrikeTokens: epochStrikeTokens.map((token) =>
-        ERC20__factory.connect(token, provider)
-      ),
+      userEpochStrikeDeposits,
+      userEpochOptionsPurchased,
+      epochStrikeTokens: epochStrikeTokens
+        .filter((token) => !isZeroAddress(token))
+        .map((token) => ERC20__factory.connect(token, provider)),
       userEpochDeposits: userEpochDeposits,
     };
 
@@ -171,7 +179,7 @@ export const SsovProvider = (props) => {
     contractAddresses,
     provider,
     selectedEpoch,
-    selectedSsov.token,
+    selectedSsov,
   ]);
 
   const updateSsovEpochData = useCallback(async () => {

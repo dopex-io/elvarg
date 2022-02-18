@@ -42,7 +42,7 @@ const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
   const { accountAddress } = useContext(WalletContext);
-  const { selectedSsov, ssovUserData, ssovData, ssovEpochData, selectedEpoch } =
+  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch } =
     useContext(SsovContext);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
@@ -52,7 +52,6 @@ const ExerciseList = () => {
 
   const { currentEpoch, tokenPrice, tokenName } = ssovData;
   const {
-    isVaultReady,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
@@ -61,7 +60,7 @@ const ExerciseList = () => {
   const {
     epochStrikeTokens,
     userEpochStrikeDeposits,
-    userEpochCallsPurchased,
+    userEpochOptionsPurchased,
   } = ssovUserData;
 
   const handleChangePage = (
@@ -70,18 +69,19 @@ const ExerciseList = () => {
   ) => setPage(newPage);
 
   useEffect(() => {
-    if (!accountAddress || !isVaultReady || !(epochStrikeTokens.length > 0))
-      return;
+    if (!accountAddress) return;
 
     (async function () {
-      const userEpochStrikeTokenBalanceArray = await Promise.all(
-        epochStrikeTokens
-          .map((token) => {
-            if (isZeroAddress(token.address)) return null;
-            return token.balanceOf(accountAddress);
-          })
-          .filter((c) => c)
-      );
+      const userEpochStrikeTokenBalanceArray = epochStrikeTokens.length
+        ? await Promise.all(
+            epochStrikeTokens
+              .map((token) => {
+                if (isZeroAddress(token.address)) return null;
+                return token.balanceOf(accountAddress);
+              })
+              .filter((c) => c)
+          )
+        : [];
 
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
@@ -89,26 +89,32 @@ const ExerciseList = () => {
           tokenName === 'BNB'
             ? getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 8)
             : getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 18);
+
         const purchasedAmount = getUserReadableAmount(
-          userEpochCallsPurchased[strikeIndex],
+          userEpochOptionsPurchased[strikeIndex],
           18
         );
-        const settleableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
+        const settleableAmount =
+          userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
         const isSettleable =
           settleableAmount.gt(0) && settlementPrice.gt(strike);
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
           ? tokenPrice
               .sub(strike)
-              .mul(userEpochCallsPurchased[strikeIndex])
+              .mul(userEpochOptionsPurchased[strikeIndex])
               .div(tokenPrice)
           : settlementPrice
               .sub(strike)
-              .mul(userEpochCallsPurchased[strikeIndex])
+              .mul(userEpochOptionsPurchased[strikeIndex])
               .div(settlementPrice);
         const totalPremiumsEarned = userEpochStrikeDeposits[strikeIndex]
           .mul(totalEpochPremium[strikeIndex])
-          .div(totalEpochStrikeDeposits[strikeIndex]);
+          .div(
+            totalEpochStrikeDeposits[strikeIndex].isZero()
+              ? BigNumber.from(1)
+              : totalEpochStrikeDeposits[strikeIndex]
+          );
 
         return {
           strikeIndex,
@@ -134,18 +140,17 @@ const ExerciseList = () => {
     totalEpochStrikeDeposits,
     totalEpochPremium,
     userEpochStrikeDeposits,
-    userEpochCallsPurchased,
+    userEpochOptionsPurchased,
     tokenPrice,
-    isVaultReady,
     settlementPrice,
     tokenName,
   ]);
 
-  return selectedEpoch > 0 && isVaultReady ? (
+  return selectedEpoch > 0 ? (
     <Box className="bg-cod-gray w-full p-4 rounded-xl">
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
-          Your Exercisable Options
+          Your Options & Deposits
         </Typography>
         <Typography variant="h6" className="text-stieglitz">
           Epoch {selectedEpoch}
