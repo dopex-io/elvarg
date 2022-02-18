@@ -553,6 +553,7 @@ const PurchaseDialog = ({
     tokenName,
     strikeIndex,
     isZapActive,
+    isPut,
   ]);
 
   const checkDEXAggregatorStatus = async () => {
