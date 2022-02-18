@@ -875,14 +875,18 @@ const PurchaseDialog = ({
               />
             </Box>
           </Box>
-          <Box
-            className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
-            onClick={setMaxAmount}
-          >
-            <Typography variant="caption" component="div">
-              <span className="text-stieglitz pl-2.5 pr-2.5">MAX</span>
-            </Typography>
-          </Box>
+          {!isPut ? (
+            <Box
+              className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
+              onClick={setMaxAmount}
+            >
+              <Typography variant="caption" component="div">
+                <span className="text-stieglitz pl-2.5 pr-2.5">MAX</span>
+              </Typography>
+            </Box>
+          ) : (
+            ''
+          )}
           <Input
             disableUnderline
             id="optionsAmount"
