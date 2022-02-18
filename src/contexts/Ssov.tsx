@@ -79,7 +79,7 @@ interface SsovContextInterface {
   ssovSigner: SsovSigner;
   selectedEpoch?: number;
   selectedSsov?: Ssov;
-  updateSsovData?: Function;
+  updateSsovEpochData?: Function;
   updateSsovUserData?: Function;
   setSelectedSsov?: Function;
   setSelectedEpoch?: Function;

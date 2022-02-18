@@ -78,7 +78,7 @@ const PurchaseDialog = ({
   ssovUserData,
   ssovEpochData,
 }: Props) => {
-  const { updateSsovData, updateSsovUserData, selectedSsov, ssovSigner } =
+  const { updateSsovEpochData, updateSsovUserData, selectedSsov, ssovSigner } =
     useContext(SsovContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -331,7 +331,10 @@ const PurchaseDialog = ({
         : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
 
-    if (!quote['toToken']) return;
+    if (!quote['toToken']) {
+      setIsFetchingPath(false);
+      return;
+    }
 
     let amount: number =
       parseInt(state.totalCost.toString()) /
@@ -364,6 +367,7 @@ const PurchaseDialog = ({
         }
       } catch (err) {
         console.log(err);
+        setIsFetchingPath(false);
         break;
       }
       attempts += 1;
@@ -465,6 +469,7 @@ const PurchaseDialog = ({
           );
           ``;
         } else {
+          console.log('lal');
           await sendTx(
             ssovContractWithSigner.purchase(
               strikeIndex,
@@ -474,11 +479,7 @@ const PurchaseDialog = ({
           );
         }
       } else {
-        let bestPath = await getPath();
-        if (!bestPath) {
-          setIsFetchingPath(false);
-          return;
-        }
+        const bestPath = await getPath();
 
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
@@ -537,16 +538,20 @@ const PurchaseDialog = ({
       }
 
       setRawOptionsAmount('0');
-      updateSsovData();
+      updateSsovEpochData();
       updateSsovUserData();
       updateAssetBalances();
     } catch (err) {
       console.log(err);
+      setRawOptionsAmount('0');
+      updateSsovEpochData();
+      updateSsovUserData();
+      updateAssetBalances();
     }
   }, [
     state.totalCost,
     ssovContractWithSigner,
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     updateAssetBalances,
     accountAddress,
@@ -584,14 +589,29 @@ const PurchaseDialog = ({
   // Updates approved state
   useEffect(() => {
     (async () => {
-      if (!purchasePower) return;
-      if (IS_NATIVE(token)) {
-        setApproved(true);
+      if (isPut) {
+        const tokenToPay =
+          tokenName === ssovTokenName
+            ? ERC20__factory.connect(Addresses[chainId]['2CRV'], signer)
+            : token;
+        if (IS_NATIVE(tokenToPay)) {
+          setApproved(true);
+        } else {
+          const allowance = parseInt(
+            (await tokenToPay.allowance(accountAddress, spender)).toString()
+          );
+          setApproved(allowance > 0);
+        }
       } else {
-        const allowance = parseInt(
-          (await token.allowance(accountAddress, spender)).toString()
-        );
-        setApproved(allowance > 0);
+        if (!purchasePower) return;
+        if (IS_NATIVE(token)) {
+          setApproved(true);
+        } else {
+          const allowance = parseInt(
+            (await token.allowance(accountAddress, spender)).toString()
+          );
+          setApproved(allowance > 0);
+        }
       }
     })();
   }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
@@ -760,9 +780,13 @@ const PurchaseDialog = ({
       const finalAmount = state.totalCost;
       if (isPut) {
         const _token = ERC20__factory.connect(
-          '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
+          Addresses[chainId]['2CRV'],
           provider
         );
+
+        const userAmount = await _token.balanceOf(accountAddress);
+        setUserTokenBalance(userAmount);
+
         const allowance = await _token.allowance(accountAddress, spender);
         if (finalAmount.lte(allowance)) {
           setApproved(true);
@@ -899,12 +923,15 @@ const PurchaseDialog = ({
             <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
               <PnlChart
                 breakEven={
-                  Number(strikes[strikeIndex]) +
-                  getUserReadableAmount(state.optionPrice, 8)
+                  isPut
+                    ? Number(strikes[strikeIndex]) -
+                      getUserReadableAmount(state.optionPrice, 8)
+                    : Number(strikes[strikeIndex]) +
+                      getUserReadableAmount(state.optionPrice, 8)
                 }
                 optionPrice={getUserReadableAmount(state.optionPrice, 8)}
                 amount={optionsAmount}
-                isPut={false}
+                isPut={isPut}
                 price={getUserReadableAmount(tokenPrice, 8)}
                 symbol={ssovTokenSymbol}
               />
@@ -989,11 +1016,17 @@ const PurchaseDialog = ({
                       className="text-white mr-auto ml-0"
                     >
                       $
-                      {formatAmount(
-                        Number(strikes[strikeIndex]) +
-                          getUserReadableAmount(state.optionPrice, 8),
-                        2
-                      )}
+                      {isPut
+                        ? formatAmount(
+                            Number(strikes[strikeIndex]) -
+                              getUserReadableAmount(state.optionPrice, 8),
+                            2
+                          )
+                        : formatAmount(
+                            Number(strikes[strikeIndex]) +
+                              getUserReadableAmount(state.optionPrice, 8),
+                            2
+                          )}
                     </Typography>
                   </Box>
                 </Box>
@@ -1188,6 +1221,7 @@ const PurchaseDialog = ({
             and can be settled anytime after expiry.
           </Typography>
         </Box>
+
         <CustomButton
           size="medium"
           className="w-full mt-4 !rounded-md"
@@ -1196,6 +1230,7 @@ const PurchaseDialog = ({
             isFetchingPath ||
             !isPurchasePowerEnough ||
             isPurchaseStatsLoading ||
+            getUserReadableAmount(state.totalCost, 18) > purchasePower ||
             !isLiquidityEnough
               ? 'mineshaft'
               : 'primary'
@@ -1205,7 +1240,8 @@ const PurchaseDialog = ({
             !!isPurchaseStatsLoading ||
             isFetchingPath ||
             !isPurchasePowerEnough ||
-            !isLiquidityEnough
+            !isLiquidityEnough ||
+            getUserReadableAmount(state.totalCost, 18) > purchasePower
           }
           onClick={
             optionsAmount > 0 && isPurchasePowerEnough
@@ -1217,21 +1253,19 @@ const PurchaseDialog = ({
               : null
           }
         >
-          {!isPut
-            ? isPurchaseStatsLoading
-              ? 'Loading prices...'
-              : optionsAmount > 0
-              ? isFetchingPath
-                ? 'Purchase'
-                : getUserReadableAmount(state.totalCost, 18) > purchasePower
-                ? 'Insufficient balance'
-                : approved
-                ? userEpochStrikePurchasableAmount < optionsAmount
-                  ? 'Not enough liquidity'
-                  : 'Purchase'
-                : 'Approve'
-              : 'Enter an amount'
-            : 'Purchase'}
+          {isPurchaseStatsLoading
+            ? 'Loading prices...'
+            : optionsAmount > 0
+            ? isFetchingPath
+              ? 'Purchase'
+              : getUserReadableAmount(state.totalCost, 18) > purchasePower
+              ? 'Insufficient balance'
+              : approved
+              ? userEpochStrikePurchasableAmount < optionsAmount
+                ? 'Not enough liquidity'
+                : 'Purchase'
+              : 'Approve'
+            : 'Enter an amount'}
         </CustomButton>
       </Box>
       <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>
