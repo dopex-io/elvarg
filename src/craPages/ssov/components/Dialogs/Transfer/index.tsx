@@ -27,7 +27,7 @@ export interface Props {
 
 const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const {
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     ssovEpochData,
     ssovUserData,
@@ -99,7 +99,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
           .connect(signer)
           .transfer(recipient, ethersUtils.parseEther(String(transferAmount)))
       );
-      updateSsovData();
+      updateSsovEpochData();
       updateSsovUserData();
       updateUserEpochStrikeTokenBalance();
       setTransferAmount('0');
@@ -111,7 +111,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     accountAddress,
     epochStrikeToken,
     recipient,
-    updateSsovData,
+    updateSsovEpochData,
     updateUserEpochStrikeTokenBalance,
     updateSsovUserData,
     signer,

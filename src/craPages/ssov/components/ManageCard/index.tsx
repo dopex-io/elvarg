@@ -93,7 +93,7 @@ const ManageCard = () => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const {
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     ssovData,
     ssovEpochData,
@@ -567,7 +567,7 @@ const ManageCard = () => {
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
-      updateSsovData();
+      updateSsovEpochData();
       updateSsovUserData();
     } catch (err) {
       console.log(err);
@@ -576,7 +576,7 @@ const ManageCard = () => {
     selectedStrikeIndexes,
     ssovContractWithSigner,
     contractReadableStrikeDepositAmounts,
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     updateAssetBalances,
     accountAddress,
