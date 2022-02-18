@@ -46,6 +46,7 @@ const Manage = () => {
               ssovData={ssovData}
               ssovEpochData={ssovEpochData}
               ssovUserData={ssovUserData}
+              type={selectedSsov.type}
             />
             <ManageCard />
           </Box>

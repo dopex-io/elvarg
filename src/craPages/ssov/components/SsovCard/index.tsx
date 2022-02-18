@@ -68,13 +68,13 @@ function SsovCard(props) {
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h5" className="mr-2">
-                {name} SSOV
+                {name}
               </Typography>
               <Typography
                 variant="h5"
                 component="div"
                 className={cx(
-                  'capitalize px-2 py-1 rounded-md',
+                  'capitalize px-2 py-1 rounded-md text-cod-gray',
                   type === 'put' ? 'bg-down-bad' : 'bg-emerald-500'
                 )}
               >
