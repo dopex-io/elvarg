@@ -88,7 +88,7 @@ function TabPanel(props) {
 }
 
 const ManageCard = () => {
-  const { accountAddress, chainId, provider, signer } =
+  const { accountAddress, chainId, provider, signer, contractAddresses } =
     useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -262,8 +262,9 @@ const ManageCard = () => {
   }, [strikeDepositAmounts]);
 
   const isPurchasePowerEnough = useMemo(() => {
+    if (isPut) return true;
     return purchasePower >= totalDepositAmount;
-  }, [purchasePower, totalDepositAmount]);
+  }, [purchasePower, totalDepositAmount, isPut]);
 
   const openZapIn = () => {
     if (isZapActive) {
@@ -368,16 +369,24 @@ const ManageCard = () => {
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
-        ERC20__factory.connect(token.address, signer).approve(
-          spender,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(
+          isPut ? contractAddresses[depositTokenName] : token.address,
+          signer
+        ).approve(spender, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [token, sendTx, signer, spender]);
+  }, [
+    token,
+    sendTx,
+    signer,
+    spender,
+    contractAddresses,
+    isPut,
+    depositTokenName,
+  ]);
 
   const handlePutDeposit = useCallback(async () => {
     try {
@@ -386,23 +395,21 @@ const ManageCard = () => {
           contractReadableStrikeDepositAmounts[index] &&
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
-      if (denominationTokenName === '2CRV') {
+      if (depositTokenName === '2CRV') {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getDecimalsFromSymbol(denominationTokenName, chainId)
+                getTokenDecimals(depositTokenName)
               )
             ),
             accountAddress
           )
         );
-      } else if (
-        denominationTokenName === 'USDT' ||
-        denominationTokenName === 'USDC'
-      ) {
+      } else if (depositTokenName === 'USDT' || depositTokenName === 'USDC') {
+        console.log('Asda');
         const curve2PoolSsovPut1inchRouter =
           Curve2PoolSsovPut1inchRouter__factory.connect(
             '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
@@ -413,9 +420,9 @@ const ManageCard = () => {
           curve2PoolSsovPut1inchRouter.swapAndDepositMultipleFromSingle(
             getContractReadableAmount(
               totalDepositAmount,
-              getDecimalsFromSymbol(denominationTokenName, chainId)
+              getTokenDecimals(depositTokenName)
             ),
-            Addresses[chainId][depositTokenName],
+            contractAddresses[depositTokenName],
             strikeIndexes,
             strikeIndexes.map((index) =>
               ethers.utils
@@ -429,7 +436,7 @@ const ManageCard = () => {
                 )
             ),
             accountAddress,
-            ssovData.ssovContract
+            ssovData.ssovContract.address
           )
         );
       }
@@ -441,10 +448,9 @@ const ManageCard = () => {
       console.log(err);
     }
   }, [
+    contractAddresses,
     accountAddress,
-    chainId,
     contractReadableStrikeDepositAmounts,
-    denominationTokenName,
     depositTokenName,
     selectedStrikeIndexes,
     sendTx,
@@ -634,10 +640,15 @@ const ManageCard = () => {
     (async () => {
       const finalAmount: BigNumber = getContractReadableAmount(
         totalDepositAmount.toString(),
-        getDecimalsFromSymbol(ssovTokenName, chainId)
+        getTokenDecimals(ssovTokenName)
       );
-
-      if (IS_NATIVE(token)) {
+      if (isPut) {
+        const allowance: BigNumber = await ERC20__factory.connect(
+          contractAddresses[depositTokenName],
+          signer
+        ).allowance(accountAddress, spender);
+        setApproved(allowance.gte(finalAmount));
+      } else if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
         const allowance: BigNumber = await token.allowance(
@@ -653,47 +664,25 @@ const ManageCard = () => {
     ssovContractWithSigner,
     approved,
     totalDepositAmount,
+    contractAddresses,
+    depositTokenName,
+    isPut,
+    spender,
+    signer,
+    ssovTokenName,
   ]);
 
-  // Handles isApproved
+  // Updates user token balance
   useEffect(() => {
-    if (!token || !ssovContractWithSigner || !accountAddress) return;
+    if (!token || !accountAddress) return;
     (async function () {
-      const finalAmount = getContractReadableAmount(
-        totalDepositAmount.toString(),
-        getTokenDecimals(ssovTokenName)
-      );
-
       let userAmount = IS_NATIVE(token)
         ? BigNumber.from(userAssetBalances.ETH)
         : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
-
-      let allowance = IS_NATIVE(token)
-        ? BigNumber.from(0)
-        : await token.allowance(accountAddress, spender);
-
-      if (finalAmount.lte(allowance) && !allowance.eq(0)) {
-        setApproved(true);
-      } else {
-        if (IS_NATIVE(token)) {
-          setApproved(true);
-        } else {
-          setApproved(false);
-        }
-      }
     })();
-  }, [
-    spender,
-    accountAddress,
-    totalDepositAmount,
-    token,
-    ssovContractWithSigner,
-    userAssetBalances.ETH,
-    tokenName,
-    ssovTokenName,
-  ]);
+  }, [accountAddress, token, userAssetBalances.ETH, ssovTokenName]);
 
   const userBalance = useMemo(() => {
     {
@@ -1108,7 +1097,13 @@ const ManageCard = () => {
                     totalDepositAmount <= 0 ||
                     path['error']
                   }
-                  onClick={approved ? handleDeposit : handleApprove}
+                  onClick={
+                    approved
+                      ? isPut
+                        ? handlePutDeposit
+                        : handleDeposit
+                      : handleApprove
+                  }
                 >
                   {!isDepositWindowOpen && isVaultReady && (
                     <Countdown
