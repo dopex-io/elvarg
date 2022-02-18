@@ -21,7 +21,7 @@ import styles from './styles.module.scss';
 
 const Withdraw = () => {
   const {
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     ssovEpochData,
     ssovData,
@@ -86,7 +86,7 @@ const Withdraw = () => {
     async (index) => {
       try {
         await sendTx(ssovContractWithSigner.withdraw(selectedEpoch, index));
-        updateSsovData();
+        updateSsovEpochData();
         updateSsovUserData();
       } catch (err) {
         console.log(err);
@@ -96,7 +96,7 @@ const Withdraw = () => {
     [
       ssovContractWithSigner,
       selectedEpoch,
-      updateSsovData,
+      updateSsovEpochData,
       updateSsovUserData,
       updateAssetBalances,
       sendTx,
