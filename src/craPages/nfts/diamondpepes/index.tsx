@@ -14,6 +14,7 @@ import {
   UniswapPair__factory,
   Addresses,
 } from '@dopex-io/sdk';
+import useSendTx from 'hooks/useSendTx';
 import { WalletContext } from '../../../contexts/Wallet';
 import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
 import Countdown from 'react-countdown';
@@ -25,50 +26,59 @@ const DiamondPepesNfts = () => {
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
-  const [isPurchaseDialogVisible, setIsPurchaseDialogVisible] =
+  const [purchaseDialogVisibleTab, setPurchaseDialogVisibleTab] =
+    useState<string>('hidden');
+  const [isMintDialogVisible, setIsMintDialogVisible] =
     useState<boolean>(false);
-  const pepeContract = DiamondPepeNFTs__factory.connect(
-    '0x3429d0b92e051d3ca10C01Ef8fa4dfEB7ECB5ce3',
+  const yieldMint = DiamondPepeNFTs__factory.connect(
+    Addresses[chainId]['DiamondPepesNFTMint'],
     provider
   );
+  const sendTx = useSendTx();
 
   const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
-    const isDepositPeriod = await pepeContract.depositPeriod();
-    const isFarmingPeriod = await pepeContract.farmingPeriod();
-    const maxLpDeposits = await pepeContract.maxLpDeposits();
-    const mintPrice = await pepeContract.mintPrice();
-    const totalDeposits = await pepeContract.totalDeposits();
-
     const lp = UniswapPair__factory.connect(
       Addresses[chainId]['RDPX-WETH'],
       provider
     );
-    const lpReserves = await lp.getReserves();
-    const lpTotalSupply = await lp.totalSupply();
+
+    const [
+      isDepositPeriod,
+      isFarmingPeriod,
+      maxLpDeposits,
+      mintPrice,
+      totalDeposits,
+      lpReserves,
+      lpTotalSupply,
+    ] = await Promise.all([
+      yieldMint.depositPeriod(),
+      yieldMint.farmingPeriod(),
+      yieldMint.maxLpDeposits(),
+      yieldMint.mintPrice(),
+      yieldMint.totalDeposits(),
+      lp.getReserves(),
+      lp.totalSupply(),
+    ]);
 
     setData({
       lpReserves: lpReserves,
       lpSupply: lpTotalSupply,
       isDepositPeriod: isDepositPeriod,
-      isFarmingPeriod: isFarmingPeriod,
+      isFarmingPeriod: true,
       maxLpDeposits: maxLpDeposits,
       mintPrice: mintPrice,
       totalDeposits: totalDeposits,
     });
   }, [provider, contractAddresses]);
 
-  console.log(data);
-
   const updateUserData = useCallback(async () => {
     if (!provider || !contractAddresses || !DiamondPepeNFTs__factory) return;
 
-    const pepeContract = DiamondPepeNFTs__factory.connect(
-      '0x3429d0b92e051d3ca10C01Ef8fa4dfEB7ECB5ce3',
-      provider
-    );
-    const deposits = await pepeContract.usersDeposit(accountAddress);
-    const minted = await pepeContract.didUserMint(accountAddress);
+    const [deposits, minted] = await Promise.all([
+      yieldMint.usersDeposit(accountAddress),
+      yieldMint.didUserMint(accountAddress),
+    ]);
 
     setUserData({ deposits: deposits, minted: minted });
   }, [accountAddress, provider, contractAddresses]);
@@ -80,10 +90,6 @@ const DiamondPepesNfts = () => {
   useEffect(() => {
     updateUserData();
   }, [updateUserData]);
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   const timeRemaining = useMemo(() => {
     if (!data.isDepositPeriod) return <span>-</span>;
@@ -125,22 +131,35 @@ const DiamondPepesNfts = () => {
     },
   ];
 
+  const handleWithdraw = useCallback(async () => {
+    try {
+      await sendTx(yieldMint.connect(signer).withdraw());
+      await updateData();
+      await updateUserData();
+    } catch (err) {
+      console.log(err);
+    }
+  }, [accountAddress]);
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
         <title>Diamond Pepes NFTs | Dopex</title>
       </Head>
       <PurchaseDialog
-        pepeContract={pepeContract}
+        yieldMint={yieldMint}
         timeRemaining={timeRemaining}
-        open={isPurchaseDialogVisible}
+        open={purchaseDialogVisibleTab != 'hidden'}
         handleClose={
           (() => {
-            setIsPurchaseDialogVisible(false);
+            setPurchaseDialogVisibleTab('hidden');
           }) as any
         }
+        tab={purchaseDialogVisibleTab}
         userData={userData}
         data={data}
+        updateData={updateData}
+        updateUserData={updateUserData}
       />
       <Box>
         <Box className={styles.backgroundOverlay} />
@@ -216,7 +235,7 @@ const DiamondPepesNfts = () => {
               <Box className="ml-5 mb-5 md:mt-10 md:mb-0">
                 <button
                   className={styles.pepeButton}
-                  onClick={() => setIsPurchaseDialogVisible(true)}
+                  onClick={() => setPurchaseDialogVisibleTab('deposit')}
                   disabled={!data.isDepositPeriod}
                 >
                   Deposit
@@ -249,8 +268,12 @@ const DiamondPepesNfts = () => {
 
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
                 <Tooltip title={'Not open yet'}>
-                  <button className={styles.pepeButton} disabled>
-                    2/4/2022
+                  <button
+                    className={styles.pepeButton}
+                    onClick={() => setPurchaseDialogVisibleTab('mint')}
+                    disabled={!data.isFarmingPeriod}
+                  >
+                    {data.isFarmingPeriod ? 'Mint' : '2/4/2022'}
                   </button>
                 </Tooltip>
               </Box>
@@ -280,8 +303,14 @@ const DiamondPepesNfts = () => {
 
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
                 <Tooltip title={'Not open yet'}>
-                  <button className={styles.pepeButton} disabled>
-                    3/3/2022
+                  <button
+                    className={styles.pepeButton}
+                    disabled={!(!data.isFarmingPeriod && userData.minted)}
+                    onClick={handleWithdraw}
+                  >
+                    {!(!data.isFarmingPeriod && userData.minted)
+                      ? '3/3/2022'
+                      : 'Withdraw'}
                   </button>
                 </Tooltip>
               </Box>

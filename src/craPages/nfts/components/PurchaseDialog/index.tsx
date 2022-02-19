@@ -70,19 +70,25 @@ import ZapIcon from '../../../../components/Icons/ZapIcon';
 export interface Props {
   open: boolean;
   handleClose: () => {};
+  tab: string;
   data: Data;
   userData: UserData;
   timeRemaining: JSX.Element;
-  pepeContract: DiamondPepeNFTs;
+  yieldMint: DiamondPepeNFTs;
+  updateData: () => {};
+  updateUserData: () => {};
 }
 
 const PurchaseDialog = ({
   open,
   handleClose,
   data,
+  tab,
   userData,
   timeRemaining,
-  pepeContract,
+  yieldMint,
+  updateData,
+  updateUserData,
 }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -96,7 +102,7 @@ const PurchaseDialog = ({
     : null;
   const diamondPepeNfts1inchRouter =
     DiamondPepeNFTs1inchRouter__factory.connect(
-      Addresses[chainId]['1inchRouter'],
+      Addresses[chainId]['DiamondPepesNFT1inchRouter'],
       signer
     );
   const baseTokenName: string = 'SLP';
@@ -127,9 +133,16 @@ const PurchaseDialog = ({
     );
   }, [tokenName, baseTokenName, path]);
 
+  const pepeReserved: number = useMemo(() => {
+    return 1;
+    return data.mintPrice.gt(0)
+      ? Math.floor(Number(userData.deposits.div(data.mintPrice).toString()))
+      : 0;
+  }, [data, userData]);
+
   const spender: string = useMemo(
     () =>
-      isZapActive ? diamondPepeNfts1inchRouter.address : pepeContract.address,
+      isZapActive ? diamondPepeNfts1inchRouter.address : yieldMint.address,
     [isZapActive]
   );
 
@@ -320,6 +333,10 @@ const PurchaseDialog = ({
 
   const [activeTab, setActiveTab] = useState<string>('deposit');
 
+  useEffect(() => {
+    if (['mint', 'withdraw'].includes(tab)) setActiveTab(tab);
+  }, [tab]);
+
   const activeIndex: number = useMemo(() => {
     if (isZapInVisible) return 2;
     else {
@@ -342,17 +359,27 @@ const PurchaseDialog = ({
     }
   }, [token, signer, sendTx, spender]);
 
+  const handleMint = useCallback(async () => {
+    try {
+      await sendTx(yieldMint.connect(signer).claimMint());
+      await updateData();
+      await updateUserData();
+    } catch (err) {
+      console.log(err);
+    }
+  }, [accountAddress]);
+
   const handlePurchase = useCallback(async () => {
     try {
       if (baseTokenName === tokenName) {
         await sendTx(
-          pepeContract
+          yieldMint
             .connect(signer)
             .depositLP(getContractReadableAmount(amount, 18))
         );
       } else if (IS_NATIVE(token)) {
         await sendTx(
-          pepeContract
+          yieldMint
             .connect(signer)
             .depositWeth({ value: getContractReadableAmount(amount, 18) })
         );
@@ -370,6 +397,8 @@ const PurchaseDialog = ({
 
       setRawAmount('0');
       updateAssetBalances();
+      await updateData();
+      await updateUserData();
     } catch (err) {
       console.log(err);
     }
@@ -481,15 +510,15 @@ const PurchaseDialog = ({
       </Box>
 
       <Tabs activeIndex={activeIndex} panelIscroll={false}>
-        {['deposit', 'withdraw', 'mint'].includes(activeTab) && (
+        {['deposit', 'mint'].includes(activeTab) && (
           <Box className={isZapInVisible ? 'hidden' : 'flex'}>
             <Box className={'w-full'}>
               <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md">
                 <Box
                   className={
                     activeTab === 'deposit'
-                      ? 'text-center w-1/3 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
-                      : 'text-center w-1/3 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                      ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
+                      : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   }
                   onClick={() => setActiveTab('deposit')}
                 >
@@ -504,30 +533,12 @@ const PurchaseDialog = ({
                     Deposit
                   </Typography>
                 </Box>
-                <Box
-                  className={
-                    activeTab === 'withdraw'
-                      ? 'text-center w-1/3 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                      : 'text-center w-1/3 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                  }
-                  onClick={() => setActiveTab('withdraw')}
-                >
-                  <Typography
-                    variant="h6"
-                    className={
-                      activeTab === 'withdraw'
-                        ? 'text-xs font-normal'
-                        : 'text-[#78859E] text-xs font-normal'
-                    }
-                  >
-                    Withdraw
-                  </Typography>
-                </Box>
+
                 <Box
                   className={
                     activeTab === 'mint'
-                      ? 'text-center w-1/3 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                      : 'text-center w-1/3 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                      ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
+                      : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   }
                   onClick={() => setActiveTab('mint')}
                 >
@@ -680,11 +691,14 @@ const PurchaseDialog = ({
                 <Box className="rounded-tr-xl flex flex-col p-3 border border-[#232935] w-full">
                   {obtainableLP === 0 ? (
                     <Typography variant="h5" className="text-white pb-1 pr-2">
-                      {formatAmount(
-                        (100 * getUserReadableAmount(userData.deposits, 18)) /
-                          getUserReadableAmount(data.totalDeposits, 18),
-                        2
-                      )}
+                      {data.totalDeposits.gt(0)
+                        ? formatAmount(
+                            (100 *
+                              getUserReadableAmount(userData.deposits, 18)) /
+                              getUserReadableAmount(data.totalDeposits, 18),
+                            2
+                          )
+                        : 0}
                       %
                     </Typography>
                   ) : (
@@ -697,13 +711,15 @@ const PurchaseDialog = ({
                         variant="h5"
                         className="text-[#22E1FF] pb-1 pr-2"
                       >
-                        {formatAmount(
-                          (100 *
-                            (getUserReadableAmount(userData.deposits, 18) +
-                              obtainableLP)) /
-                            getUserReadableAmount(data.totalDeposits, 18),
-                          2
-                        )}
+                        {userData.deposits.gt(0)
+                          ? formatAmount(
+                              (100 *
+                                (getUserReadableAmount(userData.deposits, 18) +
+                                  obtainableLP)) /
+                                getUserReadableAmount(data.totalDeposits, 18),
+                              2
+                            )
+                          : '0'}
                         %
                       </Typography>
                     </Box>
@@ -819,11 +835,97 @@ const PurchaseDialog = ({
               <CustomButton
                 size="medium"
                 className={styles.pepeButton}
-                disabled={amount <= 0 || isFetchingPath}
+                disabled={
+                  amount <= 0 || isFetchingPath || !data.isDepositPeriod
+                }
                 onClick={approved ? handlePurchase : handleApprove}
               >
                 <Typography variant="h5" className={styles.pepeButtonText}>
-                  {approved ? 'PURCHASE' : 'APPROVE'}
+                  {data.isDepositPeriod
+                    ? approved
+                      ? 'PURCHASE'
+                      : 'APPROVE'
+                    : 'DEPOSIT PERIOD IS EXPIRED'}
+                </Typography>
+              </CustomButton>
+            </Box>
+          </Panel>
+          <Panel>
+            <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
+              <Box className="flex flex-row justify-between mb-2">
+                <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
+                  {userData.minted ? 'Minted:' : 'Reserved:'}{' '}
+                  <span className="text-white">{pepeReserved}</span>
+                </Typography>
+              </Box>
+              <Box className="h-[17rem] overflow-y-auto overflow-x-hidden">
+                {Array.from({ length: pepeReserved }, (_, i) => (
+                  <Box className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md">
+                    <img
+                      src={'/assets/diamondpepe.png'}
+                      className={'w-[4rem] m-2 rounded-md'}
+                    />
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        className="text-white ml-2 mt-4 font-bold"
+                      >
+                        Diamond Pepe
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        className="text-white ml-2 mt-1 font-bold"
+                      >
+                        # ?
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
+            <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-12">
+              <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
+                <Box className={'flex mb-3'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    To receive
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {userData.minted ? 0 : pepeReserved}
+                    </Typography>
+                  </Box>
+                </Box>
+                <EstimatedGasCostButton gas={2000000} chainId={chainId} />
+              </Box>
+
+              <Box className="flex mb-2">
+                <Box className="flex text-center p-2 mr-2">
+                  <img src="/assets/alarm.svg" className="w-7 h-5" />
+                </Box>
+                <Typography variant="h6" className="text-[#78859E]">
+                  Check the full reveal on Tofunft after the deposit period on
+                  24/2/2022
+                </Typography>
+              </Box>
+              <CustomButton
+                size="medium"
+                className={styles.pepeButton}
+                disabled={!data.isFarmingPeriod || userData.minted}
+                onClick={handleMint}
+              >
+                <Typography variant="h5" className={styles.pepeButtonText}>
+                  {data.isFarmingPeriod
+                    ? userData.minted
+                      ? 'Already minted'
+                      : 'Mint'
+                    : 'Not ready yet'}
                 </Typography>
               </CustomButton>
             </Box>

@@ -24,7 +24,7 @@ export interface DiamondPepeContextInterface {
 
 export const initialData: DiamondPepeContextInterface = {
   data: {
-    isDepositPeriod: true,
+    isDepositPeriod: false,
     isFarmingPeriod: false,
     maxLpDeposits: BigNumber.from('0'),
     mintPrice: BigNumber.from('0'),
