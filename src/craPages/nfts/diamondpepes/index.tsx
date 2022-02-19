@@ -10,7 +10,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import PurchaseDialog from '../components/PurchaseDialog';
 import { BigNumber } from 'ethers';
 import {
-  DiamondPepeNFTs__factory,
+  YieldMint__factory,
   UniswapPair__factory,
   Addresses,
 } from '@dopex-io/sdk';
@@ -30,7 +30,7 @@ const DiamondPepesNfts = () => {
     useState<string>('hidden');
   const [isMintDialogVisible, setIsMintDialogVisible] =
     useState<boolean>(false);
-  const yieldMint = DiamondPepeNFTs__factory.connect(
+  const yieldMint = YieldMint__factory.connect(
     Addresses[chainId]['DiamondPepesNFTMint'],
     provider
   );
