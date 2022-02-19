@@ -65,7 +65,7 @@ const DiamondPepesNfts = () => {
       lpReserves: lpReserves,
       lpSupply: lpTotalSupply,
       isDepositPeriod: isDepositPeriod,
-      isFarmingPeriod: true,
+      isFarmingPeriod: isFarmingPeriod,
       maxLpDeposits: maxLpDeposits,
       mintPrice: mintPrice,
       totalDeposits: totalDeposits,
