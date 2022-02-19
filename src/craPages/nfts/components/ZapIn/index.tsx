@@ -285,19 +285,25 @@ const ZapIn = ({
 
           <Box className={isInDialog ? 'h-[30.2rem]' : 'h-[20.2rem]'}>
             {tokenName !== '' &&
-              ssovTokenName != '' &&
-              ssovTokenName !== tokenName && (
-                <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
-                  <Box
-                    className={
-                      showSwapSteps
-                        ? 'flex w-full cursor-pointer'
-                        : 'flex w-full pb-4 cursor-pointer'
-                    }
-                    onClick={() => setShowSwapSteps(!showSwapSteps)}
-                  >
-                    <ZapIcon className="mt-1 mr-2" id="3" />
+            tokenName != 'ETH' &&
+            ssovTokenName != '' &&
+            ssovTokenName !== tokenName ? (
+              <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
+                <Box
+                  className={
+                    showSwapSteps
+                      ? 'flex w-full cursor-pointer'
+                      : 'flex w-full pb-4 cursor-pointer'
+                  }
+                  onClick={() => setShowSwapSteps(!showSwapSteps)}
+                >
+                  <ZapIcon className="mt-1 mr-2" id="3" />
 
+                  {tokenName === 'ETH' ? (
+                    <Typography variant="h6" className="text-white font-lg">
+                      1 {tokenName} = ${formatAmount(selectedTokenPrice, 2)}
+                    </Typography>
+                  ) : (
                     <Typography variant="h6" className="text-white font-lg">
                       1 {tokenName} ={' '}
                       {quote['toToken']
@@ -319,98 +325,100 @@ const ZapIn = ({
                         {formatAmount(selectedTokenPrice, 2)})
                       </span>
                     </Typography>
+                  )}
 
-                    {!showSwapSteps ? (
-                      <SmallArrowDownIcon
-                        className="mr-0 ml-auto mt-2 group"
-                        onClick={() => setShowSwapSteps(!showSwapSteps)}
-                        subClassName="group-hover:fill-gray-400"
-                      />
-                    ) : (
-                      <SmallArrowUpIcon
-                        className="mr-0 ml-auto mt-2 group"
-                        onClick={() => setShowSwapSteps(!showSwapSteps)}
-                        subClassName="group-hover:fill-gray-400"
-                      />
-                    )}
-                  </Box>
+                  {!showSwapSteps ? (
+                    <SmallArrowDownIcon
+                      className="mr-0 ml-auto mt-2 group"
+                      onClick={() => setShowSwapSteps(!showSwapSteps)}
+                      subClassName="group-hover:fill-gray-400"
+                    />
+                  ) : (
+                    <SmallArrowUpIcon
+                      className="mr-0 ml-auto mt-2 group"
+                      onClick={() => setShowSwapSteps(!showSwapSteps)}
+                      subClassName="group-hover:fill-gray-400"
+                    />
+                  )}
+                </Box>
 
-                  {showSwapSteps && (
-                    <Box>
-                      <Box className={'flex mb-2 mt-4'}>
+                {showSwapSteps && (
+                  <Box>
+                    <Box className={'flex mb-2 mt-4'}>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz ml-0 mr-auto"
+                      >
+                        Expected Rate
+                      </Typography>
+                      <Box className={'text-right'}>
                         <Typography
                           variant="h6"
-                          className="text-stieglitz ml-0 mr-auto"
+                          className="text-white mr-auto ml-0 pr-1"
                         >
-                          Expected Rate
-                        </Typography>
-                        <Box className={'text-right'}>
-                          <Typography
-                            variant="h6"
-                            className="text-white mr-auto ml-0 pr-1"
-                          >
-                            {quote['toToken']
-                              ? formatAmount(
+                          {quote['toToken']
+                            ? formatAmount(
+                                getUserReadableAmount(
+                                  quote['toTokenAmount'],
+                                  quote['toToken']['decimals']
+                                ) /
                                   getUserReadableAmount(
-                                    quote['toTokenAmount'],
-                                    quote['toToken']['decimals']
-                                  ) /
-                                    getUserReadableAmount(
-                                      quote['fromTokenAmount'],
-                                      quote['fromToken']['decimals']
-                                    ),
-                                  18
-                                )
-                              : '-'}
-                          </Typography>
-                        </Box>
+                                    quote['fromTokenAmount'],
+                                    quote['fromToken']['decimals']
+                                  ),
+                                18
+                              )
+                            : '-'}
+                        </Typography>
                       </Box>
+                    </Box>
 
-                      <Box className={'flex mb-2 mt-2'}>
+                    <Box className={'flex mb-2 mt-2'}>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz ml-0 mr-auto"
+                      >
+                        Minimum Rate
+                      </Typography>
+                      <Box className={'text-right'}>
                         <Typography
                           variant="h6"
-                          className="text-stieglitz ml-0 mr-auto"
+                          className="text-white mr-auto ml-0 pr-1"
                         >
-                          Minimum Rate
-                        </Typography>
-                        <Box className={'text-right'}>
-                          <Typography
-                            variant="h6"
-                            className="text-white mr-auto ml-0 pr-1"
-                          >
-                            {quote['toToken']
-                              ? formatAmount(
+                          {quote['toToken']
+                            ? formatAmount(
+                                getUserReadableAmount(
+                                  quote['toTokenAmount'],
+                                  quote['toToken']['decimals']
+                                ) /
                                   getUserReadableAmount(
-                                    quote['toTokenAmount'],
-                                    quote['toToken']['decimals']
+                                    quote['fromTokenAmount'],
+                                    quote['fromToken']['decimals']
                                   ) /
-                                    getUserReadableAmount(
-                                      quote['fromTokenAmount'],
-                                      quote['fromToken']['decimals']
-                                    ) /
-                                    (1 + slippageTolerance / 100),
-                                  18
-                                )
-                              : '-'}
-                          </Typography>
-                        </Box>
+                                  (1 + slippageTolerance / 100),
+                                18
+                              )
+                            : '-'}
+                        </Typography>
                       </Box>
-                      <Box className={'flex mb-2 mt-2'}>
+                    </Box>
+                    <Box className={'flex mb-2 mt-2'}>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz ml-0 mr-auto"
+                      >
+                        Max. Slippage Tolerance
+                      </Typography>
+                      <Box className={'text-right'}>
                         <Typography
                           variant="h6"
-                          className="text-stieglitz ml-0 mr-auto"
+                          className="text-white mr-auto ml-0 pr-1"
                         >
-                          Max. Slippage Tolerance
+                          {formatAmount(slippageTolerance, 2)}%
                         </Typography>
-                        <Box className={'text-right'}>
-                          <Typography
-                            variant="h6"
-                            className="text-white mr-auto ml-0 pr-1"
-                          >
-                            {formatAmount(slippageTolerance, 2)}%
-                          </Typography>
-                        </Box>
                       </Box>
+                    </Box>
+                    {swapSteps.length > 0 ? (
                       <Box
                         className={`rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full ${background[2]} mt-4`}
                       >
@@ -504,10 +512,13 @@ const ZapIn = ({
                           </Box>
                         </Tooltip>
                       </Box>
-                    </Box>
-                  )}
-                </Box>
-              )}
+                    ) : (
+                      <Box className={'h-2'}></Box>
+                    )}
+                  </Box>
+                )}
+              </Box>
+            ) : null}
           </Box>
 
           <Box
@@ -522,18 +533,17 @@ const ZapIn = ({
 
               <Typography variant="h6" className="text-white mr-0 ml-auto">
                 {formatAmount(purchasePower, 8)}{' '}
-                {quote['toToken'] ? quote['toToken']['symbol'] : ssovTokenName}
+                {quote['toToken'] ? quote['toToken']['symbol'] : 'ETH'}
               </Typography>
             </Box>
 
             <Box className="flex">
-              <Box className="flex text-center p-2 mr-2 mt-1">
-                <AlarmIcon />
+              <Box className="flex text-center p-2 mr-2 mt-0.5">
+                <ZapIcon id={7} className={'w-6 h-6'} />
               </Box>
               <Typography variant="h6" className="text-stieglitz">
-                This option will{' '}
-                <span className="text-white">Auto Exercise</span> and can be
-                settled anytime after expiry.
+                Your asset will be swapped to obtain{' '}
+                <span className="text-white">rDPX-ETH LP</span>
               </Typography>
             </Box>
             <CustomButton

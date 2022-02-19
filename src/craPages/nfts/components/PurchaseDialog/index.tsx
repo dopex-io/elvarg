@@ -172,6 +172,8 @@ const PurchaseDialog = ({
   }, [amount, path, userTokenBalance]);
 
   const purchasePower: number = useMemo(() => {
+    if (tokenName === 'ETH')
+      return getUserReadableAmount(userAssetBalances.ETH, 18);
     if (isZapActive) {
       let price: number;
       if (path['toToken'] && quote['toToken'])

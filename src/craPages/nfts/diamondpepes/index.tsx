@@ -119,7 +119,7 @@ const DiamondPepesNfts = () => {
 
   const boxes = [
     { title: 'Genesis', subTitle: 'Collection' },
-    { title: '2 PM 2/2/22', subTitle: 'Start CET' },
+    { title: '2:22 AM 2/2/22', subTitle: 'Start CET' },
     { title: timeRemaining, subTitle: 'Time remaining' },
     {
       title: formatAmount(getUserReadableAmount(data.totalDeposits, 18), 2),
