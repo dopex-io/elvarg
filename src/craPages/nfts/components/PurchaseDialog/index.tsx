@@ -153,9 +153,9 @@ const PurchaseDialog = ({
 
   const obtainableLP: number = useMemo(() => {
     if (amount <= 0 || isNaN(amount)) return 0;
-    else if (tokenName === baseTokenName)
-      return getUserReadableAmount(amount, 18);
-    else if (!path['toTokenAmount'] && tokenName !== 'ETH') return 0;
+    else if (tokenName === baseTokenName) {
+      return amount;
+    } else if (!path['toTokenAmount'] && tokenName !== 'ETH') return 0;
     else {
       const wethAmount =
         tokenName === 'ETH'
