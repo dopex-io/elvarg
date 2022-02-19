@@ -845,7 +845,7 @@ const PurchaseDialog = ({
                     ? approved
                       ? 'PURCHASE'
                       : 'APPROVE'
-                    : 'DEPOSIT PERIOD IS EXPIRED'}
+                    : 'DEPOSITS ARE CLOSED'}
                 </Typography>
               </CustomButton>
             </Box>
@@ -884,6 +884,18 @@ const PurchaseDialog = ({
                     </Box>
                   </Box>
                 ))}
+                {pepeReserved === 0 ? (
+                  <Box className={'flex text-center h-[16rem]'}>
+                    <Typography
+                      variant="h6"
+                      className="text-[#78859E] ml-auto mr-auto mt-auto mb-auto"
+                    >
+                      Your pepes will appear here
+                      <br />
+                      ...
+                    </Typography>
+                  </Box>
+                ) : null}
               </Box>
             </Box>
 

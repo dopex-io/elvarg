@@ -237,7 +237,6 @@ const DiamondPepesNfts = () => {
                 <button
                   className={styles.pepeButton}
                   onClick={() => setPurchaseDialogVisibleTab('deposit')}
-                  disabled={!data.isDepositPeriod}
                 >
                   Deposit
                 </button>
