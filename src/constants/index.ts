@@ -50,6 +50,11 @@ export const BASE_ASSET_MAP = {
     symbol: 'AVAX',
     _symbol: 'AVAX',
   },
+  CRV: {
+    fullName: 'CRV',
+    symbol: 'CRV',
+    _symbol: 'CRV',
+  },
 };
 
 export const QUOTE_ASSET_MAP = {
@@ -190,6 +195,12 @@ export const SSOV_MAP = {
     imageSrc: '/assets/btc.svg',
     coiGeckoId: 'bitcoin',
     tokens: ['BTC'],
+  },
+  CRV: {
+    tokenSymbol: 'CRV',
+    imageSrc: '/assets/curve.svg',
+    coiGeckoId: 'curve-dao-token',
+    tokens: ['CRV'],
   },
 };
 

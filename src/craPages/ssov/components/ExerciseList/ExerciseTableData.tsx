@@ -8,7 +8,6 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
-import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -19,6 +18,7 @@ import Settle from '../Dialogs/Settle';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
 import { SSOV_MAP } from 'constants/index';
 
 interface ExerciseTableDataProps {
@@ -48,18 +48,19 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     settleableAmount,
     pnlAmount,
     isSettleable,
-    isPastEpoch,
   } = props;
 
-  const { contractAddresses, signer } = useContext(WalletContext);
-  const { ssovData, ssovEpochData, selectedEpoch } = useContext(SsovContext);
+  const { ssovData, ssovEpochData, selectedSsov } = useContext(SsovContext);
 
-  const tokenSymbol =
-    SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
-      ? 'vBNB'
-      : SSOV_MAP[ssovData.tokenName].tokenSymbol;
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
-  const { epochStrikes, isEpochExpired } = ssovEpochData;
+  const tokenSymbol = isPut
+    ? '2CRV'
+    : SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
+    ? 'vBNB'
+    : SSOV_MAP[ssovData.tokenName].tokenSymbol;
+
+  const { isEpochExpired } = ssovEpochData;
 
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -142,7 +143,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenSymbol === 'vBNB' ? 'BNB' : tokenSymbol}
+            {SSOV_MAP[ssovData.tokenName].tokenSymbol === 'vBNB'
+              ? 'BNB'
+              : SSOV_MAP[ssovData.tokenName].tokenSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -151,7 +154,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(depositedAmount, 5)} {tokenSymbol}
+          {formatAmount(depositedAmount, 5)} {isPut ? '2CRV' : tokenSymbol}
         </Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">

@@ -35,7 +35,7 @@ const Settle = ({
   settleableAmount,
 }: Props) => {
   const {
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     ssovData,
     ssovEpochData,
@@ -57,7 +57,7 @@ const Settle = ({
 
   const sendTx = useSendTx();
 
-  const epochStrikeToken = epochStrikeTokens[strikeIndex];
+  const epochStrikeToken = epochStrikeTokens[strikeIndex] || null;
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
@@ -70,6 +70,7 @@ const Settle = ({
     );
     setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance);
   }, [epochStrikeToken, accountAddress]);
+
   useEffect(() => {
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
@@ -100,7 +101,7 @@ const Settle = ({
       await sendTx(
         ssovContractWithSigner.settle(strikeIndex, settleableAmount, 1)
       );
-      updateSsovData();
+      updateSsovEpochData();
       updateSsovUserData();
       updateUserEpochStrikeTokenBalance();
     } catch (err) {
@@ -110,7 +111,7 @@ const Settle = ({
     ssovContractWithSigner,
     strikeIndex,
     settleableAmount,
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     updateUserEpochStrikeTokenBalance,
     sendTx,

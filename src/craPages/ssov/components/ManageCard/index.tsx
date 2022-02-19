@@ -93,7 +93,7 @@ const ManageCard = () => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const {
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     ssovData,
     ssovEpochData,
@@ -307,6 +307,7 @@ const ManageCard = () => {
   };
 
   const handleTokenChange = async () => {
+    if (!token) return;
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
     await getQuote();
@@ -566,7 +567,7 @@ const ManageCard = () => {
       setStrikeDepositAmounts(() => ({}));
       setSelectedStrikeIndexes(() => []);
       updateAssetBalances();
-      updateSsovData();
+      updateSsovEpochData();
       updateSsovUserData();
     } catch (err) {
       console.log(err);
@@ -575,7 +576,7 @@ const ManageCard = () => {
     selectedStrikeIndexes,
     ssovContractWithSigner,
     contractReadableStrikeDepositAmounts,
-    updateSsovData,
+    updateSsovEpochData,
     updateSsovUserData,
     updateAssetBalances,
     accountAddress,
@@ -633,7 +634,7 @@ const ManageCard = () => {
 
   useEffect(() => {
     handleTokenChange();
-  }, [token]);
+  }, [handleTokenChange]);
 
   // Updates approved state
   useEffect(() => {

@@ -10,7 +10,7 @@ import ExerciseList from '../components/ExerciseList';
 import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
 
-import { SsovContext } from 'contexts/Ssov';
+import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
 const Manage = () => {
   const { asset, type } = useParams();
@@ -58,4 +58,12 @@ const Manage = () => {
   );
 };
 
-export default Manage;
+const ManagePage = () => {
+  return (
+    <SsovProvider>
+      <Manage />
+    </SsovProvider>
+  );
+};
+
+export default ManagePage;
