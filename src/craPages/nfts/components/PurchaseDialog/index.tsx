@@ -15,6 +15,7 @@ import {
   Aggregation1inchRouterV4__factory,
   DiamondPepeNFTs1inchRouter__factory,
   UniswapPair__factory,
+  YieldMint,
 } from '@dopex-io/sdk';
 
 import { useFormik } from 'formik';
@@ -57,7 +58,6 @@ import { Data, UserData } from '../../diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
-import { DiamondPepeNFTs } from '@dopex-io/sdk';
 
 import useSendTx from 'hooks/useSendTx';
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
@@ -74,7 +74,7 @@ export interface Props {
   data: Data;
   userData: UserData;
   timeRemaining: JSX.Element;
-  yieldMint: DiamondPepeNFTs;
+  yieldMint: YieldMint;
   updateData: () => {};
   updateUserData: () => {};
 }
@@ -375,13 +375,15 @@ const PurchaseDialog = ({
         await sendTx(
           yieldMint
             .connect(signer)
-            .depositLP(getContractReadableAmount(amount, 18))
+            .depositLP(getContractReadableAmount(amount, 18), accountAddress)
         );
       } else if (IS_NATIVE(token)) {
         await sendTx(
           yieldMint
             .connect(signer)
-            .depositWeth({ value: getContractReadableAmount(amount, 18) })
+            .depositWeth(accountAddress, {
+              value: getContractReadableAmount(amount, 18),
+            })
         );
       } else {
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(

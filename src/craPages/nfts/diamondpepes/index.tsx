@@ -73,7 +73,7 @@ const DiamondPepesNfts = () => {
   }, [provider, contractAddresses]);
 
   const updateUserData = useCallback(async () => {
-    if (!provider || !contractAddresses || !DiamondPepeNFTs__factory) return;
+    if (!provider || !contractAddresses || !YieldMint__factory) return;
 
     const [deposits, minted] = await Promise.all([
       yieldMint.usersDeposit(accountAddress),
