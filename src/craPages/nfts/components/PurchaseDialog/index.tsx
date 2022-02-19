@@ -134,7 +134,6 @@ const PurchaseDialog = ({
   }, [tokenName, baseTokenName, path]);
 
   const pepeReserved: number = useMemo(() => {
-    return 1;
     return data.mintPrice.gt(0)
       ? Math.floor(Number(userData.deposits.div(data.mintPrice).toString()))
       : 0;
@@ -379,11 +378,9 @@ const PurchaseDialog = ({
         );
       } else if (IS_NATIVE(token)) {
         await sendTx(
-          yieldMint
-            .connect(signer)
-            .depositWeth(accountAddress, {
-              value: getContractReadableAmount(amount, 18),
-            })
+          yieldMint.connect(signer).depositWeth(accountAddress, {
+            value: getContractReadableAmount(amount, 18),
+          })
         );
       } else {
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
@@ -862,7 +859,10 @@ const PurchaseDialog = ({
               </Box>
               <Box className="h-[17rem] overflow-y-auto overflow-x-hidden">
                 {Array.from({ length: pepeReserved }, (_, i) => (
-                  <Box className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md">
+                  <Box
+                    className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md"
+                    key={i}
+                  >
                     <img
                       src={'/assets/diamondpepe.png'}
                       className={'w-[4rem] m-2 rounded-md'}
