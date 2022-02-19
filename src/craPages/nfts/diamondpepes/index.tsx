@@ -160,6 +160,7 @@ const DiamondPepesNfts = () => {
         data={data}
         updateData={updateData}
         updateUserData={updateUserData}
+        provider={provider}
       />
       <Box>
         <Box className={styles.backgroundOverlay} />

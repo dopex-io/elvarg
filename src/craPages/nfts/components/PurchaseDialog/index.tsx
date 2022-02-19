@@ -77,6 +77,7 @@ export interface Props {
   yieldMint: YieldMint;
   updateData: () => {};
   updateUserData: () => {};
+  provider: ethers.providers.Provider;
 }
 
 const PurchaseDialog = ({
@@ -89,11 +90,11 @@ const PurchaseDialog = ({
   yieldMint,
   updateData,
   updateUserData,
+  provider, // required to initialize token
 }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
-  const { accountAddress, provider, chainId, signer } =
-    useContext(WalletContext);
+  const { accountAddress, chainId, signer } = useContext(WalletContext);
   const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
     ? Aggregation1inchRouterV4__factory.connect(
         Addresses[chainId]['1inchRouter'],
@@ -216,7 +217,9 @@ const PurchaseDialog = ({
   const sendTx = useSendTx();
 
   const handleTokenChange = async () => {
-    const symbol = IS_NATIVE(token) ? token : await token.symbol();
+    const symbol = IS_NATIVE(token)
+      ? token
+      : await token.connect(signer).symbol();
     setTokenName(symbol);
     await getQuote();
   };
@@ -436,7 +439,7 @@ const PurchaseDialog = ({
 
   // Handles isApproved
   useEffect(() => {
-    if (!token) return;
+    if (!token?.provider) return;
     (async function () {
       const userAmount = IS_NATIVE(token)
         ? BigNumber.from(userAssetBalances.ETH)
@@ -458,7 +461,7 @@ const PurchaseDialog = ({
         }
       }
     })();
-  }, [accountAddress, token, userAssetBalances]);
+  }, [accountAddress, token, userAssetBalances, provider]);
 
   useEffect(() => {
     if (
