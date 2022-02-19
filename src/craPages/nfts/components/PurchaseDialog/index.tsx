@@ -451,9 +451,7 @@ const PurchaseDialog = ({
       if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
-        console.log(allowance);
         if (allowance.gt(0)) {
-          console.log('all');
           setApproved(true);
         } else {
           setApproved(false);
