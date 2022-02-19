@@ -300,7 +300,7 @@ const PurchaseDialog = ({
         .filter(function (item) {
           return (
             item !== baseTokenName &&
-            !['RDPX', 'ETH', 'DPX', '2CRV'].includes(item.toUpperCase()) &&
+            !['RDPX', 'DPX', '2CRV'].includes(item.toUpperCase()) &&
             (Addresses[chainId][item] || IS_NATIVE(item))
           );
         })
