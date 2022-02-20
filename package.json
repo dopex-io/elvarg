@@ -42,7 +42,7 @@
     "sass": "^1.49.8",
     "use-debounce": "^7.0.1",
     "walletlink": "^2.4.4",
-    "web3modal": "^1.9.4",
+    "web3modal": "https://github.com/hellodespereaux/web3modal",
     "yup": "^0.32.9"
   },
   "devDependencies": {
