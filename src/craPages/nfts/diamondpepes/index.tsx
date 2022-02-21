@@ -275,7 +275,7 @@ const DiamondPepesNfts = () => {
                     onClick={() => setPurchaseDialogVisibleTab('mint')}
                     disabled={!data.isFarmingPeriod}
                   >
-                    {data.isFarmingPeriod ? 'Mint' : '2/4/2022'}
+                    {data.isFarmingPeriod ? 'Mint' : '2/24/2022'}
                   </button>
                 </Tooltip>
               </Box>
