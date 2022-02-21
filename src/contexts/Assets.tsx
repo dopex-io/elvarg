@@ -104,7 +104,7 @@ export const ASSET_TO_NAME = {
   RDPX: 'Dopex Rebate',
   GOHM: 'OHM Governance',
   AVAX: 'Avalanche',
-  MAGIX: 'Magic',
+  MAGIC: 'Magic',
   '2CRV': 'Curve2 Pool Token',
 };
 
