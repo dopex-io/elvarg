@@ -25,7 +25,6 @@ import noop from 'lodash/noop';
 import debounce from 'lodash/debounce';
 import format from 'date-fns/format';
 import { useDebounce } from 'use-debounce';
-import { Tabs, PanelList, Panel } from 'react-swipeable-tab';
 import axios from 'axios';
 import styles from './styles.module.scss';
 
@@ -214,7 +213,14 @@ const PurchaseDialog = ({
         ).toString()
       );
     }
-  }, [isZapActive, quote, path, slippageTolerance, userTokenBalance]);
+  }, [
+    isZapActive,
+    quote,
+    path,
+    slippageTolerance,
+    userTokenBalance,
+    tokenName,
+  ]);
 
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
@@ -225,7 +231,6 @@ const PurchaseDialog = ({
       ? token
       : await token.connect(signer).symbol();
     setTokenName(symbol);
-    await getQuote();
   };
 
   const zapInTotalCost: number = useMemo(() => {
@@ -343,6 +348,10 @@ const PurchaseDialog = ({
   useEffect(() => {
     if (['mint', 'withdraw'].includes(tab)) setActiveTab(tab);
   }, [tab]);
+
+  useEffect(() => {
+    getQuote();
+  }, [tokenName]);
 
   const activeIndex: number = useMemo(() => {
     if (isZapInVisible) return 2;
@@ -522,56 +531,57 @@ const PurchaseDialog = ({
         </IconButton>
       </Box>
 
-      <Tabs activeIndex={activeIndex} panelIscroll={false}>
-        {['deposit', 'mint'].includes(activeTab) && (
-          <Box className={isZapInVisible ? 'hidden' : 'flex'}>
-            <Box className={'w-full'}>
-              <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md">
-                <Box
+      {['deposit', 'mint'].includes(activeTab) && (
+        <Box className={isZapInVisible ? 'hidden' : 'flex'}>
+          <Box className={'w-full'}>
+            <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md">
+              <Box
+                className={
+                  activeTab === 'deposit'
+                    ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
+                    : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                }
+                onClick={() => setActiveTab('deposit')}
+              >
+                <Typography
+                  variant="h6"
                   className={
                     activeTab === 'deposit'
-                      ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
-                      : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                      ? 'text-xs font-normal'
+                      : 'text-[#78859E] text-xs font-normal'
                   }
-                  onClick={() => setActiveTab('deposit')}
                 >
-                  <Typography
-                    variant="h6"
-                    className={
-                      activeTab === 'deposit'
-                        ? 'text-xs font-normal'
-                        : 'text-[#78859E] text-xs font-normal'
-                    }
-                  >
-                    Deposit
-                  </Typography>
-                </Box>
+                  Deposit
+                </Typography>
+              </Box>
 
-                <Box
+              <Box
+                className={
+                  activeTab === 'mint'
+                    ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
+                    : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                }
+                onClick={() => setActiveTab('mint')}
+              >
+                <Typography
+                  variant="h6"
                   className={
                     activeTab === 'mint'
-                      ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
-                      : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                      ? 'text-xs font-normal'
+                      : 'text-[#78859E] text-xs font-normal'
                   }
-                  onClick={() => setActiveTab('mint')}
                 >
-                  <Typography
-                    variant="h6"
-                    className={
-                      activeTab === 'mint'
-                        ? 'text-xs font-normal'
-                        : 'text-[#78859E] text-xs font-normal'
-                    }
-                  >
-                    Mint
-                  </Typography>
-                </Box>
+                  Mint
+                </Typography>
               </Box>
             </Box>
           </Box>
-        )}
-        <PanelList style={{ height: 39 + extraHeight + 'rem' }}>
-          <Panel>
+        </Box>
+      )}
+
+      <Box style={{ height: 39 + extraHeight + 'rem' }}>
+        {activeTab === 'deposit' ? (
+          <Box>
             <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
               <Box className="flex flex-row justify-between">
                 <Box
@@ -868,8 +878,10 @@ const PurchaseDialog = ({
                 </Typography>
               </CustomButton>
             </Box>
-          </Panel>
-          <Panel>
+          </Box>
+        ) : null}
+        {activeTab === 'mint' ? (
+          <Box>
             <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
               <Box className="flex flex-row justify-between mb-2">
                 <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
@@ -963,9 +975,9 @@ const PurchaseDialog = ({
                 </Typography>
               </CustomButton>
             </Box>
-          </Panel>
-        </PanelList>
-      </Tabs>
+          </Box>
+        ) : null}
+      </Box>
       <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>
         <Box className={styles.zapIn}>
           <ZapIn

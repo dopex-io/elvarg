@@ -51,8 +51,8 @@ const initialState: AssetsContextInterface = {
     'USDT',
     'MIM',
     'FRAX',
-    '2CRV',
     'MAGIC',
+    '2CRV',
   ],
   tokenPrices: [],
   userAssetBalances: {
@@ -87,7 +87,7 @@ const ASSET_TO_COINGECKO_ID = {
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
   AVAX: 'avalanche-2',
-  MAGIC: 'magic-token',
+  MAGIC: 'magic',
   '2CRV': 'Curve-2-pool-token',
 };
 
@@ -104,7 +104,7 @@ export const ASSET_TO_NAME = {
   RDPX: 'Dopex Rebate',
   GOHM: 'OHM Governance',
   AVAX: 'Avalanche',
-  MAGIX: 'Magic Token',
+  MAGIX: 'Magic',
   '2CRV': 'Curve2 Pool Token',
 };
 
@@ -182,8 +182,8 @@ export const AssetsProvider = (props) => {
         const temp = payload.data[ASSET_TO_COINGECKO_ID[state.tokens[index]]];
         return {
           name: state.tokens[index],
-          change24h: temp['usd_24h_change'],
-          price: temp.usd,
+          change24h: temp?.usd_24h_change || 0,
+          price: temp?.usd || 0,
         };
       });
 
