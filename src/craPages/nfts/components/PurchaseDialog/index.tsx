@@ -144,7 +144,7 @@ const PurchaseDialog = ({
       isZapActive && tokenName !== 'ETH'
         ? diamondPepeNfts1inchRouter.address
         : yieldMint.address,
-    [isZapActive]
+    [isZapActive, isZapInVisible, amount]
   );
 
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
@@ -470,6 +470,10 @@ const PurchaseDialog = ({
       let allowance = IS_NATIVE(token)
         ? BigNumber.from(0)
         : await token.allowance(accountAddress, spender);
+
+      console.log(token);
+      console.log(spender);
+      console.log(allowance.toString());
 
       if (IS_NATIVE(token)) {
         setApproved(true);
