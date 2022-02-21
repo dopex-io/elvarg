@@ -146,22 +146,24 @@ const DiamondPepesNfts = () => {
       <Head>
         <title>Diamond Pepes NFTs | Dopex</title>
       </Head>
-      <PurchaseDialog
-        yieldMint={yieldMint}
-        timeRemaining={timeRemaining}
-        open={purchaseDialogVisibleTab != 'hidden'}
-        handleClose={
-          (() => {
-            setPurchaseDialogVisibleTab('hidden');
-          }) as any
-        }
-        tab={purchaseDialogVisibleTab}
-        userData={userData}
-        data={data}
-        updateData={updateData}
-        updateUserData={updateUserData}
-        provider={provider}
-      />
+      {provider ? (
+        <PurchaseDialog
+          yieldMint={yieldMint}
+          timeRemaining={timeRemaining}
+          open={purchaseDialogVisibleTab != 'hidden'}
+          handleClose={
+            (() => {
+              setPurchaseDialogVisibleTab('hidden');
+            }) as any
+          }
+          tab={purchaseDialogVisibleTab}
+          userData={userData}
+          data={data}
+          updateData={updateData}
+          updateUserData={updateUserData}
+          provider={provider}
+        />
+      ) : null}
       <Box>
         <Box className={styles.backgroundOverlay} />
         <Box className={styles.mobileBackgroundOverlay} />

@@ -285,7 +285,7 @@ const PurchaseDialog = ({
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${getContractReadableAmount(
           amount,
           getDecimalsFromSymbol(tokenName, chainId)
-        )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+        )}&fromAddress=${accountAddress}&slippage=0.1&disableEstimate=true`
       );
 
       setPath(data);
@@ -817,26 +817,32 @@ const PurchaseDialog = ({
               </Box>
             </Box>
 
-            <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-12">
+            <Box
+              className={`rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] ${
+                tokenName === 'ETH' ? 'mt-[6.7rem]' : 'mt-12'
+              }`}
+            >
               <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
                 <EstimatedGasCostButton gas={2000000} chainId={chainId} />
               </Box>
 
-              <ZapInButton
-                openZapIn={openZapIn}
-                isZapActive={isZapActive}
-                quote={quote}
-                path={path}
-                isFetchingPath={isZapActive ? isFetchingPath : false}
-                tokenName={tokenName}
-                ssovTokenSymbol={'ETH'}
-                selectedTokenPrice={selectedTokenPrice}
-                isZapInAvailable={isZapInAvailable}
-                chainId={chainId}
-                background={'bg-[#43609A]'}
-              />
+              {tokenName !== 'ETH' ? (
+                <ZapInButton
+                  openZapIn={openZapIn}
+                  isZapActive={isZapActive}
+                  quote={quote}
+                  path={path}
+                  isFetchingPath={isZapActive ? isFetchingPath : false}
+                  tokenName={tokenName}
+                  ssovTokenSymbol={'ETH'}
+                  selectedTokenPrice={selectedTokenPrice}
+                  isZapInAvailable={isZapInAvailable}
+                  chainId={chainId}
+                  background={'bg-[#43609A]'}
+                />
+              ) : null}
 
-              <Box className="flex mb-2">
+              <Box className={'flex mb-2'}>
                 <Box className="flex text-center p-2 mr-2">
                   <img src="/assets/pepelock.svg" className="w-4 h-5" />
                 </Box>
