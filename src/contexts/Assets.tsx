@@ -104,6 +104,13 @@ export const ASSET_TO_NAME = {
   '2CRV': 'Curve2 Pool Token',
 };
 
+export const CHAIN_ID_TO_NATIVE = {
+  42161: 'ETH',
+  56: 'BNB',
+  43114: 'AVAX',
+  1: 'ETH',
+};
+
 export const IS_NATIVE = (asset) => {
   return ['ETH', 'BNB', 'AVAX'].includes(asset);
 };

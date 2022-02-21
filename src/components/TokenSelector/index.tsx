@@ -1,5 +1,10 @@
 import { Dispatch, SetStateAction, useContext, useState } from 'react';
-import { ASSET_TO_NAME, AssetsContext, IS_NATIVE } from '../../contexts/Assets';
+import {
+  ASSET_TO_NAME,
+  AssetsContext,
+  IS_NATIVE,
+  CHAIN_ID_TO_NATIVE,
+} from '../../contexts/Assets';
 import Box from '@material-ui/core/Box';
 import Typography from '../UI/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -81,7 +86,8 @@ const TokenSelector = ({
                 return getValueInUsd(b) - getValueInUsd(a);
               })
               .map((symbol) =>
-                (Addresses[chainId][symbol] || IS_NATIVE(symbol)) &&
+                (Addresses[chainId][symbol] ||
+                  CHAIN_ID_TO_NATIVE[chainId] === symbol) &&
                 symbol.includes(searchTerm.toUpperCase()) &&
                 !tokensToExclude.includes(symbol.toUpperCase()) ? (
                   <Box
