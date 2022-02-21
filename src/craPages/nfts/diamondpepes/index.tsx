@@ -318,6 +318,25 @@ const DiamondPepesNfts = () => {
               </Box>
             </Box>
           </Box>
+          <Box className="flex text-center h-[10rem]">
+            <Typography
+              variant="h5"
+              className={
+                "mr-auto ml-auto mt-auto text-stieglitz font-['Minecraft'] font-[0.2rem] break-words"
+              }
+            >
+              Mint contract
+              <br />
+              <a
+                href={
+                  'https://arbiscan.io/address/0xcAD9297f00487a88Afa120Bf9F4823B52AE388b0'
+                }
+                target={'_blank'}
+              >
+                0xcAD9297f00487a88Afa120Bf9F4823B52AE388b0
+              </a>
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>
