@@ -160,7 +160,7 @@ const PurchaseDialog = ({
     else {
       const wethAmount =
         tokenName === 'ETH'
-          ? userTokenBalance.toString()
+          ? getContractReadableAmount(amount, 18)
           : path['toTokenAmount'];
       const wethForLPToken =
         parseInt(data.lpSupply.toString()) /
@@ -404,7 +404,6 @@ const PurchaseDialog = ({
           'swap',
           path['tx']['data']
         );
-        console.log(decoded);
         await sendTx(
           diamondPepeNfts1inchRouter
             .connect(signer)
@@ -419,7 +418,14 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [updateAssetBalances, accountAddress, tokenName, isZapActive, path]);
+  }, [
+    updateAssetBalances,
+    accountAddress,
+    tokenName,
+    isZapActive,
+    path,
+    amount,
+  ]);
 
   const checkDEXAggregatorStatus = async () => {
     try {
@@ -734,15 +740,16 @@ const PurchaseDialog = ({
                         variant="h5"
                         className="text-[#22E1FF] pb-1 pr-2"
                       >
-                        {userData.deposits.gt(0)
-                          ? formatAmount(
-                              (100 *
-                                (getUserReadableAmount(userData.deposits, 18) +
-                                  obtainableLP)) /
-                                getUserReadableAmount(data.totalDeposits, 18),
-                              2
-                            )
-                          : '0'}
+                        {formatAmount(
+                          Math.min(
+                            (100 *
+                              (getUserReadableAmount(userData.deposits, 18) +
+                                obtainableLP)) /
+                              getUserReadableAmount(data.totalDeposits, 18),
+                            100
+                          ),
+                          2
+                        )}
                         %
                       </Typography>
                     </Box>
