@@ -285,7 +285,7 @@ const PurchaseDialog = ({
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${getContractReadableAmount(
           amount,
           getDecimalsFromSymbol(tokenName, chainId)
-        )}&fromAddress=${accountAddress}&slippage=0.1&disableEstimate=true`
+        )}&fromAddress=${spender}&slippage=0.1&disableEstimate=true`
       );
 
       setPath(data);
@@ -395,6 +395,7 @@ const PurchaseDialog = ({
           'swap',
           path['tx']['data']
         );
+        console.log(decoded);
         await sendTx(
           diamondPepeNfts1inchRouter
             .connect(signer)
@@ -428,7 +429,7 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible, token, isZapActive, amount]);
+  }, [isZapInVisible, token, isZapActive, amount, spender]);
 
   const setMaxAmount = async () => {
     const amount = getUserReadableAmount(
