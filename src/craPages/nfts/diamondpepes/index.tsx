@@ -178,7 +178,7 @@ const DiamondPepesNfts = () => {
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">
             <Typography
               variant="h3"
-              className="text-[#78859E] text-center leading-7 md:leading-10 z-40 relative font-['Minecraft'] text-[1rem]"
+              className="text-[#78859E] text-center leading-7 md:leading-10 z-1 relative font-['Minecraft'] text-[1rem]"
             >
               2,222 Unique Diamond Pepes up for grabs. Free mint passes by
               staking LP Tokens. Zap In with any asset.
