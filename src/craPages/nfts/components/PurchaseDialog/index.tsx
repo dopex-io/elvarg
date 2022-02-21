@@ -454,7 +454,6 @@ const PurchaseDialog = ({
 
   // Handles isApproved
   useEffect(() => {
-    if (!token?.provider) return;
     (async function () {
       const userAmount = IS_NATIVE(token)
         ? BigNumber.from(userAssetBalances.ETH)
@@ -478,10 +477,11 @@ const PurchaseDialog = ({
     })();
   }, [
     accountAddress,
-    token,
+    tokenName,
     userAssetBalances,
     provider,
     isZapActive,
+    isZapInVisible,
     spender,
   ]);
 

@@ -96,7 +96,7 @@ const DiamondPepesNfts = () => {
     else if (data.isDepositPeriod) {
       return (
         <Countdown
-          date={new Date(1645631294 * 1000)}
+          date={new Date((1645496520 + 2.22 * 86400) * 1000)}
           renderer={({ days, hours, minutes, seconds, completed }) => {
             if (days < 1 && hours < 1) {
               return (
