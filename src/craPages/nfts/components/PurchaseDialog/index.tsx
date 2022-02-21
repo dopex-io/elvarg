@@ -142,7 +142,9 @@ const PurchaseDialog = ({
 
   const spender: string = useMemo(
     () =>
-      isZapActive ? diamondPepeNfts1inchRouter.address : yieldMint.address,
+      isZapActive && tokenName !== 'ETH'
+        ? diamondPepeNfts1inchRouter.address
+        : yieldMint.address,
     [isZapActive]
   );
 
@@ -268,7 +270,6 @@ const PurchaseDialog = ({
   };
 
   const getPath = async () => {
-    setIsFetchingPath(true);
     const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
@@ -276,6 +277,8 @@ const PurchaseDialog = ({
 
     if (fromTokenAddress === baseToken.address) return;
     if (fromTokenAddress === toTokenAddress) return;
+
+    setIsFetchingPath(true);
 
     try {
       const { data } = await axios.get(
@@ -406,7 +409,7 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [updateAssetBalances, accountAddress, tokenName, isZapActive]);
+  }, [updateAssetBalances, accountAddress, tokenName, isZapActive, path]);
 
   const checkDEXAggregatorStatus = async () => {
     try {
@@ -463,7 +466,14 @@ const PurchaseDialog = ({
         }
       }
     })();
-  }, [accountAddress, token, userAssetBalances, provider]);
+  }, [
+    accountAddress,
+    token,
+    userAssetBalances,
+    provider,
+    isZapActive,
+    spender,
+  ]);
 
   useEffect(() => {
     if (
