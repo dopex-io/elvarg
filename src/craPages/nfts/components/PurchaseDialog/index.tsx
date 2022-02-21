@@ -471,10 +471,6 @@ const PurchaseDialog = ({
         ? BigNumber.from(0)
         : await token.allowance(accountAddress, spender);
 
-      console.log(token);
-      console.log(spender);
-      console.log(allowance.toString());
-
       if (IS_NATIVE(token)) {
         setApproved(true);
       } else {
@@ -876,7 +872,14 @@ const PurchaseDialog = ({
                 size="medium"
                 className={styles.pepeButton}
                 disabled={
-                  amount <= 0 || isFetchingPath || !data.isDepositPeriod
+                  amount <= 0 ||
+                  isFetchingPath ||
+                  !data.isDepositPeriod ||
+                  amount >=
+                    getUserReadableAmount(
+                      userTokenBalance,
+                      getDecimalsFromSymbol(tokenName, chainId)
+                    )
                 }
                 onClick={approved ? handlePurchase : handleApprove}
               >
