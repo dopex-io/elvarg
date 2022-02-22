@@ -119,7 +119,7 @@ const DiamondPepesNfts = () => {
 
   const boxes = [
     { title: 'Genesis', subTitle: 'Collection' },
-    { title: '2:22 AM 2/2/22', subTitle: 'Start CET' },
+    { title: '2:22 AM 22/2/22', subTitle: 'Start CET' },
     { title: timeRemaining, subTitle: 'Time remaining' },
     {
       title: formatAmount(getUserReadableAmount(data.totalDeposits, 18), 2),
@@ -311,7 +311,7 @@ const DiamondPepesNfts = () => {
                     onClick={handleWithdraw}
                   >
                     {!(!data.isFarmingPeriod && userData.minted)
-                      ? '3/3/2022'
+                      ? '10/3/2022'
                       : 'Withdraw'}
                   </button>
                 </Tooltip>
