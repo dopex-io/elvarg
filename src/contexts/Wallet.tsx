@@ -93,6 +93,16 @@ if (typeof window !== 'undefined') {
         package: null,
       },
     }),
+    ...(window.web3.currentProvider?.isBitKeep && {
+      injected: {
+        display: {
+          logo: '/wallets/Bitkeep.png',
+          name: 'Bitkeep',
+          description: 'Connect to your Bitkeep Wallet',
+        },
+        package: null,
+      },
+    }),
   };
 
   web3Modal = new Web3Modal({
