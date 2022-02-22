@@ -43,6 +43,15 @@ export const NftsProvider = (props) => {
   const [nftsData, setNftsData] = useState<NftData[]>([]);
   const [userNftsData, setUserNftsData] = useState<UserNftData[]>([]);
 
+  const getTokenUri = async (nftContract) => {
+    try {
+      const uri = await nftContract.tokenURI(0);
+      return uri;
+    } catch (err) {
+      return null;
+    }
+  };
+
   const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
     const nftsData: NftData[] = [];
@@ -54,7 +63,7 @@ export const NftsProvider = (props) => {
 
       const [nftName, nftUri] = await Promise.all([
         nftContract.name(),
-        nftContract.tokenURI(0),
+        getTokenUri(nftContract),
       ]);
 
       nftsData.push({
