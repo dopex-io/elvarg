@@ -32,7 +32,10 @@ function SsovCard(props) {
       heading: 'APY',
       value: `${apy === 0 ? '...' : `${apy}%`}`,
       Icon: Action,
-      tooltip: ssovInfo[name].aprToolTipMessage,
+      tooltip:
+        type === 'put'
+          ? 'This is the base APY calculated from Curve 2Pool Fees and Rewards'
+          : ssovInfo[name].aprToolTipMessage,
     },
     {
       heading: 'TVL',
