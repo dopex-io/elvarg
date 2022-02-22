@@ -257,7 +257,7 @@ export default function AppBar(props: AppBarProps) {
                 className="mr-2 lg:hidden"
               />
             ) : null} */}
-            {accountAddress ? (
+            {window['BitKeepInvoke'] ? null : accountAddress ? (
               <Box className="bg-cod-gray flex flex-row p-1 rounded-md items-center">
                 <Box className="bg-mineshaft flex-row px-2 py-2 rounded-md items-center mr-1 hidden lg:flex">
                   <Typography
