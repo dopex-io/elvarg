@@ -70,7 +70,7 @@ const DiamondPepesNfts = () => {
       mintPrice: mintPrice,
       totalDeposits: totalDeposits,
     });
-  }, [provider, contractAddresses]);
+  }, [provider, contractAddresses, setData]);
 
   const updateUserData = useCallback(async () => {
     if (!provider || !contractAddresses || !YieldMint__factory) return;
@@ -81,7 +81,7 @@ const DiamondPepesNfts = () => {
     ]);
 
     setUserData({ deposits: deposits, minted: minted });
-  }, [accountAddress, provider, contractAddresses]);
+  }, [accountAddress, provider, contractAddresses, setUserData]);
 
   useEffect(() => {
     updateData();
@@ -139,7 +139,7 @@ const DiamondPepesNfts = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress]);
+  }, [accountAddress, updateData, updateUserData, signer]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -322,7 +322,7 @@ const DiamondPepesNfts = () => {
             <Typography
               variant="h5"
               className={
-                "mr-auto ml-auto mt-auto text-stieglitz font-['Minecraft'] font-[0.2rem] break-words"
+                "mr-auto ml-auto mt-auto text-stieglitz font-['Minecraft'] font-[0.2rem] break-all"
               }
             >
               Mint contract
@@ -331,6 +331,7 @@ const DiamondPepesNfts = () => {
                 href={
                   'https://arbiscan.io/address/0xcAD9297f00487a88Afa120Bf9F4823B52AE388b0'
                 }
+                rel="noopener noreferrer"
                 target={'_blank'}
               >
                 0xcAD9297f00487a88Afa120Bf9F4823B52AE388b0

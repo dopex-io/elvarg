@@ -288,7 +288,7 @@ const ZapIn = ({
             tokenName != 'ETH' &&
             ssovTokenName != '' &&
             ssovTokenName !== tokenName ? (
-              <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full mb-52">
+              <Box className="rounded-xl col-flex mb-4 p-3 pb-0 border border-neutral-800 w-full">
                 <Box
                   className={
                     showSwapSteps

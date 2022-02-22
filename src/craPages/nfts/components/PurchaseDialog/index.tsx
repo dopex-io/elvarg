@@ -131,7 +131,7 @@ const PurchaseDialog = ({
       tokenName != 'SLP' &&
       tokenName.toUpperCase() !== baseTokenName.toUpperCase()
     );
-  }, [tokenName, baseTokenName, path]);
+  }, [tokenName, baseTokenName]);
 
   const pepeReserved: number = useMemo(() => {
     return data.mintPrice.gt(0)
@@ -144,11 +144,8 @@ const PurchaseDialog = ({
       isZapActive && tokenName !== 'ETH'
         ? diamondPepeNfts1inchRouter.address
         : yieldMint.address,
-    [isZapActive, isZapInVisible, amount]
+    [isZapActive, tokenName]
   );
-
-  const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
-    useState<boolean>(false);
 
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
 
@@ -170,7 +167,7 @@ const PurchaseDialog = ({
       const LPTokenForWeth = 1 / wethForLPToken;
       return getUserReadableAmount(wethAmount / LPTokenForWeth, 18);
     }
-  }, [amount, path, userTokenBalance]);
+  }, [amount, tokenName, path, data]);
 
   const purchasePower: number = useMemo(() => {
     if (tokenName === 'ETH')
@@ -215,6 +212,7 @@ const PurchaseDialog = ({
     }
   }, [
     isZapActive,
+    userAssetBalances,
     quote,
     path,
     slippageTolerance,
@@ -232,20 +230,6 @@ const PurchaseDialog = ({
       : await token.connect(signer).symbol();
     setTokenName(symbol);
   };
-
-  const zapInTotalCost: number = useMemo(() => {
-    if (!path['toTokenAmount'] || !quote['toTokenAmount']) return 0;
-    const price =
-      getUserReadableAmount(
-        path['toTokenAmount'],
-        quote['toToken']['decimals']
-      ) /
-      getUserReadableAmount(
-        path['fromTokenAmount'],
-        path['fromToken']['decimals']
-      );
-    return 0;
-  }, [path]);
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -353,18 +337,10 @@ const PurchaseDialog = ({
     getQuote();
   }, [tokenName]);
 
-  const activeIndex: number = useMemo(() => {
-    if (isZapInVisible) return 2;
-    else {
-      if (activeTab === 'deposit') return 0;
-      else return 1;
-    }
-  }, [activeTab, isZapInVisible]);
-
   const extraHeight: number = useMemo(() => {
     if (isZapInVisible) return 10;
     else return 0;
-  }, [activeTab, isZapInVisible]);
+  }, [isZapInVisible]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -383,7 +359,14 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress]);
+  }, [
+    signer,
+    updateData,
+    updateUserData,
+    yieldMint,
+    updateUserData,
+    updateData,
+  ]);
 
   const handlePurchase = useCallback(async () => {
     try {
@@ -421,8 +404,11 @@ const PurchaseDialog = ({
   }, [
     updateAssetBalances,
     accountAddress,
+    signer,
     tokenName,
     isZapActive,
+    updateData,
+    updateUserData,
     path,
     amount,
   ]);
@@ -502,7 +488,7 @@ const PurchaseDialog = ({
     ) {
       setTokenName(baseTokenName);
     }
-  }, [isZapInVisible]);
+  }, [isZapInVisible, amount, userTokenBalance]);
 
   return (
     <Dialog
@@ -544,7 +530,7 @@ const PurchaseDialog = ({
               <Box
                 className={
                   activeTab === 'deposit'
-                    ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
+                    ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
                     : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                 }
                 onClick={() => setActiveTab('deposit')}
@@ -564,7 +550,7 @@ const PurchaseDialog = ({
               <Box
                 className={
                   activeTab === 'mint'
-                    ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80 hover:opacity-80'
+                    ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
                     : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                 }
                 onClick={() => setActiveTab('mint')}
@@ -594,7 +580,6 @@ const PurchaseDialog = ({
                   className={`h-11 ${
                     isZapActive ? 'w-[15rem]' : 'w-[25rem]'
                   } bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer group`}
-                  onClick={() => setIsTokenSelectorVisible(true)}
                 >
                   <Box
                     className={`flex flex-row h-9 ${
@@ -862,7 +847,11 @@ const PurchaseDialog = ({
 
               <Box className={'flex mb-2'}>
                 <Box className="flex text-center p-2 mr-2">
-                  <img src="/assets/pepelock.svg" className="w-4 h-5" />
+                  <img
+                    src="/assets/pepelock.svg"
+                    className="w-4 h-5"
+                    alt="pepe"
+                  />
                 </Box>
                 <Typography variant="h6" className="text-[#78859E]">
                   This will lock your rDPX LP tokens for two weeks.
@@ -911,6 +900,7 @@ const PurchaseDialog = ({
                   >
                     <img
                       src={'/assets/diamondpepe.png'}
+                      alt="diamond pepe"
                       className={'w-[4rem] m-2 rounded-md'}
                     />
                     <Box>
@@ -967,7 +957,11 @@ const PurchaseDialog = ({
 
               <Box className="flex mb-2">
                 <Box className="flex text-center p-2 mr-2">
-                  <img src="/assets/alarm.svg" className="w-7 h-5" />
+                  <img
+                    src="/assets/alarm.svg"
+                    className="w-7 h-5"
+                    alt="Alarm"
+                  />
                 </Box>
                 <Typography variant="h6" className="text-[#78859E]">
                   Check the full reveal on Tofunft after the deposit period on
