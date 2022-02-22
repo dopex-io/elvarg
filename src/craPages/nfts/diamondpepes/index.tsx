@@ -229,8 +229,8 @@ const DiamondPepesNfts = () => {
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                Please note that you'll need to deposit 1.5 LP tokens minimum
-                per pepe for a guaranteed mint.
+                Please note that you'll need to deposit 10 LP tokens minimum per
+                pepe for a guaranteed mint.
                 <br />
                 <br />
               </Typography>
