@@ -255,7 +255,7 @@ export const WalletProvider = (props) => {
   }, [updateState, state.chainId]);
 
   useEffect(() => {
-    if (web3Modal.cachedProvider) {
+    if (web3Modal?.cachedProvider) {
       connect();
     } else {
       updateState({
