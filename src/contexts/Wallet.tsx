@@ -69,7 +69,7 @@ const DEFAULT_CHAIN_ID =
 
 let web3Modal;
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && window?.['BitKeepInvoke']) {
   const providerOptions = {
     walletconnect: {
       package: WalletConnectProvider,
