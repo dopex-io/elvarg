@@ -68,7 +68,7 @@ const TokenSelector = ({
               disableUnderline={true}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-11 text-lg text-white w-full text-base bg-umbra pl-3 pr-3 rounded-md"
+              className="h-11 text-lg text-white w-full bg-umbra pl-3 pr-3 rounded-md"
               placeholder="Search by token name"
               classes={{ input: 'text-white' }}
               startAdornment={
