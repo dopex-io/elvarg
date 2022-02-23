@@ -108,7 +108,7 @@ const Ssov = () => {
   }, []);
 
   return (
-    <Box className="bg-[url('/assets/vaultsbg.jpg')] bg-no-repeat min-h-screen">
+    <Box className="bg-[url('/assets/vaultsbg.jpg')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
