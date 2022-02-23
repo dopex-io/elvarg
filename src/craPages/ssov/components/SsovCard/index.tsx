@@ -50,7 +50,7 @@ function SsovCard(props) {
       : 'N/A';
 
   return (
-    <Box className={cx('p-0.5 rounded-xl', styles[name], styles.Box)}>
+    <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',

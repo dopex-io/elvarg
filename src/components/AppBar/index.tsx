@@ -199,10 +199,7 @@ export default function AppBar(props: AppBarProps) {
         handleClose={handleWalletDialogClose}
       />
       <nav
-        className={cx(
-          'bg-black fixed top-0 z-10 w-full text-gray-600',
-          styles.appBar
-        )}
+        className={cx('fixed top-0 z-10 w-full text-gray-600', styles.appBar)}
       >
         <Box className="flex w-full items-center container lg:px-0 p-4 justify-between mx-auto">
           <Box className="flex items-center">
