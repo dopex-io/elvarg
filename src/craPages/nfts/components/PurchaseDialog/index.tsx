@@ -411,7 +411,7 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible, token, isZapActive, amount, spender, getPath]);
+  }, [getPath]);
 
   const setMaxAmount = async () => {
     const amount = getUserReadableAmount(
