@@ -1,15 +1,31 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
-import Box from '@material-ui/core/Box';
 
+import { WalletContext } from 'contexts/Wallet';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
+
+import Box from '@material-ui/core/Box';
+import Checkbox from '@material-ui/core/Checkbox';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import SsovCard from './components/SsovCard';
-import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
 import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochsDropDown';
-import { WalletContext } from 'contexts/Wallet';
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+
+const SelectMenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: 324,
+      width: 250,
+    },
+  },
+  classes: {
+    paper: 'bg-mineshaft',
+  },
+};
 
 const CHAIN_NAME_TO_PREFERENCES = {
   BSC: {
@@ -33,6 +49,9 @@ const Ssov = () => {
   const [ssovs, setSsovs] = useState(null);
   const { supportedChainIds, chainId } = useContext(WalletContext);
   const showNetworkButtons: boolean = false;
+  const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
+  const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<string>('TVL');
 
   const keys = useMemo(() => {
     if (!ssovs) return [];
@@ -40,6 +59,42 @@ const Ssov = () => {
     else if (chainId === 43114) return [43114, 42161, 43114];
     else return [42161, 56, 43114];
   }, [ssovs, chainId]);
+
+  const ssovStrategies: string[] = ['CALL', 'PUT'];
+  const sortOptions: string[] = ['TVL', 'APY'];
+
+  const ssovsAssets = useMemo(() => {
+    if (!ssovs) return [];
+    const assets: string[] = [];
+    Object.keys(ssovs).map((key) => {
+      ssovs[key].map((ssov) => {
+        const asset = ssov.name;
+        if (!assets.includes(asset)) assets.push(asset);
+      });
+    });
+    return assets;
+  }, [ssovs]);
+
+  const handleSelectAsset = useCallback(
+    (event: React.ChangeEvent<{ value: string[] }>) => {
+      setSelectedSsovAssets(event.target.value);
+    },
+    []
+  );
+
+  const handleSelectStrategy = useCallback(
+    (event: React.ChangeEvent<{ value: string[] }>) => {
+      setSelectedStrategies(event.target.value);
+    },
+    []
+  );
+
+  const handleSelectSortBy = useCallback(
+    (event: React.ChangeEvent<{ value: string }>) => {
+      setSortBy(event.target.value);
+    },
+    []
+  );
 
   useEffect(() => {
     async function getData() {
@@ -68,7 +123,136 @@ const Ssov = () => {
             Available on Arbitrum, Avalanche and BSC.
           </Typography>
         </Box>
-        <LegacyEpochsDropDown />
+        <Box className="flex">
+          <Select
+            value={selectedSsovAssets}
+            className="bg-mineshaft rounded-md pr-2 pl-4 text-white h-8 ml-auto mr-3"
+            displayEmpty
+            multiple
+            onChange={handleSelectAsset}
+            disableUnderline
+            renderValue={() => {
+              return (
+                <Typography
+                  variant="h6"
+                  className="text-white text-center w-full relative"
+                >
+                  Asset
+                </Typography>
+              );
+            }}
+            MenuProps={SelectMenuProps}
+            classes={{
+              icon: 'absolute right-2 p-0.5 text-white',
+              select: 'overflow-hidden',
+            }}
+            label="asset"
+          >
+            {ssovsAssets.map((asset) => (
+              <MenuItem key={asset} value={asset} className="pb-2 pt-2">
+                <Checkbox
+                  className={
+                    selectedSsovAssets.includes(asset)
+                      ? 'p-0 text-white'
+                      : 'p-0 text-white border'
+                  }
+                  checked={selectedSsovAssets.includes(asset)}
+                />
+                <Typography
+                  variant="h5"
+                  className="text-white text-left w-full relative ml-3"
+                >
+                  {asset}
+                </Typography>
+              </MenuItem>
+            ))}
+          </Select>
+          <Select
+            value={selectedStrategies}
+            className="bg-mineshaft rounded-md pr-2 pl-4 text-white h-8 mr-3"
+            displayEmpty
+            multiple
+            onChange={handleSelectStrategy}
+            disableUnderline
+            renderValue={() => {
+              return (
+                <Typography
+                  variant="h6"
+                  className="text-white text-center w-full relative"
+                >
+                  Strategy
+                </Typography>
+              );
+            }}
+            MenuProps={SelectMenuProps}
+            classes={{
+              icon: 'absolute right-2 p-0.5 text-white',
+              select: 'overflow-hidden',
+            }}
+            label="strategy"
+          >
+            {ssovStrategies.map((strategy) => (
+              <MenuItem key={strategy} value={strategy} className="pb-2 pt-2">
+                <Checkbox
+                  className={
+                    selectedStrategies.includes(strategy)
+                      ? 'p-0 text-white'
+                      : 'p-0 text-white border'
+                  }
+                  checked={selectedStrategies.includes(strategy)}
+                />
+                <Typography
+                  variant="h5"
+                  className="text-white text-left w-full relative ml-3"
+                >
+                  {strategy}
+                </Typography>
+              </MenuItem>
+            ))}
+          </Select>
+          <Select
+            value={sortBy}
+            className="bg-mineshaft rounded-md pr-2 pl-4 text-white h-8 mr-auto"
+            displayEmpty
+            onChange={handleSelectSortBy}
+            disableUnderline
+            renderValue={() => {
+              return (
+                <Typography
+                  variant="h6"
+                  className="text-white text-center w-full relative"
+                >
+                  Sort by
+                </Typography>
+              );
+            }}
+            MenuProps={SelectMenuProps}
+            classes={{
+              icon: 'absolute right-2 p-0.5 text-white',
+              select: 'overflow-hidden',
+            }}
+            label="strategy"
+          >
+            {sortOptions.map((option) => (
+              <MenuItem key={option} value={option} className="pb-2 pt-2">
+                <Checkbox
+                  className={
+                    sortBy === option
+                      ? 'p-0 text-white'
+                      : 'p-0 text-white border'
+                  }
+                  checked={sortBy === option}
+                />
+                <Typography
+                  variant="h5"
+                  className="text-white text-left w-full relative ml-3"
+                >
+                  {option}
+                </Typography>
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
         {showNetworkButtons ? (
           <Box className="flex ml-9 mb-10">
             {supportedChainIds?.map((supportedChainId) => {
@@ -104,21 +288,43 @@ const Ssov = () => {
         ) : (
           <Box className="mb-10" />
         )}
+
         {ssovs
           ? keys.map((key) => {
               return (
                 <Box key={key} className="mb-12">
                   <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
                     {ssovs
-                      ? ssovs[key].map((ssov, index) => {
-                          return <SsovCard key={index} data={{ ...ssov }} />;
-                        })
+                      ? ssovs[key]
+                          .sort((a, b) =>
+                            parseFloat(a[sortBy.toLowerCase()]) <
+                            parseFloat(b[sortBy.toLowerCase()])
+                              ? 1
+                              : -1
+                          )
+                          .map((ssov, index) => {
+                            let visible: boolean = false;
+                            if (
+                              (selectedSsovAssets.length === 0 ||
+                                selectedSsovAssets.includes(ssov.name)) &&
+                              (selectedStrategies.length === 0 ||
+                                selectedStrategies.includes(
+                                  ssov.type.toUpperCase()
+                                ))
+                            )
+                              visible = true;
+                            return visible ? (
+                              <SsovCard key={index} data={{ ...ssov }} />
+                            ) : null;
+                          })
                       : null}
                   </Box>
                 </Box>
               );
             })
           : null}
+
+        <LegacyEpochsDropDown />
       </Box>
     </Box>
   );
