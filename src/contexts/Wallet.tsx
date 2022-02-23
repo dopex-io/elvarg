@@ -93,7 +93,7 @@ if (typeof window !== 'undefined') {
         package: null,
       },
     }),
-    ...(window.web3.currentProvider?.isBitKeep && {
+    ...(window.web3?.currentProvider?.isBitKeep && {
       injected: {
         display: {
           logo: '/wallets/Bitkeep.png',
