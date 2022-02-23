@@ -59,11 +59,11 @@ const Manage = () => {
 };
 
 const ManagePage = () => {
-  return (
+  return window?.web3 ? (
     <SsovProvider>
       <Manage />
     </SsovProvider>
-  );
+  ) : null;
 };
 
 export default ManagePage;
