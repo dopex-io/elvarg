@@ -5,66 +5,51 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-
 import {
   Addresses,
   ERC20,
   ERC20__factory,
-  ERC20SSOV1inchRouter__factory,
-  NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
   DiamondPepeNFTs1inchRouter__factory,
-  UniswapPair__factory,
   YieldMint,
 } from '@dopex-io/sdk';
-
-import { useFormik } from 'formik';
-import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
-import * as yup from 'yup';
-import noop from 'lodash/noop';
-import debounce from 'lodash/debounce';
-import format from 'date-fns/format';
-import { useDebounce } from 'use-debounce';
+import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
-import styles from './styles.module.scss';
-
 import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import Menu from '@material-ui/core/Menu';
 import Slide from '@material-ui/core/Slide';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+import { LoaderIcon } from 'react-hot-toast';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import PnlChart from 'components/PnlChart';
+import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import ZapInButton from 'components/ZapInButton';
+import ZapOutButton from 'components/ZapOutButton';
 import ZapIn from '../ZapIn';
-import EstimatedGasCostButton from '../../../../components/EstimatedGasCostButton';
-import ArrowRightIcon from '../../../../components/Icons/ArrowRightIcon';
-import ZapInButton from '../../../../components/ZapInButton';
-import ZapOutButton from '../../../../components/ZapOutButton';
-import getContractReadableAmount from '../../../../utils/contracts/getContractReadableAmount';
-import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
-import useBnbSsovConversion from '../../../../hooks/useBnbSsovConversion';
+
+import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
+import BigCrossIcon from 'components/Icons/BigCrossIcon';
+import ZapIcon from 'components/Icons/ZapIcon';
+
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+
 import { Data, UserData } from '../../diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 
 import useSendTx from 'hooks/useSendTx';
-import { MAX_VALUE, SSOV_MAP } from 'constants/index';
-import BigCrossIcon from '../../../../components/Icons/BigCrossIcon';
-import CircleIcon from '../../../../components/Icons/CircleIcon';
-import AlarmIcon from '../../../../components/Icons/AlarmIcon';
-import { LoaderIcon } from 'react-hot-toast';
-import ZapIcon from '../../../../components/Icons/ZapIcon';
+
+import { MAX_VALUE } from 'constants/index';
+
+import styles from './styles.module.scss';
 
 export interface Props {
   open: boolean;
@@ -144,7 +129,7 @@ const PurchaseDialog = ({
       isZapActive && tokenName !== 'ETH'
         ? diamondPepeNfts1inchRouter.address
         : yieldMint.address,
-    [isZapActive, tokenName]
+    [diamondPepeNfts1inchRouter, isZapActive, tokenName, yieldMint]
   );
 
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
@@ -199,14 +184,14 @@ const PurchaseDialog = ({
         price *
         getUserReadableAmount(
           userAssetBalances[tokenName],
-          getDecimalsFromSymbol(tokenName, chainId)
+          getTokenDecimals(tokenName)
         )
       );
     } else {
       return parseFloat(
         getUserReadableAmount(
           userTokenBalance,
-          getDecimalsFromSymbol(tokenName, chainId)
+          getTokenDecimals(tokenName)
         ).toString()
       );
     }
@@ -215,7 +200,6 @@ const PurchaseDialog = ({
     userAssetBalances,
     quote,
     path,
-    slippageTolerance,
     userTokenBalance,
     tokenName,
   ]);
@@ -224,12 +208,12 @@ const PurchaseDialog = ({
 
   const sendTx = useSendTx();
 
-  const handleTokenChange = async () => {
+  const handleTokenChange = useCallback(async () => {
     const symbol = IS_NATIVE(token)
       ? token
       : await token.connect(signer).symbol();
     setTokenName(symbol);
-  };
+  }, [signer, token]);
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -239,7 +223,7 @@ const PurchaseDialog = ({
     return price;
   }, [tokenPrices, tokenName]);
 
-  const getQuote = async () => {
+  const getQuote = useCallback(async () => {
     const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
@@ -248,7 +232,7 @@ const PurchaseDialog = ({
     if (fromTokenAddress === baseToken.address) return;
     if (fromTokenAddress === toTokenAddress) return;
 
-    const amount: number = 10 ** getDecimalsFromSymbol(tokenName, chainId);
+    const amount: number = 10 ** getTokenDecimals(tokenName);
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
         amount
@@ -256,9 +240,9 @@ const PurchaseDialog = ({
     );
 
     setQuote(data);
-  };
+  }, [accountAddress, baseToken.address, chainId, token, tokenName]);
 
-  const getPath = async () => {
+  const getPath = useCallback(async () => {
     const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
@@ -273,7 +257,7 @@ const PurchaseDialog = ({
       const { data } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${getContractReadableAmount(
           amount,
-          getDecimalsFromSymbol(tokenName, chainId)
+          getTokenDecimals(tokenName)
         )}&fromAddress=${spender}&slippage=0.1&disableEstimate=true`
       );
 
@@ -283,7 +267,7 @@ const PurchaseDialog = ({
     }
 
     setIsFetchingPath(false);
-  };
+  }, [amount, baseToken, chainId, spender, token, tokenName]);
 
   const openZapIn = () => {
     if (isZapActive) {
@@ -304,13 +288,13 @@ const PurchaseDialog = ({
               b,
               tokenPrices,
               userAssetBalances,
-              getDecimalsFromSymbol(b, chainId)
+              getTokenDecimals(b)
             ) -
             getValueInUsdFromSymbol(
               a,
               tokenPrices,
               userAssetBalances,
-              getDecimalsFromSymbol(a, chainId)
+              getTokenDecimals(a)
             )
           );
         });
@@ -335,7 +319,7 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     getQuote();
-  }, [tokenName]);
+  }, [getQuote]);
 
   const extraHeight: number = useMemo(() => {
     if (isZapInVisible) return 10;
@@ -359,14 +343,7 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [
-    signer,
-    updateData,
-    updateUserData,
-    yieldMint,
-    updateUserData,
-    updateData,
-  ]);
+  }, [signer, updateData, updateUserData, yieldMint, sendTx]);
 
   const handlePurchase = useCallback(async () => {
     try {
@@ -402,18 +379,22 @@ const PurchaseDialog = ({
       console.log(err);
     }
   }, [
-    updateAssetBalances,
-    accountAddress,
-    signer,
     tokenName,
-    isZapActive,
+    token,
+    updateAssetBalances,
     updateData,
     updateUserData,
-    path,
+    sendTx,
+    yieldMint,
+    signer,
     amount,
+    accountAddress,
+    aggregation1inchRouter,
+    path,
+    diamondPepeNfts1inchRouter,
   ]);
 
-  const checkDEXAggregatorStatus = async () => {
+  const checkDEXAggregatorStatus = useCallback(async () => {
     try {
       const { status } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
@@ -422,27 +403,27 @@ const PurchaseDialog = ({
     } catch (err) {
       setIsZapInAvailable(false);
     }
-  };
+  }, [chainId, diamondPepeNfts1inchRouter]);
 
   useEffect(() => {
     checkDEXAggregatorStatus();
-  }, []);
+  }, [checkDEXAggregatorStatus]);
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible, token, isZapActive, amount, spender]);
+  }, [isZapInVisible, token, isZapActive, amount, spender, getPath]);
 
   const setMaxAmount = async () => {
     const amount = getUserReadableAmount(
       userTokenBalance,
-      getDecimalsFromSymbol(tokenName, chainId)
+      getTokenDecimals(tokenName)
     );
     setRawAmount((IS_NATIVE(token) ? amount * 0.99 : amount).toFixed(3));
   };
 
   useEffect(() => {
     handleTokenChange();
-  }, [token]);
+  }, [handleTokenChange]);
 
   // Handles isApproved
   useEffect(() => {
@@ -475,20 +456,18 @@ const PurchaseDialog = ({
     isZapActive,
     isZapInVisible,
     spender,
+    token,
   ]);
 
   useEffect(() => {
     if (
       !isZapInVisible &&
       amount >
-        getUserReadableAmount(
-          userTokenBalance,
-          getDecimalsFromSymbol(tokenName, chainId)
-        )
+        getUserReadableAmount(userTokenBalance, getTokenDecimals(tokenName))
     ) {
       setTokenName(baseTokenName);
     }
-  }, [isZapInVisible, amount, userTokenBalance]);
+  }, [isZapInVisible, amount, userTokenBalance, tokenName]);
 
   return (
     <Dialog
@@ -654,7 +633,7 @@ const PurchaseDialog = ({
                       {formatAmount(
                         getUserReadableAmount(
                           userTokenBalance,
-                          getDecimalsFromSymbol(tokenName, chainId)
+                          getTokenDecimals(tokenName)
                         ),
                         2
                       )}
@@ -867,7 +846,7 @@ const PurchaseDialog = ({
                   amount >=
                     getUserReadableAmount(
                       userTokenBalance,
-                      getDecimalsFromSymbol(tokenName, chainId)
+                      getTokenDecimals(tokenName)
                     )
                 }
                 onClick={approved ? handlePurchase : handleApprove}
