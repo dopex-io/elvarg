@@ -159,7 +159,7 @@ export const WalletProvider = (props) => {
 
       if (
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
         setState((prevState) => ({
           ...prevState,
