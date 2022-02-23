@@ -72,7 +72,7 @@ const Ssov = () => {
         if (!assets.includes(asset)) assets.push(asset);
       });
     });
-    return assets;
+    return assets.sort((a, b) => (a > b ? 1 : -1));
   }, [ssovs]);
 
   const handleSelectAsset = useCallback(
@@ -108,7 +108,7 @@ const Ssov = () => {
   }, []);
 
   return (
-    <Box className="bg-[url('/assets/vaultsbg.jpg')] min-h-screen">
+    <Box className="bg-[url('/assets/vaultsbg.jpg')] bg-no-repeat min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
@@ -158,12 +158,18 @@ const Ssov = () => {
                   }
                   checked={selectedSsovAssets.includes(asset)}
                 />
-                <Typography
-                  variant="h5"
-                  className="text-white text-left w-full relative ml-3"
-                >
-                  {asset}
-                </Typography>
+                <Box className={'flex'}>
+                  <img
+                    src={'/assets/' + asset.toLowerCase() + '.svg'}
+                    className="w-6 ml-3 mt-[0.4px]"
+                  />
+                  <Typography
+                    variant="h5"
+                    className="text-white text-left w-full relative ml-2"
+                  >
+                    {asset}
+                  </Typography>
+                </Box>
               </MenuItem>
             ))}
           </Select>

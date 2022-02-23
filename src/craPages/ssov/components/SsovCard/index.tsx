@@ -70,7 +70,7 @@ function SsovCard(props) {
               <Typography variant="h5" className="mr-2">
                 {name}
               </Typography>
-              <img src={'/assets/' + type + 's.svg'} />
+              <img src={'/assets/' + type + 's.svg'} className="w-12" />
             </Box>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
