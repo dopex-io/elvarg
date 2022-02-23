@@ -70,16 +70,7 @@ function SsovCard(props) {
               <Typography variant="h5" className="mr-2">
                 {name}
               </Typography>
-              <Typography
-                variant="h5"
-                component="div"
-                className={cx(
-                  'capitalize px-2 py-1 rounded-md text-cod-gray',
-                  type === 'put' ? 'bg-down-bad' : 'bg-emerald-500'
-                )}
-              >
-                {type + 's'}
-              </Typography>
+              <img src={'/assets/' + type + 's.svg'} />
             </Box>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
