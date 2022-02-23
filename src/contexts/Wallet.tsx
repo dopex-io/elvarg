@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { useLocation } from 'react-router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
@@ -67,9 +73,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
 const DEFAULT_CHAIN_ID =
   Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
 
-let web3Modal;
-
-if (typeof window !== 'undefined') {
+export const WalletProvider = (props) => {
+  const location = useLocation();
   const providerOptions = {
     walletconnect: {
       package: WalletConnectProvider,
@@ -105,15 +110,17 @@ if (typeof window !== 'undefined') {
     }),
   };
 
-  web3Modal = new Web3Modal({
-    cacheProvider: true,
-    theme: 'dark',
-    providerOptions,
-  });
-}
-
-export const WalletProvider = (props) => {
-  const location = useLocation();
+  const web3Modal = useMemo(
+    () =>
+      typeof window !== 'undefined' && window?.['BitKeepInvoke']
+        ? new Web3Modal({
+            cacheProvider: true,
+            theme: 'dark',
+            providerOptions,
+          })
+        : null,
+    [window]
+  );
 
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
