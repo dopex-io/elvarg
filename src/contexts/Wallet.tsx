@@ -223,6 +223,7 @@ export const WalletProvider = (props) => {
   }, [updateState]);
 
   const disconnect = useCallback(() => {
+    if (!web3Modal) return;
     web3Modal.clearCachedProvider();
     setState((prevState) => ({
       ...prevState,
@@ -235,6 +236,7 @@ export const WalletProvider = (props) => {
   }, []);
 
   const changeWallet = useCallback(() => {
+    if (!web3Modal) return;
     web3Modal.clearCachedProvider();
     web3Modal
       .connect()
