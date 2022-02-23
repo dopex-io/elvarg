@@ -254,7 +254,11 @@ export const WalletProvider = (props) => {
 
   useEffect(() => {
     if (web3Modal.cachedProvider) {
-      connect();
+      try {
+        connect();
+      } catch (err) {
+        console.log(err);
+      }
     } else {
       updateState({
         web3Provider: CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID],
