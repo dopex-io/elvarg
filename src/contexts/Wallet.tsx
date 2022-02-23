@@ -110,17 +110,11 @@ export const WalletProvider = (props) => {
     }),
   };
 
-  const web3Modal = useMemo(
-    () =>
-      typeof window !== 'undefined' && window?.['BitKeepInvoke']
-        ? new Web3Modal({
-            cacheProvider: true,
-            theme: 'dark',
-            providerOptions,
-          })
-        : null,
-    [window]
-  );
+  const web3Modal = new Web3Modal({
+    cacheProvider: true,
+    theme: 'dark',
+    providerOptions,
+  });
 
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
@@ -217,16 +211,27 @@ export const WalletProvider = (props) => {
   );
 
   const connect = useCallback(() => {
-    web3Modal.connect().then(async (provider) => {
-      provider.on('accountsChanged', async () => {
-        await updateState({ web3Provider: provider, isUser: true });
-      });
+    web3Modal
+      .connect()
+      .then(async (provider) => {
+        provider.on('accountsChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
 
-      provider.on('chainChanged', async () => {
+        provider.on('chainChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
         await updateState({ web3Provider: provider, isUser: true });
+      })
+      .catch(async () => {
+        await updateState({
+          web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
+          ethersProvider: ethers.getDefaultProvider(
+            CHAIN_ID_TO_PROVIDERS[state.chainId]
+          ),
+          isUser: false,
+        });
       });
-      await updateState({ web3Provider: provider, isUser: true });
-    });
   }, [updateState]);
 
   const disconnect = useCallback(() => {
