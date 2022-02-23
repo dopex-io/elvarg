@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -23,6 +23,7 @@ import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
+import { WalletContext } from 'contexts/Wallet';
 
 const Description = ({
   ssovData,
@@ -36,6 +37,7 @@ const Description = ({
   type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
+  const { accountAddress, connect } = useContext(WalletContext);
   const { convertToBNB } = useBnbSsovConversion();
 
   const { APY, isVaultReady } = ssovEpochData;
@@ -129,7 +131,7 @@ const Description = ({
               fullWidth
               className="rounded-lg"
               onClick={() => {
-                setPurchaseState(true);
+                accountAddress ? setPurchaseState(true) : connect();
               }}
               disabled={!isVaultReady}
             >
