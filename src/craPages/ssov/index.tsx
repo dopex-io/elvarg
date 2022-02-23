@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
@@ -32,6 +32,14 @@ const CHAIN_NAME_TO_PREFERENCES = {
 const Ssov = () => {
   const [ssovs, setSsovs] = useState(null);
   const { supportedChainIds, chainId } = useContext(WalletContext);
+  const showNetworkButtons: boolean = false;
+
+  const keys = useMemo(() => {
+    if (!ssovs) return [];
+    else if (chainId === 56) return [56, 42161, 43114];
+    else if (chainId === 43114) return [43114, 42161, 43114];
+    else return [42161, 56, 43114];
+  }, [ssovs, chainId]);
 
   useEffect(() => {
     async function getData() {
@@ -61,48 +69,55 @@ const Ssov = () => {
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
-        <Box className="flex ml-9 mb-10">
-          {supportedChainIds?.map((supportedChainId) => {
-            const data = CHAIN_ID_TO_NETWORK_DATA[supportedChainId];
-            return (
-              <Box
-                className={`flex space-x-3 rounded-md p-3 pr-5 items-center hover:opacity-90 mr-3 
+        {showNetworkButtons ? (
+          <Box className="flex ml-9 mb-10">
+            {supportedChainIds?.map((supportedChainId) => {
+              const data = CHAIN_ID_TO_NETWORK_DATA[supportedChainId];
+              return (
+                <Box
+                  className={`flex space-x-3 rounded-md p-3 pr-5 items-center hover:opacity-90 mr-3 
                 ${
                   CHAIN_ID_TO_NETWORK_DATA[chainId].name === data.name
                     ? CHAIN_NAME_TO_PREFERENCES[data.name]['bgActive']
                     : CHAIN_NAME_TO_PREFERENCES[data.name]['bg']
                 }`}
-                onClick={() => {
-                  changeOrAddNetworkToMetaMask(supportedChainId);
-                }}
-                role="button"
-              >
-                <Box>
-                  <img src={data.icon} alt={data.name} width="20" height="22" />
-                </Box>
-                <Typography variant="h5" className="text-white font-mono">
-                  {CHAIN_NAME_TO_PREFERENCES[data.name]['extendedName']}
-                </Typography>
-              </Box>
-            );
-          })}
-        </Box>
-        {ssovs
-          ? Object.keys(ssovs)
-              .sort((a, b) => (a > b ? 1 : -1))
-              .map((key) => {
-                return (
-                  <Box key={key} className="mb-12">
-                    <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-                      {ssovs
-                        ? ssovs[key].map((ssov, index) => {
-                            return <SsovCard key={index} data={{ ...ssov }} />;
-                          })
-                        : null}
-                    </Box>
+                  onClick={() => {
+                    changeOrAddNetworkToMetaMask(supportedChainId);
+                  }}
+                  role="button"
+                >
+                  <Box>
+                    <img
+                      src={data.icon}
+                      alt={data.name}
+                      width="20"
+                      height="22"
+                    />
                   </Box>
-                );
-              })
+                  <Typography variant="h5" className="text-white font-mono">
+                    {CHAIN_NAME_TO_PREFERENCES[data.name]['extendedName']}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+        ) : (
+          <Box className="mb-10" />
+        )}
+        {ssovs
+          ? keys.map((key) => {
+              return (
+                <Box key={key} className="mb-12">
+                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+                    {ssovs
+                      ? ssovs[key].map((ssov, index) => {
+                          return <SsovCard key={index} data={{ ...ssov }} />;
+                        })
+                      : null}
+                  </Box>
+                </Box>
+              );
+            })
           : null}
       </Box>
     </Box>
