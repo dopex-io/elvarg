@@ -3,27 +3,26 @@ import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
+import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
+
+import { SSOV_MAP } from 'constants/index';
+import ssovInfo from 'constants/ssovInfo';
+
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
-
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
-import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-
-import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
-
 import styles from './styles.module.scss';
-import { WalletContext } from 'contexts/Wallet';
 
 const Description = ({
   ssovData,
