@@ -10,6 +10,7 @@ import { BigNumber } from 'ethers';
 import { BaseNFT__factory, BaseNFT } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
+import getTokenUri from '../utils/contracts/getTokenUri';
 
 export interface NftData {
   nftName: string;
@@ -54,7 +55,7 @@ export const NftsProvider = (props) => {
 
       const [nftName, nftUri] = await Promise.all([
         nftContract.name(),
-        nftContract.tokenURI(0),
+        getTokenUri(nftContract),
       ]);
 
       nftsData.push({
