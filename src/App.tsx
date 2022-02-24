@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { ApolloProvider } from '@apollo/client';
 import { ThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import Error from 'next/error';
+import Script from 'next/script';
 
 import theme from './style/muiTheme';
 
@@ -115,6 +116,7 @@ const App = () => {
     <StylesProvider injectFirst>
       <ThemeProvider theme={theme}>
         <ApolloProvider client={client}>
+          <Script src="/js/bitkeep.js"></Script>
           <Toaster position="bottom-right" reverseOrder={true} />
           <AppRoutes />
         </ApolloProvider>
