@@ -7,6 +7,7 @@ import AppBar from 'components/AppBar';
 import Description from '../components/Description';
 import ManageCard from '../components/ManageCard';
 import ExerciseList from '../components/ExerciseList';
+import Sidebar from '../components/Sidebar';
 import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
 
@@ -39,8 +40,11 @@ const Manage = () => {
         <title>SSOV | Dopex</title>
       </Head>
       <AppBar active="SSOV" />
-      <Box className="py-12 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-        <Box className="flex flex-col mt-20">
+      <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
+        <Box className="w-[22%] ml-10 mt-20">
+          <Sidebar />
+        </Box>
+        <Box className="flex flex-col mt-20 w-[51%]">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
               ssovData={ssovData}
@@ -48,10 +52,14 @@ const Manage = () => {
               ssovUserData={ssovUserData}
               type={selectedSsov.type}
             />
-            <ManageCard />
           </Box>
           {ssovUserData === undefined ? null : <ExerciseList />}
           {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
+        </Box>
+        <Box className="flex w-[21%] mr-auto">
+          <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[6rem] right-[3.5rem] absolute">
+            <ManageCard />
+          </Box>
         </Box>
       </Box>
     </Box>

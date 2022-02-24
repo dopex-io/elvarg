@@ -201,7 +201,7 @@ export default function AppBar(props: AppBarProps) {
       <nav
         className={cx('fixed top-0 z-10 w-full text-gray-600', styles.appBar)}
       >
-        <Box className="flex w-full items-center container lg:px-0 p-4 justify-between mx-auto">
+        <Box className="flex w-full items-center container pl-10 pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
             <a
               className="flex items-center mr-6 cursor-pointer hover:no-underline"
