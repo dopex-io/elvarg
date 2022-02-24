@@ -2,14 +2,15 @@ import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 
-import { WalletContext } from 'contexts/Wallet';
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
-import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
-
 import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+
+import { WalletContext } from 'contexts/Wallet';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
+
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import SsovCard from './components/SsovCard';
@@ -108,7 +109,7 @@ const Ssov = () => {
   }, []);
 
   return (
-    <Box className="bg-[url('/assets/vaultsbg.jpg')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
