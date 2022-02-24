@@ -8,7 +8,6 @@ import React, {
 import {
   Addresses,
   ERC20,
-  Curve2PoolSsovPut1inchRouter,
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
   NativeSSOV1inchRouter__factory,
@@ -46,8 +45,8 @@ import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
+import get1inchQuote from 'utils/general/get1inchQuote';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -62,6 +61,7 @@ import {
 import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
 
 import styles from './styles.module.scss';
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 export interface Props {
   open: boolean;
@@ -84,34 +84,43 @@ const PurchaseDialog = ({
     useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
     useContext(WalletContext);
+  const { convertToVBNB } = useContext(BnbConversionContext);
 
   const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
-  const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
-    ? Aggregation1inchRouterV4__factory.connect(
-        Addresses[chainId]['1inchRouter'],
-        signer
-      )
-    : null;
-  const erc20SSOV1inchRouter = Addresses[chainId]['ERC20SSOV1inchRouter']
-    ? ERC20SSOV1inchRouter__factory.connect(
-        Addresses[chainId]['ERC20SSOV1inchRouter'],
-        signer
-      )
-    : null;
-  const nativeSSOV1inchRouter = Addresses[chainId]['NativeSSOV1inchRouter']
-    ? NativeSSOV1inchRouter__factory.connect(
-        Addresses[chainId]['NativeSSOV1inchRouter'],
-        signer
-      )
-    : null;
+  const {
+    aggregation1inchRouter,
+    erc20SSOV1inchRouter,
+    nativeSSOV1inchRouter,
+  } = useMemo(() => {
+    return {
+      aggregation1inchRouter: contractAddresses['1inchRouter']
+        ? Aggregation1inchRouterV4__factory.connect(
+            contractAddresses['1inchRouter'],
+            signer
+          )
+        : null,
+      erc20SSOV1inchRouter: contractAddresses['ERC20SSOV1inchRouter']
+        ? ERC20SSOV1inchRouter__factory.connect(
+            contractAddresses['ERC20SSOV1inchRouter'],
+            signer
+          )
+        : null,
+      nativeSSOV1inchRouter: contractAddresses['NativeSSOV1inchRouter']
+        ? NativeSSOV1inchRouter__factory.connect(
+            contractAddresses['NativeSSOV1inchRouter'],
+            signer
+          )
+        : null,
+    };
+  }, [contractAddresses, signer]);
+
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
-  const bnbSsovConversion = useBnbSsovConversion();
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovSigner.token[0]
   );
-  const ssovToken = ssovSigner.token[0];
+  const ssovToken = useMemo(() => ssovSigner.token[0], [ssovSigner]);
   const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
     ssovData;
   const { ssovContractWithSigner, ssovRouter } = ssovSigner;
@@ -139,27 +148,50 @@ const PurchaseDialog = ({
     setUserEpochStrikePurchasableAmount,
   ] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const ssovTokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
-  const ssovTokenName = ssovData.tokenName;
+
+  const ssovTokenSymbol = useMemo(
+    () => SSOV_MAP[ssovData.tokenName].tokenSymbol,
+    [ssovData]
+  );
+
+  const ssovTokenName = useMemo(() => ssovData.tokenName, [ssovData]);
+
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
+
   const isZapActive: boolean = useMemo(() => {
     return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
   }, [tokenName, ssovTokenSymbol]);
 
-  const spender: string = isPut
-    ? ssovData.ssovContract.address
-    : isZapActive
-    ? IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB'
-      ? nativeSSOV1inchRouter?.address
-      : erc20SSOV1inchRouter?.address
-    : ssovTokenName === 'BNB'
-    ? ssovRouter.address
-    : ssovContractWithSigner.address;
+  const spender = useMemo(() => {
+    if (isPut) {
+      return ssovData.ssovContract.address;
+    } else if (isZapActive) {
+      if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
+        return nativeSSOV1inchRouter?.address;
+      } else {
+        return erc20SSOV1inchRouter?.address;
+      }
+    } else if (ssovTokenName === 'BNB') {
+      return ssovRouter.address;
+    } else {
+      return ssovContractWithSigner.address;
+    }
+  }, [
+    erc20SSOV1inchRouter,
+    isPut,
+    isZapActive,
+    nativeSSOV1inchRouter,
+    ssovContractWithSigner,
+    ssovData.ssovContract,
+    ssovRouter,
+    ssovTokenName,
+  ]);
 
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
+
   const purchasePower: number = useMemo(() => {
     if (isZapActive) {
       let price: number;
@@ -188,18 +220,25 @@ const PurchaseDialog = ({
         price *
         getUserReadableAmount(
           userAssetBalances[tokenName],
-          getDecimalsFromSymbol(tokenName, chainId)
+          getTokenDecimals(tokenName)
         )
       );
     } else {
       return parseFloat(
         getUserReadableAmount(
           userTokenBalance,
-          getDecimalsFromSymbol(tokenName, chainId)
+          getTokenDecimals(tokenName)
         ).toString()
       );
     }
-  }, [isZapActive, quote, path, slippageTolerance, userTokenBalance]);
+  }, [
+    isZapActive,
+    path,
+    quote,
+    userAssetBalances,
+    tokenName,
+    userTokenBalance,
+  ]);
 
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
 
@@ -218,39 +257,49 @@ const PurchaseDialog = ({
     [strikeIndex, epochStrikeTokens]
   );
 
-  const getQuote = useCallback(async () => {
-    const fromTokenAddress: string = IS_NATIVE(token)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : token.address;
-    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
-      ? ssovTokenName === 'BNB'
-        ? contractAddresses['VBNB']
-        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : ssovToken.address;
-    if (fromTokenAddress === toTokenAddress) return;
-    const amount: number = 10 ** getTokenDecimals(tokenName);
-    const { data } = await axios.get(
-      `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
-        amount
-      )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
-    );
+  // Updates the 1inch quote
+  useEffect(() => {
+    async function updateQuote() {
+      const fromTokenAddress: string = IS_NATIVE(token)
+        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : token.address;
+      const toTokenAddress: string = IS_NATIVE(ssovTokenName)
+        ? ssovTokenName === 'BNB'
+          ? contractAddresses['VBNB']
+          : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : ssovToken.address;
 
-    setQuote(data);
+      if (fromTokenAddress === toTokenAddress) return;
+
+      const amount: number = 10 ** getTokenDecimals(tokenName);
+
+      const quote = await get1inchQuote({
+        fromTokenAddress,
+        toTokenAddress,
+        amount,
+        chainId,
+        accountAddress,
+      });
+
+      setQuote(quote);
+    }
+
+    updateQuote();
   }, [
     accountAddress,
-    ssovToken,
+    chainId,
+    contractAddresses,
+    ssovToken.address,
     ssovTokenName,
     token,
     tokenName,
-    contractAddresses,
   ]);
 
   const handleTokenChange = useCallback(async () => {
     if (!token) return;
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
-    await getQuote();
-  }, [getQuote, token]);
+  }, [token]);
 
   const zapInTotalCost: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
@@ -266,10 +315,10 @@ const PurchaseDialog = ({
     return (
       getUserReadableAmount(
         state.totalCost,
-        getDecimalsFromSymbol(ssovTokenSymbol, chainId)
+        getTokenDecimals(ssovTokenSymbol)
       ) / price
     );
-  }, [state.totalCost, path]);
+  }, [path, quote, state.totalCost, ssovTokenSymbol]);
 
   const zapInPurchasePower: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
@@ -283,7 +332,7 @@ const PurchaseDialog = ({
         path['fromToken']['decimals']
       );
     return purchasePower / price;
-  }, [purchasePower, path]);
+  }, [path, quote, purchasePower]);
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -293,7 +342,7 @@ const PurchaseDialog = ({
     return price;
   }, [tokenPrices, tokenName]);
 
-  const updateUserEpochStrikePurchasableAmount = async () => {
+  const updateUserEpochStrikePurchasableAmount = useCallback(async () => {
     if (!epochStrikeToken || !ssovContractWithSigner) {
       setUserEpochStrikePurchasableAmount(0);
       return;
@@ -305,7 +354,7 @@ const PurchaseDialog = ({
     setUserEpochStrikePurchasableAmount(
       getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
     );
-  };
+  }, [epochStrikeToken, ssovContractWithSigner]);
 
   const [rawOptionsAmount, setRawOptionsAmount] = useState<string>('1');
   const optionsAmount: number = useMemo(() => {
@@ -319,7 +368,7 @@ const PurchaseDialog = ({
 
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
-  const getPath = async () => {
+  const getPath = useCallback(async () => {
     if (!isZapActive) return;
     setIsFetchingPath(true);
     const fromTokenAddress: string = IS_NATIVE(token)
@@ -377,7 +426,18 @@ const PurchaseDialog = ({
     setPath(bestPath);
     setIsFetchingPath(false);
     return bestPath;
-  };
+  }, [
+    chainId,
+    isZapActive,
+    quote,
+    slippageTolerance,
+    spender,
+    ssovToken.address,
+    ssovTokenName,
+    ssovTokenSymbol,
+    state.totalCost,
+    token,
+  ]);
 
   const openZapIn = () => {
     if (isZapActive) {
@@ -432,7 +492,7 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [token, signer, sendTx, spender]);
+  }, [sendTx, isPut, token, signer, spender]);
 
   const handlePurchase = useCallback(async () => {
     try {
@@ -543,24 +603,32 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
       setRawOptionsAmount('0');
-      updateSsovEpochData();
-      updateSsovUserData();
-      updateAssetBalances();
     }
   }, [
-    state.totalCost,
+    accountAddress,
+    aggregation1inchRouter,
+    chainId,
+    erc20SSOV1inchRouter,
+    getPath,
+    isPut,
+    nativeSSOV1inchRouter,
+    optionsAmount,
+    sendTx,
     ssovContractWithSigner,
+    ssovData,
+    ssovRouter,
+    ssovToken.address,
+    ssovTokenName,
+    ssovTokenSymbol,
+    state.totalCost,
+    strikeIndex,
+    tokenName,
+    updateAssetBalances,
     updateSsovEpochData,
     updateSsovUserData,
-    updateAssetBalances,
-    accountAddress,
-    tokenName,
-    strikeIndex,
-    isZapActive,
-    isPut,
   ]);
 
-  const checkDEXAggregatorStatus = async () => {
+  const checkDEXAggregatorStatus = useCallback(async () => {
     try {
       const { status } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
@@ -571,15 +639,15 @@ const PurchaseDialog = ({
     } catch (err) {
       setIsZapInAvailable(false);
     }
-  };
+  }, [chainId, erc20SSOV1inchRouter, nativeSSOV1inchRouter]);
 
   useEffect(() => {
     checkDEXAggregatorStatus();
-  }, []);
+  }, [checkDEXAggregatorStatus]);
 
   useEffect(() => {
     getPath();
-  }, [isZapInVisible]);
+  }, [getPath]);
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
@@ -613,7 +681,19 @@ const PurchaseDialog = ({
         }
       }
     })();
-  }, [token, accountAddress, ssovContractWithSigner, approved, purchasePower]);
+  }, [
+    token,
+    accountAddress,
+    ssovContractWithSigner,
+    approved,
+    purchasePower,
+    isPut,
+    tokenName,
+    ssovTokenName,
+    chainId,
+    signer,
+    spender,
+  ]);
 
   const setMaxAmount = async () => {
     if (isPurchaseStatsLoading) return;
@@ -638,7 +718,7 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     updateUserEpochStrikePurchasableAmount();
-  }, [strikeIndex]);
+  }, [updateUserEpochStrikePurchasableAmount]);
 
   // Calculate the Option Price & Fees
   useEffect(() => {
@@ -731,9 +811,7 @@ const PurchaseDialog = ({
         if (isZapActive && ssovTokenSymbol === 'BNB') {
           const bnbToVBnb =
             parseInt(
-              bnbSsovConversion
-                .convertToVBNB(BigNumber.from('100000000000000000000'))
-                .toString()
+              convertToVBNB(BigNumber.from('100000000000000000000')).toString()
             ) / 99.5; // keep 0.5% of extra margin for the router
           totalCost = BigNumber.from(
             Math.round(
@@ -770,6 +848,9 @@ const PurchaseDialog = ({
     ssovTokenName,
     isPut,
     ssovData,
+    ssovTokenSymbol,
+    isZapActive,
+    convertToVBNB,
   ]);
 
   // Handles isApproved
@@ -834,7 +915,71 @@ const PurchaseDialog = ({
 
   useEffect(() => {
     getPath();
-  }, [state.totalCost]);
+  }, [getPath]);
+
+  const purchaseButtonProps = useMemo(() => {
+    const disabled = Boolean(
+      optionsAmount <= 0 ||
+        isFetchingPath ||
+        !isPurchasePowerEnough ||
+        isPurchaseStatsLoading ||
+        getUserReadableAmount(state.totalCost, 18) > purchasePower ||
+        !isLiquidityEnough
+    );
+
+    let onClick = () => {};
+
+    if (optionsAmount > 0 && isPurchasePowerEnough) {
+      if (approved) {
+        if (userEpochStrikePurchasableAmount >= optionsAmount) {
+          onClick = handlePurchase;
+        }
+      } else {
+        onClick = handleApprove;
+      }
+    }
+
+    let children = 'Enter an amount';
+
+    if (isLiquidityEnough) {
+      if (isPurchaseStatsLoading) {
+        children = 'Loading prices...';
+      } else if (optionsAmount > 0) {
+        if (isFetchingPath) {
+          children = 'Loading Swap Path....';
+        } else if (getUserReadableAmount(state.totalCost, 18) > purchasePower) {
+          children = 'Insufficient Balance';
+        } else if (approved) {
+          children = 'Purchase';
+        } else {
+          children = 'Approve';
+        }
+      } else {
+        children = 'Enter an amount';
+      }
+    } else {
+      children = 'Not enough liquidity';
+    }
+
+    return {
+      disabled,
+      children,
+      color: disabled ? 'mineshaft' : 'primary',
+      onClick,
+    };
+  }, [
+    approved,
+    handleApprove,
+    handlePurchase,
+    isFetchingPath,
+    isLiquidityEnough,
+    isPurchasePowerEnough,
+    isPurchaseStatsLoading,
+    optionsAmount,
+    purchasePower,
+    state.totalCost,
+    userEpochStrikePurchasableAmount,
+  ]);
 
   return (
     <Dialog
@@ -1223,51 +1368,14 @@ const PurchaseDialog = ({
             and can be settled anytime after expiry.
           </Typography>
         </Box>
-
         <CustomButton
           size="medium"
           className="w-full mt-4 !rounded-md"
-          color={
-            optionsAmount <= 0 ||
-            isFetchingPath ||
-            !isPurchasePowerEnough ||
-            isPurchaseStatsLoading ||
-            getUserReadableAmount(state.totalCost, 18) > purchasePower ||
-            !isLiquidityEnough
-              ? 'mineshaft'
-              : 'primary'
-          }
-          disabled={
-            optionsAmount <= 0 ||
-            !!isPurchaseStatsLoading ||
-            isFetchingPath ||
-            !isPurchasePowerEnough ||
-            !isLiquidityEnough ||
-            getUserReadableAmount(state.totalCost, 18) > purchasePower
-          }
-          onClick={
-            optionsAmount > 0 && isPurchasePowerEnough
-              ? approved
-                ? userEpochStrikePurchasableAmount < optionsAmount
-                  ? null
-                  : handlePurchase
-                : handleApprove
-              : null
-          }
+          color={purchaseButtonProps.color}
+          disabled={purchaseButtonProps.disabled}
+          onClick={purchaseButtonProps.onClick}
         >
-          {isLiquidityEnough
-            ? isPurchaseStatsLoading
-              ? 'Loading prices...'
-              : optionsAmount > 0
-              ? isFetchingPath
-                ? 'Purchase'
-                : getUserReadableAmount(state.totalCost, 18) > purchasePower
-                ? 'Insufficient balance'
-                : approved
-                ? 'Purchase'
-                : 'Approve'
-              : 'Enter an amount'
-            : 'Not enough liquidity'}
+          {purchaseButtonProps.children}
         </CustomButton>
       </Box>
       <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>

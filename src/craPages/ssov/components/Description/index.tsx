@@ -3,12 +3,12 @@ import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
@@ -37,7 +37,7 @@ const Description = ({
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useContext(WalletContext);
-  const { convertToBNB } = useBnbSsovConversion();
+  const { convertToBNB } = useContext(BnbConversionContext);
 
   const { APY, isVaultReady } = ssovEpochData;
 
