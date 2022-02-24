@@ -1046,11 +1046,7 @@ const PurchaseDialog = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      $
-                      {formatAmount(
-                        getUserReadableAmount(state.optionPrice, 8),
-                        2
-                      )}
+                      ${ethers.utils.formatUnits(state.optionPrice, 8)}
                     </Typography>
                   </Box>
                 </Box>
@@ -1147,9 +1143,11 @@ const PurchaseDialog = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 $
-                {formatAmount(
-                  getUserReadableAmount(state.optionPrice, 8) * optionsAmount,
-                  0
+                {ethers.utils.formatUnits(
+                  state.optionPrice.mul(
+                    ethers.utils.parseEther(String(optionsAmount))
+                  ),
+                  26
                 )}
               </Typography>
             </Box>
