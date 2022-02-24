@@ -17,8 +17,7 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
 import { SsovContext } from 'contexts/Ssov';
-
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import { SSOV_MAP } from 'constants/index';
 
@@ -54,7 +53,7 @@ const StatsTableData = (
     tokenSymbol,
   } = props;
 
-  const { convertToBNB } = useBnbSsovConversion();
+  const { convertToBNB } = useContext(BnbConversionContext);
 
   const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
 
@@ -141,7 +140,7 @@ const ROWS_PER_PAGE = 5;
 const Stats = (props: { className?: string }) => {
   const { className } = props;
 
-  const { convertToVBNB } = useBnbSsovConversion();
+  const { convertToVBNB } = useContext(BnbConversionContext);
 
   const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovContext);
 

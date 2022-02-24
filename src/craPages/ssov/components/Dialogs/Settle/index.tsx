@@ -10,6 +10,7 @@ import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -17,7 +18,6 @@ import formatAmount from 'utils/general/formatAmount';
 import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 export interface Props {
   open: boolean;
@@ -45,7 +45,7 @@ const Settle = ({
     selectedSsov,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
-  const { convertToVBNB } = useBnbSsovConversion();
+  const { convertToVBNB } = useContext(BnbConversionContext);
 
   const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
