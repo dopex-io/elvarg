@@ -120,11 +120,6 @@ export default function AppBar(props: AppBarProps) {
   const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
     useContext(WalletContext);
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
-  const ssovTokens = {
-    42161: ['ETH', 'DPX', 'RDPX', 'GOHM', 'GMX'],
-    56: ['BNB'],
-    43114: ['AVAX'],
-  };
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
@@ -236,17 +231,16 @@ export default function AppBar(props: AppBarProps) {
           </Box>
           <Box className="flex items-center">
             <Box className="space-x-2 mr-4 hidden lg:flex">
-              {tokenPrices.map(
-                (item) =>
-                  ssovTokens[chainId].includes(item['name']) && (
-                    <PriceTag
-                      key={item.name}
-                      asset={item.name}
-                      price={item.price}
-                      change={item.change24h}
-                    />
-                  )
-              )}
+              {tokenPrices
+                .filter((item) => ['DPX', 'RDPX', 'ETH'].includes(item['name']))
+                .map((item) => (
+                  <PriceTag
+                    key={item.name}
+                    asset={item.name}
+                    price={item.price}
+                    change={item.change24h}
+                  />
+                ))}
             </Box>
             {/* {baseAssetsWithPrices ? (
               <PriceTag
