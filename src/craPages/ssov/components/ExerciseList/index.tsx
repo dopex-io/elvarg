@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
@@ -42,13 +42,15 @@ const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
   const { accountAddress } = useContext(WalletContext);
-  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch } =
+  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
     useContext(SsovContext);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
   >([]);
   const [page, setPage] = useState(0);
+
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
   const { currentEpoch, tokenPrice, tokenName } = ssovData;
   const {
@@ -100,10 +102,20 @@ const ExerciseList = () => {
           settleableAmount.gt(0) && settlementPrice.gt(strike);
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
-          ? tokenPrice
+          ? isPut
+            ? strike
+                .sub(tokenPrice)
+                .mul(userEpochOptionsPurchased[strikeIndex])
+                .div(ssovData.lpPrice)
+            : tokenPrice
+                .sub(strike)
+                .mul(userEpochOptionsPurchased[strikeIndex])
+                .div(tokenPrice)
+          : isPut
+          ? settlementPrice
               .sub(strike)
               .mul(userEpochOptionsPurchased[strikeIndex])
-              .div(tokenPrice)
+              .div(ssovData.lpPrice)
           : settlementPrice
               .sub(strike)
               .mul(userEpochOptionsPurchased[strikeIndex])
@@ -144,6 +156,8 @@ const ExerciseList = () => {
     tokenPrice,
     settlementPrice,
     tokenName,
+    isPut,
+    ssovData,
   ]);
 
   return selectedEpoch > 0 ? (
