@@ -469,7 +469,6 @@ const PurchaseDialog = ({
           );
           ``;
         } else {
-          console.log('lal');
           await sendTx(
             ssovContractWithSigner.purchase(
               strikeIndex,
@@ -775,7 +774,7 @@ const PurchaseDialog = ({
 
   // Handles isApproved
   useEffect(() => {
-    if (!token || !ssovContractWithSigner) return;
+    if (!ssovContractWithSigner) return;
     (async function () {
       const finalAmount = state.totalCost;
       if (isPut) {
@@ -794,6 +793,7 @@ const PurchaseDialog = ({
           setApproved(false);
         }
       } else {
+        if (!token) return;
         const userAmount = IS_NATIVE(token)
           ? BigNumber.from(
               userAssetBalances[CURRENCIES_MAP[chainId.toString()]]
@@ -1046,11 +1046,7 @@ const PurchaseDialog = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      $
-                      {formatAmount(
-                        getUserReadableAmount(state.optionPrice, 8),
-                        2
-                      )}
+                      ${ethers.utils.formatUnits(state.optionPrice, 8)}
                     </Typography>
                   </Box>
                 </Box>
@@ -1147,9 +1143,11 @@ const PurchaseDialog = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 $
-                {formatAmount(
-                  getUserReadableAmount(state.optionPrice, 8) * optionsAmount,
-                  0
+                {ethers.utils.formatUnits(
+                  state.optionPrice.mul(
+                    ethers.utils.parseEther(String(optionsAmount))
+                  ),
+                  26
                 )}
               </Typography>
             </Box>
@@ -1257,19 +1255,19 @@ const PurchaseDialog = ({
               : null
           }
         >
-          {isPurchaseStatsLoading
-            ? 'Loading prices...'
-            : optionsAmount > 0
-            ? isFetchingPath
-              ? 'Purchase'
-              : getUserReadableAmount(state.totalCost, 18) > purchasePower
-              ? 'Insufficient balance'
-              : approved
-              ? userEpochStrikePurchasableAmount < optionsAmount
-                ? 'Not enough liquidity'
-                : 'Purchase'
-              : 'Approve'
-            : 'Enter an amount'}
+          {isLiquidityEnough
+            ? isPurchaseStatsLoading
+              ? 'Loading prices...'
+              : optionsAmount > 0
+              ? isFetchingPath
+                ? 'Purchase'
+                : getUserReadableAmount(state.totalCost, 18) > purchasePower
+                ? 'Insufficient balance'
+                : approved
+                ? 'Purchase'
+                : 'Approve'
+              : 'Enter an amount'
+            : 'Not enough liquidity'}
         </CustomButton>
       </Box>
       <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>

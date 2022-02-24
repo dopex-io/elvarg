@@ -95,6 +95,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
+  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
 ];
@@ -199,7 +200,10 @@ export default function AppBar(props: AppBarProps) {
         handleClose={handleWalletDialogClose}
       />
       <nav
-        className={cx('fixed top-0 z-10 w-full text-gray-600', styles.appBar)}
+        className={cx(
+          'fixed top-0 z-50 w-full text-gray-600',
+          styles.appBar
+        )}
       >
         <Box className="flex w-full items-center container lg:px-0 p-4 justify-between mx-auto">
           <Box className="flex items-center">
