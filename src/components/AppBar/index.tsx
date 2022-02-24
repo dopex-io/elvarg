@@ -201,7 +201,7 @@ export default function AppBar(props: AppBarProps) {
       />
       <nav
         className={cx(
-          'bg-black fixed top-0 z-50 w-full text-gray-600',
+          'fixed top-0 z-50 w-full text-gray-600',
           styles.appBar
         )}
       >

@@ -1,14 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
+
 import Box from '@material-ui/core/Box';
+import { WalletContext } from 'contexts/Wallet';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
-import SsovCard from './components/SsovCard';
 import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochsDropDown';
+import SsovCard from './components/SsovCard';
+import SsovFilter from './components/SsovFilter';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+const CHAIN_NAME_TO_PREFERENCES = {
+  BSC: {
+    extendedName: 'BINANCE',
+    bg: 'bg-umbra',
+    bgActive: 'bg-[#706031]',
+  },
+  Avalanche: {
+    extendedName: 'AVALANCHE',
+    bg: 'bg-umbra',
+    bgActive: 'bg-[#602222]',
+  },
+  Arbitrum: {
+    extendedName: 'ARBITRUM',
+    bg: 'bg-umbra',
+    bgActive: 'bg-[#2D364D]',
+  },
+};
+
+const ssovStrategies: string[] = ['CALL', 'PUT'];
+const sortOptions: string[] = ['TVL', 'APY'];
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
@@ -27,6 +51,29 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 
 const Ssov = () => {
   const [ssovs, setSsovs] = useState(null);
+  const { supportedChainIds, chainId } = useContext(WalletContext);
+  const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
+  const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<string>('TVL');
+
+  const keys = useMemo(() => {
+    if (!ssovs) return [];
+    else if (chainId === 56) return [56, 42161, 43114];
+    else if (chainId === 43114) return [43114, 42161, 43114];
+    else return [42161, 56, 43114];
+  }, [ssovs, chainId]);
+
+  const ssovsAssets = useMemo(() => {
+    if (!ssovs) return [];
+    const assets: string[] = [];
+    Object.keys(ssovs).map((key) => {
+      ssovs[key].map((ssov) => {
+        const asset = ssov.name;
+        if (!assets.includes(asset)) assets.push(asset);
+      });
+    });
+    return assets.sort((a, b) => (a > b ? 1 : -1));
+  }, [ssovs]);
 
   useEffect(() => {
     async function getData() {
@@ -40,14 +87,14 @@ const Ssov = () => {
   }, []);
 
   return (
-    <Box className="bg-black min-h-screen">
+    <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
       <AppBar active="SSOV" />
-      <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+      <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
-          <Typography variant="h1" className="mb-1">
+          <Typography variant="h2" className="mb-7">
             Single Staking Option Vaults
           </Typography>
           <Typography variant="h5" className="text-stieglitz">
@@ -56,23 +103,72 @@ const Ssov = () => {
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
+        <Box className="flex mb-4">
+          <Box className="ml-auto mr-3">
+            <SsovFilter
+              activeFilters={selectedSsovAssets}
+              setActiveFilters={setSelectedSsovAssets}
+              text={'Asset'}
+              options={ssovsAssets}
+              multiple={true}
+              showImages={true}
+            />
+          </Box>
+          <Box className="mr-3">
+            <SsovFilter
+              activeFilters={selectedStrategies}
+              setActiveFilters={setSelectedStrategies}
+              text={'Strategy'}
+              options={ssovStrategies}
+              multiple={false}
+              showImages={false}
+            />
+          </Box>
+          <Box className="mr-auto">
+            <SsovFilter
+              activeFilters={sortBy}
+              setActiveFilters={setSortBy}
+              text={'Sort by'}
+              options={sortOptions}
+              multiple={false}
+              showImages={false}
+            />
+          </Box>
+        </Box>
         {ssovs
-          ? Object.keys(ssovs)
-              .sort((a, b) => (a > b ? 1 : -1))
-              .map((key) => {
-                return (
-                  <Box key={key} className="mb-12">
-                    <NetworkHeader chainId={Number(key)} />
-                    <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-                      {ssovs
-                        ? ssovs[key].map((ssov, index) => {
-                            return <SsovCard key={index} data={{ ...ssov }} />;
+          ? keys.map((key) => {
+              return (
+                <Box key={key} className="mb-12">
+                  <NetworkHeader chainId={Number(key)} />
+                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+                    {ssovs
+                      ? ssovs[key]
+                          .sort((a, b) =>
+                            parseFloat(a[sortBy.toLowerCase()]) <
+                            parseFloat(b[sortBy.toLowerCase()])
+                              ? 1
+                              : -1
+                          )
+                          .map((ssov, index) => {
+                            let visible: boolean = false;
+                            if (
+                              (selectedSsovAssets.length === 0 ||
+                                selectedSsovAssets.includes(ssov.name)) &&
+                              (selectedStrategies.length === 0 ||
+                                selectedStrategies.includes(
+                                  ssov.type.toUpperCase()
+                                ))
+                            )
+                              visible = true;
+                            return visible ? (
+                              <SsovCard key={index} data={{ ...ssov }} />
+                            ) : null;
                           })
-                        : null}
-                    </Box>
+                      : null}
                   </Box>
-                );
-              })
+                </Box>
+              );
+            })
           : null}
       </Box>
     </Box>

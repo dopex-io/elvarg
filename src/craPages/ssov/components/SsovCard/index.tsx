@@ -53,7 +53,7 @@ function SsovCard(props) {
       : 'N/A';
 
   return (
-    <Box className={cx('p-0.5 rounded-xl', styles[name], styles.Box)}>
+    <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -73,16 +73,11 @@ function SsovCard(props) {
               <Typography variant="h5" className="mr-2">
                 {name}
               </Typography>
-              <Typography
-                variant="h5"
-                component="div"
-                className={cx(
-                  'capitalize px-2 py-1 rounded-md text-cod-gray',
-                  type === 'put' ? 'bg-down-bad' : 'bg-emerald-500'
-                )}
-              >
-                {type + 's'}
-              </Typography>
+              <img
+                src={'/assets/' + type + 's.svg'}
+                className="w-12"
+                alt={type}
+              />
             </Box>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
