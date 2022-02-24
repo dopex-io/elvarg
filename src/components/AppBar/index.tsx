@@ -95,6 +95,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
+  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
 ];
@@ -200,7 +201,7 @@ export default function AppBar(props: AppBarProps) {
       />
       <nav
         className={cx(
-          'bg-black fixed top-0 z-10 w-full text-gray-600',
+          'bg-black fixed top-0 z-50 w-full text-gray-600',
           styles.appBar
         )}
       >
