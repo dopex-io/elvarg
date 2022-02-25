@@ -167,6 +167,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
+          {console.log(pnlAmount.toString())}
           {pnlAmount.gte(0)
             ? `${formatAmount(
                 tokenSymbol === 'vBNB'

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
@@ -42,9 +42,12 @@ const Settle = ({
     ssovUserData,
     ssovSigner,
     selectedEpoch,
+    selectedSsov,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
   const { convertToVBNB } = useBnbSsovConversion();
+
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
   const { tokenName } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
@@ -76,10 +79,16 @@ const Settle = ({
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL = !settlementPrice.isZero()
-    ? settlementPrice
-        .sub(epochStrikes[strikeIndex])
-        .mul(settleableAmount)
-        .div(settlementPrice)
+    ? isPut
+      ? epochStrikes[strikeIndex]
+          .sub(settlementPrice)
+          .mul(settleableAmount)
+          .mul(1e10)
+          .div(ssovData.lpPrice)
+      : settlementPrice
+          .sub(epochStrikes[strikeIndex])
+          .mul(settleableAmount)
+          .div(settlementPrice)
     : BigNumber.from(0);
 
   const handleApprove = useCallback(async () => {
