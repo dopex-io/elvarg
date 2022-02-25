@@ -96,7 +96,7 @@ const Sidebar = ({}: {}) => {
         </Typography>
       </Box>
       <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-umbra">
-        <img src={'/assets/magic.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
+        <img src={'/assets/magicstars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
         <Typography variant="h6" className="text-white">
           Vault
         </Typography>
