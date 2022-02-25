@@ -239,6 +239,14 @@ const Settle = ({
           <CustomButton
             size="large"
             className="w-11/12 mr-1"
+            onClick={handleApprove}
+            disabled={approved}
+          >
+            Approve
+          </CustomButton>
+          <CustomButton
+            size="large"
+            className="w-11/12 ml-1"
             disabled={
               !approved ||
               settleableAmount.eq(BigNumber.from(0)) ||
@@ -247,14 +255,6 @@ const Settle = ({
             onClick={handleSettle}
           >
             Settle
-          </CustomButton>
-          <CustomButton
-            size="large"
-            className="w-11/12 ml-1"
-            onClick={handleApprove}
-            disabled={approved}
-          >
-            Approve
           </CustomButton>
         </Box>
         <Box className="flex justify-between">

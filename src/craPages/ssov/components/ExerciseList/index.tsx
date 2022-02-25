@@ -115,9 +115,10 @@ const ExerciseList = () => {
                 .mul(userEpochOptionsPurchased[strikeIndex])
                 .div(tokenPrice)
           : isPut
-          ? settlementPrice
-              .sub(strike)
-              .mul(userEpochOptionsPurchased[strikeIndex])
+          ? strike
+              .sub(settlementPrice)
+              .mul(settleableAmount)
+              .mul(1e10)
               .div(ssovData.lpPrice)
           : settlementPrice
               .sub(strike)
