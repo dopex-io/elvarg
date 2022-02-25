@@ -99,7 +99,9 @@ const ExerciseList = () => {
         const settleableAmount =
           userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
         const isSettleable =
-          settleableAmount.gt(0) && settlementPrice.gt(strike);
+          settleableAmount.gt(0) &&
+          ((isPut && settlementPrice.lt(strike)) ||
+            (!isPut && settlementPrice.gt(strike)));
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
           ? isPut
