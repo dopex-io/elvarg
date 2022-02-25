@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { useLocation } from 'react-router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
@@ -60,6 +66,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/put/CRV': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
+  '/nfts/diamondpepes': [42161],
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
 };
@@ -67,9 +74,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
 const DEFAULT_CHAIN_ID =
   Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
 
-let web3Modal;
-
-if (typeof window !== 'undefined') {
+export const WalletProvider = (props) => {
+  const location = useLocation();
   const providerOptions = {
     walletconnect: {
       package: WalletConnectProvider,
@@ -93,17 +99,23 @@ if (typeof window !== 'undefined') {
         package: null,
       },
     }),
+    ...(window.web3?.currentProvider?.isBitKeep && {
+      injected: {
+        display: {
+          logo: '/wallets/Bitkeep.png',
+          name: 'Bitkeep',
+          description: 'Connect to your Bitkeep Wallet',
+        },
+        package: null,
+      },
+    }),
   };
 
-  web3Modal = new Web3Modal({
+  const web3Modal = new Web3Modal({
     cacheProvider: true,
     theme: 'dark',
     providerOptions,
   });
-}
-
-export const WalletProvider = (props) => {
-  const location = useLocation();
 
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
@@ -149,7 +161,7 @@ export const WalletProvider = (props) => {
 
       if (
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
         setState((prevState) => ({
           ...prevState,
@@ -200,19 +212,31 @@ export const WalletProvider = (props) => {
   );
 
   const connect = useCallback(() => {
-    web3Modal.connect().then(async (provider) => {
-      provider.on('accountsChanged', async () => {
-        await updateState({ web3Provider: provider, isUser: true });
-      });
+    web3Modal
+      .connect()
+      .then(async (provider) => {
+        provider.on('accountsChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
 
-      provider.on('chainChanged', async () => {
+        provider.on('chainChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
         await updateState({ web3Provider: provider, isUser: true });
+      })
+      .catch(async () => {
+        await updateState({
+          web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
+          ethersProvider: ethers.getDefaultProvider(
+            CHAIN_ID_TO_PROVIDERS[state.chainId]
+          ),
+          isUser: false,
+        });
       });
-      await updateState({ web3Provider: provider, isUser: true });
-    });
   }, [updateState]);
 
   const disconnect = useCallback(() => {
+    if (!web3Modal) return;
     web3Modal.clearCachedProvider();
     setState((prevState) => ({
       ...prevState,
@@ -225,6 +249,7 @@ export const WalletProvider = (props) => {
   }, []);
 
   const changeWallet = useCallback(() => {
+    if (!web3Modal) return;
     web3Modal.clearCachedProvider();
     web3Modal
       .connect()
@@ -243,7 +268,7 @@ export const WalletProvider = (props) => {
   }, [updateState, state.chainId]);
 
   useEffect(() => {
-    if (web3Modal.cachedProvider) {
+    if (web3Modal?.cachedProvider) {
       connect();
     } else {
       updateState({

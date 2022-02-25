@@ -141,7 +141,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
         </Box>
         <Box className="flex justify-between">
           <Typography variant="h6" className="text-stieglitz mb-2">
-            Balance: {userEpochStrikeTokenBalance.toString()}
+            Balance: {getUserReadableAmount(userEpochStrikeTokenBalance, 18)}
           </Typography>
           <Typography
             variant="h6"
