@@ -106,6 +106,7 @@ const ExerciseList = () => {
             ? strike
                 .sub(tokenPrice)
                 .mul(userEpochOptionsPurchased[strikeIndex])
+                .mul(1e10)
                 .div(ssovData.lpPrice)
             : tokenPrice
                 .sub(strike)

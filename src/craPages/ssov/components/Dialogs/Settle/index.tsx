@@ -83,6 +83,7 @@ const Settle = ({
       ? epochStrikes[strikeIndex]
           .sub(settlementPrice)
           .mul(settleableAmount)
+          .mul(1e10)
           .div(ssovData.lpPrice)
       : settlementPrice
           .sub(epochStrikes[strikeIndex])
