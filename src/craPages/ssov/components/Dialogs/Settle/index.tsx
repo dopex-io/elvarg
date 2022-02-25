@@ -164,7 +164,10 @@ const Settle = ({
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={`/assets/${token}.svg`} alt={`${token}`} />
+                <img
+                  src={`/assets/${token.toLowerCase()}.svg`}
+                  alt={`${token}`}
+                />
               </Box>
               <Typography variant="h5" className="text-white">
                 {`${token}-CALL${strikePrice}-EPOCH-${selectedEpoch}`}
