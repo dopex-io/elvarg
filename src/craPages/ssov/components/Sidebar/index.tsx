@@ -28,7 +28,7 @@ import styles from './styles.module.scss';
 
 const Sidebar = ({}: {}) => {
   return (
-    <Box className={'absolute w-[21rem]'}>
+    <Box className={'absolute w-[20rem]'}>
       <Box className={'flex'}>
         <Typography variant="h5" className="text-stieglitz">
           Epoch
@@ -116,11 +116,11 @@ const Sidebar = ({}: {}) => {
         <img src={'/assets/arbitrum-full.svg'} className={'h-11'} />
         <Box
           className={
-            'absolute right-[10px] top-[7px] bg-umbra p-2 pt-1.5 pb-1.5 rounded-md'
+            'absolute right-[10px] top-[8px] bg-umbra p-2 pt-1 pb-1 rounded-md'
           }
         >
-          <Typography variant="h5" className="text-white text-sm">
-            x0123...dfb
+          <Typography variant="h5" className="text-white text-[11px]">
+            0x123...dfb
           </Typography>
         </Box>
       </Box>

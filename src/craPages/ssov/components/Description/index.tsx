@@ -35,7 +35,6 @@ const Description = ({
   ssovUserData: SsovUserData;
   type: string;
 }) => {
-  const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useContext(WalletContext);
   const { convertToBNB } = useBnbSsovConversion();
 
@@ -93,71 +92,28 @@ const Description = ({
   ];
 
   return (
-    <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
-      <Typography variant="h1" className="mb-6 flex items-center space-x-3">
-        <span>{tokenSymbol} SSOV</span>
-        <span
-          className={cx(
-            'text-lg text-black p-1.5 rounded-md',
-            isPut ? 'bg-down-bad' : 'bg-emerald-500'
-          )}
-        >
-          {type + 'S'}
-        </span>
-      </Typography>
-      <Typography variant="h5" className="text-stieglitz mb-6">
-        <span className="text-white">
+    <Box className={'w-3/4'}>
+      <Box className={'flex'}>
+        <Box className={'border-[2px] border-gray-500 rounded-full'}>
+          <img
+            src={'/assets/' + tokenSymbol.toLowerCase() + '.svg'}
+            className={'w-20 h-20'}
+          />
+        </Box>
+        <Typography variant="h1" className="ml-5 flex items-center space-x-3">
+          Single Staking Option Vault ({tokenSymbol})
+        </Typography>
+      </Box>
+      <Typography variant="h4" className="text-stieglitz mt-6 mb-6">
+        <span className="text-white mr-2">
           {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>
+        {ssovInfo[tokenSymbol].mainPageMessage}
         <br />
-        {isPut
-          ? 'Deposit 2CRV (or USDT, USDC) into strikes providing liquidity into option pools to earn Fee APY, Curve rewards and premiums in 2CRV from each option purchase.'
-          : ssovInfo[tokenSymbol].mainPageMessage}
+        <br />
+        This farms simultaneously auto-compounds, farms and supplies ETH
+        liquidity to our first options pool.
       </Typography>
-      <Box className="flex justify-center items-center flex-row mb-6">
-        <Tooltip
-          className="text-stieglitz"
-          title={
-            !isVaultReady
-              ? 'Options can not be bought during the deposit period'
-              : ''
-          }
-          arrow={true}
-        >
-          <Box className="w-full mr-2">
-            <WalletButton
-              size="medium"
-              fullWidth
-              className="rounded-lg"
-              onClick={() => {
-                accountAddress ? setPurchaseState(true) : connect();
-              }}
-              disabled={!isVaultReady}
-            >
-              Buy {type} Options
-            </WalletButton>
-          </Box>
-        </Tooltip>
-        <EpochSelector />
-      </Box>
-      <Box className="grid grid-cols-3 gap-2 mb-6">
-        {info.map((item) => {
-          return <InfoBox key={item.heading} {...item} />;
-        })}
-      </Box>
-      {purchaseState && (
-        <PurchaseDialog
-          open={purchaseState}
-          ssovUserData={ssovUserData}
-          ssovData={ssovData}
-          ssovEpochData={ssovEpochData}
-          handleClose={
-            (() => {
-              setPurchaseState(false);
-            }) as any
-          }
-        />
-      )}
     </Box>
   );
 };

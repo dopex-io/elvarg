@@ -6,9 +6,9 @@ import Box from '@material-ui/core/Box';
 import AppBar from 'components/AppBar';
 import Description from '../components/Description';
 import ManageCard from '../components/ManageCard';
-import ExerciseList from '../components/ExerciseList';
 import Sidebar from '../components/Sidebar';
-import Stats from '../components/Stats';
+import Deposits from '../components/Deposits';
+import Withdrawals from '../components/Withdrawals';
 import PageLoader from 'components/PageLoader';
 
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
@@ -41,10 +41,10 @@ const Manage = () => {
       </Head>
       <AppBar active="SSOV" />
       <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
-        <Box className="w-[22%] ml-10 mt-20">
+        <Box className="w-[20%] ml-10 mt-20">
           <Sidebar />
         </Box>
-        <Box className="flex flex-col mt-20 w-[51%]">
+        <Box className="mt-20 w-[56%] pl-5 pr-5">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
               ssovData={ssovData}
@@ -53,11 +53,18 @@ const Manage = () => {
               type={selectedSsov.type}
             />
           </Box>
-          {ssovUserData === undefined ? null : <ExerciseList />}
-          {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
+          <Deposits />
+          <Box className={'mt-12'}>
+            <Withdrawals
+              ssovData={ssovData}
+              ssovEpochData={ssovEpochData}
+              ssovUserData={ssovUserData}
+              type={selectedSsov.type}
+            />
+          </Box>
         </Box>
-        <Box className="flex w-[21%] mr-auto">
-          <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[6rem] right-[3.5rem] absolute">
+        <Box className="flex w-[24%] mr-auto">
+          <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[6rem] right-[2.5rem] absolute">
             <ManageCard />
           </Box>
         </Box>
