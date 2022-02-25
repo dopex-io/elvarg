@@ -164,7 +164,10 @@ const Settle = ({
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={`/assets/${token}.svg`} alt={`${token}`} />
+                <img
+                  src={`/assets/${token.toLowerCase()}.svg`}
+                  alt={`${token}`}
+                />
               </Box>
               <Typography variant="h5" className="text-white">
                 {`${token}-CALL${strikePrice}-EPOCH-${selectedEpoch}`}
@@ -236,6 +239,14 @@ const Settle = ({
           <CustomButton
             size="large"
             className="w-11/12 mr-1"
+            onClick={handleApprove}
+            disabled={approved}
+          >
+            Approve
+          </CustomButton>
+          <CustomButton
+            size="large"
+            className="w-11/12 ml-1"
             disabled={
               !approved ||
               settleableAmount.eq(BigNumber.from(0)) ||
@@ -244,14 +255,6 @@ const Settle = ({
             onClick={handleSettle}
           >
             Settle
-          </CustomButton>
-          <CustomButton
-            size="large"
-            className="w-11/12 ml-1"
-            onClick={handleApprove}
-            disabled={approved}
-          >
-            Approve
           </CustomButton>
         </Box>
         <Box className="flex justify-between">
