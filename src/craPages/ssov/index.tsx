@@ -48,8 +48,10 @@ const Ssov = () => {
     if (!ssovs) return [];
     const assets: string[] = [];
     Object.keys(ssovs).map((key) => {
-      ssovs[key].map((ssov) => {
+      Object.keys(ssovs[key]).map((symbol) => {
+        const ssov = ssovs[key][symbol];
         const asset = ssov.name;
+        console.log(asset);
         if (!assets.includes(asset)) assets.push(asset);
       });
     });
@@ -62,7 +64,28 @@ const Ssov = () => {
         .get('https://api.dopex.io/api/v1/ssov')
         .then((payload) => payload.data);
 
-      setSsovs(data);
+      const processedData = {};
+      for (let ssovChainid in data) {
+        processedData[ssovChainid] = {};
+        data[ssovChainid].map((ssov) => {
+          if (!processedData[ssovChainid][ssov['name']])
+            processedData[ssovChainid][ssov['name']] = {
+              name: ssov['name'],
+              epochTimes: ssov['epochTimes'],
+              chainid: ssov['chainId'],
+              currentEpoch: ssov['currentEpoch'],
+            };
+
+          processedData[ssovChainid][ssov['name']][ssov['type']] = {
+            apy: ssov['apy'],
+            tvl: ssov['tvl'],
+            currentEpoch: ssov['currentEpoch'],
+            totalEpochDeposits: ssov['totalEpochDeposits'],
+          };
+        });
+      }
+
+      setSsovs(processedData);
     }
     getData();
   }, []);
@@ -123,28 +146,22 @@ const Ssov = () => {
                   <NetworkHeader chainId={Number(key)} />
                   <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
                     {ssovs
-                      ? ssovs[key]
-                          .sort((a, b) =>
-                            parseFloat(a[sortBy.toLowerCase()]) <
-                            parseFloat(b[sortBy.toLowerCase()])
-                              ? 1
-                              : -1
+                      ? Object.keys(ssovs[key]).map((symbol, index) => {
+                          const ssov = ssovs[key][symbol];
+                          let visible: boolean = false;
+                          if (
+                            (selectedSsovAssets.length === 0 ||
+                              selectedSsovAssets.includes(ssov.name)) &&
+                            (selectedStrategies.length === 0 ||
+                              selectedStrategies.includes(
+                                ssov.type.toUpperCase()
+                              ))
                           )
-                          .map((ssov, index) => {
-                            let visible: boolean = false;
-                            if (
-                              (selectedSsovAssets.length === 0 ||
-                                selectedSsovAssets.includes(ssov.name)) &&
-                              (selectedStrategies.length === 0 ||
-                                selectedStrategies.includes(
-                                  ssov.type.toUpperCase()
-                                ))
-                            )
-                              visible = true;
-                            return visible ? (
-                              <SsovCard key={index} data={{ ...ssov }} />
-                            ) : null;
-                          })
+                            visible = true;
+                          return visible ? (
+                            <SsovCard key={index} data={{ ...ssov }} />
+                          ) : null;
+                        })
                       : null}
                   </Box>
                 </Box>

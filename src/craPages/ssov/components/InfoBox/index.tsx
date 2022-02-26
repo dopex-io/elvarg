@@ -6,7 +6,6 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import Typography from 'components/UI/Typography';
 
 interface InfoBoxProps {
-  Icon?: React.FC;
   imgSrc?: string;
   heading: string;
   value: string;
@@ -15,7 +14,6 @@ interface InfoBoxProps {
 }
 
 const InfoBox = ({
-  Icon,
   imgSrc,
   heading,
   value,
@@ -24,14 +22,8 @@ const InfoBox = ({
 }: InfoBoxProps) => {
   return (
     <Box className={cx('flex flex-col p-4 bg-umbra rounded-xl', className)}>
-      <Box className="mb-2 flex flex-row">
-        {Icon ? (
-          <Icon />
-        ) : imgSrc ? (
-          <img src={imgSrc} alt="logo" className="w-10 h-10" />
-        ) : null}
-      </Box>
-      <Box className="flex flex-row">
+      <Typography variant="h5">{value}</Typography>
+      <Box className="flex flex-row mt-1">
         <Typography
           variant="caption"
           component="div"
@@ -51,7 +43,6 @@ const InfoBox = ({
           </Box>
         ) : null}
       </Box>
-      <Typography variant="h4">{value}</Typography>
     </Box>
   );
 };
