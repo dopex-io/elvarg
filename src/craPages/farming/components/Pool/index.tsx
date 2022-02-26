@@ -312,7 +312,6 @@ const Pool = ({
                     handleStake();
                     navigate('/farms/manage');
                   }}
-                  disabled={token?.selectedBaseAsset === 'RDPX' ? true : false}
                 >
                   Stake
                 </CustomButton>
