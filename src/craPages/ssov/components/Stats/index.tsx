@@ -151,7 +151,7 @@ const Stats = ({
             <Typography variant="h5" className="text-stieglitz">
               Purchased
             </Typography>
-            <Box className="h-[11.2rem]"></Box>
+            <Box className="h-[9.5em]"></Box>
           </Box>
           <Box className={'w-full flex'}>
             <Box
@@ -228,27 +228,15 @@ const Stats = ({
           <Box className={'w-full flex'}>
             <Box
               className={
-                'p-4 pl-5 pr-5 rounded-xl rounded-tr-none rounded-tl-none border-r-none rounded-br-none border-[0.1px] border-gray-600 w-1/2'
+                'p-4 pl-5 pr-5 rounded-xl rounded-tr-none rounded-tl-none border-r-none border-[0.1px] border-gray-600 w-full'
               }
             >
-              <Typography variant="h4" className="text-white mb-1">
-                4,314 {tokenName}
-              </Typography>
-              <Typography variant="h5" className="text-stieglitz">
-                Total
-              </Typography>
-            </Box>
-            <Box
-              className={
-                'p-4 pl-5 pr-5 rounded-xl rounded-tr-none rounded-tl-none rounded-bl-none border-[0.1px] border-gray-600 w-1/2'
-              }
-            >
-              <Typography variant="h4" className="text-white mb-1">
-                63,1%
-              </Typography>
-              <Typography variant="h5" className="text-stieglitz">
-                Utilization
-              </Typography>
+              <Box className="flex mb-1">
+                <Typography variant="h5" className="text-stieglitz">
+                  APR
+                </Typography>
+                <ArrowUpIcon className="mr-1 ml-auto mt-2 rotate-240 opacity-50" />
+              </Box>
             </Box>
           </Box>
         </Box>
