@@ -143,7 +143,7 @@ const Stats = ({
             <Typography variant="h5" className="text-stieglitz">
               Purchased
             </Typography>
-            <Box className="h-[10rem]"></Box>
+            <Box className="h-[11.15rem]"></Box>
           </Box>
           <Box className={'w-full flex'}>
             <Box
