@@ -5,31 +5,12 @@ import Head from 'next/head';
 import Box from '@material-ui/core/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
-import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochsDropDown';
 import SsovCard from './components/SsovCard';
 import SsovFilter from './components/SsovFilter';
-
-const CHAIN_NAME_TO_PREFERENCES = {
-  BSC: {
-    extendedName: 'BINANCE',
-    bg: 'bg-umbra',
-    bgActive: 'bg-[#706031]',
-  },
-  Avalanche: {
-    extendedName: 'AVALANCHE',
-    bg: 'bg-umbra',
-    bgActive: 'bg-[#602222]',
-  },
-  Arbitrum: {
-    extendedName: 'ARBITRUM',
-    bg: 'bg-umbra',
-    bgActive: 'bg-[#2D364D]',
-  },
-};
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -51,7 +32,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 
 const Ssov = () => {
   const [ssovs, setSsovs] = useState(null);
-  const { supportedChainIds, chainId } = useContext(WalletContext);
+  const { chainId } = useContext(WalletContext);
   const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');

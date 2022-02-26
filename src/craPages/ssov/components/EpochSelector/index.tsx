@@ -19,25 +19,29 @@ export default function EpochSelector({ className }: { className?: string }) {
     [setSelectedEpoch]
   );
 
-  const epochs = useMemo(
-    () =>
-      Array(currentEpoch)
-        .join()
-        .split(',')
-        .map((_i, index) => {
-          return (
-            <MenuItem
-              value={index + 1}
-              key={index + 1}
-              className="text-white"
-              disabled={index + 1 === currentEpoch}
-            >
-              Epoch {index + 1} {currentEpoch === index + 1 ? '(Current)' : ''}
-            </MenuItem>
-          );
-        }),
-    [currentEpoch]
-  );
+  const epochs = useMemo(() => {
+    let _epoch = currentEpoch;
+
+    if (ssovData.isCurrentEpochExpired) {
+      _epoch += 1;
+    }
+
+    return Array(_epoch)
+      .join()
+      .split(',')
+      .map((_i, index) => {
+        return (
+          <MenuItem
+            value={index + 1}
+            key={index + 1}
+            className="text-white"
+            disabled={index + 1 === currentEpoch}
+          >
+            Epoch {index + 1} {currentEpoch === index + 1 ? '(Current)' : ''}
+          </MenuItem>
+        );
+      });
+  }, [currentEpoch, ssovData]);
 
   if (!currentEpoch || !selectedEpoch) return <></>;
 
