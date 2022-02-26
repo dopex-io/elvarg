@@ -77,7 +77,6 @@ const Pool = ({
   };
 
   const handleStake = useCallback(() => {
-    if (token.selectedBaseAsset === 'RDPX') return;
     setData(() => ({
       token: token.selectedBaseAsset,
       isStake: true,
@@ -118,12 +117,7 @@ const Pool = ({
   const options: { name: string; to: () => void; exclude?: string[] }[] = [
     {
       name: 'Stake',
-      to:
-        token.selectedBaseAsset === 'RDPX'
-          ? () => {
-              return;
-            }
-          : handleStake,
+      to: handleStake,
     },
     {
       name: 'Add liquidity',
