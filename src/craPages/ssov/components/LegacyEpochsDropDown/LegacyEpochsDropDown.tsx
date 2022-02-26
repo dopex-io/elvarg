@@ -60,7 +60,9 @@ const LegacyEpochsDropDown = () => {
             className="hover:bg-cod-gray bg-umbra text-white"
             onClick={handleClose}
           >
-            <a href={to}>{name}</a>
+            <a href={to} target={'_blank'}>
+              {name}
+            </a>
           </MenuItem>
         ))}
       </Menu>
