@@ -17,7 +17,7 @@ import range from 'lodash/range';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { SsovContext } from 'contexts/Ssov';
+import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
 
 import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
@@ -134,12 +134,18 @@ const DepositsTableData = (
 
 const ROWS_PER_PAGE = 5;
 
-const Deposits = (props: { className?: string }) => {
-  const { className } = props;
-
+const Deposits = ({
+  ssovData,
+  selectedEpoch,
+  ssovEpochData,
+  type,
+}: {
+  ssovData: SsovData;
+  selectedEpoch: number;
+  ssovEpochData: SsovEpochData;
+  type: string;
+}) => {
   const { convertToVBNB } = useBnbSsovConversion();
-
-  const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovContext);
 
   const { tokenPrice, tokenName } = ssovData;
   const {
@@ -168,7 +174,7 @@ const Deposits = (props: { className?: string }) => {
     [tokenPrice]
   );
 
-  const stats: any[] = useMemo(
+  const deposits: any[] = useMemo(
     () =>
       epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
@@ -218,9 +224,7 @@ const Deposits = (props: { className?: string }) => {
       <Typography variant="h4" className="text-white mb-7">
         Deposits
       </Typography>
-      <Box
-        className={cx('bg-cod-gray w-full p-4 pt-0 pb-0 rounded-xl', className)}
-      >
+      <Box className={'bg-cod-gray w-full p-4 pt-0 pb-0 rounded-xl'}>
         <Box className="balances-table text-white pb-4">
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
             {isEmpty(epochStrikes) ? (
@@ -288,7 +292,7 @@ const Deposits = (props: { className?: string }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody className={cx('rounded-lg')}>
-                  {stats
+                  {deposits
                     .slice(
                       page * ROWS_PER_PAGE,
                       page * ROWS_PER_PAGE + ROWS_PER_PAGE

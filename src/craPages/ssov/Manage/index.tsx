@@ -8,6 +8,7 @@ import Description from '../components/Description';
 import ManageCard from '../components/ManageCard';
 import Sidebar from '../components/Sidebar';
 import Deposits from '../components/Deposits';
+import Stats from '../components/Stats';
 import Withdrawals from '../components/Withdrawals';
 import PageLoader from 'components/PageLoader';
 
@@ -49,18 +50,80 @@ const Manage = () => {
         <Box className="mt-20 w-[56%] pl-5 pr-5">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
-              ssovData={callContext.ssovData}
-              ssovEpochData={callContext.ssovEpochData}
-              ssovUserData={callContext.ssovUserData}
+              ssovData={
+                activeType === 'CALL'
+                  ? callContext.ssovData
+                  : putContext.ssovData
+              }
+              ssovEpochData={
+                activeType === 'CALL'
+                  ? callContext.ssovEpochData
+                  : putContext.ssovEpochData
+              }
+              ssovUserData={
+                activeType === 'CALL'
+                  ? callContext.ssovUserData
+                  : putContext.ssovUserData
+              }
               type={activeType}
             />
           </Box>
-          <Deposits />
+
+          <Box className="mb-10">
+            <Stats
+              ssovData={
+                activeType === 'CALL'
+                  ? callContext.ssovData
+                  : putContext.ssovData
+              }
+              selectedEpoch={
+                activeType === 'CALL'
+                  ? callContext.selectedEpoch
+                  : putContext.selectedEpoch
+              }
+              ssovEpochData={
+                activeType === 'CALL'
+                  ? callContext.ssovEpochData
+                  : putContext.ssovEpochData
+              }
+              type={activeType}
+            />
+          </Box>
+
+          <Deposits
+            ssovData={
+              activeType === 'CALL' ? callContext.ssovData : putContext.ssovData
+            }
+            selectedEpoch={
+              activeType === 'CALL'
+                ? callContext.selectedEpoch
+                : putContext.selectedEpoch
+            }
+            ssovEpochData={
+              activeType === 'CALL'
+                ? callContext.ssovEpochData
+                : putContext.ssovEpochData
+            }
+            type={activeType}
+          />
+
           <Box className={'mt-12'}>
             <Withdrawals
-              ssovData={callContext.ssovData}
-              ssovEpochData={callContext.ssovEpochData}
-              ssovUserData={callContext.ssovUserData}
+              ssovData={
+                activeType === 'CALL'
+                  ? callContext.ssovData
+                  : putContext.ssovData
+              }
+              ssovEpochData={
+                activeType === 'CALL'
+                  ? callContext.ssovEpochData
+                  : putContext.ssovEpochData
+              }
+              ssovUserData={
+                activeType === 'CALL'
+                  ? callContext.ssovUserData
+                  : putContext.ssovUserData
+              }
               type={activeType}
             />
           </Box>

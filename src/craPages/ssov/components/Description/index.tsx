@@ -111,7 +111,8 @@ const Description = ({
         {ssovInfo[tokenSymbol].mainPageMessage}
         <br />
         <br />
-        This farms simultaneously auto-compounds, farms and supplies ETH
+        This farms simultaneously auto-compounds, farms and supplies{' '}
+        {tokenSymbol}
         liquidity to our first options pool.
       </Typography>
     </Box>
