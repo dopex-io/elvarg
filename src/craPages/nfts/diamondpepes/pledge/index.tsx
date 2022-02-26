@@ -299,22 +299,23 @@ const DiamondPepesNfts = () => {
                 variant="h3"
                 className="text-white font-display font-['Minecraft'] relative z-1"
               >
-                <span className={styles.pepeText}> Withdraw Legendaries</span>
+                <span className={styles.pepeText}> Receive Legendaries</span>
               </Typography>
 
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
               >
-                If you hold a winning pledge #, you can withdraw your legendary
-                here. If not, your pledged NFTs are burned forever.
+                If you hold a winning pledge #, you will receive your legendary
+                after the winners have been picked.
               </Typography>
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                A simple yet elegant solution to add value to floors and enrich
-                everyone holding the collection.
+                If you did not win, your pledged NFTs are burned forever.
+                <br />
+                <br />
               </Typography>
 
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
