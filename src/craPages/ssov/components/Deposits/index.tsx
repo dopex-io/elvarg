@@ -1,4 +1,11 @@
-import { useContext, useState, useMemo, useCallback } from 'react';
+import {
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import { BigNumber, ethers } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
@@ -17,7 +24,12 @@ import range from 'lodash/range';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import {
+  SsovData,
+  SsovEpochData,
+  SsovUserData,
+  SsovContext,
+} from 'contexts/Ssov';
 
 import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
@@ -135,26 +147,23 @@ const DepositsTableData = (
 const ROWS_PER_PAGE = 5;
 
 const Deposits = ({
-  ssovData,
-  selectedEpoch,
-  ssovEpochData,
-  type,
+  activeType,
+  setActiveType,
 }: {
-  ssovData: SsovData;
-  selectedEpoch: number;
-  ssovEpochData: SsovEpochData;
-  type: string;
+  activeType: string;
+  setActiveType: Dispatch<SetStateAction<string>>;
 }) => {
+  const ssovContext = useContext(SsovContext);
   const { convertToVBNB } = useBnbSsovConversion();
 
-  const { tokenPrice, tokenName } = ssovData;
+  const { tokenPrice, tokenName } = ssovContext[activeType].ssovData;
   const {
     epochTimes,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
     totalEpochOptionsPurchased,
-  } = ssovEpochData;
+  } = ssovContext[activeType].ssovEpochData;
 
   const epochTime =
     epochTimes && epochTimes[0] && epochTimes[1]
@@ -219,7 +228,7 @@ const Deposits = ({
     ]
   );
 
-  return selectedEpoch > 0 ? (
+  return ssovContext[activeType].selectedEpoch > 0 ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Deposits
@@ -315,9 +324,15 @@ const Deposits = ({
                             totalPremiums={totalPremiums}
                             price={price}
                             epochTime={epochTime}
-                            imgSrc={SSOV_MAP[ssovData.tokenName].imageSrc}
+                            imgSrc={
+                              SSOV_MAP[
+                                ssovContext[activeType].ssovData.tokenName
+                              ].imageSrc
+                            }
                             tokenSymbol={
-                              SSOV_MAP[ssovData.tokenName].tokenSymbol
+                              SSOV_MAP[
+                                ssovContext[activeType].ssovData.tokenName
+                              ].tokenSymbol
                             }
                           />
                         );

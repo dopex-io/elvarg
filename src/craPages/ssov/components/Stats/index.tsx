@@ -1,4 +1,11 @@
-import { useContext, useState, useMemo, useCallback } from 'react';
+import {
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import { BigNumber, ethers } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
@@ -14,7 +21,12 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
-import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import {
+  SsovData,
+  SsovEpochData,
+  SsovUserData,
+  SsovContext,
+} from 'contexts/Ssov';
 
 import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
@@ -44,26 +56,22 @@ const STRIKE_INDEX_TO_COLOR = {
 };
 
 const Stats = ({
-  ssovData,
-  selectedEpoch,
-  ssovEpochData,
-  type,
+  activeType,
+  setActiveType,
 }: {
-  ssovData: SsovData;
-  selectedEpoch: number;
-  ssovEpochData: SsovEpochData;
-  type: string;
+  activeType: string;
+  setActiveType: Dispatch<SetStateAction<string>>;
 }) => {
   const { convertToVBNB } = useBnbSsovConversion();
-
-  const { tokenPrice, tokenName } = ssovData;
+  const ssovContext = useContext(SsovContext);
+  const { tokenPrice, tokenName } = ssovContext[activeType].ssovData;
   const {
     epochTimes,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
     totalEpochOptionsPurchased,
-  } = ssovEpochData;
+  } = ssovContext[activeType].ssovEpochData;
 
   const epochTime =
     epochTimes && epochTimes[0] && epochTimes[1]
@@ -128,7 +136,7 @@ const Stats = ({
     ]
   );
 
-  return selectedEpoch > 0 ? (
+  return ssovContext[activeType].selectedEpoch > 0 ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Stats
@@ -143,7 +151,7 @@ const Stats = ({
             <Typography variant="h5" className="text-stieglitz">
               Purchased
             </Typography>
-            <Box className="h-[11.15rem]"></Box>
+            <Box className="h-[11.2rem]"></Box>
           </Box>
           <Box className={'w-full flex'}>
             <Box
@@ -185,7 +193,7 @@ const Stats = ({
               <ArrowUpIcon className="mr-1 ml-auto mt-1.5 rotate-180" />
             </Box>
             {epochStrikes.map((strike, strikeIndex) => (
-              <Box className="flex">
+              <Box className="flex" key={strikeIndex}>
                 <Box
                   className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
                 >

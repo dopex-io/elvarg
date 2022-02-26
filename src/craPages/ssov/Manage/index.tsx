@@ -16,20 +16,19 @@ import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
 const Manage = () => {
   const { asset } = useParams();
-  const putContext = useContext(SsovContext);
-  const callContext = useContext(SsovContext);
+  const ssovContext = useContext(SsovContext);
   const [activeType, setActiveType] = useState<string>('CALL');
 
   useEffect(() => {
-    putContext.setSelectedSsov({ token: asset, type: 'PUT' });
-    callContext.setSelectedSsov({ token: asset, type: 'CALL' });
+    ssovContext.CALL.setSelectedSsov({ token: asset });
+    ssovContext.PUT.setSelectedSsov({ token: asset });
   }, [asset]);
 
   if (
-    putContext.ssovData === undefined ||
-    putContext.ssovEpochData === undefined ||
-    callContext.ssovData === undefined ||
-    callContext.ssovEpochData === undefined
+    ssovContext.CALL.ssovData === undefined ||
+    ssovContext.CALL.ssovEpochData === undefined ||
+    ssovContext.PUT.ssovData === undefined ||
+    ssovContext.PUT.ssovEpochData === undefined
   )
     return (
       <Box className="overflow-x-hidden bg-black h-screen">
@@ -50,87 +49,27 @@ const Manage = () => {
         <Box className="mt-20 w-[56%] pl-5 pr-5">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
-              ssovData={
-                activeType === 'CALL'
-                  ? callContext.ssovData
-                  : putContext.ssovData
-              }
-              ssovEpochData={
-                activeType === 'CALL'
-                  ? callContext.ssovEpochData
-                  : putContext.ssovEpochData
-              }
-              ssovUserData={
-                activeType === 'CALL'
-                  ? callContext.ssovUserData
-                  : putContext.ssovUserData
-              }
-              type={activeType}
+              activeType={activeType}
+              setActiveType={setActiveType}
             />
           </Box>
 
           <Box className="mb-10">
-            <Stats
-              ssovData={
-                activeType === 'CALL'
-                  ? callContext.ssovData
-                  : putContext.ssovData
-              }
-              selectedEpoch={
-                activeType === 'CALL'
-                  ? callContext.selectedEpoch
-                  : putContext.selectedEpoch
-              }
-              ssovEpochData={
-                activeType === 'CALL'
-                  ? callContext.ssovEpochData
-                  : putContext.ssovEpochData
-              }
-              type={activeType}
-            />
+            <Stats activeType={activeType} setActiveType={setActiveType} />
           </Box>
 
-          <Deposits
-            ssovData={
-              activeType === 'CALL' ? callContext.ssovData : putContext.ssovData
-            }
-            selectedEpoch={
-              activeType === 'CALL'
-                ? callContext.selectedEpoch
-                : putContext.selectedEpoch
-            }
-            ssovEpochData={
-              activeType === 'CALL'
-                ? callContext.ssovEpochData
-                : putContext.ssovEpochData
-            }
-            type={activeType}
-          />
+          <Deposits activeType={activeType} setActiveType={setActiveType} />
 
           <Box className={'mt-12'}>
             <Withdrawals
-              ssovData={
-                activeType === 'CALL'
-                  ? callContext.ssovData
-                  : putContext.ssovData
-              }
-              ssovEpochData={
-                activeType === 'CALL'
-                  ? callContext.ssovEpochData
-                  : putContext.ssovEpochData
-              }
-              ssovUserData={
-                activeType === 'CALL'
-                  ? callContext.ssovUserData
-                  : putContext.ssovUserData
-              }
-              type={activeType}
+              activeType={activeType}
+              setActiveType={setActiveType}
             />
           </Box>
         </Box>
         <Box className="flex w-[24%] mr-auto">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[6rem] right-[2.5rem] absolute">
-            <ManageCard />
+            <ManageCard activeType={activeType} setActiveType={setActiveType} />
           </Box>
         </Box>
       </Box>

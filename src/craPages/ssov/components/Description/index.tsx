@@ -1,4 +1,4 @@
-import { useMemo, useState, useContext } from 'react';
+import { useMemo, useState, useContext, Dispatch, SetStateAction } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -7,7 +7,12 @@ import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import {
+  SsovContext,
+  SsovData,
+  SsovEpochData,
+  SsovUserData,
+} from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import { SSOV_MAP } from 'constants/index';
@@ -25,56 +30,70 @@ import Action from 'assets/icons/Action';
 import styles from './styles.module.scss';
 
 const Description = ({
-  ssovData,
-  ssovEpochData,
-  ssovUserData,
-  type,
+  activeType,
+  setActiveType,
 }: {
-  ssovData: SsovData;
-  ssovEpochData: SsovEpochData;
-  ssovUserData: SsovUserData;
-  type: string;
+  activeType: string;
+  setActiveType: Dispatch<SetStateAction<string>>;
 }) => {
+  const ssovContext = useContext(SsovContext);
   const { accountAddress, connect } = useContext(WalletContext);
   const { convertToBNB } = useBnbSsovConversion();
 
-  const { APY, isVaultReady } = ssovEpochData;
+  const { APY, isVaultReady } = ssovContext[activeType].ssovEpochData;
 
   const tokenSymbol = useMemo(
-    () => SSOV_MAP[ssovData.tokenName].tokenSymbol,
-    [ssovData]
+    () => SSOV_MAP[ssovContext[activeType].ssovData.tokenName].tokenSymbol,
+    [ssovContext[activeType].ssovData]
   );
 
-  const isPut = useMemo(() => type === 'PUT', [type]);
+  const isPut = useMemo(() => activeType === 'PUT', [activeType]);
 
   const TVL: number = useMemo(() => {
-    if (ssovData.tokenPrice && ssovEpochData) {
+    if (
+      ssovContext[activeType].ssovData.tokenPrice &&
+      ssovContext[activeType].ssovEpochData
+    ) {
       if (isPut) {
         return (
-          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
-          getUserReadableAmount(ssovData.lpPrice, 18)
+          getUserReadableAmount(
+            ssovContext[activeType].ssovEpochData.totalEpochDeposits,
+            18
+          ) *
+          getUserReadableAmount(ssovContext[activeType].ssovData.lpPrice, 18)
         );
       } else if (tokenSymbol === 'BNB') {
-        return convertToBNB(ssovEpochData.totalEpochDeposits)
-          .mul(ssovData.tokenPrice)
+        return convertToBNB(
+          ssovContext[activeType].ssovEpochData.totalEpochDeposits
+        )
+          .mul(ssovContext[activeType].ssovData.tokenPrice)
           .div(1e8)
           .toNumber();
       } else {
         return (
-          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
-          getUserReadableAmount(ssovData.tokenPrice, 8)
+          getUserReadableAmount(
+            ssovContext[activeType].ssovEpochData.totalEpochDeposits,
+            18
+          ) *
+          getUserReadableAmount(ssovContext[activeType].ssovData.tokenPrice, 8)
         );
       }
     } else {
       return 0;
     }
-  }, [ssovEpochData, convertToBNB, ssovData, tokenSymbol, isPut]);
+  }, [
+    ssovContext[activeType].ssovEpochData,
+    convertToBNB,
+    ssovContext[activeType].ssovData,
+    tokenSymbol,
+    isPut,
+  ]);
 
   const info = [
     {
       heading: 'Asset',
       value: tokenSymbol,
-      imgSrc: SSOV_MAP[ssovData.tokenName].imageSrc,
+      imgSrc: SSOV_MAP[ssovContext[activeType].ssovData.tokenName].imageSrc,
     },
     {
       heading: 'Farm APY',

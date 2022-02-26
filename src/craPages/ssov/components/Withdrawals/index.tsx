@@ -1,4 +1,4 @@
-import { useMemo, useState, useContext } from 'react';
+import { useMemo, useState, useContext, Dispatch, SetStateAction } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -25,15 +25,11 @@ import Action from 'assets/icons/Action';
 import styles from './styles.module.scss';
 
 const Withdrawals = ({
-  ssovData,
-  ssovEpochData,
-  ssovUserData,
-  type,
+  activeType,
+  setActiveType,
 }: {
-  ssovData: SsovData;
-  ssovEpochData: SsovEpochData;
-  ssovUserData: SsovUserData;
-  type: string;
+  activeType: string;
+  setActiveType: Dispatch<SetStateAction<string>>;
 }) => {
   return (
     <Box className={'w-full'}>
