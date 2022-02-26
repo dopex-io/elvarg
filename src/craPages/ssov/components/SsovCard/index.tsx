@@ -123,7 +123,7 @@ function SsovCard(props) {
           <CustomButton
             size="medium"
             className="my-4"
-            href={`/ssov/${type}/${name}`}
+            href={`/ssov/${name}`}
             fullWidth
           >
             Manage

@@ -54,7 +54,7 @@ const SsovRoutes = () => {
   return (
     <Routes>
       <Route path="*" element={<Ssov />} />
-      <Route path=":type/:asset" element={<SsovManage />} />
+      <Route path=":asset" element={<SsovManage />} />
     </Routes>
   );
 };

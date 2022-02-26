@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
@@ -14,20 +14,22 @@ import PageLoader from 'components/PageLoader';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
 const Manage = () => {
-  const { asset, type } = useParams();
-  const {
-    ssovData,
-    ssovEpochData,
-    ssovUserData,
-    setSelectedSsov,
-    selectedSsov,
-  } = useContext(SsovContext);
+  const { asset } = useParams();
+  const putContext = useContext(SsovContext);
+  const callContext = useContext(SsovContext);
+  const [activeType, setActiveType] = useState<string>('CALL');
 
   useEffect(() => {
-    setSelectedSsov({ token: asset, type: type.toUpperCase() });
-  }, [setSelectedSsov, asset, type]);
+    putContext.setSelectedSsov({ token: asset, type: 'PUT' });
+    callContext.setSelectedSsov({ token: asset, type: 'CALL' });
+  }, [asset]);
 
-  if (ssovData === undefined || ssovEpochData === undefined)
+  if (
+    putContext.ssovData === undefined ||
+    putContext.ssovEpochData === undefined ||
+    callContext.ssovData === undefined ||
+    callContext.ssovEpochData === undefined
+  )
     return (
       <Box className="overflow-x-hidden bg-black h-screen">
         <PageLoader />
@@ -47,19 +49,19 @@ const Manage = () => {
         <Box className="mt-20 w-[56%] pl-5 pr-5">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
-              ssovData={ssovData}
-              ssovEpochData={ssovEpochData}
-              ssovUserData={ssovUserData}
-              type={selectedSsov.type}
+              ssovData={callContext.ssovData}
+              ssovEpochData={callContext.ssovEpochData}
+              ssovUserData={callContext.ssovUserData}
+              type={activeType}
             />
           </Box>
           <Deposits />
           <Box className={'mt-12'}>
             <Withdrawals
-              ssovData={ssovData}
-              ssovEpochData={ssovEpochData}
-              ssovUserData={ssovUserData}
-              type={selectedSsov.type}
+              ssovData={callContext.ssovData}
+              ssovEpochData={callContext.ssovEpochData}
+              ssovUserData={callContext.ssovUserData}
+              type={activeType}
             />
           </Box>
         </Box>
