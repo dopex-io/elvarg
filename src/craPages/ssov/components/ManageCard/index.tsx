@@ -530,13 +530,17 @@ const ManageCard = () => {
         const price =
           parseFloat(bestPath['toTokenAmount']) /
           parseFloat(bestPath['fromTokenAmount']);
+
         let total = BigNumber.from('0');
         let amounts = [];
         strikeIndexes.map((index) => {
           const amount = getContractReadableAmount(
             // @ts-ignore
             strikeDepositAmounts[index] *
-              (denominationTokenName !== ssovTokenName ? price : 1),
+              (denominationTokenName.toUpperCase() !==
+              ssovTokenName.toUpperCase()
+                ? price
+                : 1),
             getDecimalsFromSymbol(ssovTokenName, chainId)
           );
 
@@ -585,6 +589,8 @@ const ManageCard = () => {
               )
             );
           } else {
+            console.log(amounts[0].toString());
+            console.log(bestPath['toTokenAmount']);
             await sendTx(
               erc20SSOV1inchRouter.swapAndDepositMultiple(
                 ssovData.ssovContract.address,
@@ -638,33 +644,72 @@ const ManageCard = () => {
     }
   };
 
-  const getPath = async () => {
+  const getPath = useCallback(async () => {
     if (!isZapActive) return;
     setIsFetchingPath(true);
-    const fromTokenAddress = IS_NATIVE(token)
+    const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const toTokenAddress = IS_NATIVE(ssovTokenName)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
+      ? ssovTokenName === 'BNB'
+        ? Addresses[chainId]['VBNB']
+        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
-    const fromTokenDecimals = IS_NATIVE(token)
-      ? getDecimalsFromSymbol(token, chainId)
-      : await token.decimals();
-    if (fromTokenAddress === ssovToken.address) return;
-    const amount = Math.round(totalDepositAmount * 10 ** fromTokenDecimals);
-    if (isNaN(amount) || amount <= 0) return;
-    try {
-      const { data } = await axios.get(
-        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
-      );
-      setPath(data);
+
+    if (!quote['toToken']) {
       setIsFetchingPath(false);
-      return data;
-    } catch (err) {
-      setPath({ error: 'Invalid amounts' });
-      setIsFetchingPath(false);
+      return;
     }
-  };
+
+    let amount: number =
+      totalDepositAmount /
+      (parseInt(quote['toTokenAmount']) /
+        10 ** parseInt(quote['toToken']['decimals']) /
+        parseInt(quote['fromTokenAmount']));
+
+    let attempts: number = 0;
+    let bestPath: {} = {};
+    let minAmount: number = Math.round(
+      totalDepositAmount *
+        1.01 *
+        10 ** getDecimalsFromSymbol(ssovTokenSymbol, chainId)
+    );
+
+    while (true) {
+      try {
+        const { data } = await axios.get(
+          `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+            amount
+          )}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
+        );
+        if (parseInt(data['toTokenAmount']) > minAmount || attempts > 10) {
+          bestPath = data;
+          break;
+        }
+      } catch (err) {
+        console.log(err);
+        setIsFetchingPath(false);
+        break;
+      }
+      attempts += 1;
+      amount = Math.round(amount * 1.01);
+    }
+
+    setPath(bestPath);
+    setIsFetchingPath(false);
+    return bestPath;
+  }, [
+    chainId,
+    isZapActive,
+    quote,
+    slippageTolerance,
+    spender,
+    ssovToken.address,
+    ssovTokenName,
+    ssovTokenSymbol,
+    totalDepositAmount,
+    token,
+  ]);
 
   useEffect(() => {
     checkDEXAggregatorStatus();
@@ -1084,7 +1129,10 @@ const ManageCard = () => {
                   isZapActive={isZapActive}
                   quote={quote}
                   path={path}
-                  isFetchingPath={isFetchingPath}
+                  isFetchingPath={
+                    isFetchingPath &&
+                    Object.keys(strikeDepositAmounts).length > 0
+                  }
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
