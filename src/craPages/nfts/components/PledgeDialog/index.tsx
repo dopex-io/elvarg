@@ -94,6 +94,12 @@ const PledgeDialog = ({
       id: string;
     }>
   >([]);
+  const [userPledgedNfts, setUserPledgedNfts] = useState<
+    Array<{
+      img: string;
+      id: string;
+    }>
+  >([]);
   const [selectedNfts, selectNfts] = useState<Array<Number>>([]);
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -112,25 +118,35 @@ const PledgeDialog = ({
       .connect(signer)
       .walletOfOwner('0x90185594fC262bbAE78101582bFc96D1B2eCE290');
     let _nfts = [];
-    for (let n of nfts)
-      _nfts.push({
-        id: n.toString(),
-        img: `https://ipfs.io/ipfs/QmZGtzDodjfRTGJErqpJ7oFRJ4GM1R1DZkGPnRYVzZ9ZsC/${n}.png`,
-      });
+    let _pledgedNfts = [];
+    for (let n of nfts) {
+      const pledged: boolean = await pledge.burned(n.toString());
+      if (pledged)
+        _pledgedNfts.push({
+          id: n.toString(),
+          img: `https://ipfs.io/ipfs/QmZGtzDodjfRTGJErqpJ7oFRJ4GM1R1DZkGPnRYVzZ9ZsC/${n}.png`,
+        });
+      else
+        _nfts.push({
+          id: n.toString(),
+          img: `https://ipfs.io/ipfs/QmZGtzDodjfRTGJErqpJ7oFRJ4GM1R1DZkGPnRYVzZ9ZsC/${n}.png`,
+        });
+    }
     setUserNfts(_nfts);
+    setUserPledgedNfts(_nfts);
   }, []);
 
   const [activeTab] = useState<string>('pledge');
+
+  const modalHeight = useMemo(() => {
+    if (userPledgedNfts.length > 0 && userNfts.length > 0) return '44rem';
+    else return '28rem';
+  }, [userPledgedNfts, userNfts]);
 
   // Get nfts initially
   useEffect(() => {
     getNfts();
   }, []);
-
-  const extraHeight: number = useMemo(() => {
-    if (isZapInVisible) return 10;
-    else return 0;
-  }, [isZapInVisible]);
 
   const handlePledge = useCallback(async () => {
     try {
@@ -197,18 +213,18 @@ const PledgeDialog = ({
         </Box>
       )}
 
-      <Box style={{ height: 34.5 + extraHeight + 'rem' }}>
+      <Box style={{ height: modalHeight }}>
         {activeTab === 'pledge' ? (
           <Box>
             <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
               <Box className="flex flex-row justify-between mb-2">
                 <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-                  Pledged:{' '}
+                  To pledge:{' '}
                   <span className="text-white">{selectedNfts.length}</span>
                 </Typography>
               </Box>
-              <Box className="h-[17rem] overflow-y-auto overflow-x-hidden">
-                {userNfts
+              <Box className="h-[10.5rem] overflow-y-auto overflow-x-hidden">
+                {userNfts?.length > 0
                   ? Array.from({ length: userNfts.length }, (_, i) => (
                       <Box
                         className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md cursor-pointer"
@@ -249,6 +265,56 @@ const PledgeDialog = ({
                   : null}
               </Box>
             </Box>
+
+            {userPledgedNfts?.length > 0 ? (
+              <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3 mt-4">
+                <Box className="flex flex-row justify-between mb-2">
+                  <Typography
+                    variant="h6"
+                    className="text-[#78859E] ml-2 mt-1.5"
+                  >
+                    Pledged:{' '}
+                    <span className="text-white">{userPledgedNfts.length}</span>
+                  </Typography>
+                </Box>
+                <Box className="h-[10.5rem] overflow-y-auto overflow-x-hidden">
+                  {Array.from({ length: userPledgedNfts.length }, (_, i) => (
+                    <Box
+                      className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md"
+                      key={i}
+                    >
+                      <img
+                        src={userPledgedNfts[i].img}
+                        alt="diamond pepe"
+                        className={'w-[4rem] m-2 rounded-md'}
+                      />
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          className="text-white ml-2 mt-4 font-bold"
+                        >
+                          Diamond Pepe
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          className="text-white ml-2 mt-0.5 font-bold"
+                        >
+                          # {userPledgedNfts[i].id}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          className="text-white ml-4 mt-1 pt-4"
+                        >
+                          🔥
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            ) : null}
 
             <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-4">
               <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
