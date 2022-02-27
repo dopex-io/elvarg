@@ -116,7 +116,7 @@ const PledgeDialog = ({
   const getNfts = useCallback(async () => {
     const nfts = await diamondPepeNfts
       .connect(signer)
-      .walletOfOwner('0x90185594fC262bbAE78101582bFc96D1B2eCE290');
+      .walletOfOwner(accountAddress);
     let _nfts = [];
     let _pledgedNfts = [];
     for (let n of nfts) {
