@@ -478,7 +478,9 @@ const ManageCard = () => {
           await sendTx(
             ssovRouter.depositMultiple(
               strikeIndexes,
-              strikeIndexes.map((index) => strikeDepositAmounts[index]),
+              strikeIndexes.map(
+                (index) => contractReadableStrikeDepositAmounts[index]
+              ),
               accountAddress,
               {
                 value: getContractReadableAmount(
@@ -492,7 +494,25 @@ const ManageCard = () => {
           await sendTx(
             ssovContractWithSigner.depositMultiple(
               strikeIndexes,
-              strikeIndexes.map((index) => strikeDepositAmounts[index]),
+              strikeIndexes.map(
+                (index) => contractReadableStrikeDepositAmounts[index]
+              ),
+              accountAddress,
+              {
+                value: getContractReadableAmount(
+                  totalDepositAmount,
+                  getDecimalsFromSymbol(ssovTokenName, chainId)
+                ),
+              }
+            )
+          );
+        } else {
+          await sendTx(
+            ssovContractWithSigner.depositMultiple(
+              strikeIndexes,
+              strikeIndexes.map(
+                (index) => contractReadableStrikeDepositAmounts[index]
+              ),
               accountAddress
             )
           );
@@ -1046,7 +1066,7 @@ const ManageCard = () => {
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
-                  isZapInAvailable={isPut ? false : isZapInAvailable}
+                  isZapInAvailable={false}
                   chainId={chainId}
                 />
                 <Box className="flex">
