@@ -63,6 +63,7 @@ export interface Props {
   updateData: () => {};
   updateUserData: () => {};
   pledge: DiamondPepeNFTsPledge;
+  winners: any[];
 }
 
 const PledgeDialog = ({
@@ -75,6 +76,7 @@ const PledgeDialog = ({
   updateData,
   updateUserData,
   pledge,
+  winners,
 }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -136,7 +138,7 @@ const PledgeDialog = ({
     setUserPledgedNfts(_nfts);
   }, []);
 
-  const [activeTab] = useState<string>('pledge');
+  const [activeTab, setActiveTab] = useState<string>('winner');
 
   const modalHeight = useMemo(() => {
     if (userPledgedNfts.length > 0 && userNfts.length > 0) return '44rem';
@@ -207,10 +209,15 @@ const PledgeDialog = ({
         <Typography variant="h5">Diamond Pepes</Typography>
       </Box>
 
-      {['pledge', 'mint'].includes(activeTab) && (
+      {['pledge', 'winner'].includes(activeTab) && (
         <Box className={isZapInVisible ? 'hidden' : 'flex'}>
-          <Box className={'w-full'}>
-            <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md">
+          <Box className={'w-full flex'}>
+            <Box
+              className={
+                'flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md ' +
+                (winners?.length > 0 ? 'w-1/2' : 'w-full')
+              }
+            >
               <Box
                 className={
                   activeTab === 'pledge'
@@ -225,11 +232,35 @@ const PledgeDialog = ({
                       ? 'text-xs font-normal'
                       : 'text-[#78859E] text-xs font-normal'
                   }
+                  onClick={() => setActiveTab('pledge')}
                 >
                   Pledge
                 </Typography>
               </Box>
             </Box>
+            {winners?.length > 0 ? (
+              <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-1/2">
+                <Box
+                  className={
+                    activeTab === 'winner'
+                      ? 'text-center w-full pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
+                      : 'text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                  }
+                >
+                  <Typography
+                    variant="h6"
+                    className={
+                      activeTab === 'winner'
+                        ? 'text-xs font-normal'
+                        : 'text-[#78859E] text-xs font-normal'
+                    }
+                    onClick={() => setActiveTab('pledge')}
+                  >
+                    Winners
+                  </Typography>
+                </Box>
+              </Box>
+            ) : null}
           </Box>
         </Box>
       )}
@@ -367,6 +398,37 @@ const PledgeDialog = ({
                     : 'Pledge ' + selectedNfts.length + ' pepes'}
                 </Typography>
               </CustomButton>
+            </Box>
+          </Box>
+        ) : null}
+        {activeTab === 'winner' ? (
+          <Box>
+            <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
+              <Box className="flex flex-row justify-between mb-2">
+                <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
+                  Winners: <span className="text-white">{winners.length}</span>
+                </Typography>
+              </Box>
+              <Box className="h-[23.5rem] overflow-y-auto overflow-x-hidden">
+                {winners?.length > 0
+                  ? Array.from({ length: winners.length }, (_, i) => (
+                      <Box
+                        className="mt-2 ml-2 mr-2 mb-2 border border-[#343C4D] flex rounded-md cursor-pointer"
+                        key={i}
+                      >
+                        <Box>
+                          <Typography
+                            variant="h6"
+                            className="text-white ml-2 mt-1 p-2 pb-3  break-all"
+                          >
+                            Number: <b>{winners[i]['number']}</b> | Winner:{' '}
+                            <b>{winners[i]['address']}</b>
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))
+                  : null}
+              </Box>
             </Box>
           </Box>
         ) : null}

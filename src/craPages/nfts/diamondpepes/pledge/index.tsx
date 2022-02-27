@@ -36,10 +36,30 @@ const DiamondPepesNfts = () => {
     provider
   );
   const pledge = DiamondPepeNFTsPledge__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTMint'],
+    Addresses[chainId]['DiamondPepesNFTPledge'],
     provider
   );
+  const [winners, setWinners] = useState([]);
   const sendTx = useSendTx();
+
+  const getWinners = useCallback(async () => {
+    if (!provider) return;
+    const query = await pledge.queryFilter(
+      pledge.filters.LogDistributed(),
+      7061695,
+      'latest'
+    );
+
+    if (query.length === 0) return [];
+    const output = [];
+    query.map((record) => {
+      output.push({
+        number: record['args'][0],
+        address: record['args'][1],
+      });
+    });
+    return output;
+  }, [provider, pledge]);
 
   const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
@@ -147,6 +167,10 @@ const DiamondPepesNfts = () => {
     }
   }, [accountAddress, updateData, updateUserData, signer]);
 
+  useEffect(() => {
+    getWinners();
+  }, [getWinners]);
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -167,6 +191,7 @@ const DiamondPepesNfts = () => {
           updateData={updateData}
           updateUserData={updateUserData}
           pledge={pledge}
+          winners={winners}
         />
       ) : null}
       <Box>
@@ -257,7 +282,7 @@ const DiamondPepesNfts = () => {
               <Box className="ml-5 mb-5 md:mt-10 md:mb-0">
                 <button
                   className={styles.pepeButton}
-                  onClick={() => setPledgeDialogVisibleTab('deposit')}
+                  onClick={() => setPledgeDialogVisibleTab('pledge')}
                 >
                   Deposit
                 </button>
@@ -290,8 +315,8 @@ const DiamondPepesNfts = () => {
                 <Tooltip title={'Not open yet'}>
                   <button
                     className={styles.pepeButton}
-                    onClick={() => setPledgeDialogVisibleTab('mint')}
-                    disabled={data.isFarmingPeriod}
+                    onClick={() => setPledgeDialogVisibleTab('winner')}
+                    disabled={winners.length === 0}
                   >
                     View winners
                   </button>
