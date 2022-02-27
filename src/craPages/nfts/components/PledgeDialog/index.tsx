@@ -13,7 +13,7 @@ import {
   DiamondPepeNFTs1inchRouter__factory,
   DiamondPepeNFTs__factory,
   YieldMint,
-  DiamondPepeNFTsPledge__factory,
+  DiamondPepeNFTsPledge,
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
@@ -62,6 +62,7 @@ export interface Props {
   timeRemaining: JSX.Element;
   updateData: () => {};
   updateUserData: () => {};
+  pledge: DiamondPepeNFTsPledge;
 }
 
 const PledgeDialog = ({
@@ -73,6 +74,7 @@ const PledgeDialog = ({
   timeRemaining,
   updateData,
   updateUserData,
+  pledge,
 }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -82,10 +84,6 @@ const PledgeDialog = ({
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
     Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
-  );
-  const pledge = DiamondPepeNFTsPledge__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTPledge'],
-    provider
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);

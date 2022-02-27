@@ -12,6 +12,7 @@ import { BigNumber } from 'ethers';
 import {
   YieldMint__factory,
   UniswapPair__factory,
+  DiamondPepeNFTsPledge__factory,
   Addresses,
 } from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
@@ -31,6 +32,10 @@ const DiamondPepesNfts = () => {
   const [isMintDialogVisible, setIsMintDialogVisible] =
     useState<boolean>(false);
   const yieldMint = YieldMint__factory.connect(
+    Addresses[chainId]['DiamondPepesNFTMint'],
+    provider
+  );
+  const pledge = DiamondPepeNFTsPledge__factory.connect(
     Addresses[chainId]['DiamondPepesNFTMint'],
     provider
   );
@@ -161,6 +166,7 @@ const DiamondPepesNfts = () => {
           data={data}
           updateData={updateData}
           updateUserData={updateUserData}
+          pledge={pledge}
         />
       ) : null}
       <Box>
