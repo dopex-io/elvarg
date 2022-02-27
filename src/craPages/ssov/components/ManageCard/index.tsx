@@ -410,7 +410,6 @@ const ManageCard = () => {
           )
         );
       } else if (depositTokenName === 'USDT' || depositTokenName === 'USDC') {
-        console.log('Asda');
         const curve2PoolSsovPut1inchRouter =
           Curve2PoolSsovPut1inchRouter__factory.connect(
             '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
@@ -473,7 +472,7 @@ const ManageCard = () => {
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
 
-      if (ssovTokenName === tokenName) {
+      if (ssovTokenName.toLocaleUpperCase() === tokenName.toLocaleUpperCase()) {
         if (ssovTokenName === 'BNB') {
           await sendTx(
             ssovRouter.depositMultiple(
