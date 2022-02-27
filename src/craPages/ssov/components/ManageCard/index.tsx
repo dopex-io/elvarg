@@ -473,7 +473,7 @@ const ManageCard = () => {
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
 
-      if (ssovTokenName === tokenName) {
+      if (ssovTokenName.toUpperCase() === tokenName.toUpperCase()) {
         if (ssovTokenName === 'BNB') {
           await sendTx(
             ssovRouter.depositMultiple(
