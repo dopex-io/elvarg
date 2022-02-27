@@ -78,6 +78,7 @@ const PledgeDialog = ({
     useContext(AssetsContext);
   const { accountAddress, chainId, signer, provider } =
     useContext(WalletContext);
+
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
     Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
@@ -152,7 +153,7 @@ const PledgeDialog = ({
     try {
       const tokenIds: BigNumber[] = [];
       selectedNfts.map((nftId) => tokenIds.push(BigNumber.from(nftId)));
-      await sendTx(pledge.connect(signer).burnFloors(tokenIds));
+      await sendTx(pledge.connect(signer).pledge(tokenIds));
       await updateData();
       await updateUserData();
     } catch (err) {
