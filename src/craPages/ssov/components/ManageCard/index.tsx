@@ -218,7 +218,7 @@ const ManageCard = () => {
       if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
         return nativeSSOV1inchRouter?.address;
       } else {
-        erc20SSOV1inchRouter?.address;
+        return erc20SSOV1inchRouter?.address;
       }
     } else if (ssovTokenName === 'BNB') {
       return ssovRouter.address;
@@ -517,15 +517,19 @@ const ManageCard = () => {
           );
         }
       } else {
+        const bestPath = await getPath();
+
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
-          path['tx']['data']
+          bestPath['tx']['data']
         );
 
-        const toTokenAmount: BigNumber = BigNumber.from(path['toTokenAmount']);
+        const toTokenAmount: BigNumber = BigNumber.from(
+          bestPath['toTokenAmount']
+        );
         const price =
-          parseFloat(path['toTokenAmount']) /
-          parseFloat(path['fromTokenAmount']);
+          parseFloat(bestPath['toTokenAmount']) /
+          parseFloat(bestPath['fromTokenAmount']);
         let total = BigNumber.from('0');
         let amounts = [];
         strikeIndexes.map((index) => {
@@ -535,6 +539,7 @@ const ManageCard = () => {
               (denominationTokenName !== ssovTokenName ? price : 1),
             getDecimalsFromSymbol(ssovTokenName, chainId)
           );
+
           amounts.push(amount);
           total = total.add(amount);
         });
@@ -568,18 +573,31 @@ const ManageCard = () => {
             )
           );
         } else {
-          await sendTx(
-            erc20SSOV1inchRouter.swapAndDepositMultiple(
-              ssovData.ssovContract.address,
-              ssovToken.address,
-              decoded[0],
-              decoded[1],
-              decoded[2],
-              strikeIndexes,
-              amounts,
-              accountAddress
-            )
-          );
+          if (IS_NATIVE(ssovTokenName)) {
+            await sendTx(
+              nativeSSOV1inchRouter.swapAndDepositMultiple(
+                decoded[0],
+                decoded[1],
+                decoded[2],
+                strikeIndexes,
+                amounts,
+                accountAddress
+              )
+            );
+          } else {
+            await sendTx(
+              erc20SSOV1inchRouter.swapAndDepositMultiple(
+                ssovData.ssovContract.address,
+                ssovToken.address,
+                decoded[0],
+                decoded[1],
+                decoded[2],
+                strikeIndexes,
+                amounts,
+                accountAddress
+              )
+            );
+          }
         }
       }
 
@@ -588,6 +606,7 @@ const ManageCard = () => {
       updateAssetBalances();
       updateSsovEpochData();
       updateSsovUserData();
+      setIsFetchingPath(false);
     } catch (err) {
       console.log(err);
     }
@@ -599,9 +618,11 @@ const ManageCard = () => {
     updateSsovUserData,
     updateAssetBalances,
     accountAddress,
+    denominationTokenName,
     tokenName,
     totalDepositAmount,
     ssovRouter,
+    path,
   ]);
 
   const checkDEXAggregatorStatus = async () => {
@@ -637,10 +658,12 @@ const ManageCard = () => {
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
       );
       setPath(data);
+      setIsFetchingPath(false);
+      return data;
     } catch (err) {
       setPath({ error: 'Invalid amounts' });
+      setIsFetchingPath(false);
     }
-    setIsFetchingPath(false);
   };
 
   useEffect(() => {
@@ -649,11 +672,11 @@ const ManageCard = () => {
 
   useEffect(() => {
     getPath();
-  }, [strikeDepositAmounts, denominationTokenName]);
+  }, [strikeDepositAmounts, denominationTokenName, spender]);
 
   useEffect(() => {
     handleTokenChange();
-  }, [handleTokenChange]);
+  }, [token]);
 
   // Updates approved state
   useEffect(() => {
@@ -1065,7 +1088,7 @@ const ManageCard = () => {
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
-                  isZapInAvailable={false}
+                  isZapInAvailable={isPut ? false : isZapInAvailable}
                   chainId={chainId}
                 />
                 <Box className="flex">
