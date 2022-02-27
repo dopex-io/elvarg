@@ -87,6 +87,7 @@ const PledgeDialog = ({
     Addresses[chainId]['DiamondPepesNFTPledge'],
     provider
   );
+  const [approved, setApproved] = useState<boolean>(false);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [rawAmount, setRawAmount] = useState<string>('');
   const [userNfts, setUserNfts] = useState<
@@ -144,11 +145,6 @@ const PledgeDialog = ({
     else return '28rem';
   }, [userPledgedNfts, userNfts]);
 
-  // Get nfts initially
-  useEffect(() => {
-    getNfts();
-  }, []);
-
   const handlePledge = useCallback(async () => {
     try {
       const tokenIds: BigNumber[] = [];
@@ -161,6 +157,17 @@ const PledgeDialog = ({
     }
   }, [signer, updateData, updateUserData, pledge, sendTx]);
 
+  const handleApprove = useCallback(async () => {
+    try {
+      await sendTx(
+        diamondPepeNfts.connect(signer).setApprovalForAll(pledge.address, true)
+      );
+      setApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [diamondPepeNfts, signer, sendTx, pledge]);
+
   const handleSelectNft = useCallback(
     async (id) => {
       console.log(selectedNfts);
@@ -172,6 +179,21 @@ const PledgeDialog = ({
     },
     [selectedNfts]
   );
+
+  // Handles isApproved
+  useEffect(() => {
+    (async function () {
+      const allowance = await diamondPepeNfts
+        .connect(signer)
+        .isApprovedForAll(accountAddress, pledge.address);
+      setApproved(allowance);
+    })();
+  }, [accountAddress, pledge]);
+
+  // Get nfts initially
+  useEffect(() => {
+    getNfts();
+  }, []);
 
   return (
     <Dialog
@@ -339,10 +361,12 @@ const PledgeDialog = ({
                 size="medium"
                 className={styles.pepeButton}
                 disabled={selectedNfts.length == 0}
-                onClick={handlePledge}
+                onClick={!approved ? handlePledge : handleApprove}
               >
                 <Typography variant="h5" className={styles.pepeButtonText}>
-                  Pledge {selectedNfts.length} pepes
+                  {!approved
+                    ? 'Approve'
+                    : 'Pledge ' + selectedNfts.length + ' pepes'}
                 </Typography>
               </CustomButton>
             </Box>
