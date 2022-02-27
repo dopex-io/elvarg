@@ -20,7 +20,7 @@ export default function EpochSelector({ className }: { className?: string }) {
   );
 
   const epochs = useMemo(() => {
-    let _epoch = currentEpoch;
+    let _epoch = currentEpoch - 1;
 
     if (ssovData.isCurrentEpochExpired) {
       _epoch += 1;
@@ -31,12 +31,7 @@ export default function EpochSelector({ className }: { className?: string }) {
       .split(',')
       .map((_i, index) => {
         return (
-          <MenuItem
-            value={index + 1}
-            key={index + 1}
-            className="text-white"
-            disabled={index + 1 === currentEpoch}
-          >
+          <MenuItem value={index + 1} key={index + 1} className="text-white">
             Epoch {index + 1} {currentEpoch === index + 1 ? '(Current)' : ''}
           </MenuItem>
         );
