@@ -698,12 +698,12 @@ const ManageCard = () => {
     if (!token || !accountAddress) return;
     (async function () {
       let userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances.ETH)
+        ? BigNumber.from(userAssetBalances[token])
         : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
     })();
-  }, [accountAddress, token, userAssetBalances.ETH, ssovTokenName]);
+  }, [accountAddress, token, userAssetBalances, ssovTokenName]);
 
   const userBalance = useMemo(() => {
     {
