@@ -149,7 +149,6 @@ const DiamondPepesNfts = () => {
       </Head>
       {provider ? (
         <PledgeDialog
-          yieldMint={yieldMint}
           timeRemaining={timeRemaining}
           open={pledgeDialogVisibleTab != 'hidden'}
           handleClose={
@@ -162,7 +161,6 @@ const DiamondPepesNfts = () => {
           data={data}
           updateData={updateData}
           updateUserData={updateUserData}
-          provider={provider}
         />
       ) : null}
       <Box>

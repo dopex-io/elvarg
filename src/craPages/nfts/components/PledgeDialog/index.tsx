@@ -13,6 +13,7 @@ import {
   DiamondPepeNFTs1inchRouter__factory,
   DiamondPepeNFTs__factory,
   YieldMint,
+  DiamondPepeNFTsPledge__factory,
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
@@ -58,12 +59,9 @@ export interface Props {
   tab: string;
   data: Data;
   userData: UserData;
-  userNfts: Array<String>;
   timeRemaining: JSX.Element;
-  yieldMint: YieldMint;
   updateData: () => {};
   updateUserData: () => {};
-  provider: ethers.providers.Provider;
 }
 
 const PledgeDialog = ({
@@ -73,21 +71,29 @@ const PledgeDialog = ({
   tab,
   userData,
   timeRemaining,
-  yieldMint,
   updateData,
   updateUserData,
-  provider, // required to initialize token
 }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
-  const { accountAddress, chainId, signer } = useContext(WalletContext);
+  const { accountAddress, chainId, signer, provider } =
+    useContext(WalletContext);
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
     Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
   );
+  const pledge = DiamondPepeNFTsPledge__factory.connect(
+    Addresses[chainId]['DiamondPepesNFTPledge'],
+    provider
+  );
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const [rawAmount, setRawAmount] = useState<string>('');
-  const [userNfts, setUserNfts] = useState<Array<String>>([]);
+  const [userNfts, setUserNfts] = useState<
+    Array<{
+      img: string;
+      id: string;
+    }>
+  >([]);
   const [selectedNfts, selectNfts] = useState<Array<Number>>([]);
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -104,7 +110,7 @@ const PledgeDialog = ({
   const getNfts = useCallback(async () => {
     const nfts = await diamondPepeNfts
       .connect(signer)
-      .walletOfOwner(accountAddress);
+      .walletOfOwner('0x90185594fC262bbAE78101582bFc96D1B2eCE290');
     let _nfts = [];
     for (let n of nfts)
       _nfts.push({
@@ -126,15 +132,17 @@ const PledgeDialog = ({
     else return 0;
   }, [isZapInVisible]);
 
-  const handleMint = useCallback(async () => {
+  const handlePledge = useCallback(async () => {
     try {
-      await sendTx(yieldMint.connect(signer).claimMint());
+      const tokenIds: BigNumber[] = [];
+      selectedNfts.map((nftId) => tokenIds.push(BigNumber.from(nftId)));
+      await sendTx(pledge.connect(signer).burnFloors(tokenIds));
       await updateData();
       await updateUserData();
     } catch (err) {
       console.log(err);
     }
-  }, [signer, updateData, updateUserData, yieldMint, sendTx]);
+  }, [signer, updateData, updateUserData, pledge, sendTx]);
 
   const handleSelectNft = useCallback(
     async (id) => {
@@ -189,7 +197,7 @@ const PledgeDialog = ({
         </Box>
       )}
 
-      <Box style={{ height: 39 + extraHeight + 'rem' }}>
+      <Box style={{ height: 34.5 + extraHeight + 'rem' }}>
         {activeTab === 'pledge' ? (
           <Box>
             <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
@@ -203,7 +211,7 @@ const PledgeDialog = ({
                 {userNfts
                   ? Array.from({ length: userNfts.length }, (_, i) => (
                       <Box
-                        className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md"
+                        className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md cursor-pointer"
                         key={i}
                         onClick={() => handleSelectNft(i)}
                       >
@@ -221,7 +229,7 @@ const PledgeDialog = ({
                           </Typography>
                           <Typography
                             variant="h6"
-                            className="text-white ml-2 mt-1 font-bold"
+                            className="text-white ml-2 mt-0.5 font-bold"
                           >
                             # {userNfts[i].id}
                           </Typography>
@@ -244,7 +252,7 @@ const PledgeDialog = ({
 
             <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-4">
               <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
-                <EstimatedGasCostButton gas={2000000} chainId={chainId} />
+                <EstimatedGasCostButton gas={5000000} chainId={chainId} />
               </Box>
 
               <Box className="flex mb-2">
@@ -264,7 +272,7 @@ const PledgeDialog = ({
                 size="medium"
                 className={styles.pepeButton}
                 disabled={selectedNfts.length == 0}
-                onClick={handleMint}
+                onClick={handlePledge}
               >
                 <Typography variant="h5" className={styles.pepeButtonText}>
                   Pledge {selectedNfts.length} pepes
