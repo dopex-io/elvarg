@@ -138,7 +138,7 @@ const PledgeDialog = ({
     setUserPledgedNfts(_nfts);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<string>('winner');
+  const [activeTab, setActiveTab] = useState<string>(tab);
 
   const modalHeight = useMemo(() => {
     if (userPledgedNfts.length > 0 && userNfts.length > 0) return '44rem';
