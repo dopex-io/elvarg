@@ -290,20 +290,19 @@ export const SsovProvider = (props) => {
           : ERC20SSOV__factory.connect(ssovAddresses.Vault, provider);
 
       try {
-        const [currentEpoch, tokenPrice] = await Promise.all([
+        let [currentEpoch, tokenPrice] = await Promise.all([
           _ssovContract.currentEpoch(),
           _ssovContract.getUsdPrice(),
         ]);
+
+        currentEpoch = currentEpoch.add(BigNumber.from('1'));
 
         const isCurrentEpochExpired = await _ssovContract.isEpochExpired(
           currentEpoch
         );
 
-        if (Number(currentEpoch) === 0) {
-          setSelectedEpoch(1);
-        } else {
-          setSelectedEpoch(Number(currentEpoch));
-        }
+        setSelectedEpoch(Number(currentEpoch));
+
         _ssovData = {
           tokenName: selectedSsov.token.toUpperCase(),
           ssovContract: _ssovContract,
