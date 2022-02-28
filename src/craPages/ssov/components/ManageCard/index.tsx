@@ -57,7 +57,6 @@ import LockerIcon from 'components/Icons/LockerIcon';
 import WhiteLockerIcon from 'components/Icons/WhiteLockerIcon';
 
 import styles from './styles.module.scss';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -423,7 +422,7 @@ const ManageCard = () => {
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getTokenDecimals(depositTokenName)
+                getDecimalsFromSymbol(depositTokenName, chainId)
               )
             ),
             accountAddress
@@ -440,7 +439,7 @@ const ManageCard = () => {
           curve2PoolSsovPut1inchRouter.swapAndDepositMultipleFromSingle(
             getContractReadableAmount(
               totalDepositAmount,
-              getTokenDecimals(depositTokenName)
+              getDecimalsFromSymbol(depositTokenName, chainId)
             ),
             contractAddresses[depositTokenName],
             strikeIndexes,
@@ -750,7 +749,7 @@ const ManageCard = () => {
     (async () => {
       const finalAmount: BigNumber = getContractReadableAmount(
         totalDepositAmount.toString(),
-        getTokenDecimals(ssovTokenName)
+        getDecimalsFromSymbol(ssovTokenName, chainId)
       );
       if (isPut) {
         const allowance: BigNumber = await ERC20__factory.connect(
@@ -799,13 +798,13 @@ const ManageCard = () => {
       if (isPut) {
         return ethers.utils.formatUnits(
           userAssetBalances[depositTokenName],
-          getTokenDecimals(depositTokenName)
+          getDecimalsFromSymbol(depositTokenName, chainId)
         );
       } else {
         return denominationTokenName !== ssovTokenName
           ? getUserReadableAmount(
               userAssetBalances[denominationTokenName],
-              getTokenDecimals(denominationTokenName)
+              getDecimalsFromSymbol(denominationTokenName, chainId)
             )
           : purchasePower;
       }
