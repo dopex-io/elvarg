@@ -410,7 +410,7 @@ const PledgeDialog = ({
           <Box>
             <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
               <Typography variant="h6" className="text-white p-1 pl-2 pr-2">
-                The winners numbers are
+                The winning numbers are
               </Typography>
               <Box className="flex w-full mt-3 ml-1 mr-1 flex-wrap">
                 {winners?.length > 0
@@ -427,9 +427,9 @@ const PledgeDialog = ({
             </Box>
             <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3 mt-3">
               <Typography variant="h6" className="text-white p-1 pl-2 pr-2">
-                The winners addresses are
+                The winning addresses are
               </Typography>
-              <Box className="flex w-full mt-3 ml-1 mr-1 flex-wrap h-[12.3rem] overflow-y-auto overflow-x-hidden">
+              <Box className="flex w-full mt-3 ml-1 mr-1 flex-wrap h-[17.7rem] overflow-y-auto overflow-x-hidden">
                 {winners?.length > 0
                   ? Array.from({ length: winners.length }, (_, i) => (
                       <Typography

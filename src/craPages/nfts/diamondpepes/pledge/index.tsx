@@ -289,15 +289,13 @@ const DiamondPepesNfts = () => {
               </Typography>
 
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
-                <Tooltip title={'Not open yet'}>
-                  <button
-                    className={styles.pepeButton}
-                    onClick={() => setPledgeDialogVisibleTab('winner')}
-                    disabled={winners.length === 0}
-                  >
-                    View winners
-                  </button>
-                </Tooltip>
+                <button
+                  className={styles.pepeButton}
+                  onClick={() => setPledgeDialogVisibleTab('winner')}
+                  disabled={winners.length === 0}
+                >
+                  View winners
+                </button>
               </Box>
             </Box>
             <Box className="md:w-1/3 p-4 text-center">
