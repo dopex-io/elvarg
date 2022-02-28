@@ -138,7 +138,7 @@ const PledgeDialog = ({
     setUserPledgedNfts(_nfts);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<string>(tab);
+  const [activeTab, setActiveTab] = useState<string>('pledge');
 
   const modalHeight = useMemo(() => {
     if (userPledgedNfts.length > 0 && userNfts.length > 0) return '44rem';
@@ -254,7 +254,7 @@ const PledgeDialog = ({
                         ? 'text-xs font-normal'
                         : 'text-[#78859E] text-xs font-normal'
                     }
-                    onClick={() => setActiveTab('pledge')}
+                    onClick={() => setActiveTab('winner')}
                   >
                     Winners
                   </Typography>
@@ -404,28 +404,35 @@ const PledgeDialog = ({
         {activeTab === 'winner' ? (
           <Box>
             <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-              <Box className="flex flex-row justify-between mb-2">
-                <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-                  Winners: <span className="text-white">{winners.length}</span>
-                </Typography>
-              </Box>
-              <Box className="h-[23.5rem] overflow-y-auto overflow-x-hidden">
+              <Typography variant="h6" className="text-white p-1 pl-2 pr-2">
+                The winners numbers are
+              </Typography>
+              <Box className="flex w-full mt-3 ml-1 mr-1 flex-wrap">
                 {winners?.length > 0
                   ? Array.from({ length: winners.length }, (_, i) => (
-                      <Box
-                        className="mt-2 ml-2 mr-2 mb-2 border border-[#343C4D] flex rounded-md cursor-pointer"
-                        key={i}
+                      <Typography
+                        variant="h6"
+                        className="text-white p-1 pl-2 pr-2 border border-[#343C4D] rounded-md w-auto h-[2rem] bg-[#b3a932] ml-1 mr-1 mb-2"
                       >
-                        <Box>
-                          <Typography
-                            variant="h6"
-                            className="text-white ml-2 mt-1 p-2 pb-3  break-all"
-                          >
-                            Number: <b>{winners[i]['number']}</b> | Winner:{' '}
-                            <b>{winners[i]['address']}</b>
-                          </Typography>
-                        </Box>
-                      </Box>
+                        <b>{winners[i]['number']}</b>
+                      </Typography>
+                    ))
+                  : null}
+              </Box>
+            </Box>
+            <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3 mt-3">
+              <Typography variant="h6" className="text-white p-1 pl-2 pr-2">
+                The winners addresses are
+              </Typography>
+              <Box className="flex w-full mt-3 ml-1 mr-1 flex-wrap h-[12.3rem] overflow-y-auto overflow-x-hidden">
+                {winners?.length > 0
+                  ? Array.from({ length: winners.length }, (_, i) => (
+                      <Typography
+                        variant="h6"
+                        className="text-white p-1 pl-2 pr-2 border border-[#343C4D] rounded-md w-auto h-[2rem] ml-1 mr-1 mb-2 text-[12px]"
+                      >
+                        <b>{winners[i]['address']}</b>
+                      </Typography>
                     ))
                   : null}
               </Box>

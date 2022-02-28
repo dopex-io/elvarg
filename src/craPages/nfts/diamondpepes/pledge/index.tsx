@@ -39,33 +39,8 @@ const DiamondPepesNfts = () => {
     Addresses[chainId]['DiamondPepesNFTPledge'],
     provider
   );
-  const [winners, setWinners] = useState([]);
+  const winners = [];
   const sendTx = useSendTx();
-
-  const getWinners = useCallback(async () => {
-    if (!provider) return;
-    {
-      /* const query = await pledge.queryFilter(
-      pledge.filters.LogDistributed(),
-      7061695,
-      'latest'
-    ); 
-    
-    TODO: update this range when event is triggered
-    */
-    }
-    const query = [];
-
-    if (query.length === 0) return [];
-    const output = [];
-    query.map((record) => {
-      output.push({
-        number: record['args'][0],
-        address: record['args'][1],
-      });
-    });
-    return output;
-  }, [provider, pledge]);
 
   const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
@@ -172,10 +147,6 @@ const DiamondPepesNfts = () => {
       console.log(err);
     }
   }, [accountAddress, updateData, updateUserData, signer]);
-
-  useEffect(() => {
-    getWinners();
-  }, [getWinners]);
 
   return (
     <Box className="bg-black min-h-screen">
