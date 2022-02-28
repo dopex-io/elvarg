@@ -151,7 +151,9 @@ const PledgeDialog = ({
   const handlePledge = useCallback(async () => {
     try {
       const tokenIds: BigNumber[] = [];
-      selectedNfts.map((nftId) => tokenIds.push(BigNumber.from(nftId)));
+      selectedNfts.map((i) =>
+        tokenIds.push(BigNumber.from(userNfts[i.toFixed(0)].id))
+      );
       await sendTx(pledge.connect(signer).pledge(tokenIds));
       await updateData();
       await updateUserData();
