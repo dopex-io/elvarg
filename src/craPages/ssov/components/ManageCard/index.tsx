@@ -57,7 +57,6 @@ import LockerIcon from 'components/Icons/LockerIcon';
 import WhiteLockerIcon from 'components/Icons/WhiteLockerIcon';
 
 import styles from './styles.module.scss';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -218,7 +217,7 @@ const ManageCard = () => {
       if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
         return nativeSSOV1inchRouter?.address;
       } else {
-        erc20SSOV1inchRouter?.address;
+        return erc20SSOV1inchRouter?.address;
       }
     } else if (ssovTokenName === 'BNB') {
       return ssovRouter.address;
@@ -237,13 +236,28 @@ const ManageCard = () => {
     ssovTokenName,
   ]);
 
+  const quotePrice: number = useMemo(() => {
+    if (!quote['toTokenAmount']) return 0;
+    return (
+      getUserReadableAmount(
+        quote['toTokenAmount'],
+        getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+      ) /
+      getUserReadableAmount(
+        quote['fromTokenAmount'],
+        getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+      )
+    );
+  }, [quote, chainId]);
+
   const purchasePower =
-    isZapActive && quote['toToken'] && denominationTokenName === ssovTokenName
+    isZapActive &&
+    quote['toToken'] &&
+    (denominationTokenName === ssovTokenName || isZapInAvailable)
       ? getUserReadableAmount(
-          quote['toTokenAmount'],
-          quote['toToken']['decimals']
-        ) /
-        (1 + slippageTolerance / 100)
+          userTokenBalance,
+          getDecimalsFromSymbol(tokenName, chainId)
+        ) * quotePrice
       : getUserReadableAmount(
           userTokenBalance,
           getDecimalsFromSymbol(tokenName, chainId)
@@ -263,7 +277,12 @@ const ManageCard = () => {
 
   const isPurchasePowerEnough = useMemo(() => {
     if (isPut) return true;
-    return purchasePower >= totalDepositAmount;
+    return (
+      purchasePower >=
+      (denominationTokenName === ssovTokenName
+        ? totalDepositAmount
+        : totalDepositAmount * quotePrice)
+    );
   }, [purchasePower, totalDepositAmount, isPut]);
 
   const openZapIn = () => {
@@ -310,7 +329,7 @@ const ManageCard = () => {
     if (!token) return;
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
-    await getQuote();
+    setDenominationTokenName(symbol);
   };
 
   const totalEpochDepositsAmount =
@@ -403,7 +422,7 @@ const ManageCard = () => {
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getTokenDecimals(depositTokenName)
+                getDecimalsFromSymbol(depositTokenName, chainId)
               )
             ),
             accountAddress
@@ -420,7 +439,7 @@ const ManageCard = () => {
           curve2PoolSsovPut1inchRouter.swapAndDepositMultipleFromSingle(
             getContractReadableAmount(
               totalDepositAmount,
-              getTokenDecimals(depositTokenName)
+              getDecimalsFromSymbol(depositTokenName, chainId)
             ),
             contractAddresses[depositTokenName],
             strikeIndexes,
@@ -517,24 +536,31 @@ const ManageCard = () => {
           );
         }
       } else {
+        const bestPath = await getPath();
+
         const decoded = aggregation1inchRouter.interface.decodeFunctionData(
           'swap',
-          path['tx']['data']
+          bestPath['tx']['data']
         );
 
-        const toTokenAmount: BigNumber = BigNumber.from(path['toTokenAmount']);
-        const price =
-          parseFloat(path['toTokenAmount']) /
-          parseFloat(path['fromTokenAmount']);
+        const toTokenAmount: BigNumber = BigNumber.from(
+          bestPath['toTokenAmount']
+        );
+
         let total = BigNumber.from('0');
         let amounts = [];
+
         strikeIndexes.map((index) => {
           const amount = getContractReadableAmount(
             // @ts-ignore
             strikeDepositAmounts[index] *
-              (denominationTokenName !== ssovTokenName ? price : 1),
+              (denominationTokenName.toUpperCase() !==
+              ssovTokenName.toUpperCase()
+                ? quotePrice
+                : 1),
             getDecimalsFromSymbol(ssovTokenName, chainId)
           );
+
           amounts.push(amount);
           total = total.add(amount);
         });
@@ -548,7 +574,7 @@ const ManageCard = () => {
         if (IS_NATIVE(tokenName)) {
           const value = getContractReadableAmount(
             totalDepositAmount /
-              (denominationTokenName === ssovTokenName ? price : 1),
+              (denominationTokenName === ssovTokenName ? quotePrice : 1),
             getDecimalsFromSymbol(tokenName, chainId)
           );
 
@@ -568,18 +594,31 @@ const ManageCard = () => {
             )
           );
         } else {
-          await sendTx(
-            erc20SSOV1inchRouter.swapAndDepositMultiple(
-              ssovData.ssovContract.address,
-              ssovToken.address,
-              decoded[0],
-              decoded[1],
-              decoded[2],
-              strikeIndexes,
-              amounts,
-              accountAddress
-            )
-          );
+          if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
+            await sendTx(
+              nativeSSOV1inchRouter.swapAndDepositMultiple(
+                decoded[0],
+                decoded[1],
+                decoded[2],
+                strikeIndexes,
+                amounts,
+                accountAddress
+              )
+            );
+          } else {
+            await sendTx(
+              erc20SSOV1inchRouter.swapAndDepositMultiple(
+                ssovData.ssovContract.address,
+                ssovToken.address,
+                decoded[0],
+                decoded[1],
+                decoded[2],
+                strikeIndexes,
+                amounts,
+                accountAddress
+              )
+            );
+          }
         }
       }
 
@@ -588,6 +627,7 @@ const ManageCard = () => {
       updateAssetBalances();
       updateSsovEpochData();
       updateSsovUserData();
+      setIsFetchingPath(false);
     } catch (err) {
       console.log(err);
     }
@@ -599,9 +639,11 @@ const ManageCard = () => {
     updateSsovUserData,
     updateAssetBalances,
     accountAddress,
+    denominationTokenName,
     tokenName,
     totalDepositAmount,
     ssovRouter,
+    path,
   ]);
 
   const checkDEXAggregatorStatus = async () => {
@@ -617,31 +659,72 @@ const ManageCard = () => {
     }
   };
 
-  const getPath = async () => {
+  const getPath = useCallback(async () => {
     if (!isZapActive) return;
     setIsFetchingPath(true);
-    const fromTokenAddress = IS_NATIVE(token)
+    const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : token.address;
-    const toTokenAddress = IS_NATIVE(ssovTokenName)
-      ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    const toTokenAddress: string = IS_NATIVE(ssovTokenName)
+      ? ssovTokenName === 'BNB'
+        ? Addresses[chainId]['VBNB']
+        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
-    const fromTokenDecimals = IS_NATIVE(token)
-      ? getDecimalsFromSymbol(token, chainId)
-      : await token.decimals();
-    if (fromTokenAddress === ssovToken.address) return;
-    const amount = Math.round(totalDepositAmount * 10 ** fromTokenDecimals);
-    if (isNaN(amount) || amount <= 0) return;
-    try {
-      const { data } = await axios.get(
-        `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
-      );
-      setPath(data);
-    } catch (err) {
-      setPath({ error: 'Invalid amounts' });
+
+    if (!quote['toToken']) {
+      setIsFetchingPath(false);
+      return;
     }
+
+    let amount: number =
+      (denominationTokenName === ssovTokenName
+        ? totalDepositAmount / quotePrice
+        : totalDepositAmount) *
+      10 ** getDecimalsFromSymbol(tokenName, chainId);
+
+    let attempts: number = 0;
+    let bestPath: {} = {};
+    let minAmount: number = Math.round(
+      totalDepositAmount *
+        quotePrice *
+        10 ** getDecimalsFromSymbol(ssovTokenSymbol, chainId)
+    );
+
+    while (true) {
+      try {
+        const { data } = await axios.get(
+          `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+            amount
+          )}&fromAddress=${spender}&slippage=${slippageTolerance}&disableEstimate=true`
+        );
+        if (parseInt(data['toTokenAmount']) > minAmount || attempts > 10) {
+          bestPath = data;
+          break;
+        }
+      } catch (err) {
+        console.log(err);
+        setIsFetchingPath(false);
+        break;
+      }
+      attempts += 1;
+      amount = Math.round(amount * 1.01);
+    }
+
+    setPath(bestPath);
     setIsFetchingPath(false);
-  };
+    return bestPath;
+  }, [
+    chainId,
+    isZapActive,
+    quote,
+    slippageTolerance,
+    spender,
+    ssovToken.address,
+    ssovTokenName,
+    ssovTokenSymbol,
+    totalDepositAmount,
+    token,
+  ]);
 
   useEffect(() => {
     checkDEXAggregatorStatus();
@@ -649,18 +732,22 @@ const ManageCard = () => {
 
   useEffect(() => {
     getPath();
-  }, [strikeDepositAmounts, denominationTokenName]);
+  }, [strikeDepositAmounts, denominationTokenName, spender]);
 
   useEffect(() => {
     handleTokenChange();
-  }, [handleTokenChange]);
+  }, [token]);
+
+  useEffect(() => {
+    getQuote();
+  }, [tokenName]);
 
   // Updates approved state
   useEffect(() => {
     (async () => {
       const finalAmount: BigNumber = getContractReadableAmount(
         totalDepositAmount.toString(),
-        getTokenDecimals(ssovTokenName)
+        getDecimalsFromSymbol(ssovTokenName, chainId)
       );
       if (isPut) {
         const allowance: BigNumber = await ERC20__factory.connect(
@@ -697,25 +784,25 @@ const ManageCard = () => {
     if (!token || !accountAddress) return;
     (async function () {
       let userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances.ETH)
+        ? BigNumber.from(userAssetBalances[token])
         : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
     })();
-  }, [accountAddress, token, userAssetBalances.ETH, ssovTokenName]);
+  }, [accountAddress, token, userAssetBalances, ssovTokenName]);
 
   const userBalance = useMemo(() => {
     {
       if (isPut) {
         return ethers.utils.formatUnits(
           userAssetBalances[depositTokenName],
-          getTokenDecimals(depositTokenName)
+          getDecimalsFromSymbol(depositTokenName, chainId)
         );
       } else {
         return denominationTokenName !== ssovTokenName
           ? getUserReadableAmount(
               userAssetBalances[denominationTokenName],
-              getTokenDecimals(denominationTokenName)
+              getDecimalsFromSymbol(denominationTokenName, chainId)
             )
           : purchasePower;
       }
@@ -1061,11 +1148,14 @@ const ManageCard = () => {
                   isZapActive={isZapActive}
                   quote={quote}
                   path={path}
-                  isFetchingPath={isFetchingPath}
+                  isFetchingPath={
+                    isFetchingPath &&
+                    Object.keys(strikeDepositAmounts).length > 0
+                  }
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
-                  isZapInAvailable={false}
+                  isZapInAvailable={isPut ? false : isZapInAvailable}
                   chainId={chainId}
                 />
                 <Box className="flex">

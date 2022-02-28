@@ -526,6 +526,7 @@ const ZapIn = ({
             setOpen={setIsTokenSelectorVisible}
             setToken={setToken}
             isInDialog={isInDialog}
+            tokensToExclude={[ssovTokenName]}
           />
         </Box>
       )}
