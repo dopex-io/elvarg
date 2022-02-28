@@ -546,19 +546,17 @@ const ManageCard = () => {
         const toTokenAmount: BigNumber = BigNumber.from(
           bestPath['toTokenAmount']
         );
-        const price =
-          parseFloat(bestPath['toTokenAmount']) /
-          parseFloat(bestPath['fromTokenAmount']);
 
         let total = BigNumber.from('0');
         let amounts = [];
+
         strikeIndexes.map((index) => {
           const amount = getContractReadableAmount(
             // @ts-ignore
             strikeDepositAmounts[index] *
               (denominationTokenName.toUpperCase() !==
               ssovTokenName.toUpperCase()
-                ? price
+                ? quotePrice
                 : 1),
             getDecimalsFromSymbol(ssovTokenName, chainId)
           );
@@ -576,7 +574,7 @@ const ManageCard = () => {
         if (IS_NATIVE(tokenName)) {
           const value = getContractReadableAmount(
             totalDepositAmount /
-              (denominationTokenName === ssovTokenName ? price : 1),
+              (denominationTokenName === ssovTokenName ? quotePrice : 1),
             getDecimalsFromSymbol(tokenName, chainId)
           );
 
@@ -596,7 +594,7 @@ const ManageCard = () => {
             )
           );
         } else {
-          if (IS_NATIVE(ssovTokenName)) {
+          if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
             await sendTx(
               nativeSSOV1inchRouter.swapAndDepositMultiple(
                 decoded[0],
