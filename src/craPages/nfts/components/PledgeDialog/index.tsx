@@ -135,7 +135,7 @@ const PledgeDialog = ({
         });
     }
     setUserNfts(_nfts);
-    setUserPledgedNfts(_nfts);
+    setUserPledgedNfts(_pledgedNfts);
   }, []);
 
   const [activeTab, setActiveTab] = useState<string>('pledge');
@@ -170,11 +170,9 @@ const PledgeDialog = ({
 
   const handleSelectNft = useCallback(
     async (id) => {
-      console.log(selectedNfts);
       const _nfts = JSON.parse(JSON.stringify(selectedNfts));
       if (_nfts.indexOf(id) !== -1) _nfts.splice(_nfts.indexOf(id), 1);
       else _nfts.push(id);
-      console.log('select', id, selectedNfts, _nfts);
       selectNfts(_nfts);
     },
     [selectedNfts]
@@ -390,7 +388,7 @@ const PledgeDialog = ({
                 size="medium"
                 className={styles.pepeButton}
                 disabled={selectedNfts.length == 0}
-                onClick={!approved ? handlePledge : handleApprove}
+                onClick={approved ? handlePledge : handleApprove}
               >
                 <Typography variant="h5" className={styles.pepeButtonText}>
                   {!approved
