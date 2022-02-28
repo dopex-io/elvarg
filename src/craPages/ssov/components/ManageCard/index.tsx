@@ -237,13 +237,28 @@ const ManageCard = () => {
     ssovTokenName,
   ]);
 
+  const quotePrice: number = useMemo(() => {
+    if (!quote['toTokenAmount']) return 0;
+    return (
+      getUserReadableAmount(
+        quote['toTokenAmount'],
+        getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+      ) /
+      getUserReadableAmount(
+        quote['fromTokenAmount'],
+        getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+      )
+    );
+  }, [quote, chainId]);
+
   const purchasePower =
-    isZapActive && quote['toToken'] && denominationTokenName === ssovTokenName
+    isZapActive &&
+    quote['toToken'] &&
+    (denominationTokenName === ssovTokenName || isZapInAvailable)
       ? getUserReadableAmount(
-          quote['toTokenAmount'],
-          quote['toToken']['decimals']
-        ) /
-        (1 + slippageTolerance / 100)
+          userTokenBalance,
+          getDecimalsFromSymbol(tokenName, chainId)
+        ) * quotePrice
       : getUserReadableAmount(
           userTokenBalance,
           getDecimalsFromSymbol(tokenName, chainId)
@@ -263,7 +278,12 @@ const ManageCard = () => {
 
   const isPurchasePowerEnough = useMemo(() => {
     if (isPut) return true;
-    return purchasePower >= totalDepositAmount;
+    return (
+      purchasePower >=
+      (denominationTokenName === ssovTokenName
+        ? totalDepositAmount
+        : totalDepositAmount * quotePrice)
+    );
   }, [purchasePower, totalDepositAmount, isPut]);
 
   const openZapIn = () => {
@@ -310,7 +330,7 @@ const ManageCard = () => {
     if (!token) return;
     const symbol = IS_NATIVE(token) ? token : await token.symbol();
     setTokenName(symbol);
-    await getQuote();
+    setDenominationTokenName(symbol);
   };
 
   const totalEpochDepositsAmount =
@@ -589,8 +609,6 @@ const ManageCard = () => {
               )
             );
           } else {
-            console.log(amounts[0].toString());
-            console.log(bestPath['toTokenAmount']);
             await sendTx(
               erc20SSOV1inchRouter.swapAndDepositMultiple(
                 ssovData.ssovContract.address,
@@ -662,16 +680,16 @@ const ManageCard = () => {
     }
 
     let amount: number =
-      totalDepositAmount /
-      (parseInt(quote['toTokenAmount']) /
-        10 ** parseInt(quote['toToken']['decimals']) /
-        parseInt(quote['fromTokenAmount']));
+      (denominationTokenName === ssovTokenName
+        ? totalDepositAmount / quotePrice
+        : totalDepositAmount) *
+      10 ** getDecimalsFromSymbol(tokenName, chainId);
 
     let attempts: number = 0;
     let bestPath: {} = {};
     let minAmount: number = Math.round(
       totalDepositAmount *
-        1.01 *
+        quotePrice *
         10 ** getDecimalsFromSymbol(ssovTokenSymbol, chainId)
     );
 
@@ -722,6 +740,10 @@ const ManageCard = () => {
   useEffect(() => {
     handleTokenChange();
   }, [token]);
+
+  useEffect(() => {
+    getQuote();
+  }, [tokenName]);
 
   // Updates approved state
   useEffect(() => {
