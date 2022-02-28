@@ -13,6 +13,7 @@ import {
   YieldMint__factory,
   UniswapPair__factory,
   DiamondPepeNFTsPledge__factory,
+  DiamondPepeNFTs__factory,
   Addresses,
 } from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
@@ -35,59 +36,49 @@ const DiamondPepesNfts = () => {
     Addresses[chainId]['DiamondPepesNFTMint'],
     provider
   );
+  const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
+    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+    signer
+  );
   const pledge = DiamondPepeNFTsPledge__factory.connect(
     Addresses[chainId]['DiamondPepesNFTPledge'],
     provider
   );
+  const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
+  const [totalPledged, setTotalPledged] = useState<number>(0);
   const winners = [];
   const sendTx = useSendTx();
 
   const updateData = useCallback(async () => {
-    if (!provider || !contractAddresses) return;
-    const lp = UniswapPair__factory.connect(
-      Addresses[chainId]['RDPX-WETH'],
-      provider
-    );
-
-    const [
-      isDepositPeriod,
-      isFarmingPeriod,
-      maxLpDeposits,
-      mintPrice,
-      totalDeposits,
-      lpReserves,
-      lpTotalSupply,
-    ] = await Promise.all([
-      yieldMint.depositPeriod(),
-      yieldMint.farmingPeriod(),
-      yieldMint.maxLpDeposits(),
-      yieldMint.mintPrice(),
-      yieldMint.totalDeposits(),
-      lp.getReserves(),
-      lp.totalSupply(),
-    ]);
-
-    setData({
-      lpReserves: lpReserves,
-      lpSupply: lpTotalSupply,
-      isDepositPeriod: isDepositPeriod,
-      isFarmingPeriod: isFarmingPeriod,
-      maxLpDeposits: maxLpDeposits,
-      mintPrice: mintPrice,
-      totalDeposits: totalDeposits,
-    });
-  }, [provider, contractAddresses, setData]);
+    if (!provider) return;
+    const total = await pledge.totalPledged();
+    setTotalPledged(total.toNumber());
+  }, [provider, pledge, setTotalPledged]);
 
   const updateUserData = useCallback(async () => {
-    if (!provider || !contractAddresses || !YieldMint__factory) return;
+    if (!provider) return;
 
-    const [deposits, minted] = await Promise.all([
-      yieldMint.usersDeposit(accountAddress),
-      yieldMint.didUserMint(accountAddress),
-    ]);
+    const nfts = await diamondPepeNfts
+      .connect(signer)
+      .walletOfOwner(accountAddress);
+    let total = 0;
 
-    setUserData({ deposits: deposits, minted: minted });
-  }, [accountAddress, provider, contractAddresses, setUserData]);
+    const pledged = await Promise.all(nfts.map((n) => pledge.pledged(n)));
+
+    nfts.map((n, i) => {
+      if (pledged[i] !== '0x0000000000000000000000000000000000000000')
+        total += 1;
+    });
+
+    setTotalUserPledged(total);
+  }, [
+    signer,
+    accountAddress,
+    diamondPepeNfts,
+    provider,
+    pledge,
+    setTotalUserPledged,
+  ]);
 
   useEffect(() => {
     updateData();
@@ -103,7 +94,9 @@ const DiamondPepesNfts = () => {
       const startTime = 1646071200;
       return (
         <Countdown
-          date={new Date((startTime + 2 * 86400) * 1000)}
+          date={
+            new Date((startTime + 86400 * 2 + 22 * 60 * 60 + 22 * 60) * 1000)
+          }
           renderer={({ days, hours, minutes, seconds, completed }) => {
             if (days < 1 && hours < 1) {
               return (
@@ -126,14 +119,14 @@ const DiamondPepesNfts = () => {
 
   const boxes = [
     { title: 'Genesis (Legendary)', subTitle: 'Collection' },
-    { title: '18:00 PM 28/2/22', subTitle: 'Start CET' },
+    { title: '22:22 PM 1/3/22', subTitle: 'Start GMT' },
     { title: timeRemaining, subTitle: 'Time remaining' },
     {
-      title: 888,
+      title: totalPledged,
       subTitle: 'Pledged',
     },
     {
-      title: formatAmount(getUserReadableAmount(userData.deposits, 18), 2),
+      title: totalUserPledged,
       subTitle: 'Your pledged',
     },
   ];
