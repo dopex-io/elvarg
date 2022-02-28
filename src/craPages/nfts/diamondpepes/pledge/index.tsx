@@ -44,11 +44,17 @@ const DiamondPepesNfts = () => {
 
   const getWinners = useCallback(async () => {
     if (!provider) return;
-    const query = await pledge.queryFilter(
+    {
+      /* const query = await pledge.queryFilter(
       pledge.filters.LogDistributed(),
       7061695,
       'latest'
-    );
+    ); 
+    
+    TODO: update this range when event is triggered
+    */
+    }
+    const query = [];
 
     if (query.length === 0) return [];
     const output = [];
