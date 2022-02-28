@@ -58,6 +58,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/call/BNB': [56],
   '/ssov/call/GMX': [42161],
   '/ssov/call/AVAX': [43114],
+  '/ssov/call/Metis': [1088],
   '/ssov/put/RDPX': [42161],
   '/ssov/put/GOHM': [42161],
   '/ssov/put/BTC': [42161],

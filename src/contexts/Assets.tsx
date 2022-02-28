@@ -293,6 +293,7 @@ export const AssetsProvider = (props) => {
         AVAX: '0',
         MAGIC: '0',
         '2CRV': '0',
+        METIS: '0',
       };
 
       const assets = Object.keys(userAssetBalances)

@@ -50,6 +50,11 @@ export const BASE_ASSET_MAP = {
     symbol: 'AVAX',
     _symbol: 'AVAX',
   },
+  METIS: {
+    fullName: 'Metis DAO',
+    symbol: 'METIS',
+    _symbol: 'METIS',
+  },
   CRV: {
     fullName: 'CRV',
     symbol: 'CRV',
@@ -208,6 +213,12 @@ export const SSOV_MAP = {
     coiGeckoId: 'terra-luna',
     tokens: ['LUNA'],
   },
+  METIS: {
+    tokenSymbol: 'METIS',
+    imageSrc: '/assets/metis.svg',
+    coinGeckoId: 'metis',
+    tokens: ['METIS'],
+  },
 };
 
 export const SHOWCASE_NFTS = [
@@ -323,6 +334,8 @@ export const ANKR_KEY = process.env.NEXT_PUBLIC_ANKR_KEY;
 export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
 export const AVAX_RPC_URL = process.env.NEXT_PUBLIC_AVAX_RPC_URL;
+
+export const METIS_RPC_URL = process.env.NEXT_PUBLIC_METIS_RPC_URL;
 
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
