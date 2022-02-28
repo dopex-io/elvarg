@@ -202,6 +202,12 @@ export const SSOV_MAP = {
     coiGeckoId: 'curve-dao-token',
     tokens: ['CRV'],
   },
+  LUNA: {
+    tokenSymbol: 'LUNA',
+    imageSrc: '/assets/luna.svg',
+    coiGeckoId: 'terra-luna',
+    tokens: ['LUNA'],
+  },
 };
 
 export const SHOWCASE_NFTS = [

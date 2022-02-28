@@ -410,7 +410,6 @@ const ManageCard = () => {
           )
         );
       } else if (depositTokenName === 'USDT' || depositTokenName === 'USDC') {
-        console.log('Asda');
         const curve2PoolSsovPut1inchRouter =
           Curve2PoolSsovPut1inchRouter__factory.connect(
             '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564',
@@ -473,12 +472,14 @@ const ManageCard = () => {
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
 
-      if (ssovTokenName === tokenName) {
+      if (ssovTokenName.toLocaleUpperCase() === tokenName.toLocaleUpperCase()) {
         if (ssovTokenName === 'BNB') {
           await sendTx(
             ssovRouter.depositMultiple(
               strikeIndexes,
-              strikeIndexes.map((index) => strikeDepositAmounts[index]),
+              strikeIndexes.map(
+                (index) => contractReadableStrikeDepositAmounts[index]
+              ),
               accountAddress,
               {
                 value: getContractReadableAmount(
@@ -492,7 +493,25 @@ const ManageCard = () => {
           await sendTx(
             ssovContractWithSigner.depositMultiple(
               strikeIndexes,
-              strikeIndexes.map((index) => strikeDepositAmounts[index]),
+              strikeIndexes.map(
+                (index) => contractReadableStrikeDepositAmounts[index]
+              ),
+              accountAddress,
+              {
+                value: getContractReadableAmount(
+                  totalDepositAmount,
+                  getDecimalsFromSymbol(ssovTokenName, chainId)
+                ),
+              }
+            )
+          );
+        } else {
+          await sendTx(
+            ssovContractWithSigner.depositMultiple(
+              strikeIndexes,
+              strikeIndexes.map(
+                (index) => contractReadableStrikeDepositAmounts[index]
+              ),
               accountAddress
             )
           );
@@ -1046,7 +1065,7 @@ const ManageCard = () => {
                   tokenName={tokenName}
                   ssovTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
-                  isZapInAvailable={isPut ? false : isZapInAvailable}
+                  isZapInAvailable={false}
                   chainId={chainId}
                 />
                 <Box className="flex">
