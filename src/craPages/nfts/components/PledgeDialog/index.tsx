@@ -121,9 +121,11 @@ const PledgeDialog = ({
       .walletOfOwner(accountAddress);
     let _nfts = [];
     let _pledgedNfts = [];
-    for (let n of nfts) {
-      const pledged: boolean = await pledge.burned(n.toString());
-      if (pledged)
+
+    const pledged = await Promise.all(nfts.map((n) => pledge.pledged(n)));
+
+    nfts.map((n, i) => {
+      if (pledged[i] !== '0x0000000000000000000000000000000000000000')
         _pledgedNfts.push({
           id: n.toString(),
           img: `https://ipfs.io/ipfs/QmZGtzDodjfRTGJErqpJ7oFRJ4GM1R1DZkGPnRYVzZ9ZsC/${n}.png`,
@@ -133,7 +135,8 @@ const PledgeDialog = ({
           id: n.toString(),
           img: `https://ipfs.io/ipfs/QmZGtzDodjfRTGJErqpJ7oFRJ4GM1R1DZkGPnRYVzZ9ZsC/${n}.png`,
         });
-    }
+    });
+
     setUserNfts(_nfts);
     setUserPledgedNfts(_pledgedNfts);
   }, []);
@@ -141,8 +144,8 @@ const PledgeDialog = ({
   const [activeTab, setActiveTab] = useState<string>('pledge');
 
   const modalHeight = useMemo(() => {
-    if (userPledgedNfts.length > 0 && userNfts.length > 0) return '44rem';
-    else return '28rem';
+    if (userPledgedNfts.length > 0 && userNfts.length > 0) return '49.2rem';
+    else return '33.2rem';
   }, [userPledgedNfts, userNfts]);
 
   const handlePledge = useCallback(async () => {
@@ -152,10 +155,12 @@ const PledgeDialog = ({
       await sendTx(pledge.connect(signer).pledge(tokenIds));
       await updateData();
       await updateUserData();
+      await getNfts();
+      selectNfts([]);
     } catch (err) {
       console.log(err);
     }
-  }, [signer, updateData, updateUserData, pledge, sendTx]);
+  }, [signer, updateData, updateUserData, pledge, sendTx, selectedNfts]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -273,7 +278,7 @@ const PledgeDialog = ({
                   <span className="text-white">{selectedNfts.length}</span>
                 </Typography>
               </Box>
-              <Box className="h-[10.5rem] overflow-y-auto overflow-x-hidden">
+              <Box className="h-[15.8rem] overflow-y-auto overflow-x-hidden">
                 {userNfts?.length > 0
                   ? Array.from({ length: userNfts.length }, (_, i) => (
                       <Box
