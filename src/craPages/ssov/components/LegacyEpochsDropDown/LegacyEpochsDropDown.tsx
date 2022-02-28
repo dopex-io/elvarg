@@ -4,12 +4,8 @@ import Box from '@material-ui/core/Box';
 import Menu from '@material-ui/core/Menu';
 import Button from '@material-ui/core/Button';
 
-import { WalletContext } from 'contexts/Wallet';
-
 const LegacyEpochsDropDown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const { chainId } = useContext(WalletContext);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -31,6 +27,10 @@ const LegacyEpochsDropDown = () => {
     {
       name: 'Epoch 3 (January)',
       to: 'https://ssov-epoch-3.dopex.io/',
+    },
+    {
+      name: 'Epoch 4 (February)',
+      to: 'https://ssov-epoch-4.dopex.io/',
     },
   ];
 
