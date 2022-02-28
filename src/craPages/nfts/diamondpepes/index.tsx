@@ -183,6 +183,12 @@ const DiamondPepesNfts = () => {
               2,222 Unique Diamond Pepes up for grabs. Free mint passes by
               staking LP Tokens. Zap In with any asset.
             </Typography>
+
+            <Box className="ml-auto mr-auto mb-5 mt-5 w-[10rem]">
+              <a href={'/nfts/diamondpepes/pledge'}>
+                <button className={styles.pepeButton}>Pledge</button>
+              </a>
+            </Box>
           </Box>
           <Box className="pl-4 pr-4 md:flex border border-[#232935] w-full mt-9 bg-[#181C24] z-1 relative">
             {boxes.map((box, i) => (

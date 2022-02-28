@@ -91,7 +91,7 @@ const DiamondPepesNfts = () => {
   const timeRemaining = useMemo(() => {
     if (!data.isDepositPeriod) return <span>-</span>;
     else if (data.isDepositPeriod) {
-      const startTime = 1646071200;
+      const startTime = 1646173342;
       return (
         <Countdown
           date={
