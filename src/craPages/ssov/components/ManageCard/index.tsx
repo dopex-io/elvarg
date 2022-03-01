@@ -224,7 +224,10 @@ const ManageCard = () => {
   }, [strikeDepositAmounts]);
 
   const isZapActive: boolean = useMemo(() => {
-    return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
+    return (
+      tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase() &&
+      tokenName.toUpperCase() !== '2CRV'
+    );
   }, [tokenName, ssovTokenSymbol]);
 
   const [denominationTokenName, setDenominationTokenName] =
@@ -688,6 +691,12 @@ const ManageCard = () => {
         }
 
         if (IS_NATIVE(tokenName)) {
+          const value = getContractReadableAmount(
+            totalDepositAmount /
+              (denominationTokenName === ssovTokenName ? quotePrice : 1),
+            getTokenDecimals(tokenName, chainId)
+          );
+
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndDepositMultiple(
               ssovData.ssovContract.address,
@@ -699,7 +708,7 @@ const ManageCard = () => {
               amounts,
               accountAddress,
               {
-                value: path['fromTokenAmount'],
+                value: value.toString(),
               }
             )
           );
