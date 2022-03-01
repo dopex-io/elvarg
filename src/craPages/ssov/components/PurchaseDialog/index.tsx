@@ -691,7 +691,7 @@ const PurchaseDialog = ({
     spender,
   ]);
 
-  const setMaxAmount = async () => {
+  const setMaxAmount = useCallback(async () => {
     if (isPurchaseStatsLoading) return;
     const strike: BigNumber = epochStrikes[strikeIndex];
     const fees: BigNumber = await ssovContractWithSigner.calculatePurchaseFees(
@@ -706,7 +706,15 @@ const PurchaseDialog = ({
             getUserReadableAmount(tokenPrice, 8))) *
       0.97; // margin of safety;
     setRawOptionsAmount(amount.toFixed(2));
-  };
+  }, [
+    epochStrikes,
+    isPurchaseStatsLoading,
+    purchasePower,
+    ssovContractWithSigner,
+    state.optionPrice,
+    strikeIndex,
+    tokenPrice,
+  ]);
 
   useEffect(() => {
     handleTokenChange();
