@@ -279,11 +279,18 @@ const ManageCard = () => {
     if (isPut) return true;
     return (
       purchasePower >=
-      (denominationTokenName === ssovTokenName
+      (denominationTokenName.toLocaleUpperCase() === ssovTokenName
         ? totalDepositAmount
         : totalDepositAmount * quotePrice)
     );
-  }, [purchasePower, totalDepositAmount, isPut]);
+  }, [
+    isPut,
+    purchasePower,
+    denominationTokenName,
+    ssovTokenName,
+    totalDepositAmount,
+    quotePrice,
+  ]);
 
   const openZapIn = () => {
     if (isZapActive) {
@@ -719,10 +726,13 @@ const ManageCard = () => {
     quote,
     slippageTolerance,
     spender,
-    ssovToken.address,
+    ssovToken?.address,
     ssovTokenName,
+    denominationTokenName,
     ssovTokenSymbol,
     totalDepositAmount,
+    quotePrice,
+    tokenName,
     token,
   ]);
 
@@ -799,7 +809,7 @@ const ManageCard = () => {
           getDecimalsFromSymbol(depositTokenName, chainId)
         );
       } else {
-        return denominationTokenName !== ssovTokenName
+        return denominationTokenName.toLocaleUpperCase() !== ssovTokenName
           ? getUserReadableAmount(
               userAssetBalances[denominationTokenName],
               getDecimalsFromSymbol(denominationTokenName, chainId)
@@ -808,6 +818,7 @@ const ManageCard = () => {
       }
     }
   }, [
+    chainId,
     purchasePower,
     denominationTokenName,
     ssovTokenName,
