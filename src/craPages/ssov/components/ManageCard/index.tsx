@@ -691,12 +691,6 @@ const ManageCard = () => {
         }
 
         if (IS_NATIVE(tokenName)) {
-          const value = getContractReadableAmount(
-            totalDepositAmount /
-              (denominationTokenName === ssovTokenName ? quotePrice : 1),
-            getTokenDecimals(tokenName, chainId)
-          );
-
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndDepositMultiple(
               ssovData.ssovContract.address,
@@ -708,7 +702,7 @@ const ManageCard = () => {
               amounts,
               accountAddress,
               {
-                value: value.toString(),
+                value: bestPath['fromTokenAmount'],
               }
             )
           );
