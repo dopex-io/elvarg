@@ -206,7 +206,7 @@ const ManageCard = () => {
     accountAddress,
     chainId,
     contractAddresses,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     token,
     tokenName,
