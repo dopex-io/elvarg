@@ -42,7 +42,7 @@ import Withdraw from './Withdraw';
 
 import useSendTx from 'hooks/useSendTx';
 
-import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -180,7 +180,7 @@ const ManageCard = () => {
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
     const amount = (
-      10 ** getDecimalsFromSymbol(tokenName.toLocaleUpperCase(), chainId)
+      10 ** getTokenDecimals(tokenName.toLocaleUpperCase())
     ).toString();
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
@@ -237,6 +237,7 @@ const ManageCard = () => {
     ssovData,
     ssovRouter,
     ssovTokenName,
+    tokenName,
   ]);
 
   const quotePrice: number = useMemo(() => {
@@ -244,27 +245,22 @@ const ManageCard = () => {
     return (
       getUserReadableAmount(
         quote['toTokenAmount'],
-        getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+        getTokenDecimals(quote['toToken']['symbol'])
       ) /
       getUserReadableAmount(
         quote['fromTokenAmount'],
-        getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+        getTokenDecimals(quote['fromToken']['symbol'])
       )
     );
-  }, [quote, chainId]);
+  }, [quote]);
 
   const purchasePower =
     isZapActive &&
     quote['toToken'] &&
     (denominationTokenName === ssovTokenName || isZapInAvailable)
-      ? getUserReadableAmount(
-          userTokenBalance,
-          getDecimalsFromSymbol(tokenName, chainId)
-        ) * quotePrice
-      : getUserReadableAmount(
-          userTokenBalance,
-          getDecimalsFromSymbol(tokenName, chainId)
-        );
+      ? getUserReadableAmount(userTokenBalance, getTokenDecimals(tokenName)) *
+        quotePrice
+      : getUserReadableAmount(userTokenBalance, getTokenDecimals(tokenName));
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -301,7 +297,7 @@ const ManageCard = () => {
       if (record['name'] === symbol) {
         value =
           (record['price'] * parseInt(userAssetBalances[symbol])) /
-          10 ** getDecimalsFromSymbol(symbol, chainId);
+          10 ** getTokenDecimals(symbol);
       }
     });
     return value;
@@ -431,7 +427,7 @@ const ManageCard = () => {
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getDecimalsFromSymbol(depositTokenName, chainId)
+                getTokenDecimals(depositTokenName)
               )
             ),
             accountAddress
@@ -448,7 +444,7 @@ const ManageCard = () => {
           curve2PoolSsovPut1inchRouter.swapAndDepositMultipleFromSingle(
             getContractReadableAmount(
               totalDepositAmount,
-              getDecimalsFromSymbol(depositTokenName, chainId)
+              getTokenDecimals(depositTokenName)
             ),
             contractAddresses[depositTokenName],
             strikeIndexes,
@@ -512,7 +508,7 @@ const ManageCard = () => {
               {
                 value: getContractReadableAmount(
                   totalDepositAmount,
-                  getDecimalsFromSymbol(ssovTokenName, chainId)
+                  getTokenDecimals(ssovTokenName)
                 ),
               }
             )
@@ -528,7 +524,7 @@ const ManageCard = () => {
               {
                 value: getContractReadableAmount(
                   totalDepositAmount,
-                  getDecimalsFromSymbol(ssovTokenName, chainId)
+                  getTokenDecimals(ssovTokenName)
                 ),
               }
             )
@@ -551,7 +547,7 @@ const ManageCard = () => {
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getDecimalsFromSymbol(tokenName, chainId)
+                getTokenDecimals(tokenName)
               )
             ),
             accountAddress
@@ -580,7 +576,7 @@ const ManageCard = () => {
               ssovTokenName.toUpperCase()
                 ? quotePrice
                 : 1),
-            getDecimalsFromSymbol(ssovTokenName, chainId)
+            getTokenDecimals(ssovTokenName)
           );
 
           amounts.push(amount);
@@ -597,7 +593,7 @@ const ManageCard = () => {
           const value = getContractReadableAmount(
             totalDepositAmount /
               (denominationTokenName === ssovTokenName ? quotePrice : 1),
-            getDecimalsFromSymbol(tokenName, chainId)
+            getTokenDecimals(tokenName)
           );
 
           await sendTx(
@@ -702,14 +698,12 @@ const ManageCard = () => {
       (denominationTokenName === ssovTokenName
         ? totalDepositAmount / quotePrice
         : totalDepositAmount) *
-      10 ** getDecimalsFromSymbol(tokenName, chainId);
+      10 ** getTokenDecimals(tokenName);
 
     let attempts: number = 0;
     let bestPath: {} = {};
     let minAmount: number = Math.round(
-      totalDepositAmount *
-        quotePrice *
-        10 ** getDecimalsFromSymbol(ssovTokenSymbol, chainId)
+      totalDepositAmount * quotePrice * 10 ** getTokenDecimals(ssovTokenSymbol)
     );
 
     while (true) {
@@ -772,7 +766,7 @@ const ManageCard = () => {
     (async () => {
       const finalAmount: BigNumber = getContractReadableAmount(
         totalDepositAmount.toString(),
-        getDecimalsFromSymbol(ssovTokenName, chainId)
+        getTokenDecimals(ssovTokenName)
       );
       if (isPut) {
         const allowance: BigNumber = await ERC20__factory.connect(
@@ -821,13 +815,13 @@ const ManageCard = () => {
       if (isPut) {
         return ethers.utils.formatUnits(
           userAssetBalances[depositTokenName],
-          getDecimalsFromSymbol(depositTokenName, chainId)
+          getTokenDecimals(depositTokenName)
         );
       } else {
         return denominationTokenName.toLocaleUpperCase() !== ssovTokenName
           ? getUserReadableAmount(
               userAssetBalances[denominationTokenName.toLocaleUpperCase()],
-              getDecimalsFromSymbol(denominationTokenName, chainId)
+              getTokenDecimals(denominationTokenName)
             )
           : purchasePower;
       }

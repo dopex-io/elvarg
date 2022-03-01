@@ -29,14 +29,12 @@ import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 import ZapInButton from 'components/ZapInButton';
 import ZapOutButton from 'components/ZapOutButton';
 import ZapIn from 'components/ZapIn';
-import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
 
 import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
 import BigCrossIcon from 'components/Icons/BigCrossIcon';
 import ZapIcon from 'components/Icons/ZapIcon';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -276,7 +274,7 @@ const PurchaseDialog = ({
       if (record['name'] === symbol) {
         value =
           (record['price'] * parseInt(userAssetBalances[symbol])) /
-          10 ** getDecimalsFromSymbol(symbol, chainId);
+          10 ** getTokenDecimals(symbol);
       }
     });
     return value;

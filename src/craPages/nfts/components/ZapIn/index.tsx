@@ -16,22 +16,25 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import { ERC20 } from '@dopex-io/sdk';
-import { WalletContext } from '../../../../contexts/Wallet';
-import { AssetsContext, IS_NATIVE } from '../../../../contexts/Assets';
-import TokenSelector from '../../../../components/TokenSelector';
-import CustomButton from '../../../../components/UI/CustomButton';
-import Typography from '../../../../components/UI/Typography';
-import getSymbolFromAddress from '../../../../utils/general/getSymbolFromAddress';
-import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
-import getDecimalsFromSymbol from '../../../../utils/general/getDecimalsFromSymbol';
-import formatAmount from '../../../../utils/general/formatAmount';
-import ArrowLeftIcon from '../../../../components/Icons/ArrowLeftIcon';
-import SettingsIcon from '../../../../components/Icons/SettingsIcon';
-import CrossIcon from '../../../../components/Icons/CrossIcon';
-import ZapIcon from '../../../../components/Icons/ZapIcon';
-import SmallArrowDownIcon from '../../../../components/Icons/SmallArrowDownIcon';
-import SmallArrowUpIcon from '../../../../components/Icons/SmallArrowUpIcon';
-import AlarmIcon from '../../../../components/Icons/AlarmIcon';
+
+import { WalletContext } from 'contexts/Wallet';
+import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+
+import TokenSelector from 'components/TokenSelector';
+import CustomButton from 'components/UI/CustomButton';
+import Typography from 'components/UI/Typography';
+
+import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+import formatAmount from 'utils/general/formatAmount';
+
+import ArrowLeftIcon from 'components/Icons/ArrowLeftIcon';
+import SettingsIcon from 'components/Icons/SettingsIcon';
+import CrossIcon from 'components/Icons/CrossIcon';
+import SmallArrowDownIcon from 'components/Icons/SmallArrowDownIcon';
+import SmallArrowUpIcon from 'components/Icons/SmallArrowUpIcon';
+import ZapIcon from 'components/Icons/ZapIcon';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -217,7 +220,6 @@ const ZapIn = ({
               </Box>
             </Popover>
           </Box>
-
           <Box
             className={`${background[1]} rounded-2xl flex flex-col mb-4 p-3 pr-1`}
           >
@@ -247,7 +249,6 @@ const ZapIn = ({
                   <ArrowDropDownIcon className={'fill-gray-100 mr-2'} />
                 </IconButton>
               </Box>
-
               <Input
                 disableUnderline
                 id="zapInAmount"
@@ -257,7 +258,7 @@ const ZapIn = ({
                 className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
                 value={getUserReadableAmount(
                   userAssetBalances[tokenName],
-                  getDecimalsFromSymbol(tokenName, chainId)
+                  getTokenDecimals(tokenName)
                 ).toFixed(6)}
                 readOnly={true}
                 classes={{ input: 'text-right' }}
@@ -282,7 +283,6 @@ const ZapIn = ({
               </Box>
             </Box>
           </Box>
-
           <Box className={isInDialog ? 'h-[30.2rem]' : 'h-[20.2rem]'}>
             {tokenName !== '' &&
             tokenName != 'ETH' &&
@@ -341,7 +341,6 @@ const ZapIn = ({
                     />
                   )}
                 </Box>
-
                 {showSwapSteps && (
                   <Box>
                     <Box className={'flex mb-2 mt-4'}>
@@ -372,7 +371,6 @@ const ZapIn = ({
                         </Typography>
                       </Box>
                     </Box>
-
                     <Box className={'flex mb-2 mt-2'}>
                       <Typography
                         variant="h6"
@@ -520,7 +518,6 @@ const ZapIn = ({
               </Box>
             ) : null}
           </Box>
-
           <Box
             className={`rounded-xl p-4 border border-neutral-800 w-full ${background[0]}`}
           >
@@ -536,7 +533,6 @@ const ZapIn = ({
                 {quote['toToken'] ? quote['toToken']['symbol'] : 'ETH'}
               </Typography>
             </Box>
-
             <Box className="flex">
               <Box className="flex text-center p-2 mr-2 mt-0.5">
                 <ZapIcon id={7} className={'w-6 h-6'} />
@@ -559,7 +555,6 @@ const ZapIn = ({
           </Box>
         </Box>
       )}
-
       {isTokenSelectorVisible && (
         <Box className={isInDialog ? 'h-[52.8rem]' : 'h-[38.8rem]'}>
           <TokenSelector

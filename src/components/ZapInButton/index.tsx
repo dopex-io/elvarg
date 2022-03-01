@@ -2,10 +2,13 @@ import { useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import formatAmount from '../../utils/general/formatAmount';
-import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
-import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
+
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+
 import Typography from '../UI/Typography';
+
 import ZapIcon from '../Icons/ZapIcon';
 import PlusIcon from '../Icons/PlusIcon';
 import ArrowUpIcon from '../Icons/ArrowUpIcon';
@@ -36,7 +39,6 @@ const ZapInButton = ({
   ssovTokenSymbol,
   selectedTokenPrice,
   isZapInAvailable,
-  chainId,
   background = 'bg-neutral-700',
 }: Props) => {
   const pathPrice: number = useMemo(() => {
@@ -44,28 +46,28 @@ const ZapInButton = ({
     return (
       getUserReadableAmount(
         path['toTokenAmount'],
-        getDecimalsFromSymbol(path['toToken']['symbol'], chainId)
+        getTokenDecimals(path['toToken']['symbol'])
       ) /
       getUserReadableAmount(
         path['fromTokenAmount'],
-        getDecimalsFromSymbol(path['fromToken']['symbol'], chainId)
+        getTokenDecimals(path['fromToken']['symbol'])
       )
     );
-  }, [path, chainId]);
+  }, [path]);
 
   const quotePrice: number = useMemo(() => {
     if (!quote['toTokenAmount']) return 0;
     return (
       getUserReadableAmount(
         quote['toTokenAmount'],
-        getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+        getTokenDecimals(quote['toToken']['symbol'])
       ) /
       getUserReadableAmount(
         quote['fromTokenAmount'],
-        getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+        getTokenDecimals(quote['fromToken']['symbol'])
       )
     );
-  }, [quote, chainId]);
+  }, [quote]);
 
   const slippage: number = useMemo(() => {
     return (pathPrice / quotePrice - 1) * 100;
