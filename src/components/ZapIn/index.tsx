@@ -16,15 +16,19 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import { ERC20 } from '@dopex-io/sdk';
-import { WalletContext } from '../../contexts/Wallet';
-import { AssetsContext, IS_NATIVE } from '../../contexts/Assets';
+
+import { WalletContext } from 'contexts/Wallet';
+import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+
 import TokenSelector from '../TokenSelector';
 import CustomButton from '../UI/CustomButton';
 import Typography from '../UI/Typography';
-import getSymbolFromAddress from '../../utils/general/getSymbolFromAddress';
-import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
-import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
-import formatAmount from '../../utils/general/formatAmount';
+
+import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+import formatAmount from 'utils/general/formatAmount';
+
 import ArrowLeftIcon from '../Icons/ArrowLeftIcon';
 import SettingsIcon from '../Icons/SettingsIcon';
 import CrossIcon from '../Icons/CrossIcon';
@@ -243,8 +247,8 @@ const ZapIn = ({
                 type="number"
                 className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
                 value={getUserReadableAmount(
-                  userAssetBalances[tokenName],
-                  getDecimalsFromSymbol(tokenName, chainId)
+                  userAssetBalances[tokenName.toLocaleUpperCase()],
+                  getTokenDecimals(tokenName)
                 ).toFixed(6)}
                 readOnly={true}
                 classes={{ input: 'text-right' }}

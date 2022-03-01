@@ -41,10 +41,9 @@ import AlarmIcon from 'components/Icons/AlarmIcon';
 
 import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
 import useSendTx from 'hooks/useSendTx';
@@ -388,10 +387,7 @@ const PurchaseDialog = ({
     let amount: number =
       parseInt(state.totalCost.toString()) /
       10 **
-        getDecimalsFromSymbol(
-          ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol,
-          chainId
-        ) /
+        getTokenDecimals(ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol) /
       (parseInt(quote['toTokenAmount']) /
         10 ** parseInt(quote['toToken']['decimals']) /
         parseInt(quote['fromTokenAmount']));
@@ -457,13 +453,13 @@ const PurchaseDialog = ({
               b,
               tokenPrices,
               userAssetBalances,
-              getDecimalsFromSymbol(b, chainId)
+              getTokenDecimals(b)
             ) -
             getValueInUsdFromSymbol(
               a,
               tokenPrices,
               userAssetBalances,
-              getDecimalsFromSymbol(a, chainId)
+              getTokenDecimals(a)
             )
           );
         });
@@ -695,7 +691,7 @@ const PurchaseDialog = ({
     spender,
   ]);
 
-  const setMaxAmount = async () => {
+  const setMaxAmount = useCallback(async () => {
     if (isPurchaseStatsLoading) return;
     const strike: BigNumber = epochStrikes[strikeIndex];
     const fees: BigNumber = await ssovContractWithSigner.calculatePurchaseFees(
@@ -710,7 +706,15 @@ const PurchaseDialog = ({
             getUserReadableAmount(tokenPrice, 8))) *
       0.97; // margin of safety;
     setRawOptionsAmount(amount.toFixed(2));
-  };
+  }, [
+    epochStrikes,
+    isPurchaseStatsLoading,
+    purchasePower,
+    ssovContractWithSigner,
+    state.optionPrice,
+    strikeIndex,
+    tokenPrice,
+  ]);
 
   useEffect(() => {
     handleTokenChange();

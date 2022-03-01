@@ -1,21 +1,30 @@
-import { Dispatch, SetStateAction, useContext, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
+import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
+import Box from '@material-ui/core/Box';
+import IconButton from '@material-ui/core/IconButton';
+import Input from '@material-ui/core/Input';
+import SearchIcon from '@material-ui/icons/Search';
+import Slide from '@material-ui/core/Slide';
+
+import Typography from '../UI/Typography';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
+import { WalletContext } from 'contexts/Wallet';
 import {
   ASSET_TO_NAME,
   AssetsContext,
   IS_NATIVE,
   CHAIN_ID_TO_NATIVE,
-} from '../../contexts/Assets';
-import Box from '@material-ui/core/Box';
-import Typography from '../UI/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import SearchIcon from '@material-ui/icons/Search';
-import Slide from '@material-ui/core/Slide';
-import formatAmount from '../../utils/general/formatAmount';
-import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
-import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
-import { WalletContext } from '../../contexts/Wallet';
-import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
+} from 'contexts/Assets';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 export interface Props {
   open: boolean;
@@ -38,17 +47,20 @@ const TokenSelector = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
 
-  const getValueInUsd = (symbol) => {
-    let value = 0;
-    tokenPrices.map((record) => {
-      if (record['name'] === symbol) {
-        value =
-          (record['price'] * parseInt(userAssetBalances[symbol])) /
-          10 ** getDecimalsFromSymbol(symbol, chainId);
-      }
-    });
-    return value;
-  };
+  const getValueInUsd = useCallback(
+    (symbol) => {
+      let value = 0;
+      tokenPrices.map((record) => {
+        if (record['name'] === symbol) {
+          value =
+            (record['price'] * parseInt(userAssetBalances[symbol])) /
+            10 ** getTokenDecimals(symbol);
+        }
+      });
+      return value;
+    },
+    [tokenPrices, userAssetBalances]
+  );
 
   return (
     open && (
@@ -138,7 +150,7 @@ const TokenSelector = ({
                         {formatAmount(
                           getUserReadableAmount(
                             userAssetBalances[symbol],
-                            getDecimalsFromSymbol(symbol, chainId)
+                            getTokenDecimals(symbol)
                           ),
                           3
                         )}{' '}

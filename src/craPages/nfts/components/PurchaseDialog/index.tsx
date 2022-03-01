@@ -28,14 +28,13 @@ import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 import ZapInButton from 'components/ZapInButton';
 import ZapOutButton from 'components/ZapOutButton';
-import ZapIn from '../ZapIn';
+import ZapIn from 'components/ZapIn';
 
 import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
 import BigCrossIcon from 'components/Icons/BigCrossIcon';
 import ZapIcon from 'components/Icons/ZapIcon';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -43,7 +42,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import { Data, UserData } from '../../diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -269,34 +268,33 @@ const PurchaseDialog = ({
     setIsFetchingPath(false);
   }, [amount, baseToken, chainId, spender, token, tokenName]);
 
+  const getValueInUsd = (symbol) => {
+    let value = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === symbol) {
+        value =
+          (record['price'] * parseInt(userAssetBalances[symbol])) /
+          10 ** getTokenDecimals(symbol);
+      }
+    });
+    return value;
+  };
+
   const openZapIn = () => {
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = ['ETH']
+      const filteredTokens = [CHAIN_ID_TO_NATIVE[chainId]]
         .concat(tokens)
         .filter(function (item) {
           return (
             item !== baseTokenName &&
             !['RDPX', 'DPX', '2CRV'].includes(item.toUpperCase()) &&
-            (Addresses[chainId][item] || IS_NATIVE(item))
+            (Addresses[chainId][item] || CHAIN_ID_TO_NATIVE[chainId] === item)
           );
         })
         .sort((a, b) => {
-          return (
-            getValueInUsdFromSymbol(
-              b,
-              tokenPrices,
-              userAssetBalances,
-              getTokenDecimals(b)
-            ) -
-            getValueInUsdFromSymbol(
-              a,
-              tokenPrices,
-              userAssetBalances,
-              getTokenDecimals(a)
-            )
-          );
+          return getValueInUsd(b) - getValueInUsd(a);
         });
 
       const selectedToken = IS_NATIVE(filteredTokens[0])
@@ -981,13 +979,6 @@ const PurchaseDialog = ({
             selectedTokenPrice={selectedTokenPrice}
             isInDialog={true}
             ssovToken={baseToken}
-            background={[
-              'bg-[#181C24]',
-              'bg-[#232935]',
-              'bg-[#232935]',
-              'bg-[#181C24]',
-              'bg-[#232935]',
-            ]}
           />
         </Box>
       </Slide>
