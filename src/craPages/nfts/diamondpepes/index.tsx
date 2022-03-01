@@ -1,24 +1,28 @@
-import Head from 'next/head';
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
-import { BigNumber } from 'ethers';
-import Countdown from 'react-countdown';
 import {
   YieldMint__factory,
   UniswapPair__factory,
   Addresses,
 } from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
+import Head from 'next/head';
 
 import Box from '@material-ui/core/Box';
 import { Tooltip } from '@material-ui/core';
 
-import useSendTx from 'hooks/useSendTx';
 import PurchaseDialog from '../components/PurchaseDialog';
-import { Data, UserData, initialData } from './interfaces';
-import { WalletContext } from '../../../contexts/Wallet';
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
-import formatAmount from '../../../utils/general/formatAmount';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
+
+import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
+import formatAmount from '../../../utils/general/formatAmount';
+
+import { Data, UserData, initialData } from './interfaces';
+
+import { WalletContext } from '../../../contexts/Wallet';
+
+import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 

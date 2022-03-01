@@ -1,14 +1,4 @@
-import Head from 'next/head';
-import Box from '@material-ui/core/Box';
-
-import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
-import styles from '../styles.module.scss';
-import { useMemo } from 'react';
-import { Tooltip } from '@material-ui/core';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import PledgeDialog from '../../components/PledgeDialog';
-import { BigNumber } from 'ethers';
+import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
   UniswapPair__factory,
@@ -16,12 +6,28 @@ import {
   DiamondPepeNFTs__factory,
   Addresses,
 } from '@dopex-io/sdk';
-import useSendTx from 'hooks/useSendTx';
-import { WalletContext } from '../../../../contexts/Wallet';
-import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
+import Head from 'next/head';
+import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
+
+import Box from '@material-ui/core/Box';
+import { Tooltip } from '@material-ui/core';
+
+import Typography from 'components/UI/Typography';
+import AppBar from 'components/AppBar';
+
+import PledgeDialog from '../../components/PledgeDialog';
+
+import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
 import formatAmount from '../../../../utils/general/formatAmount';
+
 import { Data, UserData, initialData } from '../interfaces';
+
+import useSendTx from 'hooks/useSendTx';
+
+import { WalletContext } from '../../../../contexts/Wallet';
+
+import styles from '../styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
