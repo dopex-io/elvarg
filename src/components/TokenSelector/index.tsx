@@ -92,7 +92,7 @@ const TokenSelector = ({
           </Box>
         ) : null}
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-          <Box className={isInDialog ? '' : 'h-[36rem] overflow-y-scroll'}>
+          <Box className={isInDialog ? '' : 'h-[32rem] overflow-y-scroll'}>
             {tokens
               .sort((a, b) => {
                 return getValueInUsd(b) - getValueInUsd(a);
