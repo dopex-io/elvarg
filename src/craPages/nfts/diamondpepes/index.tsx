@@ -4,7 +4,6 @@ import {
   UniswapPair__factory,
   Addresses,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 import Head from 'next/head';
 
@@ -75,7 +74,7 @@ const DiamondPepesNfts = () => {
       mintPrice: mintPrice,
       totalDeposits: totalDeposits,
     });
-  }, [provider, contractAddresses, setData]);
+  }, [provider, contractAddresses, chainId, yieldMint]);
 
   const updateUserData = useCallback(async () => {
     if (!provider || !contractAddresses || !YieldMint__factory) return;
@@ -86,7 +85,7 @@ const DiamondPepesNfts = () => {
     ]);
 
     setUserData({ deposits: deposits, minted: minted });
-  }, [accountAddress, provider, contractAddresses, setUserData]);
+  }, [provider, contractAddresses, yieldMint, accountAddress]);
 
   useEffect(() => {
     updateData();
@@ -144,7 +143,7 @@ const DiamondPepesNfts = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress, updateData, updateUserData, signer]);
+  }, [sendTx, yieldMint, signer, updateData, updateUserData]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -178,6 +177,7 @@ const DiamondPepesNfts = () => {
             <img
               src={'/assets/diamondpepes.svg'}
               className="ml-auto mr-auto z-1 relative md:w-auto w-60"
+              alt="logo"
             />
           </Box>
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">
@@ -239,8 +239,8 @@ const DiamondPepesNfts = () => {
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                Please note that you'll need to deposit 10 LP tokens minimum per
-                pepe for a guaranteed mint.
+                Please note that{" you'll "}need to deposit 10 LP tokens minimum
+                per pepe for a guaranteed mint.
                 <br />
                 <br />
               </Typography>
@@ -309,8 +309,9 @@ const DiamondPepesNfts = () => {
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                Excess deposits that doesn't end up with additional pepes will
-                also return its share of the farming reward upon withdrawing.
+                Excess deposits that {"doesn't"} end up with additional pepes
+                will also return its share of the farming reward upon
+                withdrawing.
               </Typography>
 
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">

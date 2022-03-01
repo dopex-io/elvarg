@@ -7,49 +7,23 @@ import React, {
 } from 'react';
 import {
   Addresses,
-  ERC20,
-  ERC20__factory,
-  Aggregation1inchRouterV4__factory,
-  DiamondPepeNFTs1inchRouter__factory,
   DiamondPepeNFTs__factory,
-  YieldMint,
   DiamondPepeNFTsPledge,
 } from '@dopex-io/sdk';
-import { BigNumber, ethers } from 'ethers';
-import axios from 'axios';
+import { BigNumber } from 'ethers';
 import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import IconButton from '@material-ui/core/IconButton';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Slide from '@material-ui/core/Slide';
-import { LoaderIcon } from 'react-hot-toast';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
-import ZapInButton from 'components/ZapInButton';
-import ZapOutButton from 'components/ZapOutButton';
-import ZapIn from '../ZapIn';
-
-import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
-import BigCrossIcon from 'components/Icons/BigCrossIcon';
-import ZapIcon from 'components/Icons/ZapIcon';
-
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import { Data, UserData } from '../../diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+import { AssetsContext } from 'contexts/Assets';
 
 import useSendTx from 'hooks/useSendTx';
-
-import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
 
@@ -139,7 +113,7 @@ const PledgeDialog = ({
 
     setUserNfts(_nfts);
     setUserPledgedNfts(_pledgedNfts);
-  }, []);
+  }, [accountAddress, diamondPepeNfts, pledge, signer]);
 
   const [activeTab, setActiveTab] = useState<string>('pledge');
 
@@ -162,7 +136,16 @@ const PledgeDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [signer, updateData, updateUserData, pledge, sendTx, selectedNfts]);
+  }, [
+    selectedNfts,
+    sendTx,
+    pledge,
+    signer,
+    updateData,
+    updateUserData,
+    getNfts,
+    userNfts,
+  ]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -193,12 +176,12 @@ const PledgeDialog = ({
         .isApprovedForAll(accountAddress, pledge.address);
       setApproved(allowance);
     })();
-  }, [accountAddress, pledge]);
+  }, [accountAddress, diamondPepeNfts, pledge, signer]);
 
   // Get nfts initially
   useEffect(() => {
     getNfts();
-  }, []);
+  }, [getNfts]);
 
   return (
     <Dialog
