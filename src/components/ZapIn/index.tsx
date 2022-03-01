@@ -243,7 +243,7 @@ const ZapIn = ({
                 type="number"
                 className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
                 value={getUserReadableAmount(
-                  userAssetBalances[tokenName],
+                  userAssetBalances[tokenName.toLocaleUpperCase()],
                   getDecimalsFromSymbol(tokenName, chainId)
                 ).toFixed(6)}
                 readOnly={true}

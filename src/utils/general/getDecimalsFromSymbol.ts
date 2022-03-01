@@ -1,5 +1,5 @@
 import decimals from 'constants/decimals.json';
 
 export default function getDecimalsFromSymbol(symbol: string, chainId: number) {
-  return decimals[chainId][symbol] || 18;
+  return decimals[chainId][symbol.toLocaleUpperCase()] || 18;
 }
