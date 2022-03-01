@@ -152,7 +152,9 @@ const ManageCard = () => {
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const ssovToken =
     ssovSigner.token[0] ||
-    ERC20__factory.connect(contractAddresses['2CRV'], provider);
+    (contractAddresses['2CRV']
+      ? ERC20__factory.connect(contractAddresses['2CRV'], provider)
+      : null);
 
   const [token, setToken] = useState<ERC20 | any>(
     IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovToken
