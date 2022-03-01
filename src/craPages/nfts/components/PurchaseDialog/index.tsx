@@ -183,14 +183,14 @@ const PurchaseDialog = ({
         price *
         getUserReadableAmount(
           userAssetBalances[tokenName],
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         )
       );
     } else {
       return parseFloat(
         getUserReadableAmount(
           userTokenBalance,
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         ).toString()
       );
     }
@@ -231,7 +231,7 @@ const PurchaseDialog = ({
     if (fromTokenAddress === baseToken.address) return;
     if (fromTokenAddress === toTokenAddress) return;
 
-    const amount: number = 10 ** getTokenDecimals(tokenName);
+    const amount: number = 10 ** getTokenDecimals(tokenName, chainId);
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
         amount
@@ -256,7 +256,7 @@ const PurchaseDialog = ({
       const { data } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${getContractReadableAmount(
           amount,
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         )}&fromAddress=${spender}&slippage=0.1&disableEstimate=true`
       );
 
@@ -274,7 +274,7 @@ const PurchaseDialog = ({
       if (record['name'] === symbol) {
         value =
           (record['price'] * parseInt(userAssetBalances[symbol])) /
-          10 ** getTokenDecimals(symbol);
+          10 ** getTokenDecimals(symbol, chainId);
       }
     });
     return value;
@@ -414,7 +414,7 @@ const PurchaseDialog = ({
   const setMaxAmount = async () => {
     const amount = getUserReadableAmount(
       userTokenBalance,
-      getTokenDecimals(tokenName)
+      getTokenDecimals(tokenName, chainId)
     );
     setRawAmount((IS_NATIVE(token) ? amount * 0.99 : amount).toFixed(3));
   };
@@ -461,7 +461,10 @@ const PurchaseDialog = ({
     if (
       !isZapInVisible &&
       amount >
-        getUserReadableAmount(userTokenBalance, getTokenDecimals(tokenName))
+        getUserReadableAmount(
+          userTokenBalance,
+          getTokenDecimals(tokenName, chainId)
+        )
     ) {
       setTokenName(baseTokenName);
     }
@@ -631,7 +634,7 @@ const PurchaseDialog = ({
                       {formatAmount(
                         getUserReadableAmount(
                           userTokenBalance,
-                          getTokenDecimals(tokenName)
+                          getTokenDecimals(tokenName, chainId)
                         ),
                         2
                       )}
@@ -844,7 +847,7 @@ const PurchaseDialog = ({
                   amount >=
                     getUserReadableAmount(
                       userTokenBalance,
-                      getTokenDecimals(tokenName)
+                      getTokenDecimals(tokenName, chainId)
                     )
                 }
                 onClick={approved ? handlePurchase : handleApprove}
