@@ -219,14 +219,14 @@ const PurchaseDialog = ({
         price *
         getUserReadableAmount(
           userAssetBalances[tokenName],
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         )
       );
     } else {
       return parseFloat(
         getUserReadableAmount(
           userTokenBalance,
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         ).toString()
       );
     }
@@ -270,7 +270,7 @@ const PurchaseDialog = ({
 
       if (fromTokenAddress === toTokenAddress) return;
 
-      const amount: number = 10 ** getTokenDecimals(tokenName);
+      const amount: number = 10 ** getTokenDecimals(tokenName, chainId);
 
       const quote = await get1inchQuote({
         fromTokenAddress,
@@ -314,7 +314,7 @@ const PurchaseDialog = ({
     return (
       getUserReadableAmount(
         state.totalCost,
-        getTokenDecimals(ssovTokenSymbol)
+        getTokenDecimals(ssovTokenSymbol, chainId)
       ) / price
     );
   }, [path, quote, state.totalCost, ssovTokenSymbol]);
@@ -387,7 +387,10 @@ const PurchaseDialog = ({
     let amount: number =
       parseInt(state.totalCost.toString()) /
       10 **
-        getTokenDecimals(ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol) /
+        getTokenDecimals(
+          ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol,
+          chainId
+        ) /
       (parseInt(quote['toTokenAmount']) /
         10 ** parseInt(quote['toToken']['decimals']) /
         parseInt(quote['fromTokenAmount']));
@@ -453,13 +456,13 @@ const PurchaseDialog = ({
               b,
               tokenPrices,
               userAssetBalances,
-              getTokenDecimals(b)
+              getTokenDecimals(b, chainId)
             ) -
             getValueInUsdFromSymbol(
               a,
               tokenPrices,
               userAssetBalances,
-              getTokenDecimals(a)
+              getTokenDecimals(a, chainId)
             )
           );
         });

@@ -54,7 +54,7 @@ const TokenSelector = ({
         if (record['name'] === symbol) {
           value =
             (record['price'] * parseInt(userAssetBalances[symbol])) /
-            10 ** getTokenDecimals(symbol);
+            10 ** getTokenDecimals(symbol, chainId);
         }
       });
       return value;
@@ -150,7 +150,7 @@ const TokenSelector = ({
                         {formatAmount(
                           getUserReadableAmount(
                             userAssetBalances[symbol],
-                            getTokenDecimals(symbol)
+                            getTokenDecimals(symbol, chainId)
                           ),
                           3
                         )}{' '}
