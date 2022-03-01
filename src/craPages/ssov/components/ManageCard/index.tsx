@@ -150,14 +150,17 @@ const ManageCard = () => {
   const [path, setPath] = useState<object>({});
   const [activeTab, setActiveTab] = useState(0);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
+  const ssovToken =
+    ssovSigner.token[0] ||
+    ERC20__factory.connect(contractAddresses['2CRV'], provider);
+
   const [token, setToken] = useState<ERC20 | any>(
-    IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovSigner.token[0]
+    IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovToken
   );
+
   const [depositTokenName, setDepositTokenName] = useState<string>('2CRV');
 
   const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
-  const ssovToken = ssovSigner.token[0];
-
   const ssovTokenName = ssovData.tokenName;
 
   const selectedTokenPrice: number = useMemo(() => {
