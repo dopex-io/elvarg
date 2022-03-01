@@ -29,7 +29,7 @@ import Button from '@material-ui/core/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -46,7 +46,6 @@ import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
@@ -180,7 +179,9 @@ const ManageCard = () => {
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : ssovToken.address;
     if (fromTokenAddress === toTokenAddress) return;
-    const amount = (10 ** getDecimalsFromSymbol(tokenName, chainId)).toString();
+    const amount = (
+      10 ** getDecimalsFromSymbol(tokenName.toLocaleUpperCase(), chainId)
+    ).toString();
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
     );
@@ -216,6 +217,8 @@ const ManageCard = () => {
     } else if (isZapActive) {
       if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
         return nativeSSOV1inchRouter?.address;
+      } else if (tokenName.toLocaleUpperCase() === 'VBNB') {
+        return ssovContractWithSigner?.address;
       } else {
         return erc20SSOV1inchRouter?.address;
       }
@@ -292,33 +295,32 @@ const ManageCard = () => {
     quotePrice,
   ]);
 
+  const getValueInUsd = (symbol) => {
+    let value = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === symbol) {
+        value =
+          (record['price'] * parseInt(userAssetBalances[symbol])) /
+          10 ** getDecimalsFromSymbol(symbol, chainId);
+      }
+    });
+    return value;
+  };
+
   const openZapIn = () => {
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = ['ETH']
+      const filteredTokens = [CHAIN_ID_TO_NATIVE[chainId]]
         .concat(tokens)
         .filter(function (item) {
           return (
             item !== ssovTokenSymbol &&
-            (Addresses[chainId][item] || IS_NATIVE(item))
+            (Addresses[chainId][item] || CHAIN_ID_TO_NATIVE[chainId] === item)
           );
         })
         .sort((a, b) => {
-          return (
-            getValueInUsdFromSymbol(
-              b,
-              tokenPrices,
-              userAssetBalances,
-              getDecimalsFromSymbol(b, chainId)
-            ) -
-            getValueInUsdFromSymbol(
-              a,
-              tokenPrices,
-              getValueInUsdFromSymbol,
-              getDecimalsFromSymbol(b, chainId)
-            )
-          );
+          return getValueInUsd(b) - getValueInUsd(a);
         });
 
       const selectedToken = IS_NATIVE(filteredTokens[0])
@@ -542,6 +544,19 @@ const ManageCard = () => {
             )
           );
         }
+      } else if (tokenName.toLocaleUpperCase() === 'VBNB') {
+        await sendTx(
+          ssovContractWithSigner.depositMultiple(
+            strikeIndexes,
+            strikeIndexes.map((index) =>
+              getContractReadableAmount(
+                strikeDepositAmounts[index],
+                getDecimalsFromSymbol(tokenName, chainId)
+              )
+            ),
+            accountAddress
+          )
+        );
       } else {
         const bestPath = await getPath();
 
@@ -667,7 +682,7 @@ const ManageCard = () => {
   };
 
   const getPath = useCallback(async () => {
-    if (!isZapActive) return;
+    if (!isZapActive || tokenName.toLocaleUpperCase() === 'VBNB') return;
     setIsFetchingPath(true);
     const fromTokenAddress: string = IS_NATIVE(token)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -811,7 +826,7 @@ const ManageCard = () => {
       } else {
         return denominationTokenName.toLocaleUpperCase() !== ssovTokenName
           ? getUserReadableAmount(
-              userAssetBalances[denominationTokenName],
+              userAssetBalances[denominationTokenName.toLocaleUpperCase()],
               getDecimalsFromSymbol(denominationTokenName, chainId)
             )
           : purchasePower;
