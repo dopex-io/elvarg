@@ -94,34 +94,26 @@ const DiamondPepesNfts = () => {
     updateUserData();
   }, [updateUserData]);
 
-  const timeRemaining = useMemo(() => {
-    if (!data.isDepositPeriod) return <span>-</span>;
-    else if (data.isDepositPeriod) {
-      const startTime = 1646173342;
-      return (
-        <Countdown
-          date={
-            new Date((startTime + 86400 * 2 + 22 * 60 * 60 + 22 * 60) * 1000)
-          }
-          renderer={({ days, hours, minutes, seconds, completed }) => {
-            if (days < 1 && hours < 1) {
-              return (
-                <span>
-                  {minutes}m {seconds}s
-                </span>
-              );
-            } else {
-              return (
-                <span>
-                  {days}d {hours}h {minutes}m {seconds}s
-                </span>
-              );
-            }
-          }}
-        />
-      );
-    }
-  }, [data]);
+  const timeRemaining = (
+    <Countdown
+      date={new Date(1646426662000)}
+      renderer={({ days, hours, minutes, seconds, completed }) => {
+        if (days < 1 && hours < 1) {
+          return (
+            <span>
+              {minutes}m {seconds}s
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              {days}d {hours}h {minutes}m {seconds}s
+            </span>
+          );
+        }
+      }}
+    />
+  );
 
   const boxes = [
     { title: 'Genesis (Legendary)', subTitle: 'Collection' },
