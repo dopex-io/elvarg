@@ -224,7 +224,10 @@ const ManageCard = () => {
   }, [strikeDepositAmounts]);
 
   const isZapActive: boolean = useMemo(() => {
-    return tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase();
+    return (
+      tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase() &&
+      tokenName.toUpperCase() !== '2CRV'
+    );
   }, [tokenName, ssovTokenSymbol]);
 
   const [denominationTokenName, setDenominationTokenName] =
@@ -699,7 +702,7 @@ const ManageCard = () => {
               amounts,
               accountAddress,
               {
-                value: path['fromTokenAmount'],
+                value: bestPath['fromTokenAmount'],
               }
             )
           );
