@@ -189,9 +189,7 @@ const ManageCard = () => {
 
       if (fromTokenAddress === toTokenAddress) return;
 
-      const amount = (
-        10 ** getTokenDecimals(tokenName.toLocaleUpperCase())
-      ).toString();
+      const amount = (10 ** getTokenDecimals(tokenName, chainId)).toString();
 
       const quote = await get1inchQuote({
         fromTokenAddress,
@@ -270,11 +268,11 @@ const ManageCard = () => {
     return (
       getUserReadableAmount(
         quote['toTokenAmount'],
-        getTokenDecimals(quote['toToken']['symbol'])
+        quote['toToken']['decimals']
       ) /
       getUserReadableAmount(
         quote['fromTokenAmount'],
-        getTokenDecimals(quote['fromToken']['symbol'])
+        quote['fromToken']['decimals']
       )
     );
   }, [quote]);
@@ -283,9 +281,14 @@ const ManageCard = () => {
     isZapActive &&
     quote['toToken'] &&
     (denominationTokenName === ssovTokenName || isZapInAvailable)
-      ? getUserReadableAmount(userTokenBalance, getTokenDecimals(tokenName)) *
-        quotePrice
-      : getUserReadableAmount(userTokenBalance, getTokenDecimals(tokenName));
+      ? getUserReadableAmount(
+          userTokenBalance,
+          getTokenDecimals(tokenName, chainId)
+        ) * quotePrice
+      : getUserReadableAmount(
+          userTokenBalance,
+          getTokenDecimals(tokenName, chainId)
+        );
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -322,7 +325,7 @@ const ManageCard = () => {
       if (record['name'] === symbol) {
         value =
           (record['price'] * parseInt(userAssetBalances[symbol])) /
-          10 ** getTokenDecimals(symbol);
+          10 ** getTokenDecimals(symbol, chainId);
       }
     });
     return value;
@@ -416,12 +419,14 @@ const ManageCard = () => {
       (denominationTokenName === ssovTokenName
         ? totalDepositAmount / quotePrice
         : totalDepositAmount) *
-      10 ** getTokenDecimals(tokenName);
+      10 ** getTokenDecimals(tokenName, chainId);
 
     let attempts: number = 0;
     let bestPath: {} = {};
     let minAmount: number = Math.round(
-      totalDepositAmount * quotePrice * 10 ** getTokenDecimals(ssovTokenSymbol)
+      totalDepositAmount *
+        quotePrice *
+        10 ** getTokenDecimals(ssovTokenSymbol, chainId)
     );
 
     while (true) {
@@ -520,7 +525,7 @@ const ManageCard = () => {
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getTokenDecimals(depositTokenName)
+                getTokenDecimals(depositTokenName, chainId)
               )
             ),
             accountAddress
@@ -537,7 +542,7 @@ const ManageCard = () => {
           curve2PoolSsovPut1inchRouter.swapAndDepositMultipleFromSingle(
             getContractReadableAmount(
               totalDepositAmount,
-              getTokenDecimals(depositTokenName)
+              getTokenDecimals(depositTokenName, chainId)
             ),
             contractAddresses[depositTokenName],
             strikeIndexes,
@@ -601,7 +606,7 @@ const ManageCard = () => {
               {
                 value: getContractReadableAmount(
                   totalDepositAmount,
-                  getTokenDecimals(ssovTokenName)
+                  getTokenDecimals(ssovTokenName, chainId)
                 ),
               }
             )
@@ -617,7 +622,7 @@ const ManageCard = () => {
               {
                 value: getContractReadableAmount(
                   totalDepositAmount,
-                  getTokenDecimals(ssovTokenName)
+                  getTokenDecimals(ssovTokenName, chainId)
                 ),
               }
             )
@@ -640,7 +645,7 @@ const ManageCard = () => {
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getTokenDecimals(tokenName)
+                getTokenDecimals(tokenName, chainId)
               )
             ),
             accountAddress
@@ -669,7 +674,7 @@ const ManageCard = () => {
               ssovTokenName.toUpperCase()
                 ? quotePrice
                 : 1),
-            getTokenDecimals(ssovTokenName)
+            getTokenDecimals(ssovTokenName, chainId)
           );
 
           amounts.push(amount);
@@ -686,7 +691,7 @@ const ManageCard = () => {
           const value = getContractReadableAmount(
             totalDepositAmount /
               (denominationTokenName === ssovTokenName ? quotePrice : 1),
-            getTokenDecimals(tokenName)
+            getTokenDecimals(tokenName, chainId)
           );
 
           await sendTx(
@@ -796,7 +801,7 @@ const ManageCard = () => {
     (async () => {
       const finalAmount: BigNumber = getContractReadableAmount(
         totalDepositAmount.toString(),
-        getTokenDecimals(ssovTokenName)
+        getTokenDecimals(ssovTokenName, chainId)
       );
       if (isPut) {
         const allowance: BigNumber = await ERC20__factory.connect(
@@ -845,13 +850,13 @@ const ManageCard = () => {
       if (isPut) {
         return ethers.utils.formatUnits(
           userAssetBalances[depositTokenName],
-          getTokenDecimals(depositTokenName)
+          getTokenDecimals(depositTokenName, chainId)
         );
       } else {
         return denominationTokenName.toLocaleUpperCase() !== ssovTokenName
           ? getUserReadableAmount(
               userAssetBalances[denominationTokenName.toLocaleUpperCase()],
-              getTokenDecimals(denominationTokenName)
+              getTokenDecimals(denominationTokenName, chainId)
             )
           : purchasePower;
       }

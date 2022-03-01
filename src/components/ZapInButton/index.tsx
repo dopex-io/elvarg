@@ -46,11 +46,11 @@ const ZapInButton = ({
     return (
       getUserReadableAmount(
         path['toTokenAmount'],
-        getTokenDecimals(path['toToken']['symbol'])
+        path['toToken']['decimals']
       ) /
       getUserReadableAmount(
         path['fromTokenAmount'],
-        getTokenDecimals(path['fromToken']['symbol'])
+        path['fromToken']['decimals']
       )
     );
   }, [path]);
@@ -60,11 +60,11 @@ const ZapInButton = ({
     return (
       getUserReadableAmount(
         quote['toTokenAmount'],
-        getTokenDecimals(quote['toToken']['symbol'])
+        quote['toToken']['decimals']
       ) /
       getUserReadableAmount(
         quote['fromTokenAmount'],
-        getTokenDecimals(quote['fromToken']['symbol'])
+        quote['fromToken']['decimals']
       )
     );
   }, [quote]);

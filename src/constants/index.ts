@@ -357,8 +357,24 @@ export const CHAIN_ID_TO_NETWORK_DATA = {
 };
 
 export const TOKEN_DECIMALS = {
-  VBNB: 8,
-  WBTC: 8,
-  USDT: 6,
-  USDC: 6,
+  '56': {
+    BNB: 18,
+    VBNB: 8,
+  },
+  '1': {
+    USDT: 6,
+    USDC: 6,
+  },
+  '421611': {
+    USDT: 6,
+    USDC: 6,
+  },
+  '42161': {
+    USDT: 6,
+    USDC: 6,
+  },
+  '43114': {
+    USDT: 6,
+    USDC: 6,
+  },
 };
