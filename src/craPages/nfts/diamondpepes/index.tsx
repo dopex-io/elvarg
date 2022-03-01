@@ -1,25 +1,26 @@
 import Head from 'next/head';
-import Box from '@material-ui/core/Box';
-
-import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
-import styles from './styles.module.scss';
-import { useMemo } from 'react';
-import { Tooltip } from '@material-ui/core';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import PurchaseDialog from '../components/PurchaseDialog';
+import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 import {
   YieldMint__factory,
   UniswapPair__factory,
   Addresses,
 } from '@dopex-io/sdk';
+
+import Box from '@material-ui/core/Box';
+import { Tooltip } from '@material-ui/core';
+
 import useSendTx from 'hooks/useSendTx';
+import PurchaseDialog from '../components/PurchaseDialog';
+import { Data, UserData, initialData } from './interfaces';
 import { WalletContext } from '../../../contexts/Wallet';
 import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
-import Countdown from 'react-countdown';
 import formatAmount from '../../../utils/general/formatAmount';
-import { Data, UserData, initialData } from './interfaces';
+import Typography from 'components/UI/Typography';
+import AppBar from 'components/AppBar';
+
+import styles from './styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
