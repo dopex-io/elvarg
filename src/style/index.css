@@ -24,6 +24,24 @@
   font-weight: 700;
 }
 
+@font-face {
+  font-family: VT323;
+  src: url('/fonts/VT323-Regular.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: PressStart2P;
+  src: url('/fonts/PressStart2P-Regular.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Minecraft;
+  src: url('/fonts/Minecraft.ttf');
+  font-weight: 400;
+}
+
 body {
   overflow-y: auto;
   overflow-x: hidden;
@@ -31,6 +49,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: white;
+  background: black;
 }
 
 /* Chrome, Safari, Edge, Opera */

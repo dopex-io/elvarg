@@ -1,20 +1,16 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useContext } from 'react';
 import Box from '@material-ui/core/Box';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import cx from 'classnames';
 
-import { SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
-export default function EpochSelector({
-  className,
-  ssovProperties,
-}: {
-  className?: string;
-  ssovProperties: SsovProperties;
-}) {
-  const { currentEpoch, selectedEpoch, setSelectedEpoch } = ssovProperties;
+export default function EpochSelector({ className }: { className?: string }) {
+  const { selectedEpoch, setSelectedEpoch, ssovData } = useContext(SsovContext);
+
+  const { currentEpoch } = ssovData;
 
   const handleSelectChange = useCallback(
     (e) => {
@@ -23,25 +19,24 @@ export default function EpochSelector({
     [setSelectedEpoch]
   );
 
-  const epochs = useMemo(
-    () =>
-      Array(currentEpoch)
-        .join()
-        .split(',')
-        .map((_i, index) => {
-          return (
-            <MenuItem
-              value={index + 1}
-              key={index + 1}
-              className="text-white"
-              disabled={index + 1 === currentEpoch}
-            >
-              Epoch {index + 1} {currentEpoch === index + 1 ? '(Current)' : ''}
-            </MenuItem>
-          );
-        }),
-    [currentEpoch]
-  );
+  const epochs = useMemo(() => {
+    let _epoch = currentEpoch;
+
+    if (ssovData.isCurrentEpochExpired) {
+      _epoch += 1;
+    }
+
+    return Array(_epoch)
+      .join()
+      .split(',')
+      .map((_i, index) => {
+        return (
+          <MenuItem value={index + 1} key={index + 1} className="text-white">
+            Epoch {index + 1} {currentEpoch === index + 1 ? '(Current)' : ''}
+          </MenuItem>
+        );
+      });
+  }, [currentEpoch, ssovData]);
 
   if (!currentEpoch || !selectedEpoch) return <></>;
 

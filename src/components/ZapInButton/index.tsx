@@ -2,10 +2,13 @@ import { useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import formatAmount from '../../utils/general/formatAmount';
-import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
-import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
+
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+
 import Typography from '../UI/Typography';
+
 import ZapIcon from '../Icons/ZapIcon';
 import PlusIcon from '../Icons/PlusIcon';
 import ArrowUpIcon from '../Icons/ArrowUpIcon';
@@ -19,10 +22,11 @@ export interface Props {
   isFetchingPath: boolean;
   path: object;
   tokenName: string;
-  ssovTokenSymbol: number;
+  ssovTokenSymbol: string;
   selectedTokenPrice: number;
   isZapInAvailable: boolean;
   chainId: number;
+  background?: string;
 }
 
 const ZapInButton = ({
@@ -35,35 +39,35 @@ const ZapInButton = ({
   ssovTokenSymbol,
   selectedTokenPrice,
   isZapInAvailable,
-  chainId,
+  background = 'bg-neutral-700',
 }: Props) => {
   const pathPrice: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
     return (
       getUserReadableAmount(
         path['toTokenAmount'],
-        getDecimalsFromSymbol(path['toToken']['symbol'], chainId)
+        path['toToken']['decimals']
       ) /
       getUserReadableAmount(
         path['fromTokenAmount'],
-        getDecimalsFromSymbol(path['fromToken']['symbol'], chainId)
+        path['fromToken']['decimals']
       )
     );
-  }, [path, chainId]);
+  }, [path]);
 
   const quotePrice: number = useMemo(() => {
     if (!quote['toTokenAmount']) return 0;
     return (
       getUserReadableAmount(
         quote['toTokenAmount'],
-        getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+        quote['toToken']['decimals']
       ) /
       getUserReadableAmount(
         quote['fromTokenAmount'],
-        getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+        quote['fromToken']['decimals']
       )
     );
-  }, [quote, chainId]);
+  }, [quote]);
 
   const slippage: number = useMemo(() => {
     return (pathPrice / quotePrice - 1) * 100;
@@ -81,17 +85,21 @@ const ZapInButton = ({
     extreme: 'text-red-500',
     inactive: 'text-green-500',
   };
-
   return isZapInAvailable ? (
     path['error'] ? (
-      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">
-        <RedTriangleIcon className="mt-0.5 mr-2.5" />
+      <Box
+        className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full ${background}`}
+      >
+        <RedTriangleIcon className="ml-6 mt-0.5 mr-2.5" />
+
         <Typography variant="h6" className="text-white">
-          Impossible to find a route
+          Zap in Currently Disabled
         </Typography>
       </Box>
     ) : isFetchingPath ? (
-      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 text-white">
+      <Box
+        className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full text-white ${background}`}
+      >
         <CircularProgress color="inherit" size="17px" className="mr-3 mt-0.5" />
         <Typography variant="h6">Fetching best route...</Typography>
       </Box>
@@ -99,7 +107,9 @@ const ZapInButton = ({
       <Tooltip
         className="text-stieglitz"
         title={
-          !slippage ? (
+          !quote['toToken'] ? (
+            ''
+          ) : !slippage ? (
             <span>
               You will swap{' '}
               {quote['fromToken'] ? quote['fromToken']['symbol'] : '-'} to{' '}
@@ -124,7 +134,7 @@ const ZapInButton = ({
         placement={'top'}
       >
         <Box
-          className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700 cursor-pointer hover:bg-neutral-600"
+          className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full cursor-pointer ${background} hover:opacity-90`}
           onClick={openZapIn}
         >
           {slippageStatus === 'inactive' || !isZapActive ? (
@@ -179,7 +189,9 @@ const ZapInButton = ({
       </Tooltip>
     )
   ) : (
-    <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-neutral-700">
+    <Box
+      className={`rounded-md flex mb-4 p-3 border border-neutral-800 w-full ${background}`}
+    >
       <YellowTriangleIcon className="mt-0.5 mr-2.5" />
       <Typography variant="h6" className="text-white">
         Zap is temporarily not available

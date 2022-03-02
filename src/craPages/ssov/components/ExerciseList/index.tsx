@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
@@ -18,7 +18,7 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
-import { SsovProperties, SsovContext } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -40,13 +40,9 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
-const ExerciseList = ({
-  ssovProperties,
-}: {
-  ssovProperties: SsovProperties;
-}) => {
+const ExerciseList = () => {
   const { accountAddress } = useContext(WalletContext);
-  const { selectedSsov, userSsovDataArray, ssovDataArray } =
+  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
     useContext(SsovContext);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
@@ -54,19 +50,20 @@ const ExerciseList = ({
   >([]);
   const [page, setPage] = useState(0);
 
-  const { currentEpoch, selectedEpoch, tokenPrice, tokenName } = ssovProperties;
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
+
+  const { currentEpoch, tokenPrice, tokenName } = ssovData;
   const {
-    isVaultReady,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
     settlementPrice,
-  } = ssovDataArray[selectedSsov];
+  } = ssovEpochData;
   const {
     epochStrikeTokens,
     userEpochStrikeDeposits,
-    userEpochCallsPurchased,
-  } = userSsovDataArray[selectedSsov];
+    userEpochOptionsPurchased,
+  } = ssovUserData;
 
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
@@ -74,18 +71,19 @@ const ExerciseList = ({
   ) => setPage(newPage);
 
   useEffect(() => {
-    if (!accountAddress || !isVaultReady || !(epochStrikeTokens.length > 0))
-      return;
+    if (!accountAddress) return;
 
     (async function () {
-      const userEpochStrikeTokenBalanceArray = await Promise.all(
-        epochStrikeTokens
-          .map((token) => {
-            if (isZeroAddress(token.address)) return null;
-            return token.balanceOf(accountAddress);
-          })
-          .filter((c) => c)
-      );
+      const userEpochStrikeTokenBalanceArray = epochStrikeTokens.length
+        ? await Promise.all(
+            epochStrikeTokens
+              .map((token) => {
+                if (isZeroAddress(token.address)) return null;
+                return token.balanceOf(accountAddress);
+              })
+              .filter((c) => c)
+          )
+        : [];
 
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
@@ -93,26 +91,46 @@ const ExerciseList = ({
           tokenName === 'BNB'
             ? getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 8)
             : getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 18);
+
         const purchasedAmount = getUserReadableAmount(
-          userEpochCallsPurchased[strikeIndex],
+          userEpochOptionsPurchased[strikeIndex],
           18
         );
-        const settleableAmount = userEpochStrikeTokenBalanceArray[strikeIndex];
+        const settleableAmount =
+          userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
         const isSettleable =
-          settleableAmount.gt(0) && settlementPrice.gt(strike);
+          settleableAmount.gt(0) &&
+          ((isPut && settlementPrice.lt(strike)) ||
+            (!isPut && settlementPrice.gt(strike)));
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
-          ? tokenPrice
-              .sub(strike)
-              .mul(userEpochCallsPurchased[strikeIndex])
-              .div(tokenPrice)
+          ? isPut
+            ? strike
+                .sub(tokenPrice)
+                .mul(userEpochOptionsPurchased[strikeIndex])
+                .mul(1e10)
+                .div(ssovData.lpPrice)
+            : tokenPrice
+                .sub(strike)
+                .mul(userEpochOptionsPurchased[strikeIndex])
+                .div(tokenPrice)
+          : isPut
+          ? strike
+              .sub(settlementPrice)
+              .mul(settleableAmount)
+              .mul(1e10)
+              .div(ssovData.lpPrice)
           : settlementPrice
               .sub(strike)
-              .mul(userEpochCallsPurchased[strikeIndex])
+              .mul(userEpochOptionsPurchased[strikeIndex])
               .div(settlementPrice);
         const totalPremiumsEarned = userEpochStrikeDeposits[strikeIndex]
           .mul(totalEpochPremium[strikeIndex])
-          .div(totalEpochStrikeDeposits[strikeIndex]);
+          .div(
+            totalEpochStrikeDeposits[strikeIndex].isZero()
+              ? BigNumber.from(1)
+              : totalEpochStrikeDeposits[strikeIndex]
+          );
 
         return {
           strikeIndex,
@@ -138,18 +156,19 @@ const ExerciseList = ({
     totalEpochStrikeDeposits,
     totalEpochPremium,
     userEpochStrikeDeposits,
-    userEpochCallsPurchased,
+    userEpochOptionsPurchased,
     tokenPrice,
-    isVaultReady,
     settlementPrice,
     tokenName,
+    isPut,
+    ssovData,
   ]);
 
-  return selectedEpoch > 0 && isVaultReady ? (
+  return selectedEpoch > 0 ? (
     <Box className="bg-cod-gray w-full p-4 rounded-xl">
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
-          Your Exercisable Options
+          Your Options & Deposits
         </Typography>
         <Typography variant="h6" className="text-stieglitz">
           Epoch {selectedEpoch}
@@ -271,8 +290,6 @@ const ExerciseList = ({
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}
                           isPastEpoch={isPastEpoch}
-                          ssovProperties={ssovProperties}
-                          ssovData={ssovDataArray[selectedSsov]}
                         />
                       );
                     }

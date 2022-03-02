@@ -1,66 +1,89 @@
-import { useState } from 'react';
+import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import InfoBox from '../InfoBox';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
+import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
+import { BnbConversionContext } from 'contexts/BnbConversion';
+
+import { SSOV_MAP } from 'constants/index';
+import ssovInfo from 'constants/ssovInfo';
+
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import WalletButton from 'components/WalletButton';
+import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
-
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
-import { SsovProperties, SsovData, UserSsovData } from 'contexts/Ssov';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo/ssovInfo.json';
-
 import styles from './styles.module.scss';
 
 const Description = ({
-  ssovProperties,
   ssovData,
-  userSsovData,
+  ssovEpochData,
+  ssovUserData,
+  type,
 }: {
-  ssovProperties: SsovProperties;
   ssovData: SsovData;
-  userSsovData: UserSsovData;
+  ssovEpochData: SsovEpochData;
+  ssovUserData: SsovUserData;
+  type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { convertToBNB } = useBnbSsovConversion();
+  const { accountAddress, connect } = useContext(WalletContext);
+  const { convertToBNB } = useContext(BnbConversionContext);
 
-  const { tokenPrice } = ssovProperties;
-  const { APY, isVaultReady } = ssovData;
+  const { APY, isVaultReady } = ssovEpochData;
 
-  const tokenSymbol = SSOV_MAP[ssovProperties.tokenName].tokenSymbol;
+  const tokenSymbol = useMemo(
+    () => SSOV_MAP[ssovData.tokenName].tokenSymbol,
+    [ssovData]
+  );
 
-  const TVL = tokenPrice
-    ? ssovData?.totalEpochDeposits && tokenSymbol === 'BNB'
-      ? convertToBNB(ssovData.totalEpochDeposits)
-          .mul(tokenPrice)
+  const isPut = useMemo(() => type === 'PUT', [type]);
+
+  const TVL: number = useMemo(() => {
+    if (ssovData.tokenPrice && ssovEpochData) {
+      if (isPut) {
+        return (
+          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
+          getUserReadableAmount(ssovData.lpPrice, 18)
+        );
+      } else if (tokenSymbol === 'BNB') {
+        return convertToBNB(ssovEpochData.totalEpochDeposits)
+          .mul(ssovData.tokenPrice)
           .div(1e8)
-          .toString()
-      : getUserReadableAmount(ssovData.totalEpochDeposits, 18) *
-        getUserReadableAmount(tokenPrice, 8)
-    : 0;
+          .toNumber();
+      } else {
+        return (
+          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
+          getUserReadableAmount(ssovData.tokenPrice, 8)
+        );
+      }
+    } else {
+      return 0;
+    }
+  }, [ssovEpochData, convertToBNB, ssovData, tokenSymbol, isPut]);
 
   const info = [
     {
       heading: 'Asset',
       value: tokenSymbol,
-      imgSrc: SSOV_MAP[ssovProperties.tokenName].imageSrc,
+      imgSrc: SSOV_MAP[ssovData.tokenName].imageSrc,
     },
     {
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
-      tooltip: ssovInfo[tokenSymbol].aprToolTipMessage,
+      tooltip: isPut
+        ? 'Curve 2Pool Fee APY and Curve Rewards'
+        : ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -71,14 +94,25 @@ const Description = ({
 
   return (
     <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
-      <Typography variant="h1" className="mb-6">
-        {tokenSymbol} SSOV
+      <Typography variant="h1" className="mb-6 flex items-center space-x-3">
+        <span>{tokenSymbol} SSOV</span>
+        <span
+          className={cx(
+            'text-lg text-black p-1.5 rounded-md',
+            isPut ? 'bg-down-bad' : 'bg-emerald-500'
+          )}
+        >
+          {type + 'S'}
+        </span>
       </Typography>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
           {tokenSymbol} Single Staking Option Vault (SSOV)
-        </span>{' '}
-        {ssovInfo[tokenSymbol].mainPageMessage}
+        </span>
+        <br />
+        {isPut
+          ? 'Deposit 2CRV (or USDT, USDC) into strikes providing liquidity into option pools to earn Fee APY, Curve rewards and premiums in 2CRV from each option purchase.'
+          : ssovInfo[tokenSymbol].mainPageMessage}
       </Typography>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip
@@ -91,20 +125,20 @@ const Description = ({
           arrow={true}
         >
           <Box className="w-full mr-2">
-            <CustomButton
+            <WalletButton
               size="medium"
               fullWidth
               className="rounded-lg"
               onClick={() => {
-                setPurchaseState(true);
+                accountAddress ? setPurchaseState(true) : connect();
               }}
-              disabled={!isVaultReady}
+              disabled={!isVaultReady || ssovEpochData.isEpochExpired}
             >
-              Buy Call Options
-            </CustomButton>
+              Buy {type} Options
+            </WalletButton>
           </Box>
         </Tooltip>
-        <EpochSelector ssovProperties={ssovProperties} />
+        <EpochSelector />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {
@@ -114,9 +148,9 @@ const Description = ({
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
-          userSsovData={userSsovData}
-          ssovProperties={ssovProperties}
+          ssovUserData={ssovUserData}
           ssovData={ssovData}
+          ssovEpochData={ssovEpochData}
           handleClose={
             (() => {
               setPurchaseState(false);

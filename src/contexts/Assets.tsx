@@ -51,6 +51,9 @@ const initialState: AssetsContextInterface = {
     'USDT',
     'MIM',
     'FRAX',
+    'MAGIC',
+    '2CRV',
+    'VBNB',
   ],
   tokenPrices: [],
   userAssetBalances: {
@@ -68,6 +71,9 @@ const initialState: AssetsContextInterface = {
     AVAX: '0',
     USDTMock: '0',
     ERC20Mock: '0',
+    MAGIC: '0',
+    '2CRV': '0',
+    VBNB: '0',
   },
 };
 
@@ -85,6 +91,9 @@ const ASSET_TO_COINGECKO_ID = {
   RDPX: 'dopex-rebate-token',
   GOHM: 'governance-ohm',
   AVAX: 'avalanche-2',
+  MAGIC: 'magic',
+  '2CRV': 'Curve-2-pool-token',
+  VBNB: 'binancecoin',
 };
 
 export const ASSET_TO_NAME = {
@@ -100,6 +109,16 @@ export const ASSET_TO_NAME = {
   RDPX: 'Dopex Rebate',
   GOHM: 'OHM Governance',
   AVAX: 'Avalanche',
+  MAGIC: 'Magic',
+  '2CRV': 'Curve2 Pool Token',
+  VBNB: 'Venus BNB',
+};
+
+export const CHAIN_ID_TO_NATIVE = {
+  42161: 'ETH',
+  56: 'BNB',
+  43114: 'AVAX',
+  1: 'ETH',
 };
 
 export const IS_NATIVE = (asset) => {
@@ -169,8 +188,8 @@ export const AssetsProvider = (props) => {
         const temp = payload.data[ASSET_TO_COINGECKO_ID[state.tokens[index]]];
         return {
           name: state.tokens[index],
-          change24h: temp['usd_24h_change'],
-          price: temp.usd,
+          change24h: temp?.usd_24h_change || 0,
+          price: temp?.usd || 0,
         };
       });
 
@@ -275,10 +294,12 @@ export const AssetsProvider = (props) => {
         DPX: '0',
         RDPX: '0',
         GOHM: '0',
-        VBNB: '0',
         GMX: '0',
         AVAX: '0',
         USDTMock: '0',
+        MAGIC: '0',
+        '2CRV': '0',
+        VBNB: '0',
       };
 
       const assets = Object.keys(userAssetBalances)

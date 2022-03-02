@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { useLocation } from 'react-router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
@@ -7,10 +13,7 @@ import Web3Modal from 'web3modal';
 import WalletLink from 'walletlink';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import {
-  INFURA_PROJECT_ID,
-  BSC_RPC_URL /*, AVAX_RPC_URL*/,
-} from 'constants/index';
+import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -34,29 +37,36 @@ interface WalletContextInterface {
 export const WalletContext = createContext<WalletContextInterface>({});
 
 export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1': `https://rpc.ankr.com/eth/${ANKR_KEY}`,
   '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '56': BSC_RPC_URL,
+  '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
+  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '1337': 'http://127.0.0.1:8545',
-  // '43114': AVAX_RPC_URL,
 };
 
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161 /*, 43114,*/, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
-  '/ssov': [42161, 56 /*, 43114 */],
-  '/ssov/manage/DPX': [42161],
-  '/ssov/manage/RDPX': [42161],
-  '/ssov/manage/ETH': [42161],
-  '/ssov/manage/GOHM': [42161],
-  '/ssov/manage/BNB': [56],
-  '/ssov/manage/GMX': [42161],
-  // '/ssov/manage/AVAX': [43114],
+  '/ssov': [42161, 56, 43114],
+  '/ssov/call/DPX': [42161],
+  '/ssov/call/RDPX': [42161],
+  '/ssov/call/ETH': [42161],
+  '/ssov/call/GOHM': [42161],
+  '/ssov/call/BNB': [56],
+  '/ssov/call/GMX': [42161],
+  '/ssov/call/AVAX': [43114],
+  '/ssov/put/RDPX': [42161],
+  '/ssov/put/GOHM': [42161],
+  '/ssov/put/BTC': [42161],
+  '/ssov/put/GMX': [42161],
+  '/ssov/put/ETH': [42161],
+  '/ssov/put/CRV': [42161],
   '/nfts': [42161],
-  '/nfts/community': [42161, 1 /*, 43114 */],
+  '/nfts/community': [42161, 1, 43114],
+  '/nfts/diamondpepes': [42161],
   '/sale': [1],
   '/otc': [42161, 421611],
   '/otc/chat/:id': [42161, 421611],
@@ -87,6 +97,16 @@ if (typeof window !== 'undefined') {
           logo: '/wallets/Coin98.png',
           name: 'Coin98',
           description: 'Connect to your Coin98 Wallet',
+        },
+        package: null,
+      },
+    }),
+    ...(window.web3?.currentProvider?.isBitKeep && {
+      injected: {
+        display: {
+          logo: '/wallets/Bitkeep.png',
+          name: 'Bitkeep',
+          description: 'Connect to your Bitkeep Wallet',
         },
         package: null,
       },
@@ -147,7 +167,7 @@ export const WalletProvider = (props) => {
 
       if (
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname].includes(chainId)
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
         setState((prevState) => ({
           ...prevState,
@@ -157,7 +177,9 @@ export const WalletProvider = (props) => {
         return;
       }
 
-      const multicallProvider = new providers.MulticallProvider(provider);
+      const multicallProvider = new providers.MulticallProvider(
+        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[chainId])
+      );
       let signer: Signer | undefined;
       let address: string | undefined;
 
@@ -209,6 +231,7 @@ export const WalletProvider = (props) => {
   }, [updateState]);
 
   const disconnect = useCallback(() => {
+    if (!web3Modal) return;
     web3Modal.clearCachedProvider();
     setState((prevState) => ({
       ...prevState,
@@ -221,6 +244,7 @@ export const WalletProvider = (props) => {
   }, []);
 
   const changeWallet = useCallback(() => {
+    if (!web3Modal) return;
     web3Modal.clearCachedProvider();
     web3Modal
       .connect()
@@ -239,7 +263,7 @@ export const WalletProvider = (props) => {
   }, [updateState, state.chainId]);
 
   useEffect(() => {
-    if (web3Modal.cachedProvider) {
+    if (web3Modal?.cachedProvider) {
       connect();
     } else {
       updateState({

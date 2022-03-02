@@ -14,13 +14,11 @@ interface Props {
   imgSrc: string;
   name: string;
   chainId: number;
-  setChangeNetwork: Function;
 }
 
-const NetworkOption = ({ imgSrc, name, chainId, setChangeNetwork }: Props) => {
-  const handleClick = () => {
-    changeOrAddNetworkToMetaMask(chainId);
-    setChangeNetwork(false);
+const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
+  const handleClick = async () => {
+    await changeOrAddNetworkToMetaMask(chainId);
   };
 
   return (
@@ -70,16 +68,14 @@ const ChangeNetworkDialog = () => {
         Connect to a supported network below:
       </Typography>
       <Box className="grid grid-cols-2 gap-4 mb-4">
-        {supportedChainIds.map((chainId) => {
+        {supportedChainIds?.map((chainId) => {
           const data = CHAIN_ID_TO_NETWORK_DATA[chainId];
-
           return (
             <NetworkOption
               key={chainId}
               imgSrc={data.icon}
               name={data.name}
               chainId={chainId}
-              setChangeNetwork={setChangeNetwork}
             />
           );
         })}

@@ -22,7 +22,7 @@ const WalletButton: FC<CustomButtonProps> = (props) => {
       disabled={!isWalletConnected ? false : disabled}
       {...otherProps}
     >
-      {!isWalletConnected ? 'Connect Wallet' : children}
+      {children}
     </CustomButton>
   );
 };

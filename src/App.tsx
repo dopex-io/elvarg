@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { ApolloProvider } from '@apollo/client';
 import { ThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import Error from 'next/error';
+import Script from 'next/script';
 
 import theme from './style/muiTheme';
 
@@ -12,7 +13,6 @@ import { client } from 'graphql/apollo';
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
-import { SsovProvider } from 'contexts/Ssov';
 import { OtcProvider } from 'contexts/Otc';
 import { NftsProvider } from 'contexts/Nfts';
 
@@ -28,12 +28,18 @@ const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const OtcPortal = lazy(() => import('craPages/otc'));
 const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
+// const SsovPutsManage = lazy(() => import('craPages/ssov/Manage/Puts'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
+const DiamondPepesNfts = lazy(() => import('craPages/nfts/diamondpepes'));
+const PledgeDiamondPepesNfts = lazy(
+  () => import('craPages/nfts/diamondpepes/pledge')
+);
 const Oracles = lazy(() => import('craPages/oracles'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
+// const PoolsMargin = lazy(() => import('craPages/pools/margin'));
 // const PoolsManage = lazy(() => import('pages/pools/manage'));
 // const PoolsVolume = lazy(() => import('pages/pools/volume'));
 // const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
@@ -52,12 +58,10 @@ const FarmRoutes = () => {
 
 const SsovRoutes = () => {
   return (
-    <SsovProvider>
-      <Routes>
-        <Route path="*" element={<Ssov />} />
-        <Route path="manage/:asset" element={<SsovManage />} />
-      </Routes>
-    </SsovProvider>
+    <Routes>
+      <Route path="*" element={<Ssov />} />
+      <Route path=":type/:asset" element={<SsovManage />} />
+    </Routes>
   );
 };
 
@@ -80,6 +84,11 @@ const NftsRoutes = () => {
       <Routes>
         <Route path="*" element={<Nfts />} />
         <Route path="community" element={<CommunityNfts />} />
+        <Route path="diamondpepes" element={<DiamondPepesNfts />} />
+        <Route
+          path="diamondpepes/pledge"
+          element={<PledgeDiamondPepesNfts />}
+        />
       </Routes>
     </NftsProvider>
   );
@@ -89,19 +98,16 @@ function AppRoutes() {
   //   return (
   //     <BrowserRouter forceRefresh={false}>
   //       <Suspense fallback={<PageLoader />}>
-  //         <Switch>
-  //           <Route path="/" component={Options} exact />
-  //           <Route path="/pools" component={Pools} exact />
-  //           <Route path="/pools/manage" component={PoolsManage} exact />
-  //           <Route path="/pools/volume" component={PoolsVolume} exact />
-  //           <Route path="/portfolio" component={Portfolio} exact />
-  //           <Route path="/faucet" component={TestnetFaucet} exact />
-  //           <Route path="/swap" component={Swap} exact />
-  //           <SsovProvider>
-  //             <Route path="/ssov" component={Ssov} exact />
-  //             <Route path="/ssov/manage" component={SsovManage} exact />
-  //           </SsovProvider>
-  //         </Switch>
+  //         <Route path="/" element={<Options />} />
+  //         <Route path="/pools" element={<Pools />} />
+  //         <Route path="/pools/manage" element={<PoolsManage />} />
+  //         <Route path="/pools/volume" element={<PoolsVolume />} />
+  //         <Route path="/pools/margin" element={<PoolsMargin />} />
+  //         <Route path="/portfolio" element={<Portfolio />} />
+  //         <Route path="/faucet" element={<TestnetFaucet />} />
+  //         <Route path="/swap" element={<Swap />} />
+  //         <Route path="ssov/*" element={<SsovRoutes />} />
+  //         <Route path="*" element={<Error statusCode={404} />} />
   //       </Suspense>
   //     </BrowserRouter>
   //   );
@@ -117,7 +123,7 @@ function AppRoutes() {
               <Route path="ssov/*" element={<SsovRoutes />} />
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
-              <Route path="oracles" element={<Oracles />} />
+              <Route path="oraxcles" element={<Oracles />} />
               <Route path="/" element={<Navigate to="/otc" />} />
               <Route path="otc/*" element={<OtcRoutes />} />
               <Route path="*" element={<Error statusCode={404} />} />
@@ -135,6 +141,7 @@ const App = () => {
     <StylesProvider injectFirst>
       <ThemeProvider theme={theme}>
         <ApolloProvider client={client}>
+          <Script src="/js/bitkeep.js"></Script>
           <Toaster position="bottom-right" reverseOrder={true} />
           <AppRoutes />
         </ApolloProvider>

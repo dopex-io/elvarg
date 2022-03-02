@@ -1,16 +1,16 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { BigNumber } from 'ethers';
-import { ERC20SSOV } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, SsovProperties } from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -18,13 +18,11 @@ import formatAmount from 'utils/general/formatAmount';
 import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
-  ssovProperties: SsovProperties;
   token: string;
   settleableAmount: BigNumber;
 }
@@ -33,25 +31,28 @@ const Settle = ({
   open,
   handleClose,
   strikeIndex,
-  ssovProperties,
   token,
   settleableAmount,
 }: Props) => {
   const {
-    updateSsovData,
-    updateUserSsovData,
+    updateSsovEpochData,
+    updateSsovUserData,
+    ssovData,
+    ssovEpochData,
+    ssovUserData,
+    ssovSigner,
+    selectedEpoch,
     selectedSsov,
-    ssovDataArray,
-    userSsovDataArray,
-    ssovSignerArray,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
-  const { convertToVBNB } = useBnbSsovConversion();
+  const { convertToVBNB } = useContext(BnbConversionContext);
 
-  const { selectedEpoch, tokenName } = ssovProperties;
-  const { ssovContractWithSigner } = ssovSignerArray[selectedSsov];
-  const { epochStrikes, settlementPrice } = ssovDataArray[selectedSsov];
-  const { epochStrikeTokens } = userSsovDataArray[selectedSsov];
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
+
+  const { tokenName } = ssovData;
+  const { ssovContractWithSigner } = ssovSigner;
+  const { epochStrikes, settlementPrice } = ssovEpochData;
+  const { epochStrikeTokens } = ssovUserData;
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
@@ -59,7 +60,7 @@ const Settle = ({
 
   const sendTx = useSendTx();
 
-  const epochStrikeToken = epochStrikeTokens[strikeIndex];
+  const epochStrikeToken = epochStrikeTokens[strikeIndex] || null;
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
@@ -72,15 +73,22 @@ const Settle = ({
     );
     setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance);
   }, [epochStrikeToken, accountAddress]);
+
   useEffect(() => {
     updateUserEpochStrikeTokenBalance();
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL = !settlementPrice.isZero()
-    ? settlementPrice
-        .sub(epochStrikes[strikeIndex])
-        .mul(settleableAmount)
-        .div(settlementPrice)
+    ? isPut
+      ? epochStrikes[strikeIndex]
+          .sub(settlementPrice)
+          .mul(settleableAmount)
+          .mul(1e10)
+          .div(ssovData.lpPrice)
+      : settlementPrice
+          .sub(epochStrikes[strikeIndex])
+          .mul(settleableAmount)
+          .div(settlementPrice)
     : BigNumber.from(0);
 
   const handleApprove = useCallback(async () => {
@@ -102,8 +110,8 @@ const Settle = ({
       await sendTx(
         ssovContractWithSigner.settle(strikeIndex, settleableAmount, 1)
       );
-      updateSsovData();
-      updateUserSsovData();
+      updateSsovEpochData();
+      updateSsovUserData();
       updateUserEpochStrikeTokenBalance();
     } catch (err) {
       console.log(err);
@@ -112,8 +120,8 @@ const Settle = ({
     ssovContractWithSigner,
     strikeIndex,
     settleableAmount,
-    updateSsovData,
-    updateUserSsovData,
+    updateSsovEpochData,
+    updateSsovUserData,
     updateUserEpochStrikeTokenBalance,
     sendTx,
   ]);
@@ -156,7 +164,10 @@ const Settle = ({
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={`/assets/${token}.svg`} alt={`${token}`} />
+                <img
+                  src={`/assets/${token.toLowerCase()}.svg`}
+                  alt={`${token}`}
+                />
               </Box>
               <Typography variant="h5" className="text-white">
                 {`${token}-CALL${strikePrice}-EPOCH-${selectedEpoch}`}
@@ -228,6 +239,14 @@ const Settle = ({
           <CustomButton
             size="large"
             className="w-11/12 mr-1"
+            onClick={handleApprove}
+            disabled={approved}
+          >
+            Approve
+          </CustomButton>
+          <CustomButton
+            size="large"
+            className="w-11/12 ml-1"
             disabled={
               !approved ||
               settleableAmount.eq(BigNumber.from(0)) ||
@@ -236,14 +255,6 @@ const Settle = ({
             onClick={handleSettle}
           >
             Settle
-          </CustomButton>
-          <CustomButton
-            size="large"
-            className="w-11/12 ml-1"
-            onClick={handleApprove}
-            disabled={approved}
-          >
-            Approve
           </CustomButton>
         </Box>
         <Box className="flex justify-between">

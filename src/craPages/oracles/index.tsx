@@ -3,14 +3,13 @@ import { ethers } from 'ethers';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@material-ui/core/Box';
-import LaunchIcon from '@material-ui/icons/Launch';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
-import Dialog from 'components/UI/Dialog';
-import Chart from './components/Chart';
 import PageLoader from 'components/PageLoader';
 import OracleCard from './components/OracleCard';
+
+import { CHAIN_ID_TO_PROVIDERS } from 'contexts/Wallet';
 
 const TOKENS = [
   {
@@ -81,18 +80,18 @@ const Oracles = () => {
         return item.data.data;
       });
 
-      const arbProvider = new ethers.providers.InfuraProvider(
-        42161,
-        process.env.NEXT_PUBLIC_INFURA_PROJECT_ID
+      const arbProvider = ethers.getDefaultProvider(
+        CHAIN_ID_TO_PROVIDERS[42161],
+        'any'
       );
 
       const bscProvider = ethers.getDefaultProvider(
-        process.env.NEXT_PUBLIC_BSC_RPC_URL,
+        CHAIN_ID_TO_PROVIDERS[56],
         'any'
       );
 
       const avaxProvider = ethers.getDefaultProvider(
-        process.env.NEXT_PUBLIC_AVAX_RPC_URL,
+        CHAIN_ID_TO_PROVIDERS[43114],
         'any'
       );
 
