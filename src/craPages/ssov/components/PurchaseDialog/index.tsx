@@ -258,10 +258,11 @@ const PurchaseDialog = ({
 
   // Updates the 1inch quote
   useEffect(() => {
+    if (isPut) return;
     async function updateQuote() {
       const fromTokenAddress: string = IS_NATIVE(token)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : token.address;
+        : token?.address;
       const toTokenAddress: string = IS_NATIVE(ssovTokenName)
         ? ssovTokenName === 'BNB'
           ? contractAddresses['VBNB']
@@ -288,7 +289,7 @@ const PurchaseDialog = ({
     accountAddress,
     chainId,
     contractAddresses,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     token,
     tokenName,
@@ -431,7 +432,7 @@ const PurchaseDialog = ({
     quote,
     slippageTolerance,
     spender,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     ssovTokenSymbol,
     state.totalCost,
@@ -616,7 +617,7 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     ssovData,
     ssovRouter,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     ssovTokenSymbol,
     state.totalCost,

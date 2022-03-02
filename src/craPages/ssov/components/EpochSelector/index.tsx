@@ -20,7 +20,7 @@ export default function EpochSelector({ className }: { className?: string }) {
   );
 
   const epochs = useMemo(() => {
-    let _epoch = currentEpoch - 1;
+    let _epoch = currentEpoch;
 
     if (ssovData.isCurrentEpochExpired) {
       _epoch += 1;
