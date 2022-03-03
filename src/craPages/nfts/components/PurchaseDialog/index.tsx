@@ -28,14 +28,13 @@ import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 import ZapInButton from 'components/ZapInButton';
 import ZapOutButton from 'components/ZapOutButton';
-import ZapIn from '../ZapIn';
+import ZapIn from 'components/ZapIn';
 
 import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
 import BigCrossIcon from 'components/Icons/BigCrossIcon';
 import ZapIcon from 'components/Icons/ZapIcon';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -43,7 +42,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import { Data, UserData } from '../../diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -184,14 +183,14 @@ const PurchaseDialog = ({
         price *
         getUserReadableAmount(
           userAssetBalances[tokenName],
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         )
       );
     } else {
       return parseFloat(
         getUserReadableAmount(
           userTokenBalance,
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         ).toString()
       );
     }
@@ -232,7 +231,7 @@ const PurchaseDialog = ({
     if (fromTokenAddress === baseToken.address) return;
     if (fromTokenAddress === toTokenAddress) return;
 
-    const amount: number = 10 ** getTokenDecimals(tokenName);
+    const amount: number = 10 ** getTokenDecimals(tokenName, chainId);
     const { data } = await axios.get(
       `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
         amount
@@ -257,7 +256,7 @@ const PurchaseDialog = ({
       const { data } = await axios.get(
         `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${getContractReadableAmount(
           amount,
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         )}&fromAddress=${spender}&slippage=0.1&disableEstimate=true`
       );
 
@@ -269,34 +268,33 @@ const PurchaseDialog = ({
     setIsFetchingPath(false);
   }, [amount, baseToken, chainId, spender, token, tokenName]);
 
+  const getValueInUsd = (symbol) => {
+    let value = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === symbol) {
+        value =
+          (record['price'] * parseInt(userAssetBalances[symbol])) /
+          10 ** getTokenDecimals(symbol, chainId);
+      }
+    });
+    return value;
+  };
+
   const openZapIn = () => {
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = ['ETH']
+      const filteredTokens = [CHAIN_ID_TO_NATIVE[chainId]]
         .concat(tokens)
         .filter(function (item) {
           return (
             item !== baseTokenName &&
             !['RDPX', 'DPX', '2CRV'].includes(item.toUpperCase()) &&
-            (Addresses[chainId][item] || IS_NATIVE(item))
+            (Addresses[chainId][item] || CHAIN_ID_TO_NATIVE[chainId] === item)
           );
         })
         .sort((a, b) => {
-          return (
-            getValueInUsdFromSymbol(
-              b,
-              tokenPrices,
-              userAssetBalances,
-              getTokenDecimals(b)
-            ) -
-            getValueInUsdFromSymbol(
-              a,
-              tokenPrices,
-              userAssetBalances,
-              getTokenDecimals(a)
-            )
-          );
+          return getValueInUsd(b) - getValueInUsd(a);
         });
 
       const selectedToken = IS_NATIVE(filteredTokens[0])
@@ -416,7 +414,7 @@ const PurchaseDialog = ({
   const setMaxAmount = async () => {
     const amount = getUserReadableAmount(
       userTokenBalance,
-      getTokenDecimals(tokenName)
+      getTokenDecimals(tokenName, chainId)
     );
     setRawAmount((IS_NATIVE(token) ? amount * 0.99 : amount).toFixed(3));
   };
@@ -463,7 +461,10 @@ const PurchaseDialog = ({
     if (
       !isZapInVisible &&
       amount >
-        getUserReadableAmount(userTokenBalance, getTokenDecimals(tokenName))
+        getUserReadableAmount(
+          userTokenBalance,
+          getTokenDecimals(tokenName, chainId)
+        )
     ) {
       setTokenName(baseTokenName);
     }
@@ -633,7 +634,7 @@ const PurchaseDialog = ({
                       {formatAmount(
                         getUserReadableAmount(
                           userTokenBalance,
-                          getTokenDecimals(tokenName)
+                          getTokenDecimals(tokenName, chainId)
                         ),
                         2
                       )}
@@ -846,7 +847,7 @@ const PurchaseDialog = ({
                   amount >=
                     getUserReadableAmount(
                       userTokenBalance,
-                      getTokenDecimals(tokenName)
+                      getTokenDecimals(tokenName, chainId)
                     )
                 }
                 onClick={approved ? handlePurchase : handleApprove}
@@ -981,13 +982,6 @@ const PurchaseDialog = ({
             selectedTokenPrice={selectedTokenPrice}
             isInDialog={true}
             ssovToken={baseToken}
-            background={[
-              'bg-[#181C24]',
-              'bg-[#232935]',
-              'bg-[#232935]',
-              'bg-[#181C24]',
-              'bg-[#232935]',
-            ]}
           />
         </Box>
       </Slide>

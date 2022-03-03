@@ -299,12 +299,12 @@ export const SsovProvider = (props) => {
           currentEpoch
         );
 
-        setSelectedEpoch(Number(currentEpoch) + 1);
+        setSelectedEpoch(Number(currentEpoch));
 
         _ssovData = {
           tokenName: selectedSsov.token.toUpperCase(),
           ssovContract: _ssovContract,
-          currentEpoch: Number(currentEpoch) + 1,
+          currentEpoch: Number(currentEpoch),
           isCurrentEpochExpired,
           tokenPrice,
           ...(selectedSsov.type === 'PUT' && {

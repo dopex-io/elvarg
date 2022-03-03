@@ -41,10 +41,9 @@ import AlarmIcon from 'components/Icons/AlarmIcon';
 
 import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getDecimalsFromSymbol from 'utils/general/getDecimalsFromSymbol';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
 import useSendTx from 'hooks/useSendTx';
@@ -220,14 +219,14 @@ const PurchaseDialog = ({
         price *
         getUserReadableAmount(
           userAssetBalances[tokenName],
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         )
       );
     } else {
       return parseFloat(
         getUserReadableAmount(
           userTokenBalance,
-          getTokenDecimals(tokenName)
+          getTokenDecimals(tokenName, chainId)
         ).toString()
       );
     }
@@ -259,10 +258,11 @@ const PurchaseDialog = ({
 
   // Updates the 1inch quote
   useEffect(() => {
+    if (isPut) return;
     async function updateQuote() {
       const fromTokenAddress: string = IS_NATIVE(token)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : token.address;
+        : token?.address;
       const toTokenAddress: string = IS_NATIVE(ssovTokenName)
         ? ssovTokenName === 'BNB'
           ? contractAddresses['VBNB']
@@ -271,7 +271,7 @@ const PurchaseDialog = ({
 
       if (fromTokenAddress === toTokenAddress) return;
 
-      const amount: number = 10 ** getTokenDecimals(tokenName);
+      const amount: number = 10 ** getTokenDecimals(tokenName, chainId);
 
       const quote = await get1inchQuote({
         fromTokenAddress,
@@ -289,7 +289,7 @@ const PurchaseDialog = ({
     accountAddress,
     chainId,
     contractAddresses,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     token,
     tokenName,
@@ -315,7 +315,7 @@ const PurchaseDialog = ({
     return (
       getUserReadableAmount(
         state.totalCost,
-        getTokenDecimals(ssovTokenSymbol)
+        getTokenDecimals(ssovTokenSymbol, chainId)
       ) / price
     );
   }, [path, quote, state.totalCost, ssovTokenSymbol]);
@@ -388,7 +388,7 @@ const PurchaseDialog = ({
     let amount: number =
       parseInt(state.totalCost.toString()) /
       10 **
-        getDecimalsFromSymbol(
+        getTokenDecimals(
           ssovTokenSymbol === 'BNB' ? 'vBNB' : ssovTokenSymbol,
           chainId
         ) /
@@ -432,7 +432,7 @@ const PurchaseDialog = ({
     quote,
     slippageTolerance,
     spender,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     ssovTokenSymbol,
     state.totalCost,
@@ -457,13 +457,13 @@ const PurchaseDialog = ({
               b,
               tokenPrices,
               userAssetBalances,
-              getDecimalsFromSymbol(b, chainId)
+              getTokenDecimals(b, chainId)
             ) -
             getValueInUsdFromSymbol(
               a,
               tokenPrices,
               userAssetBalances,
-              getDecimalsFromSymbol(a, chainId)
+              getTokenDecimals(a, chainId)
             )
           );
         });
@@ -617,7 +617,7 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     ssovData,
     ssovRouter,
-    ssovToken.address,
+    ssovToken,
     ssovTokenName,
     ssovTokenSymbol,
     state.totalCost,
@@ -695,7 +695,7 @@ const PurchaseDialog = ({
     spender,
   ]);
 
-  const setMaxAmount = async () => {
+  const setMaxAmount = useCallback(async () => {
     if (isPurchaseStatsLoading) return;
     const strike: BigNumber = epochStrikes[strikeIndex];
     const fees: BigNumber = await ssovContractWithSigner.calculatePurchaseFees(
@@ -710,7 +710,15 @@ const PurchaseDialog = ({
             getUserReadableAmount(tokenPrice, 8))) *
       0.97; // margin of safety;
     setRawOptionsAmount(amount.toFixed(2));
-  };
+  }, [
+    epochStrikes,
+    isPurchaseStatsLoading,
+    purchasePower,
+    ssovContractWithSigner,
+    state.optionPrice,
+    strikeIndex,
+    tokenPrice,
+  ]);
 
   useEffect(() => {
     handleTokenChange();

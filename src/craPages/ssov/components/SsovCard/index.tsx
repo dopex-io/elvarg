@@ -1,6 +1,8 @@
+import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@material-ui/core/Box';
-import format from 'date-fns/format';
+
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -10,47 +12,66 @@ import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
+import { BigNumber } from 'ethers';
 
 function SsovCard(props) {
   const { className, data } = props;
+  const { convertToBNB } = useContext(BnbConversionContext);
 
-  const { currentEpoch, totalEpochDeposits, epochTimes, apy, tvl, name, type } =
-    data;
+  const {
+    currentEpoch,
+    totalEpochDeposits,
+    apy,
+    tvl,
+    name,
+    type,
+    underlyingDecimals,
+  } = data;
 
-  const info = [
-    {
-      heading: 'Asset',
-      value: name,
-      imgSrc: SSOV_MAP[name].imageSrc,
-    },
-    {
-      heading: 'APY',
-      value: `${apy === 0 ? '...' : `${apy}%`}`,
-      Icon: Action,
-      tooltip:
-        type === 'put'
-          ? 'This is the base APY calculated from Curve 2Pool Fees and Rewards'
-          : ssovInfo[name].aprToolTipMessage,
-    },
-    {
-      heading: 'TVL',
-      value: tvl === 0 ? '...' : formatAmount(tvl),
-      Icon: Coin,
-    },
-  ];
-
-  const epochTimePeriod =
-    epochTimes[0] && epochTimes[1]
-      ? `${format(new Date(epochTimes[0] * 1000), 'MM/dd/yyyy')} - ${format(
-          new Date(epochTimes[1] * 1000),
-          'MM/dd/yyyy'
-        )}`
-      : 'N/A';
+  const info = useMemo(() => {
+    if (!convertToBNB) return [];
+    return [
+      {
+        heading: 'APY',
+        value: `${apy === 0 ? '...' : `${apy}%`}`,
+        Icon: Action,
+        tooltip:
+          type === 'put'
+            ? 'This is the base APY calculated from Curve 2Pool Fees and Rewards'
+            : ssovInfo[name].aprToolTipMessage,
+      },
+      {
+        heading: 'TVL',
+        value: tvl === 0 ? '...' : formatAmount(tvl, 0, true),
+        Icon: Coin,
+      },
+      {
+        heading: 'DEPOSITS',
+        value: `${formatAmount(
+          name === 'BNB'
+            ? convertToBNB(BigNumber.from(totalEpochDeposits)).toString()
+            : getUserReadableAmount(totalEpochDeposits, underlyingDecimals),
+          0,
+          true
+        )}`,
+        imgSrc: type === 'put' ? '/assets/2crv.png' : SSOV_MAP[name].imageSrc,
+      },
+    ];
+  }, [
+    apy,
+    convertToBNB,
+    name,
+    totalEpochDeposits,
+    tvl,
+    type,
+    underlyingDecimals,
+  ]);
 
   return (
     <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
@@ -70,7 +91,7 @@ function SsovCard(props) {
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">
-              <Typography variant="h5" className="mr-2">
+              <Typography variant="h4" className="mr-2 font-bold">
                 {name}
               </Typography>
               <img
@@ -85,41 +106,7 @@ function SsovCard(props) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          {/* <Box className="bg-umbra shadow-none rounded-lg">
-            <Typography
-              variant="caption"
-              component="div"
-              className="text-stieglitz text-sm px-4 pt-2"
-            >
-              Vault Properties
-            </Typography>
-            <Box className="flex flex-col w-full p-4">
-              <Box className="flex flex-row justify-between mb-3">
-                <Typography
-                  variant="caption"
-                  component="div"
-                  className="text-stieglitz"
-                >
-                  Epoch Duration
-                </Typography>
-                <Typography variant="caption" component="div">
-                  {epochTimePeriod}
-                </Typography>
-              </Box>
-              <Box className="flex flex-row justify-between">
-                <Typography
-                  variant="caption"
-                  component="div"
-                  className="text-stieglitz"
-                >
-                  Deposits
-                </Typography>
-                <Typography variant="caption" component="div">
-                  {formatAmount(totalEpochDeposits, 5)} {name}{' '}
-                </Typography>
-              </Box>
-            </Box>
-          </Box> */}
+
           <CustomButton
             size="medium"
             className="my-4"

@@ -53,6 +53,7 @@ const initialState: AssetsContextInterface = {
     'FRAX',
     'MAGIC',
     '2CRV',
+    'VBNB',
   ],
   tokenPrices: [],
   userAssetBalances: {
@@ -70,6 +71,7 @@ const initialState: AssetsContextInterface = {
     AVAX: '0',
     MAGIC: '0',
     '2CRV': '0',
+    VBNB: '0',
   },
 };
 
@@ -89,6 +91,7 @@ const ASSET_TO_COINGECKO_ID = {
   AVAX: 'avalanche-2',
   MAGIC: 'magic',
   '2CRV': 'Curve-2-pool-token',
+  VBNB: 'binancecoin',
 };
 
 export const ASSET_TO_NAME = {
@@ -106,6 +109,7 @@ export const ASSET_TO_NAME = {
   AVAX: 'Avalanche',
   MAGIC: 'Magic',
   '2CRV': 'Curve2 Pool Token',
+  VBNB: 'Venus BNB',
 };
 
 export const CHAIN_ID_TO_NATIVE = {
@@ -288,12 +292,12 @@ export const AssetsProvider = (props) => {
         DPX: '0',
         RDPX: '0',
         GOHM: '0',
-        VBNB: '0',
         GMX: '0',
         AVAX: '0',
         MAGIC: '0',
         '2CRV': '0',
         METIS: '0',
+        VBNB: '0',
       };
 
       const assets = Object.keys(userAssetBalances)
