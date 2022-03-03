@@ -7,12 +7,11 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
-// import { doc, addDoc, setDoc, collection } from '@firebase/firestore';
 import * as yup from 'yup';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import Input from 'components/UI/Input';
+import Input from '@material-ui/core/Input';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
 import ErrorBox from 'components/ErrorBox';
@@ -21,7 +20,6 @@ import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
 
-import Dropdown from 'assets/farming/Dropdown';
 import InfoPopover from 'components/UI/InfoPopover';
 
 import useSendTx from 'hooks/useSendTx';
@@ -34,6 +32,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
 
   const [selection, setSelection] = useState('');
+  // const [validAddress, setValidAddress] = useState(false);
   const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [dialogState, setDialogState] = useState({
@@ -50,7 +49,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     price: yup
       .number()
       .moreThan(0, 'Price has to be greater than 0')
-      .required('Strike is required'),
+      .required('Price is required'),
     base: yup.string().required('Option token required'),
   });
 
@@ -75,17 +74,18 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
       const selection = selectedEscrowData.bases.find(
         (value) => value.address === e.target.value
       );
-
       setSelection(e.target.value);
 
       if (formik.values.isBuy) {
         formik.setFieldValue('base', e.target.value);
         formik.setFieldValue('baseSymbol', selection.symbol);
+
         formik.setFieldValue('quote', selectedEscrowData.quote);
         formik.setFieldValue('quoteSymbol', selectedEscrowData.symbol);
       } else {
         formik.setFieldValue('base', selectedEscrowData.quote);
         formik.setFieldValue('baseSymbol', selectedEscrowData.symbol);
+
         formik.setFieldValue('quote', e.target.value);
         formik.setFieldValue('quoteSymbol', selection.symbol);
       }
@@ -99,12 +99,17 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     },
     [formik]
   );
+
   const handleChangePrice = useCallback(
     (e) => {
       formik.setFieldValue('price', e.target.value);
     },
     [formik]
   );
+
+  // const handleVerifyAddress = useCallback((e) => {
+  //   setValidAddress(ethers.utils.isAddress(e.target.value));
+  // }, []);
 
   const handleBuyOrder = useCallback(
     (e) => {
@@ -247,6 +252,17 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formik.values]);
 
+  // Set default selection
+  useEffect(() => {
+    (async () => {
+      setSelection(
+        selectedEscrowData.bases === undefined
+          ? ''
+          : selectedEscrowData.bases[0]?.address
+      );
+    })();
+  }, [selectedEscrowData, selectedEscrowData.bases]);
+
   return (
     <Box className="bg-cod-gray rounded-lg p-2 border border-umbra">
       <Box className="flex flex-col space-y-2">
@@ -269,98 +285,96 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             PUT
           </CustomButton>
         </Box>
-        <Typography variant="h6" className="text-stieglitz">
-          Quantity
-        </Typography>
-        <Input
-          className="py-2 px-2"
-          value={formik.values.amount || 0}
-          onChange={handleChangeAmount}
-          type="number"
-          leftElement={
+        <Box className="space-y-2 py-3">
+          <Box className="flex justify-between bg-umbra rounded-lg mx-2 border border-mineshaft">
+            {/* {console.log(selection)} */}
             <Select
-              id="base"
-              name="base"
               fullWidth
               disableUnderline
-              value={selection}
-              label="Option"
-              onChange={handleTokenSelection}
-              className="bg-cod-gray rounded-lg p-2 w-1/2 text-white"
-              IconComponent={Dropdown}
-              variant="outlined"
-              classes={{ icon: 'mt-3 text-white', root: 'p-0' }}
+              value={selection || ''}
+              label="option"
+              classes={{ icon: 'text-white' }}
+              className="px-2"
               MenuProps={{
-                classes: { paper: 'bg-cod-gray' },
-                anchorOrigin: {
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                },
-                transformOrigin: {
-                  vertical: 'top',
-                  horizontal: 'left',
-                },
-                getContentAnchorEl: null,
+                classes: { paper: 'bg-cod-gray p-0' },
               }}
+              onChange={handleTokenSelection}
             >
-              {selectedEscrowData.bases?.map((option, index) => {
-                return (
-                  <MenuItem
-                    value={option.address}
-                    key={index}
-                    className="text-white"
-                  >
-                    <Typography variant="h6" className="text-white">
-                      {option.symbol}
-                    </Typography>
-                  </MenuItem>
-                );
-              })}
+              {selectedEscrowData.bases?.map((option, index) => (
+                <MenuItem
+                  value={option.address}
+                  key={index}
+                  className="text-white bg-cod-gray hover:bg-cod-gray"
+                >
+                  <Typography variant="h6" className="text-white mx-auto">
+                    {option.symbol}
+                  </Typography>
+                </MenuItem>
+              ))}
             </Select>
-          }
-        />
-
-        <Typography variant="h6" className="text-stieglitz">
-          Price
-        </Typography>
-        <Input
-          className="py-2 px-2"
-          value={formik.values.price || 0}
-          onChange={handleChangePrice}
-          type="number"
-          placeholder="Price"
-          leftElement={
-            <Box
-              id="token"
-              className="bg-cod-gray p-2 rounded-xl space-x-2 flex"
-            >
-              <img
-                src={`/assets/${selectedEscrowData.symbol?.toLocaleLowerCase()}.svg`}
-                alt={selectedEscrowData.symbol}
-                className="my-auto w-1/2"
-              />
-              <Typography variant="h5" className="text-white my-auto">
-                {selectedEscrowData.symbol}
-              </Typography>
-            </Box>
-          }
-        />
-        <Box className="flex justify-between px-2">
-          <Box className="flex space-x-2">
+          </Box>
+          <Box className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between">
             <Typography variant="h6" className="text-stieglitz my-auto">
-              Buy Order
+              Quantity
             </Typography>
-            <InfoPopover
-              infoText="Toggle between buy and sell order. Sell orders are settled in USDT."
-              id="rfq-buy-toggle"
+            <Input
+              disableUnderline
+              value={formik.values.amount || 0}
+              onChange={handleChangeAmount}
+              type="number"
+              className="border border-mineshaft rounded-md px-2 bg-umbra w-2/3"
+              classes={{ input: 'text-white text-xs text-right' }}
             />
           </Box>
-          <Switch
-            className="my-auto"
-            checked={formik.values.checked}
-            onClick={handleBuyOrder}
-          />
+          <Box
+            id="token"
+            className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between"
+          >
+            <Typography variant="h6" className="text-stieglitz my-auto">
+              Price ($)
+            </Typography>
+            <Input
+              disableUnderline={true}
+              value={formik.values.price || 0}
+              onChange={handleChangePrice}
+              type="number"
+              className="border border-mineshaft rounded-md pl-2 pr-2 bg-umbra w-2/3"
+              classes={{ input: 'text-white text-xs text-right' }}
+            />
+          </Box>
+          {/* <Box className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between">
+            <Typography variant="h6" className="text-stieglitz my-auto">
+              Target
+            </Typography>
+            <Input
+              disableUnderline
+              fullWidth
+              disabled={true}
+              placeholder="Enter Address"
+              type="text"
+              onChange={handleVerifyAddress}
+              className="border border-mineshaft rounded-md px-2 bg-umbra w-2/3"
+              classes={{ input: 'text-white text-xs text-right' }}
+            />
+          </Box> */}
+          <Box className="flex justify-between px-2">
+            <Box className="flex space-x-2">
+              <Typography variant="h6" className="text-stieglitz my-auto">
+                Buy Order
+              </Typography>
+              <InfoPopover
+                infoText="Toggle between buy and sell order. Sell orders are settled in USDT."
+                id="rfq-buy-toggle"
+              />
+            </Box>
+            <Switch
+              className="my-auto"
+              checked={formik.values.checked}
+              onClick={handleBuyOrder}
+            />
+          </Box>
         </Box>
+
         <Box>
           <Accordion
             summary="What are RFQs?"
@@ -368,16 +382,30 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             footer={<Link to="/portfolio">Read More</Link>}
           />
         </Box>
-        <Box>
-          <ErrorBox
-            error={String(
-              formik.errors.amount ||
-                formik.errors.price ||
-                formik.errors.base ||
-                ''
-            )}
-          />
-        </Box>
+        {Boolean(
+          formik.errors.amount ||
+            formik.errors.price ||
+            formik.errors.base ||
+            // (!validAddress && 'Invalid Address')
+            // ||
+            ''
+        ) ? (
+          <Box className="border rounded-lg border-down-bad bg-down-bad bg-opacity-20 p-2">
+            <Typography
+              variant="h6"
+              className="text-down-bad text-xs text-center"
+            >
+              {String(
+                formik.errors.amount ||
+                  formik.errors.price ||
+                  formik.errors.base ||
+                  // (!validAddress && 'Invalid Address')
+                  // ||
+                  ''
+              )}
+            </Typography>
+          </Box>
+        ) : null}
         {isLive ? (
           approved ? (
             <CustomButton

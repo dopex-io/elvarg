@@ -255,6 +255,23 @@ export const OtcProvider = (props) => {
       bases: baseAssetToSymbolMapping,
     });
 
+    // const filter = {
+    //   address: escrows[currentEscrowIndex].address,
+    //   fromBlock: 0,
+    //   toBlock: 10000,
+    //   topics: [escrows[currentEscrowIndex].interface.events.Settle.topic],
+    // };
+
+    // console.log(await provider.getLogs(filter));
+
+    // const settleEvents = escrows[currentEscrowIndex].on(
+    //   'Settle',
+    //   async (quote, base, dealer, settleAmount, depositAmount) =>
+    //     dealer === accountAddress
+    // );
+
+    // console.log(settleEvents);
+
     setState((prevState) => ({
       ...prevState,
       factoryContract: factory,
