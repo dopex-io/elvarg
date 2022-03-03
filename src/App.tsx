@@ -13,6 +13,7 @@ import { client } from 'graphql/apollo';
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
+import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { NftsProvider } from 'contexts/Nfts';
 
 // import { BUILD } from 'constants/index';
@@ -25,7 +26,6 @@ const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
-// const SsovPutsManage = lazy(() => import('craPages/ssov/Manage/Puts'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
 const DiamondPepesNfts = lazy(() => import('craPages/nfts/diamondpepes'));
@@ -55,10 +55,12 @@ const FarmRoutes = () => {
 
 const SsovRoutes = () => {
   return (
-    <Routes>
-      <Route path="*" element={<Ssov />} />
-      <Route path=":type/:asset" element={<SsovManage />} />
-    </Routes>
+    <BnbConversionProvider>
+      <Routes>
+        <Route path="*" element={<Ssov />} />
+        <Route path=":type/:asset" element={<SsovManage />} />
+      </Routes>
+    </BnbConversionProvider>
   );
 };
 
