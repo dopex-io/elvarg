@@ -14,13 +14,19 @@ import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import Input from '@material-ui/core/Input';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
+import MenuItem from '@material-ui/core/MenuItem';
+import CustomButton from 'components/UI/CustomButton';
+import Checkbox from '@material-ui/core/Checkbox';
+import Select from '@material-ui/core/Select';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import useSendTx from 'hooks/useSendTx';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
+import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
+import AlarmIcon from 'components/Icons/AlarmIcon';
 
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -29,7 +35,12 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
-import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
+import {
+  CURRENCIES_MAP,
+  MAX_VALUE,
+  SSOV_MAP,
+  CHAIN_ID_TO_NETWORK_DATA,
+} from 'constants/index';
 
 import styles from './styles.module.scss';
 
@@ -49,7 +60,20 @@ function TabPanel(props) {
   );
 }
 
+const SelectMenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: 324,
+      width: 250,
+    },
+  },
+  classes: {
+    paper: 'bg-mineshaft',
+  },
+};
+
 const Tzwap = () => {
+  const sendTx = useSendTx();
   const { chainId, signer, accountAddress, provider } =
     useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
@@ -73,6 +97,8 @@ const Tzwap = () => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
+  const [selectedTickSize, setSelectedTickSize] = useState<number>(0.1);
+  const [selectedInterval, setSelectedInterval] = useState<string>('Min');
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -91,6 +117,51 @@ const Tzwap = () => {
   }, [toToken]);
 
   const setMaxAmount = useCallback(async () => {}, []);
+
+  const handleSelectTickSize = useCallback(
+    (event: React.ChangeEvent<{ value: unknown }>) => {
+      setSelectedTickSize(event.target.value as number);
+    },
+    []
+  );
+
+  const handleApprove = useCallback(async () => {
+    try {
+      await sendTx(
+        ERC20__factory.connect(fromToken.address, signer).approve(
+          tzwapRouter.address,
+          MAX_VALUE
+        )
+      );
+      setApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [sendTx, fromToken, signer, tzwapRouter]);
+
+  const handleCreate = useCallback(async () => {
+    try {
+    } catch (err) {
+      console.log(err);
+    }
+  }, [accountAddress, tzwapRouter, chainId, sendTx]);
+
+  const submitButtonProps = useMemo(() => {
+    const disabled = Boolean(false || false);
+
+    let onClick = () => {};
+
+    let children = 'Enter an amount';
+
+    if (!approved) children = 'Approve';
+
+    return {
+      disabled,
+      children,
+      color: disabled ? 'mineshaft' : 'primary',
+      onClick,
+    };
+  }, [approved, handleApprove, handleCreate]);
 
   useEffect(() => {
     handleFromTokenChange();
@@ -242,7 +313,7 @@ const Tzwap = () => {
                     </Box>
                   </Box>
 
-                  <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2 relative">
+                  <Box className="bg-umbra rounded-2xl flex flex-col mb-3.5 p-3 pr-2 relative">
                     <Box
                       className={
                         'absolute top-[-0.7rem] left-[50%] border border-cod-gray rounded-full p-1 bg-umbra'
@@ -291,6 +362,220 @@ const Tzwap = () => {
                         -
                       </Typography>
                     </Box>
+                  </Box>
+
+                  <Box className="rounded-lg p-3 pb-0 border border-neutral-800 mb-3.5 w-full bg-umbra">
+                    <Box className="flex pb-3">
+                      <Box className={'w-1/2'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
+                        >
+                          Tick size
+                        </Typography>
+                        <Select
+                          className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 mt-1 text-white"
+                          fullWidth
+                          displayEmpty
+                          disableUnderline
+                          value={selectedTickSize}
+                          onChange={handleSelectTickSize}
+                          input={<Input />}
+                          variant="outlined"
+                          renderValue={() => {
+                            return (
+                              <Typography
+                                variant="h6"
+                                className="text-white text-center w-full relative"
+                              >
+                                {selectedTickSize}%
+                              </Typography>
+                            );
+                          }}
+                          MenuProps={SelectMenuProps}
+                          classes={{
+                            icon: 'absolute right-12 text-white',
+                            select: 'overflow-hidden',
+                          }}
+                          label="strikes"
+                        >
+                          {[
+                            0.1, 0.2, 0.3, 0.4, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7,
+                            8, 9, 10,
+                          ].map((tickSize, index) => (
+                            <MenuItem
+                              key={index}
+                              value={tickSize}
+                              className="pb-2 pt-2"
+                            >
+                              <Checkbox
+                                className={
+                                  selectedTickSize === tickSize
+                                    ? 'p-0 text-white'
+                                    : 'p-0 text-white border'
+                                }
+                                checked={selectedTickSize === tickSize}
+                              />
+                              <Typography
+                                variant="h5"
+                                className="text-white text-left w-full relative ml-3"
+                              >
+                                {tickSize}%
+                              </Typography>
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </Box>
+                      <Box className={'w-1/4 ml-2 mr-1'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
+                        >
+                          Interval
+                        </Typography>
+                        <Select
+                          className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 mt-1 text-white"
+                          fullWidth
+                          displayEmpty
+                          disableUnderline
+                          value={selectedTickSize}
+                          onChange={handleSelectTickSize}
+                          input={<Input />}
+                          variant="outlined"
+                          renderValue={() => {
+                            return (
+                              <Typography
+                                variant="h6"
+                                className="text-white text-center w-full relative"
+                              >
+                                Min
+                              </Typography>
+                            );
+                          }}
+                          MenuProps={SelectMenuProps}
+                          classes={{
+                            icon: 'absolute right-1 text-white',
+                            select: 'overflow-hidden',
+                          }}
+                          label="strikes"
+                        >
+                          {['Min', 'Hrs'].map((interval, index) => (
+                            <MenuItem
+                              key={index}
+                              value={interval}
+                              className="pb-2 pt-2"
+                            >
+                              <Checkbox
+                                className={
+                                  selectedInterval === interval
+                                    ? 'p-0 text-white'
+                                    : 'p-0 text-white border'
+                                }
+                                checked={selectedInterval === interval}
+                              />
+                              <Typography
+                                variant="h5"
+                                className="text-white text-left w-full relative ml-3"
+                              >
+                                {interval}
+                              </Typography>
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </Box>
+
+                      <Box className={'w-1/4 ml-1'}>
+                        <Input
+                          disableUnderline={true}
+                          name="address"
+                          className="w-full mt-6 border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] pt-0.5 pb-0.5 rounded-md pl-2 pr-2"
+                          classes={{ input: 'text-white text-xs text-right' }}
+                          value={''}
+                          placeholder="-"
+                          onChange={null}
+                        />
+                      </Box>
+                    </Box>
+                  </Box>
+
+                  <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
+                    <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
+                      <Box className={'flex mb-2'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Tick Size
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0"
+                          >
+                            -
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box className={'flex mb-2'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Interval
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0"
+                          >
+                            -
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box className={'flex mb-2'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Fees
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0"
+                          >
+                            -
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <EstimatedGasCostButton gas={700000} chainId={chainId} />
+                    </Box>
+
+                    <Box className="rounded-md flex mb-4 p-2 pl-3 pr-3 border border-neutral-800 w-full bg-neutral-800">
+                      <img src={'/assets/1inch.svg'} className={'w-5 h-5'} />
+                      <Typography variant="h6" className="text-white ml-2">
+                        Router via 1inch
+                      </Typography>
+                    </Box>
+
+                    <Box className="flex">
+                      <Box className="flex text-center p-2 mr-2 mt-1">
+                        <img src={'/assets/timer.svg'} className={'w-6 h-4'} />
+                      </Box>
+                      <Typography variant="h6" className="text-stieglitz">
+                        Tokens will periodically appear in your wallet. You can
+                        kill the order anytime.
+                      </Typography>
+                    </Box>
+                    <CustomButton
+                      size="medium"
+                      className="w-full mt-4 !rounded-md"
+                      color={submitButtonProps.color}
+                      disabled={submitButtonProps.disabled}
+                      onClick={submitButtonProps.onClick}
+                    >
+                      {submitButtonProps.children}
+                    </CustomButton>
                   </Box>
                 </Box>
               </Box>
