@@ -8,13 +8,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 import * as yup from 'yup';
+import { ethers } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Input from '@material-ui/core/Input';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
-import ErrorBox from 'components/ErrorBox';
 import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -32,7 +32,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
 
   const [selection, setSelection] = useState('');
-  // const [validAddress, setValidAddress] = useState(false);
+  const [validAddress, setValidAddress] = useState(false);
   const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [dialogState, setDialogState] = useState({
@@ -255,12 +255,14 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   // Set default selection
   useEffect(() => {
     (async () => {
-      setSelection(
-        selectedEscrowData.bases === undefined
-          ? ''
-          : selectedEscrowData.bases[0]?.address
-      );
+      if (selectedEscrowData.bases !== undefined) {
+        setSelection(selectedEscrowData.bases[0]?.address);
+        formik.setFieldValue('base', selectedEscrowData.bases[0]?.address);
+      } else {
+        setSelection('');
+      }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEscrowData, selectedEscrowData.bases]);
 
   return (
@@ -344,13 +346,13 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           </Box>
           {/* <Box className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between">
             <Typography variant="h6" className="text-stieglitz my-auto">
-              Target
+              Recipient
             </Typography>
             <Input
               disableUnderline
               fullWidth
-              disabled={true}
-              placeholder="Enter Address"
+              disabled={!isLive}
+              placeholder={isLive ? 'Enter Address' : 'Disabled for RFQs'}
               type="text"
               onChange={handleVerifyAddress}
               className="border border-mineshaft rounded-md px-2 bg-umbra w-2/3"
@@ -383,12 +385,12 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           />
         </Box>
         {Boolean(
-          formik.errors.amount ||
-            formik.errors.price ||
-            formik.errors.base ||
-            // (!validAddress && 'Invalid Address')
-            // ||
-            ''
+          isLive &&
+            (formik.errors.amount ||
+              formik.errors.price ||
+              formik.errors.base ||
+              // (!validAddress && 'Invalid Address') ||
+              '')
         ) ? (
           <Box className="border rounded-lg border-down-bad bg-down-bad bg-opacity-20 p-2">
             <Typography
@@ -399,8 +401,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
                 formik.errors.amount ||
                   formik.errors.price ||
                   formik.errors.base ||
-                  // (!validAddress && 'Invalid Address')
-                  // ||
+                  (!validAddress && 'Invalid Address') ||
                   ''
               )}
             </Typography>

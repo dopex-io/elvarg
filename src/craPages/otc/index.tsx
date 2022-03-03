@@ -165,14 +165,14 @@ const OTC = () => {
               <>
                 <Box className="flex justify-between">
                   <Typography variant="h5" className="font-bold">
-                    {isLive ? 'Live' : 'Indicative'} RFQs
+                    {isLive ? 'Live Orders' : 'RFQs'}
                   </Typography>
                   <Box className="flex space-x-2 my-auto">
                     <Typography
                       variant="h6"
                       className={`${isLive ? 'text-stieglitz' : 'text-white'}`}
                     >
-                      Indicative
+                      RFQ
                     </Typography>
                     <Switch
                       aria-label="rfq-toggle"
@@ -183,7 +183,7 @@ const OTC = () => {
                       variant="h6"
                       className={`${!isLive ? 'text-stieglitz' : 'text-white'}`}
                     >
-                      Live
+                      Trade
                     </Typography>
                   </Box>
                 </Box>
@@ -205,7 +205,7 @@ const OTC = () => {
           <Box className="flex flex-col col-span-2 space-y-4">
             <Box className="flex justify-between">
               <Typography variant="h5" className="font-bold">
-                Create RFQ
+                {isLive ? 'Trade' : 'Create RFQ'}
               </Typography>
               <Typography
                 variant="h6"
@@ -215,7 +215,7 @@ const OTC = () => {
                     : 'text-primary bg-primary/[0.3] border-primary'
                 }`}
               >
-                {isLive ? 'Live' : 'Indicative'}
+                {isLive ? 'Trade' : 'RFQ'}
               </Typography>
             </Box>
             <RfqForm isLive={isLive} />

@@ -148,8 +148,8 @@ const UserDeposits = () => {
                         <TableBodyCell align="right">
                           <CustomButton
                             size="small"
-                            color="umbra"
-                            className="hover:bg-mineshaft"
+                            color="red-500"
+                            className="hover:bg-red-600"
                             onClick={() => {
                               setIndex(i);
                               setDialogState({
