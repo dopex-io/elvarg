@@ -179,7 +179,7 @@ const Tzwap = () => {
               : fromToken.address,
           dstToken:
             toTokenName === 'ETH'
-              ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+              ? Addresses[chainId]['WETH']
               : toToken.address,
           interval: seconds,
           tickSize: getContractReadableAmount(
