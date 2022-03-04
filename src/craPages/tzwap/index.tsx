@@ -15,6 +15,7 @@ import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import Input from '@material-ui/core/Input';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import MenuItem from '@material-ui/core/MenuItem';
 import CustomButton from 'components/UI/CustomButton';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -33,6 +34,7 @@ import AlarmIcon from 'components/Icons/AlarmIcon';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import get1inchQuote from 'utils/general/get1inchQuote';
 
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
@@ -76,8 +78,8 @@ const SelectMenuProps = {
 
 const Tzwap = () => {
   const sendTx = useSendTx();
-  const { chainId, signer, accountAddress, provider } =
-    useContext(WalletContext);
+  const { signer, accountAddress, provider } = useContext(WalletContext);
+  const chainId = 42161;
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const tzwapRouter = DiamondPepeNFTs1inchRouter__factory.connect(
@@ -92,9 +94,10 @@ const Tzwap = () => {
     ERC20__factory.connect(Addresses[chainId]['DPX'], provider)
   );
   const [toTokenName, setToTokenName] = useState<string>('DPX');
-  const [rawAmount, setRawAmount] = useState<string>('1');
+  const [rawAmount, setRawAmount] = useState<string>('');
   const [rawIntervalAmount, setRawIntervalAmount] = useState<string>('1');
   const [approved, setApproved] = useState<boolean>(false);
+  const [isFetchingQuote, setIsFetchingQuote] = useState<boolean>(false);
   const [isFromTokenSelectorVisible, setIsFromTokenSelectorVisible] =
     useState<boolean>(false);
   const [isToTokenSelectorVisible, setIsToTokenSelectorVisible] =
@@ -104,6 +107,8 @@ const Tzwap = () => {
   );
   const [selectedTickSize, setSelectedTickSize] = useState<number>(0.1);
   const [selectedInterval, setSelectedInterval] = useState<string>('Min');
+  const [quote, setQuote] = useState<object>({});
+  const [path, setPath] = useState<object>({});
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -112,6 +117,20 @@ const Tzwap = () => {
   const intervalAmount: number = useMemo(() => {
     return parseFloat(rawIntervalAmount) || 0;
   }, [rawIntervalAmount]);
+
+  const quotePrice: number = useMemo(() => {
+    if (!quote['toTokenAmount']) return 0;
+    return (
+      getUserReadableAmount(
+        quote['toTokenAmount'],
+        quote['toToken']['decimals']
+      ) /
+      getUserReadableAmount(
+        quote['fromTokenAmount'],
+        quote['fromToken']['decimals']
+      )
+    );
+  }, [quote]);
 
   const handleFromTokenChange = useCallback(async () => {
     if (!fromToken) return;
@@ -175,7 +194,7 @@ const Tzwap = () => {
 
     let onClick = () => {};
 
-    let children = 'Enter an amount';
+    let children = 'Create order';
 
     if (
       amount >=
@@ -188,6 +207,7 @@ const Tzwap = () => {
     else if (!approved) children = 'Approve';
     else if (fromTokenName === toTokenName)
       children = 'Tokens must be different';
+    else if (amount === 0) children = 'Enter an amount';
 
     return {
       disabled,
@@ -198,8 +218,8 @@ const Tzwap = () => {
   }, [approved, handleApprove, handleCreate]);
 
   const fees = useMemo(() => {
-    return 0;
-  }, []);
+    return quotePrice * amount;
+  }, [quotePrice, amount]);
 
   const fromTokenValueInUsd = useMemo(() => {
     let value = 0;
@@ -220,6 +240,36 @@ const Tzwap = () => {
     );
     return now;
   }, [fromTokenValueInUsd, intervalAmount, selectedInterval]);
+
+  // Updates the 1inch quote
+  useEffect(() => {
+    async function updateQuote() {
+      setIsFetchingQuote(true);
+      const fromTokenAddress: string = IS_NATIVE(fromToken)
+        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : fromToken?.address;
+      const toTokenAddress: string = IS_NATIVE(toToken)
+        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : toToken?.address;
+
+      if (fromTokenAddress === toTokenAddress) return;
+
+      const amount: number = 10 ** getTokenDecimals(fromTokenName, chainId);
+
+      const quote = await get1inchQuote({
+        fromTokenAddress,
+        toTokenAddress,
+        amount,
+        chainId,
+        accountAddress,
+      });
+
+      setQuote(quote);
+      setIsFetchingQuote(false);
+    }
+
+    updateQuote();
+  }, [accountAddress, chainId, fromTokenName, fromToken, toTokenName, toToken]);
 
   useEffect(() => {
     handleFromTokenChange();
@@ -671,14 +721,45 @@ const Tzwap = () => {
                           ) : null}
                         </Box>
 
-                        <Box className="rounded-md flex mb-4 p-2 pl-3 pr-3 border border-neutral-800 w-full bg-neutral-800">
-                          <img
-                            src={'/assets/1inch.svg'}
-                            className={'w-5 h-5'}
-                          />
-                          <Typography variant="h6" className="text-white ml-2">
-                            Router via 1inch
-                          </Typography>
+                        <Box className="rounded-md mb-4 p-2 pl-3 pr-3 border border-neutral-800 w-full bg-neutral-800">
+                          {isFetchingQuote ? (
+                            <Box className="flex">
+                              <CircularProgress
+                                className="text-stieglitz mt-0.5 mr-2"
+                                size={15}
+                              />
+                              <Typography
+                                variant="h6"
+                                className="text-white ml-2"
+                              >
+                                Fetching price...
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <Box className="flex">
+                              <img
+                                src={'/assets/1inch.svg'}
+                                className={'w-5 h-5'}
+                              />
+                              <Typography
+                                variant="h6"
+                                className="text-white ml-2"
+                              >
+                                {quote['fromToken']
+                                  ? `1 ${
+                                      quote['fromToken']['symbol']
+                                    } = ${formatAmount(
+                                      getUserReadableAmount(
+                                        quote['toTokenAmount'],
+                                        quote['toToken']['decimals']
+                                      ),
+                                      2
+                                    )} 
+                              ${quote['toToken']['symbol']}`
+                                  : 'Router via 1inch'}
+                              </Typography>
+                            </Box>
+                          )}
                         </Box>
 
                         <Box className="flex">
