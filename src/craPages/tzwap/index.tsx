@@ -5,7 +5,7 @@ import Head from 'next/head';
 import {
   ERC20,
   Addresses,
-  DiamondPepeNFTs1inchRouter__factory,
+  Tzwap1inchRouter__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
 import { LoaderIcon } from 'react-hot-toast';
@@ -28,23 +28,17 @@ import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import TokenSelector from 'components/TokenSelector';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
-import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
-import AlarmIcon from 'components/Icons/AlarmIcon';
 
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
-import {
-  CURRENCIES_MAP,
-  MAX_VALUE,
-  SSOV_MAP,
-  CHAIN_ID_TO_NETWORK_DATA,
-} from 'constants/index';
+import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
 
@@ -76,15 +70,16 @@ const SelectMenuProps = {
   },
 };
 
+const FEE_PERCENTAGE = 0.015;
+
 const Tzwap = () => {
   const sendTx = useSendTx();
   const { signer, accountAddress, provider } = useContext(WalletContext);
   const chainId = 42161;
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
-  const tzwapRouter = DiamondPepeNFTs1inchRouter__factory.connect(
-    Addresses[chainId]['Tzwap1inchRouter'] ||
-      '0x818ceD3D446292061913f1f74B2EAeE6341a76Ec', // TODO REMOVE || ADDRESS
+  const tzwapRouter = Tzwap1inchRouter__factory.connect(
+    Addresses[chainId]['Tzwap1inchRouter'],
     signer
   );
   const [activeTab, setActiveTab] = useState(0);
@@ -108,7 +103,6 @@ const Tzwap = () => {
   const [selectedTickSize, setSelectedTickSize] = useState<number>(0.1);
   const [selectedInterval, setSelectedInterval] = useState<string>('Min');
   const [quote, setQuote] = useState<object>({});
-  const [path, setPath] = useState<object>({});
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -144,8 +138,6 @@ const Tzwap = () => {
     setToTokenName(symbol);
   }, [toToken]);
 
-  const setMaxAmount = useCallback(async () => {}, []);
-
   const handleSelectTickSize = useCallback(
     (event: React.ChangeEvent<{ value: unknown }>) => {
       setSelectedTickSize(event.target.value as number);
@@ -176,10 +168,44 @@ const Tzwap = () => {
 
   const handleCreate = useCallback(async () => {
     try {
+      const seconds =
+        intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
+      await sendTx(
+        tzwapRouter.connect(signer).newOrder({
+          creator: accountAddress,
+          srcToken:
+            fromTokenName === 'ETH'
+              ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+              : fromToken.address,
+          dstToken:
+            toTokenName === 'ETH'
+              ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+              : toToken.address,
+          interval: seconds,
+          tickSize: getContractReadableAmount(
+            ((amount * selectedTickSize) / 100).toFixed(18),
+            getTokenDecimals(fromToken, chainId)
+          ),
+          total: getContractReadableAmount(
+            amount,
+            getTokenDecimals(fromToken, chainId)
+          ),
+          fees: getContractReadableAmount(FEE_PERCENTAGE, 3),
+          created: Math.round(new Date().getTime() / 1000),
+          killed: false,
+        })
+      );
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress, tzwapRouter, chainId, sendTx]);
+  }, [
+    accountAddress,
+    tzwapRouter,
+    chainId,
+    sendTx,
+    selectedInterval,
+    intervalAmount,
+  ]);
 
   const submitButtonProps = useMemo(() => {
     const disabled = Boolean(
@@ -193,6 +219,9 @@ const Tzwap = () => {
     );
 
     let onClick = () => {};
+
+    if (!approved && !disabled) onClick = handleApprove;
+    else if (approved && !disabled) onClick = handleCreate;
 
     let children = 'Create order';
 
@@ -218,7 +247,7 @@ const Tzwap = () => {
   }, [approved, handleApprove, handleCreate]);
 
   const fees = useMemo(() => {
-    return quotePrice * amount;
+    return quotePrice * amount * FEE_PERCENTAGE;
   }, [quotePrice, amount]);
 
   const fromTokenValueInUsd = useMemo(() => {
@@ -297,7 +326,6 @@ const Tzwap = () => {
         setApproved(true);
       } else {
         if (IS_NATIVE(fromToken)) {
-          setApproved(true);
           setApproved(true);
         } else {
           setApproved(false);
