@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 
 import Typography from 'components/UI/Typography';
 
@@ -84,7 +84,7 @@ const AssetHeader = () => {
               key={token}
               width={156}
               height={55}
-              variant="rect"
+              variant="rectangular"
               animation="wave"
               classes={{ root: 'bg-cod-gray' }}
             />

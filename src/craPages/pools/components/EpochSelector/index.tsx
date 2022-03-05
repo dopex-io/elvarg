@@ -1,9 +1,9 @@
 import { useContext, useState } from 'react';
-import Box from '@material-ui/core/Box';
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
 import cx from 'classnames';
 
 import { PoolsContext } from 'contexts/Pools';

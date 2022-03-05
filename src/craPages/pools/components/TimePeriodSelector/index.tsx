@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react';
-import Button from '@material-ui/core/Button';
-import Box from '@material-ui/core/Box';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import cx from 'classnames';
 
 import { PoolsContext } from 'contexts/Pools';

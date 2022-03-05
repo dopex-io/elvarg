@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import format from 'date-fns/format';
 import isEmpty from 'lodash/isEmpty';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import Tooltip from '@material-ui/core/Tooltip';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Button from '@material-ui/core/Button';
-import MuiInput from '@material-ui/core/Input';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Box from '@mui/material/Box';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Tooltip from '@mui/material/Tooltip';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+import MuiInput from '@mui/material/Input';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import PnlChart from 'components/PnlChart';
 import CustomButton from 'components/UI/CustomButton';
@@ -256,8 +256,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                     <CustomButton
                       size="medium"
                       color="mineshaft"
-                      className="w-full"
-                      classes={{ label: 'uppercase' }}
+                      className="w-full uppercase"
                       aria-controls="expiry-menu"
                       aria-haspopup="true"
                       onClick={handleClick}
@@ -521,5 +520,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     </div>
   );
 });
+
+PurchasePanel.displayName = 'PurchasePanel';
 
 export default PurchasePanel;

@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
-import Button from '@material-ui/core/Button';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import { withStyles } from '@material-ui/core/styles';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import withStyles from '@mui/styles/withStyles';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import format from 'date-fns/format';
 import { ERC20 } from '@dopex-io/sdk';
 import { BigNumber, utils as ethersUtils } from 'ethers';
@@ -173,6 +173,7 @@ const OptionDataSm = (props: OptionDataSmProps) => {
             aria-haspopup="true"
             onClick={handleClickMenu}
             className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft"
+            size="large"
           >
             <MoreVertIcon className="fill-current text-white" />
           </IconButton>

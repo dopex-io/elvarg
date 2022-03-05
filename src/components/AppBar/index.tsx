@@ -1,13 +1,13 @@
 import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
-import Button from '@material-ui/core/Button';
-import Box from '@material-ui/core/Box';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuIcon from '@material-ui/icons/Menu';
-import IconButton from '@material-ui/core/IconButton';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import MenuIcon from '@mui/icons-material/Menu';
+import IconButton from '@mui/material/IconButton';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import PriceTag from './PriceTag';
@@ -195,10 +195,7 @@ export default function AppBar(props: AppBarProps) {
         handleClose={handleWalletDialogClose}
       />
       <nav
-        className={cx(
-          'fixed top-0 z-50 w-full text-gray-600',
-          styles.appBar
-        )}
+        className={cx('fixed top-0 z-50 w-full text-gray-600', styles.appBar)}
       >
         <Box className="flex w-full items-center container lg:px-0 p-4 justify-between mx-auto">
           <Box className="flex items-center">
@@ -243,15 +240,15 @@ export default function AppBar(props: AppBarProps) {
                 ))}
             </Box>
             {/* {baseAssetsWithPrices ? (
-              <PriceTag
-                asset={baseAssetsWithPrices[selectedBaseAsset].symbol}
-                price={getUserReadableAmount(
-                  baseAssetsWithPrices[selectedBaseAsset].price,
-                  8
-                )}
-                className="mr-2 lg:hidden"
-              />
-            ) : null} */}
+            <PriceTag
+              asset={baseAssetsWithPrices[selectedBaseAsset].symbol}
+              price={getUserReadableAmount(
+                baseAssetsWithPrices[selectedBaseAsset].price,
+                8
+              )}
+              className="mr-2 lg:hidden"
+            />
+          ) : null} */}
             {accountAddress ? (
               <Box className="bg-cod-gray flex flex-row p-1 rounded-md items-center">
                 <Box className="bg-mineshaft flex-row px-2 py-2 rounded-md items-center mr-1 hidden lg:flex">
@@ -303,12 +300,17 @@ export default function AppBar(props: AppBarProps) {
                 onClick={handleClickMenu}
                 style={{ height: 38 }}
                 className="w-9 long-menu ml-2 rounded-md bg-umbra hover:bg-opacity-70 hidden lg:flex"
+                size="large"
               >
                 <MoreVertIcon className={cx('', styles.vertIcon)} />
               </IconButton>
             </Box>
             <Box>
-              <IconButton onClick={handleClickMenuSmall} className="lg:hidden">
+              <IconButton
+                onClick={handleClickMenuSmall}
+                className="lg:hidden"
+                size="large"
+              >
                 <MenuIcon className="text-white" />
               </IconButton>
             </Box>

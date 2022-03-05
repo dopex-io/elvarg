@@ -2,13 +2,13 @@ import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
 import { useTable } from 'react-table';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import TableContainer from '@material-ui/core/TableContainer';
-import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableBody from '@material-ui/core/TableBody';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Box from '@mui/material/Box';
+import TableContainer from '@mui/material/TableContainer';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableBody from '@mui/material/TableBody';
+import Skeleton from '@mui/material/Skeleton';
 
 import { OptionsContext } from 'contexts/Options';
 import { AssetsContext } from 'contexts/Assets';
@@ -173,7 +173,7 @@ const OptionChain = ({ scrollToPurchasePanel }) => {
               return (
                 <Skeleton
                   key={index}
-                  variant="rect"
+                  variant="rectangular"
                   animation="wave"
                   height={40}
                   className="bg-umbra"

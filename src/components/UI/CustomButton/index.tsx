@@ -1,6 +1,6 @@
 import { FC, forwardRef } from 'react';
 import cx from 'classnames';
-import Button, { ButtonProps } from '@material-ui/core/Button';
+import Button, { ButtonProps } from '@mui/material/Button';
 
 import styles from './styles.module.scss';
 
