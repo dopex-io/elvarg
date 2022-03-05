@@ -256,8 +256,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
                     <CustomButton
                       size="medium"
                       color="mineshaft"
-                      className="w-full"
-                      classes={{ label: 'uppercase' }}
+                      className="w-full uppercase"
                       aria-controls="expiry-menu"
                       aria-haspopup="true"
                       onClick={handleClick}
@@ -521,5 +520,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
     </div>
   );
 });
+
+PurchasePanel.displayName = 'PurchasePanel';
 
 export default PurchasePanel;

@@ -582,7 +582,7 @@ const Manage = () => {
               IconComponent={Dropdown}
               onChange={onTokenChange}
               variant="outlined"
-              classes={{ icon: 'mt-3 mr-1', root: 'p-0' }}
+              classes={{ icon: 'mt-3 mr-1', select: 'p-0' }}
               MenuProps={{ classes: { paper: 'bg-cod-gray' } }}
               inputProps={{
                 style: {

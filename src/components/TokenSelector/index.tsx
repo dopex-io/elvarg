@@ -59,7 +59,7 @@ const TokenSelector = ({
       });
       return value;
     },
-    [tokenPrices, userAssetBalances]
+    [tokenPrices, userAssetBalances, chainId]
   );
 
   return (

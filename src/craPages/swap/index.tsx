@@ -183,7 +183,7 @@ export default function Swap() {
                     onChange={onFromChange}
                     className="bg-cod-gray rounded-xl p-2"
                     variant="outlined"
-                    classes={{ root: 'p-0', icon: 'text-white' }}
+                    classes={{ select: 'p-0', icon: 'text-white' }}
                     MenuProps={{ classes: { paper: 'bg-cod-gray' } }}
                   >
                     {SWAP_ASSETS.map((a) => {
@@ -231,7 +231,7 @@ export default function Swap() {
                   variant="outlined"
                   value={formik.values.to}
                   onChange={onToChange}
-                  classes={{ root: 'p-0', icon: 'text-white' }}
+                  classes={{ select: 'p-0', icon: 'text-white' }}
                   MenuProps={{ classes: { paper: 'bg-cod-gray' } }}
                 >
                   {SWAP_ASSETS.map((a) => {

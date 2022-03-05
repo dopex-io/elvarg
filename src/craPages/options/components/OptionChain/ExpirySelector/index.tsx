@@ -130,8 +130,7 @@ export default function ExpirySelector() {
         <CustomButton
           size="medium"
           color="umbra"
-          className="w-40"
-          classes={{ label: 'uppercase' }}
+          className="w-40 uppercase"
           aria-controls="expiry-menu"
           aria-haspopup="true"
           onClick={handleClick}

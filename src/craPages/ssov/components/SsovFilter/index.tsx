@@ -36,10 +36,10 @@ const SsovFilter = ({
   showImages,
 }: Props) => {
   const handleSelect = useCallback(
-    (event: React.ChangeEvent<{ value: string[] }>) => {
+    (event) => {
       setActiveFilters(event.target.value);
     },
-    []
+    [setActiveFilters]
   );
 
   return (
@@ -81,6 +81,7 @@ const SsovFilter = ({
             {showImages ? (
               <img
                 src={'/assets/' + option.toLowerCase() + '.svg'}
+                alt={option}
                 className="w-6 ml-3 mt-[0.4px]"
               />
             ) : null}

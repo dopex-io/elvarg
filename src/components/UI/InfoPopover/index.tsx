@@ -34,13 +34,6 @@ interface Props {
 const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const popoverClasses = useMemo(
-    () => ({
-      paper: classes.paper,
-    }),
-    [classes.paper]
-  );
-
   const handlePopoverOpen = useCallback(
     (event) => setAnchorEl(event.currentTarget),
     []
@@ -67,7 +60,7 @@ const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
         open={popoverOpen}
         anchorEl={anchorEl}
         className={classes.popover}
-        classes={popoverClasses}
+        classes={classes}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         onClose={handlePopoverClose}
