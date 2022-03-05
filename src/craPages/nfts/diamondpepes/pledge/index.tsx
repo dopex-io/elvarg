@@ -193,6 +193,12 @@ const DiamondPepesNfts = () => {
               Pledge your floor NFTs to increase your chances of obtaining from
               a selection of 11 1-of-1 legendary NFTs
             </Typography>
+            <Typography
+              variant="h3"
+              className="text-[red] text-center leading-7 md:leading-10 z-1 relative font-['Minecraft'] text-[1rem]"
+            >
+              ALERT: WINNERS HAVE BEEN ANNOUNCED
+            </Typography>
           </Box>
           <Box className="text-center mx-auto md:mb-12 lg:mt-12 flex">
             <img src={'/assets/gold-pepe-1.png'} className="z-1 ml-40 w-60" />
