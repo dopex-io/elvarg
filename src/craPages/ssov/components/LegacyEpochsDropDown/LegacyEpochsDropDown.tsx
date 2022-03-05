@@ -40,7 +40,7 @@ const LegacyEpochsDropDown = () => {
         <Button
           size="medium"
           color="secondary"
-          className="text-white text-lg h-10 hover:text-gray-200 hover:bg-mineshaft pb-3 bg-mineshaft px-8"
+          className="text-white text-md h-10 p-3 hover:text-gray-200 hover:bg-mineshaft bg-mineshaft"
           onClick={handleClick}
         >
           LEGACY EPOCHS

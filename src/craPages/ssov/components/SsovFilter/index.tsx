@@ -3,6 +3,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
 
 import Typography from 'components/UI/Typography';
 
@@ -49,6 +50,7 @@ const SsovFilter = ({
       displayEmpty
       multiple={multiple}
       onChange={handleSelect}
+      input={<Input />}
       disableUnderline
       renderValue={() => {
         return (
@@ -63,7 +65,6 @@ const SsovFilter = ({
       MenuProps={SelectMenuProps}
       classes={{
         icon: 'absolute right-2 p-0.5 text-white',
-        select: 'overflow-hidden',
       }}
       label="asset"
     >
