@@ -13,7 +13,7 @@ const classes = {
   paper: `${PREFIX}-paper`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const StyledPopover = styled(Popover)(({ theme }) => ({
   [`& .${classes.popover}`]: {
     pointerEvents: 'none',
   },
@@ -44,7 +44,7 @@ const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
   const popoverOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
 
   return (
-    <StyledBox className={className}>
+    <Box className={className}>
       <Typography
         aria-owns={popoverOpen ? id : undefined}
         aria-haspopup="true"
@@ -55,12 +55,10 @@ const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
       >
         {triggerText} <InfoIcon className="w-5 h-5 mb-1" />
       </Typography>
-      <Popover
+      <StyledPopover
         id={id}
         open={popoverOpen}
         anchorEl={anchorEl}
-        className={classes.popover}
-        classes={classes}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         onClose={handlePopoverClose}
@@ -69,8 +67,8 @@ const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
         <Typography variant="h5" component="div" className="text-umbra">
           {infoText}
         </Typography>
-      </Popover>
-    </StyledBox>
+      </StyledPopover>
+    </Box>
   );
 };
 
