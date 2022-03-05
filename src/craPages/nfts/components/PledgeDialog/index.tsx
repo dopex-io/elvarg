@@ -115,7 +115,7 @@ const PledgeDialog = ({
     setUserPledgedNfts(_pledgedNfts);
   }, [accountAddress, diamondPepeNfts, pledge, signer]);
 
-  const [activeTab, setActiveTab] = useState<string>('pledge');
+  const [activeTab, setActiveTab] = useState<string>('winner');
 
   const modalHeight = useMemo(() => {
     if (userPledgedNfts.length > 0 && userNfts.length > 0) return '49.2rem';
@@ -417,7 +417,7 @@ const PledgeDialog = ({
                   ? Array.from({ length: winners.length }, (_, i) => (
                       <Typography
                         variant="h6"
-                        className="text-white p-1 pl-2 pr-2 border border-[#343C4D] rounded-md w-auto h-[2rem] ml-1 mr-1 mb-2 text-[12px]"
+                        className="text-white p-1 pl-2 pr-2 border border-[#343C4D] rounded-md w-auto h-[2rem] ml-1 mr-1 mb-2 text-[11px]"
                       >
                         <b>{winners[i]['address']}</b>
                       </Typography>
