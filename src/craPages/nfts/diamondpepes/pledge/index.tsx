@@ -52,7 +52,19 @@ const DiamondPepesNfts = () => {
   );
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
-  const winners = [];
+  const winners = [
+    { address: '0x294b5759E2Ce25458FD4a8F5dE0213F84622a177', number: 403 },
+    { address: '0x919aA3ce040261bE8Ef86825f5d2D06cD1Bd2C68', number: 297 },
+    { address: '0x6d9248Df52FeD8d12b0147FB7cda478E3e53710F', number: 91 },
+    { address: '0x6d9248Df52FeD8d12b0147FB7cda478E3e53710F', number: 95 },
+    { address: '0x6d9248Df52FeD8d12b0147FB7cda478E3e53710F', number: 90 },
+    { address: '0xBC2530c310276d9B4D2497c58E5AdadB09f2BA41', number: 66 },
+    { address: '0x47B456269E9AD24e12643c09A5d602748dE1d26D', number: 323 },
+    { address: '0x7B7736a2C07C4332FfaD45a039d2117aE15e3f66', number: 84 },
+    { address: '0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5', number: 167 },
+    { address: '0x9c5083dd4838E120Dbeac44C052179692Aa5dAC5', number: 190 },
+    { address: '0x2822dd75E4B7F6d7BCFf1d63Ce05Fe2118dD92Cf', number: 478 },
+  ];
   const sendTx = useSendTx();
 
   const updateData = useCallback(async () => {
@@ -181,6 +193,12 @@ const DiamondPepesNfts = () => {
               Pledge your floor NFTs to increase your chances of obtaining from
               a selection of 11 1-of-1 legendary NFTs
             </Typography>
+            <Typography
+              variant="h3"
+              className="text-[red] text-center leading-7 md:leading-10 z-1 relative font-['Minecraft'] text-[1rem]"
+            >
+              ALERT: WINNERS HAVE BEEN ANNOUNCED
+            </Typography>
           </Box>
           <Box className="text-center mx-auto md:mb-12 lg:mt-12 flex">
             <img src={'/assets/gold-pepe-1.png'} className="z-1 ml-40 w-60" />
@@ -251,6 +269,7 @@ const DiamondPepesNfts = () => {
                 <button
                   className={styles.pepeButton}
                   onClick={() => setPledgeDialogVisibleTab('pledge')}
+                  disabled={winners.length > 0}
                 >
                   Deposit
                 </button>
