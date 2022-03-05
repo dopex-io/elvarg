@@ -10,8 +10,8 @@ import Head from 'next/head';
 import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 
-import Box from '@material-ui/core/Box';
-import { Tooltip } from '@material-ui/core';
+import Box from '@mui/material/Box';
+import { Tooltip } from '@mui/material';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';

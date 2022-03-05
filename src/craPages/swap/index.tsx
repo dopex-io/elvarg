@@ -2,9 +2,9 @@ import { useContext, useMemo } from 'react';
 import Head from 'next/head';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
-import Box from '@material-ui/core/Box';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import Box from '@mui/material/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import { AssetSwapper__factory, ERC20__factory } from '@dopex-io/sdk';
 import BigNumber from 'bignumber.js';
 

@@ -1,14 +1,14 @@
 import { useState, useLayoutEffect } from 'react';
 import { useWindowSize } from 'react-use';
 import cx from 'classnames';
-import TableHead from '@material-ui/core/TableHead';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
-import Box from '@material-ui/core/Box';
-import TablePagination from '@material-ui/core/TablePagination';
+import TableHead from '@mui/material/TableHead';
+import TableContainer from '@mui/material/TableContainer';
+import TableRow from '@mui/material/TableRow';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import Box from '@mui/material/Box';
+import TablePagination from '@mui/material/TablePagination';
 
 import OptionsTableData from './OptionsTableData';
 import OptionsDataSm from './OptionsDataSm';

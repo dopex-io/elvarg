@@ -2,7 +2,12 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ApolloProvider } from '@apollo/client';
-import { ThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import {
+  ThemeProvider,
+  Theme,
+  StyledEngineProvider,
+} from '@mui/material/styles';
+import StylesProvider from '@mui/styles/StylesProvider';
 import Error from 'next/error';
 import Script from 'next/script';
 
@@ -20,6 +25,10 @@ import { NftsProvider } from 'contexts/Nfts';
 
 import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
+
+declare module '@mui/styles/defaultTheme' {
+  interface DefaultTheme extends Theme {}
+}
 
 const Farming = lazy(() => import('craPages/farming/farms'));
 const FarmingManage = lazy(() => import('craPages/farming/manage'));
@@ -123,13 +132,15 @@ function AppRoutes() {
 const App = () => {
   return (
     <StylesProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <ApolloProvider client={client}>
-          <Script src="/js/bitkeep.js"></Script>
-          <Toaster position="bottom-right" reverseOrder={true} />
-          <AppRoutes />
-        </ApolloProvider>
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <ApolloProvider client={client}>
+            <Script src="/js/bitkeep.js"></Script>
+            <Toaster position="bottom-right" reverseOrder={true} />
+            <AppRoutes />
+          </ApolloProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </StylesProvider>
   );
 };

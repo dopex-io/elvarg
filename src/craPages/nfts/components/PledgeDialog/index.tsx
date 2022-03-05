@@ -11,7 +11,7 @@ import {
   DiamondPepeNFTsPledge,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';

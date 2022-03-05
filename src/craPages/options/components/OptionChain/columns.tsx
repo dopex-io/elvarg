@@ -1,11 +1,11 @@
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import { Column } from 'react-table';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
+import TableSortLabel from '@mui/material/TableSortLabel';
 import MuiTableCell, {
   TableCellProps as MuiTableCellProps,
-} from '@material-ui/core/TableCell';
-import Box from '@material-ui/core/Box';
+} from '@mui/material/TableCell';
+import Box from '@mui/material/Box';
 
 import CustomButton from 'components/UI/CustomButton';
 

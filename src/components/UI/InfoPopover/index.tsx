@@ -1,16 +1,24 @@
 import { useCallback, useMemo, useState } from 'react';
-import Popover from '@material-ui/core/Popover';
-import Box from '@material-ui/core/Box';
-import { makeStyles } from '@material-ui/core/styles';
-import InfoIcon from '@material-ui/icons/Info';
+import { styled } from '@mui/material/styles';
+import Popover from '@mui/material/Popover';
+import Box from '@mui/material/Box';
+import InfoIcon from '@mui/icons-material/Info';
 
 import Typography from '../Typography';
 
-const useStyles = makeStyles((theme) => ({
-  popover: {
+const PREFIX = 'InfoPopover';
+
+const classes = {
+  popover: `${PREFIX}-popover`,
+  paper: `${PREFIX}-paper`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.popover}`]: {
     pointerEvents: 'none',
   },
-  paper: {
+
+  [`& .${classes.paper}`]: {
     padding: theme.spacing(1),
     width: 300,
   },
@@ -25,8 +33,6 @@ interface Props {
 
 const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const classes = useStyles();
 
   const popoverClasses = useMemo(
     () => ({
@@ -45,7 +51,7 @@ const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
   const popoverOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
 
   return (
-    <Box className={className}>
+    <StyledBox className={className}>
       <Typography
         aria-owns={popoverOpen ? id : undefined}
         aria-haspopup="true"
@@ -71,7 +77,7 @@ const InfoPopover = ({ className, id, infoText, triggerText }: Props) => {
           {infoText}
         </Typography>
       </Popover>
-    </Box>
+    </StyledBox>
   );
 };
 

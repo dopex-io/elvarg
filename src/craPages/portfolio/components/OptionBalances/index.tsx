@@ -1,13 +1,13 @@
 import { useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import isEmpty from 'lodash/isEmpty';
-import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Box from '@material-ui/core/Box';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { BigNumber, utils as ethersUtils } from 'ethers';
 
 import Typography from 'components/UI/Typography';

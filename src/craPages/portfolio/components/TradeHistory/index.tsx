@@ -6,14 +6,14 @@ import React, {
   useCallback,
 } from 'react';
 import { useWindowSize } from 'react-use';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import TablePagination from '@material-ui/core/TablePagination';
-import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import TablePagination from '@mui/material/TablePagination';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { PortfolioContext } from 'contexts/Portfolio';
 import { WalletContext } from 'contexts/Wallet';

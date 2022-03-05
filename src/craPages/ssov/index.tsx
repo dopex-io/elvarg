@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 

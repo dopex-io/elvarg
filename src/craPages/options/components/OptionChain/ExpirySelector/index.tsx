@@ -5,11 +5,11 @@ import format from 'date-fns/format';
 import addDays from 'date-fns/addDays';
 import isBefore from 'date-fns/isBefore';
 import isSameDay from 'date-fns/isSameDay';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Input from '@material-ui/core/Input';
-import Box from '@material-ui/core/Box';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Input from '@mui/material/Input';
+import Box from '@mui/material/Box';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { OptionsContext } from 'contexts/Options';
 import { WalletContext } from 'contexts/Wallet';

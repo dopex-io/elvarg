@@ -1,8 +1,8 @@
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import IconButton from '@material-ui/core/IconButton';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { utils as ethersUtils } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
@@ -131,7 +131,11 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     >
       <Box className="flex flex-col">
         <Box className="flex flex-row items-center mb-4">
-          <IconButton className="p-0 pr-3 pb-1" onClick={handleClose}>
+          <IconButton
+            className="p-0 pr-3 pb-1"
+            onClick={handleClose}
+            size="large"
+          >
             <ArrowBackIcon
               className="text-stieglitz items-center"
               fontSize="large"

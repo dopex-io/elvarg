@@ -1,5 +1,5 @@
 import { AreaChart, Area, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {

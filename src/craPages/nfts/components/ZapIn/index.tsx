@@ -6,13 +6,13 @@ import {
   useEffect,
   useState,
 } from 'react';
-import Box from '@material-ui/core/Box';
-import Slider from '@material-ui/core/Slider';
-import Popover from '@material-ui/core/Popover';
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import Tooltip from '@material-ui/core/Tooltip';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import Box from '@mui/material/Box';
+import Slider from '@mui/material/Slider';
+import Popover from '@mui/material/Popover';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import Tooltip from '@mui/material/Tooltip';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 import { ERC20 } from '@dopex-io/sdk';
@@ -173,6 +173,7 @@ const ZapIn = ({
               <IconButton
                 className="p-0 pb-1 mr-0 ml-auto"
                 onClick={(event) => setAnchorEl(event.currentTarget)}
+                size="large"
               >
                 <SettingsIcon
                   className="group"
@@ -201,6 +202,7 @@ const ZapIn = ({
                   <IconButton
                     className="p-0 pb-1 mr-0 ml-auto"
                     onClick={() => setAnchorEl(null)}
+                    size="large"
                   >
                     <CrossIcon
                       className="group"
@@ -245,7 +247,10 @@ const ZapIn = ({
                 <Typography variant="h5" className="text-white pb-1 pr-1.5">
                   {tokenName}
                 </Typography>
-                <IconButton className="opacity-40 p-0 group-hover:opacity-70">
+                <IconButton
+                  className="opacity-40 p-0 group-hover:opacity-70"
+                  size="large"
+                >
                   <ArrowDropDownIcon className={'fill-gray-100 mr-2'} />
                 </IconButton>
               </Box>

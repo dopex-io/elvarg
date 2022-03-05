@@ -3,9 +3,9 @@ import { useFormik } from 'formik';
 import cx from 'classnames';
 import { utils as ethersUtils } from 'ethers';
 import noop from 'lodash/noop';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import CircularProgress from '@mui/material/CircularProgress';
 import { MerkleDistributor__factory } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import Box from '@material-ui/core/Box';
-import Switch from '@material-ui/core/Switch';
+import Box from '@mui/material/Box';
+import Switch from '@mui/material/Switch';
 
 import InfoPopover from 'components/UI/InfoPopover';
 

@@ -15,11 +15,11 @@ import {
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import IconButton from '@material-ui/core/IconButton';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Slide from '@material-ui/core/Slide';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import IconButton from '@mui/material/IconButton';
+import LinearProgress from '@mui/material/LinearProgress';
+import Slide from '@mui/material/Slide';
 import { LoaderIcon } from 'react-hot-toast';
 
 import Dialog from 'components/UI/Dialog';
@@ -498,6 +498,7 @@ const PurchaseDialog = ({
               : 'p-0 pb-1 mr-0 mt-0.5 ml-auto'
           }
           onClick={handleClose}
+          size="large"
         >
           <BigCrossIcon className="" />
         </IconButton>

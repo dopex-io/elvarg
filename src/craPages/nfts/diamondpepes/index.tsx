@@ -7,8 +7,8 @@ import {
 import Countdown from 'react-countdown';
 import Head from 'next/head';
 
-import Box from '@material-ui/core/Box';
-import { Tooltip } from '@material-ui/core';
+import Box from '@mui/material/Box';
+import { Tooltip } from '@mui/material';
 
 import PurchaseDialog from '../components/PurchaseDialog';
 import Typography from 'components/UI/Typography';

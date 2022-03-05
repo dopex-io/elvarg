@@ -7,15 +7,15 @@ import { ERC20__factory, OptionPool, OptionPool__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import * as yup from 'yup';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Input from '@material-ui/core/Input';
-import Tooltip from '@material-ui/core/Tooltip';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import FormHelperText from '@mui/material/FormHelperText';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Input from '@mui/material/Input';
+import Tooltip from '@mui/material/Tooltip';
 
 import { PoolsContext, PoolsProvider } from 'contexts/Pools';
 import { WalletContext } from 'contexts/Wallet';
@@ -509,7 +509,7 @@ const Manage = () => {
         <Box className="flex flex-col mb-14 bg-cod-gray p-5 rounded-xl">
           <Box className="flex flex-row justify-between">
             <Box className="flex flex-row mb-5">
-              <IconButton className=" w-3 h-3 mr-3 mt-1">
+              <IconButton className=" w-3 h-3 mr-3 mt-1" size="large">
                 <Link to="/pools">
                   <ArrowBackIcon className="text-stieglitz" />
                 </Link>

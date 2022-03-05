@@ -6,11 +6,11 @@ import {
   useState,
 } from 'react';
 import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import SearchIcon from '@material-ui/icons/Search';
-import Slide from '@material-ui/core/Slide';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import SearchIcon from '@mui/icons-material/Search';
+import Slide from '@mui/material/Slide';
 
 import Typography from '../UI/Typography';
 
@@ -70,6 +70,7 @@ const TokenSelector = ({
           <IconButton
             className="p-0 pb-1 mr-0 ml-auto"
             onClick={() => setOpen(false)}
+            size="large"
           >
             <img src="/assets/dark-cross.svg" alt={'Cancel'} />
           </IconButton>

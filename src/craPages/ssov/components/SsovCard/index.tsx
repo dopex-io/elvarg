@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 

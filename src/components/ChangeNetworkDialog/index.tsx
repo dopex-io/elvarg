@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect } from 'react';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';

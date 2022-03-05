@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Checkbox from '@material-ui/core/Checkbox';
-import Box from '@material-ui/core/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
