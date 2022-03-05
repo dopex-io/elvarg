@@ -237,6 +237,7 @@ const PurchaseDialog = ({
     userAssetBalances,
     tokenName,
     userTokenBalance,
+    chainId,
   ]);
 
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
@@ -287,12 +288,13 @@ const PurchaseDialog = ({
     updateQuote();
   }, [
     accountAddress,
-    chainId,
     contractAddresses,
     ssovToken,
     ssovTokenName,
     token,
     tokenName,
+    chainId,
+    isPut,
   ]);
 
   const handleTokenChange = useCallback(async () => {
@@ -318,7 +320,7 @@ const PurchaseDialog = ({
         getTokenDecimals(ssovTokenSymbol, chainId)
       ) / price
     );
-  }, [path, quote, state.totalCost, ssovTokenSymbol]);
+  }, [path, quote, state.totalCost, ssovTokenSymbol, chainId]);
 
   const zapInPurchasePower: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;

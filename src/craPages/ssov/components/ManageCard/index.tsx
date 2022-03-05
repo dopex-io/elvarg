@@ -588,6 +588,7 @@ const ManageCard = () => {
     totalDepositAmount,
     updateAssetBalances,
     updateSsovUserData,
+    chainId,
   ]);
 
   // Handle Deposit
@@ -768,6 +769,7 @@ const ManageCard = () => {
     ssovData,
     ssovToken,
     nativeSSOV1inchRouter,
+    chainId,
   ]);
 
   const checkDEXAggregatorStatus = useCallback(async () => {
@@ -830,6 +832,7 @@ const ManageCard = () => {
     spender,
     signer,
     ssovTokenName,
+    chainId,
   ]);
 
   // Updates user token balance
@@ -867,6 +870,7 @@ const ManageCard = () => {
     userAssetBalances,
     depositTokenName,
     isPut,
+    chainId,
   ]);
 
   return (
