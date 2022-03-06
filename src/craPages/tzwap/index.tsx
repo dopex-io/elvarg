@@ -74,14 +74,15 @@ const FEE_PERCENTAGE = 0.015;
 
 const Tzwap = () => {
   const sendTx = useSendTx();
-  const { signer, accountAddress, provider } = useContext(WalletContext);
-  const chainId = 42161;
+  const { chainId, signer, accountAddress, provider } =
+    useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const tzwapRouter = Tzwap1inchRouter__factory.connect(
     Addresses[chainId]['Tzwap1inchRouter'],
     signer
   );
+
   const [activeTab, setActiveTab] = useState(0);
   const [fromToken, setFromToken] = useState<ERC20 | any>('ETH');
   const [fromTokenName, setFromTokenName] = useState<string>('ETH');
@@ -127,16 +128,20 @@ const Tzwap = () => {
   }, [quote]);
 
   const handleFromTokenChange = useCallback(async () => {
-    if (!fromToken) return;
-    const symbol = IS_NATIVE(fromToken) ? fromToken : await fromToken.symbol();
+    if (!fromToken || !provider) return;
+    const symbol = IS_NATIVE(fromToken)
+      ? fromToken
+      : await fromToken.connect(provider).symbol();
     setFromTokenName(symbol);
-  }, [fromToken]);
+  }, [fromToken, provider]);
 
   const handleToTokenChange = useCallback(async () => {
-    if (!toToken) return;
-    const symbol = IS_NATIVE(toToken) ? toToken : await toToken.symbol();
+    if (!toToken || !provider) return;
+    const symbol = IS_NATIVE(toToken)
+      ? toToken
+      : await toToken.connect(provider).symbol();
     setToTokenName(symbol);
-  }, [toToken]);
+  }, [toToken, provider]);
 
   const handleSelectTickSize = useCallback(
     (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -171,29 +176,41 @@ const Tzwap = () => {
       const seconds =
         intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
       await sendTx(
-        tzwapRouter.connect(signer).newOrder({
-          creator: accountAddress,
-          srcToken:
-            fromTokenName === 'ETH'
-              ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-              : fromToken.address,
-          dstToken:
-            toTokenName === 'ETH'
-              ? Addresses[chainId]['WETH']
-              : toToken.address,
-          interval: seconds,
-          tickSize: getContractReadableAmount(
-            ((amount * selectedTickSize) / 100).toFixed(18),
-            getTokenDecimals(fromToken, chainId)
-          ),
-          total: getContractReadableAmount(
-            amount,
-            getTokenDecimals(fromToken, chainId)
-          ),
-          fees: getContractReadableAmount(FEE_PERCENTAGE, 3),
-          created: Math.round(new Date().getTime() / 1000),
-          killed: false,
-        })
+        tzwapRouter.connect(signer).newOrder(
+          {
+            creator: accountAddress,
+            srcToken:
+              fromTokenName === 'ETH'
+                ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                : fromToken.address,
+            dstToken:
+              toTokenName === 'ETH'
+                ? Addresses[chainId]['WETH']
+                : toToken.address,
+            interval: seconds,
+            tickSize: getContractReadableAmount(
+              ((amount * selectedTickSize) / 100).toFixed(18),
+              getTokenDecimals(fromToken, chainId)
+            ),
+            total: getContractReadableAmount(
+              amount,
+              getTokenDecimals(fromToken, chainId)
+            ),
+            minFees: getContractReadableAmount(FEE_PERCENTAGE, 3),
+            maxFees: getContractReadableAmount(FEE_PERCENTAGE * 2, 3),
+            created: Math.round(new Date().getTime() / 1000),
+            killed: false,
+          },
+          {
+            value:
+              fromTokenName === 'ETH'
+                ? getContractReadableAmount(
+                    amount,
+                    getTokenDecimals(fromToken, chainId)
+                  )
+                : 0,
+          }
+        )
       );
     } catch (err) {
       console.log(err);
@@ -265,10 +282,14 @@ const Tzwap = () => {
   const estEndDate: Date = useMemo(() => {
     const now = new Date(
       new Date().getTime() +
-        intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60) * 1000
+        (intervalAmount *
+          (selectedInterval === 'Min' ? 60 : 60 * 60) *
+          1000 *
+          100) /
+          selectedTickSize
     );
     return now;
-  }, [fromTokenValueInUsd, intervalAmount, selectedInterval]);
+  }, [fromTokenValueInUsd, intervalAmount, selectedInterval, selectedTickSize]);
 
   // Updates the 1inch quote
   useEffect(() => {
