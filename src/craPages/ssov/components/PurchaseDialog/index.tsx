@@ -14,14 +14,14 @@ import {
   Aggregation1inchRouterV4__factory,
   Curve2PoolSsovPut,
 } from '@dopex-io/sdk';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import Slide from '@material-ui/core/Slide';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import MenuItem from '@mui/material/MenuItem';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import Slide from '@mui/material/Slide';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 import format from 'date-fns/format';
 import { useDebounce } from 'use-debounce';
@@ -237,6 +237,7 @@ const PurchaseDialog = ({
     userAssetBalances,
     tokenName,
     userTokenBalance,
+    chainId,
   ]);
 
   const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
@@ -287,12 +288,13 @@ const PurchaseDialog = ({
     updateQuote();
   }, [
     accountAddress,
-    chainId,
     contractAddresses,
     ssovToken,
     ssovTokenName,
     token,
     tokenName,
+    chainId,
+    isPut,
   ]);
 
   const handleTokenChange = useCallback(async () => {
@@ -318,7 +320,7 @@ const PurchaseDialog = ({
         getTokenDecimals(ssovTokenSymbol, chainId)
       ) / price
     );
-  }, [path, quote, state.totalCost, ssovTokenSymbol]);
+  }, [path, quote, state.totalCost, ssovTokenSymbol, chainId]);
 
   const zapInPurchasePower: number = useMemo(() => {
     if (!path['toTokenAmount']) return 0;
@@ -1014,6 +1016,7 @@ const PurchaseDialog = ({
               : 'p-0 pb-1 mr-0 mt-0.5 ml-auto'
           }
           onClick={handleClose}
+          size="large"
         >
           <BigCrossIcon className="" />
         </IconButton>
@@ -1115,6 +1118,7 @@ const PurchaseDialog = ({
                     <IconButton
                       className="p-0"
                       onClick={(e) => setAnchorEl(e.currentTarget)}
+                      size="large"
                     >
                       {anchorEl ? (
                         <ArrowDropUpIcon

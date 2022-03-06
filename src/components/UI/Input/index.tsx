@@ -1,7 +1,7 @@
 import { useEffect, ReactNode } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import MuiInput, { InputProps as MuiInputProps } from '@material-ui/core/Input';
+import Box from '@mui/material/Box';
+import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 
 interface InputProps extends MuiInputProps {
   leftElement: ReactNode;

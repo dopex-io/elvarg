@@ -2,8 +2,8 @@ import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
 import { Delegator__factory, ERC20__factory } from '@dopex-io/sdk';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
 import { getMessageFromCode } from 'eth-rpc-errors';
 
 import Typography from 'components/UI/Typography';

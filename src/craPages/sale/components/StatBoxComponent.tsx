@@ -1,5 +1,5 @@
 import c from 'classnames';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import Equal from 'assets/icons/Equal';

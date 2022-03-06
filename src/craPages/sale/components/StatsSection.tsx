@@ -1,4 +1,4 @@
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import StatBox from './StatBoxComponent';
 import InfoPopover from 'components/UI/InfoPopover';

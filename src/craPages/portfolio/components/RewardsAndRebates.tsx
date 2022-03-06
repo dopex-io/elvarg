@@ -1,8 +1,8 @@
 import { useState, useContext, useCallback } from 'react';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 import Typography from 'components/UI/Typography';
 import CallRewardsDialog from '../Dialogs/CallRewardsDialog';
@@ -89,7 +89,7 @@ const RewardsAndRebates = () => {
               </Box>
             </Box>
             <div className="flex-grow" />
-            <IconButton className="h-full w-auto my-auto">
+            <IconButton className="h-full w-auto my-auto" size="large">
               <ChevronRightIcon className="fill-current text-white" />
             </IconButton>
           </Box>
@@ -119,7 +119,7 @@ const RewardsAndRebates = () => {
               </Box>
             </Box>
             <div className="flex-grow" />
-            <IconButton className="h-full w-auto my-auto">
+            <IconButton className="h-full w-auto my-auto" size="large">
               <ChevronRightIcon className="fill-current text-white" />
             </IconButton>
           </Box>
@@ -149,7 +149,7 @@ const RewardsAndRebates = () => {
               </Box>
             </Box>
             <div className="flex-grow" />
-            <IconButton className="h-full w-auto my-auto">
+            <IconButton className="h-full w-auto my-auto" size="large">
               <ChevronRightIcon className="fill-current text-white" />
             </IconButton>
           </Box>

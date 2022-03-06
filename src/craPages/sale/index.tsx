@@ -2,7 +2,7 @@ import { useCallback, useContext } from 'react';
 import Head from 'next/head';
 import { TokenSale__factory } from '@dopex-io/sdk';
 import c from 'classnames';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
