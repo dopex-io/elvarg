@@ -468,6 +468,7 @@ const Tzwap = () => {
                 'ml-auto w-4 h-4 mt-2 mr-2 hover:opacity-90 cursor-pointer'
               }
               onClick={() => setOpenOrder(null)}
+              alt={'Close'}
             />
           </Box>
           <Box className="text-justify pl-5 pr-5">
@@ -485,7 +486,11 @@ const Tzwap = () => {
               color={'primary'}
               onClick={() => handleKill()}
             >
-              <img src={'/assets/killpepe.svg'} className={'w-3 h-3 mr-2'} />
+              <img
+                src={'/assets/killpepe.svg'}
+                className={'w-3 h-3 mr-2'}
+                alt={'Kill pepe'}
+              />
               Kill Tzwap
             </CustomButton>
           </Box>
@@ -619,6 +624,7 @@ const Tzwap = () => {
                           <img
                             src={'/assets/arrowdown.svg'}
                             className={'w-3 h-3'}
+                            alt={'Arrow down'}
                           />
                         </Box>
                         <Box className="flex flex-row justify-between">
@@ -917,6 +923,7 @@ const Tzwap = () => {
                               <img
                                 src={'/assets/1inch.svg'}
                                 className={'w-5 h-5'}
+                                alt={'1inch'}
                               />
                               <Typography
                                 variant="h6"
@@ -944,6 +951,7 @@ const Tzwap = () => {
                             <img
                               src={'/assets/timer.svg'}
                               className={'w-6 h-4'}
+                              alt={'Timer'}
                             />
                           </Box>
                           <Typography variant="h6" className="text-stieglitz">
@@ -978,12 +986,14 @@ const Tzwap = () => {
                               className={
                                 'inherit w-6 h-6 z-15 border-[0.2px] border-gray-800 rounded-full'
                               }
+                              alt={order.srcTokenName}
                             />
                             <img
                               src={'/assets/' + order.dstTokenName + '.svg'}
                               className={
                                 'inherit w-6 h-6 border-[0.2px] border-gray-800 rounded-full ml-[1rem] mt-[-1rem] z-1'
                               }
+                              alt={order.dstTokenName}
                             />
                           </Box>
                           <Box className="mt-1 ml-4 flex w-full">
