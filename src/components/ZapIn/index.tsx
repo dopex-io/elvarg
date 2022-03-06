@@ -27,7 +27,7 @@ import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-import getDEXFrom1InchName from 'utils/general/getDexFrom1inchName';
+import getDEXFrom1InchName from 'utils/general/getDEXFrom1inchName';
 
 import ArrowLeftIcon from '../Icons/ArrowLeftIcon';
 import SettingsIcon from '../Icons/SettingsIcon';
