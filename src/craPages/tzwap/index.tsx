@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
-import axios from 'axios';
 import cx from 'classnames';
 import Head from 'next/head';
 import {
@@ -10,23 +9,24 @@ import {
 } from '@dopex-io/sdk';
 import { LoaderIcon } from 'react-hot-toast';
 import Countdown from 'react-countdown';
-import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 
-import Input from '@material-ui/core/Input';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import MenuItem from '@material-ui/core/MenuItem';
-import CustomButton from 'components/UI/CustomButton';
-import Checkbox from '@material-ui/core/Checkbox';
-import Select from '@material-ui/core/Select';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import Input from '@mui/material/Input';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import IconButton from '@mui/material/IconButton';
+import LinearProgress from '@mui/material/LinearProgress';
+import CircularProgress from '@mui/material/CircularProgress';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import Select from '@mui/material/Select';
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import useSendTx from 'hooks/useSendTx';
 
 import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/CustomButton';
 import AppBar from 'components/AppBar';
 import TokenSelector from 'components/TokenSelector';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
@@ -72,20 +72,40 @@ const SelectMenuProps = {
   },
 };
 
+interface Order {
+  id: number;
+  minFees: BigNumber;
+  maxFees: BigNumber;
+  killed: boolean;
+  creator: string;
+  srcToken: string;
+  srcTokenName: string;
+  srcTokenDecimals: number;
+  dstToken: string;
+  dstTokenName: string;
+  dstTokenDecimals: number;
+  interval: BigNumber;
+  tickSize: BigNumber;
+  total: BigNumber;
+  created: number;
+  srcTokensSwapped: BigNumber;
+  dstTokensSwapped: BigNumber;
+}
+
 const MIN_FEE_PERCENTAGE = 15; // 0.15%
 const MAX_FEE_PERCENTAGE = 200; // 2%
 
 const Tzwap = () => {
   const sendTx = useSendTx();
-  const { chainId, signer, accountAddress, provider } =
+  const { chainId, signer, accountAddress, provider, contractAddresses } =
     useContext(WalletContext);
-  const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
-    useContext(AssetsContext);
+  const { userAssetBalances, tokenPrices } = useContext(AssetsContext);
   const tzwapRouter = Tzwap1inchRouter__factory.connect(
     Addresses[chainId]['Tzwap1inchRouter'],
     signer
   );
 
+  const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [fromToken, setFromToken] = useState<ERC20 | any>('ETH');
   const [fromTokenName, setFromTokenName] = useState<string>('ETH');
@@ -107,6 +127,25 @@ const Tzwap = () => {
   const [selectedTickSize, setSelectedTickSize] = useState<number>(0.1);
   const [selectedInterval, setSelectedInterval] = useState<string>('Min');
   const [quote, setQuote] = useState<object>({});
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  const ADDRESS_TO_TOKEN = useMemo(() => {
+    const map = {};
+    Object.keys(contractAddresses).map((tokenName) => {
+      if (typeof contractAddresses[tokenName] === 'string') {
+        try {
+          const decimals = getTokenDecimals(tokenName, chainId);
+          map[contractAddresses[tokenName].toLocaleUpperCase()] = {
+            name: tokenName.toLowerCase(),
+            decimals: decimals,
+          };
+        } catch (err) {
+          //
+        }
+      }
+    });
+    return map;
+  }, [contractAddresses, chainId]);
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -115,20 +154,6 @@ const Tzwap = () => {
   const intervalAmount: number = useMemo(() => {
     return parseFloat(rawIntervalAmount) || 0;
   }, [rawIntervalAmount]);
-
-  const quotePrice: number = useMemo(() => {
-    if (!quote['toTokenAmount']) return 0;
-    return (
-      getUserReadableAmount(
-        quote['toTokenAmount'],
-        quote['toToken']['decimals']
-      ) /
-      getUserReadableAmount(
-        quote['fromTokenAmount'],
-        quote['fromToken']['decimals']
-      )
-    );
-  }, [quote]);
 
   const handleFromTokenChange = useCallback(async () => {
     if (!fromToken || !provider) return;
@@ -146,19 +171,67 @@ const Tzwap = () => {
     setToTokenName(symbol);
   }, [toToken, provider]);
 
-  const handleSelectTickSize = useCallback(
-    (event: React.ChangeEvent<{ value: unknown }>) => {
-      setSelectedTickSize(event.target.value as number);
-    },
-    []
-  );
+  const handleSelectTickSize = useCallback((event: any) => {
+    setSelectedTickSize(event.target.value as number);
+  }, []);
 
-  const handleSelectInterval = useCallback(
-    (event: React.ChangeEvent<{ value: unknown }>) => {
-      setSelectedInterval(event.target.value as string);
-    },
-    []
-  );
+  const handleSelectInterval = useCallback((event: any) => {
+    setSelectedInterval(event.target.value as string);
+  }, []);
+
+  const updateOrders = useCallback(async () => {
+    if (!tzwapRouter || !provider || Object.keys(ADDRESS_TO_TOKEN).length === 0)
+      return;
+
+    const ordersCount = await tzwapRouter.orderCount();
+    const ids = Array.from(Array(ordersCount).keys());
+    const promises = await Promise.all(ids.map((i) => tzwapRouter.orders(i)));
+    const _orders: Order[] = [];
+    promises.map((promise, i) => {
+      const srcTokenName =
+        ADDRESS_TO_TOKEN[promise['srcToken'].toLocaleUpperCase()]['name'] ||
+        'unknown';
+      const dstTokenName =
+        ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]['name'] ||
+        'unknown';
+      const srcTokenDecimals =
+        ADDRESS_TO_TOKEN[promise['srcToken'].toLocaleUpperCase()]['decimals'] ||
+        'unknown';
+      const dstTokenDecimals =
+        ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]['decimals'] ||
+        'unknown';
+      if (promise['creator'] == accountAddress) {
+        _orders.push({
+          id: i,
+          minFees: promise['minFees'],
+          maxFees: promise['maxFees'],
+          killed: promise['killed'],
+          creator: promise['creator'],
+          created: promise['created'].toNumber(),
+          srcToken: promise['srcToken'],
+          srcTokenDecimals: srcTokenDecimals,
+          srcTokenName: srcTokenName,
+          dstToken: promise['dstToken'],
+          dstTokenName: dstTokenName,
+          dstTokenDecimals: dstTokenDecimals,
+          interval: promise['interval'],
+          tickSize: promise['tickSize'],
+          total: promise['total'],
+          srcTokensSwapped: BigNumber.from('0'),
+          dstTokensSwapped: BigNumber.from('0'),
+        });
+      }
+    });
+    _orders.map(async (order) => {
+      order.srcTokensSwapped = await tzwapRouter.getSrcTokensSwappedForOrder(
+        order['id']
+      );
+      order.dstTokensSwapped = await tzwapRouter.getDstTokensReceivedForOrder(
+        order['id']
+      );
+    });
+    setOrders(_orders);
+  }, [tzwapRouter, provider, accountAddress, ADDRESS_TO_TOKEN]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -178,6 +251,7 @@ const Tzwap = () => {
     try {
       const seconds =
         intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
+
       await sendTx(
         tzwapRouter.connect(signer).newOrder(
           {
@@ -215,17 +289,29 @@ const Tzwap = () => {
           }
         )
       );
+      updateOrders();
     } catch (err) {
       console.log(err);
     }
   }, [
     accountAddress,
+    signer,
     tzwapRouter,
     chainId,
     sendTx,
     selectedInterval,
     intervalAmount,
+    updateOrders,
   ]);
+
+  const handleKill = useCallback(async () => {
+    try {
+      await sendTx(tzwapRouter.connect(signer).killOrder(openOrder));
+      updateOrders();
+    } catch (err) {
+      console.log(err);
+    }
+  }, [signer, tzwapRouter, sendTx, openOrder, updateOrders]);
 
   const submitButtonProps = useMemo(() => {
     const disabled = Boolean(
@@ -289,6 +375,10 @@ const Tzwap = () => {
     );
     return now;
   }, [fromTokenValueInUsd, intervalAmount, selectedInterval, selectedTickSize]);
+
+  useEffect(() => {
+    updateOrders();
+  }, [updateOrders]);
 
   // Updates the 1inch quote
   useEffect(() => {
@@ -360,6 +450,47 @@ const Tzwap = () => {
         <title>Tzwap | Dopex</title>
       </Head>
       <AppBar />
+      <Dialog
+        open={openOrder !== null}
+        classes={{
+          paper: 'bg-cod-gray p-2 rounded-xl w-[25rem]',
+        }}
+      >
+        <Box>
+          <Box className={'flex p-3'}>
+            <Typography variant="h4" className="mb-4 ml-2">
+              Kill Tzwap
+            </Typography>
+
+            <img
+              src={'/assets/dark-cross.svg'}
+              className={
+                'ml-auto w-4 h-4 mt-2 mr-2 hover:opacity-90 cursor-pointer'
+              }
+              onClick={() => setOpenOrder(null)}
+            />
+          </Box>
+          <Box className="text-justify pl-5 pr-5">
+            <Typography variant="h5" component="p" className={'text-stieglitz'}>
+              Killing a Tzwap means that your order will stop being filled by
+              bots and that you’ll get your initial collateral back minus what
+              has already been filled by bots.
+            </Typography>
+          </Box>
+
+          <Box className={'pl-6 pr-6 mb-4 mt-3'}>
+            <CustomButton
+              size="medium"
+              className="w-full mt-4 !rounded-md"
+              color={'primary'}
+              onClick={() => handleKill()}
+            >
+              <img src={'/assets/killpepe.svg'} className={'w-3 h-3 mr-2'} />
+              Kill Tzwap
+            </CustomButton>
+          </Box>
+        </Box>
+      </Dialog>
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="flex mx-auto max-w-xl mb-8 mt-32">
           <Box
@@ -834,108 +965,277 @@ const Tzwap = () => {
                   </Box>
                 </TabPanel>
                 <TabPanel value={activeTab} index={1}>
-                  <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
-                    <Box className={'flex h-[2.65rem]'}>
-                      <Box className={'relative'}>
-                        <img
-                          src={'/assets/dpx.svg'}
-                          className={
-                            'inherit w-6 h-6 z-15 border-[0.2px] border-gray-800 rounded-full'
-                          }
-                        />
-                        <img
-                          src={'/assets/eth.svg'}
-                          className={
-                            'inherit w-6 h-6 border-[0.2px] border-gray-800 rounded-full ml-[1rem] mt-[-1rem] z-1'
-                          }
-                        />
-                      </Box>
-                      <Box className="mt-1 ml-4 flex w-full">
-                        <Typography
-                          variant="h6"
-                          className="text-xs font-normal mr-3"
-                        >
-                          ETH
-                        </Typography>
-                        <img
-                          src={'/assets/longarrowright.svg'}
-                          alt="Arrow right"
-                          className={'mr-1 w-4 h-2.5 mt-1.5'}
-                        />
-                        <Typography
-                          variant="h6"
-                          className="text-xs font-normal ml-2 mr-2"
-                        >
-                          DPX
-                        </Typography>
-                        <CustomButton
-                          size="small"
-                          className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
-                          color="mineshaft"
-                        >
-                          <CircularProgress
-                            className="text-stieglitz mt-0.5 mr-2"
-                            size={10}
-                          />
-                          Open
-                          <img
-                            src="/assets/cross.svg"
-                            className="ml-2 mr-1.5"
-                            alt={'Cancel'}
-                          />
-                        </CustomButton>
-                      </Box>
-                    </Box>
-                    <Box className="rounded-md flex flex-col p-4 border border-neutral-800 w-full bg-neutral-800">
-                      <Box className={'flex mb-2'}>
-                        <Typography
-                          variant="h6"
-                          className="text-stieglitz ml-0 mr-auto"
-                        >
-                          Tick Size
-                        </Typography>
-                        <Box className={'text-right'}>
-                          <Typography
-                            variant="h6"
-                            className="text-white mr-auto ml-0"
+                  <Box className="h-[40.5rem] overflow-y-auto overflow-x-hidden">
+                    {orders.map((order) => (
+                      <Box
+                        key={order.id}
+                        className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra"
+                      >
+                        <Box className={'flex h-[2.75rem]'}>
+                          <Box className={'relative'}>
+                            <img
+                              src={'/assets/' + order.srcTokenName + '.svg'}
+                              className={
+                                'inherit w-6 h-6 z-15 border-[0.2px] border-gray-800 rounded-full'
+                              }
+                            />
+                            <img
+                              src={'/assets/' + order.dstTokenName + '.svg'}
+                              className={
+                                'inherit w-6 h-6 border-[0.2px] border-gray-800 rounded-full ml-[1rem] mt-[-1rem] z-1'
+                              }
+                            />
+                          </Box>
+                          <Box className="mt-1 ml-4 flex w-full">
+                            <Typography
+                              variant="h6"
+                              className="text-xs font-normal mr-3"
+                            >
+                              {order.srcTokenName.toLocaleUpperCase()}
+                            </Typography>
+                            <img
+                              src={'/assets/longarrowright.svg'}
+                              alt="Arrow right"
+                              className={'mr-1 w-4 h-2.5 mt-1.5'}
+                            />
+                            <Typography
+                              variant="h6"
+                              className="text-xs font-normal ml-2 mr-2"
+                            >
+                              {order.dstTokenName.toLocaleUpperCase()}
+                            </Typography>
+                            {order.killed ? (
+                              <CustomButton
+                                size="small"
+                                className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
+                                color="mineshaft"
+                                disabled
+                              >
+                                Killed
+                                <img
+                                  src="/assets/killpepe.svg"
+                                  className="ml-2 mr-1.5"
+                                  alt={'Pepe Kill'}
+                                />
+                              </CustomButton>
+                            ) : (
+                              <CustomButton
+                                size="small"
+                                className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
+                                color="mineshaft"
+                                onClick={() => setOpenOrder(order.id)}
+                              >
+                                <CircularProgress
+                                  className="text-stieglitz mt-0.5 mr-2"
+                                  size={10}
+                                />
+                                Open
+                                <img
+                                  src="/assets/cross.svg"
+                                  className="ml-2 mr-1.5"
+                                  alt={'Cancel'}
+                                />
+                              </CustomButton>
+                            )}
+                          </Box>
+                        </Box>
+                        <Box className="rounded-md flex flex-col p-4 border border-neutral-800 w-full bg-neutral-800">
+                          <Box className={'flex mb-2'}>
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz ml-0 mr-auto"
+                            >
+                              Interval
+                            </Typography>
+                            <Box className={'text-right'}>
+                              <Typography
+                                variant="h6"
+                                className="text-white mr-auto ml-0"
+                              >
+                                {intervalAmount} {selectedInterval}
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                          <Box className={'flex mb-2'}>
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz ml-0 mr-auto"
+                            >
+                              Total
+                            </Typography>
+                            <Box className={'text-right'}>
+                              <Typography
+                                variant="h6"
+                                className="text-white mr-auto ml-0"
+                              >
+                                {getUserReadableAmount(
+                                  order.total,
+                                  order.srcTokenDecimals
+                                )}{' '}
+                                {order.srcTokenName.toLocaleUpperCase()}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box className={'flex mb-2'}>
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz ml-0 mr-auto"
+                            >
+                              Tick Size
+                            </Typography>
+                            <Box className={'text-right'}>
+                              <Typography
+                                variant="h6"
+                                className="text-white mr-auto ml-0"
+                              >
+                                {getUserReadableAmount(
+                                  order.tickSize,
+                                  order.srcTokenDecimals
+                                )}{' '}
+                                {order.srcTokenName.toLocaleUpperCase()}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box className={'flex mb-2'}>
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz ml-0 mr-auto"
+                            >
+                              Start
+                            </Typography>
+                            <Box className={'text-right'}>
+                              <Typography
+                                variant="h6"
+                                className="text-white mr-auto ml-0"
+                              >
+                                {
+                                  new Date(order.created * 1000)
+                                    .toLocaleString()
+                                    .split(',')[0]
+                                }
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box className={'flex mb-2'}>
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz ml-0 mr-auto"
+                            >
+                              Fees
+                            </Typography>
+                            <Box className={'text-right'}>
+                              <Typography
+                                variant="h6"
+                                className="text-white mr-auto ml-0"
+                              >
+                                {getUserReadableAmount(order.minFees, 2)}%
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box className={'flex mb-2'}>
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz ml-0 mr-auto"
+                            >
+                              Swapped
+                            </Typography>
+                            <Box className={'text-right'}>
+                              <Typography
+                                variant="h6"
+                                className="text-white mr-auto ml-0"
+                              >
+                                {getUserReadableAmount(
+                                  order.srcTokensSwapped,
+                                  order.srcTokenDecimals
+                                )}{' '}
+                                {order.srcTokenName.toLocaleUpperCase()}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box
+                            className={
+                              order.srcTokensSwapped.gt(0)
+                                ? 'flex mb-2'
+                                : 'flex mb-0'
+                            }
                           >
-                            {selectedTickSize}%
-                          </Typography>
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz ml-0 mr-auto"
+                            >
+                              Obtained
+                            </Typography>
+                            <Box className={'text-right'}>
+                              <Typography
+                                variant="h6"
+                                className="text-white mr-auto ml-0"
+                              >
+                                {getUserReadableAmount(
+                                  order.dstTokensSwapped,
+                                  order.dstTokenDecimals
+                                )}{' '}
+                                {order.dstTokenName.toLocaleUpperCase()}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          {order.srcTokensSwapped.gt(0) ? (
+                            <LinearProgress
+                              variant="determinate"
+                              className={'mt-3 rounded-sm mb-4'}
+                              value={
+                                (100 *
+                                  getUserReadableAmount(
+                                    order.srcTokensSwapped,
+                                    order.srcTokenDecimals
+                                  )) /
+                                getUserReadableAmount(
+                                  order.total,
+                                  order.dstTokenDecimals
+                                )
+                              }
+                            />
+                          ) : null}
+                          {order.srcTokensSwapped.gt(0) ? (
+                            <Box className={'flex'}>
+                              <Typography
+                                variant="h6"
+                                className="text-stieglitz ml-0 mr-auto"
+                              >
+                                Current price
+                              </Typography>
+                              <Box className={'text-right'}>
+                                <Typography
+                                  variant="h6"
+                                  className="text-white mr-auto ml-0"
+                                >
+                                  1 {order.srcTokenName.toLocaleUpperCase()} ={' '}
+                                  {getUserReadableAmount(
+                                    order.dstTokensSwapped,
+                                    order.dstTokenDecimals
+                                  ) /
+                                    getUserReadableAmount(
+                                      order.srcTokensSwapped,
+                                      order.srcTokenDecimals
+                                    )}{' '}
+                                  {order.dstTokenName.toLocaleUpperCase()}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ) : null}
                         </Box>
                       </Box>
-                      <Box className={'flex mb-2'}>
+                    ))}
+                    {orders.length === 0 ? (
+                      <Box className={'text-center mt-3'}>
                         <Typography
                           variant="h6"
-                          className="text-stieglitz ml-0 mr-auto"
+                          className="mb-3 text-stieglitz"
                         >
-                          Interval
+                          No orders have been created yet
                         </Typography>
-                        <Box className={'text-right'}>
-                          <Typography
-                            variant="h6"
-                            className="text-white mr-auto ml-0"
-                          >
-                            {intervalAmount} {selectedInterval}
-                          </Typography>
-                        </Box>
                       </Box>
-                      <Box className={'flex'}>
-                        <Typography
-                          variant="h6"
-                          className="text-stieglitz ml-0 mr-auto"
-                        >
-                          Fees
-                        </Typography>
-                        <Box className={'text-right'}>
-                          <Typography
-                            variant="h6"
-                            className="text-white mr-auto ml-0"
-                          >
-                            0.1% - 0.5%
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
+                    ) : null}
                   </Box>
                 </TabPanel>
               </Box>
