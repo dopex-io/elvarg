@@ -14,7 +14,9 @@ import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
 
 import Input from '@material-ui/core/Input';
 import Box from '@material-ui/core/Box';
+import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MenuItem from '@material-ui/core/MenuItem';
 import CustomButton from 'components/UI/CustomButton';
@@ -70,7 +72,8 @@ const SelectMenuProps = {
   },
 };
 
-const FEE_PERCENTAGE = 0.015;
+const MIN_FEE_PERCENTAGE = 15; // 0.15%
+const MAX_FEE_PERCENTAGE = 200; // 2%
 
 const Tzwap = () => {
   const sendTx = useSendTx();
@@ -196,8 +199,8 @@ const Tzwap = () => {
               amount,
               getTokenDecimals(fromToken, chainId)
             ),
-            minFees: getContractReadableAmount(FEE_PERCENTAGE, 3),
-            maxFees: getContractReadableAmount(FEE_PERCENTAGE * 2, 3),
+            minFees: MIN_FEE_PERCENTAGE,
+            maxFees: MAX_FEE_PERCENTAGE,
             created: Math.round(new Date().getTime() / 1000),
             killed: false,
           },
@@ -262,10 +265,6 @@ const Tzwap = () => {
       onClick,
     };
   }, [approved, handleApprove, handleCreate]);
-
-  const fees = useMemo(() => {
-    return quotePrice * amount * FEE_PERCENTAGE;
-  }, [quotePrice, amount]);
 
   const fromTokenValueInUsd = useMemo(() => {
     let value = 0;
@@ -370,43 +369,38 @@ const Tzwap = () => {
             )}
           >
             {!(isFromTokenSelectorVisible || isToTokenSelectorVisible) ? (
-              <Box>
+              <Box className={''}>
+                <Box className={'w-full'}>
+                  <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
+                    <Box
+                      className={
+                        activeTab === 0
+                          ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
+                          : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                      }
+                      onClick={() => setActiveTab(0)}
+                    >
+                      <Typography variant="h6" className="text-xs font-normal">
+                        Create new
+                      </Typography>
+                    </Box>
+                    <Box
+                      className={
+                        activeTab === 1
+                          ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
+                          : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                      }
+                      onClick={() => setActiveTab(1)}
+                    >
+                      <Typography variant="h6" className="text-xs font-normal">
+                        Active orders
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
                 <TabPanel value={activeTab} index={0}>
                   <Box className={'flex'}>
                     <Box className={'w-full'}>
-                      <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
-                        <Box
-                          className={
-                            activeTab === 0
-                              ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                              : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                          }
-                          onClick={() => setActiveTab(0)}
-                        >
-                          <Typography
-                            variant="h6"
-                            className="text-xs font-normal"
-                          >
-                            Create new
-                          </Typography>
-                        </Box>
-                        <Box
-                          className={
-                            activeTab === 1
-                              ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                              : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                          }
-                          onClick={() => setActiveTab(1)}
-                        >
-                          <Typography
-                            variant="h6"
-                            className="text-xs font-normal"
-                          >
-                            Active orders
-                          </Typography>
-                        </Box>
-                      </Box>
-
                       <Box className="bg-umbra rounded-2xl flex flex-col mb-[3px] p-3 pr-2">
                         <Box className="flex flex-row justify-between">
                           <Box
@@ -715,14 +709,17 @@ const Tzwap = () => {
                               variant="h6"
                               className="text-stieglitz ml-0 mr-auto"
                             >
-                              Fees
+                              {' '}
+                              Fees{' '}
                             </Typography>
+
                             <Box className={'text-right'}>
                               <Typography
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                ${formatAmount(fees, 2)}
+                                {' '}
+                                {MIN_FEE_PERCENTAGE / 100}%
                               </Typography>
                             </Box>
                           </Box>
@@ -836,7 +833,111 @@ const Tzwap = () => {
                     </Box>
                   </Box>
                 </TabPanel>
-                <TabPanel value={activeTab} index={1}></TabPanel>
+                <TabPanel value={activeTab} index={1}>
+                  <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
+                    <Box className={'flex h-[2.65rem]'}>
+                      <Box className={'relative'}>
+                        <img
+                          src={'/assets/dpx.svg'}
+                          className={
+                            'inherit w-6 h-6 z-15 border-[0.2px] border-gray-800 rounded-full'
+                          }
+                        />
+                        <img
+                          src={'/assets/eth.svg'}
+                          className={
+                            'inherit w-6 h-6 border-[0.2px] border-gray-800 rounded-full ml-[1rem] mt-[-1rem] z-1'
+                          }
+                        />
+                      </Box>
+                      <Box className="mt-1 ml-4 flex w-full">
+                        <Typography
+                          variant="h6"
+                          className="text-xs font-normal mr-3"
+                        >
+                          ETH
+                        </Typography>
+                        <img
+                          src={'/assets/longarrowright.svg'}
+                          alt="Arrow right"
+                          className={'mr-1 w-4 h-2.5 mt-1.5'}
+                        />
+                        <Typography
+                          variant="h6"
+                          className="text-xs font-normal ml-2 mr-2"
+                        >
+                          DPX
+                        </Typography>
+                        <CustomButton
+                          size="small"
+                          className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
+                          color="mineshaft"
+                        >
+                          <CircularProgress
+                            className="text-stieglitz mt-0.5 mr-2"
+                            size={10}
+                          />
+                          Open
+                          <img
+                            src="/assets/cross.svg"
+                            className="ml-2 mr-1.5"
+                            alt={'Cancel'}
+                          />
+                        </CustomButton>
+                      </Box>
+                    </Box>
+                    <Box className="rounded-md flex flex-col p-4 border border-neutral-800 w-full bg-neutral-800">
+                      <Box className={'flex mb-2'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Tick Size
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0"
+                          >
+                            {selectedTickSize}%
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box className={'flex mb-2'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Interval
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0"
+                          >
+                            {intervalAmount} {selectedInterval}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box className={'flex'}>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz ml-0 mr-auto"
+                        >
+                          Fees
+                        </Typography>
+                        <Box className={'text-right'}>
+                          <Typography
+                            variant="h6"
+                            className="text-white mr-auto ml-0"
+                          >
+                            0.1% - 0.5%
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
+                </TabPanel>
               </Box>
             ) : (
               <Box className={'h-[38.8rem]'}>
