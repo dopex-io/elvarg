@@ -921,10 +921,9 @@ const ManageCard = () => {
       {isZapInVisible ? (
         <ZapIn
           setOpen={setIsZapInVisible}
-          ssovTokenName={ssovTokenName}
-          tokenName={tokenName}
-          setToken={setToken}
-          token={token}
+          toTokenSymbol={ssovTokenName}
+          fromTokenSymbol={tokenName}
+          setFromTokenSymbol={setTokenName}
           userTokenBalance={userTokenBalance}
           quote={quote}
           setSlippageTolerance={setSlippageTolerance}
@@ -932,7 +931,6 @@ const ManageCard = () => {
           purchasePower={purchasePower}
           selectedTokenPrice={selectedTokenPrice}
           isInDialog={false}
-          ssovToken={ssovToken}
         />
       ) : (
         <>
@@ -1206,8 +1204,8 @@ const ManageCard = () => {
                     isFetchingPath &&
                     Object.keys(strikeDepositAmounts).length > 0
                   }
-                  tokenName={tokenName}
-                  ssovTokenSymbol={ssovTokenSymbol}
+                  fromTokenSymbol={tokenName}
+                  toTokenSymbol={ssovTokenSymbol}
                   selectedTokenPrice={selectedTokenPrice}
                   isZapInAvailable={isPut ? false : isZapInAvailable}
                   chainId={chainId}
