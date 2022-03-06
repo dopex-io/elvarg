@@ -32,12 +32,13 @@ const TableHeader = ({
   children,
   align = 'left',
   textColor = 'text-stieglitz',
+  fill = 'bg-cod-gray',
 }) => {
   return (
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
-      className="bg-cod-gray border-umbra py-1"
+      className={`${fill} border-umbra py-1`}
     >
       <Typography variant="h6" className={`${textColor}`}>
         {children}
@@ -50,12 +51,13 @@ const TableBodyCell = ({
   children,
   align = 'left',
   textColor = 'text-stieglitz',
+  fill = 'bg-cod-gray',
 }) => {
   return (
     <TableCell
       align={align as TableCellProps['align']}
       component="td"
-      className="bg-cod-gray border-0 py-2"
+      className={`${fill} border-0 py-2`}
     >
       <Typography variant="h6" className={`${textColor}`}>
         {children}
@@ -133,8 +135,8 @@ const IndicativeRfqTable = () => {
                 Time
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
-              <TableHeader align="center">Amount</TableHeader>
-              <TableHeader align="center">Ask Price</TableHeader>
+              <TableHeader align="center">Qty</TableHeader>
+              <TableHeader align="center">Ask</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
               <TableHeader align="right">Dealer</TableHeader>
               <TableHeader align="right">Actions</TableHeader>
@@ -165,10 +167,16 @@ const IndicativeRfqTable = () => {
                     <TableBodyCell align="center" textColor="text-green-400">
                       {row.amount}
                     </TableBodyCell>
-                    <TableBodyCell align="center" textColor="text-down-bad">
+                    <TableBodyCell
+                      align="center"
+                      textColor="text-down-bad"
+                      fill="bg-umbra"
+                    >
                       {row.price}
                     </TableBodyCell>
-                    <TableBodyCell align="right">{row.quote}</TableBodyCell>
+                    <TableBodyCell align="right" fill="bg-umbra">
+                      {row.quote}
+                    </TableBodyCell>
                     <TableBodyCell align="right">
                       <Box className="flex-col">
                         <Typography variant="h6">
@@ -180,27 +188,29 @@ const IndicativeRfqTable = () => {
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell align="right">
-                      <CustomButton
-                        size="small"
-                        key="transfer-options"
-                        color="umbra"
-                        onClick={() => {
-                          navigateToChat(row);
-                        }}
-                        className="text-white rounded px-3 py-1 hover:bg-mineshaft"
-                        disabled={row.isFulfilled}
-                      >
-                        Enter Chat
-                      </CustomButton>
-                      <IconButton
-                        size="small"
-                        onClick={handleClickMenu}
-                        className="text-white rounded px-0 ml-1 py-1 bg-umbra hover:bg-mineshaft"
-                        // disabled={row.isFulfilled}
-                        disableRipple
-                      >
-                        <MoreVertIcon className="fill-current text-white p-0 m-0" />
-                      </IconButton>
+                      <Box className="flex">
+                        <CustomButton
+                          size="small"
+                          key="transfer-options"
+                          color="umbra"
+                          onClick={() => {
+                            navigateToChat(row);
+                          }}
+                          className="text-white rounded hover:bg-mineshaft"
+                          disabled={row.isFulfilled}
+                        >
+                          Chat
+                        </CustomButton>
+                        <IconButton
+                          size="small"
+                          onClick={handleClickMenu}
+                          className="text-white rounded px-0 ml-1 "
+                          // disabled={row.isFulfilled}
+                          disableRipple
+                        >
+                          <MoreVertIcon className="fill-current text-white" />
+                        </IconButton>
+                      </Box>
                       <Menu
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}

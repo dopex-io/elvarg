@@ -6,6 +6,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
+import Skeleton from '@material-ui/lab/Skeleton';
 import CustomButton from 'components/UI/CustomButton';
 
 import Typography from 'components/UI/Typography';
@@ -54,7 +55,7 @@ const TableBodyCell = ({
 };
 
 const LiveRfqTable = () => {
-  const { openTradesData } = useContext(OtcContext);
+  const { openTradesData, loaded } = useContext(OtcContext);
 
   const [index, setIndex] = useState(0);
   const [openTrades, setOpenTrades] = useState([]);
@@ -73,84 +74,116 @@ const LiveRfqTable = () => {
     setOpenTrades(openTradesData);
   }, [openTradesData]);
 
-  return (
-    <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-80">
-      <Table aria-label="rfq-table" className="bg-umbra">
-        <TableHead>
-          <TableRow>
-            <TableHeader align="left" textColor="white">
-              RFQ
-            </TableHeader>
-            <TableHeader align="left">Base</TableHeader>
-            <TableHeader align="center">Amount</TableHeader>
-            <TableHeader align="right">Quote</TableHeader>
-            <TableHeader align="right">Ask</TableHeader>
-            <TableHeader align="right">Dealer</TableHeader>
-            <TableHeader align="right">
-              <Box className="flex justify-end space-x-2">
-                <Typography variant="h6" className="my-auto text-stieglitz">
-                  Trade
-                </Typography>
-                <InfoPopover
-                  id="action"
-                  infoText="Initiate a P2P trade with selected dealer"
-                />
-              </Box>
-            </TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody component="div">
-          {openTrades.map((row, i) => (
-            <TableRow key={i}>
-              <TableBodyCell align="left" textColor="white">
-                {row.isBuy ? 'Buy' : 'Sell'}
-              </TableBodyCell>
-              <TableBodyCell align="left">
-                {smartTrim(row.dealerBase.symbol, 24)}
-              </TableBodyCell>
-              <TableBodyCell align="center" textColor="text-green-400">
-                {getUserReadableAmount(row.dealerReceiveAmount, 18).toString()}{' '}
-                {row.isBuy ? 'Tokens' : row.dealerBase.symbol}
-              </TableBodyCell>
-              <TableBodyCell align="right">
-                {smartTrim(row.dealerQuote.symbol, 12)}
-              </TableBodyCell>
-              <TableBodyCell align="right" textColor="text-down-bad">
-                {getUserReadableAmount(row.dealerSendAmount, 18).toString()}{' '}
-                {row.isBuy ? row.dealerQuote.symbol : 'Tokens'}
-              </TableBodyCell>
-              <TableBodyCell align="right">
-                {smartTrim(row.dealer, 10)}
-              </TableBodyCell>
-              <TableBodyCell align="right">
-                <Box className="flex justify-end">
-                  <CustomButton
-                    size="small"
-                    key="open-trade"
-                    onClick={() => {
-                      setIndex(i);
-                      setDialogState({
-                        open: true,
-                        data: openTradesData[index],
-                        handleClose,
-                      });
-                    }}
-                    className="text-white rounded px-2 py-0"
-                  >
-                    Trade
-                  </CustomButton>
-                  <Settle
-                    open={dialogState.open}
-                    handleClose={handleClose}
-                    data={openTradesData[index]}
-                  />
-                </Box>
-              </TableBodyCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+  return loaded ? (
+    <Box>
+      {openTrades.length > 0 ? (
+        <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-80">
+          <Table aria-label="rfq-table" className="bg-umbra">
+            <TableHead>
+              <TableRow>
+                <TableHeader align="left" textColor="white">
+                  RFQ
+                </TableHeader>
+                <TableHeader align="left">Option</TableHeader>
+                <TableHeader align="center">Amount</TableHeader>
+                <TableHeader align="center">Total Bid/Ask</TableHeader>
+                <TableHeader align="right">Quote</TableHeader>
+                <TableHeader align="right">Dealer</TableHeader>
+                <TableHeader align="right">
+                  <Box className="flex justify-end space-x-2">
+                    <Typography variant="h6" className="my-auto text-stieglitz">
+                      Trade
+                    </Typography>
+                    <InfoPopover
+                      id="action"
+                      infoText="Initiate a P2P trade with selected dealer"
+                    />
+                  </Box>
+                </TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody component="div">
+              {openTrades.map((row, i) => (
+                <TableRow key={i}>
+                  <TableBodyCell align="left" textColor="white">
+                    {row?.isBuy ? 'Buy' : 'Sell'}
+                  </TableBodyCell>
+                  <TableBodyCell align="left">
+                    {row.isBuy
+                      ? smartTrim(row.dealerBase?.symbol, 24)
+                      : smartTrim(row.dealerQuote?.symbol, 24)}
+                  </TableBodyCell>
+                  <TableBodyCell align="center" textColor="text-green-400">
+                    {row.isBuy
+                      ? getUserReadableAmount(
+                          row.dealerReceiveAmount,
+                          18
+                        ).toString()
+                      : getUserReadableAmount(
+                          row.dealerSendAmount,
+                          18
+                        ).toString()}
+                  </TableBodyCell>
+                  <TableBodyCell align="center" textColor="text-down-bad">
+                    {getUserReadableAmount(row.dealerSendAmount, 18).toString()}
+                  </TableBodyCell>
+                  <TableBodyCell align="right">
+                    {row.isBuy
+                      ? smartTrim(row.dealerQuote?.symbol, 12)
+                      : smartTrim(row.dealerBase?.symbol, 12)}
+                  </TableBodyCell>
+                  <TableBodyCell align="right">
+                    {smartTrim(row.dealer, 10)}
+                  </TableBodyCell>
+                  <TableBodyCell align="right">
+                    <Box className="flex justify-end">
+                      <CustomButton
+                        size="small"
+                        key="open-trade"
+                        onClick={() => {
+                          setIndex(i);
+                          setDialogState({
+                            open: true,
+                            data: openTradesData[index],
+                            handleClose,
+                          });
+                        }}
+                        className="text-white rounded px-2 py-0"
+                      >
+                        Trade
+                      </CustomButton>
+                      <Settle
+                        open={dialogState.open}
+                        handleClose={handleClose}
+                        data={openTradesData[index]}
+                      />
+                    </Box>
+                  </TableBodyCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Box className="flex mx-auto justify-around py-8 bg-cod-gray rounded-xl border border-umbra">
+          <Typography variant="h5" className="text-stieglitz">
+            No Live Trades Available
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  ) : (
+    <Box className="bg-cod-gray px-2 pt-2 rounded-lg">
+      {[0, 1, 2, 4, 5].map((i) => (
+        <Skeleton
+          key={i}
+          variant="rect"
+          component={Box}
+          animation="wave"
+          className="rounded-md bg-umbra mb-2 py-4"
+        />
+      ))}
+    </Box>
   );
 };
 

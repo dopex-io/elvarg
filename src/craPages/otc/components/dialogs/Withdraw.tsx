@@ -30,6 +30,7 @@ interface WithdrawProps {
     price: BigNumber;
     amount: BigNumber;
     dealer: string;
+    counterParty: string;
   };
 }
 
@@ -48,62 +49,77 @@ const Withdraw = ({ open, handleClose, data }: WithdrawProps) => {
     await sendTx(
       escrow
         .connect(signer)
-        .withdraw(data.quote.address, data.base.address, data.price)
+        .withdraw(
+          data.quote.address,
+          data.base.address,
+          data.price,
+          data.counterParty
+        )
     );
   }, [selectedEscrowData.selectedEscrow, provider, data, signer, sendTx]);
 
   return (
-    <Dialog open={open} handleClose={handleClose} showCloseIcon>
-      <Box className="flex flex-col space-y-4">
-        <Typography variant="h5">Withdraw</Typography>
-        <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Quote Asset
+    data && (
+      <Dialog open={open} handleClose={handleClose} showCloseIcon>
+        <Box className="flex flex-col space-y-4">
+          <Typography variant="h5">Withdraw</Typography>
+          <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
+            <Box className="flex justify-between">
+              <Typography variant="h6" className="text-stieglitz">
+                Quote Asset
+              </Typography>
+              <Typography variant="h6">
+                {smartTrim(data.quote.symbol, 18)}
+              </Typography>
+            </Box>
+            <Box className="flex justify-between">
+              <Typography variant="h6" className="text-stieglitz">
+                Base Asset
+              </Typography>
+              <Typography variant="h6">
+                {smartTrim(data.base.symbol, 18)}
+              </Typography>
+            </Box>
+            <Box className="flex justify-between">
+              <Typography variant="h6" className="text-stieglitz">
+                Withdrawable
+              </Typography>
+              <Typography variant="h6">
+                {getUserReadableAmount(
+                  data.isBuy ? data.price : data.amount,
+                  18
+                ).toString()}
+              </Typography>
+            </Box>
+            <Box className="flex justify-between">
+              <Typography variant="h6" className="text-stieglitz">
+                Counter Party
+              </Typography>
+              <Typography variant="h6">
+                {smartTrim(data.counterParty, 10)}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className="bg-down-bad bg-opacity-20 rounded-xl border border-down-bad border-opacity-30 p-3 flex-col text-center">
+            <Typography variant="h5" className="text-down-bad font-bold">
+              Warning
             </Typography>
-            <Typography variant="h6">
-              {smartTrim(data.quote.symbol, 18)}
+            <Typography variant="h6" className="text-down-bad">
+              You are cancelling an open trade with this user. If you want to
+              initiate another trade, you will have to pay additional gas to
+              deposit again into the escrow.
             </Typography>
           </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Base Asset
-            </Typography>
-            <Typography variant="h6">
-              {smartTrim(data.base.symbol, 18)}
-            </Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Withdrawable
-            </Typography>
-            <Typography variant="h6">
-              {getUserReadableAmount(
-                data.isBuy ? data.price : data.amount,
-                18
-              ).toString()}
-            </Typography>
-          </Box>
+          <CustomButton
+            size="medium"
+            className="rounded-xl"
+            onClick={handleWithdraw}
+          >
+            Withdraw
+          </CustomButton>
         </Box>
-        <Box className="bg-down-bad bg-opacity-20 rounded-xl border border-down-bad border-opacity-30 p-3 flex-col text-center">
-          <Typography variant="h5" className="text-down-bad font-bold">
-            Warning
-          </Typography>
-          <Typography variant="h6" className="text-down-bad">
-            You are cancelling an open trade with this user. If you want to
-            initiate another trade, you will have to pay additional gas to
-            deposit again into the escrow.
-          </Typography>
-        </Box>
-        <CustomButton
-          size="medium"
-          className="rounded-xl"
-          onClick={handleWithdraw}
-        >
-          Withdraw
-        </CustomButton>
-      </Box>
-    </Dialog>
+      </Dialog>
+    )
   );
 };
 

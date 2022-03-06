@@ -28,6 +28,7 @@ interface TradeProps {
     dealerReceiveAmount: BigNumber;
     dealerSendAmount: BigNumber;
     dealer: string;
+    counterParty: string;
   };
 }
 
@@ -43,6 +44,7 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
       selectedEscrowData.selectedEscrow,
       provider
     );
+
     await sendTx(
       escrow
         .connect(signer)
@@ -82,71 +84,75 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
   }, [approved, data, provider, accountAddress, selectedEscrowData]);
 
   return (
-    <Dialog open={open} handleClose={handleClose} showCloseIcon>
-      <Box className="flex flex-col space-y-4">
-        <Box className="space-y-4">
-          <>
-            <Box className="flex flex-col space-y-3">
-              <Typography variant="h5" className="text-stieglitz">
-                Settle
-              </Typography>
-              <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
-                <Box className="flex justify-between space-x-2 my-auto">
-                  <Typography variant="h6" className="text-stieglitz">
-                    Dealer&apos;s base
-                  </Typography>
-                  <Typography variant="h6">{data.dealerBase.symbol}</Typography>
-                </Box>
-                <Box className="flex justify-between space-x-2 my-auto">
-                  <Typography variant="h6" className="text-stieglitz">
-                    Receive
-                  </Typography>
-                  <Typography variant="h6">
-                    {getUserReadableAmount(data.dealerSendAmount, 18)}{' '}
-                    {data.dealerQuote.symbol}
-                  </Typography>
-                </Box>
-                <Box className="flex justify-between space-x-2 my-auto">
-                  <Typography variant="h6" className="text-stieglitz">
-                    Send
-                  </Typography>
-                  <Typography variant="h6">
-                    {getUserReadableAmount(data.dealerReceiveAmount, 18)}{' '}
-                    {data.dealerBase.symbol}
-                  </Typography>
-                </Box>
-                <Box className="flex justify-between space-x-2 my-auto">
-                  <Typography variant="h6" className="text-stieglitz">
-                    Dealer&apos;s Address
-                  </Typography>
-                  <Typography variant="h6">
-                    {smartTrim(data.dealer, 10)}
-                  </Typography>
+    data && (
+      <Dialog open={open} handleClose={handleClose} showCloseIcon>
+        <Box className="flex flex-col space-y-4">
+          <Box className="space-y-4">
+            <>
+              <Box className="flex flex-col space-y-3">
+                <Typography variant="h5" className="text-stieglitz">
+                  Settle
+                </Typography>
+                <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
+                  <Box className="flex justify-between space-x-2 my-auto">
+                    <Typography variant="h6" className="text-stieglitz">
+                      Dealer&apos;s base
+                    </Typography>
+                    <Typography variant="h6">
+                      {data.dealerBase.symbol}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between space-x-2 my-auto">
+                    <Typography variant="h6" className="text-stieglitz">
+                      Receive
+                    </Typography>
+                    <Typography variant="h6">
+                      {getUserReadableAmount(data.dealerSendAmount, 18)}{' '}
+                      {data.dealerQuote.symbol}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between space-x-2 my-auto">
+                    <Typography variant="h6" className="text-stieglitz">
+                      Send
+                    </Typography>
+                    <Typography variant="h6">
+                      {getUserReadableAmount(data.dealerReceiveAmount, 18)}{' '}
+                      {data.dealerBase.symbol}
+                    </Typography>
+                  </Box>
+                  <Box className="flex justify-between space-x-2 my-auto">
+                    <Typography variant="h6" className="text-stieglitz">
+                      Dealer&apos;s Address
+                    </Typography>
+                    <Typography variant="h6">
+                      {smartTrim(data.dealer, 10)}
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-            <Box className="flex space-x-2">
-              <CustomButton
-                size="large"
-                className="flex w-1/2"
-                disabled={!approved}
-                onClick={handleTrade}
-              >
-                Trade
-              </CustomButton>
-              <CustomButton
-                size="large"
-                className="flex w-1/2"
-                disabled={approved}
-                onClick={handleApprove}
-              >
-                Approve
-              </CustomButton>
-            </Box>
-          </>
+              <Box className="flex space-x-2">
+                <CustomButton
+                  size="large"
+                  className="flex w-1/2"
+                  disabled={!approved}
+                  onClick={handleTrade}
+                >
+                  Trade
+                </CustomButton>
+                <CustomButton
+                  size="large"
+                  className="flex w-1/2"
+                  disabled={approved}
+                  onClick={handleApprove}
+                >
+                  Approve
+                </CustomButton>
+              </Box>
+            </>
+          </Box>
         </Box>
-      </Box>
-    </Dialog>
+      </Dialog>
+    )
   );
 };
 

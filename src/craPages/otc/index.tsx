@@ -83,13 +83,13 @@ const OTC = () => {
   }, []);
 
   return (
-    <Box className="bg-black min-h-screen">
+    <Box className="bg-black h-screen">
       <AppBar active="OTC" />
       {accountAddress ? (
         <Register open={dialogState.open} handleClose={handleClose} />
       ) : null}
-      <Box className="container pt-32 mx-auto px-4 lg:px-0">
-        <Box className="grid grid-cols-12 gap-4">
+      <Box className="container pt-32 mx-auto px-4 lg:px-0 h-full">
+        <Box className="grid grid-cols-10 gap-4">
           <Box className="flex flex-col col-span-2">
             <OtcBanner bannerContent={content.banner} />
             <Typography variant="h5" className="text-stieglitz py-3">
@@ -150,17 +150,19 @@ const OTC = () => {
                   );
                 })}
               </Box>
-              <Accordion
-                summary="How does OTC options work?"
-                details={`OTC markets consist of dealer-brokers and counter-parties. 
+              <Box>
+                <Accordion
+                  summary="How does OTC options work?"
+                  details={`OTC markets consist of dealer-brokers and counter-parties. 
                 Dealer-brokers place orders to sell/buy a certain asset, while counter-parties 
                 fulfill these orders via a p2p trade with these brokers via an ongoing open-trade. 
                 Settlement prices may be made via an agreement made through negotiations taken place in chatrooms.`}
-                footer={<Link to="/portfolio">Read More</Link>}
-              />
+                  footer={<Link to="/portfolio">Read More</Link>}
+                />
+              </Box>
             </Box>
           </Box>
-          <Box className="flex flex-col col-span-8 space-y-4">
+          <Box className="flex flex-col col-span-6 space-y-4">
             {state.trade ? (
               <>
                 <Box className="flex justify-between">

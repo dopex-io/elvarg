@@ -58,7 +58,7 @@ const TableBodyCell = ({
 };
 
 const UserDeposits = () => {
-  const { userDepositsData } = useContext(OtcContext);
+  const { userDepositsData, loaded } = useContext(OtcContext);
 
   const [index, setIndex] = useState(0);
   const [page, setPage] = useState(0);
@@ -82,11 +82,11 @@ const UserDeposits = () => {
 
   useEffect(() => {
     setUserDeposits(userDepositsData);
-  }, [userDepositsData]);
+  }, [loaded, userDepositsData, userDeposits]);
 
   return (
     <Box>
-      {userDepositsData.length === 0 ? (
+      {!loaded ? (
         <Box className="bg-cod-gray px-2 pt-2 rounded-lg">
           {[0, 1, 2, 4, 5].map((i) => (
             <Skeleton
@@ -98,7 +98,7 @@ const UserDeposits = () => {
             />
           ))}
         </Box>
-      ) : (
+      ) : userDeposits.length > 0 ? (
         <TableContainer className="rounded-t-lg overflow-x-hidden border-umbra border border-b-0 max-h-80">
           <Table aria-label="rfq-table">
             <TableHead>
@@ -108,71 +108,73 @@ const UserDeposits = () => {
                 </TableHeader>
                 <TableHeader align="left">Option</TableHeader>
                 <TableHeader align="center">Amount</TableHeader>
-                <TableHeader align="right">Ask Price</TableHeader>
+                <TableHeader align="center">Total Bid/Ask</TableHeader>
                 <TableHeader align="right">Quote</TableHeader>
-                <TableHeader align="right">Dealer</TableHeader>
+                <TableHeader align="right">Counter Party</TableHeader>
                 <TableHeader align="right">Actions</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody component="tbody">
-              {userDeposits.length > 0 &&
-                userDeposits
-                  .slice(
-                    page * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
-                  )
-                  ?.map((row, i) => {
-                    return (
-                      <TableRow key={i}>
-                        <TableBodyCell align="left" textColor="white">
-                          {row.isBuy ? 'Buy' : 'Sell'}
-                        </TableBodyCell>
-                        <TableBodyCell align="left">
-                          {row.isBuy ? row.base.symbol : row.quote.symbol}
-                        </TableBodyCell>
-                        <TableBodyCell
-                          align="center"
-                          textColor="text-green-400"
+              {userDeposits
+                .slice(
+                  page * ROWS_PER_PAGE,
+                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                )
+                ?.map((row, i) => {
+                  return (
+                    <TableRow key={i}>
+                      <TableBodyCell align="left" textColor="white">
+                        {row.isBuy ? 'Buy' : 'Sell'}
+                      </TableBodyCell>
+                      <TableBodyCell align="left">
+                        {row.isBuy ? row.base.symbol : row.quote.symbol}
+                      </TableBodyCell>
+                      <TableBodyCell align="center" textColor="text-green-400">
+                        {getUserReadableAmount(row.amount, 18).toString()}
+                      </TableBodyCell>
+                      <TableBodyCell align="right" textColor="text-down-bad">
+                        {getUserReadableAmount(row.price, 18).toString()}{' '}
+                      </TableBodyCell>
+                      <TableBodyCell align="right">
+                        {row.isBuy ? row.quote.symbol : row.base.symbol}
+                      </TableBodyCell>
+                      <TableBodyCell align="right">
+                        {smartTrim(row.counterParty, 10)}
+                      </TableBodyCell>
+                      <TableBodyCell align="right">
+                        <CustomButton
+                          size="small"
+                          color="red-500"
+                          className="hover:bg-red-600"
+                          onClick={() => {
+                            setIndex(i);
+                            setDialogState({
+                              open: true,
+                              data: userDepositsData[index],
+                              handleClose,
+                            });
+                          }}
                         >
-                          {getUserReadableAmount(row.amount, 18).toString()}
-                        </TableBodyCell>
-                        <TableBodyCell align="right" textColor="text-down-bad">
-                          {getUserReadableAmount(row.price, 18).toString()}{' '}
-                        </TableBodyCell>
-                        <TableBodyCell align="right">
-                          {row.isBuy ? row.quote.symbol : row.base.symbol}
-                        </TableBodyCell>
-                        <TableBodyCell align="right">
-                          {smartTrim(row.dealer, 10)}
-                        </TableBodyCell>
-                        <TableBodyCell align="right">
-                          <CustomButton
-                            size="small"
-                            color="red-500"
-                            className="hover:bg-red-600"
-                            onClick={() => {
-                              setIndex(i);
-                              setDialogState({
-                                open: true,
-                                data: userDepositsData[index],
-                                handleClose,
-                              });
-                            }}
-                          >
-                            Withdraw
-                          </CustomButton>
-                          <Withdraw
-                            open={dialogState.open}
-                            handleClose={handleClose}
-                            data={userDepositsData[index]}
-                          />
-                        </TableBodyCell>
-                      </TableRow>
-                    );
-                  })}
+                          Withdraw
+                        </CustomButton>
+                        <Withdraw
+                          open={dialogState.open}
+                          handleClose={handleClose}
+                          data={userDepositsData[index]}
+                        />
+                      </TableBodyCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </TableContainer>
+      ) : (
+        <Box className="flex mx-auto justify-around py-8 bg-cod-gray rounded-xl border border-umbra">
+          <Typography variant="h5" className="text-stieglitz">
+            No Orders Placed
+          </Typography>
+        </Box>
       )}
       {userDeposits.length > ROWS_PER_PAGE ? (
         <TablePagination

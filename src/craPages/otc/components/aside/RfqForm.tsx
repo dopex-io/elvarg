@@ -35,6 +35,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const [validAddress, setValidAddress] = useState(false);
   const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [targetAddress, setTargetAddress] = useState('');
   const [dialogState, setDialogState] = useState({
     open: false,
     handleClose: () => {},
@@ -107,9 +108,12 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     [formik]
   );
 
-  // const handleVerifyAddress = useCallback((e) => {
-  //   setValidAddress(ethers.utils.isAddress(e.target.value));
-  // }, []);
+  const handleVerifyAddress = useCallback((e) => {
+    setValidAddress(ethers.utils.isAddress(e.target.value));
+    setTargetAddress(
+      ethers.utils.isAddress(e.target.value) ? e.target.value : ''
+    );
+  }, []);
 
   const handleBuyOrder = useCallback(
     (e) => {
@@ -172,7 +176,13 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           await sendTx(
             escrow
               .connect(signer)
-              .deposit(userQuote, userBase, depositAmount, receiveAmount)
+              .deposit(
+                userQuote,
+                userBase,
+                depositAmount,
+                receiveAmount,
+                targetAddress
+              )
           ).catch(() => {
             console.log('Failed to update db');
             setProcessing(false);
@@ -211,12 +221,13 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     validateUser,
     selectedEscrowData.selectedEscrow,
     provider,
-    formik.values,
+    formik,
     isLive,
+    sendTx,
     signer,
+    targetAddress,
     handleClose,
     accountAddress,
-    sendTx,
   ]);
 
   // Check allowance
@@ -344,7 +355,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
               classes={{ input: 'text-white text-xs text-right' }}
             />
           </Box>
-          {/* <Box className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between">
+          <Box className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between">
             <Typography variant="h6" className="text-stieglitz my-auto">
               Recipient
             </Typography>
@@ -358,7 +369,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
               className="border border-mineshaft rounded-md px-2 bg-umbra w-2/3"
               classes={{ input: 'text-white text-xs text-right' }}
             />
-          </Box> */}
+          </Box>
           <Box className="flex justify-between px-2">
             <Box className="flex space-x-2">
               <Typography variant="h6" className="text-stieglitz my-auto">
@@ -389,7 +400,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             (formik.errors.amount ||
               formik.errors.price ||
               formik.errors.base ||
-              // (!validAddress && 'Invalid Address') ||
+              (!validAddress && 'Invalid Address') ||
               '')
         ) ? (
           <Box className="border rounded-lg border-down-bad bg-down-bad bg-opacity-20 p-2">
