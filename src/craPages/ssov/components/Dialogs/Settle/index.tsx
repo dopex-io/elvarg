@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { BigNumber } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
@@ -152,7 +152,11 @@ const Settle = ({
     >
       <Box className="flex flex-col">
         <Box className="flex flex-row items-center mb-4">
-          <IconButton className="p-0 mr-3 my-auto" onClick={handleClose}>
+          <IconButton
+            className="p-0 mr-3 my-auto"
+            onClick={handleClose}
+            size="large"
+          >
             <ArrowBackIcon
               className="text-stieglitz items-center"
               fontSize="large"

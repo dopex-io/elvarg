@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, useMemo } from 'react';
 import format from 'date-fns/format';
 import { getMessageFromCode } from 'eth-rpc-errors';
 import { OptionPoolBroker__factory } from '@dopex-io/sdk';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';

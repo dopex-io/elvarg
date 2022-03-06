@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 import Typography from 'components/UI/Typography';
 

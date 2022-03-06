@@ -1,4 +1,4 @@
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';

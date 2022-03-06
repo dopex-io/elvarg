@@ -1,10 +1,10 @@
 import { useState, useLayoutEffect } from 'react';
 import Head from 'next/head';
 import { useWindowSize } from 'react-use';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import cx from 'classnames';
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import AppBar from 'components/AppBar';
 import OptionsBalances from './components/OptionBalances';

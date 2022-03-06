@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';

@@ -3,9 +3,9 @@ import { getMessageFromCode } from 'eth-rpc-errors';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
 
 import Typography from 'components/UI/Typography';
 

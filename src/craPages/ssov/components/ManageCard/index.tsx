@@ -20,12 +20,12 @@ import format from 'date-fns/format';
 import { isNaN } from 'formik';
 import axios from 'axios';
 import { BigNumber, ethers } from 'ethers';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Checkbox from '@mui/material/Checkbox';
+import Button from '@mui/material/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
@@ -381,12 +381,9 @@ const ManageCard = () => {
       : getUserReadableAmount(userEpochDeposits, 18).toString();
 
   // Handles strikes & deposit amounts
-  const handleSelectStrikes = useCallback(
-    (event: React.ChangeEvent<{ value: unknown }>) => {
-      setSelectedStrikeIndexes((event.target.value as number[]).sort());
-    },
-    []
-  );
+  const handleSelectStrikes = useCallback((event) => {
+    setSelectedStrikeIndexes((event.target.value as number[]).sort());
+  }, []);
 
   const vaultShare = useMemo(() => {
     return (
@@ -588,6 +585,7 @@ const ManageCard = () => {
     totalDepositAmount,
     updateAssetBalances,
     updateSsovUserData,
+    chainId,
   ]);
 
   // Handle Deposit
@@ -768,6 +766,7 @@ const ManageCard = () => {
     ssovData,
     ssovToken,
     nativeSSOV1inchRouter,
+    chainId,
   ]);
 
   const checkDEXAggregatorStatus = useCallback(async () => {
@@ -830,6 +829,7 @@ const ManageCard = () => {
     spender,
     signer,
     ssovTokenName,
+    chainId,
   ]);
 
   // Updates user token balance
@@ -867,6 +867,7 @@ const ManageCard = () => {
     userAssetBalances,
     depositTokenName,
     isPut,
+    chainId,
   ]);
 
   return (
