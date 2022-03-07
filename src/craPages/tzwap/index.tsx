@@ -183,7 +183,7 @@ const Tzwap = () => {
     if (!tzwapRouter || !provider || Object.keys(ADDRESS_TO_TOKEN).length === 0)
       return;
 
-    const ordersCount = await tzwapRouter.orderCount();
+    const ordersCount = (await tzwapRouter.orderCount()).toNumber();
     const ids = Array.from(Array(ordersCount).keys());
     const promises = await Promise.all(ids.map((i) => tzwapRouter.orders(i)));
     const _orders: Order[] = [];
