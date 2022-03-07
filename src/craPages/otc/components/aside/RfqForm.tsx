@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
@@ -9,18 +9,17 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 import * as yup from 'yup';
 import { ethers } from 'ethers';
+import Input from '@material-ui/core/Input';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import Input from '@material-ui/core/Input';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
+import InfoPopover from 'components/UI/InfoPopover';
 import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
-
-import InfoPopover from 'components/UI/InfoPopover';
 
 import useSendTx from 'hooks/useSendTx';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -29,7 +28,8 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const sendTx = useSendTx();
 
   const { accountAddress, provider, signer } = useContext(WalletContext);
-  const { validateUser, user, selectedEscrowData } = useContext(OtcContext);
+  const { validateUser, user, selectedEscrowData, loaded } =
+    useContext(OtcContext);
 
   const [selection, setSelection] = useState('');
   const [validAddress, setValidAddress] = useState(false);
@@ -300,7 +300,6 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
         </Box>
         <Box className="space-y-2 py-3">
           <Box className="flex justify-between bg-umbra rounded-lg mx-2 border border-mineshaft">
-            {/* {console.log(selection)} */}
             <Select
               fullWidth
               disableUnderline
@@ -445,6 +444,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
               size="medium"
               className="flex w-full"
               onClick={handleApprove}
+              disabled={!loaded}
             >
               <Typography variant="h6">Approve</Typography>
             </CustomButton>
@@ -456,7 +456,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             onClick={() =>
               setDialogState((prevState) => ({ ...prevState, open: true }))
             }
-            disabled={!accountAddress}
+            disabled={!accountAddress || !loaded}
           >
             <Typography variant="h6">
               {!accountAddress ? 'Please Login' : 'Submit'}

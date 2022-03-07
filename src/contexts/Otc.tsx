@@ -66,7 +66,7 @@ interface OtcContractsInterface {
 
 // db
 interface OtcUserData {
-  orders: DocumentData[];
+  orders: any;
   users: DocumentData[];
   trades: DocumentData[];
   userTrades: DocumentData[];
@@ -281,45 +281,46 @@ export const OtcProvider = (props) => {
     }));
   }, [accountAddress, chainId, contractAddresses, loaded, provider]);
 
+  const getOtcData = useCallback(async () => {
+    if (!db || !provider || !accountAddress) return;
+
+    const orders: any = (await getDocs(collection(db, 'orders'))).docs.flatMap(
+      (doc) => ({ id: doc.id, data: doc.data() })
+    );
+
+    const usersDocs: DocumentData[] = (
+      await getDocs(collection(db, 'users'))
+    ).docs.flatMap((doc) => doc);
+
+    const userDoc = usersDocs.find((user) => user.id === accountAddress);
+
+    const user = userDoc
+      ? {
+          accountAddress: userDoc.id,
+          username: userDoc.data().username,
+        }
+      : undefined;
+
+    const userTrades: any = (
+      await getDocs(collection(db, `users/${accountAddress}/trades`))
+    ).docs.flatMap((doc) => doc.data());
+
+    setState((prevState) => ({
+      ...prevState,
+      orders,
+      users: usersDocs.map((user) => user.data()),
+      user,
+      userTrades,
+    }));
+  }, [accountAddress, provider]);
+
   useEffect(() => {
     loadContractData();
   }, [loadContractData]);
 
   useEffect(() => {
-    const getOtcData = async () => {
-      if (!db || !provider || !accountAddress) return;
-
-      const orders: DocumentData[] = (
-        await getDocs(collection(db, 'orders'))
-      ).docs.flatMap((doc) => doc.data());
-
-      const usersDocs: DocumentData[] = (
-        await getDocs(collection(db, 'users'))
-      ).docs.flatMap((doc) => doc);
-
-      const userDoc = usersDocs.find((user) => user.id === accountAddress);
-
-      const user = userDoc
-        ? {
-            accountAddress: userDoc.id,
-            username: userDoc.data().username,
-          }
-        : undefined;
-
-      const userTrades: any = (
-        await getDocs(collection(db, `users/${accountAddress}/trades`))
-      ).docs.flatMap((doc) => doc.data());
-
-      setState((prevState) => ({
-        ...prevState,
-        orders,
-        users: usersDocs.map((user) => user.data()),
-        user,
-        userTrades,
-      }));
-    };
     getOtcData();
-  }, [provider, accountAddress]);
+  }, [getOtcData]);
 
   const validateUser = useCallback(async () => {
     if (!accountAddress) return;

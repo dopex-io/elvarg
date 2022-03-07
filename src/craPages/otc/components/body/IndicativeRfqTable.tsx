@@ -19,7 +19,8 @@ import { collection, getDocs } from 'firebase/firestore';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
-import CloseRfqDialog from '../dialogs/CloseRfqDialog';
+import CloseRfqDialog from '../dialogs/CloseRfqDialog'; // Move to chatroom
+import Bid from '../dialogs/Bid';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -92,8 +93,11 @@ const IndicativeRfqTable = () => {
   );
 
   const filteredOrders = useMemo(() => {
-    return orders?.filter((order) => {
-      return order.timestamp.seconds * 1000 > new Date().getTime() - 604800000; // Less than a week old
+    return orders.filter((order) => {
+      return (
+        order.data.timestamp.seconds * 1000 >
+        new Date().getTime() - 604800 * 1000
+      ); // Less than a week old
     });
   }, [orders]);
 
@@ -136,7 +140,7 @@ const IndicativeRfqTable = () => {
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
               <TableHeader align="center">Qty</TableHeader>
-              <TableHeader align="center">Ask</TableHeader>
+              <TableHeader align="center">Bid/Ask</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
               <TableHeader align="right">Dealer</TableHeader>
               <TableHeader align="right">Actions</TableHeader>
@@ -152,38 +156,38 @@ const IndicativeRfqTable = () => {
                 ?.map((row, i) => (
                   <TableRow key={i}>
                     <TableBodyCell align="left" textColor="white">
-                      {row.isBuy ? 'Buy' : 'Sell'}
+                      {row.data.isBuy ? 'Buy' : 'Sell'}
                     </TableBodyCell>
                     <TableBodyCell align="left">
-                      {row.isFulfilled ? 'Fulfilled' : 'Pending'}
+                      {row.data.isFulfilled ? 'Fulfilled' : 'Pending'}
                     </TableBodyCell>
                     <TableBodyCell align="left" textColor="white">
                       {format(
-                        new Date(Number(row.timestamp.seconds) * 1000),
+                        new Date(Number(row.data.timestamp.seconds) * 1000),
                         'd LLL yy'
                       )}
                     </TableBodyCell>
-                    <TableBodyCell align="left">{row.base}</TableBodyCell>
+                    <TableBodyCell align="left">{row.data.base}</TableBodyCell>
                     <TableBodyCell align="center" textColor="text-green-400">
-                      {row.amount}
+                      {row.data.amount}
                     </TableBodyCell>
                     <TableBodyCell
                       align="center"
                       textColor="text-down-bad"
                       fill="bg-umbra"
                     >
-                      {row.price}
+                      {row.data.price}
                     </TableBodyCell>
                     <TableBodyCell align="right" fill="bg-umbra">
-                      {row.quote}
+                      {row.data.quote}
                     </TableBodyCell>
                     <TableBodyCell align="right">
                       <Box className="flex-col">
                         <Typography variant="h6">
-                          {smartTrim(row.dealer, 10)}
+                          {smartTrim(row.data.dealer, 10)}
                         </Typography>
                         <Typography variant="h6" className="text-stieglitz">
-                          {smartTrim(row.dealerAddress, 10)}
+                          {smartTrim(row.data.dealerAddress, 10)}
                         </Typography>
                       </Box>
                     </TableBodyCell>
@@ -194,10 +198,10 @@ const IndicativeRfqTable = () => {
                           key="transfer-options"
                           color="umbra"
                           onClick={() => {
-                            navigateToChat(row);
+                            navigateToChat(row.data);
                           }}
                           className="text-white rounded hover:bg-mineshaft"
-                          disabled={row.isFulfilled}
+                          disabled={row.data.isFulfilled}
                         >
                           Chat
                         </CustomButton>
@@ -217,42 +221,20 @@ const IndicativeRfqTable = () => {
                         onClose={handleCloseMenu}
                         classes={{ paper: 'bg-umbra text-white' }}
                       >
-                        {/* <MenuItem
+                        <MenuItem
                           className="px-2 py-1"
                           onClick={() =>
                             setDialogState((prevState) => ({
                               ...prevState,
                               open: true,
+                              data: row,
                             }))
-                          }
-                          disabled
-                        >
-                          Close
-                        </MenuItem> */}
-                        <MenuItem
-                          className="px-2 py-1"
-                          onClick={() => {}} //todo: place bids and display highest bid in table?
-                          disabled
+                          } // todo: place bids and display highest bid in table?
                         >
                           Bid
                         </MenuItem>
                       </Menu>
-                      {/* <CustomButton
-                    color="umbra"
-                    size="small"
-                    key="bid"
-                    onClick={() =>
-                      setDialogState((prevState) => ({
-                        ...prevState,
-                        open: true,
-                      }))
-                    }
-                    className="text-white rounded px-3 py-1"
-                    disabled={row.isFulfilled}
-                  >
-                    Bid
-                  </CustomButton> */}
-                      <CloseRfqDialog
+                      <Bid
                         open={dialogState.open}
                         handleClose={handleClose}
                         data={row}
