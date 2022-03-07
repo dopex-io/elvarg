@@ -69,7 +69,6 @@ const IndicativeRfqTable = () => {
 
   const navigate = useNavigate();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogState, setDialogState] = useState({
     open: false,
     handleClose: () => {},
@@ -83,11 +82,6 @@ const IndicativeRfqTable = () => {
   ) => {
     setPage(newPage);
   };
-
-  const handleClickMenu = useCallback(
-    (event) => setAnchorEl(event.currentTarget),
-    []
-  );
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -120,8 +114,6 @@ const IndicativeRfqTable = () => {
     [navigate, validateUser]
   );
 
-  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
-
   return (
     <Box>
       <TableContainer className="rounded-t-lg overflow-x-hidden border-umbra border border-b-0 max-h-80">
@@ -137,7 +129,7 @@ const IndicativeRfqTable = () => {
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
               <TableHeader align="center">Qty</TableHeader>
-              <TableHeader align="center">Bid/Ask</TableHeader>
+              <TableHeader align="center">Total Bid/Ask</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
               <TableHeader align="right">Dealer</TableHeader>
               <TableHeader align="right">Actions</TableHeader>

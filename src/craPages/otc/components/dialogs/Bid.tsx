@@ -91,7 +91,10 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
         doc(db, `orders/${data.id}/bids`, user?.accountAddress)
       );
 
-      setDisabled(!!ref.data());
+      setDisabled(
+        // !!ref.data() ||
+        user?.accountAddress === data.data.dealerAddress || !user
+      );
     })();
   }, [data, user]);
 
@@ -104,7 +107,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
   return (
     accountAddress && (
       <Dialog open={open} handleClose={handleClose} showCloseIcon>
-        <Box className="space-y-4 flex flex-col">
+        <Box className="space-y-2 flex flex-col">
           <Typography variant="h4">Bid</Typography>
           <Box className="flex justify-between mx-2">
             <Typography variant="h6" className="text-stieglitz">
@@ -256,11 +259,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
             color="primary"
             size="medium"
             onClick={handleSubmit}
-            disabled={
-              disabled ||
-              user?.accountAddress === data.data.dealerAddress ||
-              !user
-            }
+            disabled={disabled}
           >
             Place Bid
           </CustomButton>

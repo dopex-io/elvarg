@@ -132,7 +132,7 @@ const UserDeposits = () => {
                       <TableBodyCell align="center" textColor="text-green-400">
                         {getUserReadableAmount(row.amount, 18).toString()}
                       </TableBodyCell>
-                      <TableBodyCell align="right" textColor="text-down-bad">
+                      <TableBodyCell align="center" textColor="text-down-bad">
                         {getUserReadableAmount(row.price, 18).toString()}{' '}
                       </TableBodyCell>
                       <TableBodyCell align="right">
