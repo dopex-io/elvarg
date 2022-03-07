@@ -6,10 +6,6 @@ import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import IconButton from '@material-ui/core/IconButton';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import format from 'date-fns/format';
 import TableFooter from '@material-ui/core/TableFooter';
 import Box from '@material-ui/core/Box';
@@ -21,6 +17,7 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
 import CloseRfqDialog from '../dialogs/CloseRfqDialog'; // Move to chatroom
 import Bid from '../dialogs/Bid';
+import CustomMenu from '../CustomMenu';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -205,35 +202,8 @@ const IndicativeRfqTable = () => {
                         >
                           Chat
                         </CustomButton>
-                        <IconButton
-                          size="small"
-                          onClick={handleClickMenu}
-                          className="text-white rounded px-0 ml-1 "
-                          // disabled={row.isFulfilled}
-                          disableRipple
-                        >
-                          <MoreVertIcon className="fill-current text-white" />
-                        </IconButton>
+                        <CustomMenu data={row} actionText={'Bid'} />
                       </Box>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleCloseMenu}
-                        classes={{ paper: 'bg-umbra text-white' }}
-                      >
-                        <MenuItem
-                          className="px-2 py-1"
-                          onClick={() =>
-                            setDialogState((prevState) => ({
-                              ...prevState,
-                              open: true,
-                              data: row,
-                            }))
-                          } // todo: place bids and display highest bid in table?
-                        >
-                          Bid
-                        </MenuItem>
-                      </Menu>
                       <Bid
                         open={dialogState.open}
                         handleClose={handleClose}
