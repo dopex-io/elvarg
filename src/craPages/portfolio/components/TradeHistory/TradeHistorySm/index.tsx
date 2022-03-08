@@ -1,6 +1,6 @@
 import format from 'date-fns/format';
-import Box from '@material-ui/core/Box';
-import LaunchIcon from '@material-ui/icons/Launch';
+import Box from '@mui/material/Box';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 import Typography from 'components/UI/Typography';
 

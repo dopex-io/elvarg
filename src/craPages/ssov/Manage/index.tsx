@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import AppBar from 'components/AppBar';
 import Description from '../components/Description';
@@ -11,7 +11,6 @@ import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
 
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
-import { BnbConversionProvider } from 'contexts/BnbConversion';
 
 const Manage = () => {
   const { asset, type } = useParams();
@@ -35,29 +34,27 @@ const Manage = () => {
     );
 
   return (
-    <BnbConversionProvider>
-      <Box className="overflow-x-hidden bg-black h-screen">
-        <Head>
-          <title>SSOV | Dopex</title>
-        </Head>
-        <AppBar active="SSOV" />
-        <Box className="py-12 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-          <Box className="flex flex-col mt-20">
-            <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
-              <Description
-                ssovData={ssovData}
-                ssovEpochData={ssovEpochData}
-                ssovUserData={ssovUserData}
-                type={selectedSsov.type}
-              />
-              <ManageCard />
-            </Box>
-            {ssovUserData === undefined ? null : <ExerciseList />}
-            {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
+    <Box className="overflow-x-hidden bg-black h-screen">
+      <Head>
+        <title>SSOV | Dopex</title>
+      </Head>
+      <AppBar active="SSOV" />
+      <Box className="py-12 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <Box className="flex flex-col mt-20">
+          <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
+            <Description
+              ssovData={ssovData}
+              ssovEpochData={ssovEpochData}
+              ssovUserData={ssovUserData}
+              type={selectedSsov.type}
+            />
+            <ManageCard />
           </Box>
+          {ssovUserData === undefined ? null : <ExerciseList />}
+          {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
         </Box>
       </Box>
-    </BnbConversionProvider>
+    </Box>
   );
 };
 

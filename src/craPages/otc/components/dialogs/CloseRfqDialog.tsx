@@ -2,9 +2,9 @@ import { useCallback, useEffect, useContext, useState } from 'react';
 // import { useFormik } from 'formik';
 // import noop from 'lodash/noop';
 // import * as yup from 'yup';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-// import Input from '@material-ui/core/Input';
+// import Input from '@mui/material/Input';
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';

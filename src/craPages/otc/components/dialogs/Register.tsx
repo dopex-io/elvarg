@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useContext, useCallback } from 'react';
-import Box from '@material-ui/core/Box';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import noop from 'lodash/noop';

@@ -1,8 +1,8 @@
 import { useState, useContext, useMemo, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Box from '@material-ui/core/Box';
-import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
-import HistoryIcon from '@material-ui/icons/History';
+import Box from '@mui/material/Box';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import HistoryIcon from '@mui/icons-material/History';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';

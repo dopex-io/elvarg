@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import Link from '@material-ui/core/Link';
-import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 import { PoolsContext } from 'contexts/Pools';
 import { AssetsContext } from 'contexts/Assets';
@@ -69,6 +69,7 @@ function LendingCard({ className }: { className?: string }) {
           <Link
             target="_blank"
             href="https://docs.dopex.io/architecture-overview#margin"
+            underline="hover"
           >
             Learn More
           </Link>

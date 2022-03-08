@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';

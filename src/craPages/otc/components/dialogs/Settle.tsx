@@ -1,6 +1,6 @@
 import { useState, useCallback, useContext, useEffect } from 'react';
 import { BigNumber } from 'ethers';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';

@@ -1,8 +1,8 @@
 import { useState, useContext } from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
-import Box from '@material-ui/core/Box';
-import Menu from '@material-ui/core/Menu';
-import Button from '@material-ui/core/Button';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+import Menu from '@mui/material/Menu';
+import Button from '@mui/material/Button';
 
 const LegacyEpochsDropDown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -40,7 +40,7 @@ const LegacyEpochsDropDown = () => {
         <Button
           size="medium"
           color="secondary"
-          className="text-white text-lg h-10 hover:text-gray-200 hover:bg-mineshaft pb-3 bg-mineshaft px-8"
+          className="text-white text-md h-10 p-3 hover:text-gray-200 hover:bg-mineshaft bg-mineshaft"
           onClick={handleClick}
         >
           LEGACY EPOCHS

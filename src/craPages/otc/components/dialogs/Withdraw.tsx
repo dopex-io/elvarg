@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react';
 import { BigNumber } from 'ethers';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { Escrow__factory } from '@dopex-io/sdk';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 

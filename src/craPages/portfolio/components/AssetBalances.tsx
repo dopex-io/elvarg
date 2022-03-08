@@ -1,11 +1,11 @@
 import { useContext } from 'react';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
-import TableHead from '@material-ui/core/TableHead';
-import Box from '@material-ui/core/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableRow from '@mui/material/TableRow';
+import TableHead from '@mui/material/TableHead';
+import Box from '@mui/material/Box';
 
 import AddTokenButton from 'components/AddTokenButton';
 import Typography from '../../../components/UI/Typography';

@@ -1,14 +1,14 @@
 import { useState, useCallback, useContext, useEffect } from 'react';
-import Box from '@material-ui/core/Box';
-import TableContainer from '@material-ui/core/TableContainer';
-import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
-import Skeleton from '@material-ui/lab/Skeleton';
-import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from '@material-ui/core/TablePagination/TablePaginationActions';
+import Box from '@mui/material/Box';
+import TableContainer from '@mui/material/TableContainer';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import Skeleton from '@mui/material/Skeleton';
+import TablePagination from '@mui/material/TablePagination';
+import TablePaginationActions from '@mui/material/TablePagination/TablePaginationActions';
 
 import Typography from 'components/UI/Typography';
 
@@ -93,7 +93,7 @@ const UserDeposits = () => {
           {[0, 1, 2, 4, 5].map((i) => (
             <Skeleton
               key={i}
-              variant="rect"
+              variant="rectangular"
               component={Box}
               animation="wave"
               className="rounded-md bg-umbra mb-2 py-4"

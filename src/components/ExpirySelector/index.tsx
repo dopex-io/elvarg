@@ -2,10 +2,10 @@ import { useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import format from 'date-fns/format';
 import addDays from 'date-fns/addDays';
 import isSameDay from 'date-fns/isSameDay';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Box from '@material-ui/core/Box';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Dopex__factory } from '@dopex-io/sdk';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -96,8 +96,7 @@ export default function ExpirySelector(props: ExpirySelectorProps) {
         <CustomButton
           size="medium"
           color="umbra"
-          className="w-40"
-          classes={{ label: 'uppercase' }}
+          className="w-40 uppercase"
           aria-controls="expiry-menu"
           aria-haspopup="true"
           onClick={handleClick}

@@ -1,15 +1,15 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 import format from 'date-fns/format';
-import TableFooter from '@material-ui/core/TableFooter';
-import Box from '@material-ui/core/Box';
-import TablePagination from '@material-ui/core/TablePagination';
+import TableFooter from '@mui/material/TableFooter';
+import Box from '@mui/material/Box';
+import TablePagination from '@mui/material/TablePagination';
 import { collection, getDocs } from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';

@@ -1,7 +1,7 @@
 import { useEffect, useContext, useState } from 'react';
 import Head from 'next/head';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 
 import AppBar from 'components/AppBar';

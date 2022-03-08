@@ -1,14 +1,14 @@
 import { useCallback, useState } from 'react';
 import format from 'date-fns/format';
-import { withStyles } from '@material-ui/core/styles';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Tooltip from '@material-ui/core/Tooltip';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import withStyles from '@mui/styles/withStyles';
+import TableRow from '@mui/material/TableRow';
+import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { ERC20 } from '@dopex-io/sdk';
 import { BigNumber, utils as ethersUtils } from 'ethers';
 
@@ -182,6 +182,7 @@ const OptionsTableData = (props: OptionTableDataProps) => {
             aria-haspopup="true"
             onClick={handleClickMenu}
             className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft hidden sm:flex"
+            size="large"
           >
             <MoreVertIcon className="fill-current text-white" />
           </IconButton>

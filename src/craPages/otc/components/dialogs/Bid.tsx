@@ -1,9 +1,9 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
 import * as yup from 'yup';
-import Input from '@material-ui/core/Input';
+import Input from '@mui/material/Input';
 import {
   collection,
   doc,

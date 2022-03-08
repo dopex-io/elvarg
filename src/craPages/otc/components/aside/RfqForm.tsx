@@ -2,14 +2,14 @@ import { useState, useEffect, useCallback, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
-import Box from '@material-ui/core/Box';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Box from '@mui/material/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import CircularProgress from '@mui/material/CircularProgress';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 import * as yup from 'yup';
 import { ethers } from 'ethers';
-import Input from '@material-ui/core/Input';
+import Input from '@mui/material/Input';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -22,7 +22,6 @@ import { OtcContext } from 'contexts/Otc';
 
 import useSendTx from 'hooks/useSendTx';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { async } from '@firebase/util';
 
 const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const sendTx = useSendTx();
@@ -356,11 +355,9 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           <Box className="flex justify-between bg-umbra rounded-lg mx-2 border border-mineshaft">
             <Select
               fullWidth
-              disableUnderline
               value={selection.address || ''}
               label="option"
-              classes={{ icon: 'text-white' }}
-              className="px-2"
+              classes={{ icon: 'text-white', select: 'py-1 px-2' }}
               MenuProps={{
                 classes: { paper: 'bg-cod-gray p-0' },
               }}
@@ -408,21 +405,27 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
               classes={{ input: 'text-white text-xs text-right' }}
             />
           </Box>
-          <Box className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between">
-            <Typography variant="h6" className="text-stieglitz my-auto">
-              Recipient
-            </Typography>
-            <Input
-              disableUnderline
-              fullWidth
-              disabled={!isLive}
-              placeholder={isLive ? 'Enter Address' : 'Disabled for RFQs'}
-              type="text"
-              onChange={handleVerifyAddress}
-              className="border border-mineshaft rounded-md px-2 bg-umbra w-2/3"
-              classes={{ input: 'text-white text-xs text-right' }}
-            />
-          </Box>
+          {isLive ? (
+            <Box className="bg-cod-gray p-2 rounded-xl space-x-2 flex justify-between">
+              <Typography variant="h6" className="text-stieglitz my-auto">
+                Recipient
+              </Typography>
+              <Input
+                disableUnderline
+                fullWidth
+                disabled={!isLive}
+                placeholder={isLive ? 'Enter Address' : 'Disabled for RFQs'}
+                type="text"
+                onChange={handleVerifyAddress}
+                className="border border-mineshaft rounded-md px-2 bg-umbra w-2/3"
+                classes={{
+                  input: 'text-white text-xs text-right',
+                  disabled: 'text-white',
+                }}
+              />
+            </Box>
+          ) : null}
+
           <Box className="flex justify-between p-2">
             <Typography variant="h6" className="text-stieglitz">
               Order Type

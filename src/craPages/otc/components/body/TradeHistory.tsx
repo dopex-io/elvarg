@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import TableContainer from '@material-ui/core/TableContainer';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell, { TableCellProps } from '@material-ui/core/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import cx from 'classnames';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@mui/material/Paper';
 import format from 'date-fns/format';
 import { collection, getDocs } from '@firebase/firestore';
 
