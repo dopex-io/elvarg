@@ -51,7 +51,6 @@ export default function EpochSelector({ className }: { className?: string }) {
             MenuProps={{
               classes: { paper: 'bg-umbra' },
             }}
-            disableUnderline
             classes={{ icon: 'text-white', select: 'px-3 py-2' }}
             placeholder={'Select epoch'}
           >

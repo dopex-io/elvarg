@@ -964,7 +964,6 @@ const ManageCard = () => {
                       fullWidth
                       multiple
                       displayEmpty
-                      disableUnderline
                       value={selectedStrikeIndexes}
                       onChange={handleSelectStrikes}
                       input={<Input />}
@@ -1021,7 +1020,6 @@ const ManageCard = () => {
                         className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
                         fullWidth
                         displayEmpty
-                        disableUnderline
                         value={[denominationTokenName]}
                         onChange={(e) => {
                           const symbol = e.target.value;
