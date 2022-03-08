@@ -461,12 +461,11 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           />
         </Box>
         {Boolean(
-          isLive &&
-            (formik.errors.amount ||
-              formik.errors.price ||
-              formik.errors.base ||
-              (!validAddress && 'Invalid Address') ||
-              '')
+          formik.errors.amount ||
+            formik.errors.price ||
+            formik.errors.base ||
+            (isLive && !validAddress && 'Invalid Address') ||
+            ''
         ) ? (
           <Box className="border rounded-lg border-down-bad bg-down-bad bg-opacity-20 p-2">
             <Typography
@@ -522,7 +521,13 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             onClick={() =>
               setDialogState((prevState) => ({ ...prevState, open: true }))
             }
-            disabled={!accountAddress || !loaded}
+            disabled={
+              !accountAddress ||
+              !loaded ||
+              Boolean(formik.errors.price) ||
+              Boolean(formik.errors.amount) ||
+              Boolean(formik.errors.base)
+            }
           >
             <Typography variant="h6">
               {!accountAddress ? 'Please Login' : 'Submit'}

@@ -59,6 +59,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
   const [bids] = useCollectionData(q, { idField: 'id' });
 
   const handleSubmit = useCallback(async () => {
+    if (!user) return;
     const params = {
       counterParty: user?.username,
       counterPartyAddress: user?.accountAddress,
@@ -97,6 +98,12 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
       );
     })();
   }, [data, user]);
+
+  useEffect(() => {
+    (async () => {
+      setDisabled(!user);
+    })();
+  });
 
   const handleChange = useCallback(
     (e) => {

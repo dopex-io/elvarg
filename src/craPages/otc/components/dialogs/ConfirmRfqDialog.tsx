@@ -80,7 +80,7 @@ const ConfirmRfqDialog = ({
         if (
           doc.data().base === base &&
           doc.data().quote === quote &&
-          doc.data().dealer === user.username &&
+          doc.data().dealer === user?.username &&
           doc.data().amount === baseAmount &&
           doc.data().price === quoteAmount &&
           doc.data().isBuy === data.isBuy
@@ -88,8 +88,8 @@ const ConfirmRfqDialog = ({
           docId = doc.id;
       });
 
-      if (docId) setDisabled(true);
-      else setDisabled(false);
+      if (docId) setDisabled(true || !user);
+      else setDisabled(false || !user);
     })();
   }, [data, data.base.symbol, data.quote.symbol, user]);
 
@@ -119,7 +119,7 @@ const ConfirmRfqDialog = ({
               Quantity
             </Typography>
             <Typography variant="h6">
-              {data.amount} {'doTokens'}
+              {Number(data.amount)} {'doTokens'}
             </Typography>
           </Box>
           <Box className="flex justify-between">
@@ -127,7 +127,7 @@ const ConfirmRfqDialog = ({
               Price
             </Typography>
             <Typography variant="h6">
-              {data.price} {data.quote.symbol}
+              {Number(data.price)} {data.quote.symbol}
             </Typography>
           </Box>
           <Box className="flex justify-between">
@@ -152,7 +152,7 @@ const ConfirmRfqDialog = ({
             !data.base || !data.amount || !data.price || !data.quote || disabled
           }
         >
-          {disabled ? 'Created' : 'Confirm'}
+          {user ? (disabled ? 'Created' : 'Confirm') : 'Login'}
         </CustomButton>
       </Box>
     </Dialog>
