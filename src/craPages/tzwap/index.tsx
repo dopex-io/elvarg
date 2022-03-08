@@ -122,7 +122,7 @@ const Tzwap = () => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const [selectedTickSize, setSelectedTickSize] = useState<number>(0.1);
+  const [selectedTickSize, setSelectedTickSize] = useState<number>(3);
   const [selectedInterval, setSelectedInterval] = useState<string>('Min');
   const [quote, setQuote] = useState<object>({});
   const [orders, setOrders] = useState<Order[]>([]);
@@ -284,7 +284,7 @@ const Tzwap = () => {
 
   const minFees: number = useMemo(() => {
     if (tickInUsd === 0) return 0;
-    return (100 * 5) / tickInUsd;
+    return (100 * 7) / tickInUsd;
   }, [tickInUsd]);
 
   const maxFees: number = useMemo(() => {
@@ -293,7 +293,7 @@ const Tzwap = () => {
 
   const minFeesInUsd: number = useMemo(() => {
     return (tickInUsd * minFees) / 100;
-  }, [selectedTickSize]);
+  }, [tickInUsd, minFees]);
 
   const estEndDate: Date = useMemo(() => {
     const now = new Date(
@@ -374,6 +374,7 @@ const Tzwap = () => {
   const submitButtonProps = useMemo(() => {
     const disabled = Boolean(
       fromTokenName === toTokenName ||
+        minFees > 20 ||
         !amount ||
         amount >=
           getUserReadableAmount(
@@ -401,6 +402,7 @@ const Tzwap = () => {
     else if (fromTokenName === toTokenName)
       children = 'Tokens must be different';
     else if (amount === 0) children = 'Enter an amount';
+    else if (minFees > 20) children = 'Your order is too small to sustain fees';
 
     return {
       disabled,
@@ -416,6 +418,7 @@ const Tzwap = () => {
     toTokenName,
     chainId,
     userTokenBalance,
+    minFees,
   ]);
 
   useEffect(() => {
