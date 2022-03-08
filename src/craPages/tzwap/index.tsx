@@ -1313,7 +1313,11 @@ const Tzwap = () => {
                     isFromTokenSelectorVisible ? setFromToken : setToToken
                   }
                   isInDialog={false}
-                  tokensToExclude={isFromTokenSelectorVisible ? [] : ['ETH']}
+                  tokensToExclude={
+                    isFromTokenSelectorVisible
+                      ? ['MAGIC', '2CRV']
+                      : ['ETH', 'MAGIC', '2CRV']
+                  }
                 />
               </Box>
             )}
