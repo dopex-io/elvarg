@@ -284,7 +284,7 @@ const Tzwap = () => {
 
   const minFees: number = useMemo(() => {
     if (tickInUsd === 0) return 0;
-    return (100 * 3) / tickInUsd;
+    return (100 * 5) / tickInUsd;
   }, [tickInUsd]);
 
   const maxFees: number = useMemo(() => {
