@@ -248,6 +248,7 @@ const Tzwap = () => {
   const handleKill = useCallback(async () => {
     try {
       await sendTx(tzwapRouter.connect(signer).killOrder(openOrder));
+      setOpenOrder(null);
       updateOrders();
       updateAssetBalances();
     } catch (err) {
@@ -349,6 +350,7 @@ const Tzwap = () => {
           }
         )
       );
+      setActiveTab(1);
       updateOrders();
       updateAssetBalances();
     } catch (err) {
