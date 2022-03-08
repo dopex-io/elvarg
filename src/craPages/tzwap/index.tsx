@@ -284,7 +284,7 @@ const Tzwap = () => {
 
   const minFees: number = useMemo(() => {
     if (tickInUsd === 0) return 0;
-    return (100 * 7) / tickInUsd;
+    return (100 * 5) / tickInUsd;
   }, [tickInUsd]);
 
   const maxFees: number = useMemo(() => {
@@ -746,7 +746,7 @@ const Tzwap = () => {
                             >
                               {[
                                 0.1, 0.2, 0.3, 0.4, 0.5, 1, 1.5, 2, 3, 4, 5, 6,
-                                7, 8, 9, 10,
+                                7, 8, 9, 10, 25,
                               ].map((tickSize, index) => (
                                 <MenuItem
                                   key={index}
