@@ -15,7 +15,6 @@ import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
-import InfoPopover from 'components/UI/InfoPopover';
 import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -23,6 +22,7 @@ import { OtcContext } from 'contexts/Otc';
 
 import useSendTx from 'hooks/useSendTx';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { async } from '@firebase/util';
 
 const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const sendTx = useSendTx();
@@ -31,7 +31,11 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const { validateUser, user, selectedEscrowData, loaded } =
     useContext(OtcContext);
 
-  const [selection, setSelection] = useState('');
+  const [selection, setSelection] = useState<{
+    address: string;
+    symbol: string;
+  }>({ address: '', symbol: '' });
+  const [selectionIndex, setSelectionIndex] = useState(0);
   const [validAddress, setValidAddress] = useState(false);
   const [approved, setApproved] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -72,14 +76,18 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
 
   const handleTokenSelection = useCallback(
     (e) => {
-      const selection = selectedEscrowData.bases.find(
+      const selected = selectedEscrowData.bases.find(
         (value) => value.address === e.target.value
       );
-      setSelection(e.target.value);
+
+      const index = selectedEscrowData.bases.indexOf(selected);
+
+      setSelection(selected);
+      setSelectionIndex(index);
 
       if (formik.values.isBuy) {
         formik.setFieldValue('base', e.target.value);
-        formik.setFieldValue('baseSymbol', selection.symbol);
+        formik.setFieldValue('baseSymbol', selected.symbol);
 
         formik.setFieldValue('quote', selectedEscrowData.quote);
         formik.setFieldValue('quoteSymbol', selectedEscrowData.symbol);
@@ -88,10 +96,15 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
         formik.setFieldValue('baseSymbol', selectedEscrowData.symbol);
 
         formik.setFieldValue('quote', e.target.value);
-        formik.setFieldValue('quoteSymbol', selection.symbol);
+        formik.setFieldValue('quoteSymbol', selected.symbol);
       }
     },
-    [formik, selectedEscrowData]
+    [
+      formik,
+      selectedEscrowData.bases,
+      selectedEscrowData.quote,
+      selectedEscrowData.symbol,
+    ]
   );
 
   const handleChangeAmount = useCallback(
@@ -118,6 +131,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const handleBuyOrder = useCallback(
     (e) => {
       formik.setFieldValue('isBuy', e.target.checked);
+      console.log(formik.values.base, formik.values.quote);
     },
     [formik]
   );
@@ -127,9 +141,16 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   }, []);
 
   const handleApprove = useCallback(async () => {
-    const approveAmount = getContractReadableAmount(formik.values.amount, 18);
+    if (!formik.values.quote || !formik.values.base) return;
+
+    const approveAmount = getContractReadableAmount(
+      formik.values.isBuy ? formik.values.price : formik.values.amount,
+      18
+    );
     const asset = ERC20__factory.connect(
-      formik.values.isBuy ? formik.values.quote : formik.values.base,
+      formik.values.isBuy
+        ? selectedEscrowData.quote
+        : selectedEscrowData.bases[selectionIndex].address,
       provider
     );
 
@@ -145,7 +166,14 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     } catch (e) {
       console.log(`Something went wrong. ERR_CODE ${e}`);
     }
-  }, [formik.values, provider, selectedEscrowData, signer, sendTx]);
+  }, [
+    formik.values,
+    provider,
+    selectionIndex,
+    selectedEscrowData,
+    signer,
+    sendTx,
+  ]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) validateUser();
@@ -237,7 +265,9 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
         return;
       try {
         const erc20 = ERC20__factory.connect(
-          formik.values.isBuy ? selectedEscrowData?.quote : formik.values.base,
+          formik.values.isBuy
+            ? selectedEscrowData?.quote
+            : selectedEscrowData.bases[selectionIndex]?.address,
           provider
         );
         const allowance = await erc20.allowance(
@@ -256,21 +286,45 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
         console.log(e);
       }
     })();
-  }, [accountAddress, formik.values, provider, selectedEscrowData]);
+  }, [
+    accountAddress,
+    formik.values,
+    provider,
+    selectedEscrowData,
+    selectionIndex,
+  ]);
 
   useEffect(() => {
-    formik.setFieldValue('quote', selectedEscrowData.quote);
+    (async () => {
+      if (!selectedEscrowData.bases) return;
+      formik.setFieldValue('quote', selectedEscrowData.quote);
+      formik.setFieldValue(
+        'base',
+        selectedEscrowData.bases[selectionIndex].address
+      );
+      formik.setFieldValue('quoteSymbol', selectedEscrowData.symbol);
+      formik.setFieldValue(
+        'baseSymbol',
+        selectedEscrowData.bases[selectionIndex].symbol
+      );
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formik.values]);
+  }, [selectedEscrowData, selectionIndex]);
 
   // Set default selection
   useEffect(() => {
     (async () => {
       if (selectedEscrowData.bases !== undefined) {
-        setSelection(selectedEscrowData.bases[0]?.address);
         formik.setFieldValue('base', selectedEscrowData.bases[0]?.address);
+        setSelection({
+          symbol: selectedEscrowData.bases[0]?.symbol,
+          address: selectedEscrowData.bases[0]?.address,
+        });
       } else {
-        setSelection('');
+        setSelection({
+          symbol: '',
+          address: '',
+        });
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -303,7 +357,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             <Select
               fullWidth
               disableUnderline
-              value={selection || ''}
+              value={selection.address || ''}
               label="option"
               classes={{ icon: 'text-white' }}
               className="px-2"
@@ -369,21 +423,33 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
               classes={{ input: 'text-white text-xs text-right' }}
             />
           </Box>
-          <Box className="flex justify-between px-2">
-            <Box className="flex space-x-2">
-              <Typography variant="h6" className="text-stieglitz my-auto">
-                Buy Order
+          <Box className="flex justify-between p-2">
+            <Typography variant="h6" className="text-stieglitz">
+              Order Type
+            </Typography>
+            <Box className="flex px-2 space-x-2">
+              <Typography
+                variant="h6"
+                className={`my-auto ${
+                  formik.values.isBuy ? 'text-stieglitz' : 'text-white'
+                }`}
+              >
+                Sell
               </Typography>
-              <InfoPopover
-                infoText="Toggle between buy and sell order. Sell orders are settled in USDT."
-                id="rfq-buy-toggle"
+              <Switch
+                className="my-auto"
+                checked={formik.values.isBuy}
+                onClick={handleBuyOrder}
               />
+              <Typography
+                variant="h6"
+                className={`my-auto ${
+                  formik.values.isBuy ? 'text-white' : 'text-stieglitz'
+                }`}
+              >
+                Buy
+              </Typography>
             </Box>
-            <Switch
-              className="my-auto"
-              checked={formik.values.checked}
-              onClick={handleBuyOrder}
-            />
           </Box>
         </Box>
 

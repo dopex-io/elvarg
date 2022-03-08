@@ -103,7 +103,7 @@ const ConfirmRfqDialog = ({
               Quote
             </Typography>
             <Typography variant="h6">
-              {smartTrim(data.quote.symbol, 20)}
+              {smartTrim(data.quote.symbol, 24)}
             </Typography>
           </Box>
           <Box className="flex justify-between">
@@ -111,7 +111,7 @@ const ConfirmRfqDialog = ({
               Base
             </Typography>
             <Typography variant="h6">
-              {smartTrim(data.base.symbol, 20)}
+              {smartTrim(data.base.symbol, 24)}
             </Typography>
           </Box>
           <Box className="flex justify-between">

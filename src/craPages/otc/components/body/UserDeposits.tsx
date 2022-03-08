@@ -18,6 +18,7 @@ import smartTrim from 'utils/general/smartTrim';
 import CustomButton from 'components/UI/CustomButton';
 import Withdraw from '../dialogs/Withdraw';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const ROWS_PER_PAGE = 4;
 
@@ -43,12 +44,13 @@ const TableBodyCell = ({
   children,
   align = 'left',
   textColor = 'text-stieglitz',
+  fill = 'bg-cod-gray',
 }) => {
   return (
     <TableCell
       align={align as TableCellProps['align']}
       component="td"
-      className="bg-cod-gray border-0 py-2"
+      className={`${fill} border-0 py-2`}
     >
       <Typography variant="h6" className={`${textColor}`}>
         {children}
@@ -108,8 +110,9 @@ const UserDeposits = () => {
                 </TableHeader>
                 <TableHeader align="left">Option</TableHeader>
                 <TableHeader align="center">Amount</TableHeader>
-                <TableHeader align="center">Total Bid/Ask</TableHeader>
+                <TableHeader align="center">Bid/Ask</TableHeader>
                 <TableHeader align="right">Quote</TableHeader>
+                <TableHeader align="center">Total Price</TableHeader>
                 <TableHeader align="right">Counter Party</TableHeader>
                 <TableHeader align="right">Actions</TableHeader>
               </TableRow>
@@ -132,10 +135,23 @@ const UserDeposits = () => {
                       <TableBodyCell align="center" textColor="text-green-400">
                         {getUserReadableAmount(row.amount, 18).toString()}
                       </TableBodyCell>
-                      <TableBodyCell align="center" textColor="text-down-bad">
-                        {getUserReadableAmount(row.price, 18).toString()}{' '}
+                      <TableBodyCell
+                        align="center"
+                        textColor="text-down-bad"
+                        fill="bg-umbra"
+                      >
+                        {formatAmount(
+                          Number(getUserReadableAmount(row.price, 18)) /
+                            Number(getUserReadableAmount(row.amount, 18)),
+                          5
+                        )}{' '}
+                        {row.isBuy ? row.quote.symbol : row.base.symbol}
                       </TableBodyCell>
-                      <TableBodyCell align="right">
+                      <TableBodyCell align="right" fill="bg-umbra">
+                        {row.isBuy ? row.quote.symbol : row.base.symbol}
+                      </TableBodyCell>
+                      <TableBodyCell align="right" fill="bg-umbra">
+                        {getUserReadableAmount(row.price, 18)}{' '}
                         {row.isBuy ? row.quote.symbol : row.base.symbol}
                       </TableBodyCell>
                       <TableBodyCell align="right">
