@@ -92,14 +92,12 @@ interface Order {
   dstTokensSwapped: BigNumber;
 }
 
-const MIN_FEE_PERCENTAGE = 15; // 0.15%
-const MAX_FEE_PERCENTAGE = 200; // 2%
-
 const Tzwap = () => {
   const sendTx = useSendTx();
   const { chainId, signer, accountAddress, provider, contractAddresses } =
     useContext(WalletContext);
-  const { userAssetBalances, tokenPrices } = useContext(AssetsContext);
+  const { userAssetBalances, tokenPrices, updateAssetBalances } =
+    useContext(AssetsContext);
   const tzwapRouter = Tzwap1inchRouter__factory.connect(
     Addresses[chainId]['Tzwap1inchRouter'],
     signer
@@ -247,10 +245,78 @@ const Tzwap = () => {
     }
   }, [sendTx, fromToken, signer, tzwapRouter]);
 
+  const handleKill = useCallback(async () => {
+    try {
+      await sendTx(tzwapRouter.connect(signer).killOrder(openOrder));
+      updateOrders();
+      updateAssetBalances();
+    } catch (err) {
+      console.log(err);
+    }
+  }, [signer, tzwapRouter, sendTx, openOrder, updateOrders]);
+
+  const fromTokenValueInUsd = useMemo(() => {
+    let value = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === fromTokenName) {
+        value =
+          (record['price'] * parseInt(userAssetBalances[fromTokenName])) /
+          10 ** getTokenDecimals(fromTokenName, chainId);
+      }
+    });
+    return value;
+  }, [tokenPrices, userAssetBalances, fromTokenName]);
+
+  const amountInUsd: number = useMemo(() => {
+    return (
+      (amount * fromTokenValueInUsd) /
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenName, chainId)
+      )
+    );
+  }, [amount, fromTokenValueInUsd, userTokenBalance, chainId, fromTokenName]);
+
+  const tickInUsd: number = useMemo(() => {
+    return (amountInUsd * selectedTickSize) / 100;
+  }, [amountInUsd, selectedTickSize]);
+
+  const minFees: number = useMemo(() => {
+    return (100 * 3) / tickInUsd;
+  }, [tickInUsd]);
+
+  const maxFees: number = useMemo(() => {
+    return minFees * 5;
+  }, [minFees]);
+
+  const minFeesInUsd: number = useMemo(() => {
+    return (tickInUsd * minFees) / 100;
+  }, [selectedTickSize]);
+
+  const estEndDate: Date = useMemo(() => {
+    const now = new Date(
+      new Date().getTime() +
+        (intervalAmount *
+          (selectedInterval === 'Min' ? 60 : 60 * 60) *
+          1000 *
+          100) /
+          selectedTickSize
+    );
+    return now;
+  }, [fromTokenValueInUsd, intervalAmount, selectedInterval, selectedTickSize]);
+
   const handleCreate = useCallback(async () => {
     try {
       const seconds =
         intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
+
+      const total = parseInt(
+        getContractReadableAmount(
+          amount,
+          getTokenDecimals(fromTokenName, chainId)
+        ).toString()
+      );
+      const tickSize = total * (selectedTickSize / 100);
 
       await sendTx(
         tzwapRouter.connect(signer).newOrder(
@@ -265,16 +331,10 @@ const Tzwap = () => {
                 ? Addresses[chainId]['WETH']
                 : toToken.address,
             interval: seconds,
-            tickSize: getContractReadableAmount(
-              ((amount * selectedTickSize) / 100).toFixed(18),
-              getTokenDecimals(fromToken, chainId)
-            ),
-            total: getContractReadableAmount(
-              amount,
-              getTokenDecimals(fromToken, chainId)
-            ),
-            minFees: MIN_FEE_PERCENTAGE,
-            maxFees: MAX_FEE_PERCENTAGE,
+            tickSize: String(tickSize),
+            total: String(total),
+            minFees: Math.round(minFees * 10 ** 3),
+            maxFees: Math.round(maxFees * 10 ** 3),
             created: Math.round(new Date().getTime() / 1000),
             killed: false,
           },
@@ -283,13 +343,14 @@ const Tzwap = () => {
               fromTokenName === 'ETH'
                 ? getContractReadableAmount(
                     amount,
-                    getTokenDecimals(fromToken, chainId)
+                    getTokenDecimals(fromTokenName, chainId)
                   )
                 : 0,
           }
         )
       );
       updateOrders();
+      updateAssetBalances();
     } catch (err) {
       console.log(err);
     }
@@ -302,16 +363,10 @@ const Tzwap = () => {
     selectedInterval,
     intervalAmount,
     updateOrders,
+    minFees,
+    maxFees,
+    fromTokenName,
   ]);
-
-  const handleKill = useCallback(async () => {
-    try {
-      await sendTx(tzwapRouter.connect(signer).killOrder(openOrder));
-      updateOrders();
-    } catch (err) {
-      console.log(err);
-    }
-  }, [signer, tzwapRouter, sendTx, openOrder, updateOrders]);
 
   const submitButtonProps = useMemo(() => {
     const disabled = Boolean(
@@ -350,31 +405,15 @@ const Tzwap = () => {
       color: disabled ? 'mineshaft' : 'primary',
       onClick,
     };
-  }, [approved, handleApprove, handleCreate]);
-
-  const fromTokenValueInUsd = useMemo(() => {
-    let value = 0;
-    tokenPrices.map((record) => {
-      if (record['name'] === fromTokenName) {
-        value =
-          (record['price'] * parseInt(userAssetBalances[fromTokenName])) /
-          10 ** getTokenDecimals(fromTokenName, chainId);
-      }
-    });
-    return value;
-  }, [tokenPrices, userAssetBalances, fromTokenName]);
-
-  const estEndDate: Date = useMemo(() => {
-    const now = new Date(
-      new Date().getTime() +
-        (intervalAmount *
-          (selectedInterval === 'Min' ? 60 : 60 * 60) *
-          1000 *
-          100) /
-          selectedTickSize
-    );
-    return now;
-  }, [fromTokenValueInUsd, intervalAmount, selectedInterval, selectedTickSize]);
+  }, [
+    approved,
+    handleApprove,
+    handleCreate,
+    fromTokenName,
+    toTokenName,
+    chainId,
+    userTokenBalance,
+  ]);
 
   useEffect(() => {
     updateOrders();
@@ -587,7 +626,7 @@ const Tzwap = () => {
                               variant="h6"
                               className="text-stieglitz text-sm pl-1 pt-2"
                             >
-                              ~ ${formatAmount(fromTokenValueInUsd, 2)}
+                              ~ ${formatAmount(amountInUsd, 2)}
                             </Typography>
                           </Box>
                           <Box className="ml-auto mr-0">
@@ -613,13 +652,8 @@ const Tzwap = () => {
                       <Box className="bg-umbra rounded-2xl flex flex-col mb-3.5 p-3 pr-2 relative">
                         <Box
                           className={
-                            'absolute top-[-0.7rem] left-[50%] border border-cod-gray rounded-full p-1 bg-umbra cursor-pointer opacity-70'
+                            'absolute top-[-0.7rem] left-[50%] border border-cod-gray rounded-full p-1 bg-umbra'
                           }
-                          onClick={() => {
-                            const _fromToken = fromToken;
-                            setFromToken(toToken);
-                            setToToken(_fromToken);
-                          }}
                         >
                           <img
                             src={'/assets/arrowdown.svg'}
@@ -821,7 +855,13 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {selectedTickSize}%
+                                ~{' '}
+                                {amountInUsd > 0
+                                  ? '$' + formatAmount(tickInUsd, 2)
+                                  : null}{' '}
+                                <span className="text-stieglitz">
+                                  ({selectedTickSize}%)
+                                </span>
                               </Typography>
                             </Box>
                           </Box>
@@ -855,8 +895,13 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {' '}
-                                {MIN_FEE_PERCENTAGE / 100}%
+                                ~{' '}
+                                {minFeesInUsd > 0
+                                  ? '$' + formatAmount(minFeesInUsd, 2)
+                                  : null}{' '}
+                                <span className="text-stieglitz">
+                                  ({formatAmount(minFees, 2)}%)
+                                </span>
                               </Typography>
                             </Box>
                           </Box>
@@ -974,10 +1019,10 @@ const Tzwap = () => {
                 </TabPanel>
                 <TabPanel value={activeTab} index={1}>
                   <Box className="h-[40.5rem] overflow-y-auto overflow-x-hidden">
-                    {orders.map((order) => (
+                    {orders.reverse().map((order) => (
                       <Box
                         key={order.id}
-                        className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra"
+                        className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mb-3"
                       >
                         <Box className={'flex h-[2.75rem]'}>
                           <Box className={'relative'}>
@@ -1262,7 +1307,7 @@ const Tzwap = () => {
                     isFromTokenSelectorVisible ? setFromToken : setToToken
                   }
                   isInDialog={false}
-                  tokensToExclude={[]}
+                  tokensToExclude={isFromTokenSelectorVisible ? [] : ['ETH']}
                 />
               </Box>
             )}
