@@ -99,7 +99,7 @@ const Tzwap = () => {
   const { userAssetBalances, tokenPrices, updateAssetBalances } =
     useContext(AssetsContext);
   const tzwapRouter = Tzwap1inchRouter__factory.connect(
-    Addresses[chainId]['Tzwap1inchRouter'],
+    '0xc6145b1c78c14444d84eb91aee5ee8a366de651c',
     signer
   );
 
@@ -283,6 +283,7 @@ const Tzwap = () => {
   }, [amountInUsd, selectedTickSize]);
 
   const minFees: number = useMemo(() => {
+    if (tickInUsd === 0) return 0;
     return (100 * 3) / tickInUsd;
   }, [tickInUsd]);
 
