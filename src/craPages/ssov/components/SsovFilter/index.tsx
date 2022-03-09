@@ -51,7 +51,6 @@ const SsovFilter = ({
       multiple={multiple}
       onChange={handleSelect}
       input={<Input />}
-      disableUnderline
       renderValue={() => {
         return (
           <Typography
