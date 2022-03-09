@@ -39,7 +39,7 @@ import AlarmIcon from '../Icons/AlarmIcon';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  setToken: Dispatch<SetStateAction<ERC20 | string>>;
+  setToken: Dispatch<SetStateAction<ERC20 | any>>;
   token: ERC20 | any;
   userTokenBalance: BigNumber;
   quote: object;
