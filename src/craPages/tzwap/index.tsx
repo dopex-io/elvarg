@@ -1190,7 +1190,11 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {getUserReadableAmount(order.minFees, 3)}%
+                                {formatAmount(
+                                  getUserReadableAmount(order.minFees, 3),
+                                  2
+                                )}
+                                %
                               </Typography>
                             </Box>
                           </Box>
