@@ -376,7 +376,7 @@ const Tzwap = () => {
       fromTokenName === toTokenName ||
         minFees > 20 ||
         !amount ||
-        tickInUsd < 100 ||
+        tickInUsd < 50 ||
         amount >=
           getUserReadableAmount(
             userTokenBalance,
@@ -399,12 +399,12 @@ const Tzwap = () => {
       )
     )
       children = 'Insufficient balance';
+    else if (tickInUsd < 50) children = 'Tick size is too small (<$100)';
     else if (!approved) children = 'Approve';
     else if (fromTokenName === toTokenName)
       children = 'Tokens must be different';
     else if (amount === 0) children = 'Enter an amount';
     else if (minFees > 20) children = 'Your order is too small to sustain fees';
-    else if (tickInUsd < 100) children = 'Tick size is too small (<$100)';
 
     return {
       disabled,
