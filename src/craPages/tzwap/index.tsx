@@ -98,10 +98,6 @@ const Tzwap = () => {
     useContext(WalletContext);
   const { userAssetBalances, tokenPrices, updateAssetBalances } =
     useContext(AssetsContext);
-  const tzwapRouter = Tzwap1inchRouter__factory.connect(
-    '0x24a48b1f08cb88fec2e4c389bce88ba534e2a952',
-    signer
-  );
 
   const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
@@ -126,6 +122,15 @@ const Tzwap = () => {
   const [selectedInterval, setSelectedInterval] = useState<string>('Min');
   const [quote, setQuote] = useState<object>({});
   const [orders, setOrders] = useState<Order[]>([]);
+
+  const tzwapRouter = useMemo(
+    () =>
+      Tzwap1inchRouter__factory.connect(
+        '0x24a48b1f08cb88fec2e4c389bce88ba534e2a952',
+        signer
+      ),
+    [signer]
+  );
 
   const ADDRESS_TO_TOKEN = useMemo(() => {
     const map = {};
@@ -227,7 +232,7 @@ const Tzwap = () => {
       }
     });
     setOrders(_orders);
-  }, [ADDRESS_TO_TOKEN, accountAddress, provider, setOrders]);
+  }, [ADDRESS_TO_TOKEN, accountAddress, provider, setOrders, tzwapRouter]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -252,7 +257,14 @@ const Tzwap = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [signer, tzwapRouter, sendTx, openOrder, updateOrders]);
+  }, [
+    signer,
+    updateAssetBalances,
+    sendTx,
+    openOrder,
+    updateOrders,
+    tzwapRouter,
+  ]);
 
   const fromTokenValueInUsd = useMemo(() => {
     let value = 0;
@@ -264,7 +276,7 @@ const Tzwap = () => {
       }
     });
     return value;
-  }, [tokenPrices, userAssetBalances, fromTokenName]);
+  }, [tokenPrices, userAssetBalances, chainId, fromTokenName]);
 
   const amountInUsd: number = useMemo(() => {
     return (
@@ -303,7 +315,7 @@ const Tzwap = () => {
           selectedTickSize
     );
     return now;
-  }, [fromTokenValueInUsd, intervalAmount, selectedInterval, selectedTickSize]);
+  }, [intervalAmount, selectedInterval, selectedTickSize]);
 
   const handleCreate = useCallback(async () => {
     try {
@@ -356,17 +368,23 @@ const Tzwap = () => {
       console.log(err);
     }
   }, [
-    accountAddress,
-    signer,
-    tzwapRouter,
-    chainId,
-    sendTx,
-    selectedInterval,
     intervalAmount,
-    updateOrders,
+    selectedInterval,
+    amount,
+    fromTokenName,
+    chainId,
+    selectedTickSize,
+    sendTx,
+    signer,
+    accountAddress,
+    fromToken.address,
+    toTokenName,
+    toToken.address,
     minFees,
     maxFees,
-    fromTokenName,
+    updateOrders,
+    updateAssetBalances,
+    tzwapRouter,
   ]);
 
   const submitButtonProps = useMemo(() => {
@@ -411,14 +429,16 @@ const Tzwap = () => {
       onClick,
     };
   }, [
+    fromTokenName,
+    toTokenName,
+    minFees,
+    amount,
+    tickInUsd,
+    userTokenBalance,
+    chainId,
     approved,
     handleApprove,
     handleCreate,
-    fromTokenName,
-    toTokenName,
-    chainId,
-    userTokenBalance,
-    minFees,
   ]);
 
   useEffect(() => {
@@ -487,7 +507,14 @@ const Tzwap = () => {
         }
       }
     })();
-  }, [accountAddress, fromToken, userAssetBalances, chainId, provider]);
+  }, [
+    accountAddress,
+    fromToken,
+    userAssetBalances,
+    chainId,
+    provider,
+    tzwapRouter,
+  ]);
 
   return (
     <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
