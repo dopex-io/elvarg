@@ -45,6 +45,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -169,7 +170,8 @@ const PurchaseDialog = ({
 
   const spender = useMemo(() => {
     if (isPut) {
-      if (isZapActive) return '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564';
+      if (purchaseTokenName === 'USDC' || purchaseTokenName === 'USDT')
+        return '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564';
       return ssovData.ssovContract.address;
     } else if (isZapActive) {
       if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
@@ -191,6 +193,7 @@ const PurchaseDialog = ({
     ssovData.ssovContract,
     ssovRouter,
     ssovTokenName,
+    purchaseTokenName,
   ]);
 
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
@@ -482,9 +485,17 @@ const PurchaseDialog = ({
               signer
             );
 
+          let cost = state.totalCost
+            .mul(ssovData.lpPrice)
+            .div(oneEBigNumber(30));
+
+          const slippage = cost.mul(1).div(100);
+
+          cost = cost.add(slippage);
+
           await sendTx(
             curve2PoolSsovPut1inchRouter.swapAndPurchaseFromSingle(
-              _amount,
+              cost,
               contractAddresses[purchaseTokenName],
               {
                 strikeIndex: strikeIndex,
@@ -815,6 +826,7 @@ const PurchaseDialog = ({
         setUserTokenBalance(userAmount);
 
         const allowance = await _token.allowance(accountAddress, spender);
+
         if (finalAmount.lte(allowance)) {
           setApproved(true);
         } else {
