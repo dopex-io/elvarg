@@ -399,7 +399,7 @@ const Tzwap = () => {
       )
     )
       children = 'Insufficient balance';
-    else if (tickInUsd < 50) children = 'Tick size is too small (<$100)';
+    else if (tickInUsd < 50) children = 'Tick size is too small (<$50)';
     else if (!approved) children = 'Approve';
     else if (fromTokenName === toTokenName)
       children = 'Tokens must be different';
