@@ -521,7 +521,33 @@ const Tzwap = () => {
         handleKill={handleKill}
       />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
-        <Box className="flex mx-auto max-w-xl mb-8 mt-32">
+        <Box className={'flex mb-5 mt-32'}>
+          <Box
+            className={
+              'bg-cod-gray text-center p-3 pl-4 pr-4 rounded-xl ml-auto mr-auto'
+            }
+          >
+            <Typography
+              variant="h6"
+              component="div"
+              className="text-white font-mono"
+            >
+              Tzwap is currently in open beta. Exercise caution and review
+              contracts before opening tzwap orders.
+              <br />
+              <a
+                href={
+                  'https://arbiscan.io/address/0x24a48b1f08cb88fec2e4c389bce88ba534e2a952'
+                }
+                rel="noreferrer"
+                className={'text-wave-blue'}
+              >
+                0x24a48b1f08cb88fec2e4c389bce88ba534e2a952
+              </a>
+            </Typography>
+          </Box>
+        </Box>
+        <Box className="flex mx-auto max-w-xl mb-8 mt-8">
           <Box
             className={cx(
               'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto',
