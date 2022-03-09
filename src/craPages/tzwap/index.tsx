@@ -13,9 +13,7 @@ import { BigNumber } from 'ethers';
 
 import Input from '@mui/material/Input';
 import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
-import LinearProgress from '@mui/material/LinearProgress';
 import CircularProgress from '@mui/material/CircularProgress';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
@@ -24,6 +22,9 @@ import Select from '@mui/material/Select';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import useSendTx from 'hooks/useSendTx';
+
+import Kill from './components/Dialogs/Kill';
+import Orders from './components/Orders';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -41,6 +42,8 @@ import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
+
+import { Order } from './interfaces';
 
 import styles from './styles.module.scss';
 
@@ -71,26 +74,6 @@ const SelectMenuProps = {
     paper: 'bg-mineshaft',
   },
 };
-
-interface Order {
-  id: number;
-  minFees: BigNumber;
-  maxFees: BigNumber;
-  killed: boolean;
-  creator: string;
-  srcToken: string;
-  srcTokenName: string;
-  srcTokenDecimals: number;
-  dstToken: string;
-  dstTokenName: string;
-  dstTokenDecimals: number;
-  interval: BigNumber;
-  tickSize: BigNumber;
-  total: BigNumber;
-  created: number;
-  srcTokensSwapped: number;
-  dstTokensSwapped: number;
-}
 
 const Tzwap = () => {
   const sendTx = useSendTx();
@@ -532,52 +515,11 @@ const Tzwap = () => {
         <title>Tzwap | Dopex</title>
       </Head>
       <AppBar />
-      <Dialog
-        open={openOrder !== null}
-        classes={{
-          paper: 'bg-cod-gray p-2 rounded-xl w-[25rem]',
-        }}
-      >
-        <Box>
-          <Box className={'flex p-3'}>
-            <Typography variant="h4" className="mb-4 ml-2">
-              Kill Tzwap
-            </Typography>
-
-            <img
-              src={'/assets/dark-cross.svg'}
-              className={
-                'ml-auto w-4 h-4 mt-2 mr-2 hover:opacity-90 cursor-pointer'
-              }
-              onClick={() => setOpenOrder(null)}
-              alt={'Close'}
-            />
-          </Box>
-          <Box className="text-justify pl-5 pr-5">
-            <Typography variant="h5" component="p" className={'text-stieglitz'}>
-              Killing a Tzwap means that your order will stop being filled by
-              bots and that you’ll get your initial collateral back minus what
-              has already been filled by bots.
-            </Typography>
-          </Box>
-
-          <Box className={'pl-6 pr-6 mb-4 mt-3'}>
-            <CustomButton
-              size="medium"
-              className="w-full mt-4 !rounded-md"
-              color={'primary'}
-              onClick={() => handleKill()}
-            >
-              <img
-                src={'/assets/killpepe.svg'}
-                className={'w-3 h-3 mr-2'}
-                alt={'Kill pepe'}
-              />
-              Kill Tzwap
-            </CustomButton>
-          </Box>
-        </Box>
-      </Dialog>
+      <Kill
+        openOrder={openOrder}
+        setOpenOrder={setOpenOrder}
+        handleKill={handleKill}
+      />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="flex mx-auto max-w-xl mb-8 mt-32">
           <Box
@@ -669,7 +611,10 @@ const Tzwap = () => {
                               variant="h6"
                               className="text-stieglitz text-sm pl-1 pt-2"
                             >
-                              ~ ${formatAmount(amountInUsd, 2)}
+                              ~ $
+                              {amountInUsd > 0
+                                ? formatAmount(amountInUsd, 2)
+                                : 0}
                             </Typography>
                           </Box>
                           <Box className="ml-auto mr-0">
@@ -943,7 +888,8 @@ const Tzwap = () => {
                                   ? '$' + formatAmount(minFeesInUsd, 2)
                                   : null}{' '}
                                 <span className="text-stieglitz">
-                                  ({formatAmount(minFees, 2)}%)
+                                  ({minFees > 0 ? formatAmount(minFees, 2) : 0}
+                                  %)
                                 </span>
                               </Typography>
                             </Box>
@@ -1061,301 +1007,11 @@ const Tzwap = () => {
                   </Box>
                 </TabPanel>
                 <TabPanel value={activeTab} index={1}>
-                  <Box className="h-[40.5rem] overflow-y-auto overflow-x-hidden">
-                    {!isFetchingOrders
-                      ? orders.reverse().map((order) => (
-                          <Box
-                            key={order.id}
-                            className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mb-3"
-                          >
-                            <Box className={'flex h-[2.75rem]'}>
-                              <Box className={'relative'}>
-                                <img
-                                  src={'/assets/' + order.srcTokenName + '.svg'}
-                                  className={
-                                    'inherit w-6 h-6 z-15 border-[0.2px] border-gray-800 rounded-full'
-                                  }
-                                  alt={order.srcTokenName}
-                                />
-                                <img
-                                  src={'/assets/' + order.dstTokenName + '.svg'}
-                                  className={
-                                    'inherit w-6 h-6 border-[0.2px] border-gray-800 rounded-full ml-[1rem] mt-[-1rem] z-1'
-                                  }
-                                  alt={order.dstTokenName}
-                                />
-                              </Box>
-                              <Box className="mt-1 ml-4 flex w-full">
-                                <Typography
-                                  variant="h6"
-                                  className="text-xs font-normal mr-3"
-                                >
-                                  {order.srcTokenName.toLocaleUpperCase()}
-                                </Typography>
-                                <img
-                                  src={'/assets/longarrowright.svg'}
-                                  alt="Arrow right"
-                                  className={'mr-1 w-4 h-2.5 mt-1.5'}
-                                />
-                                <Typography
-                                  variant="h6"
-                                  className="text-xs font-normal ml-2 mr-2"
-                                >
-                                  {order.dstTokenName.toLocaleUpperCase()}
-                                </Typography>
-                                {order.killed ? (
-                                  <CustomButton
-                                    size="small"
-                                    className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
-                                    color="mineshaft"
-                                    disabled
-                                  >
-                                    Killed
-                                    <img
-                                      src="/assets/killpepe.svg"
-                                      className="ml-2 mr-1.5"
-                                      alt={'Pepe Kill'}
-                                    />
-                                  </CustomButton>
-                                ) : getUserReadableAmount(
-                                    order.total,
-                                    order.srcTokenDecimals
-                                  ) === order.srcTokensSwapped ? (
-                                  <CustomButton
-                                    size="small"
-                                    className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
-                                    color="mineshaft"
-                                  >
-                                    Filled
-                                  </CustomButton>
-                                ) : (
-                                  <CustomButton
-                                    size="small"
-                                    className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
-                                    color="mineshaft"
-                                    onClick={() => setOpenOrder(order.id)}
-                                  >
-                                    <CircularProgress
-                                      className="text-stieglitz mt-0.5 mr-2"
-                                      size={10}
-                                    />
-                                    Open
-                                    <img
-                                      src="/assets/cross.svg"
-                                      className="ml-2 mr-1.5"
-                                      alt={'Cancel'}
-                                    />
-                                  </CustomButton>
-                                )}
-                              </Box>
-                            </Box>
-                            <Box className="rounded-md flex flex-col p-4 border border-neutral-800 w-full bg-neutral-800">
-                              <Box className={'flex mb-2'}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-stieglitz ml-0 mr-auto"
-                                >
-                                  Interval
-                                </Typography>
-                                <Box className={'text-right'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white mr-auto ml-0"
-                                  >
-                                    {formatAmount(
-                                      getUserReadableAmount(order.interval, 0) /
-                                        60
-                                    )}{' '}
-                                    Min
-                                  </Typography>
-                                </Box>
-                              </Box>
-
-                              <Box className={'flex mb-2'}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-stieglitz ml-0 mr-auto"
-                                >
-                                  Total
-                                </Typography>
-                                <Box className={'text-right'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white mr-auto ml-0"
-                                  >
-                                    {formatAmount(
-                                      getUserReadableAmount(
-                                        order.total,
-                                        order.srcTokenDecimals
-                                      ),
-                                      2
-                                    )}{' '}
-                                    {order.srcTokenName.toLocaleUpperCase()}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box className={'flex mb-2'}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-stieglitz ml-0 mr-auto"
-                                >
-                                  Tick Size
-                                </Typography>
-                                <Box className={'text-right'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white mr-auto ml-0"
-                                  >
-                                    {getUserReadableAmount(
-                                      order.tickSize,
-                                      order.srcTokenDecimals
-                                    )}{' '}
-                                    {order.srcTokenName.toLocaleUpperCase()}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box className={'flex mb-2'}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-stieglitz ml-0 mr-auto"
-                                >
-                                  Start
-                                </Typography>
-                                <Box className={'text-right'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white mr-auto ml-0"
-                                  >
-                                    {
-                                      new Date(order.created * 1000)
-                                        .toLocaleString()
-                                        .split(',')[0]
-                                    }
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box className={'flex mb-2'}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-stieglitz ml-0 mr-auto"
-                                >
-                                  Fees
-                                </Typography>
-                                <Box className={'text-right'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white mr-auto ml-0"
-                                  >
-                                    {formatAmount(
-                                      getUserReadableAmount(order.minFees, 3),
-                                      2
-                                    )}
-                                    %
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box className={'flex mb-2'}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-stieglitz ml-0 mr-auto"
-                                >
-                                  Swapped
-                                </Typography>
-                                <Box className={'text-right'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white mr-auto ml-0"
-                                  >
-                                    {formatAmount(order.srcTokensSwapped, 2)}{' '}
-                                    {order.srcTokenName.toLocaleUpperCase()}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box
-                                className={
-                                  order.srcTokensSwapped > 0
-                                    ? 'flex mb-2'
-                                    : 'flex mb-0'
-                                }
-                              >
-                                <Typography
-                                  variant="h6"
-                                  className="text-stieglitz ml-0 mr-auto"
-                                >
-                                  Obtained
-                                </Typography>
-                                <Box className={'text-right'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-white mr-auto ml-0"
-                                  >
-                                    {formatAmount(order.dstTokensSwapped, 2)}{' '}
-                                    {order.dstTokenName.toLocaleUpperCase()}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              {order.srcTokensSwapped > 0 ? (
-                                <LinearProgress
-                                  variant="determinate"
-                                  className={'mt-3 rounded-sm mb-4'}
-                                  value={
-                                    (100 * order.srcTokensSwapped) /
-                                    getUserReadableAmount(
-                                      order.total,
-                                      order.srcTokenDecimals
-                                    )
-                                  }
-                                />
-                              ) : null}
-                              {order.srcTokensSwapped > 0 ? (
-                                <Box className={'flex'}>
-                                  <Typography
-                                    variant="h6"
-                                    className="text-stieglitz ml-0 mr-auto"
-                                  >
-                                    Current price
-                                  </Typography>
-                                  <Box className={'text-right'}>
-                                    <Typography
-                                      variant="h6"
-                                      className="text-white mr-auto ml-0"
-                                    >
-                                      1 {order.srcTokenName.toLocaleUpperCase()}{' '}
-                                      ={' '}
-                                      {formatAmount(
-                                        order.dstTokensSwapped /
-                                          order.srcTokensSwapped,
-                                        2
-                                      )}{' '}
-                                      {order.dstTokenName.toLocaleUpperCase()}
-                                    </Typography>
-                                  </Box>
-                                </Box>
-                              ) : null}
-                            </Box>
-                          </Box>
-                        ))
-                      : null}
-                    {!isFetchingOrders && orders.length === 0 ? (
-                      <Box className={'text-center mt-3'}>
-                        <Typography
-                          variant="h6"
-                          className="mb-3 text-stieglitz"
-                        >
-                          No orders have been created yet
-                        </Typography>
-                      </Box>
-                    ) : null}
-                    {isFetchingOrders ? (
-                      <Box className={'text-center mt-3'}>
-                        <CircularProgress
-                          color="inherit"
-                          size="17px"
-                          className="mr-auto ml-auto"
-                        />
-                      </Box>
-                    ) : null}
-                  </Box>
+                  <Orders
+                    orders={orders}
+                    setOpenOrder={setOpenOrder}
+                    isFetchingOrders={isFetchingOrders}
+                  />
                 </TabPanel>
               </Box>
             ) : (
