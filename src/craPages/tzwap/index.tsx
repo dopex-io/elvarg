@@ -88,8 +88,8 @@ interface Order {
   tickSize: BigNumber;
   total: BigNumber;
   created: number;
-  srcTokensSwapped: BigNumber;
-  dstTokensSwapped: BigNumber;
+  srcTokensSwapped: number;
+  dstTokensSwapped: number;
 }
 
 const Tzwap = () => {
@@ -185,7 +185,7 @@ const Tzwap = () => {
     const ids = Array.from(Array(ordersCount).keys());
     const promises = await Promise.all(ids.map((i) => tzwapRouter.orders(i)));
     const _orders: Order[] = [];
-    promises.map((promise, i) => {
+    promises.map(async (promise, i) => {
       const srcTokenName =
         ADDRESS_TO_TOKEN[promise['srcToken'].toLocaleUpperCase()]['name'] ||
         'unknown';
@@ -215,21 +215,19 @@ const Tzwap = () => {
           interval: promise['interval'],
           tickSize: promise['tickSize'],
           total: promise['total'],
-          srcTokensSwapped: BigNumber.from('0'),
-          dstTokensSwapped: BigNumber.from('0'),
+          srcTokensSwapped: getUserReadableAmount(
+            await tzwapRouter.getSrcTokensSwappedForOrder(i),
+            srcTokenDecimals
+          ),
+          dstTokensSwapped: getUserReadableAmount(
+            await tzwapRouter.getDstTokensReceivedForOrder(i),
+            dstTokenDecimals
+          ),
         });
       }
     });
-    _orders.map(async (order) => {
-      order.srcTokensSwapped = await tzwapRouter.getSrcTokensSwappedForOrder(
-        order['id']
-      );
-      order.dstTokensSwapped = await tzwapRouter.getDstTokensReceivedForOrder(
-        order['id']
-      );
-    });
     setOrders(_orders);
-  }, [tzwapRouter, provider, accountAddress, ADDRESS_TO_TOKEN]);
+  }, [ADDRESS_TO_TOKEN, accountAddress, provider, setOrders]);
 
   const handleApprove = useCallback(async () => {
     try {
@@ -1192,7 +1190,7 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {getUserReadableAmount(order.minFees, 2)}%
+                                {getUserReadableAmount(order.minFees, 3)}%
                               </Typography>
                             </Box>
                           </Box>
@@ -1208,17 +1206,14 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {getUserReadableAmount(
-                                  order.srcTokensSwapped,
-                                  order.srcTokenDecimals
-                                )}{' '}
+                                {formatAmount(order.srcTokensSwapped, 2)}{' '}
                                 {order.srcTokenName.toLocaleUpperCase()}
                               </Typography>
                             </Box>
                           </Box>
                           <Box
                             className={
-                              order.srcTokensSwapped.gt(0)
+                              order.srcTokensSwapped > 0
                                 ? 'flex mb-2'
                                 : 'flex mb-0'
                             }
@@ -1234,24 +1229,17 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {getUserReadableAmount(
-                                  order.dstTokensSwapped,
-                                  order.dstTokenDecimals
-                                )}{' '}
+                                {formatAmount(order.dstTokensSwapped, 2)}{' '}
                                 {order.dstTokenName.toLocaleUpperCase()}
                               </Typography>
                             </Box>
                           </Box>
-                          {order.srcTokensSwapped.gt(0) ? (
+                          {order.srcTokensSwapped > 0 ? (
                             <LinearProgress
                               variant="determinate"
                               className={'mt-3 rounded-sm mb-4'}
                               value={
-                                (100 *
-                                  getUserReadableAmount(
-                                    order.srcTokensSwapped,
-                                    order.srcTokenDecimals
-                                  )) /
+                                (100 * order.srcTokensSwapped) /
                                 getUserReadableAmount(
                                   order.total,
                                   order.dstTokenDecimals
@@ -1259,7 +1247,7 @@ const Tzwap = () => {
                               }
                             />
                           ) : null}
-                          {order.srcTokensSwapped.gt(0) ? (
+                          {order.srcTokensSwapped > 0 ? (
                             <Box className={'flex'}>
                               <Typography
                                 variant="h6"
@@ -1273,14 +1261,11 @@ const Tzwap = () => {
                                   className="text-white mr-auto ml-0"
                                 >
                                   1 {order.srcTokenName.toLocaleUpperCase()} ={' '}
-                                  {getUserReadableAmount(
-                                    order.dstTokensSwapped,
-                                    order.dstTokenDecimals
-                                  ) /
-                                    getUserReadableAmount(
+                                  {formatAmount(
+                                    order.dstTokensSwapped /
                                       order.srcTokensSwapped,
-                                      order.srcTokenDecimals
-                                    )}{' '}
+                                    2
+                                  )}{' '}
                                   {order.dstTokenName.toLocaleUpperCase()}
                                 </Typography>
                               </Box>
