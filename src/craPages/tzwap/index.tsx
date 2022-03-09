@@ -198,7 +198,7 @@ const Tzwap = () => {
       const dstTokenDecimals =
         ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]['decimals'] ||
         'unknown';
-      if (promise['creator']) {
+      if (promise['creator'] === accountAddress) {
         _orders.push({
           id: i,
           minFees: promise['minFees'],
