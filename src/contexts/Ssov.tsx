@@ -84,6 +84,7 @@ interface SsovContextInterface {
   updateSsovUserData?: Function;
   setSelectedSsov?: Function;
   setSelectedEpoch?: Function;
+  isPut?: boolean;
 }
 
 const initialSsovUserData = {
@@ -408,6 +409,7 @@ export const SsovProvider = (props) => {
     updateSsovUserData,
     setSelectedSsov,
     setSelectedEpoch,
+    isPut: selectedSsov?.type === 'PUT',
   };
 
   return (

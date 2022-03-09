@@ -27,13 +27,14 @@ import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-import getDEXFrom1InchName from 'utils/general/getDEXFrom1inchName';
 
 import ArrowLeftIcon from '../Icons/ArrowLeftIcon';
 import SettingsIcon from '../Icons/SettingsIcon';
 import CrossIcon from '../Icons/CrossIcon';
 import ZapIcon from '../Icons/ZapIcon';
 import AlarmIcon from '../Icons/AlarmIcon';
+import SwapSymbol from './components/SwapSymbol';
+import SwapStep from './components/SwapStep';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -47,6 +48,9 @@ export interface Props {
   purchasePower: number;
   selectedTokenPrice: number;
   isInDialog: boolean;
+  isPut?: Boolean;
+  tokensToExclude?: string[];
+  lpPrice?: number;
 }
 
 const ZapIn = ({
@@ -60,6 +64,9 @@ const ZapIn = ({
   purchasePower,
   selectedTokenPrice,
   isInDialog,
+  isPut = false,
+  tokensToExclude = [],
+  lpPrice = 1,
 }: Props) => {
   const { userAssetBalances } = useContext(AssetsContext);
   const { chainId } = useContext(WalletContext);
@@ -79,7 +86,10 @@ const ZapIn = ({
       const toTokenAddress = route[0]['toTokenAddress'];
       const fromTokenSymbol = getSymbolFromAddress(fromTokenAddress, chainId);
       let toTokenSymbol = getSymbolFromAddress(toTokenAddress, chainId);
-      const step = { pair: fromTokenSymbol + ' - ' + toTokenSymbol, dexes: [] };
+      const step = {
+        pair: fromTokenSymbol + ' to ' + toTokenSymbol,
+        dexes: [],
+      };
       route.map((record) => {
         step['dexes'].push({
           name: record['name'],
@@ -270,11 +280,12 @@ const ZapIn = ({
                               getUserReadableAmount(
                                 quote['fromTokenAmount'],
                                 quote['fromToken']['decimals']
-                              ),
+                              ) /
+                              lpPrice,
                             8
                           )
-                        : '-'}{' '}
-                      {toTokenSymbol}{' '}
+                        : ''}{' '}
+                      {isPut ? '2CRV' : toTokenSymbol}{' '}
                       <span className="opacity-70">
                         (~$
                         {formatAmount(selectedTokenPrice, 2)})
@@ -303,7 +314,8 @@ const ZapIn = ({
                                   getUserReadableAmount(
                                     quote['fromTokenAmount'],
                                     quote['fromToken']['decimals']
-                                  ),
+                                  ) /
+                                  lpPrice,
                                 18
                               )
                             : '-'}
@@ -332,6 +344,7 @@ const ZapIn = ({
                                     quote['fromTokenAmount'],
                                     quote['fromToken']['decimals']
                                   ) /
+                                  lpPrice /
                                   (1 + slippageTolerance / 100),
                                 18
                               )
@@ -367,72 +380,41 @@ const ZapIn = ({
                         title={
                           <Box className="w-64 pb-3 pt-0 p-2">
                             {swapSteps.map((step) => (
-                              <Box key={step['pair']}>
-                                <Typography
-                                  variant="h6"
-                                  className="text-white mb-2 mt-3"
-                                >
-                                  {step['pair']}
-                                </Typography>
-                                <Box className="rounded-md flex flex-col p-3 border border-neutral-800 bg-neutral-800">
-                                  {step['dexes'].map((dex) => (
-                                    <Box className="flex" key={dex['name']}>
-                                      <img
-                                        alt={dex['name']}
-                                        src={
-                                          '/assets/' +
-                                          getDEXFrom1InchName(dex['name'])
-                                            ?.picture
-                                        }
-                                        className="w-4 h-4 mt-1 mr-3 rounded-sm"
-                                      />
-
-                                      <Typography
-                                        variant="h6"
-                                        className="text-white opacity-60 mb-1"
-                                      >
-                                        {getDEXFrom1InchName(dex['name'])?.name}
-                                      </Typography>
-
-                                      <Typography
-                                        variant="h6"
-                                        className="text-white ml-auto mr-0"
-                                      >
-                                        {' '}
-                                        {dex['percentage']}%
-                                      </Typography>
-                                    </Box>
-                                  ))}
-                                </Box>
-                              </Box>
+                              <SwapStep
+                                key={step['pair']}
+                                pair={step['pair']}
+                                dexes={step['dexes']}
+                              />
                             ))}
+                            {isPut ? (
+                              <SwapStep
+                                pair="USDC to 2CRV"
+                                dexes={[
+                                  { name: 'ARBITRUM_CURVE', percentage: '100' },
+                                ]}
+                              />
+                            ) : null}
                           </Box>
                         }
                       >
-                        <Box className="flex">
-                          {swapSymbols.slice(0, 3).map((symbol) => (
-                            <Box key={symbol} className="flex mr-2">
-                              <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700 mt-3">
-                                <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
-                                  <img
-                                    src={`/assets/${symbol.toLowerCase()}.svg`}
-                                    className={
-                                      isInDialog
-                                        ? 'w-4 h-4 mt-0.5'
-                                        : 'w-[1.2rem] mt-[0.05rem]'
-                                    }
-                                    alt={symbol}
-                                  />
-                                </Box>
-                                <Typography
-                                  variant="h6"
-                                  className="text-white  pl-2 pr-2 pt-0.5 text-sm"
-                                >
-                                  {symbol}
-                                </Typography>
-                              </Box>
-                            </Box>
+                        <Box className="grid grid-cols-3 gap-3 mt-3">
+                          {swapSymbols.map((symbol) => (
+                            <SwapSymbol
+                              key={symbol}
+                              imgSrc={`/assets/${symbol}.svg`}
+                              imgAlt={symbol}
+                              symbol={symbol}
+                              isInDialog={isInDialog}
+                            />
                           ))}
+                          {isPut ? (
+                            <SwapSymbol
+                              imgSrc="/assets/2CRV.svg"
+                              imgAlt={'2CRV'}
+                              symbol={'2CRV'}
+                              isInDialog={isInDialog}
+                            />
+                          ) : null}
                         </Box>
                       </Tooltip>
                     </Box>
@@ -445,13 +427,11 @@ const ZapIn = ({
               <Typography variant="h6" className="text-gray-400 opacity-70">
                 Purchase Power
               </Typography>
-
               <Typography variant="h6" className="text-white mr-0 ml-auto">
                 {formatAmount(purchasePower, 8)}{' '}
                 {quote['toToken'] ? quote['toToken']['symbol'] : toTokenSymbol}
               </Typography>
             </Box>
-
             <Box className="flex">
               <Box className="flex text-center p-2 mr-2 mt-1">
                 <AlarmIcon />
@@ -480,7 +460,7 @@ const ZapIn = ({
             setOpen={setIsTokenSelectorVisible}
             setFromTokenSymbol={setFromTokenSymbol}
             isInDialog={isInDialog}
-            tokensToExclude={[toTokenSymbol]}
+            tokensToExclude={[toTokenSymbol].concat(tokensToExclude)}
           />
         </Box>
       )}
