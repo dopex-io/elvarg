@@ -99,7 +99,7 @@ const Tzwap = () => {
   const { userAssetBalances, tokenPrices, updateAssetBalances } =
     useContext(AssetsContext);
   const tzwapRouter = Tzwap1inchRouter__factory.connect(
-    '0xc6145b1c78c14444d84eb91aee5ee8a366de651c',
+    '0x24a48b1f08cb88fec2e4c389bce88ba534e2a952',
     signer
   );
 
