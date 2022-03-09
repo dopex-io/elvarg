@@ -400,7 +400,7 @@ const Tzwap = () => {
       )
     )
       children = 'Insufficient balance';
-    else if (tickInUsd < 50) children = 'Tick size is too small (<$50)';
+    else if (tickInUsd < 50) children = 'Batch size is too small (<$50)';
     else if (!approved) children = 'Approve';
     else if (fromTokenName === toTokenName)
       children = 'Tokens must be different';
@@ -698,7 +698,7 @@ const Tzwap = () => {
                               variant="h6"
                               className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
                             >
-                              Tick size
+                              Batch Size
                             </Typography>
                             <Select
                               className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 mt-1 text-white"
@@ -836,7 +836,7 @@ const Tzwap = () => {
                               variant="h6"
                               className="text-stieglitz ml-0 mr-auto"
                             >
-                              Tick Size
+                              Batch Size
                             </Typography>
                             <Box className={'text-right'}>
                               <Typography
