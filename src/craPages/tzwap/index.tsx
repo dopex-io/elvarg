@@ -233,6 +233,7 @@ const Tzwap = () => {
       }
     });
     setOrders(_orders);
+    setIsFetchingOrders(false);
   }, [ADDRESS_TO_TOKEN, accountAddress, provider, setOrders, tzwapRouter]);
 
   const handleApprove = useCallback(async () => {
