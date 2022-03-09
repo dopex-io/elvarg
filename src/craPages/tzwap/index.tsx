@@ -203,7 +203,7 @@ const Tzwap = () => {
       const dstTokenDecimals =
         ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]['decimals'] ||
         'unknown';
-      if (promise['creator'] == accountAddress) {
+      if (promise['creator'] === accountAddress) {
         _orders.push({
           id: i,
           minFees: promise['minFees'],
@@ -1106,6 +1106,17 @@ const Tzwap = () => {
                                   alt={'Pepe Kill'}
                                 />
                               </CustomButton>
+                            ) : getUserReadableAmount(
+                                order.total,
+                                order.srcTokenDecimals
+                              ) === order.srcTokensSwapped ? (
+                              <CustomButton
+                                size="small"
+                                className="ml-auto !rounded-md bg-[#2D2D2D] mt-[-0.3rem]"
+                                color="mineshaft"
+                              >
+                                Filled
+                              </CustomButton>
                             ) : (
                               <CustomButton
                                 size="small"
@@ -1157,9 +1168,12 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {getUserReadableAmount(
-                                  order.total,
-                                  order.srcTokenDecimals
+                                {formatAmount(
+                                  getUserReadableAmount(
+                                    order.total,
+                                    order.srcTokenDecimals
+                                  ),
+                                  2
                                 )}{' '}
                                 {order.srcTokenName.toLocaleUpperCase()}
                               </Typography>
@@ -1217,7 +1231,11 @@ const Tzwap = () => {
                                 variant="h6"
                                 className="text-white mr-auto ml-0"
                               >
-                                {getUserReadableAmount(order.minFees, 3)}%
+                                {formatAmount(
+                                  getUserReadableAmount(order.minFees, 3),
+                                  2
+                                )}
+                                %
                               </Typography>
                             </Box>
                           </Box>
@@ -1269,7 +1287,7 @@ const Tzwap = () => {
                                 (100 * order.srcTokensSwapped) /
                                 getUserReadableAmount(
                                   order.total,
-                                  order.dstTokenDecimals
+                                  order.srcTokenDecimals
                                 )
                               }
                             />
