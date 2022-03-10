@@ -959,12 +959,7 @@ const Tzwap = () => {
                               >
                                 <Countdown
                                   date={estEndDate}
-                                  renderer={({
-                                    days,
-                                    hours,
-                                    minutes,
-                                    seconds,
-                                  }) => {
+                                  renderer={({ days, hours, minutes }) => {
                                     return (
                                       <Box className="flex items-center w-full cursor-default">
                                         <Typography
@@ -972,6 +967,7 @@ const Tzwap = () => {
                                           variant="h6"
                                           component="div"
                                         >
+                                          {days > 0 ? days + ' days' : null}{' '}
                                           {hours}h {minutes}m
                                         </Typography>
                                       </Box>
