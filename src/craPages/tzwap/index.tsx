@@ -18,6 +18,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import Select from '@mui/material/Select';
+import Tooltip from '@mui/material/Tooltip';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -880,7 +881,13 @@ const Tzwap = () => {
                               variant="h6"
                               className="text-stieglitz ml-0 mr-auto"
                             >
-                              Batch Size
+                              <Tooltip
+                                title={
+                                  'Batch Size is the amount you would like to purchase per interval. If your total amount is 2 ETH and your batch size is 10% you will buy 0.2 ETH each time.'
+                                }
+                              >
+                                <span>Batch size</span>
+                              </Tooltip>
                             </Typography>
                             <Box className={'text-right'}>
                               <Typography
