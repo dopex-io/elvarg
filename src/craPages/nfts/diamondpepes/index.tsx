@@ -313,12 +313,9 @@ const DiamondPepesNfts = () => {
                 <Tooltip title={'Not open yet'}>
                   <button
                     className={styles.pepeButton}
-                    disabled={!(!data.isFarmingPeriod && userData.minted)}
                     onClick={handleWithdraw}
                   >
-                    {!(!data.isFarmingPeriod && userData.minted)
-                      ? '10/3/2022'
-                      : 'Withdraw'}
+                    Withdraw
                   </button>
                 </Tooltip>
               </Box>
