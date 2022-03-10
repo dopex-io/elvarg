@@ -141,6 +141,22 @@ const Tzwap = () => {
     return parseFloat(rawIntervalAmount) || 0;
   }, [rawIntervalAmount]);
 
+  const updateFromToken = async (symbol) => {
+    if (IS_NATIVE(symbol)) {
+      setFromToken(symbol);
+    } else {
+      setFromToken(ERC20__factory.connect(Addresses[chainId][symbol], signer));
+    }
+  };
+
+  const updateToToken = async (symbol) => {
+    if (IS_NATIVE(symbol)) {
+      setToToken(symbol);
+    } else {
+      setToToken(ERC20__factory.connect(Addresses[chainId][symbol], signer));
+    }
+  };
+
   const handleFromTokenChange = useCallback(async () => {
     if (!fromToken || !provider) return;
     const symbol = IS_NATIVE(fromToken)
@@ -306,7 +322,7 @@ const Tzwap = () => {
     try {
       const seconds =
         intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
-      
+
       let precision = 10 ** 12;
       let tickSize = amount * precision * (selectedTickSize / 100);
       let total = Math.round((amount * precision) / tickSize) * tickSize;
@@ -1051,8 +1067,8 @@ const Tzwap = () => {
                       ? setIsFromTokenSelectorVisible
                       : setIsToTokenSelectorVisible
                   }
-                  setToken={
-                    isFromTokenSelectorVisible ? setFromToken : setToToken
+                  setFromTokenSymbol={
+                    isFromTokenSelectorVisible ? updateFromToken : updateToToken
                   }
                   isInDialog={false}
                   tokensToExclude={
