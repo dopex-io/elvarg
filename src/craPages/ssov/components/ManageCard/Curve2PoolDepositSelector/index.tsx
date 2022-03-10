@@ -40,7 +40,6 @@ const Curve2PoolDepositSelector = ({
         className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
         fullWidth
         displayEmpty
-        disableUnderline
         value={[depositTokenName]}
         onChange={handleSelectChange}
         input={<Input />}

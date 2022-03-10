@@ -306,7 +306,7 @@ const Tzwap = () => {
     try {
       const seconds =
         intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
-
+      
       let precision = 10 ** 12;
       let tickSize = amount * precision * (selectedTickSize / 100);
       let total = Math.round((amount * precision) / tickSize) * tickSize;
