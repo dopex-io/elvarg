@@ -42,6 +42,7 @@ const PledgeDiamondPepesNfts = lazy(
   () => import('craPages/nfts/diamondpepes/pledge')
 );
 const Oracles = lazy(() => import('craPages/oracles'));
+const Tzwap = lazy(() => import('craPages/tzwap'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
 // const Options = lazy(() => import('pages/options'));
 // const Pools = lazy(() => import('pages/pools'));
@@ -88,6 +89,7 @@ const NftsRoutes = () => {
     </NftsProvider>
   );
 };
+
 function AppRoutes() {
   // if (BUILD === 'testnet') {
   //   return (
@@ -119,6 +121,7 @@ function AppRoutes() {
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />
+              <Route path="tzwap" element={<Tzwap />} />
               <Route path="*" element={<Error statusCode={404} />} />
             </Routes>
             <ChangeNetworkDialog />
