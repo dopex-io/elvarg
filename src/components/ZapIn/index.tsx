@@ -39,11 +39,12 @@ import SwapStep from './components/SwapStep';
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setFromTokenSymbol: Function;
-  toTokenSymbol: string;
-  fromTokenSymbol: string;
+  userTokenBalance: BigNumber;
   quote: object;
   slippageTolerance: number;
   setSlippageTolerance: Dispatch<SetStateAction<number>>;
+  fromTokenSymbol: string;
+  toTokenSymbol: string;
   purchasePower: number;
   selectedTokenPrice: number;
   isInDialog: boolean;
