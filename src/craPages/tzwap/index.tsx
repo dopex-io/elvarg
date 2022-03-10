@@ -307,13 +307,9 @@ const Tzwap = () => {
       const seconds =
         intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
 
-      const total = parseInt(
-        getContractReadableAmount(
-          amount,
-          getTokenDecimals(fromTokenName, chainId)
-        ).toString()
-      );
-      const tickSize = total * (selectedTickSize / 100);
+      let precision = 10 ** 12;
+      let tickSize = amount * precision * (selectedTickSize / 100);
+      let total = Math.round((amount * precision) / tickSize) * tickSize;
 
       await sendTx(
         tzwapRouter.connect(signer).newOrder(
@@ -328,8 +324,14 @@ const Tzwap = () => {
                 ? Addresses[chainId]['WETH']
                 : toToken.address,
             interval: seconds,
-            tickSize: String(tickSize),
-            total: String(total),
+            tickSize: getContractReadableAmount(
+              Math.round(tickSize) / precision,
+              getTokenDecimals(fromTokenName, chainId)
+            ),
+            total: getContractReadableAmount(
+              Math.round(total) / precision,
+              getTokenDecimals(fromTokenName, chainId)
+            ),
             minFees: Math.round(minFees * 10 ** 3),
             maxFees: Math.round(maxFees * 10 ** 3),
             created: Math.round(new Date().getTime() / 1000),
