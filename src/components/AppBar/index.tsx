@@ -284,7 +284,7 @@ export default function AppBar(props: AppBarProps) {
                       alt="ens avatar"
                     />
                   )}
-                  {window?.ethereum?.isImToken || true ? (
+                  {window?.ethereum?.isImToken ? (
                     <img
                       src="/assets/imtoken.png"
                       className="w-3 h-3 mr-2 mt-0.5"
