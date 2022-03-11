@@ -9,16 +9,16 @@ import {
 import { BigNumber, ethers } from 'ethers';
 import cx from 'classnames';
 
-import Box from '@material-ui/core/Box';
-import TableHead from '@material-ui/core/TableHead';
-import Button from '@material-ui/core/Button';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TablePagination from '@material-ui/core/TablePagination';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Box from '@mui/material/Box';
+import TableHead from '@mui/material/TableHead';
+import Button from '@mui/material/Button';
+import TableContainer from '@mui/material/TableContainer';
+import TableRow from '@mui/material/TableRow';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TablePagination from '@mui/material/TablePagination';
+import Skeleton from '@mui/material/Skeleton';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
@@ -28,8 +28,6 @@ import {
   SsovUserData,
   SsovContext,
 } from 'contexts/Ssov';
-
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 import { SSOV_MAP } from 'constants/index';
 
@@ -42,7 +40,19 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import ArrowUpIcon from 'components/Icons/ArrowUpIcon';
 import FlagIcon from 'components/Icons/FlagIcon';
 
+import { BnbConversionContext } from 'contexts/BnbConversion';
+
 import styles from './styles.module.scss';
+
+interface StatsTableDataProps {
+  strikeIndex: number;
+  strikePrice: number;
+  totalDeposits: number;
+  totalPurchased: number;
+  totalPremiums: number;
+  imgSrc: string;
+  tokenSymbol: string;
+}
 
 const YEAR_SECONDS = 31536000;
 
@@ -159,7 +169,7 @@ const Stats = ({
   activeType: string;
   setActiveType: Dispatch<SetStateAction<string>>;
 }) => {
-  const { convertToVBNB } = useBnbSsovConversion();
+  const { convertToBNB } = useContext(BnbConversionContext);
   const ssovContext = useContext(SsovContext);
   const { tokenPrice, tokenName } = ssovContext[activeType].ssovData;
 
@@ -205,7 +215,7 @@ const Stats = ({
               );
         const totalPurchased =
           tokenName === 'BNB'
-            ? convertToVBNB(totalEpochOptionsPurchased[strikeIndex]) ?? 0
+            ? convertToBNB(totalEpochOptionsPurchased[strikeIndex]) ?? 0
             : getUserReadableAmount(
                 totalEpochOptionsPurchased[strikeIndex] ?? 0,
                 18
@@ -230,7 +240,7 @@ const Stats = ({
       totalEpochOptionsPurchased,
       totalEpochPremium,
       tokenName,
-      convertToVBNB,
+      convertToBNB,
     ]
   );
 

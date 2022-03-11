@@ -2,7 +2,6 @@ import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 
-
 import Box from '@mui/material/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
@@ -13,9 +12,7 @@ import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochs
 import SsovCard from './components/SsovCard';
 import SsovFilter from './components/SsovFilter';
 
-
 import formatAmount from '../../utils/general/formatAmount';
-
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -44,8 +41,14 @@ const Ssov = () => {
 
   const tvl = useMemo(() => {
     let total = 0;
-    for (let i in ssovs)
-      ssovs[i].map((ssov) => (total += parseFloat(ssov.tvl)));
+    for (let i in ssovs) {
+      Object.keys(ssovs[i]).map(
+        (currency) =>
+          (total += parseFloat(
+            ssovs[i][currency]?.call?.tvl + ssovs[i][currency]?.put?.tvl
+          ))
+      );
+    }
     return total;
   }, [ssovs]);
 
@@ -53,7 +56,6 @@ const Ssov = () => {
     if (!ssovs) return [];
     else if (chainId === 56) return [56, 42161, 43114];
     else if (chainId === 43114) return [43114, 42161];
-
     else return [42161, 56, 43114];
   }, [ssovs, chainId]);
 

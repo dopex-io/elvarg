@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import Button from '@material-ui/core/Button';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import Button from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
@@ -10,8 +10,6 @@ import CircleIcon from 'components/Icons/CircleIcon';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
-
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';

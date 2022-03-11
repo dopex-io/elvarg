@@ -1,9 +1,8 @@
 import { useMemo, useState, useContext, Dispatch, SetStateAction } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 

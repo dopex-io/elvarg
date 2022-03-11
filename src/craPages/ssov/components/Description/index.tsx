@@ -134,6 +134,7 @@ const Description = ({
         {tokenSymbol}
         liquidity to our first options pool.
       </Typography>
+    </Box>
   );
 };
 
