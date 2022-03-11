@@ -284,6 +284,12 @@ export default function AppBar(props: AppBarProps) {
                       alt="ens avatar"
                     />
                   )}
+                  {window?.ethereum?.isImToken || true ? (
+                    <img
+                      src="/assets/imtoken.png"
+                      className="w-3 h-3 mr-2 mt-0.5"
+                    />
+                  ) : null}
                   {walletButtonContent}
                 </Button>
               </Box>
