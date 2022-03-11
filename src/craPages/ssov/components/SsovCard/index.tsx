@@ -1,23 +1,27 @@
+import { useContext, useMemo } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import format from 'date-fns/format';
+import Box from '@mui/material/Box';
+
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoBox from '../InfoBox';
 
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
+import { BigNumber } from 'ethers';
 
 function SsovCard(props) {
   const { className, data } = props;
+  const { convertToBNB } = useContext(BnbConversionContext);
 
-  const { currentEpoch, totalEpochDeposits, epochTimes, apy, tvl, name, type } =
-    data;
+  const { currentEpoch, totalEpochDeposits, epochTimes, apy, tvl, name, type } = data;
 
   const info = [
     {
@@ -42,13 +46,45 @@ function SsovCard(props) {
     },
   ];
 
-  const epochTimePeriod =
-    epochTimes[0] && epochTimes[1]
-      ? `${format(new Date(epochTimes[0] * 1000), 'MM/dd/yyyy')} - ${format(
-          new Date(epochTimes[1] * 1000),
-          'MM/dd/yyyy'
-        )}`
-      : 'N/A';
+
+  const info = useMemo(() => {
+    if (!convertToBNB) return [];
+    return [
+      {
+        heading: 'APY',
+        value: `${apy === 0 ? '...' : `${apy}%`}`,
+        Icon: Action,
+        tooltip:
+          type === 'put'
+            ? 'This is the base APY calculated from Curve 2Pool Fees and Rewards'
+            : ssovInfo[name].aprToolTipMessage,
+      },
+      {
+        heading: 'TVL',
+        value: tvl === 0 ? '...' : formatAmount(tvl, 0, true),
+        Icon: Coin,
+      },
+      {
+        heading: 'DEPOSITS',
+        value: `${formatAmount(
+          name === 'BNB'
+            ? convertToBNB(BigNumber.from(totalEpochDeposits)).toString()
+            : getUserReadableAmount(totalEpochDeposits, underlyingDecimals),
+          0,
+          true
+        )}`,
+        imgSrc: type === 'put' ? '/assets/2crv.png' : SSOV_MAP[name].imageSrc,
+      },
+    ];
+  }, [
+    apy,
+    convertToBNB,
+    name,
+    totalEpochDeposits,
+    tvl,
+    type,
+    underlyingDecimals,
+  ]);
 
   return (
     <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
@@ -101,6 +137,17 @@ function SsovCard(props) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
+          <CustomButton
+            size="medium"
+            className="my-4"
+            href={`/ssov/${type}/${name}`}
+            fullWidth
+          >
+            Manage
+          </CustomButton>
+          <Typography variant="h6" className="text-stieglitz">
+            Epoch {currentEpoch}
+          </Typography>
         </Box>
       </Box>
     </Box>

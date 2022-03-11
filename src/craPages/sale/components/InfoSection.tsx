@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import Button from '@material-ui/core/Button';
-import Box from '@material-ui/core/Box';
-import ShowChartIcon from '@material-ui/icons/ShowChart';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 import PriceChart from './PriceChart';
 import Typography from 'components/UI/Typography';

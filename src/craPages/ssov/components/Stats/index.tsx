@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import cx from 'classnames';
+
 import Box from '@material-ui/core/Box';
 import TableHead from '@material-ui/core/TableHead';
 import Button from '@material-ui/core/Button';
@@ -45,6 +46,102 @@ import styles from './styles.module.scss';
 
 const YEAR_SECONDS = 31536000;
 
+const StatsTableData = (
+  props: StatsTableDataProps & { price: number; epochTime: number }
+) => {
+  const {
+    strikePrice,
+    totalDeposits,
+    totalPurchased,
+    totalPremiums,
+    price,
+    epochTime,
+    imgSrc,
+    tokenSymbol,
+  } = props;
+
+  const { convertToBNB } = useContext(BnbConversionContext);
+
+  const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
+
+  return (
+    <TableRow className="text-white bg-umbra mb-2 rounded-lg">
+      <TableCell align="left">
+        <Box className="h-12 flex flex-row items-center">
+          <Box className="flex flex-row h-8 w-8 mr-2">
+            <img src={imgSrc} alt="DPX" />
+          </Box>
+          <Typography variant="h5" className="text-white">
+            {tokenSymbol}
+          </Typography>
+        </Box>
+      </TableCell>
+      <TableCell align="left" className="mx-0 pt-2">
+        <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
+      </TableCell>
+      <TableCell align="left" className="pt-2">
+        <Typography variant="h6">
+          {formatAmount(totalDeposits, 5)} {tokenName}
+        </Typography>
+        <Box component="h6" className="text-xs text-stieglitz">
+          {'$'}
+          {formatAmount(
+            tokenSymbol === 'BNB'
+              ? (convertToBNB(ethers.utils.parseEther(totalDeposits.toString()))
+                  .div(oneEBigNumber(6))
+                  .toNumber() /
+                  1e4) *
+                  price
+              : totalDeposits * price,
+            2
+          )}
+        </Box>
+      </TableCell>
+      <TableCell align="left" className="pt-2">
+        <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
+        <Box component="h6" className="text-xs text-stieglitz">
+          {formatAmount(
+            totalDeposits > 0 ? 100 * (totalPurchased / totalDeposits) : 0,
+            5
+          )}
+          {'%'}
+        </Box>
+      </TableCell>
+      <TableCell align="left" className="px-6 pt-2">
+        <Typography variant="h6">
+          {formatAmount(totalPremiums, 5)} {tokenName}
+        </Typography>
+        <Box component="h6" className="text-xs text-stieglitz">
+          {'$'}
+          {formatAmount(
+            tokenSymbol === 'BNB'
+              ? (convertToBNB(ethers.utils.parseEther(totalPremiums.toString()))
+                  .div(oneEBigNumber(6))
+                  .toNumber() /
+                  1e4) *
+                  price
+              : totalPremiums * price,
+            2
+          )}
+        </Box>
+      </TableCell>
+      <TableCell align="right" className="px-6 pt-2">
+        <Typography variant="h6">
+          {formatAmount(
+            epochTime > 0 && totalDeposits > 0
+              ? 100 *
+                  (YEAR_SECONDS / epochTime) *
+                  (totalPremiums / totalDeposits)
+              : 0,
+            2
+          )}
+          {'%'}
+        </Typography>
+      </TableCell>
+    </TableRow>
+  );
+};
+
 const ROWS_PER_PAGE = 5;
 
 const STRIKE_INDEX_TO_COLOR = {
@@ -65,6 +162,7 @@ const Stats = ({
   const { convertToVBNB } = useBnbSsovConversion();
   const ssovContext = useContext(SsovContext);
   const { tokenPrice, tokenName } = ssovContext[activeType].ssovData;
+
   const {
     epochTimes,
     epochStrikes,

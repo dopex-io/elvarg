@@ -2,9 +2,9 @@ import { useContext, useMemo } from 'react';
 import Head from 'next/head';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
-import Box from '@material-ui/core/Box';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import Box from '@mui/material/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import { AssetSwapper__factory, ERC20__factory } from '@dopex-io/sdk';
 import BigNumber from 'bignumber.js';
 
@@ -183,7 +183,7 @@ export default function Swap() {
                     onChange={onFromChange}
                     className="bg-cod-gray rounded-xl p-2"
                     variant="outlined"
-                    classes={{ root: 'p-0', icon: 'text-white' }}
+                    classes={{ select: 'p-0', icon: 'text-white' }}
                     MenuProps={{ classes: { paper: 'bg-cod-gray' } }}
                   >
                     {SWAP_ASSETS.map((a) => {
@@ -231,7 +231,7 @@ export default function Swap() {
                   variant="outlined"
                   value={formik.values.to}
                   onChange={onToChange}
-                  classes={{ root: 'p-0', icon: 'text-white' }}
+                  classes={{ select: 'p-0', icon: 'text-white' }}
                   MenuProps={{ classes: { paper: 'bg-cod-gray' } }}
                 >
                   {SWAP_ASSETS.map((a) => {

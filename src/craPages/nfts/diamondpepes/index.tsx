@@ -1,35 +1,40 @@
-import Head from 'next/head';
-import Box from '@material-ui/core/Box';
-
-import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
-import styles from './styles.module.scss';
-import { useMemo } from 'react';
-import { Tooltip } from '@material-ui/core';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import PurchaseDialog from '../components/PurchaseDialog';
-import { BigNumber } from 'ethers';
+import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
   UniswapPair__factory,
   Addresses,
 } from '@dopex-io/sdk';
-import useSendTx from 'hooks/useSendTx';
-import { WalletContext } from '../../../contexts/Wallet';
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
 import Countdown from 'react-countdown';
+import Head from 'next/head';
+
+import Box from '@mui/material/Box';
+import { Tooltip } from '@mui/material';
+
+import ActionsDialog from '../components/ActionsDialog';
+import Typography from 'components/UI/Typography';
+import AppBar from 'components/AppBar';
+
+import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
 import formatAmount from '../../../utils/general/formatAmount';
-import { Data, UserData, initialData } from '../diamondpepes/interfaces';
+
+import { Data, UserData, initialData } from './interfaces';
+
+import { WalletContext } from '../../../contexts/Wallet';
+
+import useSendTx from 'hooks/useSendTx';
+
+import styles from './styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
-  const [purchaseDialogVisibleTab, setPurchaseDialogVisibleTab] =
-    useState<string>('hidden');
-  const [isMintDialogVisible, setIsMintDialogVisible] =
-    useState<boolean>(false);
+  const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
+    visible: false,
+    tab: 'mint',
+  });
+
   const yieldMint = YieldMint__factory.connect(
     Addresses[chainId]['DiamondPepesNFTMint'],
     provider
@@ -70,7 +75,7 @@ const DiamondPepesNfts = () => {
       mintPrice: mintPrice,
       totalDeposits: totalDeposits,
     });
-  }, [provider, contractAddresses, setData]);
+  }, [provider, contractAddresses, chainId, yieldMint]);
 
   const updateUserData = useCallback(async () => {
     if (!provider || !contractAddresses || !YieldMint__factory) return;
@@ -81,7 +86,7 @@ const DiamondPepesNfts = () => {
     ]);
 
     setUserData({ deposits: deposits, minted: minted });
-  }, [accountAddress, provider, contractAddresses, setUserData]);
+  }, [provider, contractAddresses, yieldMint, accountAddress]);
 
   useEffect(() => {
     updateData();
@@ -139,7 +144,7 @@ const DiamondPepesNfts = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress, updateData, updateUserData, signer]);
+  }, [sendTx, yieldMint, signer, updateData, updateUserData]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -147,21 +152,17 @@ const DiamondPepesNfts = () => {
         <title>Diamond Pepes NFTs | Dopex</title>
       </Head>
       {provider ? (
-        <PurchaseDialog
-          yieldMint={yieldMint}
-          timeRemaining={timeRemaining}
-          open={purchaseDialogVisibleTab != 'hidden'}
-          handleClose={
-            (() => {
-              setPurchaseDialogVisibleTab('hidden');
-            }) as any
-          }
-          tab={purchaseDialogVisibleTab}
-          userData={userData}
+        <ActionsDialog
+          open={actionsDialogDisplayState.visible}
+          tab={actionsDialogDisplayState.tab}
           data={data}
+          userData={userData}
+          yieldMint={yieldMint}
+          handleClose={() => {
+            setActionsDialogDisplayState({ visible: false, tab: 'mint' });
+          }}
           updateData={updateData}
           updateUserData={updateUserData}
-          provider={provider}
         />
       ) : null}
       <Box>
@@ -173,6 +174,7 @@ const DiamondPepesNfts = () => {
             <img
               src={'/assets/diamondpepes.svg'}
               className="ml-auto mr-auto z-1 relative md:w-auto w-60"
+              alt="logo"
             />
           </Box>
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">
@@ -183,6 +185,11 @@ const DiamondPepesNfts = () => {
               2,222 Unique Diamond Pepes up for grabs. Free mint passes by
               staking LP Tokens. Zap In with any asset.
             </Typography>
+            <Box className="ml-auto mr-auto mb-5 mt-5 w-[10rem]">
+              <a href={'/nfts/diamondpepes/pledge'}>
+                <button className={styles.pepeButton}>Pledge</button>
+              </a>
+            </Box>
           </Box>
           <Box className="pl-4 pr-4 md:flex border border-[#232935] w-full mt-9 bg-[#181C24] z-1 relative">
             {boxes.map((box, i) => (
@@ -209,7 +216,6 @@ const DiamondPepesNfts = () => {
               </Box>
             ))}
           </Box>
-
           <Box className="p-2 mt-7 md:flex">
             <Box className="md:w-1/3 p-4 text-center">
               <Typography
@@ -229,17 +235,13 @@ const DiamondPepesNfts = () => {
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                Please note that you'll need to deposit 10 LP tokens minimum per
-                pepe for a guaranteed mint.
+                Please note that{" you'll "}need to deposit 10 LP tokens minimum
+                per pepe for a guaranteed mint.
                 <br />
                 <br />
               </Typography>
-
               <Box className="ml-5 mb-5 md:mt-10 md:mb-0">
-                <button
-                  className={styles.pepeButton}
-                  onClick={() => setPurchaseDialogVisibleTab('deposit')}
-                >
+                <button className={styles.pepeButton} disabled>
                   Deposit
                 </button>
               </Box>
@@ -267,12 +269,16 @@ const DiamondPepesNfts = () => {
                 <br />
                 Good luck kid.
               </Typography>
-
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
                 <Tooltip title={'Not open yet'}>
                   <button
                     className={styles.pepeButton}
-                    onClick={() => setPurchaseDialogVisibleTab('mint')}
+                    onClick={() =>
+                      setActionsDialogDisplayState({
+                        visible: true,
+                        tab: 'mint',
+                      })
+                    }
                     disabled={!data.isFarmingPeriod}
                   >
                     {data.isFarmingPeriod ? 'Mint' : '2/24/2022'}
@@ -299,20 +305,17 @@ const DiamondPepesNfts = () => {
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                Excess deposits that doesn't end up with additional pepes will
-                also return its share of the farming reward upon withdrawing.
+                Excess deposits that {"doesn't"} end up with additional pepes
+                will also return its share of the farming reward upon
+                withdrawing.
               </Typography>
-
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
                 <Tooltip title={'Not open yet'}>
                   <button
                     className={styles.pepeButton}
-                    disabled={!(!data.isFarmingPeriod && userData.minted)}
                     onClick={handleWithdraw}
                   >
-                    {!(!data.isFarmingPeriod && userData.minted)
-                      ? '10/3/2022'
-                      : 'Withdraw'}
+                    Withdraw
                   </button>
                 </Tooltip>
               </Box>

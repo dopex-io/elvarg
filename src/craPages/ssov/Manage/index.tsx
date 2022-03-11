@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import AppBar from 'components/AppBar';
 import Description from '../components/Description';

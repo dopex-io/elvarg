@@ -1,9 +1,8 @@
 import { useMemo, useState, useContext, Dispatch, SetStateAction } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -14,6 +13,7 @@ import {
   SsovUserData,
 } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
@@ -38,7 +38,7 @@ const Description = ({
 }) => {
   const ssovContext = useContext(SsovContext);
   const { accountAddress, connect } = useContext(WalletContext);
-  const { convertToBNB } = useBnbSsovConversion();
+  const { convertToBNB } = useContext(BnbConversionContext);
 
   const { APY, isVaultReady } = ssovContext[activeType].ssovEpochData;
 
@@ -134,7 +134,6 @@ const Description = ({
         {tokenSymbol}
         liquidity to our first options pool.
       </Typography>
-    </Box>
   );
 };
 

@@ -1,5 +1,5 @@
 import { ERC20 } from '@dopex-io/sdk';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import Dialog from 'components/UI/Dialog';
 

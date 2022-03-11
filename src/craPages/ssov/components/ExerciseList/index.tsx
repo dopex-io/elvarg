@@ -1,17 +1,17 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import TableHead from '@material-ui/core/TableHead';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TablePagination from '@material-ui/core/TablePagination';
+import Box from '@mui/material/Box';
+import TableHead from '@mui/material/TableHead';
+import TableContainer from '@mui/material/TableContainer';
+import TableRow from '@mui/material/TableRow';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TablePagination from '@mui/material/TablePagination';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Skeleton from '@mui/material/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
@@ -42,13 +42,15 @@ const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
   const { accountAddress } = useContext(WalletContext);
-  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch } =
+  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
     useContext(SsovContext);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
   >([]);
   const [page, setPage] = useState(0);
+
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
   const { currentEpoch, tokenPrice, tokenName } = ssovData;
   const {
@@ -97,13 +99,27 @@ const ExerciseList = () => {
         const settleableAmount =
           userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
         const isSettleable =
-          settleableAmount.gt(0) && settlementPrice.gt(strike);
+          settleableAmount.gt(0) &&
+          ((isPut && settlementPrice.lt(strike)) ||
+            (!isPut && settlementPrice.gt(strike)));
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
-          ? tokenPrice
-              .sub(strike)
-              .mul(userEpochOptionsPurchased[strikeIndex])
-              .div(tokenPrice)
+          ? isPut
+            ? strike
+                .sub(tokenPrice)
+                .mul(userEpochOptionsPurchased[strikeIndex])
+                .mul(1e10)
+                .div(ssovData.lpPrice)
+            : tokenPrice
+                .sub(strike)
+                .mul(userEpochOptionsPurchased[strikeIndex])
+                .div(tokenPrice)
+          : isPut
+          ? strike
+              .sub(settlementPrice)
+              .mul(settleableAmount)
+              .mul(1e10)
+              .div(ssovData.lpPrice)
           : settlementPrice
               .sub(strike)
               .mul(userEpochOptionsPurchased[strikeIndex])
@@ -144,6 +160,8 @@ const ExerciseList = () => {
     tokenPrice,
     settlementPrice,
     tokenName,
+    isPut,
+    ssovData,
   ]);
 
   return selectedEpoch > 0 ? (

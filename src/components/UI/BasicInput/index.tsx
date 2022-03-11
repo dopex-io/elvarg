@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import MuiInput, { InputProps as MuiInputProps } from '@material-ui/core/Input';
+import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 
 const BasicInput = (props: MuiInputProps) => {
   useEffect(() => {

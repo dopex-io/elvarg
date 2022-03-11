@@ -1,11 +1,11 @@
 import { useContext, useCallback, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { StakingRewards__factory } from '@dopex-io/sdk';
 
 import { FarmingContext } from 'contexts/Farming';
@@ -77,7 +77,6 @@ const Pool = ({
   };
 
   const handleStake = useCallback(() => {
-    if (token.selectedBaseAsset === 'RDPX') return;
     setData(() => ({
       token: token.selectedBaseAsset,
       isStake: true,
@@ -118,12 +117,7 @@ const Pool = ({
   const options: { name: string; to: () => void; exclude?: string[] }[] = [
     {
       name: 'Stake',
-      to:
-        token.selectedBaseAsset === 'RDPX'
-          ? () => {
-              return;
-            }
-          : handleStake,
+      to: handleStake,
     },
     {
       name: 'Add liquidity',
@@ -278,9 +272,7 @@ const Pool = ({
             </Typography>
           </Box>
           <Box className="flex flex-col mr-4">
-            <Typography variant="h4">
-              {stakingAsset === 'RDPX' ? 0 : formatAmount(APR, 2)}%
-            </Typography>
+            <Typography variant="h4">{formatAmount(APR, 2)}%</Typography>
             <Typography variant="h6" className="text-stieglitz">
               APR
             </Typography>
@@ -312,7 +304,6 @@ const Pool = ({
                     handleStake();
                     navigate('/farms/manage');
                   }}
-                  disabled={token?.selectedBaseAsset === 'RDPX' ? true : false}
                 >
                   Stake
                 </CustomButton>
@@ -338,6 +329,7 @@ const Pool = ({
             onClick={handleClick}
             {...(!accountAddress ? { disabled: true } : { disabled: false })}
             className="w-6 ml-2 rounded-md h-9 hover:bg-gray-800"
+            size="large"
           >
             <MoreVertIcon className={styles.vertIcon} />
           </IconButton>

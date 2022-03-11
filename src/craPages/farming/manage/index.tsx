@@ -6,13 +6,13 @@ import { useFormik } from 'formik';
 import { BigNumber } from 'ethers';
 import * as yup from 'yup';
 import c from 'classnames';
-import IconButton from '@material-ui/core/IconButton';
-import Box from '@material-ui/core/Box';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/CustomButton';
@@ -302,7 +302,7 @@ const Manage = () => {
       <Box className={c('mx-auto my-40 px-2', styles.cardSize)}>
         <Box className="bg-cod-gray sm:px-5 px-2 py-5 rounded-xl">
           <Box className="flex flex-row mb-4 justify-between">
-            <IconButton className="p-0 pr-3 pb-1">
+            <IconButton className="p-0 pr-3 pb-1" size="large">
               <Link to="/farms">
                 <ArrowBackIcon className="text-stieglitz" />
               </Link>
@@ -314,9 +314,6 @@ const Manage = () => {
               <Box className="flex flex-row">
                 <CustomButton
                   size="medium"
-                  disabled={
-                    selectedToken.selectedBaseAsset === 'RDPX' ? true : false
-                  }
                   className={c(
                     isStake
                       ? 'mr-1'
@@ -370,7 +367,7 @@ const Manage = () => {
                 className="w-72 h-12 bg-cod-gray rounded-xl p-2"
                 IconComponent={Dropdown}
                 variant="outlined"
-                classes={{ icon: 'mt-3 mr-1', root: 'p-0' }}
+                classes={{ icon: 'mt-1.5 mr-2', select: 'p-0' }}
                 MenuProps={{ classes: { paper: 'bg-cod-gray' } }}
               >
                 <MenuItem value="DPX">

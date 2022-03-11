@@ -1,6 +1,6 @@
 import { useContext, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import cx from 'classnames';
 import Image from 'next/image';
 

@@ -49,6 +49,7 @@ export interface SsovData {
   lpPrice?: BigNumber;
   ssovOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
+  isCurrentEpochExpired?: boolean;
 }
 
 export interface SsovEpochData {
@@ -314,15 +315,17 @@ export const SsovSide = ({ activeType }) => {
           _ssovContract.getUsdPrice(),
         ]);
 
-        if (Number(currentEpoch) === 0) {
-          setSelectedEpoch(1);
-        } else {
-          setSelectedEpoch(Number(currentEpoch));
-        }
+        const isCurrentEpochExpired = await _ssovContract.isEpochExpired(
+          currentEpoch
+        );
+
+        setSelectedEpoch(Number(currentEpoch));
+
         _ssovData = {
           tokenName: selectedSsov.token.toUpperCase(),
           ssovContract: _ssovContract,
           currentEpoch: Number(currentEpoch),
+          isCurrentEpochExpired,
           tokenPrice,
           ...(activeType === 'PUT' && {
             lpPrice: await (_ssovContract as Curve2PoolSsovPut).getLpPrice(),
@@ -344,7 +347,7 @@ export const SsovSide = ({ activeType }) => {
     }
 
     update();
-  }, [contractAddresses, provider, selectedEpoch, selectedSsov]);
+  }, [contractAddresses, provider, selectedSsov]);
 
   useEffect(() => {
     if (
@@ -424,6 +427,8 @@ export const SsovSide = ({ activeType }) => {
     updateSsovEpochData,
     updateSsovUserData,
     setSelectedSsov,
+    setSelectedEpoch,
+    isPut: selectedSsov?.type === 'PUT',
   };
 
   return contextValue;

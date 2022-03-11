@@ -23,12 +23,6 @@ const ssovInfo = {
     mainPageMessage:
       'accepts user rDPX deposits and stakes them to generate extra yield.',
   },
-  rDPX: {
-    aprToolTipMessage:
-      'This is the base APY calculated from the rDPX single staking farm',
-    mainPageMessage:
-      'accepts user rDPX deposits and stakes them to generate extra yield.',
-  },
   GOHM: {
     aprToolTipMessage: "This is the base APY calculated from GOHM's rebase APY",
     mainPageMessage:

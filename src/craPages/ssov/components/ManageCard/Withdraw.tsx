@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
 import Countdown from 'react-countdown';

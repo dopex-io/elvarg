@@ -1,7 +1,7 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { BigNumber } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
@@ -10,6 +10,7 @@ import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
+import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -17,7 +18,6 @@ import formatAmount from 'utils/general/formatAmount';
 import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
-import useBnbSsovConversion from 'hooks/useBnbSsovConversion';
 
 export interface Props {
   open: boolean;
@@ -42,9 +42,12 @@ const Settle = ({
     ssovUserData,
     ssovSigner,
     selectedEpoch,
+    selectedSsov,
   } = useContext(SsovContext);
   const { accountAddress, signer } = useContext(WalletContext);
-  const { convertToVBNB } = useBnbSsovConversion();
+  const { convertToVBNB } = useContext(BnbConversionContext);
+
+  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
   const { tokenName } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
@@ -76,10 +79,16 @@ const Settle = ({
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL = !settlementPrice.isZero()
-    ? settlementPrice
-        .sub(epochStrikes[strikeIndex])
-        .mul(settleableAmount)
-        .div(settlementPrice)
+    ? isPut
+      ? epochStrikes[strikeIndex]
+          .sub(settlementPrice)
+          .mul(settleableAmount)
+          .mul(1e10)
+          .div(ssovData.lpPrice)
+      : settlementPrice
+          .sub(epochStrikes[strikeIndex])
+          .mul(settleableAmount)
+          .div(settlementPrice)
     : BigNumber.from(0);
 
   const handleApprove = useCallback(async () => {
@@ -143,7 +152,11 @@ const Settle = ({
     >
       <Box className="flex flex-col">
         <Box className="flex flex-row items-center mb-4">
-          <IconButton className="p-0 mr-3 my-auto" onClick={handleClose}>
+          <IconButton
+            className="p-0 mr-3 my-auto"
+            onClick={handleClose}
+            size="large"
+          >
             <ArrowBackIcon
               className="text-stieglitz items-center"
               fontSize="large"
@@ -155,7 +168,10 @@ const Settle = ({
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={`/assets/${token}.svg`} alt={`${token}`} />
+                <img
+                  src={`/assets/${token.toLowerCase()}.svg`}
+                  alt={`${token}`}
+                />
               </Box>
               <Typography variant="h5" className="text-white">
                 {`${token}-CALL${strikePrice}-EPOCH-${selectedEpoch}`}
@@ -227,6 +243,14 @@ const Settle = ({
           <CustomButton
             size="large"
             className="w-11/12 mr-1"
+            onClick={handleApprove}
+            disabled={approved}
+          >
+            Approve
+          </CustomButton>
+          <CustomButton
+            size="large"
+            className="w-11/12 ml-1"
             disabled={
               !approved ||
               settleableAmount.eq(BigNumber.from(0)) ||
@@ -235,14 +259,6 @@ const Settle = ({
             onClick={handleSettle}
           >
             Settle
-          </CustomButton>
-          <CustomButton
-            size="large"
-            className="w-11/12 ml-1"
-            onClick={handleApprove}
-            disabled={approved}
-          >
-            Approve
           </CustomButton>
         </Box>
         <Box className="flex justify-between">

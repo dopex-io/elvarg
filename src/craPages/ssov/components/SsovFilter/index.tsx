@@ -1,8 +1,10 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Checkbox from '@material-ui/core/Checkbox';
-import Box from '@material-ui/core/Box';
+
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
 
 import Typography from 'components/UI/Typography';
 
@@ -36,10 +38,10 @@ const SsovFilter = ({
   showImages,
 }: Props) => {
   const handleSelect = useCallback(
-    (event: React.ChangeEvent<{ value: string[] }>) => {
+    (event) => {
       setActiveFilters(event.target.value);
     },
-    []
+    [setActiveFilters]
   );
 
   return (
@@ -50,6 +52,7 @@ const SsovFilter = ({
       multiple={multiple}
       onChange={handleSelect}
       disableUnderline
+      input={<Input />}
       renderValue={() => {
         return (
           <Typography
@@ -81,6 +84,7 @@ const SsovFilter = ({
             {showImages ? (
               <img
                 src={'/assets/' + option.toLowerCase() + '.svg'}
+                alt={option}
                 className="w-6 ml-3 mt-[0.4px]"
               />
             ) : null}

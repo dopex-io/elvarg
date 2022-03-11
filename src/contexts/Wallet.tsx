@@ -69,13 +69,15 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/nfts/diamondpepes': [42161],
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
+  '/tzwap': [42161],
 };
 
 const DEFAULT_CHAIN_ID =
   Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
 
-export const WalletProvider = (props) => {
-  const location = useLocation();
+let web3Modal;
+
+if (typeof window !== 'undefined') {
   const providerOptions = {
     walletconnect: {
       package: WalletConnectProvider,
@@ -111,11 +113,15 @@ export const WalletProvider = (props) => {
     }),
   };
 
-  const web3Modal = new Web3Modal({
+  web3Modal = new Web3Modal({
     cacheProvider: true,
     theme: 'dark',
     providerOptions,
   });
+}
+
+export const WalletProvider = (props) => {
+  const location = useLocation();
 
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
@@ -212,27 +218,16 @@ export const WalletProvider = (props) => {
   );
 
   const connect = useCallback(() => {
-    web3Modal
-      .connect()
-      .then(async (provider) => {
-        provider.on('accountsChanged', async () => {
-          await updateState({ web3Provider: provider, isUser: true });
-        });
-
-        provider.on('chainChanged', async () => {
-          await updateState({ web3Provider: provider, isUser: true });
-        });
+    web3Modal.connect().then(async (provider) => {
+      provider.on('accountsChanged', async () => {
         await updateState({ web3Provider: provider, isUser: true });
-      })
-      .catch(async () => {
-        await updateState({
-          web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
-          ethersProvider: ethers.getDefaultProvider(
-            CHAIN_ID_TO_PROVIDERS[state.chainId]
-          ),
-          isUser: false,
-        });
       });
+
+      provider.on('chainChanged', async () => {
+        await updateState({ web3Provider: provider, isUser: true });
+      });
+      await updateState({ web3Provider: provider, isUser: true });
+    });
   }, [updateState]);
 
   const disconnect = useCallback(() => {

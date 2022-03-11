@@ -1,16 +1,24 @@
 import { useMemo } from 'react';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import formatAmount from '../../utils/general/formatAmount';
-import getUserReadableAmount from '../../utils/contracts/getUserReadableAmount';
-import getDecimalsFromSymbol from '../../utils/general/getDecimalsFromSymbol';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import CircularProgress from '@mui/material/CircularProgress';
+
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
 import Typography from '../UI/Typography';
+
 import ZapIcon from '../Icons/ZapIcon';
 import PlusIcon from '../Icons/PlusIcon';
 import ArrowUpIcon from '../Icons/ArrowUpIcon';
 import RedTriangleIcon from '../Icons/RedTriangleIcon';
 import YellowTriangleIcon from '../Icons/YellowTriangleIcon';
+
+const SLIPPAGE_STATUS_CLASSES = {
+  high: 'text-yellow-500',
+  extreme: 'text-red-500',
+  inactive: 'text-green-500',
+};
 
 export interface Props {
   openZapIn: () => void;
@@ -18,8 +26,8 @@ export interface Props {
   quote: object;
   isFetchingPath: boolean;
   path: object;
-  tokenName: string;
-  ssovTokenSymbol: string;
+  fromTokenSymbol: string;
+  toTokenSymbol: string;
   selectedTokenPrice: number;
   isZapInAvailable: boolean;
   chainId: number;
@@ -32,11 +40,10 @@ const ZapInButton = ({
   quote,
   isFetchingPath,
   path,
-  tokenName,
-  ssovTokenSymbol,
+  fromTokenSymbol,
+  toTokenSymbol,
   selectedTokenPrice,
   isZapInAvailable,
-  chainId,
   background = 'bg-neutral-700',
 }: Props) => {
   const pathPrice: number = useMemo(() => {
@@ -44,28 +51,28 @@ const ZapInButton = ({
     return (
       getUserReadableAmount(
         path['toTokenAmount'],
-        getDecimalsFromSymbol(path['toToken']['symbol'], chainId)
+        path['toToken']['decimals']
       ) /
       getUserReadableAmount(
         path['fromTokenAmount'],
-        getDecimalsFromSymbol(path['fromToken']['symbol'], chainId)
+        path['fromToken']['decimals']
       )
     );
-  }, [path, chainId]);
+  }, [path]);
 
   const quotePrice: number = useMemo(() => {
     if (!quote['toTokenAmount']) return 0;
     return (
       getUserReadableAmount(
         quote['toTokenAmount'],
-        getDecimalsFromSymbol(quote['toToken']['symbol'], chainId)
+        quote['toToken']['decimals']
       ) /
       getUserReadableAmount(
         quote['fromTokenAmount'],
-        getDecimalsFromSymbol(quote['fromToken']['symbol'], chainId)
+        quote['fromToken']['decimals']
       )
     );
-  }, [quote, chainId]);
+  }, [quote]);
 
   const slippage: number = useMemo(() => {
     return (pathPrice / quotePrice - 1) * 100;
@@ -78,11 +85,6 @@ const ZapInButton = ({
     return 'inactive';
   }, [slippage]);
 
-  const slippageStatusClassName: {} = {
-    high: 'text-yellow-500',
-    extreme: 'text-red-500',
-    inactive: 'text-green-500',
-  };
   return isZapInAvailable ? (
     path['error'] ? (
       <Box
@@ -116,14 +118,14 @@ const ZapInButton = ({
           ) : slippageStatus === 'inactive' ? (
             <span>
               Slippage is acceptable{' '}
-              <span className={slippageStatusClassName[slippageStatus]}>
+              <span className={SLIPPAGE_STATUS_CLASSES[slippageStatus]}>
                 ({formatAmount(slippage, 2)}%)
               </span>
             </span>
           ) : (
             <span>
               Attention! Slippage is {slippageStatus}{' '}
-              <span className={slippageStatusClassName[slippageStatus]}>
+              <span className={SLIPPAGE_STATUS_CLASSES[slippageStatus]}>
                 ({formatAmount(slippage, 2)}%)
               </span>
             </span>
@@ -144,21 +146,20 @@ const ZapInButton = ({
           {slippageStatus === 'extreme' && isZapActive ? (
             <RedTriangleIcon className="mt-0.5 mr-2.5" />
           ) : null}
-
           <Typography variant="h6" className="text-white">
             {isZapActive ? (
               path['toTokenAmount'] ? (
                 <span>
-                  1 {tokenName} ={' '}
+                  1 {fromTokenSymbol} ={' '}
                   {path['toTokenAmount'] && formatAmount(pathPrice, 4)}{' '}
-                  {ssovTokenSymbol}{' '}
+                  {toTokenSymbol}{' '}
                   <span className="opacity-70">
                     (~${formatAmount(selectedTokenPrice, 0)})
                   </span>
                 </span>
               ) : (
                 <span>
-                  1 {tokenName} ={' '}
+                  1 {fromTokenSymbol} ={' '}
                   {quote['toTokenAmount'] &&
                     formatAmount(
                       getUserReadableAmount(
@@ -167,7 +168,7 @@ const ZapInButton = ({
                       ),
                       8
                     )}{' '}
-                  {ssovTokenSymbol}{' '}
+                  {toTokenSymbol}{' '}
                   <span className="opacity-70">
                     (~${formatAmount(selectedTokenPrice, 0)})
                   </span>
