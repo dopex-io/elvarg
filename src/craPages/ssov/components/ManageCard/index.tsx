@@ -38,7 +38,6 @@ import ZapInButton from 'components/ZapInButton';
 import ZapIn from 'components/ZapIn';
 import ZapOutButton from 'components/ZapOutButton';
 import Curve2PoolDepositSelector from './Curve2PoolDepositSelector';
-import Withdraw from './Withdraw';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -70,22 +69,6 @@ const SelectMenuProps = {
   },
 };
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box>{children}</Box>}
-    </div>
-  );
-}
-
 export interface Props {
   activeType: string;
   setActiveType: Function;
@@ -109,8 +92,6 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
   } = ssovContext[activeType];
 
   const sendTx = useSendTx();
-
-  const isPut = true;
 
   const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
     ? Aggregation1inchRouterV4__factory.connect(
@@ -155,7 +136,6 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
   const [approved, setApproved] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
-  const [activeTab, setActiveTab] = useState(0);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const ssovToken =
     ssovSigner.token[0] ||
@@ -243,7 +223,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
     useState<string>(ssovTokenName);
 
   const spender = useMemo(() => {
-    if (isPut) {
+    if (activeType === 'PUT') {
       if (depositTokenName === '2CRV') {
         return ssovData.ssovContract.address;
       } else {
@@ -265,7 +245,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
   }, [
     depositTokenName,
     erc20SSOV1inchRouter,
-    isPut,
+    activeType,
     isZapActive,
     nativeSSOV1inchRouter,
     ssovContractWithSigner,
@@ -315,7 +295,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
   }, [strikeDepositAmounts]);
 
   const isPurchasePowerEnough = useMemo(() => {
-    if (isPut) return true;
+    if (activeType === 'PUT') return true;
     return (
       purchasePower >=
       (denominationTokenName.toLocaleUpperCase() === ssovTokenName
@@ -323,7 +303,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
         : totalDepositAmount * quotePrice)
     );
   }, [
-    isPut,
+    activeType,
     purchasePower,
     denominationTokenName,
     ssovTokenName,
@@ -502,7 +482,9 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
     try {
       await sendTx(
         ERC20__factory.connect(
-          isPut ? contractAddresses[depositTokenName] : token.address,
+          activeType === 'PUT'
+            ? contractAddresses[depositTokenName]
+            : token.address,
           signer
         ).approve(spender, MAX_VALUE)
       );
@@ -516,7 +498,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
     signer,
     spender,
     contractAddresses,
-    isPut,
+    activeType,
     depositTokenName,
   ]);
 
@@ -808,7 +790,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
         totalDepositAmount.toString(),
         getTokenDecimals(ssovTokenName, chainId)
       );
-      if (isPut) {
+      if (activeType === 'PUT') {
         const allowance: BigNumber = await ERC20__factory.connect(
           contractAddresses[depositTokenName],
           signer
@@ -832,7 +814,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
     totalDepositAmount,
     contractAddresses,
     depositTokenName,
-    isPut,
+    activeType,
     spender,
     signer,
     ssovTokenName,
@@ -853,7 +835,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
 
   const userBalance = useMemo(() => {
     {
-      if (isPut) {
+      if (activeType === 'PUT') {
         return ethers.utils.formatUnits(
           userAssetBalances[depositTokenName],
           getTokenDecimals(depositTokenName, chainId)
@@ -873,7 +855,7 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
     ssovTokenName,
     userAssetBalances,
     depositTokenName,
-    isPut,
+    activeType,
     chainId,
   ]);
 
@@ -889,26 +871,26 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
           <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
             <Box
               className={
-                activeTab === 0
+                activeType === 'CALL'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
                   : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
               }
-              onClick={() => setActiveTab(0)}
+              onClick={() => setActiveType('CALL')}
             >
               <Typography variant="h6" className="text-xs font-normal">
-                Deposit
+                Calls
               </Typography>
             </Box>
             <Box
               className={
-                activeTab === 1
+                activeType === 'PUT'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
                   : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
               }
-              onClick={() => setActiveTab(1)}
+              onClick={() => setActiveType('PUT')}
             >
               <Typography variant="h6" className="text-xs font-normal">
-                Withdraw
+                Puts
               </Typography>
             </Box>
           </Box>
@@ -940,368 +922,339 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
           isInDialog={false}
         />
       ) : (
-        <>
-          <TabPanel value={activeTab} index={0}>
-            <Box>
-              <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
-                <Box className="flex">
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
-                  >
-                    Balance
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    className="text-white ml-auto mr-0 text-[0.72rem]"
-                  >
-                    {userBalance}{' '}
-                    {isPut ? depositTokenName : denominationTokenName}
-                  </Typography>
-                  {isZapActive ? (
-                    <ZapIcon className={'mt-1 ml-2'} id="4" />
-                  ) : null}
-                </Box>
-                <Box className="mt-2 flex">
-                  <Box
-                    className={isPut || isZapActive ? 'w-3/4 mr-3' : 'w-full'}
-                  >
-                    <Select
-                      className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
-                      fullWidth
-                      multiple
-                      displayEmpty
-                      value={selectedStrikeIndexes}
-                      onChange={handleSelectStrikes}
-                      input={<Input />}
-                      variant="outlined"
-                      renderValue={() => {
-                        return (
-                          <Typography
-                            variant="h6"
-                            className="text-white text-center w-full relative"
-                          >
-                            Select Strike Prices
-                          </Typography>
-                        );
-                      }}
-                      MenuProps={SelectMenuProps}
-                      classes={{
-                        icon: 'absolute right-7 text-white',
-                        select: 'overflow-hidden',
-                      }}
-                      label="strikes"
-                    >
-                      {strikes.map((strike, index) => (
-                        <MenuItem
-                          key={index}
-                          value={index}
-                          className="pb-2 pt-2"
-                        >
-                          <Checkbox
-                            className={
-                              selectedStrikeIndexes.indexOf(index) > -1
-                                ? 'p-0 text-white'
-                                : 'p-0 text-white border'
-                            }
-                            checked={selectedStrikeIndexes.indexOf(index) > -1}
-                          />
-                          <Typography
-                            variant="h5"
-                            className="text-white text-left w-full relative ml-3"
-                          >
-                            ${formatAmount(strike, 4)}
-                          </Typography>
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
-                  {selectedSsov.type === 'PUT' ? (
-                    <Curve2PoolDepositSelector
-                      depositTokenName={depositTokenName}
-                      setDepositTokenName={setDepositTokenName}
-                    />
-                  ) : isZapActive ? (
-                    <Box className="w-1/4">
-                      <Select
-                        className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
-                        fullWidth
-                        displayEmpty
-                        value={[denominationTokenName]}
-                        onChange={(e) => {
-                          const symbol = e.target.value;
-                          setDenominationTokenName(symbol.toString());
-                        }}
-                        input={<Input />}
-                        variant="outlined"
-                        renderValue={() => {
-                          return (
-                            <Typography
-                              variant="h6"
-                              className="text-white text-center w-full relative"
-                            >
-                              {denominationTokenName}
-                            </Typography>
-                          );
-                        }}
-                        MenuProps={SelectMenuProps}
-                        classes={{
-                          icon: 'absolute right-1 text-white scale-x-75',
-                          select: 'overflow-hidden',
-                        }}
-                        label="tokens"
-                      >
-                        <MenuItem
-                          key={tokenName}
-                          value={tokenName}
-                          className="pb-2 pt-2"
-                        >
-                          <Checkbox
-                            className={
-                              denominationTokenName.toUpperCase() ===
-                              tokenName.toUpperCase()
-                                ? 'p-0 text-white'
-                                : 'p-0 text-white border'
-                            }
-                            checked={
-                              denominationTokenName.toUpperCase() ===
-                              tokenName.toUpperCase()
-                            }
-                          />
-                          <Typography
-                            variant="h5"
-                            className="text-white text-left w-full relative ml-3"
-                          >
-                            {tokenName}
-                          </Typography>
-                        </MenuItem>
-                        <MenuItem
-                          key={ssovTokenName}
-                          value={ssovTokenName}
-                          className="pb-2 pt-2"
-                        >
-                          <Checkbox
-                            className={
-                              denominationTokenName.toUpperCase() ===
-                              ssovTokenName.toUpperCase()
-                                ? 'p-0 text-white'
-                                : 'p-0 text-white border'
-                            }
-                            checked={
-                              denominationTokenName.toUpperCase() ===
-                              ssovTokenName.toUpperCase()
-                            }
-                          />
-                          <Typography
-                            variant="h5"
-                            className="text-white text-left w-full relative ml-3"
-                          >
-                            {ssovTokenName}
-                          </Typography>
-                        </MenuItem>
-                      </Select>
-                    </Box>
-                  ) : null}
-                </Box>
-                <Box className="mt-3">
-                  {selectedStrikeIndexes.map((index) => (
-                    <Box className="flex mb-3 group" key={index}>
-                      <Button
-                        className="p-2 pl-4 pr-4 bg-mineshaft text-white hover:bg-mineshaft hover:opacity-80 font-normal cursor-pointer"
-                        disableRipple
-                        onClick={() => unselectStrike(index)}
-                      >
-                        ${formatAmount(strikes[index], 4)}
-                        <TransparentCrossIcon className="ml-2" />
-                      </Button>
-                      <ArrowRightIcon className="ml-4 mt-2.5" />
-                      <Box className="ml-auto mr-0">
-                        <Input
-                          disableUnderline={true}
-                          name="address"
-                          className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
-                          classes={{ input: 'text-white text-xs text-right' }}
-                          value={strikeDepositAmounts[index]}
-                          placeholder="0"
-                          onChange={(e) => inputStrikeDepositAmount(index, e)}
-                        />
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-              <Box className="mt-3.5">
-                <Box className={'flex'}>
-                  <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
-                    <Box className={'w-5/6'}>
-                      <Typography variant="h5" className="text-white pb-1 pr-2">
-                        {userEpochDepositsAmount !== '0'
-                          ? formatAmount(userEpochDepositsAmount, 4)
-                          : '-'}
-                      </Typography>
+        <Box>
+          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
+            <Box className="flex">
+              <Typography
+                variant="h6"
+                className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
+              >
+                Balance
+              </Typography>
+              <Typography
+                variant="h6"
+                className="text-white ml-auto mr-0 text-[0.72rem]"
+              >
+                {userBalance}{' '}
+                {activeType === 'PUT'
+                  ? depositTokenName
+                  : denominationTokenName}
+              </Typography>
+              {isZapActive ? <ZapIcon className={'mt-1 ml-2'} id="4" /> : null}
+            </Box>
+            <Box className="mt-2 flex">
+              <Box
+                className={
+                  activeType === 'PUT' || isZapActive ? 'w-3/4 mr-3' : 'w-full'
+                }
+              >
+                <Select
+                  className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
+                  fullWidth
+                  multiple
+                  displayEmpty
+                  value={selectedStrikeIndexes}
+                  onChange={handleSelectStrikes}
+                  input={<Input />}
+                  variant="outlined"
+                  renderValue={() => {
+                    return (
                       <Typography
                         variant="h6"
-                        className="text-stieglitz pb-1 pr-2"
+                        className="text-white text-center w-full relative"
                       >
-                        Deposit
+                        Select Strike Prices
                       </Typography>
-                    </Box>
-                  </Box>
-                  <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
-                    <Typography variant="h5" className="text-white pb-1 pr-2">
-                      {vaultShare > 0 ? formatAmount(vaultShare, 4) + '%' : '-'}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz pb-1 pr-2"
-                    >
-                      Vault Share
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
-                  <Box className={'flex mb-1'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      Epoch
-                    </Typography>
-                    <Box className={'text-right'}>
-                      <Typography
-                        variant="h6"
-                        className="text-white mr-auto ml-0"
-                      >
-                        {ssovData?.currentEpoch}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box className={'flex mb-1'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      Withdrawable
-                    </Typography>
-                    <Box className={'text-right'}>
-                      <Typography
-                        variant="h6"
-                        className="text-white mr-auto ml-0"
-                      >
-                        {epochTimes[1]
-                          ? format(new Date(epochTimes[1] * 1000), 'd LLL yyyy')
-                          : '-'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-              <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
-                <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
-                  <EstimatedGasCostButton gas={500000} chainId={chainId} />
-                </Box>
-                <ZapInButton
-                  openZapIn={openZapIn}
-                  isZapActive={isZapActive}
-                  quote={quote}
-                  path={path}
-                  isFetchingPath={
-                    isFetchingPath &&
-                    Object.keys(strikeDepositAmounts).length > 0
-                  }
-                  fromTokenSymbol={tokenName}
-                  toTokenSymbol={ssovTokenSymbol}
-                  selectedTokenPrice={selectedTokenPrice}
-                  isZapInAvailable={isPut ? false : isZapInAvailable}
-                  chainId={chainId}
-                />
-                <Box className="flex">
-                  <Box className="flex text-center p-2 mr-2 mt-1">
-                    <LockerIcon />
-                  </Box>
-                  {!isDepositWindowOpen ? (
-                    <Typography variant="h6" className="text-stieglitz">
-                      Deposits for Epoch {ssovData.currentEpoch + 1} will open
-                      on
-                      <br />
-                      <span className="text-white">
-                        {epochTimes[1]
-                          ? format(
-                              new Date(epochTimes[1] * 1000),
-                              'd LLLL yyyy'
-                            )
-                          : '-'}
-                      </span>
-                    </Typography>
-                  ) : (
-                    <Typography variant="h6" className="text-stieglitz">
-                      Withdrawals are locked until end of Epoch{' '}
-                      {ssovData.currentEpoch + 1} {'   '}
-                      <span className="text-white">
-                        {epochTimes[1]
-                          ? format(
-                              new Date(epochTimes[1] * 1000),
-                              'd LLLL yyyy'
-                            )
-                          : '-'}
-                      </span>
-                    </Typography>
-                  )}
-                </Box>
-                <CustomButton
-                  size="medium"
-                  className="w-full mt-4 !rounded-md"
-                  color={
-                    (isPurchasePowerEnough || !approved) &&
-                    isDepositWindowOpen &&
-                    totalDepositAmount > 0
-                      ? 'primary'
-                      : 'mineshaft'
-                  }
-                  disabled={
-                    !isPurchasePowerEnough ||
-                    !isDepositWindowOpen ||
-                    totalDepositAmount <= 0 ||
-                    path['error']
-                  }
-                  onClick={
-                    approved
-                      ? isPut
-                        ? handlePutDeposit
-                        : handleDeposit
-                      : handleApprove
-                  }
+                    );
+                  }}
+                  MenuProps={SelectMenuProps}
+                  classes={{
+                    icon: 'absolute right-7 text-white',
+                    select: 'overflow-hidden',
+                  }}
+                  label="strikes"
                 >
-                  {!isDepositWindowOpen && isVaultReady && (
-                    <Countdown
-                      date={new Date(epochTimes[1] * 1000)}
-                      renderer={({ days, hours, minutes }) => (
-                        <Box className="text-stieglitz flex">
-                          <WhiteLockerIcon className="mr-2" />
-                          <span className="opacity-70">
-                            {days}D {hours}H {minutes}M
-                          </span>
-                        </Box>
-                      )}
+                  {strikes.map((strike, index) => (
+                    <MenuItem key={index} value={index} className="pb-2 pt-2">
+                      <Checkbox
+                        className={
+                          selectedStrikeIndexes.indexOf(index) > -1
+                            ? 'p-0 text-white'
+                            : 'p-0 text-white border'
+                        }
+                        checked={selectedStrikeIndexes.indexOf(index) > -1}
+                      />
+                      <Typography
+                        variant="h5"
+                        className="text-white text-left w-full relative ml-3"
+                      >
+                        ${formatAmount(strike, 4)}
+                      </Typography>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Box>
+              {activeType === 'PUT' ? (
+                <Curve2PoolDepositSelector
+                  depositTokenName={depositTokenName}
+                  setDepositTokenName={setDepositTokenName}
+                />
+              ) : isZapActive ? (
+                <Box className="w-1/4">
+                  <Select
+                    className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
+                    fullWidth
+                    displayEmpty
+                    value={[denominationTokenName]}
+                    onChange={(e) => {
+                      const symbol = e.target.value;
+                      setDenominationTokenName(symbol.toString());
+                    }}
+                    input={<Input />}
+                    variant="outlined"
+                    renderValue={() => {
+                      return (
+                        <Typography
+                          variant="h6"
+                          className="text-white text-center w-full relative"
+                        >
+                          {denominationTokenName}
+                        </Typography>
+                      );
+                    }}
+                    MenuProps={SelectMenuProps}
+                    classes={{
+                      icon: 'absolute right-1 text-white scale-x-75',
+                      select: 'overflow-hidden',
+                    }}
+                    label="tokens"
+                  >
+                    <MenuItem
+                      key={tokenName}
+                      value={tokenName}
+                      className="pb-2 pt-2"
+                    >
+                      <Checkbox
+                        className={
+                          denominationTokenName.toUpperCase() ===
+                          tokenName.toUpperCase()
+                            ? 'p-0 text-white'
+                            : 'p-0 text-white border'
+                        }
+                        checked={
+                          denominationTokenName.toUpperCase() ===
+                          tokenName.toUpperCase()
+                        }
+                      />
+                      <Typography
+                        variant="h5"
+                        className="text-white text-left w-full relative ml-3"
+                      >
+                        {tokenName}
+                      </Typography>
+                    </MenuItem>
+                    <MenuItem
+                      key={ssovTokenName}
+                      value={ssovTokenName}
+                      className="pb-2 pt-2"
+                    >
+                      <Checkbox
+                        className={
+                          denominationTokenName.toUpperCase() ===
+                          ssovTokenName.toUpperCase()
+                            ? 'p-0 text-white'
+                            : 'p-0 text-white border'
+                        }
+                        checked={
+                          denominationTokenName.toUpperCase() ===
+                          ssovTokenName.toUpperCase()
+                        }
+                      />
+                      <Typography
+                        variant="h5"
+                        className="text-white text-left w-full relative ml-3"
+                      >
+                        {ssovTokenName}
+                      </Typography>
+                    </MenuItem>
+                  </Select>
+                </Box>
+              ) : null}
+            </Box>
+            <Box className="mt-3">
+              {selectedStrikeIndexes.map((index) => (
+                <Box className="flex mb-3 group" key={index}>
+                  <Button
+                    className="p-2 pl-4 pr-4 bg-mineshaft text-white hover:bg-mineshaft hover:opacity-80 font-normal cursor-pointer"
+                    disableRipple
+                    onClick={() => unselectStrike(index)}
+                  >
+                    ${formatAmount(strikes[index], 4)}
+                    <TransparentCrossIcon className="ml-2" />
+                  </Button>
+                  <ArrowRightIcon className="ml-4 mt-2.5" />
+                  <Box className="ml-auto mr-0">
+                    <Input
+                      disableUnderline={true}
+                      name="address"
+                      className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
+                      classes={{ input: 'text-white text-xs text-right' }}
+                      value={strikeDepositAmounts[index]}
+                      placeholder="0"
+                      onChange={(e) => inputStrikeDepositAmount(index, e)}
                     />
-                  )}
-                  {isDepositWindowOpen
-                    ? approved
-                      ? totalDepositAmount === 0
-                        ? 'Insert an amount'
-                        : isPurchasePowerEnough
-                        ? 'Deposit'
-                        : 'Insufficient balance'
-                      : 'Approve'
-                    : ''}
-                </CustomButton>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+          <Box className="mt-3.5">
+            <Box className={'flex'}>
+              <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
+                <Box className={'w-5/6'}>
+                  <Typography variant="h5" className="text-white pb-1 pr-2">
+                    {userEpochDepositsAmount !== '0'
+                      ? formatAmount(userEpochDepositsAmount, 4)
+                      : '-'}
+                  </Typography>
+                  <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
+                    Deposit
+                  </Typography>
+                </Box>
+              </Box>
+              <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
+                <Typography variant="h5" className="text-white pb-1 pr-2">
+                  {vaultShare > 0 ? formatAmount(vaultShare, 4) + '%' : '-'}
+                </Typography>
+                <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
+                  Vault Share
+                </Typography>
               </Box>
             </Box>
-          </TabPanel>
-          <TabPanel value={activeTab} index={1}>
-            {ssovUserData ? <Withdraw /> : null}
-          </TabPanel>
-        </>
+            <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
+              <Box className={'flex mb-1'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Epoch
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {ssovData?.currentEpoch}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box className={'flex mb-1'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Withdrawable
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {epochTimes[1]
+                      ? format(new Date(epochTimes[1] * 1000), 'd LLL yyyy')
+                      : '-'}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+          <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
+            <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+              <EstimatedGasCostButton gas={500000} chainId={chainId} />
+            </Box>
+            <ZapInButton
+              openZapIn={openZapIn}
+              isZapActive={isZapActive}
+              quote={quote}
+              path={path}
+              isFetchingPath={
+                isFetchingPath && Object.keys(strikeDepositAmounts).length > 0
+              }
+              fromTokenSymbol={tokenName}
+              toTokenSymbol={ssovTokenSymbol}
+              selectedTokenPrice={selectedTokenPrice}
+              isZapInAvailable={activeType === 'PUT' ? false : isZapInAvailable}
+              chainId={chainId}
+            />
+            <Box className="flex">
+              <Box className="flex text-center p-2 mr-2 mt-1">
+                <LockerIcon />
+              </Box>
+              {!isDepositWindowOpen ? (
+                <Typography variant="h6" className="text-stieglitz">
+                  Deposits for Epoch {ssovData.currentEpoch + 1} will open on
+                  <br />
+                  <span className="text-white">
+                    {epochTimes[1]
+                      ? format(new Date(epochTimes[1] * 1000), 'd LLLL yyyy')
+                      : '-'}
+                  </span>
+                </Typography>
+              ) : (
+                <Typography variant="h6" className="text-stieglitz">
+                  Withdrawals are locked until end of Epoch{' '}
+                  {ssovData.currentEpoch + 1} {'   '}
+                  <span className="text-white">
+                    {epochTimes[1]
+                      ? format(new Date(epochTimes[1] * 1000), 'd LLLL yyyy')
+                      : '-'}
+                  </span>
+                </Typography>
+              )}
+            </Box>
+            <CustomButton
+              size="medium"
+              className="w-full mt-4 !rounded-md"
+              color={
+                (isPurchasePowerEnough || !approved) &&
+                isDepositWindowOpen &&
+                totalDepositAmount > 0
+                  ? 'primary'
+                  : 'mineshaft'
+              }
+              disabled={
+                !isPurchasePowerEnough ||
+                !isDepositWindowOpen ||
+                totalDepositAmount <= 0 ||
+                path['error']
+              }
+              onClick={
+                approved
+                  ? activeType === 'PUT'
+                    ? handlePutDeposit
+                    : handleDeposit
+                  : handleApprove
+              }
+            >
+              {!isDepositWindowOpen && isVaultReady && (
+                <Countdown
+                  date={new Date(epochTimes[1] * 1000)}
+                  renderer={({ days, hours, minutes }) => (
+                    <Box className="text-stieglitz flex">
+                      <WhiteLockerIcon className="mr-2" />
+                      <span className="opacity-70">
+                        {days}D {hours}H {minutes}M
+                      </span>
+                    </Box>
+                  )}
+                />
+              )}
+              {isDepositWindowOpen
+                ? approved
+                  ? totalDepositAmount === 0
+                    ? 'Insert an amount'
+                    : isPurchasePowerEnough
+                    ? 'Deposit'
+                    : 'Insufficient balance'
+                  : 'Approve'
+                : ''}
+            </CustomButton>
+          </Box>
+        </Box>
       )}
     </Box>
   );
