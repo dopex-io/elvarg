@@ -1,7 +1,6 @@
 import { useCallback, useContext } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
-import { Escrow__factory } from '@dopex-io/sdk';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import Dialog from 'components/UI/Dialog';
@@ -37,26 +36,16 @@ interface WithdrawProps {
 const Withdraw = ({ open, handleClose, data }: WithdrawProps) => {
   const sendTx = useSendTx();
 
-  const { selectedEscrowData } = useContext(OtcContext);
+  const { escrow } = useContext(OtcContext);
   const { provider, signer } = useContext(WalletContext);
 
   const handleWithdraw = useCallback(async () => {
-    const escrow = Escrow__factory.connect(
-      selectedEscrowData.selectedEscrow,
-      provider
-    );
-
     await sendTx(
       escrow
         .connect(signer)
-        .withdraw(
-          data.quote.address,
-          data.base.address,
-          data.price,
-          data.counterParty
-        )
+        .cancel(data.quote.address, data.base.address, data.counterParty)
     );
-  }, [selectedEscrowData.selectedEscrow, provider, data, signer, sendTx]);
+  }, [escrow, data, signer, sendTx]);
 
   return (
     data && (

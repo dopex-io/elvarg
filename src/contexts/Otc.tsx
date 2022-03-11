@@ -7,29 +7,24 @@ import {
 } from 'react';
 import { BigNumber } from 'ethers';
 import { getDocs, collection, DocumentData } from 'firebase/firestore';
-import range from 'lodash/range';
 import {
   Addresses,
   ERC20__factory,
   Escrow,
-  EscrowFactory,
-  EscrowFactory__factory,
   Escrow__factory,
 } from '@dopex-io/sdk';
 
 import { WalletContext } from 'contexts/Wallet';
 
 import { db } from 'utils/firebase/initialize';
+import { ethers } from '@0xsequence/multicall/node_modules/ethers';
 
 // contracts
 interface OtcContractsInterface {
-  factoryContract: EscrowFactory;
-  escrows: Escrow[];
-  escrowCount: number;
-  selectedEscrowData?: {
-    selectedEscrow: string;
-    quote: string;
-    symbol: string;
+  escrow: Escrow;
+  escrowData?: {
+    escrowAddress: string;
+    quotes: { symbol: string; address: string }[];
     bases: { symbol: string; address: string }[];
   };
   userDepositsData?: {
@@ -79,13 +74,10 @@ interface OtcUserData {
 }
 
 const initialState: OtcContractsInterface & OtcUserData = {
-  factoryContract: undefined,
-  escrows: [],
-  escrowCount: 0,
-  selectedEscrowData: {
-    selectedEscrow: '',
-    quote: '',
-    symbol: '',
+  escrow: undefined,
+  escrowData: {
+    quotes: [],
+    escrowAddress: '',
     bases: [],
   },
   userDepositsData: [],
@@ -111,32 +103,25 @@ export const OtcProvider = (props) => {
   );
   const [userDepositsData, setUserDepositsData] = useState([]);
   const [openTradesData, setOpenTradesData] = useState([]);
-  const [selectedEscrowData, setSelectedEscrowData] = useState<any>({});
+  const [escrowData, setEscrowData] = useState<any>({});
   const [loaded, setLoaded] = useState(false);
 
   const loadContractData = useCallback(async () => {
     if (!provider || !contractAddresses || !accountAddress) return;
 
-    const factory = EscrowFactory__factory.connect(
-      Addresses[chainId].EscrowFactory,
-      provider
+    const escrow = Escrow__factory.connect(Addresses[chainId].Escrow, provider);
+
+    let quoteAddresses = ['0xb26411F7515F94EbdB5152e396Fb0Ab8908423eA']; // USDT
+    let quoteAssetToSymbolMapping = await Promise.all(
+      quoteAddresses.map(async (address) => {
+        const quote = ERC20__factory.connect(address, provider);
+        const symbol = await quote.symbol();
+        return {
+          symbol,
+          address,
+        };
+      })
     );
-
-    const escrowCount = (await factory.ESCROW_COUNT()).toNumber();
-
-    const currentEscrowIndex = 0;
-    const escrowAddresses: Promise<string[]> = Promise.all(
-      range(escrowCount).map(
-        async (_, index) => await factory.escrows(index + 1)
-      )
-    );
-
-    const escrows = (await escrowAddresses).map((escrow) =>
-      Escrow__factory.connect(escrow, provider)
-    );
-
-    const quote = await escrows[currentEscrowIndex].quoteAsset(); // USDT
-    const symbol = await ERC20__factory.connect(quote, provider).symbol();
 
     let baseAddresses = [
       '0xADCeD0735874eA25e95EC0EAd0E355f8E863Fb44', // MC-CALL-1000
@@ -155,11 +140,12 @@ export const OtcProvider = (props) => {
 
     const assets: string[] = baseAddresses
       .map((address) => address.toString())
-      .concat([quote]);
+      .concat(quoteAddresses);
 
-    let assetPairs = assets?.flatMap((v, i) =>
+    let assetPairs = assets.flatMap((v, i) =>
       assets.slice(i + 1).map((w) => ({ token1: v, token2: w }))
     );
+
     assetPairs.push(
       ...assets.flatMap((v, i) =>
         assets.slice(i + 1).map((w) => ({ token1: w, token2: v }))
@@ -176,7 +162,7 @@ export const OtcProvider = (props) => {
         assetPairs.map(async (pair) => {
           return await Promise.all(
             users.map(async (user) => ({
-              isBuy: pair.token1 === quote,
+              isBuy: pair.token1 === quoteAddresses[0],
               quote: {
                 address: pair.token1,
                 symbol: await ERC20__factory.connect(
@@ -191,17 +177,17 @@ export const OtcProvider = (props) => {
                   provider
                 ).symbol(),
               },
-              price: await escrows[currentEscrowIndex].balances(
-                pair.token1,
-                pair.token2,
-                accountAddress,
-                user
+              amount: await escrow.balances(
+                ethers.utils.solidityKeccak256(
+                  ['address', 'address', 'address', 'address'],
+                  [pair.token1, pair.token2, accountAddress, user]
+                )
               ),
-              amount: await escrows[currentEscrowIndex].pendingBalances(
-                pair.token2,
-                pair.token1,
-                accountAddress,
-                user
+              price: await escrow.pendingBalances(
+                ethers.utils.solidityKeccak256(
+                  ['address', 'address', 'address', 'address'],
+                  [pair.token2, pair.token1, accountAddress, user]
+                )
               ),
               dealer: accountAddress,
               counterParty: user,
@@ -224,7 +210,7 @@ export const OtcProvider = (props) => {
         return (
           await Promise.all(
             users.map(async (user) => ({
-              isBuy: pair.token1 === quote,
+              isBuy: pair.token1 === quoteAddresses[0],
               dealerQuote: {
                 address: pair.token1,
                 symbol: await ERC20__factory.connect(
@@ -239,15 +225,18 @@ export const OtcProvider = (props) => {
                   provider
                 ).symbol(),
               },
-              dealerSendAmount: await escrows[currentEscrowIndex].balances(
-                pair.token1,
-                pair.token2,
-                user,
-                accountAddress
+              dealerSendAmount: await escrow.balances(
+                ethers.utils.solidityKeccak256(
+                  ['address', 'address', 'address', 'address'],
+                  [pair.token1, pair.token2, user, accountAddress]
+                )
               ),
-              dealerReceiveAmount: await escrows[
-                currentEscrowIndex
-              ].pendingBalances(pair.token2, pair.token1, user, accountAddress),
+              dealerReceiveAmount: await escrow.pendingBalances(
+                ethers.utils.solidityKeccak256(
+                  ['address', 'address', 'address', 'address'],
+                  [pair.token2, pair.token1, user, accountAddress]
+                )
+              ),
               dealer: user,
               counterParty: accountAddress,
             }))
@@ -263,10 +252,9 @@ export const OtcProvider = (props) => {
 
     setOpenTradesData(openTrades.flat());
 
-    setSelectedEscrowData({
-      selectedEscrow: escrows[currentEscrowIndex].address,
-      quote,
-      symbol,
+    setEscrowData({
+      escrowAddress: escrow.address,
+      quotes: quoteAssetToSymbolMapping,
       bases: baseAssetToSymbolMapping,
     });
 
@@ -274,9 +262,7 @@ export const OtcProvider = (props) => {
 
     setState((prevState) => ({
       ...prevState,
-      factoryContract: factory,
-      escrows,
-      escrowCount,
+      escrow,
       loaded,
     }));
   }, [accountAddress, chainId, contractAddresses, loaded, provider]);
@@ -338,7 +324,7 @@ export const OtcProvider = (props) => {
     validateUser,
     userDepositsData,
     openTradesData,
-    selectedEscrowData,
+    escrowData,
   };
   return (
     <OtcContext.Provider value={contextValue}>
@@ -346,29 +332,3 @@ export const OtcProvider = (props) => {
     </OtcContext.Provider>
   );
 };
-
-// const filter = {
-//   address: escrow.address,
-//   fromBlock: 0,
-//   toBlock: 10000,
-//   topics: [escrow.interface.events],
-// };
-
-// (await escrow.queryFilter(escrow.filters.Settle(), 9936231, 10000000)).map(
-//   (event, index) => console.log(event.args.dealer)
-// );
-
-// console.log(
-//   'Topics: ',
-//   escrow.filters.Settle(accountAddress)
-// );
-
-// console.log(await provider.getLogs(filter));
-
-// const settleEvents = escrow.on(
-//   'Settle',
-//   async (quote, base, dealer, settleAmount, depositAmount) =>
-//     dealer === accountAddress
-// );
-
-// console.log(settleEvents);

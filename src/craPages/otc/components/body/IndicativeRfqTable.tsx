@@ -125,7 +125,7 @@ const IndicativeRfqTable = () => {
               </TableHeader>
               <TableHeader align="left">Status</TableHeader>
               <TableHeader align="left" textColor="white">
-                Time
+                Open
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
               <TableHeader align="center">Qty</TableHeader>

@@ -6,7 +6,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
+import { ERC20__factory } from '@dopex-io/sdk';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
@@ -35,39 +35,28 @@ interface TradeProps {
 const Settle = ({ open, handleClose, data }: TradeProps) => {
   const sendTx = useSendTx();
 
-  const { selectedEscrowData } = useContext(OtcContext);
+  const { escrow } = useContext(OtcContext);
   const { signer, provider, accountAddress } = useContext(WalletContext);
   const [approved, setApproved] = useState(false);
 
   const handleTrade = useCallback(async () => {
-    const escrow = Escrow__factory.connect(
-      selectedEscrowData.selectedEscrow,
-      provider
-    );
-
     await sendTx(
       escrow
         .connect(signer)
-        .settle(
-          data.dealerQuote.address,
-          data.dealerBase.address,
-          data.dealer,
-          data.dealerSendAmount,
-          data.dealerReceiveAmount
-        )
+        .fulfill(data.dealerQuote.address, data.dealerBase.address, data.dealer)
     );
-  }, [signer, provider, data, selectedEscrowData, sendTx]);
+  }, [signer, data, escrow, sendTx]);
 
   const handleApprove = useCallback(async () => {
     const userQuote = ERC20__factory.connect(data.dealerBase.address, provider);
     await sendTx(
       userQuote
         .connect(signer)
-        .approve(selectedEscrowData.selectedEscrow, data.dealerReceiveAmount)
+        .approve(escrow.address, data.dealerReceiveAmount)
     ).then(() => {
       setApproved(true);
     });
-  }, [data, provider, signer, selectedEscrowData.selectedEscrow, sendTx]);
+  }, [data, provider, signer, escrow, sendTx]);
 
   useEffect(() => {
     (async () => {
@@ -77,11 +66,11 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
       );
       const allowance = await userQuote.allowance(
         accountAddress,
-        selectedEscrowData.selectedEscrow
+        escrow.address
       );
       setApproved(allowance.gte(data.dealerReceiveAmount));
     })();
-  }, [approved, data, provider, accountAddress, selectedEscrowData]);
+  }, [approved, data, provider, accountAddress, escrow]);
 
   return (
     data && (
