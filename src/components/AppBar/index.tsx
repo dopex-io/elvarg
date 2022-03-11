@@ -201,7 +201,7 @@ export default function AppBar(props: AppBarProps) {
         <Box className="flex w-full items-center container pl-10 pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
             <a
-              className="flex items-center mr-6 cursor-pointer hover:no-underline"
+              className="flex items-center mr-10 cursor-pointer hover:no-underline"
               href="/"
             >
               <img

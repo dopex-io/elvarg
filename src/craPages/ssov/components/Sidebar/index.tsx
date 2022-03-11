@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useContext } from 'react';
+import { Addresses } from '@dopex-io/sdk';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -15,6 +16,7 @@ import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
 import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -24,7 +26,13 @@ import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
 
-const Sidebar = ({}: {}) => {
+export interface Props {
+  asset: string;
+}
+
+const Sidebar = ({ asset }: Props) => {
+  const { chainId } = useContext(WalletContext);
+
   return (
     <Box className={'absolute w-[20rem]'}>
       <Box className={'flex'}>
@@ -111,15 +119,25 @@ const Sidebar = ({}: {}) => {
         </Typography>
       </Box>
       <Box className={'bg-[#2D364D] rounded-md relative'}>
-        <img src={'/assets/arbitrum-full.svg'} className={'h-11'} />
+        <img src={'/assets/arbitrum-full.svg'} className={'h-11 p-1'} />
         <Box
           className={
             'absolute right-[10px] top-[8px] bg-umbra p-2 pt-1 pb-1 rounded-md'
           }
         >
-          <Typography variant="h5" className="text-white text-[11px]">
-            0x123...dfb
-          </Typography>
+          <a
+            className={'cursor-pointer'}
+            href={
+              'https://arbiscan.io/address/' +
+              Addresses[chainId]['SSOV'][asset]['Vault']
+            }
+          >
+            <Typography variant="h5" className="text-white text-[11px]">
+              {Addresses[chainId]['SSOV'][asset]['Vault'].substring(0, 5) +
+                '...' +
+                Addresses[chainId]['SSOV'][asset]['Vault'].substring(38)}
+            </Typography>
+          </a>
         </Box>
       </Box>
     </Box>

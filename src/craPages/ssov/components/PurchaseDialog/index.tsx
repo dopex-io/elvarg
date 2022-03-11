@@ -70,6 +70,7 @@ export interface Props {
   ssovData: SsovData;
   ssovUserData: SsovUserData;
   ssovEpochData: SsovEpochData;
+  activeType: string;
 }
 
 const PurchaseDialog = ({
@@ -78,14 +79,12 @@ const PurchaseDialog = ({
   ssovData,
   ssovUserData,
   ssovEpochData,
+  activeType,
 }: Props) => {
-  const {
-    updateSsovEpochData,
-    updateSsovUserData,
-    selectedSsov,
-    ssovSigner,
-    isPut,
-  } = useContext(SsovContext);
+  const ssovContext = useContext(SsovContext);
+  const { updateSsovEpochData, updateSsovUserData, selectedSsov, ssovSigner } =
+    ssovContext[activeType];
+
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
@@ -154,22 +153,22 @@ const PurchaseDialog = ({
   const ssovTokenName = useMemo(() => ssovData.tokenName, [ssovData]);
 
   const [purchaseTokenName, setPurchaseTokenName] = useState<string>(
-    isPut ? '2CRV' : ssovTokenName
+    activeType === 'PUT' ? '2CRV' : ssovTokenName
   );
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
 
   const isZapActive: boolean = useMemo(() => {
-    if (isPut)
+    if (activeType === 'PUT')
       return !['2CRV', 'USDC', 'USDT'].includes(
         purchaseTokenName.toUpperCase()
       );
     return purchaseTokenName.toUpperCase() !== ssovTokenName.toUpperCase();
-  }, [purchaseTokenName, ssovTokenName, isPut]);
+  }, [purchaseTokenName, ssovTokenName, activeType]);
 
   const spender = useMemo(() => {
-    if (isPut) {
+    if (activeType === 'PUT') {
       if (purchaseTokenName === 'USDC' || purchaseTokenName === 'USDT')
         return '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564';
       return ssovData.ssovContract.address;
@@ -186,7 +185,7 @@ const PurchaseDialog = ({
     }
   }, [
     erc20SSOV1inchRouter,
-    isPut,
+    activeType,
     isZapActive,
     nativeSSOV1inchRouter,
     ssovContractWithSigner,
@@ -270,16 +269,21 @@ const PurchaseDialog = ({
       const fromTokenAddress: string = IS_NATIVE(purchaseTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         : contractAddresses[purchaseTokenName];
-      const toTokenAddress: string = isPut
-        ? Addresses[chainId]['USDC']
-        : IS_NATIVE(ssovTokenName)
-        ? ssovTokenName === 'BNB'
-          ? contractAddresses['VBNB']
-          : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : ssovToken.address;
+      const toTokenAddress: string =
+        activeType === 'PUT'
+          ? Addresses[chainId]['USDC']
+          : IS_NATIVE(ssovTokenName)
+          ? ssovTokenName === 'BNB'
+            ? contractAddresses['VBNB']
+            : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+          : ssovToken.address;
 
       if (fromTokenAddress === toTokenAddress) return;
-      if (isPut && fromTokenAddress === contractAddresses['2CRV']) return;
+      if (
+        activeType === 'PUT' &&
+        fromTokenAddress === contractAddresses['2CRV']
+      )
+        return;
 
       const amount: number = 10 ** getTokenDecimals(purchaseTokenName, chainId);
 
@@ -302,7 +306,7 @@ const PurchaseDialog = ({
     ssovTokenName,
     purchaseTokenName,
     chainId,
-    isPut,
+    activeType,
   ]);
 
   const zapInTotalCost: number = useMemo(() => {
@@ -366,9 +370,10 @@ const PurchaseDialog = ({
   }, [rawOptionsAmount]);
 
   const isLiquidityEnough = optionsAmount < userEpochStrikePurchasableAmount;
-  const isPurchasePowerEnough = !isPut
-    ? purchasePower >= getUserReadableAmount(state.totalCost, 18)
-    : true;
+  const isPurchasePowerEnough =
+    activeType === 'CALL'
+      ? purchasePower >= getUserReadableAmount(state.totalCost, 18)
+      : true;
 
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
@@ -378,13 +383,14 @@ const PurchaseDialog = ({
     const fromTokenAddress: string = IS_NATIVE(purchaseTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : contractAddresses[purchaseTokenName];
-    const toTokenAddress: string = isPut
-      ? Addresses[chainId]['USDC']
-      : IS_NATIVE(ssovTokenName)
-      ? ssovTokenName === 'BNB'
-        ? Addresses[chainId]['VBNB']
-        : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : ssovToken.address;
+    const toTokenAddress: string =
+      activeType === 'PUT'
+        ? Addresses[chainId]['USDC']
+        : IS_NATIVE(ssovTokenName)
+        ? ssovTokenName === 'BNB'
+          ? Addresses[chainId]['VBNB']
+          : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        : ssovToken.address;
 
     if (!quote['toToken']) {
       setIsFetchingPath(false);
@@ -443,7 +449,7 @@ const PurchaseDialog = ({
     state.totalCost,
     contractAddresses,
     purchaseTokenName,
-    isPut,
+    activeType,
   ]);
 
   const openZapIn = () => setIsZapInVisible(true);
@@ -466,7 +472,7 @@ const PurchaseDialog = ({
     const _amount = getContractReadableAmount(optionsAmount, 18);
 
     try {
-      if (isPut) {
+      if (activeType === 'PUT') {
         if (purchaseTokenName === '2CRV') {
           await sendTx(
             (ssovContractWithSigner as Curve2PoolSsovPut).purchase(
@@ -607,7 +613,7 @@ const PurchaseDialog = ({
     chainId,
     erc20SSOV1inchRouter,
     getPath,
-    isPut,
+    activeType,
     nativeSSOV1inchRouter,
     optionsAmount,
     sendTx,
@@ -713,7 +719,7 @@ const PurchaseDialog = ({
           );
 
         let volatility;
-        if (isPut) {
+        if (activeType === 'PUT') {
           volatility = (
             await ssovData.ssovContract.getVolatility(strike)
           ).toNumber();
@@ -734,7 +740,7 @@ const PurchaseDialog = ({
         }
 
         const optionPrice = await ssovOptionPricingContract.getOptionPrice(
-          isPut,
+          activeType === 'PUT',
           expiry,
           strike,
           tokenPrice,
@@ -743,9 +749,9 @@ const PurchaseDialog = ({
 
         let premium = optionPrice
           .mul(ethersUtils.parseEther(String(optionsAmount)))
-          .div(isPut ? ssovData.lpPrice : tokenPrice);
+          .div(activeType === 'PUT' ? ssovData.lpPrice : tokenPrice);
 
-        if (isPut) {
+        if (activeType === 'PUT') {
           premium = premium.mul(BigNumber.from(1e10));
         }
 
@@ -805,7 +811,7 @@ const PurchaseDialog = ({
     volatilityOracleContract,
     tokenPrice,
     provider,
-    isPut,
+    activeType === 'PUT',
     ssovData,
     ssovTokenName,
     isZapActive,
@@ -816,7 +822,7 @@ const PurchaseDialog = ({
   useEffect(() => {
     (async function () {
       const finalAmount = state.totalCost;
-      if (isPut) {
+      if (activeType === 'PUT') {
         const _token = ERC20__factory.connect(
           contractAddresses[purchaseTokenName],
           provider
@@ -858,7 +864,7 @@ const PurchaseDialog = ({
   }, [
     accountAddress,
     state.totalCost,
-    isPut,
+    activeType === 'PUT',
     provider,
     spender,
     contractAddresses,
@@ -934,8 +940,8 @@ const PurchaseDialog = ({
   ]);
 
   const handleZapOut = useCallback(
-    () => setPurchaseTokenName(isPut ? '2CRV' : ssovTokenName),
-    [ssovTokenName, isPut]
+    () => setPurchaseTokenName(activeType === 'PUT' ? '2CRV' : ssovTokenName),
+    [ssovTokenName, activeType === 'PUT']
   );
 
   return (
@@ -972,7 +978,7 @@ const PurchaseDialog = ({
               />
             </Box>
           </Box>
-          {!isPut ? (
+          {activeType === 'CALL' ? (
             <Box
               className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
               onClick={setMaxAmount}
@@ -1018,7 +1024,7 @@ const PurchaseDialog = ({
           </Box>
         </Box>
       </Box>
-      {isPut && !isZapInVisible ? (
+      {activeType === 'PUT' && !isZapInVisible ? (
         <Curve2PoolSelector
           className="mb-2 ml-1"
           token={purchaseTokenName}
@@ -1031,7 +1037,7 @@ const PurchaseDialog = ({
             <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
               <PnlChart
                 breakEven={
-                  isPut
+                  activeType === 'PUT'
                     ? Number(strikes[strikeIndex]) -
                       getUserReadableAmount(state.optionPrice, 8)
                     : Number(strikes[strikeIndex]) +
@@ -1039,7 +1045,7 @@ const PurchaseDialog = ({
                 }
                 optionPrice={getUserReadableAmount(state.optionPrice, 8)}
                 amount={optionsAmount}
-                isPut={isPut}
+                isPut={activeType === 'PUT'}
                 price={getUserReadableAmount(tokenPrice, 8)}
                 symbol={ssovTokenName}
               />
@@ -1125,7 +1131,7 @@ const PurchaseDialog = ({
                       className="text-white mr-auto ml-0"
                     >
                       $
-                      {isPut
+                      {activeType === 'PUT'
                         ? formatAmount(
                             Number(strikes[strikeIndex]) -
                               getUserReadableAmount(state.optionPrice, 8),
@@ -1167,7 +1173,7 @@ const PurchaseDialog = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      {selectedSsov.type}
+                      {activeType}
                     </Typography>
                   </Box>
                 </Box>
@@ -1239,7 +1245,7 @@ const PurchaseDialog = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(
-                  isPut
+                  activeType === 'PUT'
                     ? purchaseTokenName === '2CRV'
                       ? getUserReadableAmount(state.fees, 18)
                       : getUserReadableAmount(
@@ -1249,7 +1255,7 @@ const PurchaseDialog = ({
                     : getUserReadableAmount(state.fees, 18),
                   6
                 )}{' '}
-                {isPut ? purchaseTokenName : ssovTokenName}
+                {activeType === 'PUT' ? purchaseTokenName : ssovTokenName}
               </Typography>
             </Box>
           </Box>
@@ -1260,7 +1266,7 @@ const PurchaseDialog = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(
-                  isPut
+                  activeType === 'PUT'
                     ? purchaseTokenName === '2CRV'
                       ? getUserReadableAmount(state.premium, 18)
                       : getUserReadableAmount(
@@ -1270,11 +1276,11 @@ const PurchaseDialog = ({
                     : getUserReadableAmount(state.premium, 18),
                   6
                 )}{' '}
-                {isPut ? purchaseTokenName : ssovTokenName}
+                {activeType === 'PUT' ? purchaseTokenName : ssovTokenName}
               </Typography>
             </Box>
           </Box>
-          {!isPut ? (
+          {activeType === 'CALL' ? (
             <Box className={'flex mb-2'}>
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
                 Purchase Power
@@ -1313,7 +1319,7 @@ const PurchaseDialog = ({
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
                   {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                  {isPut
+                  {activeType === 'PUT'
                     ? purchaseTokenName
                     : ssovTokenName === 'BNB'
                     ? 'vBNB'
@@ -1331,9 +1337,9 @@ const PurchaseDialog = ({
           path={path}
           isFetchingPath={isFetchingPath}
           fromTokenSymbol={purchaseTokenName}
-          toTokenSymbol={isPut ? 'USDC' : ssovTokenName}
+          toTokenSymbol={activeType === 'PUT' ? 'USDC' : ssovTokenName}
           selectedTokenPrice={selectedTokenPrice}
-          isZapInAvailable={isPut ? false : isZapInAvailable}
+          isZapInAvailable={activeType === 'PUT' ? false : isZapInAvailable}
           chainId={chainId}
         />
         <Box className="flex">
@@ -1362,7 +1368,7 @@ const PurchaseDialog = ({
             fromTokenSymbol={
               purchaseTokenName === '2CRV' ? 'DPX' : purchaseTokenName
             }
-            toTokenSymbol={isPut ? 'USDC' : ssovTokenName}
+            toTokenSymbol={activeType === 'PUT' ? 'USDC' : ssovTokenName}
             userTokenBalance={userTokenBalance}
             setFromTokenSymbol={setPurchaseTokenName}
             quote={quote}
@@ -1371,9 +1377,15 @@ const PurchaseDialog = ({
             purchasePower={purchasePower}
             selectedTokenPrice={selectedTokenPrice}
             isInDialog={true}
-            isPut={isPut}
-            tokensToExclude={isPut ? ['USDC', 'USDT', '2CRV'] : []}
-            lpPrice={isPut ? getUserReadableAmount(ssovData.lpPrice, 18) : 1}
+            isPut={activeType === 'PUT'}
+            tokensToExclude={
+              activeType === 'PUT' ? ['USDC', 'USDT', '2CRV'] : []
+            }
+            lpPrice={
+              activeType === 'PUT'
+                ? getUserReadableAmount(ssovData.lpPrice, 18)
+                : 1
+            }
           />
         </Box>
       </Slide>

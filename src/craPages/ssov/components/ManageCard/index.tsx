@@ -86,12 +86,16 @@ function TabPanel(props) {
   );
 }
 
-const ManageCard = () => {
+export interface Props {
+  activeType: string;
+  setActiveType: Function;
+}
+
+const ManageCard = ({ activeType, setActiveType }: Props) => {
   const { accountAddress, chainId, provider, signer, contractAddresses } =
     useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
-  const [side, setSide] = useState<string>('CALL');
   const ssovContext = useContext(SsovContext);
 
   const {
@@ -102,7 +106,7 @@ const ManageCard = () => {
     ssovUserData,
     ssovSigner,
     selectedSsov,
-  } = ssovContext[side];
+  } = ssovContext[activeType];
 
   const sendTx = useSendTx();
 
