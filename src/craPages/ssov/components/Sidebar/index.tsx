@@ -101,18 +101,20 @@ const Sidebar = ({ asset }: Props) => {
           Views
         </Typography>
       </Box>
-      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-umbra">
+      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-umbra cursor-pointer">
         <img src={'/assets/magicstars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
         <Typography variant="h6" className="text-white">
           Vault
         </Typography>
       </Box>
-      <Box className="rounded-md flex mb-4 p-3 w-full">
-        <img src={'/assets/stars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
-        <Typography variant="h6" className="text-stieglitz">
-          Options & Positions
-        </Typography>
-      </Box>
+      <Tooltip title={'Not available yet'}>
+        <Box className="rounded-md flex mb-4 p-3 w-full group cursor-not-allowed">
+          <img src={'/assets/stars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
+          <Typography variant="h6" className="text-stieglitz">
+            Options & Positions
+          </Typography>
+        </Box>
+      </Tooltip>
       <Box className={'mt-8 mb-3'}>
         <Typography variant="h5" className="text-stieglitz">
           Contract

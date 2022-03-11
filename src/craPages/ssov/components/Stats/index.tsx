@@ -259,7 +259,14 @@ const Stats = ({
             <Typography variant="h5" className="text-stieglitz">
               Purchased
             </Typography>
-            <Box className="h-[9.5em]"></Box>
+            <Box className="h-[9.5em] flex">
+              <Typography
+                variant="h5"
+                className="text-stieglitz ml-auto mr-auto mt-auto mb-auto text-sm opacity-90"
+              >
+                Not available
+              </Typography>
+            </Box>
           </Box>
           <Box className={'w-full flex'}>
             <Box
@@ -306,12 +313,12 @@ const Stats = ({
                   className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
                 >
                   <FlagIcon
-                    className={'mt-[5px] mr-1.5'}
+                    className={'mt-[6px] mr-1.5'}
                     fill={STRIKE_INDEX_TO_COLOR[strikeIndex]}
                   />
                   <Typography
                     variant={'h6'}
-                    className={'text-[12px] text-stieglitz'}
+                    className={'text-sm text-stieglitz'}
                   >
                     ${getUserReadableAmount(strike, 8)}
                   </Typography>
@@ -319,14 +326,14 @@ const Stats = ({
                 <Typography
                   variant={'h6'}
                   className={
-                    'text-[13px] text-stieglitz mt-1 ml-auto mr-2 opacity-60'
+                    'text-sm text-stieglitz mt-1 ml-auto mr-2 opacity-60'
                   }
                 >
                   $44,374.96
                 </Typography>
                 <Typography
                   variant={'h6'}
-                  className={'text-[13px] text-white mt-1 mr-0'}
+                  className={'text-sm text-white mt-1 mr-0'}
                 >
                   13.2 ETH
                 </Typography>

@@ -43,10 +43,10 @@ const Manage = () => {
       </Head>
       <AppBar active="SSOV" />
       <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
-        <Box className="w-[20%] ml-10 mt-20">
+        <Box className="w-[22%] ml-10 mt-20">
           <Sidebar asset={asset} />
         </Box>
-        <Box className="mt-20 w-[56%] pl-5 pr-5">
+        <Box className="mt-20 w-[54%] pl-5 pr-5">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description
               activeType={activeType}
