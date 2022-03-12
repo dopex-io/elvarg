@@ -37,14 +37,8 @@ const Manage = () => {
   }, [enabledTypes]);
 
   if (
-    ssovContext.CALL &&
-    ssovContext.CALL?.ssovData === undefined &&
-    ssovContext.PUT &&
-    ssovContext.PUT?.ssovData === undefined &&
-    ssovContext.CALL &&
-    ssovContext.CALL?.ssovEpochData === undefined &&
-    ssovContext.PUT &&
-    ssovContext.PUT?.ssovEpochData === undefined
+    ssovContext.PUT?.ssovEpochData === undefined &&
+    ssovContext.CALL?.ssovEpochData === undefined
   )
     return (
       <Box className="overflow-x-hidden bg-black h-screen">

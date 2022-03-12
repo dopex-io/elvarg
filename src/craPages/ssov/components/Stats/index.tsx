@@ -259,12 +259,16 @@ const Stats = ({
             <Typography variant="h5" className="text-stieglitz">
               Purchased
             </Typography>
-            <Box className="h-[9.5em] flex">
+            <Box className="h-[9.5em] flex relative">
+              <img
+                src={'/assets/chart-placeholder.png'}
+                className={'w-full blur-sm'}
+              />
               <Typography
                 variant="h5"
-                className="text-stieglitz ml-auto mr-auto mt-auto mb-auto text-sm opacity-90"
+                className="text-stieglitz ml-auto mr-auto mt-auto mb-auto text-sm opacity-90 absolute left-[40%] top-[45%]"
               >
-                Not available
+                Not available yet
               </Typography>
             </Box>
           </Box>

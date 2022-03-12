@@ -127,7 +127,7 @@ const Description = ({
         <span className="text-white mr-2">
           {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>
-        {ssovInfo[tokenSymbol].mainPageMessage}
+        {ssovInfo[tokenSymbol]?.mainPageMessage}
         <br />
         <br />
         This farms simultaneously auto-compounds, farms and supplies{' '}

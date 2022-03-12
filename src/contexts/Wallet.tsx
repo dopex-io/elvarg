@@ -51,19 +51,16 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
   '/ssov': [42161, 56, 43114],
-  '/ssov/call/DPX': [42161],
-  '/ssov/call/RDPX': [42161],
-  '/ssov/call/ETH': [42161],
-  '/ssov/call/GOHM': [42161],
-  '/ssov/call/BNB': [56],
-  '/ssov/call/GMX': [42161],
-  '/ssov/call/AVAX': [43114],
-  '/ssov/put/RDPX': [42161],
-  '/ssov/put/GOHM': [42161],
-  '/ssov/put/BTC': [42161],
-  '/ssov/put/GMX': [42161],
-  '/ssov/put/ETH': [42161],
-  '/ssov/put/CRV': [42161],
+  '/ssov/DPX': [42161],
+  '/ssov/LUNA': [42161],
+  '/ssov/WBTC': [42161],
+  '/ssov/RDPX': [42161],
+  '/ssov/ETH': [42161],
+  '/ssov/GOHM': [42161],
+  '/ssov/BNB': [56],
+  '/ssov/GMX': [42161],
+  '/ssov/AVAX': [43114],
+  '/ssov/CRV': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
   '/nfts/diamondpepes': [42161],
@@ -169,6 +166,7 @@ export const WalletProvider = (props) => {
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
         !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
+        console.log('setwrongnetwork');
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,

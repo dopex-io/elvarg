@@ -7,17 +7,21 @@ import {
   SetStateAction,
 } from 'react';
 import { BigNumber, ethers } from 'ethers';
+import delay from 'lodash/delay';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
+import LaunchIcon from '@mui/icons-material/Launch';
 import Skeleton from '@mui/material/Skeleton';
+import Checkbox from '@mui/material/Checkbox';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
@@ -32,11 +36,14 @@ import {
 } from 'contexts/Ssov';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
+import { WalletContext } from 'contexts/Wallet';
 
 import { SSOV_MAP } from 'constants/index';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
+import displayAddress from 'utils/general/displayAddress';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import styles from './styles.module.scss';
@@ -72,9 +79,15 @@ const DepositsTableData = (
   const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
 
   return (
-    <TableRow className="text-white mb-2 rounded-lg">
+    <TableRow className="text-white mb-2 rounded-lg mt-2">
       <TableCell align="left" className="mx-0 pt-2">
-        <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
+        <Box className={'pt-2'}>
+          <Box className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-umbra w-fit`}>
+            <Typography variant="h6">
+              ${formatAmount(strikePrice, 5)}
+            </Typography>
+          </Box>
+        </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
@@ -155,6 +168,8 @@ const Deposits = ({
 }) => {
   const ssovContext = useContext(SsovContext);
   const { convertToBNB } = useContext(BnbConversionContext);
+  const { accountAddress, changeWallet, disconnect, chainId, ensName } =
+    useContext(WalletContext);
 
   const { tokenPrice, tokenName } = ssovContext[activeType].ssovData;
   const {
@@ -182,6 +197,14 @@ const Deposits = ({
     () => getUserReadableAmount(tokenPrice ?? 0, 8),
     [tokenPrice]
   );
+
+  const [copyState, setCopyState] = useState('Copy Address');
+
+  const copyToClipboard = () => {
+    setCopyState('Copied');
+    delay(() => setCopyState('Copy Address'), 500);
+    navigator.clipboard.writeText(accountAddress);
+  };
 
   const deposits: any[] = useMemo(
     () =>
@@ -233,11 +256,34 @@ const Deposits = ({
       <Typography variant="h4" className="text-white mb-7">
         Deposits
       </Typography>
-      <Box className={'bg-cod-gray w-full p-4 pt-0 pb-0 rounded-xl'}>
-        <Box className="balances-table text-white pb-4">
+      <Box className={'bg-cod-gray w-full p-4 pt-4 pb-4.5 pb-0 rounded-xl'}>
+        <Box className={'flex pb-[3px] border-b border-[#1E1E1E]'}>
+          <Box className="flex items-center justify-between mb-4">
+            <Typography variant="h5" className="bg-umbra rounded-md py-1 px-2">
+              {displayAddress(accountAddress, ensName)}
+            </Typography>
+          </Box>
+          <Tooltip title={'Not implemented yet'}>
+            <Box className="ml-5 mb-3 flex cursor-not-allowed">
+              <Checkbox
+                color="secondary"
+                className={'p-0 text-white'}
+                checked={false}
+              />
+              <Typography
+                variant="h6"
+                className="text-stieglitz ml-0 mr-auto flex mt-1.5 ml-2.5"
+              >
+                Show Previous Epoch (2)
+              </Typography>
+            </Box>
+          </Tooltip>
+        </Box>
+
+        <Box className="balances-table text-white">
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
             {isEmpty(epochStrikes) ? (
-              <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
+              <Box className="border-4 border-umbra rounded-lg p-3">
                 {range(3).map((_, index) => (
                   <Skeleton
                     key={index}
@@ -256,7 +302,7 @@ const Deposits = ({
                       align="left"
                       className="text-stieglitz bg-cod-gray border-0 pb-0"
                     >
-                      <Typography variant="h6">Strike Price</Typography>
+                      <Typography variant="h6">Strike</Typography>
                     </TableCell>
                     <TableCell
                       align="left"

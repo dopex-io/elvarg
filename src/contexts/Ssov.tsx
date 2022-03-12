@@ -152,6 +152,9 @@ export const SsovSide = ({ activeType }) => {
     )
       return;
 
+    if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+      return;
+
     const ssovAddresses =
       contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
         selectedSsov.token
@@ -213,6 +216,9 @@ export const SsovSide = ({ activeType }) => {
 
   const updateSsovEpochData = useCallback(async () => {
     if (!contractAddresses || !selectedEpoch || !selectedSsov) return;
+
+    if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+      return;
 
     const ssovAddresses =
       contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
@@ -295,6 +301,9 @@ export const SsovSide = ({ activeType }) => {
     async function update() {
       let _ssovData: SsovData;
 
+      if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+        return;
+
       const ssovAddresses =
         contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
           selectedSsov.token
@@ -363,6 +372,8 @@ export const SsovSide = ({ activeType }) => {
         ? contractAddresses['2CRV-SSOV-P']
         : contractAddresses.SSOV;
 
+    if (!SSOVAddresses) return;
+
     let _ssovSigner;
 
     const tokens = SSOV_MAP[selectedSsov.token].tokens;
@@ -378,7 +389,8 @@ export const SsovSide = ({ activeType }) => {
       }
     });
 
-    console.log(activeType);
+    if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+      return;
 
     const ssovAddresses =
       contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
@@ -441,8 +453,6 @@ export const SsovProvider = (props) => {
     CALL: SsovSide({ activeType: 'CALL' }),
     PUT: SsovSide({ activeType: 'PUT' }),
   };
-
-  console.log(contextValue);
 
   return (
     <SsovContext.Provider value={contextValue}>

@@ -1,36 +1,21 @@
-import { useMemo, useState, useContext } from 'react';
+import { useContext } from 'react';
 import { Addresses } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
-import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/WalletButton';
 import CircleIcon from 'components/Icons/CircleIcon';
-import InfoBox from '../InfoBox';
-import EpochSelector from '../EpochSelector';
-import PurchaseDialog from '../PurchaseDialog';
 
-import Coin from 'assets/icons/Coin';
-import Action from 'assets/icons/Action';
-
-import {
-  SsovContext,
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-} from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
+import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
+import getBackgroundColorFromChainId from 'utils/general/getBackgroundColorFromChainId';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
 import getFormattedDate from 'utils/date/getFormattedDate';
-
-import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
 
@@ -78,7 +63,6 @@ const Sidebar = ({ asset, activeType }: Props) => {
             <Typography variant="h5" className="text-stieglitz">
               Time remaining
             </Typography>
-            {console.log(ssovContext)}
             <Countdown
               date={
                 new Date(
@@ -152,8 +136,12 @@ const Sidebar = ({ asset, activeType }: Props) => {
           Contract
         </Typography>
       </Box>
-      <Box className={'bg-[#2D364D] rounded-md relative'}>
-        <img src={'/assets/arbitrum-full.svg'} className={'h-11 p-1'} />
+      <Box
+        className={`bg-${getBackgroundColorFromChainId(
+          chainId
+        )} rounded-md relative`}
+      >
+        <img src={getExtendedLogoFromChainId(chainId)} className={'h-11 p-1'} />
         <Box
           className={
             'absolute right-[10px] top-[8px] bg-umbra p-2 pt-1 pb-1 rounded-md'
@@ -161,12 +149,11 @@ const Sidebar = ({ asset, activeType }: Props) => {
         >
           <a
             className={'cursor-pointer'}
-            href={
-              'https://arbiscan.io/address/' +
+            href={`${getExplorerUrl(chainId)}/address/${
               Addresses[chainId][
                 activeType === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
               ][asset]['Vault']
-            }
+            }`}
           >
             <Typography variant="h5" className="text-white text-[11px]">
               {displayAddress(
