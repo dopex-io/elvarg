@@ -378,6 +378,8 @@ export const SsovSide = ({ activeType }) => {
       }
     });
 
+    console.log(activeType);
+
     const ssovAddresses =
       contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
         selectedSsov.token
@@ -439,6 +441,8 @@ export const SsovProvider = (props) => {
     CALL: SsovSide({ activeType: 'CALL' }),
     PUT: SsovSide({ activeType: 'PUT' }),
   };
+
+  console.log(contextValue);
 
   return (
     <SsovContext.Provider value={contextValue}>

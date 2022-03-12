@@ -1,5 +1,6 @@
 import { useMemo, useState, useContext } from 'react';
 import { Addresses } from '@dopex-io/sdk';
+import Countdown from 'react-countdown';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -15,11 +16,18 @@ import PurchaseDialog from '../PurchaseDialog';
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
-import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import {
+  SsovContext,
+  SsovData,
+  SsovEpochData,
+  SsovUserData,
+} from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import displayAddress from 'utils/general/displayAddress';
+import getFormattedDate from 'utils/date/getFormattedDate';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
@@ -28,9 +36,11 @@ import styles from './styles.module.scss';
 
 export interface Props {
   asset: string;
+  activeType: string;
 }
 
-const Sidebar = ({ asset }: Props) => {
+const Sidebar = ({ asset, activeType }: Props) => {
+  const ssovContext = useContext(SsovContext);
   const { chainId } = useContext(WalletContext);
 
   return (
@@ -51,9 +61,9 @@ const Sidebar = ({ asset }: Props) => {
       </Box>
       <Box className={'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl mt-5'}>
         <Box className={'flex'}>
-          <Box className={'bg-[#2D2D2D] p-2 pr-3.5 pl-3.5 rounded-md mr-3'}>
+          <Box className={'bg-[#2D2D2D] p-1 pr-3.5 pl-3.5 rounded-md mr-3'}>
             <Typography variant="h4" className="text-stieglitz">
-              6
+              {ssovContext[activeType].ssovData.currentEpoch}
             </Typography>
           </Box>
           <Button className={styles.button}>
@@ -68,16 +78,38 @@ const Sidebar = ({ asset }: Props) => {
             <Typography variant="h5" className="text-stieglitz">
               Time remaining
             </Typography>
-            <Typography variant="h5" className="text-white ml-auto">
-              2d 12h 11m
-            </Typography>
+            {console.log(ssovContext)}
+            <Countdown
+              date={
+                new Date(
+                  ssovContext[
+                    activeType
+                  ].ssovEpochData.epochTimes[1].toNumber() * 1000
+                )
+              }
+              renderer={({ days, hours, minutes, seconds }) => {
+                return (
+                  <Typography variant="h5" className="text-white ml-auto">
+                    {days}d {hours}h {minutes}m
+                  </Typography>
+                );
+              }}
+            />
           </Box>
           <Box className={'flex mt-1'}>
             <Typography variant="h5" className="text-stieglitz">
               Next epoch
             </Typography>
             <Typography variant="h5" className="text-white ml-auto">
-              23/2/2022
+              {getFormattedDate(
+                new Date(
+                  (ssovContext[
+                    activeType
+                  ].ssovEpochData.epochTimes[1].toNumber() +
+                    86400 * 3) *
+                    1000
+                )
+              )}
             </Typography>
           </Box>
         </Box>
@@ -131,13 +163,18 @@ const Sidebar = ({ asset }: Props) => {
             className={'cursor-pointer'}
             href={
               'https://arbiscan.io/address/' +
-              Addresses[chainId]['SSOV'][asset]['Vault']
+              Addresses[chainId][
+                activeType === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
+              ][asset]['Vault']
             }
           >
             <Typography variant="h5" className="text-white text-[11px]">
-              {Addresses[chainId]['SSOV'][asset]['Vault'].substring(0, 5) +
-                '...' +
-                Addresses[chainId]['SSOV'][asset]['Vault'].substring(38)}
+              {displayAddress(
+                Addresses[chainId][
+                  activeType === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
+                ][asset]['Vault'],
+                null
+              )}
             </Typography>
           </a>
         </Box>

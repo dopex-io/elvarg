@@ -42,12 +42,12 @@ const Ssov = () => {
   const tvl = useMemo(() => {
     let total = 0;
     for (let i in ssovs) {
-      Object.keys(ssovs[i]).map(
-        (currency) =>
-          (total += parseFloat(
-            ssovs[i][currency]?.call?.tvl + ssovs[i][currency]?.put?.tvl
-          ))
-      );
+      Object.keys(ssovs[i]).map((currency) => {
+        const callTvl = parseFloat(ssovs[i][currency]?.call?.tvl);
+        const putTvl = parseFloat(ssovs[i][currency]?.put?.tvl);
+        if (!isNaN(callTvl)) total += callTvl;
+        if (!isNaN(putTvl)) total += putTvl;
+      });
     }
     return total;
   }, [ssovs]);

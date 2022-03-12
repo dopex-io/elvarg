@@ -96,8 +96,8 @@ function SsovCard(props) {
           </Box>
 
           <Box className="grid grid-cols-3 gap-2 mb-2">
-            {info.map((item) => {
-              return <InfoBox key={item.heading} {...item} />;
+            {info.map((item, i) => {
+              return <InfoBox key={i} {...item} />;
             })}
           </Box>
         </Box>

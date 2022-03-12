@@ -198,6 +198,19 @@ export default function AppBar(props: AppBarProps) {
       <nav
         className={cx('fixed top-0 z-50 w-full text-gray-600', styles.appBar)}
       >
+        <Box className={'flex w-full bg-umbra'}>
+          <Box className="space-x-2 mr-4 hidden lg:flex">
+            {tokenPrices.map((item, i) => (
+              <PriceTag
+                key={item.name}
+                asset={item.name}
+                price={item.price}
+                change={item.change24h}
+                showDivisor={i > 0}
+              />
+            ))}
+          </Box>
+        </Box>
         <Box className="flex w-full items-center container pl-10 pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
             <a
@@ -228,18 +241,6 @@ export default function AppBar(props: AppBarProps) {
             </Box>
           </Box>
           <Box className="flex items-center">
-            <Box className="space-x-2 mr-4 hidden lg:flex">
-              {tokenPrices
-                .filter((item) => ['DPX', 'RDPX', 'ETH'].includes(item['name']))
-                .map((item) => (
-                  <PriceTag
-                    key={item.name}
-                    asset={item.name}
-                    price={item.price}
-                    change={item.change24h}
-                  />
-                ))}
-            </Box>
             {/* {baseAssetsWithPrices ? (
             <PriceTag
               asset={baseAssetsWithPrices[selectedBaseAsset].symbol}
@@ -251,27 +252,7 @@ export default function AppBar(props: AppBarProps) {
             />
           ) : null} */}
             {accountAddress ? (
-              <Box className="bg-cod-gray flex flex-row p-1 rounded-md items-center">
-                <Box className="bg-mineshaft flex-row px-2 py-2 rounded-md items-center mr-1 hidden lg:flex">
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    className="mr-2"
-                  >
-                    {formatAmount(
-                      getUserReadableAmount(
-                        userAssetBalances[CURRENCIES_MAP[chainId]],
-                        18
-                      ),
-                      3
-                    )}{' '}
-                    <span className="text-stieglitz">
-                      {CURRENCIES_MAP[chainId]
-                        ? CURRENCIES_MAP[chainId]
-                        : 'ETH'}
-                    </span>
-                  </Typography>
-                </Box>
+              <Box className="bg-cod-gray flex flex-row rounded-md items-center">
                 <Button
                   variant="text"
                   className="text-white border-cod-gray hover:border-wave-blue border border-solid"
@@ -286,13 +267,29 @@ export default function AppBar(props: AppBarProps) {
                   )}
                   {walletButtonContent}
                 </Button>
+                <Box className="bg-mineshaft flex-row px-2 py-2 rounded-md items-center mr-1 hidden lg:flex">
+                  <Typography variant="caption" component="div">
+                    {formatAmount(
+                      getUserReadableAmount(
+                        userAssetBalances[CURRENCIES_MAP[chainId]],
+                        18
+                      ),
+                      3
+                    )}{' '}
+                    <span className="text-stieglitz">
+                      {CURRENCIES_MAP[chainId]
+                        ? CURRENCIES_MAP[chainId]
+                        : 'ETH'}
+                    </span>
+                  </Typography>
+                </Box>
               </Box>
             ) : (
               <CustomButton size="medium" onClick={handleWalletConnect}>
                 Connect Wallet
               </CustomButton>
             )}
-            <NetworkButton className="lg:inline-flex hidden ml-4 w-28" />
+            <NetworkButton className="lg:inline-flex hidden ml-2 w-28" />
             <Box>
               <IconButton
                 aria-label="more"

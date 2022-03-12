@@ -72,9 +72,10 @@ const SelectMenuProps = {
 export interface Props {
   activeType: string;
   setActiveType: Function;
+  enabledTypes: string[];
 }
 
-const ManageCard = ({ activeType, setActiveType }: Props) => {
+const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
   const { accountAddress, chainId, provider, signer, contractAddresses } =
     useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
@@ -873,9 +874,13 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
               className={
                 activeType === 'CALL'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                  : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                  : enabledTypes.includes('CALL')
+                  ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                  : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
               }
-              onClick={() => setActiveType('CALL')}
+              onClick={() =>
+                enabledTypes.includes('CALL') ? setActiveType('CALL') : null
+              }
             >
               <Typography variant="h6" className="text-xs font-normal">
                 Calls
@@ -885,9 +890,13 @@ const ManageCard = ({ activeType, setActiveType }: Props) => {
               className={
                 activeType === 'PUT'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                  : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                  : enabledTypes.includes('PUT')
+                  ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+                  : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
               }
-              onClick={() => setActiveType('PUT')}
+              onClick={() =>
+                enabledTypes.includes('PUT') ? setActiveType('PUT') : null
+              }
             >
               <Typography variant="h6" className="text-xs font-normal">
                 Puts

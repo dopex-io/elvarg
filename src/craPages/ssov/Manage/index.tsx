@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -17,18 +17,34 @@ import { SsovContext, SsovProvider } from 'contexts/Ssov';
 const Manage = () => {
   const { asset } = useParams();
   const ssovContext = useContext(SsovContext);
-  const [activeType, setActiveType] = useState<string>('CALL');
+  const [activeType, setActiveType] = useState<string>('LOADING');
+
+  const enabledTypes: string[] = useMemo(() => {
+    const types: string[] = [];
+    if (ssovContext.CALL?.ssovData) types.push('CALL');
+    if (ssovContext.PUT?.ssovData) types.push('PUT');
+    return types;
+  }, [ssovContext]);
 
   useEffect(() => {
-    ssovContext.CALL.setSelectedSsov({ token: asset });
-    ssovContext.PUT.setSelectedSsov({ token: asset });
+    ssovContext.CALL?.setSelectedSsov({ token: asset });
+    ssovContext.PUT?.setSelectedSsov({ token: asset });
   }, [asset]);
 
+  useEffect(() => {
+    if (enabledTypes.includes('CALL')) setActiveType('CALL');
+    else if (enabledTypes.includes('PUT')) setActiveType('PUT');
+  }, [enabledTypes]);
+
   if (
-    ssovContext.CALL.ssovData === undefined ||
-    ssovContext.CALL.ssovEpochData === undefined ||
-    ssovContext.PUT.ssovData === undefined ||
-    ssovContext.PUT.ssovEpochData === undefined
+    ssovContext.CALL &&
+    ssovContext.CALL?.ssovData === undefined &&
+    ssovContext.PUT &&
+    ssovContext.PUT?.ssovData === undefined &&
+    ssovContext.CALL &&
+    ssovContext.CALL?.ssovEpochData === undefined &&
+    ssovContext.PUT &&
+    ssovContext.PUT?.ssovEpochData === undefined
   )
     return (
       <Box className="overflow-x-hidden bg-black h-screen">
@@ -42,37 +58,43 @@ const Manage = () => {
         <title>SSOV | Dopex</title>
       </Head>
       <AppBar active="SSOV" />
-      <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
-        <Box className="w-[22%] ml-10 mt-20">
-          <Sidebar asset={asset} />
-        </Box>
-        <Box className="mt-20 w-[54%] pl-5 pr-5">
-          <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
-            <Description
-              activeType={activeType}
-              setActiveType={setActiveType}
-            />
+      {activeType !== 'LOADING' ? (
+        <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
+          <Box className="w-[22%] ml-10 mt-20">
+            <Sidebar asset={asset} activeType={activeType} />
           </Box>
+          <Box className="mt-20 w-[54%] pl-5 pr-5">
+            <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
+              <Description
+                activeType={activeType}
+                setActiveType={setActiveType}
+              />
+            </Box>
 
-          <Box className="mb-10">
-            <Stats activeType={activeType} setActiveType={setActiveType} />
+            <Box className="mb-10">
+              <Stats activeType={activeType} setActiveType={setActiveType} />
+            </Box>
+
+            <Deposits activeType={activeType} setActiveType={setActiveType} />
+
+            <Box className={'mt-12'}>
+              <Withdrawals
+                activeType={activeType}
+                setActiveType={setActiveType}
+              />
+            </Box>
           </Box>
-
-          <Deposits activeType={activeType} setActiveType={setActiveType} />
-
-          <Box className={'mt-12'}>
-            <Withdrawals
-              activeType={activeType}
-              setActiveType={setActiveType}
-            />
+          <Box className="flex w-[24%] mr-auto">
+            <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[9rem] right-[3rem] absolute">
+              <ManageCard
+                activeType={activeType}
+                setActiveType={setActiveType}
+                enabledTypes={enabledTypes}
+              />
+            </Box>
           </Box>
         </Box>
-        <Box className="flex w-[24%] mr-auto">
-          <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[6rem] right-[2.5rem] absolute">
-            <ManageCard activeType={activeType} setActiveType={setActiveType} />
-          </Box>
-        </Box>
-      </Box>
+      ) : null}
     </Box>
   );
 };
