@@ -51,7 +51,7 @@ interface DepositsTableDataProps {
   strikeIndex: number;
   strikePrice: number;
   totalUserDeposits: number;
-  totalUserPremium: number;
+  totalUserPremiums: number;
   totalDeposits: number;
   totalPremiums: number;
   imgSrc: string;
@@ -70,7 +70,7 @@ const DepositsTableData = (
   const {
     strikePrice,
     totalUserDeposits,
-    totalUserPremium,
+    totalUserPremiums,
     totalDeposits,
     totalPremiums,
     price,
@@ -122,20 +122,20 @@ const DepositsTableData = (
 
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalUserPremium, 5)} {tokenName}
+          {formatAmount(totalUserPremiums, 5)} {tokenName}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
           {formatAmount(
             tokenSymbol === 'BNB'
               ? (convertToBNB(
-                  ethers.utils.parseEther(totalUserPremium.toString())
+                  ethers.utils.parseEther(totalUserPremiums.toString())
                 )
                   .div(oneEBigNumber(6))
                   .toNumber() /
                   1e4) *
                   price
-              : totalUserPremium * price,
+              : totalUserPremiums * price,
             2
           )}
         </Box>
@@ -415,7 +415,7 @@ const Deposits = ({
                         strikeIndex,
                         strikePrice,
                         totalUserDeposits,
-                        totalUserPremium,
+                        totalUserPremiums,
                         totalDeposits,
                         totalPremiums,
                       }) => {
@@ -426,7 +426,7 @@ const Deposits = ({
                             strikeIndex={strikeIndex}
                             strikePrice={strikePrice}
                             totalUserDeposits={totalUserDeposits}
-                            totalUserPremium={totalUserPremium}
+                            totalUserPremiums={totalUserPremiums}
                             totalDeposits={totalDeposits}
                             totalPremiums={totalPremiums}
                             price={price}
