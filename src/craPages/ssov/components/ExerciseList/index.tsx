@@ -40,10 +40,11 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
-const ExerciseList = () => {
+const ExerciseList = ({ activeType }) => {
   const { accountAddress } = useContext(WalletContext);
+  const ssovContext = useContext(SsovContext)[activeType];
   const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
-    useContext(SsovContext);
+    ssovContext;
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
