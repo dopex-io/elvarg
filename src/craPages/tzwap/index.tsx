@@ -110,7 +110,7 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        Addresses[chainId]['Tzwap1inchRouter'],
+        '0x502cc64884Fca04bBE1F5c3c1507317E579dc789',
         signer
       ),
     [signer]
@@ -556,12 +556,12 @@ const Tzwap = () => {
               <br />
               <a
                 href={
-                  'https://arbiscan.io/address/0x24a48b1f08cb88fec2e4c389bce88ba534e2a952'
+                  'https://arbiscan.io/address/0x502cc64884Fca04bBE1F5c3c1507317E579dc789'
                 }
                 rel="noreferrer"
                 className={'text-wave-blue'}
               >
-                0x24a48b1f08cb88fec2e4c389bce88ba534e2a952
+                0x502cc64884Fca04bBE1F5c3c1507317E579dc789
               </a>
             </Typography>
           </Box>
@@ -959,12 +959,7 @@ const Tzwap = () => {
                               >
                                 <Countdown
                                   date={estEndDate}
-                                  renderer={({
-                                    days,
-                                    hours,
-                                    minutes,
-                                    seconds,
-                                  }) => {
+                                  renderer={({ days, hours, minutes }) => {
                                     return (
                                       <Box className="flex items-center w-full cursor-default">
                                         <Typography
@@ -972,6 +967,7 @@ const Tzwap = () => {
                                           variant="h6"
                                           component="div"
                                         >
+                                          {days > 0 ? days + ' days' : null}{' '}
                                           {hours}h {minutes}m
                                         </Typography>
                                       </Box>

@@ -839,6 +839,10 @@ const PurchaseDialog = ({
         }
       } else {
         if (IS_NATIVE(purchaseTokenName)) {
+          const userAmount = BigNumber.from(
+            userAssetBalances[purchaseTokenName]
+          );
+          setUserTokenBalance(userAmount);
           setApproved(true);
         } else {
           const _token = ERC20__factory.connect(
