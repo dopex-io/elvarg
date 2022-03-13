@@ -401,7 +401,9 @@ const ZapIn = ({
                           {swapSymbols.map((symbol) => (
                             <SwapSymbol
                               key={symbol}
-                              imgSrc={`/assets/${symbol}.svg`}
+                              imgSrc={`/assets/${
+                                symbol.toLowerCase().split('.e')[0]
+                              }.svg`}
                               imgAlt={symbol}
                               symbol={symbol}
                               isInDialog={isInDialog}
@@ -409,7 +411,7 @@ const ZapIn = ({
                           ))}
                           {isPut ? (
                             <SwapSymbol
-                              imgSrc="/assets/2CRV.svg"
+                              imgSrc="/assets/2crv.svg"
                               imgAlt={'2CRV'}
                               symbol={'2CRV'}
                               isInDialog={isInDialog}
