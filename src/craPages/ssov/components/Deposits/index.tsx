@@ -10,6 +10,7 @@ import { BigNumber, ethers } from 'ethers';
 import delay from 'lodash/delay';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import Countdown from 'react-countdown';
 import TableHead from '@mui/material/TableHead';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -19,7 +20,6 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
-import LaunchIcon from '@mui/icons-material/Launch';
 import Skeleton from '@mui/material/Skeleton';
 import Checkbox from '@mui/material/Checkbox';
 import isEmpty from 'lodash/isEmpty';
@@ -42,7 +42,6 @@ import { SSOV_MAP } from 'constants/index';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
@@ -51,8 +50,9 @@ import styles from './styles.module.scss';
 interface DepositsTableDataProps {
   strikeIndex: number;
   strikePrice: number;
+  totalUserDeposits: number;
+  totalUserPremium: number;
   totalDeposits: number;
-  totalPurchased: number;
   totalPremiums: number;
   imgSrc: string;
   tokenSymbol: string;
@@ -61,15 +61,21 @@ interface DepositsTableDataProps {
 const YEAR_SECONDS = 31536000;
 
 const DepositsTableData = (
-  props: DepositsTableDataProps & { price: number; epochTime: number }
+  props: DepositsTableDataProps & {
+    price: number;
+    epochTime: number;
+    epochEndTime: Date;
+  }
 ) => {
   const {
     strikePrice,
+    totalUserDeposits,
+    totalUserPremium,
     totalDeposits,
-    totalPurchased,
     totalPremiums,
     price,
     epochTime,
+    epochEndTime,
     imgSrc,
     tokenSymbol,
   } = props;
@@ -78,11 +84,15 @@ const DepositsTableData = (
 
   const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
 
+  const isWithdrawalEnabled: boolean = useMemo(() => {
+    return new Date() > epochEndTime;
+  }, [epochEndTime]);
+
   return (
     <TableRow className="text-white mb-2 rounded-lg mt-2">
       <TableCell align="left" className="mx-0 pt-2">
         <Box className={'pt-2'}>
-          <Box className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-umbra w-fit`}>
+          <Box className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}>
             <Typography variant="h6">
               ${formatAmount(strikePrice, 5)}
             </Typography>
@@ -91,18 +101,20 @@ const DepositsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {tokenName}
+          {formatAmount(totalUserDeposits, 5)} {tokenName}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
           {formatAmount(
             tokenSymbol === 'BNB'
-              ? (convertToBNB(ethers.utils.parseEther(totalDeposits.toString()))
+              ? (convertToBNB(
+                  ethers.utils.parseEther(totalUserDeposits.toString())
+                )
                   .div(oneEBigNumber(6))
                   .toNumber() /
                   1e4) *
                   price
-              : totalDeposits * price,
+              : totalUserDeposits * price,
             2
           )}
         </Box>
@@ -110,24 +122,26 @@ const DepositsTableData = (
 
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)} {tokenName}
+          {formatAmount(totalUserPremium, 5)} {tokenName}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
           {formatAmount(
             tokenSymbol === 'BNB'
-              ? (convertToBNB(ethers.utils.parseEther(totalPremiums.toString()))
+              ? (convertToBNB(
+                  ethers.utils.parseEther(totalUserPremium.toString())
+                )
                   .div(oneEBigNumber(6))
                   .toNumber() /
                   1e4) *
                   price
-              : totalPremiums * price,
+              : totalUserPremium * price,
             2
           )}
         </Box>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6">
+        <Typography variant="h6" className="text-[#6DFFB9]">
           {formatAmount(
             epochTime > 0 && totalDeposits > 0
               ? 100 *
@@ -146,11 +160,36 @@ const DepositsTableData = (
         <Button
           onClick={null}
           className={cx(
-            'rounded-md h-10 ml-1 text-white hover:bg-opacity-70',
-            !true ? 'bg-umbra hover:bg-cod-gray' : 'bg-primary hover:bg-primary'
+            'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
+            epochEndTime > new Date()
+              ? 'bg-umbra hover:bg-cod-gray'
+              : 'bg-primary hover:bg-primary text-white '
           )}
+          disabled={!isWithdrawalEnabled}
         >
-          Withdraw
+          {isWithdrawalEnabled ? (
+            'Withdraw'
+          ) : (
+            <Countdown
+              date={epochEndTime}
+              renderer={({ days, hours, minutes, seconds }) => {
+                return (
+                  <Box className={'flex'}>
+                    <img
+                      src={'/assets/timer.svg'}
+                      className={'h-[1rem] mt-1 mr-2 ml-1'}
+                    />
+                    <Typography
+                      variant="h5"
+                      className="ml-auto text-stieglitz mr-1"
+                    >
+                      {days}d {hours}h {minutes}m
+                    </Typography>
+                  </Box>
+                );
+              }}
+            />
+          )}
         </Button>
       </TableCell>
     </TableRow>
@@ -180,10 +219,19 @@ const Deposits = ({
     totalEpochOptionsPurchased,
   } = ssovContext[activeType].ssovEpochData;
 
-  const epochTime =
-    epochTimes && epochTimes[0] && epochTimes[1]
+  const { userEpochStrikeDeposits } = ssovContext[activeType].ssovUserData;
+
+  const epochTime: number = useMemo(() => {
+    return epochTimes && epochTimes[0] && epochTimes[1]
       ? (epochTimes[1] as BigNumber).sub(epochTimes[0] as BigNumber).toNumber()
       : 0;
+  }, [epochTimes]);
+
+  const epochEndTime: Date = useMemo(() => {
+    return new Date(
+      ssovContext[activeType].ssovEpochData.epochTimes[1].toNumber() * 1000
+    );
+  }, [ssovContext, activeType]);
 
   const [page, setPage] = useState(0);
   const handleChangePage = useCallback(
@@ -210,6 +258,18 @@ const Deposits = ({
     () =>
       epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
+
+        const totalUserDeposits =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(
+                userEpochStrikeDeposits[strikeIndex] ?? 0,
+                8
+              )
+            : getUserReadableAmount(
+                userEpochStrikeDeposits[strikeIndex] ?? 0,
+                18
+              );
+
         const totalDeposits =
           tokenName === 'BNB'
             ? getUserReadableAmount(
@@ -220,30 +280,28 @@ const Deposits = ({
                 totalEpochStrikeDeposits[strikeIndex] ?? 0,
                 18
               );
-        const totalPurchased =
-          tokenName === 'BNB'
-            ? convertToBNB(totalEpochOptionsPurchased[strikeIndex]) ?? 0
-            : getUserReadableAmount(
-                totalEpochOptionsPurchased[strikeIndex] ?? 0,
-                18
-              );
 
         const totalPremiums =
           tokenName === 'BNB'
             ? getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 8)
             : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
 
+        const totalUserPremiums =
+          (totalPremiums * totalUserDeposits) / totalDeposits;
+
         return {
           strikeIndex,
           strikePrice,
+          totalUserDeposits,
+          totalUserPremiums,
           totalDeposits,
-          totalPurchased,
           totalPremiums,
         };
       }),
     [
       epochStrikes,
       totalEpochStrikeDeposits,
+      userEpochStrikeDeposits,
       totalEpochOptionsPurchased,
       totalEpochPremium,
       tokenName,
@@ -256,7 +314,7 @@ const Deposits = ({
       <Typography variant="h4" className="text-white mb-7">
         Deposits
       </Typography>
-      <Box className={'bg-cod-gray w-full p-4 pt-4 pb-4.5 pb-0 rounded-xl'}>
+      <Box className={'bg-cod-gray w-full p-4 pt-5 pb-4.5 pb-0 rounded-xl'}>
         <Box className={'flex pb-[3px] border-b border-[#1E1E1E]'}>
           <Box className="flex items-center justify-between mb-4">
             <Typography variant="h5" className="bg-umbra rounded-md py-1 px-2">
@@ -317,7 +375,7 @@ const Deposits = ({
                       className="text-stieglitz bg-cod-gray border-0 pb-0"
                     >
                       <Typography variant="h6" className="text-stieglitz">
-                        Premiums
+                        Premium
                       </Typography>
                     </TableCell>
                     <TableCell
@@ -356,20 +414,23 @@ const Deposits = ({
                       ({
                         strikeIndex,
                         strikePrice,
+                        totalUserDeposits,
+                        totalUserPremium,
                         totalDeposits,
-                        totalPurchased,
                         totalPremiums,
                       }) => {
                         return (
                           <DepositsTableData
                             key={strikeIndex}
+                            epochTime={epochTime}
                             strikeIndex={strikeIndex}
                             strikePrice={strikePrice}
+                            totalUserDeposits={totalUserDeposits}
+                            totalUserPremium={totalUserPremium}
                             totalDeposits={totalDeposits}
-                            totalPurchased={totalPurchased}
                             totalPremiums={totalPremiums}
                             price={price}
-                            epochTime={epochTime}
+                            epochEndTime={epochEndTime}
                             imgSrc={
                               SSOV_MAP[
                                 ssovContext[activeType].ssovData.tokenName

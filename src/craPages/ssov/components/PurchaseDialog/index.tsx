@@ -39,7 +39,6 @@ import BigCrossIcon from 'components/Icons/BigCrossIcon';
 import CircleIcon from 'components/Icons/CircleIcon';
 import AlarmIcon from 'components/Icons/AlarmIcon';
 
-import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';

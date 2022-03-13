@@ -18,6 +18,7 @@ const Manage = () => {
   const { asset } = useParams();
   const ssovContext = useContext(SsovContext);
   const [activeType, setActiveType] = useState<string>('LOADING');
+  const showWithdrawalInformation: boolean = false;
 
   const enabledTypes: string[] = useMemo(() => {
     const types: string[] = [];
@@ -57,7 +58,7 @@ const Manage = () => {
           <Box className="w-[22%] ml-10 mt-20">
             <Sidebar asset={asset} activeType={activeType} />
           </Box>
-          <Box className="mt-20 w-[54%] pl-5 pr-5">
+          <Box className="mt-20 mb-20 w-[54%] pl-5 pr-5">
             <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
               <Description
                 activeType={activeType}
@@ -66,17 +67,19 @@ const Manage = () => {
             </Box>
 
             <Box className="mb-10">
-              <Stats activeType={activeType} setActiveType={setActiveType} />
+              <Stats activeType={activeType} />
             </Box>
 
             <Deposits activeType={activeType} setActiveType={setActiveType} />
 
-            <Box className={'mt-12'}>
-              <Withdrawals
-                activeType={activeType}
-                setActiveType={setActiveType}
-              />
-            </Box>
+            {showWithdrawalInformation ? (
+              <Box className={'mt-12'}>
+                <Withdrawals
+                  activeType={activeType}
+                  setActiveType={setActiveType}
+                />
+              </Box>
+            ) : null}
           </Box>
           <Box className="flex w-[24%] mr-auto">
             <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[9rem] right-[3rem] absolute">

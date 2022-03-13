@@ -9,13 +9,10 @@ import Typography from 'components/UI/Typography';
 import InfoBox from '../InfoBox';
 
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
-import { BigNumber } from 'ethers';
 
 function SsovCard(props) {
   const { className, data } = props;
@@ -25,13 +22,41 @@ function SsovCard(props) {
     if (!convertToBNB) return [];
     return [
       {
-        heading: 'APY',
-        value: `${data.call?.apy === 0 ? '...' : `${data.call?.apy}%`}`,
+        heading: (
+          <Box className={'flex'}>
+            <Typography variant="caption" className={'text-[#6DFFB9]'}>
+              |
+            </Typography>
+            <Typography
+              variant="caption"
+              className={'ml-1 mt-[1px] text-stieglitz'}
+            >
+              APY
+            </Typography>
+          </Box>
+        ),
+        value: `${
+          data.call?.apy === 0 || !data.call?.apy ? '...' : `${data.call?.apy}%`
+        }`,
         tooltip: data.name.aprToolTipMessage,
       },
       {
-        heading: 'APY',
-        value: `${data.put?.apy === 0 ? '...' : `${data.put?.apy}%`}`,
+        heading: (
+          <Box className={'flex'}>
+            <Typography variant="caption" className={'text-[#FF617D]'}>
+              |
+            </Typography>
+            <Typography
+              variant="caption"
+              className={'ml-1 mt-[1px] text-stieglitz'}
+            >
+              APY
+            </Typography>
+          </Box>
+        ),
+        value: `${
+          data.put?.apy === 0 || !data.put?.apy ? '...' : `${data.put?.apy}%`
+        }`,
         tooltip:
           'This is the base APY calculated from Curve 2Pool Fees and Rewards',
       },

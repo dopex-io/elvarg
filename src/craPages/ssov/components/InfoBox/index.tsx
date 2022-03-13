@@ -6,20 +6,13 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Typography from 'components/UI/Typography';
 
 interface InfoBoxProps {
-  imgSrc?: string;
-  heading: string;
+  heading: any;
   value: string;
   className?: string;
   tooltip?: string;
 }
 
-const InfoBox = ({
-  imgSrc,
-  heading,
-  value,
-  className,
-  tooltip,
-}: InfoBoxProps) => {
+const InfoBox = ({ heading, value, className, tooltip }: InfoBoxProps) => {
   return (
     <Box className={cx('flex flex-col p-4 bg-umbra rounded-xl', className)}>
       <Typography variant="h5">{value}</Typography>
@@ -32,13 +25,13 @@ const InfoBox = ({
           {heading}
         </Typography>
         {tooltip ? (
-          <Box className="ml-1 flex items-center">
+          <Box className="flex items-center">
             <Tooltip
               className="h-4 text-stieglitz"
               title={tooltip}
               arrow={true}
             >
-              <InfoOutlinedIcon />
+              <InfoOutlinedIcon className={'mt-0.5'} />
             </Tooltip>
           </Box>
         ) : null}

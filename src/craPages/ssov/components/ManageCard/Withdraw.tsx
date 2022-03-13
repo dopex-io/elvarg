@@ -19,7 +19,8 @@ import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
-const Withdraw = () => {
+const Withdraw = ({ activeType }) => {
+  const ssovContext = useContext(SsovContext);
   const {
     updateSsovEpochData,
     updateSsovUserData,
@@ -29,7 +30,7 @@ const Withdraw = () => {
     ssovSigner,
     selectedEpoch,
     selectedSsov,
-  } = useContext(SsovContext);
+  } = ssovContext[activeType];
 
   const { tokenName } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
