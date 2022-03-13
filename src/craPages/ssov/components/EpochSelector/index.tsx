@@ -7,8 +7,15 @@ import cx from 'classnames';
 
 import { SsovContext } from 'contexts/Ssov';
 
-export default function EpochSelector({ className }: { className?: string }) {
-  const { selectedEpoch, setSelectedEpoch, ssovData } = useContext(SsovContext);
+export default function EpochSelector({
+  className,
+  activeType,
+}: {
+  className?: string;
+  activeType: string;
+}) {
+  const ssovContext = useContext(SsovContext)[activeType];
+  const { selectedEpoch, setSelectedEpoch, ssovData } = ssovContext;
 
   const { currentEpoch } = ssovData;
 
