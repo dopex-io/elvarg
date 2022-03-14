@@ -68,9 +68,10 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/nfts/community': [42161, 1, 43114],
   '/nfts/diamondpepes': [42161],
   '/sale': [1],
-  '/otc': [42161, 421611],
-  '/otc/chat/:id': [42161, 421611],
-  '/oracles': [1, 42161, 56 /*, 43114*/],
+  '/oracles': [1, 42161, 56, 43114],
+  '/tzwap': [42161],
+  '/otc': [421611],
+  '/otc/chat/:id': [421611],
 };
 
 const DEFAULT_CHAIN_ID = 421611;

@@ -116,7 +116,7 @@ export const STAT_NAMES = {
 
 export const SSOV_PUTS_MAP = {
   RDPX: {
-    tokenSymbol: 'rDPX',
+    tokenSymbol: 'RDPX',
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
     tokens: ['2CRV'],
@@ -155,7 +155,7 @@ export const SSOV_MAP = {
     tokens: ['DPX'],
   },
   RDPX: {
-    tokenSymbol: 'rDPX',
+    tokenSymbol: 'RDPX',
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
     tokens: ['RDPX'],

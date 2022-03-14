@@ -100,6 +100,7 @@ const menuLinks = [
   { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
+  { name: 'Tzwap', to: '/tzwap' },
 ];
 
 interface AppBarProps {
