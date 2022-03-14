@@ -13,7 +13,6 @@ import { WalletContext } from 'contexts/Wallet';
 
 import displayAddress from 'utils/general/displayAddress';
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
-import getBackgroundColorFromChainId from 'utils/general/getBackgroundColorFromChainId';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import getFormattedDate from 'utils/date/getFormattedDate';
 
@@ -34,15 +33,6 @@ const Sidebar = ({ asset, activeType }: Props) => {
         <Typography variant="h5" className="text-stieglitz">
           Epoch
         </Typography>
-        <Box className={'flex  ml-auto'}>
-          <Typography variant="h5" className="text-white">
-            Weekly
-          </Typography>
-          <img
-            src="/assets/arrowdown.svg"
-            className={'w-[9px] h-[8px] mt-3 ml-3'}
-          />
-        </Box>
       </Box>
       <Box className={'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl mt-5'}>
         <Box className={'flex'}>
@@ -54,9 +44,9 @@ const Sidebar = ({ asset, activeType }: Props) => {
           <Button className={styles.button}>
             <img src={'/assets/lock.svg'} className={'mr-3'} /> Vault Open
           </Button>
-          <Box className={'bg-[#2D2D2D] p-2 pr-4 pl-4 rounded-md ml-auto'}>
+          {/*<Box className={'bg-[#2D2D2D] p-2 pr-4 pl-4 rounded-md ml-auto'}>
             <img src={'/assets/threedots.svg'} className={'h-4 mt-[6px]'} />
-          </Box>
+          </Box>*/}
         </Box>
         <Box className={'bg-[#2D2D2D] p-3 rounded-md mt-3'}>
           <Box className={'flex'}>
@@ -101,15 +91,17 @@ const Sidebar = ({ asset, activeType }: Props) => {
           <CircleIcon
             onClick={null}
             className={
-              'ml-auto mr-3 h-5 w-5 fill-white stroke-white cursor-pointer'
+              'ml-auto mr-auto h-5 w-5 fill-white stroke-white cursor-pointer'
             }
           />
+          {/*
           <CircleIcon
             onClick={null}
             className={
               'mr-auto ml-0 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
             }
           />
+          */}
         </Box>
       </Box>
       <Box className={'flex mt-8 mb-3'}>
@@ -136,15 +128,11 @@ const Sidebar = ({ asset, activeType }: Props) => {
           Contract
         </Typography>
       </Box>
-      <Box
-        className={`bg-${getBackgroundColorFromChainId(
-          chainId
-        )} rounded-md relative`}
-      >
+      <Box className={`bg-umbra rounded-md relative`}>
         <img src={getExtendedLogoFromChainId(chainId)} className={'h-11 p-1'} />
         <Box
           className={
-            'absolute right-[10px] top-[8px] bg-umbra p-2 pt-1 pb-1 rounded-md'
+            'absolute right-[10px] top-[8px] bg-mineshaft p-2 pt-1 pb-1 rounded-md'
           }
         >
           <a
