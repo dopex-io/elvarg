@@ -975,6 +975,7 @@ const ManageCard = ({
                   value={selectedStrikeIndexes}
                   onChange={handleSelectStrikes}
                   input={<Input />}
+                  disableUnderline={true}
                   variant="outlined"
                   renderValue={() => {
                     return (

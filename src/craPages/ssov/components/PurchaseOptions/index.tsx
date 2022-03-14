@@ -17,6 +17,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
+import CircularProgress from '@mui/material/CircularProgress';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -43,161 +44,13 @@ import { SSOV_MAP } from 'constants/index';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 import displayAddress from 'utils/general/displayAddress';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import styles from './styles.module.scss';
 
-interface PurchaseOptionsTableDataProps {
-  strikeIndex: number;
-  strikePrice: number;
-  totalUserDeposits: number;
-  totalUserPremiums: number;
-  totalDeposits: number;
-  totalPremiums: number;
-  imgSrc: string;
-  tokenSymbol: string;
-}
-
 const YEAR_SECONDS = 31536000;
-
-const PurchaseOptionsTableData = (
-  props: PurchaseOptionsTableDataProps & {
-    price: number;
-    epochTime: number;
-    epochEndTime: Date;
-  }
-) => {
-  const {
-    strikePrice,
-    totalUserDeposits,
-    totalUserPremiums,
-    totalDeposits,
-    totalPremiums,
-    price,
-    epochTime,
-    epochEndTime,
-    imgSrc,
-    tokenSymbol,
-  } = props;
-
-  const { convertToVBNB, convertToBNB } = useContext(BnbConversionContext);
-
-  const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
-
-  const isWithdrawalEnabled: boolean = useMemo(() => {
-    return new Date() > epochEndTime;
-  }, [epochEndTime]);
-
-  return (
-    <TableRow className="text-white mb-2 rounded-lg mt-2">
-      <TableCell align="left" className="mx-0 pt-2">
-        <Box className={'pt-2'}>
-          <Box className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}>
-            <Typography variant="h6">
-              ${formatAmount(strikePrice, 5)}
-            </Typography>
-          </Box>
-        </Box>
-      </TableCell>
-      <TableCell align="left" className="pt-2">
-        <Typography variant="h6">
-          {formatAmount(totalUserDeposits, 5)} {tokenName}
-        </Typography>
-        <Box component="h6" className="text-xs text-stieglitz">
-          {'$'}
-          {formatAmount(
-            tokenSymbol === 'BNB'
-              ? (convertToBNB(
-                  ethers.utils.parseEther(totalUserDeposits.toString())
-                )
-                  .div(oneEBigNumber(6))
-                  .toNumber() /
-                  1e4) *
-                  price
-              : totalUserDeposits * price,
-            2
-          )}
-        </Box>
-      </TableCell>
-
-      <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6">
-          {formatAmount(totalUserPremiums, 5)} {tokenName}
-        </Typography>
-        <Box component="h6" className="text-xs text-stieglitz">
-          {'$'}
-          {formatAmount(
-            tokenSymbol === 'BNB'
-              ? (convertToBNB(
-                  ethers.utils.parseEther(totalUserPremiums.toString())
-                )
-                  .div(oneEBigNumber(6))
-                  .toNumber() /
-                  1e4) *
-                  price
-              : totalUserPremiums * price,
-            2
-          )}
-        </Box>
-      </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6" className="text-[#6DFFB9]">
-          {formatAmount(
-            epochTime > 0 && totalDeposits > 0
-              ? 100 *
-                  (YEAR_SECONDS / epochTime) *
-                  (totalPremiums / totalDeposits)
-              : 0,
-            2
-          )}
-          {'%'}
-        </Typography>
-      </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6">Call</Typography>
-      </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
-        <Button
-          onClick={null}
-          className={cx(
-            'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
-            epochEndTime > new Date()
-              ? 'bg-umbra hover:bg-cod-gray'
-              : 'bg-primary hover:bg-primary text-white '
-          )}
-          disabled={!isWithdrawalEnabled}
-        >
-          {isWithdrawalEnabled ? (
-            'Withdraw'
-          ) : (
-            <Countdown
-              date={epochEndTime}
-              renderer={({ days, hours, minutes, seconds }) => {
-                return (
-                  <Box className={'flex'}>
-                    <img
-                      src={'/assets/timer.svg'}
-                      className={'h-[1rem] mt-1 mr-2 ml-1'}
-                    />
-                    <Typography
-                      variant="h5"
-                      className="ml-auto text-stieglitz mr-1"
-                    >
-                      {days}d {hours}h {minutes}m
-                    </Typography>
-                  </Box>
-                );
-              }}
-            />
-          )}
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-};
-
-const ROWS_PER_PAGE = 5;
 
 const PurchaseOptions = ({
   activeSsovContextSide,
@@ -256,7 +109,7 @@ const PurchaseOptions = ({
 
   const [copyState, setCopyState] = useState('Copy Address');
 
-  const [purchaseOptions, setPurchaseOptions] = useState([]);
+  const [purchaseOptions, setPurchaseOptions] = useState({ CALL: [], PUT: [] });
 
   const copyToClipboard = () => {
     setCopyState('Copied');
@@ -265,62 +118,90 @@ const PurchaseOptions = ({
   };
 
   useEffect(() => {
-    setIsPurchaseStatsLoading(true);
     async function updatePurchaseOptions() {
+      setIsPurchaseStatsLoading(true);
       const options = {
-        CALL: {},
-        PUT: {},
+        CALL: [],
+        PUT: [],
       };
 
-      ['CALL', 'PUT'].map((ssovContextSide) => {
-        ssovContext[ssovContextSide].ssovEpochData.epochStrikes.map(
-          (strike, i) => {
-            options[ssovContextSide][getUserReadableAmount(strike, 8)] = {
-              available: options[ssovContextSide].ssovEpochData
-                ? options[
-                    ssovContextSide
-                  ].ssovEpochData.totalEpochStrikeDeposits[i].min(
-                    options[ssovContextSide].ssovEpochData
-                      .totalEpochOptionsPurchased[i]
-                  )
-                : BigNumber.from('0'),
-            };
+      // TODO: IMPROVE LOADING TIME
+      const ssovContextSides = ['CALL', 'PUT'];
+      for (let k in ssovContextSides) {
+        const ssovContextSide = ssovContextSides[k];
+        for (let i in ssovContext[ssovContextSide].ssovEpochData.epochStrikes) {
+          const strike =
+            ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
+
+          const available: BigNumber = ssovContext[
+            ssovContextSide
+          ].ssovEpochData.totalEpochStrikeDeposits[i].sub(
+            ssovContext[ssovContextSide].ssovEpochData
+              .totalEpochOptionsPurchased[i]
+          );
+
+          const expiry = await ssovContext[
+            ssovContextSide
+          ].ssovSigner.ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
+            Math.floor(Date.now() / 1000)
+          );
+
+          let volatility;
+
+          if (ssovContextSide === 'PUT') {
+            volatility = await ssovContext[
+              ssovContextSide
+            ].ssovData.ssovContract.getVolatility(strike);
+          } else if (
+            ssovContext[ssovContextSide].selectedSsov.token === 'ETH'
+          ) {
+            const _abi = [
+              'function getVolatility(uint256) view returns (uint256)',
+            ];
+            const _temp = new ethers.Contract(
+              '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+              _abi,
+              provider
+            );
+
+            volatility = await _temp.getVolatility(strike);
+          } else {
+            volatility = await ssovContext[
+              ssovContextSide
+            ].ssovData.volatilityOracleContract.getVolatility();
           }
-        );
-      });
+
+          const price = await ssovContext[
+            ssovContextSide
+          ].ssovData.ssovOptionPricingContract.getOptionPrice(
+            ssovContextSide === 'PUT',
+            expiry,
+            strike,
+            tokenPrice,
+            volatility
+          );
+
+          options[ssovContextSide][i] = {
+            available: available,
+            strike: getUserReadableAmount(strike, 8),
+            volatility: volatility,
+            price: getUserReadableAmount(price, 8),
+          };
+        }
+      }
+
+      setPurchaseOptions(options);
+      setIsPurchaseStatsLoading(false);
     }
     updatePurchaseOptions();
-  }, [epochStrikes, ssovContext, tokenPrice, provider]);
+  }, [ssovContext]);
 
   return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
-        Deposits
+        Purchase Options
       </Typography>
-      <Box className={'bg-cod-gray w-full p-4 pt-5 pb-4.5 pb-0 rounded-xl'}>
-        <Box className={'flex pb-[3px] border-b border-[#1E1E1E]'}>
-          <Box className="flex items-center justify-between mb-4">
-            <Typography variant="h5" className="bg-umbra rounded-md py-1 px-2">
-              {displayAddress(accountAddress, ensName)}
-            </Typography>
-          </Box>
-          <Tooltip title={'Not implemented yet'}>
-            <Box className="ml-5 mb-3 flex cursor-not-allowed">
-              <Checkbox
-                color="secondary"
-                className={'p-0 text-white'}
-                checked={false}
-              />
-              <Typography
-                variant="h6"
-                className="text-stieglitz ml-0 mr-auto flex mt-1.5 ml-2.5"
-              >
-                Show Previous Epoch (2)
-              </Typography>
-            </Box>
-          </Tooltip>
-        </Box>
-
+      <Box className={'bg-cod-gray w-full p-4 pt-2 pb-4.5 pb-0 rounded-xl'}>
         <Box className="balances-table text-white">
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
             {isEmpty(epochStrikes) ? (
@@ -335,6 +216,15 @@ const PurchaseOptions = ({
                   />
                 ))}
               </Box>
+            ) : isPurchaseStatsLoading ? (
+              <Table>
+                <TableBody className={cx('rounded-lg text-center mt-1')}>
+                  <CircularProgress size={25} className={'mt-10'} />
+                  <Typography variant="h6" className="text-white mb-10 mt-2">
+                    Checking options availability...
+                  </Typography>
+                </TableBody>
+              </Table>
             ) : (
               <Table>
                 <TableHead className="bg-umbra">
@@ -380,65 +270,80 @@ const PurchaseOptions = ({
                   </TableRow>
                 </TableHead>
                 <TableBody className={cx('rounded-lg')}>
-                  {[]
-                    .slice(
-                      page * ROWS_PER_PAGE,
-                      page * ROWS_PER_PAGE + ROWS_PER_PAGE
-                    )
-                    ?.map(
-                      ({
-                        strikeIndex,
-                        strikePrice,
-                        totalUserDeposits,
-                        totalUserPremiums,
-                        totalDeposits,
-                        totalPremiums,
-                      }) => {
-                        return (
-                          <PurchaseOptionsTableData
-                            key={strikeIndex}
-                            epochTime={epochTime}
-                            strikeIndex={strikeIndex}
-                            strikePrice={strikePrice}
-                            totalUserDeposits={totalUserDeposits}
-                            totalUserPremiums={totalUserPremiums}
-                            totalDeposits={totalDeposits}
-                            totalPremiums={totalPremiums}
-                            price={price}
-                            epochEndTime={epochEndTime}
-                            imgSrc={
-                              SSOV_MAP[
-                                ssovContext[activeSsovContextSide].ssovData
-                                  .tokenName
-                              ].imageSrc
-                            }
-                            tokenSymbol={
-                              SSOV_MAP[
-                                ssovContext[activeSsovContextSide].ssovData
-                                  .tokenName
-                              ].tokenSymbol
-                            }
-                          />
-                        );
-                      }
-                    )}
+                  {purchaseOptions['CALL'].map((row, i) => (
+                    <TableRow
+                      key={i}
+                      className="text-white mb-2 rounded-lg mt-2"
+                    >
+                      <TableCell align="left" className="mx-0 pt-2">
+                        <Box className={'pt-2'}>
+                          <Box
+                            className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}
+                          >
+                            <Typography variant="h6">
+                              ${formatAmount(row['strike'], 0)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell align="left" className="pt-2">
+                        <Typography variant="h6">
+                          {formatAmount(
+                            getUserReadableAmount(
+                              row['available'],
+                              getTokenDecimals(
+                                ssovContext['CALL'].selectedSsov.token,
+                                chainId
+                              )
+                            ),
+                            2
+                          )}{' '}
+                          {tokenName}
+                        </Typography>
+                        <Box component="h6" className="text-xs text-stieglitz">
+                          {'$'}
+                          {formatAmount(
+                            getUserReadableAmount(tokenPrice, 8) *
+                              getUserReadableAmount(
+                                row['available'],
+                                getTokenDecimals(
+                                  ssovContext['CALL'].selectedSsov.token,
+                                  chainId
+                                )
+                              ),
+                            2
+                          )}
+                        </Box>
+                      </TableCell>
+
+                      <TableCell align="left" className="px-6 pt-2">
+                        <Typography variant="h6">
+                          {activeSsovContextSide === 'PUT'
+                            ? Number(row['strike']) -
+                              (getUserReadableAmount(row['price'], 8) || 0)
+                            : Number(row['strike']) +
+                              (getUserReadableAmount(row['price'] || 0), 8)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="left" className="px-6 pt-2">
+                        <Typography variant="h6" className="text-[#6DFFB9]">
+                          {row['volatility'].toNumber()}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="left" className="px-6 pt-2">
+                        <Button
+                          onClick={null}
+                          className={'bg-primary hover:bg-primary text-white'}
+                        >
+                          ${formatAmount(row['price'], 2)}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             )}
           </TableContainer>
-          {epochStrikes.length > ROWS_PER_PAGE ? (
-            <TablePagination
-              component="div"
-              id="stats"
-              rowsPerPageOptions={[ROWS_PER_PAGE]}
-              count={epochStrikes.length}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={ROWS_PER_PAGE}
-              className="text-stieglitz border-0 flex flex-grow justify-center"
-              ActionsComponent={TablePaginationActions}
-            />
-          ) : null}
         </Box>
       </Box>
     </Box>
