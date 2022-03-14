@@ -9,8 +9,10 @@ import ManageCard from '../components/ManageCard';
 import Sidebar from '../components/Sidebar';
 import SelectStrikeWidget from '../components/SelectStrikeWidget';
 import Deposits from '../components/Deposits';
+import PurchaseOptions from '../components/PurchaseOptions';
 import Stats from '../components/Stats';
-import Withdrawals from '../components/Withdrawals';
+import WithdrawalInfo from '../components/WithdrawalInfo';
+import AutoExerciseInfo from '../components/AutoExerciseInfo';
 import PageLoader from 'components/PageLoader';
 
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
@@ -86,10 +88,7 @@ const Manage = () => {
 
               {showWithdrawalInformation ? (
                 <Box className={'mt-12'}>
-                  <Withdrawals
-                    activeSsovContextSide={activeSsovContextSide}
-                    setActiveSsovContextSide={setActiveSsovContextSide}
-                  />
+                  <WithdrawalInfo />
                 </Box>
               ) : null}
             </Box>
@@ -100,6 +99,15 @@ const Manage = () => {
                   activeSsovContextSide={activeSsovContextSide}
                   setActiveSsovContextSide={setActiveSsovContextSide}
                 />
+              </Box>
+
+              <PurchaseOptions
+                activeSsovContextSide={activeSsovContextSide}
+                setActiveSsovContextSide={setActiveSsovContextSide}
+              />
+
+              <Box className={'mt-12'}>
+                <AutoExerciseInfo />
               </Box>
             </Box>
           )}
