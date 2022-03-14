@@ -116,15 +116,69 @@ const Sidebar = ({
           Views
         </Typography>
       </Box>
-      <Box className="rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-umbra cursor-pointer">
-        <img src={'/assets/magicstars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
-        <Typography variant="h6" className="text-white">
+      <Box
+        className={
+          activeView === 'vault'
+            ? 'rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-umbra cursor-pointer'
+            : 'rounded-md flex mb-4 p-3 w-full group cursor-pointer hover:border hover:border-neutral-800 hover:bg-umbra'
+        }
+        onClick={() => setActiveView('vault')}
+      >
+        <img
+          src={'/assets/magicstars.svg'}
+          className={
+            activeView === 'vault'
+              ? 'w-5 h-4 mt-0.5 mr-3'
+              : 'w-5 h-4 mt-0.5 mr-3 hidden group-hover:block'
+          }
+        />
+        {activeView !== 'vault' ? (
+          <img
+            src={'/assets/magicstars-disabled.svg'}
+            className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+          />
+        ) : null}
+        <Typography
+          variant="h6"
+          className={
+            activeView === 'vault'
+              ? 'text-white'
+              : 'text-stieglitz group-hover:text-white'
+          }
+        >
           Vault
         </Typography>
       </Box>
-      <Box className="rounded-md flex mb-4 p-3 w-full group cursor-pointer hover:border hover:border-neutral-800 hover:bg-umbra">
-        <img src={'/assets/stars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
-        <Typography variant="h6" className="text-stieglitz">
+      <Box
+        className={
+          activeView === 'positions'
+            ? 'rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-umbra cursor-pointer'
+            : 'rounded-md flex mb-4 p-3 w-full group cursor-pointer hover:border hover:border-neutral-800 hover:bg-umbra'
+        }
+        onClick={() => setActiveView('positions')}
+      >
+        <img
+          src={'/assets/stars.svg'}
+          className={
+            activeView === 'positions'
+              ? 'w-5 h-4 mt-0.5 mr-3'
+              : 'w-5 h-4 mt-0.5 mr-3 hidden group-hover:block'
+          }
+        />
+        {activeView !== 'positions' ? (
+          <img
+            src={'/assets/stars-disabled.svg'}
+            className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+          />
+        ) : null}
+        <Typography
+          variant="h6"
+          className={
+            activeView === 'positions'
+              ? 'text-white'
+              : 'text-stieglitz group-hover:text-white'
+          }
+        >
           Options & Positions
         </Typography>
       </Box>

@@ -7,6 +7,7 @@ import AppBar from 'components/AppBar';
 import Description from '../components/Description';
 import ManageCard from '../components/ManageCard';
 import Sidebar from '../components/Sidebar';
+import SelectStrikeWidget from '../components/SelectStrikeWidget';
 import Deposits from '../components/Deposits';
 import Stats from '../components/Stats';
 import Withdrawals from '../components/Withdrawals';
@@ -19,7 +20,7 @@ const Manage = () => {
   const ssovContext = useContext(SsovContext);
   const [activeSsovContextSide, setActiveSsovContextSide] =
     useState<string>('LOADING');
-  const [activeView, setActiveView] = useState<string>('Vault');
+  const [activeView, setActiveView] = useState<string>('vault');
   const showWithdrawalInformation: boolean = false;
 
   const enabledTypes: string[] = useMemo(() => {
@@ -65,7 +66,7 @@ const Manage = () => {
               setActiveView={setActiveView}
             />
           </Box>
-          {activeView === 'Vaults' ? (
+          {activeView === 'vault' ? (
             <Box className="mt-20 mb-20 w-[54%] pl-5 pr-5">
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
@@ -100,34 +101,20 @@ const Manage = () => {
                   setActiveSsovContextSide={setActiveSsovContextSide}
                 />
               </Box>
-
-              <Box className="mb-10">
-                <Stats activeSsovContextSide={activeSsovContextSide} />
-              </Box>
-
-              <Deposits
-                activeSsovContextSide={activeSsovContextSide}
-                setActiveSsovContextSide={setActiveSsovContextSide}
-              />
-
-              {showWithdrawalInformation ? (
-                <Box className={'mt-12'}>
-                  <Withdrawals
-                    activeSsovContextSide={activeSsovContextSide}
-                    setActiveSsovContextSide={setActiveSsovContextSide}
-                  />
-                </Box>
-              ) : null}
             </Box>
           )}
 
           <Box className="flex w-[24%] mr-auto">
             <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[9rem] right-[3rem] absolute">
-              <ManageCard
-                activeSsovContextSide={activeSsovContextSide}
-                setActiveSsovContextSide={setActiveSsovContextSide}
-                enabledTypes={enabledTypes}
-              />
+              {activeView === 'vault' ? (
+                <ManageCard
+                  activeSsovContextSide={activeSsovContextSide}
+                  setActiveSsovContextSide={setActiveSsovContextSide}
+                  enabledTypes={enabledTypes}
+                />
+              ) : activeView === 'positions' ? (
+                <SelectStrikeWidget />
+              ) : null}
             </Box>
           </Box>
         </Box>
