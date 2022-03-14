@@ -291,6 +291,7 @@ const ExerciseList = ({ activeType }) => {
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}
                           isPastEpoch={isPastEpoch}
+                          activeType={activeType}
                         />
                       );
                     }

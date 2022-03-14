@@ -31,6 +31,7 @@ interface ExerciseTableDataProps {
   totalPremiumsEarned: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
+  activeType: string;
 }
 
 const DIALOGS = {
@@ -48,9 +49,11 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     settleableAmount,
     pnlAmount,
     isSettleable,
+    activeType,
   } = props;
 
-  const { ssovData, ssovEpochData, selectedSsov } = useContext(SsovContext);
+  const ssovContext = useContext(SsovContext)[activeType];
+  const { ssovData, ssovEpochData, selectedSsov } = ssovContext;
 
   const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
