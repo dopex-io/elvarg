@@ -40,9 +40,9 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
-const ExerciseList = ({ activeType }) => {
+const ExerciseList = ({ activeSsovContextSide }) => {
   const { accountAddress } = useContext(WalletContext);
-  const ssovContext = useContext(SsovContext)[activeType];
+  const ssovContext = useContext(SsovContext)[activeSsovContextSide];
   const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
     ssovContext;
 
@@ -50,8 +50,6 @@ const ExerciseList = ({ activeType }) => {
     userExercisableOption[]
   >([]);
   const [page, setPage] = useState(0);
-
-  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
   const { currentEpoch, tokenPrice, tokenName } = ssovData;
   const {
@@ -101,11 +99,11 @@ const ExerciseList = ({ activeType }) => {
           userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
         const isSettleable =
           settleableAmount.gt(0) &&
-          ((isPut && settlementPrice.lt(strike)) ||
-            (!isPut && settlementPrice.gt(strike)));
+          ((activeSsovContextSide === 'PUT' && settlementPrice.lt(strike)) ||
+            (activeSsovContextSide === 'CALL' && settlementPrice.gt(strike)));
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
-          ? isPut
+          ? activeSsovContextSide === 'PUT'
             ? strike
                 .sub(tokenPrice)
                 .mul(userEpochOptionsPurchased[strikeIndex])
@@ -115,7 +113,7 @@ const ExerciseList = ({ activeType }) => {
                 .sub(strike)
                 .mul(userEpochOptionsPurchased[strikeIndex])
                 .div(tokenPrice)
-          : isPut
+          : activeSsovContextSide === 'PUT'
           ? strike
               .sub(settlementPrice)
               .mul(settleableAmount)
@@ -161,7 +159,7 @@ const ExerciseList = ({ activeType }) => {
     tokenPrice,
     settlementPrice,
     tokenName,
-    isPut,
+    activeSsovContextSide,
     ssovData,
   ]);
 
@@ -291,7 +289,7 @@ const ExerciseList = ({ activeType }) => {
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}
                           isPastEpoch={isPastEpoch}
-                          activeType={activeType}
+                          activeSsovContextSide={activeSsovContextSide}
                         />
                       );
                     }

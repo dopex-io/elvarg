@@ -24,11 +24,11 @@ import Action from 'assets/icons/Action';
 import styles from './styles.module.scss';
 
 const Withdrawals = ({
-  activeType,
-  setActiveType,
+  activeSsovContextSide,
+  setActiveSsovContextSide,
 }: {
-  activeType: string;
-  setActiveType: Dispatch<SetStateAction<string>>;
+  activeSsovContextSide: string;
+  setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
 }) => {
   return (
     <Box className={'w-full'}>

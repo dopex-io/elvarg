@@ -20,10 +20,17 @@ import styles from './styles.module.scss';
 
 export interface Props {
   asset: string;
-  activeType: string;
+  activeSsovContextSide: string;
+  activeView: string;
+  setActiveView: Function;
 }
 
-const Sidebar = ({ asset, activeType }: Props) => {
+const Sidebar = ({
+  asset,
+  activeSsovContextSide,
+  activeView,
+  setActiveView,
+}: Props) => {
   const ssovContext = useContext(SsovContext);
   const { chainId } = useContext(WalletContext);
 
@@ -38,7 +45,7 @@ const Sidebar = ({ asset, activeType }: Props) => {
         <Box className={'flex'}>
           <Box className={'bg-[#2D2D2D] p-1 pr-3.5 pl-3.5 rounded-md mr-3'}>
             <Typography variant="h4" className="text-stieglitz">
-              {ssovContext[activeType].ssovData.currentEpoch}
+              {ssovContext[activeSsovContextSide].ssovData.currentEpoch}
             </Typography>
           </Box>
           <Button className={styles.button}>
@@ -57,7 +64,7 @@ const Sidebar = ({ asset, activeType }: Props) => {
               date={
                 new Date(
                   ssovContext[
-                    activeType
+                    activeSsovContextSide
                   ].ssovEpochData.epochTimes[1].toNumber() * 1000
                 )
               }
@@ -78,7 +85,7 @@ const Sidebar = ({ asset, activeType }: Props) => {
               {getFormattedDate(
                 new Date(
                   (ssovContext[
-                    activeType
+                    activeSsovContextSide
                   ].ssovEpochData.epochTimes[1].toNumber() +
                     86400 * 3) *
                     1000
@@ -115,14 +122,12 @@ const Sidebar = ({ asset, activeType }: Props) => {
           Vault
         </Typography>
       </Box>
-      <Tooltip title={'Not available yet'}>
-        <Box className="rounded-md flex mb-4 p-3 w-full group cursor-not-allowed">
-          <img src={'/assets/stars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
-          <Typography variant="h6" className="text-stieglitz">
-            Options & Positions
-          </Typography>
-        </Box>
-      </Tooltip>
+      <Box className="rounded-md flex mb-4 p-3 w-full group cursor-pointer hover:border hover:border-neutral-800 hover:bg-umbra">
+        <img src={'/assets/stars.svg'} className={'w-5 h-4 mt-0.5 mr-3'} />
+        <Typography variant="h6" className="text-stieglitz">
+          Options & Positions
+        </Typography>
+      </Box>
       <Box className={'mt-8 mb-3'}>
         <Typography variant="h5" className="text-stieglitz">
           Contract
@@ -139,14 +144,14 @@ const Sidebar = ({ asset, activeType }: Props) => {
             className={'cursor-pointer'}
             href={`${getExplorerUrl(chainId)}/address/${
               Addresses[chainId][
-                activeType === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
+                activeSsovContextSide === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
               ][asset]['Vault']
             }`}
           >
             <Typography variant="h5" className="text-white text-[11px]">
               {displayAddress(
                 Addresses[chainId][
-                  activeType === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
+                  activeSsovContextSide === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
                 ][asset]['Vault'],
                 null
               )}

@@ -30,78 +30,88 @@ import Action from 'assets/icons/Action';
 import styles from './styles.module.scss';
 
 const Description = ({
-  activeType,
-  setActiveType,
+  activeSsovContextSide,
+  setActiveSsovContextSide,
 }: {
-  activeType: string;
-  setActiveType: Dispatch<SetStateAction<string>>;
+  activeSsovContextSide: string;
+  setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
 }) => {
   const ssovContext = useContext(SsovContext);
   const { accountAddress, connect } = useContext(WalletContext);
   const { convertToBNB } = useContext(BnbConversionContext);
 
-  const { APY, isVaultReady } = ssovContext[activeType].ssovEpochData;
+  const { APY, isVaultReady } =
+    ssovContext[activeSsovContextSide].ssovEpochData;
 
   const tokenSymbol = useMemo(
-    () => SSOV_MAP[ssovContext[activeType].ssovData.tokenName].tokenSymbol,
-    [ssovContext[activeType].ssovData]
+    () =>
+      SSOV_MAP[ssovContext[activeSsovContextSide].ssovData.tokenName]
+        .tokenSymbol,
+    [ssovContext[activeSsovContextSide].ssovData]
   );
-
-  const isPut = useMemo(() => activeType === 'PUT', [activeType]);
 
   const TVL: number = useMemo(() => {
     if (
-      ssovContext[activeType].ssovData.tokenPrice &&
-      ssovContext[activeType].ssovEpochData
+      ssovContext[activeSsovContextSide].ssovData.tokenPrice &&
+      ssovContext[activeSsovContextSide].ssovEpochData
     ) {
-      if (isPut) {
+      if (activeSsovContextSide === 'PUT') {
         return (
           getUserReadableAmount(
-            ssovContext[activeType].ssovEpochData.totalEpochDeposits,
+            ssovContext[activeSsovContextSide].ssovEpochData.totalEpochDeposits,
             18
           ) *
-          getUserReadableAmount(ssovContext[activeType].ssovData.lpPrice, 18)
+          getUserReadableAmount(
+            ssovContext[activeSsovContextSide].ssovData.lpPrice,
+            18
+          )
         );
       } else if (tokenSymbol === 'BNB') {
         return convertToBNB(
-          ssovContext[activeType].ssovEpochData.totalEpochDeposits
+          ssovContext[activeSsovContextSide].ssovEpochData.totalEpochDeposits
         )
-          .mul(ssovContext[activeType].ssovData.tokenPrice)
+          .mul(ssovContext[activeSsovContextSide].ssovData.tokenPrice)
           .div(1e8)
           .toNumber();
       } else {
         return (
           getUserReadableAmount(
-            ssovContext[activeType].ssovEpochData.totalEpochDeposits,
+            ssovContext[activeSsovContextSide].ssovEpochData.totalEpochDeposits,
             18
           ) *
-          getUserReadableAmount(ssovContext[activeType].ssovData.tokenPrice, 8)
+          getUserReadableAmount(
+            ssovContext[activeSsovContextSide].ssovData.tokenPrice,
+            8
+          )
         );
       }
     } else {
       return 0;
     }
   }, [
-    ssovContext[activeType].ssovEpochData,
+    ssovContext[activeSsovContextSide].ssovEpochData,
     convertToBNB,
-    ssovContext[activeType].ssovData,
+    ssovContext[activeSsovContextSide].ssovData,
     tokenSymbol,
-    isPut,
+    activeSsovContextSide,
   ]);
 
   const info = [
     {
       heading: 'Asset',
       value: tokenSymbol,
-      imgSrc: SSOV_MAP[ssovContext[activeType].ssovData.tokenName].imageSrc,
+      imgSrc:
+        SSOV_MAP[ssovContext[activeSsovContextSide].ssovData.tokenName]
+          .imageSrc,
     },
     {
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
-      tooltip: isPut
-        ? 'Curve 2Pool Fee APY and Curve Rewards'
-        : ssovInfo[tokenSymbol].aprToolTipMessage,
+      tooltip:
+        activeSsovContextSide === 'PUT'
+          ? 'Curve 2Pool Fee APY and Curve Rewards'
+          : ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',

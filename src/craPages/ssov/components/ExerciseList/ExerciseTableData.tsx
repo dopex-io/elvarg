@@ -31,7 +31,7 @@ interface ExerciseTableDataProps {
   totalPremiumsEarned: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
-  activeType: string;
+  activeSsovContextSide: string;
 }
 
 const DIALOGS = {
@@ -49,19 +49,18 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     settleableAmount,
     pnlAmount,
     isSettleable,
-    activeType,
+    activeSsovContextSide,
   } = props;
 
-  const ssovContext = useContext(SsovContext)[activeType];
+  const ssovContext = useContext(SsovContext)[activeSsovContextSide];
   const { ssovData, ssovEpochData, selectedSsov } = ssovContext;
 
-  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
-
-  const tokenSymbol = isPut
-    ? '2CRV'
-    : SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
-    ? 'vBNB'
-    : SSOV_MAP[ssovData.tokenName].tokenSymbol;
+  const tokenSymbol =
+    activeSsovContextSide === 'PUT'
+      ? '2CRV'
+      : SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
+      ? 'vBNB'
+      : SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
   const { isEpochExpired } = ssovEpochData;
 
@@ -157,7 +156,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(depositedAmount, 5)} {isPut ? '2CRV' : tokenSymbol}
+          {formatAmount(depositedAmount, 5)}{' '}
+          {activeSsovContextSide === 'PUT' ? '2CRV' : tokenSymbol}
         </Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">

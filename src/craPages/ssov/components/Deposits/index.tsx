@@ -199,27 +199,28 @@ const DepositsTableData = (
 const ROWS_PER_PAGE = 5;
 
 const Deposits = ({
-  activeType,
-  setActiveType,
+  activeSsovContextSide,
+  setActiveSsovContextSide,
 }: {
-  activeType: string;
-  setActiveType: Dispatch<SetStateAction<string>>;
+  activeSsovContextSide: string;
+  setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
 }) => {
   const ssovContext = useContext(SsovContext);
   const { convertToBNB } = useContext(BnbConversionContext);
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
 
-  const { tokenPrice, tokenName } = ssovContext[activeType].ssovData;
+  const { tokenPrice, tokenName } = ssovContext[activeSsovContextSide].ssovData;
   const {
     epochTimes,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
     totalEpochOptionsPurchased,
-  } = ssovContext[activeType].ssovEpochData;
+  } = ssovContext[activeSsovContextSide].ssovEpochData;
 
-  const { userEpochStrikeDeposits } = ssovContext[activeType].ssovUserData;
+  const { userEpochStrikeDeposits } =
+    ssovContext[activeSsovContextSide].ssovUserData;
 
   const epochTime: number = useMemo(() => {
     return epochTimes && epochTimes[0] && epochTimes[1]
@@ -229,9 +230,11 @@ const Deposits = ({
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(
-      ssovContext[activeType].ssovEpochData.epochTimes[1].toNumber() * 1000
+      ssovContext[
+        activeSsovContextSide
+      ].ssovEpochData.epochTimes[1].toNumber() * 1000
     );
-  }, [ssovContext, activeType]);
+  }, [ssovContext, activeSsovContextSide]);
 
   const [page, setPage] = useState(0);
   const handleChangePage = useCallback(
@@ -309,7 +312,7 @@ const Deposits = ({
     ]
   );
 
-  return ssovContext[activeType].selectedEpoch > 0 ? (
+  return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Deposits
@@ -433,12 +436,14 @@ const Deposits = ({
                             epochEndTime={epochEndTime}
                             imgSrc={
                               SSOV_MAP[
-                                ssovContext[activeType].ssovData.tokenName
+                                ssovContext[activeSsovContextSide].ssovData
+                                  .tokenName
                               ].imageSrc
                             }
                             tokenSymbol={
                               SSOV_MAP[
-                                ssovContext[activeType].ssovData.tokenName
+                                ssovContext[activeSsovContextSide].ssovData
+                                  .tokenName
                               ].tokenSymbol
                             }
                           />

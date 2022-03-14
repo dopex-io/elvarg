@@ -19,7 +19,7 @@ import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ activeType }) => {
+const Withdraw = ({ activeSsovContextSide }) => {
   const ssovContext = useContext(SsovContext);
   const {
     updateSsovEpochData,
@@ -30,7 +30,7 @@ const Withdraw = ({ activeType }) => {
     ssovSigner,
     selectedEpoch,
     selectedSsov,
-  } = ssovContext[activeType];
+  } = ssovContext[activeSsovContextSide];
 
   const { tokenName } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
@@ -49,8 +49,6 @@ const Withdraw = ({ activeType }) => {
   const epochEndTime = epochTimes[1]
     ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
     : 'N/A';
-
-  const isPut = selectedSsov.type === 'PUT';
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
@@ -116,7 +114,7 @@ const Withdraw = ({ activeType }) => {
               {formatAmount(userEpochDepositsAmount, 5)}
             </span>{' '}
             / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-            {isPut ? '2CRV' : tokenSymbol}
+            {activeSsovContextSide === 'PUT' ? '2CRV' : tokenSymbol}
           </Typography>
         </Box>
         <Box>
@@ -159,7 +157,7 @@ const Withdraw = ({ activeType }) => {
               >
                 <Typography variant="h6">
                   {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}{' '}
-                  {isPut ? '2CRV' : tokenSymbol}
+                  {activeSsovContextSide === 'PUT' ? '2CRV' : tokenSymbol}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
                   {tokenSymbol} ${strike}

@@ -9,12 +9,12 @@ import { SsovContext } from 'contexts/Ssov';
 
 export default function EpochSelector({
   className,
-  activeType,
+  activeSsovContextSide,
 }: {
   className?: string;
-  activeType: string;
+  activeSsovContextSide: string;
 }) {
-  const ssovContext = useContext(SsovContext)[activeType];
+  const ssovContext = useContext(SsovContext)[activeSsovContextSide];
   const { selectedEpoch, setSelectedEpoch, ssovData } = ssovContext;
 
   const { currentEpoch } = ssovData;

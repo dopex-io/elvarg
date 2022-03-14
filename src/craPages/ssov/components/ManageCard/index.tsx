@@ -70,12 +70,16 @@ const SelectMenuProps = {
 };
 
 export interface Props {
-  activeType: string;
-  setActiveType: Function;
+  activeSsovContextSide: string;
+  setActiveSsovContextSide: Function;
   enabledTypes: string[];
 }
 
-const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
+const ManageCard = ({
+  activeSsovContextSide,
+  setActiveSsovContextSide,
+  enabledTypes,
+}: Props) => {
   const { accountAddress, chainId, provider, signer, contractAddresses } =
     useContext(WalletContext);
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
@@ -90,7 +94,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
     ssovUserData,
     ssovSigner,
     selectedSsov,
-  } = ssovContext[activeType];
+  } = ssovContext[activeSsovContextSide];
 
   const sendTx = useSendTx();
 
@@ -224,7 +228,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
     useState<string>(ssovTokenName);
 
   const spender = useMemo(() => {
-    if (activeType === 'PUT') {
+    if (activeSsovContextSide === 'PUT') {
       if (depositTokenName === '2CRV') {
         return ssovData.ssovContract.address;
       } else {
@@ -246,7 +250,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
   }, [
     depositTokenName,
     erc20SSOV1inchRouter,
-    activeType,
+    activeSsovContextSide,
     isZapActive,
     nativeSSOV1inchRouter,
     ssovContractWithSigner,
@@ -296,7 +300,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
   }, [strikeDepositAmounts]);
 
   const isPurchasePowerEnough = useMemo(() => {
-    if (activeType === 'PUT') return true;
+    if (activeSsovContextSide === 'PUT') return true;
     return (
       purchasePower >=
       (denominationTokenName.toLocaleUpperCase() === ssovTokenName
@@ -304,7 +308,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
         : totalDepositAmount * quotePrice)
     );
   }, [
-    activeType,
+    activeSsovContextSide,
     purchasePower,
     denominationTokenName,
     ssovTokenName,
@@ -483,7 +487,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
     try {
       await sendTx(
         ERC20__factory.connect(
-          activeType === 'PUT'
+          activeSsovContextSide === 'PUT'
             ? contractAddresses[depositTokenName]
             : token.address,
           signer
@@ -499,7 +503,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
     signer,
     spender,
     contractAddresses,
-    activeType,
+    activeSsovContextSide,
     depositTokenName,
   ]);
 
@@ -791,7 +795,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
         totalDepositAmount.toString(),
         getTokenDecimals(ssovTokenName, chainId)
       );
-      if (activeType === 'PUT') {
+      if (activeSsovContextSide === 'PUT') {
         const allowance: BigNumber = await ERC20__factory.connect(
           contractAddresses[depositTokenName],
           signer
@@ -815,7 +819,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
     totalDepositAmount,
     contractAddresses,
     depositTokenName,
-    activeType,
+    activeSsovContextSide,
     spender,
     signer,
     ssovTokenName,
@@ -836,7 +840,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
 
   const userBalance = useMemo(() => {
     {
-      if (activeType === 'PUT') {
+      if (activeSsovContextSide === 'PUT') {
         return ethers.utils.formatUnits(
           userAssetBalances[depositTokenName],
           getTokenDecimals(depositTokenName, chainId)
@@ -856,7 +860,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
     ssovTokenName,
     userAssetBalances,
     depositTokenName,
-    activeType,
+    activeSsovContextSide,
     chainId,
   ]);
 
@@ -872,14 +876,16 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
           <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
             <Box
               className={
-                activeType === 'CALL'
+                activeSsovContextSide === 'CALL'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
                   : enabledTypes.includes('CALL')
                   ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
               }
               onClick={() =>
-                enabledTypes.includes('CALL') ? setActiveType('CALL') : null
+                enabledTypes.includes('CALL')
+                  ? setActiveSsovContextSide('CALL')
+                  : null
               }
             >
               <Typography variant="h6" className="text-xs font-normal">
@@ -888,14 +894,16 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
             </Box>
             <Box
               className={
-                activeType === 'PUT'
+                activeSsovContextSide === 'PUT'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
                   : enabledTypes.includes('PUT')
                   ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
               }
               onClick={() =>
-                enabledTypes.includes('PUT') ? setActiveType('PUT') : null
+                enabledTypes.includes('PUT')
+                  ? setActiveSsovContextSide('PUT')
+                  : null
               }
             >
               <Typography variant="h6" className="text-xs font-normal">
@@ -945,7 +953,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
                 className="text-white ml-auto mr-0 text-[0.72rem]"
               >
                 {userBalance}{' '}
-                {activeType === 'PUT'
+                {activeSsovContextSide === 'PUT'
                   ? depositTokenName
                   : denominationTokenName}
               </Typography>
@@ -954,7 +962,9 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
             <Box className="mt-2 flex">
               <Box
                 className={
-                  activeType === 'PUT' || isZapActive ? 'w-3/4 mr-3' : 'w-full'
+                  activeSsovContextSide === 'PUT' || isZapActive
+                    ? 'w-3/4 mr-3'
+                    : 'w-full'
                 }
               >
                 <Select
@@ -1003,7 +1013,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
                   ))}
                 </Select>
               </Box>
-              {activeType === 'PUT' ? (
+              {activeSsovContextSide === 'PUT' ? (
                 <Curve2PoolDepositSelector
                   depositTokenName={depositTokenName}
                   setDepositTokenName={setDepositTokenName}
@@ -1186,7 +1196,9 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
               fromTokenSymbol={tokenName}
               toTokenSymbol={ssovTokenSymbol}
               selectedTokenPrice={selectedTokenPrice}
-              isZapInAvailable={activeType === 'PUT' ? false : isZapInAvailable}
+              isZapInAvailable={
+                activeSsovContextSide === 'PUT' ? false : isZapInAvailable
+              }
               chainId={chainId}
             />
             <Box className="flex">
@@ -1233,7 +1245,7 @@ const ManageCard = ({ activeType, setActiveType, enabledTypes }: Props) => {
               }
               onClick={
                 approved
-                  ? activeType === 'PUT'
+                  ? activeSsovContextSide === 'PUT'
                     ? handlePutDeposit
                     : handleDeposit
                   : handleApprove

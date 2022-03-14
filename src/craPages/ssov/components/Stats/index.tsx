@@ -24,18 +24,22 @@ const STRIKE_INDEX_TO_COLOR = {
   4: '#6DFFB9',
 };
 
-const Stats = ({ activeType }: { activeType: string }) => {
+const Stats = ({
+  activeSsovContextSide,
+}: {
+  activeSsovContextSide: string;
+}) => {
   const { chainId } = useContext(WalletContext);
   const { convertToBNB } = useContext(BnbConversionContext);
   const ssovContext = useContext(SsovContext);
-  const { tokenName, tokenPrice } = ssovContext[activeType].ssovData;
+  const { tokenName, tokenPrice } = ssovContext[activeSsovContextSide].ssovData;
 
   const {
     epochStrikes,
     totalEpochOptionsPurchased,
     totalEpochStrikeDeposits,
     totalEpochPremium,
-  } = ssovContext[activeType].ssovEpochData;
+  } = ssovContext[activeSsovContextSide].ssovEpochData;
 
   const totalPurchased: number = useMemo(() => {
     let total: number = 0;
@@ -61,7 +65,7 @@ const Stats = ({ activeType }: { activeType: string }) => {
     return total;
   }, [totalEpochStrikeDeposits]);
 
-  return ssovContext[activeType].selectedEpoch > 0 ? (
+  return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Stats

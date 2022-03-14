@@ -124,7 +124,7 @@ export const SsovContext = createContext<SsovContextInterface>({
   },
 });
 
-export const SsovSide = ({ activeType }) => {
+export const SsovSide = ({ activeSsovContextSide }) => {
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
 
@@ -152,20 +152,24 @@ export const SsovSide = ({ activeType }) => {
     )
       return;
 
-    if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+    if (
+      !contractAddresses[
+        activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+      ]
+    )
       return;
 
     const ssovAddresses =
-      contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
-        selectedSsov.token
-      ];
+      contractAddresses[
+        activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+      ][selectedSsov.token];
 
     if (!ssovAddresses) return;
 
     let _ssovUserData;
 
     const ssovContract =
-      activeType === 'PUT'
+      activeSsovContextSide === 'PUT'
         ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, provider)
         : isNativeSsov(selectedSsov.token)
         ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
@@ -177,7 +181,7 @@ export const SsovSide = ({ activeType }) => {
       epochStrikeTokens,
     ] = await Promise.all([
       ssovContract.getUserEpochDeposits(selectedEpoch, accountAddress),
-      activeType === 'PUT'
+      activeSsovContextSide === 'PUT'
         ? (ssovContract as Curve2PoolSsovPut).getUserEpochPutsPurchased(
             selectedEpoch,
             accountAddress
@@ -217,18 +221,22 @@ export const SsovSide = ({ activeType }) => {
   const updateSsovEpochData = useCallback(async () => {
     if (!contractAddresses || !selectedEpoch || !selectedSsov) return;
 
-    if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+    if (
+      !contractAddresses[
+        activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+      ]
+    )
       return;
 
     const ssovAddresses =
-      contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
-        selectedSsov.token
-      ];
+      contractAddresses[
+        activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+      ][selectedSsov.token];
 
     if (!ssovAddresses) return;
 
     const ssovContract =
-      activeType === 'PUT'
+      activeSsovContextSide === 'PUT'
         ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, provider)
         : isNativeSsov(selectedSsov.token)
         ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
@@ -251,14 +259,14 @@ export const SsovSide = ({ activeType }) => {
       ssovContract.getEpochStrikes(selectedEpoch),
       ssovContract.totalEpochDeposits(selectedEpoch),
       ssovContract.getTotalEpochStrikeDeposits(selectedEpoch),
-      activeType === 'PUT'
+      activeSsovContextSide === 'PUT'
         ? (ssovContract as Curve2PoolSsovPut).getTotalEpochPutsPurchased(
             selectedEpoch
           )
         : (ssovContract as ERC20SSOV).getTotalEpochCallsPurchased(
             selectedEpoch
           ),
-      activeType === 'PUT'
+      activeSsovContextSide === 'PUT'
         ? getTotalEpochPremium(ssovContract as Curve2PoolSsovPut, selectedEpoch)
         : (ssovContract as ERC20SSOV).getTotalEpochPremium(selectedEpoch),
       ssovContract.settlementPrices(selectedEpoch),
@@ -268,7 +276,7 @@ export const SsovSide = ({ activeType }) => {
       .get(
         `https://api.dopex.io/api/v1/ssov/apy?asset=${
           selectedSsov.token
-        }&type=${activeType.toLowerCase()}`
+        }&type=${activeSsovContextSide.toLowerCase()}`
       )
       .then((res) => formatAmount(res.data.apy, 2))
       .catch(() => '0');
@@ -301,18 +309,22 @@ export const SsovSide = ({ activeType }) => {
     async function update() {
       let _ssovData: SsovData;
 
-      if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+      if (
+        !contractAddresses[
+          activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+        ]
+      )
         return;
 
       const ssovAddresses =
-        contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
-          selectedSsov.token
-        ];
+        contractAddresses[
+          activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+        ][selectedSsov.token];
 
       if (!ssovAddresses) return;
 
       const _ssovContract =
-        activeType === 'PUT'
+        activeSsovContextSide === 'PUT'
           ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, provider)
           : isNativeSsov(selectedSsov.token)
           ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
@@ -336,7 +348,7 @@ export const SsovSide = ({ activeType }) => {
           currentEpoch: Number(currentEpoch),
           isCurrentEpochExpired,
           tokenPrice,
-          ...(activeType === 'PUT' && {
+          ...(activeSsovContextSide === 'PUT' && {
             lpPrice: await (_ssovContract as Curve2PoolSsovPut).getLpPrice(),
           }),
           ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
@@ -368,7 +380,7 @@ export const SsovSide = ({ activeType }) => {
       return;
 
     const SSOVAddresses =
-      activeType === 'PUT'
+      activeSsovContextSide === 'PUT'
         ? contractAddresses['2CRV-SSOV-P']
         : contractAddresses.SSOV;
 
@@ -389,18 +401,22 @@ export const SsovSide = ({ activeType }) => {
       }
     });
 
-    if (!contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'])
+    if (
+      !contractAddresses[
+        activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+      ]
+    )
       return;
 
     const ssovAddresses =
-      contractAddresses[activeType === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
-        selectedSsov.token
-      ];
+      contractAddresses[
+        activeSsovContextSide === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'
+      ][selectedSsov.token];
 
     if (!ssovAddresses) return;
 
     const _ssovContractWithSigner =
-      activeType === 'PUT'
+      activeSsovContextSide === 'PUT'
         ? Curve2PoolSsovPut__factory.connect(ssovAddresses.Vault, signer)
         : isNativeSsov(selectedSsov.token)
         ? NativeSSOV__factory.connect(ssovAddresses.Vault, signer)
@@ -442,7 +458,6 @@ export const SsovSide = ({ activeType }) => {
     updateSsovUserData,
     setSelectedSsov,
     setSelectedEpoch,
-    isPut: selectedSsov?.type === 'PUT',
   };
 
   return contextValue;
@@ -450,8 +465,8 @@ export const SsovSide = ({ activeType }) => {
 
 export const SsovProvider = (props) => {
   const contextValue = {
-    CALL: SsovSide({ activeType: 'CALL' }),
-    PUT: SsovSide({ activeType: 'PUT' }),
+    CALL: SsovSide({ activeSsovContextSide: 'CALL' }),
+    PUT: SsovSide({ activeSsovContextSide: 'PUT' }),
   };
 
   return (

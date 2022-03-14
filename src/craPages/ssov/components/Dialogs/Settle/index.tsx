@@ -25,7 +25,7 @@ export interface Props {
   strikeIndex: number;
   token: string;
   settleableAmount: BigNumber;
-  activeType: string;
+  activeSsovContextSide: string;
 }
 
 const Settle = ({
@@ -34,7 +34,7 @@ const Settle = ({
   strikeIndex,
   token,
   settleableAmount,
-  activeType,
+  activeSsovContextSide,
 }: Props) => {
   const ssovContext = useContext(SsovContext);
   const {
@@ -46,7 +46,7 @@ const Settle = ({
     ssovSigner,
     selectedEpoch,
     selectedSsov,
-  } = ssovContext[activeType];
+  } = ssovContext[activeSsovContextSide];
   const { accountAddress, signer } = useContext(WalletContext);
   const { convertToVBNB } = useContext(BnbConversionContext);
 
@@ -80,7 +80,7 @@ const Settle = ({
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL = !settlementPrice.isZero()
-    ? activeType === 'PUT'
+    ? activeSsovContextSide === 'PUT'
       ? epochStrikes[strikeIndex]
           .sub(settlementPrice)
           .mul(settleableAmount)
