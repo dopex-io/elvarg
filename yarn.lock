@@ -582,8 +582,10 @@
   dependencies:
     "@date-io/core" "^2.13.1"
 
-"@dopex-io/sdk@../sdk":
-  version "1.0.0-alpha.78"
+"@dopex-io/sdk@^1.0.0-alpha.80":
+  version "1.0.0-alpha.80"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.80.tgz#0990e9157062bf24b8a1d66072fb1b960b1904c8"
+  integrity sha512-HjlYy9TGFXZTr7e27kyUnhC27V5zU9S3JbgLW6xcQQYjb0aFkt5ZPMU7Jy0ivHQgK2kNDOk+kN6XNnJO3h9CAw==
   dependencies:
     ethers "^5.5.3"
 
