@@ -76,7 +76,7 @@ const Manage = () => {
       <AppBar active="SSOV" />
       {activeSsovContextSide !== 'LOADING' && accountAddress ? (
         <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
-          <Box className="w-[20%] ml-10 mt-20">
+          <Box className="w-[20.5%] ml-10 mt-20">
             <Sidebar
               asset={asset}
               activeSsovContextSide={activeSsovContextSide}
@@ -133,7 +133,7 @@ const Manage = () => {
             </Box>
           )}
 
-          <Box className="flex w-[25%] mr-auto">
+          <Box className="flex w-[24.5%] mr-auto">
             <Box
               className={cx(
                 'flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto mt-24',
