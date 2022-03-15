@@ -16,10 +16,13 @@ import Stats from '../components/Stats';
 import WithdrawalInfo from '../components/WithdrawalInfo';
 import AutoExerciseInfo from '../components/AutoExerciseInfo';
 import PageLoader from 'components/PageLoader';
+import PageConnectDialog from 'components/PageConnectDialog';
 
+import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
 const Manage = () => {
+  const { accountAddress } = useContext(WalletContext);
   const { asset } = useParams();
   const ssovContext = useContext(SsovContext);
   const [activeSsovContextSide, setActiveSsovContextSide] =
@@ -47,9 +50,12 @@ const Manage = () => {
     else if (enabledTypes.includes('PUT')) setActiveSsovContextSide('PUT');
   }, [enabledTypes]);
 
+  if (!accountAddress) return <PageConnectDialog />;
+
   if (
-    ssovContext.PUT?.ssovEpochData === undefined &&
-    ssovContext.CALL?.ssovEpochData === undefined
+    (ssovContext.PUT?.ssovEpochData === undefined &&
+      ssovContext.CALL?.ssovEpochData === undefined) ||
+    ssovContext.CALL?.ssovUserData === undefined
   )
     return (
       <Box className="overflow-x-hidden bg-black h-screen">

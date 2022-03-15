@@ -95,3 +95,7 @@ input[type='number'] {
   background-color: #2f2d2d;
   border-radius: 5px;
 }
+
+.web3modal-modal-lightbox {
+  z-index: 9999 !important;
+}
