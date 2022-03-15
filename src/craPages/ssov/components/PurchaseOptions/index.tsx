@@ -117,6 +117,61 @@ const PurchaseOptions = ({
     navigator.clipboard.writeText(accountAddress);
   };
 
+  const getPurchaseOptions = async (i, ssovContextSide) => {
+    const strike = ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
+
+    const available: BigNumber = ssovContext[
+      ssovContextSide
+    ].ssovEpochData.totalEpochStrikeDeposits[i].sub(
+      ssovContext[ssovContextSide].ssovEpochData.totalEpochOptionsPurchased[i]
+    );
+
+    const expiry = await ssovContext[
+      ssovContextSide
+    ].ssovSigner.ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
+      Math.floor(Date.now() / 1000)
+    );
+
+    let volatility;
+
+    if (ssovContextSide === 'PUT') {
+      volatility = await ssovContext[
+        ssovContextSide
+      ].ssovData.ssovContract.getVolatility(strike);
+    } else if (ssovContext[ssovContextSide].selectedSsov.token === 'ETH') {
+      const _abi = ['function getVolatility(uint256) view returns (uint256)'];
+      const _temp = new ethers.Contract(
+        '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+        _abi,
+        provider
+      );
+
+      volatility = await _temp.getVolatility(strike);
+    } else {
+      volatility = await ssovContext[
+        ssovContextSide
+      ].ssovData.volatilityOracleContract.getVolatility();
+    }
+
+    const price = await ssovContext[
+      ssovContextSide
+    ].ssovData.ssovOptionPricingContract.getOptionPrice(
+      ssovContextSide === 'PUT',
+      expiry,
+      strike,
+      tokenPrice,
+      volatility
+    );
+
+    return {
+      available: available,
+      strike: getUserReadableAmount(strike, 8),
+      volatility: volatility,
+      price: getUserReadableAmount(price, 8),
+      side: ssovContextSide,
+    };
+  };
+
   useEffect(() => {
     async function updatePurchaseOptions() {
       setIsPurchaseStatsLoading(true);
@@ -125,70 +180,15 @@ const PurchaseOptions = ({
         PUT: [],
       };
 
-      // TODO: IMPROVE LOADING TIME
-      const ssovContextSides = ['CALL', 'PUT'];
-      for (let k in ssovContextSides) {
-        const ssovContextSide = ssovContextSides[k];
-        for (let i in ssovContext[ssovContextSide].ssovEpochData.epochStrikes) {
-          const strike =
-            ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
-
-          const available: BigNumber = ssovContext[
-            ssovContextSide
-          ].ssovEpochData.totalEpochStrikeDeposits[i].sub(
-            ssovContext[ssovContextSide].ssovEpochData
-              .totalEpochOptionsPurchased[i]
-          );
-
-          const expiry = await ssovContext[
-            ssovContextSide
-          ].ssovSigner.ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
-            Math.floor(Date.now() / 1000)
-          );
-
-          let volatility;
-
-          if (ssovContextSide === 'PUT') {
-            volatility = await ssovContext[
-              ssovContextSide
-            ].ssovData.ssovContract.getVolatility(strike);
-          } else if (
-            ssovContext[ssovContextSide].selectedSsov.token === 'ETH'
-          ) {
-            const _abi = [
-              'function getVolatility(uint256) view returns (uint256)',
-            ];
-            const _temp = new ethers.Contract(
-              '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
-              _abi,
-              provider
-            );
-
-            volatility = await _temp.getVolatility(strike);
-          } else {
-            volatility = await ssovContext[
-              ssovContextSide
-            ].ssovData.volatilityOracleContract.getVolatility();
-          }
-
-          const price = await ssovContext[
-            ssovContextSide
-          ].ssovData.ssovOptionPricingContract.getOptionPrice(
-            ssovContextSide === 'PUT',
-            expiry,
-            strike,
-            tokenPrice,
-            volatility
-          );
-
-          options[ssovContextSide][i] = {
-            available: available,
-            strike: getUserReadableAmount(strike, 8),
-            volatility: volatility,
-            price: getUserReadableAmount(price, 8),
-          };
-        }
+      const strikeIndexes = [];
+      for (let strikeIndex in ssovContext['CALL'].ssovEpochData.epochStrikes) {
+        strikeIndexes.push(getPurchaseOptions(strikeIndex, 'CALL'));
+        strikeIndexes.push(getPurchaseOptions(strikeIndex, 'PUT'));
       }
+
+      const results = await Promise.all(strikeIndexes);
+
+      for (let i in results) options[results[i]['side']].push(results[i]);
 
       setPurchaseOptions(options);
       setIsPurchaseStatsLoading(false);
@@ -217,14 +217,14 @@ const PurchaseOptions = ({
                 ))}
               </Box>
             ) : isPurchaseStatsLoading ? (
-              <Table>
-                <TableBody className={cx('rounded-lg text-center mt-1')}>
+              <Box>
+                <Box className={cx('rounded-lg text-center mt-1')}>
                   <CircularProgress size={25} className={'mt-10'} />
                   <Typography variant="h6" className="text-white mb-10 mt-2">
                     Checking options availability...
                   </Typography>
-                </TableBody>
-              </Table>
+                </Box>
+              </Box>
             ) : (
               <Table>
                 <TableHead className="bg-umbra">
