@@ -124,11 +124,32 @@ const PurchaseOptions = ({
   const getPurchaseOptions = async (i, ssovContextSide) => {
     const strike = ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
 
-    const available: BigNumber = ssovContext[
-      ssovContextSide
-    ].ssovEpochData.totalEpochStrikeDeposits[i].sub(
-      ssovContext[ssovContextSide].ssovEpochData.totalEpochOptionsPurchased[i]
-    );
+    const available: number =
+      ssovContextSide === 'CALL'
+        ? getUserReadableAmount(
+            ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[
+              i
+            ].sub(
+              ssovContext[ssovContextSide].ssovEpochData
+                .totalEpochOptionsPurchased[i]
+            ),
+            getTokenDecimals(
+              ssovContext[ssovContextSide].selectedSsov.token,
+              chainId
+            )
+          )
+        : getUserReadableAmount(
+            ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[
+              i
+            ].sub(
+              ssovContext[ssovContextSide].ssovEpochData
+                .totalEpochOptionsPurchased[i]
+            ),
+            getTokenDecimals(
+              ssovContext[ssovContextSide].selectedSsov.token,
+              chainId
+            )
+          ) / getUserReadableAmount(tokenPrice, 8);
 
     const expiry = await ssovContext[
       ssovContextSide
@@ -284,15 +305,6 @@ const PurchaseOptions = ({
                 <TableBody className={cx('rounded-lg')}>
                   {['CALL', 'PUT'].map((ssovContextSide) =>
                     purchaseOptions[ssovContextSide].map((row, i) => {
-                      const available =
-                        getUserReadableAmount(
-                          row['available'],
-                          getTokenDecimals(
-                            ssovContext['CALL'].selectedSsov.token,
-                            chainId
-                          )
-                        ) > 0.1;
-
                       return (
                         <TableRow
                           key={i}
@@ -311,17 +323,7 @@ const PurchaseOptions = ({
                           </TableCell>
                           <TableCell align="left" className="pt-2">
                             <Typography variant="h6">
-                              {formatAmount(
-                                getUserReadableAmount(
-                                  row['available'],
-                                  getTokenDecimals(
-                                    ssovContext['CALL'].selectedSsov.token,
-                                    chainId
-                                  )
-                                ),
-                                2
-                              )}{' '}
-                              {tokenName}
+                              {formatAmount(row['available'], 2)} {tokenName}
                             </Typography>
                             <Box
                               component="h6"
@@ -330,13 +332,7 @@ const PurchaseOptions = ({
                               {'$'}
                               {formatAmount(
                                 getUserReadableAmount(tokenPrice, 8) *
-                                  getUserReadableAmount(
-                                    row['available'],
-                                    getTokenDecimals(
-                                      ssovContext['CALL'].selectedSsov.token,
-                                      chainId
-                                    )
-                                  ),
+                                  row['available'],
                                 2
                               )}
                             </Box>
@@ -380,9 +376,9 @@ const PurchaseOptions = ({
                                 setStrikeIndex(i);
                                 setDidUserInteractWithPurchaseCard(false);
                               }}
-                              disabled={!available}
+                              disabled={row['available'] < 0.1}
                               className={
-                                available
+                                row['available'] > 0.1
                                   ? 'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white'
                                   : 'bg-umbra cursor-pointer'
                               }
