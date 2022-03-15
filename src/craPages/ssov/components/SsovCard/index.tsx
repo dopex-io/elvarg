@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
-import CustomButton from 'components/UI/CustomButton';
+import WalletButton from 'components/WalletButton';
 import Typography from 'components/UI/Typography';
 import InfoBox from '../InfoBox';
 
@@ -115,13 +115,13 @@ function SsovCard(props) {
                 ) : null}
               </Box>
             </Box>
-            <CustomButton
+            <WalletButton
               size="small"
               className="ml-auto mt-1"
-              href={`/ssov/${data.name}`}
+              onClick={() => window.location.replace(`/ssov/${data.name}`)}
             >
               Manage
-            </CustomButton>
+            </WalletButton>
           </Box>
 
           <Box className="grid grid-cols-3 gap-2 mb-2">

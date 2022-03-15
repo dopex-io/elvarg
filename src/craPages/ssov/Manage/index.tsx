@@ -16,7 +16,6 @@ import Stats from '../components/Stats';
 import WithdrawalInfo from '../components/WithdrawalInfo';
 import AutoExerciseInfo from '../components/AutoExerciseInfo';
 import PageLoader from 'components/PageLoader';
-import PageConnectDialog from 'components/PageConnectDialog';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
@@ -50,8 +49,9 @@ const Manage = () => {
     else if (enabledTypes.includes('PUT')) setActiveSsovContextSide('PUT');
   }, [enabledTypes]);
 
-  if (!accountAddress && ssovContext.CALL?.ssovUserData === undefined)
-    return <PageConnectDialog />;
+  useEffect(() => {
+    if (!accountAddress) window.location.replace('/');
+  }, [accountAddress]);
 
   if (
     (ssovContext.PUT?.ssovEpochData === undefined &&
@@ -70,7 +70,7 @@ const Manage = () => {
         <title>SSOV | Dopex</title>
       </Head>
       <AppBar active="SSOV" />
-      {activeSsovContextSide !== 'LOADING' ? (
+      {activeSsovContextSide !== 'LOADING' && accountAddress ? (
         <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
           <Box className="w-[20%] ml-10 mt-20">
             <Sidebar
