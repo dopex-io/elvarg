@@ -50,7 +50,8 @@ const Manage = () => {
     else if (enabledTypes.includes('PUT')) setActiveSsovContextSide('PUT');
   }, [enabledTypes]);
 
-  if (!accountAddress) return <PageConnectDialog />;
+  if (!accountAddress && ssovContext.CALL?.ssovUserData === undefined)
+    return <PageConnectDialog />;
 
   if (
     (ssovContext.PUT?.ssovEpochData === undefined &&
