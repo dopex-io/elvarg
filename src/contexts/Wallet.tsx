@@ -216,16 +216,21 @@ export const WalletProvider = (props) => {
   );
 
   const connect = useCallback(() => {
-    web3Modal.connect().then(async (provider) => {
-      provider.on('accountsChanged', async () => {
-        await updateState({ web3Provider: provider, isUser: true });
-      });
+    web3Modal
+      .connect()
+      .then(async (provider) => {
+        provider.on('accountsChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
 
-      provider.on('chainChanged', async () => {
+        provider.on('chainChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
         await updateState({ web3Provider: provider, isUser: true });
+      })
+      .catch(() => {
+        if (window.location.pathname !== '/') window.location.replace('/');
       });
-      await updateState({ web3Provider: provider, isUser: true });
-    });
   }, [updateState]);
 
   const disconnect = useCallback(() => {
