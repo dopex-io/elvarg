@@ -99,16 +99,20 @@ function SsovCard(props) {
                 <Typography variant="h5" className="text-stieglitz">
                   SSOV
                 </Typography>
-                <img
-                  src={'/assets/calls.svg'}
-                  className="w-10 h-5 mt-1 ml-2 mr-2"
-                  alt={'CALL'}
-                />
-                <img
-                  src={'/assets/puts.svg'}
-                  className="w-10 h-5 mt-1"
-                  alt={'PUT'}
-                />
+                {data.call ? (
+                  <img
+                    src={'/assets/calls.svg'}
+                    className="w-10 h-5 mt-1 ml-2"
+                    alt={'CALL'}
+                  />
+                ) : null}
+                {data.put ? (
+                  <img
+                    src={'/assets/puts.svg'}
+                    className="w-10 h-5 mt-1 ml-2"
+                    alt={'PUT'}
+                  />
+                ) : null}
               </Box>
             </Box>
             <CustomButton
