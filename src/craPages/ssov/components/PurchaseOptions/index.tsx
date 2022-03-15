@@ -55,9 +55,13 @@ const YEAR_SECONDS = 31536000;
 const PurchaseOptions = ({
   activeSsovContextSide,
   setActiveSsovContextSide,
+  setStrikeIndex,
+  setDidUserInteractWithPurchaseCard,
 }: {
   activeSsovContextSide: string;
   setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
+  setStrikeIndex: Dispatch<SetStateAction<number>>;
+  setDidUserInteractWithPurchaseCard: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { provider } = useContext(WalletContext);
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
@@ -279,43 +283,35 @@ const PurchaseOptions = ({
                 </TableHead>
                 <TableBody className={cx('rounded-lg')}>
                   {['CALL', 'PUT'].map((ssovContextSide) =>
-                    purchaseOptions[ssovContextSide].map((row, i) => (
-                      <TableRow
-                        key={i}
-                        className="text-white mb-2 rounded-lg mt-2"
-                      >
-                        <TableCell align="left" className="mx-0 pt-2">
-                          <Box className={'pt-2'}>
-                            <Box
-                              className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}
-                            >
-                              <Typography variant="h6">
-                                ${formatAmount(row['strike'], 0)}
-                              </Typography>
+                    purchaseOptions[ssovContextSide].map((row, i) => {
+                      const available =
+                        getUserReadableAmount(
+                          row['available'],
+                          getTokenDecimals(
+                            ssovContext['CALL'].selectedSsov.token,
+                            chainId
+                          )
+                        ) > 0.1;
+
+                      return (
+                        <TableRow
+                          key={i}
+                          className="text-white mb-2 rounded-lg mt-2"
+                        >
+                          <TableCell align="left" className="mx-0 pt-2">
+                            <Box className={'pt-2'}>
+                              <Box
+                                className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}
+                              >
+                                <Typography variant="h6">
+                                  ${formatAmount(row['strike'], 0)}
+                                </Typography>
+                              </Box>
                             </Box>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="left" className="pt-2">
-                          <Typography variant="h6">
-                            {formatAmount(
-                              getUserReadableAmount(
-                                row['available'],
-                                getTokenDecimals(
-                                  ssovContext['CALL'].selectedSsov.token,
-                                  chainId
-                                )
-                              ),
-                              2
-                            )}{' '}
-                            {tokenName}
-                          </Typography>
-                          <Box
-                            component="h6"
-                            className="text-xs text-stieglitz"
-                          >
-                            {'$'}
-                            {formatAmount(
-                              getUserReadableAmount(tokenPrice, 8) *
+                          </TableCell>
+                          <TableCell align="left" className="pt-2">
+                            <Typography variant="h6">
+                              {formatAmount(
                                 getUserReadableAmount(
                                   row['available'],
                                   getTokenDecimals(
@@ -323,47 +319,80 @@ const PurchaseOptions = ({
                                     chainId
                                   )
                                 ),
-                              2
-                            )}
-                          </Box>
-                        </TableCell>
+                                2
+                              )}{' '}
+                              {tokenName}
+                            </Typography>
+                            <Box
+                              component="h6"
+                              className="text-xs text-stieglitz"
+                            >
+                              {'$'}
+                              {formatAmount(
+                                getUserReadableAmount(tokenPrice, 8) *
+                                  getUserReadableAmount(
+                                    row['available'],
+                                    getTokenDecimals(
+                                      ssovContext['CALL'].selectedSsov.token,
+                                      chainId
+                                    )
+                                  ),
+                                2
+                              )}
+                            </Box>
+                          </TableCell>
 
-                        <TableCell align="left" className="px-6 pt-2">
-                          <Typography variant="h6">
-                            {activeSsovContextSide === 'PUT'
-                              ? Number(row['strike']) -
-                                (getUserReadableAmount(row['price'], 8) || 0)
-                              : Number(row['strike']) +
-                                (getUserReadableAmount(row['price'] || 0), 8)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="left" className="px-6 pt-2">
-                          <Typography variant="h6">
-                            {row['volatility'].toNumber()}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="left" className="px-6 pt-2">
-                          <Typography
-                            variant="h6"
-                            className={
-                              ssovContextSide === 'CALL'
-                                ? 'text-[#6DFFB9]'
-                                : 'text-[#FF617D]'
-                            }
-                          >
-                            {ssovContextSide}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="left" className="px-6 pt-2">
-                          <Button
-                            onClick={null}
-                            className={'bg-primary hover:bg-primary text-white'}
-                          >
-                            ${formatAmount(row['price'], 2)}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          <TableCell align="left" className="px-6 pt-2">
+                            <Typography variant="h6">
+                              {formatAmount(
+                                ssovContextSide === 'PUT'
+                                  ? Number(row['strike']) -
+                                      (getUserReadableAmount(row['price'] || 0),
+                                      8)
+                                  : Number(row['strike']) +
+                                      (getUserReadableAmount(row['price'] || 0),
+                                      8),
+                                0
+                              )}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="left" className="px-6 pt-2">
+                            <Typography variant="h6">
+                              {row['volatility'].toNumber()}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="left" className="px-6 pt-2">
+                            <Typography
+                              variant="h6"
+                              className={
+                                ssovContextSide === 'CALL'
+                                  ? 'text-[#6DFFB9]'
+                                  : 'text-[#FF617D]'
+                              }
+                            >
+                              {ssovContextSide}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="left" className="px-6 pt-2">
+                            <Button
+                              onClick={() => {
+                                setActiveSsovContextSide(ssovContextSide);
+                                setStrikeIndex(i);
+                                setDidUserInteractWithPurchaseCard(false);
+                              }}
+                              disabled={!available}
+                              className={
+                                available
+                                  ? 'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white'
+                                  : 'bg-umbra cursor-pointer'
+                              }
+                            >
+                              ${formatAmount(row['price'], 2)}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>

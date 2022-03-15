@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
+import cx from 'classnames';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/AppBar';
@@ -9,6 +10,7 @@ import ManageCard from '../components/ManageCard';
 import Sidebar from '../components/Sidebar';
 import SelectStrikeWidget from '../components/SelectStrikeWidget';
 import Deposits from '../components/Deposits';
+import PurchaseCard from '../components/PurchaseCard';
 import PurchaseOptions from '../components/PurchaseOptions';
 import Stats from '../components/Stats';
 import WithdrawalInfo from '../components/WithdrawalInfo';
@@ -24,6 +26,9 @@ const Manage = () => {
     useState<string>('LOADING');
   const [activeView, setActiveView] = useState<string>('vault');
   const showWithdrawalInformation: boolean = false;
+  const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
+  const [didUserInteractWithPurchaseCard, setDidUserInteractWithPurchaseCard] =
+    useState<boolean>(false);
 
   const enabledTypes: string[] = useMemo(() => {
     const types: string[] = [];
@@ -60,7 +65,7 @@ const Manage = () => {
       <AppBar active="SSOV" />
       {activeSsovContextSide !== 'LOADING' ? (
         <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
-          <Box className="w-[22%] ml-10 mt-20">
+          <Box className="w-[20%] ml-10 mt-20">
             <Sidebar
               asset={asset}
               activeSsovContextSide={activeSsovContextSide}
@@ -68,8 +73,9 @@ const Manage = () => {
               setActiveView={setActiveView}
             />
           </Box>
+
           {activeView === 'vault' ? (
-            <Box className="mt-20 mb-20 w-[54%] pl-5 pr-5">
+            <Box className="mt-20 mb-20 w-[55%] pl-5 pr-5">
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
                   activeSsovContextSide={activeSsovContextSide}
@@ -93,7 +99,7 @@ const Manage = () => {
               ) : null}
             </Box>
           ) : (
-            <Box className="mt-20 mb-20 w-[54%] pl-5 pr-5">
+            <Box className="mt-20 mb-20 w-[55%] pl-5 pr-5">
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
                   activeSsovContextSide={activeSsovContextSide}
@@ -104,6 +110,10 @@ const Manage = () => {
               <PurchaseOptions
                 activeSsovContextSide={activeSsovContextSide}
                 setActiveSsovContextSide={setActiveSsovContextSide}
+                setStrikeIndex={setStrikeIndex}
+                setDidUserInteractWithPurchaseCard={
+                  setDidUserInteractWithPurchaseCard
+                }
               />
 
               <Box className={'mt-12'}>
@@ -112,8 +122,13 @@ const Manage = () => {
             </Box>
           )}
 
-          <Box className="flex w-[24%] mr-auto">
-            <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto top-[9rem] right-[3rem] absolute">
+          <Box className="flex w-[25%] mr-auto">
+            <Box
+              className={cx(
+                'flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto mt-24',
+                strikeIndex ? 'mr-7' : 'mr-10'
+              )}
+            >
               {activeView === 'vault' ? (
                 <ManageCard
                   activeSsovContextSide={activeSsovContextSide}
@@ -121,7 +136,16 @@ const Manage = () => {
                   enabledTypes={enabledTypes}
                 />
               ) : activeView === 'positions' ? (
-                <SelectStrikeWidget />
+                strikeIndex >= 0 ? (
+                  <PurchaseCard
+                    didUserInteract={didUserInteractWithPurchaseCard}
+                    activeSsovContextSide={activeSsovContextSide}
+                    strikeIndex={strikeIndex}
+                    setStrikeIndex={setStrikeIndex}
+                  />
+                ) : (
+                  <SelectStrikeWidget />
+                )
               ) : null}
             </Box>
           </Box>

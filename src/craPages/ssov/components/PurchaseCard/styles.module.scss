@@ -4,3 +4,10 @@
   width: calc(100% - 31px);
   height: 100%;
 }
+
+.cardWidth {
+  width: 100%;
+  @media (min-width: 768px) {
+    width: 400px;
+  }
+}
