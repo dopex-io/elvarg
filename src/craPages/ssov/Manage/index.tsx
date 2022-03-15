@@ -50,8 +50,12 @@ const Manage = () => {
   }, [enabledTypes]);
 
   useEffect(() => {
-    if (!accountAddress) window.location.replace('/');
-  }, [accountAddress]);
+    if (
+      !accountAddress &&
+      (ssovContext.PUT?.ssovEpochData || ssovContext.CALL?.ssovEpochData)
+    )
+      window.location.replace('/');
+  }, [accountAddress, ssovContext]);
 
   if (
     (ssovContext.PUT?.ssovEpochData === undefined &&
