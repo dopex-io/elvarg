@@ -27,6 +27,7 @@ import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
+import Withdraw from '../Dialogs/Withdraw';
 
 import {
   SsovData,
@@ -56,6 +57,7 @@ interface DepositsTableDataProps {
   totalPremiums: number;
   imgSrc: string;
   tokenSymbol: string;
+  setIsWithdrawModalVisible: Dispatch<SetStateAction<boolean>>;
 }
 
 const YEAR_SECONDS = 31536000;
@@ -78,6 +80,7 @@ const DepositsTableData = (
     epochEndTime,
     imgSrc,
     tokenSymbol,
+    setIsWithdrawModalVisible,
   } = props;
 
   const { convertToBNB } = useContext(BnbConversionContext);
@@ -158,7 +161,7 @@ const DepositsTableData = (
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Button
-          onClick={null}
+          onClick={() => setIsWithdrawModalVisible(true)}
           className={cx(
             'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
             epochEndTime > new Date()
@@ -209,6 +212,9 @@ const Deposits = ({
   const { convertToBNB } = useContext(BnbConversionContext);
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
+
+  const [isWithdrawModalVisible, setIsWithdrawModalVisible] =
+    useState<boolean>(false);
 
   const { tokenPrice, tokenName } = ssovContext[activeSsovContextSide].ssovData;
   const {
@@ -314,6 +320,12 @@ const Deposits = ({
 
   return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
+      <Withdraw
+        open={isWithdrawModalVisible}
+        handleClose={setIsWithdrawModalVisible}
+        activeSsovContextSide={activeSsovContextSide}
+      />
+
       <Typography variant="h4" className="text-white mb-7">
         Deposits
       </Typography>
@@ -424,6 +436,9 @@ const Deposits = ({
                       }) => {
                         return (
                           <DepositsTableData
+                            setIsWithdrawModalVisible={
+                              setIsWithdrawModalVisible
+                            }
                             key={strikeIndex}
                             epochTime={epochTime}
                             strikeIndex={strikeIndex}
