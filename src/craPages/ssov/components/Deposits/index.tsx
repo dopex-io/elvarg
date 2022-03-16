@@ -318,11 +318,15 @@ const Deposits = ({
     ]
   );
 
+  const handleClose = () => {
+    setIsWithdrawModalVisible(false);
+  };
+
   return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
       <Withdraw
         open={isWithdrawModalVisible}
-        handleClose={setIsWithdrawModalVisible}
+        handleClose={handleClose}
         activeSsovContextSide={activeSsovContextSide}
       />
 
