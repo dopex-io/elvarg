@@ -147,7 +147,7 @@ const Manage = () => {
                   enabledTypes={enabledTypes}
                 />
               ) : activeView === 'positions' ? (
-                strikeIndex >= 0 ? (
+                strikeIndex !== null ? (
                   <PurchaseCard
                     didUserInteract={didUserInteractWithPurchaseCard}
                     activeSsovContextSide={activeSsovContextSide}

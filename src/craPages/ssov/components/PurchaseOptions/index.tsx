@@ -342,12 +342,8 @@ const PurchaseOptions = ({
                             <Typography variant="h6">
                               {formatAmount(
                                 ssovContextSide === 'PUT'
-                                  ? Number(row['strike']) -
-                                      (getUserReadableAmount(row['price'] || 0),
-                                      8)
-                                  : Number(row['strike']) +
-                                      (getUserReadableAmount(row['price'] || 0),
-                                      8),
+                                  ? Number(row['strike']) - row['price']
+                                  : Number(row['strike']) + row['price'],
                                 0
                               )}
                             </Typography>

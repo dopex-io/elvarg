@@ -21,6 +21,7 @@ const PriceTag = (props: Props) => {
         <img
           src="/assets/threedots-black.svg"
           className={'mt-2.5 mb-2.5 mr-2'}
+          alt={'Divisor'}
         />
       ) : null}
       <Box className={cx('flex space-x-2 p-2 rounded-md', className)}>
