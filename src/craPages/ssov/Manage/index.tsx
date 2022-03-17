@@ -74,8 +74,13 @@ const Manage = () => {
       </Head>
       <AppBar active="SSOV" />
       {activeSsovContextSide !== 'LOADING' && accountAddress ? (
-        <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 flex">
-          <Box className="w-[20.5%] ml-10 mt-20">
+        <Box
+          className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0"
+          display="grid"
+          gridTemplateColumns="repeat(12, 1fr)"
+          gap={0}
+        >
+          <Box gridColumn="span 3" className="ml-10 mt-20">
             <Sidebar
               asset={asset}
               activeSsovContextSide={activeSsovContextSide}
@@ -85,7 +90,7 @@ const Manage = () => {
           </Box>
 
           {activeView === 'vault' ? (
-            <Box className="mt-20 mb-20 w-[55%] pl-5 pr-5">
+            <Box gridColumn="span 6" className="mt-20 mb-20 pl-5 pr-5">
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
                   activeSsovContextSide={activeSsovContextSide}
@@ -109,7 +114,7 @@ const Manage = () => {
               ) : null}
             </Box>
           ) : (
-            <Box className="mt-20 mb-20 w-[55%] pl-5 pr-5">
+            <Box gridColumn="span 6" className="mt-20 mb-20 pl-5 pr-5">
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
                   activeSsovContextSide={activeSsovContextSide}
@@ -133,7 +138,7 @@ const Manage = () => {
             </Box>
           )}
 
-          <Box className="flex w-[24.5%] mr-auto">
+          <Box gridColumn="span 3" className="flex ml-auto">
             <Box
               className={cx(
                 'flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto mt-24',
