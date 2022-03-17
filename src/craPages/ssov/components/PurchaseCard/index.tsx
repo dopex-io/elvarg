@@ -67,14 +67,12 @@ export interface Props {
   activeSsovContextSide: string;
   strikeIndex: number;
   setStrikeIndex: Function;
-  didUserInteract: boolean;
 }
 
 const PurchaseCard = ({
   activeSsovContextSide,
   strikeIndex,
   setStrikeIndex,
-  didUserInteract,
 }: Props) => {
   const ssovContext = useContext(SsovContext);
   const { updateSsovEpochData, updateSsovUserData, selectedSsov, ssovSigner } =
@@ -884,11 +882,11 @@ const PurchaseCard = ({
   ]);
 
   useEffect(() => {
-    if (didUserInteract === false)
+    if (rawOptionsAmount === '')
       setPurchaseTokenName(
         activeSsovContextSide === 'PUT' ? '2CRV' : ssovTokenName
       );
-  }, [didUserInteract, activeSsovContextSide, ssovTokenName]);
+  }, [activeSsovContextSide, ssovTokenName]);
 
   useEffect(() => {
     getPath();

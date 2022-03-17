@@ -24,6 +24,7 @@ import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import Checkbox from '@mui/material/Checkbox';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
@@ -56,12 +57,10 @@ const PurchaseOptions = ({
   activeSsovContextSide,
   setActiveSsovContextSide,
   setStrikeIndex,
-  setDidUserInteractWithPurchaseCard,
 }: {
   activeSsovContextSide: string;
   setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
   setStrikeIndex: Dispatch<SetStateAction<number>>;
-  setDidUserInteractWithPurchaseCard: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { provider } = useContext(WalletContext);
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
@@ -70,7 +69,7 @@ const PurchaseOptions = ({
   const { convertToBNB } = useContext(BnbConversionContext);
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
-
+  const [updated, setUpdated] = useState<boolean>(false);
   const { tokenPrice, tokenName } = ssovContext[activeSsovContextSide].ssovData;
   const {
     epochTimes,
@@ -122,6 +121,8 @@ const PurchaseOptions = ({
   };
 
   const getPurchaseOptions = async (i, ssovContextSide) => {
+    if (!ssovContext[ssovContextSide].ssovEpochData) return;
+
     const strike = ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
 
     const available: number =
@@ -213,19 +214,30 @@ const PurchaseOptions = ({
 
       const results = await Promise.all(strikeIndexes);
 
-      for (let i in results) options[results[i]['side']].push(results[i]);
+      for (let i in results)
+        if (results[i]) options[results[i]['side']].push(results[i]);
 
       setPurchaseOptions(options);
       setIsPurchaseStatsLoading(false);
+      setUpdated(true);
     }
-    updatePurchaseOptions();
-  }, [ssovContext]);
+
+    if (updated === false) updatePurchaseOptions();
+  }, [ssovContext, updated]);
 
   return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
-      <Typography variant="h4" className="text-white mb-7">
-        Purchase Options
-      </Typography>
+      <Box className="flex">
+        <Typography variant="h4" className="text-white mb-7">
+          Purchase Options
+        </Typography>
+        <Tooltip title={'Refresh'}>
+          <RefreshIcon
+            className="mt-1 ml-2 hover:opacity-70 cursor-pointer"
+            onClick={() => setUpdated(false)}
+          />
+        </Tooltip>
+      </Box>
       <Box className={'bg-cod-gray w-full p-4 pt-2 pb-4.5 pb-0 rounded-xl'}>
         <Box className="balances-table text-white">
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
@@ -370,7 +382,6 @@ const PurchaseOptions = ({
                               onClick={() => {
                                 setActiveSsovContextSide(ssovContextSide);
                                 setStrikeIndex(i);
-                                setDidUserInteractWithPurchaseCard(false);
                               }}
                               disabled={row['available'] < 0.1}
                               className={

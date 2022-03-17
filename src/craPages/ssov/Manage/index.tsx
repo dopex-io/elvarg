@@ -10,6 +10,7 @@ import ManageCard from '../components/ManageCard';
 import Sidebar from '../components/Sidebar';
 import SelectStrikeWidget from '../components/SelectStrikeWidget';
 import Deposits from '../components/Deposits';
+import Positions from '../components/Positions';
 import PurchaseCard from '../components/PurchaseCard';
 import PurchaseOptions from '../components/PurchaseOptions';
 import Stats from '../components/Stats';
@@ -29,8 +30,6 @@ const Manage = () => {
   const [activeView, setActiveView] = useState<string>('vault');
   const showWithdrawalInformation: boolean = false;
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
-  const [didUserInteractWithPurchaseCard, setDidUserInteractWithPurchaseCard] =
-    useState<boolean>(false);
 
   const enabledTypes: string[] = useMemo(() => {
     const types: string[] = [];
@@ -122,10 +121,11 @@ const Manage = () => {
                 activeSsovContextSide={activeSsovContextSide}
                 setActiveSsovContextSide={setActiveSsovContextSide}
                 setStrikeIndex={setStrikeIndex}
-                setDidUserInteractWithPurchaseCard={
-                  setDidUserInteractWithPurchaseCard
-                }
               />
+
+              <Box className={'mt-12'}>
+                <Positions />
+              </Box>
 
               <Box className={'mt-12'}>
                 <AutoExerciseInfo />
@@ -149,7 +149,6 @@ const Manage = () => {
               ) : activeView === 'positions' ? (
                 strikeIndex !== null ? (
                   <PurchaseCard
-                    didUserInteract={didUserInteractWithPurchaseCard}
                     activeSsovContextSide={activeSsovContextSide}
                     strikeIndex={strikeIndex}
                     setStrikeIndex={setStrikeIndex}
