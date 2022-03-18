@@ -773,6 +773,8 @@ const ManageCard = ({
             </Box>
             <Box className="mt-2 flex">
               <Slider
+                min={100}
+                max={1000}
                 value={leverage}
                 onChange={(event, value) => setLeverage(Number(value))}
                 aria-label="Default"
