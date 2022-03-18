@@ -198,7 +198,12 @@ export default function AppBar(props: AppBarProps) {
       />
       <nav className={cx('fixed top-0 w-full text-gray-600', styles.appBar)}>
         <Box className={'flex w-full bg-umbra z-50 relative'}>
-          <Box className="space-x-2 mr-4 hidden lg:flex">
+          <Box
+            className={cx(
+              'space-x-2 mr-4 hidden lg:flex',
+              styles.horizontalScroll
+            )}
+          >
             {tokenPrices.map((item, i) => (
               <PriceTag
                 key={item.name}
