@@ -204,15 +204,18 @@ export default function AppBar(props: AppBarProps) {
               styles.horizontalScroll
             )}
           >
-            {tokenPrices.map((item, i) => (
-              <PriceTag
-                key={item.name}
-                asset={item.name}
-                price={item.price}
-                change={item.change24h}
-                showDivisor={i > 0}
-              />
-            ))}
+            {tokenPrices
+              .concat(tokenPrices)
+              .concat(tokenPrices)
+              .map((item, i) => (
+                <PriceTag
+                  key={item.name}
+                  asset={item.name}
+                  price={item.price}
+                  change={item.change24h}
+                  showDivisor={i > 0}
+                />
+              ))}
           </Box>
         </Box>
         <Box className="flex w-full items-center container pl-10 pr-10 p-4 justify-between mx-auto max-w-full">
