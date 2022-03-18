@@ -29,12 +29,12 @@ const Manage = () => {
   const showWithdrawalInformation: boolean = false;
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
 
-  const enabledTypes: string[] = ['CALL'];
+  const enabledSides: string[] = ['CALL'];
 
   useEffect(() => {
-    if (enabledTypes.includes('CALL')) setActiveContextSide('CALL');
-    else if (enabledTypes.includes('PUT')) setActiveContextSide('PUT');
-  }, [enabledTypes]);
+    if (enabledSides.includes('CALL')) setActiveContextSide('CALL');
+    else if (enabledSides.includes('PUT')) setActiveContextSide('PUT');
+  }, [enabledSides]);
 
   return (
     <Box className="overflow-x-hidden bg-black h-screen">
@@ -118,7 +118,7 @@ const Manage = () => {
                 <ManageCard
                   activeContextSide={activeContextSide}
                   setActiveContextSide={setActiveContextSide}
-                  enabledTypes={enabledTypes}
+                  enabledSides={enabledSides}
                 />
               ) : activeView === 'positions' ? (
                 strikeIndex !== null ? (

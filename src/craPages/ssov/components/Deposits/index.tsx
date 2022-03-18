@@ -27,6 +27,7 @@ import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
+import CustomButton from 'components/UI/CustomButton';
 import Withdraw from '../Dialogs/Withdraw';
 
 import {
@@ -67,6 +68,7 @@ const DepositsTableData = (
     price: number;
     epochTime: number;
     epochEndTime: Date;
+    activeContextSide: string;
   }
 ) => {
   const {
@@ -81,6 +83,7 @@ const DepositsTableData = (
     imgSrc,
     tokenSymbol,
     setIsWithdrawModalVisible,
+    activeContextSide,
   } = props;
 
   const { convertToBNB } = useContext(BnbConversionContext);
@@ -157,7 +160,12 @@ const DepositsTableData = (
         </Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6">Call</Typography>
+        <Typography
+          variant="h6"
+          className={activeContextSide === 'CALL' ? '' : ''}
+        >
+          {activeContextSide}
+        </Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Button
@@ -355,6 +363,24 @@ const Deposits = ({
               </Typography>
             </Box>
           </Tooltip>
+          <CustomButton
+            className={'ml-auto flex'}
+            size={'small'}
+            color={'umbra'}
+            onClick={() =>
+              setActiveSsovContextSide(
+                activeSsovContextSide === 'CALL' ? 'PUT' : 'CALL'
+              )
+            }
+          >
+            <Typography variant="h5">Switch to</Typography>
+            <img
+              src={`/assets/${
+                activeSsovContextSide === 'CALL' ? 'puts.svg' : 'calls.svg'
+              }`}
+              className={'mt-[4px] ml-2'}
+            />
+          </CustomButton>
         </Box>
 
         <Box className="balances-table text-white">
@@ -443,6 +469,7 @@ const Deposits = ({
                             setIsWithdrawModalVisible={
                               setIsWithdrawModalVisible
                             }
+                            activeContextSide={activeSsovContextSide}
                             key={strikeIndex}
                             epochTime={epochTime}
                             strikeIndex={strikeIndex}

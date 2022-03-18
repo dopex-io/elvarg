@@ -72,13 +72,13 @@ const SelectMenuProps = {
 export interface Props {
   activeSsovContextSide: string;
   setActiveSsovContextSide: Function;
-  enabledTypes: string[];
+  enabledSides: string[];
 }
 
 const ManageCard = ({
   activeSsovContextSide,
   setActiveSsovContextSide,
-  enabledTypes,
+  enabledSides,
 }: Props) => {
   const { accountAddress, chainId, provider, signer, contractAddresses } =
     useContext(WalletContext);
@@ -878,12 +878,12 @@ const ManageCard = ({
               className={
                 activeSsovContextSide === 'CALL'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                  : enabledTypes.includes('CALL')
+                  : enabledSides.includes('CALL')
                   ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
               }
               onClick={() =>
-                enabledTypes.includes('CALL')
+                enabledSides.includes('CALL')
                   ? setActiveSsovContextSide('CALL')
                   : null
               }
@@ -896,12 +896,12 @@ const ManageCard = ({
               className={
                 activeSsovContextSide === 'PUT'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                  : enabledTypes.includes('PUT')
+                  : enabledSides.includes('PUT')
                   ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
               }
               onClick={() =>
-                enabledTypes.includes('PUT')
+                enabledSides.includes('PUT')
                   ? setActiveSsovContextSide('PUT')
                   : null
               }

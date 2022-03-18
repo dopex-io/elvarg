@@ -196,10 +196,8 @@ export default function AppBar(props: AppBarProps) {
         userBalances={userAssetBalances}
         handleClose={handleWalletDialogClose}
       />
-      <nav
-        className={cx('fixed top-0 z-50 w-full text-gray-600', styles.appBar)}
-      >
-        <Box className={'flex w-full bg-umbra'}>
+      <nav className={cx('fixed top-0 w-full text-gray-600', styles.appBar)}>
+        <Box className={'flex w-full bg-umbra z-50 relative'}>
           <Box className="space-x-2 mr-4 hidden lg:flex">
             {tokenPrices.map((item, i) => (
               <PriceTag

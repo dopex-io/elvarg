@@ -31,7 +31,7 @@ const Manage = () => {
   const showWithdrawalInformation: boolean = false;
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
 
-  const enabledTypes: string[] = useMemo(() => {
+  const enabledSides: string[] = useMemo(() => {
     const types: string[] = [];
     if (ssovContext.CALL?.ssovData) types.push('CALL');
     if (ssovContext.PUT?.ssovData) types.push('PUT');
@@ -44,9 +44,9 @@ const Manage = () => {
   }, [asset]);
 
   useEffect(() => {
-    if (enabledTypes.includes('CALL')) setActiveSsovContextSide('CALL');
-    else if (enabledTypes.includes('PUT')) setActiveSsovContextSide('PUT');
-  }, [enabledTypes]);
+    if (enabledSides.includes('CALL')) setActiveSsovContextSide('CALL');
+    else if (enabledSides.includes('PUT')) setActiveSsovContextSide('PUT');
+  }, [enabledSides]);
 
   useEffect(() => {
     if (
@@ -138,18 +138,13 @@ const Manage = () => {
             </Box>
           )}
 
-          <Box gridColumn="span 3" className="flex ml-auto">
-            <Box
-              className={cx(
-                'flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto mt-24',
-                strikeIndex ? 'mr-7' : 'mr-10'
-              )}
-            >
+          <Box gridColumn="span 3" className="mt-20 flex">
+            <Box className={'absolute right-[2.5rem]'}>
               {activeView === 'vault' ? (
                 <ManageCard
                   activeSsovContextSide={activeSsovContextSide}
                   setActiveSsovContextSide={setActiveSsovContextSide}
-                  enabledTypes={enabledTypes}
+                  enabledSides={enabledSides}
                 />
               ) : activeView === 'positions' ? (
                 strikeIndex !== null ? (
