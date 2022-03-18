@@ -156,10 +156,15 @@ const Stats = ({
                 >
                   $
                   {formatAmount(
-                    getUserReadableAmount(
-                      totalEpochPremium[strikeIndex],
-                      getTokenDecimals(tokenName, chainId)
-                    ) * getUserReadableAmount(tokenPrice, 8),
+                    activeSsovContextSide === 'CALL'
+                      ? getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        ) * getUserReadableAmount(tokenPrice, 8)
+                      : getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        ),
                     2
                   )}
                 </Typography>
@@ -168,10 +173,15 @@ const Stats = ({
                   className={'text-sm text-white mt-1 mr-0'}
                 >
                   {formatAmount(
-                    getUserReadableAmount(
-                      totalEpochPremium[strikeIndex],
-                      getTokenDecimals(tokenName, chainId)
-                    ),
+                    activeSsovContextSide === 'CALL'
+                      ? getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        )
+                      : getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        ) / getUserReadableAmount(tokenPrice, 8),
                     2
                   )}{' '}
                   {tokenName}
