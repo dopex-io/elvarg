@@ -16,7 +16,7 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
 // import CloseRfqDialog from '../Dialogs/CloseRfqDialog'; // Move to chatroom
-import { Bid } from '../Dialogs/Bid';
+import Bid from '../Dialogs/Bid';
 import CustomMenu from '../CustomMenu';
 
 import { OtcContext } from 'contexts/Otc';
