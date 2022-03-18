@@ -4,7 +4,7 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import Bid from '../dialogs/Bid';
+import Bid from '../Dialogs/Bid';
 
 interface CustomMenuProps {
   data: {

@@ -83,7 +83,6 @@ const Register = ({ open, handleClose }: RegisterProps) => {
   }, [accountAddress, formik, handleClose]);
 
   useEffect(() => {
-    setLoading(true);
     (async () => {
       const validatedUser = await validateUser();
       if (validatedUser) {

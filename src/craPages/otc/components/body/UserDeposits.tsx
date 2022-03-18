@@ -16,7 +16,7 @@ import { OtcContext } from 'contexts/Otc';
 
 import smartTrim from 'utils/general/smartTrim';
 import CustomButton from 'components/UI/CustomButton';
-import Withdraw from '../dialogs/Withdraw';
+import Withdraw from '../Dialogs/Withdraw';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 

@@ -71,6 +71,11 @@ interface OtcUserData {
   };
   validateUser?: Function;
   loaded?: boolean;
+  selectedQuote?: {
+    address: string;
+    symbol: string;
+  };
+  setSelectedQuote?: Function;
 }
 
 const initialState: OtcContractsInterface & OtcUserData = {
@@ -88,6 +93,11 @@ const initialState: OtcContractsInterface & OtcUserData = {
   userTrades: [],
   user: undefined,
   loaded: false,
+  selectedQuote: {
+    address: '',
+    symbol: '',
+  },
+  setSelectedQuote: () => {},
 };
 
 export const OtcContext = createContext<OtcUserData & OtcContractsInterface>(
@@ -267,6 +277,15 @@ export const OtcProvider = (props) => {
     }));
   }, [accountAddress, chainId, contractAddresses, loaded, provider]);
 
+  const setSelectedQuote = useCallback(
+    (selectedQuote) => {
+      if (!accountAddress || !escrowData) return;
+
+      setState((prevState) => ({ ...prevState, selectedQuote }));
+    },
+    [accountAddress, escrowData]
+  );
+
   const getOtcData = useCallback(async () => {
     if (!db || !provider || !accountAddress) return;
 
@@ -325,6 +344,7 @@ export const OtcProvider = (props) => {
     userDepositsData,
     openTradesData,
     escrowData,
+    setSelectedQuote,
   };
   return (
     <OtcContext.Provider value={contextValue}>

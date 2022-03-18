@@ -15,8 +15,8 @@ import { collection, getDocs } from 'firebase/firestore';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
-import CloseRfqDialog from '../dialogs/CloseRfqDialog'; // Move to chatroom
-import Bid from '../dialogs/Bid';
+// import CloseRfqDialog from '../Dialogs/CloseRfqDialog'; // Move to chatroom
+import Bid from '../Dialogs/Bid';
 import CustomMenu from '../CustomMenu';
 
 import { OtcContext } from 'contexts/Otc';
@@ -129,7 +129,8 @@ const IndicativeRfqTable = () => {
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
               <TableHeader align="center">Qty</TableHeader>
-              <TableHeader align="center">Total Bid/Ask</TableHeader>
+              <TableHeader align="center">Bid</TableHeader>
+              <TableHeader align="center">Ask</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
               <TableHeader align="right">Dealer</TableHeader>
               <TableHeader align="right">Actions</TableHeader>
@@ -157,7 +158,7 @@ const IndicativeRfqTable = () => {
                       )}
                     </TableBodyCell>
                     <TableBodyCell align="left">{row.data.base}</TableBodyCell>
-                    <TableBodyCell align="center" textColor="text-green-400">
+                    <TableBodyCell align="center">
                       {row.data.amount}
                     </TableBodyCell>
                     <TableBodyCell
@@ -165,9 +166,20 @@ const IndicativeRfqTable = () => {
                       textColor="text-down-bad"
                       fill="bg-umbra"
                     >
-                      {row.data.price}
+                      <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                        {row.data.isBuy ? row.data.price : '-'}
+                      </Box>
                     </TableBodyCell>
-                    <TableBodyCell align="right" fill="bg-umbra">
+                    <TableBodyCell
+                      align="center"
+                      textColor="text-emerald-500"
+                      fill="bg-umbra"
+                    >
+                      <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                        {row.data.isBuy ? '-' : row.data.price}
+                      </Box>
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
                       {row.data.quote}
                     </TableBodyCell>
                     <TableBodyCell align="right">
@@ -194,7 +206,7 @@ const IndicativeRfqTable = () => {
                         >
                           Chat
                         </CustomButton>
-                        <CustomMenu data={row} actionText={'Bid'} />
+                        <CustomMenu data={row} actionText={'Bid-Ask'} />
                       </Box>
                       <Bid
                         open={dialogState.open}

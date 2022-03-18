@@ -92,6 +92,8 @@ const Chatroom = () => {
   }, [chat]);
 
   const handleSubmit = useCallback(async () => {
+    if (formik.values.msg === '') return;
+
     await addDoc(collection(db, `chatrooms/${chat.id}/${'messages'}`), {
       msg: formik.values.msg,
       timestamp: new Date(),
@@ -169,7 +171,7 @@ const Chatroom = () => {
               )}
             </Box>
           </Box>
-          <Box className="h-full overflow-y-scroll flex flex-col-reverse p-0">
+          <Box className="h-full overflow-y-scroll flex flex-col-reverse">
             {loading ? (
               <Box className="flex h-full justify-center">
                 <CircularProgress className="self-center" />

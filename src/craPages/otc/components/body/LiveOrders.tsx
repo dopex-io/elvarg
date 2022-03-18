@@ -11,7 +11,7 @@ import CustomButton from 'components/UI/CustomButton';
 
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-import Settle from '../dialogs/Settle';
+import Settle from '../Dialogs/Settle';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -56,7 +56,7 @@ const TableBodyCell = ({
   );
 };
 
-const LiveRfqTable = () => {
+const LiveOrders = () => {
   const { openTradesData, loaded } = useContext(OtcContext);
 
   const [index, setIndex] = useState(0);
@@ -222,4 +222,4 @@ const LiveRfqTable = () => {
   );
 };
 
-export default LiveRfqTable;
+export default LiveOrders;

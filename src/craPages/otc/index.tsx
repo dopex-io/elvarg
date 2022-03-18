@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo, useCallback, useEffect } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
@@ -6,11 +6,11 @@ import HistoryIcon from '@mui/icons-material/History';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
-import OtcBanner from './components/banner';
+import OtcBanner from './components/OtcBanner';
 import IndicativeRfqTable from './components/body/IndicativeRfqTable';
-import RfqForm from './components/aside/RfqForm';
+import RfqForm from './components/RfqForm';
 import TradeHistory from './components/body/TradeHistory';
-import LiveRfqTable from './components/body/LiveRfqTable';
+import LiveOrders from './components/body/LiveOrders';
 import Switch from 'components/UI/Switch';
 import Accordion from 'components/UI/Accordion';
 import UserDeposits from './components/body/UserDeposits';
@@ -18,8 +18,8 @@ import UserDeposits from './components/body/UserDeposits';
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
-import content from './components/banner/content.json';
-import Register from './components/dialogs/Register';
+import content from './components/OtcBanner/content.json';
+import Register from './components/Dialogs/Register';
 
 const MARKETS_PLACEHOLDER = [
   // {
@@ -49,7 +49,7 @@ const MARKETS_PLACEHOLDER = [
 ];
 
 const OTC = () => {
-  const { user } = useContext(OtcContext);
+  const { user, escrowData, setSelectedQuote } = useContext(OtcContext);
   const { accountAddress } = useContext(WalletContext);
 
   const [state, setState] = useState({
@@ -71,6 +71,10 @@ const OTC = () => {
 
   const handleSelection = useCallback((token) => {
     setSelectedToken(token);
+    setSelectedQuote({
+      address: '',
+      symbol: token,
+    });
   }, []);
 
   const handleClose = useCallback(() => {
@@ -96,56 +100,64 @@ const OTC = () => {
               Views
             </Typography>
             <Box className="flex flex-col justify-between space-y-4">
-              <Box>
-                <Typography
-                  variant="h6"
+              <Box className="flex flex-col">
+                <Box
                   role="button"
-                  className={`bg-black hover:bg-cod-gray rounded-lg py-4 ${
+                  className={`flex space-x-4 p-2 rounded-xl ${
                     state.trade ? 'bg-cod-gray' : null
                   }`}
                   onClick={() => handleUpdateState(true, false)}
                 >
-                  <SwapHorizIcon className="mx-2" />
-                  Trade
-                </Typography>
-                <Typography
-                  variant="h6"
+                  <SwapHorizIcon className="my-auto" />
+                  <Typography
+                    variant="h6"
+                    className={`hover:bg-cod-gray rounded-lg py-4`}
+                  >
+                    Trade
+                  </Typography>
+                </Box>
+
+                <Box
                   role="button"
-                  className={`bg-black rounded-lg py-4 text-stieglitz ${
+                  className={`flex space-x-4 p-2 rounded-xl ${
                     state.history ? 'bg-cod-gray' : null
                   }`}
                   onClick={() => {}}
-                  // handleUpdateState(false, true)
                 >
-                  <HistoryIcon className="mx-2" />
-                  History
-                </Typography>
+                  <HistoryIcon className="my-auto" />
+                  <Typography
+                    variant="h6"
+                    role="button"
+                    className={`rounded-lg py-4`}
+                    // handleUpdateState(false, true)
+                  >
+                    History
+                  </Typography>
+                </Box>
+
                 <Typography variant="h5" className="text-stieglitz py-3">
                   Markets
                 </Typography>
-                {MARKETS_PLACEHOLDER.map((token, index) => {
+                {escrowData.quotes?.map((asset, index) => {
                   return (
                     <Box
                       key={index}
                       className={`flex hover:bg-cod-gray p-2 rounded-lg ${
-                        token.symbol === selectedToken.symbol
+                        asset.symbol === selectedToken.symbol
                           ? 'bg-cod-gray'
                           : null
                       }`}
-                      onClick={() => handleSelection(token)}
+                      onClick={() => handleSelection(asset)}
                     >
                       <img
-                        src={`${token.icon}`}
-                        alt={`${token.asset}`}
+                        src={`assets/${asset.symbol}.svg`}
+                        alt={`${asset.symbol}`}
                         className="p-2 h-12"
                       />
-                      <Box className="flex flex-col" role="button">
-                        <Typography variant="h5">{`${token.symbol}`}</Typography>
-                        <Typography
-                          variant="h6"
-                          className="text-stieglitz"
-                        >{`${token.asset}`}</Typography>
-                      </Box>
+                      <Typography
+                        variant="h5"
+                        className="self-center"
+                      >{`${asset.symbol}`}</Typography>
                     </Box>
                   );
                 })}
@@ -189,7 +201,7 @@ const OTC = () => {
                     </Typography>
                   </Box>
                 </Box>
-                {isLive ? <LiveRfqTable /> : <IndicativeRfqTable />}
+                {isLive ? <LiveOrders /> : <IndicativeRfqTable />}
                 <Typography variant="h5" className="font-bold">
                   Your Orders
                 </Typography>

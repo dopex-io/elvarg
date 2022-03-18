@@ -15,12 +15,13 @@ import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
-import ConfirmRfqDialog from '../dialogs/ConfirmRfqDialog';
+import ConfirmRfqDialog from '../Dialogs/ConfirmRfqDialog';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
 
 import useSendTx from 'hooks/useSendTx';
+
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 const RfqForm = ({ isLive }: { isLive: boolean }) => {
