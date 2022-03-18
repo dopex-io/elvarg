@@ -107,13 +107,8 @@ const Manage = () => {
             </Box>
           )}
 
-          <Box gridColumn="span 3" className="flex ml-auto">
-            <Box
-              className={cx(
-                'flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start ml-auto mt-24',
-                strikeIndex ? 'mr-7' : 'mr-10'
-              )}
-            >
+          <Box gridColumn="span 3" className="mt-20 flex">
+            <Box className={'absolute right-[2.5rem]'}>
               {activeView === 'vault' ? (
                 <ManageCard
                   activeContextSide={activeContextSide}
