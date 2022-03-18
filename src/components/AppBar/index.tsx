@@ -112,6 +112,7 @@ interface AppBarProps {
     | 'token sale'
     | 'faucet'
     | 'SSOV'
+    | 'vaults'
     | 'leaderboard'
     | 'swap';
 }

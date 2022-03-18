@@ -1,0 +1,21 @@
+.cardWidth {
+  width: 100%;
+  @media (min-width: 768px) {
+    width: 370px;
+  }
+}
+
+.optionTypeIndicator {
+  padding-top: 5.5px;
+  padding-bottom: 5.5px;
+  border-radius: 5px;
+}
+
+.allocationWidth {
+  width: 189px;
+}
+
+.exerciseModalSize {
+  width: 343px;
+  height: 433px;
+}

@@ -34,6 +34,7 @@ const Farming = lazy(() => import('craPages/farming/farms'));
 const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
+const RatesVault = lazy(() => import('craPages/ratesVault'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
@@ -118,6 +119,7 @@ function AppRoutes() {
               <Route path="/" element={<Navigate to="/ssov" />} />
               <Route path="sale" element={<TokenSale />} />
               <Route path="ssov/*" element={<SsovRoutes />} />
+              <Route path="vaults/ir" element={<RatesVault />} />
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />
