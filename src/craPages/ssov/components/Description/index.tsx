@@ -123,10 +123,14 @@ const Description = ({
   return (
     <Box className={'w-3/4'}>
       <Box className={'flex'}>
-        <Box className={'border-[2px] border-gray-500 rounded-full'}>
+        <Box
+          className={
+            'border-[2px] border-gray-500 rounded-full mt-auto mb-auto'
+          }
+        >
           <img
             src={'/assets/' + tokenSymbol.toLowerCase() + '.svg'}
-            className={'w-20 h-20'}
+            className={'w-20'}
           />
         </Box>
         <Typography variant="h1" className="ml-5 flex items-center space-x-3">

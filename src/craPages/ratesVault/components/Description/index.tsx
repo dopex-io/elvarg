@@ -68,8 +68,8 @@ const Description = ({
   return (
     <Box className={'w-3/4'}>
       <Box className={'flex'}>
-        <Box className={'rounded-full'}>
-          <img src={'/assets/ir.svg'} className={'w-20 h-20'} />
+        <Box className={'rounded-full mt-auto mb-auto'}>
+          <img src={'/assets/ir.svg'} className={'w-20'} />
         </Box>
         <Typography variant="h1" className="ml-5 flex items-center space-x-3">
           Pool2 Interest Rate Vaults
