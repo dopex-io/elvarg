@@ -36,7 +36,7 @@ interface BidDialogProps {
   data: DocumentData;
 }
 
-const Bid = ({ open, handleClose, data }: BidDialogProps) => {
+export const Bid = ({ open, handleClose, data }: BidDialogProps) => {
   const sendTx = useSendTx();
   const { user, escrowData, loaded } = useContext(OtcContext);
   const { accountAddress, provider, signer } = useContext(WalletContext);
@@ -390,5 +390,3 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
     )
   );
 };
-
-export default Bid;
