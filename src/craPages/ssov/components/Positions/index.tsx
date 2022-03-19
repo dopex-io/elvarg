@@ -121,6 +121,12 @@ const Positions = () => {
                 ssovContext[ssovContextSide]?.ssovEpochData.epochStrikes[i],
                 8
               );
+
+              const pnl =
+                ssovContextSide === 'PUT'
+                  ? strike - getUserReadableAmount(tokenPrice, 8)
+                  : strike + getUserReadableAmount(tokenPrice, 8);
+
               _positions.push({
                 strike:
                   ssovContext[ssovContextSide]?.ssovEpochData.epochStrikes[i],
@@ -134,11 +140,8 @@ const Positions = () => {
                   18
                 ),
                 side: ssovContextSide,
-                canBeSettled: new Date() > epochEndTime,
-                pnl:
-                  ssovContextSide === 'PUT'
-                    ? strike - getUserReadableAmount(tokenPrice, 8)
-                    : strike + getUserReadableAmount(tokenPrice, 8),
+                canBeSettled: new Date() > epochEndTime && pnl > 0,
+                pnl: pnl,
               });
             }
           }
