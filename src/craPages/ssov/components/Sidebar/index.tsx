@@ -49,7 +49,10 @@ const Sidebar = ({
             </Typography>
           </Box>
           <Button className={styles.button}>
-            <img src={'/assets/lock.svg'} className={'mr-3'} /> Vault Open
+            <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
+            {ssovContext[activeSsovContextSide].ssovEpochData.isVaultReady
+              ? 'Vault closed'
+              : 'Vault open'}
           </Button>
           {/*<Box className={'bg-[#2D2D2D] p-2 pr-4 pl-4 rounded-md ml-auto'}>
             <img src={'/assets/threedots.svg'} className={'h-4 mt-[6px]'} />
