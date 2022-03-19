@@ -21,11 +21,11 @@ import { MAX_VALUE } from 'constants/index';
 
 export interface Props {
   open: boolean;
-  handleClose: () => {};
+  handleClose: () => void;
   strikeIndex: number;
   token: string;
   settleableAmount: BigNumber;
-  activeSsovContextSide: string;
+  activeVaultContextSide: string;
 }
 
 const Settle = ({
@@ -34,7 +34,7 @@ const Settle = ({
   strikeIndex,
   token,
   settleableAmount,
-  activeSsovContextSide,
+  activeVaultContextSide,
 }: Props) => {
   const ssovContext = useContext(SsovContext);
   const {
@@ -45,8 +45,7 @@ const Settle = ({
     ssovUserData,
     ssovSigner,
     selectedEpoch,
-    selectedSsov,
-  } = ssovContext[activeSsovContextSide];
+  } = ssovContext[activeVaultContextSide];
   const { accountAddress, signer } = useContext(WalletContext);
   const { convertToVBNB } = useContext(BnbConversionContext);
 
@@ -80,7 +79,7 @@ const Settle = ({
   }, [updateUserEpochStrikeTokenBalance]);
 
   const PnL = !settlementPrice.isZero()
-    ? activeSsovContextSide === 'PUT'
+    ? activeVaultContextSide === 'PUT'
       ? epochStrikes[strikeIndex]
           .sub(settlementPrice)
           .mul(settleableAmount)

@@ -23,14 +23,14 @@ export interface Props {
   open: boolean;
   handleClose: () => {};
   strikeIndex: number;
-  activeSsovContextSide: string;
+  activeVaultContextSide: string;
 }
 
 const Transfer = ({
   open,
   handleClose,
   strikeIndex,
-  activeSsovContextSide,
+  activeVaultContextSide,
 }: Props) => {
   const ssovContext = useContext(SsovContext);
   const {
@@ -40,7 +40,7 @@ const Transfer = ({
     ssovUserData,
     ssovData,
     selectedEpoch,
-  } = ssovContext[activeSsovContextSide];
+  } = ssovContext[activeVaultContextSide];
   const { accountAddress, signer } = useContext(WalletContext);
 
   const sendTx = useSendTx();

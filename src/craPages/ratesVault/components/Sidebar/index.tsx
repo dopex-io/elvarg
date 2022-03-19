@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import Typography from 'components/UI/Typography';
 import CircleIcon from 'components/Icons/CircleIcon';
 
+import { RateVaultContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
 import displayAddress from 'utils/general/displayAddress';
@@ -19,17 +20,19 @@ import styles from './styles.module.scss';
 
 export interface Props {
   asset: string;
-  activeContextSide: string;
+  activeVaultContextSide: string;
   activeView: string;
   setActiveView: Function;
 }
 
 const Sidebar = ({
   asset,
-  activeContextSide,
+  activeVaultContextSide,
   activeView,
   setActiveView,
 }: Props) => {
+  const rateVaultContext = useContext(RateVaultContext);
+  console.log(rateVaultContext);
   const { chainId } = useContext(WalletContext);
 
   return (
@@ -43,11 +46,17 @@ const Sidebar = ({
         <Box className={'flex'}>
           <Box className={'bg-[#2D2D2D] p-1 pr-3.5 pl-3.5 rounded-md mr-3'}>
             <Typography variant="h4" className="text-stieglitz">
-              1
+              {
+                rateVaultContext[activeVaultContextSide].rateVaultData
+                  .currentEpoch
+              }
             </Typography>
           </Box>
           <Button className={styles.button}>
-            <img src={'/assets/lock.svg'} className={'mr-3'} /> Vault Open
+            <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
+            {rateVaultContext[activeVaultContextSide].ssovEpochData.isVaultReady
+              ? 'Vault closed'
+              : 'Vault open'}
           </Button>
           {/*<Box className={'bg-[#2D2D2D] p-2 pr-4 pl-4 rounded-md ml-auto'}>
             <img src={'/assets/threedots.svg'} className={'h-4 mt-[6px]'} />
@@ -59,7 +68,13 @@ const Sidebar = ({
               Time remaining
             </Typography>
             <Countdown
-              date={new Date()}
+              date={
+                new Date(
+                  rateVaultContext[
+                    activeVaultContextSide
+                  ].ssovEpochData.epochTimes[1].toNumber() * 1000
+                )
+              }
               renderer={({ days, hours, minutes, seconds }) => {
                 return (
                   <Typography variant="h5" className="text-white ml-auto">
@@ -74,7 +89,15 @@ const Sidebar = ({
               Next epoch
             </Typography>
             <Typography variant="h5" className="text-white ml-auto">
-              2
+              {getFormattedDate(
+                new Date(
+                  (rateVaultContext[
+                    activeVaultContextSide
+                  ].ssovEpochData.epochTimes[1].toNumber() +
+                    86400 * 3) *
+                    1000
+                )
+              )}
             </Typography>
           </Box>
         </Box>
@@ -139,7 +162,7 @@ const Sidebar = ({
             ? 'rounded-md flex mb-4 p-3 border border-neutral-800 w-full bg-umbra cursor-pointer'
             : 'rounded-md flex mb-4 p-3 w-full group cursor-pointer hover:border hover:border-neutral-800 hover:bg-umbra'
         }
-        onClick={() => null}
+        onClick={() => setActiveView('positions')}
       >
         <img
           src={'/assets/stars.svg'}
@@ -172,15 +195,27 @@ const Sidebar = ({
         </Typography>
       </Box>
       <Box className={`bg-umbra rounded-md relative`}>
-        <img src={getExtendedLogoFromChainId(42161)} className={'h-11 p-1'} />
+        <img src={getExtendedLogoFromChainId(chainId)} className={'h-11 p-1'} />
         <Box
           className={
             'absolute right-[10px] top-[8px] bg-mineshaft p-2 pt-1 pb-1 rounded-md'
           }
         >
-          <a className={'cursor-pointer'}>
+          <a
+            className={'cursor-pointer'}
+            href={`${getExplorerUrl(chainId)}/address/${
+              Addresses[chainId][
+                activeVaultContextSide === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
+              ][asset]['Vault']
+            }`}
+          >
             <Typography variant="h5" className="text-white text-[11px]">
-              0x2323......2322
+              {displayAddress(
+                Addresses[chainId][
+                  activeVaultContextSide === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
+                ][asset]['Vault'],
+                null
+              )}
             </Typography>
           </a>
         </Box>

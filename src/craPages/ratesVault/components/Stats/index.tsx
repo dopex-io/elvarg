@@ -1,5 +1,4 @@
 import { useContext, useMemo } from 'react';
-import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -25,28 +24,23 @@ const STRIKE_INDEX_TO_COLOR = {
   4: '#6DFFB9',
 };
 
-const Stats = ({ activeContextSide }: { activeContextSide: string }) => {
+const Stats = ({
+  activeVaultContextSide,
+}: {
+  activeVaultContextSide: string;
+}) => {
   const { chainId } = useContext(WalletContext);
   const { convertToBNB } = useContext(BnbConversionContext);
+  const ssovContext = useContext(SsovContext);
+  const { tokenName, tokenPrice } =
+    ssovContext[activeVaultContextSide].ssovData;
 
-  const totalEpochOptionsPurchased = [
-    BigNumber.from('20000000000000000'),
-    BigNumber.from('3000000000000000'),
-    BigNumber.from('4000000000000000'),
-  ];
-  const totalEpochStrikeDeposits = [
-    BigNumber.from('2000000000000000'),
-    BigNumber.from('30000000000000000'),
-    BigNumber.from('4000000000000000'),
-  ];
-  const epochStrikes = [2500, 2300, 2000, 1000];
-  const tokenName = '2CRV';
-  const tokenPrice = 333333333333333;
-  const totalEpochPremium = [
-    BigNumber.from('2000000000000000'),
-    BigNumber.from('30000000000000000'),
-    BigNumber.from('4000000000000000'),
-  ];
+  const {
+    epochStrikes,
+    totalEpochOptionsPurchased,
+    totalEpochStrikeDeposits,
+    totalEpochPremium,
+  } = ssovContext[activeVaultContextSide].ssovEpochData;
 
   const totalPurchased: number = useMemo(() => {
     let total: number = 0;
@@ -54,7 +48,7 @@ const Stats = ({ activeContextSide }: { activeContextSide: string }) => {
       (amount) =>
         (total += getUserReadableAmount(
           amount,
-          getTokenDecimals('2CRV', chainId)
+          getTokenDecimals(tokenName, chainId)
         ))
     );
     return total;
@@ -66,13 +60,13 @@ const Stats = ({ activeContextSide }: { activeContextSide: string }) => {
       (amount) =>
         (total += getUserReadableAmount(
           amount,
-          getTokenDecimals('2CRV', chainId)
+          getTokenDecimals(tokenName, chainId)
         ))
     );
     return total;
   }, [totalEpochStrikeDeposits]);
 
-  return (
+  return ssovContext[activeVaultContextSide].selectedEpoch > 0 ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Stats
@@ -107,7 +101,7 @@ const Stats = ({ activeContextSide }: { activeContextSide: string }) => {
               }
             >
               <Typography variant="h4" className="text-white mb-1">
-                {formatAmount(totalPurchased, 2)} {'2CRV'}
+                {formatAmount(totalPurchased, 2)} {tokenName}
               </Typography>
               <Typography variant="h5" className="text-stieglitz">
                 Total
@@ -163,10 +157,15 @@ const Stats = ({ activeContextSide }: { activeContextSide: string }) => {
                 >
                   $
                   {formatAmount(
-                    getUserReadableAmount(
-                      totalEpochPremium[strikeIndex],
-                      getTokenDecimals(tokenName, chainId)
-                    ) * getUserReadableAmount(tokenPrice, 8),
+                    activeVaultContextSide === 'CALL'
+                      ? getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        ) * getUserReadableAmount(tokenPrice, 8)
+                      : getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        ),
                     2
                   )}
                 </Typography>
@@ -175,10 +174,15 @@ const Stats = ({ activeContextSide }: { activeContextSide: string }) => {
                   className={'text-sm text-white mt-1 mr-0'}
                 >
                   {formatAmount(
-                    getUserReadableAmount(
-                      totalEpochPremium[strikeIndex],
-                      getTokenDecimals(tokenName, chainId)
-                    ),
+                    activeVaultContextSide === 'CALL'
+                      ? getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        )
+                      : getUserReadableAmount(
+                          totalEpochPremium[strikeIndex],
+                          getTokenDecimals(tokenName, chainId)
+                        ) / getUserReadableAmount(tokenPrice, 8),
                     2
                   )}{' '}
                   {tokenName}
@@ -205,7 +209,7 @@ const Stats = ({ activeContextSide }: { activeContextSide: string }) => {
         </Box>
       </Box>
     </Box>
-  );
+  ) : null;
 };
 
 export default Stats;

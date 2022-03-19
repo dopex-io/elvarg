@@ -40,9 +40,9 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
-const ExerciseList = ({ activeSsovContextSide }) => {
+const ExerciseList = ({ activeVaultContextSide }) => {
   const { accountAddress } = useContext(WalletContext);
-  const ssovContext = useContext(SsovContext)[activeSsovContextSide];
+  const ssovContext = useContext(SsovContext)[activeVaultContextSide];
   const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
     ssovContext;
 
@@ -99,11 +99,11 @@ const ExerciseList = ({ activeSsovContextSide }) => {
           userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
         const isSettleable =
           settleableAmount.gt(0) &&
-          ((activeSsovContextSide === 'PUT' && settlementPrice.lt(strike)) ||
-            (activeSsovContextSide === 'CALL' && settlementPrice.gt(strike)));
+          ((activeVaultContextSide === 'PUT' && settlementPrice.lt(strike)) ||
+            (activeVaultContextSide === 'CALL' && settlementPrice.gt(strike)));
         const isPastEpoch = selectedEpoch < currentEpoch;
         const pnlAmount = settlementPrice.isZero()
-          ? activeSsovContextSide === 'PUT'
+          ? activeVaultContextSide === 'PUT'
             ? strike
                 .sub(tokenPrice)
                 .mul(userEpochOptionsPurchased[strikeIndex])
@@ -113,7 +113,7 @@ const ExerciseList = ({ activeSsovContextSide }) => {
                 .sub(strike)
                 .mul(userEpochOptionsPurchased[strikeIndex])
                 .div(tokenPrice)
-          : activeSsovContextSide === 'PUT'
+          : activeVaultContextSide === 'PUT'
           ? strike
               .sub(settlementPrice)
               .mul(settleableAmount)
@@ -159,7 +159,7 @@ const ExerciseList = ({ activeSsovContextSide }) => {
     tokenPrice,
     settlementPrice,
     tokenName,
-    activeSsovContextSide,
+    activeVaultContextSide,
     ssovData,
   ]);
 
@@ -289,7 +289,7 @@ const ExerciseList = ({ activeSsovContextSide }) => {
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}
                           isPastEpoch={isPastEpoch}
-                          activeSsovContextSide={activeSsovContextSide}
+                          activeVaultContextSide={activeVaultContextSide}
                         />
                       );
                     }

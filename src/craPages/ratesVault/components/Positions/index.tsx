@@ -45,6 +45,8 @@ import { WalletContext } from 'contexts/Wallet';
 
 import { SSOV_MAP } from 'constants/index';
 
+import Settle from '../Dialogs/Settle';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -55,6 +57,16 @@ import styles from './styles.module.scss';
 
 const YEAR_SECONDS = 31536000;
 
+export interface PositionProps {
+  strike: number;
+  strikeIndex: number;
+  purchased: number;
+  rawPurchased: BigNumber;
+  side: string;
+  canBeSettled: boolean;
+  pnl: number;
+}
+
 const Positions = () => {
   const { provider } = useContext(WalletContext);
   const [isPositionsStatsLoading, setIsPositionsStatsLoading] =
@@ -64,6 +76,8 @@ const Positions = () => {
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
   const [updated, setUpdated] = useState<boolean>(false);
+  const [positionToSettle, setPositionToSettle] =
+    useState<null | PositionProps>(null);
 
   const [page, setPage] = useState(0);
 
@@ -107,20 +121,27 @@ const Positions = () => {
                 ssovContext[ssovContextSide]?.ssovEpochData.epochStrikes[i],
                 8
               );
+
+              const pnl =
+                ssovContextSide === 'PUT'
+                  ? strike - getUserReadableAmount(tokenPrice, 8)
+                  : strike + getUserReadableAmount(tokenPrice, 8);
+
               _positions.push({
                 strike:
                   ssovContext[ssovContextSide]?.ssovEpochData.epochStrikes[i],
+                strikeIndex: i,
+                rawPurchased:
+                  ssovContext[ssovContextSide]?.ssovUserData
+                    .userEpochOptionsPurchased[i],
                 purchased: getUserReadableAmount(
                   ssovContext[ssovContextSide]?.ssovUserData
                     .userEpochOptionsPurchased[i],
                   18
                 ),
                 side: ssovContextSide,
-                canBeSettled: new Date() > epochEndTime,
-                pnl:
-                  ssovContextSide === 'PUT'
-                    ? strike - getUserReadableAmount(tokenPrice, 8)
-                    : strike + getUserReadableAmount(tokenPrice, 8),
+                canBeSettled: new Date() > epochEndTime && pnl > 0,
+                pnl: pnl,
               });
             }
           }
@@ -135,8 +156,23 @@ const Positions = () => {
     if (updated === false) updatePositions();
   }, [ssovContext, updated, epochEndTime, tokenPrice]);
 
+  const handleClose = () => {
+    setPositionToSettle(null);
+  };
+
   return positions.length > 0 || isPositionsStatsLoading ? (
     <Box>
+      {positionToSettle ? (
+        <Settle
+          open={positionToSettle !== null}
+          handleClose={handleClose}
+          strikeIndex={positionToSettle['strikeIndex']}
+          token={tokenName}
+          settleableAmount={positionToSettle['rawPurchased']}
+          activeVaultContextSide={positionToSettle['side']}
+        />
+      ) : null}
+
       <Box className="flex">
         <Typography variant="h4" className="text-white mb-7">
           Positions
@@ -267,7 +303,9 @@ const Positions = () => {
                       </TableCell>
                       <TableCell align="left" className="px-6 pt-2">
                         <Button
-                          onClick={() => {}}
+                          onClick={() => {
+                            setPositionToSettle(position);
+                          }}
                           disabled={!position['canBeSettled']}
                           className={
                             position['canBeSettled']

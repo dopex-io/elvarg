@@ -64,19 +64,19 @@ import { BnbConversionContext } from 'contexts/BnbConversion';
 import Curve2PoolSelector from './components/Curve2PoolSelector';
 
 export interface Props {
-  activeContextSide: string;
+  activeVaultContextSide: string;
   strikeIndex: number;
   setStrikeIndex: Function;
 }
 
 const PurchaseCard = ({
-  activeContextSide,
+  activeVaultContextSide,
   strikeIndex,
   setStrikeIndex,
 }: Props) => {
   const ssovContext = useContext(SsovContext);
   const { updateSsovEpochData, updateSsovUserData, selectedSsov, ssovSigner } =
-    ssovContext[activeContextSide];
+    ssovContext[activeVaultContextSide];
 
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
@@ -116,10 +116,10 @@ const PurchaseCard = ({
 
   const ssovToken = useMemo(() => ssovSigner.token[0], [ssovSigner]);
   const { tokenPrice, ssovOptionPricingContract, volatilityOracleContract } =
-    ssovContext[activeContextSide].ssovData;
+    ssovContext[activeVaultContextSide].ssovData;
   const { ssovContractWithSigner, ssovRouter } = ssovSigner;
 
-  const { epochStrikes } = ssovContext[activeContextSide].ssovEpochData;
+  const { epochStrikes } = ssovContext[activeVaultContextSide].ssovEpochData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -143,30 +143,30 @@ const PurchaseCard = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const ssovTokenName = useMemo(
-    () => ssovContext[activeContextSide].ssovData.tokenName,
+    () => ssovContext[activeVaultContextSide].ssovData.tokenName,
     [ssovContext]
   );
 
   const [purchaseTokenName, setPurchaseTokenName] = useState<string>(
-    activeContextSide === 'PUT' ? '2CRV' : ssovTokenName
+    activeVaultContextSide === 'PUT' ? '2CRV' : ssovTokenName
   );
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
   const [quote, setQuote] = useState<object>({});
   const [path, setPath] = useState<object>({});
 
   const isZapActive: boolean = useMemo(() => {
-    if (activeContextSide === 'PUT')
+    if (activeVaultContextSide === 'PUT')
       return !['2CRV', 'USDC', 'USDT'].includes(
         purchaseTokenName.toUpperCase()
       );
     return purchaseTokenName.toUpperCase() !== ssovTokenName.toUpperCase();
-  }, [purchaseTokenName, ssovTokenName, activeContextSide]);
+  }, [purchaseTokenName, ssovTokenName, activeVaultContextSide]);
 
   const spender = useMemo(() => {
-    if (activeContextSide === 'PUT') {
+    if (activeVaultContextSide === 'PUT') {
       if (purchaseTokenName === 'USDC' || purchaseTokenName === 'USDT')
         return '0xCE2033d5081b21fC4Ba9C3B8b7A839bD352E7564';
-      return ssovContext[activeContextSide].ssovData.ssovContract.address;
+      return ssovContext[activeVaultContextSide].ssovData.ssovContract.address;
     } else if (isZapActive) {
       if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
         return nativeSSOV1inchRouter?.address;
@@ -180,7 +180,7 @@ const PurchaseCard = ({
     }
   }, [
     erc20SSOV1inchRouter,
-    activeContextSide,
+    activeVaultContextSide,
     isZapActive,
     nativeSSOV1inchRouter,
     ssovContractWithSigner,
@@ -251,7 +251,8 @@ const PurchaseCard = ({
     [epochStrikes]
   );
 
-  const { epochStrikeTokens } = ssovContext[activeContextSide].ssovUserData;
+  const { epochStrikeTokens } =
+    ssovContext[activeVaultContextSide].ssovUserData;
 
   const epochStrikeToken = useMemo(
     () => (strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null),
@@ -265,7 +266,7 @@ const PurchaseCard = ({
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         : contractAddresses[purchaseTokenName];
       const toTokenAddress: string =
-        activeContextSide === 'PUT'
+        activeVaultContextSide === 'PUT'
           ? Addresses[chainId]['USDC']
           : IS_NATIVE(ssovTokenName)
           ? ssovTokenName === 'BNB'
@@ -275,7 +276,7 @@ const PurchaseCard = ({
 
       if (fromTokenAddress === toTokenAddress) return;
       if (
-        activeContextSide === 'PUT' &&
+        activeVaultContextSide === 'PUT' &&
         fromTokenAddress === contractAddresses['2CRV']
       )
         return;
@@ -305,7 +306,7 @@ const PurchaseCard = ({
     ssovTokenName,
     purchaseTokenName,
     chainId,
-    activeContextSide,
+    activeVaultContextSide,
   ]);
 
   const zapInTotalCost: number = useMemo(() => {
@@ -370,7 +371,7 @@ const PurchaseCard = ({
 
   const isLiquidityEnough = optionsAmount < userEpochStrikePurchasableAmount;
   const isPurchasePowerEnough =
-    activeContextSide === 'CALL'
+    activeVaultContextSide === 'CALL'
       ? purchasePower >= getUserReadableAmount(state.totalCost, 18)
       : true;
 
@@ -383,7 +384,7 @@ const PurchaseCard = ({
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
       : contractAddresses[purchaseTokenName];
     const toTokenAddress: string =
-      activeContextSide === 'PUT'
+      activeVaultContextSide === 'PUT'
         ? Addresses[chainId]['USDC']
         : IS_NATIVE(ssovTokenName)
         ? ssovTokenName === 'BNB'
@@ -448,7 +449,7 @@ const PurchaseCard = ({
     state.totalCost,
     contractAddresses,
     purchaseTokenName,
-    activeContextSide,
+    activeVaultContextSide,
   ]);
 
   const openZapIn = () => setIsZapInVisible(true);
@@ -471,7 +472,7 @@ const PurchaseCard = ({
     const _amount = getContractReadableAmount(optionsAmount, 18);
 
     try {
-      if (activeContextSide === 'PUT') {
+      if (activeVaultContextSide === 'PUT') {
         if (purchaseTokenName === '2CRV') {
           await sendTx(
             (ssovContractWithSigner as Curve2PoolSsovPut).purchase(
@@ -491,7 +492,7 @@ const PurchaseCard = ({
             );
 
           let cost = state.totalCost
-            .mul(ssovContext[activeContextSide].ssovData.lpPrice)
+            .mul(ssovContext[activeVaultContextSide].ssovData.lpPrice)
             .div(oneEBigNumber(30));
 
           const slippage = cost.mul(1).div(100);
@@ -507,7 +508,7 @@ const PurchaseCard = ({
                 amount: _amount,
                 to: accountAddress,
               },
-              ssovContext[activeContextSide].ssovData.ssovContract.address
+              ssovContext[activeVaultContextSide].ssovData.ssovContract.address
             )
           );
         }
@@ -552,7 +553,7 @@ const PurchaseCard = ({
 
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndPurchase(
-              ssovContext[activeContextSide].ssovData.ssovContract.address,
+              ssovContext[activeVaultContextSide].ssovData.ssovContract.address,
               ssovToken.address,
               decoded[0],
               decoded[1],
@@ -581,7 +582,8 @@ const PurchaseCard = ({
                   }
                 )
               : erc20SSOV1inchRouter.swapAndPurchase(
-                  ssovContext[activeContextSide].ssovData.ssovContract.address,
+                  ssovContext[activeVaultContextSide].ssovData.ssovContract
+                    .address,
                   ssovTokenName === 'BNB'
                     ? Addresses[chainId]['VBNB']
                     : ssovToken.address,
@@ -612,7 +614,7 @@ const PurchaseCard = ({
     chainId,
     erc20SSOV1inchRouter,
     getPath,
-    activeContextSide,
+    activeVaultContextSide,
     nativeSSOV1inchRouter,
     optionsAmount,
     sendTx,
@@ -718,10 +720,10 @@ const PurchaseCard = ({
           );
 
         let volatility;
-        if (activeContextSide === 'PUT') {
+        if (activeVaultContextSide === 'PUT') {
           volatility = (
             await ssovContext[
-              activeContextSide
+              activeVaultContextSide
             ].ssovData.ssovContract.getVolatility(strike)
           ).toNumber();
         } else if (ssovTokenName === 'ETH') {
@@ -741,7 +743,7 @@ const PurchaseCard = ({
         }
 
         const optionPrice = await ssovOptionPricingContract.getOptionPrice(
-          activeContextSide === 'PUT',
+          activeVaultContextSide === 'PUT',
           expiry,
           strike,
           tokenPrice,
@@ -751,12 +753,12 @@ const PurchaseCard = ({
         let premium = optionPrice
           .mul(ethersUtils.parseEther(String(optionsAmount)))
           .div(
-            activeContextSide === 'PUT'
-              ? ssovContext[activeContextSide].ssovData.lpPrice
+            activeVaultContextSide === 'PUT'
+              ? ssovContext[activeVaultContextSide].ssovData.lpPrice
               : tokenPrice
           );
 
-        if (activeContextSide === 'PUT') {
+        if (activeVaultContextSide === 'PUT') {
           premium = premium.mul(BigNumber.from(1e10));
         }
 
@@ -816,7 +818,7 @@ const PurchaseCard = ({
     volatilityOracleContract,
     tokenPrice,
     provider,
-    activeContextSide === 'PUT',
+    activeVaultContextSide === 'PUT',
     ssovContext,
     ssovTokenName,
     isZapActive,
@@ -827,7 +829,7 @@ const PurchaseCard = ({
   useEffect(() => {
     (async function () {
       const finalAmount = state.totalCost;
-      if (activeContextSide === 'PUT') {
+      if (activeVaultContextSide === 'PUT') {
         const _token = ERC20__factory.connect(
           contractAddresses[purchaseTokenName],
           provider
@@ -873,7 +875,7 @@ const PurchaseCard = ({
   }, [
     accountAddress,
     state.totalCost,
-    activeContextSide === 'PUT',
+    activeVaultContextSide === 'PUT',
     provider,
     spender,
     contractAddresses,
@@ -883,9 +885,9 @@ const PurchaseCard = ({
   useEffect(() => {
     if (rawOptionsAmount === '')
       setPurchaseTokenName(
-        activeContextSide === 'PUT' ? '2CRV' : ssovTokenName
+        activeVaultContextSide === 'PUT' ? '2CRV' : ssovTokenName
       );
-  }, [activeContextSide, ssovTokenName]);
+  }, [activeVaultContextSide, ssovTokenName]);
 
   useEffect(() => {
     getPath();
@@ -958,9 +960,9 @@ const PurchaseCard = ({
   const handleZapOut = useCallback(
     () =>
       setPurchaseTokenName(
-        activeContextSide === 'PUT' ? '2CRV' : ssovTokenName
+        activeVaultContextSide === 'PUT' ? '2CRV' : ssovTokenName
       ),
-    [ssovTokenName, activeContextSide === 'PUT']
+    [ssovTokenName, activeVaultContextSide === 'PUT']
   );
 
   return (
@@ -990,14 +992,15 @@ const PurchaseCard = ({
             <Box className="flex flex-row h-10 w-10">
               <img
                 src={
-                  SSOV_MAP[ssovContext[activeContextSide].ssovData.tokenName]
-                    .imageSrc
+                  SSOV_MAP[
+                    ssovContext[activeVaultContextSide].ssovData.tokenName
+                  ].imageSrc
                 }
                 alt={ssovTokenName}
               />
             </Box>
           </Box>
-          {activeContextSide === 'CALL' ? (
+          {activeVaultContextSide === 'CALL' ? (
             <Box
               className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
               onClick={setMaxAmount}
@@ -1043,7 +1046,7 @@ const PurchaseCard = ({
           </Box>
         </Box>
       </Box>
-      {activeContextSide === 'PUT' && !isZapInVisible ? (
+      {activeVaultContextSide === 'PUT' && !isZapInVisible ? (
         <Curve2PoolSelector
           className="mb-2 ml-1"
           token={purchaseTokenName}
@@ -1056,7 +1059,7 @@ const PurchaseCard = ({
             <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
               <PnlChart
                 breakEven={
-                  activeContextSide === 'PUT'
+                  activeVaultContextSide === 'PUT'
                     ? Number(strikes[strikeIndex]) -
                       getUserReadableAmount(state.optionPrice, 8)
                     : Number(strikes[strikeIndex]) +
@@ -1064,7 +1067,7 @@ const PurchaseCard = ({
                 }
                 optionPrice={getUserReadableAmount(state.optionPrice, 8)}
                 amount={optionsAmount}
-                isPut={activeContextSide === 'PUT'}
+                isPut={activeVaultContextSide === 'PUT'}
                 price={getUserReadableAmount(tokenPrice, 8)}
                 symbol={ssovTokenName}
               />
@@ -1150,7 +1153,7 @@ const PurchaseCard = ({
                       className="text-white mr-auto ml-0"
                     >
                       $
-                      {activeContextSide === 'PUT'
+                      {activeVaultContextSide === 'PUT'
                         ? formatAmount(
                             Number(strikes[strikeIndex]) -
                               getUserReadableAmount(state.optionPrice, 8),
@@ -1192,7 +1195,7 @@ const PurchaseCard = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      {activeContextSide}
+                      {activeVaultContextSide}
                     </Typography>
                   </Box>
                 </Box>
@@ -1264,19 +1267,19 @@ const PurchaseCard = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(
-                  activeContextSide === 'PUT'
+                  activeVaultContextSide === 'PUT'
                     ? purchaseTokenName === '2CRV'
                       ? getUserReadableAmount(state.fees, 18)
                       : getUserReadableAmount(
                           state.fees.mul(
-                            ssovContext[activeContextSide].ssovData.lpPrice
+                            ssovContext[activeVaultContextSide].ssovData.lpPrice
                           ),
                           36
                         )
                     : getUserReadableAmount(state.fees, 18),
                   6
                 )}{' '}
-                {activeContextSide === 'PUT'
+                {activeVaultContextSide === 'PUT'
                   ? purchaseTokenName
                   : ssovTokenName}
               </Typography>
@@ -1289,25 +1292,25 @@ const PurchaseCard = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(
-                  activeContextSide === 'PUT'
+                  activeVaultContextSide === 'PUT'
                     ? purchaseTokenName === '2CRV'
                       ? getUserReadableAmount(state.premium, 18)
                       : getUserReadableAmount(
                           state.premium.mul(
-                            ssovContext[activeContextSide].ssovData.lpPrice
+                            ssovContext[activeVaultContextSide].ssovData.lpPrice
                           ),
                           36
                         )
                     : getUserReadableAmount(state.premium, 18),
                   6
                 )}{' '}
-                {activeContextSide === 'PUT'
+                {activeVaultContextSide === 'PUT'
                   ? purchaseTokenName
                   : ssovTokenName}
               </Typography>
             </Box>
           </Box>
-          {activeContextSide === 'CALL' ? (
+          {activeVaultContextSide === 'CALL' ? (
             <Box className={'flex mb-2'}>
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
                 Purchase Power
@@ -1346,7 +1349,7 @@ const PurchaseCard = ({
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
                   {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                  {activeContextSide === 'PUT'
+                  {activeVaultContextSide === 'PUT'
                     ? purchaseTokenName
                     : ssovTokenName === 'BNB'
                     ? 'vBNB'
@@ -1364,10 +1367,12 @@ const PurchaseCard = ({
           path={path}
           isFetchingPath={isFetchingPath}
           fromTokenSymbol={purchaseTokenName}
-          toTokenSymbol={activeContextSide === 'PUT' ? 'USDC' : ssovTokenName}
+          toTokenSymbol={
+            activeVaultContextSide === 'PUT' ? 'USDC' : ssovTokenName
+          }
           selectedTokenPrice={selectedTokenPrice}
           isZapInAvailable={
-            activeContextSide === 'PUT' ? false : isZapInAvailable
+            activeVaultContextSide === 'PUT' ? false : isZapInAvailable
           }
           chainId={chainId}
         />
@@ -1397,7 +1402,9 @@ const PurchaseCard = ({
             fromTokenSymbol={
               purchaseTokenName === '2CRV' ? 'DPX' : purchaseTokenName
             }
-            toTokenSymbol={activeContextSide === 'PUT' ? 'USDC' : ssovTokenName}
+            toTokenSymbol={
+              activeVaultContextSide === 'PUT' ? 'USDC' : ssovTokenName
+            }
             userTokenBalance={userTokenBalance}
             setFromTokenSymbol={setPurchaseTokenName}
             quote={quote}
@@ -1406,14 +1413,14 @@ const PurchaseCard = ({
             purchasePower={purchasePower}
             selectedTokenPrice={selectedTokenPrice}
             isInDialog={true}
-            isPut={activeContextSide === 'PUT'}
+            isPut={activeVaultContextSide === 'PUT'}
             tokensToExclude={
-              activeContextSide === 'PUT' ? ['USDC', 'USDT', '2CRV'] : []
+              activeVaultContextSide === 'PUT' ? ['USDC', 'USDT', '2CRV'] : []
             }
             lpPrice={
-              activeContextSide === 'PUT'
+              activeVaultContextSide === 'PUT'
                 ? getUserReadableAmount(
-                    ssovContext[activeContextSide].ssovData.lpPrice,
+                    ssovContext[activeVaultContextSide].ssovData.lpPrice,
                     18
                   )
                 : 1

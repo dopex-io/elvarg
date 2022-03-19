@@ -209,7 +209,7 @@ export default function AppBar(props: AppBarProps) {
               .concat(tokenPrices)
               .map((item, i) => (
                 <PriceTag
-                  key={item.name}
+                  key={i}
                   asset={item.name}
                   price={item.price}
                   change={item.change24h}

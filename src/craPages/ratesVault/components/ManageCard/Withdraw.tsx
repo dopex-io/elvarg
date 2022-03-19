@@ -19,7 +19,7 @@ import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 
-const Withdraw = ({ activeSsovContextSide }) => {
+const Withdraw = ({ activeVaultContextSide }) => {
   const ssovContext = useContext(SsovContext);
   const {
     updateSsovEpochData,
@@ -30,7 +30,7 @@ const Withdraw = ({ activeSsovContextSide }) => {
     ssovSigner,
     selectedEpoch,
     selectedSsov,
-  } = ssovContext[activeSsovContextSide];
+  } = ssovContext[activeVaultContextSide];
 
   const { tokenName } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
@@ -114,7 +114,7 @@ const Withdraw = ({ activeSsovContextSide }) => {
               {formatAmount(userEpochDepositsAmount, 5)}
             </span>{' '}
             / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-            {activeSsovContextSide === 'PUT' ? '2CRV' : tokenSymbol}
+            {activeVaultContextSide === 'PUT' ? '2CRV' : tokenSymbol}
           </Typography>
         </Box>
         <Box>
@@ -157,7 +157,7 @@ const Withdraw = ({ activeSsovContextSide }) => {
               >
                 <Typography variant="h6">
                   {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}{' '}
-                  {activeSsovContextSide === 'PUT' ? '2CRV' : tokenSymbol}
+                  {activeVaultContextSide === 'PUT' ? '2CRV' : tokenSymbol}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
                   {tokenSymbol} ${strike}

@@ -31,7 +31,7 @@ interface ExerciseTableDataProps {
   totalPremiumsEarned: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
-  activeSsovContextSide: string;
+  activeVaultContextSide: string;
 }
 
 const DIALOGS = {
@@ -49,14 +49,14 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     settleableAmount,
     pnlAmount,
     isSettleable,
-    activeSsovContextSide,
+    activeVaultContextSide,
   } = props;
 
-  const ssovContext = useContext(SsovContext)[activeSsovContextSide];
+  const ssovContext = useContext(SsovContext)[activeVaultContextSide];
   const { ssovData, ssovEpochData, selectedSsov } = ssovContext;
 
   const tokenSymbol =
-    activeSsovContextSide === 'PUT'
+    activeVaultContextSide === 'PUT'
       ? '2CRV'
       : SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
       ? 'vBNB'
@@ -157,7 +157,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
           {formatAmount(depositedAmount, 5)}{' '}
-          {activeSsovContextSide === 'PUT' ? '2CRV' : tokenSymbol}
+          {activeVaultContextSide === 'PUT' ? '2CRV' : tokenSymbol}
         </Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">

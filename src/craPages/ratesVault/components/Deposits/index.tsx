@@ -27,10 +27,20 @@ import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
+import CustomButton from 'components/UI/CustomButton';
 import Withdraw from '../Dialogs/Withdraw';
+
+import {
+  SsovData,
+  SsovEpochData,
+  SsovUserData,
+  SsovContext,
+} from 'contexts/Ssov';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 import { WalletContext } from 'contexts/Wallet';
+
+import { SSOV_MAP } from 'constants/index';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -58,6 +68,7 @@ const DepositsTableData = (
     price: number;
     epochTime: number;
     epochEndTime: Date;
+    activeVaultContextSide: string;
   }
 ) => {
   const {
@@ -72,6 +83,7 @@ const DepositsTableData = (
     imgSrc,
     tokenSymbol,
     setIsWithdrawModalVisible,
+    activeVaultContextSide,
   } = props;
 
   const { convertToBNB } = useContext(BnbConversionContext);
@@ -148,7 +160,12 @@ const DepositsTableData = (
         </Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6">Call</Typography>
+        <Typography
+          variant="h6"
+          className={activeVaultContextSide === 'CALL' ? '' : ''}
+        >
+          {activeVaultContextSide}
+        </Typography>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Button
@@ -193,12 +210,13 @@ const DepositsTableData = (
 const ROWS_PER_PAGE = 5;
 
 const Deposits = ({
-  activeContextSide,
-  setActiveContextSide,
+  activeVaultContextSide,
+  setActiveVaultContextSide,
 }: {
-  activeContextSide: string;
-  setActiveContextSide: Dispatch<SetStateAction<string>>;
+  activeVaultContextSide: string;
+  setActiveVaultContextSide: Dispatch<SetStateAction<string>>;
 }) => {
+  const ssovContext = useContext(SsovContext);
   const { convertToBNB } = useContext(BnbConversionContext);
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
@@ -206,12 +224,32 @@ const Deposits = ({
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] =
     useState<boolean>(false);
 
-  const tokenPrice = 100000000000000;
-  const tokenName = '2CRV';
+  const { tokenPrice, tokenName } =
+    ssovContext[activeVaultContextSide].ssovData;
+  const {
+    epochTimes,
+    epochStrikes,
+    totalEpochPremium,
+    totalEpochStrikeDeposits,
+    totalEpochOptionsPurchased,
+  } = ssovContext[activeVaultContextSide].ssovEpochData;
 
-  const epochTime = 0;
+  const { userEpochStrikeDeposits } =
+    ssovContext[activeVaultContextSide].ssovUserData;
 
-  const epochEndTime = 0;
+  const epochTime: number = useMemo(() => {
+    return epochTimes && epochTimes[0] && epochTimes[1]
+      ? (epochTimes[1] as BigNumber).sub(epochTimes[0] as BigNumber).toNumber()
+      : 0;
+  }, [epochTimes]);
+
+  const epochEndTime: Date = useMemo(() => {
+    return new Date(
+      ssovContext[
+        activeVaultContextSide
+      ].ssovEpochData.epochTimes[1].toNumber() * 1000
+    );
+  }, [ssovContext, activeVaultContextSide]);
 
   const [page, setPage] = useState(0);
   const handleChangePage = useCallback(
@@ -234,18 +272,71 @@ const Deposits = ({
     navigator.clipboard.writeText(accountAddress);
   };
 
-  const deposits: any[] = useMemo(() => [], [tokenName, convertToBNB]);
+  const deposits: any[] = useMemo(
+    () =>
+      epochStrikes.map((strike, strikeIndex) => {
+        const strikePrice = getUserReadableAmount(strike, 8);
+
+        const totalUserDeposits =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(
+                userEpochStrikeDeposits[strikeIndex] ?? 0,
+                8
+              )
+            : getUserReadableAmount(
+                userEpochStrikeDeposits[strikeIndex] ?? 0,
+                18
+              );
+
+        const totalDeposits =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(
+                totalEpochStrikeDeposits[strikeIndex] ?? 0,
+                8
+              )
+            : getUserReadableAmount(
+                totalEpochStrikeDeposits[strikeIndex] ?? 0,
+                18
+              );
+
+        const totalPremiums =
+          tokenName === 'BNB'
+            ? getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 8)
+            : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
+
+        const totalUserPremiums =
+          (totalPremiums * totalUserDeposits) / totalDeposits;
+
+        return {
+          strikeIndex,
+          strikePrice,
+          totalUserDeposits,
+          totalUserPremiums,
+          totalDeposits,
+          totalPremiums,
+        };
+      }),
+    [
+      epochStrikes,
+      totalEpochStrikeDeposits,
+      userEpochStrikeDeposits,
+      totalEpochOptionsPurchased,
+      totalEpochPremium,
+      tokenName,
+      convertToBNB,
+    ]
+  );
 
   const handleClose = () => {
     setIsWithdrawModalVisible(false);
   };
 
-  return (
+  return ssovContext[activeVaultContextSide].selectedEpoch > 0 ? (
     <Box>
       <Withdraw
         open={isWithdrawModalVisible}
         handleClose={handleClose}
-        activeContextSide={activeContextSide}
+        activeVaultContextSide={activeVaultContextSide}
       />
 
       <Typography variant="h4" className="text-white mb-7">
@@ -273,11 +364,29 @@ const Deposits = ({
               </Typography>
             </Box>
           </Tooltip>
+          <CustomButton
+            className={'ml-auto flex'}
+            size={'small'}
+            color={'umbra'}
+            onClick={() =>
+              setActiveVaultContextSide(
+                activeVaultContextSide === 'CALL' ? 'PUT' : 'CALL'
+              )
+            }
+          >
+            <Typography variant="h5">Switch to</Typography>
+            <img
+              src={`/assets/${
+                activeVaultContextSide === 'CALL' ? 'puts.svg' : 'calls.svg'
+              }`}
+              className={'mt-[4px] ml-2'}
+            />
+          </CustomButton>
         </Box>
 
         <Box className="balances-table text-white">
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
-            {
+            {isEmpty(epochStrikes) ? (
               <Box className="border-4 border-umbra rounded-lg p-3">
                 {range(3).map((_, index) => (
                   <Skeleton
@@ -289,12 +398,126 @@ const Deposits = ({
                   />
                 ))}
               </Box>
-            }
+            ) : (
+              <Table>
+                <TableHead className="bg-umbra">
+                  <TableRow className="bg-umbra">
+                    <TableCell
+                      align="left"
+                      className="text-stieglitz bg-cod-gray border-0 pb-0"
+                    >
+                      <Typography variant="h6">Strike</Typography>
+                    </TableCell>
+                    <TableCell
+                      align="left"
+                      className="text-stieglitz bg-cod-gray border-0 pb-0"
+                    >
+                      <Typography variant="h6" className="text-stieglitz">
+                        Amount
+                      </Typography>
+                    </TableCell>
+                    <TableCell
+                      align="left"
+                      className="text-stieglitz bg-cod-gray border-0 pb-0"
+                    >
+                      <Typography variant="h6" className="text-stieglitz">
+                        Premium
+                      </Typography>
+                    </TableCell>
+                    <TableCell
+                      align="left"
+                      className="text-stieglitz bg-cod-gray border-0 pb-0"
+                    >
+                      <Typography variant="h6" className="text-stieglitz">
+                        APY
+                      </Typography>
+                    </TableCell>
+                    <TableCell
+                      align="left"
+                      className="text-stieglitz bg-cod-gray border-0 pb-0"
+                    >
+                      <Typography variant="h6" className="text-stieglitz">
+                        Side
+                      </Typography>
+                    </TableCell>
+                    <TableCell
+                      align="left"
+                      className="text-stieglitz bg-cod-gray border-0 pb-0"
+                    >
+                      <Typography variant="h6" className="text-stieglitz">
+                        Withdraw
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody className={cx('rounded-lg')}>
+                  {deposits
+                    .slice(
+                      page * ROWS_PER_PAGE,
+                      page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    )
+                    ?.map(
+                      ({
+                        strikeIndex,
+                        strikePrice,
+                        totalUserDeposits,
+                        totalUserPremiums,
+                        totalDeposits,
+                        totalPremiums,
+                      }) => {
+                        return (
+                          <DepositsTableData
+                            setIsWithdrawModalVisible={
+                              setIsWithdrawModalVisible
+                            }
+                            activeVaultContextSide={activeVaultContextSide}
+                            key={strikeIndex}
+                            epochTime={epochTime}
+                            strikeIndex={strikeIndex}
+                            strikePrice={strikePrice}
+                            totalUserDeposits={totalUserDeposits}
+                            totalUserPremiums={totalUserPremiums}
+                            totalDeposits={totalDeposits}
+                            totalPremiums={totalPremiums}
+                            price={price}
+                            epochEndTime={epochEndTime}
+                            imgSrc={
+                              SSOV_MAP[
+                                ssovContext[activeVaultContextSide].ssovData
+                                  .tokenName
+                              ].imageSrc
+                            }
+                            tokenSymbol={
+                              SSOV_MAP[
+                                ssovContext[activeVaultContextSide].ssovData
+                                  .tokenName
+                              ].tokenSymbol
+                            }
+                          />
+                        );
+                      }
+                    )}
+                </TableBody>
+              </Table>
+            )}
           </TableContainer>
+          {epochStrikes.length > ROWS_PER_PAGE ? (
+            <TablePagination
+              component="div"
+              id="stats"
+              rowsPerPageOptions={[ROWS_PER_PAGE]}
+              count={epochStrikes.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={ROWS_PER_PAGE}
+              className="text-stieglitz border-0 flex flex-grow justify-center"
+              ActionsComponent={TablePaginationActions}
+            />
+          ) : null}
         </Box>
       </Box>
     </Box>
-  );
+  ) : null;
 };
 
 export default Deposits;
