@@ -72,13 +72,11 @@ const SelectMenuProps = {
 export interface Props {
   activeVaultContextSide: string;
   setActiveVaultContextSide: Function;
-  enabledSides: string[];
 }
 
 const ManageCard = ({
   activeVaultContextSide,
   setActiveVaultContextSide,
-  enabledSides,
 }: Props) => {
   const { accountAddress, chainId, provider, signer, contractAddresses } =
     useContext(WalletContext);
@@ -878,15 +876,9 @@ const ManageCard = ({
               className={
                 activeVaultContextSide === 'CALL'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                  : enabledSides.includes('CALL')
-                  ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                  : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
+                  : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
               }
-              onClick={() =>
-                enabledSides.includes('CALL')
-                  ? setActiveVaultContextSide('CALL')
-                  : null
-              }
+              onClick={() => setActiveVaultContextSide('CALL')}
             >
               <Typography variant="h6" className="text-xs font-normal">
                 Calls
@@ -896,15 +888,9 @@ const ManageCard = ({
               className={
                 activeVaultContextSide === 'PUT'
                   ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#2D2D2D] cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80'
-                  : enabledSides.includes('PUT')
-                  ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                  : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
+                  : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
               }
-              onClick={() =>
-                enabledSides.includes('PUT')
-                  ? setActiveVaultContextSide('PUT')
-                  : null
-              }
+              onClick={() => setActiveVaultContextSide('PUT')}
             >
               <Typography variant="h6" className="text-xs font-normal">
                 Puts

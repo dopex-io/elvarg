@@ -3,7 +3,7 @@ import { useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 
-import { SsovContext } from 'contexts/Ssov';
+import { RateVaultContext } from 'contexts/RateVault';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -14,7 +14,6 @@ import ArrowUpIcon from 'components/Icons/ArrowUpIcon';
 import FlagIcon from 'components/Icons/FlagIcon';
 
 import { WalletContext } from 'contexts/Wallet';
-import { BnbConversionContext } from 'contexts/BnbConversion';
 
 const STRIKE_INDEX_TO_COLOR = {
   0: '#F80196',
@@ -30,43 +29,26 @@ const Stats = ({
   activeVaultContextSide: string;
 }) => {
   const { chainId } = useContext(WalletContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
-  const ssovContext = useContext(SsovContext);
-  const { tokenName, tokenPrice } =
-    ssovContext[activeVaultContextSide].ssovData;
+  const rateVaultContext = useContext(RateVaultContext);
 
   const {
-    epochStrikes,
-    totalEpochOptionsPurchased,
-    totalEpochStrikeDeposits,
-    totalEpochPremium,
-  } = ssovContext[activeVaultContextSide].ssovEpochData;
+    totalCallsPurchased,
+    totalPutsPurchased,
+    totalCallsDeposits,
+    totalPutsDeposits,
+    totalTokenDeposits,
+    epochCallsPremium,
+    epochPutsPremium,
+    epochStartTimes,
+    epochEndTimes,
+    isEpochExpired,
+    isVaultReady,
+    epochBalanceAfterUnstaking,
+    crvToDistribute,
+    settlementPrice,
+  } = rateVaultContext.rateVaultEpochData;
 
-  const totalPurchased: number = useMemo(() => {
-    let total: number = 0;
-    totalEpochOptionsPurchased.map(
-      (amount) =>
-        (total += getUserReadableAmount(
-          amount,
-          getTokenDecimals(tokenName, chainId)
-        ))
-    );
-    return total;
-  }, [totalEpochOptionsPurchased]);
-
-  const totalDeposits: number = useMemo(() => {
-    let total: number = 0;
-    totalEpochStrikeDeposits.map(
-      (amount) =>
-        (total += getUserReadableAmount(
-          amount,
-          getTokenDecimals(tokenName, chainId)
-        ))
-    );
-    return total;
-  }, [totalEpochStrikeDeposits]);
-
-  return ssovContext[activeVaultContextSide].selectedEpoch > 0 ? (
+  return rateVaultContext.selectedEpoch > 0 ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Stats
@@ -101,7 +83,11 @@ const Stats = ({
               }
             >
               <Typography variant="h4" className="text-white mb-1">
-                {formatAmount(totalPurchased, 2)} {tokenName}
+                $
+                {formatAmount(
+                  totalCallsPurchased.add(totalPutsPurchased).toNumber(),
+                  2
+                )}
               </Typography>
               <Typography variant="h5" className="text-stieglitz">
                 Total
@@ -113,7 +99,12 @@ const Stats = ({
               }
             >
               <Typography variant="h4" className="text-white mb-1">
-                {formatAmount(totalPurchased / totalDeposits, 2)}%
+                {formatAmount(
+                  totalCallsPurchased.add(totalPutsPurchased).toNumber() /
+                    totalCallsDeposits.add(totalPutsDeposits).toNumber(),
+                  2
+                )}
+                %
               </Typography>
               <Typography variant="h5" className="text-stieglitz">
                 Utilization
@@ -133,62 +124,40 @@ const Stats = ({
               </Typography>
               <ArrowUpIcon className="mr-1 ml-auto mt-1.5 rotate-180 cursor-not-allowed" />
             </Box>
-            {epochStrikes.map((strike, strikeIndex) => (
-              <Box className="flex" key={strikeIndex}>
-                <Box
-                  className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
-                >
-                  <FlagIcon
-                    className={'mt-[6px] mr-1.5'}
-                    fill={STRIKE_INDEX_TO_COLOR[strikeIndex]}
-                  />
+            {rateVaultContext.rateVaultEpochData.epochStrikes.map(
+              (strike, strikeIndex) => (
+                <Box className="flex" key={strikeIndex}>
+                  <Box
+                    className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
+                  >
+                    <FlagIcon
+                      className={'mt-[6px] mr-1.5'}
+                      fill={STRIKE_INDEX_TO_COLOR[strikeIndex]}
+                    />
+                    <Typography
+                      variant={'h6'}
+                      className={'text-sm text-stieglitz'}
+                    >
+                      ${getUserReadableAmount(strike, 8)}
+                    </Typography>
+                  </Box>
                   <Typography
                     variant={'h6'}
-                    className={'text-sm text-stieglitz'}
+                    className={
+                      'text-sm text-stieglitz mt-1 ml-auto mr-2 opacity-60'
+                    }
                   >
-                    ${getUserReadableAmount(strike, 8)}
+                    $0
+                  </Typography>
+                  <Typography
+                    variant={'h6'}
+                    className={'text-sm text-white mt-1 mr-0'}
+                  >
+                    0 N/A
                   </Typography>
                 </Box>
-                <Typography
-                  variant={'h6'}
-                  className={
-                    'text-sm text-stieglitz mt-1 ml-auto mr-2 opacity-60'
-                  }
-                >
-                  $
-                  {formatAmount(
-                    activeVaultContextSide === 'CALL'
-                      ? getUserReadableAmount(
-                          totalEpochPremium[strikeIndex],
-                          getTokenDecimals(tokenName, chainId)
-                        ) * getUserReadableAmount(tokenPrice, 8)
-                      : getUserReadableAmount(
-                          totalEpochPremium[strikeIndex],
-                          getTokenDecimals(tokenName, chainId)
-                        ),
-                    2
-                  )}
-                </Typography>
-                <Typography
-                  variant={'h6'}
-                  className={'text-sm text-white mt-1 mr-0'}
-                >
-                  {formatAmount(
-                    activeVaultContextSide === 'CALL'
-                      ? getUserReadableAmount(
-                          totalEpochPremium[strikeIndex],
-                          getTokenDecimals(tokenName, chainId)
-                        )
-                      : getUserReadableAmount(
-                          totalEpochPremium[strikeIndex],
-                          getTokenDecimals(tokenName, chainId)
-                        ) / getUserReadableAmount(tokenPrice, 8),
-                    2
-                  )}{' '}
-                  {tokenName}
-                </Typography>
-              </Box>
-            ))}
+              )
+            )}
           </Box>
           <Box className={'w-full flex'}>
             <Box

@@ -6,17 +6,8 @@ import Tooltip from '@mui/material/Tooltip';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import {
-  SsovContext,
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-} from 'contexts/Ssov';
+import { RateVaultContext } from 'contexts/RateVault';
 import { WalletContext } from 'contexts/Wallet';
-import { BnbConversionContext } from 'contexts/BnbConversion';
-
-import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
@@ -36,84 +27,27 @@ const Description = ({
   activeVaultContextSide: string;
   setActiveVaultContextSide: Dispatch<SetStateAction<string>>;
 }) => {
-  const ssovContext = useContext(SsovContext);
   const { accountAddress, connect } = useContext(WalletContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
+  const rateVaultContext = useContext(RateVaultContext);
 
-  const { APY, isVaultReady } =
-    ssovContext[activeVaultContextSide].ssovEpochData;
+  const APY = 0;
+  const isVaultReady = true;
 
-  const tokenSymbol = useMemo(
-    () =>
-      SSOV_MAP[ssovContext[activeVaultContextSide].ssovData.tokenName]
-        .tokenSymbol,
-    [ssovContext[activeVaultContextSide].ssovData]
-  );
+  const tokenSymbol = '2CRV';
 
-  const TVL: number = useMemo(() => {
-    if (
-      ssovContext[activeVaultContextSide].ssovData.tokenPrice &&
-      ssovContext[activeVaultContextSide].ssovEpochData
-    ) {
-      if (activeVaultContextSide === 'PUT') {
-        return (
-          getUserReadableAmount(
-            ssovContext[activeVaultContextSide].ssovEpochData
-              .totalEpochDeposits,
-            18
-          ) *
-          getUserReadableAmount(
-            ssovContext[activeVaultContextSide].ssovData.lpPrice,
-            18
-          )
-        );
-      } else if (tokenSymbol === 'BNB') {
-        return convertToBNB(
-          ssovContext[activeVaultContextSide].ssovEpochData.totalEpochDeposits
-        )
-          .mul(ssovContext[activeVaultContextSide].ssovData.tokenPrice)
-          .div(1e8)
-          .toNumber();
-      } else {
-        return (
-          getUserReadableAmount(
-            ssovContext[activeVaultContextSide].ssovEpochData
-              .totalEpochDeposits,
-            18
-          ) *
-          getUserReadableAmount(
-            ssovContext[activeVaultContextSide].ssovData.tokenPrice,
-            8
-          )
-        );
-      }
-    } else {
-      return 0;
-    }
-  }, [
-    ssovContext[activeVaultContextSide].ssovEpochData,
-    convertToBNB,
-    ssovContext[activeVaultContextSide].ssovData,
-    tokenSymbol,
-    activeVaultContextSide,
-  ]);
+  const TVL: number = 0;
 
   const info = [
     {
       heading: 'Asset',
       value: tokenSymbol,
-      imgSrc:
-        SSOV_MAP[ssovContext[activeVaultContextSide].ssovData.tokenName]
-          .imageSrc,
+      imgSrc: '/assets/ir.svg',
     },
     {
       heading: 'Farm APY',
-      value: `${!APY ? '...' : APY.toString() + '%'}`,
+      value: `0%`,
       Icon: Action,
-      tooltip:
-        activeVaultContextSide === 'PUT'
-          ? 'Curve 2Pool Fee APY and Curve Rewards'
-          : ssovInfo[tokenSymbol].aprToolTipMessage,
+      tooltip: 'Curve 2Pool Fee APY and Curve Rewards',
     },
     {
       heading: 'TVL',
@@ -125,30 +59,17 @@ const Description = ({
   return (
     <Box className={'w-3/4'}>
       <Box className={'flex'}>
-        <Box
-          className={
-            'border-[2px] border-gray-500 rounded-full mt-auto mb-auto'
-          }
-        >
-          <img
-            src={'/assets/' + tokenSymbol.toLowerCase() + '.svg'}
-            className={'w-20'}
-          />
+        <Box className={'rounded-full mt-auto mb-auto'}>
+          <img src={'/assets/ir.svg'} className={'w-20'} />
         </Box>
         <Typography variant="h1" className="ml-5 flex items-center space-x-3">
-          Single Staking Option Vault ({tokenSymbol})
+          Pool2 Interest Rate Vaults
         </Typography>
       </Box>
       <Typography variant="h4" className="text-stieglitz mt-6 mb-6">
-        <span className="text-white mr-2">
-          {tokenSymbol} Single Staking Option Vault (SSOV)
-        </span>
-        {ssovInfo[tokenSymbol]?.mainPageMessage}
-        <br />
-        <br />
-        This farms simultaneously auto-compounds, farms and supplies{' '}
-        {tokenSymbol}
-        liquidity to our first options pool.
+        <span className="text-white mr-2">Curve Interest Rate Vault</span>
+        accepts Curve LP deposits and lets users write Interest Rate options
+        that allows for bet/hedge on the underlying interest rate.
       </Typography>
     </Box>
   );

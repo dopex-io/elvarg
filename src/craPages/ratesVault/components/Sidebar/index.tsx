@@ -2,13 +2,12 @@ import { useContext } from 'react';
 import { Addresses } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
 import CircleIcon from 'components/Icons/CircleIcon';
 
-import { RateVaultContext } from 'contexts/Ssov';
+import { RateVaultContext } from 'contexts/RateVault';
 import { WalletContext } from 'contexts/Wallet';
 
 import displayAddress from 'utils/general/displayAddress';
@@ -32,8 +31,9 @@ const Sidebar = ({
   setActiveView,
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
-  console.log(rateVaultContext);
   const { chainId } = useContext(WalletContext);
+
+  console.log(rateVaultContext);
 
   return (
     <Box className={'absolute w-[20rem]'}>
@@ -46,15 +46,12 @@ const Sidebar = ({
         <Box className={'flex'}>
           <Box className={'bg-[#2D2D2D] p-1 pr-3.5 pl-3.5 rounded-md mr-3'}>
             <Typography variant="h4" className="text-stieglitz">
-              {
-                rateVaultContext[activeVaultContextSide].rateVaultData
-                  .currentEpoch
-              }
+              {rateVaultContext.rateVaultData.currentEpoch}
             </Typography>
           </Box>
           <Button className={styles.button}>
             <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
-            {rateVaultContext[activeVaultContextSide].ssovEpochData.isVaultReady
+            {rateVaultContext.rateVaultEpochData.isVaultReady
               ? 'Vault closed'
               : 'Vault open'}
           </Button>
@@ -70,9 +67,8 @@ const Sidebar = ({
             <Countdown
               date={
                 new Date(
-                  rateVaultContext[
-                    activeVaultContextSide
-                  ].ssovEpochData.epochTimes[1].toNumber() * 1000
+                  rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() *
+                    1000
                 )
               }
               renderer={({ days, hours, minutes, seconds }) => {
@@ -91,9 +87,7 @@ const Sidebar = ({
             <Typography variant="h5" className="text-white ml-auto">
               {getFormattedDate(
                 new Date(
-                  (rateVaultContext[
-                    activeVaultContextSide
-                  ].ssovEpochData.epochTimes[1].toNumber() +
+                  (rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() +
                     86400 * 3) *
                     1000
                 )
@@ -204,18 +198,11 @@ const Sidebar = ({
           <a
             className={'cursor-pointer'}
             href={`${getExplorerUrl(chainId)}/address/${
-              Addresses[chainId][
-                activeVaultContextSide === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
-              ][asset]['Vault']
+              Addresses[chainId]['Vaults']['IR']
             }`}
           >
             <Typography variant="h5" className="text-white text-[11px]">
-              {displayAddress(
-                Addresses[chainId][
-                  activeVaultContextSide === 'CALL' ? 'SSOV' : '2CRV-SSOV-P'
-                ][asset]['Vault'],
-                null
-              )}
+              {displayAddress(Addresses[chainId]['Vaults']['IR'], null)}
             </Typography>
           </a>
         </Box>

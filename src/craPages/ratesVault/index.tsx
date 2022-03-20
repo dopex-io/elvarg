@@ -24,13 +24,14 @@ import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 const Manage = () => {
   const { accountAddress } = useContext(WalletContext);
   const { asset } = useParams();
-  const ssovContext = useContext(RateVaultContext);
+  const rateVaultContext = useContext(RateVaultContext);
   const [activeVaultContextSide, setActiveVaultContextSide] =
     useState<string>('CALL');
   const [activeView, setActiveView] = useState<string>('vault');
-  const showWithdrawalInformation: boolean = false;
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
-  const enabledSides: string[] = ['CALL', 'PUT'];
+  const showWithdrawalInformation: boolean = true;
+
+  console.log(rateVaultContext);
 
   return (
     <Box className="overflow-x-hidden bg-black h-screen">
@@ -38,7 +39,7 @@ const Manage = () => {
         <title>Rates Vault | Dopex</title>
       </Head>
       <AppBar active="vaults" />
-      {ssovContext[activeVaultContextSide].rateVaultData?.currentEpoch &&
+      {rateVaultContext.rateVaultEpochData?.epochStartTimes &&
       accountAddress ? (
         <Box
           className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0"
@@ -54,6 +55,58 @@ const Manage = () => {
               setActiveView={setActiveView}
             />
           </Box>
+
+          {activeView === 'vault' ? (
+            <Box gridColumn="span 6" className="mt-20 mb-20 pl-5 pr-5">
+              <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
+                <Description
+                  activeVaultContextSide={activeVaultContextSide}
+                  setActiveVaultContextSide={setActiveVaultContextSide}
+                />
+              </Box>
+
+              <Box className="mb-10">
+                <Stats activeVaultContextSide={activeVaultContextSide} />
+              </Box>
+
+              {rateVaultContext.rateVaultUserData?.userEpochStrikeDeposits
+                ?.length > 0 ? (
+                <Deposits
+                  activeVaultContextSide={activeVaultContextSide}
+                  setActiveVaultContextSide={setActiveVaultContextSide}
+                />
+              ) : null}
+
+              {showWithdrawalInformation ? (
+                <Box className={'mt-12'}>
+                  <WithdrawalInfo />
+                </Box>
+              ) : null}
+            </Box>
+          ) : (
+            <Box gridColumn="span 6" className="mt-20 mb-20 pl-5 pr-5">
+              <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
+                <Description
+                  activeVaultContextSide={activeVaultContextSide}
+                  setActiveVaultContextSide={setActiveVaultContextSide}
+                />
+              </Box>
+
+              <PurchaseOptions
+                activeVaultContextSide={activeVaultContextSide}
+                setActiveVaultContextSide={setActiveVaultContextSide}
+                setStrikeIndex={setStrikeIndex}
+              />
+
+              <Box className={'mt-12'}>
+                <Positions />
+              </Box>
+
+              <Box className={'mt-12'}>
+                <AutoExerciseInfo />
+              </Box>
+            </Box>
+          )}
         </Box>
       ) : null}
     </Box>
