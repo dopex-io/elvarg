@@ -5,12 +5,7 @@ import {
   useState,
   useCallback,
 } from 'react';
-import {
-  ERC20,
-  VolatilityOracle,
-  SSOVOptionPricing,
-  IRVault__factory,
-} from '@dopex-io/sdk';
+import { ERC20, VolatilityOracle, SSOVOptionPricing } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 
 import { WalletContext } from './Wallet';
@@ -1745,8 +1740,9 @@ export const RateVault = () => {
 
     if (!contractAddresses['Vaults']['IR']) return;
 
-    const _rateVaultContractWithSigner = IRVault__factory.connect(
+    const _rateVaultContractWithSigner = new ethers.Contract(
       contractAddresses['Vaults']['IR'],
+      abi,
       signer
     );
 
