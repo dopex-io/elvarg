@@ -304,7 +304,7 @@ export default function AppBar(props: AppBarProps) {
                 aria-haspopup="true"
                 onClick={handleClickMenu}
                 style={{ height: 38 }}
-                className="w-9 long-menu ml-2 rounded-md bg-umbra hover:bg-opacity-70 hidden lg:flex"
+                className="w-9 long-menu ml-2 rounded-md bg-umbra hover:bg-umbra hover:opacity-80 hidden lg:flex"
                 size="large"
               >
                 <MoreVertIcon className={cx('', styles.vertIcon)} />

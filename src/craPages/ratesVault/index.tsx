@@ -53,12 +53,7 @@ const Manage = () => {
           gap={0}
         >
           <Box gridColumn="span 3" className="ml-10 mt-20">
-            <Sidebar
-              asset={asset}
-              activeVaultContextSide={activeVaultContextSide}
-              activeView={activeView}
-              setActiveView={setActiveView}
-            />
+            <Sidebar activeView={activeView} setActiveView={setActiveView} />
           </Box>
 
           {activeView === 'vault' ? (
@@ -109,6 +104,27 @@ const Manage = () => {
               </Box>
             </Box>
           )}
+
+          <Box gridColumn="span 3" className="mt-20 flex">
+            <Box className={'absolute right-[2.5rem]'}>
+              {activeView === 'vault' ? (
+                <ManageCard
+                  activeVaultContextSide={activeVaultContextSide}
+                  setActiveVaultContextSide={setActiveVaultContextSide}
+                />
+              ) : activeView === 'positions' ? (
+                strikeIndex !== null ? (
+                  <PurchaseCard
+                    activeVaultContextSide={activeVaultContextSide}
+                    strikeIndex={strikeIndex}
+                    setStrikeIndex={setStrikeIndex}
+                  />
+                ) : (
+                  <SelectStrikeWidget />
+                )
+              ) : null}
+            </Box>
+          </Box>
         </Box>
       ) : null}
     </Box>
