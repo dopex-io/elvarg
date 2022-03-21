@@ -53,8 +53,8 @@ const Stats = ({
       <Typography variant="h4" className="text-white mb-7">
         Stats
       </Typography>
-      <Box className="flex">
-        <Box className="w-1/2 pr-2.5">
+      <Box className="lg:flex">
+        <Box className="lg:w-1/2 w-full lg:pr-2.5">
           <Box
             className={
               'p-3 pl-4 pr-4 rounded-xl rounded-br-none rounded-bl-none border-[0.1px] border-b-0 border-gray-600 w-full'
@@ -112,7 +112,7 @@ const Stats = ({
             </Box>
           </Box>
         </Box>
-        <Box className="w-1/2 pl-2.5">
+        <Box className="lg:w-1/2 w-full lg:pl-2.5">
           <Box
             className={
               'p-3 pl-4 pr-4 pb-0 rounded-xl rounded-br-none rounded-bl-none border-[0.1px] border-b-0 border-gray-600 w-full'

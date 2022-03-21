@@ -196,7 +196,9 @@ export default function AppBar(props: AppBarProps) {
         userBalances={userAssetBalances}
         handleClose={handleWalletDialogClose}
       />
-      <nav className={cx('fixed top-0 w-full text-gray-600', styles.appBar)}>
+      <nav
+        className={cx('fixed top-0 w-full text-gray-600 z-50', styles.appBar)}
+      >
         <Box className={'flex w-full bg-umbra z-50 relative'}>
           <Box
             className={cx(
@@ -218,7 +220,7 @@ export default function AppBar(props: AppBarProps) {
               ))}
           </Box>
         </Box>
-        <Box className="flex w-full items-center container pl-10 pr-10 p-4 justify-between mx-auto max-w-full">
+        <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
             <a
               className="flex items-center mr-10 cursor-pointer hover:no-underline"
