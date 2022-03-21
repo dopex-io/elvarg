@@ -523,7 +523,7 @@ const ManageCard = ({
   return (
     <Box
       className={cx(
-        'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4',
+        'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 lg:mt-0 mt-4',
         styles.cardWidth
       )}
     >

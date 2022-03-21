@@ -249,7 +249,7 @@ const Deposits = ({
             </Typography>
           </Box>
           <Tooltip title={'Not implemented yet'}>
-            <Box className="ml-5 mb-3 flex cursor-not-allowed">
+            <Box className="ml-5 mb-3 cursor-not-allowed hidden lg:flex">
               <Checkbox
                 color="secondary"
                 className={'p-0 text-white'}

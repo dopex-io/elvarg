@@ -968,7 +968,7 @@ const PurchaseCard = ({
   return (
     <Box
       className={cx(
-        'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 text-center',
+        'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl lg:pt-4 text-center',
         styles.cardWidth
       )}
     >

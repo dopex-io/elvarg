@@ -43,21 +43,19 @@ const Manage = () => {
       <Head>
         <title>Rate Vault | Dopex</title>
       </Head>
-      <AppBar active="vaults" />
+      <AppBar active="Rates Vault" />
       {rateVaultContext.rateVaultEpochData?.epochStartTimes &&
       accountAddress ? (
-        <Box
-          className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0"
-          display="grid"
-          gridTemplateColumns="repeat(12, 1fr)"
-          gap={0}
-        >
-          <Box gridColumn="span 3" className="ml-10 mt-20">
+        <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 lg:grid lg:grid-cols-12">
+          <Box className="ml-10 mt-20 hidden lg:block lg:col-span-3">
             <Sidebar activeView={activeView} setActiveView={setActiveView} />
           </Box>
 
           {activeView === 'vault' ? (
-            <Box gridColumn="span 6" className="mt-20 mb-20 pl-5 pr-5">
+            <Box
+              gridColumn="span 6"
+              className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
+            >
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
                   activeVaultContextSide={activeVaultContextSide}
@@ -81,7 +79,10 @@ const Manage = () => {
               ) : null}
             </Box>
           ) : (
-            <Box gridColumn="span 6" className="mt-20 mb-20 pl-5 pr-5">
+            <Box
+              gridColumn="span 6"
+              className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
+            >
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
                   activeVaultContextSide={activeVaultContextSide}
@@ -105,8 +106,8 @@ const Manage = () => {
             </Box>
           )}
 
-          <Box gridColumn="span 3" className="mt-20 flex">
-            <Box className={'absolute right-[2.5rem]'}>
+          <Box className="mt-6 lg:mt-20 flex lg:col-span-3">
+            <Box className={'lg:absolute lg:right-[2.5rem] w-full lg:w-auto'}>
               {activeView === 'vault' ? (
                 <ManageCard
                   activeVaultContextSide={activeVaultContextSide}

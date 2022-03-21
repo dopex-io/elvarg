@@ -115,7 +115,10 @@ const Manage = () => {
               ) : null}
             </Box>
           ) : (
-            <Box gridColumn="span 6" className="mt-20 mb-20 pl-5 pr-5">
+            <Box
+              gridColumn="span 6"
+              className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
+            >
               <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
                 <Description
                   activeSsovContextSide={activeSsovContextSide}

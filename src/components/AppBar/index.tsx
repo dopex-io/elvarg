@@ -85,6 +85,7 @@ const appLinks = {
   42161: [
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
+    { name: 'Rates Vault', to: '/vaults/ir' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
 };
@@ -112,7 +113,7 @@ interface AppBarProps {
     | 'token sale'
     | 'faucet'
     | 'SSOV'
-    | 'vaults'
+    | 'Rates Vault'
     | 'leaderboard'
     | 'swap';
 }
