@@ -2,6 +2,7 @@ import { useCallback, useContext } from 'react';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
+import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import IconButton from '@mui/material/IconButton';
@@ -10,7 +11,7 @@ import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 
-import { SsovContext } from 'contexts/Ssov';
+import { RateVaultContext } from 'contexts/RateVault';
 import { AssetsContext } from 'contexts/Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -29,88 +30,43 @@ export interface Props {
 }
 
 const Withdraw = ({ open, handleClose, activeVaultContextSide }) => {
-  const ssovContext = useContext(SsovContext);
-  const {
-    updateSsovEpochData,
-    updateSsovUserData,
-    ssovEpochData,
-    ssovData,
-    ssovUserData,
-    ssovSigner,
-    selectedEpoch,
-    selectedSsov,
-  } = ssovContext[activeVaultContextSide];
+  const rateVaultContext = useContext(RateVaultContext);
+  const { selectedEpoch } = rateVaultContext;
 
-  const { tokenName } = ssovData;
-  const { ssovContractWithSigner } = ssovSigner;
-  const {
-    epochTimes,
-    epochStrikes,
-    totalEpochStrikeDeposits,
-    totalEpochDeposits,
-  } = ssovEpochData;
-  const { userEpochStrikeDeposits, userEpochDeposits } = ssovUserData;
+  const { rateVaultContractWithSigner } = rateVaultContext.rateVaultSigner;
+  const { epochTimes, epochStrikes } = rateVaultContext.rateVaultEpochData;
 
   const { updateAssetBalances } = useContext(AssetsContext);
 
   const sendTx = useSendTx();
 
   const epochEndTime = epochTimes[1]
-    ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
+    ? format(new Date(epochTimes[1].toNumber() * 1000), 'MM/dd')
     : 'N/A';
-
-  const isPut = selectedSsov.type === 'PUT';
 
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
   );
 
-  const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) =>
-      tokenName === 'BNB'
-        ? getUserReadableAmount(deposit, 8)
-        : getUserReadableAmount(deposit, 18)
-  );
+  const totalEpochStrikeDepositsAmounts = 0;
 
-  const totalEpochDepositsAmount = getUserReadableAmount(
-    totalEpochDeposits,
-    18
-  );
+  const totalEpochDepositsAmount = 0;
 
-  const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) =>
-      tokenName === 'BNB'
-        ? getUserReadableAmount(deposit, 8)
-        : getUserReadableAmount(deposit, 18)
-  );
+  const userEpochStrikeDepositsAmounts = 0;
 
-  const userEpochDepositsAmount =
-    tokenName === 'BNB'
-      ? getUserReadableAmount(userEpochDeposits, 8)
-      : getUserReadableAmount(userEpochDeposits, 18);
+  const userEpochDepositsAmount = 0;
 
-  const tokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
+  const userEpochStrikeDeposits = [
+    BigNumber.from('0'),
+    BigNumber.from('0'),
+    BigNumber.from('0'),
+    BigNumber.from('0'),
+  ];
 
   // Handle Withdraw
   const handleWithdraw = useCallback(
-    async (index) => {
-      try {
-        await sendTx(ssovContractWithSigner.withdraw(selectedEpoch, index));
-        updateSsovEpochData();
-        updateSsovUserData();
-      } catch (err) {
-        console.log(err);
-      }
-      updateAssetBalances();
-    },
-    [
-      ssovContractWithSigner,
-      selectedEpoch,
-      updateSsovEpochData,
-      updateSsovUserData,
-      updateAssetBalances,
-      sendTx,
-    ]
+    async (index) => {},
+    [updateAssetBalances, sendTx]
   );
 
   return (
@@ -141,8 +97,7 @@ const Withdraw = ({ open, handleClose, activeVaultContextSide }) => {
             <span className="text-wave-blue">
               {formatAmount(userEpochDepositsAmount, 5)}
             </span>{' '}
-            / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-            {isPut ? '2CRV' : tokenSymbol}
+            / {formatAmount(totalEpochDepositsAmount, 5)} 2CRV
           </Typography>
         </Box>
         <Box>
@@ -167,7 +122,7 @@ const Withdraw = ({ open, handleClose, activeVaultContextSide }) => {
                       {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                     </Typography>
                     <Typography variant="h6" className="text-stieglitz">
-                      {tokenSymbol} ${strike}
+                      2CRV ${strike}
                     </Typography>
                   </Box>
                 </Box>
@@ -184,11 +139,10 @@ const Withdraw = ({ open, handleClose, activeVaultContextSide }) => {
                 key={index}
               >
                 <Typography variant="h6">
-                  {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}{' '}
-                  {isPut ? '2CRV' : tokenSymbol}
+                  {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)} 2CRV
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
-                  {tokenSymbol} ${strike}
+                  2CRV ${strike}
                 </Typography>
               </Box>
             )
@@ -210,7 +164,7 @@ const Withdraw = ({ open, handleClose, activeVaultContextSide }) => {
             <br />
             <br />
             <Countdown
-              date={new Date(epochTimes[1] * 1000)}
+              date={new Date(epochTimes[1].toNumber() * 1000)}
               renderer={({ days, hours, minutes, seconds, completed }) => {
                 if (completed) {
                   return (

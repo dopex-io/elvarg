@@ -1563,6 +1563,7 @@ export interface RateVaultEpochData {
   epochPutsPremium: BigNumber;
   epochStartTimes: BigNumber;
   epochEndTimes: BigNumber;
+  epochTimes: [BigNumber, BigNumber];
   isEpochExpired: boolean;
   isVaultReady: boolean;
   epochBalanceAfterUnstaking: BigNumber;
@@ -1690,15 +1691,17 @@ export const RateVault = () => {
       epochPutsPremium: data[4],
       epochStartTimes: data[5],
       epochEndTimes: times[1],
+      epochTimes: times,
       isEpochExpired: data[6],
       isVaultReady: data[7],
       epochBalanceAfterUnstaking: data[8],
       crvToDistribute: data[9],
       settlementPrice: data[10],
       epochStrikes: [
-        BigNumber.from('500000000'),
+        BigNumber.from('50000000000'),
         BigNumber.from('60000000000'),
         BigNumber.from('70000000000'),
+        BigNumber.from('80000000000'),
       ],
       epochCallsStrikeTokens: [],
       epochPutsStrikeTokens: [],

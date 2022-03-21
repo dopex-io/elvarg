@@ -33,17 +33,9 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import {
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-  SsovContext,
-} from 'contexts/Ssov';
+import { RateVaultContext } from 'contexts/RateVault';
 
-import { BnbConversionContext } from 'contexts/BnbConversion';
 import { WalletContext } from 'contexts/Wallet';
-
-import { SSOV_MAP } from 'constants/index';
 
 import Settle from '../Dialogs/Settle';
 
@@ -71,8 +63,7 @@ const Positions = () => {
   const { provider } = useContext(WalletContext);
   const [isPositionsStatsLoading, setIsPositionsStatsLoading] =
     useState<Boolean>(false);
-  const ssovContext = useContext(SsovContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
+  const rateVaultContext = useContext(RateVaultContext);
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
   const [updated, setUpdated] = useState<boolean>(false);
@@ -84,18 +75,14 @@ const Positions = () => {
   const [copyState, setCopyState] = useState('Copy Address');
 
   const [positions, setPositions] = useState([]);
-  const { tokenPrice, tokenName } = ssovContext['CALL'].ssovData;
+  const tokenPrice: number = 1;
+  const tokenName: string = '2CRV';
+
+  const { epochTimes, epochStrikes } = rateVaultContext.rateVaultEpochData;
 
   const epochEndTime: Date = useMemo(() => {
-    let ssovContextSide;
-
-    if (ssovContext.CALL?.ssovData) ssovContextSide = 'CALL';
-    else ssovContextSide = 'PUT';
-
-    return new Date(
-      ssovContext[ssovContextSide].ssovEpochData.epochTimes[1].toNumber() * 1000
-    );
-  }, [ssovContext]);
+    return new Date(epochTimes[1].toNumber() * 1000);
+  }, [epochTimes]);
 
   const copyToClipboard = () => {
     setCopyState('Copied');
@@ -108,53 +95,13 @@ const Positions = () => {
       setIsPositionsStatsLoading(true);
       const _positions = [];
 
-      const ssov = ssovContext.CALL?.ssovSigner.ssovContractWithSigner;
-      ['CALL', 'PUT'].map((ssovContextSide) => {
-        if (ssovContext[ssovContextSide]?.ssovUserData) {
-          for (let i in ssovContext[ssovContextSide]?.ssovUserData
-            .userEpochOptionsPurchased) {
-            if (
-              ssovContext[ssovContextSide]?.ssovUserData
-                .userEpochOptionsPurchased[i] > 0
-            ) {
-              const strike = getUserReadableAmount(
-                ssovContext[ssovContextSide]?.ssovEpochData.epochStrikes[i],
-                8
-              );
-
-              const pnl =
-                ssovContextSide === 'PUT'
-                  ? strike - getUserReadableAmount(tokenPrice, 8)
-                  : strike + getUserReadableAmount(tokenPrice, 8);
-
-              _positions.push({
-                strike:
-                  ssovContext[ssovContextSide]?.ssovEpochData.epochStrikes[i],
-                strikeIndex: i,
-                rawPurchased:
-                  ssovContext[ssovContextSide]?.ssovUserData
-                    .userEpochOptionsPurchased[i],
-                purchased: getUserReadableAmount(
-                  ssovContext[ssovContextSide]?.ssovUserData
-                    .userEpochOptionsPurchased[i],
-                  18
-                ),
-                side: ssovContextSide,
-                canBeSettled: new Date() > epochEndTime && pnl > 0,
-                pnl: pnl,
-              });
-            }
-          }
-        }
-      });
-
       setPositions(_positions);
       setIsPositionsStatsLoading(false);
       setUpdated(true);
     }
 
     if (updated === false) updatePositions();
-  }, [ssovContext, updated, epochEndTime, tokenPrice]);
+  }, [rateVaultContext, updated, epochEndTime, tokenPrice]);
 
   const handleClose = () => {
     setPositionToSettle(null);

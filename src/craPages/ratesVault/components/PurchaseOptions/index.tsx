@@ -31,17 +31,9 @@ import range from 'lodash/range';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import {
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-  SsovContext,
-} from 'contexts/Ssov';
+import { RateVaultContext } from 'contexts/RateVault';
 
-import { BnbConversionContext } from 'contexts/BnbConversion';
 import { WalletContext } from 'contexts/Wallet';
-
-import { SSOV_MAP } from 'constants/index';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -65,23 +57,12 @@ const PurchaseOptions = ({
   const { provider } = useContext(WalletContext);
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
-  const ssovContext = useContext(SsovContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
+  const rateVaultContext = useContext(RateVaultContext);
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
   const [updated, setUpdated] = useState<boolean>(false);
-  const { tokenPrice, tokenName } =
-    ssovContext[activeVaultContextSide].ssovData;
-  const {
-    epochTimes,
-    epochStrikes,
-    totalEpochPremium,
-    totalEpochStrikeDeposits,
-    totalEpochOptionsPurchased,
-  } = ssovContext[activeVaultContextSide].ssovEpochData;
 
-  const { userEpochStrikeDeposits } =
-    ssovContext[activeVaultContextSide].ssovUserData;
+  const { epochTimes, epochStrikes } = rateVaultContext.rateVaultEpochData;
 
   const epochTime: number = useMemo(() => {
     return epochTimes && epochTimes[0] && epochTimes[1]
@@ -90,12 +71,8 @@ const PurchaseOptions = ({
   }, [epochTimes]);
 
   const epochEndTime: Date = useMemo(() => {
-    return new Date(
-      ssovContext[
-        activeVaultContextSide
-      ].ssovEpochData.epochTimes[1].toNumber() * 1000
-    );
-  }, [ssovContext, activeVaultContextSide]);
+    return new Date(epochTimes[1].toNumber() * 1000);
+  }, [epochTimes, activeVaultContextSide]);
 
   const [page, setPage] = useState(0);
 
@@ -106,10 +83,7 @@ const PurchaseOptions = ({
     [setPage]
   );
 
-  const price = useMemo(
-    () => getUserReadableAmount(tokenPrice ?? 0, 8),
-    [tokenPrice]
-  );
+  const price: number = 1;
 
   const [copyState, setCopyState] = useState('Copy Address');
 
@@ -122,81 +96,7 @@ const PurchaseOptions = ({
   };
 
   const getPurchaseOptions = async (i, ssovContextSide) => {
-    if (!ssovContext[ssovContextSide].ssovEpochData) return;
-
-    const strike = ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
-
-    const available: number =
-      ssovContextSide === 'CALL'
-        ? getUserReadableAmount(
-            ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[
-              i
-            ].sub(
-              ssovContext[ssovContextSide].ssovEpochData
-                .totalEpochOptionsPurchased[i]
-            ),
-            getTokenDecimals(
-              ssovContext[ssovContextSide].selectedSsov.token,
-              chainId
-            )
-          )
-        : getUserReadableAmount(
-            ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[
-              i
-            ].sub(
-              ssovContext[ssovContextSide].ssovEpochData
-                .totalEpochOptionsPurchased[i]
-            ),
-            getTokenDecimals(
-              ssovContext[ssovContextSide].selectedSsov.token,
-              chainId
-            )
-          ) / getUserReadableAmount(tokenPrice, 8);
-
-    const expiry = await ssovContext[
-      ssovContextSide
-    ].ssovSigner.ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
-      Math.floor(Date.now() / 1000)
-    );
-
-    let volatility;
-
-    if (ssovContextSide === 'PUT') {
-      volatility = await ssovContext[
-        ssovContextSide
-      ].ssovData.ssovContract.getVolatility(strike);
-    } else if (ssovContext[ssovContextSide].selectedSsov.token === 'ETH') {
-      const _abi = ['function getVolatility(uint256) view returns (uint256)'];
-      const _temp = new ethers.Contract(
-        '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
-        _abi,
-        provider
-      );
-
-      volatility = await _temp.getVolatility(strike);
-    } else {
-      volatility = await ssovContext[
-        ssovContextSide
-      ].ssovData.volatilityOracleContract.getVolatility();
-    }
-
-    const price = await ssovContext[
-      ssovContextSide
-    ].ssovData.ssovOptionPricingContract.getOptionPrice(
-      ssovContextSide === 'PUT',
-      expiry,
-      strike,
-      tokenPrice,
-      volatility
-    );
-
-    return {
-      available: available,
-      strike: getUserReadableAmount(strike, 8),
-      volatility: volatility,
-      price: getUserReadableAmount(price, 8),
-      side: ssovContextSide,
-    };
+    return {};
   };
 
   useEffect(() => {
@@ -208,10 +108,10 @@ const PurchaseOptions = ({
       };
 
       const strikeIndexes = [];
-      for (let strikeIndex in ssovContext['CALL'].ssovEpochData.epochStrikes) {
-        strikeIndexes.push(getPurchaseOptions(strikeIndex, 'CALL'));
-        strikeIndexes.push(getPurchaseOptions(strikeIndex, 'PUT'));
-      }
+      // for (let strikeIndex in ssovContext['CALL'].ssovEpochData.epochStrikes) {
+      //  strikeIndexes.push(getPurchaseOptions(strikeIndex, 'CALL'));
+      //  strikeIndexes.push(getPurchaseOptions(strikeIndex, 'PUT'));
+      //}
 
       const results = await Promise.all(strikeIndexes);
 
@@ -224,9 +124,9 @@ const PurchaseOptions = ({
     }
 
     if (updated === false) updatePurchaseOptions();
-  }, [ssovContext, updated]);
+  }, [rateVaultContext, updated]);
 
-  return ssovContext[activeVaultContextSide].selectedEpoch > 0 ? (
+  return rateVaultContext.selectedEpoch > 0 ? (
     <Box>
       <Box className="flex">
         <Typography variant="h4" className="text-white mb-7">
@@ -240,7 +140,7 @@ const PurchaseOptions = ({
         </Tooltip>
       </Box>
       <Box className={'bg-cod-gray w-full p-4 pt-2 pb-4.5 pb-0 rounded-xl'}>
-        <Box className="balances-table text-white">
+        <Box className="balances-table text-white min-h-[12rem]">
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
             {isEmpty(epochStrikes) ? (
               <Box className="border-4 border-umbra rounded-lg p-3">
@@ -336,18 +236,14 @@ const PurchaseOptions = ({
                           </TableCell>
                           <TableCell align="left" className="pt-2">
                             <Typography variant="h6">
-                              {formatAmount(row['available'], 2)} {tokenName}
+                              {formatAmount(row['available'], 2)} 2CRV
                             </Typography>
                             <Box
                               component="h6"
                               className="text-xs text-stieglitz"
                             >
                               {'$'}
-                              {formatAmount(
-                                getUserReadableAmount(tokenPrice, 8) *
-                                  row['available'],
-                                2
-                              )}
+                              {formatAmount(row['available'], 2)}
                             </Box>
                           </TableCell>
 

@@ -31,12 +31,17 @@ const Manage = () => {
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
   const showWithdrawalInformation: boolean = true;
 
-  console.log(rateVaultContext);
+  if (!rateVaultContext.rateVaultEpochData?.epochStartTimes)
+    return (
+      <Box className="overflow-x-hidden bg-black h-screen">
+        <PageLoader />
+      </Box>
+    );
 
   return (
     <Box className="overflow-x-hidden bg-black h-screen">
       <Head>
-        <title>Rates Vault | Dopex</title>
+        <title>Rate Vault | Dopex</title>
       </Head>
       <AppBar active="vaults" />
       {rateVaultContext.rateVaultEpochData?.epochStartTimes &&
@@ -69,13 +74,10 @@ const Manage = () => {
                 <Stats activeVaultContextSide={activeVaultContextSide} />
               </Box>
 
-              {rateVaultContext.rateVaultUserData?.userEpochStrikeDeposits
-                ?.length > 0 ? (
-                <Deposits
-                  activeVaultContextSide={activeVaultContextSide}
-                  setActiveVaultContextSide={setActiveVaultContextSide}
-                />
-              ) : null}
+              <Deposits
+                activeVaultContextSide={activeVaultContextSide}
+                setActiveVaultContextSide={setActiveVaultContextSide}
+              />
 
               {showWithdrawalInformation ? (
                 <Box className={'mt-12'}>

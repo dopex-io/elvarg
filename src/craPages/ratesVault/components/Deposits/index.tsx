@@ -30,17 +30,9 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
 import Withdraw from '../Dialogs/Withdraw';
 
-import {
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-  SsovContext,
-} from 'contexts/Ssov';
+import { RateVaultContext } from 'contexts/RateVault';
 
-import { BnbConversionContext } from 'contexts/BnbConversion';
 import { WalletContext } from 'contexts/Wallet';
-
-import { SSOV_MAP } from 'constants/index';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -86,8 +78,6 @@ const DepositsTableData = (
     activeVaultContextSide,
   } = props;
 
-  const { convertToBNB } = useContext(BnbConversionContext);
-
   const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
 
   const isWithdrawalEnabled: boolean = useMemo(() => {
@@ -111,18 +101,7 @@ const DepositsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(
-            tokenSymbol === 'BNB'
-              ? (convertToBNB(
-                  ethers.utils.parseEther(totalUserDeposits.toString())
-                )
-                  .div(oneEBigNumber(6))
-                  .toNumber() /
-                  1e4) *
-                  price
-              : totalUserDeposits * price,
-            2
-          )}
+          {formatAmount(totalUserDeposits * price, 2)}
         </Box>
       </TableCell>
 
@@ -132,18 +111,7 @@ const DepositsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(
-            tokenSymbol === 'BNB'
-              ? (convertToBNB(
-                  ethers.utils.parseEther(totalUserPremiums.toString())
-                )
-                  .div(oneEBigNumber(6))
-                  .toNumber() /
-                  1e4) *
-                  price
-              : totalUserPremiums * price,
-            2
-          )}
+          {formatAmount(totalUserPremiums * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
@@ -216,40 +184,27 @@ const Deposits = ({
   activeVaultContextSide: string;
   setActiveVaultContextSide: Dispatch<SetStateAction<string>>;
 }) => {
-  const ssovContext = useContext(SsovContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
+  const rateVaultContext = useContext(RateVaultContext);
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
 
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] =
     useState<boolean>(false);
 
-  const { tokenPrice, tokenName } =
-    ssovContext[activeVaultContextSide].ssovData;
-  const {
-    epochTimes,
-    epochStrikes,
-    totalEpochPremium,
-    totalEpochStrikeDeposits,
-    totalEpochOptionsPurchased,
-  } = ssovContext[activeVaultContextSide].ssovEpochData;
-
-  const { userEpochStrikeDeposits } =
-    ssovContext[activeVaultContextSide].ssovUserData;
-
   const epochTime: number = useMemo(() => {
-    return epochTimes && epochTimes[0] && epochTimes[1]
-      ? (epochTimes[1] as BigNumber).sub(epochTimes[0] as BigNumber).toNumber()
+    return rateVaultContext.rateVaultEpochData.epochStartTimes &&
+      rateVaultContext.rateVaultEpochData.epochEndTimes
+      ? (rateVaultContext.rateVaultEpochData.epochStartTimes as BigNumber)
+          .sub(rateVaultContext.rateVaultEpochData.epochEndTimes as BigNumber)
+          .toNumber()
       : 0;
-  }, [epochTimes]);
+  }, [rateVaultContext]);
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(
-      ssovContext[
-        activeVaultContextSide
-      ].ssovEpochData.epochTimes[1].toNumber() * 1000
+      rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() * 1000
     );
-  }, [ssovContext, activeVaultContextSide]);
+  }, [rateVaultContext]);
 
   const [page, setPage] = useState(0);
   const handleChangePage = useCallback(
@@ -259,10 +214,7 @@ const Deposits = ({
     [setPage]
   );
 
-  const price = useMemo(
-    () => getUserReadableAmount(tokenPrice ?? 0, 8),
-    [tokenPrice]
-  );
+  const price: number = 1;
 
   const [copyState, setCopyState] = useState('Copy Address');
 
@@ -272,66 +224,13 @@ const Deposits = ({
     navigator.clipboard.writeText(accountAddress);
   };
 
-  const deposits: any[] = useMemo(
-    () =>
-      epochStrikes.map((strike, strikeIndex) => {
-        const strikePrice = getUserReadableAmount(strike, 8);
-
-        const totalUserDeposits =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(
-                userEpochStrikeDeposits[strikeIndex] ?? 0,
-                8
-              )
-            : getUserReadableAmount(
-                userEpochStrikeDeposits[strikeIndex] ?? 0,
-                18
-              );
-
-        const totalDeposits =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(
-                totalEpochStrikeDeposits[strikeIndex] ?? 0,
-                8
-              )
-            : getUserReadableAmount(
-                totalEpochStrikeDeposits[strikeIndex] ?? 0,
-                18
-              );
-
-        const totalPremiums =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 8)
-            : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
-
-        const totalUserPremiums =
-          (totalPremiums * totalUserDeposits) / totalDeposits;
-
-        return {
-          strikeIndex,
-          strikePrice,
-          totalUserDeposits,
-          totalUserPremiums,
-          totalDeposits,
-          totalPremiums,
-        };
-      }),
-    [
-      epochStrikes,
-      totalEpochStrikeDeposits,
-      userEpochStrikeDeposits,
-      totalEpochOptionsPurchased,
-      totalEpochPremium,
-      tokenName,
-      convertToBNB,
-    ]
-  );
+  const deposits: any[] = [];
 
   const handleClose = () => {
     setIsWithdrawModalVisible(false);
   };
 
-  return ssovContext[activeVaultContextSide].selectedEpoch > 0 ? (
+  return rateVaultContext.selectedEpoch > 0 ? (
     <Box>
       <Withdraw
         open={isWithdrawModalVisible}
@@ -384,9 +283,9 @@ const Deposits = ({
           </CustomButton>
         </Box>
 
-        <Box className="balances-table text-white">
+        <Box className="balances-table text-white min-h-[12rem]">
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
-            {isEmpty(epochStrikes) ? (
+            {isEmpty(rateVaultContext.rateVaultEpochData.epochStrikes) ? (
               <Box className="border-4 border-umbra rounded-lg p-3">
                 {range(3).map((_, index) => (
                   <Skeleton
@@ -481,18 +380,8 @@ const Deposits = ({
                             totalPremiums={totalPremiums}
                             price={price}
                             epochEndTime={epochEndTime}
-                            imgSrc={
-                              SSOV_MAP[
-                                ssovContext[activeVaultContextSide].ssovData
-                                  .tokenName
-                              ].imageSrc
-                            }
-                            tokenSymbol={
-                              SSOV_MAP[
-                                ssovContext[activeVaultContextSide].ssovData
-                                  .tokenName
-                              ].tokenSymbol
-                            }
+                            imgSrc={'ir.svg'}
+                            tokenSymbol={'2CRV'}
                           />
                         );
                       }
@@ -501,12 +390,13 @@ const Deposits = ({
               </Table>
             )}
           </TableContainer>
-          {epochStrikes.length > ROWS_PER_PAGE ? (
+          {rateVaultContext.rateVaultEpochData?.epochStrikes.length >
+          ROWS_PER_PAGE ? (
             <TablePagination
               component="div"
               id="stats"
               rowsPerPageOptions={[ROWS_PER_PAGE]}
-              count={epochStrikes.length}
+              count={rateVaultContext.rateVaultEpochData?.epochStrikes.length}
               page={page}
               onPageChange={handleChangePage}
               rowsPerPage={ROWS_PER_PAGE}

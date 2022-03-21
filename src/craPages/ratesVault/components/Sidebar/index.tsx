@@ -18,18 +18,11 @@ import getFormattedDate from 'utils/date/getFormattedDate';
 import styles from './styles.module.scss';
 
 export interface Props {
-  asset: string;
-  activeVaultContextSide: string;
   activeView: string;
   setActiveView: Function;
 }
 
-const Sidebar = ({
-  asset,
-  activeVaultContextSide,
-  activeView,
-  setActiveView,
-}: Props) => {
+const Sidebar = ({ activeView, setActiveView }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
   const { chainId } = useContext(WalletContext);
 
