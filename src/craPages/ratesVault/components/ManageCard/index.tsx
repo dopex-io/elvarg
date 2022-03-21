@@ -24,6 +24,7 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import Slider from '@mui/material/Slider';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 
@@ -84,6 +85,7 @@ const ManageCard = ({
     useContext(AssetsContext);
   const rateVaultContext = useContext(RateVaultContext);
   const { selectedEpoch } = rateVaultContext;
+  const [leverage, setLeverage] = useState<number>(200);
 
   const sendTx = useSendTx();
 
@@ -653,6 +655,30 @@ const ManageCard = ({
               <Curve2PoolDepositSelector
                 depositTokenName={depositTokenName}
                 setDepositTokenName={setDepositTokenName}
+              />
+            </Box>
+            <Box className="flex mt-4">
+              <Typography
+                variant="h6"
+                className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
+              >
+                Leverage
+              </Typography>
+              <Typography
+                variant="h6"
+                className="text-white ml-auto mr-0 text-[0.72rem]"
+              >
+                {leverage}x
+              </Typography>
+            </Box>
+            <Box className="mt-2 flex">
+              <Slider
+                min={100}
+                max={1000}
+                value={leverage}
+                onChange={(event, value) => setLeverage(Number(value))}
+                aria-label="Default"
+                valueLabelDisplay="auto"
               />
             </Box>
             <Box className="mt-3">
