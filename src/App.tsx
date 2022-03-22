@@ -33,7 +33,7 @@ declare module '@mui/styles/defaultTheme' {
 const Farming = lazy(() => import('craPages/farming/farms'));
 const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
-const Ssov = lazy(() => import('craPages/ssov'));
+const Vaults = lazy(() => import('craPages/vaults'));
 const RatesVault = lazy(() => import('craPages/ratesVault'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const Nfts = lazy(() => import('craPages/nfts'));
@@ -64,11 +64,12 @@ const FarmRoutes = () => {
   );
 };
 
-const SsovRoutes = () => {
+const VaultsRoutes = () => {
   return (
     <BnbConversionProvider>
       <Routes>
-        <Route path="*" element={<Ssov />} />
+        <Route path="*" element={<Vaults />} />
+        <Route path="ir" element={<RatesVault />} />
         <Route path=":asset" element={<SsovManage />} />
       </Routes>
     </BnbConversionProvider>
@@ -116,10 +117,9 @@ function AppRoutes() {
         <WalletProvider>
           <AssetsProvider>
             <Routes>
-              <Route path="/" element={<Navigate to="/ssov" />} />
+              <Route path="/" element={<Navigate to="/vaults" />} />
               <Route path="sale" element={<TokenSale />} />
-              <Route path="ssov/*" element={<SsovRoutes />} />
-              <Route path="vaults/ir" element={<RatesVault />} />
+              <Route path="vaults/*" element={<VaultsRoutes />} />
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />

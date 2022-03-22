@@ -124,7 +124,9 @@ function SsovCard(props) {
               className="ml-auto mt-1"
               onClick={() =>
                 window.location.replace(
-                  data.name === 'Curve LP' ? '/vaults/ir' : `/ssov/${data.name}`
+                  data.name === 'Curve LP'
+                    ? '/vaults/ir'
+                    : `/vaults/${data.name}`
                 )
               }
             >
