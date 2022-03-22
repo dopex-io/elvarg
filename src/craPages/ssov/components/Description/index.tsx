@@ -20,7 +20,6 @@ import ssovInfo from 'constants/ssovInfo';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
-import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseCard from '../PurchaseCard';
 
