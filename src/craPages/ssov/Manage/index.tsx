@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
-import cx from 'classnames';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/AppBar';
