@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
@@ -12,6 +6,7 @@ import { Addresses } from '@dopex-io/sdk';
 import Web3Modal from 'web3modal';
 import WalletLink from 'walletlink';
 import WalletConnectProvider from '@walletconnect/web3-provider';
+import CloverConnector from '@clover-network/clover-connector';
 
 import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
 
@@ -87,6 +82,17 @@ if (typeof window !== 'undefined') {
     },
     walletlink: {
       package: WalletLink,
+      options: {
+        rpc: CHAIN_ID_TO_PROVIDERS,
+      },
+    },
+    cloverconnect: {
+      package: CloverConnector,
+      display: {
+        logo: '/wallets/Clover.svg',
+        name: 'Clover Wallet',
+        description: 'Connect to your Clover Wallet',
+      },
       options: {
         rpc: CHAIN_ID_TO_PROVIDERS,
       },
