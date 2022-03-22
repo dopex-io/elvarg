@@ -87,7 +87,11 @@ function SsovCard(props) {
             <Box className="mr-3 h-8 max-w-14 flex flex-row">
               <img
                 className="w-14 h-14 border-[0.1px] border-gray-600 rounded-full"
-                src={SSOV_MAP[data.name].imageSrc}
+                src={
+                  data.name === 'Curve LP'
+                    ? '/assets/curve.svg'
+                    : SSOV_MAP[data.name].imageSrc
+                }
                 alt={data.name}
               />
             </Box>
@@ -97,7 +101,7 @@ function SsovCard(props) {
               </Typography>
               <Box className={'flex'}>
                 <Typography variant="h5" className="text-stieglitz">
-                  SSOV
+                  {data.name === 'Curve LP' ? 'IR Vault' : 'SSOV'}
                 </Typography>
                 {data.call ? (
                   <img
@@ -118,7 +122,11 @@ function SsovCard(props) {
             <WalletButton
               size="small"
               className="ml-auto mt-1"
-              onClick={() => window.location.replace(`/ssov/${data.name}`)}
+              onClick={() =>
+                window.location.replace(
+                  data.name === 'Curve LP' ? '/vaults/ir' : `/ssov/${data.name}`
+                )
+              }
             >
               Manage
             </WalletButton>

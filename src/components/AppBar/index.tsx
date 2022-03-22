@@ -67,7 +67,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'sale', to: '/sale' },
   ],
-  56: [{ name: 'SSOV', to: '/ssov' }],
+  56: [{ name: 'vaults', to: '/vaults' }],
   1337: [
     { name: 'options', to: '/' },
     { name: 'pools', to: '/pools' },
@@ -80,14 +80,13 @@ const appLinks = {
     { name: 'portfolio', to: '/portfolio' },
     { name: 'faucet', to: '/faucet' },
     { name: 'swap', to: '/swap' },
-    { name: 'SSOV', to: '/ssov' },
+    { name: 'vaults', to: '/vaults' },
   ],
   42161: [
     { name: 'farms', to: '/farms' },
-    { name: 'SSOV', to: '/ssov' },
-    { name: 'Rates Vault', to: '/vaults/ir' },
+    { name: 'vaults', to: '/vaults' },
   ],
-  43114: [{ name: 'SSOV', to: '/ssov' }],
+  43114: [{ name: 'vaults', to: '/vaults' }],
 };
 
 const menuLinks = [
@@ -112,8 +111,7 @@ interface AppBarProps {
     | 'portfolio'
     | 'token sale'
     | 'faucet'
-    | 'SSOV'
-    | 'Rates Vault'
+    | 'vaults'
     | 'leaderboard'
     | 'swap';
 }

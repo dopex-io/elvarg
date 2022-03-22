@@ -79,18 +79,18 @@ const Ssov = () => {
         .then((payload) => payload.data);
 
       const processedData = {};
-      for (let ssovChainid in data) {
-        processedData[ssovChainid] = {};
-        data[ssovChainid].map((ssov) => {
-          if (!processedData[ssovChainid][ssov['name']])
-            processedData[ssovChainid][ssov['name']] = {
+      for (let ssovChainId in data) {
+        processedData[ssovChainId] = {};
+        data[ssovChainId].map((ssov) => {
+          if (!processedData[ssovChainId][ssov['name']])
+            processedData[ssovChainId][ssov['name']] = {
               name: ssov['name'],
               epochTimes: ssov['epochTimes'],
-              chainid: ssov['chainId'],
+              chainId: ssov['chainId'],
               currentEpoch: ssov['currentEpoch'],
             };
 
-          processedData[ssovChainid][ssov['name']][ssov['type']] = {
+          processedData[ssovChainId][ssov['name']][ssov['type']] = {
             apy: ssov['apy'],
             tvl: ssov['tvl'],
             currentEpoch: ssov['currentEpoch'],
@@ -99,6 +99,24 @@ const Ssov = () => {
         });
       }
 
+      processedData[42161]['Curve LP'] = {
+        name: 'Curve LP',
+        epochTimes: 1,
+        chainId: 42161,
+        currentEpoch: 1,
+        call: {
+          apy: 2,
+          tvl: 323232323,
+          currentEpoch: 1,
+          totalEpochDeposits: 2343243,
+        },
+        put: {
+          apy: 2,
+          tvl: 323232323,
+          currentEpoch: 1,
+          totalEpochDeposits: 2343243,
+        },
+      };
       setSsovs(processedData);
     }
     getData();
@@ -107,13 +125,13 @@ const Ssov = () => {
   return (
     <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
-        <title>SSOV | Dopex</title>
+        <title>Vaults | Dopex</title>
       </Head>
-      <AppBar active="SSOV" />
+      <AppBar active="vaults" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
-          <Typography variant="h2" className="mb-7">
-            Single Staking Option Vaults
+          <Typography variant="h1" className="mb-7">
+            Vaults
           </Typography>
           <Box
             className={
@@ -130,7 +148,7 @@ const Ssov = () => {
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
-        <Box className="flex mb-4">
+        <Box className="flex lg:mb-4 mb-10">
           <Box className="ml-auto mr-3">
             <SsovFilter
               activeFilters={selectedSsovAssets}
