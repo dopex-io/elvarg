@@ -86,17 +86,16 @@ if (typeof window !== 'undefined') {
         rpc: CHAIN_ID_TO_PROVIDERS,
       },
     },
-    cloverconnect: {
-      package: CloverConnector,
-      display: {
-        logo: '/wallets/Clover.svg',
-        name: 'Clover Wallet',
-        description: 'Connect to your Clover Wallet',
+    ...(window['clover'] && {
+      injected: {
+        display: {
+          logo: '/wallets/Clover.png',
+          name: 'Clover Wallet',
+          description: 'Connect to your Clover Wallet',
+        },
+        package: null,
       },
-      options: {
-        rpc: CHAIN_ID_TO_PROVIDERS,
-      },
-    },
+    }),
     ...(window.ethereum?.isCoin98 && {
       injected: {
         display: {
