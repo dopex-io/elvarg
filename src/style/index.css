@@ -111,3 +111,13 @@ input[type='number'] {
       /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
   backdrop-filter: blur(14px);
 }
+
+.custom-select-no-border fieldset {
+  border: none;
+}
+
+.custom-select-no-border > div > div {
+  padding: 12px;
+  padding-right: 29px;
+  padding-left: 17px;
+}
