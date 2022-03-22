@@ -43,7 +43,7 @@ const Manage = () => {
       <Head>
         <title>Rate Vault | Dopex</title>
       </Head>
-      <AppBar active="Rates Vault" />
+      <AppBar active="vaults" />
       {rateVaultContext.rateVaultEpochData?.epochStartTimes &&
       accountAddress ? (
         <Box className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 lg:grid lg:grid-cols-12">
