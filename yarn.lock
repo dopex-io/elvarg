@@ -582,10 +582,10 @@
   dependencies:
     "@date-io/core" "^2.13.1"
 
-"@dopex-io/sdk@^1.0.0-alpha.79":
-  version "1.0.0-alpha.80"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.80.tgz#0990e9157062bf24b8a1d66072fb1b960b1904c8"
-  integrity sha512-HjlYy9TGFXZTr7e27kyUnhC27V5zU9S3JbgLW6xcQQYjb0aFkt5ZPMU7Jy0ivHQgK2kNDOk+kN6XNnJO3h9CAw==
+"@dopex-io/sdk@^1.0.0-alpha.81":
+  version "1.0.0-alpha.81"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.81.tgz#4a7039402a88057061b15d5649a072339ac50e10"
+  integrity sha512-09++1BRUCEYUEXubZFJ+Nbyz5fpvOs2pczJY8a6ow6yrYQA9KpFEmbMVeeEnNTgie9LObmk0tYXFif4UC4WOZA==
   dependencies:
     ethers "^5.5.3"
 
@@ -1806,9 +1806,9 @@
   integrity sha512-XOKXa1KIxtNXgASAnwj7cnttJxS4fksBRywK/9LzRV5YxrF80BXZIGeQSuoESQ/VkUj30Ae0+YcuHc15wJCB2g==
 
 "@types/node@*":
-  version "17.0.22"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.22.tgz#38b6c4b9b2f3ed9f2e376cce42a298fb2375251e"
-  integrity sha512-8FwbVoG4fy+ykY86XCAclKZDORttqE5/s7dyWZKLXTdv3vRy5HozBEinG5IqhvPXXzIZEcTVbuHlQEI6iuwcmw==
+  version "17.0.23"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.23.tgz#3b41a6e643589ac6442bdbd7a4a3ded62f33f7da"
+  integrity sha512-UxDxWn7dl97rKVeVS61vErvw086aCYhDLyvRQZ5Rk65rZKepaFdm53GeqXaKBuOhED4e9uWq34IC3TdSdJJ2Gw==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
