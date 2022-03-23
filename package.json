@@ -15,6 +15,7 @@
   "dependencies": {
     "@0xsequence/multicall": "^0.36.3",
     "@apollo/client": "^3.5.9",
+    "@clover-network/clover-connector": "^1.0.0",
     "@dopex-io/sdk": "^1.0.0-alpha.81",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
