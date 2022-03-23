@@ -15,7 +15,7 @@
   "dependencies": {
     "@0xsequence/multicall": "^0.36.3",
     "@apollo/client": "^3.5.9",
-    "@clover-network/clover-connector": "^1.0.0",
+    "@coinbase/wallet-sdk": "^3.0.5",
     "@dopex-io/sdk": "^1.0.0-alpha.81",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
@@ -45,7 +45,6 @@
     "recharts": "^2.1.9",
     "sass": "^1.49.8",
     "use-debounce": "^7.0.1",
-    "walletlink": "^2.4.4",
     "web3modal": "^1.9.4",
     "yup": "^0.32.9"
   },

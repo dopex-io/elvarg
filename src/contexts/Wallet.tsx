@@ -4,9 +4,8 @@ import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
 import Web3Modal from 'web3modal';
-import WalletLink from 'walletlink';
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import CloverConnector from '@clover-network/clover-connector';
 
 import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
 
@@ -81,8 +80,9 @@ if (typeof window !== 'undefined') {
       },
     },
     walletlink: {
-      package: WalletLink,
+      package: CoinbaseWalletSDK,
       options: {
+        appName: 'Dopex',
         rpc: CHAIN_ID_TO_PROVIDERS,
       },
     },
