@@ -58,7 +58,7 @@ interface DepositsTableDataProps {
   totalDeposits: number;
   totalPremiums: number;
   imgSrc: string;
-  tokenSymbol: string;
+  tokenName: string;
   setIsWithdrawModalVisible: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -82,14 +82,12 @@ const DepositsTableData = (
     epochTime,
     epochEndTime,
     imgSrc,
-    tokenSymbol,
+    tokenName,
     setIsWithdrawModalVisible,
     activeContextSide,
   } = props;
 
   const { convertToBNB } = useContext(BnbConversionContext);
-
-  const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
 
   const isWithdrawalEnabled: boolean = useMemo(() => {
     return new Date() > epochEndTime;
@@ -113,7 +111,7 @@ const DepositsTableData = (
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
           {formatAmount(
-            tokenSymbol === 'BNB'
+            tokenName === 'BNB'
               ? (convertToBNB(
                   BigNumber.from(
                     Math.round(totalUserDeposits * 10 ** 18).toString()
@@ -136,7 +134,7 @@ const DepositsTableData = (
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
           {formatAmount(
-            tokenSymbol === 'BNB'
+            tokenName === 'BNB'
               ? (convertToBNB(
                   BigNumber.from(
                     Math.round(totalUserPremiums * 10 ** 18).toString()
@@ -491,11 +489,9 @@ const Deposits = ({
                                   .tokenName
                               ].imageSrc
                             }
-                            tokenSymbol={
-                              SSOV_MAP[
-                                ssovContext[activeSsovContextSide].ssovData
-                                  .tokenName
-                              ].tokenSymbol
+                            tokenName={
+                              ssovContext[activeSsovContextSide].ssovData
+                                .tokenName
                             }
                           />
                         );
