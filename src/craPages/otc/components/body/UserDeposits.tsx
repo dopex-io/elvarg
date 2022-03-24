@@ -101,7 +101,7 @@ const UserDeposits = () => {
           ))}
         </Box>
       ) : userDeposits.length > 0 ? (
-        <TableContainer className="rounded-t-lg overflow-x-hidden border-umbra border border-b-0 max-h-80">
+        <TableContainer className="rounded-t-lg border-umbra border border-b-0 max-h-80">
           <Table aria-label="rfq-table">
             <TableHead>
               <TableRow>

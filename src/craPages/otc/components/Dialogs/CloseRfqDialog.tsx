@@ -1,10 +1,16 @@
-import { useCallback, useEffect, useContext, useState } from 'react';
-// import { useFormik } from 'formik';
-// import noop from 'lodash/noop';
-// import * as yup from 'yup';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-// import Input from '@mui/material/Input';
+import {
+  doc,
+  collection,
+  // deleteDoc,
+  getDocs,
+  query,
+  // getDoc,
+  where,
+  updateDoc,
+  onSnapshot,
+} from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
@@ -19,37 +25,56 @@ const CloseRfqDialog = ({ open, handleClose, data }) => {
   const [disabled, setDisabled] = useState(false);
 
   const handleSubmit = useCallback(async () => {
-    // Mark RFQ as closed
-    // Indicate it in the chatroom
-
-    const base = data.isBuy ? data.base.symbol : data.quote.symbol;
-    const baseAmount = data.isBuy ? data.price : data.amount;
-    const quote = !data.isBuy ? data.base.symbol : data.quote.symbol;
-    const quoteAmount = !data.isBuy ? data.price : data.amount;
-
     const q = query(
       collection(db, 'orders'),
-      where('dealer', '==', data.dealer)
+      where('dealerAddress', '==', accountAddress)
     );
 
     const querySnapshot = await getDocs(q);
 
-    querySnapshot.docs.map((item) => {
-      if (
-        baseAmount === data.amount &&
-        quoteAmount === data.price &&
-        quote === data.quote &&
-        item.data().dealerAddress === accountAddress &&
-        base === data.base &&
-        data.isBuy === item.data().isBuy
-      )
-        console.log('Fire');
-    });
-  }, [data, accountAddress]);
+    const temp = querySnapshot.docs.find((item) => item.id === data.id);
 
-  // useEffect(() => {
-  //   setDisabled(accountAddress !== data.dealerAddress);
-  // }, [accountAddress, data.dealerAddress, open]);
+    await updateDoc(doc(db, 'orders', temp.id), {
+      isFulfilled: true,
+    })
+      .then(async () => {
+        const querySnapshot = await getDocs(collection(db, 'chatrooms'));
+        let chatrooms = [];
+        querySnapshot.forEach((doc) => {
+          chatrooms.push({ id: doc.id, data: doc.data() });
+        });
+
+        const chatroomData = chatrooms
+          .filter(
+            (document) =>
+              document.data.timestamp.seconds === data.data.timestamp.seconds
+          )
+          .pop();
+
+        await updateDoc(doc(db, 'chatrooms', chatroomData.id), {
+          isFulfilled: true,
+        }).catch((e) => {
+          console.log('Failed to mark RFQ as complete. Error code ', e);
+        });
+      })
+      .catch((e) => {
+        console.log('Failed with error code ', e);
+      });
+  }, [accountAddress, data]);
+
+  useEffect(() => {
+    (async () => {
+      const q = query(collection(db, 'orders'));
+
+      onSnapshot(q, (querySnapshot) => {
+        const temp = querySnapshot.docs.find((item) => item.id === data.id);
+
+        setDisabled(
+          accountAddress === data.dealerAddress || temp.data().isFulfilled
+        );
+      });
+    })();
+  }, [accountAddress, data]);
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
@@ -74,34 +99,34 @@ const CloseRfqDialog = ({ open, handleClose, data }) => {
             <Typography variant="h6" className="text-stieglitz">
               Quote
             </Typography>
-            <Typography variant="h6">{data.quote}</Typography>
+            <Typography variant="h6">{data.data.quote}</Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Price
             </Typography>
             <Typography variant="h6">
-              {data.price} {data.quote}
+              {data.data.price} {data.data.quote}
             </Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Base
             </Typography>
-            <Typography variant="h6">{data.base}</Typography>
+            <Typography variant="h6">{data.data.base}</Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Amount
             </Typography>
-            <Typography variant="h6">{data.amount}</Typography>
+            <Typography variant="h6">{data.data.amount}</Typography>
           </Box>
         </Box>
         <CustomButton
           color="primary rounded-xl"
           size="medium"
           onClick={handleSubmit}
-          disabled={disabled}
+          disabled={disabled || data.isFulfilled}
         >
           Close
         </CustomButton>

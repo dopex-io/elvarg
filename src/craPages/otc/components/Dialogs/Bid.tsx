@@ -245,7 +245,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
                     </Typography>
                     {user?.accountAddress === data.data.dealerAddress ? (
                       <Box className="flex justify-end">
-                        <Box className="flex flex-col text-center justify-end">
+                        <Box className="flex flex-col text-right justify-end">
                           <Typography
                             variant="h6"
                             className={`${
@@ -262,7 +262,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
                                 : 'text-stieglitz'
                             }`}
                           >
-                            {bid.counterParty}
+                            {smartTrim(bid.counterParty, 12)}
                           </Typography>
                         </Box>
                       </Box>

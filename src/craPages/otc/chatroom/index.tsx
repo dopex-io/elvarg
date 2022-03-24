@@ -70,26 +70,26 @@ const Chatroom = () => {
     [formik]
   );
 
-  const handleDelete = useCallback(async () => {
-    await updateDoc(doc(db, 'chatrooms', chat.id), {
-      isFulfilled: true,
-    });
+  // const handleDelete = useCallback(async () => {
+  //   await updateDoc(doc(db, 'chatrooms', chat.id), {
+  //     isFulfilled: true,
+  //   });
 
-    const querySnapshot = (
-      await getDocs(collection(db, 'orders'))
-    ).docs.flatMap((doc) => doc);
+  //   const querySnapshot = (
+  //     await getDocs(collection(db, 'orders'))
+  //   ).docs.flatMap((doc) => doc);
 
-    const chatroomData = (await getDoc(doc(db, 'chatrooms', chat.id))).data();
+  //   const chatroomData = (await getDoc(doc(db, 'chatrooms', chat.id))).data();
 
-    const result = querySnapshot.find(
-      (doc) => doc.data().timestamp.seconds === chatroomData.timestamp.seconds
-    );
+  //   const result = querySnapshot.find(
+  //     (doc) => doc.data().timestamp.seconds === chatroomData.timestamp.seconds
+  //   );
 
-    if (result) await deleteDoc(doc(db, 'orders', result.id));
-    else console.log('Something went wrong.');
+  //   if (result) await deleteDoc(doc(db, 'orders', result.id));
+  //   else console.log('Something went wrong.');
 
-    setFulfilled(true);
-  }, [chat]);
+  //   setFulfilled(true);
+  // }, [chat]);
 
   const handleSubmit = useCallback(async () => {
     if (formik.values.msg === '') return;
@@ -149,7 +149,7 @@ const Chatroom = () => {
                   {chat.id}
                 </Typography>
               </Box>
-              {admin && (
+              {/* {admin && (
                 <Box className="my-auto pr-3">
                   <Tooltip
                     className="text-stieglitz"
@@ -168,7 +168,7 @@ const Chatroom = () => {
                     </Box>
                   </Tooltip>
                 </Box>
-              )}
+              )} */}
             </Box>
           </Box>
           <Box className="h-full overflow-y-scroll flex flex-col-reverse">

@@ -15,8 +15,6 @@ import { collection, getDocs } from 'firebase/firestore';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
-// import CloseRfqDialog from '../Dialogs/CloseRfqDialog'; // Move to chatroom
-import Bid from '../Dialogs/Bid';
 import CustomMenu from '../CustomMenu';
 
 import { OtcContext } from 'contexts/Otc';
@@ -69,11 +67,6 @@ const IndicativeRfqTable = () => {
 
   const navigate = useNavigate();
 
-  const [dialogState, setDialogState] = useState({
-    open: false,
-    handleClose: () => {},
-    data: {},
-  });
   const [page, setPage] = useState(0);
 
   const handleChangePage = (
@@ -91,10 +84,6 @@ const IndicativeRfqTable = () => {
       ); // Less than a week old
     });
   }, [orders]);
-
-  const handleClose = useCallback(() => {
-    setDialogState((prevState) => ({ ...prevState, open: false }));
-  }, []);
 
   const navigateToChat = useCallback(
     async (data: any) => {
@@ -116,7 +105,7 @@ const IndicativeRfqTable = () => {
 
   return (
     <Box>
-      <TableContainer className="rounded-t-lg overflow-x-hidden border-umbra border border-b-0 max-h-80">
+      <TableContainer className="rounded-t-lg border-umbra border border-b-0 max-h-80 overflow-auto">
         <Table aria-label="rfq-table" className="bg-umbra">
           <TableHead>
             <TableRow>
@@ -206,13 +195,11 @@ const IndicativeRfqTable = () => {
                         >
                           Chat
                         </CustomButton>
-                        <CustomMenu data={row} actionText={'Bid-Ask'} />
+                        <CustomMenu
+                          data={row}
+                          actions={['Bid-Ask', 'Close RFQ']}
+                        />
                       </Box>
-                      <Bid
-                        open={dialogState.open}
-                        handleClose={handleClose}
-                        data={row}
-                      />
                     </TableBodyCell>
                   </TableRow>
                 ))}
