@@ -7,6 +7,7 @@ import AppBar from 'components/AppBar';
 import Description from '../components/Description';
 import ManageCard from '../components/ManageCard';
 import Sidebar from '../components/Sidebar';
+import MobileMenu from '../components/MobileMenu';
 import SelectStrikeWidget from '../components/SelectStrikeWidget';
 import Deposits from '../components/Deposits';
 import Positions from '../components/Positions';
@@ -86,61 +87,62 @@ const Manage = () => {
             />
           </Box>
 
-          {activeView === 'vault' ? (
-            <Box
-              gridColumn="span 6"
-              className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
-            >
-              <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
-                <Description
-                  activeSsovContextSide={activeSsovContextSide}
-                  setActiveSsovContextSide={setActiveSsovContextSide}
-                />
-              </Box>
-
-              <Box className="mb-10">
-                <Stats activeSsovContextSide={activeSsovContextSide} />
-              </Box>
-
-              <Deposits
+          <Box
+            gridColumn="span 6"
+            className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
+          >
+            <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
+              <Description
                 activeSsovContextSide={activeSsovContextSide}
                 setActiveSsovContextSide={setActiveSsovContextSide}
-                enabledSides={enabledSides}
               />
+            </Box>
 
-              {showWithdrawalInformation ? (
+            <Box className="lg:hidden">
+              <MobileMenu
+                asset={asset}
+                activeSsovContextSide={activeSsovContextSide}
+                activeView={activeView}
+                setActiveView={setActiveView}
+              />
+            </Box>
+
+            <Box className="mb-10">
+              <Stats activeSsovContextSide={activeSsovContextSide} />
+            </Box>
+
+            {activeView === 'vault' ? (
+              <Box>
+                <Deposits
+                  activeSsovContextSide={activeSsovContextSide}
+                  setActiveSsovContextSide={setActiveSsovContextSide}
+                  enabledSides={enabledSides}
+                />
+
+                {showWithdrawalInformation ? (
+                  <Box className={'mt-12'}>
+                    <WithdrawalInfo />
+                  </Box>
+                ) : null}
+              </Box>
+            ) : (
+              <Box>
+                <PurchaseOptions
+                  activeSsovContextSide={activeSsovContextSide}
+                  setActiveSsovContextSide={setActiveSsovContextSide}
+                  setStrikeIndex={setStrikeIndex}
+                />
+
                 <Box className={'mt-12'}>
-                  <WithdrawalInfo />
+                  <Positions />
                 </Box>
-              ) : null}
-            </Box>
-          ) : (
-            <Box
-              gridColumn="span 6"
-              className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
-            >
-              <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
-                <Description
-                  activeSsovContextSide={activeSsovContextSide}
-                  setActiveSsovContextSide={setActiveSsovContextSide}
-                />
-              </Box>
 
-              <PurchaseOptions
-                activeSsovContextSide={activeSsovContextSide}
-                setActiveSsovContextSide={setActiveSsovContextSide}
-                setStrikeIndex={setStrikeIndex}
-              />
-
-              <Box className={'mt-12'}>
-                <Positions />
+                <Box className={'mt-12'}>
+                  <AutoExerciseInfo />
+                </Box>
               </Box>
-
-              <Box className={'mt-12'}>
-                <AutoExerciseInfo />
-              </Box>
-            </Box>
-          )}
+            )}
+          </Box>
 
           <Box className="mt-6 lg:mt-20 flex lg:col-span-3">
             <Box className={'lg:absolute lg:right-[2.5rem] w-full lg:w-auto'}>
@@ -158,7 +160,9 @@ const Manage = () => {
                     setStrikeIndex={setStrikeIndex}
                   />
                 ) : (
-                  <SelectStrikeWidget />
+                  <Box className={'hidden lg:block'}>
+                    <SelectStrikeWidget />
+                  </Box>
                 )
               ) : null}
             </Box>

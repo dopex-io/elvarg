@@ -123,14 +123,13 @@ const Stats = ({
         <Box className="lg:w-1/2 lg:pl-2.5 lg:mb-0 mb-5">
           <Box
             className={
-              'p-3 pl-4 pr-4 pb-0 rounded-xl rounded-br-none rounded-bl-none border-[0.1px] border-b-0 border-gray-600 w-full'
+              'p-3 pl-4 pr-4 pb-1.5 rounded-xl border-[0.1px] border-gray-600 w-full'
             }
           >
             <Box className="flex mb-4">
               <Typography variant="h5" className="text-stieglitz">
                 Premiums Collected
               </Typography>
-              <ArrowUpIcon className="mr-1 ml-auto mt-1.5 rotate-180 cursor-not-allowed" />
             </Box>
             {epochStrikes.map((strike, strikeIndex) => (
               <Box className="flex" key={strikeIndex}>
@@ -188,22 +187,6 @@ const Stats = ({
                 </Typography>
               </Box>
             ))}
-          </Box>
-          <Box className={'w-full flex'}>
-            <Box
-              className={
-                'p-4 pl-5 pr-5 rounded-xl rounded-tr-none rounded-tl-none border-r-none border-[0.1px] border-gray-600 w-full'
-              }
-            >
-              <Tooltip title={'Not implemented yet'}>
-                <Box className="flex mb-1">
-                  <Typography variant="h5" className="text-stieglitz">
-                    APR
-                  </Typography>
-                  <ArrowUpIcon className="mr-1 ml-auto mt-2 rotate-240 opacity-50 hover:opacity-70 cursor-not-allowed" />
-                </Box>
-              </Tooltip>
-            </Box>
           </Box>
         </Box>
       </Box>

@@ -390,8 +390,8 @@ const PurchaseOptions = ({
                               disabled={row['available'] < 0.1}
                               className={
                                 row['available'] > 0.1
-                                  ? 'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white'
-                                  : 'bg-umbra cursor-pointer'
+                                  ? 'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white w-max'
+                                  : 'bg-umbra cursor-pointer w-max'
                               }
                             >
                               ${formatAmount(row['price'], 2)}

@@ -309,8 +309,8 @@ const Positions = () => {
                           disabled={!position['canBeSettled']}
                           className={
                             position['canBeSettled']
-                              ? 'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white'
-                              : 'bg-umbra cursor-pointer'
+                              ? 'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white w-max'
+                              : 'bg-umbra cursor-pointer w-max'
                           }
                         >
                           {position['canBeSettled'] ? (

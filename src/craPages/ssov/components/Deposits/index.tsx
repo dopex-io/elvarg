@@ -174,7 +174,7 @@ const DepositsTableData = (
         <Button
           onClick={() => setIsWithdrawModalVisible(true)}
           className={cx(
-            'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
+            'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2 w-max',
             epochEndTime > new Date()
               ? 'bg-umbra hover:bg-cod-gray'
               : 'bg-primary hover:bg-primary text-white '
@@ -350,9 +350,11 @@ const Deposits = ({
         <Box className={'flex pb-[3px] border-b border-[#1E1E1E]'}>
           <Box className="flex items-center justify-between mb-4">
             <Typography variant="h5" className="bg-umbra rounded-md py-1 px-2">
+              <span className="text-stieglitz">Connected as </span>
               {displayAddress(accountAddress, ensName)}
             </Typography>
           </Box>
+
           {enabledSides.length === 2 ? (
             <CustomButton
               className={'ml-auto flex'}
