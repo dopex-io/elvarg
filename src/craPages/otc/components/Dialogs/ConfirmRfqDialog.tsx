@@ -41,6 +41,8 @@ const ConfirmRfqDialog = ({
   const [disabled, setDisabled] = useState(false);
 
   const handleSubmit = useCallback(async () => {
+    if (!user.accountAddress) return;
+
     const newDocRef = doc(collection(db, 'orders')); // generated document id
 
     const timestamp = new Date();

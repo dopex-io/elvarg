@@ -305,7 +305,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
                         </Box>
                       </Box>
                     ) : null}
-                    {user.accountAddress === data.data.dealerAddress ? (
+                    {accountAddress === data.data.dealerAddress && (
                       <Box className="flex justify-end">
                         <CustomButton
                           color="primary"
@@ -317,7 +317,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
                           {loaded ? 'Trade' : 'Loading...'}
                         </CustomButton>
                       </Box>
-                    ) : null}
+                    )}
                   </Box>
                 );
               })}
