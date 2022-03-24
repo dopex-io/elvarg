@@ -11,7 +11,8 @@ import {
   DocumentData,
   query,
   orderBy,
-  getDoc,
+  // getDoc,
+  getDocs,
 } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
@@ -136,9 +137,41 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
             {
               merge: true,
             }
-          ).catch((e) => {
-            console.log('Already created bid... reverted with error: ', e);
-          });
+          )
+            .then(async () => {
+              const querySnapshot = await getDocs(collection(db, 'chatrooms'));
+              let chatrooms = [];
+              querySnapshot.forEach((doc) => {
+                chatrooms.push({ id: doc.id, data: doc.data() });
+              });
+
+              const chatroomData = chatrooms
+                .filter(
+                  (document) =>
+                    document.data.timestamp.seconds ===
+                    data.data.timestamp.seconds
+                )
+                .pop();
+
+              if (chatroomData)
+                await setDoc(
+                  doc(db, `chatrooms/${chatroomData.id}`),
+                  {
+                    isFulfilled: true,
+                  },
+                  {
+                    merge: true,
+                  }
+                ).catch((e) => {
+                  console.log(
+                    'Failed to update chatroom data. Reverted with error: ',
+                    e
+                  );
+                });
+            })
+            .catch((e) => {
+              console.log('Already created bid... reverted with error: ', e);
+            });
         })
         .catch(() => {
           console.log('Transaction Failed');
