@@ -215,9 +215,11 @@ const ROWS_PER_PAGE = 5;
 const Deposits = ({
   activeSsovContextSide,
   setActiveSsovContextSide,
+  enabledSides = ['CALL', 'PUT'],
 }: {
   activeSsovContextSide: string;
   setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
+  enabledSides?: string[];
 }) => {
   const ssovContext = useContext(SsovContext);
   const { convertToBNB } = useContext(BnbConversionContext);
@@ -351,39 +353,27 @@ const Deposits = ({
               {displayAddress(accountAddress, ensName)}
             </Typography>
           </Box>
-          <Tooltip title={'Not implemented yet'}>
-            <Box className="ml-5 mb-3 cursor-not-allowed hidden lg:flex">
-              <Checkbox
-                color="secondary"
-                className={'p-0 text-white'}
-                checked={false}
+          {enabledSides.length === 2 ? (
+            <CustomButton
+              className={'ml-auto flex'}
+              size={'small'}
+              color={'umbra'}
+              onClick={() =>
+                setActiveSsovContextSide(
+                  activeSsovContextSide === 'CALL' ? 'PUT' : 'CALL'
+                )
+              }
+            >
+              <Typography variant="h5">Switch to</Typography>
+              <img
+                src={`/assets/${
+                  activeSsovContextSide === 'CALL' ? 'puts.svg' : 'calls.svg'
+                }`}
+                className={'mt-[4px] ml-2'}
+                alt={'Switch'}
               />
-              <Typography
-                variant="h6"
-                className="text-stieglitz ml-0 mr-auto flex mt-1.5 ml-2.5"
-              >
-                Show Previous Epoch (2)
-              </Typography>
-            </Box>
-          </Tooltip>
-          <CustomButton
-            className={'ml-auto flex'}
-            size={'small'}
-            color={'umbra'}
-            onClick={() =>
-              setActiveSsovContextSide(
-                activeSsovContextSide === 'CALL' ? 'PUT' : 'CALL'
-              )
-            }
-          >
-            <Typography variant="h5">Switch to</Typography>
-            <img
-              src={`/assets/${
-                activeSsovContextSide === 'CALL' ? 'puts.svg' : 'calls.svg'
-              }`}
-              className={'mt-[4px] ml-2'}
-            />
-          </CustomButton>
+            </CustomButton>
+          ) : null}
         </Box>
 
         <Box className="balances-table text-white">

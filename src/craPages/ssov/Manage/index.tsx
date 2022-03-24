@@ -105,6 +105,7 @@ const Manage = () => {
               <Deposits
                 activeSsovContextSide={activeSsovContextSide}
                 setActiveSsovContextSide={setActiveSsovContextSide}
+                enabledSides={enabledSides}
               />
 
               {showWithdrawalInformation ? (

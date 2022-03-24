@@ -248,21 +248,6 @@ const Deposits = ({
               {displayAddress(accountAddress, ensName)}
             </Typography>
           </Box>
-          <Tooltip title={'Not implemented yet'}>
-            <Box className="ml-5 mb-3 cursor-not-allowed hidden lg:flex">
-              <Checkbox
-                color="secondary"
-                className={'p-0 text-white'}
-                checked={false}
-              />
-              <Typography
-                variant="h6"
-                className="text-stieglitz ml-0 mr-auto flex mt-1.5 ml-2.5"
-              >
-                Show Previous Epoch (2)
-              </Typography>
-            </Box>
-          </Tooltip>
           <CustomButton
             className={'ml-auto flex'}
             size={'small'}
