@@ -125,12 +125,18 @@ const PurchaseOptions = ({
 
     const strike = ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
 
+    let totalEpochStrikeDeposits =
+      ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[i];
+
+    if (tokenName === 'BNB')
+      totalEpochStrikeDeposits = BigNumber.from(
+        (convertToBNB(totalEpochStrikeDeposits) * 10 ** 18).toString()
+      );
+
     const available: number =
       ssovContextSide === 'CALL'
         ? getUserReadableAmount(
-            ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[
-              i
-            ].sub(
+            totalEpochStrikeDeposits.sub(
               ssovContext[ssovContextSide].ssovEpochData
                 .totalEpochOptionsPurchased[i]
             ),
@@ -140,9 +146,7 @@ const PurchaseOptions = ({
             )
           )
         : getUserReadableAmount(
-            ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[
-              i
-            ].sub(
+            totalEpochStrikeDeposits.sub(
               ssovContext[ssovContextSide].ssovEpochData
                 .totalEpochOptionsPurchased[i]
             ),

@@ -46,6 +46,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import styles from './styles.module.scss';
 
@@ -114,7 +115,9 @@ const DepositsTableData = (
           {formatAmount(
             tokenSymbol === 'BNB'
               ? (convertToBNB(
-                  ethers.utils.parseEther(totalUserDeposits.toString())
+                  BigNumber.from(
+                    Math.round(totalUserDeposits * 10 ** 18).toString()
+                  )
                 )
                   .div(oneEBigNumber(6))
                   .toNumber() /
@@ -135,7 +138,9 @@ const DepositsTableData = (
           {formatAmount(
             tokenSymbol === 'BNB'
               ? (convertToBNB(
-                  ethers.utils.parseEther(totalUserPremiums.toString())
+                  BigNumber.from(
+                    Math.round(totalUserPremiums * 10 ** 18).toString()
+                  )
                 )
                   .div(oneEBigNumber(6))
                   .toNumber() /

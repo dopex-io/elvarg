@@ -92,7 +92,6 @@ const ManageCard = ({
     ssovEpochData,
     ssovUserData,
     ssovSigner,
-    selectedSsov,
   } = ssovContext[activeSsovContextSide];
 
   const sendTx = useSendTx();
@@ -823,13 +822,16 @@ const ManageCard = ({
   useEffect(() => {
     if (!depositTokenName || !accountAddress) return;
     (async function () {
-      const token = ERC20__factory.connect(
-        contractAddresses[depositTokenName],
-        provider
-      );
-      let userAmount = IS_NATIVE(depositTokenName)
-        ? BigNumber.from(userAssetBalances[depositTokenName])
-        : await token.balanceOf(accountAddress);
+      let userAmount: BigNumber;
+      if (IS_NATIVE(depositTokenName)) {
+        userAmount = BigNumber.from(userAssetBalances[depositTokenName]);
+      } else {
+        const token = ERC20__factory.connect(
+          contractAddresses[depositTokenName],
+          provider
+        );
+        userAmount = await token.balanceOf(accountAddress);
+      }
 
       setUserTokenBalance(userAmount);
     })();
