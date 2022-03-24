@@ -34,7 +34,6 @@ const Farming = lazy(() => import('craPages/farming/farms'));
 const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Vaults = lazy(() => import('craPages/vaults'));
-const RatesVault = lazy(() => import('craPages/ratesVault'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
@@ -69,7 +68,6 @@ const VaultsRoutes = () => {
     <BnbConversionProvider>
       <Routes>
         <Route path="*" element={<Vaults />} />
-        <Route path="ir" element={<RatesVault />} />
         <Route path=":asset" element={<SsovManage />} />
       </Routes>
     </BnbConversionProvider>
