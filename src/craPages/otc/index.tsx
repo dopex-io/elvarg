@@ -150,7 +150,7 @@ const OTC = () => {
                       onClick={() => handleSelection(asset)}
                     >
                       <img
-                        src={`assets/${asset.symbol}.svg`}
+                        src={`/assets/${asset.symbol.toLowerCase()}.svg`}
                         alt={`${asset.symbol}`}
                         className="p-2 h-12"
                       />
