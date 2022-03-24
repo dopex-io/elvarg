@@ -93,15 +93,6 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
         provider
       );
 
-      console.log(
-        'Transaction parameters: ',
-        data.data.isBuy ? data.data.quoteAddress : data.data.baseAddress,
-        data.data.isBuy ? data.data.baseAddress : data.data.quoteAddress,
-        ongoingBids[index].counterPartyAddress,
-        data?.data.isBuy ? ongoingBids[index].bidPrice : data.data.amount,
-        data?.data.isBuy ? data?.data.amount : ongoingBids[index].bidPrice
-      );
-
       const userQuoteAsset = ERC20__factory.connect(
         data.data.isBuy ? data.data.quoteAddress : data.data.baseAddress,
         provider
@@ -135,9 +126,23 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
               18
             )
           )
-      ).catch(() => {
-        console.log('Transaction Failed');
-      });
+      )
+        .then(async () => {
+          await setDoc(
+            doc(db, `orders/${data.id}`),
+            {
+              isFulfilled: true,
+            },
+            {
+              merge: true,
+            }
+          ).catch((e) => {
+            console.log('Already created bid... reverted with error: ', e);
+          });
+        })
+        .catch(() => {
+          console.log('Transaction Failed');
+        });
     },
     [data, escrowData, ongoingBids, provider, sendTx, signer]
   );

@@ -54,7 +54,6 @@ const CustomMenu = (props: CustomMenuProps) => {
   }, []);
 
   const handleMenuClick = useCallback((data, type) => {
-    console.log(DIALOGS[type]);
     setDialogState((prevState) => ({
       ...prevState,
       open: true,
