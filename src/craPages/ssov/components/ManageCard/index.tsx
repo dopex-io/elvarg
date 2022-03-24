@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import {
   Addresses,
-  ERC20,
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
   NativeSSOV1inchRouter__factory,
@@ -47,7 +46,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
-import { MAX_VALUE, SSOV_MAP } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 
 import ZapIcon from 'components/Icons/ZapIcon';
 import TransparentCrossIcon from 'components/Icons/TransparentCrossIcon';
@@ -130,7 +129,6 @@ const ManageCard = ({
     BigNumber.from('0')
   );
 
-  const ssovTokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
   const { ssovContractWithSigner, ssovRouter } = ssovSigner;
   const userEpochDeposits = ssovUserData
     ? ssovUserData.userEpochDeposits
@@ -148,23 +146,19 @@ const ManageCard = ({
       ? ERC20__factory.connect(contractAddresses['2CRV'], provider)
       : null);
 
-  const [token, setToken] = useState<ERC20 | any>(
-    IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovToken
-  );
-
-  const [depositTokenName, setDepositTokenName] = useState<string>('2CRV');
-
-  const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
   const ssovTokenName = ssovData.tokenName;
+  const [depositTokenName, setDepositTokenName] = useState<string>(
+    activeSsovContextSide === 'CALL' ? ssovTokenName : '2CRV'
+  );
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
     tokenPrices.map((record) => {
-      if (record['name'].toUpperCase() === tokenName.toUpperCase())
+      if (record['name'].toUpperCase() === depositTokenName.toUpperCase())
         price = record['price'];
     });
     return price;
-  }, [tokenPrices, tokenName]);
+  }, [tokenPrices, depositTokenName]);
 
   const isDepositWindowOpen = useMemo(() => {
     if (isVaultReady) return false;
@@ -174,16 +168,18 @@ const ManageCard = ({
   // Updates the 1inch quote
   useEffect(() => {
     async function updateQuote() {
-      const fromTokenAddress: string = IS_NATIVE(token)
+      const fromTokenAddress: string = IS_NATIVE(depositTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : token.address;
+        : contractAddresses[depositTokenName];
       const toTokenAddress = IS_NATIVE(ssovTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         : ssovToken.address;
 
       if (fromTokenAddress === toTokenAddress) return;
 
-      const amount = (10 ** getTokenDecimals(tokenName, chainId)).toString();
+      const amount = (
+        10 ** getTokenDecimals(depositTokenName, chainId)
+      ).toString();
 
       const quote = await get1inchQuote({
         fromTokenAddress,
@@ -203,8 +199,7 @@ const ManageCard = ({
     contractAddresses,
     ssovToken,
     ssovTokenName,
-    token,
-    tokenName,
+    depositTokenName,
   ]);
 
   const contractReadableStrikeDepositAmounts = useMemo(() => {
@@ -219,10 +214,10 @@ const ManageCard = ({
 
   const isZapActive: boolean = useMemo(() => {
     return (
-      tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase() &&
-      tokenName.toUpperCase() !== '2CRV'
+      depositTokenName.toUpperCase() !== ssovTokenName.toUpperCase() &&
+      depositTokenName.toUpperCase() !== '2CRV'
     );
-  }, [tokenName, ssovTokenSymbol]);
+  }, [depositTokenName, ssovTokenName]);
 
   const [denominationTokenName, setDenominationTokenName] =
     useState<string>(ssovTokenName);
@@ -237,7 +232,7 @@ const ManageCard = ({
     } else if (isZapActive) {
       if (IS_NATIVE(ssovTokenName) && ssovTokenName !== 'BNB') {
         return nativeSSOV1inchRouter?.address;
-      } else if (tokenName.toLocaleUpperCase() === 'VBNB') {
+      } else if (depositTokenName.toLocaleUpperCase() === 'VBNB') {
         return ssovContractWithSigner?.address;
       } else {
         return erc20SSOV1inchRouter?.address;
@@ -257,7 +252,7 @@ const ManageCard = ({
     ssovData,
     ssovRouter,
     ssovTokenName,
-    tokenName,
+    depositTokenName,
   ]);
 
   const quotePrice: number = useMemo(() => {
@@ -280,11 +275,11 @@ const ManageCard = ({
     (denominationTokenName === ssovTokenName || isZapInAvailable)
       ? getUserReadableAmount(
           userTokenBalance,
-          getTokenDecimals(tokenName, chainId)
+          getTokenDecimals(depositTokenName, chainId)
         ) * quotePrice
       : getUserReadableAmount(
           userTokenBalance,
-          getTokenDecimals(tokenName, chainId)
+          getTokenDecimals(depositTokenName, chainId)
         );
 
   const strikes = epochStrikes.map((strike) =>
@@ -336,7 +331,7 @@ const ManageCard = ({
         .concat(tokens)
         .filter(function (item) {
           return (
-            item !== ssovTokenSymbol &&
+            item !== ssovTokenName &&
             (Addresses[chainId][item] || CHAIN_ID_TO_NATIVE[chainId] === item)
           );
         })
@@ -344,31 +339,18 @@ const ManageCard = ({
           return getValueInUsd(b) - getValueInUsd(a);
         });
 
-      const selectedToken = IS_NATIVE(filteredTokens[0])
-        ? filteredTokens[0]
-        : ERC20__factory.connect(
-            Addresses[chainId][filteredTokens[0]],
-            provider
-          );
-      setToken(selectedToken);
+      setDepositTokenName(filteredTokens[0]);
       setIsZapInVisible(true);
     }
   };
 
-  const handleTokenChange = useCallback(async () => {
-    if (!token) return;
-    const symbol = IS_NATIVE(token) ? token : await token.symbol();
-    setTokenName(symbol);
-    setDenominationTokenName(symbol);
-  }, [token]);
-
   const totalEpochDepositsAmount =
-    ssovTokenSymbol === 'BNB'
+    ssovTokenName === 'BNB'
       ? getUserReadableAmount(totalEpochDeposits, 8).toString()
       : getUserReadableAmount(totalEpochDeposits, 18).toString();
 
   const userEpochDepositsAmount =
-    ssovTokenSymbol === 'BNB'
+    ssovTokenName === 'BNB'
       ? getUserReadableAmount(userEpochDeposits, 8).toString()
       : getUserReadableAmount(userEpochDeposits, 18).toString();
 
@@ -393,11 +375,11 @@ const ManageCard = ({
   };
 
   const getPath = useCallback(async () => {
-    if (!isZapActive || tokenName.toLocaleUpperCase() === 'VBNB') return;
+    if (!isZapActive || depositTokenName.toLocaleUpperCase() === 'VBNB') return;
     setIsFetchingPath(true);
-    const fromTokenAddress: string = IS_NATIVE(token)
+    const fromTokenAddress: string = IS_NATIVE(depositTokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : token.address;
+      : contractAddresses[depositTokenName];
     const toTokenAddress: string = IS_NATIVE(ssovTokenName)
       ? ssovTokenName === 'BNB'
         ? Addresses[chainId]['VBNB']
@@ -413,14 +395,14 @@ const ManageCard = ({
       (denominationTokenName === ssovTokenName
         ? totalDepositAmount / quotePrice
         : totalDepositAmount) *
-      10 ** getTokenDecimals(tokenName, chainId);
+      10 ** getTokenDecimals(depositTokenName, chainId);
 
     let attempts: number = 0;
     let bestPath: {} = {};
     let minAmount: number = Math.round(
       totalDepositAmount *
         quotePrice *
-        10 ** getTokenDecimals(ssovTokenSymbol, chainId)
+        10 ** getTokenDecimals(ssovTokenName, chainId)
     );
 
     while (true) {
@@ -455,11 +437,10 @@ const ManageCard = ({
     ssovToken?.address,
     ssovTokenName,
     denominationTokenName,
-    ssovTokenSymbol,
+    ssovTokenName,
     totalDepositAmount,
     quotePrice,
-    tokenName,
-    token,
+    depositTokenName,
   ]);
 
   const inputStrikeDepositAmount = useCallback(
@@ -487,9 +468,7 @@ const ManageCard = ({
     try {
       await sendTx(
         ERC20__factory.connect(
-          activeSsovContextSide === 'PUT'
-            ? contractAddresses[depositTokenName]
-            : token.address,
+          contractAddresses[depositTokenName],
           signer
         ).approve(spender, MAX_VALUE)
       );
@@ -498,7 +477,6 @@ const ManageCard = ({
       console.log(err);
     }
   }, [
-    token,
     sendTx,
     signer,
     spender,
@@ -582,6 +560,14 @@ const ManageCard = ({
     chainId,
   ]);
 
+  const handleZapOut = useCallback(
+    () =>
+      setDepositTokenName(
+        activeSsovContextSide === 'PUT' ? '2CRV' : ssovTokenName
+      ),
+    [ssovTokenName, activeSsovContextSide === 'PUT']
+  );
+
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     try {
@@ -591,7 +577,10 @@ const ManageCard = ({
           contractReadableStrikeDepositAmounts[index].gt('0')
       );
 
-      if (ssovTokenName.toLocaleUpperCase() === tokenName.toLocaleUpperCase()) {
+      if (
+        ssovTokenName.toLocaleUpperCase() ===
+        depositTokenName.toLocaleUpperCase()
+      ) {
         if (ssovTokenName === 'BNB') {
           await sendTx(
             ssovRouter.depositMultiple(
@@ -635,14 +624,14 @@ const ManageCard = ({
             )
           );
         }
-      } else if (tokenName.toLocaleUpperCase() === 'VBNB') {
+      } else if (depositTokenName.toLocaleUpperCase() === 'VBNB') {
         await sendTx(
           ssovContractWithSigner.depositMultiple(
             strikeIndexes,
             strikeIndexes.map((index) =>
               getContractReadableAmount(
                 strikeDepositAmounts[index],
-                getTokenDecimals(tokenName, chainId)
+                getTokenDecimals(depositTokenName, chainId)
               )
             ),
             accountAddress
@@ -684,7 +673,7 @@ const ManageCard = ({
           for (let i in amounts) amounts[i] = amounts[i].sub(toSubtract);
         }
 
-        if (IS_NATIVE(tokenName)) {
+        if (IS_NATIVE(depositTokenName)) {
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndDepositMultiple(
               ssovData.ssovContract.address,
@@ -741,7 +730,7 @@ const ManageCard = ({
   }, [
     selectedStrikeIndexes,
     ssovTokenName,
-    tokenName,
+    depositTokenName,
     updateAssetBalances,
     updateSsovEpochData,
     updateSsovUserData,
@@ -784,10 +773,6 @@ const ManageCard = ({
     getPath();
   }, [getPath]);
 
-  useEffect(() => {
-    handleTokenChange();
-  }, [handleTokenChange]);
-
   // Updates approved state
   useEffect(() => {
     (async () => {
@@ -796,14 +781,22 @@ const ManageCard = ({
         getTokenDecimals(ssovTokenName, chainId)
       );
       if (activeSsovContextSide === 'PUT') {
-        const allowance: BigNumber = await ERC20__factory.connect(
+        const token = ERC20__factory.connect(
           contractAddresses[depositTokenName],
-          signer
-        ).allowance(accountAddress, spender);
+          provider
+        );
+        const allowance: BigNumber = await token.allowance(
+          accountAddress,
+          spender
+        );
         setApproved(allowance.gte(finalAmount));
-      } else if (IS_NATIVE(token)) {
+      } else if (IS_NATIVE(depositTokenName)) {
         setApproved(true);
       } else {
+        const token = ERC20__factory.connect(
+          contractAddresses[depositTokenName],
+          provider
+        );
         const allowance: BigNumber = await token.allowance(
           accountAddress,
           spender
@@ -812,7 +805,7 @@ const ManageCard = ({
       }
     })();
   }, [
-    token,
+    depositTokenName,
     accountAddress,
     ssovContractWithSigner,
     approved,
@@ -828,15 +821,19 @@ const ManageCard = ({
 
   // Updates user token balance
   useEffect(() => {
-    if (!token || !accountAddress) return;
+    if (!depositTokenName || !accountAddress) return;
     (async function () {
-      let userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances[token])
+      const token = ERC20__factory.connect(
+        contractAddresses[depositTokenName],
+        provider
+      );
+      let userAmount = IS_NATIVE(depositTokenName)
+        ? BigNumber.from(userAssetBalances[depositTokenName])
         : await token.balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
     })();
-  }, [accountAddress, token, userAssetBalances, ssovTokenName]);
+  }, [accountAddress, depositTokenName, userAssetBalances, ssovTokenName]);
 
   const userBalance = useMemo(() => {
     {
@@ -916,10 +913,7 @@ const ManageCard = ({
           <Box className="w-1/3">
             <ZapOutButton
               isZapActive={isZapActive}
-              handleClick={() => {
-                if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
-                else setToken(ssovToken);
-              }}
+              handleClick={handleZapOut}
             />
           </Box>
         ) : null}
@@ -928,8 +922,8 @@ const ManageCard = ({
         <ZapIn
           setOpen={setIsZapInVisible}
           toTokenSymbol={ssovTokenName}
-          fromTokenSymbol={tokenName}
-          setFromTokenSymbol={setTokenName}
+          fromTokenSymbol={depositTokenName}
+          setFromTokenSymbol={setDepositTokenName}
           userTokenBalance={userTokenBalance}
           quote={quote}
           setSlippageTolerance={setSlippageTolerance}
@@ -1014,7 +1008,7 @@ const ManageCard = ({
                   ))}
                 </Select>
               </Box>
-              {activeSsovContextSide === 'PUT' ? (
+              {activeSsovContextSide === 'PUT' && !isZapInVisible ? (
                 <Curve2PoolDepositSelector
                   depositTokenName={depositTokenName}
                   setDepositTokenName={setDepositTokenName}
@@ -1050,27 +1044,27 @@ const ManageCard = ({
                     label="tokens"
                   >
                     <MenuItem
-                      key={tokenName}
-                      value={tokenName}
+                      key={depositTokenName}
+                      value={depositTokenName}
                       className="pb-2 pt-2"
                     >
                       <Checkbox
                         className={
                           denominationTokenName.toUpperCase() ===
-                          tokenName.toUpperCase()
+                          depositTokenName.toUpperCase()
                             ? 'p-0 text-white'
                             : 'p-0 text-white border'
                         }
                         checked={
                           denominationTokenName.toUpperCase() ===
-                          tokenName.toUpperCase()
+                          depositTokenName.toUpperCase()
                         }
                       />
                       <Typography
                         variant="h5"
                         className="text-white text-left w-full relative ml-3"
                       >
-                        {tokenName}
+                        {depositTokenName}
                       </Typography>
                     </MenuItem>
                     <MenuItem
@@ -1194,8 +1188,8 @@ const ManageCard = ({
               isFetchingPath={
                 isFetchingPath && Object.keys(strikeDepositAmounts).length > 0
               }
-              fromTokenSymbol={tokenName}
-              toTokenSymbol={ssovTokenSymbol}
+              fromTokenSymbol={depositTokenName}
+              toTokenSymbol={ssovTokenName}
               selectedTokenPrice={selectedTokenPrice}
               isZapInAvailable={
                 activeSsovContextSide === 'PUT' ? false : isZapInAvailable

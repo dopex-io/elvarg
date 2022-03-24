@@ -49,7 +49,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 import {
   SsovContext,
   SsovData,
@@ -451,7 +451,38 @@ const PurchaseCard = ({
     activeSsovContextSide,
   ]);
 
-  const openZapIn = () => setIsZapInVisible(true);
+  const getValueInUsd = (symbol) => {
+    let value = 0;
+    tokenPrices.map((record) => {
+      if (record['name'] === symbol) {
+        value =
+          (record['price'] * parseInt(userAssetBalances[symbol])) /
+          10 ** getTokenDecimals(symbol, chainId);
+      }
+    });
+    return value;
+  };
+
+  const openZapIn = () => {
+    if (isZapActive) {
+      setIsZapInVisible(true);
+    } else {
+      const filteredTokens = [CHAIN_ID_TO_NATIVE[chainId]]
+        .concat(tokens)
+        .filter(function (item) {
+          return (
+            item !== ssovTokenName &&
+            (Addresses[chainId][item] || CHAIN_ID_TO_NATIVE[chainId] === item)
+          );
+        })
+        .sort((a, b) => {
+          return getValueInUsd(b) - getValueInUsd(a);
+        });
+
+      setPurchaseTokenName(filteredTokens[0]);
+      setIsZapInVisible(true);
+    }
+  };
 
   const handleApprove = useCallback(async () => {
     try {
