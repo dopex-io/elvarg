@@ -39,6 +39,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
+import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
+
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
@@ -110,7 +112,7 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        '0x502cc64884Fca04bBE1F5c3c1507317E579dc789',
+        contractAddresses['Tzwap1inchRouter'],
         signer
       ),
     [signer]
@@ -425,6 +427,7 @@ const Tzwap = () => {
       children = 'Tokens must be different';
     else if (amount === 0) children = 'Enter an amount';
     else if (minFees > 20) children = 'Your order is too small to sustain fees';
+    else if (tickInUsd >= 50000) children = 'Proceed anyway';
 
     return {
       disabled,
@@ -540,10 +543,10 @@ const Tzwap = () => {
         handleKill={handleKill}
       />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
-        <Box className={'flex mb-5 mt-32'}>
+        <Box className={'mb-5 mt-32 w-max ml-auto mr-auto'}>
           <Box
             className={
-              'bg-cod-gray text-center p-3 pl-4 pr-4 rounded-xl ml-auto mr-auto'
+              'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto'
             }
           >
             <Typography
@@ -553,17 +556,55 @@ const Tzwap = () => {
             >
               Tzwap is currently in open beta. Exercise caution and review
               contracts before opening tzwap orders.
-              <br />
-              <a
-                href={
-                  'https://arbiscan.io/address/0x502cc64884Fca04bBE1F5c3c1507317E579dc789'
-                }
-                rel="noreferrer"
-                className={'text-wave-blue'}
-              >
-                0x502cc64884Fca04bBE1F5c3c1507317E579dc789
-              </a>
             </Typography>
+
+            <Box className={'text-center mt-2'}>
+              <Typography
+                variant="h6"
+                component="div"
+                className="text-white font-mono mr-auto ml-10"
+              >
+                <a
+                  href={
+                    'https://arbiscan.io/address/0xe296756C7B7f43727fDf7A424FAA66Ea06390822#code'
+                  }
+                  rel="noreferrer"
+                  className={'text-wave-blue'}
+                >
+                  0xe296756C7B7f43727fDf7A424FAA66Ea06390822
+                </a>{' '}
+              </Typography>
+            </Box>
+          </Box>
+          <Box
+            className={
+              'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto mt-5'
+            }
+          >
+            <Typography
+              variant="h6"
+              component="div"
+              className="text-white font-mono"
+            >
+              Do not see your orders? If you were using the previous version of
+              Tzwap go on
+            </Typography>
+
+            <Box className={'text-center mt-2'}>
+              <Typography
+                variant="h6"
+                component="div"
+                className="text-white font-mono mr-auto ml-10"
+              >
+                <a
+                  href={'https://legacy-tzwap.dopex.io/tzwap'}
+                  rel="noreferrer"
+                  className={'text-wave-blue'}
+                >
+                  legacy-tzwap.dopex.io/tzwap
+                </a>{' '}
+              </Typography>
+            </Box>
           </Box>
         </Box>
         <Box className="flex mx-auto max-w-xl mb-8 mt-8">
@@ -1027,19 +1068,40 @@ const Tzwap = () => {
                           )}
                         </Box>
 
-                        <Box className="flex">
-                          <Box className="flex text-center p-2 mr-2 mt-1">
-                            <img
-                              src={'/assets/timer.svg'}
-                              className={'w-6 h-4'}
-                              alt={'Timer'}
-                            />
+                        {tickInUsd >= 50000 && chainId === 1 ? (
+                          <Box className="flex">
+                            <Box className="flex text-center p-2 mr-2 mt-1">
+                              <RedTriangleIcon className={''} />
+                            </Box>
+                            <Typography variant="h6" className="text-red-500">
+                              If your tick size is too high in proportion to the
+                              liquidity of the pools you could be victim of a{' '}
+                              <a
+                                href={
+                                  'https://trustwallet.com/blog/how-to-protect-yourself-from-sandwich-attacks'
+                                }
+                                rel="noopener noreferrer"
+                              >
+                                sandwich attack
+                              </a>
+                              . We suggest to reduce it.
+                            </Typography>
                           </Box>
-                          <Typography variant="h6" className="text-stieglitz">
-                            Tokens will periodically appear in your wallet. You
-                            can kill the order anytime.
-                          </Typography>
-                        </Box>
+                        ) : (
+                          <Box className="flex">
+                            <Box className="flex text-center p-2 mr-2 mt-1">
+                              <img
+                                src={'/assets/timer.svg'}
+                                className={'w-6 h-4'}
+                                alt={'Timer'}
+                              />
+                            </Box>
+                            <Typography variant="h6" className="text-stieglitz">
+                              Tokens will periodically appear in your wallet.
+                              You can kill the order anytime.
+                            </Typography>
+                          </Box>
+                        )}
                         <CustomButton
                           size="medium"
                           className="w-full mt-4 !rounded-md"
