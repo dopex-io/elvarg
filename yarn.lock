@@ -601,9 +601,10 @@
   dependencies:
     "@date-io/core" "^2.13.1"
 
-"@dopex-io/sdk@git+https://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:x-oauth-basic@github.com/dopex-io/sdk.git#feat/tzwap-v2-add-address-and-abi":
-  version "1.0.0-alpha.81"
-  resolved "git+https://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:x-oauth-basic@github.com/dopex-io/sdk.git#d10318b6e51aba035263ca5abb5427458a1c63c1"
+"@dopex-io/sdk@^1.0.0-alpha.82":
+  version "1.0.0-alpha.82"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.82.tgz#1a9d6624303fb810c31e6e956e7db72f48a428ee"
+  integrity sha512-0q241g7TZcmFNsYcgEM1wWPr4Mil4WTL/cdZ+pngoxxJJ6pBjp73s3nxwJ5BzIHlxvTvbJ0PbBeq/7elCCG/Bw==
   dependencies:
     ethers "^5.5.3"
 
