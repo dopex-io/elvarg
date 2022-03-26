@@ -114,7 +114,7 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        '0x24A48b1F08CB88feC2E4C389bCE88ba534e2a952',
+        contractAddresses['Tzwap1inchRouter'],
         signer
       ),
     [signer]
