@@ -118,7 +118,7 @@ export const ASSET_TO_NAME = {
   GMX: 'GMX',
   JONES: 'JONES',
   CVX: 'Convex',
-  CVR: 'Curve',
+  CRV: 'Curve',
   DAI: 'DAI',
   LINK: 'Chainlink',
   MIM: 'Magic Internet Money',
