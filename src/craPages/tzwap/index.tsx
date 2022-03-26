@@ -87,12 +87,14 @@ const Tzwap = () => {
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);
   const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [fromToken, setFromToken] = useState<ERC20 | any>('ETH');
-  const [fromTokenName, setFromTokenName] = useState<string>('ETH');
-  const [toToken, setToToken] = useState<ERC20 | any>(
-    ERC20__factory.connect(Addresses[chainId]['DPX'], provider)
+  const [fromToken, setFromToken] = useState<ERC20 | any>(
+    ERC20__factory.connect(Addresses[chainId]['USDC'], provider)
   );
-  const [toTokenName, setToTokenName] = useState<string>('DPX');
+  const [fromTokenName, setFromTokenName] = useState<string>('USDC');
+  const [toToken, setToToken] = useState<ERC20 | any>(
+    ERC20__factory.connect(Addresses[chainId]['WETH'], provider)
+  );
+  const [toTokenName, setToTokenName] = useState<string>('WETH');
   const [rawAmount, setRawAmount] = useState<string>('');
   const [rawIntervalAmount, setRawIntervalAmount] = useState<string>('1');
   const [approved, setApproved] = useState<boolean>(false);
@@ -112,7 +114,7 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        contractAddresses['Tzwap1inchRouter'],
+        '0x24A48b1F08CB88feC2E4C389bCE88ba534e2a952',
         signer
       ),
     [signer]
@@ -321,6 +323,19 @@ const Tzwap = () => {
     return now;
   }, [intervalAmount, selectedInterval, selectedTickSize]);
 
+  const tokensToExclude: string[] = useMemo(() => {
+    let _tokens: string[] = [];
+
+    if (chainId === 42161) {
+      if (isFromTokenSelectorVisible) _tokens = ['MAGIC', '2CRV'];
+      else _tokens = ['ETH', 'MAGIC', '2CRV'];
+    } else if (chainId === 1) {
+      _tokens = ['RDPX', 'DPX', 'GOHM'];
+    }
+
+    return _tokens;
+  }, [isFromTokenSelectorVisible]);
+
   const handleCreate = useCallback(async () => {
     try {
       const seconds =
@@ -367,7 +382,6 @@ const Tzwap = () => {
           }
         )
       );
-      setActiveTab(1);
       updateOrders();
       updateAssetBalances();
     } catch (err) {
@@ -565,47 +579,49 @@ const Tzwap = () => {
                 className="text-white font-mono mr-auto ml-10"
               >
                 <a
-                  href={
-                    'https://arbiscan.io/address/0xe296756C7B7f43727fDf7A424FAA66Ea06390822#code'
-                  }
+                  href={`https://${
+                    chainId === 1 ? 'etherscan' : 'arbiscan'
+                  }.io/address/${contractAddresses['Tzwap1inchRouter']}#code`}
                   rel="noreferrer"
                   className={'text-wave-blue'}
                 >
-                  0xe296756C7B7f43727fDf7A424FAA66Ea06390822
+                  {contractAddresses['Tzwap1inchRouter']}
                 </a>{' '}
               </Typography>
             </Box>
           </Box>
-          <Box
-            className={
-              'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto mt-5'
-            }
-          >
-            <Typography
-              variant="h6"
-              component="div"
-              className="text-white font-mono"
+          {chainId === 42161 ? (
+            <Box
+              className={
+                'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto mt-5'
+              }
             >
-              Do not see your orders? If you were using the previous version of
-              Tzwap go on
-            </Typography>
-
-            <Box className={'text-center mt-2'}>
               <Typography
                 variant="h6"
                 component="div"
-                className="text-white font-mono mr-auto ml-10"
+                className="text-white font-mono"
               >
-                <a
-                  href={'https://legacy-tzwap.dopex.io/tzwap'}
-                  rel="noreferrer"
-                  className={'text-wave-blue'}
-                >
-                  legacy-tzwap.dopex.io/tzwap
-                </a>{' '}
+                Do not see your orders? If you were using the previous version
+                of Tzwap go on
               </Typography>
+
+              <Box className={'text-center mt-2'}>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  className="text-white font-mono mr-auto ml-10"
+                >
+                  <a
+                    href={'https://legacy-tzwap.dopex.io/tzwap'}
+                    rel="noreferrer"
+                    className={'text-wave-blue'}
+                  >
+                    legacy-tzwap.dopex.io/tzwap
+                  </a>{' '}
+                </Typography>
+              </Box>
             </Box>
-          </Box>
+          ) : null}
         </Box>
         <Box className="flex mx-auto max-w-xl mb-8 mt-8">
           <Box
@@ -1136,11 +1152,7 @@ const Tzwap = () => {
                     isFromTokenSelectorVisible ? updateFromToken : updateToToken
                   }
                   isInDialog={false}
-                  tokensToExclude={
-                    isFromTokenSelectorVisible
-                      ? ['MAGIC', '2CRV']
-                      : ['ETH', 'MAGIC', '2CRV']
-                  }
+                  tokensToExclude={tokensToExclude}
                 />
               </Box>
             )}
