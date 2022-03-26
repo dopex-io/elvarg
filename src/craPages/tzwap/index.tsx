@@ -614,11 +614,11 @@ const Tzwap = () => {
                   className="text-white font-mono mr-auto ml-10"
                 >
                   <a
-                    href={'https://v1-tzwap.dopex.io/tzwap'}
+                    href={'https://tzwap-v1.dopex.io/tzwap'}
                     rel="noreferrer"
                     className={'text-wave-blue'}
                   >
-                    v1-tzwap.dopex.io/tzwap
+                    tzwap-v1.dopex.io/tzwap
                   </a>{' '}
                 </Typography>
               </Box>
