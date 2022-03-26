@@ -300,8 +300,9 @@ const Tzwap = () => {
 
   const minFees: number = useMemo(() => {
     if (tickInUsd === 0) return 0;
-    return (100 * 7.5) / tickInUsd;
-  }, [tickInUsd]);
+    else if (chainId === 42161) return (100 * 7.5) / tickInUsd;
+    else return (100 * 50) / tickInUsd;
+  }, [tickInUsd, chainId]);
 
   const maxFees: number = useMemo(() => {
     return minFees * 5;
@@ -410,7 +411,7 @@ const Tzwap = () => {
   const submitButtonProps = useMemo(() => {
     const disabled = Boolean(
       fromTokenName === toTokenName ||
-        minFees > 20 ||
+        minFees > 200 ||
         !amount ||
         tickInUsd < 50 ||
         amount >=
@@ -440,7 +441,8 @@ const Tzwap = () => {
     else if (fromTokenName === toTokenName)
       children = 'Tokens must be different';
     else if (amount === 0) children = 'Enter an amount';
-    else if (minFees > 20) children = 'Your order is too small to sustain fees';
+    else if (minFees > 200)
+      children = 'Your order is too small to sustain fees';
     else if (tickInUsd >= 50000) children = 'Proceed anyway';
 
     return {
@@ -612,11 +614,11 @@ const Tzwap = () => {
                   className="text-white font-mono mr-auto ml-10"
                 >
                   <a
-                    href={'https://legacy-tzwap.dopex.io/tzwap'}
+                    href={'https://v1-tzwap.dopex.io/tzwap'}
                     rel="noreferrer"
                     className={'text-wave-blue'}
                   >
-                    legacy-tzwap.dopex.io/tzwap
+                    v1-tzwap.dopex.io/tzwap
                   </a>{' '}
                 </Typography>
               </Box>
@@ -731,7 +733,7 @@ const Tzwap = () => {
                                     userTokenBalance,
                                     getTokenDecimals(fromTokenName, chainId)
                                   ),
-                                  4
+                                  7
                                 )}
                               </span>
                             </Typography>
