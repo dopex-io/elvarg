@@ -36,7 +36,11 @@ function SsovCard(props) {
           </Box>
         ),
         value: `${
-          data.call?.apy === 0 || !data.call?.apy ? '...' : `${data.call?.apy}%`
+          data.call?.apy === 0
+            ? '...'
+            : data.call?.apy > 1000
+            ? '987%'
+            : `${formatAmount(data.call?.apy, 2)}%`
         }`,
         tooltip: data.name.aprToolTipMessage,
       },
