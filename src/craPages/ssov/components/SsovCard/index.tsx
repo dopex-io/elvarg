@@ -39,7 +39,9 @@ function SsovCard(props) {
     return [
       {
         heading: 'APY',
-        value: `${apy === 0 ? '...' : `${apy}%`}`,
+        value: `${
+          apy === 0 ? '...' : apy > 1000 ? '987%' : `${formatAmount(apy, 2)}%`
+        }`,
         Icon: Action,
         tooltip:
           type === 'put'
