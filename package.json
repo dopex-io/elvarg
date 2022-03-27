@@ -16,7 +16,7 @@
     "@0xsequence/multicall": "^0.36.3",
     "@apollo/client": "^3.5.9",
     "@coinbase/wallet-sdk": "^3.0.5",
-    "@dopex-io/sdk": "^1.0.0-alpha.81",
+    "@dopex-io/sdk": "^1.0.0-alpha.83",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.4.4",
