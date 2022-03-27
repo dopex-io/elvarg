@@ -340,7 +340,7 @@ export const SsovSide = ({ activeSsovContextSide }) => {
           currentEpoch
         );
 
-        setSelectedEpoch(Number(currentEpoch));
+        setSelectedEpoch(Number(currentEpoch) === 0 ? 1 : Number(currentEpoch));
 
         _ssovData = {
           tokenName: selectedSsov.token.toUpperCase(),

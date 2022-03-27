@@ -1,16 +1,10 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
 import Web3Modal from 'web3modal';
-import WalletLink from 'walletlink';
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
@@ -83,11 +77,22 @@ if (typeof window !== 'undefined') {
       },
     },
     walletlink: {
-      package: WalletLink,
+      package: CoinbaseWalletSDK,
       options: {
+        appName: 'Dopex',
         rpc: CHAIN_ID_TO_PROVIDERS,
       },
     },
+    ...(window['clover'] && {
+      injected: {
+        display: {
+          logo: '/wallets/Clover.png',
+          name: 'Clover Wallet',
+          description: 'Connect to your Clover Wallet',
+        },
+        package: null,
+      },
+    }),
     ...(window.ethereum?.isCoin98 && {
       injected: {
         display: {
