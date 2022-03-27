@@ -176,7 +176,11 @@ const PurchaseOptions = ({
         provider
       );
 
-      volatility = await _temp.getVolatility(strike);
+      try {
+        volatility = await _temp.getVolatility(strike);
+      } catch (err) {
+        volatility = BigNumber.from('0');
+      }
     } else {
       volatility = await ssovContext[
         ssovContextSide

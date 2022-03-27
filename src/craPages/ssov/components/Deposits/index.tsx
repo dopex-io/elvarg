@@ -90,7 +90,7 @@ const DepositsTableData = (
   const { convertToBNB } = useContext(BnbConversionContext);
 
   const isWithdrawalEnabled: boolean = useMemo(() => {
-    return new Date() > epochEndTime;
+    return new Date() > epochEndTime && totalUserDeposits > 0;
   }, [epochEndTime]);
 
   return (
@@ -175,7 +175,7 @@ const DepositsTableData = (
           onClick={() => setIsWithdrawModalVisible(true)}
           className={cx(
             'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2 w-max',
-            epochEndTime > new Date()
+            !isWithdrawalEnabled
               ? 'bg-umbra hover:bg-cod-gray'
               : 'bg-primary hover:bg-primary text-white '
           )}
