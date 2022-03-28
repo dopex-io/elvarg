@@ -87,14 +87,8 @@ const Tzwap = () => {
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);
   const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [fromToken, setFromToken] = useState<ERC20 | any>(
-    ERC20__factory.connect(Addresses[chainId]['USDC'], provider)
-  );
-  const [fromTokenName, setFromTokenName] = useState<string>('USDC');
-  const [toToken, setToToken] = useState<ERC20 | any>(
-    ERC20__factory.connect(Addresses[chainId]['WETH'], provider)
-  );
-  const [toTokenName, setToTokenName] = useState<string>('WETH');
+  const [fromTokenName, setFromTokenName] = useState<string>('ETH');
+  const [toTokenName, setToTokenName] = useState<string>('USDC');
   const [rawAmount, setRawAmount] = useState<string>('');
   const [rawIntervalAmount, setRawIntervalAmount] = useState<string>('1');
   const [approved, setApproved] = useState<boolean>(false);
@@ -114,7 +108,7 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        contractAddresses['Tzwap1inchRouter'],
+        contractAddresses['Tzwap1InchRouter'],
         signer
       ),
     [signer]
@@ -145,38 +139,6 @@ const Tzwap = () => {
   const intervalAmount: number = useMemo(() => {
     return parseFloat(rawIntervalAmount) || 0;
   }, [rawIntervalAmount]);
-
-  const updateFromToken = async (symbol) => {
-    if (IS_NATIVE(symbol)) {
-      setFromToken(symbol);
-    } else {
-      setFromToken(ERC20__factory.connect(Addresses[chainId][symbol], signer));
-    }
-  };
-
-  const updateToToken = async (symbol) => {
-    if (IS_NATIVE(symbol)) {
-      setToToken(symbol);
-    } else {
-      setToToken(ERC20__factory.connect(Addresses[chainId][symbol], signer));
-    }
-  };
-
-  const handleFromTokenChange = useCallback(async () => {
-    if (!fromToken || !provider) return;
-    const symbol = IS_NATIVE(fromToken)
-      ? fromToken
-      : await fromToken.connect(provider).symbol();
-    setFromTokenName(symbol);
-  }, [fromToken, provider]);
-
-  const handleToTokenChange = useCallback(async () => {
-    if (!toToken || !provider) return;
-    const symbol = IS_NATIVE(toToken)
-      ? toToken
-      : await toToken.connect(provider).symbol();
-    setToTokenName(symbol);
-  }, [toToken, provider]);
 
   const handleSelectTickSize = useCallback((event: any) => {
     setSelectedTickSize(event.target.value as number);
@@ -243,16 +205,16 @@ const Tzwap = () => {
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
-        ERC20__factory.connect(fromToken.address, signer).approve(
-          tzwapRouter.address,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(
+          contractAddresses[fromTokenName],
+          signer
+        ).approve(tzwapRouter.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, fromToken, signer, tzwapRouter]);
+  }, [sendTx, fromTokenName, signer, tzwapRouter]);
 
   const handleKill = useCallback(async () => {
     try {
@@ -353,11 +315,11 @@ const Tzwap = () => {
             srcToken:
               fromTokenName === 'ETH'
                 ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-                : fromToken.address,
+                : contractAddresses[fromTokenName],
             dstToken:
               toTokenName === 'ETH'
                 ? Addresses[chainId]['WETH']
-                : toToken.address,
+                : contractAddresses[toTokenName],
             interval: seconds,
             tickSize: getContractReadableAmount(
               Math.round(tickSize) / precision,
@@ -398,9 +360,7 @@ const Tzwap = () => {
     sendTx,
     signer,
     accountAddress,
-    fromToken.address,
     toTokenName,
-    toToken.address,
     minFees,
     maxFees,
     updateOrders,
@@ -480,12 +440,12 @@ const Tzwap = () => {
   useEffect(() => {
     async function updateQuote() {
       setIsFetchingQuote(true);
-      const fromTokenAddress: string = IS_NATIVE(fromToken)
+      const fromTokenAddress: string = IS_NATIVE(fromTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : fromToken?.address;
-      const toTokenAddress: string = IS_NATIVE(toToken)
+        : contractAddresses[fromTokenName];
+      const toTokenAddress: string = IS_NATIVE(toTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : toToken?.address;
+        : contractAddresses[toTokenName];
 
       if (fromTokenAddress === toTokenAddress) return;
 
@@ -504,34 +464,32 @@ const Tzwap = () => {
     }
 
     updateQuote();
-  }, [accountAddress, chainId, fromTokenName, fromToken, toTokenName, toToken]);
-
-  useEffect(() => {
-    handleFromTokenChange();
-  }, [handleFromTokenChange]);
-
-  useEffect(() => {
-    handleToTokenChange();
-  }, [handleToTokenChange]);
+  }, [accountAddress, chainId, fromTokenName, toTokenName]);
 
   useEffect(() => {
     (async function () {
-      if (!tzwapRouter || !fromToken) return;
+      if (!tzwapRouter || !fromTokenName) return;
 
-      const userAmount = IS_NATIVE(fromToken)
+      const userAmount = IS_NATIVE(fromTokenName)
         ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]])
-        : await fromToken.balanceOf(accountAddress);
+        : await ERC20__factory.connect(
+            contractAddresses[fromTokenName],
+            signer
+          ).balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance = IS_NATIVE(fromToken)
+      let allowance = IS_NATIVE(fromTokenName)
         ? BigNumber.from(0)
-        : await fromToken.allowance(accountAddress, tzwapRouter.address);
+        : await ERC20__factory.connect(
+            contractAddresses[fromTokenName],
+            signer
+          ).allowance(accountAddress, tzwapRouter.address);
 
       if (!allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (IS_NATIVE(fromToken)) {
+        if (IS_NATIVE(fromTokenName)) {
           setApproved(true);
         } else {
           setApproved(false);
@@ -540,7 +498,7 @@ const Tzwap = () => {
     })();
   }, [
     accountAddress,
-    fromToken,
+    fromTokenName,
     userAssetBalances,
     chainId,
     provider,
@@ -1151,7 +1109,9 @@ const Tzwap = () => {
                       : setIsToTokenSelectorVisible
                   }
                   setFromTokenSymbol={
-                    isFromTokenSelectorVisible ? updateFromToken : updateToToken
+                    isFromTokenSelectorVisible
+                      ? setFromTokenName
+                      : setToTokenName
                   }
                   isInDialog={false}
                   tokensToExclude={tokensToExclude}
