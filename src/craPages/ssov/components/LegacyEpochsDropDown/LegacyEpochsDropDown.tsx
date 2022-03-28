@@ -1,8 +1,31 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
+
+const EPOCHS = [
+  {
+    name: 'Epoch 1 (November)',
+    to: 'https://ssov-epoch-1.dopex.io/',
+  },
+  {
+    name: 'Epoch 2 (December)',
+    to: 'https://ssov-epoch-2.dopex.io/',
+  },
+  {
+    name: 'Epoch 3 (January)',
+    to: 'https://ssov-epoch-3.dopex.io/',
+  },
+  {
+    name: 'Epoch 4 (February)',
+    to: 'https://ssov-epoch-4.dopex.io/',
+  },
+  {
+    name: 'Epoch 5 (March)',
+    to: 'https://ssov-epoch-5.dopex.io/',
+  },
+];
 
 const LegacyEpochsDropDown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -14,25 +37,6 @@ const LegacyEpochsDropDown = () => {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
-  const epochs = [
-    {
-      name: 'Epoch 1 (November)',
-      to: 'https://ssov-epoch-1.dopex.io/',
-    },
-    {
-      name: 'Epoch 2 (December)',
-      to: 'https://ssov-epoch-2.dopex.io/',
-    },
-    {
-      name: 'Epoch 3 (January)',
-      to: 'https://ssov-epoch-3.dopex.io/',
-    },
-    {
-      name: 'Epoch 4 (February)',
-      to: 'https://ssov-epoch-4.dopex.io/',
-    },
-  ];
 
   return (
     <Box className="flex items-center justify-center mb-5">
@@ -54,7 +58,7 @@ const LegacyEpochsDropDown = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        {epochs.map(({ name, to }, index) => (
+        {EPOCHS.map(({ name, to }, index) => (
           <MenuItem
             key={index}
             className="hover:bg-cod-gray bg-umbra text-white"
