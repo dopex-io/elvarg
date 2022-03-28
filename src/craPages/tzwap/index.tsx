@@ -2,7 +2,6 @@ import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
 import {
-  ERC20,
   Addresses,
   Tzwap1inchRouter__factory,
   ERC20__factory,
@@ -109,7 +108,7 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        contractAddresses['Tzwap1inchRouter'],
+        '0xDA615781745fe52Fc3383Ad23cE9184419bEec30',
         signer
       ),
     [signer]
