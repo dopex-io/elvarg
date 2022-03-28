@@ -246,13 +246,28 @@ const Orders = ({ isFetchingOrders, orders, setOpenOrder }: Props) => {
                 {order.srcTokensSwapped > 0 ? (
                   <LinearProgress
                     variant="determinate"
-                    className={'mt-3 rounded-sm mb-4'}
+                    className={'mt-3 rounded-sm'}
                     value={
                       (100 * order.srcTokensSwapped) /
                       getUserReadableAmount(order.total, order.srcTokenDecimals)
                     }
                   />
                 ) : null}
+                <Box
+                  className={
+                    'text-wave-blue text-center mb-4 text-[0.6rem] mt-1.5'
+                  }
+                >
+                  {formatAmount(
+                    (100 * order.srcTokensSwapped) /
+                      getUserReadableAmount(
+                        order.total,
+                        order.srcTokenDecimals
+                      ),
+                    2
+                  )}
+                  %
+                </Box>
                 {order.srcTokensSwapped > 0 ? (
                   <Box className={'flex'}>
                     <Typography
