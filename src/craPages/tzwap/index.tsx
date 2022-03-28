@@ -41,8 +41,6 @@ import displayAddress from 'utils/general/displayAddress';
 
 import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
 
-import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
-
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
