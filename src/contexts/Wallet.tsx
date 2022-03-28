@@ -63,7 +63,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/nfts/diamondpepes': [42161],
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
-  '/tzwap': [1, 42161],
+  '/tzwap': [42161],
 };
 
 const DEFAULT_CHAIN_ID =
