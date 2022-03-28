@@ -143,7 +143,7 @@ function AppRoutes() {
               <Route path="/" element={<Navigate to="/otc" />} />
               <Route path="*" element={<Error statusCode={404} />} />
             </Routes>
-            {/* <ChangeNetworkDialog /> */}
+            <ChangeNetworkDialog />
           </AssetsProvider>
         </WalletProvider>
       </Suspense>

@@ -109,8 +109,9 @@ const UserDeposits = () => {
                   RFQ
                 </TableHeader>
                 <TableHeader align="left">Option</TableHeader>
-                <TableHeader align="center">Amount</TableHeader>
-                <TableHeader align="center">Bid/Ask</TableHeader>
+                <TableHeader align="center">Quantity</TableHeader>
+                <TableHeader align="center">Bid</TableHeader>
+                <TableHeader align="center">Ask</TableHeader>
                 <TableHeader align="right">Quote</TableHeader>
                 <TableHeader align="center">Total Price</TableHeader>
                 <TableHeader align="right">Counter Party</TableHeader>
@@ -132,7 +133,7 @@ const UserDeposits = () => {
                       <TableBodyCell align="left">
                         {row.isBuy ? row.base.symbol : row.quote.symbol}
                       </TableBodyCell>
-                      <TableBodyCell align="center" textColor="text-green-400">
+                      <TableBodyCell align="center">
                         {getUserReadableAmount(row.amount, 18).toString()}
                       </TableBodyCell>
                       <TableBodyCell
@@ -140,17 +141,35 @@ const UserDeposits = () => {
                         textColor="text-down-bad"
                         fill="bg-umbra"
                       >
-                        {formatAmount(
-                          Number(getUserReadableAmount(row.price, 18)) /
-                            Number(getUserReadableAmount(row.amount, 18)),
-                          5
-                        )}{' '}
+                        <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                          {row.isBuy
+                            ? formatAmount(
+                                Number(getUserReadableAmount(row.price, 18)) /
+                                  Number(getUserReadableAmount(row.amount, 18)),
+                                5
+                              )
+                            : '-'}
+                        </Box>
+                      </TableBodyCell>
+                      <TableBodyCell
+                        align="center"
+                        textColor="text-emerald-500"
+                        fill="bg-umbra"
+                      >
+                        <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                          {!row.isBuy
+                            ? formatAmount(
+                                Number(getUserReadableAmount(row.price, 18)) /
+                                  Number(getUserReadableAmount(row.amount, 18)),
+                                5
+                              )
+                            : '-'}
+                        </Box>
+                      </TableBodyCell>
+                      <TableBodyCell align="right">
                         {row.isBuy ? row.quote.symbol : row.base.symbol}
                       </TableBodyCell>
-                      <TableBodyCell align="right" fill="bg-umbra">
-                        {row.isBuy ? row.quote.symbol : row.base.symbol}
-                      </TableBodyCell>
-                      <TableBodyCell align="right" fill="bg-umbra">
+                      <TableBodyCell align="right">
                         {getUserReadableAmount(row.price, 18)}{' '}
                         {row.isBuy ? row.quote.symbol : row.base.symbol}
                       </TableBodyCell>

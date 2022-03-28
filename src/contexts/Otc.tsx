@@ -25,7 +25,7 @@ interface OtcContractsInterface {
   escrowData?: {
     escrowAddress: string;
     quotes: { symbol: string; address: string }[];
-    bases: { symbol: string; address: string }[];
+    bases: { symbol: string; address: string; isPut: boolean }[];
   };
   userDepositsData?: {
     isBuy: boolean;
@@ -116,8 +116,14 @@ export const OtcProvider = (props) => {
   const [escrowData, setEscrowData] = useState<any>({});
   const [loaded, setLoaded] = useState(false);
 
-  const loadContractData = useCallback(async () => {
-    if (!provider || !contractAddresses || !accountAddress) return;
+  const loadEscrowData = useCallback(async () => {
+    if (
+      !provider ||
+      !contractAddresses ||
+      !accountAddress ||
+      !Addresses[chainId]
+    )
+      return;
 
     const escrow = Escrow__factory.connect(Addresses[chainId].Escrow, provider);
 
@@ -136,29 +142,32 @@ export const OtcProvider = (props) => {
     let baseAddresses = [
       '0xADCeD0735874eA25e95EC0EAd0E355f8E863Fb44', // MC-CALL-1000
       '0x40279bD5e30041970AA4190C63cDF10942f7684D', // MC-CALL-2000
+      '0x47082620D0e262610E37D8De626202E27179d26c', // MP-CALL-2000
+      '0xe1e4A58F35feCd9bf3C6b75e993211A8f6FDeCc7', // MP-CALL-1000
     ];
     let baseAssetToSymbolMapping = await Promise.all(
       baseAddresses.map(async (address) => {
         const base = ERC20__factory.connect(address, provider);
         const symbol = await base.symbol();
+        const isPut = symbol.toString().indexOf('CALL') === -1;
+
         return {
           symbol,
           address,
+          isPut,
         };
       })
     );
 
-    const assets: string[] = baseAddresses
-      .map((address) => address.toString())
-      .concat(quoteAddresses);
+    const escrowAssets: string[] = baseAddresses.concat(quoteAddresses);
 
-    let assetPairs = assets.flatMap((v, i) =>
-      assets.slice(i + 1).map((w) => ({ token1: v, token2: w }))
+    let escrowAssetPairs = escrowAssets.flatMap((v, i) =>
+      escrowAssets.slice(i + 1).map((w) => ({ token1: v, token2: w }))
     );
 
-    assetPairs.push(
-      ...assets.flatMap((v, i) =>
-        assets.slice(i + 1).map((w) => ({ token1: w, token2: v }))
+    escrowAssetPairs.push(
+      ...escrowAssets.flatMap((v, i) =>
+        escrowAssets.slice(i + 1).map((w) => ({ token1: w, token2: v }))
       )
     );
 
@@ -169,7 +178,7 @@ export const OtcProvider = (props) => {
 
     const userAssetDeposits = (
       await Promise.all(
-        assetPairs.map(async (pair) => {
+        escrowAssetPairs.map(async (pair) => {
           return await Promise.all(
             users.map(async (user) => ({
               isBuy: pair.token1 === quoteAddresses[0],
@@ -216,7 +225,7 @@ export const OtcProvider = (props) => {
     setUserDepositsData(userAssetDeposits);
 
     const openTrades = await Promise.all(
-      assetPairs.map(async (pair) => {
+      escrowAssetPairs.map(async (pair) => {
         return (
           await Promise.all(
             users.map(async (user) => ({
@@ -320,8 +329,8 @@ export const OtcProvider = (props) => {
   }, [accountAddress, provider]);
 
   useEffect(() => {
-    loadContractData();
-  }, [loadContractData]);
+    loadEscrowData();
+  }, [loadEscrowData]);
 
   useEffect(() => {
     getOtcData();

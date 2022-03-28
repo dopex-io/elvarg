@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
@@ -73,6 +73,12 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     onSubmit: noop,
   });
 
+  const filteredBases = useMemo(() => {
+    return escrowData.bases?.filter(
+      (param) => param.isPut === formik.values.isPut
+    );
+  }, [formik.values, escrowData?.bases]);
+
   const handleTokenSelection = useCallback(
     (e) => {
       const selected = escrowData.bases.find(
@@ -113,6 +119,22 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
       formik.setFieldValue('price', e.target.value);
     },
     [formik]
+  );
+
+  const handleTypeSelection = useCallback(
+    (isPut) => {
+      if (!filteredBases) return;
+
+      filteredBases.map((item) => console.log(item));
+
+      formik.setFieldValue('isPut', isPut);
+      formik.setFieldValue('base', filteredBases[0].address);
+      setSelection({
+        symbol: filteredBases[0].symbol,
+        address: filteredBases[0].address,
+      });
+    },
+    [formik, filteredBases]
   );
 
   const handleVerifyAddress = useCallback((e) => {
@@ -208,6 +230,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           open: true,
           handleClose,
           data: {
+            isPut: formik.values.isPut,
             isBuy: formik.values.isBuy,
             quote: {
               address: formik.values.quote,
@@ -313,7 +336,8 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             size="small"
             className="w-full"
             color={formik.values.isPut ? 'umbra' : 'primary'}
-            onClick={() => formik.setFieldValue('isPut', false)}
+            onClick={() => handleTypeSelection(false)}
+            disabled={!filteredBases}
           >
             CALL
           </CustomButton>
@@ -321,8 +345,8 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             size="small"
             className="w-full"
             color={formik.values.isPut ? 'down-bad' : 'umbra'}
-            onClick={() => formik.setFieldValue('isPut', true)}
-            disabled
+            onClick={() => handleTypeSelection(true)}
+            disabled={!filteredBases}
           >
             PUT
           </CustomButton>
@@ -332,14 +356,14 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             <Select
               fullWidth
               value={selection.address || ''}
-              label="option"
+              label="Select Option"
               classes={{ icon: 'text-white', select: 'py-1 px-2' }}
               MenuProps={{
                 classes: { paper: 'bg-cod-gray p-0' },
               }}
               onChange={handleTokenSelection}
             >
-              {escrowData.bases?.map((option, index) => (
+              {filteredBases?.map((option, index) => (
                 <MenuItem
                   value={option.address}
                   key={index}

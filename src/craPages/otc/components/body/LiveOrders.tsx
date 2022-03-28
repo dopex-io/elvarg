@@ -87,8 +87,9 @@ const LiveOrders = () => {
                   RFQ
                 </TableHeader>
                 <TableHeader align="left">Option</TableHeader>
-                <TableHeader align="center">Amount</TableHeader>
-                <TableHeader align="center">Bid/Ask</TableHeader>
+                <TableHeader align="center">Quantity</TableHeader>
+                <TableHeader align="center">Bid</TableHeader>
+                <TableHeader align="center">Ask</TableHeader>
                 <TableHeader align="right">Quote</TableHeader>
                 <TableHeader align="right">Total Price</TableHeader>
                 <TableHeader align="right">Dealer</TableHeader>
@@ -116,7 +117,7 @@ const LiveOrders = () => {
                       ? smartTrim(row.dealerBase?.symbol, 24)
                       : smartTrim(row.dealerQuote?.symbol, 24)}
                   </TableBodyCell>
-                  <TableBodyCell align="center" textColor="text-green-400">
+                  <TableBodyCell align="center">
                     {row.isBuy
                       ? getUserReadableAmount(
                           row.dealerReceiveAmount,
@@ -132,31 +133,57 @@ const LiveOrders = () => {
                     textColor="text-down-bad"
                     fill="bg-umbra"
                   >
-                    {formatAmount(
-                      getUserReadableAmount(
-                        !row.isBuy
-                          ? row.dealerReceiveAmount
-                          : row.dealerSendAmount,
-                        18
-                      ) /
-                        getUserReadableAmount(
-                          row.isBuy
-                            ? row.dealerReceiveAmount
-                            : row.dealerSendAmount,
-                          18
-                        ),
-                      5
-                    )}{' '}
+                    <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                      {row.isBuy
+                        ? formatAmount(
+                            getUserReadableAmount(
+                              !row.isBuy
+                                ? row.dealerReceiveAmount
+                                : row.dealerSendAmount,
+                              18
+                            ) /
+                              getUserReadableAmount(
+                                row.isBuy
+                                  ? row.dealerReceiveAmount
+                                  : row.dealerSendAmount,
+                                18
+                              ),
+                            5
+                          )
+                        : '-'}
+                    </Box>
+                  </TableBodyCell>
+                  <TableBodyCell
+                    align="center"
+                    textColor="text-emerald-500"
+                    fill="bg-umbra"
+                  >
+                    <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                      {!row.isBuy
+                        ? formatAmount(
+                            getUserReadableAmount(
+                              !row.isBuy
+                                ? row.dealerReceiveAmount
+                                : row.dealerSendAmount,
+                              18
+                            ) /
+                              getUserReadableAmount(
+                                row.isBuy
+                                  ? row.dealerReceiveAmount
+                                  : row.dealerSendAmount,
+                                18
+                              ),
+                            5
+                          )
+                        : '-'}
+                    </Box>
+                  </TableBodyCell>
+                  <TableBodyCell align="right">
                     {row.isBuy
                       ? row.dealerQuote?.symbol
                       : row.dealerBase?.symbol}
                   </TableBodyCell>
-                  <TableBodyCell align="right" fill="bg-umbra">
-                    {row.isBuy
-                      ? row.dealerQuote?.symbol
-                      : row.dealerBase?.symbol}
-                  </TableBodyCell>
-                  <TableBodyCell align="right" fill="bg-umbra">
+                  <TableBodyCell align="right">
                     {getUserReadableAmount(
                       !row.isBuy
                         ? row.dealerReceiveAmount
