@@ -2,7 +2,6 @@ import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
 import {
-  ERC20,
   Addresses,
   Tzwap1inchRouter__factory,
   ERC20__factory,
@@ -38,6 +37,9 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
+import displayAddress from 'utils/general/displayAddress';
+
+import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
 
 import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
 
@@ -108,7 +110,7 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        contractAddresses['Tzwap1inchRouter'],
+        '0xDA615781745fe52Fc3383Ad23cE9184419bEec30',
         signer
       ),
     [signer]
@@ -517,7 +519,7 @@ const Tzwap = () => {
         handleKill={handleKill}
       />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
-        <Box className={'mb-5 mt-32 w-max ml-auto mr-auto'}>
+        <Box className={'mb-5 mt-32 lg:w-max ml-auto mr-auto'}>
           <Box
             className={
               'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto'
@@ -545,7 +547,7 @@ const Tzwap = () => {
                   rel="noreferrer"
                   className={'text-wave-blue'}
                 >
-                  {contractAddresses['Tzwap1inchRouter']}
+                  {displayAddress(contractAddresses['Tzwap1inchRouter'], null)}
                 </a>{' '}
               </Typography>
             </Box>
