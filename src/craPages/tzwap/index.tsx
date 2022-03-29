@@ -41,8 +41,6 @@ import displayAddress from 'utils/general/displayAddress';
 
 import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
 
-import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
-
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
@@ -110,7 +108,9 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        contractAddresses['Tzwap1inchRouter'],
+        chainId === 1
+          ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
+          : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
         signer
       ),
     [signer]
@@ -543,47 +543,62 @@ const Tzwap = () => {
                 <a
                   href={`https://${
                     chainId === 1 ? 'etherscan' : 'arbiscan'
-                  }.io/address/${contractAddresses['Tzwap1inchRouter']}#code`}
+                  }.io/address/${
+                    chainId === 1
+                      ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
+                      : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d'
+                  }#code`}
                   rel="noreferrer"
                   className={'text-wave-blue'}
                 >
-                  {displayAddress(contractAddresses['Tzwap1inchRouter'], null)}
+                  {displayAddress(
+                    chainId === 1
+                      ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
+                      : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
+                    null
+                  )}
                 </a>{' '}
               </Typography>
             </Box>
           </Box>
-          {chainId === 42161 ? (
-            <Box
-              className={
-                'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto mt-5'
-              }
+          <Box
+            className={
+              'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto mt-5'
+            }
+          >
+            <Typography
+              variant="h6"
+              component="div"
+              className="text-white font-mono"
             >
+              Do not see your orders? If you were using the previous version of
+              Tzwap go on
+            </Typography>
+
+            <Box className={'text-center mt-2'}>
               <Typography
                 variant="h6"
                 component="div"
-                className="text-white font-mono"
+                className="text-white font-mono mr-auto ml-10"
               >
-                Do not see your orders? If you were using the previous version
-                of Tzwap go on
-              </Typography>
-
-              <Box className={'text-center mt-2'}>
-                <Typography
-                  variant="h6"
-                  component="div"
-                  className="text-white font-mono mr-auto ml-10"
+                <a
+                  href={'https://tzwap-v1.dopex.io/tzwap'}
+                  rel="noreferrer"
+                  className={'text-wave-blue'}
                 >
-                  <a
-                    href={'https://tzwap-v1.dopex.io/tzwap'}
-                    rel="noreferrer"
-                    className={'text-wave-blue'}
-                  >
-                    tzwap-v1.dopex.io/tzwap
-                  </a>{' '}
-                </Typography>
-              </Box>
+                  tzwap-v1.dopex.io/tzwap
+                </a>
+                {' or '}
+                <a
+                  href={'https://tzwap-v2.dopex.io/tzwap'}
+                  rel="noreferrer"
+                  className={'text-wave-blue'}
+                >
+                  tzwap-v2.dopex.io/tzwap
+                </a>{' '}
+              </Typography>
             </Box>
-          ) : null}
+          </Box>
         </Box>
         <Box className="flex mx-auto max-w-xl mb-8 mt-8">
           <Box
