@@ -298,9 +298,15 @@ export const OtcProvider = (props) => {
   const getOtcData = useCallback(async () => {
     if (!db || !provider || !accountAddress) return;
 
-    const orders: any = (await getDocs(collection(db, 'orders'))).docs.flatMap(
-      (doc) => ({ id: doc.id, data: doc.data() })
-    );
+    const orders: any = (await getDocs(collection(db, 'orders'))).docs
+      .flatMap((doc) => ({ id: doc.id, data: doc.data() }))
+      .sort((a, b) =>
+        a.data.timestamp.seconds < b.data.timestamp.seconds
+          ? 1
+          : a.data.timestamp.seconds < b.data.timestamp.seconds
+          ? 0
+          : -1
+      ); // Sorted orders by rfq open time
 
     const usersDocs: DocumentData[] = (
       await getDocs(collection(db, 'users'))

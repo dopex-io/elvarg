@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import HistoryIcon from '@mui/icons-material/History';
+import Checkbox from '@mui/material/Checkbox';
+import grey from '@mui/material/colors/grey';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
@@ -14,12 +16,12 @@ import LiveOrders from './components/body/LiveOrders';
 import Switch from 'components/UI/Switch';
 import Accordion from 'components/UI/Accordion';
 import UserDeposits from './components/body/UserDeposits';
+import Register from './components/Dialogs/Register';
+import CustomButton from 'components/UI/CustomButton';
+import content from './components/OtcBanner/content.json';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
-
-import content from './components/OtcBanner/content.json';
-import Register from './components/Dialogs/Register';
 
 const MARKETS_PLACEHOLDER = [
   // {
@@ -64,6 +66,11 @@ const OTC = () => {
   });
 
   const [isLive, setIsLive] = useState(false);
+  const [filterFulfilled, setFilterFulfilled] = useState(false);
+
+  const handleFilterFulfilled = useCallback((e) => {
+    setFilterFulfilled(e.target.checked);
+  }, []);
 
   const handleUpdateState = useCallback((trade, history) => {
     setState({ trade, history });
@@ -95,7 +102,29 @@ const OTC = () => {
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-full">
         <Box className="grid grid-cols-10 gap-4">
           <Box className="flex flex-col col-span-2">
-            <OtcBanner bannerContent={content.banner} />
+            <OtcBanner
+              title={content.banner.title}
+              body={content.banner.body}
+              bottomElement={
+                <CustomButton
+                  variant="contained"
+                  size="small"
+                  color="white"
+                  className="bg-white hover:bg-white p-0"
+                >
+                  <a
+                    href="https://chat.blockscan.com/start"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full"
+                  >
+                    <Typography variant="h6" className="text-primary">
+                      {content.banner.bottomElementText} &rarr;
+                    </Typography>
+                  </a>
+                </CustomButton>
+              }
+            />
             <Typography variant="h5" className="text-stieglitz py-3">
               Views
             </Typography>
@@ -125,14 +154,26 @@ const OTC = () => {
                   onClick={() => {}}
                 >
                   <HistoryIcon className="my-auto" />
-                  <Typography
-                    variant="h6"
-                    role="button"
-                    className={`rounded-lg py-4`}
-                    // handleUpdateState(false, true)
-                  >
-                    History
-                  </Typography>
+                  <Box className="flex space-x-2">
+                    <Typography
+                      variant="h6"
+                      role="button"
+                      className="rounded-lg py-4"
+                      // handleUpdateState(false, true)
+                    >
+                      History
+                    </Typography>
+                    <Box className="px-2 py-1 rounded-2xl bg-stieglitz bg-opacity-10 my-auto border border-umbra">
+                      <Typography
+                        variant="h6"
+                        role="button"
+                        className="text-stieglitz"
+                        // handleUpdateState(false, true)
+                      >
+                        Coming soon
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
 
                 <Typography variant="h5" className="text-stieglitz py-3">
@@ -178,30 +219,53 @@ const OTC = () => {
             {state.trade ? (
               <>
                 <Box className="flex justify-between">
-                  <Typography variant="h5" className="font-bold">
+                  <Typography variant="h5" className="font-bold my-auto">
                     {isLive ? 'Live Orders' : 'RFQs'}
                   </Typography>
-                  <Box className="flex space-x-2 my-auto">
-                    <Typography
-                      variant="h6"
-                      className={`${isLive ? 'text-stieglitz' : 'text-white'}`}
-                    >
-                      RFQ
-                    </Typography>
-                    <Switch
-                      aria-label="rfq-toggle"
-                      color="default"
-                      onClick={toggleLiveRfq}
-                    />
-                    <Typography
-                      variant="h6"
-                      className={`${!isLive ? 'text-stieglitz' : 'text-white'}`}
-                    >
-                      Trade
-                    </Typography>
+                  <Box className="flex space-x-4">
+                    <Box className="flex">
+                      <Typography variant="h5" className="my-auto">
+                        Hide Fulfilled
+                      </Typography>
+                      <Checkbox
+                        onClick={handleFilterFulfilled}
+                        sx={{
+                          color: grey[50],
+                        }}
+                        size="small"
+                        className="py-0"
+                      />
+                    </Box>
+                    <Box className="flex space-x-2 my-auto">
+                      <Typography
+                        variant="h6"
+                        className={`${
+                          isLive ? 'text-stieglitz' : 'text-white'
+                        }`}
+                      >
+                        RFQ
+                      </Typography>
+                      <Switch
+                        aria-label="rfq-toggle"
+                        color="default"
+                        onClick={toggleLiveRfq}
+                      />
+                      <Typography
+                        variant="h6"
+                        className={`${
+                          !isLive ? 'text-stieglitz' : 'text-white'
+                        }`}
+                      >
+                        Trade
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
-                {isLive ? <LiveOrders /> : <IndicativeRfqTable />}
+                {isLive ? (
+                  <LiveOrders />
+                ) : (
+                  <IndicativeRfqTable filterFulfilled={filterFulfilled} />
+                )}
                 <Typography variant="h5" className="font-bold">
                   Your Orders
                 </Typography>

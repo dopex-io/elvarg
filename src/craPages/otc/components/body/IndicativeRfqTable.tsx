@@ -21,6 +21,7 @@ import { OtcContext } from 'contexts/Otc';
 
 import smartTrim from 'utils/general/smartTrim';
 import { db } from 'utils/firebase/initialize';
+import formatAmount from 'utils/general/formatAmount';
 
 const ROWS_PER_PAGE = 5;
 
@@ -62,7 +63,7 @@ const TableBodyCell = ({
   );
 };
 
-const IndicativeRfqTable = () => {
+const IndicativeRfqTable = ({ filterFulfilled }) => {
   const { orders, validateUser } = useContext(OtcContext);
 
   const navigate = useNavigate();
@@ -80,10 +81,11 @@ const IndicativeRfqTable = () => {
     return orders.filter((order) => {
       return (
         order.data.timestamp.seconds * 1000 >
-        new Date().getTime() - 604800 * 1000
+          new Date().getTime() - 604800 * 1000 &&
+        (filterFulfilled ? !order.data.isFulfilled : true)
       ); // Less than a week old
     });
-  }, [orders]);
+  }, [orders, filterFulfilled]);
 
   const navigateToChat = useCallback(
     async (data: any) => {
@@ -105,7 +107,7 @@ const IndicativeRfqTable = () => {
 
   return (
     <Box>
-      <TableContainer className="rounded-t-lg border-umbra border border-b-0 max-h-80 overflow-auto">
+      <TableContainer className="rounded-t-lg border-umbra border border-b-0 max-h-80 overflow-auto p-0">
         <Table aria-label="rfq-table" className="bg-umbra">
           <TableHead>
             <TableRow>
@@ -148,7 +150,7 @@ const IndicativeRfqTable = () => {
                     </TableBodyCell>
                     <TableBodyCell align="left">{row.data.base}</TableBodyCell>
                     <TableBodyCell align="center">
-                      {row.data.amount}
+                      {formatAmount(row.data.amount, 3, true)}
                     </TableBodyCell>
                     <TableBodyCell
                       align="center"
@@ -156,7 +158,9 @@ const IndicativeRfqTable = () => {
                       fill="bg-umbra"
                     >
                       <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
-                        {row.data.isBuy ? row.data.price : '-'}
+                        {row.data.isBuy
+                          ? formatAmount(row.data.price, 3, true)
+                          : '-'}
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell
@@ -165,7 +169,9 @@ const IndicativeRfqTable = () => {
                       fill="bg-umbra"
                     >
                       <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
-                        {row.data.isBuy ? '-' : row.data.price}
+                        {row.data.isBuy
+                          ? '-'
+                          : formatAmount(row.data.price, 3, true)}
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell align="right">
@@ -213,18 +219,20 @@ const IndicativeRfqTable = () => {
           </TableFooter>
         )}
       </TableContainer>
-      {filteredOrders.length > ROWS_PER_PAGE ? (
-        <TablePagination
-          component="div"
-          rowsPerPageOptions={[ROWS_PER_PAGE]}
-          count={filteredOrders?.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={ROWS_PER_PAGE}
-          className="text-stieglitz border  border-t-0 border-umbra flex justify-center bg-cod-gray rounded-b-lg"
-          ActionsComponent={TablePaginationActions}
-        />
-      ) : null}
+      <Box className="text-stieglitz border border-t-0 border-umbra flex justify-center bg-cod-gray rounded-b-lg">
+        {filteredOrders.length > ROWS_PER_PAGE ? (
+          <TablePagination
+            component="div"
+            rowsPerPageOptions={[ROWS_PER_PAGE]}
+            count={filteredOrders?.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={ROWS_PER_PAGE}
+            ActionsComponent={TablePaginationActions}
+            className="text-white"
+          />
+        ) : null}
+      </Box>
     </Box>
   );
 };

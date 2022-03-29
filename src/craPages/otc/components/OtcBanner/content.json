@@ -1,6 +1,7 @@
 {
   "banner": {
     "title": "OTC Portal is now in testing",
-    "body": "⌛️ Welcome to our OTC Portal. To learn more, read our OTC article on our blog."
+    "body": "⌛️ Welcome to our OTC Portal. To chat with users privately, please use the link provided below.",
+    "bottomElementText": "Go to Blockscan"
   }
 }
