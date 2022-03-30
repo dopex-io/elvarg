@@ -31,10 +31,9 @@ interface WalletContextInterface {
 export const WalletContext = createContext<WalletContextInterface>({});
 
 export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   '1337': 'http://127.0.0.1:8545',
