@@ -1229,14 +1229,11 @@ const ManageCard = () => {
                   size="medium"
                   className="w-full mt-4 !rounded-md"
                   color={
-                    (isPurchasePowerEnough || !approved) &&
-                    isDepositWindowOpen &&
-                    totalDepositAmount > 0
+                    !approved && isDepositWindowOpen && totalDepositAmount > 0
                       ? 'primary'
                       : 'mineshaft'
                   }
                   disabled={
-                    !isPurchasePowerEnough ||
                     !isDepositWindowOpen ||
                     totalDepositAmount <= 0 ||
                     path['error']
