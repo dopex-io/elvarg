@@ -1002,430 +1002,7 @@ const PurchaseCard = ({
         styles.cardWidth
       )}
     >
-      <Box className="flex flex-row items-center mb-4">
-        <Typography variant="h5">Buy Options</Typography>
-        <ZapOutButton isZapActive={isZapActive} handleClick={handleZapOut} />
-        <IconButton
-          className={
-            isZapActive
-              ? 'p-0 pb-1 mr-0 mt-0.5 ml-4'
-              : 'p-0 pb-1 mr-0 mt-0.5 ml-auto'
-          }
-          size="large"
-        >
-          <BigCrossIcon className="" />
-        </IconButton>
-      </Box>
-      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <Box className="flex flex-row justify-between">
-          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
-            <Box className="flex flex-row h-10 w-10">
-              <img
-                src={
-                  SSOV_MAP[
-                    ssovContext[activeSsovContextSide].ssovData.tokenName
-                  ].imageSrc
-                }
-                alt={ssovTokenName}
-              />
-            </Box>
-          </Box>
-          {activeSsovContextSide === 'CALL' ? (
-            <Box
-              className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
-              onClick={setMaxAmount}
-            >
-              <Typography variant="caption" component="div">
-                <span className="text-stieglitz pl-2.5 pr-2.5">MAX</span>
-              </Typography>
-            </Box>
-          ) : (
-            ''
-          )}
-          <Input
-            disableUnderline
-            id="optionsAmount"
-            name="optionsAmount"
-            placeholder="0"
-            type="number"
-            className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
-            value={rawOptionsAmount}
-            onChange={(e) => setRawOptionsAmount(e.target.value)}
-            classes={{ input: 'text-right' }}
-          />
-        </Box>
-        <Box className="flex flex-row justify-between">
-          <Box className="flex">
-            <Typography
-              variant="h6"
-              className="text-stieglitz text-sm pl-1 pt-2"
-            >
-              Available:{' '}
-              <span className="text-white">
-                {formatAmount(userEpochStrikePurchasableAmount, 3)}{' '}
-              </span>
-            </Typography>
-          </Box>
-          <Box className="ml-auto mr-0">
-            <Typography
-              variant="h6"
-              className="text-stieglitz text-sm pl-1 pt-2 pr-3"
-            >
-              Option Size
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-      {activeSsovContextSide === 'PUT' && !isZapInVisible ? (
-        <Curve2PoolSelector
-          className="mb-2 ml-1"
-          token={purchaseTokenName}
-          setToken={setPurchaseTokenName}
-        />
-      ) : null}
-      <Box>
-        {debouncedIsChartVisible[0] && (
-          <Slide direction="left" in={isChartVisible}>
-            <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
-              <PnlChart
-                breakEven={
-                  activeSsovContextSide === 'PUT'
-                    ? Number(strikes[strikeIndex]) -
-                      getUserReadableAmount(state.optionPrice, 8)
-                    : Number(strikes[strikeIndex]) +
-                      getUserReadableAmount(state.optionPrice, 8)
-                }
-                optionPrice={getUserReadableAmount(state.optionPrice, 8)}
-                amount={optionsAmount}
-                isPut={activeSsovContextSide === 'PUT'}
-                price={getUserReadableAmount(tokenPrice, 8)}
-                symbol={ssovTokenName}
-              />
-            </Box>
-          </Slide>
-        )}
-        {!debouncedIsChartVisible[0] && (
-          <Slide direction="left" in={!isChartVisible}>
-            <Box className="h-[12.88rem]">
-              <Box className={'flex'}>
-                <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
-                  <Box className={'w-5/6'}>
-                    <Typography variant="h5" className="text-white pb-1 pr-2">
-                      ${strikes[strikeIndex]}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz pb-1 pr-2"
-                    >
-                      Strike Price
-                    </Typography>
-                  </Box>
-                  <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
-                    <IconButton
-                      className="p-0"
-                      onClick={(e) => setAnchorEl(e.currentTarget)}
-                      size="large"
-                    >
-                      {anchorEl ? (
-                        <ArrowDropUpIcon
-                          className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                        />
-                      ) : (
-                        <ArrowDropDownIcon
-                          className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                        />
-                      )}
-                    </IconButton>
-                    <Menu
-                      anchorEl={anchorEl}
-                      open={Boolean(anchorEl)}
-                      onClose={() => setAnchorEl(null)}
-                      classes={{ paper: 'bg-umbra' }}
-                      className="mt-12"
-                    >
-                      {strikes.map((strike, strikeIndex) => (
-                        <MenuItem
-                          key={strikeIndex}
-                          className="capitalize text-white hover:bg-mineshaft cursor-pointer"
-                          onClick={() => {
-                            setStrikeIndex(strikeIndex);
-                            setAnchorEl(null);
-                          }}
-                        >
-                          ${strike}
-                        </MenuItem>
-                      ))}
-                    </Menu>
-                  </Box>
-                </Box>
-                <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
-                  <Typography variant="h5" className="text-white pb-1 pr-2">
-                    {state.expiry
-                      ? format(new Date(state.expiry * 1000), 'd LLL yyyy')
-                      : '-'}
-                  </Typography>
-                  <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
-                    Expiry
-                  </Typography>
-                </Box>
-              </Box>
-              <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
-                <Box className={'flex mb-2'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Breakeven
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0"
-                    >
-                      $
-                      {activeSsovContextSide === 'PUT'
-                        ? formatAmount(
-                            Number(strikes[strikeIndex]) -
-                              getUserReadableAmount(state.optionPrice, 8),
-                            2
-                          )
-                        : formatAmount(
-                            Number(strikes[strikeIndex]) +
-                              getUserReadableAmount(state.optionPrice, 8),
-                            2
-                          )}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box className={'flex mb-2'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Option Price
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0"
-                    >
-                      ${ethers.utils.formatUnits(state.optionPrice, 8)}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box className={'flex mb-2'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Side
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0"
-                    >
-                      {activeSsovContextSide}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box className={'flex'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    IV
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0"
-                    >
-                      {state.volatility}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </Slide>
-        )}
-      </Box>
-      <Box className="flex mt-5 mb-5">
-        <CircleIcon
-          className={
-            isChartVisible
-              ? 'ml-auto mr-3 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-              : 'ml-auto mr-3 h-5 w-5 fill-white stroke-white cursor-pointer'
-          }
-          onClick={() => setIsChartVisible(false)}
-        />
-        <CircleIcon
-          className={
-            isChartVisible
-              ? 'mr-auto ml-0 h-5 w-5 fill-white stroke-white cursor-pointer'
-              : 'mr-auto ml-0 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-          }
-          onClick={() => setIsChartVisible(true)}
-        />
-      </Box>
-      <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
-        <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Purchasing with
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {purchaseTokenName}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Option Size
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(optionsAmount, 3)}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Fees
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(
-                  activeSsovContextSide === 'PUT'
-                    ? purchaseTokenName === '2CRV'
-                      ? getUserReadableAmount(state.fees, 18)
-                      : getUserReadableAmount(
-                          state.fees.mul(
-                            ssovContext[activeSsovContextSide].ssovData.lpPrice
-                          ),
-                          36
-                        )
-                    : getUserReadableAmount(state.fees, 18),
-                  6
-                )}{' '}
-                {activeSsovContextSide === 'PUT'
-                  ? purchaseTokenName
-                  : ssovTokenName}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Premium
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(
-                  activeSsovContextSide === 'PUT'
-                    ? purchaseTokenName === '2CRV'
-                      ? getUserReadableAmount(state.premium, 18)
-                      : getUserReadableAmount(
-                          state.premium.mul(
-                            ssovContext[activeSsovContextSide].ssovData.lpPrice
-                          ),
-                          36
-                        )
-                    : getUserReadableAmount(state.premium, 18),
-                  6
-                )}{' '}
-                {activeSsovContextSide === 'PUT'
-                  ? purchaseTokenName
-                  : ssovTokenName}
-              </Typography>
-            </Box>
-          </Box>
-          {activeSsovContextSide === 'CALL' ? (
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Purchase Power
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(
-                    isZapActive ? zapInPurchasePower : purchasePower,
-                    5
-                  )}{' '}
-                  {isZapActive
-                    ? purchaseTokenName
-                    : ssovTokenName === 'BNB'
-                    ? 'vBNB'
-                    : ssovTokenName}
-                </Typography>
-              </Box>
-            </Box>
-          ) : null}
-          {isZapActive ? (
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Total
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(zapInTotalCost, 5)} {purchaseTokenName}
-                </Typography>
-              </Box>
-            </Box>
-          ) : (
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                You will pay
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                  {activeSsovContextSide === 'PUT'
-                    ? purchaseTokenName
-                    : ssovTokenName === 'BNB'
-                    ? 'vBNB'
-                    : ssovTokenName}
-                </Typography>
-              </Box>
-            </Box>
-          )}
-          <EstimatedGasCostButton gas={700000} chainId={chainId} />
-        </Box>
-        <ZapInButton
-          openZapIn={openZapIn}
-          isZapActive={isZapActive}
-          quote={quote}
-          path={path}
-          isFetchingPath={isFetchingPath}
-          fromTokenSymbol={purchaseTokenName}
-          toTokenSymbol={
-            activeSsovContextSide === 'PUT' ? 'USDC' : ssovTokenName
-          }
-          selectedTokenPrice={selectedTokenPrice}
-          isZapInAvailable={
-            activeSsovContextSide === 'PUT' ? false : isZapInAvailable
-          }
-          chainId={chainId}
-        />
-        <Box className="flex">
-          <Box className="flex text-center p-2 mr-2 mt-1">
-            <AlarmIcon />
-          </Box>
-          <Typography variant="h6" className="text-stieglitz">
-            This option will <span className="text-white">Auto Exercise</span>{' '}
-            and can be settled anytime after expiry.
-          </Typography>
-        </Box>
-        <CustomButton
-          size="medium"
-          className="w-full mt-4 !rounded-md"
-          color={purchaseButtonProps.color}
-          disabled={purchaseButtonProps.disabled}
-          onClick={purchaseButtonProps.onClick}
-        >
-          {purchaseButtonProps.children}
-        </CustomButton>
-      </Box>
-      <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>
+      {isZapInVisible ? (
         <Box className={styles.zapIn}>
           <ZapIn
             setOpen={setIsZapInVisible}
@@ -1457,7 +1034,470 @@ const PurchaseCard = ({
             }
           />
         </Box>
-      </Slide>
+      ) : (
+        <Box>
+          <Box className="flex flex-row items-center mb-4">
+            <Typography variant="h5">Buy Options</Typography>
+            <ZapOutButton
+              isZapActive={isZapActive}
+              handleClick={handleZapOut}
+            />
+            <IconButton
+              className={
+                isZapActive
+                  ? 'p-0 pb-1 mr-0 mt-0.5 ml-4'
+                  : 'p-0 pb-1 mr-0 mt-0.5 ml-auto'
+              }
+              size="large"
+            >
+              <BigCrossIcon className="" />
+            </IconButton>
+          </Box>
+          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+            <Box className="flex flex-row justify-between">
+              <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+                <Box className="flex flex-row h-10 w-10">
+                  <img
+                    src={
+                      SSOV_MAP[
+                        ssovContext[activeSsovContextSide].ssovData.tokenName
+                      ].imageSrc
+                    }
+                    alt={ssovTokenName}
+                  />
+                </Box>
+              </Box>
+              {activeSsovContextSide === 'CALL' ? (
+                <Box
+                  className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
+                  onClick={setMaxAmount}
+                >
+                  <Typography variant="caption" component="div">
+                    <span className="text-stieglitz pl-2.5 pr-2.5">MAX</span>
+                  </Typography>
+                </Box>
+              ) : (
+                ''
+              )}
+              <Input
+                disableUnderline
+                id="optionsAmount"
+                name="optionsAmount"
+                placeholder="0"
+                type="number"
+                className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
+                value={rawOptionsAmount}
+                onChange={(e) => setRawOptionsAmount(e.target.value)}
+                classes={{ input: 'text-right' }}
+              />
+            </Box>
+            <Box className="flex flex-row justify-between">
+              <Box className="flex">
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz text-sm pl-1 pt-2"
+                >
+                  Available:{' '}
+                  <span className="text-white">
+                    {formatAmount(userEpochStrikePurchasableAmount, 3)}{' '}
+                  </span>
+                </Typography>
+              </Box>
+              <Box className="ml-auto mr-0">
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz text-sm pl-1 pt-2 pr-3"
+                >
+                  Option Size
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+          {activeSsovContextSide === 'PUT' && !isZapInVisible ? (
+            <Curve2PoolSelector
+              className="mb-2 ml-1"
+              token={purchaseTokenName}
+              setToken={setPurchaseTokenName}
+            />
+          ) : null}
+          <Box>
+            {isChartVisible ? (
+              <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
+                <PnlChart
+                  breakEven={
+                    activeSsovContextSide === 'PUT'
+                      ? Number(strikes[strikeIndex]) -
+                        getUserReadableAmount(state.optionPrice, 8)
+                      : Number(strikes[strikeIndex]) +
+                        getUserReadableAmount(state.optionPrice, 8)
+                  }
+                  optionPrice={getUserReadableAmount(state.optionPrice, 8)}
+                  amount={optionsAmount}
+                  isPut={activeSsovContextSide === 'PUT'}
+                  price={getUserReadableAmount(tokenPrice, 8)}
+                  symbol={ssovTokenName}
+                />
+              </Box>
+            ) : (
+              <Box className="h-[12.88rem]">
+                <Box className={'flex'}>
+                  <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
+                    <Box className={'w-5/6'}>
+                      <Typography variant="h5" className="text-white pb-1 pr-2">
+                        ${strikes[strikeIndex]}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        className="text-stieglitz pb-1 pr-2"
+                      >
+                        Strike Price
+                      </Typography>
+                    </Box>
+                    <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
+                      <IconButton
+                        className="p-0"
+                        onClick={(e) => setAnchorEl(e.currentTarget)}
+                        size="large"
+                      >
+                        {anchorEl ? (
+                          <ArrowDropUpIcon
+                            className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                          />
+                        ) : (
+                          <ArrowDropDownIcon
+                            className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                          />
+                        )}
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={() => setAnchorEl(null)}
+                        classes={{ paper: 'bg-umbra' }}
+                        className="mt-12"
+                      >
+                        {strikes.map((strike, strikeIndex) => (
+                          <MenuItem
+                            key={strikeIndex}
+                            className="capitalize text-white hover:bg-mineshaft cursor-pointer"
+                            onClick={() => {
+                              setStrikeIndex(strikeIndex);
+                              setAnchorEl(null);
+                            }}
+                          >
+                            ${strike}
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </Box>
+                  </Box>
+                  <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
+                    <Typography variant="h5" className="text-white pb-1 pr-2">
+                      {state.expiry
+                        ? format(new Date(state.expiry * 1000), 'd LLL yyyy')
+                        : '-'}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      className="text-stieglitz pb-1 pr-2"
+                    >
+                      Expiry
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
+                  <Box className={'flex mb-2'}>
+                    <Typography
+                      variant="h6"
+                      className="text-stieglitz ml-0 mr-auto"
+                    >
+                      Breakeven
+                    </Typography>
+                    <Box className={'text-right'}>
+                      <Typography
+                        variant="h6"
+                        className="text-white mr-auto ml-0"
+                      >
+                        $
+                        {activeSsovContextSide === 'PUT'
+                          ? formatAmount(
+                              Number(strikes[strikeIndex]) -
+                                getUserReadableAmount(state.optionPrice, 8),
+                              2
+                            )
+                          : formatAmount(
+                              Number(strikes[strikeIndex]) +
+                                getUserReadableAmount(state.optionPrice, 8),
+                              2
+                            )}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box className={'flex mb-2'}>
+                    <Typography
+                      variant="h6"
+                      className="text-stieglitz ml-0 mr-auto"
+                    >
+                      Option Price
+                    </Typography>
+                    <Box className={'text-right'}>
+                      <Typography
+                        variant="h6"
+                        className="text-white mr-auto ml-0"
+                      >
+                        ${ethers.utils.formatUnits(state.optionPrice, 8)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box className={'flex mb-2'}>
+                    <Typography
+                      variant="h6"
+                      className="text-stieglitz ml-0 mr-auto"
+                    >
+                      Side
+                    </Typography>
+                    <Box className={'text-right'}>
+                      <Typography
+                        variant="h6"
+                        className="text-white mr-auto ml-0"
+                      >
+                        {activeSsovContextSide}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box className={'flex'}>
+                    <Typography
+                      variant="h6"
+                      className="text-stieglitz ml-0 mr-auto"
+                    >
+                      IV
+                    </Typography>
+                    <Box className={'text-right'}>
+                      <Typography
+                        variant="h6"
+                        className="text-white mr-auto ml-0"
+                      >
+                        {state.volatility}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </Box>
+          <Box className="flex mt-5 mb-5">
+            <CircleIcon
+              className={
+                isChartVisible
+                  ? 'ml-auto mr-3 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
+                  : 'ml-auto mr-3 h-5 w-5 fill-white stroke-white cursor-pointer'
+              }
+              onClick={() => setIsChartVisible(false)}
+            />
+            <CircleIcon
+              className={
+                isChartVisible
+                  ? 'mr-auto ml-0 h-5 w-5 fill-white stroke-white cursor-pointer'
+                  : 'mr-auto ml-0 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
+              }
+              onClick={() => setIsChartVisible(true)}
+            />
+          </Box>
+          <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
+            <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
+              <Box className={'flex mb-2'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Purchasing with
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {purchaseTokenName}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box className={'flex mb-2'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Option Size
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {formatAmount(optionsAmount, 3)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box className={'flex mb-2'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Fees
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {formatAmount(
+                      activeSsovContextSide === 'PUT'
+                        ? purchaseTokenName === '2CRV'
+                          ? getUserReadableAmount(state.fees, 18)
+                          : getUserReadableAmount(
+                              state.fees.mul(
+                                ssovContext[activeSsovContextSide].ssovData
+                                  .lpPrice
+                              ),
+                              36
+                            )
+                        : getUserReadableAmount(state.fees, 18),
+                      6
+                    )}{' '}
+                    {activeSsovContextSide === 'PUT'
+                      ? purchaseTokenName
+                      : ssovTokenName}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box className={'flex mb-2'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Premium
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {formatAmount(
+                      activeSsovContextSide === 'PUT'
+                        ? purchaseTokenName === '2CRV'
+                          ? getUserReadableAmount(state.premium, 18)
+                          : getUserReadableAmount(
+                              state.premium.mul(
+                                ssovContext[activeSsovContextSide].ssovData
+                                  .lpPrice
+                              ),
+                              36
+                            )
+                        : getUserReadableAmount(state.premium, 18),
+                      6
+                    )}{' '}
+                    {activeSsovContextSide === 'PUT'
+                      ? purchaseTokenName
+                      : ssovTokenName}
+                  </Typography>
+                </Box>
+              </Box>
+              {activeSsovContextSide === 'CALL' ? (
+                <Box className={'flex mb-2'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    Purchase Power
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {formatAmount(
+                        isZapActive ? zapInPurchasePower : purchasePower,
+                        5
+                      )}{' '}
+                      {isZapActive
+                        ? purchaseTokenName
+                        : ssovTokenName === 'BNB'
+                        ? 'vBNB'
+                        : ssovTokenName}
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : null}
+              {isZapActive ? (
+                <Box className={'flex mb-2'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    Total
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {formatAmount(zapInTotalCost, 5)} {purchaseTokenName}
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : (
+                <Box className={'flex mb-2'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    You will pay
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {formatAmount(
+                        getUserReadableAmount(state.totalCost, 18),
+                        5
+                      )}{' '}
+                      {activeSsovContextSide === 'PUT'
+                        ? purchaseTokenName
+                        : ssovTokenName === 'BNB'
+                        ? 'vBNB'
+                        : ssovTokenName}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+              <EstimatedGasCostButton gas={700000} chainId={chainId} />
+            </Box>
+            <ZapInButton
+              openZapIn={openZapIn}
+              isZapActive={isZapActive}
+              quote={quote}
+              path={path}
+              isFetchingPath={isFetchingPath}
+              fromTokenSymbol={purchaseTokenName}
+              toTokenSymbol={
+                activeSsovContextSide === 'PUT' ? 'USDC' : ssovTokenName
+              }
+              selectedTokenPrice={selectedTokenPrice}
+              isZapInAvailable={
+                activeSsovContextSide === 'PUT' ? false : isZapInAvailable
+              }
+              chainId={chainId}
+            />
+            <Box className="flex">
+              <Box className="flex text-center p-2 mr-2 mt-1">
+                <AlarmIcon />
+              </Box>
+              <Typography variant="h6" className="text-stieglitz">
+                This option will{' '}
+                <span className="text-white">Auto Exercise</span> and can be
+                settled anytime after expiry.
+              </Typography>
+            </Box>
+            <CustomButton
+              size="medium"
+              className="w-full mt-4 !rounded-md"
+              color={purchaseButtonProps.color}
+              disabled={purchaseButtonProps.disabled}
+              onClick={purchaseButtonProps.onClick}
+            >
+              {purchaseButtonProps.children}
+            </CustomButton>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };
