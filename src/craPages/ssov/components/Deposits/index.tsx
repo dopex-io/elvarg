@@ -309,7 +309,9 @@ const Deposits = ({
             : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
 
         const totalUserPremiums =
-          (totalPremiums * totalUserDeposits) / totalDeposits;
+          totalDeposits > 0
+            ? (totalPremiums * totalUserDeposits) / totalDeposits
+            : 0;
 
         return {
           strikeIndex,
