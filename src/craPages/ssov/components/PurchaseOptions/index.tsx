@@ -134,7 +134,7 @@ const PurchaseOptions = ({
         (convertToBNB(totalEpochStrikeDeposits) * 10 ** 18).toString()
       );
 
-    const available: number =
+    let available: number =
       ssovContextSide === 'CALL'
         ? getUserReadableAmount(
             totalEpochStrikeDeposits.sub(
@@ -199,7 +199,7 @@ const PurchaseOptions = ({
     );
 
     return {
-      available: available,
+      available: Math.max(0, available),
       strike: getUserReadableAmount(strike, 8),
       volatility: volatility,
       price: getUserReadableAmount(price, 8),
@@ -392,7 +392,7 @@ const PurchaseOptions = ({
                                 setActiveSsovContextSide(ssovContextSide);
                                 setStrikeIndex(i);
                               }}
-                              disabled={row['available'] < 0.1 && !isVaultReady}
+                              disabled={row['available'] < 0.1 || !isVaultReady}
                               className={
                                 row['available'] > 0.1
                                   ? 'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white w-max'
