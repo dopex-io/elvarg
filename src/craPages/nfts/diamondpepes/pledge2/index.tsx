@@ -166,7 +166,7 @@ const DiamondPepesNfts = () => {
         <Box className={styles.backgroundOverlay} />
         <Box className={styles.mobileBackgroundOverlay} />
         <AppBar />
-        <Box className="pt-28 md:pt-32 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
+        <Box className="pt-28 md:pt-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
           <Box className="text-center mx-auto md:mb-12 lg:mt-24 flex">
             <img
               src={'/assets/diamondpepes.svg'}
@@ -178,8 +178,8 @@ const DiamondPepesNfts = () => {
               variant="h3"
               className="text-[#78859E] text-center leading-7 md:leading-10 z-1 relative font-['Minecraft'] text-[1rem]"
             >
-              Pledge your floor NFTs to increase your chances of obtaining from
-              a selection of 11 1-of-1 legendary NFTs
+              This pledge runs until 33% of Gen 1 pepes are pledged to burn to
+              trigger the Gen 2 mint
             </Typography>
           </Box>
           <Box className="text-center mx-auto md:mb-12 lg:mt-12 flex">
@@ -222,7 +222,6 @@ const DiamondPepesNfts = () => {
               </Box>
             ))}
           </Box>
-
           <Box className="p-2 mt-7 md:flex">
             <Box className="md:w-1/3 p-4 text-center">
               <Typography
@@ -235,15 +234,16 @@ const DiamondPepesNfts = () => {
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
               >
-                Deposit Diamond Pepe(s) that you pledge to burn to increase your
-                chances of obtaining a legendary by 1.
+                Each pledge receives a Gen 2 pepe in the Gen 2 mint
               </Typography>
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                You can deposit as many pepes as you want, the more the better.
-                <br />
+                Up to 4 pepes can be pledged in a single pledge - each pledged
+                pepe would result in a 12.5% increase in rarity traits for the
+                Gen 2 mint resulting in an up to 50% chance of a rare trait in
+                Gen 2
                 <br />
               </Typography>
 
@@ -276,7 +276,7 @@ const DiamondPepesNfts = () => {
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
                 You can check them on the day on the smart contract(s) &amp; the
-                Dopex discord. <br />
+                Dopex discord.
                 <br />
               </Typography>
 
@@ -311,7 +311,6 @@ const DiamondPepesNfts = () => {
               >
                 If you did not win, your pledged NFTs are burned forever.
                 <br />
-                <br />
               </Typography>
 
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
@@ -329,7 +328,7 @@ const DiamondPepesNfts = () => {
               </Box>
             </Box>
           </Box>
-          <Box className="flex text-center h-[10rem]">
+          <Box className="flex text-center h-[5rem]">
             <Typography
               variant="h5"
               className={
@@ -349,7 +348,7 @@ const DiamondPepesNfts = () => {
               </a>
             </Typography>
           </Box>
-          <Box className="flex text-center h-[10rem]">
+          <Box className="flex text-center h-[5rem]">
             <Typography
               variant="h5"
               className={
