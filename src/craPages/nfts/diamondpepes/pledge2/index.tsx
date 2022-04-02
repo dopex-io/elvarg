@@ -2,91 +2,89 @@ import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
   UniswapPair__factory,
+  DiamondPepeNFTsPledge__factory,
+  DiamondPepeNFTs__factory,
   Addresses,
 } from '@dopex-io/sdk';
-import Countdown from 'react-countdown';
 import Head from 'next/head';
+import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
 import { Tooltip } from '@mui/material';
 
-import ActionsDialog from '../components/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
-import formatAmount from '../../../utils/general/formatAmount';
+import Pledge2Dialog from '../../components/Pledge2Dialog';
 
-import { Data, UserData, initialData } from './interfaces';
+import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
+import formatAmount from '../../../../utils/general/formatAmount';
 
-import { WalletContext } from '../../../contexts/Wallet';
+import { Data, UserData, initialData } from '../interfaces';
 
 import useSendTx from 'hooks/useSendTx';
 
-import styles from './styles.module.scss';
+import { WalletContext } from '../../../../contexts/Wallet';
+
+import styles from '../styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
-  const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
-    visible: false,
-    tab: 'mint',
-  });
-
+  const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
+    useState<string>('hidden');
+  const [isMintDialogVisible, setIsMintDialogVisible] =
+    useState<boolean>(false);
   const yieldMint = YieldMint__factory.connect(
     Addresses[chainId]['DiamondPepesNFTMint'],
     provider
   );
+  const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
+    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+    signer
+  );
+  const pledge = DiamondPepeNFTsPledge__factory.connect(
+    Addresses[chainId]['DiamondPepesNFTPledge'],
+    provider
+  );
+  const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
+  const [totalPledged, setTotalPledged] = useState<number>(0);
+  const winners = [];
   const sendTx = useSendTx();
 
   const updateData = useCallback(async () => {
-    if (!provider || !contractAddresses) return;
-    const lp = UniswapPair__factory.connect(
-      Addresses[chainId]['RDPX-WETH'],
-      provider
-    );
-
-    const [
-      isDepositPeriod,
-      isFarmingPeriod,
-      maxLpDeposits,
-      mintPrice,
-      totalDeposits,
-      lpReserves,
-      lpTotalSupply,
-    ] = await Promise.all([
-      yieldMint.depositPeriod(),
-      yieldMint.farmingPeriod(),
-      yieldMint.maxLpDeposits(),
-      yieldMint.mintPrice(),
-      yieldMint.totalDeposits(),
-      lp.getReserves(),
-      lp.totalSupply(),
-    ]);
-
-    setData({
-      lpReserves: lpReserves,
-      lpSupply: lpTotalSupply,
-      isDepositPeriod: isDepositPeriod,
-      isFarmingPeriod: isFarmingPeriod,
-      maxLpDeposits: maxLpDeposits,
-      mintPrice: mintPrice,
-      totalDeposits: totalDeposits,
-    });
-  }, [provider, contractAddresses, chainId, yieldMint]);
+    if (!provider) return;
+    const total = await pledge.totalPledged();
+    setTotalPledged(total.toNumber());
+  }, [provider, pledge, setTotalPledged]);
 
   const updateUserData = useCallback(async () => {
-    if (!provider || !contractAddresses || !YieldMint__factory) return;
+    if (!provider) return;
 
-    const [deposits, minted] = await Promise.all([
-      yieldMint.usersDeposit(accountAddress),
-      yieldMint.didUserMint(accountAddress),
-    ]);
+    const nfts = await diamondPepeNfts
+      .connect(signer)
+      .walletOfOwner(accountAddress);
+    let total = 0;
 
-    setUserData({ deposits: deposits, minted: minted });
-  }, [provider, contractAddresses, yieldMint, accountAddress]);
+    const pledged = await Promise.all(nfts.map((n) => pledge.pledged(n)));
+
+    nfts.map((n, i) => {
+      if (pledged[i] !== '0x0000000000000000000000000000000000000000')
+        total += 1;
+    });
+
+    setTotalUserPledged(total);
+  }, [
+    signer,
+    accountAddress,
+    diamondPepeNfts,
+    provider,
+    pledge,
+    setTotalUserPledged,
+  ]);
 
   useEffect(() => {
     updateData();
@@ -96,43 +94,38 @@ const DiamondPepesNfts = () => {
     updateUserData();
   }, [updateUserData]);
 
-  const timeRemaining = useMemo(() => {
-    if (!data.isDepositPeriod) return <span>-</span>;
-    else if (data.isDepositPeriod) {
-      return (
-        <Countdown
-          date={new Date((1645496520 + 2.22 * 86400) * 1000)}
-          renderer={({ days, hours, minutes, seconds, completed }) => {
-            if (days < 1 && hours < 1) {
-              return (
-                <span>
-                  {minutes}m {seconds}s
-                </span>
-              );
-            } else {
-              return (
-                <span>
-                  {days}d {hours}h {minutes}m {seconds}s
-                </span>
-              );
-            }
-          }}
-        />
-      );
-    }
-  }, [data]);
+  const timeRemaining = (
+    <Countdown
+      date={new Date(1646426662000)}
+      renderer={({ days, hours, minutes, seconds, completed }) => {
+        if (days < 1 && hours < 1) {
+          return (
+            <span>
+              {minutes}m {seconds}s
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              {days}d {hours}h {minutes}m {seconds}s
+            </span>
+          );
+        }
+      }}
+    />
+  );
 
   const boxes = [
-    { title: 'Genesis', subTitle: 'Collection' },
-    { title: '2:22 AM 22/2/22', subTitle: 'Start CET' },
+    { title: 'Genesis (Legendary)', subTitle: 'Collection' },
+    { title: '22:22 PM 1/3/22', subTitle: 'Start GMT' },
     { title: timeRemaining, subTitle: 'Time remaining' },
     {
-      title: formatAmount(getUserReadableAmount(data.totalDeposits, 18), 2),
-      subTitle: 'Deposits',
+      title: totalPledged,
+      subTitle: 'Pledged',
     },
     {
-      title: formatAmount(getUserReadableAmount(userData.deposits, 18), 2),
-      subTitle: 'Your deposits',
+      title: totalUserPledged,
+      subTitle: 'Your pledged',
     },
   ];
 
@@ -144,7 +137,7 @@ const DiamondPepesNfts = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, yieldMint, signer, updateData, updateUserData]);
+  }, [accountAddress, updateData, updateUserData, signer]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -152,17 +145,21 @@ const DiamondPepesNfts = () => {
         <title>Diamond Pepes NFTs | Dopex</title>
       </Head>
       {provider ? (
-        <ActionsDialog
-          open={actionsDialogDisplayState.visible}
-          tab={actionsDialogDisplayState.tab}
-          data={data}
+        <Pledge2Dialog
+          timeRemaining={timeRemaining}
+          open={pledgeDialogVisibleTab != 'hidden'}
+          handleClose={
+            (() => {
+              setPledgeDialogVisibleTab('hidden');
+            }) as any
+          }
+          tab={pledgeDialogVisibleTab}
           userData={userData}
-          yieldMint={yieldMint}
-          handleClose={() => {
-            setActionsDialogDisplayState({ visible: false, tab: 'mint' });
-          }}
+          data={data}
           updateData={updateData}
           updateUserData={updateUserData}
+          pledge={pledge}
+          winners={winners}
         />
       ) : null}
       <Box>
@@ -174,7 +171,6 @@ const DiamondPepesNfts = () => {
             <img
               src={'/assets/diamondpepes.svg'}
               className="ml-auto mr-auto z-1 relative md:w-auto w-60"
-              alt="logo"
             />
           </Box>
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">
@@ -182,14 +178,24 @@ const DiamondPepesNfts = () => {
               variant="h3"
               className="text-[#78859E] text-center leading-7 md:leading-10 z-1 relative font-['Minecraft'] text-[1rem]"
             >
-              2,222 Unique Diamond Pepes up for grabs. Free mint passes by
-              staking LP Tokens. Zap In with any asset.
+              Pledge your floor NFTs to increase your chances of obtaining from
+              a selection of 11 1-of-1 legendary NFTs
             </Typography>
-            <Box className="ml-auto mr-auto mb-5 mt-5 w-[10rem]">
-              <a href={'/nfts/diamondpepes/pledge2'}>
-                <button className={styles.pepeButton}>Pledge</button>
-              </a>
-            </Box>
+          </Box>
+          <Box className="text-center mx-auto md:mb-12 lg:mt-12 flex">
+            <img src={'/assets/gold-pepe-1.png'} className="z-1 ml-40 w-60" />
+            <img
+              src={'/assets/gold-pepe-2.png'}
+              className="z-1 ml-2 relative w-60"
+            />
+            <img
+              src={'/assets/gold-pepe-3.png'}
+              className="z-1 ml-2 relative w-60"
+            />
+            <img
+              src={'/assets/gold-pepe-4.png'}
+              className="z-1 ml-2 relative w-60"
+            />
           </Box>
           <Box className="pl-4 pr-4 md:flex border border-[#232935] w-full mt-9 bg-[#181C24] z-1 relative">
             {boxes.map((box, i) => (
@@ -216,32 +222,37 @@ const DiamondPepesNfts = () => {
               </Box>
             ))}
           </Box>
+
           <Box className="p-2 mt-7 md:flex">
             <Box className="md:w-1/3 p-4 text-center">
               <Typography
                 variant="h3"
                 className="text-white font-display font-['Minecraft'] relative z-1"
               >
-                <span className={styles.pepeText}>Deposit LP Tokens</span>
+                <span className={styles.pepeText}>Deposit Floors</span>
               </Typography>
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
               >
-                This mint experience only requires you to stake LP tokens to get
-                your Diamond Pepe(s).
+                Deposit Diamond Pepe(s) that you pledge to burn to increase your
+                chances of obtaining a legendary by 1.
               </Typography>
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                Please note that{" you'll "}need to deposit 10 LP tokens minimum
-                per pepe for a guaranteed mint.
+                You can deposit as many pepes as you want, the more the better.
                 <br />
                 <br />
               </Typography>
+
               <Box className="ml-5 mb-5 md:mt-10 md:mb-0">
-                <button className={styles.pepeButton} disabled>
+                <button
+                  className={styles.pepeButton}
+                  onClick={() => setPledgeDialogVisibleTab('pledge')}
+                  disabled={winners.length > 0}
+                >
                   Deposit
                 </button>
               </Box>
@@ -251,39 +262,32 @@ const DiamondPepesNfts = () => {
                 variant="h3"
                 className="text-white font-display font-['Minecraft'] relative z-1"
               >
-                <span className={styles.pepeText}>Wait for mint</span>
+                <span className={styles.pepeText}>Wait for RNG</span>
               </Typography>
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
               >
-                You can mint your NFT when the deposit period ends. This is set
-                for two days from opening pool.
+                Random numbers picking the winning pledges using Chainlink VRF
+                will be fed into the contract.
               </Typography>
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                You can check the reveal of these NFTs on mint day on
-                tofunft.com. <br />
+                You can check them on the day on the smart contract(s) &amp; the
+                Dopex discord. <br />
                 <br />
-                Good luck kid.
               </Typography>
+
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
-                <Tooltip title={'Not open yet'}>
-                  <button
-                    className={styles.pepeButton}
-                    onClick={() =>
-                      setActionsDialogDisplayState({
-                        visible: true,
-                        tab: 'mint',
-                      })
-                    }
-                    disabled={!data.isFarmingPeriod}
-                  >
-                    {data.isFarmingPeriod ? 'Mint' : '2/24/2022'}
-                  </button>
-                </Tooltip>
+                <button
+                  className={styles.pepeButton}
+                  onClick={() => setPledgeDialogVisibleTab('winner')}
+                  disabled={winners.length === 0}
+                >
+                  View winners
+                </button>
               </Box>
             </Box>
             <Box className="md:w-1/3 p-4 text-center">
@@ -291,31 +295,35 @@ const DiamondPepesNfts = () => {
                 variant="h3"
                 className="text-white font-display font-['Minecraft'] relative z-1"
               >
-                <span className={styles.pepeText}> Withdraw Later</span>
+                <span className={styles.pepeText}> Receive Legendaries</span>
               </Typography>
 
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
               >
-                Your stake is locked for 14 days. Once unlocked you can withdraw
-                all funds anytime.
+                If you hold a winning pledge #, you will receive your legendary
+                after the winners have been picked.
               </Typography>
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
               >
-                Excess deposits that {"doesn't"} end up with additional pepes
-                will also return its share of the farming reward upon
-                withdrawing.
+                If you did not win, your pledged NFTs are burned forever.
+                <br />
+                <br />
               </Typography>
+
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
                 <Tooltip title={'Not open yet'}>
                   <button
                     className={styles.pepeButton}
+                    disabled={!(!data.isFarmingPeriod && userData.minted)}
                     onClick={handleWithdraw}
                   >
-                    Withdraw
+                    {!(!data.isFarmingPeriod && userData.minted)
+                      ? '2/3/2022'
+                      : 'Withdraw'}
                   </button>
                 </Tooltip>
               </Box>
@@ -338,6 +346,26 @@ const DiamondPepesNfts = () => {
                 target={'_blank'}
               >
                 0xcAD9297f00487a88Afa120Bf9F4823B52AE388b0
+              </a>
+            </Typography>
+          </Box>
+          <Box className="flex text-center h-[10rem]">
+            <Typography
+              variant="h5"
+              className={
+                "mr-auto ml-auto mt-8 text-stieglitz font-['Minecraft'] font-[0.2rem] break-all"
+              }
+            >
+              Pledge contract
+              <br />
+              <a
+                href={
+                  'https://arbiscan.io/address/0xE974a44f859C1218fE0d8d151349788475692954'
+                }
+                rel="noopener noreferrer"
+                target={'_blank'}
+              >
+                0xE974a44f859C1218fE0d8d151349788475692954
               </a>
             </Typography>
           </Box>

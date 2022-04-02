@@ -41,6 +41,9 @@ const DiamondPepesNfts = lazy(() => import('craPages/nfts/diamondpepes'));
 const PledgeDiamondPepesNfts = lazy(
   () => import('craPages/nfts/diamondpepes/pledge')
 );
+const PledgeTwoDiamondPepesNfts = lazy(
+  () => import('craPages/nfts/diamondpepes/pledge2')
+);
 const Oracles = lazy(() => import('craPages/oracles'));
 const Tzwap = lazy(() => import('craPages/tzwap'));
 // const Portfolio = lazy(() => import('pages/portfolio'));
@@ -84,6 +87,10 @@ const NftsRoutes = () => {
         <Route
           path="diamondpepes/pledge"
           element={<PledgeDiamondPepesNfts />}
+        />
+        <Route
+          path="diamondpepes/pledge2"
+          element={<PledgeTwoDiamondPepesNfts />}
         />
       </Routes>
     </NftsProvider>
