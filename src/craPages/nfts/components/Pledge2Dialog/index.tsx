@@ -36,7 +36,7 @@ export interface Props {
   timeRemaining: JSX.Element;
   updateData: () => {};
   updateUserData: () => {};
-  pledge: DiamondPepeNFTsPledge;
+  pledge: any;
   winners: any[];
 }
 
@@ -58,7 +58,7 @@ const Pledge2Dialog = ({
     useContext(WalletContext);
 
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+    '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
     signer
   );
   const [approved, setApproved] = useState<boolean>(false);
@@ -90,9 +90,8 @@ const Pledge2Dialog = ({
   const sendTx = useSendTx();
 
   const getNfts = useCallback(async () => {
-    const nfts = await diamondPepeNfts
-      .connect(signer)
-      .walletOfOwner(accountAddress);
+    // const nfts = await diamondPepeNfts.connect(signer).walletOfOwner(accountAddress);
+    const nfts = [9, 8, 7, 6, 5, 4, 3, 2, 1];
     let _nfts = [];
     let _pledgedNfts = [];
 
@@ -128,7 +127,7 @@ const Pledge2Dialog = ({
       selectedNfts.map((i) =>
         tokenIds.push(BigNumber.from(userNfts[i.toFixed(0)].id))
       );
-      await sendTx(pledge.connect(signer).pledge(tokenIds));
+      await sendTx(pledge.connect(signer).pledge([tokenIds]));
       await updateData();
       await updateUserData();
       await getNfts();

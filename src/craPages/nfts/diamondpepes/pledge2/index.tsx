@@ -7,7 +7,7 @@ import {
   Addresses,
 } from '@dopex-io/sdk';
 import Head from 'next/head';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
@@ -46,10 +46,232 @@ const DiamondPepesNfts = () => {
     '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
     signer
   );
-  const pledge = DiamondPepeNFTsPledge__factory.connect(
-    '0x944b481d8aba4ecffdfd0081bdfe09f11123bbf8',
-    provider
-  );
+  const abi = [
+    {
+      inputs: [
+        { internalType: 'address', name: '_pepes', type: 'address' },
+        { internalType: 'uint256', name: '_targetVote', type: 'uint256' },
+      ],
+      stateMutability: 'nonpayable',
+      type: 'constructor',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'tokenId',
+          type: 'uint256',
+        },
+      ],
+      name: 'LogBurn',
+      type: 'event',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'address',
+          name: 'pledgor',
+          type: 'address',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256[]',
+          name: 'tokenIds',
+          type: 'uint256[]',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'index',
+          type: 'uint256',
+        },
+      ],
+      name: 'LogNewPledge',
+      type: 'event',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'address',
+          name: 'pledgor',
+          type: 'address',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'tokenId',
+          type: 'uint256',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'index',
+          type: 'uint256',
+        },
+      ],
+      name: 'LogPledgedPepe',
+      type: 'event',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'previousOwner',
+          type: 'address',
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'newOwner',
+          type: 'address',
+        },
+      ],
+      name: 'OwnershipTransferred',
+      type: 'event',
+    },
+    {
+      inputs: [
+        { internalType: 'uint256[]', name: 'tokenIds', type: 'uint256[]' },
+      ],
+      name: 'burnFloors',
+      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      name: 'burned',
+      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'getTarget',
+      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [
+        { internalType: 'address', name: 'operator', type: 'address' },
+        { internalType: 'address', name: 'from', type: 'address' },
+        { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+        { internalType: 'bytes', name: 'data', type: 'bytes' },
+      ],
+      name: 'onERC721Received',
+      outputs: [{ internalType: 'bytes4', name: '', type: 'bytes4' }],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'owner',
+      outputs: [{ internalType: 'address', name: '', type: 'address' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'pepes',
+      outputs: [
+        {
+          internalType: 'contract ERC721PresetMinterPauserAutoId',
+          name: '',
+          type: 'address',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'percentPrecision',
+      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [
+        { internalType: 'uint256[][]', name: 'tokenIds', type: 'uint256[][]' },
+      ],
+      name: 'pledge',
+      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      name: 'pledgeByIndex',
+      outputs: [{ internalType: 'address', name: 'pledgor', type: 'address' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'pledgeIndex',
+      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      name: 'pledged',
+      outputs: [{ internalType: 'address', name: '', type: 'address' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'renounceOwnership',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'targetHit',
+      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'targetVote',
+      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'totalPledged',
+      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
+      name: 'transferOwnership',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+  ];
+  const pledge = useMemo(() => {
+    return new ethers.Contract(
+      '0x944b481d8aba4ecffdfd0081bdfe09f11123bbf8',
+      abi,
+      signer
+    );
+  }, [signer]);
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
   const winners = [];
@@ -64,9 +286,9 @@ const DiamondPepesNfts = () => {
   const updateUserData = useCallback(async () => {
     if (!provider) return;
 
-    const nfts = await diamondPepeNfts
-      .connect(signer)
-      .walletOfOwner(accountAddress);
+    // const nfts = await diamondPepeNfts.connect(signer).walletOfOwner(accountAddress);
+    const nfts = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+
     let total = 0;
 
     const pledged = await Promise.all(nfts.map((n) => pledge.pledged(n)));
@@ -278,7 +500,7 @@ const DiamondPepesNfts = () => {
               </a>
             </Typography>
           </Box>
-          <Box className="flex text-center h-[5rem]">
+          <Box className="flex text-center h-[7rem] mb-2">
             <Typography
               variant="h5"
               className={
