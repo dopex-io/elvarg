@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import TrendingDownIcon from '@material-ui/icons/TrendingDown';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
 import { PoolsContext } from 'contexts/Pools';
 import { AssetsContext } from 'contexts/Assets';

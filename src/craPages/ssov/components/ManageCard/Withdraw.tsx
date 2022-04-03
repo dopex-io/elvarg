@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
 import Countdown from 'react-countdown';
@@ -115,7 +115,7 @@ const Withdraw = () => {
               {formatAmount(userEpochDepositsAmount, 5)}
             </span>{' '}
             / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-            {isPut ? '2CRV' : tokenSymbol}
+            {isPut ? '2CRV' : tokenName === 'BNB' ? 'vBNB' : tokenSymbol}
           </Typography>
         </Box>
         <Box>
@@ -140,7 +140,7 @@ const Withdraw = () => {
                       {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                     </Typography>
                     <Typography variant="h6" className="text-stieglitz">
-                      {tokenSymbol} ${strike}
+                      {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} ${strike}
                     </Typography>
                   </Box>
                 </Box>
@@ -158,7 +158,11 @@ const Withdraw = () => {
               >
                 <Typography variant="h6">
                   {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}{' '}
-                  {isPut ? '2CRV' : tokenSymbol}
+                  {isPut
+                    ? '2CRV'
+                    : tokenSymbol === 'BNB'
+                    ? 'vBNB'
+                    : tokenSymbol}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
                   {tokenSymbol} ${strike}

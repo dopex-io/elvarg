@@ -1,12 +1,12 @@
 import { useCallback, useContext, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 import { SsovContext } from 'contexts/Ssov';
 
@@ -217,6 +217,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             aria-haspopup="true"
             onClick={handleClickMenu}
             className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
+            size="large"
           >
             <MoreVertIcon className="fill-current text-white" />
           </IconButton>

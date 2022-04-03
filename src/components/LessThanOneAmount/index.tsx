@@ -1,5 +1,5 @@
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import { Box, Tooltip } from '@material-ui/core';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Box, Tooltip } from '@mui/material';
 import Typography from 'components/UI/Typography';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 

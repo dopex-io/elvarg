@@ -47,12 +47,18 @@ const initialState: AssetsContextInterface = {
     'AVAX',
     'BNB',
     'GMX',
+    'JONES',
+    'CRV',
+    'CVX',
+    'LINK',
+    'DAI',
     'USDC',
     'USDT',
     'MIM',
     'FRAX',
     'MAGIC',
     '2CRV',
+    'VBNB',
   ],
   tokenPrices: [],
   userAssetBalances: {
@@ -67,9 +73,15 @@ const initialState: AssetsContextInterface = {
     FRAX: '0',
     BNB: '0',
     GMX: '0',
+    JONES: '0',
+    CRV: '0',
+    CVX: '0',
+    LINK: '0',
+    DAI: '0',
     AVAX: '0',
     MAGIC: '0',
     '2CRV': '0',
+    VBNB: '0',
   },
 };
 
@@ -81,6 +93,11 @@ const ASSET_TO_COINGECKO_ID = {
   USDT: 'tether',
   USDC: 'usd-coin',
   GMX: 'gmx',
+  CVX: 'convex-finance',
+  CRV: 'curve-dao-token',
+  DAI: 'dai',
+  LINK: 'chainlink',
+  JONES: 'jones-dao',
   MIM: 'magic-internet-money',
   FRAX: 'frax',
   DPX: 'dopex',
@@ -89,6 +106,7 @@ const ASSET_TO_COINGECKO_ID = {
   AVAX: 'avalanche-2',
   MAGIC: 'magic',
   '2CRV': 'Curve-2-pool-token',
+  VBNB: 'binancecoin',
 };
 
 export const ASSET_TO_NAME = {
@@ -98,6 +116,11 @@ export const ASSET_TO_NAME = {
   USDT: 'Tether USD',
   USDC: 'Circle USD',
   GMX: 'GMX',
+  JONES: 'JONES',
+  CVX: 'Convex',
+  CRV: 'Curve',
+  DAI: 'DAI',
+  LINK: 'Chainlink',
   MIM: 'Magic Internet Money',
   FRAX: 'Frax USD',
   DPX: 'Dopex Governance',
@@ -106,6 +129,7 @@ export const ASSET_TO_NAME = {
   AVAX: 'Avalanche',
   MAGIC: 'Magic',
   '2CRV': 'Curve2 Pool Token',
+  VBNB: 'Venus BNB',
 };
 
 export const CHAIN_ID_TO_NATIVE = {
@@ -288,11 +312,16 @@ export const AssetsProvider = (props) => {
         DPX: '0',
         RDPX: '0',
         GOHM: '0',
-        VBNB: '0',
         GMX: '0',
+        JONES: '0',
+        CRV: '0',
+        CVX: '0',
+        LINK: '0',
+        DAI: '0',
         AVAX: '0',
         MAGIC: '0',
         '2CRV': '0',
+        VBNB: '0',
       };
 
       const assets = Object.keys(userAssetBalances)

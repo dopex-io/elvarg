@@ -1,7 +1,7 @@
 import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
-import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -132,7 +132,7 @@ const Description = ({
               onClick={() => {
                 accountAddress ? setPurchaseState(true) : connect();
               }}
-              disabled={!isVaultReady}
+              disabled={!isVaultReady || ssovEpochData.isEpochExpired}
             >
               Buy {type} Options
             </WalletButton>

@@ -3,8 +3,8 @@ import { useFormik } from 'formik';
 import cx from 'classnames';
 import { utils as ethersUtils, BigNumber } from 'ethers';
 import noop from 'lodash/noop';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';

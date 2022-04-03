@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
@@ -11,6 +11,8 @@ import AppBar from 'components/AppBar';
 import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochsDropDown';
 import SsovCard from './components/SsovCard';
 import SsovFilter from './components/SsovFilter';
+
+import formatAmount from '../../utils/general/formatAmount';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -37,10 +39,17 @@ const Ssov = () => {
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
 
+  const tvl = useMemo(() => {
+    let total = 0;
+    for (let i in ssovs)
+      ssovs[i].map((ssov) => (total += parseFloat(ssov.tvl)));
+    return total;
+  }, [ssovs]);
+
   const keys = useMemo(() => {
     if (!ssovs) return [];
     else if (chainId === 56) return [56, 42161, 43114];
-    else if (chainId === 43114) return [43114, 42161, 43114];
+    else if (chainId === 43114) return [43114, 42161];
     else return [42161, 56, 43114];
   }, [ssovs, chainId]);
 
@@ -75,9 +84,18 @@ const Ssov = () => {
       <AppBar active="SSOV" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
-          <Typography variant="h2" className="mb-7">
+          <Typography variant="h2" className="z-1">
             Single Staking Option Vaults
           </Typography>
+          <Box
+            className={
+              'mb-6 mt-5 opacity-90 bg-white ml-auto mr-auto w-[5rem] rounded-md p-[0.3px]'
+            }
+          >
+            <Typography variant="h6" className="text-umbra text-[0.7rem]">
+              TVL ${formatAmount(tvl, 0)}
+            </Typography>
+          </Box>
           <Typography variant="h5" className="text-stieglitz">
             Supply option liquidity to an Option Vault. Collect premiums from
             option purchases and earn rewards from farms simultaneously.

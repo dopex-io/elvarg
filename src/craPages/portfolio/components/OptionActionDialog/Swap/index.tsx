@@ -4,10 +4,10 @@ import noop from 'lodash/noop';
 import cx from 'classnames';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import CircularProgress from '@mui/material/CircularProgress';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import Typography from 'components/UI/Typography';
 import CustomInput from 'components/UI/Input';

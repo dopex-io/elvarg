@@ -84,6 +84,7 @@ interface SsovContextInterface {
   updateSsovUserData?: Function;
   setSelectedSsov?: Function;
   setSelectedEpoch?: Function;
+  isPut?: boolean;
 }
 
 const initialSsovUserData = {
@@ -299,12 +300,12 @@ export const SsovProvider = (props) => {
           currentEpoch
         );
 
-        setSelectedEpoch(Number(currentEpoch) + 1);
+        setSelectedEpoch(Number(currentEpoch) === 0 ? 1 : Number(currentEpoch));
 
         _ssovData = {
           tokenName: selectedSsov.token.toUpperCase(),
           ssovContract: _ssovContract,
-          currentEpoch: Number(currentEpoch) + 1,
+          currentEpoch: Number(currentEpoch),
           isCurrentEpochExpired,
           tokenPrice,
           ...(selectedSsov.type === 'PUT' && {
@@ -408,6 +409,7 @@ export const SsovProvider = (props) => {
     updateSsovUserData,
     setSelectedSsov,
     setSelectedEpoch,
+    isPut: selectedSsov?.type === 'PUT',
   };
 
   return (

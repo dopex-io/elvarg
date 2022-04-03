@@ -6,10 +6,10 @@ import { BigNumber } from 'ethers';
 import { ERC20__factory, Margin__factory } from '@dopex-io/sdk';
 import cx from 'classnames';
 import * as yup from 'yup';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { PoolsContext, PoolsProvider } from 'contexts/Pools';
 import { WalletContext } from 'contexts/Wallet';
@@ -254,7 +254,7 @@ const Margin = () => {
         <Box className="flex flex-col mb-14 bg-cod-gray p-5 rounded-xl">
           <Box className="flex flex-row justify-between mb-4">
             <Box className="flex flex-row">
-              <IconButton className=" w-3 h-3 mr-3 mt-1">
+              <IconButton className=" w-3 h-3 mr-3 mt-1" size="large">
                 <Link to="/pools">
                   <ArrowBackIcon className="text-stieglitz" />
                 </Link>

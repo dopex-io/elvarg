@@ -1,16 +1,10 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
 import Web3Modal from 'web3modal';
-import WalletLink from 'walletlink';
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
@@ -37,10 +31,9 @@ interface WalletContextInterface {
 export const WalletContext = createContext<WalletContextInterface>({});
 
 export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   '1337': 'http://127.0.0.1:8545',
@@ -69,6 +62,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/nfts/diamondpepes': [42161],
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
+  '/tzwap': [1, 42161],
 };
 
 const DEFAULT_CHAIN_ID =
@@ -85,11 +79,22 @@ if (typeof window !== 'undefined') {
       },
     },
     walletlink: {
-      package: WalletLink,
+      package: CoinbaseWalletSDK,
       options: {
+        appName: 'Dopex',
         rpc: CHAIN_ID_TO_PROVIDERS,
       },
     },
+    ...(window['clover'] && {
+      injected: {
+        display: {
+          logo: '/wallets/Clover.png',
+          name: 'Clover Wallet',
+          description: 'Connect to your Clover Wallet',
+        },
+        package: null,
+      },
+    }),
     ...(window.ethereum?.isCoin98 && {
       injected: {
         display: {

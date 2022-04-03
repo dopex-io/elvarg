@@ -1,9 +1,9 @@
 import { useContext, useState, useCallback, useMemo } from 'react';
 import Head from 'next/head';
 import c from 'classnames';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import axios from 'axios';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';

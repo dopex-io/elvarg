@@ -1,15 +1,34 @@
-import { useState, useContext } from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
-import Box from '@material-ui/core/Box';
-import Menu from '@material-ui/core/Menu';
-import Button from '@material-ui/core/Button';
+import { useState } from 'react';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+import Menu from '@mui/material/Menu';
+import Button from '@mui/material/Button';
 
-import { WalletContext } from 'contexts/Wallet';
+const EPOCHS = [
+  {
+    name: 'Epoch 1 (November)',
+    to: 'https://ssov-epoch-1.dopex.io/',
+  },
+  {
+    name: 'Epoch 2 (December)',
+    to: 'https://ssov-epoch-2.dopex.io/',
+  },
+  {
+    name: 'Epoch 3 (January)',
+    to: 'https://ssov-epoch-3.dopex.io/',
+  },
+  {
+    name: 'Epoch 4 (February)',
+    to: 'https://ssov-epoch-4.dopex.io/',
+  },
+  {
+    name: 'Epoch 5 (March)',
+    to: 'https://ssov-epoch-5.dopex.io/',
+  },
+];
 
 const LegacyEpochsDropDown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const { chainId } = useContext(WalletContext);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -19,28 +38,13 @@ const LegacyEpochsDropDown = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const epochs = [
-    {
-      name: 'Epoch 1 (November)',
-      to: 'https://ssov-epoch-1.dopex.io/',
-    },
-    {
-      name: 'Epoch 2 (December)',
-      to: 'https://ssov-epoch-2.dopex.io/',
-    },
-    {
-      name: 'Epoch 3 (January)',
-      to: 'https://ssov-epoch-3.dopex.io/',
-    },
-  ];
-
   return (
     <Box className="flex items-center justify-center mb-5">
       <Box className="bg-gradient-to-r p-0.5 mb-3 from-indigo-500 to-blue-400 rounded-lg">
         <Button
           size="medium"
           color="secondary"
-          className="text-white text-lg h-10 hover:text-gray-200 hover:bg-mineshaft pb-3 bg-mineshaft px-8"
+          className="text-white text-md h-10 p-3 hover:text-gray-200 hover:bg-mineshaft bg-mineshaft"
           onClick={handleClick}
         >
           LEGACY EPOCHS
@@ -54,7 +58,7 @@ const LegacyEpochsDropDown = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        {epochs.map(({ name, to }, index) => (
+        {EPOCHS.map(({ name, to }, index) => (
           <MenuItem
             key={index}
             className="hover:bg-cod-gray bg-umbra text-white"
