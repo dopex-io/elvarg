@@ -43,11 +43,11 @@ const DiamondPepesNfts = () => {
     provider
   );
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+    '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
     signer
   );
   const pledge = DiamondPepeNFTsPledge__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTPledge'],
+    '0x944b481d8aba4ecffdfd0081bdfe09f11123bbf8',
     provider
   );
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
@@ -223,12 +223,12 @@ const DiamondPepesNfts = () => {
             ))}
           </Box>
           <Box className="p-2 mt-7 md:flex">
-            <Box className="md:w-1/3 p-4 text-center">
+            <Box className="md:w-2/3 p-4 text-center ml-auto mr-auto">
               <Typography
                 variant="h3"
                 className="text-white font-display font-['Minecraft'] relative z-1"
               >
-                <span className={styles.pepeText}>Deposit Floors</span>
+                <span className={styles.pepeText}>Trigger Gen 2</span>
               </Typography>
               <Typography
                 variant="h4"
@@ -255,76 +255,6 @@ const DiamondPepesNfts = () => {
                 >
                   Deposit
                 </button>
-              </Box>
-            </Box>
-            <Box className="md:w-1/3 p-4 text-center">
-              <Typography
-                variant="h3"
-                className="text-white font-display font-['Minecraft'] relative z-1"
-              >
-                <span className={styles.pepeText}>Wait for RNG</span>
-              </Typography>
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
-              >
-                Random numbers picking the winning pledges using Chainlink VRF
-                will be fed into the contract.
-              </Typography>
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
-              >
-                You can check them on the day on the smart contract(s) &amp; the
-                Dopex discord.
-                <br />
-              </Typography>
-
-              <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
-                <button
-                  className={styles.pepeButton}
-                  onClick={() => setPledgeDialogVisibleTab('winner')}
-                  disabled={winners.length === 0}
-                >
-                  View winners
-                </button>
-              </Box>
-            </Box>
-            <Box className="md:w-1/3 p-4 text-center">
-              <Typography
-                variant="h3"
-                className="text-white font-display font-['Minecraft'] relative z-1"
-              >
-                <span className={styles.pepeText}> Receive Legendaries</span>
-              </Typography>
-
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
-              >
-                If you hold a winning pledge #, you will receive your legendary
-                after the winners have been picked.
-              </Typography>
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
-              >
-                If you did not win, your pledged NFTs are burned forever.
-                <br />
-              </Typography>
-
-              <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
-                <Tooltip title={'Not open yet'}>
-                  <button
-                    className={styles.pepeButton}
-                    disabled={!(!data.isFarmingPeriod && userData.minted)}
-                    onClick={handleWithdraw}
-                  >
-                    {!(!data.isFarmingPeriod && userData.minted)
-                      ? '2/3/2022'
-                      : 'Withdraw'}
-                  </button>
-                </Tooltip>
               </Box>
             </Box>
           </Box>
