@@ -39,7 +39,7 @@ function SsovCard(props) {
     return [
       {
         heading: 'APY',
-        value: `${apy === 0 ? '...' : `${apy}%`}`,
+        value: `${apy === 0 ? '...' : `${formatAmount(apy, 0, true)}%`}`,
         Icon: Action,
         tooltip:
           type === 'put'
