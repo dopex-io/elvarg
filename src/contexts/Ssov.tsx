@@ -242,7 +242,7 @@ export const SsovProvider = (props) => {
     const APY = await axios
       .get(
         `https://api.dopex.io/api/v1/ssov/apy?asset=${
-          selectedSsov.token === 'METIS' ? 'DPX' : selectedSsov.token
+          selectedSsov.token
         }&type=${selectedSsov.type.toLowerCase()}`
       )
       .then((res) => formatAmount(res.data.apy, 2))
