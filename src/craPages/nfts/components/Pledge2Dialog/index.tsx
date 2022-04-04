@@ -33,7 +33,6 @@ export interface Props {
   tab: string;
   data: Data;
   userData: UserData;
-  timeRemaining: JSX.Element;
   updateData: () => {};
   updateUserData: () => {};
   pledge: any;
@@ -46,7 +45,6 @@ const Pledge2Dialog = ({
   data,
   tab,
   userData,
-  timeRemaining,
   updateData,
   updateUserData,
   pledge,
@@ -370,13 +368,12 @@ const Pledge2Dialog = ({
                 <Box className="flex text-center p-2 mr-2">
                   <img
                     src="/assets/alarm.svg"
-                    className="w-7 h-5"
+                    className="w-7 h-7"
                     alt="Alarm"
                   />
                 </Box>
                 <Typography variant="h6" className="text-[#78859E]">
-                  Check if you have received a 1-of-1 after the pledge period on
-                  3/3/2022
+                  Gen 2 (Duel Pepes) will be minted after 537 pledges
                 </Typography>
               </Box>
               <CustomButton

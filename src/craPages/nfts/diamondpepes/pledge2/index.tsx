@@ -316,31 +316,10 @@ const DiamondPepesNfts = () => {
     updateUserData();
   }, [updateUserData]);
 
-  const timeRemaining = (
-    <Countdown
-      date={new Date(1646426662000)}
-      renderer={({ days, hours, minutes, seconds, completed }) => {
-        if (days < 1 && hours < 1) {
-          return (
-            <span>
-              {minutes}m {seconds}s
-            </span>
-          );
-        } else {
-          return (
-            <span>
-              {days}d {hours}h {minutes}m {seconds}s
-            </span>
-          );
-        }
-      }}
-    />
-  );
-
   const boxes = [
-    { title: 'Genesis (Legendary)', subTitle: 'Collection' },
+    { title: 'Gen 2 (Duel Pepes)', subTitle: 'Collection' },
     { title: '22:22 PM 1/3/22', subTitle: 'Start GMT' },
-    { title: timeRemaining, subTitle: 'Time remaining' },
+    { title: `${537 - totalPledged}`, subTitle: 'Remaining to pledge' },
     {
       title: totalPledged,
       subTitle: 'Pledged',
@@ -368,7 +347,6 @@ const DiamondPepesNfts = () => {
       </Head>
       {provider ? (
         <Pledge2Dialog
-          timeRemaining={timeRemaining}
           open={pledgeDialogVisibleTab != 'hidden'}
           handleClose={
             (() => {
