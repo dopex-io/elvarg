@@ -7,6 +7,7 @@ export const CURRENCIES_MAP = {
   '42161': 'ETH',
   '56': 'BNB',
   '43114': 'AVAX',
+  '1088': 'METIS',
 };
 
 export const BASE_ASSET_MAP = {
@@ -364,6 +365,7 @@ export const DISPLAY_TOKENS = {
   42161: ['DPX', 'RDPX', 'ETH'],
   56: ['BNB', 'VBNB'],
   43114: ['AVAX'],
+  1088: ['METIS'],
 };
 
 export const CHAIN_ID_TO_NETWORK_DATA = {

@@ -59,6 +59,7 @@ const initialState: AssetsContextInterface = {
     'MAGIC',
     '2CRV',
     'VBNB',
+    'METIS',
   ],
   tokenPrices: [],
   userAssetBalances: {
@@ -82,6 +83,7 @@ const initialState: AssetsContextInterface = {
     MAGIC: '0',
     '2CRV': '0',
     VBNB: '0',
+    METIS: '0',
   },
 };
 
@@ -107,6 +109,7 @@ const ASSET_TO_COINGECKO_ID = {
   MAGIC: 'magic',
   '2CRV': 'Curve-2-pool-token',
   VBNB: 'binancecoin',
+  METIS: 'metis',
 };
 
 export const ASSET_TO_NAME = {
@@ -130,6 +133,7 @@ export const ASSET_TO_NAME = {
   MAGIC: 'Magic',
   '2CRV': 'Curve2 Pool Token',
   VBNB: 'Venus BNB',
+  METIS: 'Metis DAO',
 };
 
 export const CHAIN_ID_TO_NATIVE = {
