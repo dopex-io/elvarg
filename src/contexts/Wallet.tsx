@@ -36,6 +36,7 @@ export const CHAIN_ID_TO_PROVIDERS = {
   '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1088': 'https://andromeda.metis.io/?owner=1088',
   '1337': 'http://127.0.0.1:8545',
 };
 
@@ -43,7 +44,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
-  '/ssov': [42161, 56, 43114],
+  '/ssov': [42161, 56, 43114, 1088],
   '/ssov/call/DPX': [42161],
   '/ssov/call/RDPX': [42161],
   '/ssov/call/ETH': [42161],
@@ -51,6 +52,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/call/BNB': [56],
   '/ssov/call/GMX': [42161],
   '/ssov/call/AVAX': [43114],
+  '/ssov/call/METIS': [1088],
   '/ssov/put/RDPX': [42161],
   '/ssov/put/GOHM': [42161],
   '/ssov/put/BTC': [42161],

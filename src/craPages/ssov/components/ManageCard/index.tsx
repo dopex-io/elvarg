@@ -223,7 +223,8 @@ const ManageCard = () => {
   const isZapActive: boolean = useMemo(() => {
     return (
       tokenName.toUpperCase() !== ssovTokenName.toUpperCase() &&
-      tokenName.toUpperCase() !== '2CRV'
+      tokenName.toUpperCase() !== '2CRV' &&
+      tokenName.toUpperCase() !== 'METIS'
     );
   }, [tokenName, ssovTokenName]);
 
@@ -787,8 +788,11 @@ const ManageCard = () => {
       } else if (IS_NATIVE(tokenName)) {
         setApproved(true);
       } else {
+        const isMetis = tokenName === 'METIS';
         const allowance: BigNumber = await ERC20__factory.connect(
-          contractAddresses[tokenName],
+          isMetis
+            ? '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000'
+            : contractAddresses[tokenName],
           signer
         ).allowance(accountAddress, spender);
         setApproved(allowance.gte(finalAmount));
@@ -812,11 +816,16 @@ const ManageCard = () => {
   // Updates user token balance
   useEffect(() => {
     if (!tokenName || !accountAddress) return;
+
+    const isMetis = tokenName === 'METIS';
+
     (async function () {
       let userAmount = IS_NATIVE(tokenName)
         ? BigNumber.from(userAssetBalances[tokenName])
         : await ERC20__factory.connect(
-            contractAddresses[tokenName],
+            isMetis
+              ? '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000'
+              : contractAddresses[tokenName],
             signer
           ).balanceOf(accountAddress);
 
