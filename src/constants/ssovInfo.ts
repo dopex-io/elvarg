@@ -44,6 +44,11 @@ const ssovInfo = {
     mainPageMessage:
       'Deposit AVAX into strikes providing liquidity into option pools and earn premiums from each option purchase.',
   },
+  METIS: {
+    aprToolTipMessage: 'This is the base APY calculated from Metis APY',
+    mainPageMessage:
+      'Deposit Metis into strikes providing liquidity into option pools and earn premiums from each option purchase.',
+  },
   BTC: {
     aprToolTipMessage:
       'This is the base APY calculated from Curve 2Pool Fees and Rewards',
