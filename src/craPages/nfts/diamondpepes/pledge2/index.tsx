@@ -318,7 +318,7 @@ const DiamondPepesNfts = () => {
 
   const boxes = [
     { title: 'Gen 2 (Duel Pepes)', subTitle: 'Collection' },
-    { title: '22:22 PM 1/3/22', subTitle: 'Start GMT' },
+    { title: '22:22 PM 6/4/22', subTitle: 'Start GMT' },
     { title: `${537 - totalPledged}`, subTitle: 'Remaining to pledge' },
     {
       title: totalPledged,
