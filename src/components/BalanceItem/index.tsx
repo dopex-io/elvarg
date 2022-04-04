@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import AddTokenButton from 'components/AddTokenButton';
 import Typography from 'components/UI/Typography';

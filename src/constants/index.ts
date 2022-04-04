@@ -121,7 +121,7 @@ export const STAT_NAMES = {
 
 export const SSOV_PUTS_MAP = {
   RDPX: {
-    tokenSymbol: 'rDPX',
+    tokenSymbol: 'RDPX',
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
     tokens: ['2CRV'],
@@ -150,6 +150,12 @@ export const SSOV_PUTS_MAP = {
     coinGeckoId: 'gmx',
     tokens: ['2CRV'],
   },
+  METIS: {
+    tokenSymbol: 'METIS',
+    imageSrc: '/assets/metis.svg',
+    coinGeckoId: 'metis',
+    tokens: ['METIS'],
+  },
 };
 
 export const SSOV_MAP = {
@@ -160,7 +166,7 @@ export const SSOV_MAP = {
     tokens: ['DPX'],
   },
   RDPX: {
-    tokenSymbol: 'rDPX',
+    tokenSymbol: 'RDPX',
     imageSrc: '/assets/rdpx.svg',
     coinGeckoId: 'dopex-rebate-token',
     tokens: ['RDPX'],
@@ -367,6 +373,7 @@ export const CHAIN_ID_TO_NETWORK_DATA = {
   42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/assets/avax.svg' },
+  1088: { name: 'Metis', icon: '/assets/metis.svg' },
 };
 
 export const TOKEN_DECIMALS = {
@@ -387,6 +394,10 @@ export const TOKEN_DECIMALS = {
     USDC: 6,
   },
   '43114': {
+    USDT: 6,
+    USDC: 6,
+  },
+  '1088': {
     USDT: 6,
     USDC: 6,
   },

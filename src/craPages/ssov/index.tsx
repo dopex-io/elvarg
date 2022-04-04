@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
@@ -50,7 +50,7 @@ const Ssov = () => {
     if (!ssovs) return [];
     else if (chainId === 56) return [56, 42161, 43114];
     else if (chainId === 43114) return [43114, 42161];
-    else if (chainId === 1088) return [1088, 43114, 42161];
+    else if (chainId === 1088) return [1088];
     else return [42161, 56, 43114, 1088];
   }, [ssovs, chainId]);
 

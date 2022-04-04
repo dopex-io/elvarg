@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import { Box, Tooltip } from '@material-ui/core';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Box, Tooltip } from '@mui/material';
 
 import Typography from 'components/UI/Typography';
 

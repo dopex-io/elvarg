@@ -92,6 +92,7 @@ export default async function changeOrAddNetworkToMetaMask(chainId: number) {
       params: [{ chainId: NETWORKS[chainId].chainId }],
     });
   } catch (switchError) {
+    window.alert('Please open your wallet and switch chain manually');
     // This error code indicates that the chain has not been added to MetaMask.
     if (switchError.code === 4902) {
       try {

@@ -23,12 +23,6 @@ const ssovInfo = {
     mainPageMessage:
       'Deposit rDPX into strikes providing liquidity into option pools to earn staked auto-compounded DPX and rDPX rewards and premiums in rDPX from each option purchase.',
   },
-  rDPX: {
-    aprToolTipMessage:
-      'This is the base APY calculated from the rDPX single staking farm',
-    mainPageMessage:
-      'Deposit rDPX into strikes providing liquidity into option pools to earn staked auto-compounded DPX and rDPX rewards and premiums in rDPX from each option purchase.',
-  },
   GOHM: {
     aprToolTipMessage: "This is the base APY calculated from GOHM's rebase APY",
     mainPageMessage:
@@ -49,6 +43,11 @@ const ssovInfo = {
       "This is the base APY calculated from TraderJoe's AVAX APY",
     mainPageMessage:
       'Deposit AVAX into strikes providing liquidity into option pools and earn premiums from each option purchase.',
+  },
+  METIS: {
+    aprToolTipMessage: 'This is the base APY calculated from Metis APY',
+    mainPageMessage:
+      'Deposit Metis into strikes providing liquidity into option pools and earn premiums from each option purchase.',
   },
   BTC: {
     aprToolTipMessage:

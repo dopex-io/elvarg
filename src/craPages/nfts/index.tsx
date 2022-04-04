@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import Head from 'next/head';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';

@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { StakingRewards__factory } from '@dopex-io/sdk';
 import Head from 'next/head';
-import Box from '@material-ui/core/Box';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -224,28 +224,28 @@ const Farms = () => {
           {isLoading ? (
             <Box className="flex flex-col lg:flex-row bg-cod-gray p-4 rounded-xl pt-8 mb-8 items-center lg:w-full mx-auto">
               <Skeleton
-                variant="rect"
+                variant="rectangular"
                 width={272}
                 height={313}
                 animation="wave"
                 className="lg:mr-3 mb-3"
               />
               <Skeleton
-                variant="rect"
+                variant="rectangular"
                 width={272}
                 height={313}
                 animation="wave"
                 className="lg:mr-3 mb-3"
               />
               <Skeleton
-                variant="rect"
+                variant="rectangular"
                 width={272}
                 height={313}
                 animation="wave"
                 className="lg:mr-3 mb-3"
               />
               <Skeleton
-                variant="rect"
+                variant="rectangular"
                 width={272}
                 height={313}
                 animation="wave"

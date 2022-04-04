@@ -1,7 +1,7 @@
 import { useState, useCallback, useContext } from 'react';
 import {} from '@dopex-io/sdk';
-import Box from '@material-ui/core/Box';
-import LaunchIcon from '@material-ui/icons/Launch';
+import Box from '@mui/material/Box';
+import LaunchIcon from '@mui/icons-material/Launch';
 import delay from 'lodash/delay';
 
 import Dialog from 'components/UI/Dialog';

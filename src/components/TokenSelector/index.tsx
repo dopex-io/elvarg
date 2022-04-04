@@ -5,12 +5,12 @@ import {
   useContext,
   useState,
 } from 'react';
-import { ERC20, ERC20__factory, Addresses } from '@dopex-io/sdk';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import SearchIcon from '@material-ui/icons/Search';
-import Slide from '@material-ui/core/Slide';
+import { Addresses } from '@dopex-io/sdk';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import SearchIcon from '@mui/icons-material/Search';
+import Slide from '@mui/material/Slide';
 
 import Typography from '../UI/Typography';
 
@@ -20,16 +20,15 @@ import formatAmount from 'utils/general/formatAmount';
 import { WalletContext } from 'contexts/Wallet';
 import {
   ASSET_TO_NAME,
-  AssetsContext,
-  IS_NATIVE,
   CHAIN_ID_TO_NATIVE,
+  AssetsContext,
 } from 'contexts/Assets';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 export interface Props {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  setToken: Dispatch<SetStateAction<ERC20 | string>>;
+  setFromTokenSymbol: Function;
   isInDialog: boolean;
   tokensToExclude?: string[];
   enableSearch?: boolean;
@@ -38,14 +37,15 @@ export interface Props {
 const TokenSelector = ({
   open,
   setOpen,
-  setToken,
+  setFromTokenSymbol,
   isInDialog,
   tokensToExclude = ['2CRV'],
   enableSearch = true,
 }: Props) => {
-  const { contractAddresses, provider, chainId } = useContext(WalletContext);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const { chainId } = useContext(WalletContext);
   const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const getValueInUsd = useCallback(
     (symbol) => {
@@ -59,8 +59,12 @@ const TokenSelector = ({
       });
       return value;
     },
-    [tokenPrices, userAssetBalances]
+    [tokenPrices, userAssetBalances, chainId]
   );
+
+  const handleClose = useCallback(() => setOpen(false), [setOpen]);
+
+  const handleSearch = useCallback((e) => setSearchTerm(e.target.value), []);
 
   return (
     open && (
@@ -69,7 +73,8 @@ const TokenSelector = ({
           <Typography variant="h5">Pay with</Typography>
           <IconButton
             className="p-0 pb-1 mr-0 ml-auto"
-            onClick={() => setOpen(false)}
+            onClick={handleClose}
+            size="large"
           >
             <img src="/assets/dark-cross.svg" alt={'Cancel'} />
           </IconButton>
@@ -79,7 +84,7 @@ const TokenSelector = ({
             <Input
               disableUnderline={true}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearch}
               className="h-11 text-lg text-white w-full bg-umbra pl-3 pr-3 rounded-md"
               placeholder="Search by token name"
               classes={{ input: 'text-white' }}
@@ -110,14 +115,7 @@ const TokenSelector = ({
                         : 'flex mt-2 mb-2 mr-2 hover:bg-mineshaft p-2 pr-3 rounded-md cursor-pointer'
                     }
                     onClick={() => {
-                      setToken(
-                        IS_NATIVE(symbol)
-                          ? symbol
-                          : ERC20__factory.connect(
-                              contractAddresses[symbol],
-                              provider
-                            )
-                      );
+                      setFromTokenSymbol(symbol);
                       setOpen(false);
                     }}
                   >

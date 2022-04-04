@@ -1,7 +1,7 @@
 import Countdown from 'react-countdown';
-import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
-import Tooltip from '@material-ui/core/Tooltip';
-import Box from '@material-ui/core/Box';
+import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
+import Tooltip from '@mui/material/Tooltip';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 

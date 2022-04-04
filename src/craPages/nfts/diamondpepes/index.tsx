@@ -7,10 +7,10 @@ import {
 import Countdown from 'react-countdown';
 import Head from 'next/head';
 
-import Box from '@material-ui/core/Box';
-import { Tooltip } from '@material-ui/core';
+import Box from '@mui/material/Box';
+import { Tooltip } from '@mui/material';
 
-import PurchaseDialog from '../components/PurchaseDialog';
+import ActionsDialog from '../components/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
@@ -30,10 +30,11 @@ const DiamondPepesNfts = () => {
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
-  const [purchaseDialogVisibleTab, setPurchaseDialogVisibleTab] =
-    useState<string>('hidden');
-  const [isMintDialogVisible, setIsMintDialogVisible] =
-    useState<boolean>(false);
+  const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
+    visible: false,
+    tab: 'mint',
+  });
+
   const yieldMint = YieldMint__factory.connect(
     Addresses[chainId]['DiamondPepesNFTMint'],
     provider
@@ -151,21 +152,17 @@ const DiamondPepesNfts = () => {
         <title>Diamond Pepes NFTs | Dopex</title>
       </Head>
       {provider ? (
-        <PurchaseDialog
-          yieldMint={yieldMint}
-          timeRemaining={timeRemaining}
-          open={purchaseDialogVisibleTab != 'hidden'}
-          handleClose={
-            (() => {
-              setPurchaseDialogVisibleTab('hidden');
-            }) as any
-          }
-          tab={purchaseDialogVisibleTab}
-          userData={userData}
+        <ActionsDialog
+          open={actionsDialogDisplayState.visible}
+          tab={actionsDialogDisplayState.tab}
           data={data}
+          userData={userData}
+          yieldMint={yieldMint}
+          handleClose={() => {
+            setActionsDialogDisplayState({ visible: false, tab: 'mint' });
+          }}
           updateData={updateData}
           updateUserData={updateUserData}
-          provider={provider}
         />
       ) : null}
       <Box>
@@ -219,7 +216,6 @@ const DiamondPepesNfts = () => {
               </Box>
             ))}
           </Box>
-
           <Box className="p-2 mt-7 md:flex">
             <Box className="md:w-1/3 p-4 text-center">
               <Typography
@@ -244,12 +240,8 @@ const DiamondPepesNfts = () => {
                 <br />
                 <br />
               </Typography>
-
               <Box className="ml-5 mb-5 md:mt-10 md:mb-0">
-                <button
-                  className={styles.pepeButton}
-                  onClick={() => setPurchaseDialogVisibleTab('deposit')}
-                >
+                <button className={styles.pepeButton} disabled>
                   Deposit
                 </button>
               </Box>
@@ -277,12 +269,16 @@ const DiamondPepesNfts = () => {
                 <br />
                 Good luck kid.
               </Typography>
-
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
                 <Tooltip title={'Not open yet'}>
                   <button
                     className={styles.pepeButton}
-                    onClick={() => setPurchaseDialogVisibleTab('mint')}
+                    onClick={() =>
+                      setActionsDialogDisplayState({
+                        visible: true,
+                        tab: 'mint',
+                      })
+                    }
                     disabled={!data.isFarmingPeriod}
                   >
                     {data.isFarmingPeriod ? 'Mint' : '2/24/2022'}
@@ -313,17 +309,13 @@ const DiamondPepesNfts = () => {
                 will also return its share of the farming reward upon
                 withdrawing.
               </Typography>
-
               <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
                 <Tooltip title={'Not open yet'}>
                   <button
                     className={styles.pepeButton}
-                    disabled={!(!data.isFarmingPeriod && userData.minted)}
                     onClick={handleWithdraw}
                   >
-                    {!(!data.isFarmingPeriod && userData.minted)
-                      ? '10/3/2022'
-                      : 'Withdraw'}
+                    Withdraw
                   </button>
                 </Tooltip>
               </Box>

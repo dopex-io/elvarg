@@ -1,6 +1,6 @@
 import cx from 'classnames';
 
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import MetaMask from 'assets/icons/MetaMask';
 
 interface WatchAssetOptions {
@@ -47,6 +47,7 @@ function AddTokenButton({
         className
       )}
       onClick={addToken}
+      size="large"
     >
       <img src={options.image} className="w-6" alt={options.symbol} />
     </IconButton>

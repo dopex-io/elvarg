@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo } from 'react';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import { StakingRewards__factory } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
