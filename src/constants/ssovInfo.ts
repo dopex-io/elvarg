@@ -55,12 +55,6 @@ const ssovInfo = {
     mainPageMessage:
       'Deposit Curve 2Pool LP into strikes providing liquidity into option pools and earn premiums from each option purchase.',
   },
-  METIS: {
-    aprToolTipMessage:
-      "This is the base APY calculated from AgoraDefi's staked METIS Rewards",
-    mainPageMessage:
-      'Deposit Metis into strikes providing liquidity into option pools and earn premiums from each option purchase.',
-  },
 };
 
 export default ssovInfo;
