@@ -108,7 +108,11 @@ const Settle = ({
   const handleSettle = useCallback(async () => {
     try {
       await sendTx(
-        ssovContractWithSigner.settle(strikeIndex, settleableAmount, 1)
+        ssovContractWithSigner.settle(
+          strikeIndex,
+          settleableAmount,
+          selectedEpoch
+        )
       );
       updateSsovEpochData();
       updateSsovUserData();
@@ -122,6 +126,7 @@ const Settle = ({
     settleableAmount,
     updateSsovEpochData,
     updateSsovUserData,
+    selectedEpoch,
     updateUserEpochStrikeTokenBalance,
     sendTx,
   ]);

@@ -105,24 +105,32 @@ const ManageCard = () => {
 
   const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov.type]);
 
-  const aggregation1inchRouter = Addresses[chainId]['1inchRouter']
-    ? Aggregation1inchRouterV4__factory.connect(
-        Addresses[chainId]['1inchRouter'],
-        signer
-      )
-    : null;
-  const erc20SSOV1inchRouter = Addresses[chainId]['ERC20SSOV1inchRouter']
-    ? ERC20SSOV1inchRouter__factory.connect(
-        Addresses[chainId]['ERC20SSOV1inchRouter'],
-        signer
-      )
-    : null;
-  const nativeSSOV1inchRouter = Addresses[chainId]['NativeSSOV1inchRouter']
-    ? NativeSSOV1inchRouter__factory.connect(
-        Addresses[chainId]['NativeSSOV1inchRouter'],
-        signer
-      )
-    : null;
+  const {
+    aggregation1inchRouter,
+    erc20SSOV1inchRouter,
+    nativeSSOV1inchRouter,
+  } = useMemo(() => {
+    return {
+      aggregation1inchRouter: contractAddresses['1inchRouter']
+        ? Aggregation1inchRouterV4__factory.connect(
+            contractAddresses['1inchRouter'],
+            signer
+          )
+        : null,
+      erc20SSOV1inchRouter: contractAddresses['ERC20SSOV1inchRouter']
+        ? ERC20SSOV1inchRouter__factory.connect(
+            contractAddresses['ERC20SSOV1inchRouter'],
+            signer
+          )
+        : null,
+      nativeSSOV1inchRouter: contractAddresses['NativeSSOV1inchRouter']
+        ? NativeSSOV1inchRouter__factory.connect(
+            contractAddresses['NativeSSOV1inchRouter'],
+            signer
+          )
+        : null,
+    };
+  }, [contractAddresses, signer]);
 
   const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(true);
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
@@ -137,11 +145,12 @@ const ManageCard = () => {
     BigNumber.from('0')
   );
 
-  const ssovTokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
-  const { ssovContractWithSigner, ssovRouter } = ssovSigner;
   const userEpochDeposits = ssovUserData
     ? ssovUserData.userEpochDeposits
     : BigNumber.from(0);
+
+  const { ssovContractWithSigner, ssovRouter } = ssovSigner;
+
   const { epochTimes, isVaultReady, epochStrikes, totalEpochDeposits } =
     ssovEpochData;
 
@@ -150,20 +159,14 @@ const ManageCard = () => {
   const [path, setPath] = useState<object>({});
   const [activeTab, setActiveTab] = useState(0);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
-  const ssovToken =
-    ssovSigner.token[0] ||
-    (contractAddresses['2CRV']
-      ? ERC20__factory.connect(contractAddresses['2CRV'], provider)
-      : null);
 
-  const [token, setToken] = useState<ERC20 | any>(
-    IS_NATIVE(ssovData.tokenName) ? ssovData.tokenName : ssovToken
-  );
-
+  // For puts
   const [depositTokenName, setDepositTokenName] = useState<string>('2CRV');
 
-  const [tokenName, setTokenName] = useState<string>(ssovTokenSymbol);
-  const ssovTokenName = ssovData.tokenName;
+  // For zap
+  const [tokenName, setTokenName] = useState<string>(ssovData.tokenName);
+  // SSOV Token
+  const ssovTokenName = useMemo(() => ssovData.tokenName, [ssovData]);
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -182,12 +185,12 @@ const ManageCard = () => {
   // Updates the 1inch quote
   useEffect(() => {
     async function updateQuote() {
-      const fromTokenAddress: string = IS_NATIVE(token)
+      const fromTokenAddress: string = IS_NATIVE(tokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : token.address;
+        : contractAddresses[tokenName];
       const toTokenAddress = IS_NATIVE(ssovTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : ssovToken.address;
+        : contractAddresses[ssovTokenName];
 
       if (fromTokenAddress === toTokenAddress) return;
 
@@ -205,15 +208,7 @@ const ManageCard = () => {
     }
 
     updateQuote();
-  }, [
-    accountAddress,
-    chainId,
-    contractAddresses,
-    ssovToken,
-    ssovTokenName,
-    token,
-    tokenName,
-  ]);
+  }, [accountAddress, chainId, contractAddresses, ssovTokenName, tokenName]);
 
   const contractReadableStrikeDepositAmounts = useMemo(() => {
     const readable: {
@@ -227,10 +222,11 @@ const ManageCard = () => {
 
   const isZapActive: boolean = useMemo(() => {
     return (
-      tokenName.toUpperCase() !== ssovTokenSymbol.toUpperCase() &&
-      tokenName.toUpperCase() !== '2CRV'
+      tokenName.toUpperCase() !== ssovTokenName.toUpperCase() &&
+      tokenName.toUpperCase() !== '2CRV' &&
+      tokenName.toUpperCase() !== 'METIS'
     );
-  }, [tokenName, ssovTokenSymbol]);
+  }, [tokenName, ssovTokenName]);
 
   const [denominationTokenName, setDenominationTokenName] =
     useState<string>(ssovTokenName);
@@ -344,7 +340,7 @@ const ManageCard = () => {
         .concat(tokens)
         .filter(function (item) {
           return (
-            item !== ssovTokenSymbol &&
+            item !== ssovTokenName &&
             (Addresses[chainId][item] || CHAIN_ID_TO_NATIVE[chainId] === item)
           );
         })
@@ -352,31 +348,17 @@ const ManageCard = () => {
           return getValueInUsd(b) - getValueInUsd(a);
         });
 
-      const selectedToken = IS_NATIVE(filteredTokens[0])
-        ? filteredTokens[0]
-        : ERC20__factory.connect(
-            Addresses[chainId][filteredTokens[0]],
-            provider
-          );
-      setToken(selectedToken);
       setIsZapInVisible(true);
     }
   };
 
-  const handleTokenChange = useCallback(async () => {
-    if (!token) return;
-    const symbol = IS_NATIVE(token) ? token : await token.symbol();
-    setTokenName(symbol);
-    setDenominationTokenName(symbol);
-  }, [token]);
-
   const totalEpochDepositsAmount =
-    ssovTokenSymbol === 'BNB'
+    ssovTokenName === 'BNB'
       ? getUserReadableAmount(totalEpochDeposits, 8).toString()
       : getUserReadableAmount(totalEpochDeposits, 18).toString();
 
   const userEpochDepositsAmount =
-    ssovTokenSymbol === 'BNB'
+    ssovTokenName === 'BNB'
       ? getUserReadableAmount(userEpochDeposits, 8).toString()
       : getUserReadableAmount(userEpochDeposits, 18).toString();
 
@@ -403,14 +385,14 @@ const ManageCard = () => {
   const getPath = useCallback(async () => {
     if (!isZapActive || tokenName.toLocaleUpperCase() === 'VBNB') return;
     setIsFetchingPath(true);
-    const fromTokenAddress: string = IS_NATIVE(token)
+    const fromTokenAddress: string = IS_NATIVE(tokenName)
       ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : token.address;
+      : contractAddresses[tokenName];
     const toTokenAddress: string = IS_NATIVE(ssovTokenName)
       ? ssovTokenName === 'BNB'
         ? Addresses[chainId]['VBNB']
         : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-      : ssovToken.address;
+      : contractAddresses[ssovTokenName];
 
     if (!quote['toToken']) {
       setIsFetchingPath(false);
@@ -428,7 +410,7 @@ const ManageCard = () => {
     let minAmount: number = Math.round(
       totalDepositAmount *
         quotePrice *
-        10 ** getTokenDecimals(ssovTokenSymbol, chainId)
+        10 ** getTokenDecimals(ssovTokenName, chainId)
     );
 
     while (true) {
@@ -460,14 +442,12 @@ const ManageCard = () => {
     quote,
     slippageTolerance,
     spender,
-    ssovToken?.address,
     ssovTokenName,
     denominationTokenName,
-    ssovTokenSymbol,
     totalDepositAmount,
     quotePrice,
     tokenName,
-    token,
+    contractAddresses,
   ]);
 
   const inputStrikeDepositAmount = useCallback(
@@ -495,7 +475,9 @@ const ManageCard = () => {
     try {
       await sendTx(
         ERC20__factory.connect(
-          isPut ? contractAddresses[depositTokenName] : token.address,
+          isPut
+            ? contractAddresses[depositTokenName]
+            : contractAddresses[tokenName],
           signer
         ).approve(spender, MAX_VALUE)
       );
@@ -504,13 +486,13 @@ const ManageCard = () => {
       console.log(err);
     }
   }, [
-    token,
     sendTx,
     signer,
     spender,
     contractAddresses,
     isPut,
     depositTokenName,
+    tokenName,
   ]);
 
   const handlePutDeposit = useCallback(async () => {
@@ -694,7 +676,7 @@ const ManageCard = () => {
           await sendTx(
             erc20SSOV1inchRouter.swapNativeAndDepositMultiple(
               ssovData.ssovContract.address,
-              ssovToken.address,
+              contractAddresses[ssovTokenName],
               decoded[0],
               decoded[1],
               decoded[2],
@@ -722,7 +704,7 @@ const ManageCard = () => {
             await sendTx(
               erc20SSOV1inchRouter.swapAndDepositMultiple(
                 ssovData.ssovContract.address,
-                ssovToken.address,
+                contractAddresses[ssovTokenName],
                 decoded[0],
                 decoded[1],
                 decoded[2],
@@ -764,7 +746,7 @@ const ManageCard = () => {
     quotePrice,
     erc20SSOV1inchRouter,
     ssovData,
-    ssovToken,
+    contractAddresses,
     nativeSSOV1inchRouter,
     chainId,
   ]);
@@ -790,10 +772,6 @@ const ManageCard = () => {
     getPath();
   }, [getPath]);
 
-  useEffect(() => {
-    handleTokenChange();
-  }, [handleTokenChange]);
-
   // Updates approved state
   useEffect(() => {
     (async () => {
@@ -807,18 +785,21 @@ const ManageCard = () => {
           signer
         ).allowance(accountAddress, spender);
         setApproved(allowance.gte(finalAmount));
-      } else if (IS_NATIVE(token)) {
+      } else if (IS_NATIVE(tokenName)) {
         setApproved(true);
       } else {
-        const allowance: BigNumber = await token.allowance(
-          accountAddress,
-          spender
-        );
+        const isMetis = tokenName === 'METIS';
+        const allowance: BigNumber = await ERC20__factory.connect(
+          isMetis
+            ? '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000'
+            : contractAddresses[tokenName],
+          signer
+        ).allowance(accountAddress, spender);
         setApproved(allowance.gte(finalAmount));
       }
     })();
   }, [
-    token,
+    tokenName,
     accountAddress,
     ssovContractWithSigner,
     approved,
@@ -834,15 +815,30 @@ const ManageCard = () => {
 
   // Updates user token balance
   useEffect(() => {
-    if (!token || !accountAddress) return;
+    if (!tokenName || !accountAddress) return;
+
+    const isMetis = tokenName === 'METIS';
+
     (async function () {
-      let userAmount = IS_NATIVE(token)
-        ? BigNumber.from(userAssetBalances[token])
-        : await token.balanceOf(accountAddress);
+      let userAmount = IS_NATIVE(tokenName)
+        ? BigNumber.from(userAssetBalances[tokenName])
+        : await ERC20__factory.connect(
+            isMetis
+              ? '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000'
+              : contractAddresses[tokenName],
+            signer
+          ).balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
     })();
-  }, [accountAddress, token, userAssetBalances, ssovTokenName]);
+  }, [
+    accountAddress,
+    tokenName,
+    userAssetBalances,
+    ssovTokenName,
+    contractAddresses,
+    signer,
+  ]);
 
   const userBalance = useMemo(() => {
     {
@@ -910,10 +906,7 @@ const ManageCard = () => {
           <Box className="w-1/3">
             <ZapOutButton
               isZapActive={isZapActive}
-              handleClick={() => {
-                if (IS_NATIVE(ssovTokenName)) setToken(ssovTokenName);
-                else setToken(ssovToken);
-              }}
+              handleClick={() => setTokenName(ssovTokenName)}
             />
           </Box>
         ) : null}
@@ -1203,7 +1196,7 @@ const ManageCard = () => {
                     Object.keys(strikeDepositAmounts).length > 0
                   }
                   fromTokenSymbol={tokenName}
-                  toTokenSymbol={ssovTokenSymbol}
+                  toTokenSymbol={ssovTokenName}
                   selectedTokenPrice={selectedTokenPrice}
                   isZapInAvailable={isPut ? false : isZapInAvailable}
                   chainId={chainId}
@@ -1245,14 +1238,11 @@ const ManageCard = () => {
                   size="medium"
                   className="w-full mt-4 !rounded-md"
                   color={
-                    (isPurchasePowerEnough || !approved) &&
-                    isDepositWindowOpen &&
-                    totalDepositAmount > 0
+                    !approved && isDepositWindowOpen && totalDepositAmount > 0
                       ? 'primary'
                       : 'mineshaft'
                   }
                   disabled={
-                    !isPurchasePowerEnough ||
                     !isDepositWindowOpen ||
                     totalDepositAmount <= 0 ||
                     path['error']

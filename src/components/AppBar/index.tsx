@@ -89,6 +89,7 @@ const appLinks = {
     { name: 'OTC', to: '/otc' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
+  1088: [{ name: 'SSOV', to: '/ssov' }],
 };
 
 const menuLinks = [

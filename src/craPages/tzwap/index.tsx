@@ -2,7 +2,6 @@ import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
 import {
-  ERC20,
   Addresses,
   Tzwap1inchRouter__factory,
   ERC20__factory,
@@ -38,6 +37,9 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
+import displayAddress from 'utils/general/displayAddress';
+
+import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
 
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
@@ -85,12 +87,8 @@ const Tzwap = () => {
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);
   const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [fromToken, setFromToken] = useState<ERC20 | any>('ETH');
   const [fromTokenName, setFromTokenName] = useState<string>('ETH');
-  const [toToken, setToToken] = useState<ERC20 | any>(
-    ERC20__factory.connect(Addresses[chainId]['DPX'], provider)
-  );
-  const [toTokenName, setToTokenName] = useState<string>('DPX');
+  const [toTokenName, setToTokenName] = useState<string>('USDC');
   const [rawAmount, setRawAmount] = useState<string>('');
   const [rawIntervalAmount, setRawIntervalAmount] = useState<string>('1');
   const [approved, setApproved] = useState<boolean>(false);
@@ -110,7 +108,9 @@ const Tzwap = () => {
   const tzwapRouter = useMemo(
     () =>
       Tzwap1inchRouter__factory.connect(
-        '0x502cc64884Fca04bBE1F5c3c1507317E579dc789',
+        chainId === 1
+          ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
+          : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
         signer
       ),
     [signer]
@@ -141,38 +141,6 @@ const Tzwap = () => {
   const intervalAmount: number = useMemo(() => {
     return parseFloat(rawIntervalAmount) || 0;
   }, [rawIntervalAmount]);
-
-  const updateFromToken = async (symbol) => {
-    if (IS_NATIVE(symbol)) {
-      setFromToken(symbol);
-    } else {
-      setFromToken(ERC20__factory.connect(Addresses[chainId][symbol], signer));
-    }
-  };
-
-  const updateToToken = async (symbol) => {
-    if (IS_NATIVE(symbol)) {
-      setToToken(symbol);
-    } else {
-      setToToken(ERC20__factory.connect(Addresses[chainId][symbol], signer));
-    }
-  };
-
-  const handleFromTokenChange = useCallback(async () => {
-    if (!fromToken || !provider) return;
-    const symbol = IS_NATIVE(fromToken)
-      ? fromToken
-      : await fromToken.connect(provider).symbol();
-    setFromTokenName(symbol);
-  }, [fromToken, provider]);
-
-  const handleToTokenChange = useCallback(async () => {
-    if (!toToken || !provider) return;
-    const symbol = IS_NATIVE(toToken)
-      ? toToken
-      : await toToken.connect(provider).symbol();
-    setToTokenName(symbol);
-  }, [toToken, provider]);
 
   const handleSelectTickSize = useCallback((event: any) => {
     setSelectedTickSize(event.target.value as number);
@@ -239,16 +207,16 @@ const Tzwap = () => {
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
-        ERC20__factory.connect(fromToken.address, signer).approve(
-          tzwapRouter.address,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(
+          contractAddresses[fromTokenName],
+          signer
+        ).approve(tzwapRouter.address, MAX_VALUE)
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, fromToken, signer, tzwapRouter]);
+  }, [sendTx, fromTokenName, signer, tzwapRouter]);
 
   const handleKill = useCallback(async () => {
     try {
@@ -296,8 +264,9 @@ const Tzwap = () => {
 
   const minFees: number = useMemo(() => {
     if (tickInUsd === 0) return 0;
-    return (100 * 3) / tickInUsd;
-  }, [tickInUsd]);
+    else if (chainId === 42161) return (100 * 9) / tickInUsd;
+    else return (100 * 75) / tickInUsd;
+  }, [tickInUsd, chainId]);
 
   const maxFees: number = useMemo(() => {
     return minFees * 5;
@@ -319,6 +288,19 @@ const Tzwap = () => {
     return now;
   }, [intervalAmount, selectedInterval, selectedTickSize]);
 
+  const tokensToExclude: string[] = useMemo(() => {
+    let _tokens: string[] = [];
+
+    if (chainId === 42161) {
+      if (isFromTokenSelectorVisible) _tokens = ['MAGIC', '2CRV'];
+      else _tokens = ['ETH', 'MAGIC', '2CRV'];
+    } else if (chainId === 1) {
+      _tokens = ['RDPX', 'DPX', 'GOHM'];
+    }
+
+    return _tokens;
+  }, [isFromTokenSelectorVisible]);
+
   const handleCreate = useCallback(async () => {
     try {
       const seconds =
@@ -335,11 +317,11 @@ const Tzwap = () => {
             srcToken:
               fromTokenName === 'ETH'
                 ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-                : fromToken.address,
+                : contractAddresses[fromTokenName],
             dstToken:
               toTokenName === 'ETH'
                 ? Addresses[chainId]['WETH']
-                : toToken.address,
+                : contractAddresses[toTokenName],
             interval: seconds,
             tickSize: getContractReadableAmount(
               Math.round(tickSize) / precision,
@@ -365,7 +347,6 @@ const Tzwap = () => {
           }
         )
       );
-      setActiveTab(1);
       updateOrders();
       updateAssetBalances();
     } catch (err) {
@@ -381,9 +362,7 @@ const Tzwap = () => {
     sendTx,
     signer,
     accountAddress,
-    fromToken.address,
     toTokenName,
-    toToken.address,
     minFees,
     maxFees,
     updateOrders,
@@ -394,7 +373,7 @@ const Tzwap = () => {
   const submitButtonProps = useMemo(() => {
     const disabled = Boolean(
       fromTokenName === toTokenName ||
-        minFees > 20 ||
+        minFees > 200 ||
         !amount ||
         tickInUsd < 50 ||
         amount >=
@@ -424,7 +403,9 @@ const Tzwap = () => {
     else if (fromTokenName === toTokenName)
       children = 'Tokens must be different';
     else if (amount === 0) children = 'Enter an amount';
-    else if (minFees > 20) children = 'Your order is too small to sustain fees';
+    else if (minFees > 200)
+      children = 'Your order is too small to sustain fees';
+    else if (tickInUsd >= 50000) children = 'Proceed anyway';
 
     return {
       disabled,
@@ -461,12 +442,12 @@ const Tzwap = () => {
   useEffect(() => {
     async function updateQuote() {
       setIsFetchingQuote(true);
-      const fromTokenAddress: string = IS_NATIVE(fromToken)
+      const fromTokenAddress: string = IS_NATIVE(fromTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : fromToken?.address;
-      const toTokenAddress: string = IS_NATIVE(toToken)
+        : contractAddresses[fromTokenName];
+      const toTokenAddress: string = IS_NATIVE(toTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : toToken?.address;
+        : contractAddresses[toTokenName];
 
       if (fromTokenAddress === toTokenAddress) return;
 
@@ -485,34 +466,32 @@ const Tzwap = () => {
     }
 
     updateQuote();
-  }, [accountAddress, chainId, fromTokenName, fromToken, toTokenName, toToken]);
-
-  useEffect(() => {
-    handleFromTokenChange();
-  }, [handleFromTokenChange]);
-
-  useEffect(() => {
-    handleToTokenChange();
-  }, [handleToTokenChange]);
+  }, [accountAddress, chainId, fromTokenName, toTokenName]);
 
   useEffect(() => {
     (async function () {
-      if (!tzwapRouter || !fromToken) return;
+      if (!tzwapRouter || !fromTokenName) return;
 
-      const userAmount = IS_NATIVE(fromToken)
+      const userAmount = IS_NATIVE(fromTokenName)
         ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]])
-        : await fromToken.balanceOf(accountAddress);
+        : await ERC20__factory.connect(
+            contractAddresses[fromTokenName],
+            signer
+          ).balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
 
-      let allowance = IS_NATIVE(fromToken)
+      let allowance = IS_NATIVE(fromTokenName)
         ? BigNumber.from(0)
-        : await fromToken.allowance(accountAddress, tzwapRouter.address);
+        : await ERC20__factory.connect(
+            contractAddresses[fromTokenName],
+            signer
+          ).allowance(accountAddress, tzwapRouter.address);
 
       if (!allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (IS_NATIVE(fromToken)) {
+        if (IS_NATIVE(fromTokenName)) {
           setApproved(true);
         } else {
           setApproved(false);
@@ -521,7 +500,7 @@ const Tzwap = () => {
     })();
   }, [
     accountAddress,
-    fromToken,
+    fromTokenName,
     userAssetBalances,
     chainId,
     provider,
@@ -540,10 +519,10 @@ const Tzwap = () => {
         handleKill={handleKill}
       />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
-        <Box className={'flex mb-5 mt-32'}>
+        <Box className={'mb-5 mt-32 lg:w-max ml-auto mr-auto'}>
           <Box
             className={
-              'bg-cod-gray text-center p-3 pl-4 pr-4 rounded-xl ml-auto mr-auto'
+              'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto'
             }
           >
             <Typography
@@ -553,17 +532,72 @@ const Tzwap = () => {
             >
               Tzwap is currently in open beta. Exercise caution and review
               contracts before opening tzwap orders.
-              <br />
-              <a
-                href={
-                  'https://arbiscan.io/address/0x502cc64884Fca04bBE1F5c3c1507317E579dc789'
-                }
-                rel="noreferrer"
-                className={'text-wave-blue'}
-              >
-                0x502cc64884Fca04bBE1F5c3c1507317E579dc789
-              </a>
             </Typography>
+
+            <Box className={'text-center mt-2'}>
+              <Typography
+                variant="h6"
+                component="div"
+                className="text-white font-mono mr-auto ml-10"
+              >
+                <a
+                  href={`https://${
+                    chainId === 1 ? 'etherscan' : 'arbiscan'
+                  }.io/address/${
+                    chainId === 1
+                      ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
+                      : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d'
+                  }#code`}
+                  rel="noreferrer"
+                  className={'text-wave-blue'}
+                >
+                  {displayAddress(
+                    chainId === 1
+                      ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
+                      : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
+                    null
+                  )}
+                </a>{' '}
+              </Typography>
+            </Box>
+          </Box>
+          <Box
+            className={
+              'bg-cod-gray text-center p-2 pl-4 pr-4 rounded-xl ml-auto mr-auto mt-5'
+            }
+          >
+            <Typography
+              variant="h6"
+              component="div"
+              className="text-white font-mono"
+            >
+              Do not see your orders? If you were using the previous version of
+              Tzwap go on
+            </Typography>
+
+            <Box className={'text-center mt-2'}>
+              <Typography
+                variant="h6"
+                component="div"
+                className="text-white font-mono mr-auto ml-10"
+              >
+                <a
+                  href={'https://tzwap-v1.dopex.io/tzwap'}
+                  rel="noreferrer"
+                  className={'text-wave-blue'}
+                >
+                  tzwap-v1.dopex.io/tzwap
+                </a>
+                {' or '}
+                <a
+                  href={'https://tzwap-v2.dopex.io/tzwap'}
+                  rel="noreferrer"
+                  className={'text-wave-blue'}
+                >
+                  tzwap-v2.dopex.io/tzwap
+                </a>{' '}
+              </Typography>
+            </Box>
           </Box>
         </Box>
         <Box className="flex mx-auto max-w-xl mb-8 mt-8">
@@ -674,7 +708,7 @@ const Tzwap = () => {
                                     userTokenBalance,
                                     getTokenDecimals(fromTokenName, chainId)
                                   ),
-                                  4
+                                  7
                                 )}
                               </span>
                             </Typography>
@@ -1027,19 +1061,40 @@ const Tzwap = () => {
                           )}
                         </Box>
 
-                        <Box className="flex">
-                          <Box className="flex text-center p-2 mr-2 mt-1">
-                            <img
-                              src={'/assets/timer.svg'}
-                              className={'w-6 h-4'}
-                              alt={'Timer'}
-                            />
+                        {tickInUsd >= 50000 && chainId === 1 ? (
+                          <Box className="flex">
+                            <Box className="flex text-center p-2 mr-2 mt-1">
+                              <RedTriangleIcon className={''} />
+                            </Box>
+                            <Typography variant="h6" className="text-red-500">
+                              If your tick size is too high in proportion to the
+                              liquidity of the pools you could be victim of a{' '}
+                              <a
+                                href={
+                                  'https://trustwallet.com/blog/how-to-protect-yourself-from-sandwich-attacks'
+                                }
+                                rel="noopener noreferrer"
+                              >
+                                sandwich attack
+                              </a>
+                              . We suggest to reduce it.
+                            </Typography>
                           </Box>
-                          <Typography variant="h6" className="text-stieglitz">
-                            Tokens will periodically appear in your wallet. You
-                            can kill the order anytime.
-                          </Typography>
-                        </Box>
+                        ) : (
+                          <Box className="flex">
+                            <Box className="flex text-center p-2 mr-2 mt-1">
+                              <img
+                                src={'/assets/timer.svg'}
+                                className={'w-6 h-4'}
+                                alt={'Timer'}
+                              />
+                            </Box>
+                            <Typography variant="h6" className="text-stieglitz">
+                              Tokens will periodically appear in your wallet.
+                              You can kill the order anytime.
+                            </Typography>
+                          </Box>
+                        )}
                         <CustomButton
                           size="medium"
                           className="w-full mt-4 !rounded-md"
@@ -1071,14 +1126,12 @@ const Tzwap = () => {
                       : setIsToTokenSelectorVisible
                   }
                   setFromTokenSymbol={
-                    isFromTokenSelectorVisible ? updateFromToken : updateToToken
+                    isFromTokenSelectorVisible
+                      ? setFromTokenName
+                      : setToTokenName
                   }
                   isInDialog={false}
-                  tokensToExclude={
-                    isFromTokenSelectorVisible
-                      ? ['MAGIC', '2CRV']
-                      : ['ETH', 'MAGIC', '2CRV']
-                  }
+                  tokensToExclude={tokensToExclude}
                 />
               </Box>
             )}

@@ -7,6 +7,7 @@ export const CURRENCIES_MAP = {
   '42161': 'ETH',
   '56': 'BNB',
   '43114': 'AVAX',
+  '1088': 'METIS',
 };
 
 export const BASE_ASSET_MAP = {
@@ -49,6 +50,11 @@ export const BASE_ASSET_MAP = {
     fullName: 'AVAX',
     symbol: 'AVAX',
     _symbol: 'AVAX',
+  },
+  METIS: {
+    fullName: 'Metis DAO',
+    symbol: 'METIS',
+    _symbol: 'METIS',
   },
   CRV: {
     fullName: 'CRV',
@@ -145,6 +151,12 @@ export const SSOV_PUTS_MAP = {
     coinGeckoId: 'gmx',
     tokens: ['2CRV'],
   },
+  METIS: {
+    tokenSymbol: 'METIS',
+    imageSrc: '/assets/metis.svg',
+    coinGeckoId: 'metis',
+    tokens: ['METIS'],
+  },
 };
 
 export const SSOV_MAP = {
@@ -207,6 +219,12 @@ export const SSOV_MAP = {
     imageSrc: '/assets/luna.svg',
     coiGeckoId: 'terra-luna',
     tokens: ['LUNA'],
+  },
+  METIS: {
+    tokenSymbol: 'METIS',
+    imageSrc: '/assets/metis.svg',
+    coinGeckoId: 'metis',
+    tokens: ['METIS'],
   },
 };
 
@@ -324,6 +342,8 @@ export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
 
 export const AVAX_RPC_URL = process.env.NEXT_PUBLIC_AVAX_RPC_URL;
 
+export const METIS_RPC_URL = process.env.NEXT_PUBLIC_METIS_RPC_URL;
+
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
   theta: 'θ',
@@ -349,6 +369,7 @@ export const DISPLAY_TOKENS = {
   42161: ['DPX', 'RDPX', 'ETH'],
   56: ['BNB', 'VBNB'],
   43114: ['AVAX'],
+  1088: ['METIS'],
 };
 
 export const CHAIN_ID_TO_NETWORK_DATA = {
@@ -358,6 +379,7 @@ export const CHAIN_ID_TO_NETWORK_DATA = {
   42161: { name: 'Arbitrum', icon: '/assets/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/assets/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/assets/avax.svg' },
+  1088: { name: 'Metis', icon: '/assets/metis.svg' },
 };
 
 export const TOKEN_DECIMALS = {
@@ -378,6 +400,10 @@ export const TOKEN_DECIMALS = {
     USDC: 6,
   },
   '43114': {
+    USDT: 6,
+    USDC: 6,
+  },
+  '1088': {
     USDT: 6,
     USDC: 6,
   },

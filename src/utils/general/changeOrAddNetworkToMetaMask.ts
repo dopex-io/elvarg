@@ -66,6 +66,22 @@ const NETWORKS = {
       },
     ],
   },
+  1088: {
+    chainId: '0x440',
+    params: [
+      {
+        chainId: '0x440',
+        chainName: 'Metis',
+        nativeCurrency: {
+          name: 'Metis Andromeda',
+          symbol: 'METIS',
+          decimals: 18,
+        },
+        rpcUrls: ['https://andromeda.metis.io/?owner=1088'],
+        blockExplorerUrls: ['https://andromeda-explorer.metis.io/'],
+      },
+    ],
+  },
 };
 
 export default async function changeOrAddNetworkToMetaMask(chainId: number) {
@@ -92,6 +108,7 @@ export default async function changeOrAddNetworkToMetaMask(chainId: number) {
       params: [{ chainId: NETWORKS[chainId].chainId }],
     });
   } catch (switchError) {
+    window.alert('Please open your wallet and switch chain manually');
     // This error code indicates that the chain has not been added to MetaMask.
     if (switchError.code === 4902) {
       try {
