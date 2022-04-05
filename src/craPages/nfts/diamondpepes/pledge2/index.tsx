@@ -43,7 +43,7 @@ const DiamondPepesNfts = () => {
     provider
   );
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
+    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
   );
   const abi = [
@@ -286,8 +286,9 @@ const DiamondPepesNfts = () => {
   const updateUserData = useCallback(async () => {
     if (!provider) return;
 
-    // const nfts = await diamondPepeNfts.connect(signer).walletOfOwner(accountAddress);
-    const nfts = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+    const nfts = await diamondPepeNfts
+      .connect(signer)
+      .walletOfOwner(accountAddress);
 
     let total = 0;
 

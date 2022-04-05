@@ -56,7 +56,7 @@ const Pledge2Dialog = ({
     useContext(WalletContext);
 
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
+    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
   );
   const [approved, setApproved] = useState<boolean>(false);
