@@ -5,8 +5,6 @@ import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
-import cx from 'classnames';
-import Paper from '@mui/material/Paper';
 import format from 'date-fns/format';
 import { collection, getDocs } from '@firebase/firestore';
 

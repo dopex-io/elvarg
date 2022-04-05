@@ -3,10 +3,8 @@ import Box from '@mui/material/Box';
 import {
   doc,
   collection,
-  // deleteDoc,
   getDocs,
   query,
-  // getDoc,
   where,
   updateDoc,
   onSnapshot,

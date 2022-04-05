@@ -6,10 +6,6 @@ import {
   addDoc,
   orderBy,
   getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-  getDoc,
 } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { useFormik } from 'formik';
@@ -70,27 +66,6 @@ const Chatroom = () => {
     [formik]
   );
 
-  // const handleDelete = useCallback(async () => {
-  //   await updateDoc(doc(db, 'chatrooms', chat.id), {
-  //     isFulfilled: true,
-  //   });
-
-  //   const querySnapshot = (
-  //     await getDocs(collection(db, 'orders'))
-  //   ).docs.flatMap((doc) => doc);
-
-  //   const chatroomData = (await getDoc(doc(db, 'chatrooms', chat.id))).data();
-
-  //   const result = querySnapshot.find(
-  //     (doc) => doc.data().timestamp.seconds === chatroomData.timestamp.seconds
-  //   );
-
-  //   if (result) await deleteDoc(doc(db, 'orders', result.id));
-  //   else console.log('Something went wrong.');
-
-  //   setFulfilled(true);
-  // }, [chat]);
-
   const handleSubmit = useCallback(async () => {
     if (formik.values.msg === '') return;
 
@@ -149,26 +124,6 @@ const Chatroom = () => {
                   {chat.id}
                 </Typography>
               </Box>
-              {/* {admin && (
-                <Box className="my-auto pr-3">
-                  <Tooltip
-                    className="text-stieglitz"
-                    title={fulfilled ? 'Close this RFQ and chatroom' : ''}
-                    arrow={true}
-                  >
-                    <Box className="rounded-md hover:bg-down-bad hover:bg-opacity-0 bg-opacity-0">
-                      <CustomButton
-                        size="small"
-                        color="down-bad"
-                        onClick={handleDelete}
-                        disabled={fulfilled || loading}
-                      >
-                        Close RFQ
-                      </CustomButton>
-                    </Box>
-                  </Tooltip>
-                </Box>
-              )} */}
             </Box>
           </Box>
           <Box className="h-full overflow-y-scroll flex flex-col-reverse">

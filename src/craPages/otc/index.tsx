@@ -24,30 +24,12 @@ import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
 const MARKETS_PLACEHOLDER = [
-  // {
-  //   symbol: 'DPX',
-  //   icon: '/assets/dpx.svg',
-  //   asset: 'Dopex Governance Token',
-  //   pair: 'DPX/USDT',
-  // },
   {
     symbol: 'USDT',
     icon: '/assets/usdt.svg',
     asset: 'USD Tether',
     pair: 'USDT/USDT',
   },
-  // {
-  //   symbol: 'rDPX',
-  //   icon: '/assets/rdpx.svg',
-  //   asset: 'Dopex Rebate Token',
-  //   pair: 'rDPX/USDT',
-  // },
-  // {
-  //   symbol: 'ETH',
-  //   icon: '/assets/eth.svg',
-  //   asset: 'Ethereum',
-  //   pair: 'ETH/USDT',
-  // },
 ];
 
 const OTC = () => {

@@ -11,7 +11,6 @@ import {
   DocumentData,
   query,
   orderBy,
-  // getDoc,
   getDocs,
 } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';

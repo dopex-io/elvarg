@@ -127,7 +127,7 @@ export const OtcProvider = (props) => {
 
     const escrow = Escrow__factory.connect(Addresses[chainId].Escrow, provider);
 
-    let quoteAddresses = ['0xb26411F7515F94EbdB5152e396Fb0Ab8908423eA']; // USDT
+    let quoteAddresses = ['0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8']; // USDC
     let quoteAssetToSymbolMapping = await Promise.all(
       quoteAddresses.map(async (address) => {
         const quote = ERC20__factory.connect(address, provider);
@@ -139,11 +139,36 @@ export const OtcProvider = (props) => {
       })
     );
 
+    // ERC20 Option contracts
     let baseAddresses = [
-      '0xADCeD0735874eA25e95EC0EAd0E355f8E863Fb44', // MC-CALL-1000
-      '0x40279bD5e30041970AA4190C63cDF10942f7684D', // MC-CALL-2000
-      '0x47082620D0e262610E37D8De626202E27179d26c', // MP-CALL-2000
-      '0xe1e4A58F35feCd9bf3C6b75e993211A8f6FDeCc7', // MP-CALL-1000
+      '0x9ab24e47e95E839A1C132Ec093D59405e9611806',
+      '0xdf7431FE8b68Bf78cd4c70b134d05705F159De09',
+      '0xefe9519b1c6A0bc7962146819d58E875B2745A23',
+      '0xBfd349D9001E9C13C9c144ecE527b7c4757f425e',
+      '0xb88c4F032a0804dbF781aB8269455992B112F7cC',
+      '0x3d7ccDFC35a2ffe9d7281054A23440f77CD16338',
+      '0x3CfD8F0FE3Fa727A12A05fff56366dAff913549d',
+      '0xEc3AaC4e417131d5527f33131D87AC6be693baAa',
+      '0x893D4082349B2Da09923c0342AB1ac0BB61932E2',
+      '0x61a89D52C3b6e72d38804D74bc28F135419b9e54',
+      '0xf7B7A7702773Da25CF133762cCb5C231c8CC24c6',
+      '0x8f21f3d76dD92c78D6310fa7CB1081C515466CCF',
+      '0xECA29E73204b1d99a3D216BE27510102375dd3b4',
+      '0xdb567a22FE971e28CF4605a6B48b459Ab8a90D94',
+      '0x774f91aE44A80c492d6E52fA0E90FD0dcb3d1CCb',
+      '0x6B3dA822a001137f54e30b0D56C0B9Fa67B505De',
+      '0x1480b3Ad833b9c65C3c14F093dc2b62F08Db4466',
+      '0x393bf90c0E1D853eBFd5C131259B740aC4E928F2',
+      '0x2A16687F1779EB2500e6D84e41142Cf1B897e383',
+      '0xfb95b13CDd4B4bfe855Fab1C24B43e0F3a8c8cE9',
+      '0x774f6ecA8A0F25294Cbe20C479E2e83B6b2c5F70',
+      '0xc1bE108b6ccf809098D9Ec755815A09fCc42CAaF',
+      '0xB5c48842Ce873aC8E4D11E050A9059F109cAD727',
+      '0xFEe5F1c41B1cAa23F62d3338e3543f5d1de1F27c',
+      '0x02602Dc6DB4f93188caCE1b5F72A15EE6B37326e',
+      '0x6b49BFa298e3E65aD5A1aBb463dF557225D351d3',
+      '0x956c2e35d80d17A99Dd893fa3BF0e254db436F25',
+      '0xE3C5056A70bEBdB16F065C1d00c94064215e7A76',
     ];
     let baseAssetToSymbolMapping = await Promise.all(
       baseAddresses.map(async (address) => {

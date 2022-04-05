@@ -65,8 +65,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
   '/tzwap': [1, 42161],
-  '/otc': [421611],
-  '/otc/chat/:id': [421611],
+  '/otc': [42161],
+  '/otc/chat/:id': [42161],
 };
 
 const DEFAULT_CHAIN_ID = 421611;
