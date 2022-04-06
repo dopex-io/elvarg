@@ -186,7 +186,7 @@ const DiamondPepesNfts = () => {
               staking LP Tokens. Zap In with any asset.
             </Typography>
             <Box className="ml-auto mr-auto mb-5 mt-5 w-[10rem]">
-              <a href={'/nfts/diamondpepes/pledge'}>
+              <a href={'/nfts/diamondpepes/pledge2'}>
                 <button className={styles.pepeButton}>Pledge</button>
               </a>
             </Box>
