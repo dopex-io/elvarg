@@ -42,7 +42,7 @@ const DiamondPepesNfts = () => {
     signer
   );
   const pledge = DiamondPepeNFTsPledge2__factory.connect(
-    '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
+    '0x944b481d8aba4ecffdfd0081bdfe09f11123bbf8',
     signer
   );
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
