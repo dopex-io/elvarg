@@ -1,24 +1,17 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import {
-  UniswapPair__factory,
   DiamondPepeNFTsPledge2__factory,
   DiamondPepeNFTs__factory,
   Addresses,
 } from '@dopex-io/sdk';
 import Head from 'next/head';
-import { BigNumber, ethers } from 'ethers';
-import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
-import { Tooltip } from '@mui/material';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
 import Pledge2Dialog from '../../components/Pledge2Dialog';
-
-import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
-import formatAmount from '../../../../utils/general/formatAmount';
 
 import { Data, UserData, initialData } from '../interfaces';
 
@@ -35,8 +28,6 @@ const DiamondPepesNfts = () => {
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
     useState<string>('hidden');
-  const [isMintDialogVisible, setIsMintDialogVisible] =
-    useState<boolean>(false);
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
     Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
@@ -47,8 +38,6 @@ const DiamondPepesNfts = () => {
   );
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
-  const winners = [];
-  const sendTx = useSendTx();
 
   const updateData = useCallback(async () => {
     if (!provider) return;
@@ -216,7 +205,6 @@ const DiamondPepesNfts = () => {
                 <button
                   className={styles.pepeButton}
                   onClick={() => setPledgeDialogVisibleTab('pledge')}
-                  disabled={winners.length > 0}
                 >
                   Deposit
                 </button>
@@ -235,12 +223,12 @@ const DiamondPepesNfts = () => {
               <a
                 href={
                   'https://arbiscan.io/address/' +
-                  contractAddresses['DiamondPepesNFTPledge2']
+                  '0x353e731EaA33fC1cc7f50E74EA390e95b192277F'
                 }
                 rel="noopener noreferrer"
                 target={'_blank'}
               >
-                {contractAddresses['DiamondPepesNFTPledge2']}
+                {'0x353e731EaA33fC1cc7f50E74EA390e95b192277F'}
               </a>
             </Typography>
           </Box>
