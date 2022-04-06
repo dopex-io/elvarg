@@ -41,7 +41,7 @@ export const CHAIN_ID_TO_PROVIDERS = {
 };
 
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
-  '/': [1, 42161 /*, 43114,*/, 56],
+  '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
   '/ssov': [42161, 56, 43114, 1088],
@@ -69,7 +69,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/otc/chat/:id': [42161],
 };
 
-const DEFAULT_CHAIN_ID = 421611;
+const DEFAULT_CHAIN_ID =
+  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 42161;
 
 let web3Modal;
 
