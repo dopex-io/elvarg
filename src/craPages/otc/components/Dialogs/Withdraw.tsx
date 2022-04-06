@@ -37,7 +37,7 @@ const Withdraw = ({ open, handleClose, data }: WithdrawProps) => {
   const sendTx = useSendTx();
 
   const { escrow } = useContext(OtcContext);
-  const { provider, signer } = useContext(WalletContext);
+  const { signer } = useContext(WalletContext);
 
   const handleWithdraw = useCallback(async () => {
     await sendTx(

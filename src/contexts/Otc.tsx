@@ -5,7 +5,7 @@ import {
   useContext,
   createContext,
 } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import { getDocs, collection, DocumentData } from 'firebase/firestore';
 import {
   Addresses,
@@ -17,7 +17,18 @@ import {
 import { WalletContext } from 'contexts/Wallet';
 
 import { db } from 'utils/firebase/initialize';
-import { ethers } from '@0xsequence/multicall/node_modules/ethers';
+import sanitizeOptionSymbol from 'utils/general/sanitizeOptionSymbol';
+
+import { otcGraphClient } from 'graphql/apollo';
+
+import {
+  GetUserOpenOrdersDocument,
+  GetUserOpenOrdersQuery,
+  GetEscrowTransactionsDocument,
+  GetEscrowTransactionsQuery,
+} from 'graphql/generated/otc';
+
+import { ApolloQueryResult } from '@apollo/client';
 
 // contracts
 interface OtcContractsInterface {
@@ -57,6 +68,15 @@ interface OtcContractsInterface {
     dealer: string;
     counterParty: string;
   }[];
+  tradeHistoryData?: {
+    dealer: string;
+    counterParty: string;
+    quote: string;
+    base: string;
+    sendAmount: string;
+    receiveAmount: string;
+    timestamp: number;
+  }[];
 }
 
 // db
@@ -87,6 +107,7 @@ const initialState: OtcContractsInterface & OtcUserData = {
   },
   userDepositsData: [],
   openTradesData: [],
+  tradeHistoryData: [],
   orders: [],
   users: [],
   trades: [],
@@ -112,6 +133,7 @@ export const OtcProvider = (props) => {
     initialState
   );
   const [userDepositsData, setUserDepositsData] = useState([]);
+  const [tradeHistoryData, setTradeHistoryData] = useState([]);
   const [openTradesData, setOpenTradesData] = useState([]);
   const [escrowData, setEscrowData] = useState<any>({});
   const [loaded, setLoaded] = useState(false);
@@ -174,7 +196,7 @@ export const OtcProvider = (props) => {
         const isPut = symbol.toString().indexOf('CALL') === -1;
 
         return {
-          symbol,
+          symbol: sanitizeOptionSymbol(symbol),
           address,
           isPut,
         };
@@ -183,14 +205,41 @@ export const OtcProvider = (props) => {
 
     const escrowAssets: string[] = baseAddresses.concat(quoteAddresses);
 
-    let escrowAssetPairs = escrowAssets.flatMap((v, i) =>
+    let escrowAssetPairsV1 = escrowAssets.flatMap((v, i) =>
       escrowAssets.slice(i + 1).map((w) => ({ token1: v, token2: w }))
     );
 
-    escrowAssetPairs.push(
+    escrowAssetPairsV1.push(
       ...escrowAssets.flatMap((v, i) =>
         escrowAssets.slice(i + 1).map((w) => ({ token1: w, token2: v }))
       )
+    );
+
+    const escrowAssetPairs = quoteAddresses
+      .map((quote: string) => {
+        return baseAddresses.map((base: string) => {
+          return {
+            token1: quote,
+            token2: base,
+          };
+        });
+      })
+      .flat()
+      .concat(
+        baseAddresses
+          .map((base) => {
+            return quoteAddresses.map((quote) => {
+              return {
+                token1: base,
+                token2: quote,
+              };
+            });
+          })
+          .flat()
+      );
+
+    let assetToSymbolMapping = quoteAssetToSymbolMapping.concat(
+      baseAssetToSymbolMapping
     );
 
     // Fetch all registered users
@@ -198,45 +247,53 @@ export const OtcProvider = (props) => {
       await getDocs(collection(db, 'users'))
     ).docs.flatMap((doc) => doc.id);
 
-    const userAssetDeposits = (
-      await Promise.all(
-        escrowAssetPairs.map(async (pair) => {
-          return await Promise.all(
-            users.map(async (user) => ({
-              isBuy: pair.token1 === quoteAddresses[0],
-              quote: {
-                address: pair.token1,
-                symbol: await ERC20__factory.connect(
-                  pair.token1,
-                  provider
-                ).symbol(),
-              },
-              base: {
-                address: pair.token2,
-                symbol: await ERC20__factory.connect(
-                  pair.token2,
-                  provider
-                ).symbol(),
-              },
-              amount: await escrow.balances(
-                ethers.utils.solidityKeccak256(
-                  ['address', 'address', 'address', 'address'],
-                  [pair.token1, pair.token2, accountAddress, user]
-                )
-              ),
-              price: await escrow.pendingBalances(
-                ethers.utils.solidityKeccak256(
-                  ['address', 'address', 'address', 'address'],
-                  [pair.token2, pair.token1, accountAddress, user]
-                )
-              ),
-              dealer: accountAddress,
-              counterParty: user,
-            }))
-          );
+    const queryResult: ApolloQueryResult<GetUserOpenOrdersQuery> =
+      await otcGraphClient.query({
+        query: GetUserOpenOrdersDocument,
+        variables: { user: accountAddress },
+        fetchPolicy: 'no-cache',
+      });
+
+    const { data } = queryResult;
+
+    const userAssetDeposits = escrowAssetPairs.map(async (pair) => {
+      const deposit = Promise.all(
+        users.map(async (user) => {
+          // const amount = await escrow.balances(
+          //   ethersUtils.solidityKeccak256(
+          //     ['address', 'address', 'address', 'address'],
+          //     [pair.token1, pair.token2, user, accountAddress]
+          //   )
+          // );
+
+          // const price = await escrow.balances(
+          //   ethersUtils.solidityKeccak256(
+          //     ['address', 'address', 'address', 'address'],
+          //     [pair.token1, pair.token2, user, accountAddress]
+          //   )
+          // );
+
+          return {
+            isBuy: pair.token1 === quoteAddresses[0],
+            quote: {
+              address: pair.token1,
+              symbol: assetToSymbolMapping[pair.token1],
+            },
+            base: {
+              address: pair.token2,
+              symbol: assetToSymbolMapping[pair.token2],
+            },
+            amount: BigNumber.from(0),
+            price: BigNumber.from(0),
+            dealer: accountAddress,
+            counterParty: user,
+          };
         })
-      )
-    )
+      );
+      return deposit;
+    });
+
+    const userAssetDepositsResult = (await Promise.all(userAssetDeposits))
       .flat()
       .filter(
         (result: any) =>
@@ -244,43 +301,43 @@ export const OtcProvider = (props) => {
           result.price.gt(BigNumber.from(0))
       );
 
-    setUserDepositsData(userAssetDeposits);
+    setUserDepositsData(userAssetDepositsResult);
 
     const openTrades = await Promise.all(
       escrowAssetPairs.map(async (pair) => {
         return (
           await Promise.all(
-            users.map(async (user) => ({
-              isBuy: pair.token1 === quoteAddresses[0],
-              dealerQuote: {
-                address: pair.token1,
-                symbol: await ERC20__factory.connect(
-                  pair.token1,
-                  provider
-                ).symbol(),
-              },
-              dealerBase: {
-                address: pair.token2,
-                symbol: await ERC20__factory.connect(
-                  pair.token2,
-                  provider
-                ).symbol(),
-              },
-              dealerSendAmount: await escrow.balances(
-                ethers.utils.solidityKeccak256(
-                  ['address', 'address', 'address', 'address'],
-                  [pair.token1, pair.token2, user, accountAddress]
-                )
-              ),
-              dealerReceiveAmount: await escrow.pendingBalances(
-                ethers.utils.solidityKeccak256(
-                  ['address', 'address', 'address', 'address'],
-                  [pair.token2, pair.token1, user, accountAddress]
-                )
-              ),
-              dealer: user,
-              counterParty: accountAddress,
-            }))
+            users.map(async (user) => {
+              // const dealerSendAmount = await escrow.balances(
+              //   ethersUtils.solidityKeccak256(
+              //     ['address', 'address', 'address', 'address'],
+              //     [pair.token1, pair.token2, user, accountAddress]
+              //   )
+              // );
+
+              // const dealerReceiveAmount = await escrow.pendingBalances(
+              //   ethersUtils.solidityKeccak256(
+              //     ['address', 'address', 'address', 'address'],
+              //     [pair.token2, pair.token1, user, accountAddress]
+              //   )
+              // );
+
+              return {
+                isBuy: pair.token1 === quoteAddresses[0],
+                dealerQuote: {
+                  address: pair.token1,
+                  symbol: assetToSymbolMapping[pair.token1],
+                },
+                dealerBase: {
+                  address: pair.token2,
+                  symbol: assetToSymbolMapping[pair.token1],
+                },
+                dealerSendAmount: BigNumber.from(0),
+                dealerReceiveAmount: BigNumber.from(0),
+                dealer: user,
+                counterParty: accountAddress,
+              };
+            })
           )
         )
           .flat()
@@ -307,6 +364,98 @@ export const OtcProvider = (props) => {
       loaded: true,
     }));
   }, [accountAddress, contractAddresses, provider]);
+
+  const getTradeHistoryData = useCallback(async () => {
+    const queryResult: ApolloQueryResult<GetEscrowTransactionsQuery> =
+      await otcGraphClient.query({
+        query: GetEscrowTransactionsDocument,
+        fetchPolicy: 'no-cache',
+      });
+
+    const { data } = queryResult;
+
+    const tradeHistory = data.orders.map((op) => {
+      const dealer = op.dealer.id;
+      const counterParty = op.counterParty.id;
+      const quote = op.quote;
+      const base = op.base;
+      const sendAmount = op.sendAmount;
+      const receiveAmount = op.receiveAmount;
+      const timestamp = Number(op.transaction.timestamp);
+
+      return {
+        dealer,
+        counterParty,
+        quote,
+        base,
+        sendAmount,
+        receiveAmount,
+        timestamp,
+      };
+    });
+
+    setTradeHistoryData(tradeHistory);
+  }, []);
+
+  const loadDeposits = useCallback(
+    async (escrowAssetPairs, assetToSymbolMapping, quoteAddresses) => {
+      const { escrow, escrowData } = state;
+      if (
+        !escrowAssetPairs ||
+        assetToSymbolMapping ||
+        !accountAddress ||
+        !quoteAddresses ||
+        !escrow ||
+        !escrowData
+      )
+        return;
+
+      // Fetch all registered users
+      const users: string[] = (
+        await getDocs(collection(db, 'users'))
+      ).docs.flatMap((doc) => doc.id);
+
+      const userAssetDeposits = escrowAssetPairs.map(async (pair) => {
+        const deposit = Promise.all(
+          users.map(async (user) => {
+            // const amount = await escrow.balances(
+            //   ethersUtils.solidityKeccak256(
+            //     ['address', 'address', 'address', 'address'],
+            //     [pair.token1, pair.token2, user, accountAddress]
+            //   )
+            // );
+
+            // const price = await escrow.balances(
+            //   ethersUtils.solidityKeccak256(
+            //     ['address', 'address', 'address', 'address'],
+            //     [pair.token1, pair.token2, user, accountAddress]
+            //   )
+            // );
+
+            return {
+              isBuy: pair.token1 === quoteAddresses[0],
+              quote: {
+                address: pair.token1,
+                symbol: assetToSymbolMapping[pair.token1],
+              },
+              base: {
+                address: pair.token2,
+                symbol: assetToSymbolMapping[pair.token2],
+              },
+              amount: BigNumber.from(0),
+              price: BigNumber.from(0),
+              dealer: accountAddress,
+              counterParty: user,
+            };
+          })
+        );
+        return await deposit;
+      });
+      console.log(userAssetDeposits);
+      // setUserDepositsData(userAssetDeposits);
+    },
+    [accountAddress, state]
+  );
 
   const setSelectedQuote = useCallback(
     (selectedQuote) => {
@@ -364,6 +513,10 @@ export const OtcProvider = (props) => {
     getOtcData();
   }, [getOtcData]);
 
+  useEffect(() => {
+    getTradeHistoryData();
+  }, [getTradeHistoryData]);
+
   const validateUser = useCallback(async () => {
     if (!accountAddress) return;
 
@@ -379,6 +532,7 @@ export const OtcProvider = (props) => {
     validateUser,
     userDepositsData,
     openTradesData,
+    tradeHistoryData,
     escrowData,
     setSelectedQuote,
   };

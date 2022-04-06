@@ -133,7 +133,7 @@ const OTC = () => {
                   className={`flex space-x-4 p-2 rounded-xl ${
                     state.history ? 'bg-cod-gray' : null
                   }`}
-                  onClick={() => {}}
+                  onClick={() => handleUpdateState(false, true)}
                 >
                   <HistoryIcon className="my-auto" />
                   <Box className="flex space-x-2">
@@ -145,16 +145,6 @@ const OTC = () => {
                     >
                       History
                     </Typography>
-                    <Box className="px-2 py-1 rounded-2xl bg-stieglitz bg-opacity-10 my-auto border border-umbra">
-                      <Typography
-                        variant="h6"
-                        role="button"
-                        className="text-stieglitz"
-                        // handleUpdateState(false, true)
-                      >
-                        Coming soon
-                      </Typography>
-                    </Box>
                   </Box>
                 </Box>
 
@@ -192,7 +182,7 @@ const OTC = () => {
                 Dealer-brokers place orders to sell/buy a certain asset, while counter-parties 
                 fulfill these orders via a p2p trade with these brokers via an ongoing open-trade. 
                 Settlement prices may be made via an agreement made through negotiations taken place in chatrooms.`}
-                  footer={<Link to="/portfolio">Read More</Link>}
+                  footer={<Link to="#">Read More</Link>}
                 />
               </Box>
             </Box>

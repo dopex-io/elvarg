@@ -125,8 +125,6 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     (isPut) => {
       if (!filteredBases) return;
 
-      filteredBases.map((item) => console.log(item));
-
       formik.setFieldValue('isPut', isPut);
       formik.setFieldValue('base', filteredBases[0].address);
       setSelection({
@@ -158,10 +156,20 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   const handleApprove = useCallback(async () => {
     if (!formik.values.quote || !formik.values.base) return;
 
+    const erc20 = ERC20__factory.connect(
+      formik.values.isBuy
+        ? escrowData.quotes[0].address
+        : escrowData.bases[selectionIndex].address,
+      provider
+    );
+
+    const decimals = await erc20.decimals();
+
     const approveAmount = getContractReadableAmount(
       formik.values.isBuy ? formik.values.price : formik.values.amount,
-      18
+      decimals
     );
+
     const asset = ERC20__factory.connect(
       formik.values.isBuy
         ? escrowData.quotes[0].address
@@ -196,13 +204,20 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
         formik.values.isBuy ? formik.values.base : formik.values.quote,
       ];
 
+      const erc20 = ERC20__factory.connect(
+        formik.values.isBuy ? userQuote : userBase,
+        provider
+      );
+
+      const decimals = await erc20.decimals();
+
       const [depositAmount, receiveAmount] = [
         formik.values.isBuy
-          ? getContractReadableAmount(formik.values.price, 18)
+          ? getContractReadableAmount(formik.values.price, decimals)
           : getContractReadableAmount(formik.values.amount, 18),
         formik.values.isBuy
           ? getContractReadableAmount(formik.values.amount, 18)
-          : getContractReadableAmount(formik.values.price, 18),
+          : getContractReadableAmount(formik.values.price, decimals),
       ];
 
       if (isLive)
@@ -277,6 +292,9 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             : escrowData.bases[selectionIndex]?.address,
           provider
         );
+
+        const decimals = await erc20.decimals();
+
         const allowance = await erc20.allowance(
           accountAddress,
           escrowData?.escrowAddress
@@ -285,7 +303,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           allowance.gte(
             getContractReadableAmount(
               formik.values.isBuy ? formik.values.price : formik.values.amount,
-              18
+              decimals
             )
           )
         );
@@ -460,7 +478,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
           <Accordion
             summary="What are RFQs?"
             details="Dealers can place requests-for-quote for options that they own and would like to sell. Interested buyers may bid on ongoing RFQs."
-            footer={<Link to="/portfolio">Read More</Link>}
+            footer={<Link to="#">Read More</Link>}
           />
         </Box>
         {Boolean(

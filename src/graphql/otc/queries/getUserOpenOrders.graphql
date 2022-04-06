@@ -1,0 +1,19 @@
+query getUserOpenOrders($user: String) {
+  users(where: { id: $user }) {
+    id
+    ordersOpened(where: { fulfilled: false, closed: false, dealer: $user }) {
+      closed
+      fulfilled
+      quote
+      sendAmount
+      base
+      receiveAmount
+      dealer {
+        id
+      }
+      counterParty {
+        id
+      }
+    }
+  }
+}
