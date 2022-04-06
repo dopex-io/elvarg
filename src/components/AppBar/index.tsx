@@ -75,18 +75,21 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
   ],
   421611: [
-    { name: 'options', to: '/' },
-    { name: 'pools', to: '/pools' },
-    { name: 'portfolio', to: '/portfolio' },
-    { name: 'faucet', to: '/faucet' },
-    { name: 'swap', to: '/swap' },
-    { name: 'SSOV', to: '/ssov' },
+    // { name: 'options', to: '/' },
+    // { name: 'pools', to: '/pools' },
+    // { name: 'portfolio', to: '/portfolio' },
+    // { name: 'faucet', to: '/faucet' },
+    // { name: 'swap', to: '/swap' },
+    // { name: 'SSOV', to: '/ssov' },
+    { name: 'OTC', to: '/' },
   ],
   42161: [
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
+    { name: 'OTC', to: '/otc' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
+  1088: [{ name: 'SSOV', to: '/ssov' }],
 };
 
 const menuLinks = [
@@ -113,7 +116,8 @@ interface AppBarProps {
     | 'faucet'
     | 'SSOV'
     | 'leaderboard'
-    | 'swap';
+    | 'swap'
+    | 'OTC';
 }
 
 export default function AppBar(props: AppBarProps) {
