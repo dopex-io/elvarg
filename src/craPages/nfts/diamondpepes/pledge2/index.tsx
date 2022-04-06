@@ -123,7 +123,6 @@ const DiamondPepesNfts = () => {
           updateData={updateData}
           updateUserData={updateUserData}
           pledge={pledge}
-          winners={winners}
         />
       ) : null}
       <Box>
