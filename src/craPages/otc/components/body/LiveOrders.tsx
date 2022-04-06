@@ -14,10 +14,12 @@ import InfoPopover from 'components/UI/InfoPopover';
 import Settle from '../Dialogs/Settle';
 
 import { OtcContext } from 'contexts/Otc';
+import { WalletContext } from 'contexts/Wallet';
 
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { ERC20__factory } from '@dopex-io/sdk';
 
 const TableHeader = ({
   children,
@@ -58,10 +60,14 @@ const TableBodyCell = ({
 
 const LiveOrders = () => {
   const { openTradesData, loaded } = useContext(OtcContext);
+  const { provider } = useContext(WalletContext);
 
   const [index, setIndex] = useState(0);
   const [openTrades, setOpenTrades] = useState([]);
-
+  const [decimals, setDecimals] = useState({
+    quote: 18,
+    base: 18,
+  });
   const [dialogState, setDialogState] = useState({
     open: false,
     data: {},
@@ -107,122 +113,124 @@ const LiveOrders = () => {
               </TableRow>
             </TableHead>
             <TableBody component="div">
-              {openTrades.map((row, i) => (
-                <TableRow key={i}>
-                  <TableBodyCell align="left" textColor="white">
-                    {row?.isBuy ? 'Buy' : 'Sell'}
-                  </TableBodyCell>
-                  <TableBodyCell align="left">
-                    {row.isBuy
-                      ? smartTrim(row.dealerBase?.symbol, 24)
-                      : smartTrim(row.dealerQuote?.symbol, 24)}
-                  </TableBodyCell>
-                  <TableBodyCell align="center">
-                    {row.isBuy
-                      ? getUserReadableAmount(
-                          row.dealerReceiveAmount,
-                          18
-                        ).toString()
-                      : getUserReadableAmount(
-                          row.dealerSendAmount,
-                          18
-                        ).toString()}
-                  </TableBodyCell>
-                  <TableBodyCell
-                    align="center"
-                    textColor="text-down-bad"
-                    fill="bg-umbra"
-                  >
-                    <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+              {openTrades.map((row, i) => {
+                return (
+                  <TableRow key={i}>
+                    <TableBodyCell align="left" textColor="white">
+                      {row?.isBuy ? 'Buy' : 'Sell'}
+                    </TableBodyCell>
+                    <TableBodyCell align="left">
                       {row.isBuy
-                        ? formatAmount(
-                            getUserReadableAmount(
-                              !row.isBuy
-                                ? row.dealerReceiveAmount
-                                : row.dealerSendAmount,
-                              18
-                            ) /
+                        ? smartTrim(row.dealerBase?.symbol, 24)
+                        : smartTrim(row.dealerQuote?.symbol, 24)}
+                    </TableBodyCell>
+                    <TableBodyCell align="center">
+                      {row.isBuy
+                        ? getUserReadableAmount(
+                            row.dealerReceiveAmount,
+                            6
+                          ).toString()
+                        : getUserReadableAmount(
+                            row.dealerSendAmount,
+                            18
+                          ).toString()}
+                    </TableBodyCell>
+                    <TableBodyCell
+                      align="center"
+                      textColor="text-down-bad"
+                      fill="bg-umbra"
+                    >
+                      <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                        {row.isBuy
+                          ? formatAmount(
                               getUserReadableAmount(
-                                row.isBuy
+                                !row.isBuy
                                   ? row.dealerReceiveAmount
                                   : row.dealerSendAmount,
                                 18
-                              ),
-                            5
-                          )
-                        : '-'}
-                    </Box>
-                  </TableBodyCell>
-                  <TableBodyCell
-                    align="center"
-                    textColor="text-emerald-500"
-                    fill="bg-umbra"
-                  >
-                    <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
-                      {!row.isBuy
-                        ? formatAmount(
-                            getUserReadableAmount(
-                              !row.isBuy
-                                ? row.dealerReceiveAmount
-                                : row.dealerSendAmount,
-                              18
-                            ) /
+                              ) /
+                                getUserReadableAmount(
+                                  row.isBuy
+                                    ? row.dealerReceiveAmount
+                                    : row.dealerSendAmount,
+                                  18
+                                ),
+                              5
+                            )
+                          : '-'}
+                      </Box>
+                    </TableBodyCell>
+                    <TableBodyCell
+                      align="center"
+                      textColor="text-emerald-500"
+                      fill="bg-umbra"
+                    >
+                      <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                        {!row.isBuy
+                          ? formatAmount(
                               getUserReadableAmount(
-                                row.isBuy
+                                !row.isBuy
                                   ? row.dealerReceiveAmount
                                   : row.dealerSendAmount,
                                 18
-                              ),
-                            5
-                          )
-                        : '-'}
-                    </Box>
-                  </TableBodyCell>
-                  <TableBodyCell align="right">
-                    {row.isBuy
-                      ? row.dealerQuote?.symbol
-                      : row.dealerBase?.symbol}
-                  </TableBodyCell>
-                  <TableBodyCell align="right">
-                    {getUserReadableAmount(
-                      !row.isBuy
-                        ? row.dealerReceiveAmount
-                        : row.dealerSendAmount,
-                      18
-                    ).toString()}{' '}
-                    {row.isBuy
-                      ? row.dealerQuote?.symbol
-                      : row.dealerBase?.symbol}
-                  </TableBodyCell>
-                  <TableBodyCell align="right">
-                    {smartTrim(row.dealer, 10)}
-                  </TableBodyCell>
-                  <TableBodyCell align="right">
-                    <Box className="flex justify-end">
-                      <CustomButton
-                        size="small"
-                        key="open-trade"
-                        onClick={() => {
-                          setIndex(i);
-                          setDialogState({
-                            open: true,
-                            data: openTradesData[index],
-                            handleClose,
-                          });
-                        }}
-                        className="text-white rounded px-2 py-0"
-                      >
-                        Trade
-                      </CustomButton>
-                      <Settle
-                        open={dialogState.open}
-                        handleClose={handleClose}
-                        data={openTradesData[index]}
-                      />
-                    </Box>
-                  </TableBodyCell>
-                </TableRow>
-              ))}
+                              ) /
+                                getUserReadableAmount(
+                                  row.isBuy
+                                    ? row.dealerReceiveAmount
+                                    : row.dealerSendAmount,
+                                  18
+                                ),
+                              5
+                            )
+                          : '-'}
+                      </Box>
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
+                      {row.isBuy
+                        ? row.dealerQuote?.symbol
+                        : row.dealerBase?.symbol}
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
+                      {getUserReadableAmount(
+                        !row.isBuy
+                          ? row.dealerReceiveAmount
+                          : row.dealerSendAmount,
+                        row.isBuy ? 18 : 6
+                      ).toString()}{' '}
+                      {row.isBuy
+                        ? row.dealerQuote?.symbol
+                        : row.dealerBase?.symbol}
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
+                      {smartTrim(row.dealer, 10)}
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
+                      <Box className="flex justify-end">
+                        <CustomButton
+                          size="small"
+                          key="open-trade"
+                          onClick={() => {
+                            setIndex(i);
+                            setDialogState({
+                              open: true,
+                              data: openTradesData[index],
+                              handleClose,
+                            });
+                          }}
+                          className="text-white rounded px-2 py-0"
+                        >
+                          Trade
+                        </CustomButton>
+                        <Settle
+                          open={dialogState.open}
+                          handleClose={handleClose}
+                          data={openTradesData[index]}
+                        />
+                      </Box>
+                    </TableBodyCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
