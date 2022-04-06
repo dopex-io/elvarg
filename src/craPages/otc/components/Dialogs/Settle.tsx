@@ -60,6 +60,8 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
 
   useEffect(() => {
     (async () => {
+      if (!data) return;
+
       const userQuote = ERC20__factory.connect(
         data.dealerBase.address,
         provider

@@ -1,8 +1,10 @@
-query getUserOpenOrders($user: ID!) {
-  users(where: { id: $user }) {
+query getPendingOrdersAgainstUser($user: String!) {
+  users {
     id
-    ordersOpened(where: { fulfilled: false, closed: false }) {
-      closed
+    ordersOpened(
+      where: { fulfilled: false, closed: false, counterParty: $user }
+    ) {
+      id
       fulfilled
       quote
       sendAmount
