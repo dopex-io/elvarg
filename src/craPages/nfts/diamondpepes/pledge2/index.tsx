@@ -1,8 +1,7 @@
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import {
-  YieldMint__factory,
   UniswapPair__factory,
-  DiamondPepeNFTsPledge__factory,
+  DiamondPepeNFTsPledge2__factory,
   DiamondPepeNFTs__factory,
   Addresses,
 } from '@dopex-io/sdk';
@@ -38,240 +37,14 @@ const DiamondPepesNfts = () => {
     useState<string>('hidden');
   const [isMintDialogVisible, setIsMintDialogVisible] =
     useState<boolean>(false);
-  const yieldMint = YieldMint__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTMint'],
-    provider
-  );
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
     Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
   );
-  const abi = [
-    {
-      inputs: [
-        { internalType: 'address', name: '_pepes', type: 'address' },
-        { internalType: 'uint256', name: '_targetVote', type: 'uint256' },
-      ],
-      stateMutability: 'nonpayable',
-      type: 'constructor',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'tokenId',
-          type: 'uint256',
-        },
-      ],
-      name: 'LogBurn',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: 'address',
-          name: 'pledgor',
-          type: 'address',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256[]',
-          name: 'tokenIds',
-          type: 'uint256[]',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'index',
-          type: 'uint256',
-        },
-      ],
-      name: 'LogNewPledge',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: 'address',
-          name: 'pledgor',
-          type: 'address',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'tokenId',
-          type: 'uint256',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'index',
-          type: 'uint256',
-        },
-      ],
-      name: 'LogPledgedPepe',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: 'address',
-          name: 'previousOwner',
-          type: 'address',
-        },
-        {
-          indexed: true,
-          internalType: 'address',
-          name: 'newOwner',
-          type: 'address',
-        },
-      ],
-      name: 'OwnershipTransferred',
-      type: 'event',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256[]', name: 'tokenIds', type: 'uint256[]' },
-      ],
-      name: 'burnFloors',
-      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      name: 'burned',
-      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'getTarget',
-      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'address', name: 'operator', type: 'address' },
-        { internalType: 'address', name: 'from', type: 'address' },
-        { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
-        { internalType: 'bytes', name: 'data', type: 'bytes' },
-      ],
-      name: 'onERC721Received',
-      outputs: [{ internalType: 'bytes4', name: '', type: 'bytes4' }],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'owner',
-      outputs: [{ internalType: 'address', name: '', type: 'address' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'pepes',
-      outputs: [
-        {
-          internalType: 'contract ERC721PresetMinterPauserAutoId',
-          name: '',
-          type: 'address',
-        },
-      ],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'percentPrecision',
-      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256[][]', name: 'tokenIds', type: 'uint256[][]' },
-      ],
-      name: 'pledge',
-      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      name: 'pledgeByIndex',
-      outputs: [{ internalType: 'address', name: 'pledgor', type: 'address' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'pledgeIndex',
-      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      name: 'pledged',
-      outputs: [{ internalType: 'address', name: '', type: 'address' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'renounceOwnership',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'targetHit',
-      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'targetVote',
-      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'totalPledged',
-      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
-      name: 'transferOwnership',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-  ];
-  const pledge = useMemo(() => {
-    return new ethers.Contract(
-      '0x944b481d8aba4ecffdfd0081bdfe09f11123bbf8',
-      abi,
-      signer
-    );
-  }, [signer]);
+  const pledge = DiamondPepeNFTsPledge2__factory.connect(
+    Addresses[chainId]['DiamondPepesNFTPledge2'],
+    signer
+  );
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
   const winners = [];
@@ -331,16 +104,6 @@ const DiamondPepesNfts = () => {
     },
   ];
 
-  const handleWithdraw = useCallback(async () => {
-    try {
-      await sendTx(yieldMint.connect(signer).withdraw());
-      await updateData();
-      await updateUserData();
-    } catch (err) {
-      console.log(err);
-    }
-  }, [accountAddress, updateData, updateUserData, signer]);
-
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -384,18 +147,20 @@ const DiamondPepesNfts = () => {
             </Typography>
           </Box>
           <Box className="text-center mx-auto md:mb-12 lg:mt-12 flex">
-            <img src={'/assets/gold-pepe-1.png'} className="z-1 ml-40 w-60" />
             <img
-              src={'/assets/gold-pepe-2.png'}
-              className="z-1 ml-2 relative w-60"
+              src={'/assets/gen2-pepe-1.png'}
+              className="z-1 ml-auto w-60 border border-bg-white"
+              alt={'Pepe 1'}
             />
             <img
-              src={'/assets/gold-pepe-3.png'}
-              className="z-1 ml-2 relative w-60"
+              src={'/assets/gen2-pepe-2.jpg'}
+              className="z-1 ml-2 relative w-60 border border-bg-white"
+              alt={'Pepe 2'}
             />
             <img
-              src={'/assets/gold-pepe-4.png'}
-              className="z-1 ml-2 relative w-60"
+              src={'/assets/gen2-pepe-3.png'}
+              className="z-1 ml-2 relative w-60 mr-auto border border-bg-white"
+              alt={'Pepe 3'}
             />
           </Box>
           <Box className="pl-4 pr-4 md:flex border border-[#232935] w-full mt-9 bg-[#181C24] z-1 relative">
@@ -459,26 +224,6 @@ const DiamondPepesNfts = () => {
               </Box>
             </Box>
           </Box>
-          <Box className="flex text-center h-[5rem]">
-            <Typography
-              variant="h5"
-              className={
-                "mr-auto ml-auto mt-auto text-stieglitz font-['Minecraft'] font-[0.2rem] break-all"
-              }
-            >
-              Mint contract
-              <br />
-              <a
-                href={
-                  'https://arbiscan.io/address/0xcAD9297f00487a88Afa120Bf9F4823B52AE388b0'
-                }
-                rel="noopener noreferrer"
-                target={'_blank'}
-              >
-                0xcAD9297f00487a88Afa120Bf9F4823B52AE388b0
-              </a>
-            </Typography>
-          </Box>
           <Box className="flex text-center h-[7rem] mb-2">
             <Typography
               variant="h5"
@@ -490,12 +235,13 @@ const DiamondPepesNfts = () => {
               <br />
               <a
                 href={
-                  'https://arbiscan.io/address/0xE974a44f859C1218fE0d8d151349788475692954'
+                  'https://arbiscan.io/address/' +
+                  contractAddresses['DiamondPepesNFTPledge2']
                 }
                 rel="noopener noreferrer"
                 target={'_blank'}
               >
-                0xE974a44f859C1218fE0d8d151349788475692954
+                {contractAddresses['DiamondPepesNFTPledge2']}
               </a>
             </Typography>
           </Box>

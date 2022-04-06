@@ -88,8 +88,9 @@ const Pledge2Dialog = ({
   const sendTx = useSendTx();
 
   const getNfts = useCallback(async () => {
-    // const nfts = await diamondPepeNfts.connect(signer).walletOfOwner(accountAddress);
-    const nfts = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+    const nfts = await diamondPepeNfts
+      .connect(signer)
+      .walletOfOwner(accountAddress);
     let _nfts = [];
     let _pledgedNfts = [];
 
