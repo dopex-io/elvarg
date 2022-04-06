@@ -62,6 +62,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
   '/nfts/diamondpepes': [42161],
+  '/nfts/diamondpepes/pledge': [42161],
+  '/nfts/diamondpepes/pledge2': [42161],
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
   '/tzwap': [1, 42161],
