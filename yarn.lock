@@ -601,10 +601,10 @@
   dependencies:
     "@date-io/core" "^2.13.1"
 
-"@dopex-io/sdk@^1.0.0-alpha.85":
-  version "1.0.0-alpha.85"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.85.tgz#c25e42e269a1b1d64c5df9407df36bdb9470fa81"
-  integrity sha512-NJ5eCjOuH+Srpt4xZ4O5bUO6crRHT1GVZtpGKPzKJPmqfHbQPx4uGdwb/BjUtGCWXqzkcTXaT5kZdCmQJaMP2A==
+"@dopex-io/sdk@^1.0.0-alpha.90":
+  version "1.0.0-alpha.91"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.91.tgz#a90d8c641f1c65190f9f262b142ad90fa6c004f2"
+  integrity sha512-BXNzOvgwrEQ1cnv36AiVvp7HG9rJfOijdZ7ckPUICA0Qnnh4v5BQznHADCstDw1GTm4SQTXZebQ5DKdcvZdqOQ==
   dependencies:
     ethers "^5.6.2"
 
