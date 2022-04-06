@@ -69,7 +69,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/otc/chat/:id': [42161],
 };
 
-const DEFAULT_CHAIN_ID = 421611;
+const DEFAULT_CHAIN_ID = 42161;
 
 let web3Modal;
 
