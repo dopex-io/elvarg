@@ -38,6 +38,10 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
   const { escrow } = useContext(OtcContext);
   const { signer, provider, accountAddress } = useContext(WalletContext);
   const [approved, setApproved] = useState(false);
+  const [decimals, setDecimals] = useState({
+    quote: 18,
+    base: 18,
+  });
 
   const handleTrade = useCallback(async () => {
     await sendTx(
@@ -66,11 +70,19 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
         data.dealerBase.address,
         provider
       );
+      const quoteDecimals = await userQuote.decimals();
+      const userBase = ERC20__factory.connect(
+        data.dealerQuote.address,
+        provider
+      );
+      const baseDecimals = await userBase.decimals();
+
       const allowance = await userQuote.allowance(
         accountAddress,
         escrow.address
       );
       setApproved(allowance.gte(data.dealerReceiveAmount));
+      setDecimals({ quote: quoteDecimals, base: baseDecimals });
     })();
   }, [approved, data, provider, accountAddress, escrow]);
 
@@ -98,7 +110,10 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
                       Receive
                     </Typography>
                     <Typography variant="h6">
-                      {getUserReadableAmount(data.dealerSendAmount, 18)}{' '}
+                      {getUserReadableAmount(
+                        data.dealerSendAmount,
+                        decimals.base
+                      )}{' '}
                       {data.dealerQuote.symbol}
                     </Typography>
                   </Box>
@@ -107,7 +122,10 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
                       Send
                     </Typography>
                     <Typography variant="h6">
-                      {getUserReadableAmount(data.dealerReceiveAmount, 18)}{' '}
+                      {getUserReadableAmount(
+                        data.dealerReceiveAmount,
+                        decimals.quote
+                      )}{' '}
                       {data.dealerBase.symbol}
                     </Typography>
                   </Box>
