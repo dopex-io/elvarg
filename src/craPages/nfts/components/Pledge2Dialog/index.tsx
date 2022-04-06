@@ -73,7 +73,7 @@ const Pledge2Dialog = ({
     useContext(WalletContext);
 
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
+    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
   );
   const [approved, setApproved] = useState<boolean>(false);
@@ -122,10 +122,9 @@ const Pledge2Dialog = ({
   const sendTx = useSendTx();
 
   const getNfts = useCallback(async () => {
-    const nfts = [
-      12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-      30,
-    ];
+    const nfts = await diamondPepeNfts
+      .connect(signer)
+      .walletOfOwner(accountAddress);
     let _nfts = [];
     let _pledgedNfts = [];
 

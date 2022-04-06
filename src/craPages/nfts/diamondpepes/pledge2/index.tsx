@@ -38,11 +38,11 @@ const DiamondPepesNfts = () => {
   const [isMintDialogVisible, setIsMintDialogVisible] =
     useState<boolean>(false);
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    '0x9f37089bfd6c163c0bd22695f04170b91e6143d4',
+    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
     signer
   );
   const pledge = DiamondPepeNFTsPledge2__factory.connect(
-    '0x944b481d8aba4ecffdfd0081bdfe09f11123bbf8',
+    '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
     signer
   );
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
@@ -59,10 +59,9 @@ const DiamondPepesNfts = () => {
   const updateUserData = useCallback(async () => {
     if (!provider) return;
 
-    const nfts = [
-      12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-      30,
-    ];
+    const nfts = await diamondPepeNfts
+      .connect(signer)
+      .walletOfOwner(accountAddress);
 
     let total = 0;
 
