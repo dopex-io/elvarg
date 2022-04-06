@@ -12,7 +12,7 @@ import BigNumber from 'bignumber.js';
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
 
-import { useGetLeaderboardDataQuery } from 'generated';
+import { useGetLeaderboardDataQuery } from 'graphql/generated/optionPools';
 
 import { AssetsContext } from 'contexts/Assets';
 

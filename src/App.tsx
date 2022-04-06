@@ -13,11 +13,12 @@ import Script from 'next/script';
 
 import theme from './style/muiTheme';
 
-import { client } from 'graphql/apollo';
+import { otcGraphClient } from 'graphql/apollo';
 
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 import { FarmingProvider } from 'contexts/Farming';
+import { OtcProvider } from 'contexts/Otc';
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { NftsProvider } from 'contexts/Nfts';
 
@@ -35,6 +36,9 @@ const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
+const OtcPortal = lazy(() => import('craPages/otc'));
+const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
+// const SsovPutsManage = lazy(() => import('craPages/ssov/Manage/Puts'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
 const DiamondPepesNfts = lazy(() => import('craPages/nfts/diamondpepes'));
@@ -74,6 +78,19 @@ const SsovRoutes = () => {
         <Route path=":type/:asset" element={<SsovManage />} />
       </Routes>
     </BnbConversionProvider>
+  );
+};
+
+const OtcRoutes = () => {
+  return (
+    <ApolloProvider client={otcGraphClient}>
+      <OtcProvider>
+        <Routes>
+          <Route path="*" element={<OtcPortal />} />
+          <Route path="chat/:id" element={<OtcChatroom />} />
+        </Routes>
+      </OtcProvider>
+    </ApolloProvider>
   );
 };
 
@@ -129,6 +146,7 @@ function AppRoutes() {
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />
               <Route path="tzwap" element={<Tzwap />} />
+              <Route path="/otc/*" element={<OtcRoutes />} />
               <Route path="*" element={<Error statusCode={404} />} />
             </Routes>
             <ChangeNetworkDialog />
@@ -144,11 +162,9 @@ const App = () => {
     <StylesProvider injectFirst>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
-          <ApolloProvider client={client}>
-            <Script src="/js/bitkeep.js"></Script>
-            <Toaster position="bottom-right" reverseOrder={true} />
-            <AppRoutes />
-          </ApolloProvider>
+          <Script src="/js/bitkeep.js"></Script>
+          <Toaster position="bottom-right" reverseOrder={true} />
+          <AppRoutes />
         </ThemeProvider>
       </StyledEngineProvider>
     </StylesProvider>

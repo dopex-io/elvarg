@@ -36,6 +36,7 @@ export const CHAIN_ID_TO_PROVIDERS = {
   '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1088': 'https://andromeda.metis.io/?owner=1088',
   '1337': 'http://127.0.0.1:8545',
 };
 
@@ -43,7 +44,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
-  '/ssov': [42161, 56, 43114],
+  '/ssov': [42161, 56, 43114, 1088],
   '/ssov/call/DPX': [42161],
   '/ssov/call/RDPX': [42161],
   '/ssov/call/ETH': [42161],
@@ -51,6 +52,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/call/BNB': [56],
   '/ssov/call/GMX': [42161],
   '/ssov/call/AVAX': [43114],
+  '/ssov/call/METIS': [1088],
   '/ssov/put/RDPX': [42161],
   '/ssov/put/GOHM': [42161],
   '/ssov/put/BTC': [42161],
@@ -63,10 +65,12 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
   '/tzwap': [1, 42161],
+  '/otc': [42161],
+  '/otc/chat/:id': [42161],
 };
 
 const DEFAULT_CHAIN_ID =
-  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
+  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 42161;
 
 let web3Modal;
 
@@ -182,7 +186,9 @@ export const WalletProvider = (props) => {
       }
 
       const multicallProvider = new providers.MulticallProvider(
-        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[chainId])
+        new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_PROVIDERS[chainId]
+        )
       );
       let signer: Signer | undefined;
       let address: string | undefined;
@@ -242,7 +248,9 @@ export const WalletProvider = (props) => {
       isUser: false,
       accountAddress: '',
       provider: new providers.MulticallProvider(
-        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID])
+        new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+        )
       ),
     }));
   }, []);
@@ -258,7 +266,7 @@ export const WalletProvider = (props) => {
       .catch(async () => {
         await updateState({
           web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
-          ethersProvider: ethers.getDefaultProvider(
+          ethersProvider: new ethers.providers.StaticJsonRpcProvider(
             CHAIN_ID_TO_PROVIDERS[state.chainId]
           ),
           isUser: false,
@@ -272,7 +280,7 @@ export const WalletProvider = (props) => {
     } else {
       updateState({
         web3Provider: CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID],
-        ethersProvider: ethers.getDefaultProvider(
+        ethersProvider: new ethers.providers.StaticJsonRpcProvider(
           CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
         ),
         isUser: false,
@@ -283,7 +291,7 @@ export const WalletProvider = (props) => {
   useEffect(() => {
     (async () => {
       if (state.accountAddress) {
-        const mainnetProvider = ethers.getDefaultProvider(
+        const mainnetProvider = new ethers.providers.StaticJsonRpcProvider(
           'https://eth-mainnet.gateway.pokt.network/v1/lb/61ceae3bb86d760039e05c85'
         );
         const ensData = { ensName: '', ensAvatar: '' };
