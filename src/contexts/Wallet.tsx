@@ -185,7 +185,9 @@ export const WalletProvider = (props) => {
       }
 
       const multicallProvider = new providers.MulticallProvider(
-        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[chainId])
+        new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_PROVIDERS[chainId]
+        )
       );
       let signer: Signer | undefined;
       let address: string | undefined;
@@ -245,7 +247,9 @@ export const WalletProvider = (props) => {
       isUser: false,
       accountAddress: '',
       provider: new providers.MulticallProvider(
-        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID])
+        new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+        )
       ),
     }));
   }, []);
@@ -261,7 +265,7 @@ export const WalletProvider = (props) => {
       .catch(async () => {
         await updateState({
           web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
-          ethersProvider: ethers.getDefaultProvider(
+          ethersProvider: new ethers.providers.StaticJsonRpcProvider(
             CHAIN_ID_TO_PROVIDERS[state.chainId]
           ),
           isUser: false,
@@ -275,7 +279,7 @@ export const WalletProvider = (props) => {
     } else {
       updateState({
         web3Provider: CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID],
-        ethersProvider: ethers.getDefaultProvider(
+        ethersProvider: new ethers.providers.StaticJsonRpcProvider(
           CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
         ),
         isUser: false,
