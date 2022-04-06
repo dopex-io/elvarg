@@ -290,7 +290,7 @@ export const WalletProvider = (props) => {
   useEffect(() => {
     (async () => {
       if (state.accountAddress) {
-        const mainnetProvider = ethers.getDefaultProvider(
+        const mainnetProvider = new ethers.providers.StaticJsonRpcProvider(
           'https://eth-mainnet.gateway.pokt.network/v1/lb/61ceae3bb86d760039e05c85'
         );
         const ensData = { ensName: '', ensAvatar: '' };
