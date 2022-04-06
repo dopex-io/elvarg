@@ -13,7 +13,7 @@ import Script from 'next/script';
 
 import theme from './style/muiTheme';
 
-import { client } from 'graphql/apollo';
+import { otcGraphClient } from 'graphql/apollo';
 
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
@@ -80,12 +80,14 @@ const SsovRoutes = () => {
 
 const OtcRoutes = () => {
   return (
-    <OtcProvider>
-      <Routes>
-        <Route path="*" element={<OtcPortal />} />
-        <Route path="chat/:id" element={<OtcChatroom />} />
-      </Routes>
-    </OtcProvider>
+    <ApolloProvider client={otcGraphClient}>
+      <OtcProvider>
+        <Routes>
+          <Route path="*" element={<OtcPortal />} />
+          <Route path="chat/:id" element={<OtcChatroom />} />
+        </Routes>
+      </OtcProvider>
+    </ApolloProvider>
   );
 };
 
@@ -153,11 +155,9 @@ const App = () => {
     <StylesProvider injectFirst>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
-          <ApolloProvider client={client}>
-            <Script src="/js/bitkeep.js"></Script>
-            <Toaster position="bottom-right" reverseOrder={true} />
-            <AppRoutes />
-          </ApolloProvider>
+          <Script src="/js/bitkeep.js"></Script>
+          <Toaster position="bottom-right" reverseOrder={true} />
+          <AppRoutes />
         </ThemeProvider>
       </StyledEngineProvider>
     </StylesProvider>

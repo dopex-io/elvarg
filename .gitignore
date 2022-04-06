@@ -35,7 +35,7 @@ out
 .vercel
 
 # Generated GraphQL hooks
-/src/generated.ts
+/src/graphql/generated
 
 # Local next.js folder
 .next
