@@ -16,8 +16,6 @@ import Pledge2Dialog from '../../components/Pledge2Dialog';
 
 import { Data, UserData, initialData } from '../interfaces';
 
-import useSendTx from 'hooks/useSendTx';
-
 import { WalletContext } from '../../../../contexts/Wallet';
 
 import styles from '../styles.module.scss';
@@ -46,12 +44,6 @@ const DiamondPepesNfts = () => {
       ),
     [signer]
   );
-  const [userPledgedNfts, setUserPledgedNfts] = useState<
-    Array<{
-      img: string;
-      id: string;
-    }>
-  >([]);
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
 
@@ -87,15 +79,6 @@ const DiamondPepesNfts = () => {
     setTotalUserPledged,
     totalPledged,
   ]);
-
-  const getNfts = useCallback(async () => {
-    const totalPledged = await pledge.totalPledged();
-  }, [accountAddress, diamondPepeNfts, pledge, signer]);
-
-  // Get nfts initially
-  useEffect(() => {
-    getNfts();
-  }, [getNfts]);
 
   useEffect(() => {
     updateData();
