@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import {
   DiamondPepeNFTsPledge2__factory,
   DiamondPepeNFTs__factory,
@@ -6,6 +6,7 @@ import {
 } from '@dopex-io/sdk';
 import Head from 'next/head';
 
+import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -15,8 +16,6 @@ import Pledge2Dialog from '../../components/Pledge2Dialog';
 
 import { Data, UserData, initialData } from '../interfaces';
 
-import useSendTx from 'hooks/useSendTx';
-
 import { WalletContext } from '../../../../contexts/Wallet';
 
 import styles from '../styles.module.scss';
@@ -25,16 +24,25 @@ const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
     useState<string>('hidden');
-  const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
-    signer
+  const diamondPepeNfts = useMemo(
+    () =>
+      DiamondPepeNFTs__factory.connect(
+        Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+        signer
+      ),
+    [signer]
   );
-  const pledge = DiamondPepeNFTsPledge2__factory.connect(
-    '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
-    signer
+  const pledge = useMemo(
+    () =>
+      DiamondPepeNFTsPledge2__factory.connect(
+        '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
+        signer
+      ),
+    [signer]
   );
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
@@ -48,20 +56,24 @@ const DiamondPepesNfts = () => {
   const updateUserData = useCallback(async () => {
     if (!provider) return;
 
-    const nfts = await diamondPepeNfts
-      .connect(signer)
-      .walletOfOwner(accountAddress);
+    setIsLoading(true);
 
-    let total = 0;
+    let start = 9417023;
+    let end = (await provider.getBlock('latest'))['number'];
 
-    const pledged = await Promise.all(nfts.map((n) => pledge.pledged(n)));
+    let userTotal = 0;
+    while (start < end) {
+      const events = await diamondPepeNfts.queryFilter(
+        diamondPepeNfts.filters.Transfer(accountAddress, pledge.address, null),
+        start,
+        start + 2000
+      );
+      userTotal += events.length;
+      start += 2000;
+    }
 
-    nfts.map((n, i) => {
-      if (pledged[i] !== '0x0000000000000000000000000000000000000000')
-        total += 1;
-    });
-
-    setTotalUserPledged(total);
+    setTotalUserPledged(userTotal);
+    setIsLoading(false);
   }, [
     signer,
     accountAddress,
@@ -69,6 +81,7 @@ const DiamondPepesNfts = () => {
     provider,
     pledge,
     setTotalUserPledged,
+    totalPledged,
   ]);
 
   useEffect(() => {
@@ -88,7 +101,11 @@ const DiamondPepesNfts = () => {
       subTitle: 'Pledged',
     },
     {
-      title: totalUserPledged,
+      title: isLoading ? (
+        <CircularProgress size={13} color="inherit" />
+      ) : (
+        totalUserPledged
+      ),
       subTitle: 'Your pledged',
     },
   ];
