@@ -9,6 +9,7 @@ import ManageCard from '../components/ManageCard';
 import ExerciseList from '../components/ExerciseList';
 import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
+import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
 
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
@@ -59,8 +60,18 @@ const Manage = () => {
 };
 
 const ManagePage = () => {
+  const { asset } = useParams();
   return (
     <SsovProvider>
+      {asset === 'METIS' && (
+        <EmergencyNoticeBanner
+          paragraph={
+            'All METIS deposits have been safely withdrawn and will be dispersed to the depositors soon.'
+          }
+          title={'Emergency Withdrawal Notice'}
+        />
+      )}
+
       <Manage />
     </SsovProvider>
   );
