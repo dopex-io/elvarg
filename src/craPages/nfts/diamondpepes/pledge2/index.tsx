@@ -58,17 +58,21 @@ const DiamondPepesNfts = () => {
 
     setIsLoading(true);
 
-    const nfts = [...Array(1631).keys()];
+    let start = 9417023;
+    let end = (await provider.getBlock('latest'))['number'];
 
-    const pledged = await Promise.all(nfts.map((n) => pledge.pledged(n)));
+    let userTotal = 0;
+    while (start < end) {
+      const events = await diamondPepeNfts.queryFilter(
+        diamondPepeNfts.filters.Transfer(accountAddress, pledge.address, null),
+        start,
+        start + 2000
+      );
+      userTotal += events.length;
+      start += 2000;
+    }
 
-    let total = 0;
-
-    nfts.map((n, i) => {
-      if (pledged[i].toLowerCase() === accountAddress.toLowerCase()) total += 1;
-    });
-
-    setTotalUserPledged(total);
+    setTotalUserPledged(userTotal);
     setIsLoading(false);
   }, [
     signer,
