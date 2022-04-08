@@ -118,6 +118,7 @@ const Pool = ({
     {
       name: 'Stake',
       to: handleStake,
+      exclude: ['RDPX'],
     },
     {
       name: 'Add liquidity',
