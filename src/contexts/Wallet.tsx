@@ -31,12 +31,12 @@ interface WalletContextInterface {
 export const WalletContext = createContext<WalletContextInterface>({});
 
 export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  '42': `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1088': 'https://andromeda.metis.io/?owner=1088',
   '1337': 'http://127.0.0.1:8545',
 };
 
@@ -44,7 +44,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
-  '/vaults': [42161, 56, 43114],
+  '/vaults': [42161, 56, 43114, 1088],
   '/vaults/DPX': [42161],
   '/vaults/LUNA': [42161],
   '/vaults/WBTC': [42161],
@@ -55,16 +55,21 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/vaults/GMX': [42161],
   '/vaults/AVAX': [43114],
   '/vaults/CRV': [42161],
+  '/vaults/METIS': [1088],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
   '/nfts/diamondpepes': [42161],
+  '/nfts/diamondpepes/pledge': [42161],
+  '/nfts/diamondpepes/pledge2': [42161],
   '/sale': [1],
   '/oracles': [1, 42161, 56, 43114],
-  '/tzwap': [42161],
+  '/tzwap': [1, 42161],
+  '/otc': [42161],
+  '/otc/chat/:id': [42161],
 };
 
 const DEFAULT_CHAIN_ID =
-  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 421611;
+  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 42161;
 
 let web3Modal;
 
@@ -181,7 +186,9 @@ export const WalletProvider = (props) => {
       }
 
       const multicallProvider = new providers.MulticallProvider(
-        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[chainId])
+        new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_PROVIDERS[chainId]
+        )
       );
       let signer: Signer | undefined;
       let address: string | undefined;
@@ -246,7 +253,9 @@ export const WalletProvider = (props) => {
       isUser: false,
       accountAddress: '',
       provider: new providers.MulticallProvider(
-        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID])
+        new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+        )
       ),
     }));
   }, []);
@@ -262,7 +271,7 @@ export const WalletProvider = (props) => {
       .catch(async () => {
         await updateState({
           web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
-          ethersProvider: ethers.getDefaultProvider(
+          ethersProvider: new ethers.providers.StaticJsonRpcProvider(
             CHAIN_ID_TO_PROVIDERS[state.chainId]
           ),
           isUser: false,
@@ -276,7 +285,7 @@ export const WalletProvider = (props) => {
     } else {
       updateState({
         web3Provider: CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID],
-        ethersProvider: ethers.getDefaultProvider(
+        ethersProvider: new ethers.providers.StaticJsonRpcProvider(
           CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
         ),
         isUser: false,
@@ -287,7 +296,7 @@ export const WalletProvider = (props) => {
   useEffect(() => {
     (async () => {
       if (state.accountAddress) {
-        const mainnetProvider = ethers.getDefaultProvider(
+        const mainnetProvider = new ethers.providers.StaticJsonRpcProvider(
           'https://eth-mainnet.gateway.pokt.network/v1/lb/61ceae3bb86d760039e05c85'
         );
         const ensData = { ensName: '', ensAvatar: '' };

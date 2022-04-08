@@ -142,7 +142,7 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
               {formatAmount(userEpochDepositsAmount, 5)}
             </span>{' '}
             / {formatAmount(totalEpochDepositsAmount, 5)}{' '}
-            {isPut ? '2CRV' : tokenSymbol}
+            {isPut ? '2CRV' : tokenName === 'BNB' ? 'vBNB' : tokenSymbol}
           </Typography>
         </Box>
         <Box>
@@ -167,7 +167,7 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
                       {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}
                     </Typography>
                     <Typography variant="h6" className="text-stieglitz">
-                      {tokenSymbol} ${strike}
+                      {tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol} ${strike}
                     </Typography>
                   </Box>
                 </Box>
@@ -185,7 +185,11 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
               >
                 <Typography variant="h6">
                   {formatAmount(totalEpochStrikeDepositsAmounts[index], 5)}{' '}
-                  {isPut ? '2CRV' : tokenSymbol}
+                  {isPut
+                    ? '2CRV'
+                    : tokenSymbol === 'BNB'
+                    ? 'vBNB'
+                    : tokenSymbol}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz">
                   {tokenSymbol} ${strike}

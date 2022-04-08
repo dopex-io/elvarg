@@ -214,7 +214,8 @@ const ManageCard = ({
   const isZapActive: boolean = useMemo(() => {
     return (
       depositTokenName.toUpperCase() !== ssovTokenName.toUpperCase() &&
-      depositTokenName.toUpperCase() !== '2CRV'
+      depositTokenName.toUpperCase() !== '2CRV' &&
+      depositTokenName.toUpperCase() !== 'METIS'
     );
   }, [depositTokenName, ssovTokenName]);
 
@@ -779,7 +780,12 @@ const ManageCard = ({
         totalDepositAmount.toString(),
         getTokenDecimals(ssovTokenName, chainId)
       );
-      if (activeSsovContextSide === 'PUT') {
+      if (depositTokenName === 'METIS') {
+        const allowance: BigNumber = await ERC20__factory.connect(
+          '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
+          signer
+        ).allowance(accountAddress, spender);
+      } else if (activeSsovContextSide === 'PUT') {
         const token = ERC20__factory.connect(
           contractAddresses[depositTokenName],
           provider
@@ -823,7 +829,12 @@ const ManageCard = ({
     if (!depositTokenName || !accountAddress) return;
     (async function () {
       let userAmount: BigNumber;
-      if (IS_NATIVE(depositTokenName)) {
+      if (depositTokenName === 'METIS') {
+        userAmount = await ERC20__factory.connect(
+          '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000',
+          signer
+        ).balanceOf(accountAddress);
+      } else if (IS_NATIVE(depositTokenName)) {
         userAmount = BigNumber.from(userAssetBalances[depositTokenName]);
       } else {
         const token = ERC20__factory.connect(

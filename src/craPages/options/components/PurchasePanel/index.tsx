@@ -506,7 +506,7 @@ const PurchasePanel = forwardRef<HTMLDivElement>((_props, ref) => {
               fullWidth
             >
               {Boolean(formik.errors.amount) ? (
-                formik.errors.amount
+                String(formik.errors.amount)
               ) : (
                 <>
                   {finalTotalCost}{' '}

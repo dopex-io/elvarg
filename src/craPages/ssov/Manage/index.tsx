@@ -17,6 +17,7 @@ import Stats from '../components/Stats';
 import WithdrawalInfo from '../components/WithdrawalInfo';
 import AutoExerciseInfo from '../components/AutoExerciseInfo';
 import PageLoader from 'components/PageLoader';
+import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
@@ -174,8 +175,18 @@ const Manage = () => {
 };
 
 const ManagePage = () => {
+  const { asset } = useParams();
   return (
     <SsovProvider>
+      {asset === 'METIS' && (
+        <EmergencyNoticeBanner
+          paragraph={
+            'All METIS deposits have been safely withdrawn and will be dispersed to the depositors soon.'
+          }
+          title={'Emergency Withdrawal Notice'}
+        />
+      )}
+
       <Manage />
     </SsovProvider>
   );

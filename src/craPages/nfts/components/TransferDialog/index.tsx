@@ -110,7 +110,7 @@ const TransferModal = ({ open, handleClose, index }) => {
           </Box>
           {isAddressError ? (
             <Typography variant="h5" className="text-red-400">
-              {formik.errors.address}
+              {String(formik.errors.address)}
             </Typography>
           ) : null}
         </Box>

@@ -1,6 +1,10 @@
 import { ERC20 } from '@dopex-io/sdk';
 
-import { OptionExercise, OptionPurchase, OptionSwap } from 'generated';
+import {
+  OptionExercise,
+  OptionPurchase,
+  OptionSwap,
+} from 'graphql/generated/optionPools';
 
 export enum OptionActionTypeEnum {
   Transfer = 'TRANSFER',

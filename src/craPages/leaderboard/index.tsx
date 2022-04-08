@@ -1,4 +1,4 @@
-import { FC, useContext, useMemo } from 'react';
+import { FC, ReactNode, useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -12,14 +12,14 @@ import BigNumber from 'bignumber.js';
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
 
-import { useGetLeaderboardDataQuery } from 'generated';
+import { useGetLeaderboardDataQuery } from 'graphql/generated/optionPools';
 
 import { AssetsContext } from 'contexts/Assets';
 
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 import getValueColorClass from 'utils/general/getValueColorClass';
 
-const TableHeaderCell: FC<{ className?: string }> = ({
+const TableHeaderCell: FC<{ className?: string; children: ReactNode }> = ({
   children,
   className,
 }) => {
@@ -111,7 +111,7 @@ const Leaderboard = () => {
                   return null;
                 count++;
                 return (
-                  <TableRow>
+                  <TableRow key={item.user}>
                     <TableHeaderCell>{count - 1}</TableHeaderCell>
                     <TableHeaderCell>{item.user}</TableHeaderCell>
                     <TableHeaderCell

@@ -18,7 +18,7 @@ import BigNumber from 'bignumber.js';
 import { AssetsContext } from './Assets';
 import { WalletContext } from './Wallet';
 
-import { client } from 'graphql/apollo';
+import { optionPoolsClient } from 'graphql/apollo';
 
 import { OptionData, OptionPoolBrokerTransaction } from 'types';
 
@@ -27,7 +27,7 @@ import {
   GetOptionsContractsQuery,
   GetUserDataQuery,
   GetUserDataDocument,
-} from 'generated';
+} from 'graphql/generated/optionPools';
 import getOptionsContractId from 'utils/contracts/getOptionsContractId';
 import getPositionId from 'utils/contracts/getPositionId';
 
@@ -104,7 +104,7 @@ export const PortfolioProvider = (props) => {
       return;
 
     const queryResult: ApolloQueryResult<GetOptionsContractsQuery> =
-      await client.query({
+      await optionPoolsClient.query({
         query: GetOptionsContractsDocument,
         variables: { expiry: (new Date().getTime() / 1000 - 86400).toFixed() },
         fetchPolicy: 'no-cache',
@@ -262,11 +262,12 @@ export const PortfolioProvider = (props) => {
 
     let userTxs = [];
 
-    const result: ApolloQueryResult<GetUserDataQuery> = await client.query({
-      query: GetUserDataDocument,
-      variables: { user: accountAddress.toLowerCase() },
-      fetchPolicy: 'no-cache',
-    });
+    const result: ApolloQueryResult<GetUserDataQuery> =
+      await optionPoolsClient.query({
+        query: GetUserDataDocument,
+        variables: { user: accountAddress.toLowerCase() },
+        fetchPolicy: 'no-cache',
+      });
 
     userTxs = userTxs
       .concat(result.data.user?.optionsExercised || [])

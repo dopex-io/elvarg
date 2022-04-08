@@ -44,6 +44,12 @@ const ssovInfo = {
     mainPageMessage:
       'accepts user AVAX deposits and stakes them to generate extra yield.',
   },
+  METIS: {
+    aprToolTipMessage:
+      "This is the base APY calculated from AgoraDefi's staked Metis APY",
+    mainPageMessage:
+      'Deposit Metis into strikes providing liquidity into option pools and earn premiums from each option purchase.',
+  },
   BTC: {
     aprToolTipMessage:
       'This is the base APY calculated from Curve 2Pool Fees and Rewards',
