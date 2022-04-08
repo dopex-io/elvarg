@@ -309,20 +309,24 @@ const Manage = () => {
             </IconButton>
             <Box className="flex flex-row w-full items-center justify-between">
               <Typography variant="h4" className="">
-                {isStake ? 'Stake' : 'Unstake'}
+                {isStake && selectedToken.selectedBaseAsset !== 'RDPX'
+                  ? 'Stake'
+                  : 'Unstake'}
               </Typography>
               <Box className="flex flex-row">
-                <CustomButton
-                  size="medium"
-                  className={c(
-                    isStake
-                      ? 'mr-1'
-                      : 'bg-umbra text-stieglitz hover:bg-umbra mr-1'
-                  )}
-                  onClick={handleStake}
-                >
-                  Stake
-                </CustomButton>
+                {selectedToken.selectedBaseAsset !== 'RDPX' ? (
+                  <CustomButton
+                    size="medium"
+                    className={c(
+                      isStake
+                        ? 'mr-1'
+                        : 'bg-umbra text-stieglitz hover:bg-umbra mr-1'
+                    )}
+                    onClick={handleStake}
+                  >
+                    Stake
+                  </CustomButton>
+                ) : null}
                 {selectedToken?.userStakedBalance?.gt(0) ? (
                   <CustomButton
                     size="medium"
@@ -500,7 +504,7 @@ const Manage = () => {
             </a>
           ) : null}
           <Box>
-            {isStake ? (
+            {isStake && token !== 'RDPX' ? (
               formik.values.amount.lte(0) ? (
                 <CustomButton size="large" className="w-full" disabled>
                   Enter an amount
@@ -519,19 +523,21 @@ const Manage = () => {
               ) : (
                 <Box className="flex flex-col">
                   <MaxApprove value={maxApprove} setValue={setMaxApprove} />
-                  <Box className="flex flex-row mt-2 space-x-2">
-                    <CustomButton
-                      size="large"
-                      onClick={handleApprove}
-                      fullWidth
-                      disabled={chainId === 1 ? true : false}
-                    >
-                      Approve
-                    </CustomButton>
-                    <CustomButton size="large" disabled fullWidth>
-                      Deposit
-                    </CustomButton>
-                  </Box>
+                  {token !== 'RDPX' ? (
+                    <Box className="flex flex-row mt-2 space-x-2">
+                      <CustomButton
+                        size="large"
+                        onClick={handleApprove}
+                        fullWidth
+                        disabled={chainId === 1 ? true : false}
+                      >
+                        Approve
+                      </CustomButton>
+                      <CustomButton size="large" disabled fullWidth>
+                        Deposit
+                      </CustomButton>
+                    </Box>
+                  ) : null}
                 </Box>
               )
             ) : (

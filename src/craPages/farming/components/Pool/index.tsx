@@ -118,6 +118,7 @@ const Pool = ({
     {
       name: 'Stake',
       to: handleStake,
+      exclude: ['RDPX'],
     },
     {
       name: 'Add liquidity',
@@ -305,7 +306,7 @@ const Pool = ({
                     navigate('/farms/manage');
                   }}
                 >
-                  Stake
+                  {token.selectedBaseAsset === 'RDPX' ? 'Unstake' : 'Stake'}
                 </CustomButton>
               </Box>
             )}
