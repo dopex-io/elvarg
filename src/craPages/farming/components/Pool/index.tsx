@@ -305,7 +305,7 @@ const Pool = ({
                     navigate('/farms/manage');
                   }}
                 >
-                  Stake
+                  {token.selectedBaseAsset === 'RDPX' ? 'Unstake' : 'Stake'}
                 </CustomButton>
               </Box>
             )}
