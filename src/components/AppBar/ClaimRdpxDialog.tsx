@@ -105,7 +105,7 @@ const ClaimRdpxModal = ({ open, handleClose }) => {
 
   const buttonProps = useMemo(() => {
     if (isAddressError)
-      return { disabled: true, children: formik.errors.address };
+      return { disabled: true, children: String(formik.errors.address) };
     else if (loading) {
       return {
         disabled: true,
@@ -148,7 +148,7 @@ const ClaimRdpxModal = ({ open, handleClose }) => {
           </Box>
           {isAddressError ? (
             <Typography variant="h5" className="text-red-400">
-              {formik.errors.address}
+              {String(formik.errors.address)}
             </Typography>
           ) : null}
         </Box>

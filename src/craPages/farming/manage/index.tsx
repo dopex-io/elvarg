@@ -441,7 +441,7 @@ const Manage = () => {
             className="mb-4"
           />
           <FormHelperText className="text-right mt-1 mb-2 text-red-400">
-            {formik.touched.amount && formik.errors.amount}
+            {formik.touched.amount ? String(formik.errors.amount) : null}
           </FormHelperText>
           <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
             <Box className="flex flex-col mb-2">
