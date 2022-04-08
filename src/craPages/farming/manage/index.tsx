@@ -314,7 +314,7 @@ const Manage = () => {
                   : 'Unstake'}
               </Typography>
               <Box className="flex flex-row">
-                {selectedToken.selectedBaseAsset !== 'RDPX' && (
+                {selectedToken.selectedBaseAsset !== 'RDPX' ? (
                   <CustomButton
                     size="medium"
                     className={c(
@@ -326,7 +326,7 @@ const Manage = () => {
                   >
                     Stake
                   </CustomButton>
-                )}
+                ) : null}
                 {selectedToken?.userStakedBalance?.gt(0) ? (
                   <CustomButton
                     size="medium"
@@ -523,7 +523,7 @@ const Manage = () => {
               ) : (
                 <Box className="flex flex-col">
                   <MaxApprove value={maxApprove} setValue={setMaxApprove} />
-                  {token !== 'RDPX' && (
+                  {token !== 'RDPX' ? (
                     <Box className="flex flex-row mt-2 space-x-2">
                       <CustomButton
                         size="large"
@@ -537,7 +537,7 @@ const Manage = () => {
                         Deposit
                       </CustomButton>
                     </Box>
-                  )}
+                  ) : null}
                 </Box>
               )
             ) : (
