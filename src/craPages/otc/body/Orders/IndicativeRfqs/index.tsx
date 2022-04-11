@@ -9,13 +9,15 @@ import TableRow from '@mui/material/TableRow';
 import format from 'date-fns/format';
 import TableFooter from '@mui/material/TableFooter';
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
 import TablePagination from '@mui/material/TablePagination';
+import grey from '@mui/material/colors/grey';
 import { collection, getDocs } from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
-import CustomMenu from '../CustomMenu';
+import CustomMenu from '../../../components/CustomMenu';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -63,7 +65,7 @@ const TableBodyCell = ({
   );
 };
 
-const IndicativeRfqTable = ({ filterFulfilled }) => {
+const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
   const { orders, validateUser } = useContext(OtcContext);
 
   const navigate = useNavigate();
@@ -203,7 +205,7 @@ const IndicativeRfqTable = ({ filterFulfilled }) => {
                         </CustomButton>
                         <CustomMenu
                           data={row}
-                          actions={['Bid-Ask', 'Close RFQ']}
+                          actions={['View RFQ', 'Close RFQ']}
                         />
                       </Box>
                     </TableBodyCell>
@@ -212,29 +214,49 @@ const IndicativeRfqTable = ({ filterFulfilled }) => {
           </TableBody>
         </Table>
         {filteredOrders.length === 0 && (
-          <TableFooter className="flex justify-center bg-cod-gray w-full text-center py-2">
+          <TableFooter
+            component="div"
+            className="flex justify-center bg-cod-gray w-full text-center py-2"
+          >
             <Typography variant="h6" className="text-stieglitz my-2 w-full">
               No trade deals available
             </Typography>
           </TableFooter>
         )}
       </TableContainer>
-      <Box className="text-stieglitz border border-t-0 border-umbra flex justify-center bg-cod-gray rounded-b-lg">
-        {filteredOrders.length > ROWS_PER_PAGE ? (
-          <TablePagination
-            component="div"
-            rowsPerPageOptions={[ROWS_PER_PAGE]}
-            count={filteredOrders?.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={ROWS_PER_PAGE}
-            ActionsComponent={TablePaginationActions}
-            className="text-white"
-          />
-        ) : null}
+      <Box className="text-stieglitz border border-t-0 border-umbra grid grid-cols-3 bg-cod-gray rounded-b-lg">
+        <Box className="col-span-1" />
+        <Box className="col-span-1">
+          {filteredOrders.length > ROWS_PER_PAGE ? (
+            <TablePagination
+              component="div"
+              rowsPerPageOptions={[ROWS_PER_PAGE]}
+              count={filteredOrders?.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={ROWS_PER_PAGE}
+              ActionsComponent={TablePaginationActions}
+              className="text-white"
+            />
+          ) : null}
+        </Box>
+        <Box className="col-span-1">
+          <Box className="flex justify-end h-full mr-1">
+            <Typography variant="h5" className="my-auto">
+              Hide Fulfilled
+            </Typography>
+            <Checkbox
+              onClick={handleFilterFulfilled}
+              sx={{
+                color: grey[50],
+              }}
+              size="small"
+            />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
 };
 
-export default IndicativeRfqTable;
+export default IndicativeRfqs;

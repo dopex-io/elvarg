@@ -11,7 +11,7 @@ import CustomButton from 'components/UI/CustomButton';
 
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-import Settle from '../Dialogs/Settle';
+import Settle from '../../../components/Dialogs/Settle';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
@@ -60,14 +60,10 @@ const TableBodyCell = ({
 
 const LiveOrders = () => {
   const { openTradesData, loaded } = useContext(OtcContext);
-  const { provider } = useContext(WalletContext);
 
   const [index, setIndex] = useState(0);
   const [openTrades, setOpenTrades] = useState([]);
-  const [decimals, setDecimals] = useState({
-    quote: 18,
-    base: 18,
-  });
+
   const [dialogState, setDialogState] = useState({
     open: false,
     data: {},

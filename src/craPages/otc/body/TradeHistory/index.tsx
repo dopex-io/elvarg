@@ -7,8 +7,8 @@ import TableRow from '@mui/material/TableRow';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import format from 'date-fns/format';
 import { ERC20__factory } from '@dopex-io/sdk';
-
-import Typography from 'components/UI/Typography';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
@@ -28,7 +28,7 @@ const TableHeader = ({
       component="th"
       className="bg-cod-gray border-1 border-umbra py-1"
     >
-      <Typography variant="h6" className={`${textColor}`}>
+      <Typography variant="body2" className={`${textColor}`}>
         {children}
       </Typography>
     </TableCell>
@@ -46,7 +46,7 @@ const TableBodyCell = ({
       component="td"
       className="bg-cod-gray border-0"
     >
-      <Typography variant="h6" className={`${textColor}`}>
+      <Typography variant="body2" className={`${textColor}`}>
         {children}
       </Typography>
     </TableCell>
@@ -83,41 +83,46 @@ const TradeHistory = () => {
   }, [tradeHistoryData, /*provider, */ accountAddress]);
 
   return (
-    <TableContainer className="rounded-lg border border-umbra overflow-x-auto">
-      <Table aria-label="trade history table" className="bg-umbra">
-        <TableHead className="bg-umbra">
-          <TableRow className="bg-umbra">
-            <TableHeader align="left">Dealer</TableHeader>
-            <TableHeader align="left">Quote</TableHeader>
-            <TableHeader align="left">Sent</TableHeader>
-            <TableHeader align="center">Time</TableHeader>
-            <TableHeader align="right">Received</TableHeader>
-            <TableHeader align="right">Base</TableHeader>
-            <TableHeader align="right">Counter-party</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {tradeHistoryData &&
-            sanitizedData?.map((row, index) => (
-              <TableRow key={index}>
-                <TableBodyCell align="left" textColor="white">
-                  {row.dealer}
-                </TableBodyCell>
-                <TableBodyCell align="left">{row.quote}</TableBodyCell>
-                <TableBodyCell align="left">{row.sendAmount}</TableBodyCell>
-                <TableBodyCell align="center" textColor="white">
-                  {format(row.timestamp * 1000, 'KK:mmaa d LLL yy')}
-                </TableBodyCell>
-                <TableBodyCell align="right">{row.receiveAmount}</TableBodyCell>
-                <TableBodyCell align="right">{row.base}</TableBodyCell>
-                <TableBodyCell align="right" textColor="white">
-                  {row.counterParty}
-                </TableBodyCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box className="space-y-4">
+      <Typography variant="body2" className="font-bold">
+        Trade History
+      </Typography>
+      <TableContainer className="rounded-lg border border-umbra overflow-x-auto">
+        <Table aria-label="trade history table" className="bg-umbra">
+          <TableHead className="bg-umbra">
+            <TableRow className="bg-umbra">
+              <TableHeader align="left">Dealer</TableHeader>
+              <TableHeader align="left">Quote</TableHeader>
+              <TableHeader align="left">Sent</TableHeader>
+              <TableHeader align="center">Time</TableHeader>
+              <TableHeader align="right">Received</TableHeader>
+              <TableHeader align="right">Base</TableHeader>
+              <TableHeader align="right">Counter-party</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tradeHistoryData &&
+              sanitizedData?.map((row, index) => (
+                <TableRow key={index}>
+                  <TableBodyCell align="left">{row.dealer}</TableBodyCell>
+                  <TableBodyCell align="left">{row.quote}</TableBodyCell>
+                  <TableBodyCell align="left">{row.sendAmount}</TableBodyCell>
+                  <TableBodyCell align="center">
+                    {format(row.timestamp * 1000, 'K:mmaa d LLL yy')}
+                  </TableBodyCell>
+                  <TableBodyCell align="right">
+                    {row.receiveAmount}
+                  </TableBodyCell>
+                  <TableBodyCell align="right">{row.base}</TableBodyCell>
+                  <TableBodyCell align="right">
+                    {row.counterParty}
+                  </TableBodyCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 
