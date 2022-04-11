@@ -14,7 +14,7 @@ interface InfoBoxProps {
 
 const InfoBox = ({ heading, value, className, tooltip }: InfoBoxProps) => {
   return (
-    <Box className={cx('flex flex-col p-4 bg-umbra rounded-xl', className)}>
+    <Box className={cx('flex flex-col p-3 bg-umbra rounded-lg', className)}>
       <Typography variant="h5">{value}</Typography>
       <Box className="flex flex-row mt-1">
         <Typography

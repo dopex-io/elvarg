@@ -79,18 +79,24 @@ function SsovCard(props) {
   }, [convertToBNB, data]);
 
   return (
-    <Box className={cx('p-[1px] rounded-xl', styles[data.name], styles.Box)}>
+    <Box
+      className={cx(
+        'p-[1px] rounded-xl min-w-full',
+        styles[data.name],
+        styles.Box
+      )}
+    >
       <Box
         className={cx(
-          'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
+          'flex flex-col bg-cod-gray p-3 rounded-xl h-full mx-auto ',
           className
         )}
       >
         <Box>
-          <Box className="flex flex-row mb-4">
-            <Box className="mr-3 h-8 max-w-14 flex flex-row">
+          <Box className="flex flex-row mb-4 h-fit items-center">
+            <Box className="mr-3 h-max max-w-14 flex flex-row">
               <img
-                className="w-14 h-14 border-[0.1px] border-gray-600 rounded-full"
+                className="w-11 h-11"
                 src={
                   data.name === 'Curve LP'
                     ? '/assets/curve.svg'
@@ -100,7 +106,7 @@ function SsovCard(props) {
               />
             </Box>
             <Box className="">
-              <Typography variant="h4" className="mr-2 mb-0.5">
+              <Typography variant="h5" className="mr-2 mb-0.5">
                 {data.name}
               </Typography>
               <Box className={'flex'}>
@@ -138,7 +144,7 @@ function SsovCard(props) {
             </WalletButton>
           </Box>
 
-          <Box className="grid grid-cols-3 gap-2 mb-2">
+          <Box className="grid grid-cols-3 gap-3">
             {info.map((item, i) => {
               return <InfoBox key={i} {...item} />;
             })}

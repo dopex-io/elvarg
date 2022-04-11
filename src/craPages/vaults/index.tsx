@@ -19,13 +19,13 @@ const sortOptions: string[] = ['TVL', 'APY'];
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
-    <Box className="flex space-x-4 mb-8">
+    <Box className="flex p-2 rounded-lg space-x-4 mb-8 w-fit bg-cod-gray items-center">
       <img
-        className="w-8 h-8"
+        className="w-fit h-6"
         src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
         alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
       />
-      <Typography variant="h4">
+      <Typography variant="h5">
         {CHAIN_ID_TO_NETWORK_DATA[chainId].name}
       </Typography>
     </Box>
@@ -124,7 +124,7 @@ const Ssov = () => {
   }, []);
 
   return (
-    <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="bg-[url('/assets/vaultsbg.png')] bg-center bg-top bg-auto bg-no-repeat min-h-screen">
       <Head>
         <title>Vaults | Dopex</title>
       </Head>
@@ -186,7 +186,7 @@ const Ssov = () => {
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />
-                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-x-10 gap-y-10">
                     {ssovs
                       ? Object.keys(ssovs[key]).map((symbol, index) => {
                           const ssov = ssovs[key][symbol];
