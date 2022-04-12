@@ -122,7 +122,7 @@ const RfqForm = (props: RfqFormProps) => {
         formik.setFieldValue('quoteSymbol', selectedQuote.symbol);
       }
     },
-    [escrowData.bases, formik, selectedQuote]
+    [escrowData.bases, formik, selectedQuote, accountAddress, provider]
   );
 
   const handleChangeAmount = useCallback(
@@ -205,7 +205,15 @@ const RfqForm = (props: RfqFormProps) => {
     } catch (e) {
       console.log(`Something went wrong. ERR_CODE ${e}`);
     }
-  }, [formik.values, provider, selectionIndex, escrowData, signer, sendTx]);
+  }, [
+    formik.values,
+    provider,
+    selectionIndex,
+    escrowData,
+    signer,
+    sendTx,
+    selectedQuote,
+  ]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) validateUser();
