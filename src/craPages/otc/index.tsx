@@ -1,5 +1,6 @@
 import { useState, useContext, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import Head from 'next/head';
 import Box from '@mui/material/Box';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import HistoryIcon from '@mui/icons-material/History';
@@ -58,18 +59,20 @@ const OTC = () => {
     setState({ trade, history });
   }, []);
 
-  const handleSelection = useCallback((token) => {
-    setSelectedToken(token);
-    setSelectedQuote({
-      address: '',
-      symbol: token,
-    });
-  }, []);
+  const handleSelection = useCallback(
+    (token) => {
+      setSelectedToken(token);
+      setSelectedQuote({
+        address: '',
+        symbol: token,
+      });
+    },
+    [setSelectedQuote]
+  );
 
   const handleClose = useCallback(() => {
     setDialogState((prevState) => ({ ...prevState, open: false }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, []);
 
   const toggleLiveRfq = useCallback((e) => {
     setIsLive(e.target.checked);
@@ -77,6 +80,9 @@ const OTC = () => {
 
   return (
     <Box className="bg-black h-screen">
+      <Head>
+        <title>OTC | Dopex</title>
+      </Head>
       <AppBar active="OTC" />
       {accountAddress ? (
         <Register open={dialogState.open} handleClose={handleClose} />
