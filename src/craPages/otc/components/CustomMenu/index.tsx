@@ -4,10 +4,10 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import { WalletContext } from 'contexts/Wallet';
-
 import Bid from '../Dialogs/Bid';
 import CloseRfqDialog from '../Dialogs/CloseRfqDialog';
+
+import { WalletContext } from 'contexts/Wallet';
 
 interface CustomMenuProps {
   data: {

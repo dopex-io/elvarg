@@ -1,9 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import Box from '@mui/material/Box';
 import { useFormik } from 'formik';
-import noop from 'lodash/noop';
-import * as yup from 'yup';
-import Input from '@mui/material/Input';
 import {
   collection,
   doc,
@@ -16,13 +12,17 @@ import {
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 import { format } from 'date-fns';
-
-import { OtcContext } from 'contexts/Otc';
-import { WalletContext } from 'contexts/Wallet';
+import noop from 'lodash/noop';
+import * as yup from 'yup';
+import Input from '@mui/material/Input';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
+
+import { OtcContext } from 'contexts/Otc';
+import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
 

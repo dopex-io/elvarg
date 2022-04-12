@@ -15,19 +15,18 @@ import RfqForm from './components/RfqForm';
 import Register from './components/Dialogs/Register';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
+import Orders from './body/Orders';
+import TradeHistory from './body/TradeHistory';
 import content from './components/OtcBanner/content.json';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
-import Orders from './body/Orders';
-import TradeHistory from './body/TradeHistory';
 
 const MARKETS_PLACEHOLDER = [
   {
-    symbol: 'USDT',
-    icon: '/assets/usdt.svg',
-    asset: 'USD Tether',
-    pair: 'USDT/USDT',
+    symbol: 'USDC',
+    address: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    icon: '/assets/USDC.svg',
   },
 ];
 
@@ -42,7 +41,9 @@ const OTC = () => {
   });
   const [smViewport, setSmViewport] = useState(false);
 
-  const [selectedToken, setSelectedToken] = useState(MARKETS_PLACEHOLDER[0]);
+  const [selectedQuoteAsset, setSelectedQuoteAsset] = useState(
+    MARKETS_PLACEHOLDER[0]
+  );
 
   const [dialogState, setDialogState] = useState({
     open: true,
@@ -61,10 +62,10 @@ const OTC = () => {
 
   const handleSelection = useCallback(
     (token) => {
-      setSelectedToken(token);
+      setSelectedQuoteAsset(token);
       setSelectedQuote({
-        address: '',
-        symbol: token,
+        address: token.address,
+        symbol: token.symbol,
       });
     },
     [setSelectedQuote]
@@ -162,7 +163,7 @@ const OTC = () => {
                       <Box
                         key={index}
                         className={`flex hover:bg-cod-gray p-2 rounded-lg ${
-                          asset.symbol === selectedToken.symbol
+                          asset.symbol === selectedQuoteAsset.symbol
                             ? 'bg-cod-gray'
                             : null
                         }`}
@@ -194,7 +195,7 @@ const OTC = () => {
                 <TradeHistory smViewport={smViewport} />
               )}
             </Box>
-            <RfqForm isLive={isLive} />
+            <RfqForm isLive={isLive} selectedQuote={selectedQuoteAsset} />
           </Box>
         ) : (
           <Box className="space-y-6">
@@ -241,7 +242,7 @@ const OTC = () => {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <RfqForm isLive={isLive} />
+                <RfqForm isLive={isLive} selectedQuote={selectedQuoteAsset} />
               </AccordionDetails>
             </Accordion>
             <Orders

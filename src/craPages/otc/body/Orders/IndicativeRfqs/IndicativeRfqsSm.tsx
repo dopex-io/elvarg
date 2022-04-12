@@ -157,7 +157,7 @@ const IndicativeRfqsSm = (props: IndicativeRfqSmProps) => {
           );
         })}
       {filteredOrders.length > ROWS_PER_PAGE ? (
-        <Box className="flex mx-auto bg-cod-gray rounded-2xl border border-mineshaft">
+        <Box className="flex w-full bg-cod-gray rounded-2xl border border-mineshaft">
           <TablePagination
             component="div"
             rowsPerPageOptions={[ROWS_PER_PAGE]}

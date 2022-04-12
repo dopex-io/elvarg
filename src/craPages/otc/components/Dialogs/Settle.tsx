@@ -4,13 +4,15 @@ import Box from '@mui/material/Box';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import smartTrim from 'utils/general/smartTrim';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { ERC20__factory } from '@dopex-io/sdk';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
+
 import useSendTx from 'hooks/useSendTx';
+
+import smartTrim from 'utils/general/smartTrim';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface TradeProps {
   open: boolean;

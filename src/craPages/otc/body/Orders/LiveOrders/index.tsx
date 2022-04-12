@@ -7,19 +7,17 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Skeleton from '@mui/material/Skeleton';
-import CustomButton from 'components/UI/CustomButton';
 
+import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
 import Settle from '../../../components/Dialogs/Settle';
 
 import { OtcContext } from 'contexts/Otc';
-import { WalletContext } from 'contexts/Wallet';
 
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { ERC20__factory } from '@dopex-io/sdk';
 
 const TableHeader = ({
   children,

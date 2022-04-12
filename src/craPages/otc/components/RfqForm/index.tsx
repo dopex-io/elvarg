@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import noop from 'lodash/noop';
 import Box from '@mui/material/Box';
@@ -8,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 import * as yup from 'yup';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import Input from '@mui/material/Input';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -23,8 +22,16 @@ import { OtcContext } from 'contexts/Otc';
 import useSendTx from 'hooks/useSendTx';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-const RfqForm = ({ isLive }: { isLive: boolean }) => {
+interface RfqFormProps {
+  isLive: boolean;
+  selectedQuote: { address: string; symbol: string };
+}
+
+const RfqForm = (props: RfqFormProps) => {
+  const { isLive, selectedQuote } = props;
+
   const sendTx = useSendTx();
 
   const { accountAddress, provider, signer } = useContext(WalletContext);
@@ -34,6 +41,9 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     address: string;
     symbol: string;
   }>({ address: '', symbol: '' });
+  const [selectionBalance, setSelectionBalance] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
   const [selectionIndex, setSelectionIndex] = useState(0);
   const [validAddress, setValidAddress] = useState(false);
   const [approved, setApproved] = useState(false);
@@ -71,6 +81,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
     },
     validationSchema: validationSchema,
     onSubmit: noop,
+    validateOnBlur: false,
   });
 
   const filteredBases = useMemo(() => {
@@ -80,7 +91,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   }, [formik.values, escrowData?.bases]);
 
   const handleTokenSelection = useCallback(
-    (e) => {
+    async (e) => {
       const selected = escrowData.bases.find(
         (value) => value.address === e.target.value
       );
@@ -90,21 +101,28 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
       setSelection(selected);
       setSelectionIndex(index);
 
+      const tokenBalance = await ERC20__factory.connect(
+        selected.address,
+        provider
+      ).balanceOf(accountAddress);
+
+      setSelectionBalance(tokenBalance);
+
       if (formik.values.isBuy) {
         formik.setFieldValue('base', e.target.value);
         formik.setFieldValue('baseSymbol', selected.symbol);
 
-        formik.setFieldValue('quote', escrowData.quotes[0].address);
-        formik.setFieldValue('quoteSymbol', escrowData.quotes[0].symbol);
+        formik.setFieldValue('quote', selectedQuote.address);
+        formik.setFieldValue('quoteSymbol', selectedQuote.symbol);
       } else {
-        formik.setFieldValue('base', escrowData.quotes[0].address);
-        formik.setFieldValue('baseSymbol', escrowData.quotes[0].symbol);
+        formik.setFieldValue('base', selectedQuote.address);
+        formik.setFieldValue('baseSymbol', selectedQuote.symbol);
 
         formik.setFieldValue('quote', e.target.value);
-        formik.setFieldValue('quoteSymbol', escrowData.quotes[0].symbol);
+        formik.setFieldValue('quoteSymbol', selectedQuote.symbol);
       }
     },
-    [formik, escrowData.bases, escrowData.quotes]
+    [escrowData.bases, formik, selectedQuote]
   );
 
   const handleChangeAmount = useCallback(
@@ -158,7 +176,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
 
     const erc20 = ERC20__factory.connect(
       formik.values.isBuy
-        ? escrowData.quotes[0].address
+        ? selectedQuote.address
         : escrowData.bases[selectionIndex].address,
       provider
     );
@@ -172,7 +190,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
 
     const asset = ERC20__factory.connect(
       formik.values.isBuy
-        ? escrowData.quotes[0].address
+        ? selectedQuote.address
         : escrowData.bases[selectionIndex].address,
       provider
     );
@@ -316,7 +334,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
   useEffect(() => {
     (async () => {
       if (!escrowData.bases) return;
-      formik.setFieldValue('quote', escrowData.quotes[0].address);
+      formik.setFieldValue('quote', selectedQuote.address);
       formik.setFieldValue('base', escrowData.bases[selectionIndex].address);
       formik.setFieldValue('quoteSymbol', escrowData.quotes[0].symbol);
       formik.setFieldValue(
@@ -386,6 +404,14 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             </CustomButton>
           </Box>
           <Box className="space-y-2 py-3">
+            <Box className="flex space-x-2">
+              <Typography variant="h6" className="text-stieglitz">
+                Balance:
+              </Typography>
+              <Typography variant="h6" className="text-white">
+                {getUserReadableAmount(selectionBalance, 18)}
+              </Typography>
+            </Box>
             <Box className="flex justify-between bg-umbra rounded-lg mx-2 border border-mineshaft">
               <Select
                 fullWidth
@@ -403,7 +429,7 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
                     key={index}
                     className="text-white bg-cod-gray hover:bg-cod-gray"
                   >
-                    <Typography variant="h6" className="text-white mx-auto">
+                    <Typography variant="h6" className="text-white">
                       {option.symbol}
                     </Typography>
                   </MenuItem>

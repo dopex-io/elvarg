@@ -1,6 +1,7 @@
-import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
 import { ReactNode } from 'react';
+import Box from '@mui/material/Box';
+
+import Typography from 'components/UI/Typography';
 interface BannerProps {
   title: string;
   body: string;

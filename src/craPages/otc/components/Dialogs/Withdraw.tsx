@@ -5,12 +5,13 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/CustomButton';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
-import CustomButton from 'components/UI/CustomButton';
+
 import smartTrim from 'utils/general/smartTrim';
 
 interface WithdrawProps {

@@ -11,11 +11,12 @@ import Skeleton from '@mui/material/Skeleton';
 import TablePagination from '@mui/material/TablePagination';
 import TablePaginationActions from '@mui/material/TablePagination/TablePaginationActions';
 
+import CustomButton from 'components/UI/CustomButton';
+import Withdraw from '../../../components/Dialogs/Withdraw';
+
 import { OtcContext } from 'contexts/Otc';
 
 import smartTrim from 'utils/general/smartTrim';
-import CustomButton from 'components/UI/CustomButton';
-import Withdraw from '../../../components/Dialogs/Withdraw';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
