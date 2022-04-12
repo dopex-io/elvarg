@@ -404,7 +404,7 @@ const RfqForm = (props: RfqFormProps) => {
             </CustomButton>
           </Box>
           <Box className="space-y-2 py-3">
-            <Box className="flex space-x-2">
+            <Box className="flex space-x-2 mx-2">
               <Typography variant="h6" className="text-stieglitz">
                 Balance:
               </Typography>
