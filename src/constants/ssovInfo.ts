@@ -3,46 +3,46 @@ const ssovInfo = {
     aprToolTipMessage:
       'This is the base APY calculated from the DPX single staking farm',
     mainPageMessage:
-      'Deposit DPX into strikes providing liquidity into option pools to earn staked auto-compounded DPX and RDPX rewards and premiums in DPX from each option purchase.',
+      'accepts user CRV deposits and stakes them to generate extra yield.',
   },
   DPX: {
     aprToolTipMessage:
       'This is the base APY calculated from the DPX single staking farm',
     mainPageMessage:
-      'Deposit DPX into strikes providing liquidity into option pools to earn staked auto-compounded DPX and RDPX rewards and premiums in DPX from each option purchase.',
+      'accepts user DPX deposits and stakes them to generate extra yield.',
   },
   ETH: {
     aprToolTipMessage:
       'This is the base APY calculated from DPX rewards distribution for this SSOV',
     mainPageMessage:
-      'Deposit ETH into strikes providing liquidity into option pools to earn DPX rewards and premiums in ETH from each option purchase.',
+      'accepts user ETH deposits and stakes them to generate extra yield.',
   },
   RDPX: {
     aprToolTipMessage:
       'This is the base APY calculated from the rDPX single staking farm',
     mainPageMessage:
-      'Deposit rDPX into strikes providing liquidity into option pools to earn staked auto-compounded DPX and rDPX rewards and premiums in rDPX from each option purchase.',
+      'accepts user rDPX deposits and stakes them to generate extra yield.',
   },
   GOHM: {
     aprToolTipMessage: "This is the base APY calculated from GOHM's rebase APY",
     mainPageMessage:
-      'Deposit gOHM into strikes providing liquidity into option pools and earn premiums in gOHM from each option purchase.',
+      'accepts user gOHM deposits and stakes them to generate extra yield.',
   },
   BNB: {
     aprToolTipMessage: "This is the base APY calculated from Venus's BNB APY",
     mainPageMessage:
-      'Deposit BNB into strikes providing liquidity into option pools and earn premiums in VBNB from each option purchase.',
+      'accepts user BNB deposits and stakes them to generate extra yield.',
   },
   GMX: {
     aprToolTipMessage: 'This is the base APY calculated from GMX staking',
     mainPageMessage:
-      'Deposit GMX into strikes providing liquidity into option pools and earn premiums from each option purchase.',
+      'accepts user GMX deposits and stakes them to generate extra yield.',
   },
   AVAX: {
     aprToolTipMessage:
       "This is the base APY calculated from TraderJoe's AVAX APY",
     mainPageMessage:
-      'Deposit AVAX into strikes providing liquidity into option pools and earn premiums from each option purchase.',
+      'accepts user AVAX deposits and stakes them to generate extra yield.',
   },
   METIS: {
     aprToolTipMessage:
@@ -54,7 +54,7 @@ const ssovInfo = {
     aprToolTipMessage:
       'This is the base APY calculated from Curve 2Pool Fees and Rewards',
     mainPageMessage:
-      'Deposit Curve 2Pool LP into strikes providing liquidity into option pools and earn premiums from each option purchase.',
+      'accepts user BTC deposits and stakes them to generate extra yield.',
   },
 };
 

@@ -44,6 +44,18 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
+  '/vaults': [42161, 56, 43114, 1088],
+  '/vaults/DPX': [42161],
+  '/vaults/LUNA': [42161],
+  '/vaults/WBTC': [42161],
+  '/vaults/RDPX': [42161],
+  '/vaults/ETH': [42161],
+  '/vaults/GOHM': [42161],
+  '/vaults/BNB': [56],
+  '/vaults/GMX': [42161],
+  '/vaults/AVAX': [43114],
+  '/vaults/CRV': [42161],
+  '/vaults/METIS': [1088],
   '/ssov': [42161, 56, 43114, 1088],
   '/ssov/call/DPX': [42161],
   '/ssov/call/RDPX': [42161],
@@ -180,6 +192,7 @@ export const WalletProvider = (props) => {
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
         !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
+        console.log('setwrongnetwork');
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,
@@ -231,16 +244,21 @@ export const WalletProvider = (props) => {
   );
 
   const connect = useCallback(() => {
-    web3Modal.connect().then(async (provider) => {
-      provider.on('accountsChanged', async () => {
-        await updateState({ web3Provider: provider, isUser: true });
-      });
+    web3Modal
+      .connect()
+      .then(async (provider) => {
+        provider.on('accountsChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
 
-      provider.on('chainChanged', async () => {
+        provider.on('chainChanged', async () => {
+          await updateState({ web3Provider: provider, isUser: true });
+        });
         await updateState({ web3Provider: provider, isUser: true });
+      })
+      .catch(() => {
+        if (window.location.pathname !== '/') window.location.replace('/');
       });
-      await updateState({ web3Provider: provider, isUser: true });
-    });
   }, [updateState]);
 
   const disconnect = useCallback(() => {
