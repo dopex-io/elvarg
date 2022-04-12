@@ -4,20 +4,19 @@ import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { utils as ethersUtils } from 'ethers';
+import { ERC20__factory } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
+import { SsovV3Context } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
-
-import { SSOV_MAP } from 'constants/index';
 
 export interface Props {
   open: boolean;
@@ -27,14 +26,13 @@ export interface Props {
 
 const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const {
-    updateSsovEpochData,
-    updateSsovUserData,
+    updateSsovV3EpochData,
+    updateSsovV3UserData,
     ssovEpochData,
-    ssovUserData,
     ssovData,
     selectedEpoch,
-  } = useContext(SsovContext);
-  const { accountAddress, signer } = useContext(WalletContext);
+  } = useContext(SsovV3Context);
+  const { accountAddress, signer, provider } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
@@ -43,8 +41,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<string>('0');
 
-  const { epochStrikes } = ssovEpochData;
-  const { epochStrikeTokens } = ssovUserData;
+  const { epochStrikes, epochStrikeTokens } = ssovEpochData;
 
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
@@ -73,11 +70,12 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
       setUserEpochStrikeTokenBalance('0');
       return;
     }
-    const userEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
-      accountAddress
-    );
+    const userEpochStrikeTokenBalance = await ERC20__factory.connect(
+      epochStrikeToken,
+      provider
+    ).balanceOf(accountAddress);
     setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance.toString());
-  }, [epochStrikeToken, accountAddress]);
+  }, [epochStrikeToken, accountAddress, provider]);
 
   const handleRecipientChange = useCallback((e) => {
     setRecipient(e.target.value.toString());
@@ -95,12 +93,13 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     if (!accountAddress || !epochStrikeToken) return;
     try {
       sendTx(
-        epochStrikeToken
-          .connect(signer)
-          .transfer(recipient, ethersUtils.parseEther(String(transferAmount)))
+        ERC20__factory.connect(epochStrikeToken, signer).transfer(
+          recipient,
+          ethersUtils.parseEther(String(transferAmount))
+        )
       );
-      updateSsovEpochData();
-      updateSsovUserData();
+      updateSsovV3EpochData();
+      updateSsovV3UserData();
       updateUserEpochStrikeTokenBalance();
       setTransferAmount('0');
       setRecipient('');
@@ -111,9 +110,9 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     accountAddress,
     epochStrikeToken,
     recipient,
-    updateSsovEpochData,
+    updateSsovV3EpochData,
     updateUserEpochStrikeTokenBalance,
-    updateSsovUserData,
+    updateSsovV3UserData,
     signer,
     sendTx,
     transferAmount,
@@ -160,10 +159,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img
-                  src={SSOV_MAP[ssovData.tokenName].imageSrc}
-                  alt={ssovData.tokenName}
-                />
+                <img src={'/assets/eth.svg'} alt={ssovData.tokenName} />
               </Box>
               <Typography variant="h5" className="text-white">
                 {ssovData.tokenName}

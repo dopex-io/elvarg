@@ -7,7 +7,7 @@ import AppBar from 'components/AppBar';
 import Description from '../components/Description';
 import ManageCard from '../components/ManageCard';
 import ExerciseList from '../components/ExerciseList';
-import Stats from '../components/Stats';
+// import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
 
 import { SsovV3Context, SsovV3Provider } from 'contexts/SsovV3';
@@ -41,6 +41,8 @@ const Manage = () => {
             <ManageCard />
           </Box>
           {ssovUserData === undefined ? null : <WritePositions />}
+          <br />
+          {ssovUserData === undefined ? null : <ExerciseList />}
           {/* {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />} */}
         </Box>
       </Box>

@@ -43,15 +43,15 @@ export interface SsovV3Data {
 
 export interface SsovV3EpochData {
   epochTimes: {};
-  // isEpochExpired: boolean;
-  // isVaultReady: boolean;
+  isEpochExpired: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   availableCollateralForStrikes: BigNumber[];
   // totalEpochDeposits: BigNumber;
-  // settlementPrice: BigNumber;
+  settlementPrice: BigNumber;
+  epochStrikeTokens: string[];
   APY: string;
 }
 
@@ -175,6 +175,8 @@ export const SsovV3Provider = (props) => {
       totalEpochStrikeDeposits,
       totalEpochOptionsPurchased,
       totalEpochPremium,
+      epochData,
+      epochStrikeTokens,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovContract.getEpochStrikes(selectedEpoch),
@@ -187,6 +189,11 @@ export const SsovV3Provider = (props) => {
         ssovContract.address
       ),
       ssovViewerContract.getTotalEpochPremium(
+        selectedEpoch,
+        ssovContract.address
+      ),
+      ssovContract.getEpochData(selectedEpoch),
+      ssovViewerContract.getEpochStrikeTokens(
         selectedEpoch,
         ssovContract.address
       ),
@@ -204,11 +211,11 @@ export const SsovV3Provider = (props) => {
       );
     });
 
-    console.log(availableCollateralForStrikes);
-
     const APY = '10';
 
     const _ssovEpochData = {
+      isEpochExpired: epochData.expired,
+      settlementPrice: epochData.settlementPrice,
       epochTimes,
       epochStrikes,
       totalEpochStrikeDeposits,
@@ -216,6 +223,7 @@ export const SsovV3Provider = (props) => {
       totalEpochPremium,
       availableCollateralForStrikes,
       APY,
+      epochStrikeTokens,
     };
 
     setSsovV3EpochData(_ssovEpochData);
@@ -246,7 +254,7 @@ export const SsovV3Provider = (props) => {
         setSelectedEpoch(Number(currentEpoch) === 0 ? 1 : Number(currentEpoch));
 
         _ssovData = {
-          // tokenName: selectedSsovV3.token.toUpperCase(),
+          tokenName: 'WETH',
           ssovContract: _ssovContract,
           currentEpoch: Number(currentEpoch),
           isCurrentEpochExpired: false,

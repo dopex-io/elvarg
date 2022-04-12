@@ -18,21 +18,20 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
-import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
+import { SsovV3Context } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
 import styles from './styles.module.scss';
+import { ERC20__factory } from '@dopex-io/sdk';
 
 interface userExercisableOption {
   strikeIndex: number;
   strikePrice: number;
-  depositedAmount: number;
   purchasedAmount: number;
   settleableAmount: BigNumber;
-  totalPremiumsEarned: BigNumber;
   pnlAmount: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
@@ -41,29 +40,25 @@ interface userExercisableOption {
 const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
-  const { accountAddress } = useContext(WalletContext);
-  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
-    useContext(SsovContext);
+  const { accountAddress, provider } = useContext(WalletContext);
+  const { ssovData, ssovEpochData, selectedEpoch, selectedSsovV3 } =
+    useContext(SsovV3Context);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
   >([]);
   const [page, setPage] = useState(0);
 
-  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
+  const isPut = useMemo(() => selectedSsovV3.type === 'PUT', [selectedSsovV3]);
 
   const { currentEpoch, tokenPrice, tokenName } = ssovData;
   const {
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
+    epochStrikeTokens,
     settlementPrice,
   } = ssovEpochData;
-  const {
-    epochStrikeTokens,
-    userEpochStrikeDeposits,
-    userEpochOptionsPurchased,
-  } = ssovUserData;
 
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
@@ -77,7 +72,8 @@ const ExerciseList = () => {
       const userEpochStrikeTokenBalanceArray = epochStrikeTokens.length
         ? await Promise.all(
             epochStrikeTokens
-              .map((token) => {
+              .map((tokenAddress) => {
+                const token = ERC20__factory.connect(tokenAddress, provider);
                 if (isZeroAddress(token.address)) return null;
                 return token.balanceOf(accountAddress);
               })
@@ -87,13 +83,9 @@ const ExerciseList = () => {
 
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
-        const depositedAmount =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 8)
-            : getUserReadableAmount(userEpochStrikeDeposits[strikeIndex], 18);
 
         const purchasedAmount = getUserReadableAmount(
-          userEpochOptionsPurchased[strikeIndex],
+          userEpochStrikeTokenBalanceArray[strikeIndex],
           18
         );
         const settleableAmount =
@@ -107,12 +99,12 @@ const ExerciseList = () => {
           ? isPut
             ? strike
                 .sub(tokenPrice)
-                .mul(userEpochOptionsPurchased[strikeIndex])
+                .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
                 .mul(1e10)
                 .div(ssovData.lpPrice)
             : tokenPrice
                 .sub(strike)
-                .mul(userEpochOptionsPurchased[strikeIndex])
+                .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
                 .div(tokenPrice)
           : isPut
           ? strike
@@ -122,23 +114,14 @@ const ExerciseList = () => {
               .div(ssovData.lpPrice)
           : settlementPrice
               .sub(strike)
-              .mul(userEpochOptionsPurchased[strikeIndex])
+              .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
               .div(settlementPrice);
-        const totalPremiumsEarned = userEpochStrikeDeposits[strikeIndex]
-          .mul(totalEpochPremium[strikeIndex])
-          .div(
-            totalEpochStrikeDeposits[strikeIndex].isZero()
-              ? BigNumber.from(1)
-              : totalEpochStrikeDeposits[strikeIndex]
-          );
 
         return {
           strikeIndex,
           strikePrice,
-          depositedAmount,
           purchasedAmount,
           settleableAmount,
-          totalPremiumsEarned,
           pnlAmount,
           isSettleable,
           isPastEpoch,
@@ -154,14 +137,12 @@ const ExerciseList = () => {
     accountAddress,
     epochStrikes,
     totalEpochStrikeDeposits,
-    totalEpochPremium,
-    userEpochStrikeDeposits,
-    userEpochOptionsPurchased,
     tokenPrice,
     settlementPrice,
     tokenName,
     isPut,
     ssovData,
+    provider,
   ]);
 
   return selectedEpoch > 0 ? (
@@ -215,14 +196,6 @@ const ExerciseList = () => {
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
                     <Typography variant="h6" className="text-stieglitz">
-                      My Deposit
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6" className="text-stieglitz">
                       Purchased
                     </Typography>
                   </TableCell>
@@ -240,14 +213,6 @@ const ExerciseList = () => {
                   >
                     <Typography variant="h6" className="text-stieglitz">
                       Final PnL
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6" className="text-stieglitz">
-                      Premiums Earned
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -270,10 +235,8 @@ const ExerciseList = () => {
                     ({
                       strikeIndex,
                       strikePrice,
-                      depositedAmount,
                       purchasedAmount,
                       settleableAmount,
-                      totalPremiumsEarned,
                       pnlAmount,
                       isSettleable,
                       isPastEpoch,
@@ -283,9 +246,7 @@ const ExerciseList = () => {
                           key={strikeIndex}
                           strikeIndex={strikeIndex}
                           strikePrice={strikePrice}
-                          depositedAmount={depositedAmount}
                           purchasedAmount={purchasedAmount}
-                          totalPremiumsEarned={totalPremiumsEarned}
                           pnlAmount={pnlAmount}
                           settleableAmount={settleableAmount}
                           isSettleable={isSettleable}
