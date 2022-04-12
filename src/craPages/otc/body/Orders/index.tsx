@@ -7,14 +7,20 @@ import LiveOrders from './LiveOrders';
 import IndicativeRfqs from './IndicativeRfqs';
 import UserOrders from './UserOrders';
 
-const Orders = (props) => {
-  const { isLive, toggleLiveRfq } = props;
+interface OrdersInterface {
+  smViewport: boolean;
+  isLive: boolean;
+  toggleLiveRfq: (e: any) => void;
+}
 
-  const [filterFulfilled, setFilterFulfilled] = useState(false);
+const Orders = (props: OrdersInterface) => {
+  const { smViewport, isLive, toggleLiveRfq } = props;
 
-  const handleFilterFulfilled = useCallback((e) => {
-    setFilterFulfilled(e.target.checked);
-  }, []);
+  const [filterFulfilled, setFilterFulfilled] = useState(true);
+
+  const handleFilterFulfilled = useCallback(() => {
+    setFilterFulfilled(!filterFulfilled);
+  }, [filterFulfilled]);
 
   return (
     <Box className="space-y-4">
@@ -47,6 +53,7 @@ const Orders = (props) => {
         <LiveOrders />
       ) : (
         <IndicativeRfqs
+          smViewport={smViewport}
           filterFulfilled={filterFulfilled}
           handleFilterFulfilled={handleFilterFulfilled}
         />

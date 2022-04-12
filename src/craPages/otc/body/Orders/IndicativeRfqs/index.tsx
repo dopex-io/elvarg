@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
+import delay from 'lodash/delay';
 import { useNavigate } from 'react-router-dom';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -11,6 +12,9 @@ import TableFooter from '@mui/material/TableFooter';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import TablePagination from '@mui/material/TablePagination';
+import IconButton from '@mui/material/IconButton';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Tooltip from '@mui/material/Tooltip';
 import grey from '@mui/material/colors/grey';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -18,6 +22,7 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
 import CustomMenu from '../../../components/CustomMenu';
+import IndicativeRfqsSm from './IndicativeRfqsSm';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -65,11 +70,19 @@ const TableBodyCell = ({
   );
 };
 
-const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
+interface IndicativeRfqsProps {
+  smViewport: boolean;
+  filterFulfilled: boolean;
+  handleFilterFulfilled: () => void;
+}
+
+const IndicativeRfqs = (props: IndicativeRfqsProps) => {
+  const { smViewport, filterFulfilled, handleFilterFulfilled } = props;
   const { orders, validateUser } = useContext(OtcContext);
 
   const navigate = useNavigate();
 
+  const [copyState, setCopyState] = useState('Copy Address');
   const [page, setPage] = useState(0);
 
   const handleChangePage = (
@@ -77,6 +90,12 @@ const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
     newPage: number
   ) => {
     setPage(newPage);
+  };
+
+  const handleCopy = (address: string) => {
+    setCopyState('Copied');
+    delay(() => setCopyState('Copy Address'), 500);
+    navigator.clipboard.writeText(address);
   };
 
   const filteredOrders = useMemo(() => {
@@ -107,7 +126,7 @@ const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
     [navigate, validateUser]
   );
 
-  return (
+  return !smViewport ? (
     <Box>
       <TableContainer className="rounded-t-lg border-umbra border border-b-0 max-h-80 overflow-auto p-0">
         <Table aria-label="rfq-table" className="bg-umbra">
@@ -121,7 +140,7 @@ const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
                 Open
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
-              <TableHeader align="center">Qty</TableHeader>
+              <TableHeader align="center">Size</TableHeader>
               <TableHeader align="center">Bid</TableHeader>
               <TableHeader align="center">Ask</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
@@ -184,9 +203,23 @@ const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
                         <Typography variant="h6">
                           {smartTrim(row.data.dealer, 10)}
                         </Typography>
-                        <Typography variant="h6" className="text-stieglitz">
-                          {smartTrim(row.data.dealerAddress, 10)}
-                        </Typography>
+                        <Box className="flex">
+                          <Tooltip
+                            className="h-4 text-stieglitz"
+                            title={copyState}
+                            arrow={true}
+                          >
+                            <IconButton
+                              className="p-0"
+                              onClick={() => handleCopy(row.data.dealerAddress)}
+                            >
+                              <ContentCopyIcon className="fill-current text-stieglitz p-1" />
+                            </IconButton>
+                          </Tooltip>
+                          <Typography variant="h6" className="text-stieglitz">
+                            {smartTrim(row.data.dealerAddress, 10)}
+                          </Typography>
+                        </Box>
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell align="right">
@@ -228,22 +261,24 @@ const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
         <Box className="col-span-1" />
         <Box className="col-span-1">
           {filteredOrders.length > ROWS_PER_PAGE ? (
-            <TablePagination
-              component="div"
-              rowsPerPageOptions={[ROWS_PER_PAGE]}
-              count={filteredOrders?.length}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={ROWS_PER_PAGE}
-              ActionsComponent={TablePaginationActions}
-              className="text-white"
-            />
+            <Box className="flex justify-around">
+              <TablePagination
+                component="div"
+                rowsPerPageOptions={[ROWS_PER_PAGE]}
+                count={filteredOrders?.length}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={ROWS_PER_PAGE}
+                ActionsComponent={TablePaginationActions}
+                className="text-white self-end overflow-x-hidden"
+              />
+            </Box>
           ) : null}
         </Box>
         <Box className="col-span-1">
           <Box className="flex justify-end h-full mr-1">
             <Typography variant="h5" className="my-auto">
-              Hide Fulfilled
+              Show Fulfilled
             </Typography>
             <Checkbox
               onClick={handleFilterFulfilled}
@@ -256,6 +291,13 @@ const IndicativeRfqs = ({ filterFulfilled, handleFilterFulfilled }) => {
         </Box>
       </Box>
     </Box>
+  ) : (
+    <IndicativeRfqsSm
+      filteredOrders={filteredOrders}
+      page={page}
+      handleChangePage={handleChangePage}
+      handleFilterFulfilled={handleFilterFulfilled}
+    />
   );
 };
 

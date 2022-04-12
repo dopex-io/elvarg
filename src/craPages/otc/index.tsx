@@ -1,15 +1,20 @@
-import { useState, useContext, useCallback } from 'react';
+import { useState, useContext, useCallback, useLayoutEffect } from 'react';
+import { useWindowSize } from 'react-use';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import HistoryIcon from '@mui/icons-material/History';
-import Typography from '@mui/material/Typography';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import AppBar from 'components/AppBar';
 import OtcBanner from './components/OtcBanner';
 import RfqForm from './components/RfqForm';
 import Register from './components/Dialogs/Register';
 import CustomButton from 'components/UI/CustomButton';
+import Typography from 'components/UI/Typography';
 import content from './components/OtcBanner/content.json';
 
 import { OtcContext } from 'contexts/Otc';
@@ -28,12 +33,14 @@ const MARKETS_PLACEHOLDER = [
 
 const OTC = () => {
   const { user, escrowData, setSelectedQuote } = useContext(OtcContext);
-  const { accountAddress } = useContext(WalletContext);
+  const { width } = useWindowSize();
 
   const [state, setState] = useState({
     trade: true,
     history: false,
   });
+  const [smViewport, setSmViewport] = useState(false);
+
   const [selectedToken, setSelectedToken] = useState(MARKETS_PLACEHOLDER[0]);
 
   const [dialogState, setDialogState] = useState({
@@ -66,18 +73,136 @@ const OTC = () => {
     setDialogState((prevState) => ({ ...prevState, open: false }));
   }, []);
 
+  useLayoutEffect(() => {
+    setSmViewport(width < 1024);
+  }, [width]);
+
   return (
     <Box className="bg-black h-screen">
       <Head>
         <title>OTC | Dopex</title>
       </Head>
       <AppBar active="OTC" />
-      {accountAddress ? (
+      {!user ? (
         <Register open={dialogState.open} handleClose={handleClose} />
       ) : null}
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-full">
-        <Box className="grid grid-cols-10 gap-4">
-          <Box className="flex flex-col col-span-2 mt-10">
+        {!smViewport ? (
+          <Box className="grid grid-cols-10 gap-4">
+            <Box className="flex flex-col col-span-2 mt-10">
+              <OtcBanner
+                title={content.banner.title}
+                body={content.banner.body}
+                bottomElement={
+                  <CustomButton
+                    variant="contained"
+                    size="small"
+                    color="white"
+                    className="bg-white hover:bg-white p-0"
+                  >
+                    <a
+                      href="https://chat.blockscan.com/start"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full"
+                    >
+                      <Typography variant="h6" className="text-primary">
+                        {content.banner.bottomElementText} &rarr;
+                      </Typography>
+                    </a>
+                  </CustomButton>
+                }
+              />
+              <Typography variant="h6" className="text-stieglitz py-3">
+                Views
+              </Typography>
+              <Box className="flex flex-col justify-between space-y-4">
+                <Box className="flex flex-col">
+                  <Box
+                    role="button"
+                    className={`flex space-x-4 p-2 rounded-xl ${
+                      state.trade ? 'bg-cod-gray' : null
+                    }`}
+                    onClick={() => handleUpdateState(true, false)}
+                  >
+                    <SwapHorizIcon className="my-auto" />
+                    <Typography
+                      variant="h6"
+                      className={`hover:bg-cod-gray rounded-lg py-4`}
+                    >
+                      Trade
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    role="button"
+                    className={`flex space-x-4 p-2 rounded-xl ${
+                      state.history ? 'bg-cod-gray' : null
+                    }`}
+                    onClick={() => handleUpdateState(false, true)}
+                  >
+                    <HistoryIcon className="my-auto" />
+                    <Box className="flex space-x-2">
+                      <Typography
+                        variant="h6"
+                        role="button"
+                        className="rounded-lg py-4"
+                      >
+                        History
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="h6" className="text-stieglitz py-3">
+                    Markets
+                  </Typography>
+                  {escrowData.quotes?.map((asset, index) => {
+                    return (
+                      <Box
+                        key={index}
+                        className={`flex hover:bg-cod-gray p-2 rounded-lg ${
+                          asset.symbol === selectedToken.symbol
+                            ? 'bg-cod-gray'
+                            : null
+                        }`}
+                        onClick={() => handleSelection(asset)}
+                      >
+                        <img
+                          src={`/assets/${asset.symbol.toLowerCase()}.svg`}
+                          alt={`${asset.symbol}`}
+                          className="p-2 h-12"
+                        />
+                        <Typography
+                          variant="h6"
+                          className="self-center"
+                        >{`${asset.symbol}`}</Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
+            </Box>
+            <Box className="flex flex-col col-span-6 space-y-4">
+              {state.trade ? (
+                <Orders
+                  smViewport={smViewport}
+                  isLive={isLive}
+                  toggleLiveRfq={toggleLiveRfq}
+                />
+              ) : (
+                <TradeHistory smViewport={smViewport} />
+              )}
+            </Box>
+            <RfqForm isLive={isLive} />
+          </Box>
+        ) : (
+          <Box className="space-y-6">
+            <Box className="mx-auto text-center space-y-2">
+              <Typography variant="h2">Dopex OTC</Typography>
+              <Typography variant="h5" className="text-stieglitz">
+                Trade Dopex Options over-the-counter with other users.
+              </Typography>
+            </Box>
             <OtcBanner
               title={content.banner.title}
               body={content.banner.body}
@@ -94,91 +219,37 @@ const OTC = () => {
                     rel="noreferrer"
                     className="w-full"
                   >
-                    <Typography variant="body2" className="text-primary">
+                    <Typography variant="h6" className="text-primary">
                       {content.banner.bottomElementText} &rarr;
                     </Typography>
                   </a>
                 </CustomButton>
               }
             />
-            <Typography variant="body2" className="text-stieglitz py-3">
-              Views
-            </Typography>
-            <Box className="flex flex-col justify-between space-y-4">
-              <Box className="flex flex-col">
-                <Box
-                  role="button"
-                  className={`flex space-x-4 p-2 rounded-xl ${
-                    state.trade ? 'bg-cod-gray' : null
-                  }`}
-                  onClick={() => handleUpdateState(true, false)}
-                >
-                  <SwapHorizIcon className="my-auto" />
-                  <Typography
-                    variant="body2"
-                    className={`hover:bg-cod-gray rounded-lg py-4`}
-                  >
-                    Trade
-                  </Typography>
-                </Box>
-
-                <Box
-                  role="button"
-                  className={`flex space-x-4 p-2 rounded-xl ${
-                    state.history ? 'bg-cod-gray' : null
-                  }`}
-                  onClick={() => handleUpdateState(false, true)}
-                >
-                  <HistoryIcon className="my-auto" />
-                  <Box className="flex space-x-2">
-                    <Typography
-                      variant="body2"
-                      role="button"
-                      className="rounded-lg py-4"
-                    >
-                      History
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Typography variant="body2" className="text-stieglitz py-3">
-                  Markets
+            <Accordion
+              TransitionProps={{ unmountOnExit: true }}
+              className="bg-cod-gray shadow-none border border-umbra rounded-xl"
+            >
+              <AccordionSummary
+                expandIcon={
+                  <ExpandMoreIcon className="fill-current text-white" />
+                }
+              >
+                <Typography variant="h5" className="text-white">
+                  {isLive ? 'Place Live Order' : 'Create RFQ'}
                 </Typography>
-                {escrowData.quotes?.map((asset, index) => {
-                  return (
-                    <Box
-                      key={index}
-                      className={`flex hover:bg-cod-gray p-2 rounded-lg ${
-                        asset.symbol === selectedToken.symbol
-                          ? 'bg-cod-gray'
-                          : null
-                      }`}
-                      onClick={() => handleSelection(asset)}
-                    >
-                      <img
-                        src={`/assets/${asset.symbol.toLowerCase()}.svg`}
-                        alt={`${asset.symbol}`}
-                        className="p-2 h-12"
-                      />
-                      <Typography
-                        variant="body2"
-                        className="self-center"
-                      >{`${asset.symbol}`}</Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <RfqForm isLive={isLive} />
+              </AccordionDetails>
+            </Accordion>
+            <Orders
+              smViewport={smViewport}
+              isLive={isLive}
+              toggleLiveRfq={toggleLiveRfq}
+            />
           </Box>
-          <Box className="flex flex-col col-span-6 space-y-4">
-            {state.trade ? (
-              <Orders isLive={isLive} toggleLiveRfq={toggleLiveRfq} />
-            ) : (
-              <TradeHistory />
-            )}
-          </Box>
-          <RfqForm isLive={isLive} />
-        </Box>
+        )}
       </Box>
     </Box>
   );

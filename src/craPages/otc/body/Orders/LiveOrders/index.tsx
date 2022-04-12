@@ -81,7 +81,7 @@ const LiveOrders = () => {
   return loaded ? (
     <Box>
       {openTrades.length > 0 ? (
-        <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-80">
+        <TableContainer className="rounded-lg overflow-x-auto border border-umbra max-h-80">
           <Table aria-label="rfq-table" className="bg-umbra">
             <TableHead>
               <TableRow>
@@ -233,7 +233,7 @@ const LiveOrders = () => {
       ) : (
         <Box className="flex mx-auto justify-around py-8 bg-cod-gray rounded-xl border border-umbra">
           <Typography variant="h5" className="text-stieglitz">
-            No Live Trades Available
+            You Have No Open Orders
           </Typography>
         </Box>
       )}

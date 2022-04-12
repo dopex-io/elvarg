@@ -53,7 +53,8 @@ const TableBodyCell = ({
   );
 };
 
-const TradeHistory = () => {
+const TradeHistory = (props) => {
+  const { smViewport } = props;
   const { tradeHistoryData } = useContext(OtcContext);
   const { accountAddress, provider } = useContext(WalletContext);
 
@@ -82,7 +83,7 @@ const TradeHistory = () => {
     });
   }, [tradeHistoryData, /*provider, */ accountAddress]);
 
-  return (
+  return !smViewport ? (
     <Box className="space-y-4">
       <Typography variant="body2" className="font-bold">
         Trade History
@@ -123,7 +124,7 @@ const TradeHistory = () => {
         </Table>
       </TableContainer>
     </Box>
-  );
+  ) : null;
 };
 
 export default TradeHistory;
