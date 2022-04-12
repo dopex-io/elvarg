@@ -36,6 +36,7 @@ const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Ssov = lazy(() => import('craPages/ssov'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
+const SsovV3Manage = lazy(() => import('craPages/ssov-v3/Manage'));
 const OtcPortal = lazy(() => import('craPages/otc'));
 const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
 // const SsovPutsManage = lazy(() => import('craPages/ssov/Manage/Puts'));
@@ -76,6 +77,16 @@ const SsovRoutes = () => {
       <Routes>
         <Route path="*" element={<Ssov />} />
         <Route path=":type/:asset" element={<SsovManage />} />
+      </Routes>
+    </BnbConversionProvider>
+  );
+};
+
+const SsovV3Routes = () => {
+  return (
+    <BnbConversionProvider>
+      <Routes>
+        <Route path=":type/:asset" element={<SsovV3Manage />} />
       </Routes>
     </BnbConversionProvider>
   );
@@ -142,6 +153,7 @@ function AppRoutes() {
               <Route path="/" element={<Navigate to="/ssov" />} />
               <Route path="sale" element={<TokenSale />} />
               <Route path="ssov/*" element={<SsovRoutes />} />
+              <Route path="ssov/v3/*" element={<SsovV3Routes />} />
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />
