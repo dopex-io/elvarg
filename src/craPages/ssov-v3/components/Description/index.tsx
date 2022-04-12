@@ -24,6 +24,7 @@ import Action from 'assets/icons/Action';
 
 import styles from './styles.module.scss';
 import { SsovV3EpochData } from 'contexts/SsovV3';
+import Wrapper from '../Wrapper';
 
 const Description = ({
   ssovData,
@@ -40,6 +41,8 @@ const Description = ({
   const { accountAddress, connect } = useContext(WalletContext);
 
   const { APY } = ssovEpochData;
+
+  const [wrapOpen, setWrapOpen] = useState(false);
 
   const isPut = useMemo(() => type === 'PUT', [type]);
 
@@ -104,10 +107,18 @@ const Description = ({
           return <InfoBox key={item.heading} {...item} />;
         })}
       </Box>
+      <Box
+        role="button"
+        className="underline"
+        onClick={() => setWrapOpen(true)}
+      >
+        Wrap ETH
+      </Box>
+      <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
-          ssovUserData={ssovUserData}
+          // ssovUserData={ssovUserData}
           ssovData={ssovData}
           ssovEpochData={ssovEpochData}
           handleClose={

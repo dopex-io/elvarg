@@ -22,7 +22,6 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/PnlChart';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 import BigCrossIcon from 'components/Icons/BigCrossIcon';
 import CircleIcon from 'components/Icons/CircleIcon';
 import AlarmIcon from 'components/Icons/AlarmIcon';
@@ -35,20 +34,14 @@ import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
-import {
-  SsovV3Context,
-  SsovV3Data,
-  SsovV3UserData,
-  SsovV3EpochData,
-} from 'contexts/SsovV3';
+import { SsovV3Context, SsovV3Data, SsovV3EpochData } from 'contexts/SsovV3';
 
-import { MAX_VALUE, SSOV_MAP } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 
 export interface Props {
   open: boolean;
   handleClose: () => {};
   ssovData: SsovV3Data;
-  // ssovUserData: SsovV3UserData;
   ssovEpochData: SsovV3EpochData;
 }
 
@@ -58,24 +51,17 @@ const PurchaseDialog = ({
   open,
   handleClose,
   ssovData,
-  // ssovUserData,
   ssovEpochData,
 }: Props) => {
-  const {
-    // updateSsovEpochData,
-    // updateSsovUserData,
-    selectedSsovV3,
-    ssovSigner,
-    isPut,
-  } = useContext(SsovV3Context);
+  const { selectedSsovV3, ssovSigner, isPut } = useContext(SsovV3Context);
   const { updateAssetBalances } = useContext(AssetsContext);
-  const { accountAddress, provider, chainId, signer, contractAddresses } =
+  const { accountAddress, provider, signer, contractAddresses } =
     useContext(WalletContext);
 
-  const { tokenPrice } = ssovData;
+  const { tokenPrice, ssovContract } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
 
-  const { epochStrikes } = ssovEpochData;
+  const { epochStrikes, availableCollateralForStrikes } = ssovEpochData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -92,10 +78,6 @@ const PurchaseDialog = ({
   );
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] = useState(true);
 
-  const [
-    userEpochStrikePurchasableAmount,
-    setUserEpochStrikePurchasableAmount,
-  ] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const ssovTokenName = useMemo(() => ssovData.tokenName, [ssovData]);
@@ -114,33 +96,10 @@ const PurchaseDialog = ({
     [epochStrikes]
   );
 
-  // const { epochStrikeTokens } = ssovUserData;
-
-  // const epochStrikeToken = useMemo(
-  //   () => (strikeIndex !== null ? epochStrikeTokens[strikeIndex] : null),
-  //   [strikeIndex, epochStrikeTokens]
-  // );
-
-  // const updateUserEpochStrikePurchasableAmount = useCallback(async () => {
-  //   if (!epochStrikeToken || !ssovContractWithSigner) {
-  //     setUserEpochStrikePurchasableAmount(0);
-  //     return;
-  //   }
-  //   const vaultEpochStrikeTokenBalance = await epochStrikeToken.balanceOf(
-  //     ssovContractWithSigner.address
-  //   );
-
-  //   setUserEpochStrikePurchasableAmount(
-  //     getUserReadableAmount(vaultEpochStrikeTokenBalance, 18)
-  //   );
-  // }, [epochStrikeToken, ssovContractWithSigner]);
-
   const [rawOptionsAmount, setRawOptionsAmount] = useState<string>('1');
   const optionsAmount: number = useMemo(() => {
     return parseFloat(rawOptionsAmount) || 0;
   }, [rawOptionsAmount]);
-
-  const isLiquidityEnough = optionsAmount < userEpochStrikePurchasableAmount;
 
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
@@ -166,8 +125,6 @@ const PurchaseDialog = ({
         ssovContractWithSigner.purchase(strikeIndex, _amount, accountAddress)
       );
       setRawOptionsAmount('0');
-      // updateSsovEpochData();
-      // updateSsovUserData();
       updateAssetBalances();
     } catch (err) {
       console.log(err);
@@ -182,19 +139,11 @@ const PurchaseDialog = ({
     updateAssetBalances,
   ]);
 
-  // useEffect(() => {
-  //   updateUserEpochStrikePurchasableAmount();
-  // }, [updateUserEpochStrikePurchasableAmount]);
-
-  // useEffect(() => {
-  //   updateUserEpochStrikePurchasableAmount();
-  // }, [updateUserEpochStrikePurchasableAmount]);
-
   // Calculate the Option Price & Fees
   useEffect(() => {
     if (
+      !ssovContract ||
       strikeIndex === null ||
-      !ssovContractWithSigner ||
       optionsAmount === 0 ||
       optionsAmount.toString() === ''
     ) {
@@ -215,10 +164,8 @@ const PurchaseDialog = ({
       try {
         const expiry = 1650614400;
 
-        let volatility;
-
-        volatility = (
-          await ssovData.ssovContract.getVolatility(strike)
+        const volatility = (
+          await ssovContract.getVolatility(strike)
         ).toNumber();
 
         const ssovOptionPricingContract = SSOVOptionPricing__factory.connect(
@@ -236,7 +183,7 @@ const PurchaseDialog = ({
 
         let premium = optionPrice.mul(optionsAmount);
 
-        let fees = await ssovContractWithSigner.calculatePurchaseFees(
+        let fees = await ssovContract.calculatePurchaseFees(
           strike,
           ethersUtils.parseEther(String(optionsAmount))
         );
@@ -266,7 +213,7 @@ const PurchaseDialog = ({
     strikeIndex,
     epochStrikes,
     optionsAmount,
-    ssovContractWithSigner,
+    ssovContract,
     tokenPrice,
     provider,
     isPut,
@@ -301,17 +248,13 @@ const PurchaseDialog = ({
   ]);
 
   const purchaseButtonProps = useMemo(() => {
-    const disabled = Boolean(
-      optionsAmount <= 0 || isPurchaseStatsLoading || !isLiquidityEnough
-    );
+    const disabled = Boolean(optionsAmount <= 0 || isPurchaseStatsLoading);
 
     let onClick = () => {};
 
     if (optionsAmount > 0) {
       if (approved) {
-        if (userEpochStrikePurchasableAmount >= optionsAmount) {
-          onClick = handlePurchase;
-        }
+        onClick = handlePurchase;
       } else {
         onClick = handleApprove;
       }
@@ -319,22 +262,18 @@ const PurchaseDialog = ({
 
     let children = 'Enter an amount';
 
-    if (isLiquidityEnough) {
-      if (isPurchaseStatsLoading) {
-        children = 'Loading prices...';
-      } else if (optionsAmount > 0) {
-        if (getUserReadableAmount(state.totalCost, 18)) {
-          children = 'Insufficient Balance';
-        } else if (approved) {
-          children = 'Purchase';
-        } else {
-          children = 'Approve';
-        }
+    if (isPurchaseStatsLoading) {
+      children = 'Loading prices...';
+    } else if (optionsAmount > 0) {
+      if (state.totalCost.gte(userTokenBalance)) {
+        children = 'Insufficient Balance';
+      } else if (approved) {
+        children = 'Purchase';
       } else {
-        children = 'Enter an amount';
+        children = 'Approve';
       }
     } else {
-      children = 'Not enough liquidity';
+      children = 'Enter an amount';
     }
 
     return {
@@ -347,11 +286,10 @@ const PurchaseDialog = ({
     approved,
     handleApprove,
     handlePurchase,
-    isLiquidityEnough,
     isPurchaseStatsLoading,
     optionsAmount,
     state.totalCost,
-    userEpochStrikePurchasableAmount,
+    userTokenBalance,
   ]);
 
   return (
@@ -400,7 +338,13 @@ const PurchaseDialog = ({
             >
               Available:{' '}
               <span className="text-white">
-                {formatAmount(userEpochStrikePurchasableAmount, 3)}{' '}
+                {formatAmount(
+                  getUserReadableAmount(
+                    availableCollateralForStrikes[strikeIndex],
+                    18
+                  ),
+                  3
+                )}{' '}
               </span>
             </Typography>
           </Box>

@@ -11,6 +11,7 @@ import Stats from '../components/Stats';
 import PageLoader from 'components/PageLoader';
 
 import { SsovV3Context, SsovV3Provider } from 'contexts/SsovV3';
+import WritePositions from '../components/WritePositions';
 
 const Manage = () => {
   const { ssovData, ssovEpochData, ssovUserData } = useContext(SsovV3Context);
@@ -39,7 +40,7 @@ const Manage = () => {
             />
             <ManageCard />
           </Box>
-          {/* {ssovUserData === undefined ? null : <ExerciseList />} */}
+          {ssovUserData === undefined ? null : <WritePositions />}
           {/* {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />} */}
         </Box>
       </Box>

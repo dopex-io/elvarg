@@ -49,16 +49,19 @@ export interface SsovV3EpochData {
   totalEpochStrikeDeposits: BigNumber[];
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
+  availableCollateralForStrikes: BigNumber[];
   // totalEpochDeposits: BigNumber;
   // settlementPrice: BigNumber;
   APY: string;
 }
 
+interface WritePositionInterface {
+  collateralAmount: BigNumber;
+  strike: BigNumber;
+  epoch: number;
+}
 export interface SsovV3UserData {
-  // userEpochDeposits: string;
-  // epochStrikeTokens: ERC20[];
-  // userEpochStrikeDeposits: BigNumber[];
-  // userEpochOptionsPurchased: BigNumber[];
+  writePositions: WritePositionInterface[];
 }
 
 interface SsovV3ContextInterface {
@@ -76,10 +79,7 @@ interface SsovV3ContextInterface {
 }
 
 const initialSsovV3UserData = {
-  userEpochStrikeDeposits: [],
-  userEpochDeposits: '0',
-  userEpochOptionsPurchased: [],
-  epochStrikeTokens: [],
+  writePositions: [],
 };
 
 const initialSsovV3Signer = {
@@ -110,73 +110,53 @@ export const SsovV3Provider = (props) => {
     ssovContractWithSigner: null,
   });
 
-  // const updateSsovV3UserData = useCallback(async () => {
-  //   if (
-  //     !contractAddresses ||
-  //     !accountAddress ||
-  //     !selectedEpoch ||
-  //     !selectedSsovV3
-  //   )
-  //     return;
+  const updateSsovV3UserData = useCallback(async () => {
+    if (
+      !contractAddresses ||
+      !accountAddress ||
+      !selectedEpoch ||
+      !selectedSsovV3
+    )
+      return;
 
-  //   const ssovAddresses =
-  //     contractAddresses[selectedSsovV3.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
-  //       selectedSsovV3.token
-  //     ];
+    const ssovAddress = '0x376bEcbc031dd53Ffc62192043dE43bf491988FD';
 
-  //   if (!ssovAddresses) return;
+    const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
-  //   let _ssovUserData;
+    let _ssovUserData;
 
-  //   const ssovContract =
-  //     selectedSsovV3.type === 'PUT'
-  //       ? Curve2PoolSsovV3Put__factory.connect(ssovAddresses.Vault, provider)
-  //       : isNativeSsovV3(selectedSsovV3.token)
-  //       ? NativeSSOV__factory.connect(ssovAddresses.Vault, provider)
-  //       : ERC20SSOV__factory.connect(ssovAddresses.Vault, provider);
+    const ssovViewerContract = SsovV3Viewer__factory.connect(
+      '0x426eDe8BF1A523d288470e245a343B599c2128da',
+      provider
+    );
 
-  //   const [
-  //     userEpochStrikeDeposits,
-  //     userEpochOptionsPurchased,
-  //     epochStrikeTokens,
-  //   ] = await Promise.all([
-  //     ssovContract.getUserEpochDeposits(selectedEpoch, accountAddress),
-  //     selectedSsovV3.type === 'PUT'
-  //       ? (ssovContract as Curve2PoolSsovV3Put).getUserEpochPutsPurchased(
-  //           selectedEpoch,
-  //           accountAddress
-  //         )
-  //       : (ssovContract as ERC20SSOV).getUserEpochCallsPurchased(
-  //           selectedEpoch,
-  //           accountAddress
-  //         ),
-  //     ssovContract.getEpochStrikeTokens(selectedEpoch),
-  //   ]);
+    const writePositions = await ssovViewerContract.walletOfOwner(
+      accountAddress,
+      ssovAddress
+    );
 
-  //   const userEpochDeposits = userEpochStrikeDeposits
-  //     .reduce(
-  //       (accumulator, currentValue) => accumulator.add(currentValue),
-  //       BigNumber.from(0)
-  //     )
-  //     .toString();
+    const data = await Promise.all(
+      writePositions.map((i) => {
+        return ssov.writePosition(i);
+      })
+    );
 
-  //   _ssovUserData = {
-  //     userEpochStrikeDeposits,
-  //     userEpochOptionsPurchased,
-  //     epochStrikeTokens: epochStrikeTokens
-  //       .filter((token) => !isZeroAddress(token))
-  //       .map((token) => ERC20__factory.connect(token, provider)),
-  //     userEpochDeposits: userEpochDeposits,
-  //   };
-
-  //   setSsovV3UserData(_ssovUserData);
-  // }, [
-  //   accountAddress,
-  //   contractAddresses,
-  //   provider,
-  //   selectedEpoch,
-  //   selectedSsovV3,
-  // ]);
+    setSsovV3UserData({
+      writePositions: data.map((o) => {
+        return {
+          collateralAmount: o.collateralAmount,
+          epoch: o.epoch.toNumber(),
+          strike: o.strike,
+        };
+      }),
+    });
+  }, [
+    accountAddress,
+    contractAddresses,
+    provider,
+    selectedEpoch,
+    selectedSsovV3,
+  ]);
 
   const updateSsovV3EpochData = useCallback(async () => {
     if (!contractAddresses || !selectedEpoch || !selectedSsovV3) return;
@@ -212,6 +192,20 @@ export const SsovV3Provider = (props) => {
       ),
     ]);
 
+    const epochStrikeDataArray = await Promise.all(
+      epochStrikes.map((strike) =>
+        ssovContract.getEpochStrikeData(selectedEpoch, strike)
+      )
+    );
+
+    const availableCollateralForStrikes = epochStrikeDataArray.map((item) => {
+      return item.lastVaultCheckpoint.totalCollateral.sub(
+        item.lastVaultCheckpoint.activeCollateral
+      );
+    });
+
+    console.log(availableCollateralForStrikes);
+
     const APY = '10';
 
     const _ssovEpochData = {
@@ -220,6 +214,7 @@ export const SsovV3Provider = (props) => {
       totalEpochStrikeDeposits,
       totalEpochOptionsPurchased,
       totalEpochPremium,
+      availableCollateralForStrikes,
       APY,
     };
 
@@ -290,9 +285,9 @@ export const SsovV3Provider = (props) => {
     setSsovV3Signer(_ssovSigner);
   }, [contractAddresses, signer, accountAddress, selectedSsovV3]);
 
-  // useEffect(() => {
-  //   updateSsovV3UserData();
-  // }, [updateSsovV3UserData]);
+  useEffect(() => {
+    updateSsovV3UserData();
+  }, [updateSsovV3UserData]);
 
   useEffect(() => {
     updateSsovV3EpochData();
