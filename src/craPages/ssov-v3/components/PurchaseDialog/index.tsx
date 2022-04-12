@@ -225,7 +225,7 @@ const PurchaseDialog = ({
   useEffect(() => {
     (async function () {
       const finalAmount = state.totalCost;
-      const _token = ERC20__factory.connect(contractAddresses.DPX, provider);
+      const _token = ERC20__factory.connect(contractAddresses.WETH, provider);
 
       const userAmount = await _token.balanceOf(accountAddress);
       setUserTokenBalance(userAmount);
@@ -265,7 +265,7 @@ const PurchaseDialog = ({
     if (isPurchaseStatsLoading) {
       children = 'Loading prices...';
     } else if (optionsAmount > 0) {
-      if (state.totalCost.gte(userTokenBalance)) {
+      if (state.totalCost.gt(userTokenBalance)) {
         children = 'Insufficient Balance';
       } else if (approved) {
         children = 'Purchase';
