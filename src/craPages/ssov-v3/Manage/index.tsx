@@ -35,7 +35,6 @@ const Manage = () => {
             <Description
               ssovData={ssovData}
               ssovEpochData={ssovEpochData}
-              ssovUserData={{}}
               type={'CALL'}
             />
             <ManageCard />

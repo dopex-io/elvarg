@@ -1,22 +1,15 @@
 import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
+import { SsovData } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
-import { BnbConversionContext } from 'contexts/BnbConversion';
-
-import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
-import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 
 import Coin from 'assets/icons/Coin';
@@ -29,24 +22,20 @@ import Wrapper from '../Wrapper';
 const Description = ({
   ssovData,
   ssovEpochData,
-  ssovUserData,
   type,
 }: {
   ssovData: SsovData;
   ssovEpochData: SsovV3EpochData;
-  ssovUserData: any;
   type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useContext(WalletContext);
 
-  const { APY } = ssovEpochData;
+  const { APY, TVL } = ssovEpochData;
 
   const [wrapOpen, setWrapOpen] = useState(false);
 
   const isPut = useMemo(() => type === 'PUT', [type]);
-
-  const TVL = 0;
 
   const info = [
     {
@@ -118,7 +107,6 @@ const Description = ({
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
-          // ssovUserData={ssovUserData}
           ssovData={ssovData}
           ssovEpochData={ssovEpochData}
           handleClose={

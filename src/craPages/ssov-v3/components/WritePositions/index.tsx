@@ -79,7 +79,7 @@ const WritePositions = (props: { className?: string }) => {
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
-          WritePositions
+          Write Positions
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">

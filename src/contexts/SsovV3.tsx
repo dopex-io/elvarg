@@ -12,7 +12,7 @@ import {
   SsovV3Viewer__factory,
   SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 import { WalletContext } from './Wallet';
 
@@ -20,6 +20,8 @@ import { SSOV_MAP } from 'constants/index';
 
 import formatAmount from 'utils/general/formatAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
+import { AssetsContext } from './Assets';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export interface SsovV3Interface {
   underlying?: string;
@@ -49,10 +51,10 @@ export interface SsovV3EpochData {
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   availableCollateralForStrikes: BigNumber[];
-  // totalEpochDeposits: BigNumber;
   settlementPrice: BigNumber;
   epochStrikeTokens: string[];
   APY: string;
+  TVL: number;
 }
 
 interface WritePositionInterface {
@@ -96,6 +98,7 @@ export const SsovV3Context = createContext<SsovV3ContextInterface>({
 export const SsovV3Provider = (props) => {
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
+  const { tokenPrices } = useContext(AssetsContext);
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsovV3, setSelectedSsovV3] = useState<SsovV3Interface>({
@@ -211,7 +214,25 @@ export const SsovV3Provider = (props) => {
       );
     });
 
-    const APY = '10';
+    const totalEpochDeposits = totalEpochStrikeDeposits.reduce(
+      (acc, deposit) => {
+        return acc.add(deposit);
+      },
+      BigNumber.from(0)
+    );
+
+    const totalRewardsInUSD =
+      2.5 * 365 * tokenPrices.find((token) => token.name === 'DPX').price;
+
+    const totalEpochDepositsInUSD =
+      getUserReadableAmount(totalEpochDeposits, 18) *
+      tokenPrices.find((token) => token.name === 'ETH').price;
+
+    const APY = (
+      (Math.abs(totalEpochDepositsInUSD - totalRewardsInUSD) /
+        totalEpochDepositsInUSD) *
+      100
+    ).toFixed(2);
 
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
@@ -224,10 +245,11 @@ export const SsovV3Provider = (props) => {
       availableCollateralForStrikes,
       APY,
       epochStrikeTokens,
+      TVL: totalEpochDepositsInUSD,
     };
 
     setSsovV3EpochData(_ssovEpochData);
-  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3]);
+  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3, tokenPrices]);
 
   useEffect(() => {
     if (
