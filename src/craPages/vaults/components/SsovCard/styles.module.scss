@@ -8,7 +8,8 @@ $colors: (
   AVAX: #ff4849,
   BTC: #f09242,
   CRV: #f09242,
-  LUNA: #f09242
+  LUNA: #f09242,
+  METIS: #6dffb9
 );
 
 @each $coin, $color in $colors {
