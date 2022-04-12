@@ -33,6 +33,7 @@ const MARKETS_PLACEHOLDER = [
 
 const OTC = () => {
   const { user, escrowData, setSelectedQuote } = useContext(OtcContext);
+  const { accountAddress } = useContext(WalletContext);
   const { width } = useWindowSize();
 
   const [state, setState] = useState({
@@ -83,7 +84,7 @@ const OTC = () => {
         <title>OTC | Dopex</title>
       </Head>
       <AppBar active="OTC" />
-      {!user ? (
+      {!user && accountAddress ? (
         <Register open={dialogState.open} handleClose={handleClose} />
       ) : null}
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-full">

@@ -492,7 +492,15 @@ const RfqForm = ({ isLive }: { isLive: boolean }) => {
             <Accordion
               summary="What are RFQs?"
               details="Dealers can place requests-for-quote for options that they own and would like to sell. Interested buyers may bid on ongoing RFQs."
-              footer={<Link to="#">Read More</Link>}
+              footer={
+                <a
+                  href="https://blog.dopex.io/articles/product-launches-updates/introducing-otc-platform"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Read More
+                </a>
+              }
             />
           </Box>
           {Boolean(
