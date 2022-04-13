@@ -55,7 +55,7 @@ const IndicativeRfqsSm = (props: IndicativeRfqSmProps) => {
               <Box className="flex justify-between">
                 <Box className="flex space-x-2 w-2/3">
                   <img
-                    src={`/assets/${symbol.toUpperCase()}.svg`}
+                    src={`/assets/${symbol.toLowerCase()}.svg`}
                     alt={symbol.toUpperCase()}
                     className="w-[2em] h-[2em]"
                   />
