@@ -117,7 +117,8 @@ interface AppBarProps {
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
-    | 'OTC';
+    | 'OTC'
+    | 'vaults';
 }
 
 export default function AppBar(props: AppBarProps) {
