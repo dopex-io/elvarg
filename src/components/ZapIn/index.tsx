@@ -368,58 +368,65 @@ const ZapIn = ({
                         </Typography>
                       </Box>
                     </Box>
-                    <Box className="rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 mt-4">
-                      <Typography
-                        variant="h6"
-                        className="text-gray-300 opacity-80"
-                      >
-                        Router
-                      </Typography>
-                      <Tooltip
-                        classes={{ touch: '!bg-umbra' }}
-                        title={
-                          <Box className="w-64 pb-3 pt-0 p-2">
-                            {swapSteps.map((step) => (
-                              <SwapStep
-                                key={step['pair']}
-                                pair={step['pair']}
-                                dexes={step['dexes']}
+                    {quote['toTokenAmount'] ? (
+                      <Box className="rounded-md flex flex-col mb-4 p-3 border border-neutral-800 w-full bg-neutral-800 mt-4">
+                        <Typography
+                          variant="h6"
+                          className="text-gray-300 opacity-80"
+                        >
+                          Router
+                        </Typography>
+                        <Tooltip
+                          classes={{ touch: '!bg-umbra' }}
+                          title={
+                            <Box className="w-64 pb-3 pt-0 p-2">
+                              {swapSteps.map((step) => (
+                                <SwapStep
+                                  key={step['pair']}
+                                  pair={step['pair']}
+                                  dexes={step['dexes']}
+                                />
+                              ))}
+                              {isPut ? (
+                                <SwapStep
+                                  pair="USDC to 2CRV"
+                                  dexes={[
+                                    {
+                                      name: 'ARBITRUM_CURVE',
+                                      percentage: '100',
+                                    },
+                                  ]}
+                                />
+                              ) : null}
+                            </Box>
+                          }
+                        >
+                          <Box className="grid grid-cols-3 gap-3 mt-3">
+                            {swapSymbols.map((symbol) => (
+                              <SwapSymbol
+                                key={symbol}
+                                imgSrc={`/assets/${
+                                  symbol.toLowerCase().split('.e')[0]
+                                }.svg`}
+                                imgAlt={symbol}
+                                symbol={symbol}
+                                isInDialog={isInDialog}
                               />
                             ))}
                             {isPut ? (
-                              <SwapStep
-                                pair="USDC to 2CRV"
-                                dexes={[
-                                  { name: 'ARBITRUM_CURVE', percentage: '100' },
-                                ]}
+                              <SwapSymbol
+                                imgSrc="/assets/2crv.svg"
+                                imgAlt={'2CRV'}
+                                symbol={'2CRV'}
+                                isInDialog={isInDialog}
                               />
                             ) : null}
                           </Box>
-                        }
-                      >
-                        <Box className="grid grid-cols-3 gap-3 mt-3">
-                          {swapSymbols.map((symbol) => (
-                            <SwapSymbol
-                              key={symbol}
-                              imgSrc={`/assets/${
-                                symbol.toLowerCase().split('.e')[0]
-                              }.svg`}
-                              imgAlt={symbol}
-                              symbol={symbol}
-                              isInDialog={isInDialog}
-                            />
-                          ))}
-                          {isPut ? (
-                            <SwapSymbol
-                              imgSrc="/assets/2crv.svg"
-                              imgAlt={'2CRV'}
-                              symbol={'2CRV'}
-                              isInDialog={isInDialog}
-                            />
-                          ) : null}
-                        </Box>
-                      </Tooltip>
-                    </Box>
+                        </Tooltip>
+                      </Box>
+                    ) : (
+                      <Box className={'mt-4'} />
+                    )}
                   </Box>
                 </Box>
               )}
