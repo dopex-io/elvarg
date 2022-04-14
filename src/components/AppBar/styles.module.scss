@@ -7,11 +7,3 @@
 .vertIcon {
   color: #c4c4c4;
 }
-
-.horizontalScroll {
-  animation: move 80s linear infinite;
-}
-
-@keyframes move {
-  to { transform: translateX(-100%); }
-}
