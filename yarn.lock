@@ -199,20 +199,6 @@
   dependencies:
     "@babel/types" "^7.16.7"
 
-"@babel/helper-module-transforms@^7.16.7":
-  version "7.17.6"
-  resolved "https://registry.yarnpkg.com/@babel/helper-module-transforms/-/helper-module-transforms-7.17.6.tgz#3c3b03cc6617e33d68ef5a27a67419ac5199ccd0"
-  integrity sha512-2ULmRdqoOMpdvkbT8jONrZML/XALfzxlb052bldftkicAUy8AxSCkD5trDPQcwHNmolcl7wP6ehNqMlyUw6AaA==
-  dependencies:
-    "@babel/helper-environment-visitor" "^7.16.7"
-    "@babel/helper-module-imports" "^7.16.7"
-    "@babel/helper-simple-access" "^7.16.7"
-    "@babel/helper-split-export-declaration" "^7.16.7"
-    "@babel/helper-validator-identifier" "^7.16.7"
-    "@babel/template" "^7.16.7"
-    "@babel/traverse" "^7.17.3"
-    "@babel/types" "^7.17.0"
-
 "@babel/helper-module-transforms@^7.17.7":
   version "7.17.7"
   resolved "https://registry.yarnpkg.com/@babel/helper-module-transforms/-/helper-module-transforms-7.17.7.tgz#3943c7f777139e7954a5355c815263741a9c1cbd"
@@ -248,13 +234,6 @@
     "@babel/helper-member-expression-to-functions" "^7.16.7"
     "@babel/helper-optimise-call-expression" "^7.16.7"
     "@babel/traverse" "^7.16.7"
-    "@babel/types" "^7.16.7"
-
-"@babel/helper-simple-access@^7.16.7":
-  version "7.16.7"
-  resolved "https://registry.yarnpkg.com/@babel/helper-simple-access/-/helper-simple-access-7.16.7.tgz#d656654b9ea08dbb9659b69d61063ccd343ff0f7"
-  integrity sha512-ZIzHVyoeLMvXMN/vok/a4LWRy8G2v205mNP0XOuf9XRLyX5/u9CnVulUtDgUTama3lT+bf/UqucuZjqiGuTS1g==
-  dependencies:
     "@babel/types" "^7.16.7"
 
 "@babel/helper-simple-access@^7.17.7":
@@ -5539,10 +5518,10 @@ graphql-config@^4.1.0:
     minimatch "4.2.1"
     string-env-interpolation "1.0.1"
 
-graphql-executor@0.0.18:
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/graphql-executor/-/graphql-executor-0.0.18.tgz#6aa4b39e1ca773e159c2a602621e90606df0109a"
-  integrity sha512-upUSl7tfZCZ5dWG1XkOvpG70Yk3duZKcCoi/uJso4WxJVT6KIrcK4nZ4+2X/hzx46pL8wAukgYHY6iNmocRN+g==
+graphql-executor@0.0.22:
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/graphql-executor/-/graphql-executor-0.0.22.tgz#14bc466bb27ab38346998e0b375cba55685eed94"
+  integrity sha512-WbKSnSHFn6REKKH4T6UAwDM3mLUnYMQlQLNG0Fw+Lkb3ilCnL3m5lkJ7411LAI9sF7BvPbthovVZhsEUh9Xfag==
 
 graphql-request@^4.0.0:
   version "4.0.0"
@@ -6895,7 +6874,7 @@ minimatch@^3.0.4, minimatch@^3.1.2:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimist@^1.1.1, minimist@^1.2.0:
+minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
   integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
