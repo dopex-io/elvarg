@@ -10,7 +10,6 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
-import PriceTag from './PriceTag';
 import NetworkButton from './NetworkButton';
 import Typography from 'components/UI/Typography';
 import WalletDialog from 'components/AppBar/WalletDialog';
@@ -67,7 +66,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'sale', to: '/sale' },
   ],
-  56: [{ name: 'vaults', to: '/vaults' }],
+  56: [{ name: 'ssov', to: '/ssov' }],
   1337: [
     { name: 'options', to: '/' },
     { name: 'pools', to: '/pools' },
@@ -84,17 +83,11 @@ const appLinks = {
   ],
   42161: [
     { name: 'farms', to: '/farms' },
-    { name: 'vaults', to: '/vaults' },
+    { name: 'ssov', to: '/ssov' },
     { name: 'OTC', to: '/otc' },
   ],
-  43114: [{ name: 'vaults', to: '/vaults' }],
-  // { name: 'options', to: '/' },
-  // { name: 'pools', to: '/pools' },
-  // { name: 'portfolio', to: '/portfolio' },
-  // { name: 'faucet', to: '/faucet' },
-  // { name: 'swap', to: '/swap' },
-  // { name: 'SSOV', to: '/ssov' },
-  1088: [{ name: 'vaults', to: '/vaults' }],
+  43114: [{ name: 'ssov', to: '/ssov' }],
+  1088: [{ name: 'ssov', to: '/ssov' }],
 };
 
 const menuLinks = [
@@ -119,6 +112,7 @@ interface AppBarProps {
     | 'portfolio'
     | 'token sale'
     | 'faucet'
+    | 'SSOV'
     | 'vaults'
     | 'leaderboard'
     | 'swap'
@@ -207,27 +201,6 @@ export default function AppBar(props: AppBarProps) {
       <nav
         className={cx('fixed top-0 w-full text-gray-600 z-50', styles.appBar)}
       >
-        <Box className={'flex w-full bg-umbra z-50 relative'}>
-          <Box
-            className={cx(
-              'space-x-2 mr-4 hidden lg:flex',
-              styles.horizontalScroll
-            )}
-          >
-            {tokenPrices
-              .concat(tokenPrices)
-              .concat(tokenPrices)
-              .map((item, i) => (
-                <PriceTag
-                  key={i}
-                  asset={item.name}
-                  price={item.price}
-                  change={item.change24h}
-                  showDivisor={i > 0}
-                />
-              ))}
-          </Box>
-        </Box>
         <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
             <a
@@ -258,16 +231,6 @@ export default function AppBar(props: AppBarProps) {
             </Box>
           </Box>
           <Box className="flex items-center">
-            {/* {baseAssetsWithPrices ? (
-            <PriceTag
-              asset={baseAssetsWithPrices[selectedBaseAsset].symbol}
-              price={getUserReadableAmount(
-                baseAssetsWithPrices[selectedBaseAsset].price,
-                8
-              )}
-              className="mr-2 lg:hidden"
-            />
-          ) : null} */}
             {accountAddress ? (
               <Box className="bg-cod-gray flex flex-row rounded-md items-center">
                 <Button

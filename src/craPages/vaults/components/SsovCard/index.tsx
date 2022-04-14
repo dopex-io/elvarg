@@ -137,7 +137,6 @@ function SsovCard(props) {
               Manage
             </WalletButton>
           </Box>
-
           <Box className="grid grid-cols-3 gap-2 mb-2">
             {info.map((item, i) => {
               return <InfoBox key={i} {...item} />;

@@ -20,7 +20,7 @@ import PageLoader from 'components/PageLoader';
 import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext, SsovProvider } from 'contexts/Ssov';
+import { SsovContext, SsovProvider } from 'contexts/NewSsov';
 
 const Manage = () => {
   const { accountAddress } = useContext(WalletContext);
@@ -73,7 +73,7 @@ const Manage = () => {
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
-      <AppBar active="vaults" />
+      <AppBar active="SSOV" />
       {activeSsovContextSide !== 'LOADING' && accountAddress ? (
         <Box
           className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 lg:grid lg:grid-cols-12"

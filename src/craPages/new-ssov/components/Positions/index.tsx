@@ -38,7 +38,7 @@ import {
   SsovEpochData,
   SsovUserData,
   SsovContext,
-} from 'contexts/Ssov';
+} from 'contexts/NewSsov';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 import { WalletContext } from 'contexts/Wallet';
