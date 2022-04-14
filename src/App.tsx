@@ -149,7 +149,7 @@ function AppRoutes() {
         <WalletProvider>
           <AssetsProvider>
             <Routes>
-              <Route path="/" element={<Navigate to="/vaults" />} />
+              <Route path="/" element={<Navigate to="/ssov" />} />
               <Route path="sale" element={<TokenSale />} />
               <Route path="ssov/*" element={<SsovRoutes />} />
               <Route path="ssov/v3/*" element={<SsovV3Routes />} />
