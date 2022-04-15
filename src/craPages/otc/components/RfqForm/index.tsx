@@ -306,6 +306,71 @@ const RfqForm = (props: RfqFormProps) => {
     accountAddress,
   ]);
 
+  const invalidInputs = useMemo(
+    () =>
+      Boolean(
+        formik.errors.amount || formik.errors.price || formik.errors.base
+      ),
+    [formik]
+  ); // Check if RFQ input field values are valid
+
+  const rfqSubmitButton = useMemo(() => {
+    if (isLive && approved)
+      return (
+        <CustomButton
+          size="medium"
+          className="flex w-full"
+          onClick={handleSubmit}
+          disabled={user && (processing || invalidInputs)}
+        >
+          {user ? (
+            <Typography variant="h6">
+              {processing ? <CircularProgress size="24" /> : 'Submit'}
+            </Typography>
+          ) : (
+            <Typography variant="h6">Login</Typography>
+          )}
+        </CustomButton>
+      );
+    else if (isLive && !approved)
+      return (
+        <CustomButton
+          size="medium"
+          className="flex w-full"
+          onClick={handleApprove}
+          disabled={!loaded}
+        >
+          <Typography variant="h6">Approve</Typography>
+        </CustomButton>
+      );
+    else if (!isLive && user)
+      return (
+        <CustomButton
+          size="medium"
+          className="flex w-full"
+          onClick={() =>
+            setDialogState((prevState) => ({ ...prevState, open: true }))
+          }
+          disabled={!accountAddress || !loaded || invalidInputs}
+        >
+          <Typography variant="h6">
+            {!accountAddress ? 'Please Login' : 'Submit'}
+          </Typography>
+        </CustomButton>
+      );
+    else if (!isLive && !user) return null;
+  }, [
+    user,
+    isLive,
+    approved,
+    invalidInputs,
+    accountAddress,
+    handleApprove,
+    handleSubmit,
+    loaded,
+    processing,
+  ]);
+
   // Check allowance
   useEffect(() => {
     (async () => {
@@ -537,13 +602,7 @@ const RfqForm = (props: RfqFormProps) => {
               }
             />
           </Box>
-          {Boolean(
-            formik.errors.amount ||
-              formik.errors.price ||
-              formik.errors.base ||
-              (isLive && !validAddress && 'Invalid Address') ||
-              ''
-          ) ? (
+          {invalidInputs || (isLive && !validAddress) ? (
             <Box className="border rounded-lg border-down-bad bg-down-bad bg-opacity-20 p-2">
               <Typography
                 variant="h6"
@@ -559,58 +618,7 @@ const RfqForm = (props: RfqFormProps) => {
               </Typography>
             </Box>
           ) : null}
-          {isLive ? (
-            approved ? (
-              <CustomButton
-                size="medium"
-                className="flex w-full"
-                onClick={handleSubmit}
-                disabled={
-                  user &&
-                  (processing ||
-                    Boolean(formik.errors.price) ||
-                    Boolean(formik.errors.amount) ||
-                    Boolean(formik.errors.base))
-                }
-              >
-                {user ? (
-                  <Typography variant="h6">
-                    {processing ? <CircularProgress size="24" /> : 'Submit'}
-                  </Typography>
-                ) : (
-                  <Typography variant="h6">Login</Typography>
-                )}
-              </CustomButton>
-            ) : (
-              <CustomButton
-                size="medium"
-                className="flex w-full"
-                onClick={handleApprove}
-                disabled={!loaded}
-              >
-                <Typography variant="h6">Approve</Typography>
-              </CustomButton>
-            )
-          ) : (
-            <CustomButton
-              size="medium"
-              className="flex w-full"
-              onClick={() =>
-                setDialogState((prevState) => ({ ...prevState, open: true }))
-              }
-              disabled={
-                !accountAddress ||
-                !loaded ||
-                Boolean(formik.errors.price) ||
-                Boolean(formik.errors.amount) ||
-                Boolean(formik.errors.base)
-              }
-            >
-              <Typography variant="h6">
-                {!accountAddress ? 'Please Login' : 'Submit'}
-              </Typography>
-            </CustomButton>
-          )}
+          {rfqSubmitButton}
           <ConfirmRfqDialog
             open={dialogState.open}
             handleClose={handleClose}

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 
+import Typography from 'components/UI/Typography';
 import Switch from 'components/UI/Switch';
 import LiveOrders from './LiveOrders';
 import IndicativeRfqs from './IndicativeRfqs';
@@ -25,12 +25,12 @@ const Orders = (props: OrdersInterface) => {
   return (
     <Box className="space-y-4">
       <Box className="flex justify-between">
-        <Typography variant="body1" className="font-bold">
+        <Typography variant="h5" className="font-bold">
           {isLive ? 'Live Orders' : 'RFQs'}
         </Typography>
         <Box className="flex space-x-2">
           <Typography
-            variant="body1"
+            variant="h5"
             className={`${isLive ? 'text-stieglitz' : 'text-white'}`}
           >
             RFQ
@@ -42,7 +42,7 @@ const Orders = (props: OrdersInterface) => {
             className="my-auto"
           />
           <Typography
-            variant="body1"
+            variant="h5"
             className={`${!isLive ? 'text-stieglitz' : 'text-white'}`}
           >
             Trade

@@ -7,8 +7,9 @@ import TableRow from '@mui/material/TableRow';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import format from 'date-fns/format';
 import { ERC20__factory } from '@dopex-io/sdk';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+
+import Typography from 'components/UI/Typography';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
@@ -28,7 +29,7 @@ const TableHeader = ({
       component="th"
       className="bg-cod-gray border-1 border-umbra py-1"
     >
-      <Typography variant="body2" className={`${textColor}`}>
+      <Typography variant="h6" className={`${textColor}`}>
         {children}
       </Typography>
     </TableCell>
@@ -46,7 +47,7 @@ const TableBodyCell = ({
       component="td"
       className="bg-cod-gray border-0"
     >
-      <Typography variant="body2" className={`${textColor}`}>
+      <Typography variant="h6" className={`${textColor}`}>
         {children}
       </Typography>
     </TableCell>
@@ -85,7 +86,7 @@ const TradeHistory = (props) => {
 
   return !smViewport ? (
     <Box className="space-y-4">
-      <Typography variant="body2" className="font-bold">
+      <Typography variant="h6" className="font-bold">
         Trade History
       </Typography>
       <TableContainer className="rounded-lg border border-umbra overflow-x-auto">

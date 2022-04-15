@@ -8,6 +8,7 @@ import {
   where,
   updateDoc,
   onSnapshot,
+  DocumentData,
 } from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';
@@ -18,7 +19,16 @@ import { WalletContext } from 'contexts/Wallet';
 
 import { db } from 'utils/firebase/initialize';
 
-const CloseRfqDialog = ({ open, handleClose, data }) => {
+interface CloseRfqDialogProps {
+  open: boolean;
+  handleClose: () => {};
+  id: string;
+  data: DocumentData;
+}
+
+const CloseRfqDialog = (props: CloseRfqDialogProps) => {
+  const { open, id, data, handleClose } = props;
+
   const { accountAddress } = useContext(WalletContext);
   const [disabled, setDisabled] = useState(false);
 
@@ -30,7 +40,7 @@ const CloseRfqDialog = ({ open, handleClose, data }) => {
 
     const querySnapshot = await getDocs(q);
 
-    const temp = querySnapshot.docs.find((item) => item.id === data.id);
+    const temp = querySnapshot.docs.find((item) => item.id === id);
 
     await updateDoc(doc(db, 'orders', temp.id), {
       isFulfilled: true,
@@ -45,7 +55,7 @@ const CloseRfqDialog = ({ open, handleClose, data }) => {
         const chatroomData = chatrooms
           .filter(
             (document) =>
-              document.data.timestamp.seconds === data.data.timestamp.seconds
+              document.data.timestamp.seconds === data.timestamp.seconds
           )
           .pop();
 
@@ -58,21 +68,21 @@ const CloseRfqDialog = ({ open, handleClose, data }) => {
       .catch((e) => {
         console.log('Failed with error code ', e);
       });
-  }, [accountAddress, data]);
+  }, [accountAddress, data, id]);
 
   useEffect(() => {
     (async () => {
       const q = query(collection(db, 'orders'));
 
       onSnapshot(q, (querySnapshot) => {
-        const temp = querySnapshot.docs.find((item) => item.id === data.id);
+        const temp = querySnapshot.docs.find((item) => item.id === id);
 
         setDisabled(
           accountAddress === data.dealerAddress || temp.data().isFulfilled
         );
       });
     })();
-  }, [accountAddress, data]);
+  }, [accountAddress, data, id]);
 
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
@@ -97,27 +107,27 @@ const CloseRfqDialog = ({ open, handleClose, data }) => {
             <Typography variant="h6" className="text-stieglitz">
               Quote
             </Typography>
-            <Typography variant="h6">{data.data.quote}</Typography>
+            <Typography variant="h6">{data.quote}</Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Price
             </Typography>
             <Typography variant="h6">
-              {data.data.price} {data.data.quote}
+              {data.price} {data.quote}
             </Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Base
             </Typography>
-            <Typography variant="h6">{data.data.base}</Typography>
+            <Typography variant="h6">{data.base}</Typography>
           </Box>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Amount
             </Typography>
-            <Typography variant="h6">{data.data.amount}</Typography>
+            <Typography variant="h6">{data.amount}</Typography>
           </Box>
         </Box>
         <CustomButton

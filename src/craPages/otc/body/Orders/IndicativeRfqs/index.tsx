@@ -21,8 +21,8 @@ import delay from 'lodash/delay';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
-import CustomMenu from '../../../components/CustomMenu';
-import IndicativeRfqsSm from './IndicativeRfqsSm';
+import CustomMenu from 'craPages/otc/components/CustomMenu';
+import IndicativeRfqsSm from 'craPages/otc/body/Orders/IndicativeRfqs/IndicativeRfqsSm';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -85,18 +85,18 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
   const [copyState, setCopyState] = useState('Copy Address');
   const [page, setPage] = useState(0);
 
-  const handleChangePage = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
+  const handleChangePage = useCallback(
+    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+      setPage(newPage);
+    },
+    []
+  );
 
-  const handleCopy = (address: string) => {
+  const handleCopy = useCallback((address: string) => {
     setCopyState('Copied');
     delay(() => setCopyState('Copy Address'), 500);
     navigator.clipboard.writeText(address);
-  };
+  }, []);
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -237,7 +237,8 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
                           Chat
                         </CustomButton>
                         <CustomMenu
-                          data={row}
+                          id={row.id}
+                          data={row.data}
                           actions={['View RFQ', 'Close RFQ']}
                         />
                       </Box>
