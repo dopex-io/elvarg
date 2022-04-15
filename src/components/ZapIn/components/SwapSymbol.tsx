@@ -11,19 +11,25 @@ interface Props {
 
 const SwapSymbol = (props: Props) => {
   return (
-    <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700">
-      <Box className="rounded-md flex flex-col mb-0 p-1 bg-neutral-600">
-        <img
-          src={props.imgSrc}
-          alt={props.imgAlt}
-          className={
-            props.isInDialog ? 'w-4 h-4 mt-0.5' : 'w-[1.2rem] mt-[0.05rem]'
-          }
-        />
+    <Box className="rounded-md flex p-1 border border-neutral-800 bg-neutral-700 pr-3">
+      <img
+        src={props.imgSrc}
+        alt={props.imgAlt}
+        className={
+          'rounded-md w-[16px] h-[18px] mt-auto p-0.5 bg-neutral-600 object-cover'
+        }
+      />
+      <Box className={'ml-1.5'}>
+        <Typography variant="h6" className="text-white text-sm">
+          {props.symbol.length === 3 ? (
+            <span className={'opacity-0'}>{'.'}</span>
+          ) : null}
+          {props.symbol}
+          {props.symbol.length === 3 ? (
+            <span className={'opacity-0'}>{'W'}</span>
+          ) : null}
+        </Typography>
       </Box>
-      <Typography variant="h6" className="text-white  pl-2 pr-2 pt-0.5 text-sm">
-        {props.symbol}
-      </Typography>
     </Box>
   );
 };
