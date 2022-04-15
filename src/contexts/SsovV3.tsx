@@ -12,14 +12,10 @@ import {
   SsovV3Viewer__factory,
   SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import { WalletContext } from './Wallet';
 
-import { SSOV_MAP } from 'constants/index';
-
-import formatAmount from 'utils/general/formatAmount';
-import isZeroAddress from 'utils/contracts/isZeroAddress';
 import { AssetsContext } from './Assets';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -57,9 +53,11 @@ export interface SsovV3EpochData {
   TVL: number;
 }
 
-interface WritePositionInterface {
+export interface WritePositionInterface {
   collateralAmount: BigNumber;
   strike: BigNumber;
+  accruedRewards: BigNumber[];
+  accruedPremiums: BigNumber;
   epoch: number;
 }
 export interface SsovV3UserData {
@@ -129,7 +127,7 @@ export const SsovV3Provider = (props) => {
     let _ssovUserData;
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      '0x426eDe8BF1A523d288470e245a343B599c2128da',
+      '0x14333cae9BAF41AE093Bbd37899E08b21226F2C9',
       provider
     );
 
@@ -144,12 +142,22 @@ export const SsovV3Provider = (props) => {
       })
     );
 
+    const moreData = await Promise.all(
+      writePositions.map((i) => {
+        return ssovViewerContract.getWritePositionValue(i, ssovAddress);
+      })
+    );
+
     setSsovV3UserData({
-      writePositions: data.map((o) => {
+      writePositions: data.map((o, i) => {
         return {
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
+          accruedRewards: moreData[i].rewardTokenWithdrawAmounts,
+          accruedPremiums: moreData[i].collateralTokenWithdrawAmount.sub(
+            o.collateralAmount
+          ),
         };
       }),
     });

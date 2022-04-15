@@ -1,5 +1,5 @@
-import { useContext, useState, useCallback } from 'react';
-import { BigNumber } from 'ethers';
+import React, { useContext, useState, useCallback } from 'react';
+import { BigNumber, utils } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
@@ -14,21 +14,16 @@ import isEmpty from 'lodash/isEmpty';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { SsovV3Context } from 'contexts/SsovV3';
+import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import styles from './styles.module.scss';
 
-interface WritePositionTableDataProps {
-  strike: BigNumber;
-  collateralAmount: BigNumber;
-  epoch: number;
-}
-
-const WritePositionTableData = (props: WritePositionTableDataProps) => {
-  const { strike, collateralAmount, epoch } = props;
+const WritePositionTableData = (props: WritePositionInterface) => {
+  const { strike, collateralAmount, epoch, accruedPremiums, accruedRewards } =
+    props;
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -52,6 +47,20 @@ const WritePositionTableData = (props: WritePositionTableDataProps) => {
           {formatAmount(getUserReadableAmount(collateralAmount, 18), 5)} WETH
         </Typography>
       </TableCell>
+      <TableCell>
+        <Typography variant="h6">
+          {utils.formatEther(accruedPremiums)} WETH
+        </Typography>
+      </TableCell>
+      <TableCell>
+        {accruedRewards.map((rewards, index) => {
+          return (
+            <Typography variant="h6" key={index}>
+              {utils.formatEther(rewards)} DPX
+            </Typography>
+          );
+        })}
+      </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">{epoch}</Typography>
       </TableCell>
@@ -60,6 +69,30 @@ const WritePositionTableData = (props: WritePositionTableDataProps) => {
 };
 
 const ROWS_PER_PAGE = 5;
+
+const TableColumnHeader: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return (
+    <TableCell
+      align="left"
+      className="text-stieglitz bg-cod-gray border-0 pb-0"
+    >
+      <Typography variant="h6" className="text-stieglitz">
+        {children}
+      </Typography>
+    </TableCell>
+  );
+};
+
+const COLUMN_HEADERS = [
+  'Option',
+  'Strike Price',
+  'Deposit Amount',
+  'Accrued Premiums',
+  'Accrued Rewards',
+  'Epoch',
+];
 
 const WritePositions = (props: { className?: string }) => {
   const { className } = props;
@@ -92,36 +125,13 @@ const WritePositions = (props: { className?: string }) => {
             <Table>
               <TableHead className="bg-umbra">
                 <TableRow className="bg-umbra">
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6">Option</Typography>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6" className="text-stieglitz">
-                      Strike Price
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6" className="text-stieglitz">
-                      Deposit Amount
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6" className="text-stieglitz">
-                      Epoch
-                    </Typography>
-                  </TableCell>
+                  {COLUMN_HEADERS.map((header) => {
+                    return (
+                      <TableColumnHeader key={header}>
+                        {header}
+                      </TableColumnHeader>
+                    );
+                  })}
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
