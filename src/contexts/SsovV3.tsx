@@ -59,6 +59,7 @@ export interface WritePositionInterface {
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
   epoch: number;
+  tokenId: BigNumber;
 }
 export interface SsovV3UserData {
   writePositions: WritePositionInterface[];
@@ -151,6 +152,7 @@ export const SsovV3Provider = (props) => {
     setSsovV3UserData({
       writePositions: data.map((o, i) => {
         return {
+          tokenId: writePositions[i],
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,

@@ -1,6 +1,7 @@
 import React, { useContext, useState, useCallback } from 'react';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
 import cx from 'classnames';
+import isEmpty from 'lodash/isEmpty';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
 import TableContainer from '@mui/material/TableContainer';
@@ -9,67 +10,17 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
-import isEmpty from 'lodash/isEmpty';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
+import WritePositionTableData from './WritePositionData';
+import TransferDialog from './TransferDialog';
 
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-
 import styles from './styles.module.scss';
 
-const WritePositionTableData = (props: WritePositionInterface) => {
-  const { strike, collateralAmount, epoch, accruedPremiums, accruedRewards } =
-    props;
-
-  return (
-    <TableRow className="text-white bg-umbra mb-2 rounded-lg">
-      <TableCell align="left">
-        <Box className="h-12 flex flex-row items-center">
-          <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={'/assets/eth.svg'} alt="WETH" />
-          </Box>
-          <Typography variant="h5" className="text-white">
-            WETH
-          </Typography>
-        </Box>
-      </TableCell>
-      <TableCell align="left" className="mx-0 pt-2">
-        <Typography variant="h6">
-          ${formatAmount(getUserReadableAmount(strike, 8), 5)}
-        </Typography>
-      </TableCell>
-      <TableCell align="left" className="pt-2">
-        <Typography variant="h6">
-          {formatAmount(getUserReadableAmount(collateralAmount, 18), 5)} WETH
-        </Typography>
-      </TableCell>
-      <TableCell>
-        <Typography variant="h6">
-          {utils.formatEther(accruedPremiums)} WETH
-        </Typography>
-      </TableCell>
-      <TableCell>
-        {accruedRewards.map((rewards, index) => {
-          return (
-            <Typography variant="h6" key={index}>
-              {utils.formatEther(rewards)} DPX
-            </Typography>
-          );
-        })}
-      </TableCell>
-      <TableCell align="left" className="pt-2">
-        <Typography variant="h6">{epoch}</Typography>
-      </TableCell>
-    </TableRow>
-  );
-};
-
 const ROWS_PER_PAGE = 5;
-
 const TableColumnHeader: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -92,6 +43,7 @@ const COLUMN_HEADERS = [
   'Accrued Premiums',
   'Accrued Rewards',
   'Epoch',
+  'Actions',
 ];
 
 const WritePositions = (props: { className?: string }) => {
@@ -100,6 +52,33 @@ const WritePositions = (props: { className?: string }) => {
   const { selectedEpoch, ssovUserData } = useContext(SsovV3Context);
 
   const [page, setPage] = useState(0);
+  const [dialog, setDialog] = useState<
+    undefined | { open: boolean; data: WritePositionInterface }
+  >({
+    open: false,
+    data: {
+      collateralAmount: BigNumber.from(0),
+      strike: BigNumber.from(0),
+      accruedRewards: [BigNumber.from(0)],
+      accruedPremiums: BigNumber.from(0),
+      epoch: 0,
+      tokenId: BigNumber.from(0),
+    },
+  });
+
+  const handleClose = useCallback(() => {
+    setDialog({
+      open: false,
+      data: {
+        collateralAmount: BigNumber.from(0),
+        strike: BigNumber.from(0),
+        accruedRewards: [BigNumber.from(0)],
+        accruedPremiums: BigNumber.from(0),
+        epoch: 0,
+        tokenId: BigNumber.from(0),
+      },
+    });
+  }, []);
 
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -110,6 +89,7 @@ const WritePositions = (props: { className?: string }) => {
 
   return selectedEpoch > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
+      <TransferDialog {...dialog} handleClose={handleClose} />
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Write Positions
@@ -141,7 +121,16 @@ const WritePositions = (props: { className?: string }) => {
                     page * ROWS_PER_PAGE + ROWS_PER_PAGE
                   )
                   ?.map((o, i) => {
-                    return <WritePositionTableData key={i} {...o} />;
+                    const _setDialog = () => {
+                      setDialog({ open: true, data: o });
+                    };
+                    return (
+                      <WritePositionTableData
+                        key={i}
+                        {...o}
+                        setDialog={_setDialog}
+                      />
+                    );
                   })}
               </TableBody>
             </Table>
