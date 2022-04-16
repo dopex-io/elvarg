@@ -30,6 +30,26 @@ import { db } from 'utils/firebase/initialize';
 import smartTrim from 'utils/general/smartTrim';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
+interface BidAskFieldProps {
+  field: string;
+  value: string;
+}
+
+const BidAskField = (props: BidAskFieldProps) => {
+  const { field, value } = props;
+
+  return (
+    <Box className="flex justify-between">
+      <Typography variant="h6" className="text-stieglitz">
+        {field}
+      </Typography>
+      <Typography variant="h6" className="text-white">
+        {value}
+      </Typography>
+    </Box>
+  );
+};
+
 interface BidDialogProps {
   open: boolean;
   handleClose: () => void;
@@ -185,14 +205,7 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
     (async () => {
       if (!user || !data) return;
 
-      // const ref = await getDoc(
-      //   doc(db, `orders/${data.id}/bids`, user?.accountAddress)
-      // );
-
-      setDisabled(
-        // !!ref.data() ||
-        user?.accountAddress === data.dealerAddress
-      );
+      setDisabled(user?.accountAddress === data.dealerAddress);
 
       setIsDealer(user?.accountAddress === data.dealerAddress);
     })();
@@ -204,6 +217,7 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
     },
     [formik]
   );
+
   return (
     accountAddress && (
       <Dialog open={open} handleClose={handleClose} showCloseIcon width={500}>
@@ -269,7 +283,7 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
                     <Typography
                       variant="h6"
                       className={`${isDealer ? 'text-center' : 'text-right'} ${
-                        currentUser ? 'text-emerald-500' : 'text-stieglitz'
+                        currentUser ? 'text-emerald-500' : 'text-white'
                       } my-auto`}
                     >
                       {bid.bidPrice} {data.quote}
@@ -324,72 +338,24 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
           )}
           <Typography variant="h5">RFQ Details</Typography>
           <Box className="flex flex-col bg-umbra p-3 rounded-xl border space-y-2 border-mineshaft overflow-auto">
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Order Type
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.isBuy ? 'Buy' : 'Sell'}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Dealer
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.dealer}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Expiration
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {format(data.timestamp.seconds * 1000, 'H:mm, d LLL YYY')}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Status
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.isFulfilled ? 'Closed' : 'Open'}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Quote
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.quote}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Base
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.base}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Price
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.price} {data.quote}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Amount
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.amount} tokens
-              </Typography>
-            </Box>
+            <BidAskField
+              field="Order Type"
+              value={data.isBuy ? 'Buy' : 'Sell'}
+            />
+            <BidAskField field="Dealer" value={data.dealer} />
+            <BidAskField
+              field="Expiration"
+              value={format(data.timestamp.seconds * 1000, 'H:mm, d LLL YYY')}
+            />
+            <BidAskField
+              field="Status"
+              value={data.isFulfilled ? 'Closed' : 'Open'}
+            />
+            <BidAskField field="Quote" value={data.quote} />
+            <BidAskField field="Base" value={data.base} />
+            <BidAskField field="Price" value={`${data.price} ${data.quote}`} />
+            <BidAskField field="Amount" value={`${data.amount} tokens`} />
           </Box>
-
           <Box className="flex justify-between px-2">
             <Typography variant="h5" className="text-stieglitz my-auto">
               Place Offer

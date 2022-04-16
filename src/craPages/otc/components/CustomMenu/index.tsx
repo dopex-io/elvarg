@@ -4,7 +4,7 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import Bid from 'craPages/otc/components/Dialogs/Bid';
+import BidAsk from 'craPages/otc/components/Dialogs/BidAsk';
 import CloseRfqDialog from 'craPages/otc/components/Dialogs/CloseRfqDialog';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -26,7 +26,7 @@ interface CustomMenuProps {
 }
 
 const DIALOGS = {
-  BID: Bid,
+  BID_ASK: BidAsk,
   CLOSE: CloseRfqDialog,
 };
 
@@ -38,7 +38,7 @@ const CustomMenu = (props: CustomMenuProps) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogState, setDialogState] = useState({
     open: false,
-    type: 'BID',
+    type: 'BID_ASK',
     handleClose: () => {},
     data: {},
   });
@@ -86,7 +86,7 @@ const CustomMenu = (props: CustomMenuProps) => {
         className="text-white rounded px-0 ml-1"
         classes={{ paper: 'bg-umbra text-white py-0' }}
       >
-        <MenuItem onClick={() => handleMenuClick(data, 'BID')}>
+        <MenuItem onClick={() => handleMenuClick(data, 'BID_ASK')}>
           {actions[0]}
         </MenuItem>
         <MenuItem

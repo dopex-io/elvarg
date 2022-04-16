@@ -203,23 +203,22 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
                         <Typography variant="h6">
                           {smartTrim(row.data.dealer, 10)}
                         </Typography>
-                        <Box className="flex">
-                          <Tooltip
-                            className="h-4 text-stieglitz"
-                            title={copyState}
-                            arrow={true}
-                          >
-                            <IconButton
-                              className="p-0"
+                        <Tooltip
+                          className="h-4 text-stieglitz"
+                          title={copyState}
+                          arrow={true}
+                        >
+                          <Box className="flex justify-end">
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz"
+                              role="button"
                               onClick={() => handleCopy(row.data.dealerAddress)}
                             >
-                              <ContentCopyIcon className="fill-current text-stieglitz p-1" />
-                            </IconButton>
-                          </Tooltip>
-                          <Typography variant="h6" className="text-stieglitz">
-                            {smartTrim(row.data.dealerAddress, 10)}
-                          </Typography>
-                        </Box>
+                              {smartTrim(row.data.dealerAddress, 8)}
+                            </Typography>
+                          </Box>
+                        </Tooltip>
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell align="right">

@@ -47,7 +47,6 @@ const RfqForm = (props: RfqFormProps) => {
   const [selectionIndex, setSelectionIndex] = useState(0);
   const [validAddress, setValidAddress] = useState(false);
   const [approved, setApproved] = useState(false);
-  const [processing, setProcessing] = useState(false);
   const [targetAddress, setTargetAddress] = useState('');
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -200,7 +199,6 @@ const RfqForm = (props: RfqFormProps) => {
         asset.connect(signer).approve(escrowData.escrowAddress, approveAmount)
       ).then(() => {
         setApproved(true);
-        setProcessing(false);
       });
     } catch (e) {
       console.log(`Something went wrong. ERR_CODE ${e}`);
@@ -215,11 +213,19 @@ const RfqForm = (props: RfqFormProps) => {
     selectedQuote,
   ]);
 
+  const error = useMemo(() => {
+    return String(
+      formik.errors.amount ||
+        formik.errors.price ||
+        formik.errors.base ||
+        (!validAddress && 'Invalid Address') ||
+        ''
+    );
+  }, [formik.errors, validAddress]);
+
   const handleSubmit = useCallback(async () => {
     if (!user) validateUser();
     else {
-      setProcessing(true);
-
       const escrow = Escrow__factory.connect(
         escrowData.escrowAddress,
         provider
@@ -260,11 +266,9 @@ const RfqForm = (props: RfqFormProps) => {
               )
           ).catch(() => {
             console.log('Failed to update db');
-            setProcessing(false);
           });
         } catch (e) {
           console.log('Deposit Failed');
-          setProcessing(false);
         }
       else {
         setDialogState({
@@ -290,7 +294,6 @@ const RfqForm = (props: RfqFormProps) => {
           },
         });
       }
-      setProcessing(false);
     }
   }, [
     user,
@@ -314,61 +317,41 @@ const RfqForm = (props: RfqFormProps) => {
     [formik]
   ); // Check if RFQ input field values are valid
 
-  const rfqSubmitButton = useMemo(() => {
+  const rfqButtonProps = useMemo(() => {
     if (isLive && approved)
-      return (
-        <CustomButton
-          size="medium"
-          className="flex w-full"
-          onClick={handleSubmit}
-          disabled={user && (processing || invalidInputs)}
-        >
-          {user ? (
-            <Typography variant="h6">
-              {processing ? <CircularProgress size="24" /> : 'Submit'}
-            </Typography>
-          ) : (
-            <Typography variant="h6">Login</Typography>
-          )}
-        </CustomButton>
-      );
-    else if (isLive && !approved)
-      return (
-        <CustomButton
-          size="medium"
-          className="flex w-full"
-          onClick={handleApprove}
-          disabled={!loaded}
-        >
-          <Typography variant="h6">Approve</Typography>
-        </CustomButton>
-      );
-    else if (!isLive && user)
-      return (
-        <CustomButton
-          size="medium"
-          className="flex w-full"
-          onClick={() =>
-            setDialogState((prevState) => ({ ...prevState, open: true }))
-          }
-          disabled={!accountAddress || !loaded || invalidInputs}
-        >
-          <Typography variant="h6">
-            {!accountAddress ? 'Please Login' : 'Submit'}
-          </Typography>
-        </CustomButton>
-      );
-    else if (!isLive && !user) return null;
+      return {
+        disabled: user && invalidInputs,
+        buttonContent: user ? 'Submit' : 'Login',
+        callback: handleSubmit,
+      };
+    else if (isLive && !approved) {
+      return {
+        disabled: !loaded,
+        buttonContent: 'Approve',
+        callback: handleApprove,
+      };
+    } else if (!isLive && user) {
+      return {
+        disabled: !accountAddress || !loaded || invalidInputs,
+        buttonContent: !accountAddress ? 'Please Login' : 'Submit',
+        callback: () =>
+          setDialogState((prevState) => ({ ...prevState, open: true })),
+      };
+    } else if (!isLive && !user)
+      return {
+        disabled: true,
+        buttonContent: 'Please Login',
+        callback: () => {},
+      };
   }, [
-    user,
-    isLive,
-    approved,
-    invalidInputs,
     accountAddress,
+    approved,
     handleApprove,
     handleSubmit,
+    invalidInputs,
+    isLive,
     loaded,
-    processing,
+    user,
   ]);
 
   // Check allowance
@@ -586,7 +569,6 @@ const RfqForm = (props: RfqFormProps) => {
               </Box>
             </Box>
           </Box>
-
           <Box>
             <Accordion
               summary="What are RFQs?"
@@ -608,17 +590,18 @@ const RfqForm = (props: RfqFormProps) => {
                 variant="h6"
                 className="text-down-bad text-xs text-center"
               >
-                {String(
-                  formik.errors.amount ||
-                    formik.errors.price ||
-                    formik.errors.base ||
-                    (!validAddress && 'Invalid Address') ||
-                    ''
-                )}
+                {error}
               </Typography>
             </Box>
           ) : null}
-          {rfqSubmitButton}
+          <CustomButton
+            size="medium"
+            className="flex w-full"
+            onClick={rfqButtonProps.callback}
+            disabled={rfqButtonProps.disabled}
+          >
+            <Typography variant="h6">{rfqButtonProps.buttonContent}</Typography>
+          </CustomButton>
           <ConfirmRfqDialog
             open={dialogState.open}
             handleClose={handleClose}
