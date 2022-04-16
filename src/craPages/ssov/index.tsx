@@ -1,9 +1,13 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
-
+import { ethers, BigNumber } from 'ethers';
+import { SsovV3Viewer__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
+
 import { WalletContext } from 'contexts/Wallet';
+import { AssetsContext } from 'contexts/Assets';
+
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
@@ -33,8 +37,10 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Ssov = () => {
+  const { chainId, provider } = useContext(WalletContext);
+  const { tokenPrices } = useContext(AssetsContext);
+
   const [ssovs, setSsovs] = useState(null);
-  const { chainId } = useContext(WalletContext);
   const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
@@ -66,15 +72,62 @@ const Ssov = () => {
   }, [ssovs]);
 
   useEffect(() => {
+    if (tokenPrices.length < 0 || !provider) {
+      return;
+    }
     async function getData() {
-      const data = await axios
+      let data = await axios
         .get('https://api.dopex.io/api/v1/ssov')
         .then((payload) => payload.data);
+
+      const _contract = SsovV3Viewer__factory.connect(
+        '0x426eDe8BF1A523d288470e245a343B599c2128da',
+        provider
+      );
+
+      const totalEpochStrikeDeposits =
+        await _contract.getTotalEpochStrikeDeposits(
+          1,
+          '0x376bEcbc031dd53Ffc62192043dE43bf491988FD'
+        );
+
+      const totalEpochDeposits = totalEpochStrikeDeposits.reduce((acc, val) => {
+        return acc.add(val);
+      }, BigNumber.from(0));
+
+      data = {
+        ...data,
+        42161: [
+          ...data[42161],
+          {
+            apy: 154,
+            chainId: 42161,
+            currentEpoch: 1,
+            epochEndDate: '1650614400',
+            epochStartDate: '1649750400',
+            name: 'ETH',
+            totalEpochDeposits: totalEpochDeposits.toString(),
+            tvl: ethers.utils.formatEther(
+              totalEpochDeposits
+                .mul(
+                  ethers.utils.parseEther(
+                    String(tokenPrices.find(({ name }) => name === 'ETH').price)
+                  )
+                )
+                .div('1000000000000000000')
+            ),
+            type: 'call',
+            underlyingDecimals: 18,
+            underlyingPrice: 0,
+            timeFrame: 'weekly',
+          },
+        ],
+      };
 
       setSsovs(data);
     }
     getData();
-  }, []);
+  }, [provider, tokenPrices]);
 
   return (
     <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
