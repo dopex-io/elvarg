@@ -149,7 +149,7 @@ const ExerciseList = () => {
     <Box className="bg-cod-gray w-full p-4 rounded-xl">
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
-          Your Options & Deposits
+          Your Options
         </Typography>
         <Typography variant="h6" className="text-stieglitz">
           Epoch {selectedEpoch}
