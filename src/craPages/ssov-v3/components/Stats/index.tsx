@@ -1,5 +1,5 @@
 import { useContext, useState, useMemo, useCallback } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
@@ -16,14 +16,10 @@ import range from 'lodash/range';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { SsovContext } from 'contexts/Ssov';
-import { BnbConversionContext } from 'contexts/BnbConversion';
-
-import { SSOV_MAP } from 'constants/index';
+import { SsovV3Context } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import styles from './styles.module.scss';
 
@@ -53,10 +49,6 @@ const StatsTableData = (
     tokenSymbol,
   } = props;
 
-  const { convertToBNB } = useContext(BnbConversionContext);
-
-  const tokenName = tokenSymbol === 'BNB' ? 'vBNB' : tokenSymbol;
-
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
       <TableCell align="left">
@@ -74,20 +66,11 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {tokenName}
+          {formatAmount(totalDeposits, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(
-            tokenSymbol === 'BNB'
-              ? (convertToBNB(ethers.utils.parseEther(totalDeposits.toString()))
-                  .div(oneEBigNumber(6))
-                  .toNumber() /
-                  1e4) *
-                  price
-              : totalDeposits * price,
-            2
-          )}
+          {formatAmount(totalDeposits * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
@@ -102,20 +85,11 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)} {tokenName}
+          {formatAmount(totalPremiums, 5)} {tokenSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(
-            tokenSymbol === 'BNB'
-              ? (convertToBNB(ethers.utils.parseEther(totalPremiums.toString()))
-                  .div(oneEBigNumber(6))
-                  .toNumber() /
-                  1e4) *
-                  price
-              : totalPremiums * price,
-            2
-          )}
+          {formatAmount(totalPremiums * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="right" className="px-6 pt-2">
@@ -140,9 +114,7 @@ const ROWS_PER_PAGE = 5;
 const Stats = (props: { className?: string }) => {
   const { className } = props;
 
-  const { convertToVBNB } = useContext(BnbConversionContext);
-
-  const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovContext);
+  const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovV3Context);
 
   const { tokenPrice, tokenName } = ssovData;
   const {
@@ -175,28 +147,19 @@ const Stats = (props: { className?: string }) => {
     () =>
       epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
-        const totalDeposits =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(
-                totalEpochStrikeDeposits[strikeIndex] ?? 0,
-                8
-              )
-            : getUserReadableAmount(
-                totalEpochStrikeDeposits[strikeIndex] ?? 0,
-                18
-              );
-        const totalPurchased =
-          tokenName === 'BNB'
-            ? convertToVBNB(totalEpochOptionsPurchased[strikeIndex]) ?? 0
-            : getUserReadableAmount(
-                totalEpochOptionsPurchased[strikeIndex] ?? 0,
-                18
-              );
+        const totalDeposits = getUserReadableAmount(
+          totalEpochStrikeDeposits[strikeIndex] ?? 0,
+          18
+        );
+        const totalPurchased = getUserReadableAmount(
+          totalEpochOptionsPurchased[strikeIndex] ?? 0,
+          18
+        );
 
-        const totalPremiums =
-          tokenName === 'BNB'
-            ? getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 8)
-            : getUserReadableAmount(totalEpochPremium[strikeIndex] ?? 0, 18);
+        const totalPremiums = getUserReadableAmount(
+          totalEpochPremium[strikeIndex] ?? 0,
+          18
+        );
 
         return {
           strikeIndex,
@@ -211,8 +174,6 @@ const Stats = (props: { className?: string }) => {
       totalEpochStrikeDeposits,
       totalEpochOptionsPurchased,
       totalEpochPremium,
-      tokenName,
-      convertToVBNB,
     ]
   );
 
@@ -316,8 +277,8 @@ const Stats = (props: { className?: string }) => {
                           totalPremiums={totalPremiums}
                           price={price}
                           epochTime={epochTime}
-                          imgSrc={SSOV_MAP[ssovData.tokenName].imageSrc}
-                          tokenSymbol={SSOV_MAP[ssovData.tokenName].tokenSymbol}
+                          imgSrc={'/assets/eth.svg'}
+                          tokenSymbol="WETH"
                         />
                       );
                     }
