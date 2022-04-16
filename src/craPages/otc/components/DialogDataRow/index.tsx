@@ -2,12 +2,12 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-interface BidAskFieldProps {
+interface DialogDataRowProps {
   info: string;
   value: string;
 }
 
-const DialogDataRow = (props: BidAskFieldProps) => {
+const DialogDataRow = (props: DialogDataRowProps) => {
   const { info, value } = props;
 
   return (
