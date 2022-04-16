@@ -6,7 +6,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import format from 'date-fns/format';
-import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -14,7 +13,6 @@ import Typography from 'components/UI/Typography';
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
-import sanitizeOptionSymbol from 'utils/general/sanitizeOptionSymbol';
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -57,18 +55,12 @@ const TableBodyCell = ({
 const TradeHistory = (props) => {
   const { smViewport } = props;
   const { tradeHistoryData } = useContext(OtcContext);
-  const { accountAddress, provider } = useContext(WalletContext);
+  const { accountAddress } = useContext(WalletContext);
 
   const sanitizedData = useMemo(() => {
     return tradeHistoryData.map((entry) => {
       const quote = '-';
-      // sanitizeOptionSymbol(
-      //   await ERC20__factory.connect(entry.quote, provider).symbol()
-      // );
       const base = '-';
-      // sanitizeOptionSymbol(
-      //   await ERC20__factory.connect(entry.base, provider).symbol()
-      // );
       return {
         quote,
         base,
@@ -82,7 +74,7 @@ const TradeHistory = (props) => {
           accountAddress === entry.counterParty,
       };
     });
-  }, [tradeHistoryData, /*provider, */ accountAddress]);
+  }, [tradeHistoryData, accountAddress]);
 
   return !smViewport ? (
     <Box className="space-y-4">

@@ -135,7 +135,6 @@ const OTC = () => {
                       Trade
                     </Typography>
                   </Box>
-
                   <Box
                     role="button"
                     className={`flex space-x-4 p-2 rounded-xl ${
@@ -154,7 +153,6 @@ const OTC = () => {
                       </Typography>
                     </Box>
                   </Box>
-
                   <Typography variant="h6" className="text-stieglitz py-3">
                     Markets
                   </Typography>

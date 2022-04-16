@@ -20,6 +20,7 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
+import DialogDataRow from 'craPages/otc/components/DialogDataRow';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
@@ -29,26 +30,6 @@ import useSendTx from 'hooks/useSendTx';
 import { db } from 'utils/firebase/initialize';
 import smartTrim from 'utils/general/smartTrim';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-
-interface BidAskFieldProps {
-  field: string;
-  value: string;
-}
-
-const BidAskField = (props: BidAskFieldProps) => {
-  const { field, value } = props;
-
-  return (
-    <Box className="flex justify-between">
-      <Typography variant="h6" className="text-stieglitz">
-        {field}
-      </Typography>
-      <Typography variant="h6" className="text-white">
-        {value}
-      </Typography>
-    </Box>
-  );
-};
 
 interface BidDialogProps {
   open: boolean;
@@ -120,7 +101,7 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
         .approve(
           escrow.address,
           getContractReadableAmount(
-            data?.data.isBuy ? ongoingBids[index].bidPrice : data.amount,
+            data?.isBuy ? ongoingBids[index].bidPrice : data.amount,
             18
           )
         );
@@ -133,13 +114,11 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
             data.isBuy ? data.baseAddress : data.quoteAddress,
             ongoingBids[index].counterPartyAddress,
             getContractReadableAmount(
-              data?.data.isBuy ? ongoingBids[index].bidPrice : data.amount,
+              data?.isBuy ? ongoingBids[index].bidPrice : data.amount,
               18
             ),
             getContractReadableAmount(
-              data?.data.isBuy
-                ? data?.data.amount
-                : ongoingBids[index].bidPrice,
+              data?.isBuy ? data?.amount : ongoingBids[index].bidPrice,
               18
             )
           )
@@ -203,9 +182,9 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
 
   useEffect(() => {
     (async () => {
-      if (!user || !data) return;
+      if (!data) return;
 
-      setDisabled(user?.accountAddress === data.dealerAddress);
+      setDisabled(user?.accountAddress === data.dealerAddress || !user);
 
       setIsDealer(user?.accountAddress === data.dealerAddress);
     })();
@@ -338,23 +317,23 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
           )}
           <Typography variant="h5">RFQ Details</Typography>
           <Box className="flex flex-col bg-umbra p-3 rounded-xl border space-y-2 border-mineshaft overflow-auto">
-            <BidAskField
-              field="Order Type"
+            <DialogDataRow
+              info="Order Type"
               value={data.isBuy ? 'Buy' : 'Sell'}
             />
-            <BidAskField field="Dealer" value={data.dealer} />
-            <BidAskField
-              field="Expiration"
+            <DialogDataRow info="Dealer" value={data.dealer} />
+            <DialogDataRow
+              info="Expiration"
               value={format(data.timestamp.seconds * 1000, 'H:mm, d LLL YYY')}
             />
-            <BidAskField
-              field="Status"
+            <DialogDataRow
+              info="Status"
               value={data.isFulfilled ? 'Closed' : 'Open'}
             />
-            <BidAskField field="Quote" value={data.quote} />
-            <BidAskField field="Base" value={data.base} />
-            <BidAskField field="Price" value={`${data.price} ${data.quote}`} />
-            <BidAskField field="Amount" value={`${data.amount} tokens`} />
+            <DialogDataRow info="Quote" value={data.quote} />
+            <DialogDataRow info="Base" value={data.base} />
+            <DialogDataRow info="Price" value={`${data.price} ${data.quote}`} />
+            <DialogDataRow info="Amount" value={`${data.amount} tokens`} />
           </Box>
           <Box className="flex justify-between px-2">
             <Typography variant="h5" className="text-stieglitz my-auto">
@@ -380,7 +359,7 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
             onClick={handleSubmit}
             disabled={disabled}
           >
-            Place Offer
+            {user ? 'Place Offer' : 'Please Login'}
           </CustomButton>
         </Box>
       </Dialog>

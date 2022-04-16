@@ -14,6 +14,7 @@ import {
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
+import DialogDataRow from 'craPages/otc/components/DialogDataRow';
 
 import { WalletContext } from 'contexts/Wallet';
 
@@ -89,46 +90,18 @@ const CloseRfqDialog = (props: CloseRfqDialogProps) => {
       <Box className="space-y-4 flex flex-col">
         <Typography variant="h5">Close RFQ</Typography>
         <Box className="flex flex-col bg-umbra p-3 rounded-xl border space-y-2 border-mineshaft">
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Order Type
-            </Typography>
-            <Typography variant="h6">{data.isBuy ? 'Buy' : 'Sell'}</Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Status
-            </Typography>
-            <Typography variant="h6">
-              {data.isFulfilled ? 'Closed' : 'Pending'}
-            </Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Quote
-            </Typography>
-            <Typography variant="h6">{data.quote}</Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Price
-            </Typography>
-            <Typography variant="h6">
-              {data.price} {data.quote}
-            </Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Base
-            </Typography>
-            <Typography variant="h6">{data.base}</Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Amount
-            </Typography>
-            <Typography variant="h6">{data.amount}</Typography>
-          </Box>
+          <DialogDataRow
+            info="Order Type"
+            value={data.isBuy ? 'Buy' : 'Sell'}
+          />
+          <DialogDataRow
+            info="Status"
+            value={data.isFulfilled ? 'Closed' : 'Pending'}
+          />
+          <DialogDataRow info="Quote" value={data.quote} />
+          <DialogDataRow info="Price" value={`${data.price} ${data.quote}`} />
+          <DialogDataRow info="Base" value={data.base} />
+          <DialogDataRow info="Amount" value={data.amount} />
         </Box>
         <CustomButton
           color="primary rounded-xl"

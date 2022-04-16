@@ -1,10 +1,12 @@
 import { useState, useCallback, useContext, useEffect } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
-import Dialog from 'components/UI/Dialog';
+import { ERC20__factory } from '@dopex-io/sdk';
+
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import { ERC20__factory } from '@dopex-io/sdk';
+import Dialog from 'components/UI/Dialog';
+import DialogDataRow from 'craPages/otc/components/DialogDataRow';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
@@ -99,46 +101,28 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
                   Settle
                 </Typography>
                 <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
-                  <Box className="flex justify-between space-x-2 my-auto">
-                    <Typography variant="h6" className="text-stieglitz">
-                      Dealer&apos;s base
-                    </Typography>
-                    <Typography variant="h6">
-                      {data.dealerBase.symbol}
-                    </Typography>
-                  </Box>
-                  <Box className="flex justify-between space-x-2 my-auto">
-                    <Typography variant="h6" className="text-stieglitz">
-                      Receive
-                    </Typography>
-                    <Typography variant="h6">
-                      {getUserReadableAmount(
-                        data.dealerSendAmount,
-                        decimals.base
-                      )}{' '}
-                      {data.dealerQuote.symbol}
-                    </Typography>
-                  </Box>
-                  <Box className="flex justify-between space-x-2 my-auto">
-                    <Typography variant="h6" className="text-stieglitz">
-                      Send
-                    </Typography>
-                    <Typography variant="h6">
-                      {getUserReadableAmount(
-                        data.dealerReceiveAmount,
-                        decimals.quote
-                      )}{' '}
-                      {data.dealerBase.symbol}
-                    </Typography>
-                  </Box>
-                  <Box className="flex justify-between space-x-2 my-auto">
-                    <Typography variant="h6" className="text-stieglitz">
-                      Dealer&apos;s Address
-                    </Typography>
-                    <Typography variant="h6">
-                      {smartTrim(data.dealer, 10)}
-                    </Typography>
-                  </Box>
+                  <DialogDataRow
+                    info={`Dealer's base`}
+                    value={data.dealerBase.symbol}
+                  />
+                  <DialogDataRow
+                    info="Receive"
+                    value={`${getUserReadableAmount(
+                      data.dealerSendAmount,
+                      decimals.base
+                    )} ${data.dealerQuote.symbol}`}
+                  />
+                  <DialogDataRow
+                    info="Send"
+                    value={`${getUserReadableAmount(
+                      data.dealerReceiveAmount,
+                      decimals.quote
+                    )} ${data.dealerBase.symbol}`}
+                  />
+                  <DialogDataRow
+                    info={`Dealer's Address`}
+                    value={smartTrim(data.dealer, 10)}
+                  />
                 </Box>
               </Box>
               <Box className="flex space-x-2">
