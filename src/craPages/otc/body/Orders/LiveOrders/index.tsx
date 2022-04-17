@@ -7,19 +7,17 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Skeleton from '@mui/material/Skeleton';
-import CustomButton from 'components/UI/CustomButton';
 
+import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-import Settle from '../Dialogs/Settle';
+import Settle from 'craPages/otc/components/Dialogs/Settle';
 
 import { OtcContext } from 'contexts/Otc';
-import { WalletContext } from 'contexts/Wallet';
 
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { ERC20__factory } from '@dopex-io/sdk';
 
 const TableHeader = ({
   children,
@@ -60,14 +58,10 @@ const TableBodyCell = ({
 
 const LiveOrders = () => {
   const { openTradesData, loaded } = useContext(OtcContext);
-  const { provider } = useContext(WalletContext);
 
   const [index, setIndex] = useState(0);
   const [openTrades, setOpenTrades] = useState([]);
-  const [decimals, setDecimals] = useState({
-    quote: 18,
-    base: 18,
-  });
+
   const [dialogState, setDialogState] = useState({
     open: false,
     data: {},
@@ -85,7 +79,7 @@ const LiveOrders = () => {
   return loaded ? (
     <Box>
       {openTrades.length > 0 ? (
-        <TableContainer className="rounded-lg overflow-x-hidden border border-umbra max-h-80">
+        <TableContainer className="rounded-lg overflow-x-auto border border-umbra max-h-80">
           <Table aria-label="rfq-table" className="bg-umbra">
             <TableHead>
               <TableRow>
@@ -237,7 +231,7 @@ const LiveOrders = () => {
       ) : (
         <Box className="flex mx-auto justify-around py-8 bg-cod-gray rounded-xl border border-umbra">
           <Typography variant="h5" className="text-stieglitz">
-            No Live Trades Available
+            You Have No Open Orders
           </Typography>
         </Box>
       )}

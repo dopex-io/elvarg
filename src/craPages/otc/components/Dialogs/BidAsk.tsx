@@ -1,9 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import Box from '@mui/material/Box';
 import { useFormik } from 'formik';
-import noop from 'lodash/noop';
-import * as yup from 'yup';
-import Input from '@mui/material/Input';
 import {
   collection,
   doc,
@@ -16,13 +12,18 @@ import {
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { ERC20__factory, Escrow__factory } from '@dopex-io/sdk';
 import { format } from 'date-fns';
-
-import { OtcContext } from 'contexts/Otc';
-import { WalletContext } from 'contexts/Wallet';
+import noop from 'lodash/noop';
+import * as yup from 'yup';
+import Input from '@mui/material/Input';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
+import DialogDataRow from 'craPages/otc/components/DialogDataRow';
+
+import { OtcContext } from 'contexts/Otc';
+import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -34,9 +35,10 @@ interface BidDialogProps {
   open: boolean;
   handleClose: () => void;
   data: DocumentData;
+  id: string;
 }
 
-const Bid = ({ open, handleClose, data }: BidDialogProps) => {
+const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
   const sendTx = useSendTx();
   const { user, escrowData, loaded } = useContext(OtcContext);
   const { accountAddress, provider, signer } = useContext(WalletContext);
@@ -58,8 +60,8 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
   });
 
   const q = query(
-    collection(db, `orders/${data.id}/bids`),
-    orderBy('bidPrice', data.data.isBuy ? 'asc' : 'desc')
+    collection(db, `orders/${id}/bids`),
+    orderBy('bidPrice', data.isBuy ? 'asc' : 'desc')
   );
 
   const [bids] = useCollectionData(q, { idField: 'id' });
@@ -73,16 +75,12 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
       timestamp: new Date(),
     };
 
-    await setDoc(
-      doc(db, `orders/${data.id}/bids`, user?.accountAddress),
-      params,
-      {
-        merge: false,
-      }
-    ).catch((e) => {
+    await setDoc(doc(db, `orders/${id}/bids`, user?.accountAddress), params, {
+      merge: false,
+    }).catch((e) => {
       console.log('Already created bid... reverted with error: ', e);
     });
-  }, [user, formik, data]);
+  }, [user, formik, id]);
 
   const handleInitiateP2P = useCallback(
     async (index) => {
@@ -94,7 +92,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
       );
 
       const userQuoteAsset = ERC20__factory.connect(
-        data.data.isBuy ? data.data.quoteAddress : data.data.baseAddress,
+        data.isBuy ? data.quoteAddress : data.baseAddress,
         provider
       );
 
@@ -103,7 +101,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
         .approve(
           escrow.address,
           getContractReadableAmount(
-            data?.data.isBuy ? ongoingBids[index].bidPrice : data.data.amount,
+            data?.isBuy ? ongoingBids[index].bidPrice : data.amount,
             18
           )
         );
@@ -112,17 +110,15 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
         escrow
           .connect(signer)
           .open(
-            data.data.isBuy ? data.data.quoteAddress : data.data.baseAddress,
-            data.data.isBuy ? data.data.baseAddress : data.data.quoteAddress,
+            data.isBuy ? data.quoteAddress : data.baseAddress,
+            data.isBuy ? data.baseAddress : data.quoteAddress,
             ongoingBids[index].counterPartyAddress,
             getContractReadableAmount(
-              data?.data.isBuy ? ongoingBids[index].bidPrice : data.data.amount,
+              data?.isBuy ? ongoingBids[index].bidPrice : data.amount,
               18
             ),
             getContractReadableAmount(
-              data?.data.isBuy
-                ? data?.data.amount
-                : ongoingBids[index].bidPrice,
+              data?.isBuy ? data?.amount : ongoingBids[index].bidPrice,
               18
             )
           )
@@ -147,8 +143,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
               const chatroomData = chatrooms
                 .filter(
                   (document) =>
-                    document.data.timestamp.seconds ===
-                    data.data.timestamp.seconds
+                    document.data.timestamp.seconds === data.timestamp.seconds
                 )
                 .pop();
 
@@ -187,18 +182,11 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
 
   useEffect(() => {
     (async () => {
-      if (!user || !data) return;
+      if (!data) return;
 
-      // const ref = await getDoc(
-      //   doc(db, `orders/${data.id}/bids`, user?.accountAddress)
-      // );
+      setDisabled(user?.accountAddress === data.dealerAddress || !user);
 
-      setDisabled(
-        // !!ref.data() ||
-        user?.accountAddress === data.data.dealerAddress
-      );
-
-      setIsDealer(user?.accountAddress === data.data.dealerAddress);
+      setIsDealer(user?.accountAddress === data.dealerAddress);
     })();
   }, [data, user]);
 
@@ -208,13 +196,12 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
     },
     [formik]
   );
+
   return (
     accountAddress && (
       <Dialog open={open} handleClose={handleClose} showCloseIcon width={500}>
         <Box className="space-y-2 flex flex-col">
-          <Typography variant="h4">
-            {data.data.isBuy ? 'Ask' : 'Bid'}
-          </Typography>
+          <Typography variant="h4">{data.isBuy ? 'Ask' : 'Bid'}</Typography>
           <Box
             className={`grid ${isDealer ? 'grid-cols-4' : 'grid-cols-2'} mx-2`}
           >
@@ -227,7 +214,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
                 isDealer ? 'text-center' : 'text-right'
               }`}
             >
-              {data.data.isBuy ? 'Ask' : 'Bid'}
+              {data.isBuy ? 'Ask' : 'Bid'}
             </Typography>
             {isDealer ? (
               <>
@@ -275,12 +262,12 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
                     <Typography
                       variant="h6"
                       className={`${isDealer ? 'text-center' : 'text-right'} ${
-                        currentUser ? 'text-emerald-500' : 'text-stieglitz'
+                        currentUser ? 'text-emerald-500' : 'text-white'
                       } my-auto`}
                     >
-                      {bid.bidPrice} {data.data.quote}
+                      {bid.bidPrice} {data.quote}
                     </Typography>
-                    {user?.accountAddress === data.data.dealerAddress ? (
+                    {user?.accountAddress === data.dealerAddress ? (
                       <Box className="flex justify-end">
                         <Box className="flex flex-col text-right justify-end">
                           <Typography
@@ -304,7 +291,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
                         </Box>
                       </Box>
                     ) : null}
-                    {accountAddress === data.data.dealerAddress && (
+                    {accountAddress === data.dealerAddress && (
                       <Box className="flex justify-end">
                         <CustomButton
                           color="primary"
@@ -330,72 +317,24 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
           )}
           <Typography variant="h5">RFQ Details</Typography>
           <Box className="flex flex-col bg-umbra p-3 rounded-xl border space-y-2 border-mineshaft overflow-auto">
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Order Type
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.data.isBuy ? 'Buy' : 'Sell'}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Dealer
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.data.dealer}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Expiration
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {format(data.data.timestamp.seconds * 1000, 'H:mm, d LLL YYY')}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Status
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.data.isFulfilled ? 'Closed' : 'Open'}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Quote
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.data.quote}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Base
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.data.base}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Price
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.data.price} {data.data.quote}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Amount
-              </Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                {data.data.amount} tokens
-              </Typography>
-            </Box>
+            <DialogDataRow
+              info="Order Type"
+              value={data.isBuy ? 'Buy' : 'Sell'}
+            />
+            <DialogDataRow info="Dealer" value={data.dealer} />
+            <DialogDataRow
+              info="Expiration"
+              value={format(data.timestamp.seconds * 1000, 'H:mm, d LLL YYY')}
+            />
+            <DialogDataRow
+              info="Status"
+              value={data.isFulfilled ? 'Closed' : 'Open'}
+            />
+            <DialogDataRow info="Quote" value={data.quote} />
+            <DialogDataRow info="Base" value={data.base} />
+            <DialogDataRow info="Price" value={`${data.price} ${data.quote}`} />
+            <DialogDataRow info="Amount" value={`${data.amount} tokens`} />
           </Box>
-
           <Box className="flex justify-between px-2">
             <Typography variant="h5" className="text-stieglitz my-auto">
               Place Offer
@@ -420,7 +359,7 @@ const Bid = ({ open, handleClose, data }: BidDialogProps) => {
             onClick={handleSubmit}
             disabled={disabled}
           >
-            Place Offer
+            {user ? 'Place Offer' : 'Please Login'}
           </CustomButton>
         </Box>
       </Dialog>

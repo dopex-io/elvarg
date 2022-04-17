@@ -6,16 +6,23 @@ import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import format from 'date-fns/format';
 import TableFooter from '@mui/material/TableFooter';
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
 import TablePagination from '@mui/material/TablePagination';
+import IconButton from '@mui/material/IconButton';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Tooltip from '@mui/material/Tooltip';
+import grey from '@mui/material/colors/grey';
 import { collection, getDocs } from 'firebase/firestore';
+import format from 'date-fns/format';
+import delay from 'lodash/delay';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
-import CustomMenu from '../CustomMenu';
+import CustomMenu from 'craPages/otc/components/CustomMenu';
+import IndicativeRfqsSm from 'craPages/otc/body/Orders/IndicativeRfqs/IndicativeRfqsSm';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -63,19 +70,33 @@ const TableBodyCell = ({
   );
 };
 
-const IndicativeRfqTable = ({ filterFulfilled }) => {
+interface IndicativeRfqsProps {
+  smViewport: boolean;
+  filterFulfilled: boolean;
+  handleFilterFulfilled: () => void;
+}
+
+const IndicativeRfqs = (props: IndicativeRfqsProps) => {
+  const { smViewport, filterFulfilled, handleFilterFulfilled } = props;
   const { orders, validateUser } = useContext(OtcContext);
 
   const navigate = useNavigate();
 
+  const [copyState, setCopyState] = useState('Copy Address');
   const [page, setPage] = useState(0);
 
-  const handleChangePage = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
+  const handleChangePage = useCallback(
+    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+      setPage(newPage);
+    },
+    []
+  );
+
+  const handleCopy = useCallback((address: string) => {
+    setCopyState('Copied');
+    delay(() => setCopyState('Copy Address'), 500);
+    navigator.clipboard.writeText(address);
+  }, []);
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -105,7 +126,7 @@ const IndicativeRfqTable = ({ filterFulfilled }) => {
     [navigate, validateUser]
   );
 
-  return (
+  return !smViewport ? (
     <Box>
       <TableContainer className="rounded-t-lg border-umbra border border-b-0 max-h-80 overflow-auto p-0">
         <Table aria-label="rfq-table" className="bg-umbra">
@@ -119,7 +140,7 @@ const IndicativeRfqTable = ({ filterFulfilled }) => {
                 Open
               </TableHeader>
               <TableHeader align="left">Option</TableHeader>
-              <TableHeader align="center">Qty</TableHeader>
+              <TableHeader align="center">Size</TableHeader>
               <TableHeader align="center">Bid</TableHeader>
               <TableHeader align="center">Ask</TableHeader>
               <TableHeader align="right">Quote</TableHeader>
@@ -182,9 +203,22 @@ const IndicativeRfqTable = ({ filterFulfilled }) => {
                         <Typography variant="h6">
                           {smartTrim(row.data.dealer, 10)}
                         </Typography>
-                        <Typography variant="h6" className="text-stieglitz">
-                          {smartTrim(row.data.dealerAddress, 10)}
-                        </Typography>
+                        <Tooltip
+                          className="h-4 text-stieglitz"
+                          title={copyState}
+                          arrow={true}
+                        >
+                          <Box className="flex justify-end">
+                            <Typography
+                              variant="h6"
+                              className="text-stieglitz"
+                              role="button"
+                              onClick={() => handleCopy(row.data.dealerAddress)}
+                            >
+                              {smartTrim(row.data.dealerAddress, 8)}
+                            </Typography>
+                          </Box>
+                        </Tooltip>
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell align="right">
@@ -202,8 +236,9 @@ const IndicativeRfqTable = ({ filterFulfilled }) => {
                           Chat
                         </CustomButton>
                         <CustomMenu
-                          data={row}
-                          actions={['Bid-Ask', 'Close RFQ']}
+                          id={row.id}
+                          data={row.data}
+                          actions={['View RFQ', 'Close RFQ']}
                         />
                       </Box>
                     </TableBodyCell>
@@ -212,29 +247,58 @@ const IndicativeRfqTable = ({ filterFulfilled }) => {
           </TableBody>
         </Table>
         {filteredOrders.length === 0 && (
-          <TableFooter className="flex justify-center bg-cod-gray w-full text-center py-2">
+          <TableFooter
+            component="div"
+            className="flex justify-center bg-cod-gray w-full text-center py-2"
+          >
             <Typography variant="h6" className="text-stieglitz my-2 w-full">
               No trade deals available
             </Typography>
           </TableFooter>
         )}
       </TableContainer>
-      <Box className="text-stieglitz border border-t-0 border-umbra flex justify-center bg-cod-gray rounded-b-lg">
-        {filteredOrders.length > ROWS_PER_PAGE ? (
-          <TablePagination
-            component="div"
-            rowsPerPageOptions={[ROWS_PER_PAGE]}
-            count={filteredOrders?.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={ROWS_PER_PAGE}
-            ActionsComponent={TablePaginationActions}
-            className="text-white"
-          />
-        ) : null}
+      <Box className="text-stieglitz border border-t-0 border-umbra grid grid-cols-3 bg-cod-gray rounded-b-lg">
+        <Box className="col-span-1" />
+        <Box className="col-span-1">
+          {filteredOrders.length > ROWS_PER_PAGE ? (
+            <Box className="flex justify-around">
+              <TablePagination
+                component="div"
+                rowsPerPageOptions={[ROWS_PER_PAGE]}
+                count={filteredOrders?.length}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={ROWS_PER_PAGE}
+                ActionsComponent={TablePaginationActions}
+                className="text-white self-end overflow-x-hidden"
+              />
+            </Box>
+          ) : null}
+        </Box>
+        <Box className="col-span-1">
+          <Box className="flex justify-end h-full mr-1">
+            <Typography variant="h5" className="my-auto">
+              Show Fulfilled
+            </Typography>
+            <Checkbox
+              onClick={handleFilterFulfilled}
+              sx={{
+                color: grey[50],
+              }}
+              size="small"
+            />
+          </Box>
+        </Box>
       </Box>
     </Box>
+  ) : (
+    <IndicativeRfqsSm
+      filteredOrders={filteredOrders}
+      page={page}
+      handleChangePage={handleChangePage}
+      handleFilterFulfilled={handleFilterFulfilled}
+    />
   );
 };
 
-export default IndicativeRfqTable;
+export default IndicativeRfqs;
