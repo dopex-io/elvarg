@@ -98,8 +98,8 @@ const WritePositions = (props: { className?: string }) => {
       <Box className="balances-table text-white pb-4">
         <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
           {isEmpty(ssovUserData.writePositions) ? (
-            <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
-              Nothing here
+            <Box className="text-stieglitz text-center">
+              Your write positions will appear here.
             </Box>
           ) : (
             <Table>
