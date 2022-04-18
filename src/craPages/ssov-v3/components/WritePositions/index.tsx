@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
@@ -52,6 +52,14 @@ const WritePositions = (props: { className?: string }) => {
   const { selectedEpoch, ssovUserData } = useContext(SsovV3Context);
 
   const [page, setPage] = useState(0);
+
+  // Filtered out positions with zero collateral
+  const filteredWritePositions = useMemo(() => {
+    return ssovUserData.writePositions.filter(
+      (position) => !position.collateralAmount.isZero()
+    );
+  }, [ssovUserData.writePositions]);
+
   const [dialog, setDialog] = useState<
     undefined | { open: boolean; data: WritePositionInterface }
   >({
@@ -97,7 +105,7 @@ const WritePositions = (props: { className?: string }) => {
       </Box>
       <Box className="balances-table text-white pb-4">
         <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
-          {isEmpty(ssovUserData.writePositions) ? (
+          {isEmpty(filteredWritePositions) ? (
             <Box className="text-stieglitz text-center">
               Your write positions will appear here.
             </Box>
@@ -115,7 +123,7 @@ const WritePositions = (props: { className?: string }) => {
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
-                {ssovUserData.writePositions
+                {filteredWritePositions
                   .slice(
                     page * ROWS_PER_PAGE,
                     page * ROWS_PER_PAGE + ROWS_PER_PAGE
@@ -136,12 +144,12 @@ const WritePositions = (props: { className?: string }) => {
             </Table>
           )}
         </TableContainer>
-        {ssovUserData.writePositions.length > ROWS_PER_PAGE ? (
+        {filteredWritePositions.length > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"
             id="stats"
             rowsPerPageOptions={[ROWS_PER_PAGE]}
-            count={ssovUserData.writePositions.length}
+            count={filteredWritePositions.length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={ROWS_PER_PAGE}
