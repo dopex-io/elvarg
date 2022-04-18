@@ -53,7 +53,7 @@ const WritePositions = (props: { className?: string }) => {
 
   const [page, setPage] = useState(0);
 
-  // Filtered out positions with zero collateral until fixed on contract side
+  // Filtered out positions with zero collateral
   const filteredWritePositions = useMemo(() => {
     return ssovUserData.writePositions.filter(
       (position) => !position.collateralAmount.isZero()
