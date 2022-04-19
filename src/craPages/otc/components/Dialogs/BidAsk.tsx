@@ -64,7 +64,7 @@ const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
     orderBy('bidPrice', data.isBuy ? 'asc' : 'desc')
   );
 
-  const [bids] = useCollectionData(q, { idField: 'id' });
+  const [bids] = useCollectionData(q);
 
   const handleSubmit = useCallback(async () => {
     if (!user) return;

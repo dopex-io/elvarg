@@ -4,7 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
-import { doc, setDoc } from '@firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import delay from 'lodash/delay';
 
 import Dialog from 'components/UI/Dialog';
