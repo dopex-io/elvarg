@@ -17,7 +17,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import format from 'date-fns/format';
-import Tooltip from '@mui/material/Tooltip';
 
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
@@ -27,7 +26,6 @@ import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
 import { db } from 'utils/firebase/initialize';
-import CustomButton from 'components/UI/CustomButton';
 
 const Chatroom = () => {
   const chat = useParams();
@@ -53,9 +51,8 @@ const Chatroom = () => {
     orderBy('timestamp')
   );
 
-  const [msgs] = useCollectionData(q, { idField: 'id' });
+  const [msgs] = useCollectionData(q);
 
-  const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [fulfilled, setFulfilled] = useState(false);
 
@@ -94,17 +91,6 @@ const Chatroom = () => {
       setLoading(!msgs);
     })();
   }, [msgs, validateUser, formik, chat.id]);
-
-  useEffect(() => {
-    (async () => {
-      const docRef = (await getDocs(collection(db, 'chatrooms'))).docs.flatMap(
-        (doc) => doc
-      );
-      const result = docRef.find((doc) => doc.id === chat.id);
-
-      setAdmin(result.data().dealerAddress === accountAddress);
-    })();
-  }, [user, accountAddress, chat.id]);
 
   return (
     <Box className="bg-black min-h-screen">
