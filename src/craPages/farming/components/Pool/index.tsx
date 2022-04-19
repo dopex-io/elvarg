@@ -272,12 +272,14 @@ const Pool = ({
               TVL
             </Typography>
           </Box>
-          <Box className="flex flex-col mr-4">
-            <Typography variant="h4">{formatAmount(APR, 2)}%</Typography>
-            <Typography variant="h6" className="text-stieglitz">
-              APR
-            </Typography>
-          </Box>
+          {token.selectedBaseAsset === 'RDPX' ? null : (
+            <Box className="flex flex-col mr-4">
+              <Typography variant="h4">{formatAmount(APR, 2)}%</Typography>
+              <Typography variant="h6" className="text-stieglitz">
+                APR
+              </Typography>
+            </Box>
+          )}
         </Box>
       </Box>
       <Box className="flex flex-row justify-between w-full">

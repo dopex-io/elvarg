@@ -100,7 +100,7 @@ const Ssov = () => {
         42161: [
           ...data[42161],
           {
-            apy: 154,
+            apy: 76.28,
             chainId: 42161,
             currentEpoch: 1,
             epochEndDate: '1650614400',
