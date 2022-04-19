@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
