@@ -7,7 +7,7 @@ import Web3Modal from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
+import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/env';
 
 interface WalletContextInterface {
   accountAddress?: string;

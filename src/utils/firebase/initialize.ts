@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 
-import { FIREBASE_KEY, FIREBASE_PROJECT_ID } from 'constants/index';
+import { FIREBASE_KEY, FIREBASE_PROJECT_ID } from 'constants/env';
 
 const firebaseConfig = {
   // For Firebase JavaScript SDK v7.20.0 and later, `measurementId` is an optional field

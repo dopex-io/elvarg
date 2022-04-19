@@ -19,8 +19,8 @@ import { ethers, BigNumber } from 'ethers';
 
 import getAssetMapWithAddress from 'utils/general/getAssetMapWithAddress';
 
-import { AssetsContext } from './Assets';
-import { WalletContext } from './Wallet';
+import { AssetsContext } from '../../src/contexts/Assets';
+import { WalletContext } from '../../src/contexts/Wallet';
 
 import { TimePeriodEnum } from 'types';
 import getOptionPoolId from 'utils/contracts/getOptionPoolId';

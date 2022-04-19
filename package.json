@@ -8,8 +8,6 @@
     "build": "next build",
     "lint": "next lint",
     "generate": "graphql-codegen",
-    "contracts": "node ./scripts/contracts.js",
-    "evm": "cd ../core-contracts && yarn evm",
     "postinstall": "husky install"
   },
   "dependencies": {

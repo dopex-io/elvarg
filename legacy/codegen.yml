@@ -1,0 +1,11 @@
+generates:
+  ./src/graphql/generated/optionPools.ts:
+    schema: https://api.thegraph.com/subgraphs/name/psytama/dopex
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHooks: true
+      defaultScalarType: string
+    documents: 'src/graphql/optionPools/**/*.graphql'

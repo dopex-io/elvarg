@@ -22,8 +22,6 @@ import { OtcProvider } from 'contexts/Otc';
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { NftsProvider } from 'contexts/Nfts';
 
-// import { BUILD } from 'constants/index';
-
 import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
 
@@ -50,14 +48,6 @@ const PledgeTwoDiamondPepesNfts = lazy(
 );
 const Oracles = lazy(() => import('craPages/oracles'));
 const Tzwap = lazy(() => import('craPages/tzwap'));
-// const Portfolio = lazy(() => import('pages/portfolio'));
-// const Options = lazy(() => import('pages/options'));
-// const Pools = lazy(() => import('pages/pools'));
-// const PoolsMargin = lazy(() => import('craPages/pools/margin'));
-// const PoolsManage = lazy(() => import('pages/pools/manage'));
-// const PoolsVolume = lazy(() => import('pages/pools/volume'));
-// const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
-// const Swap = lazy(() => import('pages/swap'));
 
 const FarmRoutes = () => {
   return (
@@ -125,24 +115,6 @@ const NftsRoutes = () => {
 };
 
 function AppRoutes() {
-  // if (BUILD === 'testnet') {
-  //   return (
-  //     <BrowserRouter forceRefresh={false}>
-  //       <Suspense fallback={<PageLoader />}>
-  //         <Route path="/" element={<Options />} />
-  //         <Route path="/pools" element={<Pools />} />
-  //         <Route path="/pools/manage" element={<PoolsManage />} />
-  //         <Route path="/pools/volume" element={<PoolsVolume />} />
-  //         <Route path="/pools/margin" element={<PoolsMargin />} />
-  //         <Route path="/portfolio" element={<Portfolio />} />
-  //         <Route path="/faucet" element={<TestnetFaucet />} />
-  //         <Route path="/swap" element={<Swap />} />
-  //         <Route path="ssov/*" element={<SsovRoutes />} />
-  //         <Route path="*" element={<Error statusCode={404} />} />
-  //       </Suspense>
-  //     </BrowserRouter>
-  //   );
-  // }
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>

@@ -15,8 +15,8 @@ import {
 import { ApolloQueryResult } from '@apollo/client';
 import BigNumber from 'bignumber.js';
 
-import { AssetsContext } from './Assets';
-import { WalletContext } from './Wallet';
+import { AssetsContext } from '../../src/contexts/Assets';
+import { WalletContext } from '../../src/contexts/Wallet';
 
 import { optionPoolsClient } from 'graphql/apollo';
 
