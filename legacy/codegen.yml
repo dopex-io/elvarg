@@ -1,6 +1,6 @@
 generates:
-  ./src/graphql/generated/otc.ts:
-    schema: https://api.thegraph.com/subgraphs/name/psytama/dopex-otc
+  ./src/graphql/generated/optionPools.ts:
+    schema: https://api.thegraph.com/subgraphs/name/psytama/dopex
     plugins:
       - typescript
       - typescript-operations
@@ -8,4 +8,4 @@ generates:
     config:
       withHooks: true
       defaultScalarType: string
-    documents: 'src/graphql/otc/**/*.graphql'
+    documents: 'src/graphql/optionPools/**/*.graphql'

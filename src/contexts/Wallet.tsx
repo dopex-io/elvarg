@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
@@ -7,7 +7,7 @@ import Web3Modal from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
+import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/env';
 
 interface WalletContextInterface {
   accountAddress?: string;
