@@ -21,6 +21,15 @@ import sanitizeOptionSymbol from 'utils/general/sanitizeOptionSymbol';
 
 import { otcGraphClient } from 'graphql/apollo';
 
+import {
+  GetUserOpenOrdersDocument,
+  GetUserOpenOrdersQuery,
+  GetEscrowTransactionsDocument,
+  GetEscrowTransactionsQuery,
+  GetPendingOrdersAgainstUserDocument,
+  GetPendingOrdersAgainstUserQuery,
+} from 'graphql/generated/otc';
+
 import { ApolloQueryResult } from '@apollo/client';
 
 // contracts
