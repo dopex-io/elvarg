@@ -560,6 +560,13 @@ const ManageCard = ({
     chainId,
   ]);
 
+  const handleSwitchToPuts = useCallback(() => {
+    if (enabledSides.includes('PUT')) {
+      handleZapOut();
+      setActiveSsovContextSide('PUT');
+    }
+  }, [enabledSides]);
+
   const handleZapOut = useCallback(
     () =>
       setDepositTokenName(
@@ -910,11 +917,7 @@ const ManageCard = ({
                   ? 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
                   : 'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80 cursor-not-allowed'
               }
-              onClick={() =>
-                enabledSides.includes('PUT')
-                  ? setActiveSsovContextSide('PUT')
-                  : null
-              }
+              onClick={handleSwitchToPuts}
             >
               <Typography variant="h6" className="text-xs font-normal">
                 Puts
