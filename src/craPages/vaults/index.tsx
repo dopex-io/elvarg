@@ -100,24 +100,6 @@ const Ssov = () => {
         });
       }
 
-      processedData[42161]['Curve LP'] = {
-        name: 'Curve LP',
-        epochTimes: 1,
-        chainId: 42161,
-        currentEpoch: 1,
-        call: {
-          apy: 2,
-          tvl: 323232323,
-          currentEpoch: 1,
-          totalEpochDeposits: 2343243,
-        },
-        put: {
-          apy: 2,
-          tvl: 323232323,
-          currentEpoch: 1,
-          totalEpochDeposits: 2343243,
-        },
-      };
       setSsovs(processedData);
     }
     getData();
@@ -183,11 +165,11 @@ const Ssov = () => {
         </Box>
         {ssovs
           ? keys.map((key) => {
-              return (
+              return key !== 1088 ? (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />
                   <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-x-10 gap-y-10">
-                    {ssovs
+                    {ssovs[key]
                       ? Object.keys(ssovs[key]).map((symbol, index) => {
                           const ssov = ssovs[key][symbol];
                           let visible: boolean = false;
@@ -207,7 +189,7 @@ const Ssov = () => {
                       : null}
                   </Box>
                 </Box>
-              );
+              ) : null;
             })
           : null}
       </Box>

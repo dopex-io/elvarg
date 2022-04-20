@@ -122,7 +122,8 @@ interface AppBarProps {
     | 'vaults'
     | 'leaderboard'
     | 'swap'
-    | 'OTC';
+    | 'OTC'
+    | 'vaults';
 }
 
 export default function AppBar(props: AppBarProps) {

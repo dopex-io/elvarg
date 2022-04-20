@@ -22,8 +22,6 @@ import { OtcProvider } from 'contexts/Otc';
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { NftsProvider } from 'contexts/Nfts';
 
-// import { BUILD } from 'constants/index';
-
 import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
 
@@ -35,10 +33,11 @@ const Farming = lazy(() => import('craPages/farming/farms'));
 const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const Vaults = lazy(() => import('craPages/vaults'));
+
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
+const SsovV3Manage = lazy(() => import('craPages/ssov-v3/Manage'));
 const OtcPortal = lazy(() => import('craPages/otc'));
 const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
-// const SsovPutsManage = lazy(() => import('craPages/ssov/Manage/Puts'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
 const DiamondPepesNfts = lazy(() => import('craPages/nfts/diamondpepes'));
@@ -50,14 +49,6 @@ const PledgeTwoDiamondPepesNfts = lazy(
 );
 const Oracles = lazy(() => import('craPages/oracles'));
 const Tzwap = lazy(() => import('craPages/tzwap'));
-// const Portfolio = lazy(() => import('pages/portfolio'));
-// const Options = lazy(() => import('pages/options'));
-// const Pools = lazy(() => import('pages/pools'));
-// const PoolsMargin = lazy(() => import('craPages/pools/margin'));
-// const PoolsManage = lazy(() => import('pages/pools/manage'));
-// const PoolsVolume = lazy(() => import('pages/pools/volume'));
-// const TestnetFaucet = lazy(() => import('pages/testnet-faucet'));
-// const Swap = lazy(() => import('pages/swap'));
 
 const FarmRoutes = () => {
   return (
@@ -76,6 +67,26 @@ const VaultsRoutes = () => {
       <Routes>
         <Route path="*" element={<Vaults />} />
         <Route path=":asset" element={<SsovManage />} />
+      </Routes>
+    </BnbConversionProvider>
+  );
+};
+
+const SsovV3Routes = () => {
+  return (
+    <BnbConversionProvider>
+      <Routes>
+        <Route path=":type/:asset" element={<SsovV3Manage />} />
+      </Routes>
+    </BnbConversionProvider>
+  );
+};
+
+const SsovRoutes = () => {
+  return (
+    <BnbConversionProvider>
+      <Routes>
+        <Route path=":type/:asset" element={<SsovManage />} />
       </Routes>
     </BnbConversionProvider>
   );
@@ -115,24 +126,6 @@ const NftsRoutes = () => {
 };
 
 function AppRoutes() {
-  // if (BUILD === 'testnet') {
-  //   return (
-  //     <BrowserRouter forceRefresh={false}>
-  //       <Suspense fallback={<PageLoader />}>
-  //         <Route path="/" element={<Options />} />
-  //         <Route path="/pools" element={<Pools />} />
-  //         <Route path="/pools/manage" element={<PoolsManage />} />
-  //         <Route path="/pools/volume" element={<PoolsVolume />} />
-  //         <Route path="/pools/margin" element={<PoolsMargin />} />
-  //         <Route path="/portfolio" element={<Portfolio />} />
-  //         <Route path="/faucet" element={<TestnetFaucet />} />
-  //         <Route path="/swap" element={<Swap />} />
-  //         <Route path="ssov/*" element={<SsovRoutes />} />
-  //         <Route path="*" element={<Error statusCode={404} />} />
-  //       </Suspense>
-  //     </BrowserRouter>
-  //   );
-  // }
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
@@ -142,6 +135,8 @@ function AppRoutes() {
               <Route path="/" element={<Navigate to="/vaults" />} />
               <Route path="sale" element={<TokenSale />} />
               <Route path="vaults/*" element={<VaultsRoutes />} />
+              <Route path="ssov/*" element={<SsovRoutes />} />
+              <Route path="ssov/v3/*" element={<SsovV3Routes />} />
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />

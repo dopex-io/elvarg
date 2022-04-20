@@ -5,6 +5,7 @@ import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import DialogDataRow from 'craPages/otc/components/DialogDataRow';
 
 import { OtcContext } from 'contexts/Otc';
 
@@ -102,44 +103,23 @@ const ConfirmRfqDialog = ({
       <Box className="flex flex-col space-y-4">
         <Typography variant="h5">Create RFQ</Typography>
         <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Quote
-            </Typography>
-            <Typography variant="h6">
-              {smartTrim(data.quote.symbol, 24)}
-            </Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Base
-            </Typography>
-            <Typography variant="h6">
-              {smartTrim(data.base.symbol, 24)}
-            </Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Quantity
-            </Typography>
-            <Typography variant="h6">
-              {Number(data.amount)} {'doTokens'}
-            </Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Price
-            </Typography>
-            <Typography variant="h6">
-              {Number(data.price)} {data.quote.symbol}
-            </Typography>
-          </Box>
-          <Box className="flex justify-between">
-            <Typography variant="h6" className="text-stieglitz">
-              Order Type
-            </Typography>
-            <Typography variant="h6">{data.isBuy ? 'Buy' : 'Sell'}</Typography>
-          </Box>
+          <DialogDataRow
+            info="Quote"
+            value={smartTrim(data.quote.symbol, 24)}
+          />
+          <DialogDataRow info="Base" value={smartTrim(data.base.symbol, 24)} />
+          <DialogDataRow
+            info="Quantity"
+            value={`${Number(data.amount)} doTokens`}
+          />
+          <DialogDataRow
+            info="Price"
+            value={`${Number(data.price)} ${data.quote.symbol}`}
+          />
+          <DialogDataRow
+            info="Order Type"
+            value={data.isBuy ? 'Buy' : 'Sell'}
+          />
         </Box>
         <Box className="border border-umbra rounded-xl p-2">
           <Typography variant="h6" className="text-stieglitz text-center">

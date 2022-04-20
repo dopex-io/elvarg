@@ -5,12 +5,14 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/CustomButton';
+import DialogDataRow from 'craPages/otc/components/DialogDataRow';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
-import CustomButton from 'components/UI/CustomButton';
+
 import smartTrim from 'utils/general/smartTrim';
 
 interface WithdrawProps {
@@ -53,41 +55,25 @@ const Withdraw = ({ open, handleClose, data }: WithdrawProps) => {
         <Box className="flex flex-col space-y-4">
           <Typography variant="h5">Withdraw</Typography>
           <Box className="flex flex-col space-y-2 my-2 bg-umbra border border-mineshaft rounded-2xl p-3">
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Quote Asset
-              </Typography>
-              <Typography variant="h6">
-                {smartTrim(data.quote.symbol, 18)}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Base Asset
-              </Typography>
-              <Typography variant="h6">
-                {smartTrim(data.base.symbol, 18)}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Withdrawable
-              </Typography>
-              <Typography variant="h6">
-                {getUserReadableAmount(
-                  data.isBuy ? data.price : data.amount,
-                  18
-                ).toString()}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-stieglitz">
-                Counter Party
-              </Typography>
-              <Typography variant="h6">
-                {smartTrim(data.counterParty, 10)}
-              </Typography>
-            </Box>
+            <DialogDataRow
+              info="Quote Asset"
+              value={smartTrim(data.quote.symbol, 18)}
+            />
+            <DialogDataRow
+              info="Base Asset"
+              value={smartTrim(data.base.symbol, 18)}
+            />
+            <DialogDataRow
+              info="Withdrawable"
+              value={getUserReadableAmount(
+                data.isBuy ? data.price : data.amount,
+                18
+              ).toString()}
+            />
+            <DialogDataRow
+              info="Counter Party"
+              value={smartTrim(data.counterParty, 10)}
+            />
           </Box>
           <Box className="bg-down-bad bg-opacity-20 rounded-xl border border-down-bad border-opacity-30 p-3 flex-col text-center">
             <Typography variant="h5" className="text-down-bad font-bold">

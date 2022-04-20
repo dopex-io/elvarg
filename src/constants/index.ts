@@ -1,123 +1,11 @@
 import { BigNumber } from 'ethers';
 
-import { round100, round1, round1000 } from 'utils/math/rounding';
-
 export const CURRENCIES_MAP = {
   '1': 'ETH',
   '42161': 'ETH',
   '56': 'BNB',
   '43114': 'AVAX',
   '1088': 'METIS',
-};
-
-export const BASE_ASSET_MAP = {
-  WETH: {
-    fullName: 'Ethereum',
-    symbol: 'ETH',
-    _symbol: 'WETH',
-  },
-  WBTC: {
-    fullName: 'Bitcoin',
-    symbol: 'BTC',
-    _symbol: 'WBTC',
-  },
-  LINK: {
-    fullName: 'Chainlink',
-    symbol: 'LINK',
-    _symbol: 'LINK',
-  },
-  GOHM: {
-    fullName: 'Governance OHM',
-    symbol: 'GOHM',
-    _symbol: 'GOHM',
-  },
-  BNB: {
-    fullName: 'Binance Coin',
-    symbol: 'BNB',
-    _symbol: 'BNB',
-  },
-  VBNB: {
-    fullName: 'Venus BNB',
-    symbol: 'VBNB',
-    _symbol: 'VBNB',
-  },
-  YFI: {
-    fullName: 'Yearn',
-    symbol: 'YFI',
-    _symbol: 'YFI',
-  },
-  AVAX: {
-    fullName: 'AVAX',
-    symbol: 'AVAX',
-    _symbol: 'AVAX',
-  },
-  METIS: {
-    fullName: 'Metis DAO',
-    symbol: 'METIS',
-    _symbol: 'METIS',
-  },
-  CRV: {
-    fullName: 'CRV',
-    symbol: 'CRV',
-    _symbol: 'CRV',
-  },
-};
-
-export const QUOTE_ASSET_MAP = {
-  USDT: {
-    fullName: 'Tether',
-    symbol: 'USDT',
-    _symbol: 'USDT',
-    price: '1',
-  },
-};
-
-export const PRICE_INCREMENTS: {
-  [key: string]: { getBasePrice: Function; increment: number };
-} = {
-  WETH: {
-    getBasePrice: round100,
-    increment: 100,
-  },
-  WBTC: {
-    getBasePrice: round1000,
-    increment: 1000,
-  },
-  LINK: {
-    getBasePrice: round1,
-    increment: 1,
-  },
-  YFI: {
-    getBasePrice: round100,
-    increment: 250,
-  },
-};
-
-export const STAT_NAMES = {
-  transfer: {
-    strike: 'Strike Price',
-    expiry: 'Expiry',
-    amount: 'Balance',
-  },
-  exercise: {
-    strike: 'Strike Price',
-    price: 'Asset Price',
-    pnl: 'P&L',
-    expiry: 'Expiry',
-    amount: 'Amount',
-  },
-  swap: {
-    strike: 'Strike Price',
-    price: 'Asset Price',
-    pnl: 'P&L',
-    expiry: 'Expiry',
-  },
-  new_swap: {
-    strike: 'New Strike Price',
-    price: 'Asset Price',
-    pnl: 'New P&L',
-    expiry: 'New Expiry',
-  },
 };
 
 export const SSOV_PUTS_MAP = {
@@ -334,16 +222,6 @@ export const UNISWAP_LINKS: { [key: string]: string } = {
   RDPX: 'https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=0x32eb7902d4134bf98a28b963d26de779af92a212',
 };
 
-export const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
-
-export const ANKR_KEY = process.env.NEXT_PUBLIC_ANKR_KEY;
-
-export const BSC_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL;
-
-export const AVAX_RPC_URL = process.env.NEXT_PUBLIC_AVAX_RPC_URL;
-
-export const METIS_RPC_URL = process.env.NEXT_PUBLIC_METIS_RPC_URL;
-
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
   theta: 'θ',
@@ -353,12 +231,6 @@ export const GREEK_SYMBOLS = {
 
 export const DELEGATE_INFO: string =
   'Auto exercising will charge 1% of the total P&L as fee. (This is temporary and will be reduced heavily during our final launch).';
-
-export const BUILD: string = process.env.NEXT_PUBLIC_BUILD;
-
-export const FIREBASE_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-
-export const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
 export const S3_BUCKET_RESOURCES = {
   DPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/DPX.png',
@@ -407,4 +279,8 @@ export const TOKEN_DECIMALS = {
     USDT: 6,
     USDC: 6,
   },
+};
+
+const ADDRESS_TO_TOKENS = {
+  '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55': 'DPX',
 };

@@ -4,41 +4,41 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
+import BidAsk from 'craPages/otc/components/Dialogs/BidAsk';
+import CloseRfqDialog from 'craPages/otc/components/Dialogs/CloseRfqDialog';
+
 import { WalletContext } from 'contexts/Wallet';
 
-import Bid from '../Dialogs/Bid';
-import CloseRfqDialog from '../Dialogs/CloseRfqDialog';
-
 interface CustomMenuProps {
+  id: string;
   data: {
-    data: {
-      isBuy: boolean;
-      dealer: string;
-      dealerAddress: string;
-      quote: string;
-      base: string;
-      price: string;
-      amount: string;
-      timestamp: any;
-      isFulfilled: boolean;
-    };
+    isBuy: boolean;
+    dealer: string;
+    dealerAddress: string;
+    quote: string;
+    base: string;
+    price: string;
+    amount: string;
+    timestamp: any;
+    isFulfilled: boolean;
   };
   actions?: string[];
 }
 
 const DIALOGS = {
-  BID: Bid,
+  BID_ASK: BidAsk,
   CLOSE: CloseRfqDialog,
 };
 
 const CustomMenu = (props: CustomMenuProps) => {
+  const { data, actions, id } = props;
+
   const { accountAddress } = useContext(WalletContext);
-  const { data, actions } = props;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogState, setDialogState] = useState({
     open: false,
-    type: 'BID',
+    type: 'BID_ASK',
     handleClose: () => {},
     data: {},
   });
@@ -72,7 +72,7 @@ const CustomMenu = (props: CustomMenuProps) => {
         size="small"
         onClick={handleClick}
         className="text-white rounded px-0 ml-1"
-        disabled={data.data.isFulfilled}
+        disabled={data.isFulfilled}
         disableRipple
       >
         <MoreVert className="fill-current text-white" />
@@ -86,14 +86,12 @@ const CustomMenu = (props: CustomMenuProps) => {
         className="text-white rounded px-0 ml-1"
         classes={{ paper: 'bg-umbra text-white py-0' }}
       >
-        <MenuItem onClick={() => handleMenuClick(data, 'BID')}>
+        <MenuItem onClick={() => handleMenuClick(data, 'BID_ASK')}>
           {actions[0]}
         </MenuItem>
         <MenuItem
           onClick={() => handleMenuClick(data, 'CLOSE')}
-          disabled={
-            accountAddress !== data.data.dealerAddress || data.data.isFulfilled
-          }
+          disabled={accountAddress !== data.dealerAddress || data.isFulfilled}
         >
           {actions[1]}
         </MenuItem>
@@ -102,6 +100,7 @@ const CustomMenu = (props: CustomMenuProps) => {
         open={dialogState.open}
         handleClose={handleCloseDialog}
         data={data}
+        id={id}
       />
     </>
   );

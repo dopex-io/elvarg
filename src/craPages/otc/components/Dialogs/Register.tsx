@@ -4,7 +4,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import noop from 'lodash/noop';
-import { doc, setDoc } from '@firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
+import delay from 'lodash/delay';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -17,7 +18,6 @@ import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
 
 import { db } from 'utils/firebase/initialize';
-import { delay } from 'lodash';
 
 interface RegisterProps {
   open: boolean;

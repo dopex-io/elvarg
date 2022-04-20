@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
@@ -7,7 +7,7 @@ import Web3Modal from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/index';
+import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/env';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -56,6 +56,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/vaults/AVAX': [43114],
   '/vaults/CRV': [42161],
   '/vaults/METIS': [1088],
+  '/ssov': [42161, 56, 43114, 1088],
+  '/ssov/v3/call/ETH': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
   '/nfts/diamondpepes': [42161],
