@@ -283,13 +283,15 @@ export const SsovV3Provider = (props) => {
           _ssovContract.getUnderlyingPrice(),
         ]);
 
+        const epochData = await _ssovContract.getEpochData(currentEpoch);
+
         setSelectedEpoch(Number(currentEpoch) === 0 ? 1 : Number(currentEpoch));
 
         _ssovData = {
           tokenName: 'WETH',
           ssovContract: _ssovContract,
           currentEpoch: Number(currentEpoch),
-          isCurrentEpochExpired: false,
+          isCurrentEpochExpired: epochData.expired,
           tokenPrice,
           ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
             '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
