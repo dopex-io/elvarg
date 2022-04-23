@@ -33,6 +33,7 @@ function SsovCard(props) {
     type,
     underlyingDecimals,
     timeFrame,
+    retired,
   } = data;
 
   const info = useMemo(() => {
@@ -93,7 +94,12 @@ function SsovCard(props) {
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h4" className="mr-2 font-bold">
-                {name} {timeFrame}
+                {name} {timeFrame}{' '}
+                {retired ? (
+                  <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
+                    RETIRED
+                  </span>
+                ) : null}
               </Typography>
               <img
                 src={'/assets/' + type + 's.svg'}
@@ -110,7 +116,13 @@ function SsovCard(props) {
           <CustomButton
             size="medium"
             className="my-4"
-            href={timeFrame ? '/ssov/v3/call/ETH' : `/ssov/${type}/${name}`}
+            href={
+              timeFrame
+                ? retired
+                  ? '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3'
+                  : '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3-2'
+                : `/ssov/${type}/${name}`
+            }
             fullWidth
           >
             Manage

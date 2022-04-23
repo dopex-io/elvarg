@@ -20,6 +20,7 @@ import { AssetsContext } from './Assets';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export interface SsovV3Interface {
+  ssov?: string;
   underlying?: string;
   symbol?: string;
   type?: 'CALL' | 'PUT';
@@ -101,6 +102,7 @@ export const SsovV3Provider = (props) => {
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsovV3, setSelectedSsovV3] = useState<SsovV3Interface>({
+    ssov: 'ETH-WEEKLY-CALLS-SSOV-V3',
     symbol: 'ETH',
     type: 'CALL',
   });
@@ -121,7 +123,10 @@ export const SsovV3Provider = (props) => {
     )
       return;
 
-    const ssovAddress = '0x376bEcbc031dd53Ffc62192043dE43bf491988FD';
+    if (!contractAddresses['SSOV-V3']) return;
+
+    const ssovAddress =
+      contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
 
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -174,7 +179,10 @@ export const SsovV3Provider = (props) => {
   const updateSsovV3EpochData = useCallback(async () => {
     if (!contractAddresses || !selectedEpoch || !selectedSsovV3) return;
 
-    const ssovAddress = '0x376bEcbc031dd53Ffc62192043dE43bf491988FD';
+    if (!contractAddresses['SSOV-V3']) return;
+
+    const ssovAddress =
+      contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
     const ssovViewerContract = SsovV3Viewer__factory.connect(
@@ -265,7 +273,7 @@ export const SsovV3Provider = (props) => {
     if (
       !provider ||
       !contractAddresses ||
-      !contractAddresses.SSOV ||
+      !contractAddresses['SSOV-V3'] ||
       !selectedSsovV3
     )
       return;
@@ -273,7 +281,8 @@ export const SsovV3Provider = (props) => {
     async function update() {
       let _ssovData: SsovV3Data;
 
-      const ssovAddress = '0x376bEcbc031dd53Ffc62192043dE43bf491988FD';
+      const ssovAddress =
+        contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
 
       const _ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -283,9 +292,12 @@ export const SsovV3Provider = (props) => {
           _ssovContract.getUnderlyingPrice(),
         ]);
 
-        const epochData = await _ssovContract.getEpochData(currentEpoch);
+        const _currentEpoch =
+          Number(currentEpoch) === 0 ? 1 : Number(currentEpoch);
 
-        setSelectedEpoch(Number(currentEpoch) === 0 ? 1 : Number(currentEpoch));
+        const epochData = await _ssovContract.getEpochData(_currentEpoch);
+
+        setSelectedEpoch(_currentEpoch);
 
         _ssovData = {
           tokenName: 'WETH',
@@ -313,7 +325,10 @@ export const SsovV3Provider = (props) => {
 
     let _ssovSigner;
 
-    const ssovAddress = '0x376bEcbc031dd53Ffc62192043dE43bf491988FD';
+    if (!contractAddresses['SSOV-V3']) return;
+
+    const ssovAddress =
+      contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
 
     const _ssovContractWithSigner = SsovV3__factory.connect(
       ssovAddress,

@@ -37,7 +37,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Ssov = () => {
-  const { chainId, provider } = useContext(WalletContext);
+  const { chainId, provider, contractAddresses } = useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
 
   const [ssovs, setSsovs] = useState(null);
@@ -80,42 +80,49 @@ const Ssov = () => {
         .get('https://api.dopex.io/api/v1/ssov')
         .then((payload) => payload.data);
 
-      const _contract = SsovV3Viewer__factory.connect(
-        '0x426eDe8BF1A523d288470e245a343B599c2128da',
-        provider
-      );
+      // const _contract = SsovV3Viewer__factory.connect(
+      //   '0x426eDe8BF1A523d288470e245a343B599c2128da',
+      //   provider
+      // );
 
-      const totalEpochStrikeDeposits =
-        await _contract.getTotalEpochStrikeDeposits(
-          1,
-          '0x376bEcbc031dd53Ffc62192043dE43bf491988FD'
-        );
+      // const totalEpochStrikeDeposits =
+      //   await _contract.getTotalEpochStrikeDeposits(
+      //     1,
+      //     contractAddresses['SSOV-V3'].VAULTS['ETH-WEEKLY-CALLS-SSOV-V3-2']
+      //   );
 
-      const totalEpochDeposits = totalEpochStrikeDeposits.reduce((acc, val) => {
-        return acc.add(val);
-      }, BigNumber.from(0));
+      // const totalEpochDeposits = totalEpochStrikeDeposits.reduce((acc, val) => {
+      //   return acc.add(val);
+      // }, BigNumber.from(0));
 
       data = {
         ...data,
         42161: [
           ...data[42161],
           {
-            apy: 76.28,
+            apy: 0,
             chainId: 42161,
             currentEpoch: 1,
             epochEndDate: '1650614400',
             epochStartDate: '1649750400',
             name: 'ETH',
-            totalEpochDeposits: totalEpochDeposits.toString(),
-            tvl: ethers.utils.formatEther(
-              totalEpochDeposits
-                .mul(
-                  ethers.utils.parseEther(
-                    String(tokenPrices.find(({ name }) => name === 'ETH').price)
-                  )
-                )
-                .div('1000000000000000000')
-            ),
+            totalEpochDeposits: '0',
+            tvl: '0',
+            type: 'call',
+            underlyingDecimals: 18,
+            underlyingPrice: 0,
+            timeFrame: 'weekly',
+            retired: true,
+          },
+          {
+            apy: 0,
+            chainId: 42161,
+            currentEpoch: 1,
+            epochEndDate: '1650614400',
+            epochStartDate: '1649750400',
+            name: 'ETH',
+            totalEpochDeposits: '0',
+            tvl: '0',
             type: 'call',
             underlyingDecimals: 18,
             underlyingPrice: 0,
