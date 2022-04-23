@@ -162,7 +162,7 @@ const PurchaseDialog = ({
     async function updateOptionPrice() {
       const strike = epochStrikes[strikeIndex];
       try {
-        const expiry = 1650614400;
+        const expiry = 1651219200;
 
         const volatility = (
           await ssovContract.getVolatility(strike)
@@ -172,6 +172,8 @@ const PurchaseDialog = ({
           '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
           provider
         );
+
+        console.log(isPut, expiry, strike, tokenPrice, volatility);
 
         const optionPrice = await ssovOptionPricingContract.getOptionPrice(
           isPut,
@@ -187,6 +189,8 @@ const PurchaseDialog = ({
           strike,
           ethersUtils.parseEther(String(optionsAmount))
         );
+
+        console.log('Asdas');
 
         let totalCost = premium
           .mul('1000000000000000000')
