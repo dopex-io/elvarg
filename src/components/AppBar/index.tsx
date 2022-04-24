@@ -114,6 +114,7 @@ interface AppBarProps {
     | 'portfolio'
     | 'token sale'
     | 'faucet'
+    | 'rate vaults'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
