@@ -50,6 +50,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
 
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<string>('0');
+  const [approved, setApproved] = useState(false);
 
   const { epochStrikes, epochStrikeTokens } = ssovEpochData;
 
@@ -68,10 +69,10 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     setUserEpochStrikeTokenBalance(_userEpochStrikeTokenBalance.toString());
   }, [epochStrikeToken, accountAddress, provider]);
 
-  const handleSettle = useCallback(() => {
+  const handleSettle = useCallback(async () => {
     if (!accountAddress || !epochStrikeToken) return;
     try {
-      sendTx(
+      await sendTx(
         ssovSigner.ssovContractWithSigner.settle(
           strikeIndex,
           userEpochStrikeTokenBalance,
@@ -94,6 +95,49 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     updateSsovV3EpochData,
     updateSsovV3UserData,
     updateUserEpochStrikeTokenBalance,
+  ]);
+
+  const handleApprove = useCallback(async () => {
+    if (!accountAddress || !epochStrikeToken) return;
+    try {
+      const optionsToken = ERC20__factory.connect(epochStrikeToken, provider);
+
+      await sendTx(
+        optionsToken.approve(
+          ssovSigner.ssovContractWithSigner.address,
+          userEpochStrikeTokenBalance
+        )
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }, [
+    accountAddress,
+    epochStrikeToken,
+    provider,
+    ssovSigner.ssovContractWithSigner.address,
+    userEpochStrikeTokenBalance,
+    sendTx,
+  ]);
+
+  useEffect(() => {
+    async function checkAllowance() {
+      const optionsToken = ERC20__factory.connect(epochStrikeToken, provider);
+
+      const allowance = await optionsToken.allowance(
+        accountAddress,
+        ssovSigner.ssovContractWithSigner.address
+      );
+
+      setApproved(allowance.gte(userEpochStrikeTokenBalance));
+    }
+    checkAllowance();
+  }, [
+    accountAddress,
+    epochStrikeToken,
+    provider,
+    ssovSigner.ssovContractWithSigner.address,
+    userEpochStrikeTokenBalance,
   ]);
 
   useEffect(() => {
@@ -131,8 +175,12 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
           />
           <Stat name="Epoch" value={`${selectedEpoch}`} />
         </Box>
-        <CustomButton className="w-full my-4" onClick={handleSettle} size="xl">
-          Settle
+        <CustomButton
+          className="w-full my-4"
+          onClick={approved ? handleSettle : handleApprove}
+          size="xl"
+        >
+          {approved ? 'Settle' : 'Approve'}
         </CustomButton>
       </Box>
     </Dialog>
