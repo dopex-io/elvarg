@@ -2083,8 +2083,6 @@ export const RateVault = () => {
 
   useEffect(() => {
     async function update() {
-      let _rateVaultData: RateVaultData;
-
       const rateVaultAddresses = '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a';
 
       const _rateVaultContract = new ethers.Contract(
@@ -2093,7 +2091,14 @@ export const RateVault = () => {
         signer
       );
 
-      const currentEpoch = await _rateVaultContract.currentEpoch();
+      let currentEpoch;
+
+      try {
+        currentEpoch = await _rateVaultContract.currentEpoch();
+      } catch (err) {
+        console.log(err);
+        return;
+      }
 
       setSelectedEpoch(Number(currentEpoch));
 
