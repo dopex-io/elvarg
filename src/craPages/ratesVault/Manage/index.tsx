@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -23,7 +23,7 @@ import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
 const Manage = () => {
   const { accountAddress } = useContext(WalletContext);
-  const { poolName } = useParams();
+  const params = useParams();
   const rateVaultContext = useContext(RateVaultContext);
   const { setSelectedPoolName } = rateVaultContext;
   const [activeVaultContextSide, setActiveVaultContextSide] =
@@ -32,8 +32,12 @@ const Manage = () => {
   const [strikeIndex, setStrikeIndex] = useState<number | null>(null);
   const showWithdrawalInformation: boolean = true;
 
+  const poolName = useMemo(() => {
+    return params['poolName'];
+  }, [params]);
+
   useEffect(() => {
-    setSelectedPoolName(poolName);
+    if (poolName) setSelectedPoolName(poolName);
   }, [rateVaultContext, poolName]);
 
   if (!rateVaultContext.rateVaultEpochData?.epochStartTimes)

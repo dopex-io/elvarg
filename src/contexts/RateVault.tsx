@@ -1890,133 +1890,195 @@ export const RateVault = () => {
   );
 
   const updateRateVaultEpochData = useCallback(async () => {
-    if (!selectedEpoch || !selectedPoolName) return;
-
+    if (selectedEpoch === null || !selectedPoolName) return;
     const lpPrice = await rateVaultContract.getLpPrice();
 
-    const promises = await Promise.all([
-      getEpochData(),
-      getTotalEpochData(),
-      getEpochLeverages(),
-      getEpochPremiums(),
-      getEpochStrikes(),
-    ]);
+    try {
+      const promises = await Promise.all([
+        getEpochData(),
+        getTotalEpochData(),
+        getEpochLeverages(),
+        getEpochPremiums(),
+        getEpochStrikes(),
+      ]);
 
-    const epochStrikes = promises[4];
-    const epochCallsStrikeTokens = promises[0][1];
-    const epochPutsStrikeTokens = promises[0][2];
+      const epochStrikes = promises[4];
+      const epochCallsStrikeTokens = promises[0][1];
+      const epochPutsStrikeTokens = promises[0][2];
 
-    let epochTimes;
+      let epochTimes;
 
-    epochTimes = await rateVaultContract.getEpochTimes(
-      Math.max(selectedEpoch, 1)
-    );
+      epochTimes = await rateVaultContract.getEpochTimes(
+        Math.max(selectedEpoch, 1)
+      );
 
-    const callsDepositsPromises = [];
-    const putsDepositsPromises = [];
-    const callsPremiumCostsPromises = [];
-    const putsPremiumCostsPromises = [];
-    const callsFeesPromises = [];
-    const putsFeesPromises = [];
-    const curveLpPrice = await rateVaultContract.getLpPrice();
-    const usdPrice = await rateVaultContract.getCurrentRate();
-    const volatilitiesPromises = [];
+      const callsDepositsPromises = [];
+      const putsDepositsPromises = [];
+      const callsPremiumCostsPromises = [];
+      const putsPremiumCostsPromises = [];
+      const callsFeesPromises = [];
+      const putsFeesPromises = [];
+      const curveLpPrice = await rateVaultContract.getLpPrice();
+      const usdPrice = await rateVaultContract.getCurrentRate();
+      const volatilitiesPromises = [];
 
-    for (let i in epochStrikes) {
-      volatilitiesPromises.push(
-        rateVaultContract.getVolatility(epochStrikes[i])
+      for (let i in epochStrikes) {
+        volatilitiesPromises.push(
+          rateVaultContract.getVolatility(epochStrikes[i])
+        );
+        callsDepositsPromises.push(
+          getTotalStrikeDeposits(epochCallsStrikeTokens[i])
+        );
+        putsDepositsPromises.push(
+          getTotalStrikeDeposits(epochPutsStrikeTokens[i])
+        );
+        callsPremiumCostsPromises.push(
+          calculatePremium(epochStrikes[i], false)
+        );
+        putsPremiumCostsPromises.push(calculatePremium(epochStrikes[i], true));
+        callsFeesPromises.push(
+          rateVaultContract.calculatePurchaseFees(
+            curveLpPrice,
+            epochStrikes[i],
+            BigNumber.from('1000000000000000000'),
+            false
+          )
+        );
+        putsFeesPromises.push(
+          rateVaultContract.calculatePurchaseFees(
+            curveLpPrice,
+            epochStrikes[i],
+            BigNumber.from('1000000000000000000'),
+            true
+          )
+        );
+      }
+
+      const volatilities = await Promise.all(volatilitiesPromises);
+      const callsDeposits = await Promise.all(callsDepositsPromises);
+      const putsDeposits = await Promise.all(putsDepositsPromises);
+      const callsPremiumCosts = await Promise.all(callsPremiumCostsPromises);
+      const putsPremiumCosts = await Promise.all(putsPremiumCostsPromises);
+      const callsFees = await Promise.all(callsFeesPromises);
+      const putsFees = await Promise.all(putsFeesPromises);
+
+      const callsLeverages = promises[2][0];
+      const putsLeverages = promises[2][1];
+
+      let totalCallsPremiums = BigNumber.from('0');
+      let totalPutsPremiums = BigNumber.from('0');
+
+      for (let i in promises[3][0]) {
+        totalCallsPremiums = totalCallsPremiums.add(promises[3][0][i]);
+        totalPutsPremiums = totalPutsPremiums.add(promises[3][1][i]);
+      }
+
+      const callsCosts = [];
+      const putsCosts = [];
+
+      for (let i in callsPremiumCosts) {
+        callsCosts.push(callsPremiumCosts[i].add(callsFees[i]));
+        putsCosts.push(putsPremiumCosts[i].add(putsFees[i]));
+      }
+
+      setRateVaultEpochData({
+        volatilities: volatilities,
+        callsFees: callsFees,
+        putsFees: putsFees,
+        callsPremiumCosts: callsPremiumCosts,
+        putsPremiumCosts: putsPremiumCosts,
+        lpPrice: lpPrice,
+        callsCosts: callsCosts,
+        putsCosts: putsCosts,
+        totalCallsPremiums: totalCallsPremiums,
+        totalPutsPremiums: totalPutsPremiums,
+        callsDeposits: callsDeposits,
+        putsDeposits: putsDeposits,
+        totalCallsPurchased: BigNumber.from('0'),
+        totalPutsPurchased: BigNumber.from('0'),
+        totalCallsDeposits: promises[1][0],
+        totalPutsDeposits: promises[1][1],
+        totalTokenDeposits: promises[1][2],
+        epochCallsPremium: promises[1][5],
+        epochPutsPremium: promises[1][6],
+        epochStartTimes: promises[1][7],
+        epochEndTimes: epochTimes[1],
+        epochTimes: epochTimes,
+        isEpochExpired: promises[1][9],
+        isVaultReady: promises[1][10],
+        epochBalanceAfterUnstaking: promises[1][8],
+        crvToDistribute: promises[1][11],
+        rateAtSettlement: promises[1][12],
+        epochStrikes: epochStrikes,
+        callsLeverages: callsLeverages,
+        putsLeverages: putsLeverages,
+        callsToken: epochCallsStrikeTokens,
+        putsToken: epochPutsStrikeTokens,
+        epochStrikeCallsPremium: promises[3][0],
+        epochStrikePutsPremium: promises[3][1],
+        curveLpPrice: curveLpPrice,
+        usdPrice: usdPrice,
+      });
+    } catch (err) {
+      const epochTimes = await rateVaultContract.getEpochTimes(
+        Math.max(selectedEpoch, 1)
       );
-      callsDepositsPromises.push(
-        getTotalStrikeDeposits(epochCallsStrikeTokens[i])
-      );
-      putsDepositsPromises.push(
-        getTotalStrikeDeposits(epochPutsStrikeTokens[i])
-      );
-      callsPremiumCostsPromises.push(calculatePremium(epochStrikes[i], false));
-      putsPremiumCostsPromises.push(calculatePremium(epochStrikes[i], true));
-      callsFeesPromises.push(
-        rateVaultContract.calculatePurchaseFees(
-          curveLpPrice,
-          epochStrikes[i],
-          BigNumber.from('1000000000000000000'),
-          false
-        )
-      );
-      putsFeesPromises.push(
-        rateVaultContract.calculatePurchaseFees(
-          curveLpPrice,
-          epochStrikes[i],
-          BigNumber.from('1000000000000000000'),
-          true
-        )
-      );
+      const curveLpPrice = await rateVaultContract.getLpPrice();
+      const usdPrice = BigNumber.from('100000000');
+      setRateVaultEpochData({
+        volatilities: [],
+        callsFees: [],
+        putsFees: [],
+        callsPremiumCosts: [],
+        putsPremiumCosts: [],
+        lpPrice: lpPrice,
+        callsCosts: [],
+        putsCosts: [],
+        totalCallsPremiums: BigNumber.from('0'),
+        totalPutsPremiums: BigNumber.from('0'),
+        callsDeposits: [],
+        putsDeposits: [],
+        totalCallsPurchased: BigNumber.from('0'),
+        totalPutsPurchased: BigNumber.from('0'),
+        totalCallsDeposits: BigNumber.from('0'),
+        totalPutsDeposits: BigNumber.from('0'),
+        totalTokenDeposits: BigNumber.from('0'),
+        epochCallsPremium: BigNumber.from('0'),
+        epochPutsPremium: BigNumber.from('0'),
+        epochStartTimes: epochTimes[0],
+        epochEndTimes: epochTimes[1],
+        epochTimes: epochTimes,
+        isEpochExpired: true,
+        isVaultReady: false,
+        epochBalanceAfterUnstaking: BigNumber.from('0'),
+        crvToDistribute: BigNumber.from('0'),
+        rateAtSettlement: BigNumber.from('0'),
+        epochStrikes: [
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+        ],
+        callsLeverages: [],
+        putsLeverages: [],
+        callsToken: [],
+        putsToken: [],
+        epochStrikeCallsPremium: [
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+        ],
+        epochStrikePutsPremium: [
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+          BigNumber.from('0'),
+        ],
+        curveLpPrice: curveLpPrice,
+        usdPrice: usdPrice,
+      });
     }
-
-    const volatilities = await Promise.all(volatilitiesPromises);
-    const callsDeposits = await Promise.all(callsDepositsPromises);
-    const putsDeposits = await Promise.all(putsDepositsPromises);
-    const callsPremiumCosts = await Promise.all(callsPremiumCostsPromises);
-    const putsPremiumCosts = await Promise.all(putsPremiumCostsPromises);
-    const callsFees = await Promise.all(callsFeesPromises);
-    const putsFees = await Promise.all(putsFeesPromises);
-
-    const callsLeverages = promises[2][0];
-    const putsLeverages = promises[2][1];
-
-    let totalCallsPremiums = BigNumber.from('0');
-    let totalPutsPremiums = BigNumber.from('0');
-
-    for (let i in promises[3][0]) {
-      totalCallsPremiums = totalCallsPremiums.add(promises[3][0][i]);
-      totalPutsPremiums = totalPutsPremiums.add(promises[3][1][i]);
-    }
-
-    const callsCosts = [];
-    const putsCosts = [];
-
-    for (let i in callsPremiumCosts) {
-      callsCosts.push(callsPremiumCosts[i].add(callsFees[i]));
-      putsCosts.push(putsPremiumCosts[i].add(putsFees[i]));
-    }
-
-    setRateVaultEpochData({
-      volatilities: volatilities,
-      callsFees: callsFees,
-      putsFees: putsFees,
-      callsPremiumCosts: callsPremiumCosts,
-      putsPremiumCosts: putsPremiumCosts,
-      lpPrice: lpPrice,
-      callsCosts: callsCosts,
-      putsCosts: putsCosts,
-      totalCallsPremiums: totalCallsPremiums,
-      totalPutsPremiums: totalPutsPremiums,
-      callsDeposits: callsDeposits,
-      putsDeposits: putsDeposits,
-      totalCallsPurchased: BigNumber.from('0'),
-      totalPutsPurchased: BigNumber.from('0'),
-      totalCallsDeposits: promises[1][0],
-      totalPutsDeposits: promises[1][1],
-      totalTokenDeposits: promises[1][2],
-      epochCallsPremium: promises[1][5],
-      epochPutsPremium: promises[1][6],
-      epochStartTimes: promises[1][7],
-      epochEndTimes: epochTimes[1],
-      epochTimes: epochTimes,
-      isEpochExpired: promises[1][9],
-      isVaultReady: promises[1][10],
-      epochBalanceAfterUnstaking: promises[1][8],
-      crvToDistribute: promises[1][11],
-      rateAtSettlement: promises[1][12],
-      epochStrikes: epochStrikes,
-      callsLeverages: callsLeverages,
-      putsLeverages: putsLeverages,
-      callsToken: epochCallsStrikeTokens,
-      putsToken: epochPutsStrikeTokens,
-      epochStrikeCallsPremium: promises[3][0],
-      epochStrikePutsPremium: promises[3][1],
-      curveLpPrice: curveLpPrice,
-      usdPrice: usdPrice,
-    });
   }, [rateVaultContract, contractAddresses, selectedEpoch, provider]);
 
   useEffect(() => {

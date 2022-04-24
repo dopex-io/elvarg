@@ -34,7 +34,7 @@ const FarmingManage = lazy(() => import('craPages/farming/manage'));
 const TokenSale = lazy(() => import('craPages/sale'));
 const SsovManage = lazy(() => import('craPages/ssov/Manage'));
 const Ssov = lazy(() => import('craPages/ssov'));
-const RatesVault = lazy(() => import('craPages/ratesVault/Manage'));
+const RatesVaultManage = lazy(() => import('craPages/ratesVault/Manage'));
 const SsovV3Manage = lazy(() => import('craPages/ssov-v3/Manage'));
 const OtcPortal = lazy(() => import('craPages/otc'));
 const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
@@ -76,7 +76,7 @@ const VaultsRoutes = () => {
   return (
     <BnbConversionProvider>
       <Routes>
-        <Route path=":pool" element={<RatesVault />} />
+        <Route path=":poolName" element={<RatesVaultManage />} />
       </Routes>
     </BnbConversionProvider>
   );
