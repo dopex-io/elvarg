@@ -342,11 +342,6 @@ const Farms = () => {
                         Icon={'/assets/rdpx_weth.svg'}
                         poolInfo={rDPX_WETHPool}
                       />
-                      <Pool
-                        token={RDPX}
-                        Icon={'/assets/rdpx.svg'}
-                        poolInfo={RDPXPool}
-                      />
                     </Box>
                   )}
                 </Box>
