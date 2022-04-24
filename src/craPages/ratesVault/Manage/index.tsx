@@ -22,6 +22,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
 const Manage = () => {
+  const { accountAddress, connect } = useContext(WalletContext);
   const params = useParams();
   const rateVaultContext = useContext(RateVaultContext);
   const { setSelectedPoolName } = rateVaultContext;
@@ -34,6 +35,10 @@ const Manage = () => {
   const poolName = useMemo(() => {
     return params['poolName'];
   }, [params]);
+
+  useEffect(() => {
+    if (!accountAddress) connect();
+  }, [accountAddress]);
 
   useEffect(() => {
     if (poolName) setSelectedPoolName(poolName);
