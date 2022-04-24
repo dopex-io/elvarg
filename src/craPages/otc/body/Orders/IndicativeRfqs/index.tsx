@@ -10,8 +10,6 @@ import TableFooter from '@mui/material/TableFooter';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import TablePagination from '@mui/material/TablePagination';
-import IconButton from '@mui/material/IconButton';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Tooltip from '@mui/material/Tooltip';
 import grey from '@mui/material/colors/grey';
 import { collection, getDocs } from 'firebase/firestore';
@@ -29,6 +27,7 @@ import { OtcContext } from 'contexts/Otc';
 import smartTrim from 'utils/general/smartTrim';
 import { db } from 'utils/firebase/initialize';
 import formatAmount from 'utils/general/formatAmount';
+import getAssetFromOptionSymbol from 'utils/general/getAssetFromOptionSymbol';
 
 const ROWS_PER_PAGE = 5;
 
@@ -132,9 +131,7 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
         <Table aria-label="rfq-table" className="bg-umbra">
           <TableHead>
             <TableRow>
-              <TableHeader align="left" textColor="white">
-                RFQ
-              </TableHeader>
+              <TableHeader>Asset</TableHeader>
               <TableHeader align="left">Status</TableHeader>
               <TableHeader align="left" textColor="white">
                 Open
@@ -157,8 +154,14 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
                 )
                 ?.map((row, i) => (
                   <TableRow key={i}>
-                    <TableBodyCell align="left" textColor="white">
-                      {row.data.isBuy ? 'Buy' : 'Sell'}
+                    <TableBodyCell align="left">
+                      <img
+                        src={`/assets/${getAssetFromOptionSymbol(
+                          row.data.base
+                        ).toLowerCase()}.svg`}
+                        alt={getAssetFromOptionSymbol(row.data.base)}
+                        className="w-[2em] h-[2em]"
+                      />
                     </TableBodyCell>
                     <TableBodyCell align="left">
                       {row.data.isFulfilled ? 'Fulfilled' : 'Pending'}
