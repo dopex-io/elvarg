@@ -74,11 +74,9 @@ const SsovRoutes = () => {
 
 const VaultsRoutes = () => {
   return (
-    <BnbConversionProvider>
-      <Routes>
-        <Route path=":poolName" element={<RatesVaultManage />} />
-      </Routes>
-    </BnbConversionProvider>
+    <Routes>
+      <Route path=":poolName" element={<RatesVaultManage />} />
+    </Routes>
   );
 };
 

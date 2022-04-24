@@ -333,8 +333,6 @@ const Deposits = () => {
     return _deposits;
   }, [rateVaultContext]);
 
-  console.log(rateVaultContext.rateVaultEpochData);
-
   const withdrawData = useMemo(() => {
     const strikesIndexes = [];
     const callLeveragesIndexes = [];
@@ -409,52 +407,21 @@ const Deposits = () => {
               <Table>
                 <TableHead className="bg-umbra">
                   <TableRow className="bg-umbra">
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6">Strike</Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Call deposit
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Put deposit
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Premium
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        APY
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Withdraw
-                      </Typography>
-                    </TableCell>
+                    {[
+                      'Strike',
+                      'Call deposit',
+                      'Put deposit',
+                      'Premium',
+                      'APY',
+                      'Withdraw',
+                    ].map((cellName) => (
+                      <TableCell
+                        align="left"
+                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                      >
+                        <Typography variant="h6">{cellName}</Typography>
+                      </TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody className={cx('rounded-lg')}>
