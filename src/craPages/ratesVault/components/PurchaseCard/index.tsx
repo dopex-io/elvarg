@@ -184,7 +184,7 @@ const PurchaseCard = ({
   }, [purchaseTokenName, activeVaultContextSide]);
 
   const spender = useMemo(() => {
-    return '0x5E540CA541e155F07Cd321fD0254d7A4cF136b05';
+    return '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a';
   }, [activeVaultContextSide, isZapActive, purchaseTokenName]);
 
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
