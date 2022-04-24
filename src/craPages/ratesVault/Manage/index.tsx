@@ -22,7 +22,6 @@ import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
 const Manage = () => {
-  const { accountAddress } = useContext(WalletContext);
   const params = useParams();
   const rateVaultContext = useContext(RateVaultContext);
   const { setSelectedPoolName } = rateVaultContext;
