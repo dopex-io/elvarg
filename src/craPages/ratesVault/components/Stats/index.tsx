@@ -145,7 +145,7 @@ const Stats = ({
                       variant={'h6'}
                       className={'text-sm text-stieglitz'}
                     >
-                      ${getUserReadableAmount(strike, 8)}
+                      {getUserReadableAmount(strike, 8)}%
                     </Typography>
                   </Box>
 

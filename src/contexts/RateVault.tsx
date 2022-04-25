@@ -1889,6 +1889,14 @@ export const RateVault = () => {
     [rateVaultContract]
   );
 
+  const getCurrentRate = useCallback(async () => {
+    try {
+      return await rateVaultContract.getCurrentRate();
+    } catch (err) {
+      return BigNumber.from('0');
+    }
+  }, [rateVaultContract]);
+
   const updateRateVaultEpochData = useCallback(async () => {
     if (selectedEpoch === null || !selectedPoolName) return;
     const lpPrice = await rateVaultContract.getLpPrice();
@@ -1919,7 +1927,7 @@ export const RateVault = () => {
       const callsFeesPromises = [];
       const putsFeesPromises = [];
       const curveLpPrice = await rateVaultContract.getLpPrice();
-      const usdPrice = await rateVaultContract.getCurrentRate();
+      const usdPrice = await getCurrentRate();
       const volatilitiesPromises = [];
 
       for (let i in epochStrikes) {
@@ -2020,6 +2028,7 @@ export const RateVault = () => {
         usdPrice: usdPrice,
       });
     } catch (err) {
+      console.log(err);
       const epochTimes = await rateVaultContract.getEpochTimes(
         Math.max(selectedEpoch, 1)
       );
