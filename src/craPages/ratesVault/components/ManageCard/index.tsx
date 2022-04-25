@@ -466,9 +466,9 @@ const ManageCard = ({
     setSelectedCallLeverages(() => []);
     setSelectedPutLeverages(() => []);
     setSelectedStrikeIndexes(() => []);
-    updateAssetBalances();
-    rateVaultContext.updateRateVaultEpochData();
-    rateVaultContext.updateRateVaultUserData();
+    await updateAssetBalances();
+    await rateVaultContext.updateRateVaultEpochData();
+    await rateVaultContext.updateRateVaultUserData();
   }, [
     signer,
     updateAssetBalances,
