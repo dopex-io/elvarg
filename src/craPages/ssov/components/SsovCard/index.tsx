@@ -32,6 +32,7 @@ function SsovCard(props) {
     type,
     duration,
     retired,
+    symbol,
   } = data;
 
   const info = useMemo(() => {
@@ -102,7 +103,7 @@ function SsovCard(props) {
               </Typography>
               <img
                 src={'/assets/' + type + 's.svg'}
-                className="w-12"
+                className="w-12 mt-1.5"
                 alt={type}
               />
             </Box>
@@ -116,10 +117,8 @@ function SsovCard(props) {
             size="medium"
             className="my-4"
             href={
-              duration
-                ? retired
-                  ? '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3'
-                  : '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3-2'
+              duration === 'weekly'
+                ? `/ssov-v3/${symbol}`
                 : `/ssov/${type}/${name}`
             }
             fullWidth
