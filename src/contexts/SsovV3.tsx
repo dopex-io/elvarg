@@ -177,7 +177,8 @@ export const SsovV3Provider = (props) => {
   ]);
 
   const updateSsovV3EpochData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch || !selectedSsovV3) return;
+    if (!contractAddresses || !selectedEpoch || !selectedSsovV3 || !provider)
+      return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
