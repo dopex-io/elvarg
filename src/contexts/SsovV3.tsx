@@ -253,11 +253,6 @@ export const SsovV3Provider = (props) => {
       100
     ).toFixed(2);
 
-    console.log(Math.floor(Date.now() / 1000) / epochTimes[1].toNumber());
-
-    console.log(Math.floor(Date.now() / 1000));
-    console.log(epochTimes[1].toNumber());
-
     const totalPeriod = epochTimes[1].toNumber() - epochTimes[0].toNumber();
     const effectivePeriod =
       epochTimes[1].toNumber() - Math.floor(Date.now() / 1000);
