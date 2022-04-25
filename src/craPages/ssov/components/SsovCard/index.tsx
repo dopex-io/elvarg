@@ -102,7 +102,7 @@ function SsovCard(props) {
               </Typography>
               <img
                 src={'/assets/' + type + 's.svg'}
-                className="w-12"
+                className="w-12 mt-1.5"
                 alt={type}
               />
             </Box>
@@ -115,13 +115,9 @@ function SsovCard(props) {
           <CustomButton
             size="medium"
             className="my-4"
-            href={
-              duration
-                ? retired
-                  ? '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3'
-                  : '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3-2'
-                : `/ssov/${type}/${name}`
-            }
+            href={`/ssov/${type}/${name}`}
+            disabled={retired}
+            color={retired ? 'mineshaft' : 'primary'}
             fullWidth
           >
             Manage
