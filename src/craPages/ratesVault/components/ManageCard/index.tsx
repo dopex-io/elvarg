@@ -7,12 +7,10 @@ import React, {
 } from 'react';
 import {
   Addresses,
-  ERC20,
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
   NativeSSOV1inchRouter__factory,
   Aggregation1inchRouterV4__factory,
-  Curve2PoolSsovPut1inchRouter__factory,
 } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import cx from 'classnames';
@@ -24,7 +22,6 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import Slider from '@mui/material/Slider';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 
@@ -48,11 +45,10 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
-import { MAX_VALUE, SSOV_MAP } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 
 import ZapIcon from 'components/Icons/ZapIcon';
 import TransparentCrossIcon from 'components/Icons/TransparentCrossIcon';
-import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
 import LockerIcon from 'components/Icons/LockerIcon';
 import WhiteLockerIcon from 'components/Icons/WhiteLockerIcon';
 
@@ -94,6 +90,7 @@ const ManageCard = ({
         signer
       )
     : null;
+
   const erc20SSOV1inchRouter = Addresses[chainId]['ERC20SSOV1inchRouter']
     ? ERC20SSOV1inchRouter__factory.connect(
         Addresses[chainId]['ERC20SSOV1inchRouter'],
@@ -226,11 +223,9 @@ const ManageCard = ({
   ]);
 
   const contractReadableStrikeDepositAmounts = useMemo(() => {
-    const readable: {
-      [key: number]: BigNumber;
-    } = {};
+    const readable = [];
     Object.keys(strikeDepositAmounts).map((key) => {
-      readable[key] = getContractReadableAmount(strikeDepositAmounts[key], 18);
+      readable.push(getContractReadableAmount(strikeDepositAmounts[key], 18));
     });
     return readable;
   }, [strikeDepositAmounts]);
@@ -455,13 +450,14 @@ const ManageCard = ({
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     if (depositTokenName === '2CRV') {
+      console.log(contractReadableStrikeDepositAmounts);
       rateVaultContext.rateVaultData.rateVaultContract
         .connect(signer)
-        .deposit(
-          selectedStrikeIndexes[0],
-          selectedCallLeveragesIndexes[0] || 0,
-          selectedPutLeveragesIndexes[0] || 0,
-          getContractReadableAmount(strikeDepositAmounts[0], 18),
+        .depositMultiple(
+          selectedStrikeIndexes,
+          selectedCallLeveragesIndexes || [],
+          selectedPutLeveragesIndexes || [],
+          contractReadableStrikeDepositAmounts,
           accountAddress
         );
     }
@@ -522,8 +518,6 @@ const ManageCard = ({
           contractAddresses[depositTokenName],
           signer
         ).allowance(accountAddress, spender);
-
-        console.log(allowance);
 
         setApproved(allowance.gte(finalAmount));
       }
@@ -986,7 +980,6 @@ const ManageCard = ({
               }
               disabled={
                 !isPurchasePowerEnough ||
-                !isVaultReady ||
                 totalDepositAmount <= 0 ||
                 path['error'] ||
                 !isLeverageOk
