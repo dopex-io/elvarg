@@ -32,6 +32,7 @@ function SsovCard(props) {
     type,
     duration,
     retired,
+    symbol,
   } = data;
 
   const info = useMemo(() => {
@@ -115,9 +116,11 @@ function SsovCard(props) {
           <CustomButton
             size="medium"
             className="my-4"
-            href={`/ssov/${type}/${name}`}
-            disabled={retired}
-            color={retired ? 'mineshaft' : 'primary'}
+            href={
+              duration === 'weekly'
+                ? `/ssov-v3/${symbol}`
+                : `/ssov/${type}/${name}`
+            }
             fullWidth
           >
             Manage
