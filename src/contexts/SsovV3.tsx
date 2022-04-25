@@ -51,6 +51,7 @@ export interface SsovV3EpochData {
   settlementPrice: BigNumber;
   epochStrikeTokens: string[];
   APY: string;
+  APYIfDepositNow: string;
   TVL: number;
 }
 
@@ -177,8 +178,7 @@ export const SsovV3Provider = (props) => {
   ]);
 
   const updateSsovV3EpochData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch || !selectedSsovV3 || !provider)
-      return;
+    if (!contractAddresses || !selectedEpoch || !selectedSsovV3) return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
@@ -241,16 +241,28 @@ export const SsovV3Provider = (props) => {
     );
 
     const totalRewardsInUSD =
-      2.5 * 365 * tokenPrices.find((token) => token.name === 'DPX').price;
+      25 * tokenPrices.find((token) => token.name === 'DPX').price;
 
     const totalEpochDepositsInUSD =
       getUserReadableAmount(totalEpochDeposits, 18) *
       tokenPrices.find((token) => token.name === 'ETH').price;
 
     const APY = (
-      (Math.abs(totalEpochDepositsInUSD - totalRewardsInUSD) /
-        totalEpochDepositsInUSD) *
+      (totalRewardsInUSD / totalEpochDepositsInUSD) *
+      52 *
       100
+    ).toFixed(2);
+
+    const totalPeriod = epochTimes[1].toNumber() - epochTimes[0].toNumber();
+    const effectivePeriod =
+      epochTimes[1].toNumber() - Math.floor(Date.now() / 1000);
+
+    const APYIfDepositNow = (
+      ((totalRewardsInUSD / totalEpochDepositsInUSD) *
+        52 *
+        100 *
+        effectivePeriod) /
+      totalPeriod
     ).toFixed(2);
 
     const _ssovEpochData = {
@@ -263,6 +275,7 @@ export const SsovV3Provider = (props) => {
       totalEpochPremium,
       availableCollateralForStrikes,
       APY,
+      APYIfDepositNow,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };
