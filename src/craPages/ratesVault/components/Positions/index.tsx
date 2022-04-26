@@ -151,7 +151,7 @@ const Positions = () => {
               epochTimes[0].toNumber()) /
             86400;
           let pnl = 0;
-          const price = getUserReadableAmount(rateVaultEpochData.usdPrice, 18);
+          const price = getUserReadableAmount(rateVaultEpochData.rate, 18);
           const strike = purchase.strike.toNumber();
           const amount = getUserReadableAmount(
             contextSide === 'CALL'
