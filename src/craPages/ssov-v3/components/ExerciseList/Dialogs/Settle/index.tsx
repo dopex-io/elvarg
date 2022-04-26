@@ -44,7 +44,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     ssovSigner,
     selectedEpoch,
   } = useContext(SsovV3Context);
-  const { accountAddress, provider } = useContext(WalletContext);
+  const { accountAddress, provider, signer } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
@@ -100,7 +100,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
   const handleApprove = useCallback(async () => {
     if (!accountAddress || !epochStrikeToken) return;
     try {
-      const optionsToken = ERC20__factory.connect(epochStrikeToken, provider);
+      const optionsToken = ERC20__factory.connect(epochStrikeToken, signer);
 
       await sendTx(
         optionsToken.approve(
@@ -114,7 +114,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
   }, [
     accountAddress,
     epochStrikeToken,
-    provider,
+    signer,
     ssovSigner.ssovContractWithSigner.address,
     userEpochStrikeTokenBalance,
     sendTx,

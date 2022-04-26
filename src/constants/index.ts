@@ -281,6 +281,4 @@ export const TOKEN_DECIMALS = {
   },
 };
 
-const ADDRESS_TO_TOKENS = {
-  '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55': 'DPX',
-};
+export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';

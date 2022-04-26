@@ -25,7 +25,7 @@ import axios from 'axios';
 
 import { WalletContext } from './Wallet';
 
-import { SSOV_MAP } from 'constants/index';
+import { SSOV_MAP, DOPEX_API_BASE_URL } from 'constants/index';
 
 import formatAmount from 'utils/general/formatAmount';
 import isNativeSsov from 'utils/contracts/isNativeSsov';
@@ -241,7 +241,7 @@ export const SsovProvider = (props) => {
 
     const APY = await axios
       .get(
-        `https://api.dopex.io/api/v1/ssov/apy?asset=${
+        `${DOPEX_API_BASE_URL}/v1/ssov/apy?asset=${
           selectedSsov.token
         }&type=${selectedSsov.type.toLowerCase()}`
       )

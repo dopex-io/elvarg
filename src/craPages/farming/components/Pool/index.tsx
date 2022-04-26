@@ -122,17 +122,17 @@ const Pool = ({
     },
     {
       name: 'Add liquidity',
-      to: () => window.open(UNISWAP_LINKS[token.selectedBaseAsset], '_blank'),
+      to: () => window.open(UNISWAP_LINKS[stakingAsset], '_blank'),
       exclude: ['DPX', 'RDPX'],
     },
     {
       name: 'Buy DPX',
-      to: () => window.open(UNISWAP_LINKS[token.selectedBaseAsset], '_blank'),
+      to: () => window.open(UNISWAP_LINKS[stakingAsset], '_blank'),
       exclude: ['DPX-WETH', 'rDPX-WETH', 'RDPX'],
     },
     {
       name: 'Buy rDPX',
-      to: () => window.open(UNISWAP_LINKS[token.selectedBaseAsset], '_blank'),
+      to: () => window.open(UNISWAP_LINKS[stakingAsset], '_blank'),
       exclude: ['DPX-WETH', 'rDPX-WETH', 'DPX'],
     },
     {
@@ -266,19 +266,21 @@ const Pool = ({
         )}
         <hr className="border-cod-gray mb-4" />
         <Box className="flex flex-row justify-between">
-          <Box className="flex flex-col mr-2">
-            <Typography variant="h4">${formatAmount(TVL)}</Typography>
-            <Typography variant="h6" className="text-stieglitz">
-              TVL
-            </Typography>
-          </Box>
-          {token.selectedBaseAsset === 'RDPX' ? null : (
-            <Box className="flex flex-col mr-4">
-              <Typography variant="h4">{formatAmount(APR, 2)}%</Typography>
-              <Typography variant="h6" className="text-stieglitz">
-                APR
-              </Typography>
-            </Box>
+          {stakingAsset === 'RDPX' ? null : (
+            <>
+              <Box className="flex flex-col mr-2">
+                <Typography variant="h4">${formatAmount(TVL)}</Typography>
+                <Typography variant="h6" className="text-stieglitz">
+                  TVL
+                </Typography>
+              </Box>
+              <Box className="flex flex-col mr-4">
+                <Typography variant="h4">{formatAmount(APR, 2)}%</Typography>
+                <Typography variant="h6" className="text-stieglitz">
+                  APR
+                </Typography>
+              </Box>
+            </>
           )}
         </Box>
       </Box>
@@ -308,7 +310,7 @@ const Pool = ({
                     navigate('/farms/manage');
                   }}
                 >
-                  {token.selectedBaseAsset === 'RDPX' ? 'Unstake' : 'Stake'}
+                  {stakingAsset === 'RDPX' ? 'Unstake' : 'Stake'}
                 </CustomButton>
               </Box>
             )}
