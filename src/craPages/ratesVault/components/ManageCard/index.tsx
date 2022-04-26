@@ -401,6 +401,9 @@ const ManageCard = ({
           ? e.target.value
           : parseFloat(e.target.value.replace(',', '.'))
         : value;
+
+      if (String(input).length > 10) return;
+
       if (e && parseFloat(e.target.value) === 0) input = e.target.value;
       if (isNaN(input)) input = 0;
       setStrikeDepositAmounts((prevState) => ({
@@ -770,7 +773,7 @@ const ManageCard = ({
                             variant="h6"
                             className="text-white text-center w-full relative"
                           >
-                            {selectedCallLeverages[index] || 0}
+                            {selectedCallLeverages[index] || '-'}
                           </Typography>
                         );
                       }}
@@ -823,7 +826,7 @@ const ManageCard = ({
                             variant="h6"
                             className="text-white text-center w-full relative"
                           >
-                            {selectedPutLeverages[index] || 0}
+                            {selectedPutLeverages[index] || '-'}
                           </Typography>
                         );
                       }}
