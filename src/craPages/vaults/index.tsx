@@ -63,18 +63,7 @@ const Vaults = () => {
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
-        <Box className="flex lg:mb-4 mb-10">
-          <Box className="mr-auto">
-            <SsovFilter
-              activeFilters={sortBy}
-              setActiveFilters={setSortBy}
-              text={'Sort by'}
-              options={sortOptions}
-              multiple={false}
-              showImages={false}
-            />
-          </Box>
-        </Box>
+
         <Box className="mb-12">
           <NetworkHeader chainId={42161} />
           <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
