@@ -16,10 +16,8 @@ import styles from './styles.module.scss';
 
 function SsovCard(props) {
   const { className, data } = props;
-  const { convertToBNB } = useContext(BnbConversionContext);
 
   const info = useMemo(() => {
-    if (!convertToBNB) return [];
     return [
       {
         heading: (
@@ -76,7 +74,7 @@ function SsovCard(props) {
           ),
       },
     ];
-  }, [convertToBNB, data]);
+  }, [data]);
 
   return (
     <Box className={cx('p-[1px] rounded-xl', styles[data.name], styles.Box)}>
@@ -91,11 +89,7 @@ function SsovCard(props) {
             <Box className="mr-3 h-8 max-w-14 flex flex-row">
               <img
                 className="w-14 h-14 border-[0.1px] border-gray-600 rounded-full"
-                src={
-                  data.name === 'Curve LP'
-                    ? '/assets/curve.svg'
-                    : SSOV_MAP[data.name].imageSrc
-                }
+                src={`/assets/${data.name.toLowerCase()}.png`}
                 alt={data.name}
               />
             </Box>
@@ -128,8 +122,8 @@ function SsovCard(props) {
               className="ml-auto mt-1"
               onClick={() =>
                 window.location.replace(
-                  data.name === 'Curve LP'
-                    ? '/vaults/ir'
+                  data.name === 'UST-3CRV'
+                    ? '/vaults/UST-3CRV'
                     : `/vaults/${data.name}`
                 )
               }
