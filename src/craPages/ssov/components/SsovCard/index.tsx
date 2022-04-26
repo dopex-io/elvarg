@@ -1,6 +1,7 @@
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import { utils as ethersUtils } from 'ethers';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
@@ -12,13 +13,11 @@ import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
 import styles from './styles.module.scss';
-import { BigNumber } from 'ethers';
 
 function SsovCard(props) {
   const { className, data } = props;
@@ -29,11 +28,11 @@ function SsovCard(props) {
     totalEpochDeposits,
     apy,
     tvl,
-    name,
+    underlyingSymbol: name,
     type,
-    underlyingDecimals,
-    timeFrame,
+    duration,
     retired,
+    symbol,
   } = data;
 
   const info = useMemo(() => {
@@ -46,7 +45,9 @@ function SsovCard(props) {
         tooltip:
           type === 'put'
             ? 'This is the base APY calculated from Curve 2Pool Fees and Rewards'
-            : ssovInfo[name].aprToolTipMessage,
+            : ssovInfo[name]
+            ? ssovInfo[name].aprToolTipMessage
+            : undefined,
       },
       {
         heading: 'TVL',
@@ -57,23 +58,22 @@ function SsovCard(props) {
         heading: 'DEPOSITS',
         value: `${formatAmount(
           name === 'BNB'
-            ? convertToBNB(BigNumber.from(totalEpochDeposits)).toString()
-            : getUserReadableAmount(totalEpochDeposits, underlyingDecimals),
+            ? convertToBNB(
+                ethersUtils.parseUnits(totalEpochDeposits, 8)
+              ).toString()
+            : totalEpochDeposits,
           0,
           true
         )}`,
-        imgSrc: type === 'put' ? '/assets/2crv.png' : SSOV_MAP[name].imageSrc,
+        imgSrc:
+          type === 'put'
+            ? '/assets/2crv.png'
+            : SSOV_MAP[name]
+            ? SSOV_MAP[name].imageSrc
+            : '',
       },
     ];
-  }, [
-    apy,
-    convertToBNB,
-    name,
-    totalEpochDeposits,
-    tvl,
-    type,
-    underlyingDecimals,
-  ]);
+  }, [apy, convertToBNB, name, totalEpochDeposits, tvl, type]);
 
   return (
     <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
@@ -94,7 +94,7 @@ function SsovCard(props) {
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h4" className="mr-2 font-bold">
-                {name} {timeFrame}{' '}
+                {name} {duration === 'weekly' ? 'weekly' : ''}{' '}
                 {retired ? (
                   <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
                     RETIRED
@@ -103,7 +103,7 @@ function SsovCard(props) {
               </Typography>
               <img
                 src={'/assets/' + type + 's.svg'}
-                className="w-12"
+                className="w-12 mt-1.5"
                 alt={type}
               />
             </Box>
@@ -117,10 +117,8 @@ function SsovCard(props) {
             size="medium"
             className="my-4"
             href={
-              timeFrame
-                ? retired
-                  ? '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3'
-                  : '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3-2'
+              duration === 'weekly'
+                ? `/ssov-v3/${symbol}`
                 : `/ssov/${type}/${name}`
             }
             fullWidth

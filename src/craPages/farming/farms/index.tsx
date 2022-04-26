@@ -103,13 +103,10 @@ const Farms = () => {
     (function () {
       if (!DPXPool.TVL || !DPX_WETHPool.TVL || !rDPX_WETHPool.TVL) return;
       setTotalTVL(
-        DPXPool.TVL.add(DPX_WETHPool.TVL)
-          .add(rDPX_WETHPool.TVL)
-          .add(RDPXPool.TVL)
-          .toNumber()
+        DPXPool.TVL.add(DPX_WETHPool.TVL).add(rDPX_WETHPool.TVL).toNumber()
       );
     })();
-  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL, RDPXPool.TVL]);
+  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL]);
 
   const handleClaimAll = useCallback(async () => {
     if (DPX.rewards[0] > 0 || DPX.rewards[1] > 0) {
@@ -284,21 +281,17 @@ const Farms = () => {
                         poolInfo={rDPX_WETHPool}
                       />
                     ) : null}
-                    {RDPX.userStakedBalance.gt(0) ? (
-                      <Pool
-                        token={RDPX}
-                        Icon={'/assets/rdpx.svg'}
-                        poolInfo={RDPXPool}
-                      />
-                    ) : null}
                   </Box>
                 </Box>
               ) : null}
-              {yourDeposit < 4 ? (
-                <Box className="flex flex-col bg-cod-gray p-4 rounded-xl items-center">
-                  <Typography variant="h6" className="text-center mb-4">
-                    Available Farms ({4 - yourDeposit})
-                  </Typography>
+              {yourDeposit < 3 ? (
+                <Box className="flex flex-col bg-cod-gray p-4 rounded-xl lg:mr-4 mb-8 lg:mb-0  items-center">
+                  <Box className="grid">
+                    <Typography variant="h6" className="text-center mb-4">
+                      Available Farms ({3 - yourDeposit})
+                    </Typography>
+                  </Box>
+
                   {accountAddress ? (
                     <Box
                       className="flex flex-col lg:flex-row lg:space-x-4"
@@ -325,13 +318,6 @@ const Farms = () => {
                           poolInfo={rDPX_WETHPool}
                         />
                       ) : null}
-                      {RDPX.userStakedBalance.eq(0) ? (
-                        <Pool
-                          token={RDPX}
-                          Icon={'/assets/rdpx.svg'}
-                          poolInfo={RDPXPool}
-                        />
-                      ) : null}
                     </Box>
                   ) : (
                     <Box
@@ -353,6 +339,36 @@ const Farms = () => {
                         Icon={'/assets/rdpx_weth.svg'}
                         poolInfo={rDPX_WETHPool}
                       />
+                    </Box>
+                  )}
+                </Box>
+              ) : null}
+              {yourDeposit < 3 ? (
+                <Box className="flex flex-col bg-cod-gray p-4 rounded-xl items-center">
+                  <Box className="grid">
+                    <Typography variant="h6" className="text-center mb-4">
+                      Retired Farms (1)
+                    </Typography>
+                  </Box>
+
+                  {accountAddress ? (
+                    <Box
+                      className="flex flex-col lg:flex-row lg:space-x-4"
+                      style={{ height: '-webkit-fill-available' }}
+                    >
+                      {RDPX.userStakedBalance.eq(0) ? (
+                        <Pool
+                          token={RDPX}
+                          Icon={'/assets/rdpx.svg'}
+                          poolInfo={RDPXPool}
+                        />
+                      ) : null}
+                    </Box>
+                  ) : (
+                    <Box
+                      className="flex flex-col lg:flex-row lg:space-x-4"
+                      style={{ height: '-webkit-fill-available' }}
+                    >
                       <Pool
                         token={RDPX}
                         Icon={'/assets/rdpx.svg'}

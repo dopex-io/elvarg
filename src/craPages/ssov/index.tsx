@@ -1,14 +1,12 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
-import { ethers, BigNumber } from 'ethers';
-import { SsovV3Viewer__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
@@ -37,7 +35,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Ssov = () => {
-  const { chainId, provider, contractAddresses } = useContext(WalletContext);
+  const { chainId, provider } = useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
 
   const [ssovs, setSsovs] = useState(null);
@@ -64,7 +62,7 @@ const Ssov = () => {
     const assets: string[] = [];
     Object.keys(ssovs).map((key) => {
       ssovs[key].map((ssov) => {
-        const asset = ssov.name;
+        const asset = ssov.underlyingSymbol;
         if (!assets.includes(asset)) assets.push(asset);
       });
     });
@@ -77,59 +75,8 @@ const Ssov = () => {
     }
     async function getData() {
       let data = await axios
-        .get('https://api.dopex.io/api/v1/ssov')
+        .get(`${DOPEX_API_BASE_URL}/v2/ssov`)
         .then((payload) => payload.data);
-
-      // const _contract = SsovV3Viewer__factory.connect(
-      //   '0x426eDe8BF1A523d288470e245a343B599c2128da',
-      //   provider
-      // );
-
-      // const totalEpochStrikeDeposits =
-      //   await _contract.getTotalEpochStrikeDeposits(
-      //     1,
-      //     contractAddresses['SSOV-V3'].VAULTS['ETH-WEEKLY-CALLS-SSOV-V3-2']
-      //   );
-
-      // const totalEpochDeposits = totalEpochStrikeDeposits.reduce((acc, val) => {
-      //   return acc.add(val);
-      // }, BigNumber.from(0));
-
-      data = {
-        ...data,
-        42161: [
-          ...data[42161],
-          {
-            apy: 0,
-            chainId: 42161,
-            currentEpoch: 1,
-            epochEndDate: '1650614400',
-            epochStartDate: '1649750400',
-            name: 'ETH',
-            totalEpochDeposits: '0',
-            tvl: '0',
-            type: 'call',
-            underlyingDecimals: 18,
-            underlyingPrice: 0,
-            timeFrame: 'weekly',
-            retired: true,
-          },
-          {
-            apy: 0,
-            chainId: 42161,
-            currentEpoch: 1,
-            epochEndDate: '1650614400',
-            epochStartDate: '1649750400',
-            name: 'ETH',
-            totalEpochDeposits: '0',
-            tvl: '0',
-            type: 'call',
-            underlyingDecimals: 18,
-            underlyingPrice: 0,
-            timeFrame: 'weekly',
-          },
-        ],
-      };
 
       setSsovs(data);
     }
@@ -212,7 +159,9 @@ const Ssov = () => {
                             let visible: boolean = false;
                             if (
                               (selectedSsovAssets.length === 0 ||
-                                selectedSsovAssets.includes(ssov.name)) &&
+                                selectedSsovAssets.includes(
+                                  ssov.underlyingSymbol
+                                )) &&
                               (selectedStrategies.length === 0 ||
                                 selectedStrategies.includes(
                                   ssov.type.toUpperCase()
