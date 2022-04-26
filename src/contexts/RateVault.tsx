@@ -1652,7 +1652,7 @@ export interface RateVaultEpochData {
   epochStrikeCallsPremium: BigNumber[];
   epochStrikePutsPremium: BigNumber[];
   curveLpPrice: BigNumber;
-  usdPrice: BigNumber;
+  rate: BigNumber;
 }
 
 export interface RateVaultUserData {
@@ -1927,7 +1927,7 @@ export const RateVault = () => {
       const callsFeesPromises = [];
       const putsFeesPromises = [];
       const curveLpPrice = await rateVaultContract.getLpPrice();
-      const usdPrice = await getCurrentRate();
+      const rate = await getCurrentRate();
       const volatilitiesPromises = [];
 
       for (let i in epochStrikes) {
@@ -1944,9 +1944,10 @@ export const RateVault = () => {
           calculatePremium(epochStrikes[i], false)
         );
         putsPremiumCostsPromises.push(calculatePremium(epochStrikes[i], true));
+
         callsFeesPromises.push(
           rateVaultContract.calculatePurchaseFees(
-            curveLpPrice,
+            rate,
             epochStrikes[i],
             BigNumber.from('1000000000000000000'),
             false
@@ -1954,7 +1955,7 @@ export const RateVault = () => {
         );
         putsFeesPromises.push(
           rateVaultContract.calculatePurchaseFees(
-            curveLpPrice,
+            rate,
             epochStrikes[i],
             BigNumber.from('1000000000000000000'),
             true
@@ -2025,7 +2026,7 @@ export const RateVault = () => {
         epochStrikeCallsPremium: promises[3][0],
         epochStrikePutsPremium: promises[3][1],
         curveLpPrice: curveLpPrice,
-        usdPrice: usdPrice,
+        rate: rate,
       });
     } catch (err) {
       console.log(err);
@@ -2033,7 +2034,7 @@ export const RateVault = () => {
         Math.max(selectedEpoch, 1)
       );
       const curveLpPrice = await rateVaultContract.getLpPrice();
-      const usdPrice = BigNumber.from('100000000');
+      const rate = BigNumber.from('100000000');
       setRateVaultEpochData({
         volatilities: [],
         callsFees: [],
@@ -2085,7 +2086,7 @@ export const RateVault = () => {
           BigNumber.from('0'),
         ],
         curveLpPrice: curveLpPrice,
-        usdPrice: usdPrice,
+        rate: rate,
       });
     }
   }, [rateVaultContract, contractAddresses, selectedEpoch, provider]);

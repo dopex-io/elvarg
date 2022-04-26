@@ -81,14 +81,7 @@ const Vaults = () => {
             <SsovCard
               data={{
                 name: 'UST-3CRV',
-                call: {
-                  apy: 0,
-                  tvl: 0,
-                },
-                put: {
-                  apy: 0,
-                  tvl: 0,
-                },
+                apy: 7,
               }}
             />
           </Box>

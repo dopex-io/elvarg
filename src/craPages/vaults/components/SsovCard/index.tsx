@@ -22,29 +22,6 @@ function SsovCard(props) {
       {
         heading: (
           <Box className={'flex'}>
-            <Typography variant="caption" className={'text-[#6DFFB9]'}>
-              |
-            </Typography>
-            <Typography
-              variant="caption"
-              className={'ml-1 mt-[1px] text-stieglitz'}
-            >
-              APY
-            </Typography>
-          </Box>
-        ),
-        value: `${
-          data.call?.apy === 0
-            ? '...'
-            : data.call?.apy > 1000
-            ? '987%'
-            : `${formatAmount(data.call?.apy, 2)}%`
-        }`,
-        tooltip: data.name.aprToolTipMessage,
-      },
-      {
-        heading: (
-          <Box className={'flex'}>
             <Typography variant="caption" className={'text-[#FF617D]'}>
               |
             </Typography>
@@ -56,22 +33,9 @@ function SsovCard(props) {
             </Typography>
           </Box>
         ),
-        value: `${
-          data.put?.apy === 0 || !data.put?.apy ? '...' : `${data.put?.apy}%`
-        }`,
+        value: `${data.apy === 0 || !data.apy ? '...' : `${data.apy}%`}`,
         tooltip:
           'This is the base APY calculated from Curve 2Pool Fees and Rewards',
-      },
-      {
-        heading: 'TVL',
-        value:
-          '$' +
-          formatAmount(
-            (parseFloat(data.put?.tvl) || 0) +
-              (parseFloat(data.call?.tvl) || 0),
-            0,
-            true
-          ),
       },
     ];
   }, [data]);
@@ -101,20 +65,11 @@ function SsovCard(props) {
                 <Typography variant="h5" className="text-stieglitz">
                   {data.name === 'Curve LP' ? 'IR Vault' : 'SSOV'}
                 </Typography>
-                {data.call ? (
-                  <img
-                    src={'/assets/calls.svg'}
-                    className="w-10 h-5 mt-1 ml-2"
-                    alt={'CALL'}
-                  />
-                ) : null}
-                {data.put ? (
-                  <img
-                    src={'/assets/puts.svg'}
-                    className="w-10 h-5 mt-1 ml-2"
-                    alt={'PUT'}
-                  />
-                ) : null}
+                <img
+                  src={'/assets/calls.svg'}
+                  className="w-10 h-5 mt-1 ml-2"
+                  alt={'CALL'}
+                />
               </Box>
             </Box>
             <WalletButton
@@ -131,7 +86,7 @@ function SsovCard(props) {
               Manage
             </WalletButton>
           </Box>
-          <Box className="grid grid-cols-3 gap-2 mb-2">
+          <Box className="grid grid-cols-1 gap-2 mb-2">
             {info.map((item, i) => {
               return <InfoBox key={i} {...item} />;
             })}

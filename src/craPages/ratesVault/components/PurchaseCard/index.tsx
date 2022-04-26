@@ -40,7 +40,6 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -48,10 +47,9 @@ import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { RateVaultContext } from 'contexts/RateVault';
 
-import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
-import { BnbConversionContext } from 'contexts/BnbConversion';
 import Curve2PoolSelector from './components/Curve2PoolSelector';
 
 export interface Props {
