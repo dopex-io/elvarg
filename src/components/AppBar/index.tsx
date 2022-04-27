@@ -254,16 +254,6 @@ export default function AppBar(props: AppBarProps) {
             </Box>
           </Box>
           <Box className="flex items-center">
-            {/* {baseAssetsWithPrices ? (
-            <PriceTag
-              asset={baseAssetsWithPrices[selectedBaseAsset].symbol}
-              price={getUserReadableAmount(
-                baseAssetsWithPrices[selectedBaseAsset].price,
-                8
-              )}
-              className="mr-2 lg:hidden"
-            />
-          ) : null} */}
             {accountAddress ? (
               <Box className="bg-cod-gray flex flex-row rounded-md items-center">
                 <Button
