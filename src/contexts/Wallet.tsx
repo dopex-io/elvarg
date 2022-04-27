@@ -256,7 +256,7 @@ export const WalletProvider = (props) => {
         await updateState({ web3Provider: provider, isUser: true });
       })
       .catch(() => {
-        if (window.location.pathname !== '/') window.location.replace('/');
+        if (window.location.pathname !== '/ssov') window.location.replace('/');
       });
   }, [updateState]);
 
