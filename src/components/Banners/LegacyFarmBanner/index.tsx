@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const LegacyFarmBanner = ({ amount }) => {
   return (
@@ -11,7 +12,8 @@ const LegacyFarmBanner = ({ amount }) => {
             Unstaked RDPX Tokens.
           </Typography>
           <span className="font-thin text-white">
-            You have {amount} unstaked RDPX tokens in the{' '}
+            You have {getUserReadableAmount(amount).toString()} unstaked RDPX
+            tokens in the{' '}
             <a
               className="underline"
               href={'https://legacy-rdpx-ss-farm.dopex.io/farms'}

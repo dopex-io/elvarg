@@ -14,7 +14,6 @@ import AppBar from 'components/AppBar';
 import CustomButton from 'components/UI/CustomButton';
 import FarmingMigrationBanner from 'components/Banners/FarmingMigrationBanner';
 import LegacyFarmBanner from 'components/Banners/LegacyFarmBanner';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { FarmingContext } from 'contexts/Farming';
 import { WalletContext } from 'contexts/Wallet';
@@ -48,11 +47,7 @@ const Farms = () => {
   }, [chainId]);
 
   const showLegacyFarmBanner = useMemo(() => {
-    return chainId == 42161
-      ? legacyFarmBalance.toNumber() > 0
-        ? true
-        : false
-      : false;
+    return chainId == 42161 ? (legacyFarmBalance.gt(0) ? true : false) : false;
   }, [chainId, legacyFarmBalance]);
 
   useEffect(() => {
@@ -204,11 +199,7 @@ const Farms = () => {
         <title>Farms | Dopex</title>
       </Head>
       {showBanner && <FarmingMigrationBanner />}
-      {showLegacyFarmBanner && (
-        <LegacyFarmBanner
-          amount={getUserReadableAmount(legacyFarmBalance).toString()}
-        />
-      )}
+      {showLegacyFarmBanner && <LegacyFarmBanner amount={legacyFarmBalance} />}
       <AppBar active="farms" />
       <Box
         className={`px-2 ${
