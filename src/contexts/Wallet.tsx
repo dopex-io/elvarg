@@ -33,7 +33,7 @@ export const WalletContext = createContext<WalletContextInterface>({});
 export const CHAIN_ID_TO_PROVIDERS = {
   '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   '1088': 'https://andromeda.metis.io/?owner=1088',
@@ -192,7 +192,6 @@ export const WalletProvider = (props) => {
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
         !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
-        console.log('setwrongnetwork');
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,
