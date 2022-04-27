@@ -29,6 +29,17 @@ const initKeysToVal = (arr: Array<string>, val: any) => {
   }, {});
 };
 
+export const CHAIN_ID_TO_NATIVE = {
+  42161: 'ETH',
+  56: 'BNB',
+  43114: 'AVAX',
+  1: 'ETH',
+};
+
+export const IS_NATIVE = (asset) => {
+  return ['ETH', 'BNB', 'AVAX'].includes(asset);
+};
+
 const initialState: AssetsContextInterface = {
   tokens: TOKENS,
   tokenPrices: [],
