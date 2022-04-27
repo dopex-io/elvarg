@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
 import { ethers, Signer } from 'ethers';
+import { useRouter } from 'next/router';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
 import Web3Modal from 'web3modal';
@@ -144,7 +144,8 @@ if (typeof window !== 'undefined') {
 }
 
 export const WalletProvider = (props) => {
-  const location = useLocation();
+  const { asPath } = useRouter();
+  console.log(asPath);
 
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
@@ -189,13 +190,13 @@ export const WalletProvider = (props) => {
       const { chainId } = await provider.getNetwork();
 
       if (
-        PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
+        PAGE_TO_SUPPORTED_CHAIN_IDS[asPath] &&
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[asPath]?.includes(chainId)
       ) {
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,
-          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
+          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[asPath],
         }));
         return;
       }
@@ -232,14 +233,14 @@ export const WalletProvider = (props) => {
         provider: multicallProvider,
         chainId,
         contractAddresses,
-        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
+        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[asPath],
         ...(isUser && {
           signer,
           accountAddress: address,
         }),
       }));
     },
-    [location.pathname]
+    [asPath]
   );
 
   const connect = useCallback(() => {

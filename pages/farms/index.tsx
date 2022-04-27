@@ -8,7 +8,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
-import Pool from '../components/Pool';
+import Pool from './components/Pool';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import CustomButton from 'components/UI/CustomButton';

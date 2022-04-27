@@ -11,7 +11,7 @@ import StylesProvider from '@mui/styles/StylesProvider';
 import Error from 'next/error';
 import Script from 'next/script';
 
-import theme from './style/muiTheme';
+import theme from './src/style/muiTheme';
 
 import { otcGraphClient } from 'graphql/apollo';
 

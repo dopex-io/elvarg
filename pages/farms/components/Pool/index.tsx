@@ -1,5 +1,5 @@
 import { useContext, useCallback, useState, MouseEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -59,7 +59,7 @@ const Pool = ({
   });
   const Modal = MODALS[modalState.type];
 
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const sendTx = useSendTx();
 
@@ -81,16 +81,16 @@ const Pool = ({
       token: token.selectedBaseAsset,
       isStake: true,
     }));
-    navigate('manage');
-  }, [setData, token, navigate]);
+    router.push('manage');
+  }, [setData, token, router]);
 
   const handleUnstake = useCallback(() => {
     setData(() => ({
       token: token.selectedBaseAsset,
       isStake: false,
     }));
-    navigate('manage');
-  }, [setData, token, navigate]);
+    router.push('manage');
+  }, [setData, token, router]);
 
   const handleCompound = useCallback(async () => {
     if (token.rewards[0] === 0) {
@@ -307,7 +307,7 @@ const Pool = ({
                   className="w-full lg:w-52"
                   onClick={() => {
                     handleStake();
-                    navigate('/farms/manage');
+                    router.push('/manage');
                   }}
                 >
                   {stakingAsset === 'RDPX' ? 'Unstake' : 'Stake'}
