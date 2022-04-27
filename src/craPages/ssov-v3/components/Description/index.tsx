@@ -1,7 +1,6 @@
 import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -32,7 +31,7 @@ const Description = ({
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useContext(WalletContext);
 
-  const { APY, APYIfDepositNow, TVL } = ssovEpochData;
+  const { APY, TVL } = ssovEpochData;
 
   const [wrapOpen, setWrapOpen] = useState(false);
 
@@ -40,13 +39,8 @@ const Description = ({
 
   const info = [
     {
-      heading: 'Farm APY',
-      value: `${!APY ? '...' : APY.toString() + '%'}`,
-      Icon: Action,
-    },
-    {
       heading: 'APY*',
-      value: `${!APYIfDepositNow ? '...' : APYIfDepositNow.toString() + '%'}`,
+      value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
     },
     {

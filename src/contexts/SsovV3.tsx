@@ -13,11 +13,14 @@ import {
   SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+import axios from 'axios';
 
 import { WalletContext } from './Wallet';
 
 import { AssetsContext } from './Assets';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+import { DOPEX_API_BASE_URL } from 'constants/index';
 
 export interface SsovV3Interface {
   ssov?: string;
@@ -51,7 +54,6 @@ export interface SsovV3EpochData {
   settlementPrice: BigNumber;
   epochStrikeTokens: string[];
   APY: string;
-  APYIfDepositNow: string;
   TVL: number;
 }
 
@@ -199,6 +201,7 @@ export const SsovV3Provider = (props) => {
       totalEpochPremium,
       epochData,
       epochStrikeTokens,
+      apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovContract.getEpochStrikes(selectedEpoch),
@@ -218,6 +221,9 @@ export const SsovV3Provider = (props) => {
       ssovViewerContract.getEpochStrikeTokens(
         selectedEpoch,
         ssovContract.address
+      ),
+      axios.get(
+        `${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3.ssov}`
       ),
     ]);
 
@@ -240,30 +246,9 @@ export const SsovV3Provider = (props) => {
       BigNumber.from(0)
     );
 
-    const totalRewardsInUSD =
-      25 * tokenPrices.find((token) => token.name === 'DPX').price;
-
     const totalEpochDepositsInUSD =
       getUserReadableAmount(totalEpochDeposits, 18) *
       tokenPrices.find((token) => token.name === 'ETH').price;
-
-    const APY = (
-      (totalRewardsInUSD / totalEpochDepositsInUSD) *
-      52 *
-      100
-    ).toFixed(2);
-
-    const totalPeriod = epochTimes[1].toNumber() - epochTimes[0].toNumber();
-    const effectivePeriod =
-      epochTimes[1].toNumber() - Math.floor(Date.now() / 1000);
-
-    const APYIfDepositNow = (
-      ((totalRewardsInUSD / totalEpochDepositsInUSD) *
-        52 *
-        100 *
-        effectivePeriod) /
-      totalPeriod
-    ).toFixed(2);
 
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
@@ -274,8 +259,7 @@ export const SsovV3Provider = (props) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
-      APY,
-      APYIfDepositNow,
+      APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };
