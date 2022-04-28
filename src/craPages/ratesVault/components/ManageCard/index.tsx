@@ -453,7 +453,6 @@ const ManageCard = ({
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     if (depositTokenName === '2CRV') {
-      console.log(contractReadableStrikeDepositAmounts);
       rateVaultContext.rateVaultData.rateVaultContract
         .connect(signer)
         .depositMultiple(
