@@ -14,99 +14,31 @@ import SsovFilter from './components/SsovFilter';
 
 import formatAmount from '../../utils/general/formatAmount';
 
-const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
-    <Box className="flex p-2 rounded-lg space-x-4 mb-8 w-fit bg-cod-gray items-center">
+    <Box className="flex space-x-4 mb-8">
       <img
-        className="w-fit h-6"
+        className="w-8 h-8"
         src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
         alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
       />
-      <Typography variant="h5">
+      <Typography variant="h4">
         {CHAIN_ID_TO_NETWORK_DATA[chainId].name}
       </Typography>
     </Box>
   );
 };
 
-const Ssov = () => {
-  const [ssovs, setSsovs] = useState(null);
+const Vaults = () => {
   const { chainId } = useContext(WalletContext);
   const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
 
-  const tvl = useMemo(() => {
-    let total = 0;
-    for (let i in ssovs) {
-      Object.keys(ssovs[i]).map((currency) => {
-        const callTvl = parseFloat(ssovs[i][currency]?.call?.tvl);
-        const putTvl = parseFloat(ssovs[i][currency]?.put?.tvl);
-        if (!isNaN(callTvl)) total += callTvl;
-        if (!isNaN(putTvl)) total += putTvl;
-      });
-    }
-    return total;
-  }, [ssovs]);
-
-  const keys = useMemo(() => {
-    if (!ssovs) return [];
-    else if (chainId === 56) return [56, 42161, 43114];
-    else if (chainId === 43114) return [43114, 42161];
-    else if (chainId === 1088) return [1088];
-    else return [42161, 56, 43114, 1088];
-  }, [ssovs, chainId]);
-
-  const ssovsAssets = useMemo(() => {
-    if (!ssovs) return [];
-    const assets: string[] = [];
-    Object.keys(ssovs).map((key) => {
-      Object.keys(ssovs[key]).map((symbol) => {
-        const ssov = ssovs[key][symbol];
-        const asset = ssov.name;
-        if (!assets.includes(asset)) assets.push(asset);
-      });
-    });
-    return assets.sort((a, b) => (a > b ? 1 : -1));
-  }, [ssovs]);
-
-  useEffect(() => {
-    async function getData() {
-      const data = await axios
-        .get('https://api.dopex.io/api/v1/ssov')
-        .then((payload) => payload.data);
-
-      const processedData = {};
-      for (let ssovChainId in data) {
-        processedData[ssovChainId] = {};
-        data[ssovChainId].map((ssov) => {
-          if (!processedData[ssovChainId][ssov['name']])
-            processedData[ssovChainId][ssov['name']] = {
-              name: ssov['name'],
-              epochTimes: ssov['epochTimes'],
-              chainId: ssov['chainId'],
-              currentEpoch: ssov['currentEpoch'],
-            };
-
-          processedData[ssovChainId][ssov['name']][ssov['type']] = {
-            apy: ssov['apy'],
-            tvl: ssov['tvl'],
-            currentEpoch: ssov['currentEpoch'],
-            totalEpochDeposits: ssov['totalEpochDeposits'],
-          };
-        });
-      }
-
-      setSsovs(processedData);
-    }
-    getData();
-  }, []);
-
   return (
-    <Box className="bg-[url('/assets/vaultsbg.png')] bg-center bg-top bg-auto bg-no-repeat min-h-screen">
+    <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>Vaults | Dopex</title>
       </Head>
@@ -122,7 +54,7 @@ const Ssov = () => {
             }
           >
             <Typography variant="h6" className="text-umbra text-[0.7rem]">
-              TVL ${formatAmount(tvl, 0)}
+              TVL ${formatAmount(0, 0)}
             </Typography>
           </Box>
           <Typography variant="h5" className="text-stieglitz">
@@ -131,70 +63,21 @@ const Ssov = () => {
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
-        <Box className="flex lg:mb-4 mb-10">
-          <Box className="ml-auto mr-3">
-            <SsovFilter
-              activeFilters={selectedSsovAssets}
-              setActiveFilters={setSelectedSsovAssets}
-              text={'Asset'}
-              options={ssovsAssets}
-              multiple={true}
-              showImages={true}
-            />
-          </Box>
-          <Box className="mr-3">
-            <SsovFilter
-              activeFilters={selectedStrategies}
-              setActiveFilters={setSelectedStrategies}
-              text={'Strategy'}
-              options={ssovStrategies}
-              multiple={false}
-              showImages={false}
-            />
-          </Box>
-          <Box className="mr-auto">
-            <SsovFilter
-              activeFilters={sortBy}
-              setActiveFilters={setSortBy}
-              text={'Sort by'}
-              options={sortOptions}
-              multiple={false}
-              showImages={false}
+
+        <Box className="mb-12">
+          <NetworkHeader chainId={42161} />
+          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+            <SsovCard
+              data={{
+                name: 'UST-3CRV',
+                apy: 7,
+              }}
             />
           </Box>
         </Box>
-        {ssovs
-          ? keys.map((key) => {
-              return key !== 1088 ? (
-                <Box key={key} className="mb-12">
-                  <NetworkHeader chainId={Number(key)} />
-                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-x-10 gap-y-10">
-                    {ssovs[key]
-                      ? Object.keys(ssovs[key]).map((symbol, index) => {
-                          const ssov = ssovs[key][symbol];
-                          let visible: boolean = false;
-                          if (
-                            (selectedSsovAssets.length === 0 ||
-                              selectedSsovAssets.includes(ssov.name)) &&
-                            (selectedStrategies.length === 0 ||
-                              selectedStrategies.includes(
-                                ssov.type.toUpperCase()
-                              ))
-                          )
-                            visible = true;
-                          return visible ? (
-                            <SsovCard key={index} data={{ ...ssov }} />
-                          ) : null;
-                        })
-                      : null}
-                  </Box>
-                </Box>
-              ) : null;
-            })
-          : null}
       </Box>
     </Box>
   );
 };
 
-export default Ssov;
+export default Vaults;
