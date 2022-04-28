@@ -418,6 +418,7 @@ const Deposits = () => {
                       <TableCell
                         align="left"
                         className="text-stieglitz bg-cod-gray border-0 pb-0"
+                        key={cellName}
                       >
                         <Typography variant="h6">{cellName}</Typography>
                       </TableCell>
