@@ -1,5 +1,7 @@
 import { BigNumber } from 'ethers';
 
+import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
+
 export const CURRENCIES_MAP = {
   '1': 'ETH',
   '42161': 'ETH',
@@ -314,3 +316,13 @@ export const TOKEN_DATA: {
 };
 
 export const TOKENS = Object.keys(TOKEN_DATA);
+
+export const CHAIN_ID_TO_RPC = {
+  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
+  '42161': `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
+  '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1088': 'https://andromeda.metis.io/?owner=1088',
+  '1337': 'http://127.0.0.1:8545',
+};

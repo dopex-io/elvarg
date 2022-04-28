@@ -9,7 +9,7 @@ import Typography from 'components/UI/Typography';
 import PageLoader from 'components/PageLoader';
 import OracleCard from './components/OracleCard';
 
-import { CHAIN_ID_TO_PROVIDERS } from 'contexts/Wallet';
+import { CHAIN_ID_TO_RPC } from 'constants/index';
 
 const TOKENS = [
   {
@@ -80,19 +80,16 @@ const Oracles = () => {
         return item.data.data;
       });
 
-      const arbProvider = ethers.getDefaultProvider(
-        CHAIN_ID_TO_PROVIDERS[42161],
-        'any'
+      const arbProvider = new ethers.providers.StaticJsonRpcProvider(
+        CHAIN_ID_TO_RPC[42161]
       );
 
-      const bscProvider = ethers.getDefaultProvider(
-        CHAIN_ID_TO_PROVIDERS[56],
-        'any'
+      const bscProvider = new ethers.providers.StaticJsonRpcProvider(
+        CHAIN_ID_TO_RPC[56]
       );
 
-      const avaxProvider = ethers.getDefaultProvider(
-        CHAIN_ID_TO_PROVIDERS[43114],
-        'any'
+      const avaxProvider = new ethers.providers.StaticJsonRpcProvider(
+        CHAIN_ID_TO_RPC[43114]
       );
 
       const chainlinkAbi = [

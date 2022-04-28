@@ -6,7 +6,7 @@ import Typography from 'components/UI/Typography';
 
 import { WalletContext } from 'contexts/Wallet';
 
-import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
+import changeOrAddNetwork from 'utils/general/changeOrAddNetwork';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
@@ -18,7 +18,7 @@ interface Props {
 
 const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
   const handleClick = async () => {
-    await changeOrAddNetworkToMetaMask(chainId);
+    await changeOrAddNetwork(chainId);
   };
 
   return (
