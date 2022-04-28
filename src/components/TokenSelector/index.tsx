@@ -18,12 +18,10 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { WalletContext } from 'contexts/Wallet';
-import {
-  ASSET_TO_NAME,
-  CHAIN_ID_TO_NATIVE,
-  AssetsContext,
-} from 'contexts/Assets';
+import { CHAIN_ID_TO_NATIVE, AssetsContext } from 'contexts/Assets';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
+
+import { TOKEN_DATA } from 'constants/index';
 
 export interface Props {
   open: boolean;
@@ -124,7 +122,7 @@ const TokenSelector = ({
                       <Box className="flex flex-row h-11 w-11 mr-2">
                         <img
                           src={'/assets/' + symbol.toLowerCase() + '.svg'}
-                          alt={ASSET_TO_NAME[symbol]}
+                          alt={TOKEN_DATA[symbol].name}
                           className="border-0.5 border-gray-200 pb-0.5 pt-0.5 w-auto"
                         />
                       </Box>
@@ -136,7 +134,7 @@ const TokenSelector = ({
                           {symbol}
                         </Typography>
                         <Typography variant="h6" className="text-gray-400">
-                          {ASSET_TO_NAME[symbol]}
+                          {TOKEN_DATA[symbol].name}
                         </Typography>
                       </Box>{' '}
                     </Box>

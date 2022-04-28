@@ -178,7 +178,6 @@ export const WalletProvider = (props) => {
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
         !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
-        console.log('setwrongnetwork');
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,
@@ -243,7 +242,7 @@ export const WalletProvider = (props) => {
         await updateState({ web3Provider: provider, isUser: true });
       })
       .catch(() => {
-        if (window.location.pathname !== '/') window.location.replace('/');
+        if (window.location.pathname !== '/ssov') window.location.replace('/');
       });
   }, [updateState]);
 

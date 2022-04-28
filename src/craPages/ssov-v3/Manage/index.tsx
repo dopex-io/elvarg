@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -13,8 +13,13 @@ import PageLoader from 'components/PageLoader';
 import { SsovV3Context, SsovV3Provider } from 'contexts/SsovV3';
 import WritePositions from '../components/WritePositions';
 
-const Manage = () => {
-  const { ssovData, ssovEpochData, ssovUserData } = useContext(SsovV3Context);
+const Manage = ({ ssov }: { ssov: string }) => {
+  const { ssovData, ssovEpochData, ssovUserData, setSelectedSsovV3 } =
+    useContext(SsovV3Context);
+
+  useEffect(() => {
+    setSelectedSsovV3({ ssov, type: 'CALL', symbol: 'ETH' });
+  }, [ssov, setSelectedSsovV3]);
 
   if (ssovData === undefined || ssovEpochData === undefined)
     return (
@@ -55,10 +60,10 @@ const Manage = () => {
 };
 
 const ManagePage = () => {
-  const { asset } = useParams();
+  const { ssov } = useParams();
   return (
     <SsovV3Provider>
-      <Manage />
+      <Manage ssov={ssov} />
     </SsovV3Provider>
   );
 };

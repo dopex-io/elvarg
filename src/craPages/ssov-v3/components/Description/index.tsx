@@ -39,12 +39,7 @@ const Description = ({
 
   const info = [
     {
-      heading: 'Asset',
-      value: 'ETH',
-      imgSrc: '/assets/eth.svg',
-    },
-    {
-      heading: 'Farm APY',
+      heading: 'APY*',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
     },
@@ -96,9 +91,14 @@ const Description = ({
           return <InfoBox key={item.heading} {...item} />;
         })}
       </Box>
+      <Box>
+        <Typography variant={'h6'} className={'text-stieglitz'}>
+          *Effective APY if you deposit now
+        </Typography>
+      </Box>
       <Box
         role="button"
-        className="underline"
+        className="underline mt-3"
         onClick={() => setWrapOpen(true)}
       >
         Wrap ETH

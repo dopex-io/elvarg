@@ -13,7 +13,8 @@ import formatAmount from 'utils/general/formatAmount';
 import CustomButton from 'components/UI/CustomButton';
 
 interface Props extends WritePositionInterface {
-  setDialog: () => void;
+  openTransfer: () => void;
+  openWithdraw: () => void;
 }
 
 const WritePositionTableData = (props: Props) => {
@@ -23,7 +24,8 @@ const WritePositionTableData = (props: Props) => {
     epoch,
     accruedPremiums,
     accruedRewards,
-    setDialog,
+    openTransfer,
+    openWithdraw,
   } = props;
 
   return (
@@ -65,9 +67,12 @@ const WritePositionTableData = (props: Props) => {
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">{epoch}</Typography>
       </TableCell>
-      <TableCell align="left" className="pt-2">
-        <CustomButton size="medium" onClick={setDialog}>
+      <TableCell align="left" className="pt-2 flex space-x-2">
+        <CustomButton size="medium" onClick={openTransfer}>
           Transfer
+        </CustomButton>
+        <CustomButton size="medium" onClick={openWithdraw}>
+          Withdraw
         </CustomButton>
       </TableCell>
     </TableRow>

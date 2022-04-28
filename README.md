@@ -1,6 +1,6 @@
 # DApp
 
-The Dopex DApp, currently hosted on https://app.dopex.io and https://testnet.dopex.io
+The Dopex DApp, currently hosted on https://app.dopex.io
 
 ## Getting started
 

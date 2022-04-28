@@ -12,8 +12,8 @@ import { SsovV3Context } from 'contexts/SsovV3';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import InfoPopover from 'components/UI/InfoPopover';
-import Transfer from '../Dialogs/Transfer';
+import Settle from './Dialogs/Settle';
+import Transfer from './Dialogs/Transfer';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -29,7 +29,7 @@ interface ExerciseTableDataProps {
 }
 
 const DIALOGS = {
-  SETTLE: Transfer,
+  SETTLE: Settle,
   TRANSFER: Transfer,
 };
 
@@ -44,8 +44,6 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   } = props;
 
   const { ssovData, ssovEpochData, selectedSsovV3 } = useContext(SsovV3Context);
-
-  const isPut = useMemo(() => selectedSsovV3.type === 'PUT', [selectedSsovV3]);
 
   const tokenSymbol = 'WETH';
 
@@ -156,13 +154,6 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       </TableCell>
       <TableCell align="right">
         <Box className="flex justify-end">
-          {!isEpochExpired && (
-            <InfoPopover
-              className="my-auto"
-              id="settle-info"
-              infoText="Settle is available only after expiry of this epoch."
-            />
-          )}
           <CustomButton
             size="medium"
             className="px-2"

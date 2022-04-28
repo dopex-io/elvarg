@@ -13,6 +13,7 @@ import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 import CustomButton from 'components/UI/CustomButton';
 import FarmingMigrationBanner from 'components/Banners/FarmingMigrationBanner';
+import LegacyFarmBanner from 'components/Banners/LegacyFarmBanner';
 
 import { FarmingContext } from 'contexts/Farming';
 import { WalletContext } from 'contexts/Wallet';
@@ -29,6 +30,8 @@ const Farms = () => {
     RDPXPool,
     DPX_WETHPool,
     rDPX_WETHPool,
+    legacyFarmBalance,
+    checkLegacyFarmBalance,
   } = useContext(FarmingContext);
 
   const sendTx = useSendTx();
@@ -43,6 +46,10 @@ const Farms = () => {
     return chainId !== 42161 ? true : false;
   }, [chainId]);
 
+  const showLegacyFarmBanner = useMemo(() => {
+    return chainId == 42161 ? (legacyFarmBalance.gt(0) ? true : false) : false;
+  }, [chainId, legacyFarmBalance]);
+
   useEffect(() => {
     (async function () {
       await Promise.all([
@@ -53,6 +60,13 @@ const Farms = () => {
       ]);
     })();
   }, [setPool, chainId]);
+
+  useEffect(() => {
+    (async function () {
+      if (!accountAddress) return;
+      await checkLegacyFarmBalance();
+    })();
+  }, [accountAddress, checkLegacyFarmBalance]);
 
   useEffect(() => {
     (async function () {
@@ -103,13 +117,10 @@ const Farms = () => {
     (function () {
       if (!DPXPool.TVL || !DPX_WETHPool.TVL || !rDPX_WETHPool.TVL) return;
       setTotalTVL(
-        DPXPool.TVL.add(DPX_WETHPool.TVL)
-          .add(rDPX_WETHPool.TVL)
-          .add(RDPXPool.TVL)
-          .toNumber()
+        DPXPool.TVL.add(DPX_WETHPool.TVL).add(rDPX_WETHPool.TVL).toNumber()
       );
     })();
-  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL, RDPXPool.TVL]);
+  }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL]);
 
   const handleClaimAll = useCallback(async () => {
     if (DPX.rewards[0] > 0 || DPX.rewards[1] > 0) {
@@ -188,9 +199,12 @@ const Farms = () => {
         <title>Farms | Dopex</title>
       </Head>
       {showBanner && <FarmingMigrationBanner />}
+      {showLegacyFarmBanner && <LegacyFarmBanner amount={legacyFarmBalance} />}
       <AppBar active="farms" />
       <Box
-        className={`px-2 ${showBanner ? 'py-10' : 'py-40'} max-w-5xl mx-auto`}
+        className={`px-2 ${
+          showBanner ? 'py-10' : showLegacyFarmBanner ? 'py-10' : 'py-40'
+        } max-w-5xl mx-auto`}
       >
         <Box className="text-center flex flex-col mb-14">
           <Typography variant="h1" className="mb-2 text-white">
@@ -284,21 +298,17 @@ const Farms = () => {
                         poolInfo={rDPX_WETHPool}
                       />
                     ) : null}
-                    {RDPX.userStakedBalance.gt(0) ? (
-                      <Pool
-                        token={RDPX}
-                        Icon={'/assets/rdpx.svg'}
-                        poolInfo={RDPXPool}
-                      />
-                    ) : null}
                   </Box>
                 </Box>
               ) : null}
-              {yourDeposit < 4 ? (
-                <Box className="flex flex-col bg-cod-gray p-4 rounded-xl items-center">
-                  <Typography variant="h6" className="text-center mb-4">
-                    Available Farms ({4 - yourDeposit})
-                  </Typography>
+              {yourDeposit < 3 ? (
+                <Box className="flex flex-col bg-cod-gray p-4 rounded-xl lg:mr-4 mb-8 lg:mb-0  items-center">
+                  <Box className="grid">
+                    <Typography variant="h6" className="text-center mb-4">
+                      Available Farms ({3 - yourDeposit})
+                    </Typography>
+                  </Box>
+
                   {accountAddress ? (
                     <Box
                       className="flex flex-col lg:flex-row lg:space-x-4"
@@ -325,13 +335,6 @@ const Farms = () => {
                           poolInfo={rDPX_WETHPool}
                         />
                       ) : null}
-                      {RDPX.userStakedBalance.eq(0) ? (
-                        <Pool
-                          token={RDPX}
-                          Icon={'/assets/rdpx.svg'}
-                          poolInfo={RDPXPool}
-                        />
-                      ) : null}
                     </Box>
                   ) : (
                     <Box
@@ -353,6 +356,36 @@ const Farms = () => {
                         Icon={'/assets/rdpx_weth.svg'}
                         poolInfo={rDPX_WETHPool}
                       />
+                    </Box>
+                  )}
+                </Box>
+              ) : null}
+              {yourDeposit < 3 ? (
+                <Box className="flex flex-col bg-cod-gray p-4 rounded-xl items-center">
+                  <Box className="grid">
+                    <Typography variant="h6" className="text-center mb-4">
+                      Retired Farms (1)
+                    </Typography>
+                  </Box>
+
+                  {accountAddress ? (
+                    <Box
+                      className="flex flex-col lg:flex-row lg:space-x-4"
+                      style={{ height: '-webkit-fill-available' }}
+                    >
+                      {RDPX.userStakedBalance.eq(0) ? (
+                        <Pool
+                          token={RDPX}
+                          Icon={'/assets/rdpx.svg'}
+                          poolInfo={RDPXPool}
+                        />
+                      ) : null}
+                    </Box>
+                  ) : (
+                    <Box
+                      className="flex flex-col lg:flex-row lg:space-x-4"
+                      style={{ height: '-webkit-fill-available' }}
+                    >
                       <Pool
                         token={RDPX}
                         Icon={'/assets/rdpx.svg'}

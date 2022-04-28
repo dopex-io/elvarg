@@ -67,7 +67,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'sale', to: '/sale' },
   ],
-  56: [{ name: 'vaults', to: '/vaults' }],
+  56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
     { name: 'options', to: '/' },
     { name: 'pools', to: '/pools' },
@@ -75,26 +75,21 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
   ],
   421611: [
-    { name: 'options', to: '/' },
-    { name: 'pools', to: '/pools' },
-    { name: 'portfolio', to: '/portfolio' },
-    { name: 'faucet', to: '/faucet' },
-    { name: 'swap', to: '/swap' },
-    { name: 'vaults', to: '/vaults' },
+    // { name: 'options', to: '/' },
+    // { name: 'pools', to: '/pools' },
+    // { name: 'portfolio', to: '/portfolio' },
+    // { name: 'faucet', to: '/faucet' },
+    // { name: 'swap', to: '/swap' },
+    // { name: 'SSOV', to: '/ssov' },
+    { name: 'OTC', to: '/' },
   ],
   42161: [
     { name: 'farms', to: '/farms' },
-    { name: 'vaults', to: '/vaults' },
+    { name: 'SSOV', to: '/ssov' },
     { name: 'OTC', to: '/otc' },
   ],
-  43114: [{ name: 'vaults', to: '/vaults' }],
-  // { name: 'options', to: '/' },
-  // { name: 'pools', to: '/pools' },
-  // { name: 'portfolio', to: '/portfolio' },
-  // { name: 'faucet', to: '/faucet' },
-  // { name: 'swap', to: '/swap' },
-  // { name: 'SSOV', to: '/ssov' },
-  1088: [{ name: 'vaults', to: '/vaults' }],
+  43114: [{ name: 'SSOV', to: '/ssov' }],
+  1088: [{ name: 'SSOV', to: '/ssov' }],
 };
 
 const menuLinks = [
@@ -119,7 +114,7 @@ interface AppBarProps {
     | 'portfolio'
     | 'token sale'
     | 'faucet'
-    | 'vaults'
+    | 'SSOV'
     | 'leaderboard'
     | 'swap'
     | 'OTC'
@@ -259,16 +254,6 @@ export default function AppBar(props: AppBarProps) {
             </Box>
           </Box>
           <Box className="flex items-center">
-            {/* {baseAssetsWithPrices ? (
-            <PriceTag
-              asset={baseAssetsWithPrices[selectedBaseAsset].symbol}
-              price={getUserReadableAmount(
-                baseAssetsWithPrices[selectedBaseAsset].price,
-                8
-              )}
-              className="mr-2 lg:hidden"
-            />
-          ) : null} */}
             {accountAddress ? (
               <Box className="bg-cod-gray flex flex-row rounded-md items-center">
                 <Button

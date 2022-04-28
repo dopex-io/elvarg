@@ -74,11 +74,9 @@ const VaultsRoutes = () => {
 
 const SsovV3Routes = () => {
   return (
-    <BnbConversionProvider>
-      <Routes>
-        <Route path=":type/:asset" element={<SsovV3Manage />} />
-      </Routes>
-    </BnbConversionProvider>
+    <Routes>
+      <Route path=":ssov" element={<SsovV3Manage />} />
+    </Routes>
   );
 };
 
@@ -136,7 +134,7 @@ function AppRoutes() {
               <Route path="sale" element={<TokenSale />} />
               <Route path="vaults/*" element={<VaultsRoutes />} />
               <Route path="ssov/*" element={<SsovRoutes />} />
-              <Route path="ssov/v3/*" element={<SsovV3Routes />} />
+              <Route path="ssov-v3/*" element={<SsovV3Routes />} />
               <Route path="farms/*" element={<FarmRoutes />} />
               <Route path="nfts/*" element={<NftsRoutes />} />
               <Route path="oracles" element={<Oracles />} />

@@ -15,6 +15,7 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WritePositionTableData from './WritePositionData';
 import TransferDialog from './TransferDialog';
+import WithdrawDialog from './WithdrawDialog';
 
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 
@@ -61,9 +62,15 @@ const WritePositions = (props: { className?: string }) => {
   }, [ssovUserData.writePositions]);
 
   const [dialog, setDialog] = useState<
-    undefined | { open: boolean; data: WritePositionInterface }
+    | undefined
+    | {
+        open: boolean;
+        type: 'WITHDRAW' | 'TRANSFER';
+        data: WritePositionInterface;
+      }
   >({
     open: false,
+    type: 'WITHDRAW',
     data: {
       collateralAmount: BigNumber.from(0),
       strike: BigNumber.from(0),
@@ -75,7 +82,8 @@ const WritePositions = (props: { className?: string }) => {
   });
 
   const handleClose = useCallback(() => {
-    setDialog({
+    setDialog((prevState) => ({
+      ...prevState,
       open: false,
       data: {
         collateralAmount: BigNumber.from(0),
@@ -85,7 +93,7 @@ const WritePositions = (props: { className?: string }) => {
         epoch: 0,
         tokenId: BigNumber.from(0),
       },
-    });
+    }));
   }, []);
 
   const handleChangePage = useCallback(
@@ -97,7 +105,11 @@ const WritePositions = (props: { className?: string }) => {
 
   return selectedEpoch > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
-      <TransferDialog {...dialog} handleClose={handleClose} />
+      {dialog.type === 'WITHDRAW' ? (
+        <WithdrawDialog {...dialog} handleClose={handleClose} />
+      ) : (
+        <TransferDialog {...dialog} handleClose={handleClose} />
+      )}
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Write Positions
@@ -129,14 +141,18 @@ const WritePositions = (props: { className?: string }) => {
                     page * ROWS_PER_PAGE + ROWS_PER_PAGE
                   )
                   ?.map((o, i) => {
-                    const _setDialog = () => {
-                      setDialog({ open: true, data: o });
+                    const openTransfer = () => {
+                      setDialog({ open: true, type: 'TRANSFER', data: o });
+                    };
+                    const openWithdraw = () => {
+                      setDialog({ open: true, type: 'WITHDRAW', data: o });
                     };
                     return (
                       <WritePositionTableData
                         key={i}
                         {...o}
-                        setDialog={_setDialog}
+                        openTransfer={openTransfer}
+                        openWithdraw={openWithdraw}
                       />
                     );
                   })}
