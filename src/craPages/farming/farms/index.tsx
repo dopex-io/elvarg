@@ -368,31 +368,16 @@ const Farms = () => {
                     </Typography>
                   </Box>
 
-                  {accountAddress ? (
-                    <Box
-                      className="flex flex-col lg:flex-row lg:space-x-4"
-                      style={{ height: '-webkit-fill-available' }}
-                    >
-                      {RDPX.userStakedBalance.eq(0) ? (
-                        <Pool
-                          token={RDPX}
-                          Icon={'/assets/rdpx.svg'}
-                          poolInfo={RDPXPool}
-                        />
-                      ) : null}
-                    </Box>
-                  ) : (
-                    <Box
-                      className="flex flex-col lg:flex-row lg:space-x-4"
-                      style={{ height: '-webkit-fill-available' }}
-                    >
-                      <Pool
-                        token={RDPX}
-                        Icon={'/assets/rdpx.svg'}
-                        poolInfo={RDPXPool}
-                      />
-                    </Box>
-                  )}
+                  <Box
+                    className="flex flex-col lg:flex-row lg:space-x-4"
+                    style={{ height: '-webkit-fill-available' }}
+                  >
+                    <Pool
+                      token={RDPX}
+                      Icon={'/assets/rdpx.svg'}
+                      poolInfo={RDPXPool}
+                    />
+                  </Box>
                 </Box>
               ) : null}
             </Box>
