@@ -1,0 +1,30 @@
+$colors: (
+  ETH: #ff79a9,
+  DPX: #22e1ff,
+  RDPX: #22e1ff,
+  GOHM: #aefaff,
+  BNB: #fff59a,
+  GMX: #6dffb9,
+  AVAX: #ff4849,
+  BTC: #f09242,
+  CRV: #f09242,
+  LUNA: #f09242,
+  METIS: #6dffb9
+);
+
+@each $coin, $color in $colors {
+  $i: index($colors, $color);
+  .#{$coin} {
+    transition: background-color 0.5s ease;
+    -webkit-transition: background-color 0.5s;
+    -moz-transition: background-color 0.5s;
+    -o-transition: background-color 0.5s;
+      &:hover {
+        background-color: $color;
+      }
+  }
+}
+
+.Button {
+  background-color: #5f4d4d;
+}
