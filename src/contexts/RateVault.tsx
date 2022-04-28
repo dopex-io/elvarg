@@ -2104,7 +2104,7 @@ export const RateVault = () => {
       let currentEpoch;
 
       try {
-        currentEpoch = await _rateVaultContract.currentEpoch();
+        currentEpoch = parseInt(await _rateVaultContract.currentEpoch()) + 1;
       } catch (err) {
         console.log(err);
         return;

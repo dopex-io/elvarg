@@ -1,8 +1,9 @@
-import { useContext } from 'react';
-import { Addresses } from '@dopex-io/sdk';
+import { useContext, useCallback, useMemo } from 'react';
 import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 import Typography from 'components/UI/Typography';
 import CircleIcon from 'components/Icons/CircleIcon';
@@ -24,7 +25,35 @@ export interface Props {
 
 const Sidebar = ({ activeView, setActiveView }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
+  const { selectedEpoch, setSelectedEpoch, rateVaultData } = rateVaultContext;
+  const { currentEpoch } = rateVaultData;
   const { chainId } = useContext(WalletContext);
+
+  const handleSelectChange = useCallback(
+    (e) => {
+      setSelectedEpoch(Number(e.target.value));
+    },
+    [setSelectedEpoch]
+  );
+
+  const epochs = useMemo(() => {
+    let _epoch = currentEpoch + 1;
+
+    return Array(_epoch)
+      .join()
+      .split(',')
+      .map((_i, index) => {
+        return (
+          <MenuItem
+            value={index + 1}
+            key={index + 1}
+            className="text-stieglitz"
+          >
+            {index + 1}
+          </MenuItem>
+        );
+      });
+  }, [currentEpoch, rateVaultData]);
 
   return (
     <Box className={'absolute w-[20rem]'}>
@@ -35,10 +64,21 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
       </Box>
       <Box className={'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl mt-5'}>
         <Box className={'flex'}>
-          <Box className={'bg-[#2D2D2D] p-1 pr-3.5 pl-3.5 rounded-md mr-3'}>
-            <Typography variant="h4" className="text-stieglitz">
-              {Math.max(rateVaultContext.rateVaultData.currentEpoch, 1)}
-            </Typography>
+          <Box
+            className={'bg-[#2D2D2D] rounded-md mr-3 custom-select-no-border'}
+          >
+            <Select
+              value={selectedEpoch}
+              onChange={handleSelectChange}
+              className="text-stieglitz"
+              MenuProps={{
+                classes: { paper: 'bg-umbra' },
+              }}
+              classes={{ icon: 'text-stieglitz' }}
+              placeholder={'-'}
+            >
+              {epochs}
+            </Select>
           </Box>
           <Button className={styles.button}>
             <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
