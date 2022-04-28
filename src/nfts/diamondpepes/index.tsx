@@ -19,7 +19,7 @@ import formatAmount from '../../../utils/general/formatAmount';
 
 import { Data, UserData, initialData } from './interfaces';
 
-import { WalletContext } from '../../../contexts/Wallet';
+import { WalletContext } from '../../../../contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
 

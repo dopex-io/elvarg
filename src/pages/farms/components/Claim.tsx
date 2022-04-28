@@ -13,7 +13,7 @@ import { FarmingContext } from 'contexts/Farming';
 
 import useSendTx from 'hooks/useSendTx';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
 export interface Props {
   open: boolean;
   handleClose: () => {};

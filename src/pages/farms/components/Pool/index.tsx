@@ -19,8 +19,8 @@ import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import RewardsCountdown from './RewardsCountdown/RewardsCountdown';
 
-import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from '../../../../utils/general/formatAmount';
+import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
 
 import useSendTx from 'hooks/useSendTx';
 

@@ -25,7 +25,7 @@ import { Data, UserData, initialData } from '../interfaces';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from '../../../../contexts/Wallet';
+import { WalletContext } from '../../../../../contexts/Wallet';
 
 import styles from '../styles.module.scss';
 

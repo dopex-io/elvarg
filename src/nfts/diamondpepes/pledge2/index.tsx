@@ -16,7 +16,7 @@ import Pledge2Dialog from '../../components/Pledge2Dialog';
 
 import { Data, UserData, initialData } from '../interfaces';
 
-import { WalletContext } from '../../../../contexts/Wallet';
+import { WalletContext } from '../../../../../contexts/Wallet';
 
 import styles from '../styles.module.scss';
 
