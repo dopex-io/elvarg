@@ -14,8 +14,8 @@ import TablePagination from '@mui/material/TablePagination';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WritePositionTableData from './WritePositionData';
-import TransferDialog from './TransferDialog';
-import WithdrawDialog from './WithdrawDialog';
+import TransferDialog from './Dialogs/TransferDialog';
+import WithdrawDialog from './Dialogs/WithdrawDialog';
 
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 

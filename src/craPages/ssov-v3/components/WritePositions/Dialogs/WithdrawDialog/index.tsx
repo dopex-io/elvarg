@@ -2,11 +2,12 @@ import { useCallback, useContext } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { utils as ethersUtils } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Stat from '../Stat';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
@@ -20,19 +21,6 @@ export interface Props {
   handleClose: () => void;
   data: WritePositionInterface;
 }
-
-const Stat = ({ name, value }: { name: string; value: string }) => {
-  return (
-    <Box className="flex flex-row justify-between">
-      <Typography variant="h6" component="div" className="text-stieglitz">
-        {name}
-      </Typography>
-      <Typography variant="h6" component="div">
-        {value}
-      </Typography>
-    </Box>
-  );
-};
 
 const WithdrawDialog = ({ open, handleClose, data }: Props) => {
   const { ssovData, selectedSsovV3, ssovSigner } = useContext(SsovV3Context);
@@ -82,13 +70,20 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
           />
           <Stat
             name="Accrued Premiums"
-            value={`${getUserReadableAmount(data.accruedPremiums, 18)} ${
-              ssovData.tokenName
-            }`}
+            value={
+              <>
+                <NumberDisplay n={data.accruedPremiums} decimals={18} />{' '}
+                {ssovData.tokenName}
+              </>
+            }
           />
           <Stat
             name="Accrued Rewards"
-            value={`${ethersUtils.formatEther(data.accruedRewards[0])} DPX`}
+            value={
+              <>
+                <NumberDisplay n={data.accruedRewards[0]} decimals={18} /> DPX
+              </>
+            }
           />
           <Stat name="Epoch" value={data.epoch.toString()} />
         </Box>

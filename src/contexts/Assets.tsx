@@ -119,8 +119,6 @@ export const AssetsProvider = (props) => {
         })
         .filter((asset) => asset !== '');
 
-      console.log(assetAddresses, provider);
-
       const balanceCalls = assetAddresses.map((assetAddress) =>
         ERC20__factory.connect(assetAddress, provider).balanceOf(accountAddress)
       );

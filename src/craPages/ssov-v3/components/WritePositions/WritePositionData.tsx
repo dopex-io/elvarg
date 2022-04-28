@@ -1,5 +1,4 @@
 import React from 'react';
-import { utils } from 'ethers';
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -10,7 +9,8 @@ import { WritePositionInterface } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import CustomButton from 'components/UI/CustomButton';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import SplitButton from 'components/UI/SplitButton';
 
 interface Props extends WritePositionInterface {
   openTransfer: () => void;
@@ -52,14 +52,14 @@ const WritePositionTableData = (props: Props) => {
       </TableCell>
       <TableCell>
         <Typography variant="h6">
-          {utils.formatEther(accruedPremiums)} WETH
+          <NumberDisplay n={accruedPremiums} decimals={18} /> WETH
         </Typography>
       </TableCell>
       <TableCell>
         {accruedRewards.map((rewards, index) => {
           return (
             <Typography variant="h6" key={index}>
-              {utils.formatEther(rewards)} DPX
+              <NumberDisplay n={rewards} decimals={18} /> DPX
             </Typography>
           );
         })}
@@ -68,12 +68,13 @@ const WritePositionTableData = (props: Props) => {
         <Typography variant="h6">{epoch}</Typography>
       </TableCell>
       <TableCell align="left" className="pt-2 flex space-x-2">
-        <CustomButton size="medium" onClick={openTransfer}>
-          Transfer
-        </CustomButton>
-        <CustomButton size="medium" onClick={openWithdraw}>
-          Withdraw
-        </CustomButton>
+        <SplitButton
+          options={['Transfer', 'Withdraw']}
+          handleClick={(index) => {
+            if (index === 0) openTransfer();
+            else openWithdraw();
+          }}
+        />
       </TableCell>
     </TableRow>
   );
