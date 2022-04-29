@@ -1889,6 +1889,22 @@ export const RateVault = () => {
     [rateVaultContract]
   );
 
+  const calculatePurchaseFee = useCallback(
+    async (rate, strike, isPut) => {
+      try {
+        return await rateVaultContract.calculatePremium(
+          rate,
+          strike,
+          BigNumber.from('1000000000000000000'),
+          isPut
+        );
+      } catch (err) {
+        return BigNumber.from('0');
+      }
+    },
+    [rateVaultContract]
+  );
+
   const getCurrentRate = useCallback(async () => {
     try {
       return await rateVaultContract.getCurrentRate();
@@ -1946,20 +1962,10 @@ export const RateVault = () => {
         putsPremiumCostsPromises.push(calculatePremium(epochStrikes[i], true));
 
         callsFeesPromises.push(
-          rateVaultContract.calculatePurchaseFees(
-            rate,
-            epochStrikes[i],
-            BigNumber.from('1000000000000000000'),
-            false
-          )
+          calculatePurchaseFee(rate, epochStrikes[i], false)
         );
         putsFeesPromises.push(
-          rateVaultContract.calculatePurchaseFees(
-            rate,
-            epochStrikes[i],
-            BigNumber.from('1000000000000000000'),
-            true
-          )
+          calculatePurchaseFee(rate, epochStrikes[i], true)
         );
       }
 
@@ -2104,7 +2110,7 @@ export const RateVault = () => {
       let currentEpoch;
 
       try {
-        currentEpoch = parseInt(await _rateVaultContract.currentEpoch()) + 1;
+        currentEpoch = parseInt(await _rateVaultContract.currentEpoch());
       } catch (err) {
         console.log(err);
         return;
