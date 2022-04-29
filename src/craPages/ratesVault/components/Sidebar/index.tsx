@@ -39,7 +39,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
   const epochs = useMemo(() => {
     let _epoch = currentEpoch + 1;
 
-    return Array(_epoch)
+    return Array(_epoch - 1)
       .join()
       .split(',')
       .map((_i, index) => {

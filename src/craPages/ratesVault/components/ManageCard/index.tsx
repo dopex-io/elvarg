@@ -347,10 +347,6 @@ const ManageCard = ({
     );
   }, [rateVaultContext]);
 
-  const handleSelectStrikes = useCallback((event) => {
-    setSelectedStrikeIndexes(event.target.value as number[]);
-  }, []);
-
   const handleSelectCallLeverages = (index, value) => {
     let _selectedCallLeverages = Object.assign({}, selectedCallLeverages);
     _selectedCallLeverages[index] = value;
@@ -362,6 +358,18 @@ const ManageCard = ({
     _selectedPutLeverages[index] = value;
     setSelectedPutLeverages(_selectedPutLeverages);
   };
+
+  const handleSelectStrikes = useCallback((event) => {
+    setSelectedStrikeIndexes(event.target.value as number[]);
+    handleSelectCallLeverages(
+      event.target.value[event.target.value.length - 1],
+      0
+    );
+    handleSelectPutLeverages(
+      event.target.value[event.target.value.length - 1],
+      0
+    );
+  }, []);
 
   const vaultShare: number = useMemo(() => {
     return totalDepositAmount > 0
@@ -736,7 +744,7 @@ const ManageCard = ({
               {selectedStrikeIndexes.map((index) => (
                 <Box className="flex mb-3 group" key={index}>
                   <Button
-                    className="p-2 pl-4 pr-4 bg-mineshaft text-white hover:bg-mineshaft hover:opacity-80 font-normal cursor-pointer w-[4.9rem]"
+                    className="p-2 pl-1 pr-1 bg-mineshaft text-white hover:bg-mineshaft hover:opacity-80 font-normal cursor-pointer w-[4.9rem]"
                     disableRipple
                     onClick={() => unselectStrike(index)}
                   >
@@ -772,7 +780,7 @@ const ManageCard = ({
                             variant="h6"
                             className="text-white text-center w-full relative"
                           >
-                            {selectedCallLeverages[index] || '-'}
+                            {selectedCallLeverages[index]}
                           </Typography>
                         );
                       }}
@@ -825,7 +833,7 @@ const ManageCard = ({
                             variant="h6"
                             className="text-white text-center w-full relative"
                           >
-                            {selectedPutLeverages[index] || '-'}
+                            {selectedPutLeverages[index]}
                           </Typography>
                         );
                       }}
@@ -956,15 +964,15 @@ const ManageCard = ({
                 </Typography>
               ) : (
                 <Typography variant="h6" className="text-stieglitz">
-                  Withdrawals are locked until end of Epoch {selectedEpoch + 1}{' '}
+                  Withdrawals are locked until end of Epoch {selectedEpoch}{' '}
                   {'   '}
                   <span className="text-white">
-                    {epochTimes[1]
+                    {epochTimes[1].gt(BigNumber.from('0'))
                       ? format(
                           new Date(epochTimes[1].toNumber() * 1000),
                           'd LLLL yyyy'
                         )
-                      : '-'}
+                      : ''}
                   </span>
                 </Typography>
               )}
