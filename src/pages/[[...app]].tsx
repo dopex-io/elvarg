@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-      <CreateReactAppEntryPoint />
+      {/* <CreateReactAppEntryPoint /> */}
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-N9THR532G6"
         strategy="afterInteractive"

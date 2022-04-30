@@ -1,5 +1,5 @@
 import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/Link';
 import cx from 'classnames';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
@@ -55,9 +55,9 @@ const AppLink = ({
     );
   } else {
     return (
-      <Link to={to} className={linkClassName}>
-        {name}
-      </Link>
+      <Box className={linkClassName}>
+        <Link href={to}>{name}</Link>
+      </Box>
     );
   }
 };

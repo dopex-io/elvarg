@@ -1,5 +1,5 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import {
   collection,
   query,
@@ -28,9 +28,8 @@ import { WalletContext } from 'contexts/Wallet';
 import { db } from 'utils/firebase/initialize';
 
 const Chatroom = () => {
-  const chat = useParams();
-  const navigate = useNavigate();
-
+  const router = useRouter();
+  const chatId = router.query[''][0];
   const { validateUser, user } = useContext(OtcContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -47,7 +46,7 @@ const Chatroom = () => {
   });
 
   const q = query(
-    collection(db, `chatrooms/${chat.id}/messages`),
+    collection(db, `chatrooms/${router.query[''][0]}/messages`),
     orderBy('timestamp')
   );
 
@@ -66,13 +65,13 @@ const Chatroom = () => {
   const handleSubmit = useCallback(async () => {
     if (formik.values.msg === '') return;
 
-    await addDoc(collection(db, `chatrooms/${chat.id}/${'messages'}`), {
+    await addDoc(collection(db, `chatrooms/${chatId}/${'messages'}`), {
       msg: formik.values.msg,
       timestamp: new Date(),
       username: user.username,
     });
     formik.setFieldValue('msg', '');
-  }, [formik, chat, user]);
+  }, [formik, chatId, user]);
 
   useEffect(() => {
     (async () => {
@@ -83,14 +82,14 @@ const Chatroom = () => {
       });
 
       const chatroomData = chatrooms
-        .filter((document) => document.id === chat.id)
+        .filter((document) => document.id === chatId)
         .pop();
 
       setFulfilled(chatroomData.data.isFulfilled);
 
       setLoading(!msgs);
     })();
-  }, [msgs, validateUser, formik, chat.id]);
+  }, [msgs, validateUser, formik, chatId]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -100,14 +99,14 @@ const Chatroom = () => {
           <Box className="bg-umbra rounded-t-xl">
             <Box className="flex justify-between">
               <Box className="flex space-x-4">
-                <IconButton onClick={() => navigate('/otc')} disableRipple>
+                <IconButton onClick={() => router.push('/otc')} disableRipple>
                   <ArrowBackIcon className="fill-current text-stieglitz" />
                 </IconButton>
                 <Typography variant="h6" className="my-auto">
                   Chat Session
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz my-auto">
-                  {chat.id}
+                  {chatId}
                 </Typography>
               </Box>
             </Box>

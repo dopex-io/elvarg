@@ -345,19 +345,23 @@ export const SsovProvider = (props) => {
         : contractAddresses.SSOV;
 
     let _ssovSigner;
+    const tokens = SSOV_MAP[selectedSsov?.token]?.tokens;
 
-    const tokens = SSOV_MAP[selectedSsov.token].tokens;
+    let _tokens;
+    if (tokens !== undefined) {
+      _tokens = tokens.map((tokenName: string) => {
+        if (tokenName === 'ETH' || tokenName === 'AVAX') {
+          return null;
+        } else {
+          return (
+            contractAddresses[tokenName] &&
+            ERC20__factory.connect(contractAddresses[tokenName], signer)
+          );
+        }
+      });
 
-    const _tokens = tokens.map((tokenName: string) => {
-      if (tokenName === 'ETH' || tokenName === 'AVAX') {
-        return null;
-      } else {
-        return (
-          contractAddresses[tokenName] &&
-          ERC20__factory.connect(contractAddresses[tokenName], signer)
-        );
-      }
-    });
+      console.log(tokens);
+    }
 
     const ssovAddresses =
       contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][
