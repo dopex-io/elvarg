@@ -29,7 +29,7 @@
     "ethereumjs-util": "^7.1.4",
     "ethers": "5.6.4",
     "firebase": "^9.6.1",
-    "formik": "^2.2.6",
+    "formik": "^2.2.9",
     "graphql": "^16.0.1",
     "lodash": "^4.17.20",
     "next": "^12.1.0",

@@ -16,7 +16,7 @@ function App() {
   return (
     <>
       {/* <CreateReactAppEntryPoint /> */}
-      <Script
+      {/* <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-N9THR532G6"
         strategy="afterInteractive"
       />
@@ -28,7 +28,7 @@ function App() {
 
           gtag('config', 'G-N9THR532G6');
         `}
-      </Script>
+      </Script> */}
     </>
   );
 }

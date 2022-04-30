@@ -9,7 +9,7 @@ import CustomButton from 'components/UI/CustomButton';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { Order } from 'pages/tzwap/interfaces';
+import { Order } from 'interfaces/tzwap/interfaces';
 
 export interface Props {
   isFetchingOrders: boolean;

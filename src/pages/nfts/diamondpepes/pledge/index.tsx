@@ -18,7 +18,11 @@ import AppBar from 'components/AppBar';
 
 import PledgeDialog from 'components/Nfts/PledgeDialog';
 
-import { Data, UserData, initialData } from '../interfaces';
+import {
+  Data,
+  UserData,
+  initialData,
+} from '../../../../interfaces/diamondpepes/interfaces';
 
 import useSendTx from 'hooks/useSendTx';
 
