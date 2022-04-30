@@ -6,7 +6,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { DocumentData } from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';
-import RfqCard from 'craPages/otc/components/RfqCard';
+import RfqCard from 'components/Otc/RfqCard';
 
 import getAssetFromOptionSymbol from 'utils/general/getAssetFromOptionSymbol';
 

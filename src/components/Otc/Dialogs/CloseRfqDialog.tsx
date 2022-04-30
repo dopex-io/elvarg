@@ -14,7 +14,7 @@ import {
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
-import DialogDataRow from 'craPages/otc/components/DialogDataRow';
+import DialogDataRow from 'components/Otc/DialogDataRow';
 
 import { WalletContext } from 'contexts/Wallet';
 

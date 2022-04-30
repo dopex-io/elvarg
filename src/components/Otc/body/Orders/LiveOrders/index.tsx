@@ -11,7 +11,7 @@ import Skeleton from '@mui/material/Skeleton';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
-import Settle from 'craPages/otc/components/Dialogs/Settle';
+import Settle from 'components/Otc/Dialogs/Settle';
 
 import { OtcContext } from 'contexts/Otc';
 

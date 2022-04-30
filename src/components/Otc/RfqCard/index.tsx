@@ -5,8 +5,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
-import CustomMenu from 'craPages/otc/components/CustomMenu';
-import RfqCardItem from 'craPages/otc/components/RfqCardItem';
+import CustomMenu from 'components/Otc/CustomMenu';
+import RfqCardItem from 'components/Otc/RfqCardItem';
 
 import formatAmount from 'utils/general/formatAmount';
 import smartTrim from 'utils/general/smartTrim';

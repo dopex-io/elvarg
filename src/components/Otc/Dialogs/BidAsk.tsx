@@ -20,7 +20,7 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
-import DialogDataRow from 'craPages/otc/components/DialogDataRow';
+import DialogDataRow from 'components/Otc/DialogDataRow';
 
 import { OtcContext } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';

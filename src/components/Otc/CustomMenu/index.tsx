@@ -4,8 +4,8 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import BidAsk from 'craPages/otc/components/Dialogs/BidAsk';
-import CloseRfqDialog from 'craPages/otc/components/Dialogs/CloseRfqDialog';
+import BidAsk from 'components/Otc/Dialogs/BidAsk';
+import CloseRfqDialog from 'components/Otc/Dialogs/CloseRfqDialog';
 
 import { WalletContext } from 'contexts/Wallet';
 

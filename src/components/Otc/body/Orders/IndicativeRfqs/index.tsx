@@ -19,8 +19,8 @@ import delay from 'lodash/delay';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
-import CustomMenu from 'craPages/otc/components/CustomMenu';
-import IndicativeRfqsSm from 'craPages/otc/body/Orders/IndicativeRfqs/IndicativeRfqsSm';
+import CustomMenu from 'components/Otc/CustomMenu';
+import IndicativeRfqsSm from 'components/Otc/body/Orders/IndicativeRfqs/IndicativeRfqsSm';
 
 import { OtcContext } from 'contexts/Otc';
 

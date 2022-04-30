@@ -6,7 +6,7 @@ import { ERC20__factory } from '@dopex-io/sdk';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import Dialog from 'components/UI/Dialog';
-import DialogDataRow from 'craPages/otc/components/DialogDataRow';
+import DialogDataRow from 'components/Otc/DialogDataRow';
 
 import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
