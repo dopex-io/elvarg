@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/Link';
 import axios from 'axios';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
@@ -32,12 +32,13 @@ const InfoSection = () => {
       </Typography>
       <Typography variant="h5" className="mb-5 text-stieglitz">
         The sale has concluded with{' '}
-        <span className="text-wave-blue">4808 ETH</span> raised during the
-        duration of the sale. If you haven't claimed your share, do so from the
-        panel on the right. Farming is ongoing and can be accessed{' '}
-        <Link to="/farms" className="text-wave-blue">
-          here.
-        </Link>
+        <span className="text-wave-blue">4808 ETH</span>{' '}
+        {
+          "raised during the duration of the sale. If you haven't claimed your share, do so from the panel on the right. Farming is ongoing and can be accessed"
+        }{' '}
+        <Box className="text-wave-blue">
+          <Link href="/farms">here.</Link>
+        </Box>
       </Typography>
       <Box className="flex lg:flex-row flex-col mb-14 lg:mb-10">
         <Button

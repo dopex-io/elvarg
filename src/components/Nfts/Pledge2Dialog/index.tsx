@@ -25,7 +25,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
-import { Data, UserData } from '../../diamondpepes/interfaces';
+import { Data, UserData } from 'pages/nfts/diamondpepes/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
