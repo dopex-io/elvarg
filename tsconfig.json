@@ -18,12 +18,6 @@
     "noFallthroughCasesInSwitch": true,
     "incremental": true
   },
-  "include": [
-    "src",
-    "App.tsx",
-    "pages/pages",
-    "pages/farms/index.tsx",
-    "pages/farms/manage"
-  ],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
