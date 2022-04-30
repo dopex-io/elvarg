@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { ERC20__factory, StakingRewards__factory } from '@dopex-io/sdk';
-import Link from 'next/Link';
+import Link from 'next/link';
 import { useFormik } from 'formik';
 import { BigNumber } from 'ethers';
 import * as yup from 'yup';

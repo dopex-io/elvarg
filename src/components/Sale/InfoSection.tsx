@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Link from 'next/Link';
+import Link from 'next/link';
 import axios from 'axios';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';

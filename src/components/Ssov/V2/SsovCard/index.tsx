@@ -2,7 +2,7 @@ import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import { utils as ethersUtils } from 'ethers';
-import Link from 'next/Link';
+import Link from 'next/link';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
