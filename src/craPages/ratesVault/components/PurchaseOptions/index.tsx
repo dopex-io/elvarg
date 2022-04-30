@@ -259,7 +259,7 @@ const PurchaseOptions = ({
                                   className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}
                                 >
                                   <Typography variant="h6">
-                                    {formatAmount(row['strike'], 0)}%
+                                    {formatAmount(row['strike'], 1)}%
                                   </Typography>
                                 </Box>
                               </Box>
