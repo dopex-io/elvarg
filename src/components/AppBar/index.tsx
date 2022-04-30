@@ -55,9 +55,9 @@ const AppLink = ({
     );
   } else {
     return (
-      <Box className={linkClassName}>
-        <Link href={to}>{name}</Link>
-      </Box>
+      <Link href={to} passHref>
+        <Box className={linkClassName}>{name}</Box>
+      </Link>
     );
   }
 };
