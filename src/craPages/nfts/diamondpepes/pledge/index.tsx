@@ -1,13 +1,11 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import {
   YieldMint__factory,
-  UniswapPair__factory,
   DiamondPepeNFTsPledge__factory,
   DiamondPepeNFTs__factory,
   Addresses,
 } from '@dopex-io/sdk';
 import Head from 'next/head';
-import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
@@ -16,10 +14,7 @@ import { Tooltip } from '@mui/material';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import PledgeDialog from '../../components/PledgeDialog';
-
-import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
-import formatAmount from '../../../../utils/general/formatAmount';
+import PledgeDialog from '../components/PledgeDialog';
 
 import { Data, UserData, initialData } from '../interfaces';
 
@@ -30,14 +25,12 @@ import { WalletContext } from '../../../../contexts/Wallet';
 import styles from '../styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, contractAddresses, provider, signer, chainId } =
+  const { accountAddress, provider, signer, chainId } =
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
     useState<string>('hidden');
-  const [isMintDialogVisible, setIsMintDialogVisible] =
-    useState<boolean>(false);
   const yieldMint = YieldMint__factory.connect(
     Addresses[chainId]['DiamondPepesNFTMint'],
     provider
