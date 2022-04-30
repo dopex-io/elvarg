@@ -134,7 +134,6 @@ if (typeof window !== 'undefined') {
 }
 
 export const WalletProvider = (props) => {
-  // const location = useLocation();
   const router = useRouter();
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',

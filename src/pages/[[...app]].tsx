@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import Script from 'next/script';
 
-import CreateReactAppEntryPoint from '../App';
-
+// import CreateReactAppEntryPoint from '../../App';
 function App() {
   const [isMounted, setIsMounted] = useState(false);
 

@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
-import Link from 'next/Link';
 import cx from 'classnames';
+import Link from 'next/link';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
