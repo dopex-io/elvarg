@@ -372,7 +372,7 @@ const PurchaseCard = ({
         .purchase(
           strikeIndex,
           activeVaultContextSide === 'PUT',
-          getContractReadableAmount(optionsAmount, 18),
+          getContractReadableAmount(notionalSize, 18),
           accountAddress
         )
     );
@@ -384,7 +384,7 @@ const PurchaseCard = ({
     accountAddress,
     rateVaultContext,
     activeVaultContextSide,
-    optionsAmount,
+    notionalSize,
     sendTx,
     strikeIndex,
     updateAssetBalances,
@@ -421,7 +421,7 @@ const PurchaseCard = ({
   useEffect(() => {
     (async () => {
       const finalAmount: BigNumber = getContractReadableAmount(
-        optionsAmount,
+        notionalSize,
         18
       );
       const token = ERC20__factory.connect(
@@ -440,7 +440,7 @@ const PurchaseCard = ({
     purchaseTokenName,
     accountAddress,
     approved,
-    optionsAmount,
+    notionalSize,
     contractAddresses,
     spender,
     signer,
@@ -453,7 +453,7 @@ const PurchaseCard = ({
 
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
-      optionsAmount <= 0 ||
+      notionalSize <= 0 ||
         isFetchingPath ||
         !isPurchasePowerEnough ||
         isPurchaseStatsLoading ||
@@ -463,7 +463,7 @@ const PurchaseCard = ({
 
     let onClick = () => {};
 
-    if (optionsAmount > 0 && isPurchasePowerEnough) {
+    if (notionalSize > 0 && isPurchasePowerEnough) {
       if (approved) {
         if (isPurchasePowerEnough) {
           onClick = handlePurchase;
@@ -478,7 +478,7 @@ const PurchaseCard = ({
     if (isLiquidityEnough) {
       if (isPurchaseStatsLoading) {
         children = 'Loading prices...';
-      } else if (optionsAmount > 0) {
+      } else if (notionalSize > 0) {
         if (isFetchingPath) {
           children = 'Loading Swap Path....';
         } else if (getUserReadableAmount(totalCost, 18) > purchasePower) {
@@ -509,7 +509,7 @@ const PurchaseCard = ({
     isLiquidityEnough,
     isPurchasePowerEnough,
     isPurchaseStatsLoading,
-    optionsAmount,
+    notionalSize,
     purchasePower,
     totalCost,
     userEpochStrikePurchasableAmount,
@@ -611,7 +611,7 @@ const PurchaseCard = ({
                     getUserReadableAmount(optionPrice, 8)
               }
               optionPrice={getUserReadableAmount(optionPrice, 8)}
-              amount={optionsAmount}
+              amount={notionalSize}
               isPut={activeVaultContextSide === 'PUT'}
               price={getUserReadableAmount(lpPrice, 8)}
               symbol={'2CRV'}
@@ -765,16 +765,6 @@ const PurchaseCard = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {purchaseTokenName}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Option Size
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(optionsAmount, 3)}
               </Typography>
             </Box>
           </Box>
