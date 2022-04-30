@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
-import NftCard from './components/NftCard';
+import NftCard from 'components/Nfts/NftCard';
 
 import { NftsContext, NftsProvider } from 'contexts/Nfts';
 

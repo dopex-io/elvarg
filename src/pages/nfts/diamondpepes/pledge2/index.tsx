@@ -12,7 +12,7 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import Pledge2Dialog from '../../components/Pledge2Dialog';
+import Pledge2Dialog from 'components/Nfts/Pledge2Dialog';
 
 import { Data, UserData, initialData } from '../interfaces';
 
@@ -262,4 +262,4 @@ const DiamondPepesNftsPage = () => (
   </NftsProvider>
 );
 
-export default DiamondPepesNfts;
+export default DiamondPepesNftsPage;

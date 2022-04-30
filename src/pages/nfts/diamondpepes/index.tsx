@@ -10,7 +10,7 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { Tooltip } from '@mui/material';
 
-import ActionsDialog from '../components/ActionsDialog';
+import ActionsDialog from 'components/Nfts/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 

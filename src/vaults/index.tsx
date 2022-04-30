@@ -12,7 +12,7 @@ import LegacyEpochsDropDown from './components/LegacyEpochsDropDown/LegacyEpochs
 import SsovCard from './components/SsovCard';
 import SsovFilter from './components/SsovFilter';
 
-import formatAmount from '../../utils/general/formatAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
