@@ -19,10 +19,9 @@ import Orders from 'components/Otc/body/Orders';
 import TradeHistory from 'components/Otc/body/TradeHistory';
 import content from 'components/Otc/OtcBanner/content.json';
 
-import { OtcContext } from 'contexts/Otc';
+import { OtcContext, OtcProvider } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 import { otcGraphClient } from 'graphql/apollo';
-import { OtcProvider } from 'contexts/Otc';
 import { ApolloProvider } from '@apollo/client';
 
 const MARKETS_PLACEHOLDER = [
@@ -33,7 +32,7 @@ const MARKETS_PLACEHOLDER = [
   },
 ];
 
-const Otc = () => {
+const OTC = () => {
   const { user, escrowData, setSelectedQuote } = useContext(OtcContext);
   const { accountAddress } = useContext(WalletContext);
   const { width } = useWindowSize();
@@ -258,14 +257,14 @@ const Otc = () => {
   );
 };
 
-const OtcPage = () => {
+const OTCPage = () => {
   return (
     <ApolloProvider client={otcGraphClient}>
       <OtcProvider>
-        <Otc />
+        <OTC />
       </OtcProvider>
     </ApolloProvider>
   );
 };
 
-export default OtcPage;
+export default OTCPage;

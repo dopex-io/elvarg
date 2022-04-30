@@ -9,7 +9,7 @@ import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton';
 import TablePagination from '@mui/material/TablePagination';
-import TablePaginationActions from '@mui/material/TablePagination/TablePaginationActions';
+import TablePaginationActions from 'components/UI/TablePaginationActions';
 
 import CustomButton from 'components/UI/CustomButton';
 import Withdraw from 'components/Otc/Dialogs/Withdraw';
