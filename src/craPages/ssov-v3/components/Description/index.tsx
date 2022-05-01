@@ -52,7 +52,7 @@ const Description = ({
   return (
     <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
       <Typography variant="h1" className="mb-6 flex items-center space-x-3">
-        <span>ETH Weekly</span>
+        <span>{ssovData.underlyingSymbol}</span>
         <span
           className={cx(
             'text-lg text-black p-1.5 rounded-md',
@@ -64,12 +64,10 @@ const Description = ({
       </Typography>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
-          ETH Weekly Single Staking Option Vault V3
+          {ssovData.underlyingSymbol} Single Staking Option Vault V3
         </span>
         <br />
-        {
-          'Deposit WETH into strikes providing liquidity into option pools to earn DPX rewards and premiums in WETH from each option purchase.'
-        }
+        {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">

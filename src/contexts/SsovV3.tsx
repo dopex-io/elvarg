@@ -30,6 +30,7 @@ export interface SsovV3Signer {
 export interface SsovV3Data {
   collateralSymbol?: string;
   underlyingSymbol?: string;
+  collateralAddress?: string;
   ssovContract?: SsovV3;
   currentEpoch?: number;
   tokenPrice?: BigNumber;
@@ -124,7 +125,7 @@ export const SsovV3Provider = (props) => {
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      '0x14333cae9BAF41AE093Bbd37899E08b21226F2C9',
+      contractAddresses['SSOV-V3'].VIEWER,
       provider
     );
 
@@ -188,7 +189,7 @@ export const SsovV3Provider = (props) => {
       totalEpochPremium,
       epochData,
       epochStrikeTokens,
-      apyPayload,
+      // apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovContract.getEpochStrikes(selectedEpoch),
@@ -209,7 +210,7 @@ export const SsovV3Provider = (props) => {
         selectedEpoch,
         ssovContract.address
       ),
-      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
+      // axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
     ]);
 
     const epochStrikeDataArray = await Promise.all(
@@ -244,7 +245,7 @@ export const SsovV3Provider = (props) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
-      APY: apyPayload.data.apy,
+      APY: '0',
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };
@@ -296,6 +297,7 @@ export const SsovV3Provider = (props) => {
         _ssovData = {
           underlyingSymbol,
           collateralSymbol,
+          collateralAddress: collateralToken,
           isPut,
           ssovContract: _ssovContract,
           currentEpoch: Number(currentEpoch),
