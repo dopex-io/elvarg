@@ -8,6 +8,7 @@ import { utils as ethersUtils } from 'ethers';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import Stat from '../Stat';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
@@ -15,6 +16,7 @@ import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import useSendTx from 'hooks/useSendTx';
+import NumberDisplay from 'components/UI/NumberDisplay';
 
 export interface Props {
   open: boolean;
@@ -22,21 +24,8 @@ export interface Props {
   data: WritePositionInterface;
 }
 
-const Stat = ({ name, value }: { name: string; value: string }) => {
-  return (
-    <Box className="flex flex-row justify-between">
-      <Typography variant="h6" component="div" className="text-stieglitz">
-        {name}
-      </Typography>
-      <Typography variant="h6" component="div">
-        {value}
-      </Typography>
-    </Box>
-  );
-};
-
 const TransferDialog = ({ open, handleClose, data }: Props) => {
-  const { ssovData, selectedSsovV3, ssovSigner } = useContext(SsovV3Context);
+  const { ssovData, ssovSigner } = useContext(SsovV3Context);
   const { accountAddress } = useContext(WalletContext);
 
   const sendTx = useSendTx();
@@ -93,9 +82,9 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
           <Typography variant="h3">Transfer</Typography>
         </Box>
         <Box className="bg-umbra rounded-md flex flex-col p-4 space-y-4">
-          <Stat name="Asset" value={ssovData.tokenName} />
-          <Stat name="Collateral" value={ssovData.tokenName} />
-          <Stat name="Type" value={selectedSsovV3.type} />
+          <Stat name="Asset" value={ssovData.underlyingSymbol} />
+          <Stat name="Collateral" value={ssovData.collateralSymbol} />
+          <Stat name="Type" value={ssovData.isPut ? 'PUT' : 'CALL'} />
           <Stat
             name="Strike Price"
             value={`$${getUserReadableAmount(data.strike, 8)}`}
@@ -103,18 +92,25 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
           <Stat
             name="Deposit Amount"
             value={`${getUserReadableAmount(data.collateralAmount, 18)} ${
-              ssovData.tokenName
+              ssovData.collateralSymbol
             }`}
           />
           <Stat
             name="Accrued Premiums"
-            value={`${getUserReadableAmount(data.accruedPremiums, 18)} ${
-              ssovData.tokenName
-            }`}
+            value={
+              <>
+                <NumberDisplay n={data.accruedPremiums} decimals={18} />{' '}
+                {ssovData.collateralSymbol}
+              </>
+            }
           />
           <Stat
             name="Accrued Rewards"
-            value={`${ethersUtils.formatEther(data.accruedRewards[0])} DPX`}
+            value={
+              <>
+                <NumberDisplay n={data.accruedRewards[0]} decimals={18} />
+              </>
+            }
           />
           <Stat name="Epoch" value={data.epoch.toString()} />
         </Box>

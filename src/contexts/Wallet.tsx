@@ -7,7 +7,7 @@ import Web3Modal from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/env';
+import { CHAIN_ID_TO_RPC } from 'constants/index';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -29,16 +29,6 @@ interface WalletContextInterface {
 }
 
 export const WalletContext = createContext<WalletContextInterface>({});
-
-export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
-  '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
-  '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '1088': 'https://andromeda.metis.io/?owner=1088',
-  '1337': 'http://127.0.0.1:8545',
-};
 
 const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/': [1, 42161, 43114, 56],
@@ -94,14 +84,14 @@ if (typeof window !== 'undefined') {
     walletconnect: {
       package: WalletConnectProvider,
       options: {
-        rpc: CHAIN_ID_TO_PROVIDERS,
+        rpc: CHAIN_ID_TO_RPC,
       },
     },
     walletlink: {
       package: CoinbaseWalletSDK,
       options: {
         appName: 'Dopex',
-        rpc: CHAIN_ID_TO_PROVIDERS,
+        rpc: CHAIN_ID_TO_RPC,
       },
     },
     ...(window['clover'] && {
@@ -124,7 +114,7 @@ if (typeof window !== 'undefined') {
         package: null,
       },
     }),
-    ...(window.web3?.currentProvider?.isBitKeep && {
+    ...(window.ethereum?.isBitKeep && {
       injected: {
         display: {
           logo: '/wallets/Bitkeep.png',
@@ -192,7 +182,6 @@ export const WalletProvider = (props) => {
         PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
         !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
       ) {
-        console.log('setwrongnetwork');
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,
@@ -202,9 +191,7 @@ export const WalletProvider = (props) => {
       }
 
       const multicallProvider = new providers.MulticallProvider(
-        new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_PROVIDERS[chainId]
-        )
+        new ethers.providers.StaticJsonRpcProvider(CHAIN_ID_TO_RPC[chainId])
       );
       let signer: Signer | undefined;
       let address: string | undefined;
@@ -257,7 +244,7 @@ export const WalletProvider = (props) => {
         await updateState({ web3Provider: provider, isUser: true });
       })
       .catch(() => {
-        if (window.location.pathname !== '/') window.location.replace('/');
+        if (window.location.pathname !== '/ssov') window.location.replace('/');
       });
   }, [updateState]);
 
@@ -270,7 +257,7 @@ export const WalletProvider = (props) => {
       accountAddress: '',
       provider: new providers.MulticallProvider(
         new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+          CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
         )
       ),
     }));
@@ -286,9 +273,9 @@ export const WalletProvider = (props) => {
       })
       .catch(async () => {
         await updateState({
-          web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
+          web3Provider: CHAIN_ID_TO_RPC[state.chainId],
           ethersProvider: new ethers.providers.StaticJsonRpcProvider(
-            CHAIN_ID_TO_PROVIDERS[state.chainId]
+            CHAIN_ID_TO_RPC[state.chainId]
           ),
           isUser: false,
         });
@@ -300,9 +287,9 @@ export const WalletProvider = (props) => {
       connect();
     } else {
       updateState({
-        web3Provider: CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID],
+        web3Provider: CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID],
         ethersProvider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+          CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
         ),
         isUser: false,
       });

@@ -2,10 +2,10 @@ import Button from '@mui/material/Button';
 
 import CtaBanner from 'components/UI/CtaBanner';
 
-import changeOrAddNetworkToMetaMask from 'utils/general/changeOrAddNetworkToMetaMask';
+import changeOrAddNetwork from 'utils/general/changeOrAddNetwork';
 
 const FarmingMigrationBanner = () => {
-  const handleClick = () => changeOrAddNetworkToMetaMask(42161);
+  const handleClick = () => changeOrAddNetwork(42161);
 
   return (
     <CtaBanner

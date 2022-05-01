@@ -1,3 +1,7 @@
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+
+import { CHAIN_ID_TO_RPC } from 'constants/index';
+
 const NETWORKS = {
   1: {
     chainId: '0x1',
@@ -84,22 +88,18 @@ const NETWORKS = {
   },
 };
 
-export default async function changeOrAddNetworkToMetaMask(chainId: number) {
+export default async function changeOrAddNetwork(chainId: number) {
   if (!window) return;
   if (!window.ethereum) {
-    const walletlink = new window.WalletLink({
+    // Initialize Coinbase Wallet SDK
+    const coinbaseWallet = new CoinbaseWalletSDK({
       appName: 'Dopex',
       appLogoUrl: '/assets/dpx.svg',
     });
 
-    let rpcUrl = null;
-    if (chainId === 1)
-      rpcUrl = `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_PROJECT_ID}`;
-    else if (chainId === 56) rpcUrl = process.env.NEXT_PUBLIC_BSC_RPC_URL;
-    else if (chainId === 42161)
-      rpcUrl = `https://arbitrum-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_PROJECT_ID}`;
+    let rpcUrl = CHAIN_ID_TO_RPC[chainId];
 
-    window.ethereum = walletlink.makeWeb3Provider(rpcUrl, chainId);
+    window.ethereum = coinbaseWallet.makeWeb3Provider(rpcUrl, chainId);
   }
 
   try {

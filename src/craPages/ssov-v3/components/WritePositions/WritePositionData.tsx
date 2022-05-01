@@ -1,5 +1,4 @@
 import React from 'react';
-import { utils } from 'ethers';
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -10,9 +9,12 @@ import { WritePositionInterface } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import CustomButton from 'components/UI/CustomButton';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import SplitButton from 'components/UI/SplitButton';
 
 interface Props extends WritePositionInterface {
+  collateralSymbol: string;
+  underlyingSymbol: string;
   openTransfer: () => void;
   openWithdraw: () => void;
 }
@@ -24,6 +26,8 @@ const WritePositionTableData = (props: Props) => {
     epoch,
     accruedPremiums,
     accruedRewards,
+    collateralSymbol,
+    underlyingSymbol,
     openTransfer,
     openWithdraw,
   } = props;
@@ -33,10 +37,13 @@ const WritePositionTableData = (props: Props) => {
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={'/assets/eth.svg'} alt="WETH" />
+            <img
+              src={`/assets/${underlyingSymbol.toLowerCase()}.svg`}
+              alt={underlyingSymbol}
+            />
           </Box>
           <Typography variant="h5" className="text-white">
-            WETH
+            {underlyingSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -47,19 +54,20 @@ const WritePositionTableData = (props: Props) => {
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(getUserReadableAmount(collateralAmount, 18), 5)} WETH
+          {formatAmount(getUserReadableAmount(collateralAmount, 18), 5)}{' '}
+          {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell>
         <Typography variant="h6">
-          {utils.formatEther(accruedPremiums)} WETH
+          <NumberDisplay n={accruedPremiums} decimals={18} /> {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell>
         {accruedRewards.map((rewards, index) => {
           return (
             <Typography variant="h6" key={index}>
-              {utils.formatEther(rewards)} DPX
+              <NumberDisplay n={rewards} decimals={18} />
             </Typography>
           );
         })}
@@ -68,12 +76,13 @@ const WritePositionTableData = (props: Props) => {
         <Typography variant="h6">{epoch}</Typography>
       </TableCell>
       <TableCell align="left" className="pt-2 flex space-x-2">
-        <CustomButton size="medium" onClick={openTransfer}>
-          Transfer
-        </CustomButton>
-        <CustomButton size="medium" onClick={openWithdraw}>
-          Withdraw
-        </CustomButton>
+        <SplitButton
+          options={['Transfer', 'Withdraw']}
+          handleClick={(index) => {
+            if (index === 0) openTransfer();
+            else openWithdraw();
+          }}
+        />
       </TableCell>
     </TableRow>
   );

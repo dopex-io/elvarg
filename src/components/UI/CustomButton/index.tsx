@@ -5,7 +5,7 @@ import Button, { ButtonProps } from '@mui/material/Button';
 import styles from './styles.module.scss';
 
 export interface CustomButtonProps extends Omit<ButtonProps, 'color' | 'size'> {
-  size: 'small' | 'medium' | 'large' | 'xl';
+  size?: 'small' | 'medium' | 'large' | 'xl';
   color?: string;
 }
 
@@ -17,7 +17,13 @@ const CLASSES = {
 };
 
 const CustomButton: FC<CustomButtonProps> = forwardRef((props, ref) => {
-  const { children, size, className, color = 'primary', ...otherProps } = props;
+  const {
+    children,
+    className,
+    size = 'medium',
+    color = 'primary',
+    ...otherProps
+  } = props;
 
   return (
     <Button

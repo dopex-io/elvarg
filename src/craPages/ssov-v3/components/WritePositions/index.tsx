@@ -14,8 +14,8 @@ import TablePagination from '@mui/material/TablePagination';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WritePositionTableData from './WritePositionData';
-import TransferDialog from './TransferDialog';
-import WithdrawDialog from './WithdrawDialog';
+import TransferDialog from './Dialogs/TransferDialog';
+import WithdrawDialog from './Dialogs/WithdrawDialog';
 
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 
@@ -50,7 +50,9 @@ const COLUMN_HEADERS = [
 const WritePositions = (props: { className?: string }) => {
   const { className } = props;
 
-  const { selectedEpoch, ssovUserData } = useContext(SsovV3Context);
+  const { selectedEpoch, ssovUserData, ssovData } = useContext(SsovV3Context);
+
+  const { underlyingSymbol, collateralSymbol } = ssovData;
 
   const [page, setPage] = useState(0);
 
@@ -151,6 +153,8 @@ const WritePositions = (props: { className?: string }) => {
                       <WritePositionTableData
                         key={i}
                         {...o}
+                        collateralSymbol={collateralSymbol}
+                        underlyingSymbol={underlyingSymbol}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
                       />

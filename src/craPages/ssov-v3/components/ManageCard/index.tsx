@@ -21,18 +21,17 @@ import { AssetsContext } from 'contexts/Assets';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import LockerIcon from 'components/Icons/LockerIcon';
 
 import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
-import LockerIcon from 'components/Icons/LockerIcon';
-
 import styles from './styles.module.scss';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -51,6 +50,7 @@ const ManageCard = () => {
   const { updateAssetBalances } = useContext(AssetsContext);
   const {
     updateSsovV3EpochData: updateSsovEpochData,
+    updateSsovV3UserData: updateSsovUserData,
     ssovData,
     ssovEpochData,
     ssovSigner,
@@ -76,11 +76,9 @@ const ManageCard = () => {
     return ssovContractWithSigner?.address;
   }, [ssovContractWithSigner]);
 
-  // const strikes = epochStrikes.map((strike) =>
-  //   getUserReadableAmount(strike, 8).toString()
-  // );
-
-  const strikes = [3000, 3100, 3200, 3300];
+  const strikes = epochStrikes.map((strike) =>
+    getUserReadableAmount(strike, 8).toString()
+  );
 
   const handleSelectStrike = useCallback((event) => {
     setStrike(event.target.value);
@@ -94,16 +92,16 @@ const ManageCard = () => {
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
-        ERC20__factory.connect(
-          '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-          signer
-        ).approve(spender, MAX_VALUE)
+        ERC20__factory.connect(ssovData.collateralAddress, signer).approve(
+          spender,
+          MAX_VALUE
+        )
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender]);
+  }, [sendTx, signer, spender, ssovData]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -116,7 +114,7 @@ const ManageCard = () => {
       setStrikeDepositAmount(0);
       updateAssetBalances();
       updateSsovEpochData();
-      // updateSsovUserData();
+      updateSsovUserData();
     } catch (err) {
       console.log(err);
     }
@@ -127,6 +125,7 @@ const ManageCard = () => {
     strikeDepositAmount,
     updateAssetBalances,
     updateSsovEpochData,
+    updateSsovUserData,
   ]);
 
   // Updates approved state
@@ -137,12 +136,12 @@ const ManageCard = () => {
         18
       );
       const allowance: BigNumber = await ERC20__factory.connect(
-        '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+        ssovData.collateralAddress,
         signer
       ).allowance(accountAddress, spender);
       setApproved(allowance.gte(finalAmount));
     })();
-  }, [accountAddress, signer, spender, strikeDepositAmount]);
+  }, [accountAddress, signer, spender, strikeDepositAmount, ssovData]);
 
   // Updates user token balance
   useEffect(() => {
@@ -150,12 +149,12 @@ const ManageCard = () => {
 
     (async function () {
       const bal = await ERC20__factory.connect(
-        '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+        ssovData.collateralAddress,
         signer
       ).balanceOf(accountAddress);
       setUserTokenBalance(bal);
     })();
-  }, [accountAddress, signer]);
+  }, [accountAddress, signer, ssovData]);
 
   return (
     <Box
@@ -181,7 +180,7 @@ const ManageCard = () => {
               className="text-white ml-auto mr-0 text-[0.72rem]"
             >
               {formatAmount(getUserReadableAmount(userTokenBalance, 18))}{' '}
-              {'WETH'}
+              {ssovData.collateralSymbol}
             </Typography>
           </Box>
           <Box className="mt-2 flex">

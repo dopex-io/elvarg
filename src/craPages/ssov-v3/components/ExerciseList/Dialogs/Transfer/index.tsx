@@ -159,10 +159,13 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
           <Box className="flex flex-row justify-between">
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
-                <img src={'/assets/eth.svg'} alt={ssovData.tokenName} />
+                <img
+                  src={`/assets/${ssovData.underlyingSymbol}.svg`}
+                  alt={ssovData.underlyingSymbol}
+                />
               </Box>
               <Typography variant="h5" className="text-white">
-                {ssovData.tokenName}
+                {ssovData.underlyingSymbol}
               </Typography>
             </Box>
             <Input

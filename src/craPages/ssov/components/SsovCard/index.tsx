@@ -33,6 +33,7 @@ function SsovCard(props) {
     duration,
     retired,
     symbol,
+    version,
   } = data;
 
   const info = useMemo(() => {
@@ -40,7 +41,11 @@ function SsovCard(props) {
     return [
       {
         heading: 'APY',
-        value: `${apy === 0 ? '...' : `${formatAmount(apy, 0, true)}%`}`,
+        value: `${
+          apy > 0 && apy !== 'Infinity'
+            ? formatAmount(apy, 0, true).toString() + '%'
+            : '...'
+        }`,
         Icon: Action,
         tooltip:
           type === 'put'
@@ -117,17 +122,20 @@ function SsovCard(props) {
             size="medium"
             className="my-4"
             href={
-              duration === 'weekly'
-                ? `/ssov-v3/${symbol}`
-                : `/ssov/${type}/${name}`
+              version === 3 ? `/ssov-v3/${symbol}` : `/ssov/${type}/${name}`
             }
             fullWidth
           >
             Manage
           </CustomButton>
-          <Typography variant="h6" className="text-stieglitz">
-            Epoch {currentEpoch}
-          </Typography>
+          <Box className="flex justify-between">
+            <Typography variant="h6" className="text-stieglitz">
+              Epoch {currentEpoch}
+            </Typography>
+            <Typography variant="h6" className="text-stieglitz">
+              Version {version}
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>

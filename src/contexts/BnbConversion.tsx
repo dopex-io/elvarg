@@ -4,7 +4,7 @@ import { BigNumber, ethers } from 'ethers';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-import { CHAIN_ID_TO_PROVIDERS } from 'contexts/Wallet';
+import { CHAIN_ID_TO_RPC } from 'constants/index';
 
 export const BnbConversionContext = createContext<any>({});
 
@@ -25,7 +25,7 @@ export const BnbConversionProvider = (props) => {
       const bnbSsov = new ethers.Contract(
         Addresses[56].SSOV.BNB.Vault,
         abi,
-        ethers.getDefaultProvider(CHAIN_ID_TO_PROVIDERS[56])
+        new ethers.providers.StaticJsonRpcProvider(CHAIN_ID_TO_RPC[56])
       );
       setOneVbnbToBnb(await bnbSsov.vbnbToBnb(oneEBigNumber(8)));
       setOneBnbToVbnb(await bnbSsov.bnbToVbnb(oneEBigNumber(18)));
