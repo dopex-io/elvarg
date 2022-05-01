@@ -119,8 +119,14 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
         return rfq.get('timestamp')?.seconds === data.timestamp.seconds;
       }, data.timestamp.seconds);
 
-      if (orderDoc) router.push(`/otc/chat/${orderDoc.id}`);
-      else console.log('Something went wrong');
+      if (orderDoc) {
+        router.push({
+          pathname: '/otc/chat/[chatId]',
+          query: {
+            chatId: orderDoc.id,
+          },
+        });
+      } else console.log('Something went wrong');
     },
     [router, validateUser]
   );
@@ -230,10 +236,10 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
                           size="small"
                           key="transfer-options"
                           color="umbra"
+                          className="text-white rounded hover:bg-mineshaft"
                           onClick={() => {
                             navigateToChat(row.data);
                           }}
-                          className="text-white rounded hover:bg-mineshaft"
                           disabled={row.data.isFulfilled}
                         >
                           Chat
