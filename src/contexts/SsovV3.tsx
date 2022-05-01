@@ -13,7 +13,7 @@ import {
   SSOVOptionPricing__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 
 import { WalletContext } from './Wallet';
@@ -303,6 +303,8 @@ export const SsovV3Provider = (props) => {
           currentEpoch: Number(currentEpoch),
           isCurrentEpochExpired: epochData.expired,
           tokenPrice,
+          // TODO: FIX
+          lpPrice: ethers.utils.parseEther('1'),
           ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
             '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
             provider

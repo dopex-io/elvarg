@@ -580,7 +580,12 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 ${' '}
                 {formatAmount(
-                  getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                  isPut
+                    ? getUserReadableAmount(
+                        state.fees.mul(ssovData.lpPrice),
+                        36
+                      )
+                    : getUserReadableAmount(state.fees.mul(tokenPrice), 26),
                   5
                 )}
               </Typography>
