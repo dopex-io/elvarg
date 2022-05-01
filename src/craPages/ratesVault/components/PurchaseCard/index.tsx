@@ -158,8 +158,8 @@ const PurchaseCard = ({
         ? rateVaultEpochData.callsPremiumCosts[strikeIndex]
         : rateVaultEpochData.putsPremiumCosts[strikeIndex];
 
-    return _premium.mul(BigNumber.from(Math.round(optionsAmount)));
-  }, [rateVaultEpochData, strikeIndex, optionsAmount]);
+    return _premium.mul(BigNumber.from(Math.round(notionalSize)));
+  }, [rateVaultEpochData, strikeIndex, notionalSize]);
 
   const volatility: BigNumber = useMemo(() => {
     return rateVaultEpochData.volatilities[strikeIndex];

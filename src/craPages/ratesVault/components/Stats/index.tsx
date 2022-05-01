@@ -176,9 +176,20 @@ const Stats = ({
               <Tooltip title={'Not implemented yet'}>
                 <Box className="flex mb-1">
                   <Typography variant="h5" className="text-stieglitz">
-                    APR
+                    Current UST-3CRV rate
                   </Typography>
-                  <ArrowUpIcon className="mr-1 ml-auto mt-2 rotate-240 opacity-50 hover:opacity-70 cursor-not-allowed" />
+                  <Typography variant="h5" className="mr-1 ml-auto text-white">
+                    <span>
+                      {formatAmount(
+                        getUserReadableAmount(
+                          rateVaultContext.rateVaultEpochData.rate,
+                          9
+                        ),
+                        2
+                      )}
+                      %
+                    </span>
+                  </Typography>
                 </Box>
               </Tooltip>
             </Box>
