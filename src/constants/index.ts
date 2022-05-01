@@ -283,7 +283,7 @@ export const TOKEN_DECIMALS = {
   },
 };
 
-export const DOPEX_API_BASE_URL = 'https://app.dopex.io/api';
+export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const TOKEN_DATA: {
   [key: string]: {
