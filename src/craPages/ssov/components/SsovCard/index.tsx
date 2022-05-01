@@ -118,9 +118,7 @@ function SsovCard(props) {
             size="medium"
             className="my-4"
             href={
-              duration === 'weekly'
-                ? `/ssov-v3/${symbol}`
-                : `/ssov/${type}/${name}`
+              version === 3 ? `/ssov-v3/${symbol}` : `/ssov/${type}/${name}`
             }
             fullWidth
           >
