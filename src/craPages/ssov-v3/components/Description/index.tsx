@@ -4,29 +4,26 @@ import Box from '@mui/material/Box';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { SsovData } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
+import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
 import PurchaseDialog from '../PurchaseDialog';
+import Wrapper from '../Wrapper';
 
 import Coin from 'assets/icons/Coin';
 import Action from 'assets/icons/Action';
 
 import styles from './styles.module.scss';
-import { SsovV3EpochData } from 'contexts/SsovV3';
-import Wrapper from '../Wrapper';
 
 const Description = ({
   ssovData,
   ssovEpochData,
-  type,
 }: {
-  ssovData: SsovData;
+  ssovData: SsovV3Data;
   ssovEpochData: SsovV3EpochData;
-  type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useContext(WalletContext);
@@ -35,7 +32,9 @@ const Description = ({
 
   const [wrapOpen, setWrapOpen] = useState(false);
 
-  const isPut = useMemo(() => type === 'PUT', [type]);
+  const type = useMemo(() => {
+    return ssovData.isPut ? 'PUT' : 'CALL';
+  }, [ssovData]);
 
   const info = [
     {
@@ -57,7 +56,7 @@ const Description = ({
         <span
           className={cx(
             'text-lg text-black p-1.5 rounded-md',
-            isPut ? 'bg-down-bad' : 'bg-emerald-500'
+            ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500'
           )}
         >
           {type + 'S'}

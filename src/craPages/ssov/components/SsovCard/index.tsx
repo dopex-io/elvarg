@@ -33,6 +33,7 @@ function SsovCard(props) {
     duration,
     retired,
     symbol,
+    version,
   } = data;
 
   const info = useMemo(() => {
@@ -125,9 +126,14 @@ function SsovCard(props) {
           >
             Manage
           </CustomButton>
-          <Typography variant="h6" className="text-stieglitz">
-            Epoch {currentEpoch}
-          </Typography>
+          <Box className="flex justify-between">
+            <Typography variant="h6" className="text-stieglitz">
+              Epoch {currentEpoch}
+            </Typography>
+            <Typography variant="h6" className="text-stieglitz">
+              Version {version}
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>
