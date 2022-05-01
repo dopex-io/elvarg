@@ -283,8 +283,7 @@ export const TOKEN_DECIMALS = {
   },
 };
 
-export const DOPEX_API_BASE_URL =
-  'https://rest-api-git-feat-put-ssov-v3-dopex-io.vercel.app/api';
+export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const TOKEN_DATA: {
   [key: string]: {
