@@ -189,7 +189,7 @@ export const SsovV3Provider = (props) => {
       totalEpochPremium,
       epochData,
       epochStrikeTokens,
-      // apyPayload,
+      apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovContract.getEpochStrikes(selectedEpoch),
@@ -210,7 +210,7 @@ export const SsovV3Provider = (props) => {
         selectedEpoch,
         ssovContract.address
       ),
-      // axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
+      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
     ]);
 
     const epochStrikeDataArray = await Promise.all(
