@@ -55,9 +55,9 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
           <Typography variant="h3">Withdraw</Typography>
         </Box>
         <Box className="bg-umbra rounded-md flex flex-col p-4 space-y-4">
-          <Stat name="Asset" value={ssovData.tokenName} />
-          <Stat name="Collateral" value={ssovData.tokenName} />
-          <Stat name="Type" value={selectedSsovV3.type} />
+          <Stat name="Asset" value={ssovData.underlyingSymbol} />
+          <Stat name="Collateral" value={ssovData.collateralSymbol} />
+          <Stat name="Type" value={ssovData.isPut ? 'PUT' : 'CALL'} />
           <Stat
             name="Strike Price"
             value={`$${getUserReadableAmount(data.strike, 8)}`}
@@ -65,7 +65,7 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
           <Stat
             name="Deposit Amount"
             value={`${getUserReadableAmount(data.collateralAmount, 18)} ${
-              ssovData.tokenName
+              ssovData.collateralSymbol
             }`}
           />
           <Stat
@@ -73,7 +73,7 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
             value={
               <>
                 <NumberDisplay n={data.accruedPremiums} decimals={18} />{' '}
-                {ssovData.tokenName}
+                {ssovData.collateralSymbol}
               </>
             }
           />
@@ -81,7 +81,7 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
             name="Accrued Rewards"
             value={
               <>
-                <NumberDisplay n={data.accruedRewards[0]} decimals={18} /> DPX
+                <NumberDisplay n={data.accruedRewards[0]} decimals={18} />
               </>
             }
           />

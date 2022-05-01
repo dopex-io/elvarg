@@ -25,7 +25,7 @@ export interface Props {
 }
 
 const TransferDialog = ({ open, handleClose, data }: Props) => {
-  const { ssovData, selectedSsovV3, ssovSigner } = useContext(SsovV3Context);
+  const { ssovData, ssovSigner } = useContext(SsovV3Context);
   const { accountAddress } = useContext(WalletContext);
 
   const sendTx = useSendTx();
@@ -82,9 +82,9 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
           <Typography variant="h3">Transfer</Typography>
         </Box>
         <Box className="bg-umbra rounded-md flex flex-col p-4 space-y-4">
-          <Stat name="Asset" value={ssovData.tokenName} />
-          <Stat name="Collateral" value={ssovData.tokenName} />
-          <Stat name="Type" value={selectedSsovV3.type} />
+          <Stat name="Asset" value={ssovData.underlyingSymbol} />
+          <Stat name="Collateral" value={ssovData.collateralSymbol} />
+          <Stat name="Type" value={ssovData.isPut ? 'PUT' : 'CALL'} />
           <Stat
             name="Strike Price"
             value={`$${getUserReadableAmount(data.strike, 8)}`}
@@ -92,7 +92,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
           <Stat
             name="Deposit Amount"
             value={`${getUserReadableAmount(data.collateralAmount, 18)} ${
-              ssovData.tokenName
+              ssovData.collateralSymbol
             }`}
           />
           <Stat
@@ -100,7 +100,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
             value={
               <>
                 <NumberDisplay n={data.accruedPremiums} decimals={18} />{' '}
-                {ssovData.tokenName}
+                {ssovData.collateralSymbol}
               </>
             }
           />
@@ -108,7 +108,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
             name="Accrued Rewards"
             value={
               <>
-                <NumberDisplay n={data.accruedRewards[0]} decimals={18} /> DPX
+                <NumberDisplay n={data.accruedRewards[0]} decimals={18} />
               </>
             }
           />

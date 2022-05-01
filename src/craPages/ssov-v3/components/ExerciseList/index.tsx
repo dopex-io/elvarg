@@ -49,9 +49,7 @@ const ExerciseList = () => {
   >([]);
   const [page, setPage] = useState(0);
 
-  const isPut = useMemo(() => selectedSsovV3.type === 'PUT', [selectedSsovV3]);
-
-  const { currentEpoch, tokenPrice, tokenName } = ssovData;
+  const { currentEpoch, tokenPrice, isPut } = ssovData;
   const {
     epochStrikes,
     totalEpochPremium,
@@ -139,7 +137,6 @@ const ExerciseList = () => {
     totalEpochStrikeDeposits,
     tokenPrice,
     settlementPrice,
-    tokenName,
     isPut,
     ssovData,
     provider,

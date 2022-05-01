@@ -563,12 +563,12 @@
     rxjs "^6.6.3"
     stream-browserify "^3.0.0"
 
-"@dopex-io/sdk@1.0.0-alpha.94":
-  version "1.0.0-alpha.94"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.94.tgz#6c7956990dd9a2cdc009721337230fb701c7167b"
-  integrity sha512-0pvfJlYR5n+dO56heldzY1Lv1ZHksi7d+vX4T34XlT83mOn+4iswELuAT6F17ySrACLQgsROom18V0e7IskWzw==
+"@dopex-io/sdk@1.0.0-alpha.95":
+  version "1.0.0-alpha.95"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-alpha.95.tgz#6acca3d519f8ba6b665c6dc838693c24307e7ff9"
+  integrity sha512-3jgx6vDVpXnF+QZmaHY0irZywFPHznMFdeFp/xUent6Urdc0ItHtcBSYFYNtn/XPtjFVZrEXy9C+ihCfV1CApw==
   dependencies:
-    ethers "^5.6.2"
+    ethers "^5.6.4"
 
 "@emotion/babel-plugin@^11.7.1":
   version "11.9.2"
@@ -4674,7 +4674,7 @@ ethereumjs-vm@^2.3.4:
     rustbn.js "~0.2.0"
     safe-buffer "^5.1.1"
 
-ethers@5.6.4, ethers@^5.5.2, ethers@^5.6.2:
+ethers@5.6.4, ethers@^5.5.2, ethers@^5.6.4:
   version "5.6.4"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.6.4.tgz#23629e9a7d4bc5802dfb53d4da420d738744b53c"
   integrity sha512-62UIfxAQXdf67TeeOaoOoPctm5hUlYgfd0iW3wxfj7qRYKDcvvy0f+sJ3W2/Pyx77R8dblvejA8jokj+lS+ATQ==

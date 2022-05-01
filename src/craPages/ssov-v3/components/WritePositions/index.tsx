@@ -50,7 +50,9 @@ const COLUMN_HEADERS = [
 const WritePositions = (props: { className?: string }) => {
   const { className } = props;
 
-  const { selectedEpoch, ssovUserData } = useContext(SsovV3Context);
+  const { selectedEpoch, ssovUserData, ssovData } = useContext(SsovV3Context);
+
+  const { underlyingSymbol, collateralSymbol } = ssovData;
 
   const [page, setPage] = useState(0);
 
@@ -151,6 +153,8 @@ const WritePositions = (props: { className?: string }) => {
                       <WritePositionTableData
                         key={i}
                         {...o}
+                        collateralSymbol={collateralSymbol}
+                        underlyingSymbol={underlyingSymbol}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
                       />

@@ -53,12 +53,12 @@ const PurchaseDialog = ({
   ssovData,
   ssovEpochData,
 }: Props) => {
-  const { selectedSsovV3, ssovSigner, isPut } = useContext(SsovV3Context);
+  const { ssovSigner } = useContext(SsovV3Context);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider, signer, contractAddresses } =
     useContext(WalletContext);
 
-  const { tokenPrice, ssovContract } = ssovData;
+  const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
 
   const { epochStrikes, availableCollateralForStrikes } = ssovEpochData;
@@ -80,7 +80,7 @@ const PurchaseDialog = ({
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const ssovTokenName = useMemo(() => ssovData.tokenName, [ssovData]);
+  const ssovTokenName = useMemo(() => underlyingSymbol, [underlyingSymbol]);
 
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
 
@@ -505,7 +505,7 @@ const PurchaseDialog = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      {selectedSsovV3.type}
+                      {isPut ? 'PUT' : 'CALL'}
                     </Typography>
                   </Box>
                 </Box>

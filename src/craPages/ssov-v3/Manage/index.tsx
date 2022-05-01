@@ -18,7 +18,7 @@ const Manage = ({ ssov }: { ssov: string }) => {
     useContext(SsovV3Context);
 
   useEffect(() => {
-    setSelectedSsovV3({ ssov, type: 'CALL', symbol: 'ETH' });
+    setSelectedSsovV3(ssov);
   }, [ssov, setSelectedSsovV3]);
 
   if (ssovData === undefined || ssovEpochData === undefined)
