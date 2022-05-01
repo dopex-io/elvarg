@@ -43,58 +43,15 @@ const DiamondPepesNfts = () => {
 
   const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
-    const lp = UniswapPair__factory.connect(
-      Addresses[chainId]['RDPX-WETH'],
-      provider
-    );
-
-    const [
-      isDepositPeriod,
-      isFarmingPeriod,
-      maxLpDeposits,
-      mintPrice,
-      totalDeposits,
-      lpReserves,
-      lpTotalSupply,
-    ] = await Promise.all([
-      yieldMint.depositPeriod(),
-      yieldMint.farmingPeriod(),
-      yieldMint.maxLpDeposits(),
-      yieldMint.mintPrice(),
-      yieldMint.totalDeposits(),
-      lp.getReserves(),
-      lp.totalSupply(),
-    ]);
-
-    setData({
-      lpReserves: lpReserves,
-      lpSupply: lpTotalSupply,
-      isDepositPeriod: isDepositPeriod,
-      isFarmingPeriod: isFarmingPeriod,
-      maxLpDeposits: maxLpDeposits,
-      mintPrice: mintPrice,
-      totalDeposits: totalDeposits,
-    });
-  }, [provider, contractAddresses, chainId, yieldMint]);
+  }, [provider, contractAddresses, chainId]);
 
   const updateUserData = useCallback(async () => {
     if (!provider || !contractAddresses || !YieldMint__factory) return;
+  }, [provider, contractAddresses]);
 
-    const [deposits, minted] = await Promise.all([
-      yieldMint.usersDeposit(accountAddress),
-      yieldMint.didUserMint(accountAddress),
-    ]);
+  useEffect(() => {}, [updateData]);
 
-    setUserData({ deposits: deposits, minted: minted });
-  }, [provider, contractAddresses, yieldMint, accountAddress]);
-
-  useEffect(() => {
-    updateData();
-  }, [updateData]);
-
-  useEffect(() => {
-    updateUserData();
-  }, [updateUserData]);
+  useEffect(() => {}, [updateUserData]);
 
   const timeRemaining = useMemo(() => {
     if (!data.isDepositPeriod) return <span>-</span>;
@@ -123,28 +80,18 @@ const DiamondPepesNfts = () => {
   }, [data]);
 
   const boxes = [
-    { title: 'Genesis', subTitle: 'Collection' },
-    { title: '2:22 AM 22/2/22', subTitle: 'Start CET' },
-    { title: timeRemaining, subTitle: 'Time remaining' },
-    {
-      title: formatAmount(getUserReadableAmount(data.totalDeposits, 18), 2),
-      subTitle: 'Deposits',
-    },
-    {
-      title: formatAmount(getUserReadableAmount(userData.deposits, 18), 2),
-      subTitle: 'Your deposits',
-    },
+    { title: '1111', subTitle: 'PEPES REMAINING' },
+    { title: '2PM 5/22/2022', subTitle: 'START' },
+    { title: '-', subTitle: 'TIME REMAINING' },
+    { title: '-', subTitle: 'DEPOSITS' },
   ];
 
-  const handleWithdraw = useCallback(async () => {
-    try {
-      await sendTx(yieldMint.connect(signer).withdraw());
-      await updateData();
-      await updateUserData();
-    } catch (err) {
-      console.log(err);
-    }
-  }, [sendTx, yieldMint, signer, updateData, updateUserData]);
+  const handleWithdraw = useCallback(async () => {}, [
+    sendTx,
+    signer,
+    updateData,
+    updateUserData,
+  ]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -162,154 +109,162 @@ const DiamondPepesNfts = () => {
         updateData={updateData}
         updateUserData={updateUserData}
       />
-      <Box>
+      <Box className={styles.background}>
         <Box className={styles.backgroundOverlay} />
         <Box className={styles.mobileBackgroundOverlay} />
         <AppBar />
         <Box className="pt-28 md:pt-32 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
           <Box className="text-center mx-auto md:mb-12 lg:mt-24 flex">
             <img
-              src={'/assets/diamondpepes.svg'}
+              src={'/assets/pepe-2-logo.png'}
               className="ml-auto mr-auto z-1 relative md:w-auto w-60"
               alt="logo"
             />
           </Box>
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">
             <Typography
-              variant="h3"
-              className="text-[#78859E] text-center leading-7 md:leading-10 z-1 relative font-['Minecraft'] text-[1rem]"
+              variant="h4"
+              className="text-[#78859E] text-center md:leading-10 z-1 relative font-['Minecraft']"
             >
-              2,222 Unique Diamond Pepes up for grabs. Free mint passes by
-              staking LP Tokens. Zap In with any asset.
+              Duel other Diamond Pepes in a commit-reveal based async game where
+              any whitelisted NFT holder, starting with Gen 2 Diamond Pepes can
+              create duels by submitting a token, wager amount and signature of
+              their initial selected moves.
             </Typography>
           </Box>
-          <Box className="pl-4 pr-4 md:flex border border-[#232935] w-full mt-9 bg-[#181C24] z-1 relative">
-            {boxes.map((box, i) => (
-              <Box
-                key={i}
-                className={
-                  i === boxes.length - 1
-                    ? 'md:w-1/5 border-b md:border-b-0 border-neutral-800'
-                    : 'md:w-1/5 border-b md:border-b-0 md:border-r border-neutral-800 md:mr-4'
-                }
-              >
+          <Box className="p-2 mt-7 md:flex">
+            {boxes.map((box) => (
+              <Box className="md:w-1/4 p-4 text-center">
                 <Typography
-                  variant={'h3'}
-                  className="text-white text-base pt-4 pb-1 font-['Minecraft']"
+                  variant="h3"
+                  className="text-white font-display font-['Minecraft'] relative z-1"
                 >
-                  {box['title']}
+                  <span className={styles.pepeText}>{box.title}</span>
                 </Typography>
                 <Typography
-                  variant={'h4'}
-                  className="text-[#78859E] pb-3 font-['Minecraft']"
+                  variant="h4"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
                 >
-                  {box['subTitle']}
+                  {box.subTitle}
                 </Typography>
               </Box>
             ))}
           </Box>
+          <img
+            src={'/assets/pepe-line.png'}
+            className="ml-auto mr-auto mt-8 mb-8"
+          />
           <Box className="p-2 mt-7 md:flex">
             <Box className="md:w-1/3 p-4 text-center">
-              <Typography
-                variant="h3"
-                className="text-white font-display font-['Minecraft'] relative z-1"
-              >
-                <span className={styles.pepeText}>Deposit LP Tokens</span>
-              </Typography>
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
-              >
-                This mint experience only requires you to stake LP tokens to get
-                your Diamond Pepe(s).
-              </Typography>
+              <img
+                src={'/assets/pepe-header-1.png'}
+                className="w-40 ml-auto mr-auto"
+              />
+              <img
+                src={'/assets/pledge-pepe-button.png'}
+                className="w-48 z-50 mt-12 ml-auto mr-auto cursor-pointer z-50"
+              />
               <Typography
                 variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
+                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-7"
               >
-                Please note that{" you'll "}need to deposit 10 LP tokens minimum
-                per pepe for a guaranteed mint.
+                “A [redacted] always repays his debts.”
                 <br />
                 <br />
-              </Typography>
-              <Box className="ml-5 mb-5 md:mt-10 md:mb-0">
-                <button className={styles.pepeButton} disabled>
-                  Deposit
-                </button>
-              </Box>
-            </Box>
-            <Box className="md:w-1/3 p-4 text-center">
-              <Typography
-                variant="h3"
-                className="text-white font-display font-['Minecraft'] relative z-1"
-              >
-                <span className={styles.pepeText}>Wait for mint</span>
-              </Typography>
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
-              >
-                You can mint your NFT when the deposit period ends. This is set
-                for two days from opening pool.
-              </Typography>
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
-              >
-                You can check the reveal of these NFTs on mint day on
-                tofunft.com. <br />
-                <br />
-                Good luck kid.
-              </Typography>
-              <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
-                <Tooltip title={'Not open yet'}>
-                  <button
-                    className={styles.pepeButton}
-                    onClick={() =>
-                      setActionsDialogDisplayState({
-                        visible: true,
-                        tab: 'mint',
-                      })
-                    }
-                    disabled={!data.isFarmingPeriod}
-                  >
-                    {data.isFarmingPeriod ? 'Mint' : '2/24/2022'}
-                  </button>
-                </Tooltip>
-              </Box>
-            </Box>
-            <Box className="md:w-1/3 p-4 text-center">
-              <Typography
-                variant="h3"
-                className="text-white font-display font-['Minecraft'] relative z-1"
-              >
-                <span className={styles.pepeText}> Withdraw Later</span>
+                Everyone who participated in the pledge event will be getting a
+                free Gen 2 sent to their wallets.
               </Typography>
 
+              <Box className={'flex mt-6'}>
+                <img src={'/assets/export.svg'} className={'w-5 ml-auto'} />
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                >
+                  <span className={styles.pepeLink}>Pledge Event</span>
+                </Typography>
+              </Box>
+            </Box>
+            <Box className="md:w-1/3 p-4 text-center">
+              <img
+                src={'/assets/pepe-header-1.png'}
+                className="w-40 ml-auto mr-auto"
+              />
+              <img
+                src={'/assets/reveal-pepe-button.png'}
+                className="w-60 z-50 mt-12 ml-auto mr-auto cursor-pointer z-50"
+              />
               <Typography
                 variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
+                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-7"
               >
-                Your stake is locked for 14 days. Once unlocked you can withdraw
-                all funds anytime.
+                Please stay tuned for a reveal announcement from esteemed CEO.{' '}
+                <br />
+                <br />
+                Please follow his twitter or Dopex’s official Twitter account
+                for more information.
               </Typography>
+
+              <Box className={'flex mt-6'}>
+                <img src={'/assets/export.svg'} className={'w-4 ml-auto'} />
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                >
+                  <span className={styles.pepeLink}>Tofunft</span>
+                </Typography>
+
+                <img
+                  src={'/assets/pepe-tweet.png'}
+                  className={'w-6 h-5 ml-auto'}
+                />
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                >
+                  <span className={styles.pepeLink}>DOPEX</span>
+                </Typography>
+
+                <img
+                  src={'/assets/pepe-tweet.png'}
+                  className={'w-6 h-5 ml-auto'}
+                />
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                >
+                  <span className={styles.pepeLink}>CEO</span>
+                </Typography>
+              </Box>
+            </Box>
+            <Box className="md:w-1/3 p-4 text-center">
+              <img
+                src={'/assets/pepe-header-1.png'}
+                className="w-40 ml-auto mr-auto"
+              />
+              <img
+                src={'/assets/pledge-pepe-button.png'}
+                className="w-48 z-50 mt-12 ml-auto mr-auto cursor-pointer z-50"
+              />
               <Typography
                 variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-5"
+                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-7"
               >
-                Excess deposits that {"doesn't"} end up with additional pepes
-                will also return its share of the farming reward upon
-                withdrawing.
+                “A [redacted] always repays his debts.”
+                <br />
+                <br />
+                Everyone who participated in the pledge event will be getting a
+                free Gen 2 sent to their wallets.
               </Typography>
-              <Box className="ml-5 mb-5 mt-6 md:mt-10 md:mb-0">
-                <Tooltip title={'Not open yet'}>
-                  <button
-                    className={styles.pepeButton}
-                    onClick={handleWithdraw}
-                  >
-                    Withdraw
-                  </button>
-                </Tooltip>
+
+              <Box className={'flex mt-6'}>
+                <img src={'/assets/export.svg'} className={'w-5 ml-auto'} />
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                >
+                  <span className={styles.pepeLink}>Pledge Event</span>
+                </Typography>
               </Box>
             </Box>
           </Box>

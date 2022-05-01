@@ -10,7 +10,7 @@ import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
 import BigCrossIcon from 'components/Icons/BigCrossIcon';
 
-import { Data, UserData } from '../../diamondpepes/interfaces';
+import { Data, UserData } from '../../../diamondpepes2/interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 
@@ -53,15 +53,12 @@ const ActionsDialog = ({
     if (['mint', 'withdraw'].includes(tab)) setActiveTab(tab);
   }, [tab]);
 
-  const handleMint = useCallback(async () => {
-    try {
-      await sendTx(yieldMint.connect(signer).claimMint());
-      await updateData();
-      await updateUserData();
-    } catch (err) {
-      console.log(err);
-    }
-  }, [signer, updateData, updateUserData, yieldMint, sendTx]);
+  const handleMint = useCallback(async () => {}, [
+    signer,
+    updateData,
+    updateUserData,
+    sendTx,
+  ]);
 
   return (
     <Dialog
