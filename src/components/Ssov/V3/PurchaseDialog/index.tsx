@@ -45,20 +45,18 @@ export interface Props {
   ssovEpochData: SsovV3EpochData;
 }
 
-const purchaseTokenName = 'WETH';
-
 const PurchaseDialog = ({
   open,
   handleClose,
   ssovData,
   ssovEpochData,
 }: Props) => {
-  const { selectedSsovV3, ssovSigner, isPut } = useContext(SsovV3Context);
+  const { ssovSigner } = useContext(SsovV3Context);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider, signer, contractAddresses } =
     useContext(WalletContext);
 
-  const { tokenPrice, ssovContract } = ssovData;
+  const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
 
   const { epochStrikes, availableCollateralForStrikes } = ssovEpochData;
@@ -80,7 +78,7 @@ const PurchaseDialog = ({
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const ssovTokenName = useMemo(() => ssovData.tokenName, [ssovData]);
+  const ssovTokenName = useMemo(() => underlyingSymbol, [underlyingSymbol]);
 
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
 
@@ -106,7 +104,7 @@ const PurchaseDialog = ({
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
-        ERC20__factory.connect(contractAddresses.WETH, signer).approve(
+        ERC20__factory.connect(ssovData.collateralAddress, signer).approve(
           spender,
           MAX_VALUE
         )
@@ -115,7 +113,7 @@ const PurchaseDialog = ({
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender, contractAddresses]);
+  }, [sendTx, signer, spender, ssovData]);
 
   const handlePurchase = useCallback(async () => {
     const _amount = getContractReadableAmount(optionsAmount, 18);
@@ -162,8 +160,6 @@ const PurchaseDialog = ({
     async function updateOptionPrice() {
       const strike = epochStrikes[strikeIndex];
       try {
-        const expiry = 1651219200;
-
         const volatility = (
           await ssovContract.getVolatility(strike)
         ).toNumber();
@@ -173,7 +169,7 @@ const PurchaseDialog = ({
           provider
         );
 
-        console.log(isPut, expiry, strike, tokenPrice, volatility);
+        const expiry = ssovEpochData.epochTimes[1].toNumber();
 
         const optionPrice = await ssovOptionPricingContract.getOptionPrice(
           isPut,
@@ -189,8 +185,6 @@ const PurchaseDialog = ({
           strike,
           ethersUtils.parseEther(String(optionsAmount))
         );
-
-        console.log('Asdas');
 
         let totalCost = premium
           .mul('1000000000000000000')
@@ -222,6 +216,7 @@ const PurchaseDialog = ({
     provider,
     isPut,
     ssovData,
+    ssovEpochData,
     ssovTokenName,
   ]);
 
@@ -229,7 +224,10 @@ const PurchaseDialog = ({
   useEffect(() => {
     (async function () {
       const finalAmount = state.totalCost;
-      const _token = ERC20__factory.connect(contractAddresses.WETH, provider);
+      const _token = ERC20__factory.connect(
+        ssovData.collateralAddress,
+        provider
+      );
 
       const userAmount = await _token.balanceOf(accountAddress);
       setUserTokenBalance(userAmount);
@@ -249,6 +247,7 @@ const PurchaseDialog = ({
     provider,
     spender,
     contractAddresses,
+    ssovData,
   ]);
 
   const purchaseButtonProps = useMemo(() => {
@@ -319,7 +318,10 @@ const PurchaseDialog = ({
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-10">
-              <img src={'/assets/eth.svg'} alt={ssovTokenName} />
+              <img
+                src={`/assets/${ssovData.underlyingSymbol.toLowerCase()}.svg`}
+                alt={ssovTokenName}
+              />
             </Box>
           </Box>
           <Input
@@ -505,7 +507,7 @@ const PurchaseDialog = ({
                       variant="h6"
                       className="text-white mr-auto ml-0"
                     >
-                      {selectedSsovV3.type}
+                      {isPut ? 'PUT' : 'CALL'}
                     </Typography>
                   </Box>
                 </Box>
@@ -556,7 +558,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {purchaseTokenName}
+                {ssovData.collateralSymbol}
               </Typography>
             </Box>
           </Box>
@@ -578,7 +580,12 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 ${' '}
                 {formatAmount(
-                  getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                  isPut
+                    ? getUserReadableAmount(
+                        state.fees.mul(ssovData.lpPrice),
+                        36
+                      )
+                    : getUserReadableAmount(state.fees.mul(tokenPrice), 26),
                   5
                 )}
               </Typography>
@@ -601,7 +608,7 @@ const PurchaseDialog = ({
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                WETH
+                {ssovData.collateralSymbol}
               </Typography>
             </Box>
           </Box>

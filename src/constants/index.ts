@@ -326,3 +326,5 @@ export const CHAIN_ID_TO_RPC = {
   '1088': 'https://andromeda.metis.io/?owner=1088',
   '1337': 'http://127.0.0.1:8545',
 };
+
+export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

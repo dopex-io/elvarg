@@ -43,11 +43,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     isSettleable,
   } = props;
 
-  const { ssovData, ssovEpochData, selectedSsovV3 } = useContext(SsovV3Context);
-
-  const tokenSymbol = 'WETH';
-
-  const { isEpochExpired } = ssovEpochData;
+  const { ssovData, ssovEpochData } = useContext(SsovV3Context);
 
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -89,7 +85,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
   const settleableBooleans = useMemo(() => {
-    if (isEpochExpired) {
+    if (ssovEpochData.isEpochExpired) {
       if (isSettleable) {
         return {
           settleButtonDisable: false,
@@ -106,7 +102,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         settleButtonDisable: true,
         settleButtonPrimaryColor: false,
       };
-  }, [isEpochExpired, isSettleable]);
+  }, [ssovEpochData, isSettleable]);
 
   const Dialog = DIALOGS[dialogState.type];
 
@@ -116,18 +112,17 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         open={dialogState.open}
         handleClose={handleClose}
         strikeIndex={strikeIndex}
-        ssovData={ssovData}
-        token={tokenSymbol}
-        settleableAmount={settleableAmount}
-        className="rounded-xl"
       />
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={'/assets/eth.svg'} alt={tokenSymbol} />
+            <img
+              src={`/assets/${ssovData.underlyingSymbol.toLowerCase()}.svg`}
+              alt={ssovData.underlyingSymbol}
+            />
           </Box>
           <Typography variant="h5" className="text-white">
-            WETH
+            {ssovData.underlyingSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -145,11 +140,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
           {pnlAmount.gte(0)
-            ? `${formatAmount(
-                getUserReadableAmount(pnlAmount, 18),
-                5
-              )} ${tokenSymbol}`
-            : `0 ${tokenSymbol}`}
+            ? `${formatAmount(getUserReadableAmount(pnlAmount, 18), 5)} ${
+                ssovData.collateralSymbol
+              }`
+            : `0 ${ssovData.collateralSymbol}`}
         </Typography>
       </TableCell>
       <TableCell align="right">

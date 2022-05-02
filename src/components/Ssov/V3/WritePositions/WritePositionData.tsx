@@ -13,6 +13,8 @@ import NumberDisplay from 'components/UI/NumberDisplay';
 import SplitButton from 'components/UI/SplitButton';
 
 interface Props extends WritePositionInterface {
+  collateralSymbol: string;
+  underlyingSymbol: string;
   openTransfer: () => void;
   openWithdraw: () => void;
 }
@@ -24,6 +26,8 @@ const WritePositionTableData = (props: Props) => {
     epoch,
     accruedPremiums,
     accruedRewards,
+    collateralSymbol,
+    underlyingSymbol,
     openTransfer,
     openWithdraw,
   } = props;
@@ -33,10 +37,13 @@ const WritePositionTableData = (props: Props) => {
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={'/assets/eth.svg'} alt="WETH" />
+            <img
+              src={`/assets/${underlyingSymbol.toLowerCase()}.svg`}
+              alt={underlyingSymbol}
+            />
           </Box>
           <Typography variant="h5" className="text-white">
-            WETH
+            {underlyingSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -47,19 +54,20 @@ const WritePositionTableData = (props: Props) => {
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(getUserReadableAmount(collateralAmount, 18), 5)} WETH
+          {formatAmount(getUserReadableAmount(collateralAmount, 18), 5)}{' '}
+          {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell>
         <Typography variant="h6">
-          <NumberDisplay n={accruedPremiums} decimals={18} /> WETH
+          <NumberDisplay n={accruedPremiums} decimals={18} /> {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell>
         {accruedRewards.map((rewards, index) => {
           return (
             <Typography variant="h6" key={index}>
-              <NumberDisplay n={rewards} decimals={18} /> DPX
+              <NumberDisplay n={rewards} decimals={18} />
             </Typography>
           );
         })}

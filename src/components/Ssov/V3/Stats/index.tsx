@@ -29,8 +29,8 @@ interface StatsTableDataProps {
   totalDeposits: number;
   totalPurchased: number;
   totalPremiums: number;
-  imgSrc: string;
-  tokenSymbol: string;
+  underlyingSymbol: string;
+  collateralSymbol: string;
 }
 
 const YEAR_SECONDS = 31536000;
@@ -45,8 +45,8 @@ const StatsTableData = (
     totalPremiums,
     price,
     epochTime,
-    imgSrc,
-    tokenSymbol,
+    underlyingSymbol,
+    collateralSymbol,
   } = props;
 
   return (
@@ -54,10 +54,13 @@ const StatsTableData = (
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
-            <img src={imgSrc} alt="DPX" />
+            <img
+              src={`/assets/${underlyingSymbol.toLowerCase()}.svg`}
+              alt={underlyingSymbol}
+            />
           </Box>
           <Typography variant="h5" className="text-white">
-            {tokenSymbol}
+            {underlyingSymbol}
           </Typography>
         </Box>
       </TableCell>
@@ -66,7 +69,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {tokenSymbol}
+          {formatAmount(totalDeposits, 5)} {collateralSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
@@ -85,7 +88,7 @@ const StatsTableData = (
       </TableCell>
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
-          {formatAmount(totalPremiums, 5)} {tokenSymbol}
+          {formatAmount(totalPremiums, 5)} {collateralSymbol}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
@@ -116,7 +119,7 @@ const Stats = (props: { className?: string }) => {
 
   const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovV3Context);
 
-  const { tokenPrice, tokenName } = ssovData;
+  const { tokenPrice, underlyingSymbol, collateralSymbol } = ssovData;
   const {
     epochTimes,
     epochStrikes,
@@ -277,8 +280,8 @@ const Stats = (props: { className?: string }) => {
                           totalPremiums={totalPremiums}
                           price={price}
                           epochTime={epochTime}
-                          imgSrc={'/assets/eth.svg'}
-                          tokenSymbol="WETH"
+                          underlyingSymbol={underlyingSymbol}
+                          collateralSymbol={collateralSymbol}
                         />
                       );
                     }

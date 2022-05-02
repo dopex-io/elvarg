@@ -35,13 +35,18 @@ function SsovCard(props) {
     duration,
     retired,
     symbol,
+    version,
   } = data;
 
   const info = useMemo(() => {
     return [
       {
         heading: 'APY',
-        value: `${apy === 0 ? '...' : `${formatAmount(apy, 0, true)}%`}`,
+        value: `${
+          apy > 0 && apy !== 'Infinity'
+            ? formatAmount(apy, 0, true).toString() + '%'
+            : '...'
+        }`,
         Icon: Action,
         tooltip:
           type === 'put'
