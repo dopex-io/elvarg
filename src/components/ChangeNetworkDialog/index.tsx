@@ -80,7 +80,6 @@ const ChangeNetworkDialog = () => {
           );
         })}
       </Box>
-
       {typeof window !== 'undefined' &&
         (!window?.ethereum?.isMetaMask ? (
           <Box className="mt-2 mb-2 flex">
