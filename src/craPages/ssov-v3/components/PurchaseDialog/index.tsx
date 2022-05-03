@@ -345,10 +345,15 @@ const PurchaseDialog = ({
               Available:{' '}
               <span className="text-white">
                 {formatAmount(
-                  getUserReadableAmount(
-                    availableCollateralForStrikes[strikeIndex],
-                    18
-                  ),
+                  isPut
+                    ? getUserReadableAmount(
+                        availableCollateralForStrikes[strikeIndex],
+                        18
+                      ) / Number(strikes[strikeIndex])
+                    : getUserReadableAmount(
+                        availableCollateralForStrikes[strikeIndex],
+                        18
+                      ),
                   3
                 )}{' '}
               </span>
