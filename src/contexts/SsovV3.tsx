@@ -232,9 +232,15 @@ export const SsovV3Provider = (props) => {
       BigNumber.from(0)
     );
 
+    const underlyingPrice = await ssovContract.getUnderlyingPrice();
+
     const totalEpochDepositsInUSD =
       getUserReadableAmount(totalEpochDeposits, 18) *
-      tokenPrices.find((token) => token.name === 'ETH').price;
+      getUserReadableAmount(underlyingPrice, 8);
+
+    const apy = await axios
+      .get(`https://api.dopex.io/api/v2/ssov/apy?symbol=${selectedSsovV3}`)
+      .then((payload) => payload.data.apy);
 
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
@@ -245,7 +251,7 @@ export const SsovV3Provider = (props) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
-      APY: '0',
+      APY: apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };
