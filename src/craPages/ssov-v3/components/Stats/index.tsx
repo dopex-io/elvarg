@@ -31,6 +31,7 @@ interface StatsTableDataProps {
   totalPremiums: number;
   underlyingSymbol: string;
   collateralSymbol: string;
+  isPut: boolean;
 }
 
 const YEAR_SECONDS = 31536000;
@@ -47,6 +48,7 @@ const StatsTableData = (
     epochTime,
     underlyingSymbol,
     collateralSymbol,
+    isPut,
   } = props;
 
   return (
@@ -73,7 +75,7 @@ const StatsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalDeposits * price, 2)}
+          {formatAmount(isPut ? totalDeposits : totalDeposits * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
@@ -92,7 +94,7 @@ const StatsTableData = (
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(totalPremiums * price, 2)}
+          {formatAmount(isPut ? totalPremiums : totalPremiums * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="right" className="px-6 pt-2">
@@ -119,7 +121,7 @@ const Stats = (props: { className?: string }) => {
 
   const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovV3Context);
 
-  const { tokenPrice, underlyingSymbol, collateralSymbol } = ssovData;
+  const { tokenPrice, underlyingSymbol, collateralSymbol, isPut } = ssovData;
   const {
     epochTimes,
     epochStrikes,
@@ -282,6 +284,7 @@ const Stats = (props: { className?: string }) => {
                           epochTime={epochTime}
                           underlyingSymbol={underlyingSymbol}
                           collateralSymbol={collateralSymbol}
+                          isPut={isPut}
                         />
                       );
                     }
