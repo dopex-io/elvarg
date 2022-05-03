@@ -132,6 +132,7 @@ const DiamondPepesNfts = () => {
               their initial selected moves.
             </Typography>
           </Box>
+
           <Box className="p-2 mt-7 md:flex">
             {boxes.map((box) => (
               <Box className="md:w-1/4 p-4 text-center">
@@ -154,6 +155,15 @@ const DiamondPepesNfts = () => {
             src={'/assets/pepe-line.png'}
             className="ml-auto mr-auto mt-8 mb-8"
           />
+          <Box className="flex">
+            <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[23rem]">
+              <a>
+                <button className={styles.pepeButton}>
+                  Esteemed CEO, may I have a pepe?
+                </button>
+              </a>
+            </Box>
+          </Box>
           <Box className="p-2 mt-7 md:flex">
             <Box className="md:w-1/3 p-4 text-center">
               <img
@@ -162,7 +172,7 @@ const DiamondPepesNfts = () => {
               />
               <img
                 src={'/assets/pledge-pepe-button.png'}
-                className="w-48 z-50 mt-12 ml-auto mr-auto cursor-pointer z-50"
+                className="w-48 z-50 mt-12 ml-auto mr-auto cursor-pointr"
               />
               <Typography
                 variant="h4"
@@ -192,7 +202,7 @@ const DiamondPepesNfts = () => {
               />
               <img
                 src={'/assets/reveal-pepe-button.png'}
-                className="w-60 z-50 mt-12 ml-auto mr-auto cursor-pointer z-50"
+                className="w-60 z-50 mt-12 ml-auto mr-auto cursor-pointer"
               />
               <Typography
                 variant="h4"
@@ -243,18 +253,16 @@ const DiamondPepesNfts = () => {
                 className="w-40 ml-auto mr-auto"
               />
               <img
-                src={'/assets/pledge-pepe-button.png'}
-                className="w-48 z-50 mt-12 ml-auto mr-auto cursor-pointer z-50"
+                src={'/assets/duel-pepe-button.png'}
+                className="w-56 z-50 mt-12 ml-auto mr-auto cursor-pointer"
               />
               <Typography
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-7"
               >
-                “A [redacted] always repays his debts.”
+                Get Early Access to Duel Pepes, a commit-reveal based async pvp
+                game with duels and wagers where winner takes all.
                 <br />
-                <br />
-                Everyone who participated in the pledge event will be getting a
-                free Gen 2 sent to their wallets.
               </Typography>
 
               <Box className={'flex mt-6'}>
@@ -263,7 +271,7 @@ const DiamondPepesNfts = () => {
                   variant="h5"
                   className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
                 >
-                  <span className={styles.pepeLink}>Pledge Event</span>
+                  <span className={styles.pepeLink}>How to play</span>
                 </Typography>
               </Box>
             </Box>
