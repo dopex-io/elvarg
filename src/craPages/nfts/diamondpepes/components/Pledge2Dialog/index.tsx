@@ -5,18 +5,13 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  Addresses,
-  DiamondPepeNFTs__factory,
-  DiamondPepeNFTsPledge,
-} from '@dopex-io/sdk';
+import { Addresses, DiamondPepeNFTs__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 
 import Box from '@mui/material/Box';
-import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
+import Select from '@mui/material/Select';
 import { Tooltip } from '@mui/material';
 import Input from '@mui/material/Input';
 
@@ -25,7 +20,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
-import { Data, UserData } from '../../diamondpepes/interfaces';
+import { Data, UserData } from '../../interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
