@@ -8,7 +8,7 @@ import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import InfoBox from '../InfoBox';
+import InfoBox from 'components/Ssov/V3/InfoBox';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
@@ -35,7 +35,6 @@ function SsovCard(props) {
     symbol,
     version,
   } = data;
-
   const info = useMemo(() => {
     return [
       {
@@ -119,7 +118,7 @@ function SsovCard(props) {
           </Box>
           <Link
             href={{
-              pathname: `/ssov/manage/[duration]`,
+              pathname: `/ssov/manage`,
               query: {
                 type,
                 duration,
@@ -127,15 +126,21 @@ function SsovCard(props) {
                 name,
               },
             }}
+            as={`ssov/manage/${type}/${name}/${duration}`}
             passHref
           >
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>
           </Link>
-          <Typography variant="h6" className="text-stieglitz">
-            Epoch {currentEpoch}
-          </Typography>
+          <Box className="flex justify-between">
+            <Typography variant="h6" className="text-stieglitz">
+              Epoch {currentEpoch}
+            </Typography>
+            <Typography variant="h6" className="text-stieglitz">
+              Version {version}
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>

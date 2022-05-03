@@ -11,7 +11,7 @@ import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import TablePagination from '@mui/material/TablePagination';
 import Tooltip from '@mui/material/Tooltip';
-// import grey from '@mui/material/colors/grey';
+import { grey } from '@mui/material/colors';
 import { collection, getDocs } from 'firebase/firestore';
 import format from 'date-fns/format';
 import delay from 'lodash/delay';
@@ -291,9 +291,9 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
             </Typography>
             <Checkbox
               onClick={handleFilterFulfilled}
-              // sx={{
-              //   color: grey[50],
-              // }}
+              sx={{
+                color: grey[50],
+              }}
               size="small"
             />
           </Box>
