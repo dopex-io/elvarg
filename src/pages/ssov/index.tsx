@@ -16,6 +16,7 @@ import SsovFilter from 'components/Ssov/V2/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
 
+const ssovStates: string[] = ['Active', 'Retired'];
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
 
@@ -39,8 +40,11 @@ const Ssov = () => {
   const { tokenPrices } = useContext(AssetsContext);
 
   const [ssovs, setSsovs] = useState(null);
+  const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([
+    'Active',
+  ]);
   const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
-  const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
 
   const tvl = useMemo(() => {
@@ -84,7 +88,7 @@ const Ssov = () => {
   }, [provider, tokenPrices]);
 
   return (
-    <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
@@ -96,21 +100,31 @@ const Ssov = () => {
           </Typography>
           <Box
             className={
-              'mb-6 mt-5 opacity-90 bg-white ml-auto mr-auto w-[5rem] rounded-md p-[0.3px]'
+              'mb-6 mt-5 opacity-90 bg-mineshaft ml-auto mr-auto w-[10rem] font-bold rounded-md py-[0.4rem] px-[0.1rem]'
             }
           >
-            <Typography variant="h6" className="text-umbra text-[0.7rem]">
+            <Typography variant="h6" className="text-white text-[1rem]">
               TVL ${formatAmount(tvl, 0)}
             </Typography>
           </Box>
           <Typography variant="h5" className="text-stieglitz">
             Supply option liquidity to an Option Vault. Collect premiums from
-            option purchases and earn rewards from farms simultaneously.
+            option purchases and earn rewards simultaneously.
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
         <Box className="flex mb-4">
           <Box className="ml-auto mr-3">
+            <SsovFilter
+              activeFilters={selectedSsovStates}
+              setActiveFilters={setSelectedSsovStates}
+              text={'State'}
+              options={ssovStates}
+              multiple={true}
+              showImages={false}
+            />
+          </Box>
+          <Box className="mr-3">
             <SsovFilter
               activeFilters={selectedSsovAssets}
               setActiveFilters={setSelectedSsovAssets}
@@ -122,11 +136,11 @@ const Ssov = () => {
           </Box>
           <Box className="mr-3">
             <SsovFilter
-              activeFilters={selectedStrategies}
-              setActiveFilters={setSelectedStrategies}
-              text={'Strategy'}
+              activeFilters={selectedTypes}
+              setActiveFilters={setSelectedTypes}
+              text={'Type'}
               options={ssovStrategies}
-              multiple={false}
+              multiple={true}
               showImages={false}
             />
           </Box>
@@ -162,10 +176,14 @@ const Ssov = () => {
                                 selectedSsovAssets.includes(
                                   ssov.underlyingSymbol
                                 )) &&
-                              (selectedStrategies.length === 0 ||
-                                selectedStrategies.includes(
+                              (selectedTypes.length === 0 ||
+                                selectedTypes.includes(
                                   ssov.type.toUpperCase()
-                                ))
+                                )) &&
+                              ((selectedSsovStates.includes('Active') &&
+                                !ssov.retired) ||
+                                (selectedSsovStates.includes('Retired') &&
+                                  ssov.retired))
                             )
                               visible = true;
                             return visible ? (

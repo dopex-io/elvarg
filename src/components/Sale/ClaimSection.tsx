@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
-import Caution from 'assets/icons/Caution';
+import Caution from 'svgs/icons/Caution';
 
 const ClaimSection = ({ data }) => {
   const { saleClose, saleClosed } = data;

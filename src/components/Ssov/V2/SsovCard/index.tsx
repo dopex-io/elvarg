@@ -10,8 +10,8 @@ import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import InfoBox from '../InfoBox';
 
-import Coin from 'assets/icons/Coin';
-import Action from 'assets/icons/Action';
+import Coin from 'svgs/icons/Coin';
+import Action from 'svgs/icons/Action';
 
 import formatAmount from 'utils/general/formatAmount';
 

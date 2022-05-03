@@ -8,7 +8,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import PriceChart from './PriceChart';
 import Typography from 'components/UI/Typography';
 
-import Etherscan from 'assets/icons/Etherscan';
+import Etherscan from 'svgs/icons/Etherscan';
 
 const MAX_PRICE_ACHIEVED = 134.65;
 
@@ -32,13 +32,12 @@ const InfoSection = () => {
       </Typography>
       <Typography variant="h5" className="mb-5 text-stieglitz">
         The sale has concluded with{' '}
-        <span className="text-wave-blue">4808 ETH</span>{' '}
-        {
-          "raised during the duration of the sale. If you haven't claimed your share, do so from the panel on the right. Farming is ongoing and can be accessed"
-        }{' '}
-        <Box className="text-wave-blue">
-          <Link href="/farms">here.</Link>
-        </Box>
+        <span className="text-wave-blue">4808 ETH</span> raised during the
+        duration of the sale. If you {`haven't`} claimed your share, do so from
+        the panel on the right. Farming is ongoing and can be accessed{' '}
+        <Link to="/farms" className="text-wave-blue">
+          here.
+        </Link>
       </Typography>
       <Box className="flex lg:flex-row flex-col mb-14 lg:mb-10">
         <Button

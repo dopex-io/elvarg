@@ -39,7 +39,7 @@ const AppLink = ({
   className?: string;
 }) => {
   const linkClassName = cx(
-    'hover:no-underline hover:text-white capitalize',
+    'hover:no-underline hover:text-white capitalize cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
   if (to.startsWith('http')) {
@@ -231,7 +231,7 @@ export default function AppBar(props: AppBarProps) {
               href="/"
             >
               <img
-                src={'/assets/logo.svg'}
+                src="/images/brand/logo.svg"
                 className="w-9 text-left"
                 alt="logo"
               />

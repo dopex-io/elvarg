@@ -21,8 +21,8 @@ import Typography from 'components/UI/Typography';
 import MaxApprove from 'components/MaxApprove';
 import LpTokenDistribution from 'components/Farms/LpTokenDistribution';
 
-import Dropdown from 'assets/farming/Dropdown';
-import Equal from 'assets/icons/Equal';
+import Dropdown from 'svgs/farming/Dropdown';
+import Equal from 'svgs/icons/Equal';
 
 import { MAX_VALUE, UNISWAP_LINKS } from 'constants/index';
 
