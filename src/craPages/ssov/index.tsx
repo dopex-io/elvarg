@@ -16,6 +16,7 @@ import SsovFilter from './components/SsovFilter';
 
 import formatAmount from '../../utils/general/formatAmount';
 
+const ssovStates: string[] = ['Active', 'Retired'];
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
 
@@ -39,6 +40,9 @@ const Ssov = () => {
   const { tokenPrices } = useContext(AssetsContext);
 
   const [ssovs, setSsovs] = useState(null);
+  const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([
+    'Active',
+  ]);
   const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
@@ -112,6 +116,16 @@ const Ssov = () => {
         <Box className="flex mb-4">
           <Box className="ml-auto mr-3">
             <SsovFilter
+              activeFilters={selectedSsovStates}
+              setActiveFilters={setSelectedSsovStates}
+              text={'State'}
+              options={ssovStates}
+              multiple={true}
+              showImages={false}
+            />
+          </Box>
+          <Box className="mr-3">
+            <SsovFilter
               activeFilters={selectedSsovAssets}
               setActiveFilters={setSelectedSsovAssets}
               text={'Asset'}
@@ -165,7 +179,11 @@ const Ssov = () => {
                               (selectedStrategies.length === 0 ||
                                 selectedStrategies.includes(
                                   ssov.type.toUpperCase()
-                                ))
+                                )) &&
+                              ((selectedSsovStates.includes('Active') &&
+                                !ssov.retired) ||
+                                (selectedSsovStates.includes('Retired') &&
+                                  ssov.retired))
                             )
                               visible = true;
                             return visible ? (
