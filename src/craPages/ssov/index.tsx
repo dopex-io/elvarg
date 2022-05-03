@@ -44,7 +44,7 @@ const Ssov = () => {
     'Active',
   ]);
   const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
-  const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
 
   const tvl = useMemo(() => {
@@ -88,7 +88,7 @@ const Ssov = () => {
   }, [provider, tokenPrices]);
 
   return (
-    <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>
@@ -109,7 +109,7 @@ const Ssov = () => {
           </Box>
           <Typography variant="h5" className="text-stieglitz">
             Supply option liquidity to an Option Vault. Collect premiums from
-            option purchases and earn rewards from farms simultaneously.
+            option purchases and earn rewards simultaneously.
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
@@ -136,11 +136,11 @@ const Ssov = () => {
           </Box>
           <Box className="mr-3">
             <SsovFilter
-              activeFilters={selectedStrategies}
-              setActiveFilters={setSelectedStrategies}
-              text={'Strategy'}
+              activeFilters={selectedTypes}
+              setActiveFilters={setSelectedTypes}
+              text={'Type'}
               options={ssovStrategies}
-              multiple={false}
+              multiple={true}
               showImages={false}
             />
           </Box>
@@ -176,8 +176,8 @@ const Ssov = () => {
                                 selectedSsovAssets.includes(
                                   ssov.underlyingSymbol
                                 )) &&
-                              (selectedStrategies.length === 0 ||
-                                selectedStrategies.includes(
+                              (selectedTypes.length === 0 ||
+                                selectedTypes.includes(
                                   ssov.type.toUpperCase()
                                 )) &&
                               ((selectedSsovStates.includes('Active') &&
