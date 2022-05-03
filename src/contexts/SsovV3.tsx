@@ -233,8 +233,7 @@ export const SsovV3Provider = (props) => {
     );
 
     const underlyingPrice = await ssovContract.getUnderlyingPrice();
-
-    const totalEpochDepositsInUSD = !ssovContract.isPut
+    const totalEpochDepositsInUSD = !(await ssovContract.isPut())
       ? getUserReadableAmount(totalEpochDeposits, 18) *
         getUserReadableAmount(underlyingPrice, 8)
       : getUserReadableAmount(totalEpochDeposits, 18);
