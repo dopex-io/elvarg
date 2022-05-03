@@ -48,3 +48,34 @@
   margin: 0px 8px;
   letter-spacing: 1px;
 }
+
+.pepeText {
+  background: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  background-image: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  text-transform: uppercase;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.pepeLink {
+  background: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  background-image: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.pepeButtonSquare {
+  background: #43609a;
+  box-shadow: inset 2px 2px 0px #7193d6, inset -3px -3px 0px #213459;
+  width: 40px;
+  height: 40px;
+  color: white;
+  padding: 10px;
+  font-family: Minecraft, serif;
+  text-transform: uppercase;
+  z-index: 50;
+  position: relative;
+}

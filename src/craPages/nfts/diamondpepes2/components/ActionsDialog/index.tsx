@@ -1,6 +1,6 @@
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
-import { YieldMint } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
 
 import Dialog from 'components/UI/Dialog';
@@ -17,6 +17,7 @@ import { WalletContext } from 'contexts/Wallet';
 import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
+import cx from 'classnames';
 
 export interface Props {
   open: boolean;
@@ -27,6 +28,42 @@ export interface Props {
   updateData: () => {};
   updateUserData: () => {};
 }
+
+const Hero = () => {
+  return (
+    <Box>
+      <img src={'/assets/pepe-frame.png'} className="w-full" />
+      <Box className="bg-[#232935] absolute w-14 text-center rounded-xl left-[1.2rem] top-[4rem] z-50">
+        <Typography variant="h6" className="text-stieglitz font-['Minecraft']">
+          ?
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+
+const quotes = [
+  {
+    avatar: 'tz-pepe.png',
+    text: 'Atlanteenis',
+    author: '- Tz',
+  },
+  {
+    avatar: 'ceo-pepe.png',
+    text: 'Booba',
+    author: '- Esteemed CEO',
+  },
+  {
+    avatar: 'ceo-pepe.png',
+    text: 'Welcome and Good Nueenis',
+    author: '- Esteemed CEO',
+  },
+  {
+    avatar: 'intern-pepe.png',
+    text: 'Weenis',
+    author: '- Dopex Intern',
+  },
+];
 
 const ActionsDialog = ({
   open,
@@ -40,6 +77,10 @@ const ActionsDialog = ({
   const { chainId, signer } = useContext(WalletContext);
 
   const [activeTab, setActiveTab] = useState<string>('mint');
+
+  const quote = useMemo(() => {
+    return quotes[Math.floor(Math.random() * quotes.length)];
+  }, [quotes]);
 
   const sendTx = useSendTx();
 
@@ -60,6 +101,12 @@ const ActionsDialog = ({
     sendTx,
   ]);
 
+  const boxes = [
+    { title: '0.88 ETH', subTitle: '1 PEPE' },
+    { title: '996', subTitle: 'REMAINING' },
+    { title: '12h 11m', subTitle: 'TIME' },
+  ];
+
   return (
     <Dialog
       open={open}
@@ -71,7 +118,10 @@ const ActionsDialog = ({
       }}
     >
       <Box className="flex flex-row items-center mb-4">
-        <Typography variant="h5">Diamond Pepes</Typography>
+        <img
+          src={'/assets/mint-fighter-button.png'}
+          className={'w-46 mr-1 ml-auto'}
+        />
         <IconButton
           className="p-0 pb-1 mr-0 mt-0.5 ml-auto"
           onClick={handleClose}
@@ -80,148 +130,117 @@ const ActionsDialog = ({
           <BigCrossIcon className="" />
         </IconButton>
       </Box>
-      {['withdraw', 'mint'].includes(activeTab) && (
-        <Box className="flex flex-row mb-3 w-full justify-between p-1 border-[1px] border-[#232935] rounded-md">
-          <Box
-            className={
-              activeTab === 'mint'
-                ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
-                : 'text-center w-1/2 pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-            }
-            onClick={() => setActiveTab('mint')}
-          >
+      <Box className="flex lg:grid lg:grid-cols-12">
+        <Box className="col-span-3 pl-2 pr-2 relative">
+          <Hero />
+        </Box>
+        <Box className="col-span-3 pl-2 pr-2 relative">
+          <Hero />
+        </Box>
+        <Box className="col-span-3 pl-2 pr-2 relative">
+          <Hero />
+        </Box>
+        <Box className="col-span-3 pl-2 pr-2 relative">
+          <Hero />
+        </Box>
+      </Box>
+      <Box className="p-2 mt-5 md:flex">
+        {boxes.map((box) => (
+          <Box className="md:w-1/3 p-2 text-center">
             <Typography
-              variant="h6"
-              className={
-                activeTab === 'mint'
-                  ? 'text-xs font-normal'
-                  : 'text-[#78859E] text-xs font-normal'
-              }
+              variant="h5"
+              className="text-white font-display font-['Minecraft'] relative z-1"
             >
-              Mint
+              <span className={styles.pepeText}>{box.title}</span>
+            </Typography>
+            <Typography
+              variant="h5"
+              className="text-[#78859E] font-['Minecraft'] relative z-1"
+            >
+              {box.subTitle}
             </Typography>
           </Box>
-          <Box
-            className={
-              activeTab === 'withdraw'
-                ? 'text-center w-1/2 pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
-                : 'text-center w-1/2 pt-0.5 pb-1 cursor-not-allowed group rounded hover:opacity-80'
-            }
-          >
+        ))}
+      </Box>
+      <Box className={'mt-2'}>
+        <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
+          <Box className="flex flex-row justify-between mb-4">
+            <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
+              Mint Amount
+            </Typography>
             <Typography
               variant="h6"
-              className={
-                activeTab === 'withdraw'
-                  ? 'text-xs font-normal'
-                  : 'text-[#78859E] text-xs font-normal'
-              }
+              className="text-[#22E1FF] ml-auto mr-1 mt-1.5"
             >
-              Withdraw
+              Max
             </Typography>
+          </Box>
+          <Box className="flex pl-2 pr-2">
+            <button className={styles.pepeButtonSquare}>-</button>
+            <button className={cx('ml-2', styles.pepeButtonSquare)}>+</button>
+            <Input
+              id="amount"
+              name="amount"
+              className={
+                'ml-4 bg-[#343C4D] text-white text-right w-full pl-3 pr-3'
+              }
+              type="number"
+              value={1}
+              classes={{ input: 'text-right' }}
+            />
           </Box>
         </Box>
-      )}
-      <Box style={{ height: 39 + 'rem' }}>
-        {activeTab === 'mint' ? (
-          <Box>
-            <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-              <Box className="flex flex-row justify-between mb-2">
-                <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-                  {userData.minted ? 'Minted:' : 'Reserved:'}{' '}
-                  <span className="text-white">{pepeReserved}</span>
+        <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-3">
+          <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
+            <EstimatedGasCostButton gas={2000000} chainId={chainId} />
+            <Box className={'flex mt-3'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Total cost
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {userData.minted ? 0 : pepeReserved}
                 </Typography>
               </Box>
-              <Box className="h-[17rem] overflow-y-auto overflow-x-hidden">
-                {Array.from({ length: pepeReserved }, (_, i) => (
-                  <Box
-                    className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md"
-                    key={i}
-                  >
-                    <img
-                      src={'/assets/diamondpepe.png'}
-                      alt="diamond pepe"
-                      className={'w-[4rem] m-2 rounded-md'}
-                    />
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        className="text-white ml-2 mt-4 font-bold"
-                      >
-                        Diamond Pepe
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        className="text-white ml-2 mt-1 font-bold"
-                      >
-                        # ?
-                      </Typography>
-                    </Box>
-                  </Box>
-                ))}
-                {pepeReserved === 0 ? (
-                  <Box className={'flex text-center h-[16rem]'}>
-                    <Typography
-                      variant="h6"
-                      className="text-[#78859E] ml-auto mr-auto mt-auto mb-auto"
-                    >
-                      Your pepes will appear here
-                      <br />
-                      ...
-                    </Typography>
-                  </Box>
-                ) : null}
-              </Box>
-            </Box>
-            <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-12">
-              <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
-                <Box className={'flex mb-3'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    To receive
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0"
-                    >
-                      {userData.minted ? 0 : pepeReserved}
-                    </Typography>
-                  </Box>
-                </Box>
-                <EstimatedGasCostButton gas={2000000} chainId={chainId} />
-              </Box>
-              <Box className="flex mb-2">
-                <Box className="flex text-center p-2 mr-2">
-                  <img
-                    src="/assets/alarm.svg"
-                    className="w-7 h-5"
-                    alt="Alarm"
-                  />
-                </Box>
-                <Typography variant="h6" className="text-[#78859E]">
-                  Check the full reveal on Tofunft after the deposit period on
-                  24/2/2022
-                </Typography>
-              </Box>
-              <CustomButton
-                size="medium"
-                className={styles.pepeButton}
-                disabled={!data.isFarmingPeriod || userData.minted}
-                onClick={handleMint}
-              >
-                <Typography variant="h5" className={styles.pepeButtonText}>
-                  {data.isFarmingPeriod
-                    ? userData.minted
-                      ? 'Already minted'
-                      : 'Mint'
-                    : 'Not ready yet'}
-                </Typography>
-              </CustomButton>
             </Box>
           </Box>
-        ) : null}
+          <Box className="flex mb-2">
+            <img src={`/assets/${quote.avatar}`} className="ml-[2px] w-16" />
+
+            <Box className="bg-[#343C4D] rounded-xs flex flex-col p-3 pb-1.5 w-full ml-4 relative">
+              <img
+                src="/assets/polygon-left.svg"
+                className="absolute left-[-7px] top-[20px] w-3"
+              />
+              <Typography
+                variant="h6"
+                className="text-white font-['Minecraft']"
+              >
+                {quote.text}
+              </Typography>
+              <Typography
+                variant="h6"
+                className="text-stieglitz font-['Minecraft']"
+              >
+                {quote.author}
+              </Typography>
+            </Box>
+          </Box>
+          <CustomButton
+            size="medium"
+            className={styles.pepeButton}
+            disabled={!data.isFarmingPeriod || userData.minted}
+            onClick={handleMint}
+          >
+            <Typography variant="h5" className={styles.pepeButtonText}>
+              {data.isFarmingPeriod
+                ? userData.minted
+                  ? 'Already minted'
+                  : 'Mint'
+                : 'Not ready yet'}
+            </Typography>
+          </CustomButton>
+        </Box>
       </Box>
     </Dialog>
   );

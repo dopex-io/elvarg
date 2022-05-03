@@ -157,11 +157,14 @@ const DiamondPepesNfts = () => {
           />
           <Box className="flex">
             <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[23rem]">
-              <a>
-                <button className={styles.pepeButton}>
-                  Esteemed CEO, may I have a pepe?
-                </button>
-              </a>
+              <button
+                className={styles.pepeButton}
+                onClick={() =>
+                  setActionsDialogDisplayState({ visible: true, tab: 'mint' })
+                }
+              >
+                Esteemed CEO, may I have a pepe?
+              </button>
             </Box>
           </Box>
           <Box className="p-2 mt-7 md:flex">
