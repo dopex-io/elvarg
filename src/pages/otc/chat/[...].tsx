@@ -85,7 +85,7 @@ const Chatroom = () => {
         .filter((document) => document.id === chatId)
         .pop();
 
-      setFulfilled(chatroomData.data.isFulfilled);
+      setFulfilled(chatroomData?.data?.isFulfilled);
 
       setLoading(!msgs);
     })();
