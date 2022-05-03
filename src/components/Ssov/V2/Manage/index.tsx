@@ -24,7 +24,6 @@ const Manage = () => {
 
   const router = useRouter();
   const { name, type } = router.query;
-  console.log(name, type);
 
   useEffect(() => {
     if (typeof name !== 'undefined' || typeof type !== 'undefined') {

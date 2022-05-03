@@ -22,7 +22,7 @@ import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 
-import { OtcContext } from 'contexts/Otc';
+import { OtcContext, OtcProvider } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
 
 import { db } from 'utils/firebase/initialize';
@@ -217,4 +217,10 @@ const Chatroom = () => {
   );
 };
 
-export default Chatroom;
+const Chatroompage = () => (
+  <OtcProvider>
+    <Chatroom />
+  </OtcProvider>
+);
+
+export default Chatroompage;

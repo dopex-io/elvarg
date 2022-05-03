@@ -22,7 +22,6 @@ const InfoBox = ({
   className,
   tooltip,
 }: InfoBoxProps) => {
-  console.log('RENDERED');
   return (
     <Box className={cx('flex flex-col p-4 bg-umbra rounded-xl', className)}>
       <Box className="mb-2 flex flex-row">

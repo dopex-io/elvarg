@@ -23,8 +23,6 @@ import styles from './styles.module.scss';
 function SsovCard(props) {
   const { className, data } = props;
   const { convertToBNB } = useContext(BnbConversionContext);
-  console.log('SSOV CARD RENDERED');
-
   const {
     currentEpoch,
     totalEpochDeposits,
@@ -80,7 +78,6 @@ function SsovCard(props) {
       },
     ];
   }, [apy, convertToBNB, name, totalEpochDeposits, tvl, type]);
-  console.log(info, 'this sit he info');
 
   return (
     <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
