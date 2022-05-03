@@ -35,8 +35,10 @@ const InfoSection = () => {
         <span className="text-wave-blue">4808 ETH</span> raised during the
         duration of the sale. If you {`haven't`} claimed your share, do so from
         the panel on the right. Farming is ongoing and can be accessed{' '}
-        <Link to="/farms" className="text-wave-blue">
-          here.
+        <Link href="/farms" passHref>
+          <Box className="text-wave-blue" role="button">
+            here.
+          </Box>
         </Link>
       </Typography>
       <Box className="flex lg:flex-row flex-col mb-14 lg:mb-10">
