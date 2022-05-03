@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import TablePagination from '@mui/material/TablePagination';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import Checkbox from '@mui/material/Checkbox';
-// import grey from '@mui/material/colors/grey';
+import grey from '@mui/material/colors/grey';
 import { DocumentData } from 'firebase/firestore';
 
 import Typography from 'components/UI/Typography';
@@ -55,9 +55,9 @@ const IndicativeRfqsSm = (props: IndicativeRfqSmProps) => {
               </Typography>
               <Checkbox
                 onClick={handleFilterFulfilled}
-                // sx={{
-                //   color: grey[50],
-                // }}
+                sx={{
+                  color: grey[50],
+                }}
                 size="small"
               />
             </Box>
