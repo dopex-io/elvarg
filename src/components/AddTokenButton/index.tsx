@@ -1,7 +1,7 @@
 import cx from 'classnames';
 
 import IconButton from '@mui/material/IconButton';
-import MetaMask from 'assets/icons/MetaMask';
+import MetaMask from 'svgs/icons/MetaMask';
 
 interface WatchAssetOptions {
   address: string;

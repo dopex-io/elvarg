@@ -13,8 +13,8 @@ import InfoBox from '../InfoBox';
 import PurchaseDialog from '../PurchaseDialog';
 import Wrapper from '../Wrapper';
 
-import Coin from 'assets/icons/Coin';
-import Action from 'assets/icons/Action';
+import Coin from 'svgs/icons/Coin';
+import Action from 'svgs/icons/Action';
 
 import styles from './styles.module.scss';
 

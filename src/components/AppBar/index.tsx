@@ -231,7 +231,7 @@ export default function AppBar(props: AppBarProps) {
               href="/"
             >
               <img
-                src={'/assets/logo.svg'}
+                src="/images/brand/logo.svg"
                 className="w-9 text-left"
                 alt="logo"
               />
