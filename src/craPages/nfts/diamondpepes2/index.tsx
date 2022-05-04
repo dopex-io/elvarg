@@ -156,14 +156,14 @@ const DiamondPepesNfts = () => {
             className="ml-auto mr-auto mt-8 mb-8"
           />
           <Box className="flex">
-            <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[23rem]">
+            <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[7rem]">
               <button
                 className={styles.pepeButton}
                 onClick={() =>
                   setActionsDialogDisplayState({ visible: true, tab: 'mint' })
                 }
               >
-                Esteemed CEO, may I have a pepe?
+                MINT
               </button>
             </Box>
           </Box>
@@ -200,8 +200,8 @@ const DiamondPepesNfts = () => {
             </Box>
             <Box className="md:w-1/3 p-4 text-center">
               <img
-                src={'/assets/pepe-header-1.png'}
-                className="w-40 ml-auto mr-auto"
+                src={'/assets/hand-pepe.png'}
+                className="w-32 ml-auto mr-auto"
               />
               <img
                 src={'/assets/reveal-pepe-button.png'}
@@ -252,8 +252,8 @@ const DiamondPepesNfts = () => {
             </Box>
             <Box className="md:w-1/3 p-4 text-center">
               <img
-                src={'/assets/pepe-header-1.png'}
-                className="w-40 ml-auto mr-auto"
+                src={'/assets/joypad-pepe.png'}
+                className="w-36 ml-auto mr-auto mt-9 mb-14"
               />
               <img
                 src={'/assets/duel-pepe-button.png'}

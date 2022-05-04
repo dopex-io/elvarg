@@ -68,6 +68,7 @@
 }
 
 .pepeButtonSquare {
+  cursor: pointer;
   background: #43609a;
   box-shadow: inset 2px 2px 0px #7193d6, inset -3px -3px 0px #213459;
   width: 40px;
@@ -78,4 +79,20 @@
   text-transform: uppercase;
   z-index: 50;
   position: relative;
+}
+
+.blueBackground {
+  background: #43609A;
+}
+
+.diamondBackground {
+  background: linear-gradient(180deg, #FFFFFF 0%, #9CECFD 64.06%);
+}
+
+.orangeBackground {
+  background: linear-gradient(180deg, #DB8140 0%, #7B5A43 100%);
+}
+
+.goldBackground {
+  background: radial-gradient(72.5% 72.5% at 50% 6.67%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, #FFD50B 0%, #FFAD14 100%);
 }

@@ -29,10 +29,34 @@ export interface Props {
   updateUserData: () => {};
 }
 
-const Hero = () => {
-  return (
+const Hero = ({ active, heroColor, letter }) => {
+  const heroColorToClass = useMemo(() => {
+    if (heroColor === 'blue') return styles.blueBackground;
+    if (heroColor === 'orange') return styles.orangeBackground;
+    if (heroColor === 'diamond') return styles.diamondBackground;
+    if (heroColor === 'gold') return styles.goldBackground;
+  }, [heroColor]);
+
+  return active ? (
     <Box>
-      <img src={'/assets/pepe-frame.png'} className="w-full" />
+      <img src={`/assets/pepe-frame-${heroColor}.png`} className="w-full" />
+      <Box
+        className={cx(
+          heroColorToClass,
+          'absolute w-14 text-center rounded-xl left-[1.2rem] top-[4rem] z-50'
+        )}
+      >
+        <Typography
+          variant="h6"
+          className={"text-stieglitz font-['Minecraft'] text-black pt-0.5"}
+        >
+          {letter}
+        </Typography>
+      </Box>
+    </Box>
+  ) : (
+    <Box>
+      <img src={`/assets/pepe-frame.png`} className="w-full" />
       <Box className="bg-[#232935] absolute w-14 text-center rounded-xl left-[1.2rem] top-[4rem] z-50">
         <Typography variant="h6" className="text-stieglitz font-['Minecraft']">
           ?
@@ -75,6 +99,22 @@ const ActionsDialog = ({
   updateUserData,
 }: Props) => {
   const { chainId, signer } = useContext(WalletContext);
+  const [toMint, setToMint] = useState<number>(1);
+
+  const decreaseToMintAmount = () => {
+    if (toMint > 1) setToMint(toMint - 1);
+  };
+
+  const increaseToMintAmount = () => {
+    if (toMint < 4) setToMint(toMint + 1);
+  };
+
+  const heroColor = useMemo(() => {
+    if (toMint === 1) return 'blue';
+    else if (toMint === 2) return 'orange';
+    else if (toMint === 3) return 'diamond';
+    else if (toMint === 4) return 'gold';
+  }, [toMint]);
 
   const [activeTab, setActiveTab] = useState<string>('mint');
 
@@ -128,25 +168,26 @@ const ActionsDialog = ({
           size="large"
         >
           <BigCrossIcon className="" />
+          <BigCrossIcon className="" />
         </IconButton>
       </Box>
       <Box className="flex lg:grid lg:grid-cols-12">
         <Box className="col-span-3 pl-2 pr-2 relative">
-          <Hero />
+          <Hero active={toMint >= 1} heroColor={heroColor} letter={'H'} />
         </Box>
         <Box className="col-span-3 pl-2 pr-2 relative">
-          <Hero />
+          <Hero active={toMint >= 2} heroColor={heroColor} letter={'O'} />
         </Box>
         <Box className="col-span-3 pl-2 pr-2 relative">
-          <Hero />
+          <Hero active={toMint >= 3} heroColor={heroColor} letter={'L'} />
         </Box>
         <Box className="col-span-3 pl-2 pr-2 relative">
-          <Hero />
+          <Hero active={toMint === 4} heroColor={heroColor} letter={'D'} />
         </Box>
       </Box>
       <Box className="p-2 mt-5 md:flex">
-        {boxes.map((box) => (
-          <Box className="md:w-1/3 p-2 text-center">
+        {boxes.map((box, i) => (
+          <Box className="md:w-1/3 p-2 text-center" key={i}>
             <Typography
               variant="h5"
               className="text-white font-display font-['Minecraft'] relative z-1"
@@ -170,14 +211,27 @@ const ActionsDialog = ({
             </Typography>
             <Typography
               variant="h6"
-              className="text-[#22E1FF] ml-auto mr-1 mt-1.5"
+              className="text-[#22E1FF] ml-auto mr-1 mt-1.5 cursor-pointer"
+              onClick={() => setToMint(4)}
             >
               Max
             </Typography>
           </Box>
           <Box className="flex pl-2 pr-2">
-            <button className={styles.pepeButtonSquare}>-</button>
-            <button className={cx('ml-2', styles.pepeButtonSquare)}>+</button>
+            <button
+              className={styles.pepeButtonSquare}
+              disabled={toMint < 2}
+              onClick={decreaseToMintAmount}
+            >
+              -
+            </button>
+            <button
+              className={cx('ml-2', styles.pepeButtonSquare)}
+              disabled={toMint > 3}
+              onClick={increaseToMintAmount}
+            >
+              +
+            </button>
             <Input
               id="amount"
               name="amount"
@@ -185,7 +239,7 @@ const ActionsDialog = ({
                 'ml-4 bg-[#343C4D] text-white text-right w-full pl-3 pr-3'
               }
               type="number"
-              value={1}
+              value={toMint}
               classes={{ input: 'text-right' }}
             />
           </Box>
