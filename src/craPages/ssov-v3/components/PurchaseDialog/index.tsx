@@ -29,6 +29,7 @@ import AlarmIcon from 'components/Icons/AlarmIcon';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -37,7 +38,6 @@ import { AssetsContext } from 'contexts/Assets';
 import { SsovV3Context, SsovV3Data, SsovV3EpochData } from 'contexts/SsovV3';
 
 import { MAX_VALUE } from 'constants/index';
-import getTokenDecimals from '../../../../utils/general/getTokenDecimals';
 
 export interface Props {
   open: boolean;
