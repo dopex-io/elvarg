@@ -9,9 +9,9 @@ import * as yup from 'yup';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import AppBar from 'components/AppBar';
-import ClaimSection from 'components/Sale/ClaimSection';
-import StatsSection from 'components/Sale/StatsSection';
-import InfoSection from 'components/Sale/InfoSection';
+import ClaimSection from 'components/sale-page/ClaimSection';
+import StatsSection from 'components/sale-page/StatsSection';
+import InfoSection from 'components/sale-page/InfoSection';
 
 import { WalletContext } from 'contexts/Wallet';
 import { TokenSaleContext, TokenSaleProvider } from 'contexts/TokenSale';

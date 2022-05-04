@@ -16,7 +16,7 @@ import { Tooltip } from '@mui/material';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import PledgeDialog from 'components/Nfts/PledgeDialog';
+import PledgeDialog from 'components/nfts-page/PledgeDialog';
 
 import {
   Data,

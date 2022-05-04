@@ -23,8 +23,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import useSendTx from 'hooks/useSendTx';
 
-import Kill from 'components/Tzwap/Dialogs/Kill';
-import Orders from 'components/Tzwap/Orders';
+import Kill from 'components/tzwap-page/Dialogs/Kill';
+import Orders from 'components/tzwap-page/Orders';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
