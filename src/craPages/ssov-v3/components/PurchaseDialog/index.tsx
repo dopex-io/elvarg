@@ -37,6 +37,7 @@ import { AssetsContext } from 'contexts/Assets';
 import { SsovV3Context, SsovV3Data, SsovV3EpochData } from 'contexts/SsovV3';
 
 import { MAX_VALUE } from 'constants/index';
+import getTokenDecimals from '../../../../utils/general/getTokenDecimals';
 
 export interface Props {
   open: boolean;
@@ -53,7 +54,7 @@ const PurchaseDialog = ({
 }: Props) => {
   const { ssovSigner } = useContext(SsovV3Context);
   const { updateAssetBalances } = useContext(AssetsContext);
-  const { accountAddress, provider, signer, contractAddresses } =
+  const { accountAddress, provider, signer, contractAddresses, chainId } =
     useContext(WalletContext);
 
   const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
@@ -250,10 +251,21 @@ const PurchaseDialog = ({
   ]);
 
   const purchaseButtonProps = useMemo(() => {
+    const userReadableTotalCost = isPut
+      ? getUserReadableAmount(state.totalCost, 18)
+      : getUserReadableAmount(state.totalCost, 18) /
+        getUserReadableAmount(ssovData.tokenPrice, 8);
+
+    const userReadableTokenBalance = getUserReadableAmount(
+      userTokenBalance,
+      getTokenDecimals(ssovTokenName, chainId)
+    );
+
+    const isBalanceSufficient =
+      userReadableTokenBalance > userReadableTotalCost;
+
     const disabled = Boolean(
-      optionsAmount <= 0 ||
-        isPurchaseStatsLoading ||
-        state.totalCost.gt(userTokenBalance)
+      optionsAmount <= 0 || isPurchaseStatsLoading || !isBalanceSufficient
     );
 
     let onClick = () => {};
@@ -271,7 +283,7 @@ const PurchaseDialog = ({
     if (isPurchaseStatsLoading) {
       children = 'Loading prices...';
     } else if (optionsAmount > 0) {
-      if (state.totalCost.gt(userTokenBalance)) {
+      if (!isBalanceSufficient) {
         children = 'Insufficient Balance';
       } else if (approved) {
         children = 'Purchase';
@@ -296,6 +308,8 @@ const PurchaseDialog = ({
     optionsAmount,
     state.totalCost,
     userTokenBalance,
+    ssovTokenName,
+    chainId,
   ]);
 
   return (
