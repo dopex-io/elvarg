@@ -179,7 +179,7 @@ const ManageCard = () => {
               variant="h6"
               className="text-white ml-auto mr-0 text-[0.72rem]"
             >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 18))}{' '}
+              {getUserReadableAmount(userTokenBalance, 18)}{' '}
               {ssovData.collateralSymbol}
             </Typography>
           </Box>
@@ -281,13 +281,18 @@ const ManageCard = () => {
             size="medium"
             className="w-full mt-4 !rounded-md"
             color={
-              !approved && strikeDepositAmount > 0 ? 'primary' : 'mineshaft'
+              !approved ||
+              (strikeDepositAmount > 0 &&
+                strikeDepositAmount <=
+                  getUserReadableAmount(userTokenBalance, 18))
+                ? 'primary'
+                : 'mineshaft'
             }
             disabled={strikeDepositAmount <= 0}
             onClick={approved ? handleDeposit : handleApprove}
           >
             {approved
-              ? strikeDepositAmount === 0
+              ? strikeDepositAmount == 0
                 ? 'Insert an amount'
                 : strikeDepositAmount >
                   getUserReadableAmount(userTokenBalance, 18)

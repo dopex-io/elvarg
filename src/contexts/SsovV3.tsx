@@ -232,9 +232,16 @@ export const SsovV3Provider = (props) => {
       BigNumber.from(0)
     );
 
-    const totalEpochDepositsInUSD =
-      getUserReadableAmount(totalEpochDeposits, 18) *
-      tokenPrices.find((token) => token.name === 'ETH').price;
+    const underlyingPrice = await ssovContract.getUnderlyingPrice();
+    const totalEpochDepositsInUSD = !(await ssovContract.isPut())
+      ? getUserReadableAmount(totalEpochDeposits, 18) *
+        getUserReadableAmount(underlyingPrice, 8)
+      : getUserReadableAmount(totalEpochDeposits, 18);
+
+    // /rDPX-WEEKLY-PUTS-SSOV-V3
+    const apy = await axios
+      .get(`https://api.dopex.io/api/v2/ssov/apy?symbol=${selectedSsovV3}`)
+      .then((payload) => payload.data.apy);
 
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
@@ -245,13 +252,13 @@ export const SsovV3Provider = (props) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
-      APY: '0',
+      APY: apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };
 
     setSsovV3EpochData(_ssovEpochData);
-  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3, tokenPrices]);
+  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3]);
 
   useEffect(() => {
     if (

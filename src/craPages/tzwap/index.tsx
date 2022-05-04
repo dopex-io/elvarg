@@ -113,7 +113,7 @@ const Tzwap = () => {
           : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
         signer
       ),
-    [signer]
+    [chainId, signer]
   );
 
   const ADDRESS_TO_TOKEN = useMemo(() => {
@@ -216,7 +216,7 @@ const Tzwap = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, fromTokenName, signer, tzwapRouter]);
+  }, [sendTx, contractAddresses, fromTokenName, signer, tzwapRouter.address]);
 
   const handleKill = useCallback(async () => {
     try {
@@ -299,7 +299,7 @@ const Tzwap = () => {
     }
 
     return _tokens;
-  }, [isFromTokenSelectorVisible]);
+  }, [chainId, isFromTokenSelectorVisible]);
 
   const handleCreate = useCallback(async () => {
     try {
@@ -356,18 +356,19 @@ const Tzwap = () => {
     intervalAmount,
     selectedInterval,
     amount,
-    fromTokenName,
-    chainId,
     selectedTickSize,
     sendTx,
+    tzwapRouter,
     signer,
     accountAddress,
+    fromTokenName,
+    contractAddresses,
     toTokenName,
+    chainId,
     minFees,
     maxFees,
     updateOrders,
     updateAssetBalances,
-    tzwapRouter,
   ]);
 
   const submitButtonProps = useMemo(() => {
@@ -466,7 +467,7 @@ const Tzwap = () => {
     }
 
     updateQuote();
-  }, [accountAddress, chainId, fromTokenName, toTokenName]);
+  }, [accountAddress, chainId, contractAddresses, fromTokenName, toTokenName]);
 
   useEffect(() => {
     (async function () {
@@ -505,10 +506,12 @@ const Tzwap = () => {
     chainId,
     provider,
     tzwapRouter,
+    contractAddresses,
+    signer,
   ]);
 
   return (
-    <Box className="bg-[url('/assets/vaultsbg.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>Tzwap | Dopex</title>
       </Head>
@@ -761,7 +764,7 @@ const Tzwap = () => {
                           </Box>
                           <Typography
                             className={
-                              'text-2xl text-white mt-2.5 ml-2 mr-3 font-mono mt-1'
+                              'text-2xl text-white ml-2 mr-3 font-mono mt-1'
                             }
                             variant={'h6'}
                           >
@@ -769,7 +772,6 @@ const Tzwap = () => {
                           </Typography>
                         </Box>
                       </Box>
-
                       <Box className="rounded-lg p-3 pb-0 border border-neutral-800 mb-3.5 w-full bg-umbra">
                         <Box className="flex pb-3">
                           <Box className={'w-1/2'}>
@@ -889,7 +891,6 @@ const Tzwap = () => {
                               ))}
                             </Select>
                           </Box>
-
                           <Box className={'w-1/4 ml-1'}>
                             <Input
                               disableUnderline={true}
@@ -907,7 +908,6 @@ const Tzwap = () => {
                           </Box>
                         </Box>
                       </Box>
-
                       <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
                         <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
                           <Box className={'flex mb-2'}>
@@ -1018,7 +1018,6 @@ const Tzwap = () => {
                             />
                           ) : null}
                         </Box>
-
                         <Box className="rounded-md mb-4 p-2 pl-3 pr-3 border border-neutral-800 w-full bg-neutral-800">
                           {isFetchingQuote ? (
                             <Box className="flex">
@@ -1060,7 +1059,6 @@ const Tzwap = () => {
                             </Box>
                           )}
                         </Box>
-
                         {tickInUsd >= 50000 && chainId === 1 ? (
                           <Box className="flex">
                             <Box className="flex text-center p-2 mr-2 mt-1">

@@ -23,8 +23,8 @@ import WalletButton from 'components/WalletButton';
 import EpochSelector from '../EpochSelector';
 import PurchaseCard from '../PurchaseCard';
 
-import Coin from 'assets/icons/Coin';
-import Action from 'assets/icons/Action';
+import Coin from 'svgs/icons/Coin';
+import Action from 'svgs/icons/Action';
 
 import styles from './styles.module.scss';
 
