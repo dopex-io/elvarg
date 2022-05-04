@@ -253,7 +253,19 @@ const PurchaseDialog = ({
     const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
-        state.totalCost.gt(userTokenBalance)
+        (isPut
+          ? availableCollateralForStrikes[strikeIndex]
+              .div(strikes[strikeIndex])
+              .lt(getContractReadableAmount(optionsAmount, 18))
+          : availableCollateralForStrikes[strikeIndex].lt(
+              getContractReadableAmount(optionsAmount, 18)
+            )) ||
+        (isPut
+          ? state.totalCost.gt(userTokenBalance)
+          : state.totalCost
+              .mul(1e8)
+              .div(ssovData.tokenPrice)
+              .gt(userTokenBalance))
     );
 
     let onClick = () => {};
@@ -271,7 +283,24 @@ const PurchaseDialog = ({
     if (isPurchaseStatsLoading) {
       children = 'Loading prices...';
     } else if (optionsAmount > 0) {
-      if (state.totalCost.gt(userTokenBalance)) {
+      if (
+        isPut
+          ? availableCollateralForStrikes[strikeIndex]
+              .div(strikes[strikeIndex])
+              .lt(getContractReadableAmount(optionsAmount, 18))
+          : availableCollateralForStrikes[strikeIndex].lt(
+              getContractReadableAmount(optionsAmount, 18)
+            )
+      ) {
+        children = 'Collateral not available';
+      } else if (
+        isPut
+          ? state.totalCost.gt(userTokenBalance)
+          : state.totalCost
+              .mul(1e8)
+              .div(ssovData.tokenPrice)
+              .gt(userTokenBalance)
+      ) {
         children = 'Insufficient Balance';
       } else if (approved) {
         children = 'Purchase';
@@ -296,6 +325,11 @@ const PurchaseDialog = ({
     optionsAmount,
     state.totalCost,
     userTokenBalance,
+    ssovData.tokenPrice,
+    isPut,
+    availableCollateralForStrikes,
+    strikeIndex,
+    strikes,
   ]);
 
   return (
