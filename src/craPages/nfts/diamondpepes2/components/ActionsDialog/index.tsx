@@ -1,5 +1,7 @@
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
+import { emojisplosion, emojisplosions } from 'emojisplosion';
+
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
@@ -145,6 +147,16 @@ const ActionsDialog = ({
     sendTx,
   ]);
 
+  const explodeEmojis = () => {
+    const toExplode = document.getElementById('emojisplosion');
+    if (toExplode) {
+      emojisplosions({
+        container: toExplode,
+        emojis: ['💎'],
+      });
+    }
+  };
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       let newIndex = Math.floor(Math.random() * quotes.length);
@@ -184,7 +196,7 @@ const ActionsDialog = ({
         paperScrollPaper: 'overflow-x-hidden',
       }}
     >
-      <Box className="flex flex-row items-center mb-4">
+      <Box className="flex flex-row items-center mb-4" id={'emojisplosion'}>
         <img
           src={'/assets/mint-fighter-button.png'}
           className={'w-46 mr-1 ml-auto'}
