@@ -82,7 +82,11 @@ const StatsTableData = (
         <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {formatAmount(
-            totalDeposits > 0 ? 100 * (totalPurchased / totalDeposits) : 0,
+            totalDeposits > 0
+              ? 100 *
+                  (totalPurchased /
+                    (isPut ? totalDeposits / strikePrice : totalDeposits))
+              : 0,
             5
           )}
           {'%'}
