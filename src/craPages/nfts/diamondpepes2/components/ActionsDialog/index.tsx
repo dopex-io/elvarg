@@ -1,7 +1,9 @@
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
+
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
+import Switch from '@mui/material/Switch';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -106,21 +108,27 @@ const ActionsDialog = ({
   };
 
   const increaseToMintAmount = () => {
-    if (toMint < 4) setToMint(toMint + 1);
+    setToMint(toMint + 1);
   };
 
   const heroColor = useMemo(() => {
     if (toMint === 1) return 'blue';
     else if (toMint === 2) return 'orange';
     else if (toMint === 3) return 'diamond';
-    else if (toMint === 4) return 'gold';
+    else if (toMint >= 4) return 'gold';
   }, [toMint]);
 
   const [activeTab, setActiveTab] = useState<string>('mint');
 
+  const [activeQuoteIndex, setActiveQuoteIndex] = useState<number>(
+    Math.floor(Math.random() * quotes.length)
+  );
+
+  const [lastType, setLastType] = useState<number>(0);
+
   const quote = useMemo(() => {
-    return quotes[Math.floor(Math.random() * quotes.length)];
-  }, [quotes]);
+    return quotes[activeQuoteIndex];
+  }, [activeQuoteIndex]);
 
   const sendTx = useSendTx();
 
@@ -130,10 +138,6 @@ const ActionsDialog = ({
       : 0;
   }, [data, userData]);
 
-  useEffect(() => {
-    if (['mint', 'withdraw'].includes(tab)) setActiveTab(tab);
-  }, [tab]);
-
   const handleMint = useCallback(async () => {}, [
     signer,
     updateData,
@@ -141,11 +145,34 @@ const ActionsDialog = ({
     sendTx,
   ]);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      let newIndex = Math.floor(Math.random() * quotes.length);
+      if (newIndex === activeQuoteIndex) {
+        if (newIndex === 0) newIndex = 1;
+        else newIndex - 1;
+      }
+      setActiveQuoteIndex(newIndex);
+      const el = document.getElementById('typewriter');
+      if (el) {
+        let copy = el.cloneNode(true);
+        copy.innerHTML = quotes[newIndex].text;
+        el.parentNode.replaceChild(copy, el);
+      }
+    }, 3500);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   const boxes = [
     { title: '0.88 ETH', subTitle: '1 PEPE' },
     { title: '996', subTitle: 'REMAINING' },
     { title: '12h 11m', subTitle: 'TIME' },
   ];
+
+  useEffect(() => {
+    if (['mint', 'withdraw'].includes(tab)) setActiveTab(tab);
+  }, [tab]);
 
   return (
     <Dialog
@@ -168,7 +195,6 @@ const ActionsDialog = ({
           size="large"
         >
           <BigCrossIcon className="" />
-          <BigCrossIcon className="" />
         </IconButton>
       </Box>
       <Box className="flex lg:grid lg:grid-cols-12">
@@ -179,10 +205,10 @@ const ActionsDialog = ({
           <Hero active={toMint >= 2} heroColor={heroColor} letter={'O'} />
         </Box>
         <Box className="col-span-3 pl-2 pr-2 relative">
-          <Hero active={toMint >= 3} heroColor={heroColor} letter={'L'} />
+          <Hero active={toMint >= 3} heroColor={heroColor} letter={'D'} />
         </Box>
         <Box className="col-span-3 pl-2 pr-2 relative">
-          <Hero active={toMint === 4} heroColor={heroColor} letter={'D'} />
+          <Hero active={toMint >= 4} heroColor={heroColor} letter={'L'} />
         </Box>
       </Box>
       <Box className="p-2 mt-5 md:flex">
@@ -205,17 +231,14 @@ const ActionsDialog = ({
       </Box>
       <Box className={'mt-2'}>
         <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-          <Box className="flex flex-row justify-between mb-4">
+          <Box className="flex flex-row justify-between mb-2 mt-1">
             <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-              Mint Amount
+              Mint with{' '}
+              <span className={cx("font-['Minecraft']", styles.pepeText)}>
+                $APE
+              </span>
             </Typography>
-            <Typography
-              variant="h6"
-              className="text-[#22E1FF] ml-auto mr-1 mt-1.5 cursor-pointer"
-              onClick={() => setToMint(4)}
-            >
-              Max
-            </Typography>
+            <Switch className="ml-auto cursor-pointer" color="default" />
           </Box>
           <Box className="flex pl-2 pr-2">
             <button
@@ -227,7 +250,6 @@ const ActionsDialog = ({
             </button>
             <button
               className={cx('ml-2', styles.pepeButtonSquare)}
-              disabled={toMint > 3}
               onClick={increaseToMintAmount}
             >
               +
@@ -268,7 +290,8 @@ const ActionsDialog = ({
               />
               <Typography
                 variant="h6"
-                className="text-white font-['Minecraft']"
+                className="text-white font-['Minecraft'] typewriter"
+                id="typewriter"
               >
                 {quote.text}
               </Typography>
