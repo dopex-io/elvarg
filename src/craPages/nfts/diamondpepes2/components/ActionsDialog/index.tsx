@@ -167,7 +167,7 @@ const ActionsDialog = ({
       setActiveQuoteIndex(newIndex);
       const el = document.getElementById('typewriter');
       if (el) {
-        let copy = el.cloneNode(true);
+        let copy = el.cloneNode(true) as HTMLElement;
         copy.innerHTML = quotes[newIndex].text;
         el.parentNode.replaceChild(copy, el);
       }
