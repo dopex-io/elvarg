@@ -8,16 +8,19 @@
   color: #c4c4c4;
 }
 
-.horizontalScroll {
-  animation: move 400s linear infinite;
-  animation-iteration-count: infinite;
+.priceFeed {
+  flex: 1;
+  animation: move 60s linear infinite;
 
-  &:hover {
-    animation-play-state: paused;
-  }
 }
 
 @keyframes move {
-  to { transform: translateX(-100%); }
+  from {
+    transform: translateX(0%);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
 }
 
