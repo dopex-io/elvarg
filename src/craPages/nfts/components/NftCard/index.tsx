@@ -80,7 +80,7 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
           </Typography>
           <Box className="mb-6">
             <Image
-              src={'/nfts/' + nft + '.gif'}
+              src={'/images/nfts/' + nft + '.gif'}
               alt={nftName}
               quality={100}
               height={500}

@@ -179,17 +179,16 @@ const PurchaseDialog = ({
           volatility
         );
 
-        let premium = optionPrice.mul(optionsAmount);
+        let premium = optionPrice.mul(optionsAmount * 10).div(10); // avoid crashing when users buy <1 options
 
         let fees = await ssovContract.calculatePurchaseFees(
           strike,
-          ethersUtils.parseEther(String(optionsAmount))
+          getContractReadableAmount(String(optionsAmount), 18)
         );
 
-        let totalCost = premium
-          .mul('1000000000000000000')
-          .div(tokenPrice)
-          .add(fees);
+        const totalCost = premium.mul(10 ** 10).add(fees);
+
+        if (!isPut) totalCost.mul(tokenPrice);
 
         setState({
           volatility,
@@ -251,7 +250,23 @@ const PurchaseDialog = ({
   ]);
 
   const purchaseButtonProps = useMemo(() => {
-    const disabled = Boolean(optionsAmount <= 0 || isPurchaseStatsLoading);
+    const disabled = Boolean(
+      optionsAmount <= 0 ||
+        isPurchaseStatsLoading ||
+        (isPut
+          ? availableCollateralForStrikes[strikeIndex]
+              .div(strikes[strikeIndex])
+              .lt(getContractReadableAmount(optionsAmount, 18))
+          : availableCollateralForStrikes[strikeIndex].lt(
+              getContractReadableAmount(optionsAmount, 18)
+            )) ||
+        (isPut
+          ? state.totalCost.gt(userTokenBalance)
+          : state.totalCost
+              .mul(1e8)
+              .div(ssovData.tokenPrice)
+              .gt(userTokenBalance))
+    );
 
     let onClick = () => {};
 
@@ -268,7 +283,24 @@ const PurchaseDialog = ({
     if (isPurchaseStatsLoading) {
       children = 'Loading prices...';
     } else if (optionsAmount > 0) {
-      if (state.totalCost.gt(userTokenBalance)) {
+      if (
+        isPut
+          ? availableCollateralForStrikes[strikeIndex]
+              .div(strikes[strikeIndex])
+              .lt(getContractReadableAmount(optionsAmount, 18))
+          : availableCollateralForStrikes[strikeIndex].lt(
+              getContractReadableAmount(optionsAmount, 18)
+            )
+      ) {
+        children = 'Collateral not available';
+      } else if (
+        isPut
+          ? state.totalCost.gt(userTokenBalance)
+          : state.totalCost
+              .mul(1e8)
+              .div(ssovData.tokenPrice)
+              .gt(userTokenBalance)
+      ) {
         children = 'Insufficient Balance';
       } else if (approved) {
         children = 'Purchase';
@@ -293,6 +325,11 @@ const PurchaseDialog = ({
     optionsAmount,
     state.totalCost,
     userTokenBalance,
+    ssovData.tokenPrice,
+    isPut,
+    availableCollateralForStrikes,
+    strikeIndex,
+    strikes,
   ]);
 
   return (
@@ -345,10 +382,15 @@ const PurchaseDialog = ({
               Available:{' '}
               <span className="text-white">
                 {formatAmount(
-                  getUserReadableAmount(
-                    availableCollateralForStrikes[strikeIndex],
-                    18
-                  ),
+                  isPut
+                    ? getUserReadableAmount(
+                        availableCollateralForStrikes[strikeIndex],
+                        18
+                      ) / Number(strikes[strikeIndex])
+                    : getUserReadableAmount(
+                        availableCollateralForStrikes[strikeIndex],
+                        18
+                      ),
                   3
                 )}{' '}
               </span>
@@ -580,8 +622,13 @@ const PurchaseDialog = ({
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 ${' '}
                 {formatAmount(
-                  getUserReadableAmount(state.fees.mul(tokenPrice), 26),
-                  5
+                  isPut
+                    ? getUserReadableAmount(
+                        state.fees.mul(ssovData.lpPrice),
+                        36
+                      )
+                    : getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                  2
                 )}
               </Typography>
             </Box>
@@ -596,14 +643,29 @@ const PurchaseDialog = ({
               </Typography>
             </Box>
           </Box>
-          <Box className={'flex mb-2'}>
+          <Box className={'flex'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               You will pay
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
-                {ssovData.collateralSymbol}
+                {isPut ? (
+                  <span>
+                    {formatAmount(
+                      getUserReadableAmount(state.totalCost, 18),
+                      2
+                    )}
+                  </span>
+                ) : (
+                  <span>
+                    {formatAmount(
+                      getUserReadableAmount(state.totalCost, 18) /
+                        getUserReadableAmount(ssovData.tokenPrice, 8),
+                      4
+                    )}{' '}
+                    {ssovData.collateralSymbol}
+                  </span>
+                )}
               </Typography>
             </Box>
           </Box>

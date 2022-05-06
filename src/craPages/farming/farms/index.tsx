@@ -360,7 +360,7 @@ const Farms = () => {
                   )}
                 </Box>
               ) : null}
-              {yourDeposit < 3 ? (
+              {yourDeposit <= 3 ? (
                 <Box className="flex flex-col bg-cod-gray p-4 rounded-xl items-center">
                   <Box className="grid">
                     <Typography variant="h6" className="text-center mb-4">
