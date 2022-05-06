@@ -7,10 +7,10 @@ import formatAmount from 'utils/general/formatAmount';
 import { WalletContext } from 'contexts/Wallet';
 import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
 
-import EpochSelector from '../../components/EpochSelector';
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
+import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 import Wrapper from '../Wrapper';
 
