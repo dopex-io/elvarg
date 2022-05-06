@@ -90,7 +90,6 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
         <CustomButton
           className="w-full my-4"
           onClick={handleWithdraw}
-          disabled={!ssovData.isCurrentEpochExpired}
           size="xl"
         >
           Withdraw
