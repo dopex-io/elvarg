@@ -1,6 +1,6 @@
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
-import { emojisplosion, emojisplosions } from 'emojisplosion';
+import { emojisplosions } from 'emojisplosion';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -14,11 +14,7 @@ import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
 import BigCrossIcon from 'components/Icons/BigCrossIcon';
 
-import { Data, UserData } from '../../interfaces';
-
 import { WalletContext } from 'contexts/Wallet';
-
-import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
 import cx from 'classnames';
@@ -26,11 +22,7 @@ import cx from 'classnames';
 export interface Props {
   open: boolean;
   tab: string;
-  data: Data;
-  userData: UserData;
   handleClose: () => void;
-  updateData: () => {};
-  updateUserData: () => {};
 }
 
 const Hero = ({ active, heroColor, letter }) => {
@@ -93,15 +85,7 @@ const quotes = [
   },
 ];
 
-const ActionsDialog = ({
-  open,
-  tab,
-  data,
-  userData,
-  handleClose,
-  updateData,
-  updateUserData,
-}: Props) => {
+const ActionsDialog = ({ open, tab, handleClose }: Props) => {
   const { chainId, signer } = useContext(WalletContext);
   const [toMint, setToMint] = useState<number>(1);
 
@@ -126,26 +110,13 @@ const ActionsDialog = ({
     Math.floor(Math.random() * quotes.length)
   );
 
-  const [lastType, setLastType] = useState<number>(0);
-
   const quote = useMemo(() => {
     return quotes[activeQuoteIndex];
   }, [activeQuoteIndex]);
 
-  const sendTx = useSendTx();
+  const pepeReserved: number = 0;
 
-  const pepeReserved: number = useMemo(() => {
-    return data.mintPrice.gt(0)
-      ? Math.floor(Number(userData.deposits.div(data.mintPrice).toString()))
-      : 0;
-  }, [data, userData]);
-
-  const handleMint = useCallback(async () => {}, [
-    signer,
-    updateData,
-    updateUserData,
-    sendTx,
-  ]);
+  const handleMint = useCallback(async () => {}, []);
 
   const explodeEmojis = () => {
     const toExplode = document.getElementById('emojisplosion');
@@ -178,8 +149,8 @@ const ActionsDialog = ({
 
   const boxes = [
     { title: '0.88 ETH', subTitle: '1 PEPE' },
-    { title: '996', subTitle: 'REMAINING' },
-    { title: '12h 11m', subTitle: 'TIME' },
+    { title: '-', subTitle: 'REMAINING' },
+    { title: '-', subTitle: 'TIME' },
   ];
 
   useEffect(() => {
@@ -287,7 +258,7 @@ const ActionsDialog = ({
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {userData.minted ? 0 : pepeReserved}
+                  0.88 ETH
                 </Typography>
               </Box>
             </Box>
@@ -318,15 +289,11 @@ const ActionsDialog = ({
           <CustomButton
             size="medium"
             className={styles.pepeButton}
-            disabled={!data.isFarmingPeriod || userData.minted}
+            disabled={true}
             onClick={handleMint}
           >
             <Typography variant="h5" className={styles.pepeButtonText}>
-              {data.isFarmingPeriod
-                ? userData.minted
-                  ? 'Already minted'
-                  : 'Mint'
-                : 'Not ready yet'}
+              Not ready yet
             </Typography>
           </CustomButton>
         </Box>

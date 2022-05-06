@@ -1,97 +1,48 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
-import {
-  YieldMint__factory,
-  UniswapPair__factory,
-  Addresses,
-} from '@dopex-io/sdk';
+import { useState } from 'react';
 import Countdown from 'react-countdown';
 import Head from 'next/head';
 
 import Box from '@mui/material/Box';
-import { Tooltip } from '@mui/material';
 
 import ActionsDialog from './components/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
-import formatAmount from '../../../utils/general/formatAmount';
-
-import { Data, UserData, initialData } from './interfaces';
-
-import { WalletContext } from '../../../contexts/Wallet';
-
-import useSendTx from 'hooks/useSendTx';
-
 import styles from './styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, contractAddresses, provider, signer, chainId } =
-    useContext(WalletContext);
-  const [data, setData] = useState<Data>(initialData.data);
-  const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
     visible: false,
     tab: 'mint',
   });
 
-  const yieldMint = YieldMint__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTMint'],
-    provider
+  const timeRemaining = (
+    <Countdown
+      date={new Date(1652378100 * 1000)}
+      renderer={({ days, hours, minutes, seconds, completed }) => {
+        if (days < 1 && hours < 1) {
+          return (
+            <span>
+              {minutes}m {seconds}s
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              {days}d {hours}h {minutes}m {seconds}s
+            </span>
+          );
+        }
+      }}
+    />
   );
-  const sendTx = useSendTx();
-
-  const updateData = useCallback(async () => {
-    if (!provider || !contractAddresses) return;
-  }, [provider, contractAddresses, chainId]);
-
-  const updateUserData = useCallback(async () => {
-    if (!provider || !contractAddresses || !YieldMint__factory) return;
-  }, [provider, contractAddresses]);
-
-  useEffect(() => {}, [updateData]);
-
-  useEffect(() => {}, [updateUserData]);
-
-  const timeRemaining = useMemo(() => {
-    if (!data.isDepositPeriod) return <span>-</span>;
-    else if (data.isDepositPeriod) {
-      return (
-        <Countdown
-          date={new Date((1645496520 + 2.22 * 86400) * 1000)}
-          renderer={({ days, hours, minutes, seconds, completed }) => {
-            if (days < 1 && hours < 1) {
-              return (
-                <span>
-                  {minutes}m {seconds}s
-                </span>
-              );
-            } else {
-              return (
-                <span>
-                  {days}d {hours}h {minutes}m {seconds}s
-                </span>
-              );
-            }
-          }}
-        />
-      );
-    }
-  }, [data]);
 
   const boxes = [
-    { title: '1111', subTitle: 'PEPES REMAINING' },
-    { title: '2PM 5/22/2022', subTitle: 'START' },
+    { title: '-', subTitle: 'PEPES REMAINING' },
+    { title: '5:55PM 5/12/2022', subTitle: 'START' },
     { title: '-', subTitle: 'TIME REMAINING' },
     { title: '-', subTitle: 'DEPOSITS' },
   ];
-
-  const handleWithdraw = useCallback(async () => {}, [
-    sendTx,
-    signer,
-    updateData,
-    updateUserData,
-  ]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -101,13 +52,9 @@ const DiamondPepesNfts = () => {
       <ActionsDialog
         open={actionsDialogDisplayState.visible}
         tab={actionsDialogDisplayState.tab}
-        data={data}
-        userData={userData}
         handleClose={() => {
           setActionsDialogDisplayState({ visible: false, tab: 'mint' });
         }}
-        updateData={updateData}
-        updateUserData={updateUserData}
       />
       <Box className={styles.background}>
         <Box className={styles.backgroundOverlay} />
