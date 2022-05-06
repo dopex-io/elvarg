@@ -18,7 +18,7 @@ export default function EpochSelector({ className }: { className?: string }) {
       setSelectedEpoch(Number(e.target.value));
       updateSsovV3UserData();
     },
-    [setSelectedEpoch]
+    [setSelectedEpoch, updateSsovV3UserData]
   );
 
   const epochs = useMemo(() => {
