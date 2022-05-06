@@ -5,10 +5,10 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import cx from 'classnames';
 
-import { SsovV3EpochData, SsovV3Data, SsovV3Context } from 'contexts/SsovV3';
+import { SsovV3Context } from 'contexts/SsovV3';
 
 export default function EpochSelector({ className }: { className?: string }) {
-  const { ssovData, selectedEpoch, setSelectedEpoch } =
+  const { ssovData, selectedEpoch, setSelectedEpoch, updateSsovV3UserData } =
     useContext(SsovV3Context);
 
   const { currentEpoch } = ssovData;
@@ -16,6 +16,7 @@ export default function EpochSelector({ className }: { className?: string }) {
   const handleSelectChange = useCallback(
     (e) => {
       setSelectedEpoch(Number(e.target.value));
+      updateSsovV3UserData();
     },
     [setSelectedEpoch]
   );
