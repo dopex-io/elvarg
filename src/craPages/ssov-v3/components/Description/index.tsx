@@ -10,6 +10,7 @@ import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
+import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 import Wrapper from '../Wrapper';
 
@@ -69,6 +70,7 @@ const Description = ({
         <br />
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
+      <EpochSelector className="mb-6" />
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">
           <WalletButton
