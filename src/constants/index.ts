@@ -302,6 +302,7 @@ export const TOKEN_DATA: {
   CRV: { cgId: 'curve-dao-token', name: 'Curve' },
   DAI: { cgId: 'dai', name: 'DAI' },
   LINK: { cgId: 'chainlink', name: 'Chainlink' },
+  SPELL: { cgId: 'spell-token', name: 'SPELL' },
   JONES: { cgId: 'jones-dao', name: 'JONES' },
   MIM: { cgId: 'magic-internet-money', name: 'Magic Internet Money' },
   FRAX: { cgId: 'frax', name: 'Frax USD' },
