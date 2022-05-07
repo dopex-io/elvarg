@@ -189,7 +189,7 @@ const PurchaseDialog = ({
           getContractReadableAmount(String(optionsAmount), 18)
         );
 
-        let totalCost = premium.mul(oneEBigNumber(10)).add(fees);
+        let _totalCost = premium.mul(oneEBigNumber(10)).add(fees);
 
         setState({
           volatility,
@@ -197,7 +197,9 @@ const PurchaseDialog = ({
           premium,
           fees,
           expiry,
-          totalCost,
+          totalCost: isPut
+            ? _totalCost
+            : _totalCost.mul(oneEBigNumber(8)).div(tokenPrice),
         });
 
         setIsPurchaseStatsLoading(false);
@@ -651,23 +653,8 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {isPut ? (
-                  <span>
-                    {formatAmount(
-                      getUserReadableAmount(state.totalCost, 18),
-                      5
-                    )}
-                  </span>
-                ) : (
-                  <span>
-                    {formatAmount(
-                      getUserReadableAmount(state.totalCost, 18) /
-                        getUserReadableAmount(ssovData.tokenPrice, 8),
-                      5
-                    )}{' '}
-                    {ssovData.collateralSymbol}
-                  </span>
-                )}
+                {getUserReadableAmount(state.totalCost, 18)}{' '}
+                {ssovData.collateralSymbol}
               </Typography>
             </Box>
           </Box>
