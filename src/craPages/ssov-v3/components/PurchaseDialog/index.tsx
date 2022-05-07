@@ -29,7 +29,6 @@ import AlarmIcon from 'components/Icons/AlarmIcon';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -187,7 +186,9 @@ const PurchaseDialog = ({
           getContractReadableAmount(String(optionsAmount), 18)
         );
 
-        let totalCost = premium.mul(10 ** 10).add(fees);
+        const totalCost = premium.mul(10 ** 10).add(fees);
+
+        if (!isPut) totalCost.mul(tokenPrice);
 
         setState({
           volatility,
@@ -254,8 +255,7 @@ const PurchaseDialog = ({
         isPurchaseStatsLoading ||
         (isPut
           ? availableCollateralForStrikes[strikeIndex]
-              .mul(oneEBigNumber(18))
-              .div(getContractReadableAmount(strikes[strikeIndex], 8))
+              .div(strikes[strikeIndex])
               .lt(getContractReadableAmount(optionsAmount, 18))
           : availableCollateralForStrikes[strikeIndex].lt(
               getContractReadableAmount(optionsAmount, 18)
@@ -286,7 +286,7 @@ const PurchaseDialog = ({
       if (
         isPut
           ? availableCollateralForStrikes[strikeIndex]
-              .div(getContractReadableAmount(strikes[strikeIndex], 8))
+              .div(strikes[strikeIndex])
               .lt(getContractReadableAmount(optionsAmount, 18))
           : availableCollateralForStrikes[strikeIndex].lt(
               getContractReadableAmount(optionsAmount, 18)
@@ -628,7 +628,7 @@ const PurchaseDialog = ({
                         36
                       )
                     : getUserReadableAmount(state.fees.mul(tokenPrice), 26),
-                  5
+                  2
                 )}
               </Typography>
             </Box>
@@ -639,7 +639,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                $ {formatAmount(getUserReadableAmount(state.premium, 8), 2)}{' '}
+                $ {formatAmount(getUserReadableAmount(state.premium, 8))}{' '}
               </Typography>
             </Box>
           </Box>
