@@ -258,7 +258,7 @@ const PurchaseDialog = ({
         isPurchaseStatsLoading ||
         (isPut
           ? availableCollateralForStrikes[strikeIndex]
-              .mul(oneEBigNumber(18))
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex], 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
           : availableCollateralForStrikes[strikeIndex].lt(
@@ -290,6 +290,7 @@ const PurchaseDialog = ({
       if (
         isPut
           ? availableCollateralForStrikes[strikeIndex]
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex], 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
           : availableCollateralForStrikes[strikeIndex].lt(
