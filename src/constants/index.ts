@@ -302,6 +302,7 @@ export const TOKEN_DATA: {
   CRV: { cgId: 'curve-dao-token', name: 'Curve' },
   DAI: { cgId: 'dai', name: 'DAI' },
   LINK: { cgId: 'chainlink', name: 'Chainlink' },
+  SPELL: { cgId: 'spell-token', name: 'SPELL' },
   JONES: { cgId: 'jones-dao', name: 'JONES' },
   MIM: { cgId: 'magic-internet-money', name: 'Magic Internet Money' },
   FRAX: { cgId: 'frax', name: 'Frax USD' },
@@ -318,7 +319,7 @@ export const TOKEN_DATA: {
 export const TOKENS = Object.keys(TOKEN_DATA);
 
 export const CHAIN_ID_TO_RPC = {
-  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  '1': `https://rpc.ankr.com/eth/${ANKR_KEY}`,
   '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
   '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,

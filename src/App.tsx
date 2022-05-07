@@ -40,6 +40,7 @@ const OtcChatroom = lazy(() => import('craPages/otc/chatroom'));
 const Nfts = lazy(() => import('craPages/nfts'));
 const CommunityNfts = lazy(() => import('craPages/nfts/community'));
 const DiamondPepesNfts = lazy(() => import('craPages/nfts/diamondpepes'));
+const DiamondPepesNftsGen2 = lazy(() => import('craPages/nfts/diamondpepes2'));
 const PledgeDiamondPepesNfts = lazy(
   () => import('craPages/nfts/diamondpepes/pledge')
 );
@@ -99,6 +100,7 @@ const NftsRoutes = () => {
         <Route path="*" element={<Nfts />} />
         <Route path="community" element={<CommunityNfts />} />
         <Route path="diamondpepes" element={<DiamondPepesNfts />} />
+        <Route path="diamondpepes2" element={<DiamondPepesNftsGen2 />} />
         <Route
           path="diamondpepes/pledge"
           element={<PledgeDiamondPepesNfts />}
