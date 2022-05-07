@@ -180,14 +180,16 @@ const PurchaseDialog = ({
           volatility
         );
 
-        let premium = optionPrice.mul(optionsAmount * 10).div(10); // avoid crashing when users buy <1 options
+        let premium = optionPrice
+          .mul(getContractReadableAmount(optionsAmount, 18))
+          .div(oneEBigNumber(18)); // avoid crashing when users buy <1 options
 
         let fees = await ssovContract.calculatePurchaseFees(
           strike,
           getContractReadableAmount(String(optionsAmount), 18)
         );
 
-        let totalCost = premium.mul(10 ** 10).add(fees);
+        let totalCost = premium.mul(oneEBigNumber(10)).add(fees);
 
         setState({
           volatility,
@@ -391,7 +393,7 @@ const PurchaseDialog = ({
                         availableCollateralForStrikes[strikeIndex],
                         18
                       ),
-                  3
+                  5
                 )}{' '}
               </span>
             </Typography>
@@ -511,12 +513,12 @@ const PurchaseDialog = ({
                         ? formatAmount(
                             Number(strikes[strikeIndex]) -
                               getUserReadableAmount(state.optionPrice, 8),
-                            2
+                            5
                           )
                         : formatAmount(
                             Number(strikes[strikeIndex]) +
                               getUserReadableAmount(state.optionPrice, 8),
-                            2
+                            5
                           )}
                     </Typography>
                   </Box>
@@ -610,7 +612,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(optionsAmount, 3)}
+                {formatAmount(optionsAmount, 5)}
               </Typography>
             </Box>
           </Box>
@@ -639,7 +641,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                $ {formatAmount(getUserReadableAmount(state.premium, 8), 2)}{' '}
+                $ {formatAmount(getUserReadableAmount(state.premium, 8), 5)}{' '}
               </Typography>
             </Box>
           </Box>
@@ -653,7 +655,7 @@ const PurchaseDialog = ({
                   <span>
                     {formatAmount(
                       getUserReadableAmount(state.totalCost, 18),
-                      2
+                      5
                     )}
                   </span>
                 ) : (
@@ -661,7 +663,7 @@ const PurchaseDialog = ({
                     {formatAmount(
                       getUserReadableAmount(state.totalCost, 18) /
                         getUserReadableAmount(ssovData.tokenPrice, 8),
-                      4
+                      5
                     )}{' '}
                     {ssovData.collateralSymbol}
                   </span>
