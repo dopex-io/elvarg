@@ -655,7 +655,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(getUserReadableAmount(state.totalCost, 18), 4)}{' '}
+                {getUserReadableAmount(state.totalCost, 18)}{' '}
                 {ssovData.collateralSymbol}
               </Typography>
             </Box>
