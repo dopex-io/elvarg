@@ -114,7 +114,7 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           </Box>
         </Box>
       ) : null}
-      {!window?.ethereum?.isMetaMask ? (
+      {typeof window !== 'undefined' && !window?.ethereum?.isMetaMask ? (
         <Box className="mt-2 mb-2 flex">
           <Typography
             className="text-yellow bg-opacity-10 rounded-xl w-full"

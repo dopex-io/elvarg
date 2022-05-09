@@ -16,7 +16,7 @@ interface TablePaginationActionsProps {
   ) => void;
 }
 
-export default function TablePaginationActions(
+export default function TablePaginationActions2(
   props: TablePaginationActionsProps
 ) {
   const theme = useTheme();
