@@ -19,7 +19,7 @@ import CustomButton from 'components/UI/CustomButton';
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
 import MaxApprove from 'components/MaxApprove';
-import LpTokenDistribution from 'components/farms-page/LpTokenDistribution';
+import LpTokenDistribution from 'components/farms/LpTokenDistribution';
 
 import Dropdown from 'svgs/farming/Dropdown';
 import Equal from 'svgs/icons/Equal';

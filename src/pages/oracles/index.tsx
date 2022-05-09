@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import AppBar from 'components/AppBar';
 import Typography from 'components/UI/Typography';
 import PageLoader from 'components/PageLoader';
-import OracleCard from 'components/oracles-page/OracleCard';
+import OracleCard from 'components/oracles/OracleCard';
 
 import { CHAIN_ID_TO_RPC } from 'constants/index';
 

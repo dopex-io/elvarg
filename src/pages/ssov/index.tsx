@@ -10,9 +10,9 @@ import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
-import LegacyEpochsDropDown from 'components/ssov-page/V2/LegacyEpochsDropDown/LegacyEpochsDropDown';
-import SsovCard from 'components/ssov-page/V2/SsovCard';
-import SsovFilter from 'components/ssov-page/V2/SsovFilter';
+import LegacyEpochsDropDown from 'components/ssov/LegacyEpochsDropDown/LegacyEpochsDropDown';
+import SsovCard from 'components/ssov/SsovCard';
+import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
 

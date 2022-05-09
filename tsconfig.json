@@ -18,6 +18,6 @@
     "noFallthroughCasesInSwitch": true,
     "incremental": true
   },
-  "include": ["next-env.d.ts", "src", "chat"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

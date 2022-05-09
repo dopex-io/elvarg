@@ -10,14 +10,14 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import AppBar from 'components/AppBar';
-import OtcBanner from 'components/otc-page/OtcBanner';
-import RfqForm from 'components/otc-page/RfqForm';
-import Register from 'components/otc-page/Dialogs/Register';
+import OtcBanner from 'components/otc/OtcBanner';
+import RfqForm from 'components/otc/RfqForm';
+import Register from 'components/otc/Dialogs/Register';
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import Orders from 'components/otc-page/body/Orders';
-import TradeHistory from 'components/otc-page/body/TradeHistory';
-import content from 'components/otc-page/OtcBanner/content.json';
+import Orders from 'components/otc/body/Orders';
+import TradeHistory from 'components/otc/body/TradeHistory';
+import content from 'components/otc/OtcBanner/content.json';
 
 import { OtcContext, OtcProvider } from 'contexts/Otc';
 import { WalletContext } from 'contexts/Wallet';
