@@ -13,10 +13,7 @@ import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
 
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
-const Manage = () => {
-  const router = useRouter();
-  console.log(router.query['ssov']);
-  const [type, name] = router.query['ssov'];
+const Manage = ({ type, name }) => {
   const {
     ssovData,
     ssovEpochData,
@@ -61,23 +58,21 @@ const Manage = () => {
   );
 };
 
-const ManagePage = () => {
-  const router = useRouter();
-  const { name } = router.query;
+const ManagePage = ({ type, name }) => {
   return (
     <SsovProvider>
-      {name === 'METIS' && (
-        <EmergencyNoticeBanner
-          paragraph={
-            'All METIS deposits have been safely withdrawn and will be dispersed to the depositors soon.'
-          }
-          title={'Emergency Withdrawal Notice'}
-        />
-      )}
-
-      <Manage />
+      <Manage type={type} name={name} />
     </SsovProvider>
   );
 };
+
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      type: context.query.ssov[0],
+      name: context.query.ssov[1],
+    },
+  };
+}
 
 export default ManagePage;

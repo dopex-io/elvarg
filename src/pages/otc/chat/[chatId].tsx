@@ -27,9 +27,10 @@ import { WalletContext } from 'contexts/Wallet';
 
 import { db } from 'utils/firebase/initialize';
 
-const Chatroom = () => {
+const Chatroom = (props) => {
+  const { chatId } = props;
+
   const router = useRouter();
-  const chatId = router.query.chatId as string;
   const { validateUser, user } = useContext(OtcContext);
   const { accountAddress } = useContext(WalletContext);
 
@@ -217,10 +218,20 @@ const Chatroom = () => {
   );
 };
 
-const Chatroompage = () => (
-  <OtcProvider>
-    <Chatroom />
-  </OtcProvider>
-);
+const Chatroompage = (props) => {
+  const { chatId } = props;
+  return (
+    <OtcProvider>
+      <Chatroom chatId={chatId} />
+    </OtcProvider>
+  );
+};
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      chatId: context.query.chatId,
+    },
+  };
+}
 
 export default Chatroompage;

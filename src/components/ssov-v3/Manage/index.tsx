@@ -13,10 +13,8 @@ import PageLoader from 'components/PageLoader';
 import { SsovV3Context } from 'contexts/SsovV3';
 import WritePositions from 'components/ssov-v3/WritePositions';
 
-const Manage = () => {
-  const router = useRouter();
-  const { ssov } = router.query;
-
+const Manage = (props) => {
+  const { ssov } = props;
   const { ssovData, ssovEpochData, ssovUserData, setSelectedSsovV3 } =
     useContext(SsovV3Context);
 

@@ -16,7 +16,7 @@ import ssovInfo from 'constants/ssovInfo';
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
-import EpochSelector from '../../ssov-v3/EpochSelector';
+import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 
 import Coin from 'svgs/icons/Coin';
@@ -138,7 +138,7 @@ const Description = ({
             </WalletButton>
           </Box>
         </Tooltip>
-        {/* <EpochSelector /> */}
+        <EpochSelector />
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {

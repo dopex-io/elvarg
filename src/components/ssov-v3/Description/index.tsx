@@ -10,7 +10,7 @@ import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/WalletButton';
 import InfoBox from '../InfoBox';
-import EpochSelector from '../../ssov/EpochSelector';
+import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
 import Wrapper from '../Wrapper';
 
