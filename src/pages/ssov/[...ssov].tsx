@@ -9,8 +9,8 @@ import ManageCard from 'components/ssov/ManageCard';
 import ExerciseList from 'components/ssov/ExerciseList';
 import Stats from 'components/ssov/Stats';
 import PageLoader from 'components/PageLoader';
-import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
 
+import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
 const Manage = ({ type, name }) => {
@@ -60,9 +60,11 @@ const Manage = ({ type, name }) => {
 
 const ManagePage = ({ type, name }) => {
   return (
-    <SsovProvider>
-      <Manage type={type} name={name} />
-    </SsovProvider>
+    <BnbConversionProvider>
+      <SsovProvider>
+        <Manage type={type} name={name} />
+      </SsovProvider>
+    </BnbConversionProvider>
   );
 };
 
