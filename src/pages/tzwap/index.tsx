@@ -87,8 +87,8 @@ const Tzwap = () => {
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);
   const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [fromTokenName, setFromTokenName] = useState<string>('ETH');
-  const [toTokenName, setToTokenName] = useState<string>('USDC');
+  const [fromTokenName, setFromTokenName] = useState<string>('USDT');
+  const [toTokenName, setToTokenName] = useState<string>('ETH');
   const [rawAmount, setRawAmount] = useState<string>('');
   const [rawIntervalAmount, setRawIntervalAmount] = useState<string>('1');
   const [approved, setApproved] = useState<boolean>(false);
@@ -344,6 +344,7 @@ const Tzwap = () => {
                     getTokenDecimals(fromTokenName, chainId)
                   )
                 : 0,
+            gasLimit: 1000000,
           }
         )
       );
