@@ -4,9 +4,9 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
-import NftCard from 'components/nfts/components/NftCard';
+import NftCard from './components/NftCard';
 
-import { NftsContext, NftsProvider } from 'contexts/Nfts';
+import { NftsContext } from 'contexts/Nfts';
 
 const Nfts = () => {
   const { nftsData } = useContext(NftsContext);
@@ -35,10 +35,4 @@ const Nfts = () => {
   );
 };
 
-const NftsPage = () => (
-  <NftsProvider>
-    <Nfts />
-  </NftsProvider>
-);
-
-export default NftsPage;
+export default Nfts;

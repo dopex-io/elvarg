@@ -10,7 +10,7 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { Tooltip } from '@mui/material';
 
-import ActionsDialog from 'components/nfts/ActionsDialog';
+import ActionsDialog from 'components/nfts/diamondpepes/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
@@ -28,7 +28,7 @@ import { NftsProvider } from 'contexts/Nfts';
 
 import useSendTx from 'hooks/useSendTx';
 
-import styles from './styles.module.scss';
+import styles from 'components/nfts/diamondpepes/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =

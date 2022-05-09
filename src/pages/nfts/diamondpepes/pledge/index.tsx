@@ -14,7 +14,7 @@ import { Tooltip } from '@mui/material';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import PledgeDialog from 'components/nfts/PledgeDialog';
+import PledgeDialog from 'components/nfts/diamondpepes/PledgeDialog';
 
 import {
   Data,
@@ -27,7 +27,7 @@ import useSendTx from 'hooks/useSendTx';
 import { WalletContext } from 'contexts/Wallet';
 import { NftsProvider } from 'contexts/Nfts';
 
-import styles from '../styles.module.scss';
+import styles from 'components/nfts/diamondpepes/pledgeDialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, provider, signer, chainId } =

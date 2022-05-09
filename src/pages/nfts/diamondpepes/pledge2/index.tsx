@@ -12,7 +12,7 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import Pledge2Dialog from 'components/nfts/Pledge2Dialog';
+import Pledge2Dialog from 'components/nfts/diamondpepes/Pledge2Dialog';
 
 import {
   Data,
@@ -23,7 +23,7 @@ import {
 import { WalletContext } from 'contexts/Wallet';
 import { NftsProvider } from 'contexts/Nfts';
 
-import styles from '../styles.module.scss';
+import styles from 'components/nfts/diamondpepes/Pledge2Dialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
