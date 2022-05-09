@@ -359,8 +359,6 @@ export const SsovProvider = (props) => {
           );
         }
       });
-
-      console.log(tokens);
     }
 
     const ssovAddresses =
