@@ -1,9 +1,36 @@
 // import App from 'next/app'
 import '../style/index.css';
 import 'tailwindcss/tailwind.css';
+import StylesProvider from '@mui/styles/StylesProvider';
+import {
+  ThemeProvider,
+  Theme,
+  StyledEngineProvider,
+} from '@mui/material/styles';
+
+declare module '@mui/styles/defaultTheme' {
+  interface DefaultTheme extends Theme {}
+}
+import theme from '../style/muiTheme';
+import { WalletProvider } from 'contexts/Wallet';
+import { AssetsProvider } from 'contexts/Assets';
+import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+  return (
+    <StylesProvider injectFirst>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <WalletProvider>
+            <AssetsProvider>
+              <Component {...pageProps} />
+              <ChangeNetworkDialog />
+            </AssetsProvider>
+          </WalletProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </StylesProvider>
+  );
 }
 
 // Only uncomment this method if you have blocking data requirements for
