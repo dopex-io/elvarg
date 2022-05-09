@@ -35,7 +35,11 @@ const Hero = ({ active, heroColor, letter }) => {
 
   return active ? (
     <Box>
-      <img src={`/assets/pepe-frame-${heroColor}.png`} className="w-full" />
+      <img
+        src={`/assets/pepe-frame-${heroColor}.png`}
+        className="w-full"
+        alt={'Pepe'}
+      />
       <Box
         className={cx(
           heroColorToClass,
@@ -52,7 +56,7 @@ const Hero = ({ active, heroColor, letter }) => {
     </Box>
   ) : (
     <Box>
-      <img src={`/assets/pepe-frame.png`} className="w-full" />
+      <img src={`/assets/pepe-frame.png`} className="w-full" alt={'Pepe'} />
       <Box className="bg-[#232935] absolute w-14 text-center rounded-xl left-[1.2rem] top-[4rem] z-50">
         <Typography variant="h6" className="text-stieglitz font-['Minecraft']">
           ?
@@ -145,7 +149,7 @@ const ActionsDialog = ({ open, tab, handleClose }: Props) => {
     }, 3500);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [activeQuoteIndex]);
 
   const boxes = [
     { title: '0.88 ETH', subTitle: '1 PEPE' },
@@ -171,6 +175,7 @@ const ActionsDialog = ({ open, tab, handleClose }: Props) => {
         <img
           src={'/assets/mint-fighter-button.png'}
           className={'w-46 mr-1 ml-auto'}
+          alt={'Mint fighter'}
         />
         <IconButton
           className="p-0 pb-1 mr-0 mt-0.5 ml-auto"
@@ -264,12 +269,17 @@ const ActionsDialog = ({ open, tab, handleClose }: Props) => {
             </Box>
           </Box>
           <Box className="flex mb-2">
-            <img src={`/assets/${quote.avatar}`} className="ml-[2px] w-16" />
+            <img
+              src={`/assets/${quote.avatar}`}
+              className="ml-[2px] w-16"
+              alt={''}
+            />
 
             <Box className="bg-[#343C4D] rounded-xs flex flex-col p-3 pb-1.5 w-full ml-4 relative">
               <img
                 src="/assets/polygon-left.svg"
                 className="absolute left-[-7px] top-[20px] w-3"
+                alt={'Left'}
               />
               <Typography
                 variant="h6"

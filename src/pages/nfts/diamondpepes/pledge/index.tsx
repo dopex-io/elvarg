@@ -147,7 +147,7 @@ const DiamondPepesNfts = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress, updateData, updateUserData, signer]);
+  }, [updateData, updateUserData, signer, sendTx, yieldMint]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -181,6 +181,7 @@ const DiamondPepesNfts = () => {
             <img
               src={'/assets/diamondpepes.svg'}
               className="ml-auto mr-auto z-1 relative md:w-auto w-60"
+              alt={'Diamond Pepes'}
             />
           </Box>
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">
@@ -199,18 +200,25 @@ const DiamondPepesNfts = () => {
             </Typography>
           </Box>
           <Box className="text-center mx-auto md:mb-12 lg:mt-12 flex">
-            <img src={'/assets/gold-pepe-1.png'} className="z-1 ml-40 w-60" />
+            <img
+              src={'/assets/gold-pepe-1.png'}
+              className="z-1 ml-40 w-60"
+              alt={'Gold Pepe'}
+            />
             <img
               src={'/assets/gold-pepe-2.png'}
               className="z-1 ml-2 relative w-60"
+              alt={'Gold Pepe'}
             />
             <img
               src={'/assets/gold-pepe-3.png'}
               className="z-1 ml-2 relative w-60"
+              alt={'Gold Pepe'}
             />
             <img
               src={'/assets/gold-pepe-4.png'}
               className="z-1 ml-2 relative w-60"
+              alt={'Gold Pepe'}
             />
           </Box>
           <Box className="pl-4 pr-4 md:flex border border-[#232935] w-full mt-9 bg-[#181C24] z-1 relative">

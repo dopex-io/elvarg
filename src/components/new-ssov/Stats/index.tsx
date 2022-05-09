@@ -1,7 +1,6 @@
 import { useContext, useMemo } from 'react';
 
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 
 import { SsovContext } from 'contexts/Ssov';
 
@@ -10,7 +9,6 @@ import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import Typography from 'components/UI/Typography';
-import ArrowUpIcon from 'components/Icons/ArrowUpIcon';
 import FlagIcon from 'components/Icons/FlagIcon';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -30,7 +28,6 @@ const Stats = ({
   activeSsovContextSide: string;
 }) => {
   const { chainId } = useContext(WalletContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
   const ssovContext = useContext(SsovContext);
   const { tokenName, tokenPrice } = ssovContext[activeSsovContextSide].ssovData;
 
@@ -51,7 +48,7 @@ const Stats = ({
         ))
     );
     return total;
-  }, [totalEpochOptionsPurchased]);
+  }, [totalEpochOptionsPurchased, chainId, tokenName]);
 
   const totalDeposits: number = useMemo(() => {
     let total: number = 0;
@@ -63,7 +60,7 @@ const Stats = ({
         ))
     );
     return total;
-  }, [totalEpochStrikeDeposits]);
+  }, [totalEpochStrikeDeposits, chainId, tokenName]);
 
   return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
@@ -84,6 +81,7 @@ const Stats = ({
               <img
                 src={'/assets/chart-placeholder.png'}
                 className={'w-full blur-sm'}
+                alt={'Chart'}
               />
               <Typography
                 variant="h5"

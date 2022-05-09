@@ -43,7 +43,7 @@ const Manage = () => {
   useEffect(() => {
     ssovContext.CALL?.setSelectedSsov({ token: asset });
     ssovContext.PUT?.setSelectedSsov({ token: asset });
-  }, [asset]);
+  }, [asset, ssovContext]);
 
   useEffect(() => {
     if (enabledSides.includes('CALL')) setActiveSsovContextSide('CALL');
