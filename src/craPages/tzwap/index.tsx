@@ -340,7 +340,7 @@ const Tzwap = () => {
             value:
               fromTokenName === 'ETH'
                 ? getContractReadableAmount(
-                    amount,
+                    Math.round(total) / precision,
                     getTokenDecimals(fromTokenName, chainId)
                   )
                 : 0,
