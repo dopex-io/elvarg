@@ -21,6 +21,7 @@ import { FarmingProvider } from 'contexts/Farming';
 import { OtcProvider } from 'contexts/Otc';
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { NftsProvider } from 'contexts/Nfts';
+import { AtlanticsProvider } from 'contexts/Atlantics';
 
 import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
 import PageLoader from 'components/PageLoader';
@@ -48,6 +49,7 @@ const PledgeTwoDiamondPepesNfts = lazy(
 );
 const Oracles = lazy(() => import('craPages/oracles'));
 const Tzwap = lazy(() => import('craPages/tzwap'));
+const Atlantics = lazy(() => import('craPages/atlantics'));
 
 const FarmRoutes = () => {
   return (
@@ -112,6 +114,16 @@ const NftsRoutes = () => {
   );
 };
 
+const AtlanticsRoutes = () => {
+  return (
+    <AtlanticsProvider>
+      <Routes>
+        <Route path="*" element={<Atlantics />} />
+      </Routes>
+    </AtlanticsProvider>
+  );
+};
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -128,6 +140,7 @@ function AppRoutes() {
               <Route path="oracles" element={<Oracles />} />
               <Route path="tzwap" element={<Tzwap />} />
               <Route path="/otc/*" element={<OtcRoutes />} />
+              <Route path="atlantics/*" element={<AtlanticsRoutes />} />
               <Route path="*" element={<Error statusCode={404} />} />
             </Routes>
             <ChangeNetworkDialog />

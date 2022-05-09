@@ -87,6 +87,7 @@ const appLinks = {
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'OTC', to: '/otc' },
+    { name: 'atlantics', to: '/atlantics' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -118,7 +119,8 @@ interface AppBarProps {
     | 'leaderboard'
     | 'swap'
     | 'OTC'
-    | 'vaults';
+    | 'vaults'
+    | 'atlantics';
 }
 
 export default function AppBar(props: AppBarProps) {

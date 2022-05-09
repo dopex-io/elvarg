@@ -118,6 +118,12 @@ export const SSOV_MAP = {
   },
 };
 
+export const ATLANTIC_STATS_MAPPING = {
+  TVL: 'TVL',
+  pools: 'Pools',
+  volume: 'Volume',
+};
+
 export const SHOWCASE_NFTS = [
   {
     src: '/images/showcase/dopexHideout.jpeg',
