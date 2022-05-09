@@ -64,6 +64,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/v3/call/ETH': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
+  '/nfts/diamondpepes2': [1, 42161],
   '/nfts/diamondpepes': [42161],
   '/nfts/diamondpepes/pledge': [42161],
   '/nfts/diamondpepes/pledge2': [42161],

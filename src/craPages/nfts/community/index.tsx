@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
-import ShowcaseCard from '../components/ShowcaseCard';
+import ShowcaseCard from './components/ShowcaseCard';
 
 import { SHOWCASE_NFTS } from 'constants/index';
 

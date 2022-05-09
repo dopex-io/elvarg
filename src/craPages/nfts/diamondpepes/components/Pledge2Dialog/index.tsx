@@ -5,20 +5,22 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  Addresses,
-  DiamondPepeNFTs__factory,
-  DiamondPepeNFTsPledge,
-} from '@dopex-io/sdk';
+import { Addresses, DiamondPepeNFTs__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+import cx from 'classnames';
+
 import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import { Tooltip } from '@mui/material';
+import Input from '@mui/material/Input';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
-import { Data, UserData } from '../../diamondpepes/interfaces';
+import { Data, UserData } from '../../interfaces';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
@@ -33,33 +35,45 @@ export interface Props {
   tab: string;
   data: Data;
   userData: UserData;
-  timeRemaining: JSX.Element;
   updateData: () => {};
   updateUserData: () => {};
-  pledge: DiamondPepeNFTsPledge;
-  winners: any[];
+  pledge: any;
 }
 
-const PledgeDialog = ({
+const SelectMenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: 324,
+      width: 250,
+    },
+  },
+  classes: {
+    paper: 'bg-mineshaft',
+  },
+};
+
+const Pledge2Dialog = ({
   open,
   handleClose,
   data,
   tab,
   userData,
-  timeRemaining,
   updateData,
   updateUserData,
   pledge,
-  winners,
 }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const { accountAddress, chainId, signer, provider } =
     useContext(WalletContext);
 
-  const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
-    signer
+  const diamondPepeNfts = useMemo(
+    () =>
+      DiamondPepeNFTs__factory.connect(
+        Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+        signer
+      ),
+    [signer]
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
@@ -76,10 +90,27 @@ const PledgeDialog = ({
       id: string;
     }>
   >([]);
-  const [selectedNfts, selectNfts] = useState<Array<Number>>([]);
+  const [selectedNfts, setSelectedNfts] = useState({});
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
+
+  const availableUserNfts = useMemo(() => {
+    const _userNfts = [];
+
+    userNfts.map((nft) => {
+      let add = true;
+      Object.keys(selectedNfts).map((key) => {
+        selectedNfts[key].map((selected_nft) => {
+          if (Number(nft.id) === Number(selected_nft.id)) add = false;
+        });
+      });
+      if (add) {
+        _userNfts.push(nft);
+      }
+    });
+    return _userNfts;
+  }, [userNfts, selectedNfts]);
 
   const pepeReserved: number = useMemo(() => {
     return data.mintPrice.gt(0)
@@ -93,6 +124,7 @@ const PledgeDialog = ({
     const nfts = await diamondPepeNfts
       .connect(signer)
       .walletOfOwner(accountAddress);
+
     let _nfts = [];
     let _pledgedNfts = [];
 
@@ -113,26 +145,32 @@ const PledgeDialog = ({
 
     setUserNfts(_nfts);
     setUserPledgedNfts(_pledgedNfts);
-  }, [accountAddress, diamondPepeNfts, pledge, signer]);
+  }, [pledge, diamondPepeNfts, accountAddress]);
 
-  const [activeTab, setActiveTab] = useState<string>('winner');
+  const [activeTab, setActiveTab] = useState<string>('pledge');
 
   const modalHeight = useMemo(() => {
-    if (userPledgedNfts.length > 0 && userNfts.length > 0) return '49.2rem';
-    else return '33.2rem';
+    if (userPledgedNfts.length > 0 && userNfts.length > 0) return '47.2rem';
+    else return '31.2rem';
   }, [userPledgedNfts, userNfts]);
 
   const handlePledge = useCallback(async () => {
     try {
-      const tokenIds: BigNumber[] = [];
-      selectedNfts.map((i) =>
-        tokenIds.push(BigNumber.from(userNfts[i.toFixed(0)].id))
-      );
+      const tokenIds: BigNumber[][] = [];
+      Object.keys(selectedNfts).map((parent_nft_id) => {
+        const group = [];
+        group.push(BigNumber.from(parent_nft_id));
+        selectedNfts[parent_nft_id].map((children_nft) => {
+          group.push(BigNumber.from(children_nft.id));
+        });
+        tokenIds.push(group);
+      });
+      console.log(tokenIds);
       await sendTx(pledge.connect(signer).pledge(tokenIds));
       await updateData();
       await updateUserData();
       await getNfts();
-      selectNfts([]);
+      setSelectedNfts({});
     } catch (err) {
       console.log(err);
     }
@@ -158,15 +196,18 @@ const PledgeDialog = ({
     }
   }, [diamondPepeNfts, signer, sendTx, pledge]);
 
-  const handleSelectNft = useCallback(
-    async (id) => {
-      const _nfts = JSON.parse(JSON.stringify(selectedNfts));
-      if (_nfts.indexOf(id) !== -1) _nfts.splice(_nfts.indexOf(id), 1);
-      else _nfts.push(id);
-      selectNfts(_nfts);
-    },
-    [selectedNfts]
-  );
+  const handleSelectNft = (parent_nft) => {
+    const _selectedNfts = Object.assign({}, selectedNfts);
+    if (_selectedNfts[parent_nft.id]) delete _selectedNfts[parent_nft.id];
+    else _selectedNfts[parent_nft.id] = [];
+    setSelectedNfts(_selectedNfts);
+  };
+
+  const handleIncreaseRarity = (parent_nft_id, children_nft) => {
+    const _selectedNfts = Object.assign({}, selectedNfts);
+    _selectedNfts[parent_nft_id].push(children_nft);
+    setSelectedNfts(_selectedNfts);
+  };
 
   // Handles isApproved
   useEffect(() => {
@@ -195,15 +236,20 @@ const PledgeDialog = ({
     >
       <Box className="flex flex-row items-center mb-4">
         <Typography variant="h5">Diamond Pepes</Typography>
+        <img
+          src="/assets/cross.svg"
+          className="ml-auto mr-1.5 fill-white pointer"
+          alt={'Close'}
+          onClick={handleClose}
+        />
       </Box>
 
-      {['pledge', 'winner'].includes(activeTab) && (
+      {['pledge'].includes(activeTab) && (
         <Box className={isZapInVisible ? 'hidden' : 'flex'}>
           <Box className={'w-full flex'}>
             <Box
               className={
-                'flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md ' +
-                (winners?.length > 0 ? 'w-1/2' : 'w-full')
+                'flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-full'
               }
             >
               <Box
@@ -226,29 +272,6 @@ const PledgeDialog = ({
                 </Typography>
               </Box>
             </Box>
-            {winners?.length > 0 ? (
-              <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-1/2">
-                <Box
-                  className={
-                    activeTab === 'winner'
-                      ? 'text-center w-full pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
-                      : 'text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
-                  }
-                >
-                  <Typography
-                    variant="h6"
-                    className={
-                      activeTab === 'winner'
-                        ? 'text-xs font-normal'
-                        : 'text-[#78859E] text-xs font-normal'
-                    }
-                    onClick={() => setActiveTab('winner')}
-                  >
-                    Winners
-                  </Typography>
-                </Box>
-              </Box>
-            ) : null}
           </Box>
         </Box>
       )}
@@ -257,52 +280,122 @@ const PledgeDialog = ({
         {activeTab === 'pledge' ? (
           <Box>
             <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-              <Box className="flex flex-row justify-between mb-2">
-                <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-                  To pledge:{' '}
-                  <span className="text-white">{selectedNfts.length}</span>
-                </Typography>
-              </Box>
               <Box className="h-[15.8rem] overflow-y-auto overflow-x-hidden">
-                {userNfts?.length > 0
-                  ? Array.from({ length: userNfts.length }, (_, i) => (
-                      <Box
-                        className="mt-2 ml-2 mr-2 border border-[#343C4D] flex rounded-md cursor-pointer"
-                        key={i}
-                        onClick={() => handleSelectNft(i)}
-                      >
-                        <img
-                          src={userNfts[i].img}
-                          alt="diamond pepe"
-                          className={'w-[4rem] m-2 rounded-md'}
-                        />
+                {availableUserNfts.map((nft) => (
+                  <Box
+                    className="mt-2 ml-2 mr-2 border border-[#343C4D] rounded-md"
+                    key={nft.id}
+                  >
+                    <Box className="flex mt-1">
+                      <img
+                        src={nft.img}
+                        alt="diamond pepe"
+                        className={'w-[4rem] m-2 rounded-md'}
+                      />
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          className="text-white ml-2 mt-4 font-bold"
+                        >
+                          Diamond Pepe
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          className="text-white ml-2 mt-0.5 font-bold"
+                        >
+                          # {nft.id}
+                        </Typography>
+                      </Box>
+                      {selectedNfts[nft.id] ? (
                         <Box>
                           <Typography
                             variant="h6"
-                            className="text-white ml-2 mt-4 font-bold"
+                            className="text-white ml-4 mt-1 pt-4"
                           >
-                            Diamond Pepe
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            className="text-white ml-2 mt-0.5 font-bold"
-                          >
-                            # {userNfts[i].id}
+                            🔥
                           </Typography>
                         </Box>
-                        {selectedNfts.indexOf(i) !== -1 ? (
-                          <Box>
-                            <Typography
-                              variant="h6"
-                              className="text-white ml-4 mt-1 pt-4"
-                            >
-                              🔥
-                            </Typography>
-                          </Box>
-                        ) : null}
+                      ) : null}
+                      <Box className={'flex mt-[1.4rem] ml-2'}>
+                        {selectedNfts[nft.id]?.map((children_nft) => (
+                          <Tooltip
+                            title={'Click to remove Pepe #' + children_nft.id}
+                            key={children_nft.id}
+                          >
+                            <img
+                              src={children_nft.img}
+                              alt="diamond pepe"
+                              className={
+                                'w-[1rem] h-[1rem] mr-1 rounded-md cursor-pointer'
+                              }
+                            />
+                          </Tooltip>
+                        ))}
                       </Box>
-                    ))
-                  : null}
+                    </Box>
+                    <Box className="ml-2 mr-2">
+                      <CustomButton
+                        size="medium"
+                        className={styles.pepeButton}
+                        onClick={() => handleSelectNft(nft)}
+                      >
+                        <Typography
+                          variant="h5"
+                          className={styles.pepeButtonText}
+                        >
+                          {selectedNfts[nft.id] ? 'Remove' : 'Pledge'}
+                        </Typography>
+                      </CustomButton>
+                      {Object.keys(selectedNfts).length > 0 &&
+                      !selectedNfts[nft.id] ? (
+                        <Select
+                          className={cx('!mt-0', styles.pepeButton)}
+                          fullWidth
+                          displayEmpty
+                          input={<Input />}
+                          variant="outlined"
+                          renderValue={() => {
+                            return (
+                              <Typography
+                                variant="h5"
+                                className={cx('pt-1', styles.pepeButtonText)}
+                              >
+                                Pledge to increase rarity of ?
+                              </Typography>
+                            );
+                          }}
+                          MenuProps={SelectMenuProps}
+                          classes={{
+                            icon: 'absolute right-5 top-1.5 text-white',
+                            select: 'overflow-hidden',
+                          }}
+                          label="strikes"
+                        >
+                          {Object.keys(selectedNfts).map((parent_nft_id) =>
+                            selectedNfts[parent_nft_id].length < 3 ? (
+                              <MenuItem
+                                key={parent_nft_id}
+                                className="pb-2 pt-2"
+                                onClick={() =>
+                                  handleIncreaseRarity(parent_nft_id, nft)
+                                }
+                              >
+                                <Box className={'flex'}>
+                                  <Typography
+                                    variant="h5"
+                                    className="text-white text-left w-full relative ml-2"
+                                  >
+                                    Pledge for Pepe #{parent_nft_id}
+                                  </Typography>
+                                </Box>
+                              </MenuItem>
+                            ) : null
+                          )}
+                        </Select>
+                      ) : null}
+                    </Box>
+                  </Box>
+                ))}
               </Box>
             </Box>
 
@@ -365,65 +458,24 @@ const PledgeDialog = ({
                 <Box className="flex text-center p-2 mr-2">
                   <img
                     src="/assets/alarm.svg"
-                    className="w-7 h-5"
+                    className="w-7 h-7"
                     alt="Alarm"
                   />
                 </Box>
                 <Typography variant="h6" className="text-[#78859E]">
-                  Check if you have received a 1-of-1 after the pledge period on
-                  3/3/2022
+                  Gen 2 (Duel Pepes) will be minted after 537 pledges
                 </Typography>
               </Box>
               <CustomButton
                 size="medium"
                 className={styles.pepeButton}
-                disabled={selectedNfts.length == 0}
+                disabled={Object.keys(selectedNfts).length == 0}
                 onClick={approved ? handlePledge : handleApprove}
               >
                 <Typography variant="h5" className={styles.pepeButtonText}>
-                  {!approved
-                    ? 'Approve'
-                    : 'Pledge ' + selectedNfts.length + ' pepes'}
+                  {!approved ? 'Approve' : 'Pledge pepes'}
                 </Typography>
               </CustomButton>
-            </Box>
-          </Box>
-        ) : null}
-        {activeTab === 'winner' ? (
-          <Box>
-            <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-              <Typography variant="h6" className="text-white p-1 pl-2 pr-2">
-                The winning numbers are
-              </Typography>
-              <Box className="flex w-full mt-3 ml-1 mr-1 flex-wrap">
-                {winners?.length > 0
-                  ? Array.from({ length: winners.length }, (_, i) => (
-                      <Typography
-                        variant="h6"
-                        className="text-white p-1 pl-2 pr-2 border border-[#343C4D] rounded-md w-auto h-[2rem] bg-[#b3a932] ml-1 mr-1 mb-2"
-                      >
-                        <b>{winners[i]['number']}</b>
-                      </Typography>
-                    ))
-                  : null}
-              </Box>
-            </Box>
-            <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3 mt-3">
-              <Typography variant="h6" className="text-white p-1 pl-2 pr-2">
-                The winning addresses are
-              </Typography>
-              <Box className="flex w-full mt-3 ml-1 mr-1 flex-wrap h-[17.7rem] overflow-y-auto overflow-x-hidden">
-                {winners?.length > 0
-                  ? Array.from({ length: winners.length }, (_, i) => (
-                      <Typography
-                        variant="h6"
-                        className="text-white p-1 pl-2 pr-2 border border-[#343C4D] rounded-md w-auto h-[2rem] ml-1 mr-1 mb-2 text-[11px]"
-                      >
-                        <b>{winners[i]['address']}</b>
-                      </Typography>
-                    ))
-                  : null}
-              </Box>
             </Box>
           </Box>
         ) : null}
@@ -432,4 +484,4 @@ const PledgeDialog = ({
   );
 };
 
-export default PledgeDialog;
+export default Pledge2Dialog;

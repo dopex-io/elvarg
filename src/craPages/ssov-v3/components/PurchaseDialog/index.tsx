@@ -29,6 +29,7 @@ import AlarmIcon from 'components/Icons/AlarmIcon';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -179,16 +180,19 @@ const PurchaseDialog = ({
           volatility
         );
 
-        let premium = optionPrice.mul(optionsAmount * 10).div(10); // avoid crashing when users buy <1 options
+        let premium = optionPrice
+          .mul(getContractReadableAmount(optionsAmount, 18))
+          .div(oneEBigNumber(18)); // avoid crashing when users buy <1 options
 
         let fees = await ssovContract.calculatePurchaseFees(
           strike,
           getContractReadableAmount(String(optionsAmount), 18)
         );
 
-        const totalCost = premium.mul(10 ** 10).add(fees);
-
-        if (!isPut) totalCost.mul(tokenPrice);
+        let _totalCost;
+        if (isPut) _totalCost = premium.mul(oneEBigNumber(10)).add(fees);
+        else
+          _totalCost = premium.mul(oneEBigNumber(18)).add(fees.mul(tokenPrice));
 
         setState({
           volatility,
@@ -196,7 +200,7 @@ const PurchaseDialog = ({
           premium,
           fees,
           expiry,
-          totalCost,
+          totalCost: isPut ? _totalCost : _totalCost.div(tokenPrice),
         });
 
         setIsPurchaseStatsLoading(false);
@@ -255,7 +259,8 @@ const PurchaseDialog = ({
         isPurchaseStatsLoading ||
         (isPut
           ? availableCollateralForStrikes[strikeIndex]
-              .div(strikes[strikeIndex])
+              .mul(oneEBigNumber(8))
+              .div(getContractReadableAmount(strikes[strikeIndex], 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
           : availableCollateralForStrikes[strikeIndex].lt(
               getContractReadableAmount(optionsAmount, 18)
@@ -286,7 +291,8 @@ const PurchaseDialog = ({
       if (
         isPut
           ? availableCollateralForStrikes[strikeIndex]
-              .div(strikes[strikeIndex])
+              .mul(oneEBigNumber(8))
+              .div(getContractReadableAmount(strikes[strikeIndex], 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
           : availableCollateralForStrikes[strikeIndex].lt(
               getContractReadableAmount(optionsAmount, 18)
@@ -391,7 +397,7 @@ const PurchaseDialog = ({
                         availableCollateralForStrikes[strikeIndex],
                         18
                       ),
-                  3
+                  5
                 )}{' '}
               </span>
             </Typography>
@@ -511,12 +517,12 @@ const PurchaseDialog = ({
                         ? formatAmount(
                             Number(strikes[strikeIndex]) -
                               getUserReadableAmount(state.optionPrice, 8),
-                            2
+                            5
                           )
                         : formatAmount(
                             Number(strikes[strikeIndex]) +
                               getUserReadableAmount(state.optionPrice, 8),
-                            2
+                            5
                           )}
                     </Typography>
                   </Box>
@@ -610,7 +616,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(optionsAmount, 3)}
+                {formatAmount(optionsAmount, 5)}
               </Typography>
             </Box>
           </Box>
@@ -628,7 +634,7 @@ const PurchaseDialog = ({
                         36
                       )
                     : getUserReadableAmount(state.fees.mul(tokenPrice), 26),
-                  2
+                  5
                 )}
               </Typography>
             </Box>
@@ -639,7 +645,7 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                $ {formatAmount(getUserReadableAmount(state.premium, 8))}{' '}
+                $ {formatAmount(getUserReadableAmount(state.premium, 8), 5)}{' '}
               </Typography>
             </Box>
           </Box>
@@ -649,23 +655,8 @@ const PurchaseDialog = ({
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {isPut ? (
-                  <span>
-                    {formatAmount(
-                      getUserReadableAmount(state.totalCost, 18),
-                      2
-                    )}
-                  </span>
-                ) : (
-                  <span>
-                    {formatAmount(
-                      getUserReadableAmount(state.totalCost, 18) /
-                        getUserReadableAmount(ssovData.tokenPrice, 8),
-                      4
-                    )}{' '}
-                    {ssovData.collateralSymbol}
-                  </span>
-                )}
+                {getUserReadableAmount(state.totalCost, 18)}{' '}
+                {ssovData.collateralSymbol}
               </Typography>
             </Box>
           </Box>
