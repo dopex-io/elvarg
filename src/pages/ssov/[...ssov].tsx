@@ -1,5 +1,4 @@
 import { useContext, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 

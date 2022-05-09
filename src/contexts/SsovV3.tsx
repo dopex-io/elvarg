@@ -177,7 +177,7 @@ export const SsovV3Provider = (props) => {
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      '0x426eDe8BF1A523d288470e245a343B599c2128da',
+      contractAddresses['SSOV-V3'].VIEWER,
       provider
     );
 
@@ -238,11 +238,6 @@ export const SsovV3Provider = (props) => {
         getUserReadableAmount(underlyingPrice, 8)
       : getUserReadableAmount(totalEpochDeposits, 18);
 
-    // /rDPX-WEEKLY-PUTS-SSOV-V3
-    const apy = await axios
-      .get(`https://api.dopex.io/api/v2/ssov/apy?symbol=${selectedSsovV3}`)
-      .then((payload) => payload.data.apy);
-
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
       settlementPrice: epochData.settlementPrice,
@@ -252,7 +247,7 @@ export const SsovV3Provider = (props) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
-      APY: apy,
+      APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };

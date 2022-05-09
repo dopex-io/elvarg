@@ -73,6 +73,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/tzwap': [1, 42161],
   '/otc': [42161],
   '/otc/chat/:id': [42161],
+  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': [1088],
 };
 
 const DEFAULT_CHAIN_ID =
