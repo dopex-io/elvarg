@@ -27,7 +27,7 @@ import useSendTx from 'hooks/useSendTx';
 import { WalletContext } from 'contexts/Wallet';
 import { NftsProvider } from 'contexts/Nfts';
 
-import styles from 'components/nfts/diamondpepes/pledgeDialog/styles.module.scss';
+import styles from 'components/nfts/diamondpepes/PledgeDialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, provider, signer, chainId } =
