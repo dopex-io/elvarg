@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
+// @ts-ignore TODO: FIX
 const RewardsCountdown = ({ periodFinish, stakingAsset }) => {
   return (
     <Countdown

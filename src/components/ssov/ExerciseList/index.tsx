@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext, useState, useEffect, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';

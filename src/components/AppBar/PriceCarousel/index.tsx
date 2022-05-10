@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { useMemo, useState } from 'react';
 
 import PriceTag from 'components/AppBar/PriceTag';
+
 import styles from 'components/AppBar/styles.module.scss';
 
 interface IPriceCarouselProps {
@@ -13,12 +14,7 @@ interface IPriceCarouselProps {
   }[];
 }
 
-interface IPriceFeedProps {
-  tokenPrices: {
-    price: number;
-    name: string;
-    change24h: number;
-  }[];
+interface IPriceFeedProps extends IPriceCarouselProps {
   stylesClassName: string;
   style: any;
 }
@@ -44,10 +40,10 @@ const PriceFeed = ({
   </Box>
 );
 
-const PriceCasourel = ({ tokenPrices }: IPriceCarouselProps) => {
-  const [paused, setpaused] = useState(false);
+const PriceCarousel = ({ tokenPrices }: IPriceCarouselProps) => {
+  const [paused, setPaused] = useState(false);
   const handleHover = () => {
-    setpaused((prev) => !prev);
+    setPaused((prev) => !prev);
   };
   const style = useMemo(() => {
     return {
@@ -63,21 +59,24 @@ const PriceCasourel = ({ tokenPrices }: IPriceCarouselProps) => {
     >
       <PriceFeed
         tokenPrices={tokenPrices}
-        stylesClassName={styles.priceFeed}
+        // @ts-ignore TODO: FIX
+        stylesClassName={styles['priceFeed']}
         style={style}
       />
       <PriceFeed
         tokenPrices={tokenPrices}
-        stylesClassName={styles.priceFeed}
+        // @ts-ignore TODO: FIX
+        stylesClassName={styles['priceFeed']}
         style={style}
       />
       <PriceFeed
         tokenPrices={tokenPrices}
-        stylesClassName={styles.priceFeed}
+        // @ts-ignore TODO: FIX
+        stylesClassName={styles['priceFeed']}
         style={style}
       />
     </Box>
   );
 };
 
-export default PriceCasourel;
+export default PriceCarousel;

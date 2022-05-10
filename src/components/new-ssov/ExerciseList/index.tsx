@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useMemo } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
@@ -40,11 +40,12 @@ interface userExercisableOption {
 
 const ROWS_PER_PAGE = 5;
 
+// @ts-ignore TODO: FIX
 const ExerciseList = ({ activeSsovContextSide }) => {
   const { accountAddress } = useContext(WalletContext);
+  // @ts-ignore TODO: FIX
   const ssovContext = useContext(SsovContext)[activeSsovContextSide];
-  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch, selectedSsov } =
-    ssovContext;
+  const { ssovUserData, ssovData, ssovEpochData, selectedEpoch } = ssovContext;
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
@@ -76,14 +77,17 @@ const ExerciseList = ({ activeSsovContextSide }) => {
       const userEpochStrikeTokenBalanceArray = epochStrikeTokens.length
         ? await Promise.all(
             epochStrikeTokens
+              // @ts-ignore TODO: FIX
               .map((token) => {
                 if (isZeroAddress(token.address)) return null;
                 return token.balanceOf(accountAddress);
               })
+              // @ts-ignore TODO: FIX
               .filter((c) => c)
           )
         : [];
 
+      // @ts-ignore TODO: FIX
       const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
         const depositedAmount =
@@ -174,6 +178,7 @@ const ExerciseList = ({ activeSsovContextSide }) => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
+        {/* @ts-ignore TODO: FIX */}
         <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
           {!accountAddress ? (
             <Box className="p-4 flex items-center justify-center">

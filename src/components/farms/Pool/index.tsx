@@ -57,6 +57,7 @@ const Pool = ({
     open: false,
     type: 'CLAIM',
   });
+  // @ts-ignore TODO: FIX
   const Modal = MODALS[modalState.type];
 
   const router = useRouter();
@@ -100,6 +101,7 @@ const Pool = ({
       await sendTx(
         StakingRewards__factory.connect(
           token.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         ).compound()
       );
@@ -154,7 +156,7 @@ const Pool = ({
     <Box
       className={cx(
         'flex flex-col items-start lg:mb-2 mb-12 bg-umbra p-4 rounded-xl',
-        styles.poolCard,
+        styles['poolCard'],
         className
       )}
     >
@@ -336,7 +338,8 @@ const Pool = ({
             className="w-6 ml-2 rounded-md h-9 hover:bg-gray-800"
             size="large"
           >
-            <MoreVertIcon className={styles.vertIcon} />
+            {/* @ts-ignore TODO: FIX */}
+            <MoreVertIcon className={styles['vertIcon']} />
           </IconButton>
           <Menu
             id="long-menu"

@@ -78,7 +78,7 @@ const WritePositionTableData = (props: Props) => {
       <TableCell align="left" className="pt-2 flex space-x-2">
         <SplitButton
           options={['Transfer', 'Withdraw']}
-          handleClick={(index) => {
+          handleClick={(index: number) => {
             if (index === 0) openTransfer();
             else openWithdraw();
           }}

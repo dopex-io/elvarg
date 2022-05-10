@@ -17,11 +17,13 @@ import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const TableHeader = ({
+  // @ts-ignore TODO: FIX
   children,
   align = 'left',
   textColor = 'text-stieglitz',
 }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
@@ -35,11 +37,13 @@ const TableHeader = ({
 };
 
 const TableBodyCell = ({
+  // @ts-ignore TODO: FIX
   children,
   align = 'left',
   textColor = 'text-stieglitz',
 }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="td"
@@ -52,12 +56,15 @@ const TableBodyCell = ({
   );
 };
 
+// @ts-ignore TODO: FIX
 const TradeHistory = (props) => {
   const { smViewport } = props;
   const { tradeHistoryData } = useContext(OtcContext);
   const { accountAddress } = useContext(WalletContext);
 
+  // @ts-ignore TODO: FIX
   const sanitizedData = useMemo(() => {
+    // @ts-ignore TODO: FIX
     return tradeHistoryData.map((entry) => {
       const quote = '-';
       const base = '-';

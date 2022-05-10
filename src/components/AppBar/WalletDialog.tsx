@@ -16,7 +16,14 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DISPLAY_TOKENS } from 'constants/index';
 
-const WalletDialog = ({ open, handleClose, userBalances }) => {
+interface Props {
+  open: boolean;
+  handleClose: Function;
+  // TODO: FIX
+  userBalances: any;
+}
+
+const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
     useContext(WalletContext);
 
@@ -25,20 +32,24 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
   const copyToClipboard = () => {
     setCopyState('Copied');
     delay(() => setCopyState('Copy Address'), 500);
+    // @ts-ignore TODO: FIX
     navigator.clipboard.writeText(accountAddress);
   };
 
   const changeWalletClick = useCallback(() => {
+    // @ts-ignore TODO: FIX
     changeWallet();
     handleClose();
   }, [handleClose, changeWallet]);
 
   const disconnectWalletClick = useCallback(() => {
+    // @ts-ignore TODO: FIX
     disconnect();
     handleClose();
   }, [disconnect, handleClose]);
 
   return (
+    // @ts-ignore TODO: FIX
     <Dialog handleClose={handleClose} open={open} showCloseIcon>
       <Typography variant="h3" className="mb-4">
         Account
@@ -93,9 +104,11 @@ const WalletDialog = ({ open, handleClose, userBalances }) => {
           Disconnect
         </Typography>
       </Box>
+      {/* @ts-ignore TODO: FIX */}
       {DISPLAY_TOKENS[chainId]?.length > 0 ? (
         <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
           <Box className="flex flex-col space-y-4">
+            {/* @ts-ignore TODO: FIX */}
             {DISPLAY_TOKENS[chainId]?.map((key: any, index) => {
               return (
                 <BalanceItem

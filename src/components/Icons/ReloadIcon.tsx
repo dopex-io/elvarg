@@ -1,4 +1,4 @@
-const ReloadIcon = ({ className }) => (
+const ReloadIcon = ({ className }: any) => (
   <svg
     className={className}
     width="14"

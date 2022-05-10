@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 
+// @ts-ignore TODO: FIX
 const InputHelpers = ({ handleMax, handleHalf, handleThird }) => {
   return (
     <>

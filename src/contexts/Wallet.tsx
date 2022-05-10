@@ -1,9 +1,15 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { useRouter } from 'next/router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
-import Web3Modal from 'web3modal';
+import Web3Modal, { ProviderController } from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
@@ -13,24 +19,45 @@ interface WalletContextInterface {
   accountAddress?: string;
   ensName?: string;
   ensAvatar?: string;
-  contractAddresses?: { [key: string]: any };
-  provider?: ethers.providers.Provider;
+  contractAddresses: { [key: string]: any };
+  provider: ethers.providers.Provider;
   signer?: Signer;
-  wrongNetwork?: boolean;
-  connect?: Function;
-  disconnect?: Function;
-  changeWallet?: Function;
-  chainId?: number;
+  wrongNetwork: boolean;
+  connect: Function;
+  disconnect: Function;
+  changeWallet: Function;
+  setChangeNetwork: Function;
+  chainId: number;
   blockTime?: number;
   epochInitTime?: number;
-  supportedChainIds?: number[];
+  supportedChainIds: number[];
   changeNetwork?: 'user' | 'wrong-network' | 'close';
-  setChangeNetwork?: Function;
 }
 
-export const WalletContext = createContext<WalletContextInterface>({});
+const DEFAULT_CHAIN_ID =
+  Number(process.env['NEXT_PUBLIC_DEFAULT_CHAIN_ID']) ?? 42161;
 
-const PAGE_TO_SUPPORTED_CHAIN_IDS = {
+const _Addresses = Addresses as unknown as { [key: string]: any };
+
+const defaultContext = {
+  wrongNetwork: false,
+  connect: () => {},
+  disconnect: () => {},
+  changeWallet: () => {},
+  setChangeNetwork: () => {},
+  chainId: DEFAULT_CHAIN_ID,
+  supportedChainIds: [42161],
+  contractAddresses: _Addresses[String(DEFAULT_CHAIN_ID)],
+  provider: new providers.MulticallProvider(
+    new ethers.providers.StaticJsonRpcProvider(
+      CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
+    )
+  ),
+};
+export const WalletContext =
+  createContext<WalletContextInterface>(defaultContext);
+
+const PAGE_TO_SUPPORTED_CHAIN_IDS: { [key: string]: number[] } = {
   '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
@@ -76,10 +103,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': [1088],
 };
 
-const DEFAULT_CHAIN_ID =
-  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 42161;
-
-let web3Modal;
+let web3Modal: Web3Modal | undefined;
 
 if (typeof window !== 'undefined') {
   const providerOptions = {
@@ -96,6 +120,8 @@ if (typeof window !== 'undefined') {
         rpc: CHAIN_ID_TO_RPC,
       },
     },
+    // TODO: FIX
+    // @ts-ignore
     ...(window['clover'] && {
       injected: {
         display: {
@@ -135,14 +161,18 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export const WalletProvider = (props) => {
+export const WalletProvider = (props: { children: ReactNode }) => {
   const router = useRouter();
-  const [state, setState] = useState<WalletContextInterface>({
+  const [state, setState] = useState<any>({
     accountAddress: '',
     wrongNetwork: false,
     chainId: DEFAULT_CHAIN_ID,
+    // TODO: FIX
+    // @ts-ignore
     contractAddresses: Addresses[DEFAULT_CHAIN_ID],
     // ethers provider
+    // TODO: FIX
+    // @ts-ignore
     provider: null,
     supportedChainIds: [],
   });
@@ -159,6 +189,8 @@ export const WalletProvider = (props) => {
   useEffect(() => {
     if (!state.provider) return;
     (async function () {
+      // TODO: FIX
+      // @ts-ignore
       setBlockTime(Number((await state.provider.getBlock('latest')).timestamp));
     })();
   }, [state.provider]);
@@ -183,9 +215,8 @@ export const WalletProvider = (props) => {
         PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
         !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.includes(chainId)
       ) {
-        setState((prevState) => ({
+        setState((prevState: any) => ({
           ...prevState,
-          wrongNetwork: true,
           supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
         }));
         return;
@@ -205,17 +236,9 @@ export const WalletProvider = (props) => {
 
       let contractAddresses: any;
 
-      if (chainId === 1337) {
-        contractAddresses = {
-          ...require('addresses/core.json'),
-          ...require('addresses/farming.json'),
-          ...require('addresses/tokensale.json'),
-        };
-      } else {
-        contractAddresses = Addresses[chainId];
-      }
+      contractAddresses = _Addresses[chainId];
 
-      setState((prevState) => ({
+      setState((prevState: any) => ({
         ...prevState,
         wrongNetwork: false,
         provider: multicallProvider,
@@ -233,8 +256,8 @@ export const WalletProvider = (props) => {
 
   const connect = useCallback(() => {
     web3Modal
-      .connect()
-      .then(async (provider) => {
+      ?.connect()
+      .then(async (provider: ProviderController) => {
         provider.on('accountsChanged', async () => {
           await updateState({ web3Provider: provider, isUser: true });
         });
@@ -252,7 +275,7 @@ export const WalletProvider = (props) => {
   const disconnect = useCallback(() => {
     if (!web3Modal) return;
     web3Modal.clearCachedProvider();
-    setState((prevState) => ({
+    setState((prevState: any) => ({
       ...prevState,
       isUser: false,
       accountAddress: '',

@@ -25,6 +25,7 @@ import { SsovContext, SsovProvider } from 'contexts/NewSsov';
 const Manage = () => {
   const { accountAddress } = useContext(WalletContext);
   const router = useRouter();
+  // @ts-ignore TODO: FIX
   const asset = router.query.name as string;
   const ssovContext = useContext(SsovContext);
   const [activeSsovContextSide, setActiveSsovContextSide] =
@@ -41,7 +42,9 @@ const Manage = () => {
   }, [ssovContext]);
 
   useEffect(() => {
+    // @ts-ignore TODO: FIX
     ssovContext.CALL?.setSelectedSsov({ token: asset });
+    // @ts-ignore TODO: FIX
     ssovContext.PUT?.setSelectedSsov({ token: asset });
   }, [asset, ssovContext]);
 
@@ -89,10 +92,7 @@ const Manage = () => {
             />
           </Box>
 
-          <Box
-            gridColumn="span 6"
-            className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
-          >
+          <Box gridColumn="span 6" className="mt-10 lg:mb-20 lg:pl-5 lg:pr-5">
             <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
               <Description
                 activeSsovContextSide={activeSsovContextSide}
@@ -132,6 +132,7 @@ const Manage = () => {
                 <PurchaseOptions
                   activeSsovContextSide={activeSsovContextSide}
                   setActiveSsovContextSide={setActiveSsovContextSide}
+                  // @ts-ignore TODO: FIX
                   setStrikeIndex={setStrikeIndex}
                 />
 
@@ -177,6 +178,7 @@ const Manage = () => {
 
 const ManagePage = () => {
   const router = useRouter();
+  // @ts-ignore TODO: FIX
   const asset = router.query.name as string;
   return (
     <SsovProvider>

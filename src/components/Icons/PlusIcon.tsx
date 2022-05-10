@@ -1,4 +1,4 @@
-const PlusIcon = ({ className }) => (
+const PlusIcon = ({ className }: any) => (
   <svg
     className={className}
     width="16"

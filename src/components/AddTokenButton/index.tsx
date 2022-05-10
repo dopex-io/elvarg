@@ -1,7 +1,6 @@
 import cx from 'classnames';
 
 import IconButton from '@mui/material/IconButton';
-import MetaMask from 'svgs/icons/MetaMask';
 
 interface WatchAssetOptions {
   address: string;
@@ -27,7 +26,7 @@ function AddTokenButton({
             options,
           },
         })
-        .then((success) => {
+        .then((success: boolean) => {
           if (success) {
             console.log(`${options.symbol} successfully added to wallet!`);
           } else {

@@ -23,6 +23,7 @@ export default function SplitButton({
 
   const _handleClick = () => handleClick(selectedIndex);
 
+  // @ts-ignore TODO: FIX
   const handleMenuItemClick = (_event, index) => {
     setSelectedIndex(index);
     setOpen(false);
@@ -32,7 +33,9 @@ export default function SplitButton({
     setOpen((prevOpen) => !prevOpen);
   };
 
+  // @ts-ignore TODO: FIX
   const handleClose = (event) => {
+    // @ts-ignore TODO: FIX
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }

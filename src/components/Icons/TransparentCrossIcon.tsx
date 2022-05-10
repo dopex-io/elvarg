@@ -1,4 +1,4 @@
-const TransparentCrossIcon = ({ className }) => (
+const TransparentCrossIcon = ({ className }: any) => (
   <svg
     className={className}
     width="12"

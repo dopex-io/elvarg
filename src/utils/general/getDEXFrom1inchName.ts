@@ -1,4 +1,4 @@
-const getDEXFrom1InchName = (name) => {
+const getDEXFrom1InchName = (name: string) => {
   const parser = {
     ARBITRUM_UNISWAP_V3: {
       name: 'Uniswap V3',
@@ -33,6 +33,7 @@ const getDEXFrom1InchName = (name) => {
       picture: 'wault.svg',
     },
   };
+  // @ts-ignore TODO: FIX
   return parser[name] || { name: name, picture: 'unknown.svg' };
 };
 

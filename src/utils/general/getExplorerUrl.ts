@@ -11,6 +11,7 @@ const CHAIN_ID_TO_EXPLORER = {
 };
 
 function getExplorerUrl(chainId: number): string {
+  // @ts-ignore TODO: FIX
   return CHAIN_ID_TO_EXPLORER[chainId] ?? ETHERSCAN;
 }
 

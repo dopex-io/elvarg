@@ -6,7 +6,7 @@ const get1inchQuote = async ({
   amount,
   chainId,
   accountAddress,
-}) => {
+}: any) => {
   if (fromTokenAddress === toTokenAddress) return {};
   const { data } = await axios.get(
     `https://api.1inch.exchange/v4.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(

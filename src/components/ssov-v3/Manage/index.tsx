@@ -1,5 +1,4 @@
 import { useContext, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -13,12 +12,13 @@ import PageLoader from 'components/PageLoader';
 import { SsovV3Context } from 'contexts/SsovV3';
 import WritePositions from 'components/ssov-v3/WritePositions';
 
-const Manage = (props) => {
+const Manage = (props: { ssov: string }) => {
   const { ssov } = props;
   const { ssovData, ssovEpochData, ssovUserData, setSelectedSsovV3 } =
     useContext(SsovV3Context);
 
   useEffect(() => {
+    // @ts-ignore TODO: FIX
     setSelectedSsovV3(ssov);
   }, [ssov, setSelectedSsovV3]);
 

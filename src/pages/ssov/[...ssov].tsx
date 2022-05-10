@@ -12,16 +12,23 @@ import PageLoader from 'components/PageLoader';
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
 
-const Manage = ({ type, name }) => {
+interface Props {
+  type: string;
+  name: string;
+}
+
+const Manage = ({ type, name }: Props) => {
   const {
     ssovData,
     ssovEpochData,
     ssovUserData,
+    // @ts-ignore TODO: FIX
     setSelectedSsov,
     selectedSsov,
   } = useContext(SsovContext);
 
   useEffect(() => {
+    // @ts-ignore TODO: FIX
     setSelectedSsov({ token: name, type: type.toUpperCase() });
   }, [setSelectedSsov, name, type]);
 
@@ -44,19 +51,25 @@ const Manage = ({ type, name }) => {
             <Description
               ssovData={ssovData}
               ssovEpochData={ssovEpochData}
+              // @ts-ignore TODO: FIX
               ssovUserData={ssovUserData}
+              // @ts-ignore TODO: FIX
               type={selectedSsov.type}
             />
             <ManageCard />
           </Box>
           {ssovUserData === undefined ? null : <ExerciseList />}
-          {selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />}
+          {
+            // @ts-ignore TODO: FIX
+            selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />
+          }
         </Box>
       </Box>
     </Box>
   );
 };
 
+// @ts-ignore TODO: FIX
 const ManagePage = ({ type, name }) => {
   return (
     <BnbConversionProvider>
@@ -67,6 +80,7 @@ const ManagePage = ({ type, name }) => {
   );
 };
 
+// @ts-ignore TODO: FIX
 export async function getServerSideProps(context) {
   return {
     props: {

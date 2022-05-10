@@ -22,6 +22,7 @@ import { NftsContext } from 'contexts/Nfts';
 import dopexBridgoorAddresses from 'constants/dopexBridgoorAddresses.json';
 import dopexHalloweenAddresses from 'constants/dopexHalloweenAddresses.json';
 
+// @ts-ignore TODO: FIX
 const ClaimModal = ({ open, handleClose, index, name }) => {
   const { accountAddress } = useContext(WalletContext);
   const { userNftsData } = useContext(NftsContext);
@@ -35,6 +36,7 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
       ? dopexBridgoorAddresses
       : dopexHalloweenAddresses;
 
+  // @ts-ignore TODO: FIX
   const {
     nftContractSigner,
   }: {
@@ -46,6 +48,7 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
       };
     } else {
       return {
+        // @ts-ignore TODO: FIX
         nftContractSigner: userNftsData[index].nftContractSigner,
       };
     }
@@ -74,7 +77,7 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
       (item) =>
         item.account.toLowerCase() === formik.values.address.toLowerCase()
     );
-
+    // @ts-ignore TODO: FIX
     const availableAmount = index !== -1 ? addresses[index].amount : '0';
 
     const tree = new BalanceTree(addresses);
@@ -90,8 +93,10 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
             tree.getProof(index, formik.values.address, availableAmount)
           );
           setLoading(false);
+          // @ts-ignore TODO: FIX
           setAmount(availableAmount);
         } catch {
+          // @ts-ignore TODO: FIX
           setAmount('0');
           setLoading(false);
         }
@@ -114,6 +119,7 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
         handleClose();
       }
     } else {
+      // @ts-ignore TODO: FIX
       setAmount('0');
     }
   };

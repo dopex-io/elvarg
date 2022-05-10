@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';

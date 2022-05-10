@@ -1,4 +1,4 @@
-const BigCrossIcon = ({ className }) => (
+const BigCrossIcon = ({ className }: any) => (
   <svg
     className={className}
     width="14"

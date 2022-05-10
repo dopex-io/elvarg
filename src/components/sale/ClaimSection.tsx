@@ -4,7 +4,7 @@ import format from 'date-fns/format';
 import Typography from 'components/UI/Typography';
 import Caution from 'svgs/icons/Caution';
 
-const ClaimSection = ({ data }) => {
+const ClaimSection = ({ data }: any) => {
   const { saleClose, saleClosed } = data;
   return saleClosed ? (
     <Box className="lg:h-80 mb-5 lg:mb-6">

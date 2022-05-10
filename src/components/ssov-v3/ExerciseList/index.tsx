@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useMemo } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
@@ -41,20 +41,23 @@ const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
   const { accountAddress, provider } = useContext(WalletContext);
-  const { ssovData, ssovEpochData, selectedEpoch, selectedSsovV3 } =
-    useContext(SsovV3Context);
+  const { ssovData, ssovEpochData, selectedEpoch } = useContext(SsovV3Context);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
   >([]);
   const [page, setPage] = useState(0);
 
+  // @ts-ignore TODO: FIX
   const { currentEpoch, tokenPrice, isPut } = ssovData;
   const {
+    // @ts-ignore TODO: FIX
     epochStrikes,
-    totalEpochPremium,
+    // @ts-ignore TODO: FIX
     totalEpochStrikeDeposits,
+    // @ts-ignore TODO: FIX
     epochStrikeTokens,
+    // @ts-ignore TODO: FIX
     settlementPrice,
   } = ssovEpochData;
 
@@ -70,61 +73,69 @@ const ExerciseList = () => {
       const userEpochStrikeTokenBalanceArray = epochStrikeTokens.length
         ? await Promise.all(
             epochStrikeTokens
-              .map((tokenAddress) => {
+              .map((tokenAddress: string) => {
                 const token = ERC20__factory.connect(tokenAddress, provider);
                 if (isZeroAddress(token.address)) return null;
                 return token.balanceOf(accountAddress);
               })
-              .filter((c) => c)
+              .filter((c: any) => c)
           )
         : [];
 
-      const userExercisableOptions = epochStrikes.map((strike, strikeIndex) => {
-        const strikePrice = getUserReadableAmount(strike, 8);
+      const userExercisableOptions = epochStrikes.map(
+        (
+          strike: string | number | BigNumber | BigNumber,
+          strikeIndex: string | number
+        ) => {
+          const strikePrice = getUserReadableAmount(strike, 8);
 
-        const purchasedAmount = getUserReadableAmount(
-          userEpochStrikeTokenBalanceArray[strikeIndex],
-          18
-        );
-        const settleableAmount =
-          userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
-        const isSettleable =
-          settleableAmount.gt(0) &&
-          ((isPut && settlementPrice.lt(strike)) ||
-            (!isPut && settlementPrice.gt(strike)));
-        const isPastEpoch = selectedEpoch < currentEpoch;
-        const pnlAmount = settlementPrice.isZero()
-          ? isPut
+          const purchasedAmount = getUserReadableAmount(
+            userEpochStrikeTokenBalanceArray[strikeIndex],
+            18
+          );
+          const settleableAmount =
+            userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
+          const isSettleable =
+            settleableAmount.gt(0) &&
+            ((isPut && settlementPrice.lt(strike)) ||
+              (!isPut && settlementPrice.gt(strike)));
+          // @ts-ignore TODO: FIX
+          const isPastEpoch = selectedEpoch < currentEpoch;
+          const pnlAmount = settlementPrice.isZero()
+            ? isPut
+              ? strike
+                  // @ts-ignore TODO: FIX
+                  .sub(tokenPrice)
+                  .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
+                  .mul(1e10)
+                  .div(ssovData?.lpPrice)
+              : tokenPrice
+                  .sub(strike)
+                  .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
+                  .div(tokenPrice)
+            : isPut
             ? strike
-                .sub(tokenPrice)
-                .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
+                // @ts-ignore TODO: FIX
+                .sub(settlementPrice)
+                .mul(settleableAmount)
                 .mul(1e10)
-                .div(ssovData.lpPrice)
-            : tokenPrice
+                .div(ssovData?.lpPrice)
+            : settlementPrice
                 .sub(strike)
                 .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
-                .div(tokenPrice)
-          : isPut
-          ? strike
-              .sub(settlementPrice)
-              .mul(settleableAmount)
-              .mul(1e10)
-              .div(ssovData.lpPrice)
-          : settlementPrice
-              .sub(strike)
-              .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
-              .div(settlementPrice);
+                .div(settlementPrice);
 
-        return {
-          strikeIndex,
-          strikePrice,
-          purchasedAmount,
-          settleableAmount,
-          pnlAmount,
-          isSettleable,
-          isPastEpoch,
-        };
-      });
+          return {
+            strikeIndex,
+            strikePrice,
+            purchasedAmount,
+            settleableAmount,
+            pnlAmount,
+            isSettleable,
+            isPastEpoch,
+          };
+        }
+      );
 
       setUserExercisableOptions(userExercisableOptions);
     })();
@@ -142,6 +153,7 @@ const ExerciseList = () => {
     provider,
   ]);
 
+  // @ts-ignore TODO: FIX
   return selectedEpoch > 0 ? (
     <Box className="bg-cod-gray w-full p-4 rounded-xl">
       <Box className="flex flex-row justify-between mb-1">
@@ -153,7 +165,7 @@ const ExerciseList = () => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
+        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
           {!accountAddress ? (
             <Box className="p-4 flex items-center justify-center">
               <WalletButton size="medium" />

@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useState, useContext, useCallback, useLayoutEffect } from 'react';
 import { useWindowSize } from 'react-use';
 import Head from 'next/head';

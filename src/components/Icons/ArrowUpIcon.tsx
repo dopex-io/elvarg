@@ -1,4 +1,4 @@
-const ArrowUpIcon = ({ className }) => (
+const ArrowUpIcon = ({ className }: any) => (
   <svg
     className={className}
     width="12"

@@ -20,11 +20,13 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const TableHeader = ({
+  // @ts-ignore TODO: FIX
   children,
   align = 'left',
   textColor = 'text-stieglitz',
 }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
@@ -38,12 +40,14 @@ const TableHeader = ({
 };
 
 const TableBodyCell = ({
+  // @ts-ignore TODO: FIX
   children,
   align = 'left',
   textColor = 'text-stieglitz',
   fill = 'bg-cod-gray',
 }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="td"
@@ -73,6 +77,7 @@ const LiveOrders = () => {
   }, []);
 
   useEffect(() => {
+    // @ts-ignore TODO: FIX
     setOpenTrades(openTradesData);
   }, [openTradesData]);
 
@@ -111,20 +116,27 @@ const LiveOrders = () => {
                 return (
                   <TableRow key={i}>
                     <TableBodyCell align="left" textColor="white">
+                      {/* @ts-ignore TODO: FIX */}
                       {row?.isBuy ? 'Buy' : 'Sell'}
                     </TableBodyCell>
                     <TableBodyCell align="left">
+                      {/* @ts-ignore TODO: FIX */}
                       {row.isBuy
-                        ? smartTrim(row.dealerBase?.symbol, 24)
-                        : smartTrim(row.dealerQuote?.symbol, 24)}
+                        ? // @ts-ignore TODO: FIX
+                          smartTrim(row.dealerBase?.symbol, 24)
+                        : // @ts-ignore TODO: FIX
+                          smartTrim(row.dealerQuote?.symbol, 24)}
                     </TableBodyCell>
                     <TableBodyCell align="center">
+                      {/* @ts-ignore TODO: FIX */}
                       {row.isBuy
                         ? getUserReadableAmount(
+                            // @ts-ignore TODO: FIX
                             row.dealerReceiveAmount,
                             6
                           ).toString()
                         : getUserReadableAmount(
+                            // @ts-ignore TODO: FIX
                             row.dealerSendAmount,
                             18
                           ).toString()}
@@ -135,18 +147,25 @@ const LiveOrders = () => {
                       fill="bg-umbra"
                     >
                       <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                        {/* @ts-ignore TODO: FIX */}
                         {row.isBuy
                           ? formatAmount(
                               getUserReadableAmount(
+                                // @ts-ignore TODO: FIX
                                 !row.isBuy
-                                  ? row.dealerReceiveAmount
-                                  : row.dealerSendAmount,
+                                  ? // @ts-ignore TODO: FIX
+                                    row.dealerReceiveAmount
+                                  : // @ts-ignore TODO: FIX
+                                    row.dealerSendAmount,
                                 18
                               ) /
                                 getUserReadableAmount(
+                                  // @ts-ignore TODO: FIX
                                   row.isBuy
-                                    ? row.dealerReceiveAmount
-                                    : row.dealerSendAmount,
+                                    ? // @ts-ignore TODO: FIX
+                                      row.dealerReceiveAmount
+                                    : // @ts-ignore TODO: FIX
+                                      row.dealerSendAmount,
                                   18
                                 ),
                               5
@@ -160,18 +179,25 @@ const LiveOrders = () => {
                       fill="bg-umbra"
                     >
                       <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
+                        {/* @ts-ignore TODO: FIX */}
                         {!row.isBuy
                           ? formatAmount(
                               getUserReadableAmount(
+                                // @ts-ignore TODO: FIX
                                 !row.isBuy
-                                  ? row.dealerReceiveAmount
-                                  : row.dealerSendAmount,
+                                  ? // @ts-ignore TODO: FIX
+                                    row.dealerReceiveAmount
+                                  : // @ts-ignore TODO: FIX
+                                    row.dealerSendAmount,
                                 18
                               ) /
                                 getUserReadableAmount(
+                                  // @ts-ignore TODO: FIX
                                   row.isBuy
-                                    ? row.dealerReceiveAmount
-                                    : row.dealerSendAmount,
+                                    ? // @ts-ignore TODO: FIX
+                                      row.dealerReceiveAmount
+                                    : // @ts-ignore TODO: FIX
+                                      row.dealerSendAmount,
                                   18
                                 ),
                               5
@@ -180,23 +206,41 @@ const LiveOrders = () => {
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell align="right">
-                      {row.isBuy
-                        ? row.dealerQuote?.symbol
-                        : row.dealerBase?.symbol}
+                      {
+                        // @ts-ignore TODO: FIX
+                        row.isBuy
+                          ? // @ts-ignore TODO: FIX
+                            row.dealerQuote?.symbol
+                          : // @ts-ignore TODO: FIX
+                            row.dealerBase?.symbol
+                      }
                     </TableBodyCell>
                     <TableBodyCell align="right">
                       {getUserReadableAmount(
+                        // @ts-ignore TODO: FIX
                         !row.isBuy
-                          ? row.dealerReceiveAmount
-                          : row.dealerSendAmount,
+                          ? // @ts-ignore TODO: FIX
+                            row.dealerReceiveAmount
+                          : // @ts-ignore TODO: FIX
+                            row.dealerSendAmount,
+                        // @ts-ignore TODO: FIX
                         row.isBuy ? 18 : 6
                       ).toString()}{' '}
-                      {row.isBuy
-                        ? row.dealerQuote?.symbol
-                        : row.dealerBase?.symbol}
+                      {
+                        // @ts-ignore TODO: FIX
+                        row.isBuy
+                          ? // @ts-ignore TODO: FIX
+                            row.dealerQuote?.symbol
+                          : // @ts-ignore TODO: FIX
+                            row.dealerBase?.symbol
+                      }
                     </TableBodyCell>
                     <TableBodyCell align="right">
-                      {smartTrim(row.dealer, 10)}
+                      {smartTrim(
+                        // @ts-ignore TODO: FIX
+                        row.dealer,
+                        10
+                      )}
                     </TableBodyCell>
                     <TableBodyCell align="right">
                       <Box className="flex justify-end">
@@ -207,6 +251,7 @@ const LiveOrders = () => {
                             setIndex(i);
                             setDialogState({
                               open: true,
+                              // @ts-ignore TODO: FIX
                               data: openTradesData[index],
                               handleClose,
                             });
@@ -218,6 +263,7 @@ const LiveOrders = () => {
                         <Settle
                           open={dialogState.open}
                           handleClose={handleClose}
+                          // @ts-ignore TODO: FIX
                           data={openTradesData[index]}
                         />
                       </Box>

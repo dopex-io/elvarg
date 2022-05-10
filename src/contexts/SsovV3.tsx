@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useCallback,
+  ReactNode,
 } from 'react';
 import {
   SsovV3__factory,
@@ -17,7 +18,6 @@ import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 
 import { WalletContext } from './Wallet';
-import { AssetsContext } from './Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -83,10 +83,7 @@ const initialSsovV3UserData = {
   writePositions: [],
 };
 
-const initialSsovV3Signer = {
-  token: null,
-  ssovContractWithSigner: null,
-};
+const initialSsovV3Signer = {};
 
 export const SsovV3Context = createContext<SsovV3ContextInterface>({
   ssovUserData: initialSsovV3UserData,
@@ -94,10 +91,9 @@ export const SsovV3Context = createContext<SsovV3ContextInterface>({
   selectedSsovV3: '',
 });
 
-export const SsovV3Provider = (props) => {
+export const SsovV3Provider = (props: { children: ReactNode }) => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
-  const { tokenPrices } = useContext(AssetsContext);
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsovV3, setSelectedSsovV3] = useState<string>('');
@@ -106,6 +102,7 @@ export const SsovV3Provider = (props) => {
   const [ssovEpochData, setSsovV3EpochData] = useState<SsovV3EpochData>();
   const [ssovUserData, setSsovV3UserData] = useState<SsovV3UserData>();
   const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({
+    // @ts-ignore TODO: FIX
     ssovContractWithSigner: null,
   });
 
@@ -147,14 +144,15 @@ export const SsovV3Provider = (props) => {
     );
 
     setSsovV3UserData({
+      // @ts-ignore TODO: FIX
       writePositions: data.map((o, i) => {
         return {
           tokenId: writePositions[i],
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
-          accruedRewards: moreData[i].rewardTokenWithdrawAmounts,
-          accruedPremiums: moreData[i].collateralTokenWithdrawAmount.sub(
+          accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts,
+          accruedPremiums: moreData[i]?.collateralTokenWithdrawAmount.sub(
             o.collateralAmount
           ),
         };
@@ -318,6 +316,7 @@ export const SsovV3Provider = (props) => {
         console.log(err);
       }
 
+      // @ts-ignore TODO: FIX
       setSsovV3Data(_ssovData);
     }
 
@@ -367,6 +366,7 @@ export const SsovV3Provider = (props) => {
   };
 
   return (
+    // @ts-ignore TODO: FIX
     <SsovV3Context.Provider value={contextValue}>
       {props.children}
     </SsovV3Context.Provider>

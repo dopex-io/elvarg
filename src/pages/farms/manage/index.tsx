@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { ERC20__factory, StakingRewards__factory } from '@dopex-io/sdk';

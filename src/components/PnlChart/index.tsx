@@ -59,6 +59,7 @@ const PnlChart = (props: PnlChartProps) => {
       .sort((a, b) => a.price - b.price);
   }, [breakEven, price, isPut, optionPrice, amount]);
 
+  // @ts-ignore TODO: FIX
   const handleOnMouseMove = useCallback(({ activePayload }) => {
     if (!activePayload?.length) return;
     const { payload } = activePayload[0];
@@ -82,6 +83,7 @@ const PnlChart = (props: PnlChartProps) => {
           width={300}
           height={100}
           data={data}
+          // @ts-ignore TODO: FIX
           onMouseMove={handleOnMouseMove}
           onMouseLeave={handleMouseLeave}
         >

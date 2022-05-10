@@ -55,6 +55,7 @@ const Claim = ({ open, handleClose, data }: Props) => {
     try {
       const stakingRewardsContract = StakingRewards__factory.connect(
         data.token.stakingRewardsContractAddress,
+        // @ts-ignore TODO: FIX
         signer
       );
 
@@ -83,12 +84,14 @@ const Claim = ({ open, handleClose, data }: Props) => {
       <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2 flex flex-col space-y-4 mb-4">
         <BalanceItem
           token="DPX"
+          // @ts-ignore TODO: FIX
           balance={userRewardDPX}
           iconSrc="/assets/dpx.svg"
           iconAlt="DPX"
         />
         <BalanceItem
           token="RDPX"
+          // @ts-ignore TODO: FIX
           balance={userRewardRDPX}
           iconSrc="/assets/rdpx.svg"
           iconAlt="rDPX"

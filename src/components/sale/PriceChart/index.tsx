@@ -6,7 +6,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const PriceChart = ({ maxPrice }) => {
+const PriceChart = ({ maxPrice }: any) => {
   const chartDataStep = Number(maxPrice) / 5;
 
   const data = [0, 1, 2, 3, 4, 5].map((n) => {
