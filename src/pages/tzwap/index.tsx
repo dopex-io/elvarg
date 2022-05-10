@@ -344,7 +344,7 @@ const Tzwap = () => {
                     getTokenDecimals(fromTokenName, chainId)
                   )
                 : 0,
-            gasLimit: 1000000,
+            gasLimit: 2500000,
           }
         )
       );
