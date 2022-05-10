@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 import cx from 'classnames';
+import Link from 'next/link';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
@@ -39,7 +39,7 @@ const AppLink = ({
   className?: string;
 }) => {
   const linkClassName = cx(
-    'hover:no-underline hover:text-white capitalize',
+    'hover:no-underline hover:text-white capitalize cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
   if (to.startsWith('http')) {
@@ -55,8 +55,8 @@ const AppLink = ({
     );
   } else {
     return (
-      <Link to={to} className={linkClassName}>
-        {name}
+      <Link href={to} passHref>
+        <Box className={linkClassName}>{name}</Box>
       </Link>
     );
   }

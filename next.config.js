@@ -6,8 +6,8 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: '/ssov/v3/call/ETH',
-        destination: '/ssov-v3/ETH-WEEKLY-CALLS-SSOV-V3',
+        source: '/',
+        destination: '/ssov',
         permanent: false,
       },
     ];
