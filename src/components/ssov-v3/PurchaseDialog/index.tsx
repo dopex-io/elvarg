@@ -165,20 +165,16 @@ const PurchaseDialog = ({
           await ssovContract.getVolatility(strike)
         ).toNumber();
 
-        const ssovOptionPricingContract = SSOVOptionPricing__factory.connect(
-          '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
-          provider
-        );
-
         const expiry = ssovEpochData.epochTimes[1].toNumber();
 
-        const optionPrice = await ssovOptionPricingContract.getOptionPrice(
-          isPut,
-          expiry,
-          strike,
-          tokenPrice,
-          volatility
-        );
+        const optionPrice =
+          await ssovData.ssovOptionPricingContract.getOptionPrice(
+            isPut,
+            expiry,
+            strike,
+            tokenPrice,
+            volatility
+          );
 
         let premium = optionPrice
           .mul(getContractReadableAmount(optionsAmount, 18))

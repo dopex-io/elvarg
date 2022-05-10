@@ -95,7 +95,7 @@ export const SsovV3Context = createContext<SsovV3ContextInterface>({
 });
 
 export const SsovV3Provider = (props) => {
-  const { accountAddress, contractAddresses, provider, signer } =
+  const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
 
@@ -308,7 +308,9 @@ export const SsovV3Provider = (props) => {
           // TODO: FIX
           lpPrice: ethers.utils.parseEther('1'),
           ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
-            '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
+            chainId === 1088
+              ? '0xeec2be5c91ae7f8a338e1e5f3b5de49d07afdc81'
+              : '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
             provider
           ),
         };
@@ -320,7 +322,7 @@ export const SsovV3Provider = (props) => {
     }
 
     update();
-  }, [contractAddresses, provider, selectedSsovV3]);
+  }, [contractAddresses, provider, selectedSsovV3, chainId]);
 
   useEffect(() => {
     if (!contractAddresses || !signer || !selectedSsovV3) return;
