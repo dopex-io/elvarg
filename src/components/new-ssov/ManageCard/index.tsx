@@ -252,7 +252,6 @@ const ManageCard = ({
     ssovData,
     ssovRouter,
     ssovTokenName,
-    depositTokenName,
   ]);
 
   const quotePrice: number = useMemo(() => {
@@ -436,11 +435,11 @@ const ManageCard = ({
     spender,
     ssovToken?.address,
     ssovTokenName,
-    denominationTokenName,
-    ssovTokenName,
     totalDepositAmount,
     quotePrice,
     depositTokenName,
+    contractAddresses,
+    denominationTokenName,
   ]);
 
   const inputStrikeDepositAmount = useCallback(
@@ -476,14 +475,7 @@ const ManageCard = ({
     } catch (err) {
       console.log(err);
     }
-  }, [
-    sendTx,
-    signer,
-    spender,
-    contractAddresses,
-    activeSsovContextSide,
-    depositTokenName,
-  ]);
+  }, [sendTx, signer, spender, contractAddresses, depositTokenName]);
 
   const handlePutDeposit = useCallback(async () => {
     try {
@@ -565,7 +557,7 @@ const ManageCard = ({
       setDepositTokenName(
         activeSsovContextSide === 'PUT' ? '2CRV' : ssovTokenName
       ),
-    [ssovTokenName, activeSsovContextSide === 'PUT']
+    [ssovTokenName, activeSsovContextSide]
   );
 
   // Handle Deposit
@@ -816,12 +808,12 @@ const ManageCard = ({
     approved,
     totalDepositAmount,
     contractAddresses,
-    depositTokenName,
     activeSsovContextSide,
     spender,
     signer,
     ssovTokenName,
     chainId,
+    provider,
   ]);
 
   // Updates user token balance
@@ -846,7 +838,15 @@ const ManageCard = ({
 
       setUserTokenBalance(userAmount);
     })();
-  }, [accountAddress, depositTokenName, userAssetBalances, ssovTokenName]);
+  }, [
+    accountAddress,
+    depositTokenName,
+    userAssetBalances,
+    ssovTokenName,
+    contractAddresses,
+    provider,
+    signer,
+  ]);
 
   const userBalance = useMemo(() => {
     {

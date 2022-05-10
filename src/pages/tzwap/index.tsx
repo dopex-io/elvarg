@@ -46,7 +46,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
-import { Order } from '../../interfaces/tzwap/interfaces';
+import { Order } from '../../types/tzwap';
 
 import styles from './styles.module.scss';
 

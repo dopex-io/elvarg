@@ -18,7 +18,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
-import { Data, UserData } from 'interfaces/interfaces';
+import { Data, UserData } from 'types/diamondpepes';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';

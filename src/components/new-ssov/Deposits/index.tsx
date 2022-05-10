@@ -6,14 +6,13 @@ import {
   Dispatch,
   SetStateAction,
 } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import delay from 'lodash/delay';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Countdown from 'react-countdown';
 import TableHead from '@mui/material/TableHead';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
@@ -21,7 +20,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import Checkbox from '@mui/material/Checkbox';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
@@ -30,12 +28,7 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import CustomButton from 'components/UI/CustomButton';
 import Withdraw from '../Dialogs/Withdraw';
 
-import {
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-  SsovContext,
-} from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 import { WalletContext } from 'contexts/Wallet';
@@ -46,7 +39,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import styles from './styles.module.scss';
 
@@ -81,7 +73,6 @@ const DepositsTableData = (
     price,
     epochTime,
     epochEndTime,
-    imgSrc,
     tokenName,
     setIsWithdrawModalVisible,
     activeContextSide,
@@ -91,7 +82,7 @@ const DepositsTableData = (
 
   const isWithdrawalEnabled: boolean = useMemo(() => {
     return new Date() > epochEndTime && totalUserDeposits > 0;
-  }, [epochEndTime]);
+  }, [epochEndTime, totalUserDeposits]);
 
   return (
     <TableRow className="text-white mb-2 rounded-lg mt-2">
@@ -186,12 +177,13 @@ const DepositsTableData = (
           ) : (
             <Countdown
               date={epochEndTime}
-              renderer={({ days, hours, minutes, seconds }) => {
+              renderer={({ days, hours, minutes }) => {
                 return (
                   <Box className={'flex'}>
                     <img
                       src={'/assets/timer.svg'}
                       className={'h-[1rem] mt-1 mr-2 ml-1'}
+                      alt={'Timer'}
                     />
                     <Typography
                       variant="h5"
@@ -223,8 +215,7 @@ const Deposits = ({
 }) => {
   const ssovContext = useContext(SsovContext);
   const { convertToBNB } = useContext(BnbConversionContext);
-  const { accountAddress, changeWallet, disconnect, chainId, ensName } =
-    useContext(WalletContext);
+  const { accountAddress, ensName } = useContext(WalletContext);
 
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] =
     useState<boolean>(false);
@@ -267,14 +258,6 @@ const Deposits = ({
     () => getUserReadableAmount(tokenPrice ?? 0, 8),
     [tokenPrice]
   );
-
-  const [copyState, setCopyState] = useState('Copy Address');
-
-  const copyToClipboard = () => {
-    setCopyState('Copied');
-    delay(() => setCopyState('Copy Address'), 500);
-    navigator.clipboard.writeText(accountAddress);
-  };
 
   const deposits: any[] = useMemo(
     () =>
@@ -326,10 +309,8 @@ const Deposits = ({
       epochStrikes,
       totalEpochStrikeDeposits,
       userEpochStrikeDeposits,
-      totalEpochOptionsPurchased,
       totalEpochPremium,
       tokenName,
-      convertToBNB,
     ]
   );
 

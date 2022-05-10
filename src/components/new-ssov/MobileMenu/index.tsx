@@ -1,5 +1,4 @@
 import { useContext, useCallback, useMemo } from 'react';
-import { Addresses } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -12,9 +11,6 @@ import CircleIcon from 'components/Icons/CircleIcon';
 import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 
-import displayAddress from 'utils/general/displayAddress';
-import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
-import getExplorerUrl from 'utils/general/getExplorerUrl';
 import getFormattedDate from 'utils/date/getFormattedDate';
 
 import styles from './styles.module.scss';
@@ -94,7 +90,7 @@ const MobileMenu = ({
             </Select>
           </Box>
           <Button className={styles.button}>
-            <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
+            <img src={'/assets/lock.svg'} className={'mr-3'} alt={'Lock'} />{' '}
             {ssovContext[activeSsovContextSide].ssovEpochData.isVaultReady
               ? 'Vault closed'
               : 'Vault open'}
@@ -179,11 +175,13 @@ const MobileMenu = ({
               ? 'w-5 h-4 mt-0.5 mr-3'
               : 'w-5 h-4 mt-0.5 mr-3 hidden group-hover:block'
           }
+          alt={'Magic stars'}
         />
         {activeView !== 'vault' ? (
           <img
             src={'/assets/magicstars-disabled.svg'}
             className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            alt={'Magic stars disabled'}
           />
         ) : null}
         <Typography
@@ -212,11 +210,13 @@ const MobileMenu = ({
               ? 'w-5 h-4 mt-0.5 mr-3'
               : 'w-5 h-4 mt-0.5 mr-3 hidden group-hover:block'
           }
+          alt={'Stars'}
         />
         {activeView !== 'positions' ? (
           <img
             src={'/assets/stars-disabled.svg'}
             className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            alt={'Stars'}
           />
         ) : null}
         <Typography

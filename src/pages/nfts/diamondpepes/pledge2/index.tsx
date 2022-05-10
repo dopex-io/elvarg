@@ -14,11 +14,7 @@ import AppBar from 'components/AppBar';
 
 import Pledge2Dialog from 'components/nfts/diamondpepes/Pledge2Dialog';
 
-import {
-  Data,
-  UserData,
-  initialData,
-} from '../../../../interfaces/diamondpepes/interfaces';
+import { Data, UserData, initialData } from 'types/diamondpepes';
 
 import { WalletContext } from 'contexts/Wallet';
 import { NftsProvider } from 'contexts/Nfts';
@@ -26,7 +22,7 @@ import { NftsProvider } from 'contexts/Nfts';
 import styles from 'components/nfts/diamondpepes/Pledge2Dialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, contractAddresses, provider, signer, chainId } =
+  const { accountAddress, provider, signer, chainId } =
     useContext(WalletContext);
   const [data, setData] = useState<Data>(initialData.data);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -39,7 +35,7 @@ const DiamondPepesNfts = () => {
         Addresses[chainId]['NFTS']['DiamondPepesNFT'],
         signer
       ),
-    [signer]
+    [signer, chainId]
   );
   const pledge = useMemo(
     () =>
@@ -79,15 +75,7 @@ const DiamondPepesNfts = () => {
 
     setTotalUserPledged(userTotal);
     setIsLoading(false);
-  }, [
-    signer,
-    accountAddress,
-    diamondPepeNfts,
-    provider,
-    pledge,
-    setTotalUserPledged,
-    totalPledged,
-  ]);
+  }, [accountAddress, diamondPepeNfts, provider, pledge, setTotalUserPledged]);
 
   useEffect(() => {
     updateData();
@@ -145,6 +133,7 @@ const DiamondPepesNfts = () => {
             <img
               src={'/assets/diamondpepes.svg'}
               className="ml-auto mr-auto z-1 relative md:w-auto w-60"
+              alt={'Diamond Pepes'}
             />
           </Box>
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">

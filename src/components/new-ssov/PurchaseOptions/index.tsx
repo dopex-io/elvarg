@@ -11,7 +11,6 @@ import { BigNumber, ethers } from 'ethers';
 import delay from 'lodash/delay';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
-import Countdown from 'react-countdown';
 import TableHead from '@mui/material/TableHead';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -21,37 +20,23 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import Checkbox from '@mui/material/Checkbox';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
-import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import {
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-  SsovContext,
-} from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 import { WalletContext } from 'contexts/Wallet';
 
-import { SSOV_MAP } from 'constants/index';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-import displayAddress from 'utils/general/displayAddress';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import styles from './styles.module.scss';
-
-const YEAR_SECONDS = 31536000;
 
 const PurchaseOptions = ({
   activeSsovContextSide,
@@ -67,147 +52,101 @@ const PurchaseOptions = ({
     useState<Boolean>(false);
   const ssovContext = useContext(SsovContext);
   const { convertToBNB } = useContext(BnbConversionContext);
-  const { accountAddress, changeWallet, disconnect, chainId, ensName } =
-    useContext(WalletContext);
+  const { accountAddress, chainId } = useContext(WalletContext);
   const [updated, setUpdated] = useState<boolean>(false);
   const { tokenPrice, tokenName } = ssovContext[activeSsovContextSide].ssovData;
-  const {
-    epochTimes,
-    epochStrikes,
-    totalEpochPremium,
-    totalEpochStrikeDeposits,
-    totalEpochOptionsPurchased,
-    isVaultReady,
-  } = ssovContext[activeSsovContextSide].ssovEpochData;
-
-  const { userEpochStrikeDeposits } =
-    ssovContext[activeSsovContextSide].ssovUserData;
-
-  const epochTime: number = useMemo(() => {
-    return epochTimes && epochTimes[0] && epochTimes[1]
-      ? (epochTimes[1] as BigNumber).sub(epochTimes[0] as BigNumber).toNumber()
-      : 0;
-  }, [epochTimes]);
-
-  const epochEndTime: Date = useMemo(() => {
-    return new Date(
-      ssovContext[
-        activeSsovContextSide
-      ].ssovEpochData.epochTimes[1].toNumber() * 1000
-    );
-  }, [ssovContext, activeSsovContextSide]);
-
-  const [page, setPage] = useState(0);
-
-  const handleChangePage = useCallback(
-    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-      setPage(newPage);
-    },
-    [setPage]
-  );
-
-  const price = useMemo(
-    () => getUserReadableAmount(tokenPrice ?? 0, 8),
-    [tokenPrice]
-  );
-
-  const [copyState, setCopyState] = useState('Copy Address');
+  const { epochStrikes, isVaultReady } =
+    ssovContext[activeSsovContextSide].ssovEpochData;
 
   const [purchaseOptions, setPurchaseOptions] = useState({ CALL: [], PUT: [] });
 
-  const copyToClipboard = () => {
-    setCopyState('Copied');
-    delay(() => setCopyState('Copy Address'), 500);
-    navigator.clipboard.writeText(accountAddress);
-  };
-
-  const getPurchaseOptions = async (i, ssovContextSide) => {
-    if (!ssovContext[ssovContextSide].ssovEpochData) return;
-
-    const strike = ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
-
-    let totalEpochStrikeDeposits =
-      ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[i];
-
-    if (tokenName === 'BNB')
-      totalEpochStrikeDeposits = BigNumber.from(
-        (convertToBNB(totalEpochStrikeDeposits) * 10 ** 18).toString()
-      );
-
-    let available: number =
-      ssovContextSide === 'CALL'
-        ? getUserReadableAmount(
-            totalEpochStrikeDeposits.sub(
-              ssovContext[ssovContextSide].ssovEpochData
-                .totalEpochOptionsPurchased[i]
-            ),
-            getTokenDecimals(
-              ssovContext[ssovContextSide].selectedSsov.token,
-              chainId
-            )
-          )
-        : getUserReadableAmount(
-            totalEpochStrikeDeposits.sub(
-              ssovContext[ssovContextSide].ssovEpochData
-                .totalEpochOptionsPurchased[i]
-            ),
-            getTokenDecimals(
-              ssovContext[ssovContextSide].selectedSsov.token,
-              chainId
-            )
-          ) / getUserReadableAmount(tokenPrice, 8);
-
-    const expiry = await ssovContext[
-      ssovContextSide
-    ].ssovSigner.ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
-      Math.floor(Date.now() / 1000)
-    );
-
-    let volatility;
-
-    if (ssovContextSide === 'PUT') {
-      volatility = await ssovContext[
-        ssovContextSide
-      ].ssovData.ssovContract.getVolatility(strike);
-    } else if (ssovContext[ssovContextSide].selectedSsov.token === 'ETH') {
-      const _abi = ['function getVolatility(uint256) view returns (uint256)'];
-      const _temp = new ethers.Contract(
-        '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
-        _abi,
-        provider
-      );
-
-      try {
-        volatility = await _temp.getVolatility(strike);
-      } catch (err) {
-        volatility = BigNumber.from('0');
-      }
-    } else {
-      volatility = await ssovContext[
-        ssovContextSide
-      ].ssovData.volatilityOracleContract.getVolatility();
-    }
-
-    const price = await ssovContext[
-      ssovContextSide
-    ].ssovData.ssovOptionPricingContract.getOptionPrice(
-      ssovContextSide === 'PUT',
-      expiry,
-      strike,
-      tokenPrice,
-      volatility
-    );
-
-    return {
-      available: Math.max(0, available),
-      strike: getUserReadableAmount(strike, 8),
-      volatility: volatility,
-      price: getUserReadableAmount(price, 8),
-      side: ssovContextSide,
-    };
-  };
-
   useEffect(() => {
+    const getPurchaseOptions = async (i, ssovContextSide) => {
+      if (!ssovContext[ssovContextSide].ssovEpochData) return;
+
+      const strike = ssovContext[ssovContextSide].ssovEpochData.epochStrikes[i];
+
+      let totalEpochStrikeDeposits =
+        ssovContext[ssovContextSide].ssovEpochData.totalEpochStrikeDeposits[i];
+
+      if (tokenName === 'BNB')
+        totalEpochStrikeDeposits = BigNumber.from(
+          (convertToBNB(totalEpochStrikeDeposits) * 10 ** 18).toString()
+        );
+
+      let available: number =
+        ssovContextSide === 'CALL'
+          ? getUserReadableAmount(
+              totalEpochStrikeDeposits.sub(
+                ssovContext[ssovContextSide].ssovEpochData
+                  .totalEpochOptionsPurchased[i]
+              ),
+              getTokenDecimals(
+                ssovContext[ssovContextSide].selectedSsov.token,
+                chainId
+              )
+            )
+          : getUserReadableAmount(
+              totalEpochStrikeDeposits.sub(
+                ssovContext[ssovContextSide].ssovEpochData
+                  .totalEpochOptionsPurchased[i]
+              ),
+              getTokenDecimals(
+                ssovContext[ssovContextSide].selectedSsov.token,
+                chainId
+              )
+            ) / getUserReadableAmount(tokenPrice, 8);
+
+      const expiry = await ssovContext[
+        ssovContextSide
+      ].ssovSigner.ssovContractWithSigner.getMonthlyExpiryFromTimestamp(
+        Math.floor(Date.now() / 1000)
+      );
+
+      let volatility;
+
+      if (ssovContextSide === 'PUT') {
+        volatility = await ssovContext[
+          ssovContextSide
+        ].ssovData.ssovContract.getVolatility(strike);
+      } else if (ssovContext[ssovContextSide].selectedSsov.token === 'ETH') {
+        const _abi = ['function getVolatility(uint256) view returns (uint256)'];
+        const _temp = new ethers.Contract(
+          '0x87209686d0f085fD35B084410B99241Dbc03fb4f',
+          _abi,
+          provider
+        );
+
+        try {
+          volatility = await _temp.getVolatility(strike);
+        } catch (err) {
+          volatility = BigNumber.from('0');
+        }
+      } else {
+        volatility = await ssovContext[
+          ssovContextSide
+        ].ssovData.volatilityOracleContract.getVolatility();
+      }
+
+      const price = await ssovContext[
+        ssovContextSide
+      ].ssovData.ssovOptionPricingContract.getOptionPrice(
+        ssovContextSide === 'PUT',
+        expiry,
+        strike,
+        tokenPrice,
+        volatility
+      );
+
+      return {
+        available: Math.max(0, available),
+        strike: getUserReadableAmount(strike, 8),
+        volatility: volatility,
+        price: getUserReadableAmount(price, 8),
+        side: ssovContextSide,
+      };
+    };
+
     async function updatePurchaseOptions() {
       setIsPurchaseStatsLoading(true);
       const options = {
@@ -232,7 +171,15 @@ const PurchaseOptions = ({
     }
 
     if (updated === false) updatePurchaseOptions();
-  }, [ssovContext, updated]);
+  }, [
+    ssovContext,
+    updated,
+    chainId,
+    convertToBNB,
+    provider,
+    tokenName,
+    tokenPrice,
+  ]);
 
   return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
