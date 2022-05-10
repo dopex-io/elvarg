@@ -861,6 +861,7 @@ const PurchaseDialog = ({
     })();
   }, [
     accountAddress,
+    userAssetBalances,
     state.totalCost,
     isPut,
     provider,

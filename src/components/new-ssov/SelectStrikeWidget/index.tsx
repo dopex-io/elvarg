@@ -31,6 +31,7 @@ const SelectStrikeWidget = () => {
       <img
         src={'/assets/buy-example.svg'}
         className={'w-24 h-14 mt-10 mx-auto'}
+        alt={'Buy'}
       />
       <Typography variant="h5" className="mt-7">
         Start by selecting a strike price

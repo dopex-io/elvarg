@@ -19,7 +19,6 @@ import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
-import Slide from '@mui/material/Slide';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
@@ -50,14 +49,9 @@ import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
-import {
-  SsovContext,
-  SsovData,
-  SsovUserData,
-  SsovEpochData,
-} from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 
-import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
+import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
 import styles from './styles.module.scss';
 import { BnbConversionContext } from 'contexts/BnbConversion';
@@ -75,7 +69,7 @@ const PurchaseCard = ({
   setStrikeIndex,
 }: Props) => {
   const ssovContext = useContext(SsovContext);
-  const { updateSsovEpochData, updateSsovUserData, selectedSsov, ssovSigner } =
+  const { updateSsovEpochData, updateSsovUserData, ssovSigner } =
     ssovContext[activeSsovContextSide];
 
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
@@ -144,7 +138,7 @@ const PurchaseCard = ({
 
   const ssovTokenName = useMemo(
     () => ssovContext[activeSsovContextSide].ssovData.tokenName,
-    [ssovContext]
+    [ssovContext, activeSsovContextSide]
   );
 
   const [purchaseTokenName, setPurchaseTokenName] = useState<string>(
@@ -848,7 +842,7 @@ const PurchaseCard = ({
     volatilityOracleContract,
     tokenPrice,
     provider,
-    activeSsovContextSide === 'PUT',
+    activeSsovContextSide,
     ssovContext,
     ssovTokenName,
     isZapActive,
@@ -903,9 +897,10 @@ const PurchaseCard = ({
       }
     })();
   }, [
+    activeSsovContextSide,
+    userAssetBalances,
     accountAddress,
     state.totalCost,
-    activeSsovContextSide === 'PUT',
     provider,
     spender,
     contractAddresses,
@@ -917,7 +912,7 @@ const PurchaseCard = ({
       setPurchaseTokenName(
         activeSsovContextSide === 'PUT' ? '2CRV' : ssovTokenName
       );
-  }, [activeSsovContextSide, ssovTokenName]);
+  }, [activeSsovContextSide, ssovTokenName, rawOptionsAmount]);
 
   useEffect(() => {
     getPath();
@@ -992,7 +987,7 @@ const PurchaseCard = ({
       setPurchaseTokenName(
         activeSsovContextSide === 'PUT' ? '2CRV' : ssovTokenName
       ),
-    [ssovTokenName, activeSsovContextSide === 'PUT']
+    [ssovTokenName, activeSsovContextSide, setPurchaseTokenName]
   );
 
   return (

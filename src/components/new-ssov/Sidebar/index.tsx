@@ -94,7 +94,7 @@ const Sidebar = ({
             </Select>
           </Box>
           <Button className={styles.button}>
-            <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
+            <img src={'/assets/lock.svg'} className={'mr-3'} alt={'Lock'} />{' '}
             {ssovContext[activeSsovContextSide].ssovEpochData.isVaultReady
               ? 'Vault closed'
               : 'Vault open'}
@@ -179,11 +179,13 @@ const Sidebar = ({
               ? 'w-5 h-4 mt-0.5 mr-3'
               : 'w-5 h-4 mt-0.5 mr-3 hidden group-hover:block'
           }
+          alt={'Magic stars'}
         />
         {activeView !== 'vault' ? (
           <img
             src={'/assets/magicstars-disabled.svg'}
             className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            alt={'Magic stars'}
           />
         ) : null}
         <Typography
@@ -212,11 +214,13 @@ const Sidebar = ({
               ? 'w-5 h-4 mt-0.5 mr-3'
               : 'w-5 h-4 mt-0.5 mr-3 hidden group-hover:block'
           }
+          alt={'Stars'}
         />
         {activeView !== 'positions' ? (
           <img
             src={'/assets/stars-disabled.svg'}
             className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            alt={'Stars'}
           />
         ) : null}
         <Typography
@@ -236,7 +240,11 @@ const Sidebar = ({
         </Typography>
       </Box>
       <Box className={`bg-umbra rounded-md relative`}>
-        <img src={getExtendedLogoFromChainId(chainId)} className={'h-11 p-1'} />
+        <img
+          src={getExtendedLogoFromChainId(chainId)}
+          className={'h-11 p-1'}
+          alt={'Chain'}
+        />
         <Box
           className={
             'absolute right-[10px] top-[8px] bg-mineshaft p-2 pt-1 pb-1 rounded-md'
