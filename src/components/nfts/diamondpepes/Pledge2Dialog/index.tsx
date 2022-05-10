@@ -20,7 +20,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
-import { Data, UserData } from 'interfaces/interfaces';
+import { Data, UserData } from 'types/diamondpepes';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
@@ -73,7 +73,7 @@ const Pledge2Dialog = ({
         Addresses[chainId]['NFTS']['DiamondPepesNFT'],
         signer
       ),
-    [signer]
+    [signer, chainId]
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
@@ -145,7 +145,7 @@ const Pledge2Dialog = ({
 
     setUserNfts(_nfts);
     setUserPledgedNfts(_pledgedNfts);
-  }, [pledge, diamondPepeNfts, accountAddress]);
+  }, [pledge, diamondPepeNfts, accountAddress, signer]);
 
   const [activeTab, setActiveTab] = useState<string>('pledge');
 
@@ -182,7 +182,6 @@ const Pledge2Dialog = ({
     updateData,
     updateUserData,
     getNfts,
-    userNfts,
   ]);
 
   const handleApprove = useCallback(async () => {

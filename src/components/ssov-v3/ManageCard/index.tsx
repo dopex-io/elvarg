@@ -179,7 +179,7 @@ const ManageCard = () => {
               variant="h6"
               className="text-white ml-auto mr-0 text-[0.72rem]"
             >
-              {getUserReadableAmount(userTokenBalance, 18)}{' '}
+              {formatAmount(getUserReadableAmount(userTokenBalance, 18), 8)}{' '}
               {ssovData.collateralSymbol}
             </Typography>
           </Box>
@@ -221,7 +221,7 @@ const ManageCard = () => {
               </Typography>
               <Input
                 disableUnderline={true}
-                name="address"
+                name="number"
                 className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
                 classes={{ input: 'text-white text-xs text-right' }}
                 value={strikeDepositAmount}

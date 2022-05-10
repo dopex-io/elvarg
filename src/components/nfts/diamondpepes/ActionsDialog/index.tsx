@@ -10,7 +10,7 @@ import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 
 import BigCrossIcon from 'components/Icons/BigCrossIcon';
 
-import { Data, UserData } from 'interfaces/diamondpepes/interfaces';
+import { Data, UserData } from 'types/diamondpepes';
 
 import { WalletContext } from 'contexts/Wallet';
 

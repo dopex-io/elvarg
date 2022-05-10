@@ -46,7 +46,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
-import { Order } from '../../interfaces/tzwap/interfaces';
+import { Order } from '../../types/tzwap';
 
 import styles from './styles.module.scss';
 
@@ -344,7 +344,7 @@ const Tzwap = () => {
                     getTokenDecimals(fromTokenName, chainId)
                   )
                 : 0,
-            gasLimit: 1000000,
+            gasLimit: chainId === 1 ? 700000 : 1700000,
           }
         )
       );

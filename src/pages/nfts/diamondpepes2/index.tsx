@@ -1,41 +1,19 @@
 import { useState } from 'react';
-import Countdown from 'react-countdown';
 import Head from 'next/head';
 
 import Box from '@mui/material/Box';
 
-import ActionsDialog from 'components/nfts/diamondpepes-2/ActionsDialog';
+import ActionsDialog from 'components/nfts/diamondpepes2/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import styles from 'components/nfts/diamondpepes-2/styles.module.scss';
+import styles from 'components/nfts/diamondpepes2/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
     visible: false,
     tab: 'mint',
   });
-
-  const timeRemaining = (
-    <Countdown
-      date={new Date(1652378100 * 1000)}
-      renderer={({ days, hours, minutes, seconds, completed }) => {
-        if (days < 1 && hours < 1) {
-          return (
-            <span>
-              {minutes}m {seconds}s
-            </span>
-          );
-        } else {
-          return (
-            <span>
-              {days}d {hours}h {minutes}m {seconds}s
-            </span>
-          );
-        }
-      }}
-    />
-  );
 
   const boxes = [
     { title: '-', subTitle: 'PEPES REMAINING' },
@@ -65,7 +43,7 @@ const DiamondPepesNfts = () => {
             <img
               src={'/assets/pepe-2-logo.png'}
               className="ml-auto mr-auto z-1 relative md:w-auto w-60"
-              alt="logo"
+              alt="Pepe"
             />
           </Box>
           <Box className="mt-6 md:mt-2 max-w-4xl mx-auto">
@@ -101,6 +79,7 @@ const DiamondPepesNfts = () => {
           <img
             src={'/assets/pepe-line.png'}
             className="ml-auto mr-auto mt-8 mb-8"
+            alt={''}
           />
           <Box className="flex">
             <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[7rem]">
@@ -119,10 +98,12 @@ const DiamondPepesNfts = () => {
               <img
                 src={'/assets/pepe-header-1.png'}
                 className="w-40 ml-auto mr-auto"
+                alt={'Pepe'}
               />
               <img
                 src={'/assets/pledge-pepe-button.png'}
                 className="w-48 z-50 mt-12 ml-auto mr-auto cursor-pointr"
+                alt={'Pepe Button'}
               />
               <Typography
                 variant="h4"
@@ -136,7 +117,11 @@ const DiamondPepesNfts = () => {
               </Typography>
 
               <Box className={'flex mt-6'}>
-                <img src={'/assets/export.svg'} className={'w-5 ml-auto'} />
+                <img
+                  src={'/assets/export.svg'}
+                  className={'w-5 ml-auto'}
+                  alt={'Export'}
+                />
                 <Typography
                   variant="h5"
                   className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
@@ -149,10 +134,12 @@ const DiamondPepesNfts = () => {
               <img
                 src={'/assets/hand-pepe.png'}
                 className="w-32 ml-auto mr-auto"
+                alt={'Pepe'}
               />
               <img
                 src={'/assets/reveal-pepe-button.png'}
                 className="w-60 z-50 mt-12 ml-auto mr-auto cursor-pointer"
+                alt={'Reveal Pepe'}
               />
               <Typography
                 variant="h4"
@@ -166,7 +153,11 @@ const DiamondPepesNfts = () => {
               </Typography>
 
               <Box className={'flex mt-6'}>
-                <img src={'/assets/export.svg'} className={'w-4 ml-auto'} />
+                <img
+                  src={'/assets/export.svg'}
+                  className={'w-4 ml-auto'}
+                  alt={'Export'}
+                />
                 <Typography
                   variant="h5"
                   className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
@@ -177,6 +168,7 @@ const DiamondPepesNfts = () => {
                 <img
                   src={'/assets/pepe-tweet.png'}
                   className={'w-6 h-5 ml-auto'}
+                  alt={'Pepe tweet'}
                 />
                 <Typography
                   variant="h5"
@@ -188,6 +180,7 @@ const DiamondPepesNfts = () => {
                 <img
                   src={'/assets/pepe-tweet.png'}
                   className={'w-6 h-5 ml-auto'}
+                  alt={'Pepe tweet'}
                 />
                 <Typography
                   variant="h5"
@@ -201,10 +194,12 @@ const DiamondPepesNfts = () => {
               <img
                 src={'/assets/joypad-pepe.png'}
                 className="w-36 ml-auto mr-auto mt-9 mb-14"
+                alt={'Joypad'}
               />
               <img
                 src={'/assets/duel-pepe-button.png'}
                 className="w-56 z-50 mt-12 ml-auto mr-auto cursor-pointer"
+                alt={'Duel Pepe'}
               />
               <Typography
                 variant="h4"
@@ -216,7 +211,11 @@ const DiamondPepesNfts = () => {
               </Typography>
 
               <Box className={'flex mt-6'}>
-                <img src={'/assets/export.svg'} className={'w-5 ml-auto'} />
+                <img
+                  src={'/assets/export.svg'}
+                  className={'w-5 ml-auto'}
+                  alt={'Export'}
+                />
                 <Typography
                   variant="h5"
                   className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"

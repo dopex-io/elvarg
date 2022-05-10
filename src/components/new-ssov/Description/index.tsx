@@ -1,17 +1,10 @@
-import { useMemo, useState, useContext, Dispatch, SetStateAction } from 'react';
-import cx from 'classnames';
+import { useMemo, useContext, Dispatch, SetStateAction } from 'react';
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import {
-  SsovContext,
-  SsovData,
-  SsovEpochData,
-  SsovUserData,
-} from 'contexts/Ssov';
+import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
@@ -19,34 +12,26 @@ import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/WalletButton';
-import EpochSelector from '../EpochSelector';
-import PurchaseCard from '../PurchaseCard';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
 
-import styles from './styles.module.scss';
-
 const Description = ({
   activeSsovContextSide,
-  setActiveSsovContextSide,
 }: {
   activeSsovContextSide: string;
   setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
 }) => {
   const ssovContext = useContext(SsovContext);
-  const { accountAddress, connect } = useContext(WalletContext);
   const { convertToBNB } = useContext(BnbConversionContext);
 
-  const { APY, isVaultReady } =
-    ssovContext[activeSsovContextSide].ssovEpochData;
+  const { APY } = ssovContext[activeSsovContextSide].ssovEpochData;
 
   const tokenSymbol = useMemo(
     () =>
       SSOV_MAP[ssovContext[activeSsovContextSide].ssovData.tokenName]
         .tokenSymbol,
-    [ssovContext[activeSsovContextSide].ssovData]
+    [ssovContext, activeSsovContextSide]
   );
 
   const TVL: number = useMemo(() => {
@@ -87,37 +72,7 @@ const Description = ({
     } else {
       return 0;
     }
-  }, [
-    ssovContext[activeSsovContextSide].ssovEpochData,
-    convertToBNB,
-    ssovContext[activeSsovContextSide].ssovData,
-    tokenSymbol,
-    activeSsovContextSide,
-  ]);
-
-  const info = [
-    {
-      heading: 'Asset',
-      value: tokenSymbol,
-      imgSrc:
-        SSOV_MAP[ssovContext[activeSsovContextSide].ssovData.tokenName]
-          .imageSrc,
-    },
-    {
-      heading: 'Farm APY',
-      value: `${!APY ? '...' : APY.toString() + '%'}`,
-      Icon: Action,
-      tooltip:
-        activeSsovContextSide === 'PUT'
-          ? 'Curve 2Pool Fee APY and Curve Rewards'
-          : ssovInfo[tokenSymbol].aprToolTipMessage,
-    },
-    {
-      heading: 'TVL',
-      value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
-      Icon: Coin,
-    },
-  ];
+  }, [ssovContext, convertToBNB, tokenSymbol, activeSsovContextSide]);
 
   return (
     <Box className={'lg:w-3/4'}>
@@ -130,6 +85,7 @@ const Description = ({
           <img
             src={'/assets/' + tokenSymbol.toLowerCase() + '.svg'}
             className={'w-[6rem]'}
+            alt={tokenSymbol}
           />
         </Box>
         <Typography

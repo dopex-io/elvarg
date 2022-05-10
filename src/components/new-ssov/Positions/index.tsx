@@ -324,6 +324,7 @@ const Positions = () => {
                                     <img
                                       src={'/assets/timer.svg'}
                                       className={'h-[1rem] mt-1 mr-2 ml-1'}
+                                      alt={'Timer'}
                                     />
                                     <Typography
                                       variant="h5"
