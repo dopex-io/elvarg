@@ -14,11 +14,7 @@ import AppBar from 'components/AppBar';
 
 import Pledge2Dialog from 'components/nfts/diamondpepes/Pledge2Dialog';
 
-import {
-  Data,
-  UserData,
-  initialData,
-} from '../../../../interfaces/diamondpepes/interfaces';
+import { Data, UserData, initialData } from 'types/diamondpepes';
 
 import { WalletContext } from 'contexts/Wallet';
 import { NftsProvider } from 'contexts/Nfts';

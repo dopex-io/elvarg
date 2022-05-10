@@ -1,41 +1,19 @@
 import { useState } from 'react';
-import Countdown from 'react-countdown';
 import Head from 'next/head';
 
 import Box from '@mui/material/Box';
 
-import ActionsDialog from 'components/nfts/diamondpepes-2/ActionsDialog';
+import ActionsDialog from 'components/nfts/diamondpepes2/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/AppBar';
 
-import styles from 'components/nfts/diamondpepes-2/styles.module.scss';
+import styles from 'components/nfts/diamondpepes2/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
     visible: false,
     tab: 'mint',
   });
-
-  const timeRemaining = (
-    <Countdown
-      date={new Date(1652378100 * 1000)}
-      renderer={({ days, hours, minutes, seconds, completed }) => {
-        if (days < 1 && hours < 1) {
-          return (
-            <span>
-              {minutes}m {seconds}s
-            </span>
-          );
-        } else {
-          return (
-            <span>
-              {days}d {hours}h {minutes}m {seconds}s
-            </span>
-          );
-        }
-      }}
-    />
-  );
 
   const boxes = [
     { title: '-', subTitle: 'PEPES REMAINING' },
