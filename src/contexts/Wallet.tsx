@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
@@ -64,6 +64,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/ssov/v3/call/ETH': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
+  '/nfts/diamondpepes2': [1, 42161],
   '/nfts/diamondpepes': [42161],
   '/nfts/diamondpepes/pledge': [42161],
   '/nfts/diamondpepes/pledge2': [42161],
@@ -72,6 +73,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS = {
   '/tzwap': [1, 42161],
   '/otc': [42161],
   '/otc/chat/:id': [42161],
+  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': [1088],
 };
 
 const DEFAULT_CHAIN_ID =
@@ -134,8 +136,7 @@ if (typeof window !== 'undefined') {
 }
 
 export const WalletProvider = (props) => {
-  const location = useLocation();
-
+  const router = useRouter();
   const [state, setState] = useState<WalletContextInterface>({
     accountAddress: '',
     wrongNetwork: false,
@@ -179,13 +180,13 @@ export const WalletProvider = (props) => {
       const { chainId } = await provider.getNetwork();
 
       if (
-        PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
+        PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.includes(chainId)
       ) {
         setState((prevState) => ({
           ...prevState,
           wrongNetwork: true,
-          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
+          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
         }));
         return;
       }
@@ -220,14 +221,14 @@ export const WalletProvider = (props) => {
         provider: multicallProvider,
         chainId,
         contractAddresses,
-        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
+        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
         ...(isUser && {
           signer,
           accountAddress: address,
         }),
       }));
     },
-    [location.pathname]
+    [router.asPath]
   );
 
   const connect = useCallback(() => {

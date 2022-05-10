@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import Script from 'next/script';
 
-import CreateReactAppEntryPoint from '../App';
-
+// import CreateReactAppEntryPoint from '../../App';
 function App() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -16,8 +15,8 @@ function App() {
 
   return (
     <>
-      <CreateReactAppEntryPoint />
-      <Script
+      {/* <CreateReactAppEntryPoint /> */}
+      {/* <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-N9THR532G6"
         strategy="afterInteractive"
       />
@@ -29,7 +28,7 @@ function App() {
 
           gtag('config', 'G-N9THR532G6');
         `}
-      </Script>
+      </Script> */}
     </>
   );
 }

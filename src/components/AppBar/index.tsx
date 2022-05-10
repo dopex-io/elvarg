@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo, useState, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 import cx from 'classnames';
+import Link from 'next/link';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
@@ -10,11 +10,11 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
-import PriceTag from './PriceTag';
 import NetworkButton from './NetworkButton';
 import Typography from 'components/UI/Typography';
 import WalletDialog from 'components/AppBar/WalletDialog';
 import CustomButton from 'components/UI/CustomButton';
+import PriceCasourel from 'components/AppBar/PriceCasourel/PriceCasourel';
 
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
@@ -39,7 +39,7 @@ const AppLink = ({
   className?: string;
 }) => {
   const linkClassName = cx(
-    'hover:no-underline hover:text-white capitalize',
+    'hover:no-underline hover:text-white capitalize cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
   if (to.startsWith('http')) {
@@ -55,8 +55,8 @@ const AppLink = ({
     );
   } else {
     return (
-      <Link to={to} className={linkClassName}>
-        {name}
+      <Link href={to} passHref>
+        <Box className={linkClassName}>{name}</Box>
       </Link>
     );
   }
@@ -203,27 +203,7 @@ export default function AppBar(props: AppBarProps) {
       <nav
         className={cx('fixed top-0 w-full text-gray-600 z-50', styles.appBar)}
       >
-        <Box className={'flex w-full bg-umbra z-50 relative'}>
-          <Box
-            className={cx(
-              'space-x-2 mr-4 hidden lg:flex',
-              styles.horizontalScroll
-            )}
-          >
-            {tokenPrices
-              .concat(tokenPrices)
-              .concat(tokenPrices)
-              .map((item, i) => (
-                <PriceTag
-                  key={i}
-                  asset={item.name}
-                  price={item.price}
-                  change={item.change24h}
-                  showDivisor={i > 0}
-                />
-              ))}
-          </Box>
-        </Box>
+        <PriceCasourel tokenPrices={tokenPrices} />
         <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
             <a
