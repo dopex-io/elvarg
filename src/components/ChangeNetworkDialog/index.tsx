@@ -68,7 +68,7 @@ const ChangeNetworkDialog = () => {
         Connect to a supported network below:
       </Typography>
       <Box className="grid grid-cols-2 gap-4 mb-4">
-        {supportedChainIds.map((chainId) => {
+        {supportedChainIds?.map((chainId) => {
           const data = CHAIN_ID_TO_NETWORK_DATA[chainId];
           return (
             <NetworkOption

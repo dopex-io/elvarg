@@ -61,18 +61,6 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: { [key: string]: number[] } = {
   '/': [1, 42161, 43114, 56],
   '/farms': [1, 42161],
   '/farms/manage': [1, 42161],
-  '/vaults': [42161, 56, 43114, 1088],
-  '/vaults/DPX': [42161],
-  '/vaults/LUNA': [42161],
-  '/vaults/WBTC': [42161],
-  '/vaults/RDPX': [42161],
-  '/vaults/ETH': [42161],
-  '/vaults/GOHM': [42161],
-  '/vaults/BNB': [56],
-  '/vaults/GMX': [42161],
-  '/vaults/AVAX': [43114],
-  '/vaults/CRV': [42161],
-  '/vaults/METIS': [1088],
   '/ssov': [42161, 56, 43114, 1088],
   '/ssov/call/DPX': [42161],
   '/ssov/call/RDPX': [42161],
@@ -88,7 +76,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: { [key: string]: number[] } = {
   '/ssov/put/GMX': [42161],
   '/ssov/put/ETH': [42161],
   '/ssov/put/CRV': [42161],
-  '/ssov/v3/call/ETH': [42161],
+  '/ssov/put/LUNA': [42161],
+  '/ssov-v3': [42161],
   '/nfts': [42161],
   '/nfts/community': [42161, 1, 43114],
   '/nfts/diamondpepes2': [1, 42161],
@@ -174,7 +163,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
     // TODO: FIX
     // @ts-ignore
     provider: null,
-    supportedChainIds: [],
+    supportedChainIds: [42161],
   });
 
   const [ens, setEns] = useState<{
@@ -189,8 +178,6 @@ export const WalletProvider = (props: { children: ReactNode }) => {
   useEffect(() => {
     if (!state.provider) return;
     (async function () {
-      // TODO: FIX
-      // @ts-ignore
       setBlockTime(Number((await state.provider.getBlock('latest')).timestamp));
     })();
   }, [state.provider]);
@@ -217,7 +204,9 @@ export const WalletProvider = (props: { children: ReactNode }) => {
       ) {
         setState((prevState: any) => ({
           ...prevState,
-          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
+          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] ?? [
+            42161,
+          ],
         }));
         return;
       }
