@@ -27,6 +27,6 @@
     "noFallthroughCasesInSwitch": true,
     "incremental": true
   },
-  "include": ["src"],
+  "include": ["src", "legacy/utils/getTimeToExpiryInYears.ts"],
   "exclude": ["node_modules"]
 }
