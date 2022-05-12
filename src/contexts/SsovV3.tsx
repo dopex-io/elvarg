@@ -167,13 +167,15 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
   ]);
 
   const updateSsovV3EpochData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch || !selectedSsovV3) return;
+    if (!contractAddresses || !selectedEpoch || !selectedSsovV3 || !provider)
+      return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
+
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       contractAddresses['SSOV-V3'].VIEWER,
       provider

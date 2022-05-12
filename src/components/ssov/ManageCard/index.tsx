@@ -248,7 +248,7 @@ const ManageCard = () => {
         return erc20SSOV1inchRouter?.address;
       }
     } else if (ssovTokenName === 'BNB') {
-      return ssovRouter.address;
+      return ssovRouter?.address || '';
     } else {
       return ssovContractWithSigner?.address;
     }

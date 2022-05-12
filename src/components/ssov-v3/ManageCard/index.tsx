@@ -143,15 +143,20 @@ const ManageCard = () => {
   // Updates approved state
   useEffect(() => {
     (async () => {
+      if (
+        !signer ||
+        !ssovData?.collateralAddress ||
+        !accountAddress ||
+        !spender
+      )
+        return;
       const finalAmount: BigNumber = getContractReadableAmount(
         strikeDepositAmount.toString(),
         18
       );
       const allowance: BigNumber = await ERC20__factory.connect(
-        // @ts-ignore TODO: FIX
-        ssovData?.collateralAddress,
+        ssovData.collateralAddress,
         signer
-        // @ts-ignore TODO: FIX
       ).allowance(accountAddress, spender);
       setApproved(allowance.gte(finalAmount));
     })();

@@ -54,42 +54,25 @@ const defaultContext = {
     )
   ),
 };
+
 export const WalletContext =
   createContext<WalletContextInterface>(defaultContext);
 
-const PAGE_TO_SUPPORTED_CHAIN_IDS: { [key: string]: number[] } = {
-  '/': [1, 42161, 43114, 56],
-  '/farms': [1, 42161],
-  '/farms/manage': [1, 42161],
-  '/ssov': [42161, 56, 43114, 1088],
-  '/ssov/call/DPX': [42161],
-  '/ssov/call/RDPX': [42161],
-  '/ssov/call/ETH': [42161],
-  '/ssov/call/GOHM': [42161],
-  '/ssov/call/BNB': [56],
-  '/ssov/call/GMX': [42161],
-  '/ssov/call/AVAX': [43114],
-  '/ssov/call/METIS': [1088],
-  '/ssov/put/RDPX': [42161],
-  '/ssov/put/GOHM': [42161],
-  '/ssov/put/BTC': [42161],
-  '/ssov/put/GMX': [42161],
-  '/ssov/put/ETH': [42161],
-  '/ssov/put/CRV': [42161],
-  '/ssov/put/LUNA': [42161],
-  '/ssov-v3': [42161],
-  '/nfts': [42161],
-  '/nfts/community': [42161, 1, 43114],
-  '/nfts/diamondpepes2': [1, 42161],
-  '/nfts/diamondpepes': [42161],
-  '/nfts/diamondpepes/pledge': [42161],
-  '/nfts/diamondpepes/pledge2': [42161],
-  '/sale': [1],
-  '/oracles': [1, 42161, 56, 43114],
-  '/tzwap': [1, 42161],
-  '/otc': [42161],
-  '/otc/chat/:id': [42161],
-  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': [1088],
+const PAGE_TO_SUPPORTED_CHAIN_IDS: {
+  [key: string]: { default: number; all: number[] };
+} = {
+  '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/farms': { default: 42161, all: [1, 42161] },
+  '/farms/manage': { default: 42161, all: [1, 42161] },
+  '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
+  '/ssov/call/BNB': { default: 56, all: [56] },
+  '/ssov/call/AVAX': { default: 43114, all: [43114] },
+  '/nfts/community': { default: 42161, all: [] },
+  '/nfts/diamondpepes2': { default: 42161, all: [1, 42161] },
+  '/sale': { default: 1, all: [1] },
+  '/oracles': { default: 42161, all: [] },
+  '/tzwap': { default: 42161, all: [1, 42161] },
+  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
 };
 
 let web3Modal: Web3Modal | undefined;
@@ -109,9 +92,7 @@ if (typeof window !== 'undefined') {
         rpc: CHAIN_ID_TO_RPC,
       },
     },
-    // TODO: FIX
-    // @ts-ignore
-    ...(window['clover'] && {
+    ...((window as any).clover && {
       injected: {
         display: {
           logo: '/wallets/Clover.png',
@@ -156,12 +137,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
     accountAddress: '',
     wrongNetwork: false,
     chainId: DEFAULT_CHAIN_ID,
-    // TODO: FIX
-    // @ts-ignore
-    contractAddresses: Addresses[DEFAULT_CHAIN_ID],
-    // ethers provider
-    // TODO: FIX
-    // @ts-ignore
+    contractAddresses: _Addresses[DEFAULT_CHAIN_ID],
     provider: null,
     supportedChainIds: [42161],
   });
@@ -184,29 +160,25 @@ export const WalletProvider = (props: { children: ReactNode }) => {
 
   const updateState = useCallback(
     async ({
-      web3Provider,
-      ethersProvider,
+      provider,
       isUser,
     }: {
-      web3Provider: any;
-      ethersProvider?: ethers.providers.Provider;
-      isUser: boolean;
+      provider: ethers.providers.Provider | ProviderController;
+      isUser?: boolean;
     }) => {
-      const provider =
-        !isUser && ethersProvider
-          ? ethersProvider
-          : new ethers.providers.Web3Provider(web3Provider, 'any');
-      const { chainId } = await provider.getNetwork();
+      const _provider: any = isUser
+        ? new ethers.providers.Web3Provider(provider as any, 'any')
+        : (provider as ethers.providers.Provider);
+      const { chainId } = await _provider.getNetwork();
 
       if (
         PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.includes(chainId)
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId)
       ) {
         setState((prevState: any) => ({
           ...prevState,
-          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] ?? [
-            42161,
-          ],
+          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]
+            ?.all ?? [42161],
         }));
         return;
       }
@@ -218,9 +190,8 @@ export const WalletProvider = (props: { children: ReactNode }) => {
       let address: string | undefined;
 
       if (isUser) {
-        const web3Provider = provider as ethers.providers.Web3Provider;
-        signer = await web3Provider.getUncheckedSigner();
-        address = await signer.getAddress();
+        signer = await _provider.getUncheckedSigner();
+        address = await signer?.getAddress();
       }
 
       let contractAddresses: any;
@@ -233,7 +204,9 @@ export const WalletProvider = (props: { children: ReactNode }) => {
         provider: multicallProvider,
         chainId,
         contractAddresses,
-        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
+        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all ?? [
+          42161,
+        ],
         ...(isUser && {
           signer,
           accountAddress: address,
@@ -248,13 +221,13 @@ export const WalletProvider = (props: { children: ReactNode }) => {
       ?.connect()
       .then(async (provider: ProviderController) => {
         provider.on('accountsChanged', async () => {
-          await updateState({ web3Provider: provider, isUser: true });
+          await updateState({ provider, isUser: true });
         });
 
         provider.on('chainChanged', async () => {
-          await updateState({ web3Provider: provider, isUser: true });
+          await updateState({ provider, isUser: true });
         });
-        await updateState({ web3Provider: provider, isUser: true });
+        await updateState({ provider, isUser: true });
       })
       .catch(() => {
         if (window.location.pathname !== '/ssov') window.location.replace('/');
@@ -282,12 +255,11 @@ export const WalletProvider = (props: { children: ReactNode }) => {
     web3Modal
       .connect()
       .then(async (provider) => {
-        await updateState({ web3Provider: provider, isUser: true });
+        await updateState({ provider, isUser: true });
       })
       .catch(async () => {
         await updateState({
-          web3Provider: CHAIN_ID_TO_RPC[state.chainId],
-          ethersProvider: new ethers.providers.StaticJsonRpcProvider(
+          provider: new ethers.providers.StaticJsonRpcProvider(
             CHAIN_ID_TO_RPC[state.chainId]
           ),
           isUser: false,
@@ -300,14 +272,15 @@ export const WalletProvider = (props: { children: ReactNode }) => {
       connect();
     } else {
       updateState({
-        web3Provider: CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID],
-        ethersProvider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
+        provider: new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_RPC[
+            PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.default ||
+              DEFAULT_CHAIN_ID
+          ]
         ),
-        isUser: false,
       });
     }
-  }, [connect, updateState]);
+  }, [connect, updateState, router]);
 
   useEffect(() => {
     (async () => {
