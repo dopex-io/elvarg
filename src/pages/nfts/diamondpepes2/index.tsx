@@ -654,12 +654,6 @@ const DiamondPepesNfts = () => {
     startTime: BigNumber;
   }>();
 
-  const publicSaleContract = new ethers.Contract(
-    '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
-    ABI,
-    signer
-  );
-
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
     visible: false,
     tab: 'mint',
@@ -702,6 +696,12 @@ const DiamondPepesNfts = () => {
   const updateData = useCallback(async () => {
     if (!provider) return;
 
+    const publicSaleContract = new ethers.Contract(
+      '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
+      ABI,
+      signer
+    );
+
     const [
       publicMints,
       nextMintId,
@@ -734,7 +734,7 @@ const DiamondPepesNfts = () => {
       endTime: endTime,
       startTime: startTime,
     });
-  }, [provider, publicSaleContract, signer, accountAddress]);
+  }, [provider, signer]);
 
   useEffect(() => {
     updateData();

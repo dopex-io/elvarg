@@ -746,12 +746,6 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
   const [submitted, setSubmitted] = useState<boolean>(true);
   const sendTx = useSendTx();
 
-  const publicSaleContract = new ethers.Contract(
-    '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
-    ABI,
-    signer
-  );
-
   const decreaseToMintAmount = () => {
     if (toMint > 1) setToMint(toMint - 1);
   };
@@ -785,6 +779,12 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
   }, [data]);
 
   const handleMint = useCallback(async () => {
+    const publicSaleContract = new ethers.Contract(
+      '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
+      ABI,
+      signer
+    );
+
     if (mintWithAPE) {
       await sendTx(publicSaleContract.connect(signer).mintWithAPE(toMint));
     } else {
@@ -797,9 +797,15 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
     }
     explodeEmojis();
     await updateData();
-  }, [publicSaleContract, updateData, signer, mintWithAPE, toMint]);
+  }, [updateData, signer, mintWithAPE, toMint, sendTx]);
 
   const handleApprove = useCallback(async () => {
+    const publicSaleContract = new ethers.Contract(
+      '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
+      ABI,
+      signer
+    );
+
     const ape = ERC20__factory.connect(
       '0x4d224452801ACEd8B2F0aebE155379bb5D594381',
       signer
@@ -809,7 +815,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
         setApproved(true);
       }
     );
-  }, [data, signer, sendTx, publicSaleContract]);
+  }, [signer, sendTx]);
 
   const explodeEmojis = () => {
     const toExplode = document.getElementById('emojisplosion');
@@ -890,7 +896,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
               subTitle: 'REMAINING',
             },
           ],
-    [submitted]
+    [submitted, data, toMint]
   );
 
   return (
