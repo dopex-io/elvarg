@@ -46,7 +46,7 @@ const defaultContext = {
   changeWallet: () => {},
   setChangeNetwork: () => {},
   chainId: DEFAULT_CHAIN_ID,
-  supportedChainIds: [42161],
+  supportedChainIds: [DEFAULT_CHAIN_ID],
   contractAddresses: _Addresses[String(DEFAULT_CHAIN_ID)],
   provider: new providers.MulticallProvider(
     new ethers.providers.StaticJsonRpcProvider(
@@ -139,7 +139,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
     chainId: DEFAULT_CHAIN_ID,
     contractAddresses: _Addresses[DEFAULT_CHAIN_ID],
     provider: null,
-    supportedChainIds: [42161],
+    supportedChainIds: [DEFAULT_CHAIN_ID],
   });
 
   const [ens, setEns] = useState<{
@@ -177,8 +177,19 @@ export const WalletProvider = (props: { children: ReactNode }) => {
       ) {
         setState((prevState: any) => ({
           ...prevState,
+          wrongNetwork: true,
           supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]
-            ?.all ?? [42161],
+            ?.all ?? [DEFAULT_CHAIN_ID],
+        }));
+        return;
+      } else if (
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
+        chainId !== DEFAULT_CHAIN_ID
+      ) {
+        setState((prevState: any) => ({
+          ...prevState,
+          wrongNetwork: true,
+          supportedChainIds: [DEFAULT_CHAIN_ID],
         }));
         return;
       }
@@ -205,7 +216,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
         chainId,
         contractAddresses,
         supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all ?? [
-          42161,
+          DEFAULT_CHAIN_ID,
         ],
         ...(isUser && {
           signer,
