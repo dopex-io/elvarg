@@ -26,6 +26,7 @@ import { MAX_VALUE } from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
+import Countdown from 'react-countdown';
 
 const ABI = [
   {
@@ -742,6 +743,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
   const [toMint, setToMint] = useState<number>(1);
   const [mintWithAPE, setMintWithAPE] = useState<boolean>(false);
   const [approved, setApproved] = useState<boolean>(false);
+  const [submitted, setSubmitted] = useState<boolean>(true);
   const sendTx = useSendTx();
 
   const publicSaleContract = new ethers.Contract(
@@ -764,8 +766,6 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
     else if (toMint === 3) return 'diamond';
     else if (toMint >= 4) return 'gold';
   }, [toMint]);
-
-  const [activeTab, setActiveTab] = useState<string>('mint');
 
   const [activeQuoteIndex, setActiveQuoteIndex] = useState<number>(
     Math.floor(Math.random() * quotes.length)
@@ -793,6 +793,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
           .connect(signer)
           .mint(toMint, { value: getContractReadableAmount(toMint * 0.88, 18) })
       );
+      setSubmitted(true);
     }
     explodeEmojis();
     await updateData();
@@ -839,15 +840,58 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
     return () => clearInterval(intervalId);
   }, [activeQuoteIndex]);
 
-  const boxes = [
-    { title: '0.88 ETH', subTitle: '1 PEPE' },
-    { title: '-', subTitle: 'REMAINING' },
-    { title: '-', subTitle: 'TIME' },
-  ];
-
-  useEffect(() => {
-    if (['mint', 'withdraw'].includes(tab)) setActiveTab(tab);
-  }, [tab]);
+  const boxes = useMemo(
+    () =>
+      submitted
+        ? [
+            {
+              title: (
+                <Box className={'flex'}>
+                  <img
+                    src={'/assets/export.svg'}
+                    className={'w-4 ml-auto'}
+                    alt={'Export'}
+                  />
+                  <Typography
+                    variant="h5"
+                    className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                  >
+                    <span className={styles.pepeLink}>Tofunft</span>
+                  </Typography>
+                </Box>
+              ),
+              subTitle: 'MARKET',
+            },
+            { title: toMint, subTitle: 'MINTED' },
+          ]
+        : [
+            { title: '0.88 ETH', subTitle: '1 PEPE' },
+            {
+              title: (
+                <Countdown
+                  date={new Date(data?.endTime?.toNumber() * 1000)}
+                  renderer={({ days, hours, minutes, seconds, completed }) => {
+                    if (completed) {
+                      return (
+                        <span className="text-wave-blue">
+                          This epoch has expired.
+                        </span>
+                      );
+                    } else {
+                      return (
+                        <span className="text-wave-blue">
+                          Epoch end in: {days}d {hours}h {minutes}m {seconds}s
+                        </span>
+                      );
+                    }
+                  }}
+                />
+              ),
+              subTitle: 'REMAINING',
+            },
+          ],
+    [submitted]
+  );
 
   return (
     <Dialog
@@ -860,11 +904,19 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
       }}
     >
       <Box className="flex flex-row items-center mb-4" id={'emojisplosion'}>
-        <img
-          src={'/assets/mint-fighter-button.png'}
-          className={'w-46 mr-1 ml-auto'}
-          alt={'Mint fighter'}
-        />
+        {submitted ? (
+          <img
+            src={'/assets/contract-signed-button.png'}
+            className={'w-46 mr-0.5 ml-auto'}
+            alt={'Contract signed'}
+          />
+        ) : (
+          <img
+            src={'/assets/mint-fighter-button.png'}
+            className={'w-46 mr-1 ml-auto'}
+            alt={'Mint fighter'}
+          />
+        )}
         <IconButton
           className="p-0 pb-1 mr-0 mt-0.5 ml-auto"
           onClick={handleClose}
@@ -889,7 +941,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
       </Box>
       <Box className="p-2 mt-5 md:flex">
         {boxes.map((box, i) => (
-          <Box className="md:w-1/3 p-2 text-center" key={i}>
+          <Box className="md:w-1/2 p-2 text-center" key={i}>
             <Typography
               variant="h5"
               className="text-white font-display font-['Minecraft'] relative z-1"
@@ -905,107 +957,144 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
           </Box>
         ))}
       </Box>
-      <Box className={'mt-2'}>
-        <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-          <Box className="flex flex-row justify-between mb-2 mt-1">
-            <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-              Mint with{' '}
-              <span className={cx("font-['Minecraft']", styles.pepeText)}>
-                $APE
-              </span>
-            </Typography>
-            <Switch
-              className="ml-auto cursor-pointer"
-              color="default"
-              onClick={() => setMintWithAPE(!mintWithAPE)}
-            />
-          </Box>
-          <Box className="flex pl-2 pr-2">
-            <button
-              className={styles.pepeButtonSquare}
-              disabled={toMint < 2}
-              onClick={decreaseToMintAmount}
-            >
-              -
-            </button>
-            <button
-              className={cx('ml-2', styles.pepeButtonSquare)}
-              onClick={increaseToMintAmount}
-            >
-              +
-            </button>
-            <Input
-              id="amount"
-              name="amount"
-              className={
-                'ml-4 bg-[#343C4D] text-white text-right w-full pl-3 pr-3'
-              }
-              type="number"
-              value={toMint}
-              classes={{ input: 'text-right' }}
-            />
-          </Box>
-        </Box>
-        <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-3">
-          <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
-            <EstimatedGasCostButton gas={1000000} chainId={chainId} />
-            <Box className={'flex mt-3'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Total cost
+      <Box className={!submitted ? 'mt-2' : ''}>
+        {!submitted ? (
+          <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
+            <Box className="flex flex-row justify-between mb-2 mt-1">
+              <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
+                Mint with{' '}
+                <span className={cx("font-['Minecraft']", styles.pepeText)}>
+                  $APE
+                </span>
               </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {mintWithAPE
-                    ? formatAmount(
-                        getUserReadableAmount(data.mintPriceInApe, 18) * toMint,
-                        2
-                      ) + ' APE'
-                    : formatAmount(0.88 * toMint, 3) + ' ETH'}
+              <Switch
+                className="ml-auto cursor-pointer"
+                color="default"
+                onClick={() => setMintWithAPE(!mintWithAPE)}
+              />
+            </Box>
+            <Box className="flex pl-2 pr-2">
+              <button
+                className={styles.pepeButtonSquare}
+                disabled={toMint < 2}
+                onClick={decreaseToMintAmount}
+              >
+                -
+              </button>
+              <button
+                className={cx('ml-2', styles.pepeButtonSquare)}
+                onClick={increaseToMintAmount}
+              >
+                +
+              </button>
+              <Input
+                id="amount"
+                name="amount"
+                className={
+                  'ml-4 bg-[#343C4D] text-white text-right w-full pl-3 pr-3'
+                }
+                type="number"
+                value={toMint}
+                classes={{ input: 'text-right' }}
+              />
+            </Box>
+          </Box>
+        ) : null}
+        {!submitted ? (
+          <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-3">
+            <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
+              <EstimatedGasCostButton gas={1000000} chainId={chainId} />
+              <Box className={'flex mt-3'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Total cost
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {mintWithAPE
+                      ? formatAmount(
+                          getUserReadableAmount(data.mintPriceInApe, 18) *
+                            toMint,
+                          2
+                        ) + ' APE'
+                      : formatAmount(0.88 * toMint, 3) + ' ETH'}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+            <Box className="flex mb-2">
+              <img
+                src={`/assets/${quote.avatar}`}
+                className="ml-[2px] w-16"
+                alt={''}
+              />
+
+              <Box className="bg-[#343C4D] rounded-xs flex flex-col p-3 pb-1.5 w-full ml-4 relative">
+                <img
+                  src="/assets/polygon-left.svg"
+                  className="absolute left-[-7px] top-[20px] w-3"
+                  alt={'Left'}
+                />
+                <Typography
+                  variant="h6"
+                  className="text-white font-['Minecraft'] typewriter"
+                  id="typewriter"
+                >
+                  {quote.text}
+                </Typography>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz font-['Minecraft']"
+                >
+                  {quote.author}
                 </Typography>
               </Box>
             </Box>
-          </Box>
-          <Box className="flex mb-2">
-            <img
-              src={`/assets/${quote.avatar}`}
-              className="ml-[2px] w-16"
-              alt={''}
-            />
-
-            <Box className="bg-[#343C4D] rounded-xs flex flex-col p-3 pb-1.5 w-full ml-4 relative">
-              <img
-                src="/assets/polygon-left.svg"
-                className="absolute left-[-7px] top-[20px] w-3"
-                alt={'Left'}
-              />
-              <Typography
-                variant="h6"
-                className="text-white font-['Minecraft'] typewriter"
-                id="typewriter"
-              >
-                {quote.text}
+            <CustomButton
+              size="medium"
+              className={styles.pepeButton}
+              disabled={canBuy}
+              onClick={
+                canBuy
+                  ? mintWithAPE
+                    ? approved
+                      ? handleMint
+                      : handleApprove
+                    : handleMint
+                  : null
+              }
+            >
+              <Typography variant="h5" className={styles.pepeButtonText}>
+                {canBuy ? 'Mint' : 'Not ready yet'}
               </Typography>
+            </CustomButton>
+          </Box>
+        ) : (
+          <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-3">
+            <Box className="rounded-md flex flex-col p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
               <Typography
-                variant="h6"
-                className="text-stieglitz font-['Minecraft']"
+                variant="h5"
+                className="text-white text-base font-['Minecraft']"
               >
-                {quote.author}
+                Welcome to the company. <br />
+                <br />
+                Please wait for the esteemed to make an announcement.
               </Typography>
             </Box>
+
+            <CustomButton
+              size="medium"
+              className={styles.pepeButton}
+              onClick={() => setSubmitted(false)}
+            >
+              <Typography variant="h5" className={styles.pepeButtonText}>
+                Mint more
+              </Typography>
+            </CustomButton>
           </Box>
-          <CustomButton
-            size="medium"
-            className={styles.pepeButton}
-            disabled={canBuy}
-            onClick={
-              mintWithAPE ? (approved ? handleMint : handleApprove) : handleMint
-            }
-          >
-            <Typography variant="h5" className={styles.pepeButtonText}>
-              {canBuy ? 'Mint' : 'Not ready yet'}
-            </Typography>
-          </CustomButton>
-        </Box>
+        )}
       </Box>
     </Dialog>
   );

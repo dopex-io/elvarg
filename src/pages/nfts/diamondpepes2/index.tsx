@@ -643,7 +643,7 @@ const ABI = [
 ];
 
 const DiamondPepesNfts = () => {
-  const { provider, signer } = useContext(WalletContext);
+  const { provider, signer, accountAddress } = useContext(WalletContext);
   const [data, setData] = useState<{
     publicMints: BigNumber;
     nextMintId: BigNumber;
@@ -680,13 +680,13 @@ const DiamondPepesNfts = () => {
               if (completed) {
                 return (
                   <span className="text-wave-blue">
-                    This epoch has expired.
+                    The sale has been closed
                   </span>
                 );
               } else {
                 return (
                   <span className="text-wave-blue">
-                    Epoch end in: {days}d {hours}h {minutes}m {seconds}s
+                    {days}d {hours}h {minutes}m {seconds}s
                   </span>
                 );
               }
@@ -695,7 +695,6 @@ const DiamondPepesNfts = () => {
         ),
         subTitle: 'TIME REMAINING',
       },
-      { title: '-', subTitle: 'DEPOSITS' },
     ],
     [data]
   );
@@ -735,7 +734,7 @@ const DiamondPepesNfts = () => {
       endTime: endTime,
       startTime: startTime,
     });
-  }, [provider, publicSaleContract, signer]);
+  }, [provider, publicSaleContract, signer, accountAddress]);
 
   useEffect(() => {
     updateData();
@@ -781,7 +780,7 @@ const DiamondPepesNfts = () => {
 
           <Box className="p-2 mt-7 md:flex">
             {boxes.map((box, index) => (
-              <Box key={index} className="md:w-1/4 p-4 text-center">
+              <Box key={index} className="md:w-1/3 p-4 text-center">
                 <Typography
                   variant="h3"
                   className="text-white font-display font-['Minecraft'] relative z-1"
