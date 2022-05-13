@@ -22,11 +22,16 @@ import { WalletContext } from 'contexts/Wallet';
 
 import airdropAddresses from 'constants/airdropAddresses.json';
 
-const ClaimRdpxModal = ({ open, handleClose }) => {
+interface Props {
+  open: boolean;
+  handleClose: any;
+}
+
+const ClaimRdpxModal = ({ open, handleClose }: Props) => {
   const { accountAddress, signer, contractAddresses } =
     useContext(WalletContext);
 
-  const [rdpx, setRdpx] = useState(null);
+  const [rdpx, setRdpx] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
@@ -50,11 +55,14 @@ const ClaimRdpxModal = ({ open, handleClose }) => {
   }, [formik.touched.address, formik.errors.address]);
 
   const handleClick = async () => {
+    if (!signer) return;
+
     const index = airdropAddresses.findIndex(
       (item) =>
         item.account.toLowerCase() === formik.values.address.toLowerCase()
     );
 
+    // @ts-ignore
     const amount = index !== -1 ? airdropAddresses[index].amount : '0';
 
     const tree = new BalanceTree(airdropAddresses);
@@ -113,7 +121,7 @@ const ClaimRdpxModal = ({ open, handleClose }) => {
       };
     } else if (!accountAddress)
       return { disabled: true, children: 'Connect Account to Claim' };
-    else if (rdpx !== null && rdpx > 0)
+    else if (rdpx !== null && Number(rdpx) > 0)
       return { disabled: false, children: 'Claim' };
     else return { disabled: false, children: 'Check' };
   }, [isAddressError, formik.errors.address, rdpx, loading, accountAddress]);
@@ -153,7 +161,7 @@ const ClaimRdpxModal = ({ open, handleClose }) => {
           ) : null}
         </Box>
         {rdpx !== null ? (
-          rdpx > 0 ? (
+          Number(rdpx) > 0 ? (
             <Typography variant="h4" className="text-wave-blue">
               {formatAmount(getUserReadableAmount(rdpx, 18).toString())} rDPX
               available to claim!

@@ -125,10 +125,10 @@ const Oracles = () => {
       );
 
       const [bnbData, gohmData, gmxData, avaxData] = await Promise.all([
-        bnbOracle.latestRoundData(),
-        gohmOracle.getPriceInUSD(),
-        gmxOracle.getPriceInUSD(),
-        avaxOracle.latestRoundData(),
+        bnbOracle['latestRoundData'](),
+        gohmOracle['getPriceInUSD'](),
+        gmxOracle['getPriceInUSD'](),
+        avaxOracle['latestRoundData'](),
       ]);
 
       const _state = {
@@ -151,23 +151,28 @@ const Oracles = () => {
             _dopexOraclesData[0][_dopexOraclesData[0].length - 1].twap,
           lastUpdated:
             _dopexOraclesData[0][_dopexOraclesData[0].length - 1].timestamp,
-          allData: _dopexOraclesData[0].map((item) => ({
-            price: ethers.utils.formatUnits(item.twap, 8),
-            timestamp: item.timestamp,
-          })),
+          allData: _dopexOraclesData[0].map(
+            (item: { twap: ethers.BigNumberish; timestamp: any }) => ({
+              price: ethers.utils.formatUnits(item.twap, 8),
+              timestamp: item.timestamp,
+            })
+          ),
         },
         rDPX: {
           currentPrice:
             _dopexOraclesData[1][_dopexOraclesData[1].length - 1].twap,
           lastUpdated:
             _dopexOraclesData[1][_dopexOraclesData[1].length - 1].timestamp,
-          allData: _dopexOraclesData[1].map((item) => ({
-            price: Number(ethers.utils.formatUnits(item.twap, 8)),
-            timestamp: item.timestamp,
-          })),
+          allData: _dopexOraclesData[1].map(
+            (item: { twap: ethers.BigNumberish; timestamp: any }) => ({
+              price: Number(ethers.utils.formatUnits(item.twap, 8)),
+              timestamp: item.timestamp,
+            })
+          ),
         },
       };
 
+      // @ts-ignore TODO: FIX
       setState(_state);
     }
     getData();
@@ -192,6 +197,7 @@ const Oracles = () => {
                 return (
                   <OracleCard
                     key={token.tokenSymbol}
+                    // @ts-ignore TODO: FIX
                     data={{ ...token, ...state[token.tokenSymbol] }}
                   />
                 );

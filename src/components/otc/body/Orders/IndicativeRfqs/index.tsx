@@ -32,12 +32,14 @@ import getAssetFromOptionSymbol from 'utils/general/getAssetFromOptionSymbol';
 const ROWS_PER_PAGE = 5;
 
 const TableHeader = ({
+  // @ts-ignore TODO: FIX
   children,
   align = 'left',
   textColor = 'text-stieglitz',
   fill = 'bg-cod-gray',
 }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
@@ -51,12 +53,14 @@ const TableHeader = ({
 };
 
 const TableBodyCell = ({
+  // @ts-ignore TODO: FIX
   children,
   align = 'left',
   textColor = 'text-stieglitz',
   fill = 'bg-cod-gray',
 }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="td"
@@ -97,7 +101,9 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
     navigator.clipboard.writeText(address);
   }, []);
 
+  // @ts-ignore TODO: FIX
   const filteredOrders = useMemo(() => {
+    // @ts-ignore TODO: FIX
     return orders.filter((order) => {
       return (
         order.data.timestamp.seconds * 1000 >
@@ -108,7 +114,9 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
   }, [orders, filterFulfilled]);
 
   const navigateToChat = useCallback(
+    // @ts-ignore TODO: FIX
     async (data: any) => {
+      // @ts-ignore TODO: FIX
       await validateUser();
 
       const docRef = (await getDocs(collection(db, 'chatrooms'))).docs.flatMap(
@@ -158,10 +166,12 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
                   page * ROWS_PER_PAGE,
                   page * ROWS_PER_PAGE + ROWS_PER_PAGE
                 )
+                // @ts-ignore TODO: FIX
                 ?.map((row, i) => (
                   <TableRow key={i}>
                     <TableBodyCell align="left">
                       <img
+                        // @ts-ignore TODO: FIX
                         src={`/assets/${getAssetFromOptionSymbol(
                           row.data.base
                         ).toLowerCase()}.svg`}

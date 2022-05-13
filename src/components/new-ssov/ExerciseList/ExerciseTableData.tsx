@@ -51,16 +51,18 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     isSettleable,
     activeSsovContextSide,
   } = props;
-
+  // @ts-ignore TODO: FIX
   const ssovContext = useContext(SsovContext)[activeSsovContextSide];
-  const { ssovData, ssovEpochData, selectedSsov } = ssovContext;
+  const { ssovData, ssovEpochData } = ssovContext;
 
   const tokenSymbol =
     activeSsovContextSide === 'PUT'
       ? '2CRV'
-      : SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
+      : // @ts-ignore TODO: FIX
+      SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
       ? 'vBNB'
-      : SSOV_MAP[ssovData.tokenName].tokenSymbol;
+      : // @ts-ignore TODO: FIX
+        SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
   const { isEpochExpired } = ssovEpochData;
 
@@ -97,6 +99,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleClickMenu = useCallback(
+    // @ts-ignore TODO: FIX
     (event) => setAnchorEl(event.currentTarget),
     []
   );
@@ -123,6 +126,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       };
   }, [isEpochExpired, isSettleable]);
 
+  // @ts-ignore TODO: FIX
   const Dialog = DIALOGS[dialogState.type];
 
   return (
@@ -140,14 +144,17 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
+              // @ts-ignore TODO: FIX
               src={SSOV_MAP[ssovData.tokenName].imageSrc}
               alt={tokenSymbol}
             />
           </Box>
           <Typography variant="h5" className="text-white">
+            {/* @ts-ignore TODO: FIX */}
             {SSOV_MAP[ssovData.tokenName].tokenSymbol === 'vBNB'
               ? 'BNB'
-              : SSOV_MAP[ssovData.tokenName].tokenSymbol}
+              : // @ts-ignore TODO: FIX
+                SSOV_MAP[ssovData.tokenName].tokenSymbol}
           </Typography>
         </Box>
       </TableCell>

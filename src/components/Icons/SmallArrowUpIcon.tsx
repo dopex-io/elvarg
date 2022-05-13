@@ -1,4 +1,4 @@
-const SmallArrowUpIcon = ({ className, subClassName, onClick }) => (
+const SmallArrowUpIcon = ({ className, subClassName, onClick }: any) => (
   <svg
     className={className}
     width="12"

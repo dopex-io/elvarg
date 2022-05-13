@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useCallback, useContext } from 'react';
 import Head from 'next/head';
 import { TokenSale__factory } from '@dopex-io/sdk';

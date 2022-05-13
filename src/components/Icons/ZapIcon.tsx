@@ -1,4 +1,4 @@
-const ZapIcon = ({ className, id }) => (
+const ZapIcon = ({ className, id }: any) => (
   <svg
     className={className}
     width="15"

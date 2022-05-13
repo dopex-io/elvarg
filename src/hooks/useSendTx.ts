@@ -56,10 +56,13 @@ const useSendTx = () => {
           );
         }
       } catch (err) {
+        // @ts-ignore TODO: FIX
         if (err?.data?.message !== undefined) {
-          toast.error(err.data.message, { id: toastId });
+          // @ts-ignore TODO: FIX
+          toast.error(err.data.message);
         } else {
-          toast.error(err.message, { id: toastId });
+          // @ts-ignore TODO: FIX
+          toast.error(err.message);
         }
       }
     },

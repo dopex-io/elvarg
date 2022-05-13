@@ -128,6 +128,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           DPX.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));
@@ -141,6 +142,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           DPX_WETH.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));
@@ -153,6 +155,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           rDPX_WETH.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));
@@ -165,6 +168,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           RDPX.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));

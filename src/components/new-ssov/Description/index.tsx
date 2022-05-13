@@ -1,20 +1,12 @@
 import { useMemo, useContext, Dispatch, SetStateAction } from 'react';
 import Box from '@mui/material/Box';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-
 import { SsovContext } from 'contexts/Ssov';
-import { WalletContext } from 'contexts/Wallet';
-import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
 import Typography from 'components/UI/Typography';
-
-import Coin from 'svgs/icons/Coin';
-import Action from 'svgs/icons/Action';
 
 const Description = ({
   activeSsovContextSide,
@@ -23,56 +15,14 @@ const Description = ({
   setActiveSsovContextSide: Dispatch<SetStateAction<string>>;
 }) => {
   const ssovContext = useContext(SsovContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
-
-  const { APY } = ssovContext[activeSsovContextSide].ssovEpochData;
 
   const tokenSymbol = useMemo(
     () =>
+      // @ts-ignore TODO: FIX
       SSOV_MAP[ssovContext[activeSsovContextSide].ssovData.tokenName]
         .tokenSymbol,
     [ssovContext, activeSsovContextSide]
   );
-
-  const TVL: number = useMemo(() => {
-    if (
-      ssovContext[activeSsovContextSide].ssovData.tokenPrice &&
-      ssovContext[activeSsovContextSide].ssovEpochData
-    ) {
-      if (activeSsovContextSide === 'PUT') {
-        return (
-          getUserReadableAmount(
-            ssovContext[activeSsovContextSide].ssovEpochData.totalEpochDeposits,
-            18
-          ) *
-          getUserReadableAmount(
-            ssovContext[activeSsovContextSide].ssovData.lpPrice,
-            18
-          )
-        );
-      } else if (tokenSymbol === 'BNB') {
-        return convertToBNB(
-          ssovContext[activeSsovContextSide].ssovEpochData.totalEpochDeposits
-        )
-          .mul(ssovContext[activeSsovContextSide].ssovData.tokenPrice)
-          .div(1e8)
-          .toNumber();
-      } else {
-        return (
-          getUserReadableAmount(
-            ssovContext[activeSsovContextSide].ssovEpochData.totalEpochDeposits,
-            18
-          ) *
-          getUserReadableAmount(
-            ssovContext[activeSsovContextSide].ssovData.tokenPrice,
-            8
-          )
-        );
-      }
-    } else {
-      return 0;
-    }
-  }, [ssovContext, convertToBNB, tokenSymbol, activeSsovContextSide]);
 
   return (
     <Box className={'lg:w-3/4'}>
@@ -99,6 +49,7 @@ const Description = ({
         <span className="text-white mr-2">
           {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>
+        {/* @ts-ignore TODO: FIX */}
         {ssovInfo[tokenSymbol]?.mainPageMessage}
         <br />
         <br />

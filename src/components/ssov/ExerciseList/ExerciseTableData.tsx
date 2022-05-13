@@ -1,4 +1,10 @@
-import { useCallback, useContext, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useContext,
+  useState,
+  useMemo,
+  SetStateAction,
+} from 'react';
 import { BigNumber } from 'ethers';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -52,14 +58,18 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const { ssovData, ssovEpochData, selectedSsov } = useContext(SsovContext);
 
+  // @ts-ignore TODO: FIX
   const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
 
   const tokenSymbol = isPut
     ? '2CRV'
-    : SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
+    : // @ts-ignore TODO: FIX
+    SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
     ? 'vBNB'
-    : SSOV_MAP[ssovData.tokenName].tokenSymbol;
+    : // @ts-ignore TODO: FIX
+      SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
+  // @ts-ignore TODO: FIX
   const { isEpochExpired } = ssovEpochData;
 
   const [dialogState, setDialogState] = useState({
@@ -95,7 +105,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleClickMenu = useCallback(
-    (event) => setAnchorEl(event.currentTarget),
+    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
+      setAnchorEl(event.currentTarget),
     []
   );
 
@@ -121,6 +132,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       };
   }, [isEpochExpired, isSettleable]);
 
+  // @ts-ignore TODO: FIX
   const Dialog = DIALOGS[dialogState.type];
 
   return (
@@ -138,14 +150,19 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
+              // @ts-ignore TODO: FIX
               src={SSOV_MAP[ssovData.tokenName].imageSrc}
               alt={tokenSymbol}
             />
           </Box>
           <Typography variant="h5" className="text-white">
-            {SSOV_MAP[ssovData.tokenName].tokenSymbol === 'vBNB'
-              ? 'BNB'
-              : SSOV_MAP[ssovData.tokenName].tokenSymbol}
+            {
+              // @ts-ignore TODO: FIX
+              SSOV_MAP[ssovData.tokenName].tokenSymbol === 'vBNB'
+                ? 'BNB'
+                : // @ts-ignore TODO: FIX
+                  SSOV_MAP[ssovData.tokenName].tokenSymbol
+            }
           </Typography>
         </Box>
       </TableCell>

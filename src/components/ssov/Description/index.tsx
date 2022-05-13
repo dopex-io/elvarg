@@ -42,6 +42,7 @@ const Description = ({
   const { APY, isVaultReady } = ssovEpochData;
 
   const tokenSymbol = useMemo(
+    // @ts-ignore TODO: FIX
     () => SSOV_MAP[ssovData.tokenName].tokenSymbol,
     [ssovData]
   );
@@ -52,7 +53,9 @@ const Description = ({
     if (ssovData.tokenPrice && ssovEpochData) {
       if (isPut) {
         return (
+          // @ts-ignore TODO: FIX
           getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
+          // @ts-ignore TODO: FIX
           getUserReadableAmount(ssovData.lpPrice, 18)
         );
       } else if (tokenSymbol === 'BNB') {
@@ -75,6 +78,7 @@ const Description = ({
     {
       heading: 'Asset',
       value: tokenSymbol,
+      // @ts-ignore TODO: FIX
       imgSrc: SSOV_MAP[ssovData.tokenName].imageSrc,
     },
     {
@@ -83,7 +87,8 @@ const Description = ({
       Icon: Action,
       tooltip: isPut
         ? 'Curve 2Pool Fee APY and Curve Rewards'
-        : ssovInfo[tokenSymbol].aprToolTipMessage,
+        : // @ts-ignore TODO: FIX
+          ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -93,6 +98,7 @@ const Description = ({
   ];
 
   return (
+    // @ts-ignore TODO: FIX
     <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
       <Typography variant="h1" className="mb-6 flex items-center space-x-3">
         <span>{tokenSymbol} SSOV</span>
@@ -112,7 +118,8 @@ const Description = ({
         <br />
         {isPut
           ? 'Deposit 2CRV (or USDT, USDC) into strikes providing liquidity into option pools to earn Fee APY, Curve rewards and premiums in 2CRV from each option purchase.'
-          : ssovInfo[tokenSymbol].mainPageMessage}
+          : // @ts-ignore TODO: FIX
+            ssovInfo[tokenSymbol].mainPageMessage}
       </Typography>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip

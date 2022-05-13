@@ -7,6 +7,7 @@ import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import Chart from './Chart';
 
+// @ts-ignore TODO: FIX
 const PreviousUpdatesDialog = ({ data, open, handleClose }) => {
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
@@ -17,6 +18,7 @@ const PreviousUpdatesDialog = ({ data, open, handleClose }) => {
         {data
           .slice()
           .reverse()
+          // @ts-ignore TODO: FIX
           .map((item) => {
             return (
               <Box key={item.timestamp} className="mb-4">

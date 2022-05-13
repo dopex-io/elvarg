@@ -1,4 +1,10 @@
-import { useCallback, useContext, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useContext,
+  useState,
+  useMemo,
+  SetStateAction,
+} from 'react';
 import { BigNumber } from 'ethers';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -78,13 +84,15 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleClickMenu = useCallback(
-    (event) => setAnchorEl(event.currentTarget),
+    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
+      setAnchorEl(event.currentTarget),
     []
   );
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
   const settleableBooleans = useMemo(() => {
+    // @ts-ignore TODO: FIX
     if (ssovEpochData.isEpochExpired) {
       if (isSettleable) {
         return {
@@ -104,6 +112,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       };
   }, [ssovEpochData, isSettleable]);
 
+  // @ts-ignore TODO: FIX
   const Dialog = DIALOGS[dialogState.type];
 
   return (
@@ -117,12 +126,17 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
+              // @ts-ignore TODO: FIX
               src={`/assets/${ssovData.underlyingSymbol.toLowerCase()}.svg`}
+              // @ts-ignore TODO: FIX
               alt={ssovData.underlyingSymbol}
             />
           </Box>
           <Typography variant="h5" className="text-white">
-            {ssovData.underlyingSymbol}
+            {
+              // @ts-ignore TODO: FIX
+              ssovData.underlyingSymbol
+            }
           </Typography>
         </Box>
       </TableCell>
@@ -141,9 +155,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Typography variant="h6">
           {pnlAmount.gte(0)
             ? `${formatAmount(getUserReadableAmount(pnlAmount, 18), 5)} ${
-                ssovData.collateralSymbol
+                ssovData?.collateralSymbol
               }`
-            : `0 ${ssovData.collateralSymbol}`}
+            : `0 ${ssovData?.collateralSymbol}`}
         </Typography>
       </TableCell>
       <TableCell align="right">

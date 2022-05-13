@@ -1,4 +1,4 @@
-const ArrowRightIcon = ({ className, fill = '#3E3E3E' }) => (
+const ArrowRightIcon = ({ className, fill = '#3E3E3E' }: any) => (
   <svg
     className={className}
     width="10"

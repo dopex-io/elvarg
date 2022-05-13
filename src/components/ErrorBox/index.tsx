@@ -2,13 +2,12 @@ import cx from 'classnames';
 
 import Typography from 'components/UI/Typography';
 
-export default function ErrorBox({
-  error,
-  className,
-}: {
+interface Props {
   error: string;
   className?: string;
-}) {
+}
+
+export default function ErrorBox({ error, className }: Props) {
   if (error)
     return (
       <Typography

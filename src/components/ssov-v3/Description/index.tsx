@@ -51,6 +51,7 @@ const Description = ({
   ];
 
   return (
+    // @ts-ignore TODO: FIX
     <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
       <Typography variant="h1" className="mb-6 flex items-center space-x-3">
         <span>{ssovData.underlyingSymbol}</span>

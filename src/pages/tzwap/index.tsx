@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import cx from 'classnames';
 import Head from 'next/head';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, {
   useEffect,
   useContext,
@@ -5,7 +6,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { Addresses, DiamondPepeNFTs__factory } from '@dopex-io/sdk';
+import { DiamondPepeNFTs__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 
@@ -23,7 +24,6 @@ import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
 import { Data, UserData } from 'types/diamondpepes';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -56,24 +56,21 @@ const Pledge2Dialog = ({
   open,
   handleClose,
   data,
-  tab,
   userData,
   updateData,
   updateUserData,
   pledge,
 }: Props) => {
-  const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
-    useContext(AssetsContext);
-  const { accountAddress, chainId, signer, provider } =
+  const { accountAddress, chainId, signer, contractAddresses } =
     useContext(WalletContext);
 
   const diamondPepeNfts = useMemo(
     () =>
       DiamondPepeNFTs__factory.connect(
-        Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+        contractAddresses['NFTS']['DiamondPepesNFT'],
         signer
       ),
-    [signer, chainId]
+    [contractAddresses, signer]
   );
   const [approved, setApproved] = useState<boolean>(false);
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);

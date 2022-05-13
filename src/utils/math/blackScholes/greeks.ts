@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Calculation of option greeks.
  * See {@link http://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#The_Greeks|Wikipedia}

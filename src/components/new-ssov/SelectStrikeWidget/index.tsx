@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext } from 'react';
 import { Addresses } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';

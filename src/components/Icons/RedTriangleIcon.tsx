@@ -1,4 +1,4 @@
-const RedTriangleIcon = ({ className }) => (
+const RedTriangleIcon = ({ className }: any) => (
   <svg
     className={className}
     width="18"

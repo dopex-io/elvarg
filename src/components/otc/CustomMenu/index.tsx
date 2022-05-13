@@ -43,8 +43,10 @@ const CustomMenu = (props: CustomMenuProps) => {
     data: {},
   });
 
+  // @ts-ignore TODO: FIX
   const Dialog = DIALOGS[dialogState.type];
 
+  // @ts-ignore TODO: FIX
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
   };
@@ -53,6 +55,7 @@ const CustomMenu = (props: CustomMenuProps) => {
     setDialogState((prevState) => ({ ...prevState, open: false }));
   }, []);
 
+  // @ts-ignore TODO: FIX
   const handleMenuClick = useCallback((data, type) => {
     setDialogState((prevState) => ({
       ...prevState,
@@ -87,13 +90,19 @@ const CustomMenu = (props: CustomMenuProps) => {
         classes={{ paper: 'bg-umbra text-white py-0' }}
       >
         <MenuItem onClick={() => handleMenuClick(data, 'BID_ASK')}>
-          {actions[0]}
+          {
+            // @ts-ignore TODO: FIX
+            actions[0]
+          }
         </MenuItem>
         <MenuItem
           onClick={() => handleMenuClick(data, 'CLOSE')}
           disabled={accountAddress !== data.dealerAddress || data.isFulfilled}
         >
-          {actions[1]}
+          {
+            // @ts-ignore TODO: FIX
+            actions[1]
+          }
         </MenuItem>
       </Menu>
       <Dialog

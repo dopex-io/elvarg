@@ -40,6 +40,7 @@ const Transfer = ({
     ssovUserData,
     ssovData,
     selectedEpoch,
+    // @ts-ignore TODO: FIX
   } = ssovContext[activeSsovContextSide];
   const { accountAddress, signer } = useContext(WalletContext);
 
@@ -86,10 +87,12 @@ const Transfer = ({
     setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance.toString());
   }, [epochStrikeToken, accountAddress]);
 
+  // @ts-ignore TODO: FIX
   const handleRecipientChange = useCallback((e) => {
     setRecipient(e.target.value.toString());
   }, []);
 
+  // @ts-ignore TODO: FIX
   const handleAmountChange = useCallback((e) => {
     setTransferAmount(e.target.value.toString());
   }, []);
@@ -168,6 +171,7 @@ const Transfer = ({
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
+                  // @ts-ignore TODO: FIX
                   src={SSOV_MAP[ssovData.tokenName].imageSrc}
                   alt={ssovData.tokenName}
                 />

@@ -125,12 +125,18 @@ const Stats = (props: { className?: string }) => {
 
   const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovV3Context);
 
+  // @ts-ignore TODO: FIX
   const { tokenPrice, underlyingSymbol, collateralSymbol, isPut } = ssovData;
   const {
+    // @ts-ignore TODO: FIX
     epochTimes,
+    // @ts-ignore TODO: FIX
     epochStrikes,
+    // @ts-ignore TODO: FIX
     totalEpochPremium,
+    // @ts-ignore TODO: FIX
     totalEpochStrikeDeposits,
+    // @ts-ignore TODO: FIX
     totalEpochOptionsPurchased,
   } = ssovEpochData;
 
@@ -154,6 +160,7 @@ const Stats = (props: { className?: string }) => {
 
   const stats: any[] = useMemo(
     () =>
+      // @ts-ignore TODO: FIX
       epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
         const totalDeposits = getUserReadableAmount(
@@ -186,6 +193,7 @@ const Stats = (props: { className?: string }) => {
     ]
   );
 
+  // @ts-ignore TODO: FIX
   return selectedEpoch > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
       <Box className="flex flex-row justify-between mb-1">
@@ -197,7 +205,7 @@ const Stats = (props: { className?: string }) => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
+        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
           {isEmpty(epochStrikes) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
               {range(3).map((_, index) => (

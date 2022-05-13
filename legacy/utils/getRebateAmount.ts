@@ -18,7 +18,8 @@ async function getRebateAmount(
   const optionPoolAddress = optionPoolSdk.contract.address;
 
   const optionPoolRebates = OptionPoolRebates__factory.connect(
-    contractAddresses.OptionPoolRebates,
+    // @ts-ignore TODO: FIX
+    contractAddresses['OptionPoolRebates'],
     provider
   );
 
@@ -66,7 +67,8 @@ async function getRebateAmount(
     const epochExpiry = epochTimes[1];
 
     const dopexOracle = DopexOracle__factory.connect(
-      contractAddresses.DopexOracle,
+      // @ts-ignore TODO: FIX
+      contractAddresses['DopexOracle'],
       provider
     );
 

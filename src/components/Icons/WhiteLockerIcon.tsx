@@ -1,4 +1,4 @@
-const WhiteLockerIcon = ({ className }) => (
+const WhiteLockerIcon = ({ className }: any) => (
   <svg
     className={className}
     width="12"

@@ -26,10 +26,13 @@ const SelectMenuClasses = {
 const SUPPORTED_TOKENS = ['2CRV', 'USDC', 'USDT'];
 
 const Curve2PoolDepositSelector = ({
+  // @ts-ignore TODO: FIX
   depositTokenName,
+  // @ts-ignore TODO: FIX
   setDepositTokenName,
 }) => {
   const handleSelectChange = useCallback(
+    // @ts-ignore TODO: FIX
     (e) => setDepositTokenName(e.target.value.toString()),
     [setDepositTokenName]
   );

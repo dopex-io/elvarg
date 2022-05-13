@@ -1,4 +1,4 @@
-const FlagIcon = ({ className, fill }) => (
+const FlagIcon = ({ className, fill }: any) => (
   <svg
     width="10"
     height="11"

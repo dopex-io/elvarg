@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
 import { emojisplosions } from 'emojisplosion';

@@ -46,7 +46,7 @@ const ChangeNetworkDialog = () => {
   }, [wrongNetwork, setChangeNetwork]);
 
   const handleClose = useCallback(
-    (_, reason) => {
+    (_: any, reason: string) => {
       if (reason === 'backdropClick') return;
       setChangeNetwork('close');
     },
@@ -73,8 +73,8 @@ const ChangeNetworkDialog = () => {
           return (
             <NetworkOption
               key={chainId}
-              imgSrc={data.icon}
-              name={data.name}
+              imgSrc={data?.icon || ''}
+              name={data?.name || ''}
               chainId={chainId}
             />
           );

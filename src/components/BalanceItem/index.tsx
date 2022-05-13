@@ -31,6 +31,7 @@ const BalanceItem = (props: BalanceItemProps) => {
               address: contractAddresses[upperCaseToken],
               symbol: token,
               decimals: decimals,
+              // @ts-ignore TODO: FIX
               image: S3_BUCKET_RESOURCES[token] || iconSrc,
             }}
           />
