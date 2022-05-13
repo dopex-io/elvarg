@@ -10,7 +10,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovV3Context } from 'contexts/SsovV3';
+import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -52,8 +52,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     useState<string>('0');
   const [approved, setApproved] = useState(false);
 
-  // @ts-ignore TODO: FIX
-  const { epochStrikes, epochStrikeTokens } = ssovEpochData;
+  const { epochStrikes, epochStrikeTokens } = ssovEpochData as SsovV3EpochData;
 
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
   const epochStrikeToken = epochStrikeTokens[strikeIndex];
@@ -71,29 +70,33 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
   }, [epochStrikeToken, accountAddress, provider]);
 
   const handleSettle = useCallback(async () => {
-    if (!accountAddress || !epochStrikeToken) return;
+    if (
+      !accountAddress ||
+      !epochStrikeToken ||
+      !selectedEpoch ||
+      !ssovSigner.ssovContractWithSigner
+    )
+      return;
     try {
       await sendTx(
-        // @ts-ignore TODO: FIX
         ssovSigner.ssovContractWithSigner.settle(
           strikeIndex,
           userEpochStrikeTokenBalance,
-          1
+          selectedEpoch
         )
       );
-      // @ts-ignore TODO: FIX
       updateSsovV3EpochData();
-      // @ts-ignore TODO: FIX
       updateSsovV3UserData();
       updateUserEpochStrikeTokenBalance();
     } catch (err) {
       console.log(err);
     }
   }, [
+    selectedEpoch,
     accountAddress,
     epochStrikeToken,
     sendTx,
-    ssovSigner.ssovContractWithSigner,
+    ssovSigner,
     strikeIndex,
     userEpochStrikeTokenBalance,
     updateSsovV3EpochData,
@@ -102,14 +105,18 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
   ]);
 
   const handleApprove = useCallback(async () => {
-    if (!accountAddress || !epochStrikeToken) return;
+    if (
+      !accountAddress ||
+      !epochStrikeToken ||
+      !signer ||
+      !ssovSigner.ssovContractWithSigner
+    )
+      return;
     try {
-      // @ts-ignore TODO: FIX
       const optionsToken = ERC20__factory.connect(epochStrikeToken, signer);
 
       await sendTx(
         optionsToken.approve(
-          // @ts-ignore TODO: FIX
           ssovSigner.ssovContractWithSigner.address,
           userEpochStrikeTokenBalance
         )
@@ -128,12 +135,16 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
 
   useEffect(() => {
     async function checkAllowance() {
+      if (
+        !accountAddress ||
+        !epochStrikeToken ||
+        !ssovSigner.ssovContractWithSigner
+      )
+        return;
       const optionsToken = ERC20__factory.connect(epochStrikeToken, provider);
 
       const allowance = await optionsToken.allowance(
-        // @ts-ignore TODO: FIX
         accountAddress,
-        // @ts-ignore TODO: FIX
         ssovSigner.ssovContractWithSigner.address
       );
 

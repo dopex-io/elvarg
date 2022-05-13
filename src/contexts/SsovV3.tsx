@@ -16,6 +16,7 @@ import {
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
+import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
@@ -73,9 +74,9 @@ interface SsovV3ContextInterface {
   ssovSigner: SsovV3Signer;
   selectedEpoch?: number;
   selectedSsovV3?: string;
-  updateSsovV3EpochData?: Function;
-  updateSsovV3UserData?: Function;
-  setSelectedSsovV3?: Function;
+  updateSsovV3EpochData: Function;
+  updateSsovV3UserData: Function;
+  setSelectedSsovV3: Function;
   setSelectedEpoch?: Function;
 }
 
@@ -89,6 +90,9 @@ export const SsovV3Context = createContext<SsovV3ContextInterface>({
   ssovUserData: initialSsovV3UserData,
   ssovSigner: initialSsovV3Signer,
   selectedSsovV3: '',
+  updateSsovV3EpochData: noop,
+  updateSsovV3UserData: noop,
+  setSelectedSsovV3: noop,
 });
 
 export const SsovV3Provider = (props: { children: ReactNode }) => {
