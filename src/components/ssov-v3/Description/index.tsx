@@ -67,7 +67,7 @@ const Description = ({
         </Typography>
         <Typography
           variant="h4"
-          className="mb-6 ml-3 flex text-lg items-center space-x-3 border border-primary p-2 pt-1 pb-1 rounded-md"
+          className="mb-6 ml-3 flex text-lg items-center space-x-3 border border-primary py-1 px-2 rounded-md"
         >
           $
           {formatAmount(
