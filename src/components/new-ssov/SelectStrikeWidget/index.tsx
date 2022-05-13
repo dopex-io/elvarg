@@ -9,7 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
-import CircleIcon from 'components/Icons/CircleIcon';
+import CircleIcon from 'svgs/icons/CircleIcon';
 
 import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';

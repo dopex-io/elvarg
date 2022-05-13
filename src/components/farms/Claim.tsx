@@ -5,7 +5,7 @@ import { StakingRewards__factory } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import BalanceItem from 'components/BalanceItem';
+import BalanceItem from 'components/common/BalanceItem';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';

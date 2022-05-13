@@ -14,7 +14,7 @@ import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/WalletButton';
+import WalletButton from 'components/common/WalletButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';

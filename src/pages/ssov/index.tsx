@@ -9,7 +9,7 @@ import { AssetsContext } from 'contexts/Assets';
 import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import LegacyEpochsDropDown from 'components/ssov/LegacyEpochsDropDown/LegacyEpochsDropDown';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';

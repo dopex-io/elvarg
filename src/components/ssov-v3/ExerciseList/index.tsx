@@ -15,7 +15,7 @@ import Skeleton from '@mui/material/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
-import WalletButton from 'components/WalletButton';
+import WalletButton from 'components/common/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
 import { WalletContext } from 'contexts/Wallet';

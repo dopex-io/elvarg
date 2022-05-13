@@ -8,7 +8,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/WalletButton';
+import WalletButton from 'components/common/WalletButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';

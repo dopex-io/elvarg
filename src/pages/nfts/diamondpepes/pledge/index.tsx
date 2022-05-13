@@ -13,7 +13,7 @@ import Box from '@mui/material/Box';
 import { Tooltip } from '@mui/material';
 
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 
 import PledgeDialog from 'components/nfts/diamondpepes/PledgeDialog';
 

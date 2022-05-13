@@ -17,9 +17,9 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/CustomButton';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
-import MaxApprove from 'components/MaxApprove';
+import MaxApprove from 'components/common/MaxApprove';
 import LpTokenDistribution from 'components/farms/LpTokenDistribution';
 
 import Dropdown from 'svgs/farming/Dropdown';

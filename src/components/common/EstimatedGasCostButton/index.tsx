@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '../UI/Typography';
+import Typography from '../../UI/Typography';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { WalletContext } from 'contexts/Wallet';

@@ -2,9 +2,9 @@ import Box from '@mui/material/Box';
 import cx from 'classnames';
 import { useMemo, useState } from 'react';
 
-import PriceTag from 'components/AppBar/PriceTag';
+import PriceTag from 'components/common/AppBar/PriceTag';
 
-import styles from 'components/AppBar/styles.module.scss';
+import styles from 'components/common/AppBar/styles.module.scss';
 
 interface IPriceCarouselProps {
   tokenPrices: {

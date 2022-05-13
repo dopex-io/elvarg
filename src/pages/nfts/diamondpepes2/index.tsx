@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 
 import ActionsDialog from 'components/nfts/diamondpepes2/ActionsDialog';
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 
 import styles from 'components/nfts/diamondpepes2/styles.module.scss';
 

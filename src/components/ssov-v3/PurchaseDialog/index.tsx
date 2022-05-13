@@ -21,10 +21,10 @@ import { useDebounce } from 'use-debounce';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import PnlChart from 'components/PnlChart';
-import BigCrossIcon from 'components/Icons/BigCrossIcon';
-import CircleIcon from 'components/Icons/CircleIcon';
-import AlarmIcon from 'components/Icons/AlarmIcon';
+import PnlChart from 'components/common/PnlChart';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
+import CircleIcon from 'svgs/icons/CircleIcon';
+import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';

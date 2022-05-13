@@ -9,7 +9,7 @@ import * as yup from 'yup';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import ClaimSection from 'components/sale/ClaimSection';
 import StatsSection from 'components/sale/StatsSection';
 import InfoSection from 'components/sale/InfoSection';

@@ -6,7 +6,7 @@ import delay from 'lodash/delay';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import BalanceItem from 'components/BalanceItem';
+import BalanceItem from 'components/common/BalanceItem';
 
 import { WalletContext } from 'contexts/Wallet';
 

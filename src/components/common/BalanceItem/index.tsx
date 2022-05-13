@@ -1,8 +1,8 @@
 import { useContext } from 'react';
 import Box from '@mui/material/Box';
 
-import AddTokenButton from 'components/AddTokenButton';
 import Typography from 'components/UI/Typography';
+import AddTokenButton from './AddTokenButton';
 
 import { WalletContext } from 'contexts/Wallet';
 

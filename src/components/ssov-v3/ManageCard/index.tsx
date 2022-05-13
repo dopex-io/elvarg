@@ -20,8 +20,8 @@ import { AssetsContext } from 'contexts/Assets';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
-import LockerIcon from 'components/Icons/LockerIcon';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import LockerIcon from 'svgs/icons/LockerIcon';
 
 import useSendTx from 'hooks/useSendTx';
 

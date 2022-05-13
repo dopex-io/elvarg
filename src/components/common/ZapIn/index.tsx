@@ -21,19 +21,19 @@ import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import TokenSelector from '../TokenSelector';
-import CustomButton from '../UI/CustomButton';
-import Typography from '../UI/Typography';
+import CustomButton from '../../UI/CustomButton';
+import Typography from '../../UI/Typography';
 
 import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
-import ArrowLeftIcon from '../Icons/ArrowLeftIcon';
-import SettingsIcon from '../Icons/SettingsIcon';
-import CrossIcon from '../Icons/CrossIcon';
-import ZapIcon from '../Icons/ZapIcon';
-import AlarmIcon from '../Icons/AlarmIcon';
+import ArrowLeftIcon from 'svgs/icons/ArrowLeftIcon';
+import SettingsIcon from 'svgs/icons/SettingsIcon';
+import CrossIcon from 'svgs/icons/CrossIcon';
+import ZapIcon from 'svgs/icons/ZapIcon';
+import AlarmIcon from 'svgs/icons/AlarmIcon';
 import SwapSymbol from './components/SwapSymbol';
 import SwapStep from './components/SwapStep';
 

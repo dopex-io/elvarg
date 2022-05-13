@@ -2,12 +2,12 @@ import { useContext, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Description from 'components/ssov/Description';
 import ManageCard from 'components/ssov/ManageCard';
 import ExerciseList from 'components/ssov/ExerciseList';
 import Stats from 'components/ssov/Stats';
-import PageLoader from 'components/PageLoader';
+import PageLoader from 'components/common/PageLoader';
 
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';

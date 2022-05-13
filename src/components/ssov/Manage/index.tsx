@@ -4,13 +4,13 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Description from 'components/ssov/Description';
 import ManageCard from 'components/ssov/ManageCard';
 import ExerciseList from 'components/ssov/ExerciseList';
 import Stats from 'components/ssov/Stats';
-import PageLoader from 'components/PageLoader';
-import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
+import PageLoader from 'components/common/PageLoader';
+import EmergencyNoticeBanner from 'components/common/Banners/EmergencyNoticeBanner';
 
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
 

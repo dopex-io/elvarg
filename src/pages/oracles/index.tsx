@@ -4,9 +4,9 @@ import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
-import PageLoader from 'components/PageLoader';
+import PageLoader from 'components/common/PageLoader';
 import OracleCard from 'components/oracles/OracleCard';
 
 import { CHAIN_ID_TO_RPC } from 'constants/index';

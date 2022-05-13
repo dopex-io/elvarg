@@ -7,13 +7,13 @@ import CircularProgress from '@mui/material/CircularProgress';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import Typography from '../UI/Typography';
+import Typography from '../../UI/Typography';
 
-import ZapIcon from '../Icons/ZapIcon';
-import PlusIcon from '../Icons/PlusIcon';
-import ArrowUpIcon from '../Icons/ArrowUpIcon';
-import RedTriangleIcon from '../Icons/RedTriangleIcon';
-import YellowTriangleIcon from '../Icons/YellowTriangleIcon';
+import ZapIcon from 'svgs/icons/ZapIcon';
+import PlusIcon from 'svgs/icons/PlusIcon';
+import ArrowUpIcon from 'svgs/icons/ArrowUpIcon';
+import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
+import YellowTriangleIcon from 'svgs/icons/YellowTriangleIcon';
 
 const SLIPPAGE_STATUS_CLASSES = {
   high: 'text-yellow-500',

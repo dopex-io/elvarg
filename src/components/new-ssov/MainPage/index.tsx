@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { useRouter } from 'next/router';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Description from 'components/new-ssov/Description';
 import ManageCard from 'components/new-ssov/ManageCard';
 import Sidebar from 'components/new-ssov/Sidebar';
@@ -16,8 +16,8 @@ import PurchaseOptions from 'components/new-ssov/PurchaseOptions';
 import Stats from 'components/new-ssov/Stats';
 import WithdrawalInfo from 'components/new-ssov/WithdrawalInfo';
 import AutoExerciseInfo from 'components/new-ssov/AutoExerciseInfo';
-import PageLoader from 'components/PageLoader';
-import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
+import PageLoader from 'components/common/PageLoader';
+import EmergencyNoticeBanner from 'components/common/Banners/EmergencyNoticeBanner';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProvider } from 'contexts/NewSsov';

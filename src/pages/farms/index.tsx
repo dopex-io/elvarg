@@ -10,10 +10,10 @@ import useSendTx from 'hooks/useSendTx';
 
 import Pool from 'components/farms/Pool';
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import CustomButton from 'components/UI/CustomButton';
-import FarmingMigrationBanner from 'components/Banners/FarmingMigrationBanner';
-import LegacyFarmBanner from 'components/Banners/LegacyFarmBanner';
+import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
+import LegacyFarmBanner from 'components/common/Banners/LegacyFarmBanner';
 
 import { FarmingContext } from 'contexts/Farming';
 import { WalletContext } from 'contexts/Wallet';

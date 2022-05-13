@@ -8,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
 import Typography from 'components/UI/Typography';
-import CircleIcon from 'components/Icons/CircleIcon';
+import CircleIcon from 'svgs/icons/CircleIcon';
 
 import { SsovContext } from 'contexts/Ssov';
 import { WalletContext } from 'contexts/Wallet';

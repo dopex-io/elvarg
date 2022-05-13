@@ -4,7 +4,7 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
 
-import ChangeNetworkDialog from 'components/ChangeNetworkDialog';
+import ChangeNetworkDialog from 'components/common/ChangeNetworkDialog';
 import theme from '../style/muiTheme';
 
 import 'tailwindcss/tailwind.css';

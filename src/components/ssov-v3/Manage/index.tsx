@@ -2,12 +2,12 @@ import { useContext, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Description from 'components/ssov-v3/Description';
 import ManageCard from 'components/ssov-v3/ManageCard';
 import ExerciseList from 'components/ssov-v3/ExerciseList';
 import Stats from 'components/ssov-v3/Stats';
-import PageLoader from 'components/PageLoader';
+import PageLoader from 'components/common/PageLoader';
 
 import { SsovV3Context } from 'contexts/SsovV3';
 import WritePositions from 'components/ssov-v3/WritePositions';

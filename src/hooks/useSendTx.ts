@@ -2,7 +2,7 @@ import { useContext, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { ContractTransaction } from 'ethers';
 
-import TransactionToast from 'components/TransactionToast';
+import TransactionToast from 'components/UI/TransactionToast';
 import { WalletContext } from 'contexts/Wallet';
 
 const useSendTx = () => {

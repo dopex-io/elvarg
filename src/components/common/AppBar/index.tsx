@@ -20,9 +20,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
 import Typography from 'components/UI/Typography';
-import WalletDialog from 'components/AppBar/WalletDialog';
+import WalletDialog from 'components/common/AppBar/WalletDialog';
 import CustomButton from 'components/UI/CustomButton';
-import PriceCarousel from 'components/AppBar/PriceCarousel';
+import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
