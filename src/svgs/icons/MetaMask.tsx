@@ -1,4 +1,6 @@
-function MetaMask(props) {
+import { SVGProps } from 'react';
+
+function MetaMask(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       version="1.1"
@@ -6,7 +8,6 @@ function MetaMask(props) {
       x="0px"
       y="0px"
       viewBox="0 0 318.6 318.6"
-      style={{ enableBackground: 'new 0 0 318.6 318.6' }}
       {...props}
     >
       <polygon

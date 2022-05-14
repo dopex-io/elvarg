@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -45,6 +45,7 @@ const Settle = ({
     ssovUserData,
     ssovSigner,
     selectedEpoch,
+    // @ts-ignore TODO: FIX
   } = ssovContext[activeSsovContextSide];
   const { accountAddress, signer } = useContext(WalletContext);
   const { convertToVBNB } = useContext(BnbConversionContext);

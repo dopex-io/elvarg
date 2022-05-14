@@ -2,8 +2,11 @@ import { Addresses } from '@dopex-io/sdk';
 
 export default function getSymbolFromAddress(address: string, chainId: number) {
   let output = null;
+  // @ts-ignore TODO: FIX
   Object.keys(Addresses[chainId]).map((symbol) => {
+    // @ts-ignore TODO: FIX
     if (typeof Addresses[chainId][symbol] === 'string') {
+      // @ts-ignore TODO: FIX
       if (Addresses[chainId][symbol].toLowerCase() === address.toLowerCase()) {
         output = symbol;
       }

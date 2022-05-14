@@ -20,8 +20,8 @@ import { AssetsContext } from 'contexts/Assets';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
-import LockerIcon from 'components/Icons/LockerIcon';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import LockerIcon from 'svgs/icons/LockerIcon';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -67,6 +67,7 @@ const ManageCard = () => {
 
   const { ssovContractWithSigner } = ssovSigner;
 
+  // @ts-ignore TODO: FIX
   const { epochTimes, epochStrikes } = ssovEpochData;
 
   const [approved, setApproved] = useState<boolean>(false);
@@ -76,23 +77,29 @@ const ManageCard = () => {
     return ssovContractWithSigner?.address;
   }, [ssovContractWithSigner]);
 
-  const strikes = epochStrikes.map((strike) =>
+  const strikes = epochStrikes.map((strike: string | number | BigNumber) =>
     getUserReadableAmount(strike, 8).toString()
   );
 
-  const handleSelectStrike = useCallback((event) => {
-    setStrike(event.target.value);
-  }, []);
+  const handleSelectStrike = useCallback(
+    (event: { target: { value: React.SetStateAction<number> } }) => {
+      setStrike(event.target.value);
+    },
+    []
+  );
 
   const handleDepositAmount = useCallback(
-    (e) => setStrikeDepositAmount(e.target.value),
+    (e: { target: { value: React.SetStateAction<string | number> } }) =>
+      setStrikeDepositAmount(e.target.value),
     []
   );
 
   const handleApprove = useCallback(async () => {
     try {
       await sendTx(
+        // @ts-ignore TODO: FIX
         ERC20__factory.connect(ssovData.collateralAddress, signer).approve(
+          // @ts-ignore TODO: FIX
           spender,
           MAX_VALUE
         )
@@ -106,14 +113,19 @@ const ManageCard = () => {
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     try {
+      // @ts-ignore TODO: FIX
       await ssovContractWithSigner.deposit(
         strike,
         getContractReadableAmount(strikeDepositAmount, 18),
+        // @ts-ignore TODO: FIX
         accountAddress
       );
       setStrikeDepositAmount(0);
+      // @ts-ignore TODO: FIX
       updateAssetBalances();
+      // @ts-ignore TODO: FIX
       updateSsovEpochData();
+      // @ts-ignore TODO: FIX
       updateSsovUserData();
     } catch (err) {
       console.log(err);
@@ -131,6 +143,13 @@ const ManageCard = () => {
   // Updates approved state
   useEffect(() => {
     (async () => {
+      if (
+        !signer ||
+        !ssovData?.collateralAddress ||
+        !accountAddress ||
+        !spender
+      )
+        return;
       const finalAmount: BigNumber = getContractReadableAmount(
         strikeDepositAmount.toString(),
         18
@@ -149,7 +168,8 @@ const ManageCard = () => {
 
     (async function () {
       const bal = await ERC20__factory.connect(
-        ssovData.collateralAddress,
+        // @ts-ignore TODO: FIX
+        ssovData?.collateralAddress,
         signer
       ).balanceOf(accountAddress);
       setUserTokenBalance(bal);
@@ -160,7 +180,7 @@ const ManageCard = () => {
     <Box
       className={cx(
         'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4',
-        styles.cardWidth
+        styles['cardWidth']
       )}
     >
       <Typography variant="h3" className="text-stieglitz mb-2">
@@ -180,7 +200,7 @@ const ManageCard = () => {
               className="text-white ml-auto mr-0 text-[0.72rem]"
             >
               {formatAmount(getUserReadableAmount(userTokenBalance, 18), 8)}{' '}
-              {ssovData.collateralSymbol}
+              {ssovData?.collateralSymbol}
             </Typography>
           </Box>
           <Box className="mt-2 flex">
@@ -189,6 +209,7 @@ const ManageCard = () => {
                 className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
                 fullWidth
                 value={strike}
+                // @ts-ignore TODO: FIX
                 onChange={handleSelectStrike}
                 input={<Input />}
                 variant="outlined"
@@ -201,7 +222,7 @@ const ManageCard = () => {
                 disableUnderline
                 label="strikes"
               >
-                {strikes.map((strike, index) => (
+                {strikes.map((strike: number, index: number) => (
                   <MenuItem key={index} value={index} className="pb-2 pt-2">
                     <Typography
                       variant="h5"
@@ -221,7 +242,7 @@ const ManageCard = () => {
               </Typography>
               <Input
                 disableUnderline={true}
-                name="number"
+                type="number"
                 className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
                 classes={{ input: 'text-white text-xs text-right' }}
                 value={strikeDepositAmount}
@@ -267,7 +288,10 @@ const ManageCard = () => {
             </Box>
             <Typography variant="h6" className="text-stieglitz">
               Withdrawals are locked until end of Epoch{' '}
-              {ssovData.currentEpoch + 1}{' '}
+              {
+                // @ts-ignore TODO: FIX
+                ssovData?.currentEpoch + 1
+              }{' '}
               <span className="text-white">
                 ({' '}
                 {epochTimes[1]

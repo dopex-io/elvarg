@@ -1,31 +1,9 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { BigNumber } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-
-import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
-import { BnbConversionContext } from 'contexts/BnbConversion';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-
-import useSendTx from 'hooks/useSendTx';
-
-import { MAX_VALUE } from 'constants/index';
 
 export interface Props {
   openOrder: number | null;

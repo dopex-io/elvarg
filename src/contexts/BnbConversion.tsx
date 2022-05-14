@@ -1,4 +1,10 @@
-import { createContext, useCallback, useEffect, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Addresses } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 
@@ -8,7 +14,7 @@ import { CHAIN_ID_TO_RPC } from 'constants/index';
 
 export const BnbConversionContext = createContext<any>({});
 
-export const BnbConversionProvider = (props) => {
+export const BnbConversionProvider = (props: { children: ReactNode }) => {
   const [oneBnbToVbnb, setOneBnbToVbnb] = useState<BigNumber>(
     BigNumber.from(0)
   );
@@ -27,8 +33,8 @@ export const BnbConversionProvider = (props) => {
         abi,
         new ethers.providers.StaticJsonRpcProvider(CHAIN_ID_TO_RPC[56])
       );
-      setOneVbnbToBnb(await bnbSsov.vbnbToBnb(oneEBigNumber(8)));
-      setOneBnbToVbnb(await bnbSsov.bnbToVbnb(oneEBigNumber(18)));
+      setOneVbnbToBnb(await bnbSsov['vbnbToBnb'](oneEBigNumber(8)));
+      setOneBnbToVbnb(await bnbSsov['bnbToVbnb'](oneEBigNumber(18)));
     })();
   }, []);
 

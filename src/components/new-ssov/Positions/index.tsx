@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
   useContext,
   useState,

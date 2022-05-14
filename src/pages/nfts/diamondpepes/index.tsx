@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
@@ -12,7 +13,7 @@ import { Tooltip } from '@mui/material';
 
 import ActionsDialog from 'components/nfts/diamondpepes/ActionsDialog';
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';

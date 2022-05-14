@@ -1,4 +1,6 @@
-function Action(props) {
+import { SVGProps } from 'react';
+
+function Action(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="39"

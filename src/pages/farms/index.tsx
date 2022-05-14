@@ -10,10 +10,10 @@ import useSendTx from 'hooks/useSendTx';
 
 import Pool from 'components/farms/Pool';
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import CustomButton from 'components/UI/CustomButton';
-import FarmingMigrationBanner from 'components/Banners/FarmingMigrationBanner';
-import LegacyFarmBanner from 'components/Banners/LegacyFarmBanner';
+import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
+import LegacyFarmBanner from 'components/common/Banners/LegacyFarmBanner';
 
 import { FarmingContext } from 'contexts/Farming';
 import { WalletContext } from 'contexts/Wallet';
@@ -128,6 +128,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           DPX.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));
@@ -141,6 +142,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           DPX_WETH.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));
@@ -153,6 +155,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           rDPX_WETH.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));
@@ -165,6 +168,7 @@ const Farms = () => {
       try {
         const stakingRewardsContract = StakingRewards__factory.connect(
           RDPX.stakingRewardsContractAddress,
+          // @ts-ignore TODO: FIX
           signer
         );
         await sendTx(stakingRewardsContract.getReward(2));

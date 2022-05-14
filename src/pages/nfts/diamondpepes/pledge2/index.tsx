@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import {
   DiamondPepeNFTsPledge2__factory,
@@ -10,7 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 
 import Pledge2Dialog from 'components/nfts/diamondpepes/Pledge2Dialog';
 

@@ -1,4 +1,6 @@
-function Equal(props) {
+import { SVGProps } from 'react';
+
+function Equal(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="16"

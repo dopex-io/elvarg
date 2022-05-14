@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext, useMemo } from 'react';
 
 import Box from '@mui/material/Box';
@@ -9,7 +10,7 @@ import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import Typography from 'components/UI/Typography';
-import FlagIcon from 'components/Icons/FlagIcon';
+import FlagIcon from 'svgs/icons/FlagIcon';
 
 import { WalletContext } from 'contexts/Wallet';
 import { BnbConversionContext } from 'contexts/BnbConversion';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
 import { emojisplosions } from 'emojisplosion';
@@ -10,9 +11,9 @@ import Switch from '@mui/material/Switch';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
-import BigCrossIcon from 'components/Icons/BigCrossIcon';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { WalletContext } from 'contexts/Wallet';
 

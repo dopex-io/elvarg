@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 
 import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
 
-export const CURRENCIES_MAP = {
+export const CURRENCIES_MAP: { [key: string]: string } = {
   '1': 'ETH',
   '42161': 'ETH',
   '56': 'BNB',
@@ -252,7 +252,9 @@ export const DISPLAY_TOKENS = {
   1088: ['METIS'],
 };
 
-export const CHAIN_ID_TO_NETWORK_DATA = {
+export const CHAIN_ID_TO_NETWORK_DATA: {
+  [key: number]: { name: string; icon: string };
+} = {
   1: { name: 'Mainnet', icon: '/assets/eth.svg' },
   42: { name: 'Kovan', icon: '/assets/eth.svg' },
   56: { name: 'BSC', icon: '/assets/bsc.svg' },
@@ -324,14 +326,14 @@ export const TOKEN_DATA: {
 
 export const TOKENS = Object.keys(TOKEN_DATA);
 
-export const CHAIN_ID_TO_RPC = {
-  '1': `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
-  '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
-  '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '1088': 'https://andromeda.metis.io/?owner=1088',
-  '1337': 'http://127.0.0.1:8545',
+export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
+  1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
+  56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
+  42161: `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
+  421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+  1088: 'https://andromeda.metis.io/?owner=1088',
+  1337: 'http://127.0.0.1:8545',
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

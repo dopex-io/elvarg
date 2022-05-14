@@ -5,7 +5,7 @@ import InfoPopover from 'components/UI/InfoPopover';
 
 import formatAmount from 'utils/general/formatAmount';
 
-const StatsSection = ({ data }) => {
+const StatsSection = ({ data }: any) => {
   const { formik, deposits, depositShare, claimAmount } = data;
 
   return (

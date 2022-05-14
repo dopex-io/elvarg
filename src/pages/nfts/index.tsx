@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import NftCard from 'components/nfts/components/NftCard';
 
 import { NftsContext, NftsProvider } from 'contexts/Nfts';

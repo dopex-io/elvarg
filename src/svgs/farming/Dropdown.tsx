@@ -1,4 +1,6 @@
-function Dropdown(props) {
+import { SVGProps } from 'react';
+
+function Dropdown(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="10"
