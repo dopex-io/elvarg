@@ -55,7 +55,7 @@ export interface SsovData {
 }
 
 export interface SsovEpochData {
-  epochTimes: {};
+  epochTimes: { [key: number]: BigNumber } | [BigNumber, BigNumber];
   isEpochExpired: boolean;
   isVaultReady: boolean;
   epochStrikes: BigNumber[];
@@ -80,10 +80,10 @@ interface SsovContextInterface {
   ssovUserData?: SsovUserData;
   ssovSigner: SsovSigner;
   selectedEpoch?: number;
-  selectedSsov?: Ssov;
+  selectedSsov: Ssov;
   updateSsovEpochData?: Function;
   updateSsovUserData?: Function;
-  setSelectedSsov?: Function;
+  setSelectedSsov: Function;
   setSelectedEpoch?: Function;
   isPut?: boolean;
 }
