@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';

@@ -1,4 +1,6 @@
-function Caution(props) {
+import { SVGProps } from 'react';
+
+function Caution(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="26"

@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 import cx from 'classnames';
 import Countdown from 'react-countdown';
+import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -31,14 +32,20 @@ const Withdraw = () => {
     selectedSsov,
   } = useContext(SsovContext);
 
+  // @ts-ignore TODO: FIX
   const { tokenName } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
   const {
+    // @ts-ignore TODO: FIX
     epochTimes,
+    // @ts-ignore TODO: FIX
     epochStrikes,
+    // @ts-ignore TODO: FIX
     totalEpochStrikeDeposits,
+    // @ts-ignore TODO: FIX
     totalEpochDeposits,
   } = ssovEpochData;
+  // @ts-ignore TODO: FIX
   const { userEpochStrikeDeposits, userEpochDeposits } = ssovUserData;
 
   const { updateAssetBalances } = useContext(AssetsContext);
@@ -48,18 +55,19 @@ const Withdraw = () => {
   const epochEndTime = epochTimes[1]
     ? format(new Date(epochTimes[1] * 1000), 'MM/dd')
     : 'N/A';
-
+  // @ts-ignore TODO: FIX
   const isPut = selectedSsov.type === 'PUT';
 
-  const strikes = epochStrikes.map((strike) =>
+  const strikes = epochStrikes.map((strike: string | number | BigNumber) =>
     getUserReadableAmount(strike, 8).toString()
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
-    (deposit) =>
-      tokenName === 'BNB'
+    (deposit: string | number | BigNumber) => {
+      return tokenName === 'BNB'
         ? getUserReadableAmount(deposit, 8)
-        : getUserReadableAmount(deposit, 18)
+        : getUserReadableAmount(deposit, 18);
+    }
   );
 
   const totalEpochDepositsAmount = getUserReadableAmount(
@@ -68,7 +76,7 @@ const Withdraw = () => {
   );
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
-    (deposit) =>
+    (deposit: string | number | BigNumber) =>
       tokenName === 'BNB'
         ? getUserReadableAmount(deposit, 8)
         : getUserReadableAmount(deposit, 18)
@@ -79,18 +87,22 @@ const Withdraw = () => {
       ? getUserReadableAmount(userEpochDeposits, 8)
       : getUserReadableAmount(userEpochDeposits, 18);
 
+  // @ts-ignore TODO: FIX
   const tokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
   // Handle Withdraw
   const handleWithdraw = useCallback(
-    async (index) => {
+    async (index: number) => {
       try {
         await sendTx(ssovContractWithSigner.withdraw(selectedEpoch, index));
+        // @ts-ignore TODO: FIX
         updateSsovEpochData();
+        // @ts-ignore TODO: FIX
         updateSsovUserData();
       } catch (err) {
         console.log(err);
       }
+      // @ts-ignore TODO: FIX
       updateAssetBalances();
     },
     [
@@ -119,13 +131,13 @@ const Withdraw = () => {
           </Typography>
         </Box>
         <Box>
-          {strikes.map((strike, index) =>
+          {strikes.map((strike: number, index: number) =>
             userEpochStrikeDeposits[index].gt(0) ? (
               <Box className="flex flex-row mt-3" key={index}>
                 <Box
                   className={cx(
                     'bg-cod-gray h-12 rounded-md mr-2',
-                    styles.allocationWidth
+                    styles['allocationWidth']
                   )}
                 >
                   <Box
@@ -146,7 +158,7 @@ const Withdraw = () => {
                 </Box>
                 <CustomButton
                   size="large"
-                  onClick={(e) => handleWithdraw(index)}
+                  onClick={() => handleWithdraw(index)}
                 >
                   Withdraw
                 </CustomButton>

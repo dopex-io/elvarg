@@ -1,4 +1,6 @@
-function Coin(props) {
+import { SVGProps } from 'react';
+
+function Coin(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="39"

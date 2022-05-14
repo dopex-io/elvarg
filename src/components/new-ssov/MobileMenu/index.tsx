@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext, useCallback, useMemo } from 'react';
 import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
@@ -6,10 +7,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
 import Typography from 'components/UI/Typography';
-import CircleIcon from 'components/Icons/CircleIcon';
+import CircleIcon from 'svgs/icons/CircleIcon';
 
 import { SsovContext } from 'contexts/Ssov';
-import { WalletContext } from 'contexts/Wallet';
 
 import getFormattedDate from 'utils/date/getFormattedDate';
 
@@ -23,18 +23,18 @@ export interface Props {
 }
 
 const MobileMenu = ({
-  asset,
   activeSsovContextSide,
   activeView,
   setActiveView,
 }: Props) => {
   const ssovContext = useContext(SsovContext);
   const { selectedEpoch, setSelectedEpoch, ssovData } =
+    // @ts-ignore TODO: FIX
     ssovContext[activeSsovContextSide];
   const { currentEpoch } = ssovData;
-  const { chainId } = useContext(WalletContext);
 
   const handleSelectChange = useCallback(
+    // @ts-ignore TODO: FIX
     (e) => {
       setSelectedEpoch(Number(e.target.value));
     },

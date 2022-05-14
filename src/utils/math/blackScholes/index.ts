@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Black-Scholes option pricing formula and supporting statistical functions.
  * @module black-scholes

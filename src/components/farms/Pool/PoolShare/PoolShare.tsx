@@ -5,6 +5,7 @@ import { Box, Tooltip } from '@mui/material';
 
 import Typography from 'components/UI/Typography';
 
+// @ts-ignore TODO: FIX
 const PoolShare = ({ userDeposit, total }) => {
   const [share, setShare] = useState('0');
   const [exactShare, setExactShare] = useState('0');

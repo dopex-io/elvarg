@@ -1,4 +1,4 @@
-function Boosted(props) {
+function Boosted(props: any) {
   return (
     <svg
       width="53"

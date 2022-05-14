@@ -5,7 +5,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import Typography from '../Typography';
 
-export default function Accordion(props) {
+interface Props {
+  summary: string;
+  details: string;
+  footer: string;
+}
+
+export default function Accordion(props: Props) {
   const { summary, details, footer } = props;
 
   return (

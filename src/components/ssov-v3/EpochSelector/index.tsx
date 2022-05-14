@@ -11,11 +11,14 @@ export default function EpochSelector({ className }: { className?: string }) {
   const { ssovData, selectedEpoch, setSelectedEpoch, updateSsovV3UserData } =
     useContext(SsovV3Context);
 
+  // @ts-ignore TODO: FIX
   const { currentEpoch } = ssovData;
 
   const handleSelectChange = useCallback(
-    (e) => {
+    (e: { target: { value: any } }) => {
+      // @ts-ignore TODO: FIX
       setSelectedEpoch(Number(e.target.value));
+      // @ts-ignore TODO: FIX
       updateSsovV3UserData();
     },
     [setSelectedEpoch, updateSsovV3UserData]
@@ -24,7 +27,7 @@ export default function EpochSelector({ className }: { className?: string }) {
   const epochs = useMemo(() => {
     let _epoch = currentEpoch;
 
-    if (ssovData.isCurrentEpochExpired) {
+    if (ssovData?.isCurrentEpochExpired) {
       _epoch += 1;
     }
 

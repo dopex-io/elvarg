@@ -7,7 +7,6 @@ import {
   SetStateAction,
 } from 'react';
 import { BigNumber } from 'ethers';
-import delay from 'lodash/delay';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Countdown from 'react-countdown';
@@ -214,22 +213,23 @@ const Deposits = ({
   enabledSides?: string[];
 }) => {
   const ssovContext = useContext(SsovContext);
-  const { convertToBNB } = useContext(BnbConversionContext);
   const { accountAddress, ensName } = useContext(WalletContext);
 
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] =
     useState<boolean>(false);
 
+  // @ts-ignore TODO: FIX
   const { tokenPrice, tokenName } = ssovContext[activeSsovContextSide].ssovData;
   const {
     epochTimes,
     epochStrikes,
     totalEpochPremium,
     totalEpochStrikeDeposits,
-    totalEpochOptionsPurchased,
+    // @ts-ignore TODO: FIX
   } = ssovContext[activeSsovContextSide].ssovEpochData;
 
   const { userEpochStrikeDeposits } =
+    // @ts-ignore TODO: FIX
     ssovContext[activeSsovContextSide].ssovUserData;
 
   const epochTime: number = useMemo(() => {
@@ -240,6 +240,7 @@ const Deposits = ({
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(
+      // @ts-ignore TODO: FIX
       ssovContext[
         activeSsovContextSide
       ].ssovEpochData.epochTimes[1].toNumber() * 1000
@@ -261,6 +262,7 @@ const Deposits = ({
 
   const deposits: any[] = useMemo(
     () =>
+      // @ts-ignore TODO: FIX
       epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
 
@@ -318,6 +320,7 @@ const Deposits = ({
     setIsWithdrawModalVisible(false);
   };
 
+  // @ts-ignore TODO: FIX
   return ssovContext[activeSsovContextSide].selectedEpoch > 0 ? (
     <Box>
       <Withdraw
@@ -362,6 +365,7 @@ const Deposits = ({
         </Box>
 
         <Box className="balances-table text-white">
+          {/* @ts-ignore TODO: FIX */}
           <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
             {isEmpty(epochStrikes) ? (
               <Box className="border-4 border-umbra rounded-lg p-3">
@@ -459,12 +463,15 @@ const Deposits = ({
                             price={price}
                             epochEndTime={epochEndTime}
                             imgSrc={
+                              // @ts-ignore TODO: FIX
                               SSOV_MAP[
+                                // @ts-ignore TODO: FIX
                                 ssovContext[activeSsovContextSide].ssovData
                                   .tokenName
                               ].imageSrc
                             }
                             tokenName={
+                              // @ts-ignore TODO: FIX
                               ssovContext[activeSsovContextSide].ssovData
                                 .tokenName
                             }

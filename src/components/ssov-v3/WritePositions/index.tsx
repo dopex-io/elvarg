@@ -52,15 +52,18 @@ const WritePositions = (props: { className?: string }) => {
 
   const { selectedEpoch, ssovUserData, ssovData } = useContext(SsovV3Context);
 
+  // @ts-ignore TODO: FIX
   const { underlyingSymbol, collateralSymbol } = ssovData;
 
   const [page, setPage] = useState(0);
 
   // Filtered out positions with zero collateral
   const filteredWritePositions = useMemo(() => {
+    // @ts-ignore TODO: FIX
     return ssovUserData.writePositions.filter(
       (position) => !position.collateralAmount.isZero()
     );
+    // @ts-ignore TODO: FIX
   }, [ssovUserData.writePositions]);
 
   const [dialog, setDialog] = useState<
@@ -84,6 +87,7 @@ const WritePositions = (props: { className?: string }) => {
   });
 
   const handleClose = useCallback(() => {
+    // @ts-ignore TODO: FIX
     setDialog((prevState) => ({
       ...prevState,
       open: false,
@@ -105,11 +109,13 @@ const WritePositions = (props: { className?: string }) => {
     [setPage]
   );
 
+  // @ts-ignore TODO: FIX
   return selectedEpoch > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
-      {dialog.type === 'WITHDRAW' ? (
+      {dialog?.type === 'WITHDRAW' ? (
         <WithdrawDialog {...dialog} handleClose={handleClose} />
       ) : (
+        // @ts-ignore TODO: FIX
         <TransferDialog {...dialog} handleClose={handleClose} />
       )}
       <Box className="flex flex-row justify-between mb-1">
@@ -118,7 +124,7 @@ const WritePositions = (props: { className?: string }) => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
+        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
           {isEmpty(filteredWritePositions) ? (
             <Box className="text-stieglitz text-center">
               Your write positions will appear here.

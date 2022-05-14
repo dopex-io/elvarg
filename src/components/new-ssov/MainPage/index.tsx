@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { useRouter } from 'next/router';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Description from 'components/new-ssov/Description';
 import ManageCard from 'components/new-ssov/ManageCard';
 import Sidebar from 'components/new-ssov/Sidebar';
@@ -16,8 +16,8 @@ import PurchaseOptions from 'components/new-ssov/PurchaseOptions';
 import Stats from 'components/new-ssov/Stats';
 import WithdrawalInfo from 'components/new-ssov/WithdrawalInfo';
 import AutoExerciseInfo from 'components/new-ssov/AutoExerciseInfo';
-import PageLoader from 'components/PageLoader';
-import EmergencyNoticeBanner from 'components/Banners/EmergencyNoticeBanner';
+import PageLoader from 'components/common/PageLoader';
+import EmergencyNoticeBanner from 'components/common/Banners/EmergencyNoticeBanner';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext, SsovProvider } from 'contexts/NewSsov';
@@ -25,6 +25,7 @@ import { SsovContext, SsovProvider } from 'contexts/NewSsov';
 const Manage = () => {
   const { accountAddress } = useContext(WalletContext);
   const router = useRouter();
+  // @ts-ignore TODO: FIX
   const asset = router.query.name as string;
   const ssovContext = useContext(SsovContext);
   const [activeSsovContextSide, setActiveSsovContextSide] =
@@ -41,7 +42,9 @@ const Manage = () => {
   }, [ssovContext]);
 
   useEffect(() => {
+    // @ts-ignore TODO: FIX
     ssovContext.CALL?.setSelectedSsov({ token: asset });
+    // @ts-ignore TODO: FIX
     ssovContext.PUT?.setSelectedSsov({ token: asset });
   }, [asset, ssovContext]);
 
@@ -89,10 +92,7 @@ const Manage = () => {
             />
           </Box>
 
-          <Box
-            gridColumn="span 6"
-            className="mt-20 mt-10 lg:mb-20 lg:pl-5 lg:pr-5"
-          >
+          <Box gridColumn="span 6" className="mt-10 lg:mb-20 lg:pl-5 lg:pr-5">
             <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
               <Description
                 activeSsovContextSide={activeSsovContextSide}
@@ -132,6 +132,7 @@ const Manage = () => {
                 <PurchaseOptions
                   activeSsovContextSide={activeSsovContextSide}
                   setActiveSsovContextSide={setActiveSsovContextSide}
+                  // @ts-ignore TODO: FIX
                   setStrikeIndex={setStrikeIndex}
                 />
 
@@ -177,6 +178,7 @@ const Manage = () => {
 
 const ManagePage = () => {
   const router = useRouter();
+  // @ts-ignore TODO: FIX
   const asset = router.query.name as string;
   return (
     <SsovProvider>

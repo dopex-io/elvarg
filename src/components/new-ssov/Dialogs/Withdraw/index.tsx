@@ -27,7 +27,7 @@ export interface Props {
   handleClose: () => {};
   activeSsovContextSide: string;
 }
-
+// @ts-ignore TODO: FIX
 const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
   const ssovContext = useContext(SsovContext);
   const {
@@ -39,6 +39,7 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
     ssovSigner,
     selectedEpoch,
     selectedSsov,
+    // @ts-ignore TODO: FIX
   } = ssovContext[activeSsovContextSide];
 
   const { tokenName } = ssovData;
@@ -61,11 +62,13 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
 
   const isPut = selectedSsov.type === 'PUT';
 
+  // @ts-ignore TODO: FIX
   const strikes = epochStrikes.map((strike) =>
     getUserReadableAmount(strike, 8).toString()
   );
 
   const totalEpochStrikeDepositsAmounts = totalEpochStrikeDeposits.map(
+    // @ts-ignore TODO: FIX
     (deposit) =>
       tokenName === 'BNB'
         ? getUserReadableAmount(deposit, 8)
@@ -78,6 +81,7 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
   );
 
   const userEpochStrikeDepositsAmounts = userEpochStrikeDeposits.map(
+    // @ts-ignore TODO: FIX
     (deposit) =>
       tokenName === 'BNB'
         ? getUserReadableAmount(deposit, 8)
@@ -89,10 +93,12 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
       ? getUserReadableAmount(userEpochDeposits, 8)
       : getUserReadableAmount(userEpochDeposits, 18);
 
+  // @ts-ignore TODO: FIX
   const tokenSymbol = SSOV_MAP[ssovData.tokenName].tokenSymbol;
 
   // Handle Withdraw
   const handleWithdraw = useCallback(
+    // @ts-ignore TODO: FIX
     async (index) => {
       try {
         await sendTx(ssovContractWithSigner.withdraw(selectedEpoch, index));
@@ -101,6 +107,7 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
       } catch (err) {
         console.log(err);
       }
+      // @ts-ignore TODO: FIX
       updateAssetBalances();
     },
     [
@@ -146,12 +153,14 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
           </Typography>
         </Box>
         <Box>
+          {/* @ts-ignore TODO: FIX */}
           {strikes.map((strike, index) =>
             userEpochStrikeDeposits[index].gt(0) ? (
               <Box className="flex flex-row mt-3" key={index}>
                 <Box
                   className={cx(
                     'bg-cod-gray h-12 rounded-md mr-2',
+                    // @ts-ignore TODO: FIX
                     styles.allocationWidth
                   )}
                 >
@@ -173,7 +182,7 @@ const Withdraw = ({ open, handleClose, activeSsovContextSide }) => {
                 </Box>
                 <CustomButton
                   size="large"
-                  onClick={(e) => handleWithdraw(index)}
+                  onClick={() => handleWithdraw(index)}
                 >
                   Withdraw
                 </CustomButton>

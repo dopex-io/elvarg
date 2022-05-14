@@ -4,6 +4,7 @@ import {
   useContext,
   useCallback,
   useEffect,
+  ReactNode,
 } from 'react';
 import { BigNumber } from 'ethers';
 
@@ -37,7 +38,7 @@ const initialData: NftsContextInterface = {
 
 export const NftsContext = createContext<NftsContextInterface>(initialData);
 
-export const NftsProvider = (props) => {
+export const NftsProvider = (props: { children: ReactNode }) => {
   const { accountAddress, contractAddresses, provider, signer } =
     useContext(WalletContext);
 
@@ -47,9 +48,9 @@ export const NftsProvider = (props) => {
   const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
     const nftsData: NftData[] = [];
-    for (const nft in contractAddresses.NFTS) {
+    for (const nft in contractAddresses['NFTS']) {
       const nftContract = BaseNFT__factory.connect(
-        contractAddresses.NFTS[nft],
+        contractAddresses['NFTS'][nft],
         provider
       );
 
@@ -60,6 +61,7 @@ export const NftsProvider = (props) => {
 
       nftsData.push({
         nftName: nftName,
+        // @ts-ignore TODO: FIX
         nftUri: nftUri,
       });
     }
@@ -69,9 +71,9 @@ export const NftsProvider = (props) => {
   const updateUserData = useCallback(async () => {
     if (!signer || !accountAddress || !contractAddresses) return;
     const userNftsData: UserNftData[] = [];
-    for (const nft in contractAddresses.NFTS) {
+    for (const nft in contractAddresses['NFTS']) {
       const nftContract = BaseNFT__factory.connect(
-        contractAddresses.NFTS[nft],
+        contractAddresses['NFTS'][nft],
         signer
       );
 

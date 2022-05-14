@@ -1,26 +1,27 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import { useFormik } from 'formik';
 import cx from 'classnames';
 import { utils as ethersUtils, BigNumber } from 'ethers';
 import noop from 'lodash/noop';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+import { BaseNFT } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import { BaseNFT } from '@dopex-io/sdk';
 
 import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 import { NftsContext } from 'contexts/Nfts';
 
+// @ts-ignore TODO: FIX
 const TransferModal = ({ open, handleClose, index }) => {
   const { accountAddress } = useContext(WalletContext);
   const { userNftsData } = useContext(NftsContext);
 
-  const [loading, setLoading] = useState(false);
+  // @ts-ignore TODO: FIX
   const {
     nftContractSigner,
     balance,
@@ -38,8 +39,11 @@ const TransferModal = ({ open, handleClose, index }) => {
       };
     } else {
       return {
+        // @ts-ignore TODO: FIX
         nftContractSigner: userNftsData[index].nftContractSigner,
+        // @ts-ignore TODO: FIX
         balance: userNftsData[index].balance,
+        // @ts-ignore TODO: FIX
         tokenId: userNftsData[index].tokenId,
       };
     }
@@ -66,19 +70,14 @@ const TransferModal = ({ open, handleClose, index }) => {
   }, [formik.touched.address, formik.errors.address]);
 
   const handleClick = async () => {
-    setLoading(true);
-    try {
-      await sendTx(
-        nftContractSigner.transferFrom(
-          accountAddress,
-          formik.values.address,
-          tokenId
-        )
-      );
-      setLoading(false);
-    } catch {
-      setLoading(false);
-    }
+    await sendTx(
+      nftContractSigner.transferFrom(
+        // @ts-ignore TODO: FIX
+        accountAddress,
+        formik.values.address,
+        tokenId
+      )
+    );
   };
 
   return (

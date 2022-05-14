@@ -31,8 +31,10 @@ const IndicativeRfqsSm = (props: IndicativeRfqSmProps) => {
       {filteredOrders
         .slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE)
         ?.map((row, index) => {
+          // @ts-ignore TODO: FIX
           const symbol = getAssetFromOptionSymbol(row.data.base);
           return (
+            // @ts-ignore TODO: FIX
             <RfqCard id={row.id} symbol={symbol} data={row.data} key={index} />
           );
         })}
