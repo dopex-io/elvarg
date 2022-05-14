@@ -330,4 +330,12 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1337: 'http://127.0.0.1:8545',
 };
 
+export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
+  1: 'https://etherscan.io/',
+  56: 'https://bscscan.com/',
+  42161: 'https://arbiscan.io/',
+  43114: 'https://snowtrace.io/',
+  1088: 'https://andromeda-explorer.metis.io/',
+};
+
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};
