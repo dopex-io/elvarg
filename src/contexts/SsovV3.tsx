@@ -22,7 +22,10 @@ import { WalletContext } from './Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 import { DOPEX_API_BASE_URL } from 'constants/index';
+
+import { TokenData } from 'types';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;
@@ -49,6 +52,7 @@ export interface SsovV3EpochData {
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   availableCollateralForStrikes: BigNumber[];
+  rewardTokens: TokenData[];
   settlementPrice: BigNumber;
   epochStrikeTokens: string[];
   APY: string;
@@ -250,6 +254,11 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
+      rewardTokens: epochData.rewardTokensToDistribute.map((token) => {
+        return (
+          TOKEN_ADDRESS_TO_DATA[token] || { symbol: 'UNKNOWN', imgSrc: '' }
+        );
+      }),
       APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,

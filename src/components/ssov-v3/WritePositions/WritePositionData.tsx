@@ -9,12 +9,16 @@ import { WritePositionInterface } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
 import NumberDisplay from 'components/UI/NumberDisplay';
 import SplitButton from 'components/UI/SplitButton';
+
+import { TokenData } from 'types';
 
 interface Props extends WritePositionInterface {
   collateralSymbol: string;
   underlyingSymbol: string;
+  rewardTokens: TokenData[];
   openTransfer: () => void;
   openWithdraw: () => void;
 }
@@ -30,6 +34,7 @@ const WritePositionTableData = (props: Props) => {
     underlyingSymbol,
     openTransfer,
     openWithdraw,
+    rewardTokens,
   } = props;
 
   return (
@@ -67,7 +72,8 @@ const WritePositionTableData = (props: Props) => {
         {accruedRewards.map((rewards, index) => {
           return (
             <Typography variant="h6" key={index}>
-              <NumberDisplay n={rewards} decimals={18} />
+              <NumberDisplay n={rewards} decimals={18} />{' '}
+              {rewardTokens[index]?.symbol}
             </Typography>
           );
         })}
