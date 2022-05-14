@@ -42,7 +42,7 @@ export interface SsovV3Data {
 }
 
 export interface SsovV3EpochData {
-  epochTimes: {};
+  epochTimes: BigNumber[];
   isEpochExpired: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
@@ -72,7 +72,7 @@ interface SsovV3ContextInterface {
   ssovEpochData?: SsovV3EpochData;
   ssovUserData?: SsovV3UserData;
   ssovSigner: SsovV3Signer;
-  selectedEpoch?: number;
+  selectedEpoch?: number | null;
   selectedSsovV3?: string;
   updateSsovV3EpochData: Function;
   updateSsovV3UserData: Function;
@@ -102,13 +102,12 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsovV3, setSelectedSsovV3] = useState<string>('');
 
-  const [ssovData, setSsovV3Data] = useState<SsovV3Data>();
+  const [ssovData, setSsovV3Data] = useState<SsovV3Data>({});
   const [ssovEpochData, setSsovV3EpochData] = useState<SsovV3EpochData>();
-  const [ssovUserData, setSsovV3UserData] = useState<SsovV3UserData>();
-  const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({
-    // @ts-ignore TODO: FIX
-    ssovContractWithSigner: null,
-  });
+  const [ssovUserData, setSsovV3UserData] = useState<SsovV3UserData>(
+    initialSsovV3UserData
+  );
+  const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({});
 
   const updateSsovV3UserData = useCallback(async () => {
     if (
@@ -148,17 +147,17 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     );
 
     setSsovV3UserData({
-      // @ts-ignore TODO: FIX
       writePositions: data.map((o, i) => {
         return {
-          tokenId: writePositions[i],
+          tokenId: writePositions[i] as BigNumber,
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
-          accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts,
-          accruedPremiums: moreData[i]?.collateralTokenWithdrawAmount.sub(
-            o.collateralAmount
-          ),
+          accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
+          accruedPremiums:
+            moreData[i]?.collateralTokenWithdrawAmount.sub(
+              o.collateralAmount
+            ) || BigNumber.from(0),
         };
       }),
     });
@@ -318,12 +317,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
             provider
           ),
         };
+        setSsovV3Data(_ssovData);
       } catch (err) {
         console.log(err);
       }
-
-      // @ts-ignore TODO: FIX
-      setSsovV3Data(_ssovData);
     }
 
     update();
@@ -360,7 +357,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
   const contextValue = {
     ssovData,
-    ssovEpochData,
+    ...(ssovEpochData && { ssovEpochData: ssovEpochData }),
     ssovUserData,
     ssovSigner,
     selectedSsovV3,
@@ -372,7 +369,6 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
   };
 
   return (
-    // @ts-ignore TODO: FIX
     <SsovV3Context.Provider value={contextValue}>
       {props.children}
     </SsovV3Context.Provider>

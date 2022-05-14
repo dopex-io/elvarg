@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
 import Description from 'components/ssov-v3/Description';
-import ManageCard from 'components/ssov-v3/ManageCard';
+import DepositPanel from 'components/ssov-v3/DepositPanel';
 import ExerciseList from 'components/ssov-v3/ExerciseList';
 import Stats from 'components/ssov-v3/Stats';
 import PageLoader from 'components/common/PageLoader';
@@ -18,7 +18,6 @@ const Manage = (props: { ssov: string }) => {
     useContext(SsovV3Context);
 
   useEffect(() => {
-    // @ts-ignore TODO: FIX
     setSelectedSsovV3(ssov);
   }, [ssov, setSelectedSsovV3]);
 
@@ -39,14 +38,12 @@ const Manage = (props: { ssov: string }) => {
         <Box className="flex flex-col mt-20">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description ssovData={ssovData} ssovEpochData={ssovEpochData} />
-            <ManageCard />
+            <DepositPanel />
           </Box>
-          <Stats />
-          <br />
+          <Stats className="mb-4" />
           {ssovUserData === undefined ? null : (
             <>
-              <WritePositions />
-              <br />
+              <WritePositions className="mb-4" />
               <ExerciseList />
             </>
           )}
