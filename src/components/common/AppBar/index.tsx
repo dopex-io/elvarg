@@ -74,6 +74,7 @@ const appLinks = {
   1: [
     { name: 'farms', to: '/farms' },
     { name: 'sale', to: '/sale' },
+    { name: 'portfolio', to: '/portfolio' },
   ],
   56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
@@ -90,11 +91,13 @@ const appLinks = {
     // { name: 'swap', to: '/swap' },
     // { name: 'SSOV', to: '/ssov' },
     { name: 'OTC', to: '/' },
+    { name: 'portfolio', to: '/portfolio' },
   ],
   42161: [
     { name: 'farms', to: '/farms' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'OTC', to: '/otc' },
+    { name: 'portfolio', to: '/portfolio' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
