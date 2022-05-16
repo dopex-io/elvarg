@@ -22,6 +22,7 @@ interface AssetsContextInterface {
   }[];
   userAssetBalances: { [key: string]: string };
   updateAssetBalances?: Function;
+  isLoadingBalances: boolean;
 }
 
 const initKeysToVal = (arr: Array<string>, val: any) => {
@@ -45,6 +46,7 @@ const initialState: AssetsContextInterface = {
   tokens: TOKENS,
   tokenPrices: [],
   userAssetBalances: initKeysToVal(TOKENS, '0'),
+  isLoadingBalances: true,
 };
 
 export const AssetsContext =
@@ -151,6 +153,7 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
       }
 
       setState((prevState) => ({ ...prevState, userAssetBalances }));
+      setState((prevState) => ({ ...prevState, isLoadingBalances: false }));
     })();
   }, [accountAddress, provider, contractAddresses, chainId]);
 

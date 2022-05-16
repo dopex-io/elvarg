@@ -1,4 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { BigNumber, ethers } from 'ethers';
+import { LoaderIcon } from 'react-hot-toast';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,16 +10,12 @@ import {
   ERC20__factory,
 } from '@dopex-io/sdk';
 
-import cx from 'classnames';
-
-import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 import Typography from 'components/UI/Typography';
+import isZeroAddress from 'utils/contracts/isZeroAddress';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import Filter from '../Filter';
-import isZeroAddress from '../../../utils/contracts/isZeroAddress';
-import { BigNumber, ethers } from 'ethers';
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
 
 const strategies: string[] = [];
 const assets: string[] = [];
@@ -31,7 +29,7 @@ interface Position {
   strikePrice: number;
 }
 
-export default function Positions({ className }: { className?: string }) {
+export default function Positions() {
   const { chainId, contractAddresses, provider } = useContext(WalletContext);
   const accountAddress = '0x161d9b5d6e3ed8d9c1d36a7caf971901c60b9222';
   const [selectedStrategies, setSelectedStrategies] = useState<
@@ -39,9 +37,12 @@ export default function Positions({ className }: { className?: string }) {
   >([]);
   const [selectedAssets, setSelectedAssets] = useState<string[] | string>([]);
   const [positions, setPositions] = useState<Position[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const updatePositions = useCallback(async () => {
     if (!provider || !accountAddress) return;
+
+    setIsLoading(true);
 
     const _positions: any[] = [];
     const vaults = contractAddresses['SSOV-V3']['VAULTS'];
@@ -141,8 +142,9 @@ export default function Positions({ className }: { className?: string }) {
       _positions.push(...userExercisableOptions);
     });
 
-    console.log(_positions);
     setPositions(_positions);
+
+    setIsLoading(false);
   }, [provider, accountAddress, contractAddresses, chainId]);
 
   useEffect(() => {
@@ -150,7 +152,7 @@ export default function Positions({ className }: { className?: string }) {
   }, [updatePositions]);
 
   return (
-    <Box className={cx('', className)}>
+    <Box>
       <Box className="mt-9 ml-5 mr-5">
         <Typography variant="h4">Open Positions</Typography>
         <Box className="bg-cod-gray mt-3 rounded-md text-center px-2">
@@ -194,85 +196,97 @@ export default function Positions({ className }: { className?: string }) {
               />
             </Box>
           </Box>
-          <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
-            <Box className="col-span-2 text-left">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Market</span>
-              </Typography>
+          {isLoading ? (
+            <Box>
+              <LoaderIcon className="mt-3.5 ml-3.5" />
             </Box>
-            <Box className="col-span-1 text-left">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Strike</span>
-              </Typography>
-            </Box>
-            <Box className="col-span-1 text-left">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Side</span>
-              </Typography>
-            </Box>
-            <Box className="col-span-2 text-left">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Amount</span>
-              </Typography>
-            </Box>
-            <Box className="col-span-2 text-left">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Expiry</span>
-              </Typography>
-            </Box>
-            <Box className="col-span-2 text-left">
-              <Typography variant="h5">
-                <span className="text-stieglitz">PNL</span>
-              </Typography>
-            </Box>
-            <Box className="col-span-2 text-left">
-              <Typography variant="h5">
-                <span className="text-stieglitz">Action</span>
-              </Typography>
-            </Box>
-          </Box>
-          {positions.map((position, i) => (
-            <Box key={i} className="grid grid-cols-12 px-4 pt-2 pb-4" gap={0}>
-              <Box className="col-span-2 text-left flex">
-                <img src={`/assets/dpx.svg`} className="w-8 h-8 mr-2" />
-                <Typography variant="h5" className="mt-1">
-                  <span className="text-white">DPX</span>
-                </Typography>
+          ) : (
+            <Box>
+              <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Market</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Strike</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Side</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Amount</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Expiry</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">PNL</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Action</span>
+                  </Typography>
+                </Box>
               </Box>
-              <Box className="col-span-1 text-left">
-                <Typography variant="h6" className="mt-2">
-                  <span className="text-white bg-umbra rounded-md px-2 py-1">
-                    $2500
-                  </span>
-                </Typography>
-              </Box>
-              <Box className="col-span-1 text-left">
-                <Typography variant="h5" className="mt-1">
-                  <span className="text-white">Calls</span>
-                </Typography>
-              </Box>
-              <Box className="col-span-2 text-left">
-                <Typography variant="h5" className="mt-1">
-                  <span className="text-white">12.5</span>
-                </Typography>
-              </Box>
-              <Box className="col-span-2 text-left">
-                <Typography variant="h5" className="mt-1">
-                  <span className="text-white">21 DEC 2021</span>
-                </Typography>
-              </Box>
-              <Box className="col-span-2 text-left">
-                <Typography variant="h5" className="mt-1">
-                  <span className="text-[#6DFFB9]">41%</span>
-                </Typography>
-              </Box>
-              <Box className="col-span-2 text-left">
-                <Typography variant="h5" className="mt-1">
-                  <span className="text-stieglitz"></span>
-                </Typography>
-              </Box>
+              {positions.map((key, i) => (
+                <Box
+                  key={i}
+                  className="grid grid-cols-12 px-4 pt-2 pb-4"
+                  gap={0}
+                >
+                  <Box className="col-span-2 text-left flex">
+                    <img src={`/assets/dpx.svg`} className="w-8 h-8 mr-2" />
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">DPX</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-1 text-left">
+                    <Typography variant="h6" className="mt-2">
+                      <span className="text-white bg-umbra rounded-md px-2 py-1">
+                        $2500
+                      </span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-1 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">Calls</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">12.5</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">21 DEC 2021</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-[#6DFFB9]">41%</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-stieglitz"></span>
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
             </Box>
-          ))}
+          )}
 
           <Box></Box>
         </Box>
