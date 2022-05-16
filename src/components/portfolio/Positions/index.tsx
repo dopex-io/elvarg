@@ -43,9 +43,8 @@ interface Position {
 }
 
 export default function Positions() {
-  const { chainId, contractAddresses, provider, signer } =
+  const { chainId, contractAddresses, provider, signer, accountAddress } =
     useContext(WalletContext);
-  const accountAddress = '0x08d727615860e9b5e317cad7767ebc93d79667e5';
   const [selectedStrategies, setSelectedStrategies] = useState<
     string[] | string
   >([]);
