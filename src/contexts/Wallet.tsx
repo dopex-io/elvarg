@@ -197,7 +197,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
       const multicallProvider = new providers.MulticallProvider(
         new ethers.providers.StaticJsonRpcProvider(CHAIN_ID_TO_RPC[chainId])
       );
-      let signer: Signer | undefined;
+      let signer: Signer;
       let address: string | undefined;
 
       if (isUser) {
