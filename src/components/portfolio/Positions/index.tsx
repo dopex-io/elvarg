@@ -95,7 +95,7 @@ export default function Positions() {
               .map((tokenAddress: string) => {
                 const token = ERC20__factory.connect(tokenAddress, provider);
                 if (isZeroAddress(token.address)) return null;
-                return token.balanceOf(accountAddress);
+                return token.balanceOf(String(accountAddress));
               })
               .filter((c: any) => c)
           )
