@@ -194,11 +194,12 @@ export default function Positions() {
       const vaultAddress = vaults[vaultName];
       const vault = SsovV3__factory.connect(vaultAddress, provider);
 
-      await sendTx(
-        vault
-          .connect(signer)
-          .settle(strikeIndex, userEpochStrikeTokenBalance, selectedEpoch)
-      );
+      if (signer)
+        await sendTx(
+          vault
+            .connect(signer)
+            .settle(strikeIndex, userEpochStrikeTokenBalance, selectedEpoch)
+        );
 
       await updatePositions();
     },
