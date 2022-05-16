@@ -8,7 +8,7 @@ import Balances from '../Balances';
 export default function Sidebar({ className }: { className?: string }) {
   return (
     <Box className={cx('', className)}>
-      <Balances className="mb-6" />
+      <Balances />
       <Box className="mb-2">
         <Typography variant="h5">
           <span className="text-stieglitz">Claimable</span>
