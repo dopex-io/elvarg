@@ -178,11 +178,11 @@ const DepositsTableData = (
               date={epochEndTime}
               renderer={({ days, hours, minutes }) => {
                 return (
-                  <Box className={'flex'}>
+                  <Box className="flex">
                     <img
-                      src={'/assets/timer.svg'}
-                      className={'h-[1rem] mt-1 mr-2 ml-1'}
-                      alt={'Timer'}
+                      src="/assets/timer.svg"
+                      className="h-[1rem] mt-1 mr-2 ml-1"
+                      alt="Timer"
                     />
                     <Typography
                       variant="h5"

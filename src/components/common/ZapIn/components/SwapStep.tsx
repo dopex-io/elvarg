@@ -22,7 +22,10 @@ const SwapStep = (props: Props) => {
             <Box className="flex" key={dex['name']}>
               <img
                 alt={dex['name']}
-                src={'/assets/' + getDEXFrom1InchName(dex['name'])?.picture}
+                src={
+                  '/images/exchanges/' +
+                  getDEXFrom1InchName(dex['name'])?.picture
+                }
                 className="w-4 h-4 mt-1 mr-3 rounded-sm"
               />
 

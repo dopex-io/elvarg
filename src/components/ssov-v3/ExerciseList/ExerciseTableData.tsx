@@ -126,17 +126,14 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
-              // @ts-ignore TODO: FIX
-              src={`/assets/${ssovData.underlyingSymbol.toLowerCase()}.svg`}
-              // @ts-ignore TODO: FIX
-              alt={ssovData.underlyingSymbol}
+              src={`/images/tokens/${
+                ssovData?.underlyingSymbol?.toLowerCase() || 'unknown'
+              }.svg`}
+              alt={ssovData?.underlyingSymbol || 'token'}
             />
           </Box>
           <Typography variant="h5" className="text-white">
-            {
-              // @ts-ignore TODO: FIX
-              ssovData.underlyingSymbol
-            }
+            {ssovData?.underlyingSymbol}
           </Typography>
         </Box>
       </TableCell>
