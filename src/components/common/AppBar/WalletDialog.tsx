@@ -119,7 +119,7 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
                   ).toString()}
                   decimals={18}
                   token={key}
-                  iconSrc={`/assets/${key.toLowerCase()}.svg`}
+                  iconSrc={`/images/tokens/${key.toLowerCase()}.svg`}
                   iconAlt={key}
                 />
               );

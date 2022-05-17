@@ -172,7 +172,7 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
                     <TableBodyCell align="left">
                       <img
                         // @ts-ignore TODO: FIX
-                        src={`/assets/${getAssetFromOptionSymbol(
+                        src={`/images/tokens/${getAssetFromOptionSymbol(
                           row.data.base
                         ).toLowerCase()}.svg`}
                         alt={getAssetFromOptionSymbol(row.data.base)}

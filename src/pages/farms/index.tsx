@@ -285,21 +285,21 @@ const Farms = () => {
                     {DPX.userStakedBalance.gt(0) ? (
                       <Pool
                         token={DPX}
-                        Icon={'/assets/dpx.svg'}
+                        Icon={'/images/tokens/dpx.svg'}
                         poolInfo={DPXPool}
                       />
                     ) : null}
                     {DPX_WETH.userStakedBalance.gt(0) ? (
                       <Pool
                         token={DPX_WETH}
-                        Icon={'/assets/dpx_weth.svg'}
+                        Icon={'/images/tokens/dpx_weth.svg'}
                         poolInfo={DPX_WETHPool}
                       />
                     ) : null}
                     {rDPX_WETH.userStakedBalance.gt(0) ? (
                       <Pool
                         token={rDPX_WETH}
-                        Icon={'/assets/rdpx_weth.svg'}
+                        Icon={'/images/tokens/rdpx_weth.svg'}
                         poolInfo={rDPX_WETHPool}
                       />
                     ) : null}
@@ -322,21 +322,21 @@ const Farms = () => {
                       {DPX.userStakedBalance.eq(0) ? (
                         <Pool
                           token={DPX}
-                          Icon={'/assets/dpx.svg'}
+                          Icon={'/images/tokens/dpx.svg'}
                           poolInfo={DPXPool}
                         />
                       ) : null}
                       {DPX_WETH.userStakedBalance.eq(0) ? (
                         <Pool
                           token={DPX_WETH}
-                          Icon={'/assets/dpx_weth.svg'}
+                          Icon={'/images/tokens/dpx_weth.svg'}
                           poolInfo={DPX_WETHPool}
                         />
                       ) : null}
                       {rDPX_WETH.userStakedBalance.eq(0) ? (
                         <Pool
                           token={rDPX_WETH}
-                          Icon={'/assets/rdpx_weth.svg'}
+                          Icon={'/images/tokens/rdpx_weth.svg'}
                           poolInfo={rDPX_WETHPool}
                         />
                       ) : null}
@@ -348,17 +348,17 @@ const Farms = () => {
                     >
                       <Pool
                         token={DPX}
-                        Icon={'/assets/dpx.svg'}
+                        Icon={'/images/tokens/dpx.svg'}
                         poolInfo={DPXPool}
                       />
                       <Pool
                         token={DPX_WETH}
-                        Icon={'/assets/dpx_weth.svg'}
+                        Icon={'/images/tokens/dpx_weth.svg'}
                         poolInfo={DPX_WETHPool}
                       />
                       <Pool
                         token={rDPX_WETH}
-                        Icon={'/assets/rdpx_weth.svg'}
+                        Icon={'/images/tokens/rdpx_weth.svg'}
                         poolInfo={rDPX_WETHPool}
                       />
                     </Box>
@@ -379,7 +379,7 @@ const Farms = () => {
                   >
                     <Pool
                       token={RDPX}
-                      Icon={'/assets/rdpx.svg'}
+                      Icon={'/images/tokens/rdpx.svg'}
                       poolInfo={RDPXPool}
                     />
                   </Box>
