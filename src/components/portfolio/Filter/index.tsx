@@ -51,6 +51,7 @@ const Filter = ({
       displayEmpty
       multiple={multiple}
       onChange={handleSelect}
+      disableUnderline={true}
       input={<Input />}
       renderValue={() => {
         return (

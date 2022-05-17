@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import Link from 'next/link';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -12,8 +12,10 @@ import {
   SsovV3Viewer__factory,
   SsovV3__factory,
   ERC20__factory,
+  ERC20,
 } from '@dopex-io/sdk';
 
+import { MAX_VALUE } from 'constants/index';
 import { WalletContext } from 'contexts/Wallet';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -25,8 +27,7 @@ import getAssetFromVaultName from 'utils/contracts/getAssetFromVaultName';
 
 import Filter from '../Filter';
 
-const strategies: string[] = [];
-const assets: string[] = [];
+const sides: string[] = ['CALL', 'PUT'];
 
 interface Position {
   isSettleable: boolean;
@@ -40,17 +41,19 @@ interface Position {
   isPut: boolean;
   epochEndTime: Date;
   currentEpoch: number;
+  assetName: string;
 }
 
 export default function Positions() {
   const { chainId, contractAddresses, provider, signer, accountAddress } =
     useContext(WalletContext);
-  const [selectedStrategies, setSelectedStrategies] = useState<
-    string[] | string
-  >([]);
-  const [selectedAssets, setSelectedAssets] = useState<string[] | string>([]);
+  const [selectedSides, setSelectedSides] = useState<string[] | string>([
+    'CALL',
+    'PUT',
+  ]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [searchText, setSearchText] = useState<string>('');
   const sendTx = useSendTx();
 
   const getPosition = useCallback(
@@ -172,6 +175,7 @@ export default function Positions() {
             isPut,
             epochEndTime,
             currentEpoch,
+            assetName,
           };
         }
       );
@@ -193,16 +197,40 @@ export default function Positions() {
       const vaultAddress = vaults[vaultName];
       const vault = SsovV3__factory.connect(vaultAddress, provider);
 
-      if (signer)
+      const ssovViewerContract = SsovV3Viewer__factory.connect(
+        contractAddresses['SSOV-V3'].VIEWER,
+        provider
+      );
+
+      const tokensAddresses = await ssovViewerContract.getEpochStrikeTokens(
+        selectedEpoch,
+        vaultAddress
+      );
+
+      if (signer) {
+        const token: ERC20 = ERC20__factory.connect(
+          String(tokensAddresses[strikeIndex]),
+          provider
+        );
+
+        const allowance = await token.allowance(
+          String(accountAddress),
+          vaultAddress
+        );
+
+        if (allowance.eq(0))
+          await sendTx(token.connect(signer).approve(vaultAddress, MAX_VALUE));
+
         await sendTx(
           vault
             .connect(signer)
             .settle(strikeIndex, userEpochStrikeTokenBalance, selectedEpoch)
         );
+      }
 
       await updatePositions();
     },
-    [accountAddress, sendTx, signer, provider]
+    [accountAddress, sendTx, signer, provider, contractAddresses]
   );
 
   const updatePositions = useCallback(async () => {
@@ -229,6 +257,22 @@ export default function Positions() {
     setIsLoading(false);
   }, [provider, accountAddress, contractAddresses, chainId]);
 
+  const filteredPositions = useMemo(() => {
+    const _positions: Position[] = [];
+    positions.map((position) => {
+      let toAdd = true;
+      if (
+        !position.vaultName.includes(searchText.toUpperCase()) &&
+        searchText !== ''
+      )
+        toAdd = false;
+      if (!selectedSides.includes(position.isPut ? 'PUT' : 'CALL'))
+        toAdd = false;
+      if (toAdd) _positions.push(position);
+    });
+    return _positions;
+  }, [positions, searchText, selectedSides]);
+
   useEffect(() => {
     updatePositions();
   }, [updatePositions]);
@@ -241,21 +285,10 @@ export default function Positions() {
           <Box className="flex py-3 px-3 border-b-[1.5px] border-umbra">
             <Box className="mr-3 mt-0.5">
               <Filter
-                activeFilters={selectedStrategies}
-                setActiveFilters={setSelectedStrategies}
-                text={'Strategy'}
-                options={strategies}
-                multiple={true}
-                showImages={false}
-              />
-            </Box>
-
-            <Box className="mt-0.5">
-              <Filter
-                activeFilters={selectedAssets}
-                setActiveFilters={setSelectedAssets}
-                text={'Asset'}
-                options={assets}
+                activeFilters={selectedSides}
+                setActiveFilters={setSelectedSides}
+                text={'Side'}
+                options={sides}
                 multiple={true}
                 showImages={false}
               />
@@ -263,9 +296,9 @@ export default function Positions() {
 
             <Box className="ml-auto">
               <Input
-                id="amount"
-                name="amount"
-                value=""
+                value={searchText}
+                onChange={(e) => setSearchText(String(e.target.value))}
+                disableUnderline={true}
                 type="string"
                 className="bg-umbra text-mineshaft rounded-md px-3 pb-1"
                 classes={{ input: 'text-right' }}
@@ -283,12 +316,12 @@ export default function Positions() {
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>
           ) : positions.length === 0 ? (
-            <Box className="flex-col p-8">
+            <Box className="flex-col p-9">
               <Box className="mx-auto">You do not have any positions</Box>
               <Link href="/ssov">
                 <Button
                   className={
-                    'rounded-md h-10 mt-3 mx-auto text-white hover:bg-opacity-70 bg-primary hover:bg-primary'
+                    'rounded-md h-10 mt-5 mx-auto text-white hover:bg-opacity-70 bg-primary hover:bg-primary'
                   }
                 >
                   Open SSOVs page
@@ -298,7 +331,7 @@ export default function Positions() {
           ) : (
             <Box className="py-2">
               <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
-                <Box className="col-span-3 text-left">
+                <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Market</span>
                   </Typography>
@@ -334,19 +367,21 @@ export default function Positions() {
                   </Typography>
                 </Box>
               </Box>
-              {positions.map((position, i) => (
+              {filteredPositions.map((position, i) => (
                 <Box
                   key={i}
                   className="grid grid-cols-12 px-4 pt-2 pb-4"
                   gap={0}
                 >
-                  <Box className="col-span-3 text-left flex">
+                  <Box className="col-span-2 text-left flex">
                     <img
                       src={position.imgSrc}
                       className="w-8 h-8 mr-2 object-cover"
                     />
                     <Typography variant="h5" className="mt-1">
-                      <span className="text-white">{position.vaultName}</span>
+                      <span className="text-white">
+                        {position.assetName.toUpperCase()}
+                      </span>
                     </Typography>
                   </Box>
                   <Box className="col-span-1 text-left">
