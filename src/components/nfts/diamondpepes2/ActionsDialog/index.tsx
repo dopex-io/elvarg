@@ -49,7 +49,7 @@ const Hero = ({ active, heroColor, letter }) => {
       >
         <Typography
           variant="h6"
-          className={"text-stieglitz font-['Minecraft'] text-black pt-0.5"}
+          className={"font-['Minecraft'] text-black pt-0.5"}
         >
           {letter}
         </Typography>
