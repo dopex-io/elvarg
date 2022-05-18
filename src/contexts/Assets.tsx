@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { ERC20__factory, Addresses } from '@dopex-io/sdk';
 import axios from 'axios';
+import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
@@ -21,7 +22,7 @@ interface AssetsContextInterface {
     change24h: number;
   }[];
   userAssetBalances: { [key: string]: string };
-  updateAssetBalances?: Function;
+  updateAssetBalances: Function;
 }
 
 const initKeysToVal = (arr: Array<string>, val: any) => {
@@ -45,6 +46,7 @@ const initialState: AssetsContextInterface = {
   tokens: TOKENS,
   tokenPrices: [],
   userAssetBalances: initKeysToVal(TOKENS, '0'),
+  updateAssetBalances: noop,
 };
 
 export const AssetsContext =

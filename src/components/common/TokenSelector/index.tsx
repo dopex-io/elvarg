@@ -126,13 +126,12 @@ const TokenSelector = ({
                     }}
                   >
                     <Box className="flex">
-                      {' '}
                       <Box className="flex flex-row h-11 w-11 mr-2">
                         <img
-                          // @ts-ignore TODO: FIX
-                          src={'/assets/' + symbol.toLowerCase() + '.svg'}
-                          // @ts-ignore TODO: FIX
-                          alt={TOKEN_DATA[symbol].name}
+                          src={
+                            '/images/tokens/' + symbol.toLowerCase() + '.svg'
+                          }
+                          alt={TOKEN_DATA[symbol]?.name || 'token'}
                           className="border-0.5 border-gray-200 pb-0.5 pt-0.5 w-auto"
                         />
                       </Box>

@@ -47,8 +47,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
       } catch (err) {
         _error = 'Invalid address';
       }
-      // @ts-ignore TODO: FIX
-      if (recipient.toLowerCase() === accountAddress.toLowerCase()) {
+      if (recipient.toLowerCase() === accountAddress?.toLowerCase()) {
         _error = 'Wallet address cannot be recipient';
       }
     }
@@ -64,11 +63,10 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
   );
 
   const handleTransfer = useCallback(async () => {
+    if (!ssovSigner.ssovContractWithSigner || !accountAddress) return;
     await sendTx(
-      // @ts-ignore TODO: FIX
       ssovSigner.ssovContractWithSigner[
         'safeTransferFrom(address,address,uint256)'
-        // @ts-ignore TODO: FIX
       ](accountAddress, recipient, data.tokenId)
     );
   }, [accountAddress, data, recipient, sendTx, ssovSigner]);
@@ -120,11 +118,11 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
             name="Accrued Rewards"
             value={
               <>
-                <NumberDisplay
-                  // @ts-ignore TODO: FIX
-                  n={data.accruedRewards[0]}
-                  decimals={18}
-                />
+                {data.accruedRewards.map((rewards, index) => {
+                  return (
+                    <NumberDisplay key={index} n={rewards} decimals={18} />
+                  );
+                })}
               </>
             }
           />

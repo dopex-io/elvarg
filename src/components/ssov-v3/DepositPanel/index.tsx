@@ -12,10 +12,10 @@ import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovV3Context } from 'contexts/SsovV3';
+import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
 import { AssetsContext } from 'contexts/Assets';
 
 import CustomButton from 'components/UI/CustomButton';
@@ -45,7 +45,7 @@ const SelectMenuProps = {
   },
 };
 
-const ManageCard = () => {
+const DepositPanel = () => {
   const { accountAddress, chainId, signer } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const {
@@ -67,8 +67,7 @@ const ManageCard = () => {
 
   const { ssovContractWithSigner } = ssovSigner;
 
-  // @ts-ignore TODO: FIX
-  const { epochTimes, epochStrikes } = ssovEpochData;
+  const { epochTimes, epochStrikes } = ssovEpochData as SsovV3EpochData;
 
   const [approved, setApproved] = useState<boolean>(false);
   const [strike, setStrike] = useState(0);
@@ -81,12 +80,9 @@ const ManageCard = () => {
     getUserReadableAmount(strike, 8).toString()
   );
 
-  const handleSelectStrike = useCallback(
-    (event: { target: { value: React.SetStateAction<number> } }) => {
-      setStrike(event.target.value);
-    },
-    []
-  );
+  const handleSelectStrike = useCallback((event: SelectChangeEvent<number>) => {
+    setStrike(Number(event.target.value));
+  }, []);
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
@@ -95,11 +91,10 @@ const ManageCard = () => {
   );
 
   const handleApprove = useCallback(async () => {
+    if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
       await sendTx(
-        // @ts-ignore TODO: FIX
         ERC20__factory.connect(ssovData.collateralAddress, signer).approve(
-          // @ts-ignore TODO: FIX
           spender,
           MAX_VALUE
         )
@@ -112,20 +107,16 @@ const ManageCard = () => {
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
+    if (!ssovContractWithSigner || !accountAddress) return;
     try {
-      // @ts-ignore TODO: FIX
       await ssovContractWithSigner.deposit(
         strike,
         getContractReadableAmount(strikeDepositAmount, 18),
-        // @ts-ignore TODO: FIX
         accountAddress
       );
       setStrikeDepositAmount(0);
-      // @ts-ignore TODO: FIX
       updateAssetBalances();
-      // @ts-ignore TODO: FIX
       updateSsovEpochData();
-      // @ts-ignore TODO: FIX
       updateSsovUserData();
     } catch (err) {
       console.log(err);
@@ -164,11 +155,9 @@ const ManageCard = () => {
 
   // Updates user token balance
   useEffect(() => {
-    if (!accountAddress) return;
-
     (async function () {
+      if (!accountAddress || !ssovData?.collateralAddress || !signer) return;
       const bal = await ERC20__factory.connect(
-        // @ts-ignore TODO: FIX
         ssovData?.collateralAddress,
         signer
       ).balanceOf(accountAddress);
@@ -209,7 +198,6 @@ const ManageCard = () => {
                 className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
                 fullWidth
                 value={strike}
-                // @ts-ignore TODO: FIX
                 onChange={handleSelectStrike}
                 input={<Input />}
                 variant="outlined"
@@ -222,7 +210,7 @@ const ManageCard = () => {
                 disableUnderline
                 label="strikes"
               >
-                {strikes.map((strike: number, index: number) => (
+                {strikes.map((strike: string, index: number) => (
                   <MenuItem key={index} value={index} className="pb-2 pt-2">
                     <Typography
                       variant="h5"
@@ -271,7 +259,10 @@ const ManageCard = () => {
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
                   {epochTimes[1]
-                    ? format(new Date(epochTimes[1] * 1000), 'd LLL yyyy')
+                    ? format(
+                        new Date(epochTimes[1].toNumber() * 1000),
+                        'd LLL yyyy'
+                      )
                     : '-'}
                 </Typography>
               </Box>
@@ -288,14 +279,14 @@ const ManageCard = () => {
             </Box>
             <Typography variant="h6" className="text-stieglitz">
               Withdrawals are locked until end of Epoch{' '}
-              {
-                // @ts-ignore TODO: FIX
-                ssovData?.currentEpoch + 1
-              }{' '}
+              {(ssovData?.currentEpoch || 0) + 1}{' '}
               <span className="text-white">
                 ({' '}
                 {epochTimes[1]
-                  ? format(new Date(epochTimes[1] * 1000), 'd LLLL yyyy')
+                  ? format(
+                      new Date(epochTimes[1].toNumber() * 1000),
+                      'd LLLL yyyy'
+                    )
                   : '-'}
                 )
               </span>
@@ -330,4 +321,4 @@ const ManageCard = () => {
   );
 };
 
-export default ManageCard;
+export default DepositPanel;

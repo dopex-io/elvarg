@@ -29,14 +29,14 @@ const Orders = ({ isFetchingOrders, orders, setOpenOrder }: Props) => {
               <Box className={'flex h-[2.75rem]'}>
                 <Box className={'relative'}>
                   <img
-                    src={'/assets/' + order.srcTokenName + '.svg'}
+                    src={'/images/tokens/' + order.srcTokenName + '.svg'}
                     className={
                       'inherit w-6 h-6 z-15 border-[0.2px] border-gray-800 rounded-full'
                     }
                     alt={order.srcTokenName}
                   />
                   <img
-                    src={'/assets/' + order.dstTokenName + '.svg'}
+                    src={'/images/tokens/' + order.dstTokenName + '.svg'}
                     className={
                       'inherit w-6 h-6 border-[0.2px] border-gray-800 rounded-full ml-[1rem] mt-[-1rem] z-1'
                     }

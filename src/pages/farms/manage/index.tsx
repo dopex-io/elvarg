@@ -379,7 +379,7 @@ const Manage = () => {
                 <MenuItem value="DPX">
                   <Box className="flex flex-row items-center">
                     <Box className="flex flex-row h-8 w-8 mr-2">
-                      <img src={'/assets/dpx.svg'} alt="DPX" />
+                      <img src={'/images/tokens/dpx.svg'} alt="DPX" />
                     </Box>
                     <Typography
                       variant="h5"
@@ -392,7 +392,7 @@ const Manage = () => {
                 <MenuItem value="DPX-WETH">
                   <Box className="flex flex-row items-center">
                     <Box className="flex flex-row h-8 w-14 items-center">
-                      <img src={'/assets/dpx_weth.svg'} alt="DPX-WETH" />
+                      <img src={'/images/tokens/dpx_weth.svg'} alt="DPX-WETH" />
                     </Box>
                     <Typography
                       variant="h5"
@@ -405,7 +405,10 @@ const Manage = () => {
                 <MenuItem value="rDPX-WETH">
                   <Box className="flex flex-row items-center">
                     <Box className="flex flex-row h-8 w-14 items-center">
-                      <img src={'/assets/rdpx_weth.svg'} alt="rDPX-WETH" />
+                      <img
+                        src={'/images/tokens/rdpx_weth.svg'}
+                        alt="rDPX-WETH"
+                      />
                     </Box>
                     <Typography
                       variant="h5"
@@ -418,7 +421,7 @@ const Manage = () => {
                 <MenuItem value="RDPX">
                   <Box className="flex flex-row items-center">
                     <Box className="flex flex-row h-8 w-14 items-center">
-                      <img src={'/assets/rdpx.svg'} alt="rDPX" />
+                      <img src={'/images/tokens/rdpx.svg'} alt="rDPX" />
                     </Box>
                     <Typography
                       variant="h5"

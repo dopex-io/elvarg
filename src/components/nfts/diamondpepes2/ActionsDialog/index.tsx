@@ -49,7 +49,7 @@ const Hero = ({ active, heroColor, letter }) => {
       >
         <Typography
           variant="h6"
-          className={"text-stieglitz font-['Minecraft'] text-black pt-0.5"}
+          className={"font-['Minecraft'] text-black pt-0.5"}
         >
           {letter}
         </Typography>
@@ -275,7 +275,6 @@ const ActionsDialog = ({ open, tab, handleClose }: Props) => {
               className="ml-[2px] w-16"
               alt={''}
             />
-
             <Box className="bg-[#343C4D] rounded-xs flex flex-col p-3 pb-1.5 w-full ml-4 relative">
               <img
                 src="/assets/polygon-left.svg"

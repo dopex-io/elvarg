@@ -655,7 +655,7 @@ const Tzwap = () => {
                               {fromTokenName !== '' ? (
                                 <img
                                   src={
-                                    '/assets/' +
+                                    '/images/tokens/' +
                                     fromTokenName.toLowerCase().split('.e')[0] +
                                     '.svg'
                                   }
@@ -742,7 +742,7 @@ const Tzwap = () => {
                               {toTokenName !== '' ? (
                                 <img
                                   src={
-                                    '/assets/' +
+                                    '/images/tokens/' +
                                     toTokenName.toLowerCase().split('.e')[0] +
                                     '.svg'
                                   }
@@ -1037,7 +1037,7 @@ const Tzwap = () => {
                           ) : (
                             <Box className="flex">
                               <img
-                                src={'/assets/1inch.svg'}
+                                src={'/images/exchanges/1inch.svg'}
                                 className={'w-5 h-5'}
                                 alt={'1inch'}
                               />

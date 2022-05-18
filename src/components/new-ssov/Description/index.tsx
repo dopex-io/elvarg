@@ -33,7 +33,7 @@ const Description = ({
           }
         >
           <img
-            src={'/assets/' + tokenSymbol.toLowerCase() + '.svg'}
+            src={'/images/tokens/' + tokenSymbol.toLowerCase() + '.svg'}
             className={'w-[6rem]'}
             alt={tokenSymbol}
           />
