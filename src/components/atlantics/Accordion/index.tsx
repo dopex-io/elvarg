@@ -44,7 +44,7 @@ CustomAccordionProps) => {
       >
         <Box className="flex space-x-2">
           <img
-            src={`/assets/${header.toLowerCase()}.svg`}
+            src={`/images/tokens/${header.toLowerCase()}.svg`}
             alt={header}
             className="h-8 mr-2 border border-mineshaft rounded-full"
           />

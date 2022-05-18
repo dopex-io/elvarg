@@ -50,7 +50,7 @@ const PoolCard = (props: PoolCardProps) => {
         <Box className="flex justify-between">
           <Box className="flex space-x-2">
             <img
-              src={`/assets/${underlying.toLowerCase()}.svg`}
+              src={`/images/tokens/${underlying.toLowerCase()}.svg`}
               alt={underlying.toLowerCase()}
               className="h-[2rem] w-[2rem] border border-mineshaft rounded-full"
             />

@@ -66,7 +66,7 @@ const TokenSelector = (props: TokenSelectorProps) => {
             >
               <Box className="flex space-x-4">
                 <img
-                  src={`/assets/${token.symbol.toLowerCase()}.svg`}
+                  src={`/images/tokens/${token.symbol.toLowerCase()}.svg`}
                   alt={token.symbol}
                   className="h-[2.4rem] my-auto"
                 />

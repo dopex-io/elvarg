@@ -93,7 +93,7 @@ const ManageCard = (props: ManageCardProps) => {
                     onClick={handleOpenSlider}
                   >
                     <img
-                      src={`/assets/${(
+                      src={`/images/tokens/${(
                         selectedToken || underlying
                       ).toLowerCase()}.svg`}
                       alt={(selectedToken || underlying).toLowerCase()}
