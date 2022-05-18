@@ -300,7 +300,7 @@ const Manage = () => {
       <Head>
         <title>Farms | Dopex</title>
       </Head>
-      {/* <AppBar active="farms" /> */}
+      <AppBar active="farms" />
       <Box className={c('mx-auto my-40 px-2', styles.cardSize)}>
         <Box className="bg-cod-gray sm:px-5 px-2 py-5 rounded-xl">
           <Box className="flex flex-row mb-4 justify-between">
