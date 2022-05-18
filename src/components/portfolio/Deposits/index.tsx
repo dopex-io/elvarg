@@ -200,7 +200,7 @@ export default function Deposits() {
             </Box>
           ) : positions.length === 0 ? (
             <Box className="flex-col p-9">
-              <Box className="mx-auto">You do not have any positions</Box>
+              <Box className="mx-auto">You do not have any deposits</Box>
               <Link href="/ssov">
                 <Button
                   className={
