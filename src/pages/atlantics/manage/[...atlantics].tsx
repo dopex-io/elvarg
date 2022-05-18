@@ -8,13 +8,83 @@ import ManageCard from 'components/atlantics/Manage/ManageCard';
 import Charts from 'components/atlantics/Charts';
 import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
-import PoolCompositionTable from 'components/atlantics/PoolCompositionTable';
+import PoolCompositionTable from 'components/atlantics/Manage/PoolCompositionTable';
 import Typography from 'components/UI/Typography';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
+import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 
-// @ts-ignore TODO: fix this
-const Manage = ({ poolType, underlying, tokenId, strategy, epochLength }) => {
+const bar_graph_data = [
+  {
+    available: 403,
+    borrowed: 1201,
+    strike: '3500',
+  },
+  {
+    strike: '3000',
+    available: 713,
+    borrowed: 2405,
+  },
+  {
+    strike: '2500',
+    available: 810,
+    borrowed: 2810,
+  },
+  {
+    strike: '2000',
+    available: 910,
+    borrowed: 3198,
+  },
+  {
+    strike: '1500',
+    available: 1000,
+    borrowed: 4400,
+  },
+];
+
+const line_chart_data = [
+  {
+    name: '1/05',
+    deposits: 4000,
+    unlocks: 3420,
+    amt: 2400,
+  },
+  {
+    name: '8/05',
+    deposits: 3000,
+    unlocks: 2900,
+    amt: 2210,
+  },
+  {
+    name: '15/05',
+    deposits: 2000,
+    unlocks: 2000,
+    amt: 2290,
+  },
+  {
+    name: '22/05',
+    deposits: 1890,
+    unlocks: 1540,
+    amt: 2181,
+  },
+  {
+    name: '28/05',
+    deposits: 2390,
+    unlocks: 2100,
+    amt: 2500,
+  },
+];
+
+interface ManageProps {
+  poolType: string;
+  underlying: string;
+  tokenId: string;
+  strategy: string;
+  epochLength: string;
+}
+
+const Manage = (props: ManageProps) => {
+  const { poolType, underlying, tokenId, strategy, epochLength } = props;
   // todo: get selected pool/market contract from context
   const { /* atlanticPoolEpochData,*/ selectedMarket } =
     useContext(AtlanticsContext);
@@ -45,18 +115,29 @@ const Manage = ({ poolType, underlying, tokenId, strategy, epochLength }) => {
             />
             <Box className="w-full space-y-4">
               <Typography variant="h5">Liquidity</Typography>
-              <Charts />
+              <Charts
+                line_data={line_chart_data}
+                bar_data={bar_graph_data}
+                underlying={underlying}
+                collateral={tokenId}
+                strategy={strategy}
+              />
             </Box>
             <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>
-              <PoolCompositionTable />
+              <PoolCompositionTable
+                underlying={tokenId} // todo: fix naming of underlying and collateral variables
+                collateral={underlying}
+              />
             </Box>
             <Box className="w-full space-y-4">
               <Typography variant="h5">Deposits</Typography>
-              <></>
+              <UserDepositsTable data={[]} />
             </Box>
           </Box>
-          <ManageCard tokenId={tokenId} underlying={underlying} />
+          <Box className="flex flex-col w-1/4">
+            <ManageCard tokenId={tokenId} underlying={underlying} />
+          </Box>
         </Box>
       </Box>
     </Box>
@@ -66,15 +147,27 @@ const Manage = ({ poolType, underlying, tokenId, strategy, epochLength }) => {
 export async function getServerSideProps(context: {
   query: { atlantics: string[] };
 }) {
-  return {
-    props: {
-      poolType: context.query.atlantics[0],
-      underlying: context.query.atlantics[1],
-      tokenId: context.query.atlantics[2],
-      strategy: context.query.atlantics[3],
-      epochLength: context.query.atlantics[4],
-    },
-  };
+  if (context.query.atlantics.length === 4)
+    return {
+      props: {
+        poolType: context.query.atlantics[0],
+        underlying: context.query.atlantics[1],
+        tokenId: context.query.atlantics[1],
+        strategy: context.query.atlantics[2],
+        epochLength: context.query.atlantics[3],
+      },
+    };
+  else {
+    return {
+      props: {
+        poolType: context.query.atlantics[0],
+        underlying: context.query.atlantics[1],
+        tokenId: context.query.atlantics[2],
+        strategy: context.query.atlantics[3],
+        epochLength: context.query.atlantics[4],
+      },
+    };
+  }
 }
 
 export default Manage;

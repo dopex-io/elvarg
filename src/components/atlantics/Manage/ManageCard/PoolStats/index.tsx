@@ -8,18 +8,18 @@ const PoolStats = () => {
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
       <Box className="flex divide-x divide-umbra">
         <Box className="w-1/2 p-3">
-          <Typography variant="h5" className="text-stieglitz">
+          <Typography variant="h6" className="text-stieglitz">
             -
           </Typography>
-          <Typography variant="h5" className="text-stieglitz">
+          <Typography variant="h6" className="text-stieglitz">
             Deposit
           </Typography>
         </Box>
         <Box className="w-1/2 p-3">
-          <Typography variant="h5" className="text-stieglitz">
+          <Typography variant="h6" className="text-stieglitz">
             -
           </Typography>
-          <Typography variant="h5" className="text-stieglitz">
+          <Typography variant="h6" className="text-stieglitz">
             Pool Share
           </Typography>
         </Box>

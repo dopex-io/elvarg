@@ -190,7 +190,7 @@ export const AtlanticsProvider = (props: any) => {
             epochLength: 'weekly' as const,
           },
           {
-            poolType: 'INSURED-STABLES',
+            poolType: 'INSURED STABLES',
             underlying: 'ETH',
             isPut: false,
             tvl: getContractReadableAmount(201219, 18),

@@ -13,6 +13,8 @@ import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/CustomButton';
 
+import LockerIcon from 'svgs/icons/LockerIcon';
+
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 
@@ -62,10 +64,7 @@ const ManageCard = (props: ManageCardProps) => {
   }, [chainId, selectedToken, underlying, userAssetBalances]);
 
   return (
-    <Box
-      className="bg-cod-gray rounded-2xl p-3 w-1/4 space-y-3"
-      ref={containerRef}
-    >
+    <Box className="bg-cod-gray rounded-2xl p-3 space-y-3" ref={containerRef}>
       <Box className="flex justify-between">
         <Typography variant="h5" className="my-auto">
           Deposit
@@ -122,9 +121,12 @@ const ManageCard = (props: ManageCardProps) => {
             <Box className="rounded-md bg-carbon p-3">
               <EstimatedGasCostButton gas={500000} chainId={chainId} />
             </Box>
-            <Typography variant="h6" className="text-stieglitz">
-              Withdrawals are locked until end of epoch 4 20 Decemeber
-            </Typography>
+            <Box className="flex">
+              <LockerIcon className="my-auto m-2" />
+              <Typography variant="h6" className="text-stieglitz">
+                Withdrawals are locked until end of Epoch 4
+              </Typography>
+            </Box>
             <CustomButton
               className="flex w-full text-center"
               color={strikesSet ? 'primary' : 'mineshaft'}

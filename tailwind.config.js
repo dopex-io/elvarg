@@ -18,6 +18,7 @@ module.exports = {
         'cod-gray': '#151515',
         'wave-blue': '#22E1FF',
         'down-bad': '#FF617D',
+        'up-only': '#6DFFB9',
       },
       minWidth: {
         400: '400px',

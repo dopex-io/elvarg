@@ -5,13 +5,13 @@ import Typography from 'components/UI/Typography';
 
 import LegendIcon from 'svgs/icons/LegendIcon';
 
-interface StatsLineChartProps {
+interface LiquidityLineChartProps {
   data: any[];
   width: number;
   height: number;
 }
 
-const StatsLineChart = (props: StatsLineChartProps) => {
+const LiquidityLineChart = (props: LiquidityLineChartProps) => {
   const { data, width, height } = props;
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
@@ -32,15 +32,29 @@ const StatsLineChart = (props: StatsLineChartProps) => {
           data={data}
           className="py-3 absolute right-5"
         >
-          <XAxis ticks={[1, 2, 3]} axisLine={false} />
-          <YAxis ticks={[1, 2, 3]} axisLine={false} />
+          <XAxis
+            ticks={['13/05', '20/05', '27/05']}
+            axisLine={false}
+            dataKey="name"
+          />
+          <YAxis axisLine={false} dataKey="deposits" />
           <Tooltip />
-          <Line type="monotone" dataKey="Unlocks" stroke="#22E1FF" />
-          <Line type="monotone" dataKey="Deposits" stroke="#7B61FF" />
+          <Line
+            type="monotone"
+            dataKey="unlocks"
+            stroke="#7B61FF"
+            dot={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="deposits"
+            stroke="#22E1FF"
+            dot={false}
+          />
         </LineChart>
       </Box>
     </Box>
   );
 };
 
-export default StatsLineChart;
+export default LiquidityLineChart;
