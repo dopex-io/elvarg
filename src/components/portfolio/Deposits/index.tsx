@@ -14,9 +14,10 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import Filter from '../Filter';
-import getAssetFromVaultName from '../../../utils/contracts/getAssetFromVaultName';
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
-import getTokenDecimals from '../../../utils/general/getTokenDecimals';
+import getAssetFromVaultName from 'utils/contracts/getAssetFromVaultName';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+import formatAmount from 'utils/general/formatAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
 
@@ -102,13 +103,13 @@ export default function Deposits() {
           strikePrice: getUserReadableAmount(o.strike, 8),
           accruedRewards: getUserReadableAmount(
             String(moreData[i]?.rewardTokenWithdrawAmounts),
-            decimals
+            assetName === 'ETH' || isPut ? 18 : decimals
           ),
           accruedPremiums: getUserReadableAmount(
             String(
               moreData[i]?.collateralTokenWithdrawAmount.sub(o.collateralAmount)
             ),
-            decimals
+            isPut ? 8 : decimals
           ),
         };
       });
@@ -301,14 +302,17 @@ export default function Deposits() {
                   <Box className="col-span-2 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {position.accruedRewards}
+                        {formatAmount(position.accruedRewards, 6)} DPX
                       </span>
                     </Typography>
                   </Box>
                   <Box className="col-span-2 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {position.accruedPremiums}
+                        {formatAmount(position.accruedPremiums, 6)}{' '}
+                        {position.isPut
+                          ? '2CRV'
+                          : position.assetName.toUpperCase()}
                       </span>
                     </Typography>
                   </Box>
