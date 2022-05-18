@@ -118,7 +118,7 @@ export const SSOV_MAP = {
   },
 };
 
-export const ATLANTIC_STATS_MAPPING = {
+export const ATLANTIC_STATS_MAPPING: { [key: string]: string } = {
   TVL: 'TVL',
   pools: 'Pools',
   volume: 'Volume',

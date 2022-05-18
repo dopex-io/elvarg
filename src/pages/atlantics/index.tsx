@@ -1,14 +1,13 @@
-import { useContext, useMemo } from 'react';
+import { useContext } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Accordion from 'components/atlantics/Accordion';
 import Description from 'components/atlantics/Description';
 import Stats from 'components/atlantics/Stats';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
 const Atlantics = () => {
   const { marketsData } = useContext(AtlanticsContext);
@@ -24,8 +23,7 @@ const Atlantics = () => {
           <Box className="flex flex-col flex-wrap divide-y divide-umbra">
             <Box className="flex w-full justify-between">
               <Description />
-              <Stats marketsData={marketsData} />
-              {/*  Remove marketsData props and fetch from context */}
+              <Stats />
             </Box>
             <Box className="grid grid-cols-4 pt-6">
               <Box className="flex flex-col col-span-1 space-y-6">
@@ -49,4 +47,12 @@ const Atlantics = () => {
   );
 };
 
-export default Atlantics;
+const AtlanticsPage = () => {
+  return (
+    <AtlanticsProvider>
+      <Atlantics />
+    </AtlanticsProvider>
+  );
+};
+
+export default AtlanticsPage;

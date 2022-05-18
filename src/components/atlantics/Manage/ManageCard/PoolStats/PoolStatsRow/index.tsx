@@ -2,13 +2,14 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-interface PoolCardItemProps {
+interface PoolStatsRowProps {
   description: string;
-  value: number | string;
+  value: string;
 }
 
-const PoolCardItem = (props: PoolCardItemProps) => {
+const PoolStatsRow = (props: PoolStatsRowProps) => {
   const { description, value } = props;
+
   return (
     <Box className="flex justify-between">
       <Typography variant="h6" className="text-stieglitz">
@@ -19,4 +20,4 @@ const PoolCardItem = (props: PoolCardItemProps) => {
   );
 };
 
-export default PoolCardItem;
+export default PoolStatsRow;

@@ -10,20 +10,49 @@ import { BigNumber } from 'ethers';
 
 import { WalletContext } from './Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+// import { ERC20__factory } from '@dopex-io/sdk';
 
 export interface Atlantics {
   token?: string;
   type?: 'CALL' | 'PUT';
 }
 
+interface AtlanticPoolData {
+  tickSize: BigNumber;
+  unwindFeePercentage: BigNumber;
+  fundingRate: BigNumber;
+  gracePeriod: BigNumber;
+  collateral: string;
+  quoteAsset: string;
+}
+
+interface AtlanticPoolEpochDataInterface {
+  epoch: number;
+  pool: string;
+  isBootstrapped: boolean;
+  isEpochExpired: boolean;
+  startTime: number;
+  expiryTime: number;
+  epochStrikeToken: string;
+  totalEpochStrikeDeposits: BigNumber;
+}
+
+interface UserPositionInterface {
+  maxStrike: BigNumber;
+  userDeposit: BigNumber;
+  epoch: number;
+}
+
+interface UserAtlanticsDataInterface {
+  userPositions: UserPositionInterface[];
+}
+
 interface MarketsDataInterface {
   tokenId: string;
-  stats: {
-    tvl: BigNumber;
-    volume: BigNumber;
-  };
+  stats?: { [key: string]: BigNumber };
   pools: {
     poolType: string;
+    underlying: string;
     isPut: boolean;
     tvl: BigNumber;
     epochLength: 'daily' | 'weekly' | 'monthly';
@@ -39,10 +68,39 @@ interface TempObjInterface {
 
 interface AtlanticsContextInterface {
   atlanticsObject?: TempObjInterface;
-  marketsData?: MarketsDataInterface[];
+  marketsData: MarketsDataInterface[];
+  atlanticPoolData?: AtlanticPoolData;
+  atlanticPoolEpochData?: AtlanticPoolEpochDataInterface;
+  userAtlanticsData?: UserAtlanticsDataInterface;
+  selectedMarket: string;
+  setSelectedMarket: (tokenId: string) => void;
 }
 
-const initialMarketsData = [];
+const initialMarketsData: MarketsDataInterface[] = [];
+
+const initialAtlanticPoolData = {
+  tickSize: BigNumber.from(0),
+  unwindFeePercentage: BigNumber.from(0),
+  fundingRate: BigNumber.from(0),
+  gracePeriod: BigNumber.from(0),
+  collateral: '',
+  quoteAsset: '',
+};
+
+const initialAtlanticPoolEpochData = {
+  epoch: 0,
+  pool: '',
+  isBootstrapped: false,
+  isEpochExpired: false,
+  startTime: 0,
+  expiryTime: 0,
+  epochStrikeToken: '',
+  totalEpochStrikeDeposits: BigNumber.from(0),
+};
+
+const initialUserAtlanticsData = {
+  userPositions: [],
+};
 
 const initialAtlanticsObjData = {
   tempBool: false,
@@ -52,22 +110,35 @@ const initialAtlanticsObjData = {
 };
 
 const initialAtlanticsData = {
-  marketsData: initialMarketsData,
   atlanticsObject: initialAtlanticsObjData,
+  marketsData: initialMarketsData,
+  atlanticPoolData: initialAtlanticPoolData,
+  atlanticPoolEpochData: initialAtlanticPoolEpochData,
+  userAtlanticsData: initialUserAtlanticsData,
+  selectedMarket: '',
+  setSelectedMarket: () => {},
 };
 
 export const AtlanticsContext =
   createContext<AtlanticsContextInterface>(initialAtlanticsData);
 
-export const AtlanticsProvider = (props) => {
-  const { accountAddress, contractAddresses, provider, signer } =
+export const AtlanticsProvider = (props: any) => {
+  const { accountAddress, contractAddresses, chainId, provider /*, signer */ } =
     useContext(WalletContext);
 
   // const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
 
   // states
+  // @ts-ignore todo: FIX
   const [tempObj, setTempObj] = useState<TempObjInterface>();
   const [marketsData, setMarketsData] = useState<MarketsDataInterface[]>([]);
+  const [atlanticPoolEpochData, setAtlanticPoolEpochData] =
+    useState<AtlanticPoolEpochDataInterface>({
+      ...initialAtlanticPoolEpochData,
+    });
+  // const [userAtlanticsData, setUserAtlanticsData] =
+  //   useState<UserAtlanticsDataInterface>();
+  const [selectedMarket, setSelectedMarket] = useState('');
 
   // callbacks
 
@@ -76,9 +147,10 @@ export const AtlanticsProvider = (props) => {
     console.log(tempObj);
   }, [tempObj, accountAddress, contractAddresses, provider]);
 
-  const updateMarketsData = useCallback(() => {
+  const updateMarketsData = useCallback(async () => {
     if (!provider || !accountAddress || !contractAddresses) return;
 
+    // Mock Data
     const data = [
       {
         tokenId: 'ETH',
@@ -89,12 +161,14 @@ export const AtlanticsProvider = (props) => {
         pools: [
           {
             poolType: 'PERPETUALS',
+            underlying: 'USDC',
             isPut: true,
             tvl: getContractReadableAmount(100023, 18),
             epochLength: 'weekly' as const,
           },
           {
             poolType: 'INSURED STABLES',
+            underlying: 'USDC',
             isPut: true,
             tvl: getContractReadableAmount(2223, 18),
             epochLength: 'daily' as const,
@@ -110,12 +184,14 @@ export const AtlanticsProvider = (props) => {
         pools: [
           {
             poolType: 'PERPETUALS',
+            underlying: 'USDC',
             isPut: true,
             tvl: getContractReadableAmount(123122, 18),
             epochLength: 'weekly' as const,
           },
           {
-            poolType: 'INSURED STABLES',
+            poolType: 'INSURED-STABLES',
+            underlying: 'ETH',
             isPut: false,
             tvl: getContractReadableAmount(201219, 18),
             epochLength: 'monthly' as const,
@@ -131,6 +207,7 @@ export const AtlanticsProvider = (props) => {
         pools: [
           {
             poolType: 'PERPETUALS',
+            underlying: 'USDC',
             isPut: true,
             tvl: getContractReadableAmount(52123, 18),
             epochLength: 'weekly' as const,
@@ -142,7 +219,39 @@ export const AtlanticsProvider = (props) => {
     setMarketsData(data);
   }, [accountAddress, contractAddresses, provider]);
 
+  const updateAtlanticPoolData = useCallback(
+    async (tokenId: string) => {
+      if (!accountAddress || !contractAddresses || !provider || !chainId)
+        return;
+
+      console.log(tokenId);
+
+      // const contractAddress =
+      //   contractAddresses[chainId]['AtlanticPools'][tokenId];
+
+      const currentEpoch = 1; // fetch from contract or pass from frontend selector
+
+      setAtlanticPoolEpochData({
+        pool: '0x0000000000000000000000000000000000000000', // contractAddress,
+        epoch: currentEpoch,
+        isBootstrapped: true,
+        isEpochExpired: false,
+        startTime: 1652370455, // epochStartTimes[currentEpoch]
+        expiryTime: 1654962455, // epochExpiryTimes[currentEpoch],
+        epochStrikeToken: '0x0000000000000000000000000000000000000000', // epochStrikeTokens[currentEpoch],
+        totalEpochStrikeDeposits: BigNumber.from(0),
+        // fundingRate: BigNumber.from(0),
+      });
+    },
+    [accountAddress, contractAddresses, provider, chainId]
+  );
+
   // useEffects
+
+  useEffect(() => {
+    if (!selectedMarket) return;
+    updateAtlanticPoolData(selectedMarket);
+  }, [updateAtlanticPoolData, selectedMarket]);
 
   useEffect(() => {
     updateTempObject();
@@ -156,6 +265,9 @@ export const AtlanticsProvider = (props) => {
     atlanticsBool: true,
     marketsData,
     atlanticsObj: {},
+    atlanticPoolEpochData,
+    selectedMarket,
+    setSelectedMarket,
   };
 
   return (
