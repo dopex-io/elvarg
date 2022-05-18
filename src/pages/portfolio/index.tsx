@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import AppBar from 'components/common/AppBar';
 import Sidebar from '../../components/portfolio/Sidebar';
 import Positions from '../../components/portfolio/Positions';
+import Deposits from '../../components/portfolio/Deposits';
 
 const Portfolio = () => {
   return (
@@ -20,7 +21,12 @@ const Portfolio = () => {
         </Box>
 
         <Box gridColumn="span 10" className="mt-10 lg:mb-20 lg:pl-5 lg:pr-5">
-          <Positions />
+          <Box>
+            <Positions />
+          </Box>
+          <Box className="mt-3">
+            <Deposits />
+          </Box>
         </Box>
       </Box>
     </Box>

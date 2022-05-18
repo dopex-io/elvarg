@@ -62,7 +62,7 @@ const Claimable = ({ token, poolName, className }: ClaimableProps) => {
                 </Typography>
 
                 <Box className="flex w-full">
-                  <img src={`/assets/dpx.svg`} className="w-8 h-8" />
+                  <img src={`/assets/dpx.svg`} className="w-8 h-8" alt="DPX" />
                   <Typography variant="h5" className="ml-3 mt-0.5">
                     <span className="text-white">
                       {formatAmount(
@@ -73,7 +73,11 @@ const Claimable = ({ token, poolName, className }: ClaimableProps) => {
                   </Typography>
                 </Box>
                 <Box className="flex w-full mt-2">
-                  <img src={`/assets/rdpx.svg`} className="w-8 h-8" />
+                  <img
+                    src={`/assets/rdpx.svg`}
+                    className="w-8 h-8"
+                    alt="rDPX"
+                  />
                   <Typography variant="h5" className="ml-3 mt-0.5">
                     <span className="text-white">
                       {formatAmount(

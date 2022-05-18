@@ -31,6 +31,7 @@ export default function Balances() {
             .map((asset, i) => (
               <Box key={i} className={`flex my-5`}>
                 <img
+                  alt={asset}
                   src={`/assets/${asset.toLowerCase()}.svg`}
                   className="w-7 h-7 object-cover"
                 />

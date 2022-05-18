@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import Link from 'next/link';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -7,34 +7,22 @@ import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import format from 'date-fns/format';
-import useSendTx from 'hooks/useSendTx';
-import {
-  SsovV3Viewer__factory,
-  SsovV3__factory,
-  ERC20__factory,
-  ERC20,
-} from '@dopex-io/sdk';
+import { SsovV3Viewer__factory, SsovV3__factory } from '@dopex-io/sdk';
 
-import { MAX_VALUE } from 'constants/index';
 import { WalletContext } from 'contexts/Wallet';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import isZeroAddress from 'utils/contracts/isZeroAddress';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import formatAmount from 'utils/general/formatAmount';
-import getAssetFromVaultName from 'utils/contracts/getAssetFromVaultName';
 
 import Filter from '../Filter';
+import getAssetFromVaultName from '../../../utils/contracts/getAssetFromVaultName';
+import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
+import getTokenDecimals from '../../../utils/general/getTokenDecimals';
 
 const sides: string[] = ['CALL', 'PUT'];
 
 interface Position {
-  isSettleable: boolean;
-  pnlAmount: number;
-  purchasedAmount: number;
+  collateralAmount: number;
   settleableAmount: BigNumber;
-  strikeIndex: number;
   strikePrice: number;
   vaultName: string;
   imgSrc: string;
@@ -42,11 +30,13 @@ interface Position {
   epochEndTime: Date;
   currentEpoch: number;
   assetName: string;
+  accruedRewards: number;
+  accruedPremiums: number;
 }
 
-export default function Positions() {
-  const { chainId, contractAddresses, provider, signer, accountAddress } =
-    useContext(WalletContext);
+export default function Deposits() {
+  const { chainId, contractAddresses, provider } = useContext(WalletContext);
+  const accountAddress = '0x53d7a4feb1d6057bebcf93be1a027c2bac4824ae';
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
@@ -54,7 +44,6 @@ export default function Positions() {
   const [positions, setPositions] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>('');
-  const sendTx = useSendTx();
 
   const getPosition = useCallback(
     async (vaultName: string) => {
@@ -67,120 +56,62 @@ export default function Positions() {
 
       const vaultAddress = vaults[vaultName];
       const vault = SsovV3__factory.connect(vaultAddress, provider);
+
+      const writePositions = await ssovViewerContract.walletOfOwner(
+        String(accountAddress),
+        vaultAddress
+      );
+
       const currentEpoch = await vault.currentEpoch();
 
-      const [
-        tokensAddresses,
-        epochStrikes,
-        epochData,
-        tokenPrice,
-        isPut,
-        epochTimes,
-      ] = await Promise.all([
-        await ssovViewerContract.getEpochStrikeTokens(
-          currentEpoch,
-          vaultAddress
-        ),
-        await vault.getEpochStrikes(currentEpoch),
-        await vault.getEpochData(currentEpoch),
-        await vault.getUnderlyingPrice(),
+      const [isPut, epochTimes] = await Promise.all([
         await vault.isPut(),
         await vault.getEpochTimes(currentEpoch),
       ]);
 
       const epochEndTime = new Date(epochTimes[1].toNumber() * 1000);
 
-      const settlementPrice = epochData.settlementPrice;
-
-      const userEpochStrikeTokenBalanceArray = tokensAddresses.length
-        ? await Promise.all(
-            tokensAddresses
-              .map((tokenAddress: string) => {
-                const token = ERC20__factory.connect(tokenAddress, provider);
-                if (isZeroAddress(token.address)) return null;
-                return token.balanceOf(String(accountAddress));
-              })
-              .filter((c: any) => c)
-          )
-        : [];
-
-      const userExercisableOptions = epochStrikes.map(
-        (
-          strike: string | number | BigNumber | BigNumber,
-          strikeIndex: string | number
-        ) => {
-          const strikePrice = getUserReadableAmount(strike, 8);
-
-          const purchasedAmount = getUserReadableAmount(
-            userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-              BigNumber.from(0),
-            18
-          );
-          const settleableAmount =
-            userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-            BigNumber.from(0);
-          const isSettleable =
-            settleableAmount.gt(0) &&
-            ((isPut && settlementPrice.lt(strike)) ||
-              (!isPut && settlementPrice.gt(strike)));
-          // @ts-ignore TODO: FIX
-          let pnlAmount = settlementPrice.isZero()
-            ? isPut
-              ? strike
-                  // @ts-ignore TODO: FIX
-                  .sub(tokenPrice)
-                  .mul(userEpochStrikeTokenBalanceArray[Number(strikeIndex)])
-                  .mul(1e10)
-                  .div(ethers.utils.parseEther('1'))
-              : tokenPrice
-                  .sub(strike)
-                  .mul(
-                    userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-                      BigNumber.from('0')
-                  )
-                  .div(tokenPrice)
-            : isPut
-            ? strike
-                // @ts-ignore TODO: FIX
-                .sub(settlementPrice)
-                .mul(settleableAmount)
-                .mul(1e10)
-                .div(ethers.utils.parseEther('1'))
-            : settlementPrice
-                .sub(strike)
-                .mul(
-                  userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-                    BigNumber.from('0')
-                )
-                .div(settlementPrice);
-
-          const assetName = getAssetFromVaultName(vaultName);
-
-          pnlAmount = getUserReadableAmount(
-            pnlAmount,
-            getTokenDecimals(assetName, chainId)
-          );
-
-          const imgSrc = `/assets/${assetName}.svg`;
-
-          return {
-            strikeIndex,
-            strikePrice,
-            purchasedAmount,
-            settleableAmount,
-            pnlAmount,
-            isSettleable,
-            vaultName,
-            imgSrc,
-            isPut,
-            epochEndTime,
-            currentEpoch,
-            assetName,
-          };
-        }
+      const data = await Promise.all(
+        writePositions.map((i) => {
+          return vault.writePosition(i);
+        })
       );
 
-      return userExercisableOptions;
+      const moreData = await Promise.all(
+        writePositions.map((i) => {
+          return ssovViewerContract.getWritePositionValue(i, vaultAddress);
+        })
+      );
+
+      const assetName = getAssetFromVaultName(vaultName);
+
+      const imgSrc = `/assets/${assetName}.svg`;
+
+      const decimals = getTokenDecimals(assetName, chainId);
+
+      return data.map((o, i) => {
+        return {
+          vaultName: vaultName,
+          imgSrc: imgSrc,
+          assetName: assetName,
+          isPut: isPut,
+          epochEndTime: epochEndTime,
+          tokenId: writePositions[i],
+          collateralAmount: getUserReadableAmount(o.collateralAmount, decimals),
+          epoch: o.epoch.toNumber(),
+          strikePrice: getUserReadableAmount(o.strike, 8),
+          accruedRewards: getUserReadableAmount(
+            String(moreData[i]?.rewardTokenWithdrawAmounts),
+            decimals
+          ),
+          accruedPremiums: getUserReadableAmount(
+            String(
+              moreData[i]?.collateralTokenWithdrawAmount.sub(o.collateralAmount)
+            ),
+            decimals
+          ),
+        };
+      });
     },
     [contractAddresses, provider, accountAddress, chainId]
   );
@@ -201,7 +132,7 @@ export default function Positions() {
 
     results.forEach((result) => {
       result.forEach((position) => {
-        if (position.purchasedAmount > 0) _positions.push(position);
+        _positions.push(position);
       });
     });
 
@@ -209,71 +140,16 @@ export default function Positions() {
     setIsLoading(false);
   }, [provider, accountAddress, contractAddresses, getPosition]);
 
-  const handleSettle = useCallback(
-    async (
-      vaultName: string,
-      strikeIndex: number,
-      userEpochStrikeTokenBalance: BigNumber,
-      selectedEpoch: number
-    ) => {
-      const vaults = contractAddresses['SSOV-V3']['VAULTS'];
-
-      const vaultAddress = vaults[vaultName];
-      const vault = SsovV3__factory.connect(vaultAddress, provider);
-
-      const ssovViewerContract = SsovV3Viewer__factory.connect(
-        contractAddresses['SSOV-V3'].VIEWER,
-        provider
-      );
-
-      const tokensAddresses = await ssovViewerContract.getEpochStrikeTokens(
-        selectedEpoch,
-        vaultAddress
-      );
-
-      if (signer) {
-        const token: ERC20 = ERC20__factory.connect(
-          String(tokensAddresses[strikeIndex]),
-          provider
-        );
-
-        const allowance = await token.allowance(
-          String(accountAddress),
-          vaultAddress
-        );
-
-        if (allowance.eq(0))
-          await sendTx(token.connect(signer).approve(vaultAddress, MAX_VALUE));
-
-        await sendTx(
-          vault
-            .connect(signer)
-            .settle(strikeIndex, userEpochStrikeTokenBalance, selectedEpoch)
-        );
-      }
-
-      await updatePositions();
-    },
-    [
-      accountAddress,
-      sendTx,
-      signer,
-      provider,
-      contractAddresses,
-      updatePositions,
-    ]
-  );
-
   const filteredPositions = useMemo(() => {
     const _positions: Position[] = [];
     positions.map((position) => {
       let toAdd = true;
       if (
-        !position.vaultName.includes(searchText.toUpperCase()) &&
+        !position?.vaultName?.includes(searchText.toUpperCase()) &&
         searchText !== ''
       )
         toAdd = false;
-      if (!selectedSides.includes(position.isPut ? 'PUT' : 'CALL'))
+      if (!selectedSides.includes(position?.isPut ? 'PUT' : 'CALL'))
         toAdd = false;
       if (toAdd) _positions.push(position);
     });
@@ -287,7 +163,7 @@ export default function Positions() {
   return (
     <Box>
       <Box className="mt-9 ml-5 mr-5">
-        <Typography variant="h4">Open Positions</Typography>
+        <Typography variant="h4">Your Deposits</Typography>
         <Box className="bg-cod-gray mt-3 rounded-md text-center px-2">
           <Box className="flex py-3 px-3 border-b-[1.5px] border-umbra">
             <Box className="mr-3 mt-0.5">
@@ -338,7 +214,7 @@ export default function Positions() {
           ) : (
             <Box className="py-2">
               <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
-                <Box className="col-span-2 text-left">
+                <Box className="col-span-1 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Market</span>
                   </Typography>
@@ -353,22 +229,27 @@ export default function Positions() {
                     <span className="text-stieglitz">Side</span>
                   </Typography>
                 </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Collateral Amount</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Accrued Rewards</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Accrued Premiums</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Epoch End</span>
+                  </Typography>
+                </Box>
                 <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Amount</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Expiry</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">PNL</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Action</span>
                   </Typography>
@@ -380,7 +261,7 @@ export default function Positions() {
                   className="grid grid-cols-12 px-4 pt-2 pb-4"
                   gap={0}
                 >
-                  <Box className="col-span-2 text-left flex">
+                  <Box className="col-span-1 text-left flex">
                     <img
                       src={position.imgSrc}
                       className="w-8 h-8 mr-2 object-cover"
@@ -410,10 +291,24 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-1 text-left">
+                  <Box className="col-span-2 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {position.purchasedAmount}
+                        {position.collateralAmount}
+                      </span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {position.accruedRewards}
+                      </span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {position.accruedPremiums}
                       </span>
                     </Typography>
                   </Box>
@@ -424,39 +319,27 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-[#6DFFB9]">
-                        {formatAmount(position.pnlAmount, 4)}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2">
+                  <Box className="col-span-1">
                     <Box className="flex">
-                      <CustomButton
-                        size="medium"
-                        className="px-2"
-                        onClick={() =>
-                          handleSettle(
-                            position.vaultName,
-                            position.strikeIndex,
-                            position.settleableAmount,
-                            position.currentEpoch
-                          )
-                        }
-                        disabled={!position.isSettleable}
-                        color="primary"
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`/ssov-v3/${position.vaultName}`}
                       >
-                        Settle
-                      </CustomButton>
+                        <CustomButton
+                          size="medium"
+                          className="px-2"
+                          color="primary"
+                        >
+                          Open
+                        </CustomButton>
+                      </a>
                     </Box>
                   </Box>
                 </Box>
               ))}
             </Box>
           )}
-
-          <Box></Box>
         </Box>
       </Box>
     </Box>
