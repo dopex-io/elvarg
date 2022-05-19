@@ -11,7 +11,7 @@ const Portfolio = () => {
       <Head>
         <title>Portfolio | Dopex</title>
       </Head>
-      <AppBar />
+      <AppBar active="portfolio" />
       <Box
         className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 lg:grid lg:grid-cols-12"
         gap={0}

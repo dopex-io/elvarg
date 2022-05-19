@@ -426,8 +426,17 @@ export default function Positions() {
                   </Box>
                   <Box className="col-span-2 text-left">
                     <Typography variant="h5" className="mt-1">
-                      <span className="text-[#6DFFB9]">
-                        {formatAmount(position.pnlAmount, 4)}
+                      <span
+                        className={
+                          position.pnlAmount >= 0
+                            ? 'text-[#6DFFB9]'
+                            : 'text-[#FF617D]'
+                        }
+                      >
+                        {formatAmount(position.pnlAmount, 4)}{' '}
+                        {position.isPut
+                          ? '2CRV'
+                          : position.assetName.toUpperCase()}
                       </span>
                     </Typography>
                   </Box>

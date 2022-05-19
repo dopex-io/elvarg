@@ -31,13 +31,14 @@ interface Position {
   epochEndTime: Date;
   currentEpoch: number;
   assetName: string;
-  accruedRewards: number;
+  accruedRewards0: number;
+  accruedRewards1: number;
   accruedPremiums: number;
 }
 
 export default function Deposits() {
-  const { chainId, contractAddresses, provider, accountAddress } =
-    useContext(WalletContext);
+  const { chainId, contractAddresses, provider } = useContext(WalletContext);
+  const accountAddress = '0xc7ed7bf2a126983dfde425126b03693d40477ba7';
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
@@ -98,11 +99,20 @@ export default function Deposits() {
           isPut: isPut,
           epochEndTime: epochEndTime,
           tokenId: writePositions[i],
-          collateralAmount: getUserReadableAmount(o.collateralAmount, decimals),
+          collateralAmount: getUserReadableAmount(
+            o.collateralAmount,
+            isPut ? 18 : decimals
+          ),
           epoch: o.epoch.toNumber(),
           strikePrice: getUserReadableAmount(o.strike, 8),
-          accruedRewards: getUserReadableAmount(
-            String(moreData[i]?.rewardTokenWithdrawAmounts),
+          accruedRewards0: getUserReadableAmount(
+            String(moreData[i]?.rewardTokenWithdrawAmounts[0]),
+            assetName === 'ETH' || isPut ? 18 : decimals
+          ),
+          accruedRewards1: getUserReadableAmount(
+            moreData[i]?.rewardTokenWithdrawAmounts[1]
+              ? String(moreData[i]?.rewardTokenWithdrawAmounts[1])
+              : 0,
             assetName === 'ETH' || isPut ? 18 : decimals
           ),
           accruedPremiums: getUserReadableAmount(
@@ -295,14 +305,20 @@ export default function Deposits() {
                   <Box className="col-span-2 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {position.collateralAmount}
+                        {position.collateralAmount}{' '}
+                        {position.isPut
+                          ? '2CRV'
+                          : position.assetName.toUpperCase()}
                       </span>
                     </Typography>
                   </Box>
                   <Box className="col-span-2 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {formatAmount(position.accruedRewards, 6)} DPX
+                        {formatAmount(position.accruedRewards0, 6)}{' '}
+                        {position.assetName.toUpperCase()} {' | '}
+                        {formatAmount(position.accruedRewards1, 6)}{' '}
+                        {position.assetName === 'dpx' ? 'RDPX' : 'DPX'}
                       </span>
                     </Typography>
                   </Box>
