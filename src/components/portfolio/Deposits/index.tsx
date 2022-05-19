@@ -37,8 +37,8 @@ interface Position {
 }
 
 export default function Deposits() {
-  const { chainId, contractAddresses, provider } = useContext(WalletContext);
-  const accountAddress = '0xc7ed7bf2a126983dfde425126b03693d40477ba7';
+  const { chainId, contractAddresses, provider, accountAddress } =
+    useContext(WalletContext);
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
