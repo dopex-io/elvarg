@@ -1,99 +1,98 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
+import { useRouter } from 'next/router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
-import Web3Modal from 'web3modal';
+import Web3Modal, { ProviderController } from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from 'constants/env';
+import { CHAIN_ID_TO_RPC } from 'constants/index';
 
 interface WalletContextInterface {
   accountAddress?: string;
   ensName?: string;
   ensAvatar?: string;
-  contractAddresses?: { [key: string]: any };
-  provider?: ethers.providers.Provider;
+  contractAddresses: { [key: string]: any };
+  provider: ethers.providers.Provider;
   signer?: Signer;
-  wrongNetwork?: boolean;
-  connect?: Function;
-  disconnect?: Function;
-  changeWallet?: Function;
-  chainId?: number;
+  wrongNetwork: boolean;
+  connect: Function;
+  disconnect: Function;
+  changeWallet: Function;
+  setChangeNetwork: Function;
+  chainId: number;
   blockTime?: number;
   epochInitTime?: number;
-  supportedChainIds?: number[];
+  supportedChainIds: number[];
   changeNetwork?: 'user' | 'wrong-network' | 'close';
-  setChangeNetwork?: Function;
 }
 
-export const WalletContext = createContext<WalletContextInterface>({});
-
-export const CHAIN_ID_TO_PROVIDERS = {
-  '1': `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '56': `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  '42161': `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
-  '43114': `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
-  '421611': `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  '1088': 'https://andromeda.metis.io/?owner=1088',
-  '1337': 'http://127.0.0.1:8545',
-};
-
-const PAGE_TO_SUPPORTED_CHAIN_IDS = {
-  '/': [1, 42161, 43114, 56],
-  '/farms': [1, 42161],
-  '/farms/manage': [1, 42161],
-  '/vaults/UST3CRV': [42161],
-  '/ssov': [42161, 56, 43114, 1088],
-  '/ssov/call/DPX': [42161],
-  '/ssov/call/RDPX': [42161],
-  '/ssov/call/ETH': [42161],
-  '/ssov/call/GOHM': [42161],
-  '/ssov/call/BNB': [56],
-  '/ssov/call/GMX': [42161],
-  '/ssov/call/AVAX': [43114],
-  '/ssov/call/METIS': [1088],
-  '/ssov/put/RDPX': [42161],
-  '/ssov/put/GOHM': [42161],
-  '/ssov/put/BTC': [42161],
-  '/ssov/put/GMX': [42161],
-  '/ssov/put/ETH': [42161],
-  '/ssov/put/CRV': [42161],
-  '/ssov/v3/call/ETH': [42161],
-  '/nfts': [42161],
-  '/nfts/community': [42161, 1, 43114],
-  '/nfts/diamondpepes': [42161],
-  '/nfts/diamondpepes/pledge': [42161],
-  '/nfts/diamondpepes/pledge2': [42161],
-  '/sale': [1],
-  '/oracles': [1, 42161, 56, 43114],
-  '/tzwap': [1, 42161],
-  '/otc': [42161],
-  '/otc/chat/:id': [42161],
-};
-
 const DEFAULT_CHAIN_ID =
-  Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) ?? 42161;
+  Number(process.env['NEXT_PUBLIC_DEFAULT_CHAIN_ID']) ?? 42161;
 
-let web3Modal;
+const _Addresses = Addresses as unknown as { [key: string]: any };
+
+const defaultContext = {
+  wrongNetwork: false,
+  connect: () => {},
+  disconnect: () => {},
+  changeWallet: () => {},
+  setChangeNetwork: () => {},
+  chainId: DEFAULT_CHAIN_ID,
+  supportedChainIds: [DEFAULT_CHAIN_ID],
+  contractAddresses: _Addresses[String(DEFAULT_CHAIN_ID)],
+  provider: new providers.MulticallProvider(
+    new ethers.providers.StaticJsonRpcProvider(
+      CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
+    )
+  ),
+};
+
+export const WalletContext =
+  createContext<WalletContextInterface>(defaultContext);
+
+const PAGE_TO_SUPPORTED_CHAIN_IDS: {
+  [key: string]: { default: number; all: number[] };
+} = {
+  '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/farms': { default: 42161, all: [1, 42161] },
+  '/farms/manage': { default: 42161, all: [1, 42161] },
+  '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
+  '/ssov/call/BNB': { default: 56, all: [56] },
+  '/ssov/call/AVAX': { default: 43114, all: [43114] },
+  '/nfts/community': { default: 42161, all: [] },
+  '/nfts/diamondpepes2': { default: 42161, all: [1, 42161] },
+  '/sale': { default: 1, all: [1] },
+  '/oracles': { default: 42161, all: [] },
+  '/tzwap': { default: 42161, all: [1, 42161] },
+  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
+};
+
+let web3Modal: Web3Modal | undefined;
 
 if (typeof window !== 'undefined') {
   const providerOptions = {
     walletconnect: {
       package: WalletConnectProvider,
       options: {
-        rpc: CHAIN_ID_TO_PROVIDERS,
+        rpc: CHAIN_ID_TO_RPC,
       },
     },
     walletlink: {
       package: CoinbaseWalletSDK,
       options: {
         appName: 'Dopex',
-        rpc: CHAIN_ID_TO_PROVIDERS,
+        rpc: CHAIN_ID_TO_RPC,
       },
     },
-    ...(window['clover'] && {
+    ...((window as any).clover && {
       injected: {
         display: {
           logo: '/wallets/Clover.png',
@@ -113,7 +112,7 @@ if (typeof window !== 'undefined') {
         package: null,
       },
     }),
-    ...(window.web3?.currentProvider?.isBitKeep && {
+    ...(window.ethereum?.isBitKeep && {
       injected: {
         display: {
           logo: '/wallets/Bitkeep.png',
@@ -132,17 +131,15 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export const WalletProvider = (props) => {
-  const location = useLocation();
-
-  const [state, setState] = useState<WalletContextInterface>({
+export const WalletProvider = (props: { children: ReactNode }) => {
+  const router = useRouter();
+  const [state, setState] = useState<any>({
     accountAddress: '',
     wrongNetwork: false,
     chainId: DEFAULT_CHAIN_ID,
-    contractAddresses: Addresses[DEFAULT_CHAIN_ID],
-    // ethers provider
+    contractAddresses: _Addresses[DEFAULT_CHAIN_ID],
     provider: null,
-    supportedChainIds: [],
+    supportedChainIds: [DEFAULT_CHAIN_ID],
   });
 
   const [ens, setEns] = useState<{
@@ -163,103 +160,101 @@ export const WalletProvider = (props) => {
 
   const updateState = useCallback(
     async ({
-      web3Provider,
-      ethersProvider,
+      provider,
       isUser,
     }: {
-      web3Provider: any;
-      ethersProvider?: ethers.providers.Provider;
-      isUser: boolean;
+      provider: ethers.providers.Provider | ProviderController;
+      isUser?: boolean;
     }) => {
-      const provider =
-        !isUser && ethersProvider
-          ? ethersProvider
-          : new ethers.providers.Web3Provider(web3Provider, 'any');
-      const { chainId } = await provider.getNetwork();
+      const _provider: any = isUser
+        ? new ethers.providers.Web3Provider(provider as any, 'any')
+        : (provider as ethers.providers.Provider);
+      const { chainId } = await _provider.getNetwork();
 
       if (
-        PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname]?.includes(chainId)
+        PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId)
       ) {
-        console.log('setwrongnetwork');
-        setState((prevState) => ({
+        setState((prevState: any) => ({
           ...prevState,
           wrongNetwork: true,
-          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
+          supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]
+            ?.all ?? [DEFAULT_CHAIN_ID],
+        }));
+        return;
+      } else if (
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
+        chainId !== DEFAULT_CHAIN_ID
+      ) {
+        setState((prevState: any) => ({
+          ...prevState,
+          wrongNetwork: true,
+          supportedChainIds: [DEFAULT_CHAIN_ID],
         }));
         return;
       }
 
       const multicallProvider = new providers.MulticallProvider(
-        new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_PROVIDERS[chainId]
-        )
+        new ethers.providers.StaticJsonRpcProvider(CHAIN_ID_TO_RPC[chainId])
       );
       let signer: Signer | undefined;
       let address: string | undefined;
 
       if (isUser) {
-        const web3Provider = provider as ethers.providers.Web3Provider;
-        signer = await web3Provider.getUncheckedSigner();
-        address = await signer.getAddress();
+        signer = await _provider.getUncheckedSigner();
+        address = await signer?.getAddress();
       }
 
       let contractAddresses: any;
 
-      if (chainId === 1337) {
-        contractAddresses = {
-          ...require('addresses/core.json'),
-          ...require('addresses/farming.json'),
-          ...require('addresses/tokensale.json'),
-        };
-      } else {
-        contractAddresses = Addresses[chainId];
-      }
+      contractAddresses = _Addresses[chainId];
 
-      setState((prevState) => ({
+      setState((prevState: any) => ({
         ...prevState,
         wrongNetwork: false,
         provider: multicallProvider,
         chainId,
         contractAddresses,
-        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[location.pathname],
+        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all ?? [
+          DEFAULT_CHAIN_ID,
+        ],
         ...(isUser && {
           signer,
           accountAddress: address,
         }),
       }));
     },
-    [location.pathname]
+    [router.asPath]
   );
 
   const connect = useCallback(() => {
     web3Modal
-      .connect()
-      .then(async (provider) => {
+      ?.connect()
+      .then(async (provider: ProviderController) => {
         provider.on('accountsChanged', async () => {
-          await updateState({ web3Provider: provider, isUser: true });
+          await updateState({ provider, isUser: true });
         });
 
         provider.on('chainChanged', async () => {
-          await updateState({ web3Provider: provider, isUser: true });
+          await updateState({ provider, isUser: true });
         });
-        await updateState({ web3Provider: provider, isUser: true });
+        await updateState({ provider, isUser: true });
       })
       .catch(() => {
-        if (window.location.pathname !== '/') window.location.replace('/');
+        if (window.location.pathname !== '/ssov') window.location.replace('/');
       });
   }, [updateState]);
 
   const disconnect = useCallback(() => {
     if (!web3Modal) return;
     web3Modal.clearCachedProvider();
-    setState((prevState) => ({
+    setState((prevState: any) => ({
       ...prevState,
       isUser: false,
       accountAddress: '',
       provider: new providers.MulticallProvider(
         new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+          CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
         )
       ),
     }));
@@ -271,13 +266,12 @@ export const WalletProvider = (props) => {
     web3Modal
       .connect()
       .then(async (provider) => {
-        await updateState({ web3Provider: provider, isUser: true });
+        await updateState({ provider, isUser: true });
       })
       .catch(async () => {
         await updateState({
-          web3Provider: CHAIN_ID_TO_PROVIDERS[state.chainId],
-          ethersProvider: new ethers.providers.StaticJsonRpcProvider(
-            CHAIN_ID_TO_PROVIDERS[state.chainId]
+          provider: new ethers.providers.StaticJsonRpcProvider(
+            CHAIN_ID_TO_RPC[state.chainId]
           ),
           isUser: false,
         });
@@ -289,14 +283,15 @@ export const WalletProvider = (props) => {
       connect();
     } else {
       updateState({
-        web3Provider: CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID],
-        ethersProvider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_PROVIDERS[DEFAULT_CHAIN_ID]
+        provider: new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_RPC[
+            PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.default ||
+              DEFAULT_CHAIN_ID
+          ]
         ),
-        isUser: false,
       });
     }
-  }, [connect, updateState]);
+  }, [connect, updateState, router]);
 
   useEffect(() => {
     (async () => {

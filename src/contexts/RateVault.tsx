@@ -5,6 +5,9 @@ import {
   useState,
   useCallback,
   useMemo,
+  ReactElement,
+  ReactFragment,
+  ReactPortal,
 } from 'react';
 import {
   VolatilityOracle,
@@ -1610,8 +1613,8 @@ export interface RateVault {
 }
 
 export interface RateVaultData {
-  rateVaultContract?: any;
-  currentEpoch?: number;
+  rateVaultContract: any;
+  currentEpoch: number;
   rateVaultOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
@@ -1674,15 +1677,15 @@ export interface RateVaultUserData {
 }
 
 interface RateVaultContextInterface {
-  rateVaultData?: RateVaultData;
-  rateVaultEpochData?: RateVaultEpochData;
-  rateVaultUserData?: RateVaultUserData;
-  selectedPoolName?: string;
-  selectedEpoch?: number;
-  updateRateVaultEpochData?: Function;
-  updateRateVaultUserData?: Function;
-  setSelectedEpoch?: Function;
-  setSelectedPoolName?: Function;
+  rateVaultData: RateVaultData;
+  rateVaultEpochData: RateVaultEpochData;
+  rateVaultUserData: RateVaultUserData;
+  selectedPoolName: string;
+  selectedEpoch: number;
+  updateRateVaultEpochData: Function;
+  updateRateVaultUserData: Function;
+  setSelectedEpoch: Function;
+  setSelectedPoolName: Function;
 }
 
 const initialRateVaultUserData = {
@@ -1692,6 +1695,7 @@ const initialRateVaultUserData = {
   userStrikePurchaseData: [],
 };
 
+// @ts-ignore TODO: FIX
 export const RateVaultContext = createContext<RateVaultContextInterface>({
   rateVaultUserData: initialRateVaultUserData,
 });
@@ -1716,15 +1720,15 @@ export const RateVault = () => {
   }, [signer]);
 
   const getUserStrikePurchaseData = useCallback(
-    async (strike, strikeIndex) => {
+    async (strike: BigNumber, strikeIndex: number) => {
       const identifier = ethers.utils.solidityKeccak256(
         ['address', 'uint256'],
         [accountAddress, strike]
       );
 
       return {
-        purchase: await rateVaultContract.userStrikePurchaseData(
-          Math.max(selectedEpoch, 1),
+        purchase: await rateVaultContract['userStrikePurchaseData'](
+          Math.max(selectedEpoch || 0, 1),
           identifier
         ),
         strike: strike,
@@ -1735,7 +1739,12 @@ export const RateVault = () => {
   );
 
   const getUserStrikeDeposits = useCallback(
-    async (strike, strikeIndex, callLeverage, putLeverage) => {
+    async (
+      strike: BigNumber,
+      strikeIndex: number,
+      callLeverage: any,
+      putLeverage: any
+    ) => {
       const identifier = ethers.utils.solidityKeccak256(
         ['address', 'uint256', 'uint256', 'uint256'],
         [accountAddress, strike, callLeverage, putLeverage]
@@ -1744,8 +1753,8 @@ export const RateVault = () => {
       return {
         strike: strike,
         strikeIndex: strikeIndex,
-        deposits: await rateVaultContract.userEpochStrikeDeposits(
-          Math.max(selectedEpoch, 1),
+        deposits: await rateVaultContract['userEpochStrikeDeposits'](
+          Math.max(selectedEpoch || 0, 1),
           identifier
         ),
       };
@@ -1762,13 +1771,15 @@ export const RateVault = () => {
     )
       return;
 
-    const userEpochStrikeDeposits = [];
-    const userStrikePurchaseData = [];
-    const userStrikePurchaseDataPromises = [];
+    const userEpochStrikeDeposits: RateVaultUserData['userEpochStrikeDeposits'][] =
+      [];
+    const userStrikePurchaseData: RateVaultUserData['userStrikePurchaseData'][] =
+      [];
+    const userStrikePurchaseDataPromises: any[] = [];
 
     for (let i in rateVaultEpochData.callsLeverages) {
       for (let j in rateVaultEpochData.putsLeverages) {
-        const userEpochStrikeDepositsPromises = [];
+        const userEpochStrikeDepositsPromises: any[] = [];
 
         rateVaultEpochData.epochStrikes.map((strike, strikeIndex) => {
           userEpochStrikeDepositsPromises.push(
@@ -1787,6 +1798,7 @@ export const RateVault = () => {
 
         _userEpochStrikeDeposits.map((record) =>
           userEpochStrikeDeposits.push({
+            // @ts-ignore TODO: FIX
             amount: record.deposits.amount,
             callLeverage: rateVaultEpochData.callsLeverages[i],
             putLeverage: rateVaultEpochData.putsLeverages[j],
@@ -1811,6 +1823,7 @@ export const RateVault = () => {
 
     _userStrikePurchaseData.map((record) => {
       userStrikePurchaseData.push({
+        // @ts-ignore TODO: FIX
         callsPurchased: record.purchase.callsPurchased,
         putsPurchased: record.purchase.putsPurchased,
         strike: record.strike,
@@ -1819,7 +1832,9 @@ export const RateVault = () => {
     });
 
     setRateVaultUserData({
+      // @ts-ignore TODO: FIX
       userEpochStrikeDeposits: userEpochStrikeDeposits,
+      // @ts-ignore TODO: FIX
       userStrikePurchaseData: userStrikePurchaseData,
     });
   }, [
@@ -1832,25 +1847,31 @@ export const RateVault = () => {
   ]);
 
   const getEpochStrikes = useCallback(async () => {
-    return await rateVaultContract.getEpochStrikes(Math.max(selectedEpoch, 1));
+    return await rateVaultContract['getEpochStrikes'](
+      Math.max(selectedEpoch || 0, 1)
+    );
   }, [rateVaultContract, selectedEpoch]);
 
   const getEpochData = useCallback(async () => {
     try {
-      return await rateVaultContract.getEpochData(Math.max(selectedEpoch, 1));
+      return await rateVaultContract['getEpochData'](
+        Math.max(selectedEpoch || 0, 1)
+      );
     } catch (err) {
       return [[], [], []];
     }
   }, [rateVaultContract, selectedEpoch]);
 
   const getTotalEpochData = useCallback(async () => {
-    return await rateVaultContract.totalEpochData(Math.max(selectedEpoch, 1));
+    return await rateVaultContract['totalEpochData'](
+      Math.max(selectedEpoch || 0, 1)
+    );
   }, [rateVaultContract, selectedEpoch]);
 
   const getEpochLeverages = useCallback(async () => {
     try {
-      return await rateVaultContract.getEpochLeverages(
-        Math.max(selectedEpoch, 1)
+      return await rateVaultContract['getEpochLeverages'](
+        Math.max(selectedEpoch || 0, 1)
       );
     } catch (err) {
       return [[], []];
@@ -1858,11 +1879,13 @@ export const RateVault = () => {
   }, [rateVaultContract, selectedEpoch]);
 
   const getEpochPremiums = useCallback(async () => {
-    return await rateVaultContract.getEpochPremiums(Math.max(selectedEpoch, 1));
+    return await rateVaultContract['getEpochPremiums'](
+      Math.max(selectedEpoch || 0, 1)
+    );
   }, [rateVaultContract, selectedEpoch]);
 
   const getTotalStrikeDeposits = useCallback(
-    async (tokenAddress) => {
+    async (tokenAddress: string) => {
       try {
         return await ERC20__factory.connect(tokenAddress, provider).balanceOf(
           rateVaultContract.address
@@ -1875,9 +1898,9 @@ export const RateVault = () => {
   );
 
   const calculatePremium = useCallback(
-    async (strike, isPut) => {
+    async (strike: BigNumber, isPut: boolean) => {
       try {
-        return await rateVaultContract.calculatePremium(
+        return await rateVaultContract['calculatePremium'](
           strike,
           BigNumber.from('1000000000000000000'),
           isPut
@@ -1890,9 +1913,9 @@ export const RateVault = () => {
   );
 
   const calculatePurchaseFee = useCallback(
-    async (rate, strike, isPut) => {
+    async (rate: BigNumber, strike: BigNumber, isPut: boolean) => {
       try {
-        return await rateVaultContract.calculatePremium(
+        return await rateVaultContract['calculatePremium'](
           rate,
           strike,
           BigNumber.from('1000000000000000000'),
@@ -1907,7 +1930,7 @@ export const RateVault = () => {
 
   const getCurrentRate = useCallback(async () => {
     try {
-      return await rateVaultContract.getCurrentRate();
+      return await rateVaultContract['getCurrentRate']();
     } catch (err) {
       return BigNumber.from('0');
     }
@@ -1915,7 +1938,7 @@ export const RateVault = () => {
 
   const updateRateVaultEpochData = useCallback(async () => {
     if (selectedEpoch === null || !selectedPoolName) return;
-    const lpPrice = await rateVaultContract.getLpPrice();
+    const lpPrice = await rateVaultContract['getLpPrice']();
 
     try {
       const promises = await Promise.all([
@@ -1932,7 +1955,7 @@ export const RateVault = () => {
 
       let epochTimes;
 
-      epochTimes = await rateVaultContract.getEpochTimes(
+      epochTimes = await rateVaultContract['getEpochTimes'](
         Math.max(selectedEpoch, 1)
       );
 
@@ -1942,13 +1965,13 @@ export const RateVault = () => {
       const putsPremiumCostsPromises = [];
       const callsFeesPromises = [];
       const putsFeesPromises = [];
-      const curveLpPrice = await rateVaultContract.getLpPrice();
+      const curveLpPrice = await rateVaultContract['getLpPrice']();
       const rate = await getCurrentRate();
       const volatilitiesPromises = [];
 
       for (let i in epochStrikes) {
         volatilitiesPromises.push(
-          rateVaultContract.getVolatility(epochStrikes[i])
+          rateVaultContract['getVolatility'](epochStrikes[i])
         );
         callsDepositsPromises.push(
           getTotalStrikeDeposits(epochCallsStrikeTokens[i])
@@ -2036,10 +2059,10 @@ export const RateVault = () => {
       });
     } catch (err) {
       console.log(err);
-      const epochTimes = await rateVaultContract.getEpochTimes(
+      const epochTimes = await rateVaultContract['getEpochTimes'](
         Math.max(selectedEpoch, 1)
       );
-      const curveLpPrice = await rateVaultContract.getLpPrice();
+      const curveLpPrice = await rateVaultContract['getLpPrice']();
       const rate = BigNumber.from('100000000');
       setRateVaultEpochData({
         volatilities: [],
@@ -2110,7 +2133,7 @@ export const RateVault = () => {
       let currentEpoch;
 
       try {
-        currentEpoch = parseInt(await _rateVaultContract.currentEpoch());
+        currentEpoch = parseInt(await _rateVaultContract['currentEpoch']());
       } catch (err) {
         console.log(err);
         return;
@@ -2148,10 +2171,21 @@ export const RateVault = () => {
   };
 };
 
-export const RateVaultProvider = (props) => {
+export const RateVaultProvider = (props: {
+  children:
+    | string
+    | number
+    | boolean
+    | ReactElement
+    | ReactFragment
+    | ReactPortal
+    | null
+    | undefined;
+}) => {
   const contextValue = RateVault();
 
   return (
+    // @ts-ignore TODO: FIX
     <RateVaultContext.Provider value={contextValue}>
       {props.children}
     </RateVaultContext.Provider>

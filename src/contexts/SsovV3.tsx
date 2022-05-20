@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useCallback,
+  ReactNode,
 } from 'react';
 import {
   SsovV3__factory,
@@ -11,47 +12,50 @@ import {
   SSOVOptionPricing,
   SsovV3Viewer__factory,
   SSOVOptionPricing__factory,
+  ERC20__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
+import axios from 'axios';
+import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
-import { AssetsContext } from './Assets';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-export interface SsovV3Interface {
-  ssov?: string;
-  underlying?: string;
-  symbol?: string;
-  type?: 'CALL' | 'PUT';
-}
+import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
+import { DOPEX_API_BASE_URL } from 'constants/index';
+
+import { TokenData } from 'types';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;
 }
 
 export interface SsovV3Data {
-  tokenName?: string;
-  ssovContract?: any;
+  collateralSymbol?: string;
+  underlyingSymbol?: string;
+  collateralAddress?: string;
+  ssovContract?: SsovV3;
   currentEpoch?: number;
   tokenPrice?: BigNumber;
   lpPrice?: BigNumber;
   ssovOptionPricingContract?: SSOVOptionPricing;
   isCurrentEpochExpired?: boolean;
+  isPut?: boolean;
 }
 
 export interface SsovV3EpochData {
-  epochTimes: {};
+  epochTimes: BigNumber[];
   isEpochExpired: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   availableCollateralForStrikes: BigNumber[];
+  rewardTokens: TokenData[];
   settlementPrice: BigNumber;
   epochStrikeTokens: string[];
   APY: string;
-  APYIfDepositNow: string;
   TVL: number;
 }
 
@@ -72,48 +76,42 @@ interface SsovV3ContextInterface {
   ssovEpochData?: SsovV3EpochData;
   ssovUserData?: SsovV3UserData;
   ssovSigner: SsovV3Signer;
-  selectedEpoch?: number;
-  selectedSsovV3?: SsovV3Interface;
-  updateSsovV3EpochData?: Function;
-  updateSsovV3UserData?: Function;
-  setSelectedSsovV3?: Function;
+  selectedEpoch?: number | null;
+  selectedSsovV3?: string;
+  updateSsovV3EpochData: Function;
+  updateSsovV3UserData: Function;
+  setSelectedSsovV3: Function;
   setSelectedEpoch?: Function;
-  isPut?: boolean;
 }
 
 const initialSsovV3UserData = {
   writePositions: [],
 };
 
-const initialSsovV3Signer = {
-  token: null,
-  ssovContractWithSigner: null,
-};
+const initialSsovV3Signer = {};
 
 export const SsovV3Context = createContext<SsovV3ContextInterface>({
   ssovUserData: initialSsovV3UserData,
   ssovSigner: initialSsovV3Signer,
-  selectedSsovV3: {},
+  selectedSsovV3: '',
+  updateSsovV3EpochData: noop,
+  updateSsovV3UserData: noop,
+  setSelectedSsovV3: noop,
 });
 
-export const SsovV3Provider = (props) => {
-  const { accountAddress, contractAddresses, provider, signer } =
+export const SsovV3Provider = (props: { children: ReactNode }) => {
+  const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
-  const { tokenPrices } = useContext(AssetsContext);
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
-  const [selectedSsovV3, setSelectedSsovV3] = useState<SsovV3Interface>({
-    ssov: 'ETH-WEEKLY-CALLS-SSOV-V3',
-    symbol: 'ETH',
-    type: 'CALL',
-  });
+  const [selectedSsovV3, setSelectedSsovV3] = useState<string>('');
 
-  const [ssovData, setSsovV3Data] = useState<SsovV3Data>();
+  const [ssovData, setSsovV3Data] = useState<SsovV3Data>({});
   const [ssovEpochData, setSsovV3EpochData] = useState<SsovV3EpochData>();
-  const [ssovUserData, setSsovV3UserData] = useState<SsovV3UserData>();
-  const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({
-    ssovContractWithSigner: null,
-  });
+  const [ssovUserData, setSsovV3UserData] = useState<SsovV3UserData>(
+    initialSsovV3UserData
+  );
+  const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({});
 
   const updateSsovV3UserData = useCallback(async () => {
     if (
@@ -126,15 +124,12 @@ export const SsovV3Provider = (props) => {
 
     if (!contractAddresses['SSOV-V3']) return;
 
-    const ssovAddress =
-      contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
+    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
-    let _ssovUserData;
-
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      '0x14333cae9BAF41AE093Bbd37899E08b21226F2C9',
+      contractAddresses['SSOV-V3'].VIEWER,
       provider
     );
 
@@ -158,14 +153,15 @@ export const SsovV3Provider = (props) => {
     setSsovV3UserData({
       writePositions: data.map((o, i) => {
         return {
-          tokenId: writePositions[i],
+          tokenId: writePositions[i] as BigNumber,
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
-          accruedRewards: moreData[i].rewardTokenWithdrawAmounts,
-          accruedPremiums: moreData[i].collateralTokenWithdrawAmount.sub(
-            o.collateralAmount
-          ),
+          accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
+          accruedPremiums:
+            moreData[i]?.collateralTokenWithdrawAmount.sub(
+              o.collateralAmount
+            ) || BigNumber.from(0),
         };
       }),
     });
@@ -178,16 +174,17 @@ export const SsovV3Provider = (props) => {
   ]);
 
   const updateSsovV3EpochData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch || !selectedSsovV3) return;
+    if (!contractAddresses || !selectedEpoch || !selectedSsovV3 || !provider)
+      return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
-    const ssovAddress =
-      contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
+    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
+
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      '0x426eDe8BF1A523d288470e245a343B599c2128da',
+      contractAddresses['SSOV-V3'].VIEWER,
       provider
     );
 
@@ -199,6 +196,7 @@ export const SsovV3Provider = (props) => {
       totalEpochPremium,
       epochData,
       epochStrikeTokens,
+      apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovContract.getEpochStrikes(selectedEpoch),
@@ -219,6 +217,7 @@ export const SsovV3Provider = (props) => {
         selectedEpoch,
         ssovContract.address
       ),
+      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
     ]);
 
     const epochStrikeDataArray = await Promise.all(
@@ -240,30 +239,11 @@ export const SsovV3Provider = (props) => {
       BigNumber.from(0)
     );
 
-    const totalRewardsInUSD =
-      25 * tokenPrices.find((token) => token.name === 'DPX').price;
-
-    const totalEpochDepositsInUSD =
-      getUserReadableAmount(totalEpochDeposits, 18) *
-      tokenPrices.find((token) => token.name === 'ETH').price;
-
-    const APY = (
-      (totalRewardsInUSD / totalEpochDepositsInUSD) *
-      52 *
-      100
-    ).toFixed(2);
-    
-    const totalPeriod = epochTimes[1].toNumber() - epochTimes[0].toNumber();
-    const effectivePeriod =
-      epochTimes[1].toNumber() - Math.floor(Date.now() / 1000);
-
-    const APYIfDepositNow = (
-      ((totalRewardsInUSD / totalEpochDepositsInUSD) *
-        52 *
-        100 *
-        effectivePeriod) /
-      totalPeriod
-    ).toFixed(2);
+    const underlyingPrice = await ssovContract.getUnderlyingPrice();
+    const totalEpochDepositsInUSD = !(await ssovContract.isPut())
+      ? getUserReadableAmount(totalEpochDeposits, 18) *
+        getUserReadableAmount(underlyingPrice, 8)
+      : getUserReadableAmount(totalEpochDeposits, 18);
 
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
@@ -274,14 +254,18 @@ export const SsovV3Provider = (props) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
-      APY,
-      APYIfDepositNow,
+      rewardTokens: epochData.rewardTokensToDistribute.map((token) => {
+        return (
+          TOKEN_ADDRESS_TO_DATA[token] || { symbol: 'UNKNOWN', imgSrc: '' }
+        );
+      }),
+      APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };
 
     setSsovV3EpochData(_ssovEpochData);
-  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3, tokenPrices]);
+  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3]);
 
   useEffect(() => {
     if (
@@ -295,44 +279,61 @@ export const SsovV3Provider = (props) => {
     async function update() {
       let _ssovData: SsovV3Data;
 
-      const ssovAddress =
-        contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
+      const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
       const _ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
       try {
-        const [currentEpoch, tokenPrice] = await Promise.all([
+        const [
+          currentEpoch,
+          tokenPrice,
+          underlyingSymbol,
+          collateralToken,
+          isPut,
+        ] = await Promise.all([
           _ssovContract.currentEpoch(),
           _ssovContract.getUnderlyingPrice(),
+          _ssovContract.underlyingSymbol(),
+          _ssovContract.collateralToken(),
+          _ssovContract.isPut(),
         ]);
 
         const _currentEpoch =
           Number(currentEpoch) === 0 ? 1 : Number(currentEpoch);
 
-        const epochData = await _ssovContract.getEpochData(_currentEpoch);
+        const [epochData, collateralSymbol] = await Promise.all([
+          _ssovContract.getEpochData(_currentEpoch),
+          ERC20__factory.connect(collateralToken, provider).symbol(),
+        ]);
 
         setSelectedEpoch(_currentEpoch);
 
         _ssovData = {
-          tokenName: 'WETH',
+          underlyingSymbol,
+          collateralSymbol,
+          collateralAddress: collateralToken,
+          isPut,
           ssovContract: _ssovContract,
           currentEpoch: Number(currentEpoch),
           isCurrentEpochExpired: epochData.expired,
           tokenPrice,
+          // TODO: FIX
+          lpPrice: ethers.utils.parseEther('1'),
           ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
-            '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
+            chainId === 1088
+              ? '0xeec2be5c91ae7f8a338e1e5f3b5de49d07afdc81'
+              : '0x2b99e3d67dad973c1b9747da742b7e26c8bdd67b',
             provider
           ),
         };
+        setSsovV3Data(_ssovData);
       } catch (err) {
         console.log(err);
       }
-
-      setSsovV3Data(_ssovData);
     }
 
     update();
-  }, [contractAddresses, provider, selectedSsovV3]);
+  }, [contractAddresses, provider, selectedSsovV3, chainId]);
 
   useEffect(() => {
     if (!contractAddresses || !signer || !selectedSsovV3) return;
@@ -341,8 +342,7 @@ export const SsovV3Provider = (props) => {
 
     if (!contractAddresses['SSOV-V3']) return;
 
-    const ssovAddress =
-      contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3.ssov];
+    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
     const _ssovContractWithSigner = SsovV3__factory.connect(
       ssovAddress,
@@ -366,16 +366,15 @@ export const SsovV3Provider = (props) => {
 
   const contextValue = {
     ssovData,
-    ssovEpochData,
+    ...(ssovEpochData && { ssovEpochData: ssovEpochData }),
     ssovUserData,
     ssovSigner,
     selectedSsovV3,
     selectedEpoch,
     updateSsovV3EpochData,
-    // updateSsovV3UserData,
+    updateSsovV3UserData,
     setSelectedSsovV3,
     setSelectedEpoch,
-    isPut: selectedSsovV3?.type === 'PUT',
   };
 
   return (

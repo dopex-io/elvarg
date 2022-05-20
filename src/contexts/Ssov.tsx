@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import {
   createContext,
   useEffect,
@@ -54,7 +55,7 @@ export interface SsovData {
 }
 
 export interface SsovEpochData {
-  epochTimes: {};
+  epochTimes: { [key: number]: BigNumber } | [BigNumber, BigNumber];
   isEpochExpired: boolean;
   isVaultReady: boolean;
   epochStrikes: BigNumber[];
@@ -79,10 +80,10 @@ interface SsovContextInterface {
   ssovUserData?: SsovUserData;
   ssovSigner: SsovSigner;
   selectedEpoch?: number;
-  selectedSsov?: Ssov;
+  selectedSsov: Ssov;
   updateSsovEpochData?: Function;
   updateSsovUserData?: Function;
-  setSelectedSsov?: Function;
+  setSelectedSsov: Function;
   setSelectedEpoch?: Function;
   isPut?: boolean;
 }
@@ -345,19 +346,21 @@ export const SsovProvider = (props) => {
         : contractAddresses.SSOV;
 
     let _ssovSigner;
+    const tokens = SSOV_MAP[selectedSsov?.token]?.tokens;
 
-    const tokens = SSOV_MAP[selectedSsov.token].tokens;
-
-    const _tokens = tokens.map((tokenName: string) => {
-      if (tokenName === 'ETH' || tokenName === 'AVAX') {
-        return null;
-      } else {
-        return (
-          contractAddresses[tokenName] &&
-          ERC20__factory.connect(contractAddresses[tokenName], signer)
-        );
-      }
-    });
+    let _tokens;
+    if (tokens !== undefined) {
+      _tokens = tokens.map((tokenName: string) => {
+        if (tokenName === 'ETH' || tokenName === 'AVAX') {
+          return null;
+        } else {
+          return (
+            contractAddresses[tokenName] &&
+            ERC20__factory.connect(contractAddresses[tokenName], signer)
+          );
+        }
+      });
+    }
 
     const ssovAddresses =
       contractAddresses[selectedSsov.type === 'PUT' ? '2CRV-SSOV-P' : 'SSOV'][

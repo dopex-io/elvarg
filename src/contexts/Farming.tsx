@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { createContext, useState, useContext, useCallback } from 'react';
 import {
   ERC20__factory,
@@ -35,6 +36,8 @@ export const FarmingProvider = (props) => {
     token: null,
     isStake: null,
   });
+
+  const [legacyFarmBalance, setLegacyFarmBalance] = useState(BigNumber.from(0));
 
   const ethPriceFinal = useEthPrice();
 
@@ -80,6 +83,17 @@ export const FarmingProvider = (props) => {
     DPX_WETHToken: { DpxPerLp: null, EthPerLp: null, DPXPrice: null },
     rDPX_WETHToken: { rDpxPerLp: null, EthPerLp: null, rDPXPrice: null },
   });
+
+  const checkLegacyFarmBalance = useCallback(async () => {
+    if (chainId === 1) return;
+    if (!accountAddress || !provider) return;
+    const stakingRewardsContract = StakingRewards__factory.connect(
+      '0x8d481245801907b45823Fb032E6848d0D3c29AE5',
+      provider
+    );
+    const balance = await stakingRewardsContract.balanceOf(accountAddress);
+    setLegacyFarmBalance(balance);
+  }, [chainId, accountAddress, provider]);
 
   const setPool = useCallback(
     async (token) => {
@@ -463,9 +477,11 @@ export const FarmingProvider = (props) => {
     ...pools,
     ...poolsInfo,
     ...tokensInfo,
+    legacyFarmBalance,
     setData,
     setStakingAsset,
     setPool,
+    checkLegacyFarmBalance,
   };
 
   return (
