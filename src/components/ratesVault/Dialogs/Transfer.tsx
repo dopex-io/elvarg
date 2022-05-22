@@ -11,7 +11,6 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext } from 'contexts/Assets';
 import { RateVaultContext } from 'contexts/RateVault';
 
@@ -20,8 +19,6 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
-
-import { SSOV_MAP } from 'constants/index';
 
 export interface Props {
   setTokenAddressToTransfer: Function;
@@ -45,6 +42,8 @@ const Transfer = ({
   useEffect(() => {
     (async () => {
       if (tokenAddressToTransfer) {
+        if (!signer || !accountAddress) return;
+
         const amount = await ERC20__factory.connect(
           tokenAddressToTransfer,
           signer
@@ -73,10 +72,12 @@ const Transfer = ({
     return errorMessage;
   }, [recipient, transferAmount, tokenBalance]);
 
+  // @ts-ignore TODO: FIX
   const handleRecipientChange = useCallback((e) => {
     setRecipient(e.target.value.toString());
   }, []);
 
+  // @ts-ignore TODO: FIX
   const handleAmountChange = useCallback((e) => {
     setTransferAmount(e.target.value.toString());
   }, []);
@@ -86,6 +87,8 @@ const Transfer = ({
   }, [tokenBalance]);
 
   const handleTransfer = useCallback(() => {
+    if (!tokenAddressToTransfer || !signer) return;
+
     ERC20__factory.connect(tokenAddressToTransfer, signer).transfer(
       recipient,
       getContractReadableAmount(transferAmount, 18)
