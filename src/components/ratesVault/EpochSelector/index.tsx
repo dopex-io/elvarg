@@ -16,14 +16,14 @@ export default function EpochSelector({
 }) {
   const ssovContext = useContext(SsovContext);
 
-  // @ts-ignore TODO: FIX
   const { selectedEpoch, setSelectedEpoch, ssovData } =
+    // @ts-ignore TODO: FIX
     ssovContext[activeVaultContextSide];
 
   const { currentEpoch } = ssovData;
 
-  // @ts-ignore TODO: FIX
   const handleSelectChange = useCallback(
+    // @ts-ignore TODO: FIX
     (e) => {
       setSelectedEpoch(Number(e.target.value));
     },
