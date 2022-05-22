@@ -1,5 +1,3 @@
-// @ts-nocheck TODO: FIX
-
 import React, {
   useCallback,
   useContext,
@@ -8,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import {
-  Addresses,
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
   NativeSSOV1inchRouter__factory,
@@ -82,22 +79,23 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
   const sendTx = useSendTx();
 
-  const erc20SSOV1inchRouter = Addresses[chainId]['ERC20SSOV1inchRouter']
+  const erc20SSOV1inchRouter = contractAddresses['ERC20SSOV1inchRouter']
     ? ERC20SSOV1inchRouter__factory.connect(
-        Addresses[chainId]['ERC20SSOV1inchRouter'],
-        signer
+        contractAddresses['ERC20SSOV1inchRouter'],
+        provider
       )
     : null;
-  const nativeSSOV1inchRouter = Addresses[chainId]['NativeSSOV1inchRouter']
+
+  const nativeSSOV1inchRouter = contractAddresses['NativeSSOV1inchRouter']
     ? NativeSSOV1inchRouter__factory.connect(
-        Addresses[chainId]['NativeSSOV1inchRouter'],
-        signer
+        contractAddresses['NativeSSOV1inchRouter'],
+        provider
       )
     : null;
 
   const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(true);
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
-  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
+  const [isFetchingPath] = useState<boolean>(false);
   const [selectedStrikeIndexes, setSelectedStrikeIndexes] = useState<number[]>(
     []
   );
@@ -114,14 +112,12 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     BigNumber.from('0')
   );
 
-  const userEpochDeposits = BigNumber.from(0);
-
   const { epochTimes, isVaultReady, epochStrikes } =
     rateVaultContext.rateVaultEpochData;
 
   const [approved, setApproved] = useState<boolean>(false);
-  const [quote, setQuote] = useState<object>({});
-  const [path, setPath] = useState<object>({});
+  const [quote, setQuote] = useState<{ [key: string]: any }>({});
+  const [path] = useState<{ [key: string]: any }>({});
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
   const ssovTokenName = '2CRV';
   const [depositTokenName, setDepositTokenName] = useState<string>('2CRV');
@@ -136,7 +132,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   }, [tokenPrices, depositTokenName]);
 
   const allowedLeverageValues = useMemo(() => {
-    const leverages = [];
+    const leverages: number[] = [];
 
     if (!rateVaultContext.rateVaultEpochData) return leverages;
 
@@ -214,9 +210,10 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   ]);
 
   const contractReadableStrikeDepositAmounts = useMemo(() => {
-    const readable = [];
+    const readable: BigNumber[] = [];
     Object.keys(strikeDepositAmounts).map((key) => {
-      readable.push(getContractReadableAmount(strikeDepositAmounts[key], 18));
+      const amount = strikeDepositAmounts[Number(key)];
+      if (amount) readable.push(getContractReadableAmount(amount, 18));
     });
     return readable;
   }, [strikeDepositAmounts]);
@@ -272,7 +269,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   const totalDepositAmount = useMemo(() => {
     let total = 0;
     Object.keys(strikeDepositAmounts).map((strike) => {
-      total += parseFloat(strikeDepositAmounts[strike]);
+      const amount = strikeDepositAmounts[Number(strike)];
+      if (amount) total += Number(amount);
     });
     return total;
   }, [strikeDepositAmounts]);
@@ -294,13 +292,13 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     quotePrice,
   ]);
 
-  const getValueInUsd = (symbol) => {
+  const getValueInUsd = (symbol: string) => {
     let value = 0;
     tokenPrices.map((record) => {
       if (record['name'] === symbol) {
+        const balance: number = Number(userAssetBalances[symbol]);
         value =
-          (record['price'] * parseInt(userAssetBalances[symbol])) /
-          10 ** getTokenDecimals(symbol, chainId);
+          (record['price'] * balance) / 10 ** getTokenDecimals(symbol, chainId);
       }
     });
     return value;
@@ -313,16 +311,19 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       const filteredTokens = [CHAIN_ID_TO_NATIVE[chainId]]
         .concat(tokens)
         .filter(function (item) {
+          const address = item ? contractAddresses[item] : undefined;
           return (
             item !== ssovTokenName &&
-            (Addresses[chainId][item] || CHAIN_ID_TO_NATIVE[chainId] === item)
+            address(address || CHAIN_ID_TO_NATIVE[chainId] === item)
           );
         })
         .sort((a, b) => {
+          // @ts-ignore TODO: FIX
           return getValueInUsd(b) - getValueInUsd(a);
         });
 
-      setDenominationTokenName(filteredTokens[0]);
+      const filteredToken = filteredTokens[0];
+      if (filteredToken) setDenominationTokenName(String(filteredToken));
       setIsZapInVisible(true);
     }
   };
@@ -338,18 +339,21 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     );
   }, [rateVaultContext]);
 
+  // @ts-ignore TODO: FIX
   const handleSelectCallLeverages = (index, value) => {
     let _selectedCallLeverages = Object.assign({}, selectedCallLeverages);
     _selectedCallLeverages[index] = value;
     setSelectedCallLeverages(_selectedCallLeverages);
   };
 
+  // @ts-ignore TODO: FIX
   const handleSelectPutLeverages = (index, value) => {
     let _selectedPutLeverages = Object.assign({}, selectedPutLeverages);
     _selectedPutLeverages[index] = value;
     setSelectedPutLeverages(_selectedPutLeverages);
   };
 
+  // @ts-ignore TODO: FIX
   const handleSelectStrikes = useCallback((event) => {
     setSelectedStrikeIndexes(event.target.value as number[]);
     handleSelectCallLeverages(
@@ -368,6 +372,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       : 0;
   }, [totalDepositAmount, totalEpochDepositsAmount]);
 
+  // @ts-ignore TODO: FIX
   const unselectStrike = (index) => {
     setSelectedStrikeIndexes(
       selectedStrikeIndexes.filter(function (item) {
@@ -396,7 +401,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       value?: number
     ) => {
       let input = e
-        ? [',', '.'].includes(e.target.value[e.target.value.length - 1])
+        ? // @ts-ignore TODO: FIX
+          [',', '.'].includes(e.target.value[e.target.value.length - 1])
           ? e.target.value
           : parseFloat(e.target.value.replace(',', '.'))
         : value;
@@ -405,6 +411,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
       if (e && parseFloat(e.target.value) === 0) input = e.target.value;
       if (isNaN(input)) input = 0;
+      // @ts-ignore TODO: FIX
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
         [index]: input,
@@ -415,6 +422,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
   const handleApprove = useCallback(async () => {
     try {
+      if (!signer) return;
+
       await sendTx(
         ERC20__factory.connect(
           contractAddresses[depositTokenName],
@@ -515,6 +524,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       if (IS_NATIVE(depositTokenName)) {
         setApproved(true);
       } else if (contractAddresses[depositTokenName]) {
+        if (!signer || !accountAddress) return;
+
         const allowance: BigNumber = await ERC20__factory.connect(
           contractAddresses[depositTokenName],
           signer
@@ -559,10 +570,13 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
   const userBalance = useMemo(() => {
     {
-      return ethers.utils.formatUnits(
-        userAssetBalances[depositTokenName],
-        getTokenDecimals(depositTokenName, chainId)
-      );
+      const balance = userAssetBalances[depositTokenName];
+      return balance
+        ? ethers.utils.formatUnits(
+            balance,
+            getTokenDecimals(depositTokenName, chainId)
+          )
+        : BigNumber.from('0');
     }
   }, [
     purchasePower,
@@ -578,7 +592,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     <Box
       className={cx(
         'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 lg:mt-0 mt-4',
-        styles.cardWidth
+        styles['cardWidth']
       )}
     >
       <Box className={isZapInVisible ? 'hidden' : 'flex'}>
@@ -634,8 +648,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
                 variant="h6"
                 className="text-white ml-auto mr-0 text-[0.72rem]"
               >
-                {userBalance}{' '}
-                {activeVaultContextSide === 'PUT'
+                {userBalance + ' ' + activeVaultContextSide === 'PUT'
                   ? depositTokenName
                   : denominationTokenName}
               </Typography>
