@@ -78,7 +78,7 @@ const DepositsTableData = (
       epochTime != 0 &&
       !isTotalCallUserDepositsEmpty
     );
-  }, [epochEndTime, isTotalCallUserDepositsEmpty]);
+  }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime]);
 
   const isTotalPutUserDepositsEmpty: boolean = useMemo(() => {
     let _isEmpty: boolean = true;
@@ -192,8 +192,9 @@ const DepositsTableData = (
                 return (
                   <Box className={'flex'}>
                     <img
-                      src={'/assets/timer.svg'}
-                      className={'h-[1rem] mt-1 mr-2 ml-1'}
+                      src="/assets/timer.svg"
+                      className="h-[1rem] mt-1 mr-2 ml-1"
+                      alt="Timer"
                     />
                     <Typography
                       variant="h5"
@@ -251,19 +252,16 @@ const Deposits = () => {
   const getStrikeIndex = useCallback(
     (strike: BigNumber) => {
       for (let i in rateVaultContext.rateVaultEpochData.epochStrikes) {
-        {
-          /* @ts-ignore TODO: FIX */
-        }
-        if (strike.eq(rateVaultContext.rateVaultEpochData.epochStrikes[i]))
-          return i;
+        const epochStrike = rateVaultContext.rateVaultEpochData.epochStrikes[i];
+        if (epochStrike && strike.eq(epochStrike)) return parseInt(i);
       }
-      return BigNumber.from('-1');
+      return -1;
     },
     [rateVaultContext]
   );
 
   const deposits = useMemo(() => {
-    const _deposits = {};
+    const _deposits: { [key: string]: any } = {};
 
     rateVaultContext.rateVaultUserData?.userEpochStrikeDeposits.map((row) => {
       const strikePrice = getUserReadableAmount(row['strike'], 8);
@@ -275,27 +273,20 @@ const Deposits = () => {
       const totalDeposits =
         rateVaultContext.rateVaultEpochData?.totalTokenDeposits;
 
-      {
-        /* @ts-ignore TODO: FIX */
-      }
-      const totalPremiums =
-        rateVaultContext.rateVaultEpochData?.epochCallsPremium[
-          strikeIndex
-        ]?.add(
-          rateVaultContext.rateVaultEpochData?.epochPutsPremium[strikeIndex]
-        );
+      const callPremium =
+        rateVaultContext.rateVaultEpochData?.callsPremiumCosts[strikeIndex] ||
+        BigNumber.from('0');
+      const putPremium =
+        rateVaultContext.rateVaultEpochData?.putsPremiumCosts[strikeIndex] ||
+        BigNumber.from('0');
+
+      const totalPremiums = callPremium.add(putPremium);
 
       const totalUserPremiums = totalDeposits.gt(0)
         ? totalPremiums?.mul(totalUserDeposits).div(totalDeposits)
         : BigNumber.from('0');
 
-      {
-        /* @ts-ignore TODO: FIX */
-      }
-      if (!_deposits[strikeIndex]) {
-        {
-          /* @ts-ignore TODO: FIX */
-        }
+      if (!('strikeIndex' in _deposits)) {
         _deposits[strikeIndex] = {
           strikePrice: strikePrice,
           totalUserPremiums: totalUserPremiums?.toNumber(),
@@ -308,9 +299,6 @@ const Deposits = () => {
           ],
         };
       } else {
-        {
-          /* @ts-ignore TODO: FIX */
-        }
         _deposits[strikeIndex]['totalUserDeposits'].push({
           callLeverage: row['callLeverage'],
           putLeverage: row['putLeverage'],
@@ -320,7 +308,7 @@ const Deposits = () => {
     });
 
     return _deposits;
-  }, [rateVaultContext]);
+  }, [rateVaultContext, getStrikeIndex]);
 
   const withdrawData = useMemo(() => {
     const strikesIndexes: number[] = [];
@@ -362,6 +350,7 @@ const Deposits = () => {
     accountAddress,
     rateVaultContract,
     chainId,
+    rateVaultContext,
   ]);
 
   return rateVaultContext?.rateVaultEpochData.epochStrikes ? (
