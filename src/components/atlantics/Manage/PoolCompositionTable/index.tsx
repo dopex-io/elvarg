@@ -9,16 +9,20 @@ import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
 import Typography from 'components/UI/Typography';
 
-// import Typography from 'components/UI/Typography';
-
-// @ts-ignore todo: FIX
-const TableHeader = ({ children, align = 'left', textColor = 'stieglitz' }) => {
+const TableHeader = ({
+  // @ts-ignore TODO: FIX
+  children,
+  align = 'left',
+  textColor = 'stieglitz',
+  width = 100,
+}) => {
   return (
     // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
       className="bg-cod-gray border-1 border-b-0 border-umbra py-2"
+      sx={{ width }}
     >
       <Typography variant="h6" className={`text-${textColor}`}>
         {children}
@@ -33,6 +37,7 @@ const TableBodyCell = ({
   align = 'left',
   textColor = 'stieglitz',
   fill = 'bg-cod-gray',
+  width = 100,
 }) => {
   return (
     // @ts-ignore TODO: FIX
@@ -40,6 +45,7 @@ const TableBodyCell = ({
       align={align as TableCellProps['align']}
       component="td"
       className={`${fill} border-0 py-3`}
+      sx={{ width }}
     >
       <Typography variant="h6" className={`text-${textColor}`}>
         {children}
@@ -64,16 +70,20 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableHeader align="left">
+            <TableHeader align="left" width={600}>
               Token <ArrowDownwardRoundedIcon />
             </TableHeader>
-            <TableHeader align="right">Amount</TableHeader>
-            <TableHeader align="right">Pool Profit</TableHeader>
+            <TableHeader align="left" width={5}>
+              Amount
+            </TableHeader>
+            <TableHeader align="right" width={5}>
+              Pool Profit
+            </TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow className="py-2">
-            <TableBodyCell>
+            <TableBodyCell width={600}>
               <Box className="flex space-x-2">
                 <img
                   src={`/images/tokens/${collateral}.svg`}
@@ -88,7 +98,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
                 </Box>
               </Box>
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell width={5}>
               <Box className="flex space-x-2 bg-umbra rounded-md p-1 justify-between">
                 <Typography variant="h6" className="my-auto">
                   {'34.1m'}
@@ -101,7 +111,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
                 </Typography>
               </Box>
             </TableBodyCell>
-            <TableBodyCell align="right">
+            <TableBodyCell align="right" width={5}>
               <Box className="flex flex-col items-end">
                 <Typography variant="h6" className="my-auto text-up-only">
                   {'95.031'} {collateral}
@@ -114,7 +124,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
           </TableRow>
           <TableRow>
             <TableBodyCell>
-              <Box className="flex space-x-2">
+              <Box className="flex space-x-2" width={600}>
                 <img
                   src={`/images/tokens/${underlying}.svg`}
                   alt={underlying}
@@ -128,7 +138,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
                 </Box>
               </Box>
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell width={5}>
               <Box className="flex space-x-2 bg-umbra rounded-md p-1 justify-between">
                 <Typography variant="h6" className="my-auto">
                   {'3,420'}
@@ -141,7 +151,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
                 </Typography>
               </Box>
             </TableBodyCell>
-            <TableBodyCell align="right">
+            <TableBodyCell align="left" width={5}>
               <Box className="flex flex-col items-end">
                 <Typography variant="h6" className="my-auto text-up-only">
                   {'3,425'} {underlying}
