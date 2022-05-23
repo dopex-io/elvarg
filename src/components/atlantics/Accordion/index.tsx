@@ -5,19 +5,24 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
+import { css } from '@emotion/css';
 
 import Typography from 'components/UI/Typography';
-import PoolCard from '../Pool';
+import PoolCard from 'components/atlantics/Pool';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import styles from './styles.module.scss';
 import formatAmount from 'utils/general/formatAmount';
+
+const accordionStyle = css`
+  color: 'darkslategray';
+  border-radius: 0.6rem !important;
+`;
 
 interface CustomAccordionProps {
   className: string;
   header: string;
-  stats: { [key: string]: BigNumber } | undefined;
+  stats?: { [key: string]: BigNumber };
   pools?: {
     poolType: string;
     underlying: string;
@@ -32,12 +37,12 @@ const CustomAccordion = ({
   stats,
   pools,
   className,
-}: // expanded = true,
-CustomAccordionProps) => {
+}: CustomAccordionProps) => {
   return (
     <Accordion
       TransitionProps={{ unmountOnExit: true }}
-      className={cx(className, styles['accordion'])}
+      className={cx(className, accordionStyle)}
+      expanded
     >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon className="fill-current text-white" />}
