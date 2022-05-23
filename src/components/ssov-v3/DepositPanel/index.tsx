@@ -183,7 +183,9 @@ const DepositPanel = () => {
           className="ml-auto mt-1"
         >
           <Box role="button" className="underline">
-            Get 2CRV
+            <Typography variant="h6" className="text-stieglitz">
+              Get 2CRV
+            </Typography>
           </Box>
         </a>
       </Box>
