@@ -108,15 +108,13 @@ const Description = ({
           *Effective APY if you deposit now
         </Typography>
       </Box>
-      {ssovData.isPut ? null : (
-        <Box
-          role="button"
-          className="underline mt-3"
-          onClick={() => setWrapOpen(true)}
-        >
-          Wrap ETH
-        </Box>
-      )}
+      <Box
+        role="button"
+        className="underline mt-3"
+        onClick={() => setWrapOpen(true)}
+      >
+        Wrap ETH
+      </Box>
       <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       {purchaseState && (
         <PurchaseDialog
