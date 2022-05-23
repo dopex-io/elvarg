@@ -172,9 +172,22 @@ const DepositPanel = () => {
         styles['cardWidth']
       )}
     >
-      <Typography variant="h3" className="text-stieglitz mb-2">
-        Deposit
-      </Typography>
+      <Box className="flex mb-3">
+        <Typography variant="h3" className="text-stieglitz">
+          Deposit
+        </Typography>
+        <a
+          href="https://arbitrum.curve.fi/2pool"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto mt-1"
+        >
+          <Box role="button" className="underline">
+            Get 2CRV
+          </Box>
+        </a>
+      </Box>
+
       <Box>
         <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
           <Box className="flex">
