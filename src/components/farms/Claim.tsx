@@ -86,14 +86,14 @@ const Claim = ({ open, handleClose, data }: Props) => {
           token="DPX"
           // @ts-ignore TODO: FIX
           balance={userRewardDPX}
-          iconSrc="/assets/dpx.svg"
+          iconSrc="/images/tokens/dpx.svg"
           iconAlt="DPX"
         />
         <BalanceItem
           token="RDPX"
           // @ts-ignore TODO: FIX
           balance={userRewardRDPX}
-          iconSrc="/assets/rdpx.svg"
+          iconSrc="/images/tokens/rdpx.svg"
           iconAlt="rDPX"
         />
       </Box>

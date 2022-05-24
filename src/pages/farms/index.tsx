@@ -1,17 +1,13 @@
-import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import { StakingRewards__factory } from '@dopex-io/sdk';
+import { useContext, useEffect, useState, useMemo } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import useSendTx from 'hooks/useSendTx';
-
 import Pool from 'components/farms/Pool';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import CustomButton from 'components/UI/CustomButton';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
 import LegacyFarmBanner from 'components/common/Banners/LegacyFarmBanner';
 
@@ -35,9 +31,7 @@ const Farms = () => {
     checkLegacyFarmBalance,
   } = useContext(FarmingContext);
 
-  const sendTx = useSendTx();
-
-  const { accountAddress, signer, chainId } = useContext(WalletContext);
+  const { accountAddress, chainId } = useContext(WalletContext);
 
   const [yourDeposit, setYourDeposit] = useState(0);
 
@@ -123,62 +117,6 @@ const Farms = () => {
     })();
   }, [DPXPool.TVL, DPX_WETHPool.TVL, rDPX_WETHPool.TVL]);
 
-  const handleClaimAll = useCallback(async () => {
-    if (DPX.rewards[0] > 0 || DPX.rewards[1] > 0) {
-      try {
-        const stakingRewardsContract = StakingRewards__factory.connect(
-          DPX.stakingRewardsContractAddress,
-          // @ts-ignore TODO: FIX
-          signer
-        );
-        await sendTx(stakingRewardsContract.getReward(2));
-        setStakingAsset('DPX');
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    if (DPX_WETH.rewards[0] > 0 || DPX_WETH.rewards[1] > 0) {
-      try {
-        const stakingRewardsContract = StakingRewards__factory.connect(
-          DPX_WETH.stakingRewardsContractAddress,
-          // @ts-ignore TODO: FIX
-          signer
-        );
-        await sendTx(stakingRewardsContract.getReward(2));
-        setStakingAsset('DPX-WETH');
-      } catch (err) {
-        console.log(err);
-      }
-    }
-    if (rDPX_WETH.rewards[0] > 0 || rDPX_WETH.rewards[1] > 0) {
-      try {
-        const stakingRewardsContract = StakingRewards__factory.connect(
-          rDPX_WETH.stakingRewardsContractAddress,
-          // @ts-ignore TODO: FIX
-          signer
-        );
-        await sendTx(stakingRewardsContract.getReward(2));
-        setStakingAsset('rDPX-WETH');
-      } catch (err) {
-        console.log(err);
-      }
-    }
-    if (RDPX.rewards[0] > 0 || RDPX.rewards[1] > 0) {
-      try {
-        const stakingRewardsContract = StakingRewards__factory.connect(
-          RDPX.stakingRewardsContractAddress,
-          // @ts-ignore TODO: FIX
-          signer
-        );
-        await sendTx(stakingRewardsContract.getReward(2));
-        setStakingAsset('RDPX');
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  }, [DPX, DPX_WETH, rDPX_WETH, RDPX, setStakingAsset, signer, sendTx]);
-
   const isLoading = useMemo(() => {
     if (accountAddress) {
       if (DPX.loading || DPX_WETH.loading || rDPX_WETH.loading) return true;
@@ -226,18 +164,6 @@ const Farms = () => {
                 Total Value Locked:{' '}
                 <span className="text-white">${formatAmount(totalTVL)}</span>
               </Typography>
-            </Box>
-            <Box className="hidden lg:block place-self-end ml-2">
-              <CustomButton
-                size="medium"
-                onClick={handleClaimAll}
-                {...(!accountAddress
-                  ? { disabled: true }
-                  : { disabled: false })}
-                className="rounded-md h-10"
-              >
-                Claim All
-              </CustomButton>
             </Box>
           </Box>
           {isLoading ? (
