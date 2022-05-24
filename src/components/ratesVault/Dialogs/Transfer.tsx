@@ -18,8 +18,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import useSendTx from 'hooks/useSendTx';
-
 export interface Props {
   setTokenAddressToTransfer: Function;
   tokenAddressToTransfer: string | null;
@@ -33,7 +31,6 @@ const Transfer = ({
   const { updateAssetBalances } = useContext(AssetsContext);
   const rateVaultContext = useContext(RateVaultContext);
   const { updateRateVaultUserData } = rateVaultContext;
-  const sendTx = useSendTx();
 
   const [transferAmount, setTransferAmount] = useState('0');
   const [recipient, setRecipient] = useState('');
