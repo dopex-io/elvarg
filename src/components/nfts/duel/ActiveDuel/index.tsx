@@ -13,7 +13,7 @@ const ActiveDuel = () => {
     <Box className="w-full flex p-5 bg-[#181C24] relative">
       <img
         src="/images/nfts/pepes/gen2-pepe-1.png"
-        className="rounded-md w-16 h-16"
+        className="rounded-md w-14 h-14 mt-1 mr-3"
       />
       <Box>
         <Typography
@@ -88,6 +88,20 @@ const ActiveDuel = () => {
           className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-3 ml-1 text-right"
         >
           <span>Moves</span>
+        </Typography>
+      </Box>
+      <Box className="ml-8">
+        <Typography
+          variant="h4"
+          className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
+        >
+          <span>0x131...341</span>
+        </Typography>
+        <Typography
+          variant="h4"
+          className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-center"
+        >
+          <span>Opponent</span>
         </Typography>
       </Box>
     </Box>
