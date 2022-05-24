@@ -52,8 +52,9 @@ const Stats = ({
             </Typography>
             <Box className="h-[9.5em] flex relative">
               <img
-                src={'/assets/chart-placeholder.png'}
-                className={'w-full blur-sm'}
+                alt="Chart"
+                src="/assets/chart-placeholder.png"
+                className="w-full blur-sm"
               />
               <Typography
                 variant="h5"
@@ -141,13 +142,15 @@ const Stats = ({
                     variant={'h6'}
                     className={'text-sm text-white mt-1  ml-auto mr-2'}
                   >
-                    ${/* @ts-ignore TODO: FIX */}
+                    $
                     {getUserReadableAmount(
-                      activeVaultContextSide === 'CALL'
-                        ? rateVaultContext.rateVaultEpochData
-                            .totalCallsPremiums[strikeIndex]
-                        : rateVaultContext.rateVaultEpochData
-                            .totalCallsPremiums[strikeIndex],
+                      String(
+                        activeVaultContextSide === 'CALL'
+                          ? rateVaultContext.rateVaultEpochData
+                              .epochStrikeCallsPremium[strikeIndex]
+                          : rateVaultContext.rateVaultEpochData
+                              .epochStrikePutsPremium[strikeIndex]
+                      ),
                       2
                     )}
                   </Typography>

@@ -408,19 +408,14 @@ const Deposits = () => {
                     return (
                       <DepositsTableData
                         handleWithdraw={handleWithdraw}
-                        /* @ts-ignore TODO: FIX */
                         totalDeposits={deposits[strikeIndex].totalDeposits}
-                        /* @ts-ignore TODO: FIX */
                         totalPremiums={deposits[strikeIndex].totalPremiums}
-                        /* @ts-ignore TODO: FIX */
                         totalUserPremiums={
                           deposits[strikeIndex].totalUserPremiums
                         }
-                        /* @ts-ignore TODO: FIX */
                         totalUserDeposits={
                           deposits[strikeIndex].totalUserDeposits
                         }
-                        /* @ts-ignore TODO: FIX */
                         strikePrice={deposits[strikeIndex].strikePrice}
                         key={strikeIndex}
                         epochTime={epochTime}
