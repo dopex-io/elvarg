@@ -341,7 +341,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
   // @ts-ignore TODO: FIX
   const handleSelectCallLeverages = useCallback(
-    async (index, value) => {
+    async (index: number, value: number) => {
       let _selectedCallLeverages = Object.assign({}, selectedCallLeverages);
       _selectedCallLeverages[index] = value;
       setSelectedCallLeverages(_selectedCallLeverages);
@@ -351,7 +351,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
   // @ts-ignore TODO: FIX
   const handleSelectPutLeverages = useCallback(
-    async (index, value) => {
+    async (index: number, value: number) => {
       let _selectedPutLeverages = Object.assign({}, selectedPutLeverages);
       _selectedPutLeverages[index] = value;
       setSelectedPutLeverages(_selectedPutLeverages);
@@ -359,8 +359,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     [selectedPutLeverages]
   );
 
-  // @ts-ignore TODO: FIX
   const handleSelectStrikes = useCallback(
+    // @ts-ignore TODO: FIX
     (event) => {
       setSelectedStrikeIndexes(event.target.value as number[]);
       handleSelectCallLeverages(
