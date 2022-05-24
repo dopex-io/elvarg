@@ -1,8 +1,5 @@
-// @ts-nocheck TODO: FIX
-
 import { useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { BigNumber } from 'ethers';
-import delay from 'lodash/delay';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Countdown from 'react-countdown';
@@ -14,6 +11,7 @@ import TableRow from '@mui/material/TableRow';
 import CircularProgress from '@mui/material/CircularProgress';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import TableCell from '@mui/material/TableCell';
 import { ERC20__factory } from '@dopex-io/sdk';
 
@@ -30,8 +28,6 @@ import TransferDialog from 'components/ratesVault/Dialogs/Transfer';
 
 import styles from './styles.module.scss';
 
-const YEAR_SECONDS = 31536000;
-
 export interface PositionProps {
   strike: number;
   strikeIndex: number;
@@ -46,22 +42,12 @@ const Positions = () => {
   const [isPositionsStatsLoading, setIsPositionsStatsLoading] =
     useState<Boolean>(false);
   const rateVaultContext = useContext(RateVaultContext);
-  const {
-    accountAddress,
-    changeWallet,
-    disconnect,
-    chainId,
-    ensName,
-    provider,
-    signer,
-  } = useContext(WalletContext);
+  const { accountAddress, chainId, signer } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const [updated, setUpdated] = useState<boolean>(false);
   const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
     string | null
   >(null);
-  const [positionToSettle, setPositionToSettle] =
-    useState<null | PositionProps>(null);
 
   const {
     rateVaultUserData,
@@ -72,32 +58,24 @@ const Positions = () => {
   } = rateVaultContext;
   const { rateVaultContract } = rateVaultData;
 
-  const [page, setPage] = useState(0);
-
-  const [copyState, setCopyState] = useState('Copy Address');
-
-  const [positions, setPositions] = useState([]);
+  const [positions, setPositions] = useState<any[]>([]);
   const tokenPrice: number = 1;
-  const tokenName: string = '2CRV';
 
-  const { epochTimes, epochStrikes } = rateVaultContext.rateVaultEpochData;
+  const { epochTimes } = rateVaultContext.rateVaultEpochData;
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(epochTimes[1].toNumber() * 1000);
   }, [epochTimes]);
 
-  const copyToClipboard = () => {
-    setCopyState('Copied');
-    delay(() => setCopyState('Copy Address'), 500);
-    navigator.clipboard.writeText(accountAddress);
-  };
-
   // Handle settle
   const handleSettle = useCallback(
-    async (strikeIndex, isPut) => {
+    async (strikeIndex: number, isPut: boolean) => {
       const tokenAddress = isPut
         ? rateVaultEpochData.putsToken[strikeIndex]
         : rateVaultEpochData.callsToken[strikeIndex];
+
+      if (!tokenAddress || !accountAddress || !signer) return;
+
       const amount = ERC20__factory.connect(tokenAddress, signer).balanceOf(
         accountAddress
       );
@@ -123,7 +101,7 @@ const Positions = () => {
   useEffect(() => {
     async function updatePositions() {
       setIsPositionsStatsLoading(true);
-      const _positions = [];
+      const _positions: any[] = [];
 
       rateVaultUserData?.userStrikePurchaseData?.map((purchase) => {
         ['CALL', 'PUT'].map((contextSide) => {
@@ -189,9 +167,20 @@ const Positions = () => {
     tokenPrice,
   ]);
 
-  const handleTransferDialogClose = () => {
-    setTokenAddressToTransfer(null);
-  };
+  const handleTransfer = useCallback(
+    async (side: string, strikeIndex: number) => {
+      let token;
+
+      if (side === 'CALL') {
+        token = rateVaultEpochData.callsToken[strikeIndex];
+        if (token) setTokenAddressToTransfer(token);
+      } else {
+        token = rateVaultEpochData.putsToken[strikeIndex];
+        if (token) setTokenAddressToTransfer(token);
+      }
+    },
+    [rateVaultEpochData, positions]
+  );
 
   return positions.length > 0 || isPositionsStatsLoading ? (
     <Box>
@@ -212,7 +201,7 @@ const Positions = () => {
       </Box>
       <Box className={'bg-cod-gray w-full p-4 pt-2 pb-4.5 pb-0 rounded-xl'}>
         <Box className="balances-table text-white">
-          <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
+          <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
             {isPositionsStatsLoading ? (
               <Box>
                 <Box className={cx('rounded-lg text-center mt-1')}>
@@ -348,7 +337,7 @@ const Positions = () => {
                           ) : (
                             <Countdown
                               date={epochEndTime}
-                              renderer={({ days, hours, minutes, seconds }) => {
+                              renderer={({ days, hours, minutes }) => {
                                 return (
                                   <Box className={'flex'}>
                                     <img
@@ -372,14 +361,9 @@ const Positions = () => {
                       <TableCell align="left" className="px-6 pt-2">
                         <Button
                           onClick={() =>
-                            setTokenAddressToTransfer(
-                              position['side'] === 'CALL'
-                                ? rateVaultEpochData.callsToken[
-                                    position['strikeIndex']
-                                  ]
-                                : rateVaultEpochData.putsToken[
-                                    position['strikeIndex']
-                                  ]
+                            handleTransfer(
+                              position['side'],
+                              position['strikeIndex']
                             )
                           }
                           className={
