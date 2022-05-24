@@ -33,6 +33,7 @@ const Manage = () => {
   const showWithdrawalInformation: boolean = true;
 
   const poolName = useMemo(() => {
+    // @ts-ignore
     return params['poolName'];
   }, [params]);
 
@@ -96,7 +97,6 @@ const Manage = () => {
           ) : (
             <Box>
               <PurchaseOptions
-                activeVaultContextSide={activeVaultContextSide}
                 setActiveVaultContextSide={setActiveVaultContextSide}
                 setStrikeIndex={setStrikeIndex}
               />

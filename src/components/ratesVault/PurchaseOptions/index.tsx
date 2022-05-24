@@ -1,17 +1,12 @@
-// @ts-nocheck TODO: FIX
-
 import {
   useContext,
   useState,
-  useMemo,
-  useCallback,
   Dispatch,
   SetStateAction,
   useEffect,
 } from 'react';
-import { BigNumber } from 'ethers';
-import delay from 'lodash/delay';
 import cx from 'classnames';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
 import Button from '@mui/material/Button';
@@ -31,108 +26,92 @@ import Typography from 'components/UI/Typography';
 
 import { RateVaultContext } from 'contexts/RateVault';
 
-import { WalletContext } from 'contexts/Wallet';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import styles from './styles.module.scss';
 
 const PurchaseOptions = ({
-  activeVaultContextSide,
   setActiveVaultContextSide,
   setStrikeIndex,
 }: {
-  activeVaultContextSide: string;
   setActiveVaultContextSide: Dispatch<SetStateAction<string>>;
   setStrikeIndex: Dispatch<SetStateAction<number>>;
 }) => {
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress } = useContext(WalletContext);
   const [updated, setUpdated] = useState<boolean>(false);
 
-  const { epochTimes, epochStrikes } = rateVaultContext.rateVaultEpochData;
+  const { epochStrikes } = rateVaultContext.rateVaultEpochData;
 
-  const epochTime: number = useMemo(() => {
-    return epochTimes && epochTimes[0] && epochTimes[1]
-      ? (epochTimes[1] as BigNumber).sub(epochTimes[0] as BigNumber).toNumber()
-      : 0;
-  }, [epochTimes]);
-
-  const epochEndTime: Date = useMemo(() => {
-    return new Date(epochTimes[1].toNumber() * 1000);
-  }, [epochTimes, activeVaultContextSide]);
-
-  const [page, setPage] = useState(0);
-
-  const handleChangePage = useCallback(
-    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-      setPage(newPage);
-    },
-    [setPage]
-  );
-
-  const [copyState, setCopyState] = useState('Copy Address');
-
-  const [purchaseOptions, setPurchaseOptions] = useState({ CALL: [], PUT: [] });
-
-  const copyToClipboard = () => {
-    setCopyState('Copied');
-    delay(() => setCopyState('Copy Address'), 500);
-    navigator.clipboard.writeText(accountAddress);
-  };
-
-  const getPurchaseOptions = async (i, ssovContextSide) => {
-    const strike = rateVaultContext.rateVaultEpochData.epochStrikes[i];
-
-    let available, price;
-    let callDeposits = rateVaultContext.rateVaultEpochData.callsDeposits[i];
-    let putDeposits = rateVaultContext.rateVaultEpochData.putsDeposits[i];
-
-    let volatility = rateVaultContext.rateVaultEpochData.volatilities[i];
-
-    if (ssovContextSide === 'CALL') {
-      available = callDeposits.sub(
-        rateVaultContext.rateVaultEpochData.totalCallsPurchased
-      );
-      price = rateVaultContext.rateVaultEpochData.callsCosts[i];
-    } else {
-      available = putDeposits.sub(
-        rateVaultContext.rateVaultEpochData.totalPutsPurchased
-      );
-      price = rateVaultContext.rateVaultEpochData.putsCosts[i];
-    }
-
-    return {
-      available: Math.max(0, getUserReadableAmount(available, 18)),
-      strike: getUserReadableAmount(strike, 8),
-      volatility: getUserReadableAmount(volatility, 0),
-      price: getUserReadableAmount(price, 18),
-      side: ssovContextSide,
-    };
-  };
+  const [purchaseOptions, setPurchaseOptions] = useState<{
+    [key: string]: any[];
+  }>({ CALL: [], PUT: [] });
 
   useEffect(() => {
+    const getPurchaseOptions = async (i: number, ssovContextSide: string) => {
+      let strike: BigNumber = BigNumber.from('0');
+
+      const _strike = rateVaultContext.rateVaultEpochData.epochStrikes[i];
+      if (_strike) strike = _strike;
+
+      let available: BigNumber | undefined = BigNumber.from('0');
+
+      let price: BigNumber = BigNumber.from('0');
+
+      let callDeposits = rateVaultContext.rateVaultEpochData.callsDeposits[i];
+      let putDeposits = rateVaultContext.rateVaultEpochData.putsDeposits[i];
+
+      let volatility: BigNumber = BigNumber.from('0');
+
+      const _volatility = rateVaultContext.rateVaultEpochData.volatilities[i];
+      if (_volatility) volatility = _volatility;
+
+      if (ssovContextSide === 'CALL' && callDeposits) {
+        available = callDeposits.sub(
+          rateVaultContext.rateVaultEpochData.totalCallsPurchased
+        );
+        const _price = rateVaultContext.rateVaultEpochData.callsCosts[i];
+        if (_price) price = _price;
+      } else if (putDeposits) {
+        available = putDeposits.sub(
+          rateVaultContext.rateVaultEpochData.totalPutsPurchased
+        );
+        const _price = rateVaultContext.rateVaultEpochData.putsCosts[i];
+        if (_price) price = _price;
+      }
+
+      return {
+        available: Math.max(0, getUserReadableAmount(available, 18)),
+        strike: getUserReadableAmount(strike, 8),
+        volatility: getUserReadableAmount(volatility, 0),
+        price: getUserReadableAmount(price, 18),
+        side: ssovContextSide,
+      };
+    };
     async function updatePurchaseOptions() {
       setIsPurchaseStatsLoading(true);
-      const options = {
-        CALL: [],
-        PUT: [],
-      };
+      const options: {
+        [key: string]: any[];
+      } = { CALL: [], PUT: [] };
 
       const strikeIndexes = [];
       for (let strikeIndex in rateVaultContext.rateVaultEpochData
         .epochStrikes) {
-        strikeIndexes.push(getPurchaseOptions(strikeIndex, 'CALL'));
-        strikeIndexes.push(getPurchaseOptions(strikeIndex, 'PUT'));
+        strikeIndexes.push(getPurchaseOptions(Number(strikeIndex), 'CALL'));
+        strikeIndexes.push(getPurchaseOptions(Number(strikeIndex), 'PUT'));
       }
 
       const results = await Promise.all(strikeIndexes);
 
-      for (let i in results)
-        if (results[i]) options[results[i]['side']].push(results[i]);
+      for (let i in results) {
+        const result = results[i];
+        if (result) {
+          const side = result['side'];
+          if (results[i]) options[side]?.push(result);
+        }
+      }
 
       setPurchaseOptions(options);
       setIsPurchaseStatsLoading(false);
@@ -162,7 +141,9 @@ const PurchaseOptions = ({
       ) : (
         <Box className={'bg-cod-gray w-full p-4 pt-2 pb-4.5 pb-0 rounded-xl'}>
           <Box className="balances-table text-white min-h-[12rem]">
-            <TableContainer className={cx(styles.optionsTable, 'bg-cod-gray')}>
+            <TableContainer
+              className={cx(styles['optionsTable'], 'bg-cod-gray')}
+            >
               {isEmpty(epochStrikes) ? (
                 <Box className="border-4 border-umbra rounded-lg p-3">
                   {range(3).map((_, index) => (
@@ -238,7 +219,7 @@ const PurchaseOptions = ({
                   </TableHead>
                   <TableBody className={cx('rounded-lg')}>
                     {['CALL', 'PUT'].map((ssovContextSide) =>
-                      purchaseOptions[ssovContextSide].map((row, i) => {
+                      purchaseOptions[ssovContextSide]?.map((row, i) => {
                         const isDisabled =
                           row['available'] < 0.1 ||
                           rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() <
