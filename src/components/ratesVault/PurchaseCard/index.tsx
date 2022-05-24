@@ -1,5 +1,3 @@
-// @ts-nocheck TODO: FIX
-
 import React, {
   useEffect,
   useContext,
@@ -7,29 +5,22 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  Addresses,
-  ERC20__factory,
-  Aggregation1inchRouterV4__factory,
-} from '@dopex-io/sdk';
+import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
-import Slide from '@mui/material/Slide';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { utils as ethersUtils, BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import format from 'date-fns/format';
-import { useDebounce } from 'use-debounce';
 import axios from 'axios';
 import cx from 'classnames';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/common/PnlChart';
-import ZapIn from 'components/common/ZapIn';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';
 import ZapOutButton from 'components/common/ZapOutButton';
@@ -41,12 +32,11 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import get1inchQuote from 'utils/general/get1inchQuote';
 
 import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
+import { AssetsContext } from 'contexts/Assets';
 import { RateVaultContext } from 'contexts/RateVault';
 
 import { MAX_VALUE } from 'constants/index';
@@ -66,12 +56,10 @@ const PurchaseCard = ({
   setStrikeIndex,
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
-  const { updateRateVaultEpochData, rateVaultData, rateVaultEpochData } =
-    rateVaultContext;
+  const { rateVaultEpochData } = rateVaultContext;
   const { lpPrice } = rateVaultEpochData;
 
-  const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
-    useContext(AssetsContext);
+  const { updateAssetBalances, tokenPrices } = useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
     useContext(WalletContext);
 
@@ -79,20 +67,12 @@ const PurchaseCard = ({
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(epochTimes[1].toNumber() * 1000);
-  }, [epochTimes, activeVaultContextSide]);
+  }, [epochTimes]);
 
-  const { aggregation1inchRouter } = useMemo(() => {
-    return {
-      aggregation1inchRouter: contractAddresses['1inchRouter']
-        ? Aggregation1inchRouterV4__factory.connect(
-            contractAddresses['1inchRouter'],
-            signer
-          )
-        : null,
-    };
-  }, [contractAddresses, signer]);
-
+  // @ts-ignore TODO: FIX
   const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
+
+  // @ts-ignore TODO: FIX
   const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
 
   const { epochStrikes } = rateVaultEpochData;
@@ -102,6 +82,7 @@ const PurchaseCard = ({
     BigNumber.from('0')
   );
 
+  // @ts-ignore TODO: FIX
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
 
@@ -110,18 +91,20 @@ const PurchaseCard = ({
 
     if (activeVaultContextSide === 'CALL') {
       deposits = rateVaultContext.rateVaultEpochData.callsDeposits[strikeIndex];
-      available = deposits.sub(
-        rateVaultContext.rateVaultEpochData.totalCallsPurchased
-      );
+      if (deposits)
+        available = deposits.sub(
+          rateVaultContext.rateVaultEpochData.totalCallsPurchased
+        );
     } else if (activeVaultContextSide === 'PUT') {
       deposits = rateVaultContext.rateVaultEpochData.callsDeposits[strikeIndex];
-      available = deposits.sub(
-        rateVaultContext.rateVaultEpochData.totalPutsPurchased
-      );
+      if (deposits)
+        available = deposits.sub(
+          rateVaultContext.rateVaultEpochData.totalPutsPurchased
+        );
     }
 
-    return getUserReadableAmount(available, 18);
-  }, [rateVaultEpochData, strikeIndex]);
+    return getUserReadableAmount(available || BigNumber.from('0'), 18);
+  }, [strikeIndex, activeVaultContextSide, rateVaultContext]);
 
   const [rawNotionalSize, setRawNotionalSize] = useState<string>('1');
 
@@ -134,8 +117,9 @@ const PurchaseCard = ({
       activeVaultContextSide === 'CALL'
         ? rateVaultEpochData.callsCosts[strikeIndex]
         : rateVaultEpochData.putsCosts[strikeIndex];
-    return _price;
-  }, [rateVaultEpochData, strikeIndex]);
+
+    return _price || BigNumber.from('0');
+  }, [rateVaultEpochData, strikeIndex, activeVaultContextSide]);
 
   const optionsAmount: number = useMemo(() => {
     return notionalSize / getUserReadableAmount(optionPrice, 18);
@@ -151,8 +135,11 @@ const PurchaseCard = ({
         ? rateVaultEpochData.callsFees[strikeIndex]
         : rateVaultEpochData.putsFees[strikeIndex];
 
-    return _fees.mul(BigNumber.from(Math.round(optionsAmount)));
-  }, [rateVaultEpochData, strikeIndex, optionsAmount]);
+    return (
+      _fees?.mul(BigNumber.from(Math.round(optionsAmount))) ||
+      BigNumber.from('0')
+    );
+  }, [rateVaultEpochData, strikeIndex, optionsAmount, activeVaultContextSide]);
 
   const premium: BigNumber = useMemo(() => {
     const _premium =
@@ -160,11 +147,14 @@ const PurchaseCard = ({
         ? rateVaultEpochData.callsPremiumCosts[strikeIndex]
         : rateVaultEpochData.putsPremiumCosts[strikeIndex];
 
-    return _premium.mul(BigNumber.from(Math.round(notionalSize)));
-  }, [rateVaultEpochData, strikeIndex, notionalSize]);
+    return (
+      _premium?.mul(BigNumber.from(Math.round(notionalSize))) ||
+      BigNumber.from('0')
+    );
+  }, [rateVaultEpochData, strikeIndex, notionalSize, activeVaultContextSide]);
 
   const volatility: BigNumber = useMemo(() => {
-    return rateVaultEpochData.volatilities[strikeIndex];
+    return rateVaultEpochData.volatilities[strikeIndex] || BigNumber.from('0');
   }, [rateVaultEpochData, strikeIndex]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -172,8 +162,6 @@ const PurchaseCard = ({
   const [purchaseTokenName, setPurchaseTokenName] = useState<string>('2CRV');
 
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
-  const [quote, setQuote] = useState<object>({});
-  const [path, setPath] = useState<object>({});
 
   const isZapActive: boolean = useMemo(() => {
     if (activeVaultContextSide === 'PUT')
@@ -185,60 +173,16 @@ const PurchaseCard = ({
 
   const spender = useMemo(() => {
     return '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a';
-  }, [activeVaultContextSide, isZapActive, purchaseTokenName]);
-
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.3);
+  }, []);
 
   const purchasePower: number = useMemo(() => {
-    if (isZapActive) {
-      let price: number;
-      if (path['toToken'])
-        price =
-          getUserReadableAmount(
-            path['toTokenAmount'],
-            quote['toToken']['decimals']
-          ) /
-          getUserReadableAmount(
-            path['fromTokenAmount'],
-            path['fromToken']['decimals']
-          );
-      else if (quote['toToken'])
-        price =
-          getUserReadableAmount(
-            quote['toTokenAmount'],
-            quote['toToken']['decimals']
-          ) /
-          getUserReadableAmount(
-            quote['fromTokenAmount'],
-            quote['fromToken']['decimals']
-          );
-
-      return (
-        price *
-        getUserReadableAmount(
-          userAssetBalances[purchaseTokenName],
-          getTokenDecimals(purchaseTokenName, chainId)
-        )
-      );
-    } else {
-      return parseFloat(
-        getUserReadableAmount(
-          userTokenBalance,
-          getTokenDecimals(purchaseTokenName, chainId)
-        ).toString()
-      );
-    }
-  }, [
-    isZapActive,
-    path,
-    quote,
-    userAssetBalances,
-    purchaseTokenName,
-    userTokenBalance,
-    chainId,
-  ]);
-
-  const [isFetchingPath, setIsFetchingPath] = useState<boolean>(false);
+    return parseFloat(
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(purchaseTokenName, chainId)
+      ).toString()
+    );
+  }, [purchaseTokenName, userTokenBalance, chainId]);
 
   const sendTx = useSendTx();
 
@@ -247,81 +191,6 @@ const PurchaseCard = ({
       epochStrikes.map((strike) => getUserReadableAmount(strike, 8).toString()),
     [epochStrikes]
   );
-
-  // Updates the 1inch quote
-  useEffect(() => {
-    async function updateQuote() {
-      if (purchaseTokenName === '2CRV') return;
-
-      const fromTokenAddress: string = IS_NATIVE(purchaseTokenName)
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : contractAddresses[purchaseTokenName];
-      const toTokenAddress: string = Addresses[chainId]['USDC'];
-
-      if (fromTokenAddress === toTokenAddress) return;
-      if (
-        activeVaultContextSide === 'PUT' &&
-        fromTokenAddress === contractAddresses['2CRV']
-      )
-        return;
-
-      const amount: number =
-        100 * 10 ** getTokenDecimals(purchaseTokenName, chainId);
-
-      try {
-        const quote = await get1inchQuote({
-          fromTokenAddress,
-          toTokenAddress,
-          amount,
-          chainId,
-          accountAddress,
-        });
-
-        setQuote(quote);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    updateQuote();
-  }, [
-    accountAddress,
-    contractAddresses,
-    purchaseTokenName,
-    chainId,
-    activeVaultContextSide,
-  ]);
-
-  const zapInTotalCost: number = useMemo(() => {
-    if (!path['toTokenAmount']) return 0;
-    const price =
-      getUserReadableAmount(
-        path['toTokenAmount'],
-        quote['toToken']['decimals']
-      ) /
-      getUserReadableAmount(
-        path['fromTokenAmount'],
-        path['fromToken']['decimals']
-      );
-    return (
-      getUserReadableAmount(totalCost, getTokenDecimals('2CRV', chainId)) /
-      price
-    );
-  }, [path, quote, totalCost, chainId]);
-
-  const zapInPurchasePower: number = useMemo(() => {
-    if (!path['toTokenAmount']) return 0;
-    const price =
-      getUserReadableAmount(
-        path['toTokenAmount'],
-        quote['toToken']['decimals']
-      ) /
-      getUserReadableAmount(
-        path['fromTokenAmount'],
-        path['fromToken']['decimals']
-      );
-    return purchasePower / price;
-  }, [path, quote, purchasePower]);
 
   const selectedTokenPrice: number = useMemo(() => {
     let price = 0;
@@ -337,30 +206,17 @@ const PurchaseCard = ({
       ? purchasePower >= getUserReadableAmount(totalCost, 18)
       : true;
 
-  const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
-
-  const getPath = useCallback(async () => {}, [
-    chainId,
-    isZapActive,
-    quote,
-    slippageTolerance,
-    spender,
-    totalCost,
-    contractAddresses,
-    purchaseTokenName,
-    activeVaultContextSide,
-  ]);
-
   const openZapIn = () => setIsZapInVisible(true);
 
   const handleApprove = useCallback(async () => {
     try {
-      await sendTx(
-        ERC20__factory.connect(
-          contractAddresses[purchaseTokenName],
-          signer
-        ).approve(spender, MAX_VALUE)
-      );
+      if (signer)
+        await sendTx(
+          ERC20__factory.connect(
+            contractAddresses[purchaseTokenName],
+            signer
+          ).approve(spender, MAX_VALUE)
+        );
       setApproved(true);
     } catch (err) {
       console.log(err);
@@ -390,6 +246,7 @@ const PurchaseCard = ({
     sendTx,
     strikeIndex,
     updateAssetBalances,
+    signer,
   ]);
 
   const checkDEXAggregatorStatus = useCallback(async () => {
@@ -407,21 +264,11 @@ const PurchaseCard = ({
     checkDEXAggregatorStatus();
   }, [checkDEXAggregatorStatus]);
 
-  useEffect(() => {
-    getPath();
-  }, [getPath]);
-
-  const setMaxAmount = useCallback(async () => {}, [
-    epochStrikes,
-    isPurchaseStatsLoading,
-    purchasePower,
-    optionPrice,
-    strikeIndex,
-  ]);
-
   // Updates approved state and user balance
   useEffect(() => {
     (async () => {
+      if (!accountAddress) return;
+
       const finalAmount: BigNumber = getContractReadableAmount(
         notionalSize,
         18
@@ -447,16 +294,12 @@ const PurchaseCard = ({
     spender,
     signer,
     chainId,
+    provider,
   ]);
-
-  useEffect(() => {
-    getPath();
-  }, [getPath]);
 
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
       notionalSize <= 0 ||
-        isFetchingPath ||
         !isPurchasePowerEnough ||
         isPurchaseStatsLoading ||
         getUserReadableAmount(totalCost, 18) > purchasePower ||
@@ -481,9 +324,7 @@ const PurchaseCard = ({
       if (isPurchaseStatsLoading) {
         children = 'Loading prices...';
       } else if (notionalSize > 0) {
-        if (isFetchingPath) {
-          children = 'Loading Swap Path....';
-        } else if (getUserReadableAmount(totalCost, 18) > purchasePower) {
+        if (getUserReadableAmount(totalCost, 18) > purchasePower) {
           children = 'Insufficient Balance';
         } else if (approved) {
           children = 'Purchase';
@@ -507,14 +348,12 @@ const PurchaseCard = ({
     approved,
     handleApprove,
     handlePurchase,
-    isFetchingPath,
     isLiquidityEnough,
     isPurchasePowerEnough,
     isPurchaseStatsLoading,
     notionalSize,
     purchasePower,
     totalCost,
-    userEpochStrikePurchasableAmount,
   ]);
 
   const handleZapOut = () => {
@@ -525,7 +364,7 @@ const PurchaseCard = ({
     <Box
       className={cx(
         'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl lg:pt-4 text-center',
-        styles.cardWidth
+        styles['cardWidth']
       )}
     >
       <Box className="flex flex-row items-center mb-4">
@@ -549,18 +388,6 @@ const PurchaseCard = ({
               <img src={'/assets/2crv.svg'} alt={'2CRV'} />
             </Box>
           </Box>
-          {false ? (
-            <Box
-              className="bg-mineshaft hover:bg-neutral-700 flex-row ml-4 mt-2 mb-2 rounded-md items-center hidden lg:flex cursor-pointer"
-              onClick={setMaxAmount}
-            >
-              <Typography variant="caption" component="div">
-                <span className="text-stieglitz pl-2.5 pr-2.5">MAX</span>
-              </Typography>
-            </Box>
-          ) : (
-            ''
-          )}
           <Input
             disableUnderline
             id="notionalSize"
@@ -798,47 +625,30 @@ const PurchaseCard = ({
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(
-                    isZapActive ? zapInPurchasePower : purchasePower,
-                    5
-                  )}{' '}
-                  {purchaseTokenName}
+                  {formatAmount(purchasePower, 5)} {purchaseTokenName}
                 </Typography>
               </Box>
             </Box>
           ) : null}
-          {isZapActive ? (
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Total
+          <Box className={'flex mb-2'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              You will pay
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(getUserReadableAmount(totalCost, 18), 2)}{' '}
+                {purchaseTokenName}
               </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(zapInTotalCost, 5)} {purchaseTokenName}
-                </Typography>
-              </Box>
             </Box>
-          ) : (
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                You will pay
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(getUserReadableAmount(totalCost, 18), 2)}{' '}
-                  {purchaseTokenName}
-                </Typography>
-              </Box>
-            </Box>
-          )}
+          </Box>
           <EstimatedGasCostButton gas={700000} chainId={chainId} />
         </Box>
         <ZapInButton
           openZapIn={openZapIn}
           isZapActive={isZapActive}
-          quote={quote}
-          path={path}
-          isFetchingPath={isFetchingPath}
+          quote={{}}
+          path={{}}
+          isFetchingPath={false}
           fromTokenSymbol={purchaseTokenName}
           toTokenSymbol={'USDC'}
           selectedTokenPrice={selectedTokenPrice}
@@ -864,28 +674,6 @@ const PurchaseCard = ({
           {purchaseButtonProps.children}
         </CustomButton>
       </Box>
-      <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>
-        <Box className={styles.zapIn}>
-          <ZapIn
-            setOpen={setIsZapInVisible}
-            fromTokenSymbol={'DPX'}
-            toTokenSymbol={'USDC'}
-            userTokenBalance={userTokenBalance}
-            setFromTokenSymbol={setPurchaseTokenName}
-            quote={quote}
-            setSlippageTolerance={setSlippageTolerance}
-            slippageTolerance={slippageTolerance}
-            purchasePower={purchasePower}
-            selectedTokenPrice={selectedTokenPrice}
-            isInDialog={true}
-            isPut={activeVaultContextSide === 'PUT'}
-            tokensToExclude={
-              activeVaultContextSide === 'PUT' ? ['USDC', 'USDT', '2CRV'] : []
-            }
-            lpPrice={getUserReadableAmount(lpPrice, 8)}
-          />
-        </Box>
-      </Slide>
     </Box>
   );
 };
