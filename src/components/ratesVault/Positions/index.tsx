@@ -42,7 +42,7 @@ const Positions = () => {
   const [isPositionsStatsLoading, setIsPositionsStatsLoading] =
     useState<Boolean>(false);
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, chainId, signer } = useContext(WalletContext);
+  const { accountAddress, signer } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const [updated, setUpdated] = useState<boolean>(false);
   const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
@@ -92,9 +92,9 @@ const Positions = () => {
       selectedEpoch,
       updateAssetBalances,
       accountAddress,
-      chainId,
       rateVaultEpochData,
       updateRateVaultUserData,
+      rateVaultContract,
     ]
   );
 
@@ -165,6 +165,7 @@ const Positions = () => {
     updated,
     epochEndTime,
     tokenPrice,
+    epochTimes,
   ]);
 
   const handleTransfer = useCallback(
@@ -179,7 +180,7 @@ const Positions = () => {
         if (token) setTokenAddressToTransfer(token);
       }
     },
-    [rateVaultEpochData, positions]
+    [rateVaultEpochData]
   );
 
   return positions.length > 0 || isPositionsStatsLoading ? (
@@ -341,8 +342,9 @@ const Positions = () => {
                                 return (
                                   <Box className={'flex'}>
                                     <img
-                                      src={'/assets/timer.svg'}
-                                      className={'h-[1rem] mt-1 mr-2 ml-1'}
+                                      alt="Timer"
+                                      src="/assets/timer.svg"
+                                      className="h-[1rem] mt-1 mr-2 ml-1"
                                     />
                                     <Typography
                                       variant="h5"
