@@ -2,14 +2,20 @@ import cx from 'classnames';
 import Box from '@mui/material/Box';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { Dispatch, SetStateAction } from 'react';
 
 const Curve2PoolSelector = ({
   token,
   setToken,
   className,
   isPurchasing = false,
+}: {
+  token: string;
+  setToken: Dispatch<SetStateAction<string>>;
+  className: string;
+  isPurchasing: boolean;
 }) => {
-  const handleToken = (_event, newToken) => {
+  const handleToken = (_event: any, newToken: SetStateAction<string>) => {
     setToken(newToken);
   };
 
