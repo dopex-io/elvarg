@@ -54,7 +54,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
           </MenuItem>
         );
       });
-  }, [currentEpoch, rateVaultData]);
+  }, [currentEpoch]);
 
   return (
     <Box className={'absolute w-[20rem]'}>
@@ -83,7 +83,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
           </Box>
           {/* @ts-ignore TODO: FIX */}
           <Button className={styles.button}>
-            <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
+            <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
             {!rateVaultContext.rateVaultEpochData.isVaultReady
               ? 'Vault open for deposits'
               : 'Vault open for purchases'}
@@ -92,8 +92,8 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
             <img src={'/assets/threedots.svg'} className={'h-4 mt-[6px]'} />
           </Box>*/}
         </Box>
-        <Box className={'bg-[#2D2D2D] p-3 rounded-md mt-3'}>
-          <Box className={'flex'}>
+        <Box className="bg-[#2D2D2D] p-3 rounded-md mt-3">
+          <Box className="flex">
             <Typography variant="h5" className="text-stieglitz">
               Time remaining
             </Typography>
@@ -167,7 +167,8 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
         onClick={() => setActiveView('vault')}
       >
         <img
-          src={'/assets/magicstars.svg'}
+          src="/assets/magicstars.svg"
+          alt="Magic Stars"
           className={
             activeView === 'vault'
               ? 'w-5 h-4 mt-0.5 mr-3'
@@ -176,8 +177,9 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
         />
         {activeView !== 'vault' ? (
           <img
-            src={'/assets/magicstars-disabled.svg'}
-            className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            src="/assets/magicstars-disabled.svg"
+            alt="Magic Stars"
+            className="w-5 h-4 mt-0.5 mr-3 group-hover:hidden"
           />
         ) : null}
         <Typography
@@ -200,7 +202,8 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
         onClick={() => setActiveView('positions')}
       >
         <img
-          src={'/assets/stars.svg'}
+          src="/assets/stars.svg"
+          alt="Stars"
           className={
             activeView === 'positions'
               ? 'w-5 h-4 mt-0.5 mr-3'
@@ -209,8 +212,9 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
         />
         {activeView !== 'positions' ? (
           <img
-            src={'/assets/stars-disabled.svg'}
-            className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            src="/assets/stars-disabled.svg"
+            className="w-5 h-4 mt-0.5 mr-3 group-hover:hidden"
+            alt="Stars"
           />
         ) : null}
         <Typography
@@ -224,18 +228,18 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
           Options & Positions
         </Typography>
       </Box>
-      <Box className={'mt-8 mb-3'}>
+      <Box className="mt-8 mb-3">
         <Typography variant="h5" className="text-stieglitz">
           Contract
         </Typography>
       </Box>
-      <Box className={`bg-umbra rounded-md relative`}>
-        <img src={getExtendedLogoFromChainId(chainId)} className={'h-11 p-1'} />
-        <Box
-          className={
-            'absolute right-[10px] top-[8px] bg-mineshaft p-2 pt-1 pb-1 rounded-md'
-          }
-        >
+      <Box className="bg-umbra rounded-md relative">
+        <img
+          src={getExtendedLogoFromChainId(chainId)}
+          className="h-11 p-1"
+          alt=""
+        />
+        <Box className="absolute right-[10px] top-[8px] bg-mineshaft p-2 pt-1 pb-1 rounded-md">
           <a
             className={'cursor-pointer'}
             href={`${getExplorerUrl(
