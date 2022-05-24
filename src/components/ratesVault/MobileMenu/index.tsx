@@ -78,14 +78,11 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
           </Box>
           {/* @ts-ignore TODO: FIX */}
           <Button className={styles['button']}>
-            <img src={'/assets/lock.svg'} className={'mr-3'} />{' '}
+            <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
             {!rateVaultContext?.rateVaultEpochData?.isVaultReady
               ? 'Vault open for deposits'
               : 'Vault open for purchases'}
           </Button>
-          {/*<Box className={'bg-[#2D2D2D] p-2 pr-4 pl-4 rounded-md ml-auto'}>
-            <img src={'/assets/threedots.svg'} className={'h-4 mt-[6px]'} />
-          </Box>*/}
         </Box>
         <Box className={'bg-[#2D2D2D] p-3 rounded-md mt-3'}>
           <Box className={'flex'}>
@@ -162,7 +159,8 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
         onClick={() => setActiveView('vault')}
       >
         <img
-          src={'/assets/magicstars.svg'}
+          src="/assets/magicstars.svg"
+          alt="Magic Stars"
           className={
             activeView === 'vault'
               ? 'w-5 h-4 mt-0.5 mr-3'
@@ -171,8 +169,9 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
         />
         {activeView !== 'vault' ? (
           <img
-            src={'/assets/magicstars-disabled.svg'}
-            className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            src="/assets/magicstars-disabled.svg"
+            alt="Magic Stars"
+            className="w-5 h-4 mt-0.5 mr-3 group-hover:hidden"
           />
         ) : null}
         <Typography
@@ -195,7 +194,8 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
         onClick={() => setActiveView('positions')}
       >
         <img
-          src={'/assets/stars.svg'}
+          src="/assets/stars.svg"
+          alt="Stars"
           className={
             activeView === 'positions'
               ? 'w-5 h-4 mt-0.5 mr-3'
@@ -204,8 +204,9 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
         />
         {activeView !== 'positions' ? (
           <img
-            src={'/assets/stars-disabled.svg'}
-            className={'w-5 h-4 mt-0.5 mr-3 group-hover:hidden'}
+            alt="Stars"
+            src="/assets/stars-disabled.svg"
+            className="w-5 h-4 mt-0.5 mr-3 group-hover:hidden"
           />
         ) : null}
         <Typography
