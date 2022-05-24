@@ -39,11 +39,11 @@ const Manage = () => {
 
   useEffect(() => {
     if (!accountAddress) connect();
-  }, [accountAddress]);
+  }, [accountAddress, connect]);
 
   useEffect(() => {
     if (poolName) setSelectedPoolName(poolName);
-  }, [rateVaultContext, poolName]);
+  }, [rateVaultContext, poolName, setSelectedPoolName]);
 
   if (!rateVaultContext.rateVaultEpochData?.epochStartTimes)
     return (

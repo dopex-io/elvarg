@@ -340,31 +340,40 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   }, [rateVaultContext]);
 
   // @ts-ignore TODO: FIX
-  const handleSelectCallLeverages = (index, value) => {
-    let _selectedCallLeverages = Object.assign({}, selectedCallLeverages);
-    _selectedCallLeverages[index] = value;
-    setSelectedCallLeverages(_selectedCallLeverages);
-  };
+  const handleSelectCallLeverages = useCallback(
+    async (index, value) => {
+      let _selectedCallLeverages = Object.assign({}, selectedCallLeverages);
+      _selectedCallLeverages[index] = value;
+      setSelectedCallLeverages(_selectedCallLeverages);
+    },
+    [selectedCallLeverages]
+  );
 
   // @ts-ignore TODO: FIX
-  const handleSelectPutLeverages = (index, value) => {
-    let _selectedPutLeverages = Object.assign({}, selectedPutLeverages);
-    _selectedPutLeverages[index] = value;
-    setSelectedPutLeverages(_selectedPutLeverages);
-  };
+  const handleSelectPutLeverages = useCallback(
+    async (index, value) => {
+      let _selectedPutLeverages = Object.assign({}, selectedPutLeverages);
+      _selectedPutLeverages[index] = value;
+      setSelectedPutLeverages(_selectedPutLeverages);
+    },
+    [selectedPutLeverages]
+  );
 
   // @ts-ignore TODO: FIX
-  const handleSelectStrikes = useCallback((event) => {
-    setSelectedStrikeIndexes(event.target.value as number[]);
-    handleSelectCallLeverages(
-      event.target.value[event.target.value.length - 1],
-      0
-    );
-    handleSelectPutLeverages(
-      event.target.value[event.target.value.length - 1],
-      0
-    );
-  }, []);
+  const handleSelectStrikes = useCallback(
+    (event) => {
+      setSelectedStrikeIndexes(event.target.value as number[]);
+      handleSelectCallLeverages(
+        event.target.value[event.target.value.length - 1],
+        0
+      );
+      handleSelectPutLeverages(
+        event.target.value[event.target.value.length - 1],
+        0
+      );
+    },
+    [handleSelectCallLeverages, handleSelectPutLeverages]
+  );
 
   const vaultShare: number = useMemo(() => {
     return totalDepositAmount > 0
@@ -421,15 +430,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     } catch (err) {
       console.log(err);
     }
-  }, [
-    depositTokenName,
-    sendTx,
-    signer,
-    spender,
-    contractAddresses,
-    activeVaultContextSide,
-    depositTokenName,
-  ]);
+  }, [depositTokenName, sendTx, signer, spender, contractAddresses]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -456,14 +457,12 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     signer,
     updateAssetBalances,
     selectedStrikeIndexes,
-    selectedCallLeverages,
-    selectedPutLeverages,
-    strikeDepositAmounts,
     accountAddress,
-    depositTokenName,
     rateVaultContext,
-    chainId,
     depositTokenName,
+    contractReadableStrikeDepositAmounts,
+    selectedCallLeveragesIndexes,
+    selectedPutLeveragesIndexes,
   ]);
 
   const checkDEXAggregatorStatus = useCallback(async () => {
@@ -535,6 +534,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     userAssetBalances,
     ssovTokenName,
     provider,
+    contractAddresses,
   ]);
 
   const userBalance = useMemo(() => {
@@ -547,15 +547,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
           )
         : BigNumber.from('0');
     }
-  }, [
-    purchasePower,
-    denominationTokenName,
-    ssovTokenName,
-    userAssetBalances,
-    depositTokenName,
-    activeVaultContextSide,
-    chainId,
-  ]);
+  }, [userAssetBalances, depositTokenName, chainId]);
 
   return (
     <Box

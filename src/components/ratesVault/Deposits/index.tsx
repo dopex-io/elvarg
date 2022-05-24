@@ -217,8 +217,7 @@ const ROWS_PER_PAGE = 5;
 
 const Deposits = () => {
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, chainId, ensName, signer } =
-    useContext(WalletContext);
+  const { accountAddress, ensName } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
 
   const { selectedEpoch, rateVaultUserData } = rateVaultContext;
@@ -345,11 +344,9 @@ const Deposits = () => {
   }, [
     withdrawData,
     selectedEpoch,
-    signer,
     updateAssetBalances,
     accountAddress,
     rateVaultContract,
-    chainId,
     rateVaultContext,
   ]);
 

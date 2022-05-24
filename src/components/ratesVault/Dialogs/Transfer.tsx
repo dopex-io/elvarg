@@ -96,13 +96,12 @@ const Transfer = ({
     updateAssetBalances();
     updateRateVaultUserData();
   }, [
-    accountAddress,
     recipient,
     signer,
-    sendTx,
     transferAmount,
     updateAssetBalances,
     updateRateVaultUserData,
+    tokenAddressToTransfer,
   ]);
 
   return (
