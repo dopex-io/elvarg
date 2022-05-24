@@ -141,7 +141,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     );
 
     return leverages;
-  }, [rateVaultContext, activeVaultContextSide]);
+  }, [rateVaultContext]);
 
   const isLeverageOk: boolean = useMemo(() => {
     for (let i in selectedCallLeverages)
@@ -230,7 +230,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
   const spender = useMemo(() => {
     return '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a';
-  }, [depositTokenName]);
+  }, []);
 
   const quotePrice: number = useMemo(() => {
     if (!quote['toTokenAmount']) return 0;
@@ -381,19 +381,6 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     );
   };
 
-  const getPath = useCallback(async () => {}, [
-    chainId,
-    isZapActive,
-    quote,
-    slippageTolerance,
-    spender,
-    ssovTokenName,
-    denominationTokenName,
-    totalDepositAmount,
-    quotePrice,
-    depositTokenName,
-  ]);
-
   const inputStrikeDepositAmount = useCallback(
     (
       index: number,
@@ -442,20 +429,6 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     contractAddresses,
     activeVaultContextSide,
     depositTokenName,
-  ]);
-
-  const handlePutDeposit = useCallback(async () => {}, [
-    contractAddresses,
-    accountAddress,
-    contractReadableStrikeDepositAmounts,
-    depositTokenName,
-    selectedStrikeIndexes,
-    sendTx,
-    signer,
-    strikeDepositAmounts,
-    totalDepositAmount,
-    updateAssetBalances,
-    chainId,
   ]);
 
   // Handle Deposit
@@ -509,10 +482,6 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   useEffect(() => {
     checkDEXAggregatorStatus();
   }, [checkDEXAggregatorStatus]);
-
-  useEffect(() => {
-    getPath();
-  }, [getPath]);
 
   // Updates approved state
   useEffect(() => {
@@ -998,13 +967,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
                 path['error'] ||
                 !isLeverageOk
               }
-              onClick={
-                approved
-                  ? activeVaultContextSide === 'PUT'
-                    ? handlePutDeposit
-                    : handleDeposit
-                  : handleApprove
-              }
+              onClick={approved ? handleDeposit : handleApprove}
             >
               {isVaultReady && (
                 <Countdown
