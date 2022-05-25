@@ -929,16 +929,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
                 </Typography>
               ) : (
                 <Typography variant="h6" className="text-stieglitz">
-                  Withdrawals are locked until end of Epoch {selectedEpoch}{' '}
-                  {'   '}
-                  <span className="text-white">
-                    {epochTimes[1].gt(BigNumber.from('0'))
-                      ? format(
-                          new Date(epochTimes[1].toNumber() * 1000),
-                          'd LLLL yyyy'
-                        )
-                      : ''}
-                  </span>
+                  Withdrawals are locked until end of epoch
                 </Typography>
               )}
             </Box>
