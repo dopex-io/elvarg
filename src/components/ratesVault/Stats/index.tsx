@@ -167,7 +167,7 @@ const Stats = ({
               <Tooltip title={'Not implemented yet'}>
                 <Box className="flex mb-1">
                   <Typography variant="h5" className="text-stieglitz">
-                    Current MIM-3CRV rate
+                    Current MIM3CRV rate
                   </Typography>
                   <Typography variant="h5" className="mr-1 ml-auto text-white">
                     <span>
