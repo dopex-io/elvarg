@@ -15,6 +15,12 @@ const Description = () => {
         >
           MIM3CRV Interest Rate Vaults
         </Typography>
+        <Typography
+          variant="h3"
+          className="mt-8 ml-6 mb-6 h-10 flex text-lg items-center space-x-3 border border-primary py-1 px-2 rounded-md"
+        >
+          BETA
+        </Typography>
       </Box>
       <Typography variant="h4" className="text-stieglitz mt-6 mb-6">
         This vault accepts MIM3CRV LP deposits and lets users write Interest
