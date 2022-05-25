@@ -122,7 +122,9 @@ const PurchaseCard = ({
   }, [rateVaultEpochData, strikeIndex, activeVaultContextSide]);
 
   const optionsAmount: number = useMemo(() => {
-    return notionalSize / getUserReadableAmount(optionPrice, 18);
+    return optionPrice.gt(0)
+      ? notionalSize / getUserReadableAmount(optionPrice, 18)
+      : 0;
   }, [notionalSize, optionPrice]);
 
   const totalCost: BigNumber = useMemo(() => {
