@@ -125,7 +125,7 @@ const Manage = () => {
 
   useEffect(() => {
     token && formik.setFieldValue('token', token);
-  }, [token]);
+  }, [token, formik]);
 
   useEffect(() => {
     (async function () {
@@ -278,7 +278,7 @@ const Manage = () => {
       formik.setFieldValue('token', e.target.value);
       formik.setFieldValue('amount', BigNumber.from(0));
     },
-    [formik]
+    [formik, router]
   );
 
   const deposit = useMemo(() => {
