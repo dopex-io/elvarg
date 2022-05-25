@@ -126,7 +126,10 @@ const PurchaseCard = ({
   }, [notionalSize, optionPrice]);
 
   const totalCost: BigNumber = useMemo(() => {
-    return optionPrice.mul(BigNumber.from(Math.round(optionsAmount)));
+    let amount: number = Math.round(optionsAmount);
+    return Number.isFinite(amount)
+      ? optionPrice.mul(BigNumber.from(amount))
+      : BigNumber.from('0');
   }, [optionPrice, optionsAmount]);
 
   const fees: BigNumber = useMemo(() => {
@@ -385,7 +388,7 @@ const PurchaseCard = ({
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-10">
-              <img src={'/assets/2crv.svg'} alt={'2CRV'} />
+              <img src={'/images/tokens/crv.svg'} alt={'2CRV'} />
             </Box>
           </Box>
           <Input
