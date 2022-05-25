@@ -1,6 +1,7 @@
 // @ts-nocheck TODO: FIX
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { ERC20__factory, StakingRewards__factory } from '@dopex-io/sdk';
 import Link from 'next/link';
 import { useFormik } from 'formik';
@@ -62,8 +63,8 @@ const Manage = () => {
     setStakingAsset,
     setPool,
   } = useContext(FarmingContext);
-
   const sendTx = useSendTx();
+  const router = useRouter();
 
   const validationSchema = yup.object({
     amount: yup
@@ -121,6 +122,10 @@ const Manage = () => {
     if (!selectedToken) return 0;
     return selectedToken.userAssetBalance;
   }, [selectedToken]);
+
+  useEffect(() => {
+    token && formik.setFieldValue('token', token);
+  }, [token]);
 
   useEffect(() => {
     (async function () {
@@ -263,6 +268,13 @@ const Manage = () => {
 
   const onStakingAssetChange = useCallback(
     (e) => {
+      router.push({
+        pathname: '/farms/manage/[action]/[token]',
+        query: {
+          action: router.query.action,
+          token: e.target.value,
+        },
+      });
       formik.setFieldValue('token', e.target.value);
       formik.setFieldValue('amount', BigNumber.from(0));
     },
