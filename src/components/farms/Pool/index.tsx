@@ -82,7 +82,13 @@ const Pool = ({
       token: token.selectedBaseAsset,
       isStake: true,
     }));
-    router.push('/farms/manage');
+    router.push({
+      pathname: '/farms/manage/[action]/[token]',
+      query: {
+        action: 'stake',
+        token: token.selectedBaseAsset,
+      },
+    });
   }, [setData, token, router]);
 
   const handleUnstake = useCallback(() => {
@@ -90,7 +96,13 @@ const Pool = ({
       token: token.selectedBaseAsset,
       isStake: false,
     }));
-    router.push('/farms/manage');
+    router.push({
+      pathname: '/farms/manage/[action]/[token]',
+      query: {
+        action: 'unstake',
+        token: token.selectedBaseAsset,
+      },
+    });
   }, [setData, token, router]);
 
   const handleCompound = useCallback(async () => {
@@ -309,7 +321,6 @@ const Pool = ({
                   className="w-full lg:w-52"
                   onClick={() => {
                     handleStake();
-                    router.push('/farms/manage');
                   }}
                 >
                   {stakingAsset === 'RDPX' ? 'Unstake' : 'Stake'}
