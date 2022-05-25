@@ -23,7 +23,7 @@ const SelectMenuClasses = {
   select: 'overflow-hidden',
 };
 
-const SUPPORTED_TOKENS = ['2CRV', 'USDC', 'USDT'];
+const SUPPORTED_TOKENS = ['2CRV'];
 
 const Curve2PoolDepositSelector = ({
   depositTokenName,

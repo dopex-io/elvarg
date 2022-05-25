@@ -36,22 +36,6 @@ const Curve2PoolSelector = ({
         >
           2CRV
         </ToggleButton>
-        <ToggleButton
-          value="USDC"
-          aria-label="USDC"
-          className="text-white"
-          color="primary"
-        >
-          USDC
-        </ToggleButton>
-        <ToggleButton
-          value="USDT"
-          aria-label="USDT"
-          className="text-white"
-          color="primary"
-        >
-          USDT
-        </ToggleButton>
       </ToggleButtonGroup>
     </Box>
   );
