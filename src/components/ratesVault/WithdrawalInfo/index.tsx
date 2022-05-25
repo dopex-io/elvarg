@@ -8,10 +8,9 @@ const WithdrawalInfo = () => {
         Withdrawals
       </Typography>
       <Typography variant="h4" className="text-stieglitz mt-3">
-        At the end of every epoch, users can withdraw any excess funds from the
-        volume pool - however they would have to pay a 1% penalty at withdrawal
-        for non-usage of funds. All penalties are withdraw-able by DPX
-        governance token holders in the form of protocol fees.
+        At the end of every epoch, users can withdraw their deposits with the
+        premiums they have accrued, yield rewards from the Curve USDT/USDC 2Pool
+        and any loss of collateral if the options expire ITM.
       </Typography>
     </Box>
   );
