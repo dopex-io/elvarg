@@ -609,9 +609,11 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
                 variant="h6"
                 className="text-white ml-auto mr-0 text-[0.72rem]"
               >
-                {userBalance + ' ' + activeVaultContextSide === 'PUT'
-                  ? depositTokenName
-                  : denominationTokenName}
+                {userBalance +
+                  ' ' +
+                  (activeVaultContextSide === 'PUT'
+                    ? depositTokenName
+                    : denominationTokenName)}
               </Typography>
               {isZapActive ? <ZapIcon className={'mt-1 ml-2'} id="4" /> : null}
             </Box>
