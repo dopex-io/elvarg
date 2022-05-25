@@ -69,7 +69,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
             className={'bg-[#2D2D2D] rounded-md mr-3 custom-select-no-border'}
           >
             <Select
-              value={selectedEpoch}
+              value={Math.max(selectedEpoch, 1)}
               onChange={handleSelectChange}
               className="text-stieglitz"
               MenuProps={{

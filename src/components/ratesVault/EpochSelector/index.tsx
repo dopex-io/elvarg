@@ -56,7 +56,7 @@ export default function EpochSelector({
       <FormControl>
         <Box className="text-white">
           <Select
-            value={Math.min(selectedEpoch, 1)}
+            value={Math.max(selectedEpoch, 1)}
             onChange={handleSelectChange}
             className="text-white bg-umbra p-0 rounded-lg"
             MenuProps={{
