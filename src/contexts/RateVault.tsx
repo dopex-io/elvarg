@@ -1652,6 +1652,7 @@ export interface RateVaultEpochData {
   putsLeverages: BigNumber[];
   callsToken: string[];
   putsToken: string[];
+  isBootstrapped: boolean;
   epochStrikeCallsPremium: BigNumber[];
   epochStrikePutsPremium: BigNumber[];
   curveLpPrice: BigNumber;
@@ -1796,7 +1797,7 @@ export const RateVault = () => {
           userEpochStrikeDepositsPromises
         );
 
-        _userEpochStrikeDeposits.map((record) =>
+        _userEpochStrikeDeposits.map((record) => {
           userEpochStrikeDeposits.push({
             // @ts-ignore TODO: FIX
             amount: record.deposits.amount,
@@ -1806,8 +1807,8 @@ export const RateVault = () => {
             putLeverageIndex: Number(j),
             strike: record.strike,
             strikeIndex: record.strikeIndex,
-          })
-        );
+          });
+        });
       }
     }
 
@@ -2051,6 +2052,7 @@ export const RateVault = () => {
         callsLeverages: callsLeverages,
         putsLeverages: putsLeverages,
         callsToken: epochCallsStrikeTokens,
+        isBootstrapped: epochCallsStrikeTokens.length > 0,
         putsToken: epochPutsStrikeTokens,
         epochStrikeCallsPremium: promises[3][0],
         epochStrikePutsPremium: promises[3][1],
@@ -2102,6 +2104,7 @@ export const RateVault = () => {
         putsLeverages: [],
         callsToken: [],
         putsToken: [],
+        isBootstrapped: false,
         epochStrikeCallsPremium: [
           BigNumber.from('0'),
           BigNumber.from('0'),

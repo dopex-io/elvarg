@@ -48,6 +48,7 @@ const DepositsTableData = (
     price: number;
     epochTime: number;
     epochEndTime: Date;
+    isBootstrapped: boolean;
   }
 ) => {
   const {
@@ -59,6 +60,7 @@ const DepositsTableData = (
     epochTime,
     epochEndTime,
     handleWithdraw,
+    isBootstrapped,
   } = props;
 
   const isTotalCallUserDepositsEmpty: boolean = useMemo(() => {
@@ -73,7 +75,8 @@ const DepositsTableData = (
     return (
       new Date() > epochEndTime &&
       epochTime != 0 &&
-      !isTotalCallUserDepositsEmpty
+      !isTotalCallUserDepositsEmpty &&
+      isBootstrapped
     );
   }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime]);
 
@@ -176,11 +179,11 @@ const DepositsTableData = (
             'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
             !isWithdrawalEnabled
               ? 'bg-umbra hover:bg-cod-gray'
-              : 'bg-primary hover:bg-primary text-white '
+              : 'bg-primary hover:bg-primary text-white'
           )}
           disabled={!isWithdrawalEnabled}
         >
-          {isWithdrawalEnabled ? (
+          {isWithdrawalEnabled || !isBootstrapped ? (
             'Withdraw'
           ) : (
             <Countdown
@@ -282,7 +285,7 @@ const Deposits = () => {
         ? totalPremiums?.mul(totalUserDeposits).div(totalDeposits)
         : BigNumber.from('0');
 
-      if (!('strikeIndex' in _deposits)) {
+      if (!(strikeIndex in _deposits)) {
         _deposits[strikeIndex] = {
           strikePrice: strikePrice,
           totalUserPremiums: totalUserPremiums?.toNumber(),
@@ -406,6 +409,9 @@ const Deposits = () => {
                         epochEndTime={epochEndTime}
                         imgSrc={'mim.svg'}
                         tokenSymbol={'2CRV'}
+                        isBootstrapped={
+                          rateVaultContext.rateVaultEpochData.isBootstrapped
+                        }
                       />
                     );
                   })}
