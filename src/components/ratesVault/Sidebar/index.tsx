@@ -244,11 +244,11 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
             className={'cursor-pointer'}
             href={`${getExplorerUrl(
               chainId
-            )}/address/${'0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a'}`}
+            )}/address/${'0x602B9f9B7126DEce2b9a589B49Fe5947c903A156'}`}
           >
             <Typography variant="h5" className="text-white text-[11px]">
               {displayAddress(
-                '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a',
+                '0x602B9f9B7126DEce2b9a589B49Fe5947c903A156',
                 undefined
               )}
             </Typography>

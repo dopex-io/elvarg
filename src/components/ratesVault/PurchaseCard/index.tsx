@@ -172,7 +172,7 @@ const PurchaseCard = ({
   }, [purchaseTokenName, activeVaultContextSide]);
 
   const spender = useMemo(() => {
-    return '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a';
+    return '0x602B9f9B7126DEce2b9a589B49Fe5947c903A156';
   }, []);
 
   const purchasePower: number = useMemo(() => {

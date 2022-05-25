@@ -1713,7 +1713,7 @@ export const RateVault = () => {
     useState<RateVaultUserData>();
   const rateVaultContract = useMemo(() => {
     return new ethers.Contract(
-      '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a',
+      '0x602B9f9B7126DEce2b9a589B49Fe5947c903A156',
       abi,
       signer
     );
@@ -2122,7 +2122,7 @@ export const RateVault = () => {
 
   useEffect(() => {
     async function update() {
-      const rateVaultAddresses = '0xB3888562628B0C056a8b7619cE6d5bc5480Eb38a';
+      const rateVaultAddresses = '0x602B9f9B7126DEce2b9a589B49Fe5947c903A156';
 
       const _rateVaultContract = new ethers.Contract(
         rateVaultAddresses,

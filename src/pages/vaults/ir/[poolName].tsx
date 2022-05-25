@@ -1,6 +1,6 @@
-import { useContext, useState, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useContext, useState, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
@@ -22,8 +22,9 @@ import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
 const Manage = () => {
+  const router = useRouter();
+  const { poolName } = router.query;
   const { accountAddress, connect } = useContext(WalletContext);
-  const params = useParams();
   const rateVaultContext = useContext(RateVaultContext);
   const { setSelectedPoolName } = rateVaultContext;
   const [activeVaultContextSide, setActiveVaultContextSide] =
@@ -31,11 +32,6 @@ const Manage = () => {
   const [activeView, setActiveView] = useState<string>('vault');
   const [strikeIndex, setStrikeIndex] = useState<number>(0);
   const showWithdrawalInformation: boolean = true;
-
-  const poolName = useMemo(() => {
-    // @ts-ignore
-    return params['poolName'];
-  }, [params]);
 
   useEffect(() => {
     if (!accountAddress) connect();
