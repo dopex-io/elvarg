@@ -404,7 +404,7 @@ const Deposits = () => {
                         strikeIndex={Number(strikeIndex)}
                         price={price}
                         epochEndTime={epochEndTime}
-                        imgSrc={'ir.svg'}
+                        imgSrc={'mim.svg'}
                         tokenSymbol={'2CRV'}
                       />
                     );
