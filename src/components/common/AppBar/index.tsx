@@ -123,7 +123,7 @@ interface AppBarProps {
     | 'portfolio'
     | 'token sale'
     | 'faucet'
-    | 'rate vaults'
+    | 'Rate Vaults'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
