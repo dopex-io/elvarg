@@ -50,6 +50,8 @@ export interface Props {
   setStrikeIndex: Function;
 }
 
+const now = new Date();
+
 const PurchaseCard = ({
   activeVaultContextSide,
   strikeIndex,
@@ -503,7 +505,9 @@ const PurchaseCard = ({
               </Box>
               <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
                 <Typography variant="h5" className="text-white pb-1 pr-2">
-                  {format(epochEndTime, 'd LLL yyyy')}
+                  {epochEndTime > now
+                    ? format(epochEndTime, 'd LLL yyyy')
+                    : '-'}
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
                   Expiry
