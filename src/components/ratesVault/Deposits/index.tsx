@@ -11,7 +11,10 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
+import Skeleton from '@mui/material/Skeleton';
 import isEmpty from 'lodash/isEmpty';
+import range from 'lodash/range';
+
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
@@ -418,10 +421,16 @@ const Deposits = () => {
                 </TableBody>
               </Table>
             ) : (
-              <Box className="text-center">
-                <Typography variant="h6" className="text-stieglitz mt-20">
-                  Your deposits will appear here
-                </Typography>
+              <Box className="border-4 border-umbra rounded-lg p-3 mb-2">
+                {range(3).map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    variant="text"
+                    animation="wave"
+                    height={60}
+                    className="bg-umbra"
+                  />
+                ))}
               </Box>
             )}
           </TableContainer>
