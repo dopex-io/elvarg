@@ -1,6 +1,4 @@
-// @ts-nocheck TODO: FIX
-
-import { useCallback } from 'react';
+import { Dispatch, SetStateAction, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
@@ -8,11 +6,34 @@ import Select from '@mui/material/Select';
 
 import Typography from 'components/UI/Typography';
 
+const SelectMenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: 324,
+      width: 250,
+    },
+  },
+  classes: {
+    paper: 'bg-mineshaft',
+  },
+};
+
+const SelectMenuClasses = {
+  icon: 'absolute right-1 text-white scale-x-75',
+  select: 'overflow-hidden',
+};
+
+const SUPPORTED_TOKENS = ['2CRV', 'USDC', 'USDT'];
+
 const Curve2PoolDepositSelector = ({
   depositTokenName,
   setDepositTokenName,
+}: {
+  depositTokenName: string;
+  setDepositTokenName: Dispatch<SetStateAction<string>>;
 }) => {
   const handleSelectChange = useCallback(
+    // @ts-ignore TODO: FIX
     (e) => setDepositTokenName(e.target.value.toString()),
     [setDepositTokenName]
   );
