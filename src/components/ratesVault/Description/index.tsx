@@ -13,13 +13,12 @@ const Description = () => {
           variant="h3"
           className="ml-5 flex items-center space-x-3 lg:text-4xl"
         >
-          2Pool Interest Rate Vaults
+          MIM3CRV Interest Rate Vaults
         </Typography>
       </Box>
       <Typography variant="h4" className="text-stieglitz mt-6 mb-6">
-        <span className="text-white mr-2">2Pool</span>
-        accepts 2Pool LP deposits and lets users write Interest Rate options
-        that allows for bet/hedge on the underlying interest rate.
+        This vault accepts MIM3CRV LP deposits and lets users write Interest
+        Rate options that allows for bet/hedge on the underlying interest rate.
       </Typography>
     </Box>
   );
