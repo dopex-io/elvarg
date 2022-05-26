@@ -6,28 +6,18 @@ import { Dispatch, SetStateAction } from 'react';
 
 const Curve2PoolSelector = ({
   token,
-  setToken,
   className,
   isPurchasing = false,
 }: {
   token: string;
-  setToken: Dispatch<SetStateAction<string>>;
+  setToken?: Dispatch<SetStateAction<string>>;
   className: string;
   isPurchasing: boolean;
 }) => {
-  const handleToken = (_event: any, newToken: SetStateAction<string>) => {
-    setToken(newToken);
-  };
-
   return (
     <Box className={cx('flex space-x-2 items-center text-white', className)}>
       <Box>{isPurchasing ? 'Purchase' : 'Deposit'} using </Box>
-      <ToggleButtonGroup
-        value={token}
-        exclusive
-        onChange={handleToken}
-        aria-label="text alignment"
-      >
+      <ToggleButtonGroup value={token} exclusive aria-label="text alignment">
         <ToggleButton
           value="2CRV"
           aria-label="2CRV"
