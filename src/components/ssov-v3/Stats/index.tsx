@@ -57,7 +57,7 @@ const StatsTableData = (
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
-              src={`/assets/${underlyingSymbol.toLowerCase()}.svg`}
+              src={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
               alt={underlyingSymbol}
             />
           </Box>

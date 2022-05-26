@@ -4,21 +4,25 @@ import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
 import Description from 'components/ssov-v3/Description';
-import ManageCard from 'components/ssov-v3/ManageCard';
+import DepositPanel from 'components/ssov-v3/DepositPanel';
 import ExerciseList from 'components/ssov-v3/ExerciseList';
 import Stats from 'components/ssov-v3/Stats';
 import PageLoader from 'components/common/PageLoader';
+import Typography from 'components/UI/Typography';
 
 import { SsovV3Context } from 'contexts/SsovV3';
+import { WalletContext } from 'contexts/Wallet';
 import WritePositions from 'components/ssov-v3/WritePositions';
+
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 const Manage = (props: { ssov: string }) => {
   const { ssov } = props;
   const { ssovData, ssovEpochData, ssovUserData, setSelectedSsovV3 } =
     useContext(SsovV3Context);
+  const { chainId } = useContext(WalletContext);
 
   useEffect(() => {
-    // @ts-ignore TODO: FIX
     setSelectedSsovV3(ssov);
   }, [ssov, setSelectedSsovV3]);
 
@@ -39,17 +43,34 @@ const Manage = (props: { ssov: string }) => {
         <Box className="flex flex-col mt-20">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
             <Description ssovData={ssovData} ssovEpochData={ssovEpochData} />
-            <ManageCard />
+            <DepositPanel />
           </Box>
-          <Stats />
-          <br />
+          <Stats className="mb-4" />
           {ssovUserData === undefined ? null : (
             <>
-              <WritePositions />
-              <br />
+              <WritePositions className="mb-4" />
               <ExerciseList />
             </>
           )}
+        </Box>
+        <Box className="flex justify-center space-x-2 my-8">
+          <Typography variant="h5" className="text-silver">
+            Contract Address:
+          </Typography>
+          <Typography
+            variant="h5"
+            className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
+          >
+            <a
+              href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
+                ssovData?.ssovContract?.address ?? ''
+              }`}
+              rel="noopener noreferrer"
+              target={'_blank'}
+            >
+              {ssovData?.ssovContract?.address}
+            </a>
+          </Typography>
         </Box>
       </Box>
     </Box>

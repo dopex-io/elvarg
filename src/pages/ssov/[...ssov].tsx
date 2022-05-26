@@ -8,9 +8,13 @@ import ManageCard from 'components/ssov/ManageCard';
 import ExerciseList from 'components/ssov/ExerciseList';
 import Stats from 'components/ssov/Stats';
 import PageLoader from 'components/common/PageLoader';
+import Typography from 'components/UI/Typography';
 
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
+import { WalletContext } from 'contexts/Wallet';
+
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 interface Props {
   type: string;
@@ -22,10 +26,10 @@ const Manage = ({ type, name }: Props) => {
     ssovData,
     ssovEpochData,
     ssovUserData,
-    // @ts-ignore TODO: FIX
     setSelectedSsov,
     selectedSsov,
   } = useContext(SsovContext);
+  const { chainId } = useContext(WalletContext);
 
   useEffect(() => {
     // @ts-ignore TODO: FIX
@@ -59,18 +63,31 @@ const Manage = ({ type, name }: Props) => {
             <ManageCard />
           </Box>
           {ssovUserData === undefined ? null : <ExerciseList />}
-          {
-            // @ts-ignore TODO: FIX
-            selectedSsov.type === 'PUT' ? null : <Stats className="mt-4" />
-          }
+          {selectedSsov?.type === 'PUT' ? null : <Stats className="mt-4" />}
+        </Box>
+        <Box className="flex justify-center space-x-2 my-8">
+          <Typography variant="h5" className="text-silver">
+            Contract Address:
+          </Typography>
+          <Typography
+            variant="h5"
+            className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
+          >
+            <a
+              href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${ssovData.ssovContract.address}`}
+              rel="noopener noreferrer"
+              target={'_blank'}
+            >
+              {ssovData.ssovContract.address}
+            </a>
+          </Typography>
         </Box>
       </Box>
     </Box>
   );
 };
 
-// @ts-ignore TODO: FIX
-const ManagePage = ({ type, name }) => {
+const ManagePage = ({ type, name }: { type: string; name: string }) => {
   return (
     <BnbConversionProvider>
       <SsovProvider>
@@ -80,8 +97,9 @@ const ManagePage = ({ type, name }) => {
   );
 };
 
-// @ts-ignore TODO: FIX
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: {
+  query: { ssov: { type: string; name: string }[] };
+}) {
   return {
     props: {
       type: context.query.ssov[0],

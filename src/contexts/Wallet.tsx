@@ -73,6 +73,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
+  '/vaults/ir/MIM3CRV': { default: 42161, all: [42161] },
 };
 
 let web3Modal: Web3Modal | undefined;
@@ -173,7 +174,8 @@ export const WalletProvider = (props: { children: ReactNode }) => {
 
       if (
         PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId)
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&
+        PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length !== 0
       ) {
         setState((prevState: any) => ({
           ...prevState,

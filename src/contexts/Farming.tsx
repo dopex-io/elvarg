@@ -1,5 +1,12 @@
 // @ts-nocheck TODO: FIX
-import { createContext, useState, useContext, useCallback } from 'react';
+import {
+  createContext,
+  useState,
+  useContext,
+  useCallback,
+  useEffect,
+} from 'react';
+import { useRouter } from 'next/router';
 import {
   ERC20__factory,
   StakingRewards__factory,
@@ -32,10 +39,16 @@ export const FarmingProvider = (props) => {
   const { provider, accountAddress, contractAddresses, chainId } =
     useContext(WalletContext);
 
-  const [data, setData] = useState({
-    token: null,
-    isStake: null,
-  });
+  const router = useRouter();
+
+  const [data, setData] = useState({});
+
+  useEffect(() => {
+    setData({
+      token: router.query.token || null,
+      isStake: router.query.action === 'stake',
+    });
+  }, [router]);
 
   const [legacyFarmBalance, setLegacyFarmBalance] = useState(BigNumber.from(0));
 
@@ -98,6 +111,7 @@ export const FarmingProvider = (props) => {
   const setPool = useCallback(
     async (token) => {
       if (chainId === 1) return;
+
       if (!contractAddresses || !ethPriceFinal || !provider) return;
 
       const tokenAddress = contractAddresses[token.toUpperCase()];
@@ -343,7 +357,6 @@ export const FarmingProvider = (props) => {
   const setStakingAsset = useCallback(
     async (token) => {
       if (!accountAddress || !contractAddresses || !provider) return;
-
       const tokenAddress = contractAddresses[token.toUpperCase()];
 
       const selectedBaseAssetContract = ERC20__factory.connect(

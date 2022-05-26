@@ -382,8 +382,9 @@ const PurchaseDialog = ({
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-10">
               <img
-                // @ts-ignore TODO: FIX
-                src={`/assets/${ssovData.underlyingSymbol.toLowerCase()}.svg`}
+                src={`/images/tokens/${
+                  ssovData?.underlyingSymbol?.toLowerCase() || 'unknown'
+                }.svg`}
                 alt={ssovTokenName}
               />
             </Box>

@@ -71,7 +71,7 @@ function SsovCard(props) {
         )}`,
         imgSrc:
           type === 'put'
-            ? '/assets/2crv.png'
+            ? '/images/tokens/2crv.png'
             : SSOV_MAP[name]
             ? SSOV_MAP[name].imageSrc
             : '',
