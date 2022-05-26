@@ -255,6 +255,7 @@ const Manage = () => {
   }, [setData, formik]);
 
   const handleMax = useCallback(() => {
+    if (!userBalance || !selectedToken.userStakedBalance || !formik) return;
     if (isStake) {
       formik.setFieldValue('amount', userBalance);
     } else {
