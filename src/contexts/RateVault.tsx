@@ -9,11 +9,7 @@ import {
   ReactFragment,
   ReactPortal,
 } from 'react';
-import {
-  VolatilityOracle,
-  SSOVOptionPricing,
-  ERC20__factory,
-} from '@dopex-io/sdk';
+import { VolatilityOracle, SSOVOptionPricing } from '@dopex-io/sdk';
 
 import { BigNumber, ethers } from 'ethers';
 
@@ -1885,13 +1881,15 @@ export const RateVault = () => {
     );
   }, [rateVaultContract, selectedEpoch]);
 
-  const getTotalStrikeDeposits = useCallback(
-    async (tokenAddress: string) => {
+  const getTotalStrikeData = useCallback(
+    async (strike: BigNumber) => {
       try {
-        return await ERC20__factory.connect(tokenAddress, provider).balanceOf(
-          rateVaultContract.address
+        return await rateVaultContract['totalStrikeData'](
+          Math.max(selectedEpoch || 0, 1),
+          strike
         );
       } catch (err) {
+        console.log(err);
         return BigNumber.from('0');
       }
     },
@@ -1960,12 +1958,11 @@ export const RateVault = () => {
         Math.max(selectedEpoch, 1)
       );
 
-      const callsDepositsPromises = [];
-      const putsDepositsPromises = [];
       const callsPremiumCostsPromises = [];
       const putsPremiumCostsPromises = [];
       const callsFeesPromises = [];
       const putsFeesPromises = [];
+      const totalStrikesDataPromises = [];
       const curveLpPrice = await rateVaultContract['getLpPrice']();
       const rate = await getCurrentRate();
       const volatilitiesPromises = [];
@@ -1973,12 +1970,6 @@ export const RateVault = () => {
       for (let i in epochStrikes) {
         volatilitiesPromises.push(
           rateVaultContract['getVolatility'](epochStrikes[i])
-        );
-        callsDepositsPromises.push(
-          getTotalStrikeDeposits(epochCallsStrikeTokens[i])
-        );
-        putsDepositsPromises.push(
-          getTotalStrikeDeposits(epochPutsStrikeTokens[i])
         );
         callsPremiumCostsPromises.push(
           calculatePremium(epochStrikes[i], false)
@@ -1991,11 +1982,11 @@ export const RateVault = () => {
         putsFeesPromises.push(
           calculatePurchaseFee(rate, epochStrikes[i], true)
         );
+        totalStrikesDataPromises.push(getTotalStrikeData(epochStrikes[i]));
       }
 
       const volatilities = await Promise.all(volatilitiesPromises);
-      const callsDeposits = await Promise.all(callsDepositsPromises);
-      const putsDeposits = await Promise.all(putsDepositsPromises);
+      const totalStrikesData = await Promise.all(totalStrikesDataPromises);
       const callsPremiumCosts = await Promise.all(callsPremiumCostsPromises);
       const putsPremiumCosts = await Promise.all(putsPremiumCostsPromises);
       const callsFees = await Promise.all(callsFeesPromises);
@@ -2012,12 +2003,17 @@ export const RateVault = () => {
         totalPutsPremiums = totalPutsPremiums.add(promises[3][1][i]);
       }
 
-      const callsCosts = [];
-      const putsCosts = [];
+      const callsCosts: BigNumber[] = [];
+      const putsCosts: BigNumber[] = [];
+      const callsDeposits: BigNumber[] = [];
+      const putsDeposits: BigNumber[] = [];
 
       for (let i in callsPremiumCosts) {
         callsCosts.push(callsPremiumCosts[i].add(callsFees[i]));
         putsCosts.push(putsPremiumCosts[i].add(putsFees[i]));
+
+        callsDeposits.push(totalStrikesData[i].totalCallsStrikeDeposits);
+        putsDeposits.push(totalStrikesData[i].totalPutsStrikeDeposits);
       }
 
       setRateVaultEpochData({
