@@ -124,6 +124,11 @@ const Manage = () => {
   }, [selectedToken]);
 
   useEffect(() => {
+    token && formik.setFieldValue('token', token);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  useEffect(() => {
     (async function () {
       await Promise.all([
         setPool('DPX'),
