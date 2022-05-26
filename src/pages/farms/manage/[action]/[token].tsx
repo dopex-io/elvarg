@@ -124,10 +124,6 @@ const Manage = () => {
   }, [selectedToken]);
 
   useEffect(() => {
-    token && formik.setFieldValue('token', token);
-  }, [token, formik]);
-
-  useEffect(() => {
     (async function () {
       await Promise.all([
         setPool('DPX'),
