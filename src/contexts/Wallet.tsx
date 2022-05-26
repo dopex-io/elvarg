@@ -14,6 +14,7 @@ import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import { CHAIN_ID_TO_RPC } from 'constants/index';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -33,9 +34,6 @@ interface WalletContextInterface {
   supportedChainIds: number[];
   changeNetwork?: 'user' | 'wrong-network' | 'close';
 }
-
-const DEFAULT_CHAIN_ID =
-  Number(process.env['NEXT_PUBLIC_DEFAULT_CHAIN_ID']) ?? 42161;
 
 const _Addresses = Addresses as unknown as { [key: string]: any };
 
