@@ -255,6 +255,7 @@ const Manage = () => {
   }, [setData, formik]);
 
   const handleMax = useCallback(() => {
+    if (!userBalance || !selectedToken.userStakedBalance || !formik) return;
     if (isStake) {
       formik.setFieldValue('amount', userBalance);
     } else {
@@ -454,7 +455,7 @@ const Manage = () => {
             className="mb-4"
           />
           <FormHelperText className="text-right mt-1 mb-2 text-red-400">
-            {formik.touched.amount ? String(formik.errors.amount) : null}
+            {formik.errors.amount && String(formik.errors.amount)}
           </FormHelperText>
           <Box className="lg:w-96 border-umbra rounded-xl border p-4 flex flex-col mb-4">
             <Box className="flex flex-col mb-2">
