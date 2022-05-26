@@ -31,7 +31,7 @@ const initKeysToVal = (arr: Array<string>, val: any) => {
   }, {});
 };
 
-export const CHAIN_ID_TO_NATIVE = {
+export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
   42161: 'ETH',
   56: 'BNB',
   43114: 'AVAX',
