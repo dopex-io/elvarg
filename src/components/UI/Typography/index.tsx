@@ -4,25 +4,33 @@ import Box, { BoxProps } from '@mui/material/Box';
 
 interface TypographyProps extends BoxProps {
   variant: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'caption';
+  color?: string;
 }
 
 const CLASSES = {
-  h1: 'text-4xl text-white',
-  h2: 'text-3xl text-white',
-  h3: 'text-2xl text-white',
-  h4: 'text-xl text-white',
-  h5: 'text-base text-white',
-  h6: 'text-sm text-white',
-  caption: 'text-xs text-white',
+  h1: 'text-4xl',
+  h2: 'text-3xl',
+  h3: 'text-2xl',
+  h4: 'text-xl',
+  h5: 'text-base',
+  h6: 'text-sm',
+  caption: 'text-xs',
 };
 
 const Typography: FC<TypographyProps> = (props) => {
-  const { children, variant, component, className, ...otherProps } = props;
+  const {
+    children,
+    variant,
+    component,
+    className,
+    color = 'white',
+    ...otherProps
+  } = props;
 
   return (
     <Box
-      component={component || variant}
-      className={cx(CLASSES[variant], className)}
+      component={component || 'div'}
+      className={cx(CLASSES[variant], `text-${color}`, className)}
       {...otherProps}
     >
       {children}
