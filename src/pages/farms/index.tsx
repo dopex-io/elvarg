@@ -11,7 +11,7 @@ import ManageDialog, {
 } from 'components/farms/ManageDialog';
 
 import { WalletContext } from 'contexts/Wallet';
-import { Farm, FarmingContext, FarmingProvider, FARMS } from 'contexts/Farming';
+import { FarmingContext, FarmingProvider, FARMS } from 'contexts/Farming';
 import Typography from 'components/UI/Typography';
 import ClaimCard from 'components/farms/ClaimCard';
 import QuickLinks from 'components/farms/QuickLinks';
