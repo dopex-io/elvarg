@@ -11,9 +11,10 @@ import ManageDialog, {
 } from 'components/farms/ManageDialog';
 
 import { WalletContext } from 'contexts/Wallet';
-import { FarmingContext, FarmingProvider, FARMS } from 'contexts/Farming';
+import { Farm, FarmingContext, FarmingProvider, FARMS } from 'contexts/Farming';
 import Typography from 'components/UI/Typography';
 import ClaimCard from 'components/farms/ClaimCard';
+import QuickLinks from 'components/farms/QuickLinks';
 
 const initialDialogData: BasicManageDialogProps = {
   data: {
@@ -32,8 +33,6 @@ const Farms = () => {
 
   const data = useContext(FarmingContext);
 
-  console.log(data);
-
   const [dialog, setDialog] =
     useState<BasicManageDialogProps>(initialDialogData);
 
@@ -50,41 +49,12 @@ const Farms = () => {
       </Head>
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar active="farms" />
-      <Box className="flex mt-44 justify-center mx-auto space-x-4 mb-32">
-        <Box className="w-84 flex flex-col space-y-4">
-          <Typography variant="h5" className="mb-3">
-            Claimable
-          </Typography>
-
-          {accountAddress
-            ? data.userData.map((item, index) => {
-                if (!item) return null;
-                if (
-                  !item.userRewardsEarned[0]?.isZero() ||
-                  !item.userRewardsEarned[1]?.isZero()
-                ) {
-                  let _farm: any = FARMS[chainId];
-
-                  _farm = _farm[index];
-                  return (
-                    <ClaimCard
-                      key={index}
-                      stakingTokenSymbol={_farm.stakingToken}
-                      stakingRewardsAddress={_farm.stakingRewardsAddress}
-                      userRewardsEarned={item.userRewardsEarned}
-                      rewardTokens={_farm.rewardTokens}
-                    />
-                  );
-                }
-                return null;
-              })
-            : 'Please connect your wallet'}
-        </Box>
-        <Box>
+      <Box className="flex mt-32 justify-end lg:mx-6 lg:space-x-reverse mb-32 lg:flex-row-reverse flex-col">
+        <Box className="mb-4 xl:mb-0 mx-4">
           <Typography variant="h5" className="mb-6">
             Farms
           </Typography>
-          <Box className="grid grid-cols-3 gap-6">
+          <Box className="grid md:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-6">
             {FARMS[chainId]?.map((farm, index) => {
               return (
                 <FarmCard
@@ -111,6 +81,40 @@ const Farms = () => {
               );
             })}
           </Box>
+        </Box>
+        <Box className="lg:w-80 flex flex-col mx-4 space-y-4">
+          <Typography variant="h5" className="mb-3">
+            Claimable
+          </Typography>
+          {accountAddress
+            ? data.userData.map((item, index) => {
+                if (!item) return null;
+                if (
+                  !item.userRewardsEarned[0]?.isZero() ||
+                  !item.userRewardsEarned[1]?.isZero()
+                ) {
+                  let _farms = FARMS[chainId];
+
+                  if (!_farms) return null;
+
+                  let _farm = _farms[index];
+
+                  if (!_farm) return null;
+
+                  return (
+                    <ClaimCard
+                      key={index}
+                      stakingTokenSymbol={_farm.stakingToken}
+                      stakingRewardsAddress={_farm.stakingRewardsAddress}
+                      userRewardsEarned={item.userRewardsEarned}
+                      rewardTokens={_farm.rewardTokens}
+                    />
+                  );
+                }
+                return null;
+              })
+            : 'Please connect your wallet'}
+          <QuickLinks />
         </Box>
       </Box>
       <ManageDialog {...dialog} handleClose={handleClose} />

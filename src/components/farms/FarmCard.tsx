@@ -14,6 +14,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 import formatAmount from 'utils/general/formatAmount';
 import LpRatios from './LpRatios';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
 
 const Header = ({
   stakingTokenSymbol,
@@ -85,7 +86,7 @@ const FarmCard = (props: Props) => {
     setDialog,
   } = props;
 
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress, chainId } = useContext(WalletContext);
 
   const onManage = () => {
     setDialog({
@@ -100,6 +101,8 @@ const FarmCard = (props: Props) => {
       stakingTokenAddress,
     });
   };
+
+  if (userDeposit.isZero() && status === 'RETIRED') return <></>;
 
   return (
     <Box className="bg-cod-gray text-red rounded-2xl p-3 flex flex-col space-y-3 w-[343px]">
@@ -157,13 +160,16 @@ const FarmCard = (props: Props) => {
           )}
         </Box>
       )}
-      <Typography
-        variant="caption"
-        color="stieglitz"
-        className="align-right self-end"
+      <a
+        href={`${getExplorerUrl(chainId)}address/${stakingRewardsAddress}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="self-end"
       >
-        Contract <LaunchIcon className="w-3" />
-      </Typography>
+        <Typography variant="caption" color="stieglitz" component="span">
+          Contract <LaunchIcon className="w-3" />
+        </Typography>
+      </a>
     </Box>
   );
 };

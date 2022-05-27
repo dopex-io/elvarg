@@ -13,8 +13,7 @@ import {
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import BN from 'bignumber.js';
-
-import useEthPrice from 'hooks/useEthPrice';
+import axios from 'axios';
 
 import { WalletContext } from './Wallet';
 
@@ -38,7 +37,18 @@ export const FarmingContext = createContext<{
   lpData: {},
 });
 
-type Farm = {
+interface LpData {
+  ethReserveOfDpxWethPool: number;
+  dpxReserveOfDpxWethPool: number;
+  ethReserveOfRdpxWethPool: number;
+  rdpxReserveOfRdpxWethPool: number;
+  dpxPrice: number;
+  rdpxPrice: number;
+  rdpxWethLpTokenRatios: { rdpx: number; weth: number };
+  dpxWethLpTokenRatios: { dpx: number; weth: number };
+}
+
+export type Farm = {
   stakingToken: string;
   stakingTokenAddress: string;
   stakingRewardsAddress: string;
@@ -101,6 +111,24 @@ export const FARMS: { [key: number]: Farm[] } = {
       type: 'SINGLE',
     },
   ],
+  1: [
+    {
+      stakingToken: 'DPX-WETH',
+      stakingTokenAddress: '0xf64af01a14c31164ff7381cf966df6f2b4cb349f',
+      stakingRewardsAddress: '0x2a52330be21d311a7a3f40dacbfee8978541b74a',
+      rewardTokens: REWARD_TOKENS,
+      status: 'RETIRED',
+      type: 'LP',
+    },
+    {
+      stakingToken: 'RDPX-WETH',
+      stakingTokenAddress: '0x0bf46ba06dc1d33c3bd80ff42497ebff13a88900',
+      stakingRewardsAddress: '0x175029c85b14c326c83c9f83d4a21ca339f44cb5',
+      rewardTokens: REWARD_TOKENS,
+      status: 'RETIRED',
+      type: 'LP',
+    },
+  ],
 };
 
 export const FarmingProvider = (props: { children: ReactNode }) => {
@@ -109,24 +137,19 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
 
   const [farmsData, setFarmsData] = useState<any>([]);
   const [userData, setUserData] = useState<any>([]);
-  const [lpData, setLpData] = useState<{
-    ethReserveOfDpxWethPool: number;
-    dpxReserveOfDpxWethPool: number;
-    ethReserveOfRdpxWethPool: number;
-    rdpxReserveOfRdpxWethPool: number;
-    dpxPrice: number;
-    rdpxPrice: number;
-    rdpxWethLpTokenRatios: { rdpx: number; weth: number };
-    dpxWethLpTokenRatios: { dpx: number; weth: number };
-  } | null>(null);
+  const [lpData, setLpData] = useState<LpData | null>(null);
   const [farmsDataLoading, setFarmsDataLoading] = useState(false);
   const [userDataLoading, setUserDataLoading] = useState(false);
-
-  const ethPriceFinal = useEthPrice();
 
   useEffect(() => {
     async function updateLpData() {
       if (!provider) return;
+
+      const ethPriceFinal = (
+        await axios.get(
+          'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+        )
+      ).data.ethereum.usd;
 
       const dpxWethPair = UniswapPair__factory.connect(
         contractAddresses['DPX-WETH'],
@@ -209,14 +232,19 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
     }
 
     updateLpData();
-  }, [contractAddresses, ethPriceFinal, provider]);
+  }, [contractAddresses, provider]);
 
   const getFarmData = useCallback(
-    async (farm: Farm) => {
-      if (!lpData) return { APR: 0, TVL: 0 };
+    async (farm: Farm, lpData: any) => {
       if (farm.status === 'RETIRED') {
         return { APR: 0, TVL: 0 };
       }
+
+      const ethPriceFinal = (
+        await axios.get(
+          'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+        )
+      ).data.ethereum.usd;
 
       const {
         ethReserveOfDpxWethPool,
@@ -291,7 +319,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
 
       return { TVL, APR };
     },
-    [ethPriceFinal, lpData, provider]
+    [provider]
   );
 
   useEffect(() => {
@@ -300,7 +328,9 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
       if (!lpData) return;
       const _farms = FARMS[chainId];
       if (_farms) {
-        const p = await Promise.all(_farms.map((farm) => getFarmData(farm)));
+        const p = await Promise.all(
+          _farms.map((farm) => getFarmData(farm, lpData))
+        );
         setFarmsDataLoading(false);
         setFarmsData(p);
       }

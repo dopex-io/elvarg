@@ -47,7 +47,7 @@ const ClaimCard = (props: Props) => {
   }, [signer, sendTx, stakingRewardsAddress]);
 
   return (
-    <Box className="bg-cod-gray rounded-2xl p-3 flex flex-col space-y-3">
+    <Box className="bg-cod-gray rounded-2xl p-3 flex flex-col space-y-3 w-80">
       <Box className="flex justify-between items-center">
         <Box className="flex space-x-3 items-center">
           <img

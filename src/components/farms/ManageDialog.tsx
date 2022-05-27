@@ -215,7 +215,7 @@ const ManageDialog = (props: Props) => {
             </Typography>
           </Box>
           <Typography variant="caption" color="stieglitz">
-            Deposit Preview
+            {activeTab === 0 ? 'Deposit' : 'Withdraw'} Preview
           </Typography>
         </Box>
         {error ? (
