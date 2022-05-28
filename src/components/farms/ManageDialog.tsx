@@ -71,22 +71,36 @@ const ManageDialog = (props: Props) => {
   };
 
   useEffect(() => {
-    if (isNaN(Number(value))) {
+    if (!text) {
+      return;
+    } else if (isNaN(Number(text))) {
       setError('Please only enter numbers');
+    } else if (
+      activeTab === 0 &&
+      utils.parseEther(text).gt(data.userStakingTokenBalance)
+    ) {
+      setError('Cannot deposit more than wallet balance');
+    } else if (
+      activeTab === 1 &&
+      utils.parseEther(text).gt(data.userStakingRewardsBalance)
+    ) {
+      setError('Cannot withdraw more than farm balance');
     } else {
       setError('');
     }
-  }, [value]);
+  }, [text, data, activeTab]);
 
   useEffect(() => {
     (async function () {
       if (
+        !!error ||
         !signer ||
-        utils.parseEther(value || '0').isZero() ||
         !stakingRewardsAddress ||
-        !stakingTokenAddress
+        !stakingTokenAddress ||
+        !value
       )
         return;
+
       const _accountAddress = await signer?.getAddress();
       let allowance = await ERC20__factory.connect(
         stakingTokenAddress,
@@ -102,7 +116,7 @@ const ManageDialog = (props: Props) => {
         setApproved(false);
       }
     })();
-  }, [signer, stakingRewardsAddress, stakingTokenAddress, value]);
+  }, [signer, stakingRewardsAddress, stakingTokenAddress, value, error]);
 
   const handleDeposit = useCallback(async () => {
     if (!signer) return;
@@ -230,7 +244,7 @@ const ManageDialog = (props: Props) => {
         <CustomButton
           size="medium"
           fullWidth
-          disabled={!!error}
+          disabled={!!error || !value}
           onClick={
             activeTab === 0
               ? approved
