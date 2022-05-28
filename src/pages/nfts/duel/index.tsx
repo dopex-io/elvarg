@@ -107,7 +107,18 @@ const DuelPepes = () => {
             </Typography>
           </Box>
 
-          <ActiveDuel />
+          <ActiveDuel
+            opponentAddress="0x9f96c987f70aa929118e6b333e36a06742785806"
+            duelist={334}
+            opponent={234}
+            duelId={4}
+            moves={['punch', 'kick', 'special', 'block']}
+            wager={10500}
+            timestamps={[]}
+            challengeTimeLimit={1}
+            isCreatorWinner={false}
+            revealTimeLimit={1}
+          />
         </Box>
       </Box>
     </Box>

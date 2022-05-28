@@ -1,18 +1,39 @@
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import axios from 'axios';
-import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 import Typography from 'components/UI/Typography';
+import displayAddress from 'utils/general/displayAddress';
+
 import styles from '../styles.module.scss';
 
-const ActiveDuel = () => {
+interface ActiveDuelProps {
+  duelist: number;
+  opponent: number;
+  opponentAddress: string;
+  duelId: number;
+  moves: string[];
+  wager: number;
+  revealTimeLimit: number;
+  challengeTimeLimit: number;
+  isCreatorWinner: boolean;
+  timestamps: number[];
+}
+
+const ActiveDuel = ({
+  duelist,
+  opponent,
+  opponentAddress,
+  duelId,
+  moves,
+  wager,
+  revealTimeLimit,
+  challengeTimeLimit,
+  isCreatorWinner,
+  timestamps,
+}: ActiveDuelProps) => {
   return (
     <Box className="w-full flex p-5 bg-[#181C24] relative">
       <img
-        src="/images/nfts/pepes/gen2-pepe-1.png"
+        src={`https://img.tofunft.com/image/https%3A%2F%2Fimg.tofunft.com%2Fipfs%2FQmaUb8EfVMoe13QWdH3tBqR8mMiv73Lq9ZGyxZU5xHocVk%2F${duelist}.png/280.jpg`}
         className="rounded-md w-14 h-14 mt-1 mr-3"
       />
       <Box>
@@ -20,7 +41,7 @@ const ActiveDuel = () => {
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
         >
-          <span>#1327</span>
+          <span>#{duelist}</span>
         </Typography>
         <Typography
           variant="h4"
@@ -34,7 +55,7 @@ const ActiveDuel = () => {
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
         >
-          <span>#865</span>
+          <span>#{duelId}</span>
         </Typography>
         <Typography
           variant="h4"
@@ -43,13 +64,15 @@ const ActiveDuel = () => {
           <span>Duel ID</span>
         </Typography>
       </Box>
-      <Box className="ml-10 mt-2">
+      <Box className="ml-10 mt-2 mr-6">
         <Box className="flex">
-          <img src="/images/nfts/pepes/move-0.png" className="w-4 h-4 mr-1" />
-          <img src="/images/nfts/pepes/move-1.png" className="w-4 h-4 mr-1" />
-          <img src="/images/nfts/pepes/move-2.png" className="w-4 h-4 mr-1" />
-          <img src="/images/nfts/pepes/move-3.png" className="w-4 h-4 mr-1" />
-          <img src="/images/nfts/pepes/move-4.png" className="w-4 h-4" />
+          {moves.map((move, i) => (
+            <img
+              key={i}
+              src={`/images/nfts/pepes/${move}.png`}
+              className={'w-4 h-4 ' + (i < moves.length - 1 ? 'mr-1' : '')}
+            />
+          ))}
         </Box>
         <Typography
           variant="h4"
@@ -95,13 +118,63 @@ const ActiveDuel = () => {
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
         >
-          <span>0x131...341</span>
+          <span>{displayAddress(opponentAddress)}</span>
         </Typography>
         <Typography
           variant="h4"
           className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-center"
         >
           <span>Opponent</span>
+        </Typography>
+      </Box>
+      <Box className="ml-5">
+        <Typography
+          variant="h4"
+          className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-right text-white"
+        >
+          <span>#{opponent}</span>
+        </Typography>
+        <Typography
+          variant="h4"
+          className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-center"
+        >
+          <span>Diamond Pepe</span>
+        </Typography>
+      </Box>
+      <img
+        src={`https://img.tofunft.com/image/https%3A%2F%2Fimg.tofunft.com%2Fipfs%2FQmaUb8EfVMoe13QWdH3tBqR8mMiv73Lq9ZGyxZU5xHocVk%2F${opponent}.png/280.jpg`}
+        className="rounded-md w-14 h-14 ml-6 mt-1"
+      />
+
+      <Box className="absolute bg-[#343C4D] px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem]">
+        <img
+          src="/assets/timer.svg"
+          className="h-[1rem] mt-0.5 mr-2 ml-1"
+          alt="Timer"
+        />
+        <Typography variant="h6">
+          <span className="text-wave-blue font-['Minecraft']">11H 11M 11S</span>
+        </Typography>
+      </Box>
+      <Box className="absolute bg-[#343C4D] px-3 py-1 flex rounded-md right-[3rem] top-[5.5rem]">
+        <Typography variant="h6">
+          <span className="font-['Minecraft']">CHALLENGER</span>
+        </Typography>
+      </Box>
+
+      <Box className="absolute bg-[#343C4D] px-3 py-1 flex rounded-md right-[3rem] top-[5.5rem]">
+        <Typography variant="h6">
+          <span className="font-['Minecraft']">CHALLENGER</span>
+        </Typography>
+      </Box>
+
+      <Box className="absolute bg-[#343C4D] px-3 py-1 flex rounded-md right-[48%] top-[-1rem]">
+        <img src="/images/misc/diamond.svg" className="w-4 h-4 mr-1 mt-1" />
+        <Typography variant="h6">
+          <span className="font-['Minecraft'] text-stieglitz">
+            <span className="text-white">{wager} </span>
+            USDC
+          </span>
         </Typography>
       </Box>
     </Box>
