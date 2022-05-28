@@ -63,6 +63,9 @@ const Farms = () => {
                   userDataLoading={data.userDataLoading}
                   TVL={data.farmsData[index]?.TVL || 0}
                   APR={data.farmsData[index]?.APR || 0}
+                  farmTotalSupply={
+                    data.farmsData[index]?.farmTotalSupply || BigNumber.from(1)
+                  }
                   stakingTokenSymbol={farm.stakingToken}
                   userDeposit={
                     data.userData[index]?.userStakingRewardsBalance ||
@@ -74,6 +77,7 @@ const Farms = () => {
                   }
                   stakingRewardsAddress={farm.stakingRewardsAddress}
                   stakingTokenAddress={farm.stakingTokenAddress}
+                  lpData={data.lpData}
                   type={farm.type}
                   status={farm.status}
                   setDialog={setDialog}

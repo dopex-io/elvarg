@@ -1,7 +1,8 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
+import BN from 'bignumber.js';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -9,11 +10,12 @@ import Skeleton from 'components/UI/Skeleton';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from './Stat';
 import Chip from './Chip';
+import LpRatios from './LpRatios';
 
 import { WalletContext } from 'contexts/Wallet';
+import { LpData } from 'contexts/Farming';
 
 import formatAmount from 'utils/general/formatAmount';
-import LpRatios from './LpRatios';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 
 const Header = ({
@@ -39,7 +41,6 @@ const Header = ({
           <Typography variant="h5">
             {stakingTokenSymbol}
             <span className="text-down-bad">
-              {' '}
               {status === 'RETIRED' ? '(Retired)' : null}
             </span>
           </Typography>
@@ -68,6 +69,8 @@ interface Props {
   status: 'RETIRED' | 'ACTIVE';
   type: 'SINGLE' | 'LP';
   setDialog: Function;
+  lpData: LpData;
+  farmTotalSupply: BigNumber;
 }
 
 const FarmCard = (props: Props) => {
@@ -84,6 +87,8 @@ const FarmCard = (props: Props) => {
     type,
     status,
     setDialog,
+    lpData,
+    farmTotalSupply,
   } = props;
 
   const { accountAddress, chainId } = useContext(WalletContext);
@@ -101,6 +106,18 @@ const FarmCard = (props: Props) => {
       stakingTokenAddress,
     });
   };
+
+  const stakingTokenPrice = useMemo(() => {
+    if (!lpData) return 0;
+    if (stakingTokenSymbol === 'DPX') return lpData.dpxPrice;
+    else if (stakingTokenSymbol === 'RDPX') return lpData.rdpxPrice;
+    else if (stakingTokenSymbol === 'DPX-WETH')
+      return lpData.dpxWethLpTokenRatios.lpPrice;
+    else if (stakingTokenSymbol === 'RDPX-WETH')
+      return lpData.rdpxWethLpTokenRatios.lpPrice;
+
+    return 0;
+  }, [lpData, stakingTokenSymbol]);
 
   if (userDeposit.isZero() && status === 'RETIRED') return <></>;
 
@@ -129,7 +146,7 @@ const FarmCard = (props: Props) => {
         )}
       </Box>
       {userDataLoading ? (
-        <Skeleton variant="rectangular" width={319} height={108} />
+        <Skeleton variant="rectangular" width={319} height={168} />
       ) : (
         <Box className="bg-umbra p-3 w-full rounded-md">
           {!accountAddress ? (
@@ -141,7 +158,7 @@ const FarmCard = (props: Props) => {
               <Typography variant="caption" color="stieglitz" className="mb-3">
                 Deposits
               </Typography>
-              <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
+              <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-3">
                 <Box className="flex items-center space-x-1">
                   <Typography variant="caption">
                     <NumberDisplay n={userDeposit} decimals={18} />
@@ -155,6 +172,52 @@ const FarmCard = (props: Props) => {
                 ) : (
                   <Chip text={stakingTokenSymbol} />
                 )}
+              </Box>
+              <Box className="flex space-x-3">
+                <Box className="w-full">
+                  <Typography
+                    variant="caption"
+                    color="stieglitz"
+                    className="mb-3"
+                  >
+                    Pool Share
+                  </Typography>
+                  <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
+                    <Box className="flex items-center space-x-1">
+                      <Typography variant="caption">
+                        {formatAmount(
+                          new BN(userDeposit.toString())
+                            .multipliedBy(1e2)
+                            .dividedBy(new BN(farmTotalSupply.toString()))
+                            .toNumber(),
+                          8
+                        )}
+                        %
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+                <Box className="w-full">
+                  <Typography
+                    variant="caption"
+                    color="stieglitz"
+                    className="mb-3"
+                  >
+                    USD Value
+                  </Typography>
+                  <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
+                    <Box className="flex items-center space-x-1">
+                      <Typography variant="caption">
+                        $
+                        {formatAmount(
+                          Number(utils.formatEther(userDeposit)) *
+                            stakingTokenPrice,
+                          2
+                        )}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
               </Box>
             </>
           )}

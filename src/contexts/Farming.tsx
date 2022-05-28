@@ -20,7 +20,7 @@ import { WalletContext } from './Wallet';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 export const FarmingContext = createContext<{
-  farmsData: { TVL: number; APR: number }[];
+  farmsData: { TVL: number; APR: number; farmTotalSupply: BigNumber }[];
   userData: {
     userStakingTokenBalance: BigNumber;
     userStakingRewardsBalance: BigNumber;
@@ -37,15 +37,15 @@ export const FarmingContext = createContext<{
   lpData: {},
 });
 
-interface LpData {
+export interface LpData {
   ethReserveOfDpxWethPool: number;
   dpxReserveOfDpxWethPool: number;
   ethReserveOfRdpxWethPool: number;
   rdpxReserveOfRdpxWethPool: number;
   dpxPrice: number;
   rdpxPrice: number;
-  rdpxWethLpTokenRatios: { rdpx: number; weth: number };
-  dpxWethLpTokenRatios: { dpx: number; weth: number };
+  rdpxWethLpTokenRatios: { rdpx: number; weth: number; lpPrice: number };
+  dpxWethLpTokenRatios: { dpx: number; weth: number; lpPrice: number };
 }
 
 export type Farm = {
@@ -219,6 +219,10 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
           weth: new BN(ethReserveOfRdpxWethPool)
             .dividedBy(new BN(rdpxWethTotalSupply.toString()).dividedBy(1e18))
             .toNumber(),
+          lpPrice:
+            (rdpxPrice * Number(rdpxReserveOfRdpxWethPool) +
+              ethPriceFinal * Number(ethReserveOfRdpxWethPool)) /
+            Number(new BN(rdpxWethTotalSupply.toString()).dividedBy(1e18)),
         },
         dpxWethLpTokenRatios: {
           dpx: new BN(dpxReserveOfDpxWethPool)
@@ -227,6 +231,10 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
           weth: new BN(ethReserveOfDpxWethPool)
             .dividedBy(new BN(dpxWethTotalSupply.toString()).dividedBy(1e18))
             .toNumber(),
+          lpPrice:
+            (dpxPrice * Number(dpxReserveOfDpxWethPool) +
+              ethPriceFinal * Number(ethReserveOfDpxWethPool)) /
+            Number(new BN(dpxWethTotalSupply.toString()).dividedBy(1e18)),
         },
       });
     }
@@ -317,7 +325,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
         APR = null;
       }
 
-      return { TVL, APR };
+      return { TVL, APR, farmTotalSupply };
     },
     [provider]
   );
