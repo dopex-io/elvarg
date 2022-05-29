@@ -116,14 +116,14 @@ const FarmCard = (props: Props) => {
   const onManage = () => {
     setDialog({
       data: {
+        status,
+        stakingTokenSymbol,
+        stakingTokenAddress,
+        stakingRewardsAddress,
         userStakingTokenBalance,
         userStakingRewardsBalance,
       },
       open: true,
-      status,
-      stakingTokenSymbol,
-      stakingRewardsAddress,
-      stakingTokenAddress,
     });
   };
 

@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
-import Box from '@mui/material/Box';
 import { BigNumber, utils } from 'ethers';
 import { ERC20__factory, StakingRewards__factory } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
+import Box from '@mui/material/Box';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -41,21 +41,21 @@ const ManageDialog = (props: Props) => {
 
   const [activeTab, setActiveTab] = useState(1);
   const [error, setError] = useState('');
-  const [text, setText] = useState('');
+  const [value, setValue] = useState('');
   const [approved, setApproved] = useState(false);
 
-  const [value] = useDebounce(text, 1000);
+  const [amount] = useDebounce(value, 1000);
 
   const { signer } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
   const handleChange = (e: { target: { value: string } }) => {
-    setText(e.target.value);
+    setValue(e.target.value);
   };
 
   const handleMax = () => {
-    setText(
+    setValue(
       activeTab === 0
         ? utils.formatEther(data.userStakingTokenBalance)
         : utils.formatEther(data.userStakingRewardsBalance)
@@ -63,24 +63,24 @@ const ManageDialog = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!text) {
+    if (!value) {
       return;
-    } else if (isNaN(Number(text))) {
+    } else if (isNaN(Number(value))) {
       setError('Please only enter numbers');
     } else if (
       activeTab === 0 &&
-      utils.parseEther(text).gt(data.userStakingTokenBalance)
+      utils.parseEther(value).gt(data.userStakingTokenBalance)
     ) {
       setError('Cannot deposit more than wallet balance');
     } else if (
       activeTab === 1 &&
-      utils.parseEther(text).gt(data.userStakingRewardsBalance)
+      utils.parseEther(value).gt(data.userStakingRewardsBalance)
     ) {
       setError('Cannot withdraw more than farm balance');
     } else {
       setError('');
     }
-  }, [text, data, activeTab]);
+  }, [value, data, activeTab]);
 
   useEffect(() => {
     (async function () {
@@ -89,7 +89,7 @@ const ManageDialog = (props: Props) => {
         !signer ||
         !data.stakingRewardsAddress ||
         !data.stakingTokenAddress ||
-        !value
+        !amount
       )
         return;
 
@@ -100,7 +100,7 @@ const ManageDialog = (props: Props) => {
       ).allowance(_accountAddress, data.stakingRewardsAddress);
 
       if (
-        utils.parseEther(value).lte(allowance) &&
+        utils.parseEther(amount).lte(allowance) &&
         allowance.toString() !== '0'
       ) {
         setApproved(true);
@@ -108,7 +108,7 @@ const ManageDialog = (props: Props) => {
         setApproved(false);
       }
     })();
-  }, [signer, data, value, error]);
+  }, [signer, data, amount, error]);
 
   const handleDeposit = useCallback(async () => {
     if (!signer) return;
@@ -117,12 +117,12 @@ const ManageDialog = (props: Props) => {
         StakingRewards__factory.connect(
           data.stakingRewardsAddress,
           signer
-        ).stake(utils.parseEther(value))
+        ).stake(utils.parseEther(amount))
       );
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, value, data]);
+  }, [signer, sendTx, amount, data]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
@@ -145,12 +145,12 @@ const ManageDialog = (props: Props) => {
         StakingRewards__factory.connect(
           data.stakingRewardsAddress,
           signer
-        ).withdraw(utils.parseEther(value))
+        ).withdraw(utils.parseEther(amount))
       );
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, value, data]);
+  }, [signer, sendTx, amount, data]);
 
   return (
     <Dialog open={open} showCloseIcon handleClose={handleClose}>
@@ -196,7 +196,7 @@ const ManageDialog = (props: Props) => {
             </Typography>
           }
           onChange={handleChange}
-          value={text}
+          value={value}
           placeholder="0.0"
         />
         <Box className="border-umbra border rounded-lg p-3">
@@ -238,7 +238,7 @@ const ManageDialog = (props: Props) => {
         <CustomButton
           size="medium"
           fullWidth
-          disabled={!!error || !value}
+          disabled={!!error || !amount}
           onClick={
             activeTab === 0
               ? approved
