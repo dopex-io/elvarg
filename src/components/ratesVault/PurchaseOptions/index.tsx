@@ -86,7 +86,7 @@ const PurchaseOptions = ({
         available: Math.max(0, getUserReadableAmount(available, 18)),
         strike: getUserReadableAmount(strike, 8),
         volatility: getUserReadableAmount(volatility, 0),
-        price: getUserReadableAmount(price.mul(1000), 18),
+        price: getUserReadableAmount(price, 18),
         side: ssovContextSide,
       };
     };
@@ -256,7 +256,7 @@ const PurchaseOptions = ({
                               <Typography variant="h6">
                                 {ssovContextSide === 'CALL' ? '+' : '-'}
                                 {formatAmount(
-                                  (row['price'] * 52) / (1 / 100),
+                                  (row['price'] * 1000 * 52) / (1 / 100),
                                   2
                                 )}
                                 %
