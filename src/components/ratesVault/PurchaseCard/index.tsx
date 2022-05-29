@@ -565,18 +565,16 @@ const PurchaseCard = ({
               </Typography>
             </Box>
           </Box>
-          {activeVaultContextSide === 'CALL' ? (
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Purchase Power
+          <Box className={'flex mb-2'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Purchase Power
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(purchasePower, 5)} {purchaseTokenName}
               </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(purchasePower, 5)} {purchaseTokenName}
-                </Typography>
-              </Box>
             </Box>
-          ) : null}
+          </Box>
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               You will pay
