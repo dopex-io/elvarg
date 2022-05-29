@@ -17,15 +17,13 @@ import { BigNumber } from 'ethers';
 import format from 'date-fns/format';
 import axios from 'axios';
 import cx from 'classnames';
+import Tooltip from '@mui/material/Tooltip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import PnlChart from 'components/common/PnlChart';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';
-import ZapOutButton from 'components/common/ZapOutButton';
-import BigCrossIcon from 'svgs/icons/BigCrossIcon';
-import CircleIcon from 'svgs/icons/CircleIcon';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -59,7 +57,6 @@ const PurchaseCard = ({
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
   const { rateVaultEpochData } = rateVaultContext;
-  const { lpPrice } = rateVaultEpochData;
 
   const { updateAssetBalances, tokenPrices } = useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
@@ -123,18 +120,12 @@ const PurchaseCard = ({
     return _price || BigNumber.from('0');
   }, [rateVaultEpochData, strikeIndex, activeVaultContextSide]);
 
-  const optionsAmount: number = useMemo(() => {
-    return optionPrice.gt(0)
-      ? notionalSize / getUserReadableAmount(optionPrice, 18)
-      : 0;
-  }, [notionalSize, optionPrice]);
-
   const totalCost: BigNumber = useMemo(() => {
-    let amount: number = Math.round(optionsAmount);
+    let amount: number = Math.round(notionalSize);
     return Number.isFinite(amount)
       ? optionPrice.mul(BigNumber.from(amount))
       : BigNumber.from('0');
-  }, [optionPrice, optionsAmount]);
+  }, [optionPrice, notionalSize]);
 
   const fees: BigNumber = useMemo(() => {
     const _fees =
@@ -143,10 +134,10 @@ const PurchaseCard = ({
         : rateVaultEpochData.putsFees[strikeIndex];
 
     return (
-      _fees?.mul(BigNumber.from(Math.round(optionsAmount))) ||
+      _fees?.mul(BigNumber.from(Math.round(notionalSize))) ||
       BigNumber.from('0')
     );
-  }, [rateVaultEpochData, strikeIndex, optionsAmount, activeVaultContextSide]);
+  }, [rateVaultEpochData, strikeIndex, notionalSize, activeVaultContextSide]);
 
   const premium: BigNumber = useMemo(() => {
     const _premium =
@@ -167,8 +158,6 @@ const PurchaseCard = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const [purchaseTokenName, setPurchaseTokenName] = useState<string>('2CRV');
-
-  const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
 
   const isZapActive: boolean = useMemo(() => {
     if (activeVaultContextSide === 'PUT')
@@ -363,10 +352,6 @@ const PurchaseCard = ({
     totalCost,
   ]);
 
-  const handleZapOut = () => {
-    setPurchaseTokenName('2CRV');
-  };
-
   return (
     <Box
       className={cx(
@@ -376,17 +361,6 @@ const PurchaseCard = ({
     >
       <Box className="flex flex-row items-center mb-4">
         <Typography variant="h5">Buy Options</Typography>
-        <ZapOutButton isZapActive={isZapActive} handleClick={handleZapOut} />
-        <IconButton
-          className={
-            isZapActive
-              ? 'p-0 pb-1 mr-0 mt-0.5 ml-4'
-              : 'p-0 pb-1 mr-0 mt-0.5 ml-auto'
-          }
-          size="large"
-        >
-          <BigCrossIcon className="" />
-        </IconButton>
       </Box>
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="flex flex-row justify-between">
@@ -436,164 +410,128 @@ const PurchaseCard = ({
         isPurchasing={true}
       />
       <Box>
-        {isChartVisible ? (
-          <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
-            <PnlChart
-              breakEven={
-                activeVaultContextSide === 'PUT'
-                  ? Number(strikes[strikeIndex]) -
-                    getUserReadableAmount(optionPrice, 8)
-                  : Number(strikes[strikeIndex]) +
-                    getUserReadableAmount(optionPrice, 8)
-              }
-              optionPrice={getUserReadableAmount(optionPrice, 8)}
-              amount={notionalSize}
-              isPut={activeVaultContextSide === 'PUT'}
-              price={getUserReadableAmount(lpPrice, 8)}
-              symbol={'2CRV'}
-            />
-          </Box>
-        ) : (
-          <Box className="h-[12.88rem]">
-            <Box className={'flex'}>
-              <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
-                <Box className={'w-5/6'}>
-                  <Typography variant="h5" className="text-white pb-1 pr-2">
-                    {strikes[strikeIndex]}%
-                  </Typography>
-                  <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
-                    Strike
-                  </Typography>
-                </Box>
-                <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
-                  <IconButton
-                    className="p-0"
-                    onClick={(e) => setAnchorEl(e.currentTarget)}
-                    size="large"
-                  >
-                    {anchorEl ? (
-                      <ArrowDropUpIcon
-                        className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                      />
-                    ) : (
-                      <ArrowDropDownIcon
-                        className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                      />
-                    )}
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={() => setAnchorEl(null)}
-                    classes={{ paper: 'bg-umbra' }}
-                    className="mt-12"
-                  >
-                    {strikes.map((strike, strikeIndex) => (
-                      <MenuItem
-                        key={strikeIndex}
-                        className="capitalize text-white hover:bg-mineshaft cursor-pointer"
-                        onClick={() => {
-                          setStrikeIndex(strikeIndex);
-                          setAnchorEl(null);
-                        }}
-                      >
-                        {strike}%
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </Box>
-              </Box>
-              <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
+        <Box className="h-[12.88rem]">
+          <Box className={'flex'}>
+            <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
+              <Box className={'w-5/6'}>
                 <Typography variant="h5" className="text-white pb-1 pr-2">
-                  {epochEndTime > now
-                    ? format(epochEndTime, 'd LLL yyyy')
-                    : '-'}
+                  {strikes[strikeIndex]}%
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
-                  Expiry
+                  Strike
+                </Typography>
+              </Box>
+              <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
+                <IconButton
+                  className="p-0"
+                  onClick={(e) => setAnchorEl(e.currentTarget)}
+                  size="large"
+                >
+                  {anchorEl ? (
+                    <ArrowDropUpIcon
+                      className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                    />
+                  )}
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={() => setAnchorEl(null)}
+                  classes={{ paper: 'bg-umbra' }}
+                  className="mt-12"
+                >
+                  {strikes.map((strike, strikeIndex) => (
+                    <MenuItem
+                      key={strikeIndex}
+                      className="capitalize text-white hover:bg-mineshaft cursor-pointer"
+                      onClick={() => {
+                        setStrikeIndex(strikeIndex);
+                        setAnchorEl(null);
+                      }}
+                    >
+                      {strike}%
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
+            </Box>
+            <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
+              <Typography variant="h5" className="text-white pb-1 pr-2">
+                {epochEndTime > now ? format(epochEndTime, 'd LLL yyyy') : '-'}
+              </Typography>
+              <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
+                Expiry
+              </Typography>
+            </Box>
+          </Box>
+          <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
+            <Box className={'flex mb-2'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Breakeven
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {activeVaultContextSide === 'CALL' ? '+' : '-'}
+                  {formatAmount(
+                    (getUserReadableAmount(optionPrice, 18) * 52) / (1 / 100),
+                    2
+                  )}
+                  %
                 </Typography>
               </Box>
             </Box>
-            <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
-              <Box className={'flex mb-2'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Breakeven
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {activeVaultContextSide === 'CALL' ? '+' : '-'}
-                    {formatAmount(
-                      (getUserReadableAmount(optionPrice, 18) * 52) / (1 / 100),
-                      2
-                    )}
-                    %
-                  </Typography>
-                </Box>
-              </Box>
-              <Box className={'flex mb-2'}>
+            <Box className={'flex justify-between mb-2'}>
+              <Box className={'flex'}>
                 <Typography
                   variant="h6"
                   className="text-stieglitz ml-0 mr-auto"
                 >
                   Option Price
                 </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    ${formatAmount(getUserReadableAmount(optionPrice, 18), 6)}
-                  </Typography>
+                <Box className="ml-1 flex items-end">
+                  <Tooltip
+                    className="h-4 text-stieglitz"
+                    title={'Option price for 1000$ of notional'}
+                    arrow={true}
+                  >
+                    <InfoOutlinedIcon />
+                  </Tooltip>
                 </Box>
               </Box>
-              <Box className={'flex mb-2'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Side
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  ${formatAmount(getUserReadableAmount(optionPrice, 15), 6)}
                 </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {activeVaultContextSide}
-                  </Typography>
-                </Box>
               </Box>
-              <Box className={'flex'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  IV
+            </Box>
+            <Box className={'flex mb-2'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Side
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {activeVaultContextSide}
                 </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {getUserReadableAmount(volatility, 0)}
-                  </Typography>
-                </Box>
+              </Box>
+            </Box>
+            <Box className={'flex'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                IV
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {getUserReadableAmount(volatility, 0)}
+                </Typography>
               </Box>
             </Box>
           </Box>
-        )}
+        </Box>
       </Box>
-      <Box className="flex mt-5 mb-5">
-        <CircleIcon
-          className={
-            isChartVisible
-              ? 'ml-auto mr-3 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-              : 'ml-auto mr-3 h-5 w-5 fill-white stroke-white cursor-pointer'
-          }
-          onClick={() => setIsChartVisible(false)}
-        />
-        <CircleIcon
-          className={
-            isChartVisible
-              ? 'mr-auto ml-0 h-5 w-5 fill-white stroke-white cursor-pointer'
-              : 'mr-auto ml-0 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-          }
-          onClick={() => setIsChartVisible(true)}
-        />
-      </Box>
+      <Box className="flex mt-3 mb-2"></Box>
       <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
           <Box className={'flex mb-2'}>
