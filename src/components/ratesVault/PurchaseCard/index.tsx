@@ -22,7 +22,6 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import PnlChart from 'components/common/PnlChart';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
@@ -58,7 +57,6 @@ const PurchaseCard = ({
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
   const { rateVaultEpochData } = rateVaultContext;
-  const { lpPrice } = rateVaultEpochData;
 
   const { updateAssetBalances, tokenPrices } = useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
