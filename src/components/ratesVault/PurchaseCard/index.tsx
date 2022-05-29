@@ -412,156 +412,126 @@ const PurchaseCard = ({
         isPurchasing={true}
       />
       <Box>
-        {isChartVisible ? (
-          <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
-            <PnlChart
-              breakEven={
-                activeVaultContextSide === 'PUT'
-                  ? Number(strikes[strikeIndex]) -
-                    getUserReadableAmount(optionPrice, 18)
-                  : Number(strikes[strikeIndex]) +
-                    getUserReadableAmount(optionPrice, 18)
-              }
-              optionPrice={getUserReadableAmount(optionPrice, 18)}
-              amount={notionalSize}
-              isPut={activeVaultContextSide === 'PUT'}
-              price={getUserReadableAmount(lpPrice, 18)}
-              symbol={'MIM3CRV Rate'}
-            />
-          </Box>
-        ) : (
-          <Box className="h-[12.88rem]">
-            <Box className={'flex'}>
-              <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
-                <Box className={'w-5/6'}>
-                  <Typography variant="h5" className="text-white pb-1 pr-2">
-                    {strikes[strikeIndex]}%
-                  </Typography>
-                  <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
-                    Strike
-                  </Typography>
-                </Box>
-                <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
-                  <IconButton
-                    className="p-0"
-                    onClick={(e) => setAnchorEl(e.currentTarget)}
-                    size="large"
-                  >
-                    {anchorEl ? (
-                      <ArrowDropUpIcon
-                        className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                      />
-                    ) : (
-                      <ArrowDropDownIcon
-                        className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                      />
-                    )}
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={() => setAnchorEl(null)}
-                    classes={{ paper: 'bg-umbra' }}
-                    className="mt-12"
-                  >
-                    {strikes.map((strike, strikeIndex) => (
-                      <MenuItem
-                        key={strikeIndex}
-                        className="capitalize text-white hover:bg-mineshaft cursor-pointer"
-                        onClick={() => {
-                          setStrikeIndex(strikeIndex);
-                          setAnchorEl(null);
-                        }}
-                      >
-                        {strike}%
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </Box>
-              </Box>
-              <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
+        <Box className="h-[12.88rem]">
+          <Box className={'flex'}>
+            <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
+              <Box className={'w-5/6'}>
                 <Typography variant="h5" className="text-white pb-1 pr-2">
-                  {epochEndTime > now
-                    ? format(epochEndTime, 'd LLL yyyy')
-                    : '-'}
+                  {strikes[strikeIndex]}%
                 </Typography>
                 <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
-                  Expiry
+                  Strike
+                </Typography>
+              </Box>
+              <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
+                <IconButton
+                  className="p-0"
+                  onClick={(e) => setAnchorEl(e.currentTarget)}
+                  size="large"
+                >
+                  {anchorEl ? (
+                    <ArrowDropUpIcon
+                      className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                    />
+                  )}
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={() => setAnchorEl(null)}
+                  classes={{ paper: 'bg-umbra' }}
+                  className="mt-12"
+                >
+                  {strikes.map((strike, strikeIndex) => (
+                    <MenuItem
+                      key={strikeIndex}
+                      className="capitalize text-white hover:bg-mineshaft cursor-pointer"
+                      onClick={() => {
+                        setStrikeIndex(strikeIndex);
+                        setAnchorEl(null);
+                      }}
+                    >
+                      {strike}%
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
+            </Box>
+            <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
+              <Typography variant="h5" className="text-white pb-1 pr-2">
+                {epochEndTime > now ? format(epochEndTime, 'd LLL yyyy') : '-'}
+              </Typography>
+              <Typography variant="h6" className="text-stieglitz pb-1 pr-2">
+                Expiry
+              </Typography>
+            </Box>
+          </Box>
+          <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
+            <Box className={'flex mb-2'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Breakeven
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {activeVaultContextSide === 'CALL' ? '+' : '-'}
+                  {formatAmount(
+                    (getUserReadableAmount(optionPrice, 18) * 52) / (1 / 100),
+                    2
+                  )}
+                  %
                 </Typography>
               </Box>
             </Box>
-            <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
-              <Box className={'flex mb-2'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Breakeven
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {activeVaultContextSide === 'CALL' ? '+' : '-'}
-                    {formatAmount(
-                      (getUserReadableAmount(optionPrice, 18) * 52) / (1 / 100),
-                      2
-                    )}
-                    %
-                  </Typography>
-                </Box>
-              </Box>
-              <Box className={'flex justify-between mb-2'}>
-                <Box className={'flex'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Option Price
-                  </Typography>
-                  <Box className="ml-1 flex items-end">
-                    <Tooltip
-                      className="h-4 text-stieglitz"
-                      title={'Option price for 1000$ of notional'}
-                      arrow={true}
-                    >
-                      <InfoOutlinedIcon />
-                    </Tooltip>
-                  </Box>
-                </Box>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    ${formatAmount(getUserReadableAmount(optionPrice, 15), 6)}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box className={'flex mb-2'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Side
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {activeVaultContextSide}
-                  </Typography>
-                </Box>
-              </Box>
+            <Box className={'flex justify-between mb-2'}>
               <Box className={'flex'}>
                 <Typography
                   variant="h6"
                   className="text-stieglitz ml-0 mr-auto"
                 >
-                  IV
+                  Option Price
                 </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {getUserReadableAmount(volatility, 0)}
-                  </Typography>
+                <Box className="ml-1 flex items-end">
+                  <Tooltip
+                    className="h-4 text-stieglitz"
+                    title={'Option price for 1000$ of notional'}
+                    arrow={true}
+                  >
+                    <InfoOutlinedIcon />
+                  </Tooltip>
                 </Box>
+              </Box>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  ${formatAmount(getUserReadableAmount(optionPrice, 15), 6)}
+                </Typography>
+              </Box>
+            </Box>
+            <Box className={'flex mb-2'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Side
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {activeVaultContextSide}
+                </Typography>
+              </Box>
+            </Box>
+            <Box className={'flex'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                IV
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {getUserReadableAmount(volatility, 0)}
+                </Typography>
               </Box>
             </Box>
           </Box>
-        )}
+        </Box>
       </Box>
       <Box className="flex mt-3 mb-2"></Box>
       <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
