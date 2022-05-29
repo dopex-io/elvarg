@@ -125,55 +125,35 @@ const Farms = () => {
               }
               return false;
             }).length === 0
-              ? 'Nothing to show here'
+              ? 'Nothing to show here. '
               : null}
             {accountAddress
-              ? data.userData
-                  .filter((item, index) => {
-                    if (!item) {
-                      return false;
-                    } else if (
-                      !item.userRewardsEarned[0]?.isZero() ||
-                      !item.userRewardsEarned[1]?.isZero()
-                    ) {
-                      let _farms = FARMS[chainId];
+              ? data.userData.map((item, index) => {
+                  if (!item) return null;
+                  if (
+                    !item.userRewardsEarned[0]?.isZero() ||
+                    !item.userRewardsEarned[1]?.isZero()
+                  ) {
+                    let _farms = FARMS[chainId];
 
-                      if (!_farms) return false;
+                    if (!_farms) return null;
 
-                      let _farm = _farms[index];
+                    let _farm = _farms[index];
 
-                      if (!_farm) return false;
+                    if (!_farm) return null;
 
-                      return true;
-                    }
-                    return false;
-                  })
-                  .map((item, index) => {
-                    if (!item) return null;
-                    if (
-                      !item.userRewardsEarned[0]?.isZero() ||
-                      !item.userRewardsEarned[1]?.isZero()
-                    ) {
-                      let _farms = FARMS[chainId];
-
-                      if (!_farms) return null;
-
-                      let _farm = _farms[index];
-
-                      if (!_farm) return null;
-
-                      return (
-                        <ClaimCard
-                          key={index}
-                          stakingTokenSymbol={_farm.stakingTokenSymbol}
-                          stakingRewardsAddress={_farm.stakingRewardsAddress}
-                          userRewardsEarned={item.userRewardsEarned}
-                          rewardTokens={_farm.rewardTokens}
-                        />
-                      );
-                    }
-                    return null;
-                  })
+                    return (
+                      <ClaimCard
+                        key={index}
+                        stakingTokenSymbol={_farm.stakingTokenSymbol}
+                        stakingRewardsAddress={_farm.stakingRewardsAddress}
+                        userRewardsEarned={item.userRewardsEarned}
+                        rewardTokens={_farm.rewardTokens}
+                      />
+                    );
+                  }
+                  return null;
+                })
               : 'Please connect your wallet'}
           </Box>
           <QuickLinks />
