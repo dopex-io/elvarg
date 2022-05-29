@@ -5,10 +5,11 @@ import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 
 interface InputProps extends MuiInputProps {
   leftElement: ReactNode;
+  bottomElement?: ReactNode;
 }
 
 const Input = (props: InputProps) => {
-  const { leftElement, className, ...rest } = props;
+  const { leftElement, bottomElement, className, ...rest } = props;
 
   useEffect(() => {
     document.addEventListener('wheel', function () {
@@ -29,16 +30,17 @@ const Input = (props: InputProps) => {
   });
 
   return (
-    <Box
-      className={cx('bg-umbra flex p-4 rounded-xl justify-between', className)}
-    >
-      {leftElement}
-      <MuiInput
-        disableUnderline={true}
-        className="h-12 text-2xl text-white ml-2 font-mono"
-        classes={{ input: 'text-right' }}
-        {...rest}
-      />
+    <Box className={cx('bg-umbra p-4 rounded-xl', className)}>
+      <Box className="flex justify-between items-center">
+        {leftElement}
+        <MuiInput
+          disableUnderline={true}
+          className="h-12 text-2xl text-white ml-2 font-mono"
+          classes={{ input: 'text-right' }}
+          {...rest}
+        />
+      </Box>
+      {bottomElement}
     </Box>
   );
 };

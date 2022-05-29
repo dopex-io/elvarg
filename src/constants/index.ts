@@ -290,7 +290,7 @@ export const TOKENS = Object.keys(TOKEN_DATA);
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  42161: `https://rpc.ankr.com/arbitrum/${ANKR_KEY}`,
+  42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   1088: 'https://andromeda.metis.io/?owner=1088',

@@ -14,6 +14,7 @@ import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import { CHAIN_ID_TO_RPC } from 'constants/index';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -33,9 +34,6 @@ interface WalletContextInterface {
   supportedChainIds: number[];
   changeNetwork?: 'user' | 'wrong-network' | 'close';
 }
-
-const DEFAULT_CHAIN_ID =
-  Number(process.env['NEXT_PUBLIC_DEFAULT_CHAIN_ID']) ?? 42161;
 
 const _Addresses = Addresses as unknown as { [key: string]: any };
 
@@ -73,6 +71,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
+  '/vaults/ir/MIM3CRV': { default: 42161, all: [42161] },
 };
 
 let web3Modal: Web3Modal | undefined;
@@ -173,7 +172,8 @@ export const WalletProvider = (props: { children: ReactNode }) => {
 
       if (
         PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId)
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&
+        PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length !== 0
       ) {
         setState((prevState: any) => ({
           ...prevState,
