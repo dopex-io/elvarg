@@ -23,8 +23,8 @@ const Description = () => {
         </Typography>
       </Box>
       <Typography variant="h4" className="text-stieglitz mt-6 mb-6">
-        This vault accepts MIM3CRV LP deposits and lets users write Interest
-        Rate options that allows for bet/hedge on the underlying interest rate.
+        This vault accepts 2CRV LP deposits and lets users write Interest Rate
+        options that allows for bet/hedge on the underlying interest rate.
       </Typography>
     </Box>
   );

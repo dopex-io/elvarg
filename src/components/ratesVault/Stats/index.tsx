@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -114,48 +115,55 @@ const Stats = ({
           >
             <Box className="flex mb-4">
               <Typography variant="h5" className="text-stieglitz">
-                Premiums Collected
+                Deposits
               </Typography>
               <ArrowUpIcon className="mr-1 ml-auto mt-1.5 rotate-180 cursor-not-allowed" />
             </Box>
 
             {rateVaultContext.rateVaultEpochData.epochStrikes.map(
-              (strike, strikeIndex) => (
-                <Box className="flex" key={strikeIndex}>
-                  <Box
-                    className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
-                  >
-                    <FlagIcon
-                      className={'mt-[6px] mr-1.5'}
-                      /* @ts-ignore TODO: FIX */
-                      fill={STRIKE_INDEX_TO_COLOR[strikeIndex]}
-                    />
+              (strike, strikeIndex) => {
+                const deposits =
+                  activeVaultContextSide === 'CALL'
+                    ? rateVaultContext.rateVaultEpochData.callsDeposits[
+                        strikeIndex
+                      ]
+                    : rateVaultContext.rateVaultEpochData.putsDeposits[
+                        strikeIndex
+                      ];
+                return (
+                  <Box className="flex" key={strikeIndex}>
+                    <Box
+                      className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
+                    >
+                      <FlagIcon
+                        className={'mt-[6px] mr-1.5'}
+                        /* @ts-ignore TODO: FIX */
+                        fill={STRIKE_INDEX_TO_COLOR[strikeIndex]}
+                      />
+                      <Typography
+                        variant={'h6'}
+                        className={'text-sm text-stieglitz'}
+                      >
+                        {getUserReadableAmount(strike, 8)}%
+                      </Typography>
+                    </Box>
+
                     <Typography
                       variant={'h6'}
-                      className={'text-sm text-stieglitz'}
+                      className={'text-sm text-white mt-1  ml-auto mr-2'}
                     >
-                      {getUserReadableAmount(strike, 8)}%
+                      $
+                      {formatAmount(
+                        getUserReadableAmount(
+                          deposits || BigNumber.from('0'),
+                          18
+                        ),
+                        2
+                      )}
                     </Typography>
                   </Box>
-
-                  <Typography
-                    variant={'h6'}
-                    className={'text-sm text-white mt-1  ml-auto mr-2'}
-                  >
-                    $
-                    {getUserReadableAmount(
-                      String(
-                        activeVaultContextSide === 'CALL'
-                          ? rateVaultContext.rateVaultEpochData
-                              .epochStrikeCallsPremium[strikeIndex]
-                          : rateVaultContext.rateVaultEpochData
-                              .epochStrikePutsPremium[strikeIndex]
-                      ),
-                      2
-                    )}
-                  </Typography>
-                </Box>
-              )
+                );
+              }
             )}
           </Box>
           <Box className={'w-full flex'}>
@@ -174,7 +182,7 @@ const Stats = ({
                       {formatAmount(
                         getUserReadableAmount(
                           rateVaultContext.rateVaultEpochData.rate,
-                          9
+                          6
                         ),
                         2
                       )}
