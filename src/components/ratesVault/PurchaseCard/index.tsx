@@ -108,7 +108,7 @@ const PurchaseCard = ({
     return getUserReadableAmount(available || BigNumber.from('0'), 18);
   }, [strikeIndex, activeVaultContextSide, rateVaultContext]);
 
-  const [rawNotionalSize, setRawNotionalSize] = useState<string>('1');
+  const [rawNotionalSize, setRawNotionalSize] = useState<string>('1000');
 
   const notionalSize: number = useMemo(() => {
     return parseFloat(rawNotionalSize) || 0;
@@ -306,7 +306,7 @@ const PurchaseCard = ({
 
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
-      notionalSize <= 0 ||
+      notionalSize < 1000 ||
         !isPurchasePowerEnough ||
         isPurchaseStatsLoading ||
         getUserReadableAmount(totalCost, 18) > purchasePower ||
@@ -330,7 +330,7 @@ const PurchaseCard = ({
     if (isLiquidityEnough) {
       if (isPurchaseStatsLoading) {
         children = 'Loading prices...';
-      } else if (notionalSize > 0) {
+      } else if (notionalSize >= 1000) {
         if (getUserReadableAmount(totalCost, 18) > purchasePower) {
           children = 'Insufficient Balance';
         } else if (approved) {
@@ -339,7 +339,7 @@ const PurchaseCard = ({
           children = 'Approve';
         }
       } else {
-        children = 'Enter an amount';
+        children = 'Min. amount is $1000';
       }
     } else {
       children = 'Not enough liquidity';

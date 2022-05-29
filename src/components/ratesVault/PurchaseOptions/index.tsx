@@ -86,7 +86,7 @@ const PurchaseOptions = ({
         available: Math.max(0, getUserReadableAmount(available, 18)),
         strike: getUserReadableAmount(strike, 8),
         volatility: getUserReadableAmount(volatility, 0),
-        price: getUserReadableAmount(price, 18),
+        price: getUserReadableAmount(price.mul(1000), 18),
         side: ssovContextSide,
       };
     };
@@ -212,7 +212,12 @@ const PurchaseOptions = ({
                         className="text-stieglitz bg-cod-gray border-0 pb-0"
                       >
                         <Typography variant="h6" className="text-stieglitz">
-                          Buy
+                          Price
+                        </Typography>
+                        <Typography variant="h6">
+                          <span className="text-stieglitz">
+                            for $1000 notional
+                          </span>
                         </Typography>
                       </TableCell>
                     </TableRow>
