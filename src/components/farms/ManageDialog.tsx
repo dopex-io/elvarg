@@ -24,12 +24,12 @@ export interface BasicManageDialogProps {
   data: {
     userStakingRewardsBalance: BigNumber;
     userStakingTokenBalance: BigNumber;
+    status: 'RETIRED' | 'ACTIVE';
+    stakingTokenSymbol: string;
+    stakingRewardsAddress: string;
+    stakingTokenAddress: string;
   };
   open: boolean;
-  status: 'RETIRED' | 'ACTIVE';
-  stakingTokenSymbol: string;
-  stakingRewardsAddress: string;
-  stakingTokenAddress: string;
 }
 
 interface Props extends BasicManageDialogProps {
@@ -37,15 +37,7 @@ interface Props extends BasicManageDialogProps {
 }
 
 const ManageDialog = (props: Props) => {
-  const {
-    data,
-    open,
-    handleClose,
-    stakingTokenSymbol,
-    stakingRewardsAddress,
-    stakingTokenAddress,
-    status,
-  } = props;
+  const { data, open, handleClose } = props;
 
   const [activeTab, setActiveTab] = useState(1);
   const [error, setError] = useState('');
@@ -95,17 +87,17 @@ const ManageDialog = (props: Props) => {
       if (
         !!error ||
         !signer ||
-        !stakingRewardsAddress ||
-        !stakingTokenAddress ||
+        !data.stakingRewardsAddress ||
+        !data.stakingTokenAddress ||
         !value
       )
         return;
 
       const _accountAddress = await signer?.getAddress();
       let allowance = await ERC20__factory.connect(
-        stakingTokenAddress,
+        data.stakingTokenAddress,
         signer
-      ).allowance(_accountAddress, stakingRewardsAddress);
+      ).allowance(_accountAddress, data.stakingRewardsAddress);
 
       if (
         utils.parseEther(value).lte(allowance) &&
@@ -116,47 +108,49 @@ const ManageDialog = (props: Props) => {
         setApproved(false);
       }
     })();
-  }, [signer, stakingRewardsAddress, stakingTokenAddress, value, error]);
+  }, [signer, data, value, error]);
 
   const handleDeposit = useCallback(async () => {
     if (!signer) return;
     try {
       await sendTx(
-        StakingRewards__factory.connect(stakingRewardsAddress, signer).stake(
-          utils.parseEther(value)
-        )
+        StakingRewards__factory.connect(
+          data.stakingRewardsAddress,
+          signer
+        ).stake(utils.parseEther(value))
       );
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, value, stakingRewardsAddress]);
+  }, [signer, sendTx, value, data]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
     try {
       await sendTx(
-        ERC20__factory.connect(stakingTokenAddress, signer).approve(
-          stakingRewardsAddress,
+        ERC20__factory.connect(data.stakingTokenAddress, signer).approve(
+          data.stakingRewardsAddress,
           MAX_VALUE
         )
       );
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, stakingTokenAddress, stakingRewardsAddress]);
+  }, [signer, sendTx, data]);
 
   const handleWithdraw = useCallback(async () => {
     if (!signer) return;
     try {
       await sendTx(
-        StakingRewards__factory.connect(stakingRewardsAddress, signer).withdraw(
-          utils.parseEther(value)
-        )
+        StakingRewards__factory.connect(
+          data.stakingRewardsAddress,
+          signer
+        ).withdraw(utils.parseEther(value))
       );
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, value, stakingRewardsAddress]);
+  }, [signer, sendTx, value, data]);
 
   return (
     <Dialog open={open} showCloseIcon handleClose={handleClose}>
@@ -166,7 +160,7 @@ const ManageDialog = (props: Props) => {
           <Tab
             active={activeTab === 0}
             onClick={() => setActiveTab(0)}
-            disabled={status === 'RETIRED'}
+            disabled={data.status === 'RETIRED'}
             title="Deposit"
           />
           <Tab
@@ -179,8 +173,8 @@ const ManageDialog = (props: Props) => {
           leftElement={
             <Box className="mr-2 flex space-x-2">
               <img
-                src={`/images/tokens/${stakingTokenSymbol?.toLowerCase()}.svg`}
-                alt={stakingTokenSymbol}
+                src={`/images/tokens/${data.stakingTokenSymbol?.toLowerCase()}.svg`}
+                alt={data.stakingTokenSymbol}
                 className="w-8 h-8"
               />
               <CustomButton

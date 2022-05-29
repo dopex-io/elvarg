@@ -5,14 +5,15 @@ import { useContext } from 'react';
 import { FarmingContext } from 'contexts/Farming';
 
 import Chip from './Chip';
+
 import formatAmount from 'utils/general/formatAmount';
 
 const LpRatios = ({
   stakingTokenSymbol,
-  userDeposit,
+  userStakingRewardsBalance,
 }: {
   stakingTokenSymbol: string;
-  userDeposit: BigNumber;
+  userStakingRewardsBalance: BigNumber;
 }) => {
   const { lpData } = useContext(FarmingContext);
 
@@ -23,16 +24,16 @@ const LpRatios = ({
   const amountToken0 =
     token0Symbol === 'RDPX'
       ? lpData.rdpxWethLpTokenRatios.rdpx *
-        Number(utils.formatEther(userDeposit))
+        Number(utils.formatEther(userStakingRewardsBalance))
       : lpData.dpxWethLpTokenRatios.dpx *
-        Number(utils.formatEther(userDeposit));
+        Number(utils.formatEther(userStakingRewardsBalance));
 
   const amountEth =
     token0Symbol === 'RDPX'
       ? lpData.rdpxWethLpTokenRatios.weth *
-        Number(utils.formatEther(userDeposit))
+        Number(utils.formatEther(userStakingRewardsBalance))
       : lpData.dpxWethLpTokenRatios.weth *
-        Number(utils.formatEther(userDeposit));
+        Number(utils.formatEther(userStakingRewardsBalance));
 
   return (
     <Box className="flex space-x-2">

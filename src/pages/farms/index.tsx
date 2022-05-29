@@ -9,23 +9,25 @@ import FarmCard from 'components/farms/FarmCard';
 import ManageDialog, {
   BasicManageDialogProps,
 } from 'components/farms/ManageDialog';
-
-import { WalletContext } from 'contexts/Wallet';
-import { FarmingContext, FarmingProvider, FARMS } from 'contexts/Farming';
 import Typography from 'components/UI/Typography';
 import ClaimCard from 'components/farms/ClaimCard';
 import QuickLinks from 'components/farms/QuickLinks';
+
+import { WalletContext } from 'contexts/Wallet';
+import { FarmingContext, FarmingProvider } from 'contexts/Farming';
+
+import { FARMS } from 'constants/farms';
 
 const initialDialogData: BasicManageDialogProps = {
   data: {
     userStakingRewardsBalance: BigNumber.from(0),
     userStakingTokenBalance: BigNumber.from(0),
+    status: 'ACTIVE',
+    stakingTokenSymbol: '',
+    stakingRewardsAddress: '',
+    stakingTokenAddress: '',
   },
   open: false,
-  status: 'ACTIVE',
-  stakingTokenSymbol: '',
-  stakingRewardsAddress: '',
-  stakingTokenAddress: '',
 };
 
 const Farms = () => {
@@ -59,28 +61,28 @@ const Farms = () => {
               return (
                 <FarmCard
                   key={index}
+                  setDialog={setDialog}
                   farmsDataLoading={data.farmsDataLoading}
                   userDataLoading={data.userDataLoading}
+                  stakingTokenSymbol={farm.stakingTokenSymbol}
+                  stakingRewardsAddress={farm.stakingRewardsAddress}
+                  stakingTokenAddress={farm.stakingTokenAddress}
+                  type={farm.type}
+                  status={farm.status}
+                  lpData={data.lpData}
                   TVL={data.farmsData[index]?.TVL || 0}
                   APR={data.farmsData[index]?.APR || 0}
                   farmTotalSupply={
                     data.farmsData[index]?.farmTotalSupply || BigNumber.from(1)
                   }
-                  stakingTokenSymbol={farm.stakingToken}
-                  userDeposit={
+                  userStakingRewardsBalance={
                     data.userData[index]?.userStakingRewardsBalance ||
                     BigNumber.from(0)
                   }
-                  userBalance={
+                  userStakingTokenBalance={
                     data.userData[index]?.userStakingTokenBalance ||
                     BigNumber.from(0)
                   }
-                  stakingRewardsAddress={farm.stakingRewardsAddress}
-                  stakingTokenAddress={farm.stakingTokenAddress}
-                  lpData={data.lpData}
-                  type={farm.type}
-                  status={farm.status}
-                  setDialog={setDialog}
                 />
               );
             })}
@@ -108,7 +110,7 @@ const Farms = () => {
                   return (
                     <ClaimCard
                       key={index}
-                      stakingTokenSymbol={_farm.stakingToken}
+                      stakingTokenSymbol={_farm.stakingTokenSymbol}
                       stakingRewardsAddress={_farm.stakingRewardsAddress}
                       userRewardsEarned={item.userRewardsEarned}
                       rewardTokens={_farm.rewardTokens}

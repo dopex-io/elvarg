@@ -17,7 +17,7 @@ interface Props {
   stakingTokenSymbol: string;
   stakingRewardsAddress: string;
   userRewardsEarned: BigNumber[];
-  rewardTokens: { symbol: string; address: symbol }[];
+  rewardTokens: { symbol: string; address: string }[];
 }
 
 const ClaimCard = (props: Props) => {

@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { ReactNode, useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { BigNumber, utils } from 'ethers';
@@ -13,10 +13,11 @@ import Chip from './Chip';
 import LpRatios from './LpRatios';
 
 import { WalletContext } from 'contexts/Wallet';
-import { LpData } from 'contexts/Farming';
 
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
+
+import { LpData } from 'types/farms';
 
 const Header = ({
   stakingTokenSymbol,
@@ -56,21 +57,40 @@ const Header = ({
   );
 };
 
+const UserStat = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) => {
+  return (
+    <Box className="w-full mb-3">
+      <Typography variant="caption" color="stieglitz" className="mb-3">
+        {title}
+      </Typography>
+      <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
+        <Box className="flex items-center space-x-1">{children}</Box>
+      </Box>
+    </Box>
+  );
+};
+
 interface Props {
-  farmsDataLoading: boolean;
-  userDataLoading: boolean;
+  setDialog: Function;
+  userStakingRewardsBalance: BigNumber;
+  userStakingTokenBalance: BigNumber;
+  farmTotalSupply: BigNumber;
+  lpData: LpData;
   TVL: number;
   APR: number;
   stakingTokenSymbol: string;
-  userDeposit: BigNumber;
-  userBalance: BigNumber;
   stakingRewardsAddress: string;
   stakingTokenAddress: string;
+  farmsDataLoading: boolean;
+  userDataLoading: boolean;
   status: 'RETIRED' | 'ACTIVE';
   type: 'SINGLE' | 'LP';
-  setDialog: Function;
-  lpData: LpData;
-  farmTotalSupply: BigNumber;
 }
 
 const FarmCard = (props: Props) => {
@@ -80,10 +100,10 @@ const FarmCard = (props: Props) => {
     TVL,
     APR,
     stakingTokenSymbol,
-    userDeposit,
+    userStakingRewardsBalance,
     stakingRewardsAddress,
     stakingTokenAddress,
-    userBalance,
+    userStakingTokenBalance,
     type,
     status,
     setDialog,
@@ -96,8 +116,8 @@ const FarmCard = (props: Props) => {
   const onManage = () => {
     setDialog({
       data: {
-        userStakingTokenBalance: userBalance,
-        userStakingRewardsBalance: userDeposit,
+        userStakingTokenBalance,
+        userStakingRewardsBalance,
       },
       open: true,
       status,
@@ -119,7 +139,7 @@ const FarmCard = (props: Props) => {
     return 0;
   }, [lpData, stakingTokenSymbol]);
 
-  if (userDeposit.isZero() && status === 'RETIRED') return <></>;
+  if (userStakingRewardsBalance.isZero() && status === 'RETIRED') return <></>;
 
   return (
     <Box className="bg-cod-gray text-red rounded-2xl p-3 flex flex-col space-y-3 w-[343px]">
@@ -146,7 +166,7 @@ const FarmCard = (props: Props) => {
         )}
       </Box>
       {userDataLoading ? (
-        <Skeleton variant="rectangular" width={319} height={168} />
+        <Skeleton variant="rectangular" width={319} height={180} />
       ) : (
         <Box className="bg-umbra p-3 w-full rounded-md">
           {!accountAddress ? (
@@ -155,69 +175,47 @@ const FarmCard = (props: Props) => {
             </Box>
           ) : (
             <>
-              <Typography variant="caption" color="stieglitz" className="mb-3">
-                Deposits
-              </Typography>
-              <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-3">
+              <UserStat title="Deposits">
                 <Box className="flex items-center space-x-1">
                   <Typography variant="caption">
-                    <NumberDisplay n={userDeposit} decimals={18} />
+                    <NumberDisplay
+                      n={userStakingRewardsBalance}
+                      decimals={18}
+                    />
                   </Typography>
                 </Box>
                 {type === 'LP' ? (
                   <LpRatios
-                    userDeposit={userDeposit}
+                    userStakingRewardsBalance={userStakingRewardsBalance}
                     stakingTokenSymbol={stakingTokenSymbol}
                   />
                 ) : (
                   <Chip text={stakingTokenSymbol} />
                 )}
-              </Box>
+              </UserStat>
               <Box className="flex space-x-3">
-                <Box className="w-full">
-                  <Typography
-                    variant="caption"
-                    color="stieglitz"
-                    className="mb-3"
-                  >
-                    Pool Share
+                <UserStat title="Pool Share">
+                  <Typography variant="caption">
+                    {formatAmount(
+                      new BN(userStakingRewardsBalance.toString())
+                        .multipliedBy(1e2)
+                        .dividedBy(new BN(farmTotalSupply.toString()))
+                        .toNumber(),
+                      8
+                    )}
+                    %
                   </Typography>
-                  <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
-                    <Box className="flex items-center space-x-1">
-                      <Typography variant="caption">
-                        {formatAmount(
-                          new BN(userDeposit.toString())
-                            .multipliedBy(1e2)
-                            .dividedBy(new BN(farmTotalSupply.toString()))
-                            .toNumber(),
-                          8
-                        )}
-                        %
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-                <Box className="w-full">
-                  <Typography
-                    variant="caption"
-                    color="stieglitz"
-                    className="mb-3"
-                  >
-                    USD Value
+                </UserStat>
+                <UserStat title="USD Value">
+                  <Typography variant="caption">
+                    $
+                    {formatAmount(
+                      Number(utils.formatEther(userStakingRewardsBalance)) *
+                        stakingTokenPrice,
+                      2
+                    )}
                   </Typography>
-                  <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
-                    <Box className="flex items-center space-x-1">
-                      <Typography variant="caption">
-                        $
-                        {formatAmount(
-                          Number(utils.formatEther(userDeposit)) *
-                            stakingTokenPrice,
-                          2
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                </UserStat>
               </Box>
             </>
           )}
