@@ -130,11 +130,11 @@ const PurchaseCard = ({
   }, [notionalSize, optionPrice]);
 
   const totalCost: BigNumber = useMemo(() => {
-    let amount: number = Math.round(optionsAmount);
+    let amount: number = Math.round(notionalSize);
     return Number.isFinite(amount)
       ? optionPrice.mul(BigNumber.from(amount))
       : BigNumber.from('0');
-  }, [optionPrice, optionsAmount]);
+  }, [optionPrice, notionalSize]);
 
   const fees: BigNumber = useMemo(() => {
     const _fees =
@@ -143,10 +143,10 @@ const PurchaseCard = ({
         : rateVaultEpochData.putsFees[strikeIndex];
 
     return (
-      _fees?.mul(BigNumber.from(Math.round(optionsAmount))) ||
+      _fees?.mul(BigNumber.from(Math.round(notionalSize))) ||
       BigNumber.from('0')
     );
-  }, [rateVaultEpochData, strikeIndex, optionsAmount, activeVaultContextSide]);
+  }, [rateVaultEpochData, strikeIndex, notionalSize, activeVaultContextSide]);
 
   const premium: BigNumber = useMemo(() => {
     const _premium =
