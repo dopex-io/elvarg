@@ -59,6 +59,16 @@ const Farms = () => {
           <Typography variant="h5" className="mb-6">
             Farms
           </Typography>
+          {FARMS[chainId]?.filter((farm, index) => {
+            if (
+              data.userData[index]?.userStakingRewardsBalance.isZero() &&
+              farm.status === 'RETIRED'
+            )
+              return false;
+            return true;
+          }).length === 0
+            ? 'Nothing to show here'
+            : null}
           <Box
             className="grid grid-cols-1 gap-6"
             css={css`
