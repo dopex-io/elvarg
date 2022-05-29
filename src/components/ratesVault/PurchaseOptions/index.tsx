@@ -256,7 +256,7 @@ const PurchaseOptions = ({
                               <Typography variant="h6">
                                 {ssovContextSide === 'CALL' ? '+' : '-'}
                                 {formatAmount(
-                                  (row['price'] * 1000 * 52) / (1 / 100),
+                                  (row['price'] * 52) / (1 / 100),
                                   2
                                 )}
                                 %
@@ -292,7 +292,7 @@ const PurchaseOptions = ({
                                     : 'bg-umbra cursor-pointer'
                                 }
                               >
-                                ${formatAmount(row['price'], 8)}
+                                ${formatAmount(row['price'] * 1000, 8)}
                               </Button>
                             </TableCell>
                           </TableRow>
