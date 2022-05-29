@@ -110,7 +110,7 @@ const Positions = () => {
               epochTimes[0].toNumber()) /
             86400;
           let pnl = 0;
-          const price = getUserReadableAmount(rateVaultEpochData.rate, 18);
+          const price = rateVaultEpochData.rate.toNumber();
           const strike = purchase.strike.toNumber();
           const amount = getUserReadableAmount(
             contextSide === 'CALL'
@@ -118,7 +118,6 @@ const Positions = () => {
               : purchase.putsPurchased,
             18
           );
-
           if (contextSide === 'CALL') {
             if (strike < price) {
               pnl = ((price - strike) * amount * duration) / 36500 / 1e8;
@@ -277,11 +276,11 @@ const Positions = () => {
                             className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}
                           >
                             <Typography variant="h6">
-                              $
                               {formatAmount(
                                 getUserReadableAmount(position['strike'], 8),
                                 0
                               )}
+                              %
                             </Typography>
                           </Box>
                         </Box>

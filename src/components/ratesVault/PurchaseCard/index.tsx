@@ -17,15 +17,14 @@ import { BigNumber } from 'ethers';
 import format from 'date-fns/format';
 import axios from 'axios';
 import cx from 'classnames';
+import Tooltip from '@mui/material/Tooltip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import PnlChart from 'components/common/PnlChart';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';
-import ZapOutButton from 'components/common/ZapOutButton';
-import BigCrossIcon from 'svgs/icons/BigCrossIcon';
-import CircleIcon from 'svgs/icons/CircleIcon';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -357,10 +356,6 @@ const PurchaseCard = ({
     totalCost,
   ]);
 
-  const handleZapOut = () => {
-    setPurchaseTokenName('2CRV');
-  };
-
   return (
     <Box
       className={cx(
@@ -370,17 +365,6 @@ const PurchaseCard = ({
     >
       <Box className="flex flex-row items-center mb-4">
         <Typography variant="h5">Buy Options</Typography>
-        <ZapOutButton isZapActive={isZapActive} handleClick={handleZapOut} />
-        <IconButton
-          className={
-            isZapActive
-              ? 'p-0 pb-1 mr-0 mt-0.5 ml-4'
-              : 'p-0 pb-1 mr-0 mt-0.5 ml-auto'
-          }
-          size="large"
-        >
-          <BigCrossIcon className="" />
-        </IconButton>
       </Box>
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="flex flex-row justify-between">
@@ -436,15 +420,15 @@ const PurchaseCard = ({
               breakEven={
                 activeVaultContextSide === 'PUT'
                   ? Number(strikes[strikeIndex]) -
-                    getUserReadableAmount(optionPrice, 8)
+                    getUserReadableAmount(optionPrice, 18)
                   : Number(strikes[strikeIndex]) +
-                    getUserReadableAmount(optionPrice, 8)
+                    getUserReadableAmount(optionPrice, 18)
               }
-              optionPrice={getUserReadableAmount(optionPrice, 8)}
+              optionPrice={getUserReadableAmount(optionPrice, 18)}
               amount={notionalSize}
               isPut={activeVaultContextSide === 'PUT'}
-              price={getUserReadableAmount(lpPrice, 8)}
-              symbol={'2CRV'}
+              price={getUserReadableAmount(lpPrice, 18)}
+              symbol={'MIM3CRV Rate'}
             />
           </Box>
         ) : (
@@ -527,16 +511,27 @@ const PurchaseCard = ({
                   </Typography>
                 </Box>
               </Box>
-              <Box className={'flex mb-2'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Option Price
-                </Typography>
+              <Box className={'flex justify-between mb-2'}>
+                <Box className={'flex'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    Option Price
+                  </Typography>
+                  <Box className="ml-1 flex items-end">
+                    <Tooltip
+                      className="h-4 text-stieglitz"
+                      title={'Option price for 1000$ of notional'}
+                      arrow={true}
+                    >
+                      <InfoOutlinedIcon />
+                    </Tooltip>
+                  </Box>
+                </Box>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    ${formatAmount(getUserReadableAmount(optionPrice, 18), 6)}
+                    ${formatAmount(getUserReadableAmount(optionPrice, 15), 6)}
                   </Typography>
                 </Box>
               </Box>
@@ -570,24 +565,7 @@ const PurchaseCard = ({
           </Box>
         )}
       </Box>
-      <Box className="flex mt-5 mb-5">
-        <CircleIcon
-          className={
-            isChartVisible
-              ? 'ml-auto mr-3 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-              : 'ml-auto mr-3 h-5 w-5 fill-white stroke-white cursor-pointer'
-          }
-          onClick={() => setIsChartVisible(false)}
-        />
-        <CircleIcon
-          className={
-            isChartVisible
-              ? 'mr-auto ml-0 h-5 w-5 fill-white stroke-white cursor-pointer'
-              : 'mr-auto ml-0 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-          }
-          onClick={() => setIsChartVisible(true)}
-        />
-      </Box>
+      <Box className="flex mt-3 mb-2"></Box>
       <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
           <Box className={'flex mb-2'}>
