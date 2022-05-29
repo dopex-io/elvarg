@@ -161,8 +161,6 @@ const PurchaseCard = ({
 
   const [purchaseTokenName, setPurchaseTokenName] = useState<string>('2CRV');
 
-  const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
-
   const isZapActive: boolean = useMemo(() => {
     if (activeVaultContextSide === 'PUT')
       return !['2CRV', 'USDC', 'USDT'].includes(
