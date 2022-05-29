@@ -1,0 +1,75 @@
+import { Farm } from 'types/farms';
+
+const REWARD_TOKENS = [
+  {
+    symbol: 'DPX',
+    address: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
+  },
+  {
+    symbol: 'RDPX',
+    address: '0x32eb7902d4134bf98a28b963d26de779af92a212',
+  },
+];
+
+export const FARMS: { [key: number]: Farm[] } = {
+  42161: [
+    {
+      stakingTokenSymbol: 'DPX',
+      stakingTokenAddress: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
+      stakingRewardsAddress: '0xc6D714170fE766691670f12c2b45C1f34405AAb6',
+      rewardTokens: REWARD_TOKENS,
+      status: 'ACTIVE',
+      type: 'SINGLE',
+    },
+    {
+      stakingTokenSymbol: 'DPX-WETH',
+      stakingTokenAddress: '0x0C1Cf6883efA1B496B01f654E247B9b419873054',
+      stakingRewardsAddress: '0x96B0d9c85415C69F4b2FAC6ee9e9CE37717335B4',
+      rewardTokens: REWARD_TOKENS,
+      status: 'ACTIVE',
+      type: 'LP',
+    },
+    {
+      stakingTokenSymbol: 'RDPX-WETH',
+      stakingTokenAddress: '0x7418F5A2621E13c05d1EFBd71ec922070794b90a',
+      stakingRewardsAddress: '0x03ac1Aa1ff470cf376e6b7cD3A3389Ad6D922A74',
+      rewardTokens: REWARD_TOKENS,
+      status: 'ACTIVE',
+      type: 'LP',
+    },
+    {
+      stakingTokenSymbol: 'RDPX',
+      stakingTokenAddress: '0x32eb7902d4134bf98a28b963d26de779af92a212',
+      stakingRewardsAddress: '0x8d481245801907b45823Fb032E6848d0D3c29AE5',
+      rewardTokens: REWARD_TOKENS,
+      status: 'RETIRED',
+      type: 'SINGLE',
+    },
+    {
+      stakingTokenSymbol: 'RDPX',
+      stakingTokenAddress: '0x32eb7902d4134bf98a28b963d26de779af92a212',
+      stakingRewardsAddress: '0x125Cc7CCE81A809c825C945E5aA874E60ccCB6Bb',
+      rewardTokens: REWARD_TOKENS,
+      status: 'RETIRED',
+      type: 'SINGLE',
+    },
+  ],
+  1: [
+    {
+      stakingTokenSymbol: 'DPX-WETH',
+      stakingTokenAddress: '0xf64af01a14c31164ff7381cf966df6f2b4cb349f',
+      stakingRewardsAddress: '0x2a52330be21d311a7a3f40dacbfee8978541b74a',
+      rewardTokens: REWARD_TOKENS,
+      status: 'RETIRED',
+      type: 'LP',
+    },
+    {
+      stakingTokenSymbol: 'RDPX-WETH',
+      stakingTokenAddress: '0x0bf46ba06dc1d33c3bd80ff42497ebff13a88900',
+      stakingRewardsAddress: '0x175029c85b14c326c83c9f83d4a21ca339f44cb5',
+      rewardTokens: REWARD_TOKENS,
+      status: 'RETIRED',
+      type: 'LP',
+    },
+  ],
+};
