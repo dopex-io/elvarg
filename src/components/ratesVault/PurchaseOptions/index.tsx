@@ -212,7 +212,12 @@ const PurchaseOptions = ({
                         className="text-stieglitz bg-cod-gray border-0 pb-0"
                       >
                         <Typography variant="h6" className="text-stieglitz">
-                          Buy
+                          Price
+                        </Typography>
+                        <Typography variant="h6">
+                          <span className="text-stieglitz">
+                            for $1000 notional
+                          </span>
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -287,7 +292,7 @@ const PurchaseOptions = ({
                                     : 'bg-umbra cursor-pointer'
                                 }
                               >
-                                ${formatAmount(row['price'], 8)}
+                                ${formatAmount(row['price'] * 1000, 8)}
                               </Button>
                             </TableCell>
                           </TableRow>
