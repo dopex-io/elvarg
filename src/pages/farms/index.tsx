@@ -112,60 +112,58 @@ const Farms = () => {
           </Box>
         </Box>
         <Box className="lg:w-80 flex flex-col mx-4 space-y-4">
-          <Box className="flex-grow">
-            <Typography variant="h5" className="mb-3">
-              Claimable
-            </Typography>
-            {data.userData.filter((item, index) => {
-              if (!item) {
-                return false;
-              } else if (
-                !item.userRewardsEarned[0]?.isZero() ||
-                !item.userRewardsEarned[1]?.isZero()
-              ) {
-                let _farms = FARMS[chainId];
-
-                if (!_farms) return false;
-
-                let _farm = _farms[index];
-
-                if (!_farm) return false;
-
-                return true;
-              }
+          <Typography variant="h5" className="mb-2">
+            Claimable
+          </Typography>
+          {data.userData.filter((item, index) => {
+            if (!item) {
               return false;
-            }).length === 0
-              ? 'Nothing to show here. '
-              : null}
-            {accountAddress
-              ? data.userData.map((item, index) => {
-                  if (!item) return null;
-                  if (
-                    !item.userRewardsEarned[0]?.isZero() ||
-                    !item.userRewardsEarned[1]?.isZero()
-                  ) {
-                    let _farms = FARMS[chainId];
+            } else if (
+              !item.userRewardsEarned[0]?.isZero() ||
+              !item.userRewardsEarned[1]?.isZero()
+            ) {
+              let _farms = FARMS[chainId];
 
-                    if (!_farms) return null;
+              if (!_farms) return false;
 
-                    let _farm = _farms[index];
+              let _farm = _farms[index];
 
-                    if (!_farm) return null;
+              if (!_farm) return false;
 
-                    return (
-                      <ClaimCard
-                        key={index}
-                        stakingTokenSymbol={_farm.stakingTokenSymbol}
-                        stakingRewardsAddress={_farm.stakingRewardsAddress}
-                        userRewardsEarned={item.userRewardsEarned}
-                        rewardTokens={_farm.rewardTokens}
-                      />
-                    );
-                  }
-                  return null;
-                })
-              : 'Please connect your wallet'}
-          </Box>
+              return true;
+            }
+            return false;
+          }).length === 0
+            ? 'Nothing to show here. '
+            : null}
+          {accountAddress
+            ? data.userData.map((item, index) => {
+                if (!item) return null;
+                if (
+                  !item.userRewardsEarned[0]?.isZero() ||
+                  !item.userRewardsEarned[1]?.isZero()
+                ) {
+                  let _farms = FARMS[chainId];
+
+                  if (!_farms) return null;
+
+                  let _farm = _farms[index];
+
+                  if (!_farm) return null;
+
+                  return (
+                    <ClaimCard
+                      key={index}
+                      stakingTokenSymbol={_farm.stakingTokenSymbol}
+                      stakingRewardsAddress={_farm.stakingRewardsAddress}
+                      userRewardsEarned={item.userRewardsEarned}
+                      rewardTokens={_farm.rewardTokens}
+                    />
+                  );
+                }
+                return null;
+              })
+            : 'Please connect your wallet'}
           <QuickLinks />
         </Box>
       </Box>
