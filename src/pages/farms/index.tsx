@@ -56,7 +56,7 @@ const Farms = () => {
           <Typography variant="h5" className="mb-6">
             Farms
           </Typography>
-          <Box className="grid lg:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-6">
+          <Box className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
             {FARMS[chainId]?.map((farm, index) => {
               return (
                 <FarmCard

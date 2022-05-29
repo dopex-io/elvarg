@@ -50,21 +50,22 @@ const ManageDialog = (props: Props) => {
 
   const sendTx = useSendTx();
 
-  const handleChange = (e: { target: { value: string } }) => {
+  const handleChange = useCallback((e: { target: { value: string } }) => {
     setValue(e.target.value);
-  };
+  }, []);
 
-  const handleMax = () => {
+  const handleMax = useCallback(() => {
     setValue(
       activeTab === 0
         ? utils.formatEther(data.userStakingTokenBalance)
         : utils.formatEther(data.userStakingRewardsBalance)
     );
-  };
+  }, [activeTab, data]);
 
   useEffect(() => {
+    console.log(value);
     if (!value) {
-      return;
+      setError('');
     } else if (isNaN(Number(value))) {
       setError('Please only enter numbers');
     } else if (
@@ -238,7 +239,7 @@ const ManageDialog = (props: Props) => {
         <CustomButton
           size="medium"
           fullWidth
-          disabled={!!error || !amount}
+          disabled={!!error || !value}
           onClick={
             activeTab === 0
               ? approved
