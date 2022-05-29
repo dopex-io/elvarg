@@ -37,8 +37,8 @@ const LpRatios = ({
 
   return (
     <Box className="flex space-x-2">
-      <Chip text={`${formatAmount(amountToken0, 2)} ${token0Symbol}`} />
-      <Chip text={`${formatAmount(amountEth, 2)} ETH`} />
+      <Chip text={`${formatAmount(amountToken0, 1)} ${token0Symbol}`} />
+      <Chip text={`${formatAmount(amountEth, 1)} ETH`} />
     </Box>
   );
 };
