@@ -8,8 +8,11 @@ import Typography from 'components/UI/Typography';
 import ActiveDuel from 'components/nfts/duel/ActiveDuel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
+import React from 'react';
 
 const DuelPepes = () => {
+  const [activeFilter, setActiveFilter] = useState<string>('open');
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -142,6 +145,64 @@ const DuelPepes = () => {
               isCreatorWinner={true}
               isRevealed={false}
             />
+          </Box>
+        </Box>
+
+        <Box className="flex">
+          <Typography
+            variant="h3"
+            className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 text-center"
+          >
+            <span className={styles['pepeLink']}>ALL DUELS</span>
+          </Typography>
+        </Box>
+
+        <Box className={'w-full flex'}>
+          <Box
+            className={
+              'flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-1/2'
+            }
+          >
+            <Box
+              className={
+                activeFilter === 'open'
+                  ? 'text-center w-full pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
+                  : 'text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+              }
+            >
+              <Typography
+                variant="h6"
+                className={
+                  activeFilter === 'open'
+                    ? 'text-xs font-normal'
+                    : 'text-[#78859E] text-xs font-normal'
+                }
+                onClick={() => setActiveFilter('open')}
+              >
+                OPEN
+              </Typography>
+            </Box>
+          </Box>
+          <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-1/2">
+            <Box
+              className={
+                activeFilter === 'finished'
+                  ? 'text-center w-full pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
+                  : 'text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+              }
+            >
+              <Typography
+                variant="h6"
+                className={
+                  activeFilter === 'finished'
+                    ? 'text-xs font-normal'
+                    : 'text-[#78859E] text-xs font-normal'
+                }
+                onClick={() => setActiveFilter('finished')}
+              >
+                Finished
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Box>
