@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 
@@ -6,6 +7,7 @@ import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
 
 import ActiveDuel from 'components/nfts/duel/ActiveDuel';
+import Duels from 'components/nfts/duel/Duels';
 
 import styles from 'components/nfts/duel/styles.module.scss';
 import React from 'react';
@@ -148,6 +150,12 @@ const DuelPepes = () => {
           </Box>
         </Box>
 
+        <img
+          src={'/assets/pepe-line.png'}
+          className="ml-auto mr-auto mb-12"
+          alt={''}
+        />
+
         <Box className="flex">
           <Typography
             variant="h3"
@@ -157,10 +165,10 @@ const DuelPepes = () => {
           </Typography>
         </Box>
 
-        <Box className={'w-full flex'}>
+        <Box className={'flex mt-4 z-50 relative'}>
           <Box
             className={
-              'flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-1/2'
+              'flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-36 ml-auto mr-3'
             }
           >
             <Box
@@ -174,8 +182,8 @@ const DuelPepes = () => {
                 variant="h6"
                 className={
                   activeFilter === 'open'
-                    ? 'text-xs font-normal'
-                    : 'text-[#78859E] text-xs font-normal'
+                    ? 'text-xs font-normal font-["Minecraft"]'
+                    : 'text-[#78859E] text-xs font-normal font-["Minecraft"]'
                 }
                 onClick={() => setActiveFilter('open')}
               >
@@ -183,7 +191,7 @@ const DuelPepes = () => {
               </Typography>
             </Box>
           </Box>
-          <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-1/2">
+          <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-36 mr-3">
             <Box
               className={
                 activeFilter === 'finished'
@@ -195,15 +203,40 @@ const DuelPepes = () => {
                 variant="h6"
                 className={
                   activeFilter === 'finished'
-                    ? 'text-xs font-normal'
-                    : 'text-[#78859E] text-xs font-normal'
+                    ? 'text-xs font-normal font-["Minecraft"]'
+                    : 'text-[#78859E] text-xs font-normal font-["Minecraft"]'
                 }
                 onClick={() => setActiveFilter('finished')}
               >
-                Finished
+                FINISHED
               </Typography>
             </Box>
           </Box>
+          <Box className="flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-36 mr-auto">
+            <Box
+              className={
+                activeFilter === 'yours'
+                  ? 'text-center w-full pt-0.5 pb-1 bg-[#343C4D] cursor-pointer group rounded hover:opacity-80'
+                  : 'text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:opacity-80'
+              }
+            >
+              <Typography
+                variant="h6"
+                className={
+                  activeFilter === 'yours'
+                    ? 'text-xs font-normal font-["Minecraft"]'
+                    : 'text-[#78859E] text-xs font-normal font-["Minecraft"]'
+                }
+                onClick={() => setActiveFilter('yours')}
+              >
+                YOURS
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        <Box className="pt-2 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
+          <Duels />
         </Box>
       </Box>
     </Box>
