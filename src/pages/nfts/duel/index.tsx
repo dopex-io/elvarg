@@ -8,12 +8,15 @@ import Typography from 'components/UI/Typography';
 
 import ActiveDuel from 'components/nfts/duel/ActiveDuel';
 import Duels from 'components/nfts/duel/Duels';
+import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
 import React from 'react';
 
 const DuelPepes = () => {
   const [activeFilter, setActiveFilter] = useState<string>('open');
+  const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
+    useState<boolean>(false);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -28,6 +31,14 @@ const DuelPepes = () => {
         {/* @ts-ignore TODO: FIX */}
         <Box className={styles['mobileBackgroundOverlay']} />
         <AppBar />
+
+        <CreateDuel
+          open={isCreateDuelDialogOpen}
+          handleClose={() => {
+            setIsCreateDuelDialogOpen(false);
+          }}
+        />
+
         <Box className="pt-28 md:pt-32 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
           <Box className="text-center mx-auto md:mb-12 lg:mt-24 flex">
             <img
@@ -88,7 +99,12 @@ const DuelPepes = () => {
 
           <Box className="flex mt-6">
             <Box className="ml-auto mb-5 mt-5 lg:w-[14rem]">
-              <button className={styles['pepeButton']}>CREATE DUEL</button>
+              <button
+                className={styles['pepeButton']}
+                onClick={() => setIsCreateDuelDialogOpen(true)}
+              >
+                CREATE DUEL
+              </button>
             </Box>
             <Box className="ml-6 mr-auto mb-5 mt-5 lg:w-[14rem]">
               <button className={styles['pepeButton']}>FIND DUEL</button>
