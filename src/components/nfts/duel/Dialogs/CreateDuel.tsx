@@ -29,6 +29,11 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import styles from './styles.module.scss';
 import getTokenDecimals from '../../../../utils/general/getTokenDecimals';
+import ZapInButton from '../../../common/ZapInButton';
+import LockerIcon from '../../../../svgs/icons/LockerIcon';
+import format from 'date-fns/format';
+import Countdown from 'react-countdown';
+import WhiteLockerIcon from '../../../../svgs/icons/WhiteLockerIcon';
 
 export interface Props {
   open: boolean;
@@ -48,6 +53,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     );
   }, [tokenName, chainId]);
 
+  // @ts-ignore
   return (
     <Dialog
       open={open}
@@ -144,6 +150,73 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             </Typography>
           </Box>
         </Box>
+      </Box>
+
+      <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 px-3 py-3">
+        <Box className="flex">
+          <img
+            src="/images/misc/gamepad.svg"
+            className="w-3.5 h-3.5 mr-1.5 mt-1"
+          />
+          <Typography variant="h6" className="text-[#78859E] text-sm">
+            Select Moves
+          </Typography>
+        </Box>
+        <Box className="flex mt-3 mb-1">
+          <Box className="py-6 bg-[#343C4D] flex rounded-md w-full">
+            <img src="/images/misc/plus-skin.svg" className="ml-auto mr-auto" />
+          </Box>
+        </Box>
+      </Box>
+
+      <Box className="rounded-xl p-4 pb-1.5 border border-[#232935] bg-[#232935] w-full mt-0.5">
+        <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-[#343C4D] w-full bg-[#343C4D]">
+          <EstimatedGasCostButton gas={500000} chainId={chainId} />
+          <Box className={'flex mt-3'}>
+            <Typography variant="h6" className="text-[#78859E] ml-0 mr-auto">
+              Max Payout
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                -
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mt-3'}>
+            <Typography variant="h6" className="text-[#78859E] ml-0 mr-auto">
+              Fees
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                -
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        <Box className="flex mb-1.5">
+          <Box className="flex text-center p-2 mr-2 mt-1">
+            <img src="/images/misc/clock.svg" className="w-7 h-5 mt-1" />
+          </Box>
+          <Typography variant="h6" className="mt-1">
+            <span className="text-[#78859E]">
+              This duel will remain available for the next 12 hours to
+              challenge.
+            </span>
+          </Typography>
+        </Box>
+        <CustomButton
+          size="medium"
+          className={styles['pepeButton']}
+          color={true ? 'primary' : 'mineshaft'}
+          disabled={true}
+          onClick={() => null}
+        >
+          {/* @ts-ignore TODO: FIX */}
+          <Typography variant="h5" className={styles['pepeButtonText']}>
+            CREATE
+          </Typography>
+        </CustomButton>
       </Box>
     </Dialog>
   );
