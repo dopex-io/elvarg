@@ -15,7 +15,7 @@ const ManageTitle = (props: ManageCardTitleProps) => {
   return (
     <Box className="flex space-x-3 w-3/4">
       <Box className="relative w-[4.6rem]">
-        {strategy === 'PUT' && (
+        {poolType === 'PUT' && (
           <img
             src={`/images/tokens/${tokenId.toLowerCase()}.svg`}
             alt={tokenId}
@@ -29,7 +29,7 @@ const ManageTitle = (props: ManageCardTitleProps) => {
         />
       </Box>
       <Box className="my-auto">
-        <Typography variant="h5">{poolType.toUpperCase()}</Typography>
+        <Typography variant="h5">{strategy.toUpperCase()}</Typography>
         <Typography variant="h6" className="text-stieglitz">
           {tokenId}
         </Typography>
@@ -44,7 +44,7 @@ const ManageTitle = (props: ManageCardTitleProps) => {
         variant="h6"
         className="my-auto bg-umbra rounded-[0.4em] px-2 py-1"
       >
-        {strategy.toUpperCase()}
+        {poolType.toUpperCase()}
       </Typography>
     </Box>
   );

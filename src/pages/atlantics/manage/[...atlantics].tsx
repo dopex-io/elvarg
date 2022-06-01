@@ -1,18 +1,19 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import formatDistance from 'date-fns/formatDistance';
 
 import AppBar from 'components/common/AppBar';
-// import Typography from 'components/UI/Typography';
 import ManageCard from 'components/atlantics/Manage/ManageCard';
 import Charts from 'components/atlantics/Charts';
 import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
 import PoolCompositionTable from 'components/atlantics/Manage/PoolCompositionTable';
 import Typography from 'components/UI/Typography';
-
-import { AtlanticsContext } from 'contexts/Atlantics';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
+
+import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
+import format from 'date-fns/format';
 
 const bar_graph_data = [
   {
@@ -84,12 +85,15 @@ interface ManageProps {
 }
 
 const Manage = (props: ManageProps) => {
-  const { poolType, underlying, tokenId, strategy, epochLength } = props;
-  // todo: get selected pool/market contract from context
-  const { /* atlanticPoolEpochData,*/ selectedMarket } =
-    useContext(AtlanticsContext);
+  const { poolType, underlying, tokenId, strategy } = props;
 
-  console.log(selectedMarket);
+  const { atlanticPoolData, setSelectedMarket } = useContext(AtlanticsContext);
+
+  useEffect(() => {
+    (async () => {
+      setSelectedMarket(tokenId);
+    })();
+  }, [setSelectedMarket, tokenId]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -103,16 +107,11 @@ const Manage = (props: ManageProps) => {
             <ManageTitle
               tokenId={tokenId}
               underlying={underlying}
-              poolType={poolType}
               strategy={strategy}
-              epochLength={epochLength}
-            />
-            <ContractData
-              epoch={1}
-              contractAddress={'0x0'}
-              fundingRate={0.1}
               poolType={poolType}
+              epochLength={atlanticPoolData.expiryType}
             />
+            <ContractData />
             <Box className="w-full space-y-4">
               <Typography variant="h5">Liquidity</Typography>
               <Charts
@@ -135,8 +134,12 @@ const Manage = (props: ManageProps) => {
               <UserDepositsTable data={[]} />
             </Box>
           </Box>
-          <Box className="flex flex-col w-1/4">
-            <ManageCard tokenId={tokenId} underlying={underlying} />
+          <Box className="flex flex-col w-1/4 h-full">
+            <ManageCard
+              tokenId={tokenId}
+              underlying={underlying}
+              poolType={poolType}
+            />
           </Box>
         </Box>
       </Box>
@@ -147,27 +150,35 @@ const Manage = (props: ManageProps) => {
 export async function getServerSideProps(context: {
   query: { atlantics: string[] };
 }) {
-  if (context.query.atlantics.length === 4)
-    return {
-      props: {
-        poolType: context.query.atlantics[0],
-        underlying: context.query.atlantics[1],
-        tokenId: context.query.atlantics[1],
-        strategy: context.query.atlantics[2],
-        epochLength: context.query.atlantics[3],
-      },
-    };
-  else {
-    return {
-      props: {
-        poolType: context.query.atlantics[0],
-        underlying: context.query.atlantics[1],
-        tokenId: context.query.atlantics[2],
-        strategy: context.query.atlantics[3],
-        epochLength: context.query.atlantics[4],
-      },
-    };
-  }
+  return {
+    props: {
+      strategy: context.query.atlantics[0],
+      underlying: context.query.atlantics[1]?.split('-')[0],
+      tokenId: context.query.atlantics[1]?.split('-')[1],
+      poolType: context.query.atlantics[1]?.split('-')[2],
+      epochLength: context.query.atlantics[1]?.split('-')[3],
+    },
+  };
 }
 
-export default Manage;
+const ManagePage = (props: {
+  poolType: string;
+  underlying: string;
+  tokenId: string;
+  strategy: string;
+  epochLength: string;
+}) => {
+  return (
+    <AtlanticsProvider>
+      <Manage
+        poolType={props.poolType}
+        underlying={props.underlying}
+        tokenId={props.tokenId}
+        strategy={props.strategy}
+        epochLength={props.epochLength}
+      />
+    </AtlanticsProvider>
+  );
+};
+
+export default ManagePage;

@@ -1,33 +1,42 @@
+import { useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
+import format from 'date-fns/format';
 
-import Typography from 'components/UI/Typography';
 import PoolStatsRow from 'components/atlantics/Manage/ManageCard/PoolStats/PoolStatsRow';
+import PoolStatsBox from 'components/atlantics/Manage/ManageCard/PoolStats/PoolStatsBox';
 
-const PoolStats = () => {
+import { AtlanticsContext } from 'contexts/Atlantics';
+
+interface PoolStatsProps {
+  poolType: string;
+}
+
+const PoolStats = ({ poolType }: PoolStatsProps) => {
+  const { atlanticPoolData, atlanticPoolEpochData } =
+    useContext(AtlanticsContext);
+
+  const epochExpiry = useMemo(() => {
+    return (
+      (atlanticPoolEpochData.epochTimes['expiryTime']?.toNumber() ?? 0) * 1000
+    );
+  }, [atlanticPoolEpochData.epochTimes]);
+
   return (
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
       <Box className="flex divide-x divide-umbra">
-        <Box className="w-1/2 p-3">
-          <Typography variant="h6" className="text-stieglitz">
-            -
-          </Typography>
-          <Typography variant="h6" className="text-stieglitz">
-            Deposit
-          </Typography>
-        </Box>
-        <Box className="w-1/2 p-3">
-          <Typography variant="h6" className="text-stieglitz">
-            -
-          </Typography>
-          <Typography variant="h6" className="text-stieglitz">
-            Pool Share
-          </Typography>
-        </Box>
+        <PoolStatsBox stat={'-'} description="Deposit" />
+        <PoolStatsBox stat={'-'} description="Pool Share" />
       </Box>
       <Box className="flex flex-col space-y-3 p-3">
-        <PoolStatsRow description="Epoch Type" value="-" />
-        <PoolStatsRow description="Side" value="-" />
-        <PoolStatsRow description="Expiry" value="-" />
+        <PoolStatsRow
+          description="Epoch Type"
+          value={atlanticPoolData.expiryType}
+        />
+        <PoolStatsRow description="Side" value={poolType} />
+        <PoolStatsRow
+          description="Expiry"
+          value={format(epochExpiry, 'dd LLLL, yyyy')}
+        />
       </Box>
     </Box>
   );

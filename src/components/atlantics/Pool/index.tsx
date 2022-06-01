@@ -18,7 +18,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 interface PoolCardProps {
   tokenId: string;
-  poolType: string;
+  strategy: string;
   underlying: string;
   isPut: boolean;
   epochLength: 'daily' | 'weekly' | 'monthly';
@@ -26,7 +26,7 @@ interface PoolCardProps {
 }
 
 const PoolCard = (props: PoolCardProps) => {
-  const { tokenId, poolType, underlying, isPut, epochLength, deposits } = props;
+  const { tokenId, strategy, underlying, isPut, epochLength, deposits } = props;
 
   const { setSelectedMarket } = useContext(AtlanticsContext);
 
@@ -38,9 +38,9 @@ const PoolCard = (props: PoolCardProps) => {
 
   return (
     <Link
-      href={`/atlantics/manage/${poolType.toLowerCase()}/${tokenId}/${
-        isPut ? `${underlying}/` : '/'
-      }${type}/${epochLength}`}
+      href={`/atlantics/manage/${strategy.toLowerCase()}/${tokenId}-${
+        isPut ? `${underlying}-` : '-'
+      }${type}S-${epochLength}`}
     >
       <Box
         className="bg-umbra rounded-lg p-3 border border-umbra hover:border-primary transition ease-in-out hover:duration-250"
@@ -55,7 +55,7 @@ const PoolCard = (props: PoolCardProps) => {
               className="h-[2rem] w-[2rem] border border-mineshaft rounded-full"
             />
             <Typography variant="h6" className="my-auto">
-              {poolType}
+              {strategy}
             </Typography>
             {type.toLowerCase() === 'put' ? (
               <PutsIcon fill="#8E8E8E" className="my-auto" />
@@ -85,6 +85,3 @@ const PoolCard = (props: PoolCardProps) => {
 };
 
 export default PoolCard;
-// Perps
-// Nested Puts
-// Insured Stables

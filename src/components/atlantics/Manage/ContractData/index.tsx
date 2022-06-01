@@ -1,26 +1,39 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import formatDistance from 'date-fns/formatDistance';
 
 import Typography from 'components/UI/Typography';
+import EpochSelector from 'components/atlantics/EpochSelector';
+import ArbiscanLink from 'components/atlantics/Manage/ContractData/ArbiscanLink';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
-import { WalletContext } from 'contexts/Wallet';
+import { AtlanticsContext } from 'contexts/Atlantics';
 
-import smartTrim from 'utils/general/smartTrim';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+const ContractData = () => {
+  const {
+    atlanticPoolData,
+    atlanticPoolEpochData,
+    selectedEpoch,
+    setSelectedEpoch,
+  } = useContext(AtlanticsContext);
 
-interface ContractDataProps {
-  epoch: number;
-  fundingRate: number;
-  contractAddress: string;
-  poolType: string;
-}
+  const [epochDuration, setEpochDuration] = useState('');
 
-const ContractData = (props: ContractDataProps) => {
-  const { epoch, fundingRate, contractAddress, poolType } = props;
+  useEffect(() => {
+    (async () => {
+      if (!atlanticPoolEpochData) return;
+      const epochTimes = atlanticPoolEpochData.epochTimes;
 
-  const { chainId } = useContext(WalletContext);
+      const duration = formatDistance(
+        epochTimes['expiryTime']!.toNumber() * 1000,
+        epochTimes['startTime']!.toNumber() * 1000
+      );
+
+      setEpochDuration(duration);
+    })();
+  }, [atlanticPoolEpochData]);
 
   return (
     <Box className="flex p-3 border border-umbra rounded-xl w-full space-x-8">
@@ -28,17 +41,16 @@ const ContractData = (props: ContractDataProps) => {
         <Typography variant="h6" className="text-stieglitz">
           Epoch
         </Typography>
-        <Box className="flex space-x-2">
-          <Typography
-            variant="h6"
-            className="bg-gradient-to-r from-primary to-wave-blue rounded-lg w-[2rem] py-2 text-center font-semibold my-auto"
-          >
-            {epoch}
-          </Typography>
+        <Box className="flex space-x-2 h-[2.2rem]">
+          <EpochSelector
+            currentEpoch={atlanticPoolData.currentEpoch}
+            selectedEpoch={selectedEpoch}
+            setSelectedEpoch={setSelectedEpoch}
+          />
           <Box className="flex space-x-3 p-2 rounded-lg bg-umbra">
             <AlarmIcon fill="#8E8E8E" />
             <Typography variant="h6" className="my-auto font-semibold">
-              DD HH mm
+              {epochDuration}
             </Typography>
           </Box>
         </Box>
@@ -52,7 +64,7 @@ const ContractData = (props: ContractDataProps) => {
             variant="h6"
             className="font-semibold p-2 bg-umbra rounded-lg"
           >
-            {fundingRate}%
+            {getUserReadableAmount(atlanticPoolData.fundingRate, 18)}%
           </Typography>
         </Box>
       </Box>
@@ -60,20 +72,9 @@ const ContractData = (props: ContractDataProps) => {
         <Typography variant="h6" className="text-stieglitz">
           Contract
         </Typography>
-        <Box role="button" className="flex space-x-2 bg-umbra rounded-lg p-2">
-          <img
-            // @ts-ignore TODO: FIX
-            src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
-            // @ts-ignore TODO: FIX
-            alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
-            style={{ width: 'auto', height: 'auto' }}
-          />
-          <Typography variant="h6" className="font-mono">
-            {smartTrim(contractAddress, 10)}
-          </Typography>
-        </Box>
+        <ArbiscanLink address={atlanticPoolData.poolContract} />
       </Box>
-      <Box className="space-y-1">
+      <Box className="space-y-1 h-full">
         <Typography variant="h6" className="text-stieglitz">
           Strategy
         </Typography>
@@ -81,7 +82,8 @@ const ContractData = (props: ContractDataProps) => {
           variant="h6"
           className="flex space-x-2 bg-umbra rounded-lg p-2"
         >
-          {poolType[0]?.toUpperCase() + poolType.substring(1)}
+          {atlanticPoolData.expiryType[0]?.toUpperCase() +
+            atlanticPoolData.expiryType.substring(1)}
         </Typography>
       </Box>
     </Box>

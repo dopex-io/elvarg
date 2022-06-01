@@ -10,10 +10,10 @@ import { BigNumber } from 'ethers';
 import { WalletContext } from './Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-// export interface Atlantics {
-//   token?: string;
-//   type?: 'CALL' | 'PUT';
-// }
+export interface Atlantics {
+  token?: string;
+  type?: 'CALL' | 'PUT';
+}
 
 // All relevant getter functions in AtlanticPutsPool contract
 // getLiquidityForStrike(strike, epoch)
@@ -23,21 +23,23 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 // getFundingRate()
 // getUtilizationRate()
 // getUserMaxStrikesCollaterals(user, epoch)
-// function getMaxStrikesCollateral(user, index, epoch)
+// getMaxStrikesCollateral(user, index, epoch)
 // getMaxStrikeDeposits(epoch, maxStrike)
 
 interface AtlanticPoolData {
   tickSize: BigNumber;
   unwindFeePercentage: BigNumber;
   fundingRate: BigNumber;
-  gracePeriod: BigNumber;
+  gracePeriod: number;
   collateral: string; // base
   quoteAsset: string; // quote
+  poolContract: string;
+  expiryType: string;
+  currentEpoch: number;
 }
 
 interface AtlanticPoolEpochData {
   epoch: number;
-  pool: string;
   isBootstrapped: boolean;
   isEpochExpired: boolean;
   epochTimes: { [key: string]: BigNumber };
@@ -64,7 +66,7 @@ interface MarketsDataInterface {
   tokenId: string;
   stats: { [key: string]: BigNumber };
   pools: {
-    poolType: string; // Strategy
+    strategy: string; // Strategy
     underlying: string;
     isPut: boolean; // PUT / CALL
     epoch: BigNumber; //
@@ -74,19 +76,16 @@ interface MarketsDataInterface {
   // pools: AtlanticPoolData[];
 }
 
-interface TempObjInterface {
-  tempBool: boolean;
-  tempBN: BigNumber;
-  tempString: string;
-  tempNumber: number;
+// @ts-ignore TODO: Implement Strategy Contract
+interface AtlanticStrategyInterface {
+  [key: string]: string | BigNumber | boolean | number;
 }
 
 interface AtlanticsContextInterface {
-  atlanticsObject?: TempObjInterface;
   marketsData: MarketsDataInterface[];
-  atlanticPoolData?: AtlanticPoolData;
-  atlanticPoolEpochData?: AtlanticPoolEpochData;
-  userAtlanticsData?: UserAtlanticsData;
+  atlanticPoolData: AtlanticPoolData;
+  atlanticPoolEpochData: AtlanticPoolEpochData;
+  userAtlanticsData: UserAtlanticsData;
   selectedMarket: string;
   setSelectedMarket: (tokenId: string) => void;
   selectedEpoch: number;
@@ -99,9 +98,12 @@ const initialAtlanticPoolData = {
   tickSize: BigNumber.from(0),
   unwindFeePercentage: BigNumber.from(0),
   fundingRate: BigNumber.from(0),
-  gracePeriod: BigNumber.from(0),
+  gracePeriod: 0,
   collateral: '',
   quoteAsset: '',
+  poolContract: '0x0',
+  expiryType: 'monthly',
+  currentEpoch: 0,
 };
 
 const initialAtlanticPoolEpochData = {
@@ -112,6 +114,7 @@ const initialAtlanticPoolEpochData = {
   epochTimes: { startTime: BigNumber.from(0), expiryTime: BigNumber.from(0) },
   // epochStrikeToken: '',
   totalEpochMaxStrikeDeposits: [BigNumber.from(0)],
+  expiryType: 'daily',
   maxStrikesData: [
     {
       strikePrice: BigNumber.from(0),
@@ -129,15 +132,7 @@ const initialUserAtlanticsData = {
   userPositions: [],
 };
 
-const initialAtlanticsObjData = {
-  tempBool: false,
-  tempBN: BigNumber.from(0),
-  tempString: '',
-  tempNumber: 0,
-};
-
 const initialAtlanticsData = {
-  atlanticsObject: initialAtlanticsObjData,
   marketsData: initialMarketsData,
   atlanticPoolData: initialAtlanticPoolData,
   atlanticPoolEpochData: initialAtlanticPoolEpochData,
@@ -158,8 +153,6 @@ export const AtlanticsProvider = (props: any) => {
   const [selectedEpoch, setSelectedEpoch] = useState<number>(0);
 
   // states
-  // @ts-ignore todo: FIX
-  const [tempObj, setTempObj] = useState<TempObjInterface>();
   const [marketsData, setMarketsData] = useState<MarketsDataInterface[]>([]);
   const [atlanticPoolData, setAtlanticPoolData] = useState<AtlanticPoolData>(
     initialAtlanticPoolData
@@ -172,12 +165,6 @@ export const AtlanticsProvider = (props: any) => {
   const [selectedMarket, setSelectedMarket] = useState('');
 
   // callbacks
-
-  const updateTempObject = useCallback(() => {
-    if (!provider || !accountAddress || !contractAddresses) return;
-    console.log(tempObj);
-  }, [tempObj, accountAddress, contractAddresses, provider]);
-
   // Fetch from Dopex API (?)
   const updateMarketsData = useCallback(async () => {
     if (!provider || !accountAddress || !contractAddresses) return;
@@ -192,12 +179,12 @@ export const AtlanticsProvider = (props: any) => {
         },
         pools: [
           {
-            poolType: 'PERPETUALS',
+            strategy: 'PERPETUALS',
             underlying: 'USDC',
             isPut: true,
             epoch: BigNumber.from(1),
             tvl: getContractReadableAmount(100023, 18),
-            epochLength: 'weekly' as const,
+            epochLength: 'monthly' as const,
           },
         ],
       },
@@ -211,15 +198,34 @@ export const AtlanticsProvider = (props: any) => {
       if (!accountAddress || !contractAddresses || !provider || !chainId)
         return;
 
-      console.log(tokenId);
+      const [
+        tickSize,
+        unwindFeePercentage,
+        fundingRate,
+        gracePeriod,
+        currentEpoch,
+        quoteAsset,
+      ] = [
+        getContractReadableAmount(500, 6),
+        getContractReadableAmount(5, 15),
+        getContractReadableAmount(5, 17),
+        86400,
+        3,
+        'USDC',
+      ];
+
+      setSelectedEpoch(currentEpoch); // fetched from contract
 
       setAtlanticPoolData({
-        tickSize: BigNumber.from(0),
-        unwindFeePercentage: BigNumber.from(0),
-        fundingRate: BigNumber.from(0),
-        gracePeriod: BigNumber.from(0),
-        collateral: 'ETH', // base
-        quoteAsset: 'USDC',
+        tickSize,
+        unwindFeePercentage,
+        fundingRate,
+        gracePeriod,
+        collateral: tokenId, // base
+        quoteAsset,
+        expiryType: 'monthly',
+        poolContract: '0x0000000000000000000000000000000000000000',
+        currentEpoch,
       });
     },
     [accountAddress, contractAddresses, provider, chainId]
@@ -227,15 +233,11 @@ export const AtlanticsProvider = (props: any) => {
 
   const updateAtlanticPoolEpochData = useCallback(
     (epoch: number) => {
-      if (!provider || !contractAddresses || epoch === 0) return;
+      if (!provider || !contractAddresses) return;
 
-      // const contractAddress =
-      //   contractAddresses[chainId]['AtlanticPools'][tokenId];
-
-      // const currentEpoch = 1; // fetch from contract or pass from frontend selector
+      console.log('Changed Epoch in UI');
 
       setAtlanticPoolEpochData({
-        pool: '0x0000000000000000000000000000000000000000', // contractAddress,
         epoch,
         isBootstrapped: true,
         isEpochExpired: false,
@@ -278,7 +280,6 @@ export const AtlanticsProvider = (props: any) => {
   );
 
   // User positions across all pools
-  // @ts-ignore todo: fix unused declaration
   const updateUserAtlanticsData = useCallback(async () => {
     if (!accountAddress || !contractAddresses || !provider || !chainId) return;
 
@@ -303,17 +304,20 @@ export const AtlanticsProvider = (props: any) => {
   // useEffects
 
   useEffect(() => {
-    if (!selectedMarket) return;
-    updateAtlanticPoolData(selectedMarket);
-  }, [updateAtlanticPoolData, selectedMarket]);
-
-  useEffect(() => {
-    updateTempObject();
-  }, [updateTempObject]);
-
-  useEffect(() => {
     updateMarketsData();
   }, [updateMarketsData]);
+
+  useEffect(() => {
+    if (!provider || !contractAddresses || !selectedMarket) return;
+    updateAtlanticPoolData(selectedMarket);
+    updateUserAtlanticsData();
+  }, [
+    updateAtlanticPoolData,
+    selectedMarket,
+    provider,
+    contractAddresses,
+    updateUserAtlanticsData,
+  ]);
 
   useEffect(() => {
     updateAtlanticPoolEpochData(selectedEpoch);

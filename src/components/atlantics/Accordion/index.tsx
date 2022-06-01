@@ -24,7 +24,7 @@ interface CustomAccordionProps {
   header: string;
   stats?: { [key: string]: BigNumber };
   pools?: {
-    poolType: string;
+    strategy: string;
     underlying: string;
     isPut: boolean;
     tvl: BigNumber;
@@ -53,7 +53,7 @@ const CustomAccordion = ({
             alt={header}
             className="h-8 mr-2 border border-mineshaft rounded-full"
           />
-          <Typography variant="h5" className="text-white">
+          <Typography variant="h5" className="text-white my-auto">
             {header}
           </Typography>
         </Box>
@@ -89,7 +89,7 @@ const CustomAccordion = ({
               <PoolCard
                 key={index}
                 tokenId={header}
-                poolType={pool.poolType}
+                strategy={pool.strategy}
                 underlying={pool.underlying}
                 isPut={pool.isPut}
                 epochLength={pool.epochLength}

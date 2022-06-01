@@ -6,6 +6,7 @@ import AppBar from 'components/common/AppBar';
 import Accordion from 'components/atlantics/Accordion';
 import Description from 'components/atlantics/Description';
 import Stats from 'components/atlantics/Stats';
+import StrategyFilter from 'components/atlantics/StrategyFilter';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
@@ -20,10 +21,16 @@ const Atlantics = () => {
       <AppBar active="atlantics" />
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
         <Box className="mx-auto mb-8">
-          <Box className="flex flex-col flex-wrap divide-y divide-umbra">
-            <Box className="flex w-full justify-between">
-              <Description />
-              <Stats />
+          <Box className="flex flex-col flex-wrap divide-stieglitz">
+            <Box className="flex flex-col divide-umbra divide-y">
+              <Box className="flex w-full justify-between">
+                <Description />
+                <Stats />
+              </Box>
+              <Box className="flex w-full justify-between">
+                <StrategyFilter />
+                <Box>2</Box>
+              </Box>
             </Box>
             <Box className="grid grid-cols-4 pt-6">
               <Box className="flex flex-col col-span-1 space-y-6">

@@ -1,3 +1,5 @@
+import { useContext, useMemo, useEffect } from 'react';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
@@ -8,6 +10,8 @@ import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
 import Typography from 'components/UI/Typography';
+
+import { AtlanticsContext } from 'contexts/Atlantics';
 
 const TableHeader = ({
   // @ts-ignore TODO: FIX
@@ -63,105 +67,128 @@ interface PoolCompositionTableProps {
 const PoolCompositionTable = (props: PoolCompositionTableProps) => {
   const { collateral, underlying } = props;
 
+  const { atlanticPoolEpochData } = useContext(AtlanticsContext);
+
+  console.log(atlanticPoolEpochData);
+
+  // {
+  //   strikePrice: BigNumber.from(2000),
+  //   liquidity: BigNumber.from(10000),
+  //   liquidityBalance: BigNumber.from(1000),
+  //   premiumCollected: BigNumber.from(60),
+  //   fundingCollected: BigNumber.from(2),
+  //   unwindFeesCollected: BigNumber.from(2),
+  //   underlyingCollected: BigNumber.from(4),
+  // }
+
+  const assetsMapping = useMemo(
+    () => ({
+      Collateral: collateral,
+      Underlying: underlying,
+    }),
+    [collateral, underlying]
+  ) as { [key: string]: string };
+
+  const maxStrikesAccumulator = useMemo(() => {
+    if (!atlanticPoolEpochData.maxStrikesData) return;
+
+    let fundingAccumulator: BigNumber = BigNumber.from(0);
+    let underlyingAccumulator: BigNumber = BigNumber.from(0);
+    let premiumAccumulator: BigNumber = BigNumber.from(0);
+    atlanticPoolEpochData.maxStrikesData.map(
+      (data: { [key: string]: BigNumber }) => {
+        data['premiumCollected'] &&
+          (premiumAccumulator = premiumAccumulator.add(
+            data['premiumCollected']
+          ));
+        data['fundingCollected'] &&
+          (fundingAccumulator = fundingAccumulator.add(
+            data['fundingCollected']
+          ));
+        data['underlyingCollected'] &&
+          (underlyingAccumulator = underlyingAccumulator.add(
+            data['underlyingCollected']
+          ));
+        return data;
+      }
+    );
+    return { fundingAccumulator, premiumAccumulator, underlyingAccumulator };
+  }, [atlanticPoolEpochData]);
+
+  useEffect(() => {
+    console.log(maxStrikesAccumulator);
+  });
+
   return (
     <TableContainer
-      className={`rounded-xl border-umbra border border-b-0 max-h-80`}
+      className={`rounded-xl border-umbra border border-b-0 max-h-80 w-full overflow-x-auto`}
     >
       <Table>
         <TableHead>
           <TableRow>
-            <TableHeader align="left" width={600}>
+            <TableHeader align="left" width={525}>
               Token <ArrowDownwardRoundedIcon />
             </TableHeader>
-            <TableHeader align="left" width={5}>
-              Amount
+            <TableHeader align="right" width={5}>
+              Locked
             </TableHeader>
             <TableHeader align="right" width={5}>
-              Pool Profit
+              Premia Collected
+            </TableHeader>
+            <TableHeader align="right" width={5}>
+              Fees
             </TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow className="py-2">
-            <TableBodyCell width={600}>
-              <Box className="flex space-x-2">
-                <img
-                  src={`/images/tokens/${collateral}.svg`}
-                  alt={collateral}
-                  className="w-[2rem] h-auto my-auto"
-                />
-                <Box className="text-left my-auto">
-                  <Typography variant="h6">{collateral}</Typography>
-                  <Typography variant="h6" className="text-stieglitz">
-                    Collateral
-                  </Typography>
-                </Box>
-              </Box>
-            </TableBodyCell>
-            <TableBodyCell width={5}>
-              <Box className="flex space-x-2 bg-umbra rounded-md p-1 justify-between">
-                <Typography variant="h6" className="my-auto">
-                  {'34.1m'}
-                </Typography>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz bg-mineshaft rounded-md p-1"
-                >
-                  {collateral}
-                </Typography>
-              </Box>
-            </TableBodyCell>
-            <TableBodyCell align="right" width={5}>
-              <Box className="flex flex-col items-end">
-                <Typography variant="h6" className="my-auto text-up-only">
-                  {'95.031'} {collateral}
-                </Typography>
-                <Typography variant="h6" className="text-stieglitz">
-                  {'~$3,420'}
-                </Typography>
-              </Box>
-            </TableBodyCell>
-          </TableRow>
-          <TableRow>
-            <TableBodyCell>
-              <Box className="flex space-x-2" width={600}>
-                <img
-                  src={`/images/tokens/${underlying}.svg`}
-                  alt={underlying}
-                  className="w-[2rem] h-auto my-auto"
-                />
-                <Box className="text-left my-auto">
-                  <Typography variant="h6">{underlying}</Typography>
-                  <Typography variant="h6" className="text-stieglitz">
-                    {'Underlying'}
-                  </Typography>
-                </Box>
-              </Box>
-            </TableBodyCell>
-            <TableBodyCell width={5}>
-              <Box className="flex space-x-2 bg-umbra rounded-md p-1 justify-between">
-                <Typography variant="h6" className="my-auto">
-                  {'3,420'}
-                </Typography>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz bg-mineshaft rounded-md p-1"
-                >
-                  {underlying}
-                </Typography>
-              </Box>
-            </TableBodyCell>
-            <TableBodyCell align="left" width={5}>
-              <Box className="flex flex-col items-end">
-                <Typography variant="h6" className="my-auto text-up-only">
-                  {'3,425'} {underlying}
-                </Typography>
-                <Typography variant="h6" className="text-stieglitz">
-                  {'~$3,420'}
-                </Typography>
-              </Box>
-            </TableBodyCell>
-          </TableRow>
+          {Object.keys(assetsMapping).map((key, index) => {
+            return (
+              <TableRow className="py-2" key={index}>
+                <TableBodyCell width={525}>
+                  <Box className="flex space-x-2">
+                    <img
+                      src={`/images/tokens/${assetsMapping[key]}.svg`}
+                      alt={assetsMapping[key]}
+                      className="w-[2rem] h-auto my-auto"
+                    />
+                    <Box className="text-left my-auto">
+                      <Typography variant="h6">{assetsMapping[key]}</Typography>
+                      <Typography variant="h6" className="text-stieglitz">
+                        {key}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </TableBodyCell>
+                <TableBodyCell width={5}>
+                  <Box className="flex space-x-2 bg-umbra rounded-lg p-1 justify-between">
+                    <Typography variant="h6" className="my-auto mx-auto">
+                      {'-'}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      className="text-stieglitz bg-mineshaft rounded-md p-1"
+                    >
+                      {assetsMapping[key]}
+                    </Typography>
+                  </Box>
+                </TableBodyCell>
+                <TableBodyCell align="right" width={5}>
+                  <Box className="flex flex-col items-end">
+                    <Typography variant="h6" className="my-auto text-stieglitz">
+                      {'-'}
+                    </Typography>
+                  </Box>
+                </TableBodyCell>
+                <TableBodyCell align="right" width={5}>
+                  <Box className="flex flex-col items-end">
+                    <Typography variant="h6" className="text-stieglitz">
+                      {'-'}
+                    </Typography>
+                  </Box>
+                </TableBodyCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
