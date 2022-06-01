@@ -1914,7 +1914,7 @@ export const RateVault = () => {
   const calculatePurchaseFee = useCallback(
     async (rate: BigNumber, strike: BigNumber, isPut: boolean) => {
       try {
-        return await rateVaultContract['calculatePremium'](
+        return await rateVaultContract['calculatePurchaseFees'](
           rate,
           strike,
           BigNumber.from('1000000000000000000'),

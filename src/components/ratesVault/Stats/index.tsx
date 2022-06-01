@@ -182,7 +182,7 @@ const Stats = ({
                       {formatAmount(
                         getUserReadableAmount(
                           rateVaultContext.rateVaultEpochData.rate,
-                          6
+                          8
                         ),
                         2
                       )}
