@@ -1,3 +1,8 @@
+.darkBg {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
 .zapIn {
   position: absolute;
   background: #151515;
