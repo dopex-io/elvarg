@@ -11,6 +11,7 @@ import { emojisplosions } from 'emojisplosion';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import Switch from '@mui/material/Switch';
 
@@ -47,7 +48,9 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [wager, setWager] = useState<number>(1);
   const { userAssetBalances } = useContext(AssetsContext);
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
+  const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [isLoadingNfts, setIsLoadingNfts] = useState<boolean>(true);
+  const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
 
   const readableBalance = useMemo(() => {
     return getUserReadableAmount(
@@ -87,56 +90,295 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               alt="Your nfts"
             />
           </Box>
-          <Box className="h-[40rem] overflow-hidden mt-2">
-            <Box className={styles['darkBg']}>
-              <Box className="absolute left-[20%] top-[40%] z-50 text-center">
-                <Typography
-                  variant="h5"
-                  className="text-[#9CECFD] font-['Minecraft']"
-                >
-                  Checking for whitelisted NFTs...
-                </Typography>
-                <CircularProgress
-                  color="inherit"
-                  size="17px"
-                  className="mr-auto ml-auto mt-0.5 text-[#9CECFD]"
+          {isLoadingNfts ? (
+            <Box className="h-[40rem] overflow-hidden mt-2">
+              <Box className={styles['darkBg']}>
+                <Box className="absolute left-[20%] top-[40%] z-50 text-center">
+                  <Typography
+                    variant="h5"
+                    className="text-[#9CECFD] font-['Minecraft']"
+                  >
+                    Checking for whitelisted NFTs...
+                  </Typography>
+                  <CircularProgress
+                    color="inherit"
+                    size="17px"
+                    className="mr-auto ml-auto mt-0.5 text-[#9CECFD]"
+                  />
+                </Box>
+
+                {[...Array(8)].map(() => {
+                  return (
+                    <Box className="flex lg:grid lg:grid-cols-12 mb-3">
+                      <Box className="col-span-3 pl-2 pr-2 relative">
+                        <img
+                          src="/images/nfts/pepes/pepe-frame-3.png"
+                          className="w-full"
+                          alt="Pepe"
+                        />
+                      </Box>
+                      <Box className="col-span-3 pl-2 pr-2 relative">
+                        <img
+                          src="/images/nfts/pepes/pepe-frame-1.png"
+                          className="w-full"
+                          alt="Pepe"
+                        />
+                      </Box>
+                      <Box className="col-span-3 pl-2 pr-2 relative">
+                        <img
+                          src="/images/nfts/pepes/pepe-frame-2.png"
+                          className="w-full"
+                          alt="Pepe"
+                        />
+                      </Box>
+                      <Box className="col-span-3 pl-2 pr-2 relative">
+                        <img
+                          src="/images/nfts/pepes/pepe-frame-1.png"
+                          className="w-full"
+                          alt="Pepe"
+                        />
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+          ) : null}
+        </Box>
+      ) : isSelectingMoves ? (
+        <Box>
+          <Box className="flex flex-row items-center mb-4">
+            <IconButton
+              className="p-0 pb-1 mr-auto mt-0.5 ml-0"
+              onClick={() => setIsSelectingMoves(false)}
+              size="large"
+            >
+              <img
+                src="/images/misc/arrow-left-white.svg"
+                className="w-46 ml-auto"
+                alt="Go back"
+              />
+            </IconButton>
+            <img
+              src="/images/nfts/pepes/select-moves.png"
+              className="w-46 mr-auto"
+              alt="Select moves"
+            />
+          </Box>
+
+          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 px-3 py-3">
+            <Box className="flex">
+              <img
+                src="/images/misc/gamepad.svg"
+                className="w-3.5 h-3.5 mr-1.5 mt-1"
+              />
+              <Typography variant="h6" className="text-[#78859E] text-sm">
+                Select Moves
+              </Typography>
+            </Box>
+            <Box className="flex mt-3 mb-1">
+              <Box
+                className="py-6 bg-[#343C4D] flex rounded-md w-full cursor-pointer"
+                onClick={() => setIsSelectingMoves(true)}
+              >
+                <img
+                  src="/images/misc/plus-skin.svg"
+                  className="ml-auto mr-auto"
                 />
               </Box>
+            </Box>
+          </Box>
 
-              {[...Array(8)].map(() => {
-                return (
-                  <Box className="flex lg:grid lg:grid-cols-12 mb-3">
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-3.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-1.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-2.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-1.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
+          {activeInfoSlide === 0 ? (
+            <Box className="bg-[#232935] rounded-md flex flex-col mb-4 px-3 py-3 text-center text-white font-['Minecraft']">
+              <Typography variant="h6" className="mt-1">
+                <span className="text-[#78859E]">How-To-Play</span>
+              </Typography>
+              <Typography variant="h6" className="mt-1.5 px-2">
+                There are four possible moves with three types of attributes:{' '}
+                <span className="text-amber-600">Damage</span>,{' '}
+                <span className="text-emerald-400">Guaranteed Damage</span> and{' '}
+                <span className="text-cyan-500">Defence</span>
+              </Typography>
+            </Box>
+          ) : null}
+          {activeInfoSlide === 1 ? (
+            <Box className="bg-[#232935] rounded-md flex flex-col mb-4 px-3 py-3 text-center text-white font-['Minecraft']">
+              <Typography variant="h6" className="mt-1">
+                <span className="text-[#78859E]">Moves & Attributes</span>
+              </Typography>
+              <Box className="flex mt-3">
+                <Typography
+                  variant="h6"
+                  className="mt-1.5 px-2 ml-auto mr-auto"
+                >
+                  Punch: <span className="text-amber-600">1</span>{' '}
+                  <span className="text-emerald-400">1</span>{' '}
+                  <span className="text-stieglitz">0</span>
+                </Typography>
+
+                <Typography
+                  variant="h6"
+                  className="mt-1.5 px-2 ml-auto mr-auto"
+                >
+                  Kick: <span className="text-amber-600">2</span>{' '}
+                  <span className="text-stieglitz">0</span>{' '}
+                  <span className="text-stieglitz">0</span>
+                </Typography>
+              </Box>
+
+              <Box className="flex mt-2 mb-1.5">
+                <Typography
+                  variant="h6"
+                  className="mt-1.5 px-2 ml-auto mr-auto"
+                >
+                  Block: <span className="text-stieglitz">0</span>{' '}
+                  <span className="text-stieglitz">0</span>{' '}
+                  <span className="text-cyan-500">3</span>
+                </Typography>
+
+                <Typography
+                  variant="h6"
+                  className="mt-1.5 px-2 ml-auto mr-auto"
+                >
+                  Special: <span className="text-amber-600">3</span>{' '}
+                  <span className="text-stieglitz">0</span>{' '}
+                  <span className="text-stieglitz">0</span>
+                </Typography>
+              </Box>
+            </Box>
+          ) : null}
+          {activeInfoSlide === 2 ? (
+            <Box className="bg-[#232935] rounded-md flex flex-col mb-4 px-3 py-3 text-center text-white font-['Minecraft']">
+              <Typography variant="h6" className="mt-1">
+                <span className="text-[#78859E]">How-To-Play</span>
+              </Typography>
+              <Typography variant="h6" className="mt-1.5 px-2">
+                There are four possible moves with three types of attributes:{' '}
+                <span className="text-amber-600">Damage</span>,{' '}
+                <span className="text-emerald-400">Guaranteed Damage</span> and{' '}
+                <span className="text-cyan-500">Defence</span>
+              </Typography>
+            </Box>
+          ) : null}
+
+          <Box className="flex mb-8">
+            <Box
+              className={`w-2 h-2 ${
+                activeInfoSlide === 0 ? 'bg-white' : ''
+              } border-[#43609A] border-[0.1px] rounded-full ml-auto mr-0 cursor-pointer`}
+              onClick={() => setActiveInfoSlide(0)}
+            />
+            <Box
+              className={`w-2 h-2 ${
+                activeInfoSlide === 1 ? 'bg-white' : ''
+              } border-[#43609A] border-[0.1px] rounded-full ml-2 mr-2 cursor-pointer`}
+              onClick={() => setActiveInfoSlide(1)}
+            />
+            <Box
+              className={`w-2 h-2 ${
+                activeInfoSlide === 2 ? 'bg-white' : ''
+              } border-[#43609A] border-[0.1px] rounded-full ml-0 mr-auto cursor-pointer`}
+              onClick={() => setActiveInfoSlide(2)}
+            />
+          </Box>
+
+          <Box className="flex">
+            <Box className="ml-auto w-1/2 flex">
+              <Tooltip title="Kick">
+                <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-auto mr-12 relative cursor-pointer">
+                  <Box className="absolute bg-[#22E1FF] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
+                    <Typography
+                      variant="h6"
+                      className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
+                    >
+                      2
+                    </Typography>
                   </Box>
-                );
-              })}
+
+                  <img
+                    src="/images/nfts/pepes/kick.png"
+                    className="mx-auto my-auto w-6 h-6"
+                  />
+                </Box>
+              </Tooltip>
+            </Box>
+          </Box>
+
+          <Box className="flex mt-0.5">
+            <Box className="ml-auto w-1/2 flex">
+              <Tooltip title="Block">
+                <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-14 relative cursor-pointer">
+                  <Box className="absolute bg-[#22E1FF] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
+                    <Typography
+                      variant="h6"
+                      className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
+                    >
+                      2
+                    </Typography>
+                  </Box>
+                  <img
+                    src="/images/nfts/pepes/block.png"
+                    className="mx-auto my-auto w-6 h-6"
+                  />
+                </Box>
+              </Tooltip>
+              <Tooltip title="Special">
+                <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-8 mr-3 relative cursor-pointer">
+                  <Box className="absolute bg-[#FFD50B] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
+                    <Typography
+                      variant="h6"
+                      className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
+                    >
+                      1
+                    </Typography>
+                  </Box>
+                  <img
+                    src="/images/nfts/pepes/special.png"
+                    className="mx-auto my-auto w-6 h-6"
+                  />
+                </Box>
+              </Tooltip>
+            </Box>
+          </Box>
+
+          <Box className="flex">
+            <Tooltip title="Punch">
+              <Box className="ml-auto w-1/2 flex cursor-pointer">
+                <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-auto mr-12 relative">
+                  {' '}
+                  <Box className="absolute bg-[#22E1FF] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
+                    <Typography
+                      variant="h6"
+                      className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
+                    >
+                      2
+                    </Typography>
+                  </Box>
+                  <img
+                    src="/images/nfts/pepes/punch.png"
+                    className="mx-auto my-auto w-6 h-6"
+                  />
+                </Box>
+              </Box>
+            </Tooltip>
+          </Box>
+
+          <Box className="flex mt-5">
+            <Box className="w-1/2 mr-2 ml-4">
+              <CustomButton size="medium" className={styles.pepeButton}>
+                <Typography variant="h5" className={styles.pepeButtonText}>
+                  RESET
+                </Typography>
+              </CustomButton>
+            </Box>
+
+            <Box className="w-1/2 ml-2 mr-4">
+              <CustomButton size="medium" className={styles.pepeButton}>
+                <Typography variant="h5" className={styles.pepeButtonText}>
+                  SAVE
+                </Typography>
+              </CustomButton>
             </Box>
           </Box>
         </Box>
@@ -245,7 +487,10 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               </Typography>
             </Box>
             <Box className="flex mt-3 mb-1">
-              <Box className="py-6 bg-[#343C4D] flex rounded-md w-full">
+              <Box
+                className="py-6 bg-[#343C4D] flex rounded-md w-full cursor-pointer"
+                onClick={() => setIsSelectingMoves(true)}
+              >
                 <img
                   src="/images/misc/plus-skin.svg"
                   className="ml-auto mr-auto"
