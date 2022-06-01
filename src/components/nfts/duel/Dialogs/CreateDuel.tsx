@@ -51,6 +51,65 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [isLoadingNfts, setIsLoadingNfts] = useState<boolean>(true);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
+  const [moves, setMoves] = useState<string[]>([]);
+
+  const kickMovesSelected = useMemo(() => {
+    let counter: number = 0;
+
+    moves.map((move) => {
+      if (move === 'kick') counter += 1;
+    });
+
+    return counter;
+  }, [moves]);
+
+  const blockMovesSelected = useMemo(() => {
+    let counter: number = 0;
+
+    moves.map((move) => {
+      if (move === 'block') counter += 1;
+    });
+
+    return counter;
+  }, [moves]);
+
+  const specialMovesSelected = useMemo(() => {
+    let counter: number = 0;
+
+    moves.map((move) => {
+      if (move === 'special') counter += 1;
+    });
+
+    return counter;
+  }, [moves]);
+
+  const punchMovesSelected = useMemo(() => {
+    let counter: number = 0;
+
+    moves.map((move) => {
+      if (move === 'punch') counter += 1;
+    });
+
+    return counter;
+  }, [moves]);
+
+  const addMove = useCallback(
+    (move: string) => {
+      if (move === 'kick' && kickMovesSelected >= 2) return;
+      if (move === 'punch' && punchMovesSelected >= 2) return;
+      if (move === 'block' && blockMovesSelected >= 2) return;
+      if (move === 'special' && specialMovesSelected >= 1) return;
+      if (moves.length > 4) return;
+
+      setMoves([...moves, move]);
+    },
+    [
+      punchMovesSelected,
+      specialMovesSelected,
+      blockMovesSelected,
+      kickMovesSelected,
+    ]
+  );
 
   const readableBalance = useMemo(() => {
     return getUserReadableAmount(
@@ -176,16 +235,102 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 Select Moves
               </Typography>
             </Box>
-            <Box className="flex mt-3 mb-1">
-              <Box
-                className="py-6 bg-[#343C4D] flex rounded-md w-full cursor-pointer"
-                onClick={() => setIsSelectingMoves(true)}
-              >
-                <img
-                  src="/images/misc/plus-skin.svg"
-                  className="ml-auto mr-auto"
-                />
-              </Box>
+            <Box className="flex mt-5 mb-1 ml-2">
+              {moves.map((move, i) => (
+                <Box className="flex">
+                  <Box className="mr-3">
+                    <Box className="bg-[#343C4D] flex h-10 w-10 rounded-md">
+                      <img
+                        src={`/images/nfts/pepes/${move}.png`}
+                        className="my-auto mx-auto"
+                      />
+                    </Box>
+
+                    {move === 'kick' ? (
+                      <Box className="mt-1 text-center">
+                        <Typography variant="h6" className="mt-1 text-[10px]">
+                          <span className="text-amber-600">*</span>
+                        </Typography>
+                        <Typography variant="h6" className="text-[10px]">
+                          <span className="text-white font-['Minecraft']">
+                            2
+                          </span>
+                        </Typography>
+                      </Box>
+                    ) : null}
+
+                    {move === 'block' ? (
+                      <Box className="mt-1 text-center">
+                        <Typography variant="h6" className="mt-1 text-[10px]">
+                          <span className="text-emerald-400">*</span>
+                        </Typography>
+                        <Typography variant="h6" className="text-[10px]">
+                          <span className="text-white font-['Minecraft']">
+                            3
+                          </span>
+                        </Typography>
+                      </Box>
+                    ) : null}
+
+                    {move === 'punch' ? (
+                      <Box className="mt-1 text-center">
+                        <Typography variant="h6" className="mt-1 text-[10px]">
+                          <span className="text-amber-600 mr-1.5">*</span>
+                          <span className="text-emerald-400">*</span>
+                        </Typography>
+                        <Typography variant="h6" className="text-[10px]">
+                          <span className="text-white font-['Minecraft'] mr-2">
+                            1
+                          </span>
+                          <span className="text-white font-['Minecraft']">
+                            1
+                          </span>
+                        </Typography>
+                      </Box>
+                    ) : null}
+
+                    {move === 'special' ? (
+                      <Box className="mt-1 text-center">
+                        <Typography variant="h6" className="mt-1 text-[10px]">
+                          <span className="text-amber-600">*</span>
+                        </Typography>
+                        <Typography variant="h6" className="text-[10px]">
+                          <span className="text-white font-['Minecraft']">
+                            3
+                          </span>
+                        </Typography>
+                      </Box>
+                    ) : null}
+                  </Box>
+                  {i !== 4 ? (
+                    <img
+                      src="/images/misc/arrow-right-black.svg"
+                      className="w-2.5 h-3 mt-3 mr-3"
+                    />
+                  ) : null}
+                </Box>
+              ))}
+              {[...Array(5 - moves.length)].map((w, i) => (
+                <Box className="flex">
+                  <Box className="mr-3">
+                    <img src="/images/misc/plus.png" />
+                    <Box className="mt-1 text-center">
+                      <Typography variant="h6" className="mt-1 text-[10px]">
+                        <span className="text-[#78859E]">*</span>
+                      </Typography>
+                      <Typography variant="h6" className="text-[10px]">
+                        <span className="text-white font-['Minecraft']">-</span>
+                      </Typography>
+                    </Box>
+                  </Box>
+                  {i < 5 - moves.length - 1 ? (
+                    <img
+                      src="/images/misc/arrow-right-black.svg"
+                      className="w-2.5 h-3 mt-3 mr-3"
+                    />
+                  ) : null}
+                </Box>
+              ))}
             </Box>
           </Box>
 
@@ -286,13 +431,16 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           <Box className="flex">
             <Box className="ml-auto w-1/2 flex">
               <Tooltip title="Kick">
-                <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-auto mr-12 relative cursor-pointer">
+                <Box
+                  className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-auto mr-12 relative cursor-pointer"
+                  onClick={() => addMove('kick')}
+                >
                   <Box className="absolute bg-[#22E1FF] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
                     <Typography
                       variant="h6"
                       className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
                     >
-                      2
+                      {2 - kickMovesSelected}
                     </Typography>
                   </Box>
 
@@ -308,13 +456,16 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           <Box className="flex mt-0.5">
             <Box className="ml-auto w-1/2 flex">
               <Tooltip title="Block">
-                <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-14 relative cursor-pointer">
+                <Box
+                  className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-14 relative cursor-pointer"
+                  onClick={() => addMove('block')}
+                >
                   <Box className="absolute bg-[#22E1FF] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
                     <Typography
                       variant="h6"
                       className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
                     >
-                      2
+                      {2 - blockMovesSelected}
                     </Typography>
                   </Box>
                   <img
@@ -324,13 +475,16 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </Box>
               </Tooltip>
               <Tooltip title="Special">
-                <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-8 mr-3 relative cursor-pointer">
+                <Box
+                  className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-8 mr-3 relative cursor-pointer"
+                  onClick={() => addMove('special')}
+                >
                   <Box className="absolute bg-[#FFD50B] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
                     <Typography
                       variant="h6"
                       className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
                     >
-                      1
+                      {1 - specialMovesSelected}
                     </Typography>
                   </Box>
                   <img
@@ -344,7 +498,10 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex">
             <Tooltip title="Punch">
-              <Box className="ml-auto w-1/2 flex cursor-pointer">
+              <Box
+                className="ml-auto w-1/2 flex cursor-pointer"
+                onClick={() => addMove('punch')}
+              >
                 <Box className="bg-[#43609A] rounded-full w-11 h-10 flex border-2 border-black ml-auto mr-12 relative">
                   {' '}
                   <Box className="absolute bg-[#22E1FF] flex pl-1.5 pr-1.5 rounded-full left-[-0.5rem] top-[-0.2rem]">
@@ -352,7 +509,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                       variant="h6"
                       className="text-black text-[10px] font-['Minecraft'] mt-0.5 mx-0.5"
                     >
-                      2
+                      {2 - punchMovesSelected}
                     </Typography>
                   </Box>
                   <img
@@ -366,7 +523,11 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
-              <CustomButton size="medium" className={styles.pepeButton}>
+              <CustomButton
+                size="medium"
+                className={styles.pepeButton}
+                onClick={() => setMoves([])}
+              >
                 <Typography variant="h5" className={styles.pepeButtonText}>
                   RESET
                 </Typography>
