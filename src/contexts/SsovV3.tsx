@@ -256,7 +256,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       availableCollateralForStrikes,
       rewardTokens: epochData.rewardTokensToDistribute.map((token) => {
         return (
-          TOKEN_ADDRESS_TO_DATA[token] || { symbol: 'UNKNOWN', imgSrc: '' }
+          TOKEN_ADDRESS_TO_DATA[token.toLowerCase()] || {
+            symbol: 'UNKNOWN',
+            imgSrc: '',
+          }
         );
       }),
       APY: apyPayload.data.apy,

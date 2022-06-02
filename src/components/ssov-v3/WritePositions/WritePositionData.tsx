@@ -65,7 +65,8 @@ const WritePositionTableData = (props: Props) => {
       </TableCell>
       <TableCell>
         <Typography variant="h6">
-          <NumberDisplay n={accruedPremiums} decimals={18} /> {collateralSymbol}
+          <NumberDisplay n={accruedPremiums} decimals={18} minNumber={0.01} />{' '}
+          {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell>
