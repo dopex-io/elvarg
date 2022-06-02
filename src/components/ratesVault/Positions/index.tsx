@@ -25,6 +25,7 @@ import formatAmount from 'utils/general/formatAmount';
 import TransferDialog from 'components/ratesVault/Dialogs/Transfer';
 
 import styles from './styles.module.scss';
+import { MAX_VALUE } from 'constants/index';
 
 export interface PositionProps {
   strike: number;
@@ -73,11 +74,22 @@ const Positions = () => {
 
       if (!tokenAddress || !accountAddress || !signer) return;
 
-      const amount = ERC20__factory.connect(tokenAddress, signer).balanceOf(
-        accountAddress
+      const token = ERC20__factory.connect(tokenAddress, signer);
+
+      const amount = await token.balanceOf(accountAddress);
+
+      const allowance = await token.allowance(
+        accountAddress,
+        rateVaultContract.address
       );
 
-      rateVaultContract
+      if (allowance.eq(0)) {
+        await token
+          .connect(signer)
+          .approve(rateVaultContract.address, MAX_VALUE);
+      }
+
+      await rateVaultContract
         .connect(signer)
         .settle(strikeIndex, isPut, amount, selectedEpoch, {
           gasLimit: 2000000,
