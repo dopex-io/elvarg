@@ -655,6 +655,15 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               <Typography variant="h6" className="text-[#78859E] text-sm">
                 Select Moves
               </Typography>
+              {moves.length === 5 ? (
+                <Typography
+                  variant="h6"
+                  className="text-cyan-500 text-sm ml-auto cursor-pointer"
+                  onClick={() => setMoves([])}
+                >
+                  Reset
+                </Typography>
+              ) : null}
             </Box>
             <Box className="flex mt-3 mb-1">
               {moves.length === 5 ? (
