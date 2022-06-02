@@ -152,10 +152,6 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     setSsovV3UserData({
       writePositions: data.map((o, i) => {
-        console.log(
-          moreData[i]?.collateralTokenWithdrawAmount.sub(o.collateralAmount)
-        );
-
         return {
           tokenId: writePositions[i] as BigNumber,
           collateralAmount: o.collateralAmount,
