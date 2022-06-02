@@ -81,7 +81,7 @@ const DepositsTableData = (
       !isTotalCallUserDepositsEmpty &&
       isBootstrapped
     );
-  }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime]);
+  }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime, isBootstrapped]);
 
   const isTotalPutUserDepositsEmpty: boolean = useMemo(() => {
     let _isEmpty: boolean = true;
