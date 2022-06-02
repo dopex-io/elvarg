@@ -79,7 +79,9 @@ const Positions = () => {
 
       rateVaultContract
         .connect(signer)
-        .settle(strikeIndex, isPut, amount, selectedEpoch);
+        .settle(strikeIndex, isPut, amount, selectedEpoch, {
+          gasLimit: 2000000,
+        });
 
       updateAssetBalances();
       updateRateVaultUserData();
