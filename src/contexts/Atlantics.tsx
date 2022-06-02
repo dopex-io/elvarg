@@ -10,6 +10,8 @@ import { BigNumber } from 'ethers';
 import { WalletContext } from './Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
+// import { addresses } from 'contracts/addresses';
+
 export interface Atlantics {
   token?: string;
   type?: 'CALL' | 'PUT';
@@ -86,6 +88,8 @@ interface AtlanticsContextInterface {
   atlanticPoolData: AtlanticPoolData;
   atlanticPoolEpochData: AtlanticPoolEpochData;
   userAtlanticsData: UserAtlanticsData;
+  selectedStrategy: string;
+  setSelectedStrategy: (strategy: string) => void;
   selectedMarket: string;
   setSelectedMarket: (tokenId: string) => void;
   selectedEpoch: number;
@@ -138,6 +142,8 @@ const initialAtlanticsData = {
   atlanticPoolEpochData: initialAtlanticPoolEpochData,
   userAtlanticsData: initialUserAtlanticsData,
   selectedMarket: '',
+  selectedStrategy: '',
+  setSelectedStrategy: () => {},
   setSelectedMarket: () => {},
   selectedEpoch: 0,
   setSelectedEpoch: () => {},
@@ -163,11 +169,27 @@ export const AtlanticsProvider = (props: any) => {
     initialUserAtlanticsData
   );
   const [selectedMarket, setSelectedMarket] = useState('');
+  const [selectedStrategy, setSelectedStrategy] = useState('');
 
   // callbacks
   // Fetch from Dopex API (?)
   const updateMarketsData = useCallback(async () => {
     if (!provider || !accountAddress || !contractAddresses) return;
+
+    // const markets = Object.keys(addresses.Atlantics).map((pool: string) => {
+    //   const _length = pool.split('-').length;
+    //   return Object.keys(addresses.Atlantics[pool]).map((key: string) => {
+    //     return {
+    //       strategy: pool,
+    //       underlying: addresses.Atlantics[pool][key].underlying,
+    //       collateral: addresses.Atlantics[pool][key].collateral,
+    //       optionPricing: addresses.Atlantics[pool][key].optionPricing,
+    //       isPut: pool.split('-')[_length - 2] === 'PUTS',
+    //     };
+    //   });
+    // });
+
+    // console.log(markets);
 
     // Mock Data
     const data = [
@@ -195,7 +217,14 @@ export const AtlanticsProvider = (props: any) => {
 
   const updateAtlanticPoolData = useCallback(
     async (tokenId: string) => {
-      if (!accountAddress || !contractAddresses || !provider || !chainId)
+      if (
+        !accountAddress ||
+        !contractAddresses ||
+        !provider ||
+        !chainId ||
+        !selectedStrategy ||
+        !selectedMarket
+      )
         return;
 
       const [
@@ -228,7 +257,14 @@ export const AtlanticsProvider = (props: any) => {
         currentEpoch,
       });
     },
-    [accountAddress, contractAddresses, provider, chainId]
+    [
+      accountAddress,
+      contractAddresses,
+      provider,
+      chainId,
+      selectedStrategy,
+      selectedMarket,
+    ]
   );
 
   const updateAtlanticPoolEpochData = useCallback(
@@ -330,6 +366,8 @@ export const AtlanticsProvider = (props: any) => {
     userAtlanticsData,
     atlanticPoolData,
     atlanticPoolEpochData,
+    selectedStrategy,
+    setSelectedStrategy,
     selectedMarket,
     setSelectedMarket,
     selectedEpoch,

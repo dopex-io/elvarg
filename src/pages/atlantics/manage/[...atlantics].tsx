@@ -1,7 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
-import formatDistance from 'date-fns/formatDistance';
 
 import AppBar from 'components/common/AppBar';
 import ManageCard from 'components/atlantics/Manage/ManageCard';
@@ -13,7 +12,6 @@ import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
-import format from 'date-fns/format';
 
 const bar_graph_data = [
   {
@@ -87,13 +85,15 @@ interface ManageProps {
 const Manage = (props: ManageProps) => {
   const { poolType, underlying, tokenId, strategy } = props;
 
-  const { atlanticPoolData, setSelectedMarket } = useContext(AtlanticsContext);
+  const { atlanticPoolData, setSelectedMarket, setSelectedStrategy } =
+    useContext(AtlanticsContext);
 
   useEffect(() => {
     (async () => {
       setSelectedMarket(tokenId);
+      setSelectedStrategy(strategy);
     })();
-  }, [setSelectedMarket, tokenId]);
+  }, [setSelectedMarket, setSelectedStrategy, strategy, tokenId]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -102,8 +102,8 @@ const Manage = (props: ManageProps) => {
       </Head>
       <AppBar active="atlantics" />
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
-        <Box className="flex space-x-3">
-          <Box className="flex flex-col w-3/4 space-y-8 mx-2">
+        <Box className="flex space-x-0 sm:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
+          <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
             <ManageTitle
               tokenId={tokenId}
               underlying={underlying}
@@ -112,7 +112,7 @@ const Manage = (props: ManageProps) => {
               epochLength={atlanticPoolData.expiryType}
             />
             <ContractData />
-            <Box className="w-full space-y-4">
+            <Box className="w-full space-y-4 flex flex-col">
               <Typography variant="h5">Liquidity</Typography>
               <Charts
                 line_data={line_chart_data}
@@ -134,7 +134,7 @@ const Manage = (props: ManageProps) => {
               <UserDepositsTable data={[]} />
             </Box>
           </Box>
-          <Box className="flex flex-col w-1/4 h-full">
+          <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full">
             <ManageCard
               tokenId={tokenId}
               underlying={underlying}

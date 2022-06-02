@@ -7,6 +7,8 @@ interface SearchBarProps {
 const SearchBar = (props: SearchBarProps) => {
   const { searchKey } = props;
 
+  console.log(searchKey);
+
   return (
     <CustomInput
       size="medium"

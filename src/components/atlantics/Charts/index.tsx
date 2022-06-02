@@ -30,17 +30,17 @@ const Charts = (props: ChartsProps) => {
   // }, []);
 
   return (
-    <Box className="flex flex-shrink space-x-3">
-      <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-2/3">
+    <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">
+      <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-2/3 sm:w-full">
         <ClientRenderedBarGraph
           data={bar_data}
-          width={720}
+          width={750}
           height={175}
           header={{ underlying, collateral, strategy }}
         />
       </Box>
-      <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-1/3">
-        <ClientRenderedLineChart data={line_data} width={340} height={175} />
+      <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">
+        <ClientRenderedLineChart data={line_data} width={340} height={150} />
       </Box>
     </Box>
   );

@@ -475,8 +475,20 @@ const RfqForm = (props: RfqFormProps) => {
                 value={selection.address || ''}
                 label="Select Option"
                 classes={{ icon: 'text-white', select: 'py-1 px-2' }}
+                input={<Input />}
+                disableUnderline
                 MenuProps={{
                   classes: { paper: 'bg-cod-gray p-0' },
+                }}
+                renderValue={() => {
+                  return (
+                    <Typography
+                      variant="h6"
+                      className="text-white w-full relative"
+                    >
+                      {selection.symbol || 'Select Option'}
+                    </Typography>
+                  );
                 }}
                 onChange={handleTokenSelection}
               >

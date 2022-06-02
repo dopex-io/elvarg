@@ -12,6 +12,8 @@ const StrategyFilter = () => {
   const { marketsData } = useContext(AtlanticsContext);
   const [selectedStrategies, setSelectedStrategies] = useState([]);
 
+  console.log(selectedStrategies, setSelectedStrategies);
+
   const strategies = useMemo(() => {
     return marketsData.map((market: any, index: number) => {
       return (

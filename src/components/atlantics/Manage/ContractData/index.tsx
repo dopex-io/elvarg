@@ -36,8 +36,8 @@ const ContractData = () => {
   }, [atlanticPoolEpochData]);
 
   return (
-    <Box className="flex p-3 border border-umbra rounded-xl w-full space-x-8">
-      <Box className="space-y-1">
+    <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 sm:space-y-3 md:space-y-0">
+      <Box className="space-y-3">
         <Typography variant="h6" className="text-stieglitz">
           Epoch
         </Typography>
@@ -55,7 +55,7 @@ const ContractData = () => {
           </Box>
         </Box>
       </Box>
-      <Box className="space-y-1">
+      <Box className="space-y-3">
         <Typography variant="h6" className="text-stieglitz">
           Funding Rate
         </Typography>
@@ -68,13 +68,13 @@ const ContractData = () => {
           </Typography>
         </Box>
       </Box>
-      <Box className="space-y-1">
+      <Box className="space-y-3">
         <Typography variant="h6" className="text-stieglitz">
           Contract
         </Typography>
         <ArbiscanLink address={atlanticPoolData.poolContract} />
       </Box>
-      <Box className="space-y-1 h-full">
+      <Box className="space-y-3 h-full">
         <Typography variant="h6" className="text-stieglitz">
           Strategy
         </Typography>

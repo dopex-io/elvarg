@@ -29,7 +29,7 @@ const Atlantics = () => {
               </Box>
               <Box className="flex w-full justify-between">
                 <StrategyFilter />
-                <Box>2</Box>
+                <Box></Box>
               </Box>
             </Box>
             <Box className="grid grid-cols-4 pt-6">

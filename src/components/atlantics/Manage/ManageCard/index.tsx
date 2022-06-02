@@ -1,10 +1,9 @@
-import React, { useState, useCallback, useContext, useMemo } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import Box from '@mui/material/Box';
 import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
 import CustomInput from 'components/UI/CustomInput';
@@ -18,7 +17,6 @@ import LockerIcon from 'svgs/icons/LockerIcon';
 
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
-import { AtlanticsContext } from 'contexts/Atlantics';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -69,7 +67,7 @@ const ManageCard = (props: ManageCardProps) => {
 
   return (
     <Box
-      className="bg-cod-gray rounded-2xl p-3 space-y-3 h-full"
+      className="flex flex-col bg-cod-gray rounded-2xl p-3 space-y-3 h-full"
       ref={containerRef}
     >
       <Box className="flex justify-between">
