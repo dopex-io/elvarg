@@ -111,6 +111,8 @@ const Positions = () => {
 
   useEffect(() => {
     async function updatePositions() {
+      if (!signer || !accountAddress) return;
+
       setIsPositionsStatsLoading(true);
       const _positions: any[] = [];
 
