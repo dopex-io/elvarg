@@ -152,6 +152,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     setSsovV3UserData({
       writePositions: data.map((o, i) => {
+        console.log(
+          moreData[i]?.collateralTokenWithdrawAmount.sub(o.collateralAmount)
+        );
+
         return {
           tokenId: writePositions[i] as BigNumber,
           collateralAmount: o.collateralAmount,
@@ -256,7 +260,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       availableCollateralForStrikes,
       rewardTokens: epochData.rewardTokensToDistribute.map((token) => {
         return (
-          TOKEN_ADDRESS_TO_DATA[token] || { symbol: 'UNKNOWN', imgSrc: '' }
+          TOKEN_ADDRESS_TO_DATA[token.toLowerCase()] || {
+            symbol: 'UNKNOWN',
+            imgSrc: '',
+          }
         );
       }),
       APY: apyPayload.data.apy,
