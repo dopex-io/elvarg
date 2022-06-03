@@ -111,11 +111,13 @@ const Positions = () => {
 
   useEffect(() => {
     async function updatePositions() {
+      if (!signer || !accountAddress) return;
+
       setIsPositionsStatsLoading(true);
       const _positions: any[] = [];
 
-      rateVaultUserData?.userStrikePurchaseData?.map((purchase) => {
-        ['CALL', 'PUT'].map((contextSide) => {
+      rateVaultUserData?.userStrikePurchaseData?.map(async (purchase) => {
+        ['CALL', 'PUT'].map(async (contextSide) => {
           const duration =
             (rateVaultEpochData.epochTimes[1].toNumber() -
               epochTimes[0].toNumber()) /
@@ -139,6 +141,16 @@ const Positions = () => {
             }
           }
 
+          const tokenAddress = String(
+            contextSide === 'PUT'
+              ? rateVaultEpochData.putsToken[purchase.strikeIndex]
+              : rateVaultEpochData.callsToken[purchase.strikeIndex]
+          );
+
+          const token = ERC20__factory.connect(tokenAddress, signer);
+
+          const tokenBalance = await token.balanceOf(accountAddress);
+
           if (
             (contextSide === 'CALL' && purchase.callsPurchased.gt(0)) ||
             (contextSide === 'PUT' && purchase.putsPurchased.gt(0))
@@ -157,7 +169,8 @@ const Positions = () => {
                 18
               ),
               side: contextSide,
-              canBeSettled: new Date() > epochEndTime && pnl > 0,
+              canBeSettled:
+                new Date() > epochEndTime && pnl > 0 && tokenBalance.gte(0),
               pnl: pnl,
             });
         });
@@ -174,6 +187,8 @@ const Positions = () => {
     epochEndTime,
     tokenPrice,
     epochTimes,
+    signer,
+    accountAddress,
   ]);
 
   const handleTransfer = useCallback(
