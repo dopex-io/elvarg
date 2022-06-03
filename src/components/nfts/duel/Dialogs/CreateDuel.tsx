@@ -13,11 +13,12 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import Switch from '@mui/material/Switch';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import TokenSelector from 'components/common/TokenSelector';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
@@ -26,16 +27,10 @@ import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import styles from './styles.module.scss';
-import getTokenDecimals from '../../../../utils/general/getTokenDecimals';
-import ZapInButton from '../../../common/ZapInButton';
-import LockerIcon from '../../../../svgs/icons/LockerIcon';
-import format from 'date-fns/format';
-import Countdown from 'react-countdown';
-import WhiteLockerIcon from '../../../../svgs/icons/WhiteLockerIcon';
-import CircularProgress from '@mui/material/CircularProgress';
 
 export interface Props {
   open: boolean;
@@ -52,6 +47,8 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [isLoadingNfts, setIsLoadingNfts] = useState<boolean>(true);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
+  const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
+    useState<boolean>(false);
 
   const kickMovesSelected = useMemo(() => {
     let counter: number = 0;
@@ -207,7 +204,18 @@ const CreateDuel = ({ open, handleClose }: Props) => {
         paperScrollPaper: 'overflow-x-hidden',
       }}
     >
-      {isSelectingNfts ? (
+      {isTokenSelectorVisible ? ( // @ts-ignore
+        <Box className="h-[52.8rem]">
+          {' '}
+          <TokenSelector
+            open={isTokenSelectorVisible}
+            setOpen={setIsTokenSelectorVisible}
+            setFromTokenSymbol={setTokenName}
+            isInDialog={true}
+            tokensToExclude={[]}
+          />{' '}
+        </Box>
+      ) : isSelectingNfts ? (
         <Box>
           <Box className="flex flex-row items-center mb-4">
             <IconButton
@@ -570,7 +578,10 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           </Box>
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
             <Box className="flex flex-row justify-between">
-              <Box className="h-10 bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+              <Box
+                className="h-10 bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer"
+                onClick={() => setIsTokenSelectorVisible(true)}
+              >
                 <Box className="flex flex-row h-10 pr-14">
                   <img
                     src={`/images/tokens/${tokenName.toLowerCase()}.svg`}

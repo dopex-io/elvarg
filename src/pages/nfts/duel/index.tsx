@@ -251,7 +251,7 @@ const DuelPepes = () => {
           </Box>
         </Box>
 
-        <Box className="pt-2 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
+        <Box className="pt-2 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0 mt-3">
           <Duels />
         </Box>
       </Box>
