@@ -1876,9 +1876,13 @@ export const RateVault = () => {
   }, [rateVaultContract, selectedEpoch]);
 
   const getEpochPremiums = useCallback(async () => {
-    return await rateVaultContract['getEpochPremiums'](
-      Math.max(selectedEpoch || 0, 1)
-    );
+    try {
+      return await rateVaultContract['getEpochPremiums'](
+        Math.max(selectedEpoch || 0, 1)
+      );
+    } catch (err) {
+      return [];
+    }
   }, [rateVaultContract, selectedEpoch]);
 
   const getTotalStrikeData = useCallback(
