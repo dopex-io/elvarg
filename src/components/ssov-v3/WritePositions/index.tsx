@@ -42,12 +42,12 @@ const TableColumnHeader: React.FC<{ children: React.ReactNode }> = ({
 };
 
 const COLUMN_HEADERS = [
-  'Option',
   'Strike Price',
+  'Epoch',
   'Deposit Amount',
   'Accrued Premiums',
   'Accrued Rewards',
-  'Epoch',
+  'Estimated Return',
   'Actions',
 ];
 
@@ -57,7 +57,7 @@ const WritePositions = (props: { className?: string }) => {
   const { selectedEpoch, ssovUserData, ssovData, ssovEpochData } =
     useContext(SsovV3Context);
 
-  const { underlyingSymbol, collateralSymbol } = ssovData as SsovV3Data;
+  const { collateralSymbol } = ssovData as SsovV3Data;
 
   const [page, setPage] = useState(0);
 
@@ -82,6 +82,7 @@ const WritePositions = (props: { className?: string }) => {
       strike: BigNumber.from(0),
       accruedRewards: [BigNumber.from(0)],
       accruedPremiums: BigNumber.from(0),
+      estimatedPnl: BigNumber.from(0),
       epoch: 0,
       tokenId: BigNumber.from(0),
     },
@@ -149,7 +150,6 @@ const WritePositions = (props: { className?: string }) => {
                         key={i}
                         {...o}
                         collateralSymbol={collateralSymbol || ''}
-                        underlyingSymbol={underlyingSymbol || ''}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
                         rewardTokens={ssovEpochData?.rewardTokens || []}

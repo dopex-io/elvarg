@@ -229,7 +229,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     useState<string>(ssovTokenName);
 
   const spender = useMemo(() => {
-    return '0x602B9f9B7126DEce2b9a589B49Fe5947c903A156';
+    return '0x3BBCbe743AbeD14072EC26dABc4663Fa850f38D5';
   }, []);
 
   const quotePrice: number = useMemo(() => {

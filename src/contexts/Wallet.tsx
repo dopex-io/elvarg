@@ -35,8 +35,6 @@ interface WalletContextInterface {
   changeNetwork?: 'user' | 'wrong-network' | 'close';
 }
 
-const _Addresses = Addresses as unknown as { [key: string]: any };
-
 const defaultContext = {
   wrongNetwork: false,
   connect: () => {},
@@ -45,7 +43,7 @@ const defaultContext = {
   setChangeNetwork: () => {},
   chainId: DEFAULT_CHAIN_ID,
   supportedChainIds: [DEFAULT_CHAIN_ID],
-  contractAddresses: _Addresses[String(DEFAULT_CHAIN_ID)],
+  contractAddresses: Addresses[Number(DEFAULT_CHAIN_ID)],
   provider: new providers.MulticallProvider(
     new ethers.providers.StaticJsonRpcProvider(
       CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
@@ -136,7 +134,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
     accountAddress: '',
     wrongNetwork: false,
     chainId: DEFAULT_CHAIN_ID,
-    contractAddresses: _Addresses[DEFAULT_CHAIN_ID],
+    contractAddresses: Addresses[DEFAULT_CHAIN_ID],
     provider: null,
     supportedChainIds: [DEFAULT_CHAIN_ID],
   });
@@ -207,7 +205,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
 
       let contractAddresses: any;
 
-      contractAddresses = _Addresses[chainId];
+      contractAddresses = Addresses[chainId];
 
       setState((prevState: any) => ({
         ...prevState,
