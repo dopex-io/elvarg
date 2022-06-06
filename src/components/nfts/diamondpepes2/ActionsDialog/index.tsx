@@ -795,21 +795,21 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
       signer
     );
 
-    if (mintWithAPE) {
-      await sendTx(publicSaleContract.connect(signer)['mintWithAPE'](toMint));
-    } else {
-      await sendTx(
-        publicSaleContract
-          .connect(signer)
-          ['mint'](toMint, {
-            value: getContractReadableAmount(toMint * 0.88, 18),
-          })
-      );
+    try {
+      if (mintWithAPE) {
+        await publicSaleContract.connect(signer)['mintWithAPE'](toMint);
+      } else {
+        await publicSaleContract.connect(signer)['mint'](toMint, {
+          value: getContractReadableAmount(toMint * 0.88, 18),
+        });
+      }
       setSubmitted(true);
+      explodeEmojis();
+      await updateData();
+    } catch (err) {
+      alert('Insufficient balance');
     }
-    explodeEmojis();
-    await updateData();
-  }, [updateData, signer, mintWithAPE, toMint, sendTx]);
+  }, [updateData, signer, mintWithAPE, toMint]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
