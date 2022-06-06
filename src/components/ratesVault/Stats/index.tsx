@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 
 import { RateVaultContext } from 'contexts/RateVault';
 

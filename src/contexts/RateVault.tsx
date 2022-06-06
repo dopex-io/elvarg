@@ -1604,6 +1604,36 @@ const abi = [
   },
 ];
 
+const oracleAbi = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_gaugeSnapshotReceiverAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_chainlinkCRVAddress',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    inputs: [
+      { internalType: 'uint256', name: 'epochStart', type: 'uint256' },
+      { internalType: 'uint256', name: 'epochEnd', type: 'uint256' },
+      { internalType: 'address', name: 'gauge', type: 'address' },
+    ],
+    name: 'getRate',
+    outputs: [{ internalType: 'uint256', name: 'rate', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
+
 export interface RateVault {
   token?: string;
 }
@@ -1712,6 +1742,13 @@ export const RateVault = () => {
     return new ethers.Contract(
       '0x3BBCbe743AbeD14072EC26dABc4663Fa850f38D5',
       abi,
+      signer
+    );
+  }, [signer]);
+  const gaugeOracle = useMemo(() => {
+    return new ethers.Contract(
+      '0xF45f20bc21C9933ae8613EdD8EF108b7fD25E527',
+      oracleAbi,
       signer
     );
   }, [signer]);
@@ -1935,7 +1972,18 @@ export const RateVault = () => {
     try {
       return await rateVaultContract['getCurrentRate']();
     } catch (err) {
-      return BigNumber.from('0');
+      try {
+        const endTime = Math.floor(new Date().getTime() / 1000);
+        const startTime = endTime - 24 * 3600;
+        return await gaugeOracle['getRate'](
+          startTime,
+          endTime,
+          '0xd8b712d29381748dB89c36BCa0138d7c75866ddF'
+        );
+      } catch (err) {
+        console.log(err);
+        return BigNumber.from('0');
+      }
     }
   }, [rateVaultContract]);
 
