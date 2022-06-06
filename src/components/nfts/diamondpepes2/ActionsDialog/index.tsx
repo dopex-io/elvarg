@@ -743,7 +743,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
   const [toMint, setToMint] = useState<number>(1);
   const [mintWithAPE, setMintWithAPE] = useState<boolean>(false);
   const [approved, setApproved] = useState<boolean>(false);
-  const [submitted, setSubmitted] = useState<boolean>(true);
+  const [submitted, setSubmitted] = useState<boolean>(false);
   const sendTx = useSendTx();
 
   const decreaseToMintAmount = () => {
@@ -771,8 +771,8 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
 
   const canBuy = useMemo(() => {
     if (
-      data?.endTime?.toNumber() > new Date().getTime() &&
-      data?.startTime?.toNumber() < new Date().getTime()
+      data?.endTime?.toNumber() > new Date().getTime() / 1000 &&
+      data?.startTime?.toNumber() < new Date().getTime() / 1000
     )
       return true;
     else return false;
@@ -910,19 +910,11 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
       }}
     >
       <Box className="flex flex-row items-center mb-4" id={'emojisplosion'}>
-        {submitted ? (
-          <img
-            src={'/assets/contract-signed-button.png'}
-            className={'w-46 mr-0.5 ml-auto'}
-            alt={'Contract signed'}
-          />
-        ) : (
-          <img
-            src={'/assets/mint-fighter-button.png'}
-            className={'w-46 mr-1 ml-auto'}
-            alt={'Mint fighter'}
-          />
-        )}
+        <img
+          src={'/assets/mint-fighter-button.png'}
+          className={'w-46 mr-1 ml-auto'}
+          alt={'Mint fighter'}
+        />
         <IconButton
           className="p-0 pb-1 mr-0 mt-0.5 ml-auto"
           onClick={handleClose}
@@ -1009,7 +1001,10 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
         {!submitted ? (
           <Box className="rounded-xl p-4 pb-1 border border-neutral-800 w-full bg-[#232935] mt-3">
             <Box className="rounded-md flex flex-col mb-4 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-[#343C4D]">
-              <EstimatedGasCostButton gas={1000000} chainId={chainId} />
+              <EstimatedGasCostButton
+                gas={400000 + 200000 * toMint}
+                chainId={chainId}
+              />
               <Box className={'flex mt-3'}>
                 <Typography
                   variant="h6"
@@ -1061,7 +1056,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
             <CustomButton
               size="medium"
               className={styles.pepeButton}
-              disabled={canBuy}
+              disabled={!canBuy}
               onClick={
                 canBuy
                   ? mintWithAPE
