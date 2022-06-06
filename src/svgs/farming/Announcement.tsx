@@ -1,4 +1,4 @@
-function Announcement(props) {
+function Announcement(props: any) {
   return (
     <svg
       width="26"

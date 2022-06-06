@@ -1,24 +1,18 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { BigNumber, ethers } from 'ethers';
+import TextField from '@mui/material/TextField';
+import { ethers } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-import { SsovContext } from 'contexts/Ssov';
-import { BnbConversionContext } from 'contexts/BnbConversion';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { MAX_VALUE } from 'constants/index';
-import { TextField } from '@mui/material';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 export interface Props {
@@ -27,7 +21,7 @@ export interface Props {
 }
 
 const Wrapper = ({ open, handleClose }: Props) => {
-  const { accountAddress, signer } = useContext(WalletContext);
+  const { signer } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
@@ -39,7 +33,9 @@ const Wrapper = ({ open, handleClose }: Props) => {
       ['function deposit() payable external'],
       signer
     );
-    await sendTx(weth.deposit({ value: getContractReadableAmount(value, 18) }));
+    await sendTx(
+      weth['deposit']({ value: getContractReadableAmount(value, 18) })
+    );
   }, [signer, sendTx, value]);
 
   return (

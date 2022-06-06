@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext, useCallback, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';

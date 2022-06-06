@@ -34,6 +34,7 @@ const LegacyEpochsDropDown = () => {
     setAnchorEl(null);
   };
 
+  // @ts-ignore TODO: FIX
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };

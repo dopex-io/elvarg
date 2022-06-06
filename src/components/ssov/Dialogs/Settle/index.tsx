@@ -47,11 +47,14 @@ const Settle = ({
   const { accountAddress, signer } = useContext(WalletContext);
   const { convertToVBNB } = useContext(BnbConversionContext);
 
+  // @ts-ignore TODO: FIX
   const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
-
+  // @ts-ignore TODO: FIX
   const { tokenName } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
+  // @ts-ignore TODO: FIX
   const { epochStrikes, settlementPrice } = ssovEpochData;
+  // @ts-ignore TODO: FIX
   const { epochStrikeTokens } = ssovUserData;
 
   const [approved, setApproved] = useState<boolean>(false);
@@ -84,6 +87,7 @@ const Settle = ({
           .sub(settlementPrice)
           .mul(settleableAmount)
           .mul(1e10)
+          // @ts-ignore TODO: FIX
           .div(ssovData.lpPrice)
       : settlementPrice
           .sub(epochStrikes[strikeIndex])
@@ -114,7 +118,9 @@ const Settle = ({
           selectedEpoch
         )
       );
+      // @ts-ignore TODO: FIX
       updateSsovEpochData();
+      // @ts-ignore TODO: FIX
       updateSsovUserData();
       updateUserEpochStrikeTokenBalance();
     } catch (err) {
@@ -174,7 +180,7 @@ const Settle = ({
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={`/assets/${token.toLowerCase()}.svg`}
+                  src={`/images/tokens/${token.toLowerCase()}.svg`}
                   alt={`${token}`}
                 />
               </Box>

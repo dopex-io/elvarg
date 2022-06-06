@@ -1,4 +1,8 @@
-const ChartIndicator = (props) => {
+import { SVGProps } from 'react';
+
+const ChartIndicator = (
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) => {
   return (
     <svg
       width="20"

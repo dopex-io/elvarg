@@ -43,7 +43,9 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<string>('0');
 
+  // @ts-ignore TODO: FIX
   const { epochStrikes } = ssovEpochData;
+  // @ts-ignore TODO: FIX
   const { epochStrikeTokens } = ssovUserData;
 
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
@@ -79,10 +81,12 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance.toString());
   }, [epochStrikeToken, accountAddress]);
 
+  // @ts-ignore TODO: FIX
   const handleRecipientChange = useCallback((e) => {
     setRecipient(e.target.value.toString());
   }, []);
 
+  // @ts-ignore TODO: FIX
   const handleAmountChange = useCallback((e) => {
     setTransferAmount(e.target.value.toString());
   }, []);
@@ -99,7 +103,9 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
           .connect(signer)
           .transfer(recipient, ethersUtils.parseEther(String(transferAmount)))
       );
+      // @ts-ignore TODO: FIX
       updateSsovEpochData();
+      // @ts-ignore TODO: FIX
       updateSsovUserData();
       updateUserEpochStrikeTokenBalance();
       setTransferAmount('0');
@@ -161,12 +167,14 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
+                  // @ts-ignore TODO: FIX
                   src={SSOV_MAP[ssovData.tokenName].imageSrc}
+                  // @ts-ignore TODO: FIX
                   alt={ssovData.tokenName}
                 />
               </Box>
               <Typography variant="h5" className="text-white">
-                {ssovData.tokenName}
+                {ssovData?.tokenName}
               </Typography>
             </Box>
             <Input

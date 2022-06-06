@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
 import { emojisplosions } from 'emojisplosion';

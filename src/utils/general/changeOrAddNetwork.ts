@@ -94,7 +94,7 @@ export default async function changeOrAddNetwork(chainId: number) {
     // Initialize Coinbase Wallet SDK
     const coinbaseWallet = new CoinbaseWalletSDK({
       appName: 'Dopex',
-      appLogoUrl: '/assets/dpx.svg',
+      appLogoUrl: '/images/tokens/dpx.svg',
     });
 
     let rpcUrl = CHAIN_ID_TO_RPC[chainId];
@@ -105,15 +105,18 @@ export default async function changeOrAddNetwork(chainId: number) {
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
+      // @ts-ignore TODO: FIX
       params: [{ chainId: NETWORKS[chainId].chainId }],
     });
   } catch (switchError) {
     window.alert('Please open your wallet and switch chain manually');
     // This error code indicates that the chain has not been added to MetaMask.
+    // @ts-ignore TODO: FIX
     if (switchError.code === 4902) {
       try {
         await window.ethereum.request({
           method: 'wallet_addEthereumChain',
+          // @ts-ignore TODO: FIX
           params: NETWORKS[chainId].params,
         });
       } catch (addError) {

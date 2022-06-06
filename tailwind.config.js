@@ -14,6 +14,7 @@ module.exports = {
         stieglitz: '#8E8E8E',
         umbra: '#1E1E1E',
         mineshaft: '#3E3E3E',
+        carbon: '#2D2D2D',
         'cod-gray': '#151515',
         'wave-blue': '#22E1FF',
         'down-bad': '#FF617D',

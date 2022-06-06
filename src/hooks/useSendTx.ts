@@ -2,7 +2,7 @@ import { useContext, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { ContractTransaction } from 'ethers';
 
-import TransactionToast from 'components/TransactionToast';
+import TransactionToast from 'components/UI/TransactionToast';
 import { WalletContext } from 'contexts/Wallet';
 
 const useSendTx = () => {
@@ -56,10 +56,13 @@ const useSendTx = () => {
           );
         }
       } catch (err) {
+        // @ts-ignore TODO: FIX
         if (err?.data?.message !== undefined) {
-          toast.error(err.data.message, { id: toastId });
+          // @ts-ignore TODO: FIX
+          toast.error(err.data.message);
         } else {
-          toast.error(err.message, { id: toastId });
+          // @ts-ignore TODO: FIX
+          toast.error(err.message);
         }
       }
     },

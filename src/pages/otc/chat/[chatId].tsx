@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useState, useContext, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import {
@@ -18,7 +19,7 @@ import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import format from 'date-fns/format';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 

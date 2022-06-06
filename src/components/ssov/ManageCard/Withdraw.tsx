@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useCallback, useContext } from 'react';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';

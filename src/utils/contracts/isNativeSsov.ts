@@ -1,4 +1,4 @@
-const isNativeSsov = (asset) => {
+const isNativeSsov = (asset: string) => {
   return ['ETH', 'AVAX'].includes(asset);
 };
 
