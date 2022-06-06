@@ -172,25 +172,23 @@ const Stats = ({
                 'p-4 pl-5 pr-5 rounded-xl rounded-tr-none rounded-tl-none border-r-none border-[0.1px] border-gray-600 w-full'
               }
             >
-              <Tooltip title={'Not implemented yet'}>
-                <Box className="flex mb-1">
-                  <Typography variant="h5" className="text-stieglitz">
-                    Current MIM3CRV rate
-                  </Typography>
-                  <Typography variant="h5" className="mr-1 ml-auto text-white">
-                    <span>
-                      {formatAmount(
-                        getUserReadableAmount(
-                          rateVaultContext.rateVaultEpochData.rate,
-                          8
-                        ),
-                        2
-                      )}
-                      %
-                    </span>
-                  </Typography>
-                </Box>
-              </Tooltip>
+              <Box className="flex mb-1">
+                <Typography variant="h5" className="text-stieglitz">
+                  Current MIM3CRV rate
+                </Typography>
+                <Typography variant="h5" className="mr-1 ml-auto text-white">
+                  <span>
+                    {formatAmount(
+                      getUserReadableAmount(
+                        rateVaultContext.rateVaultEpochData.rate,
+                        8
+                      ),
+                      2
+                    )}
+                    %
+                  </span>
+                </Typography>
+              </Box>
             </Box>
           </Box>
         </Box>
