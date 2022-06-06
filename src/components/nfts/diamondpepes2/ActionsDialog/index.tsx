@@ -1,4 +1,3 @@
-// @ts-nocheck TODO: FIX
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
 import { emojisplosions } from 'emojisplosion';
@@ -14,8 +13,8 @@ import Switch from '@mui/material/Switch';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
-import BigCrossIcon from 'components/Icons/BigCrossIcon';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -675,12 +674,20 @@ export interface Props {
   };
 }
 
-const Hero = ({ active, heroColor, letter }) => {
+const Hero = ({
+  active,
+  heroColor,
+  letter,
+}: {
+  active: boolean;
+  heroColor: string;
+  letter: string;
+}) => {
   const heroColorToClass = useMemo(() => {
-    if (heroColor === 'blue') return styles.blueBackground;
-    if (heroColor === 'orange') return styles.orangeBackground;
-    if (heroColor === 'diamond') return styles.diamondBackground;
-    if (heroColor === 'gold') return styles.goldBackground;
+    if (heroColor === 'blue') return styles['blueBackground'];
+    if (heroColor === 'orange') return styles['orangeBackground'];
+    if (heroColor === 'diamond') return styles['diamondBackground'];
+    else return styles[`goldBackground`];
   }, [heroColor]);
 
   return active ? (
@@ -739,7 +746,7 @@ const quotes = [
   },
 ];
 
-const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
+const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
   const { chainId, signer } = useContext(WalletContext);
   const [toMint, setToMint] = useState<number>(1);
   const [mintWithAPE, setMintWithAPE] = useState<boolean>(false);
@@ -759,7 +766,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
     if (toMint === 1) return 'blue';
     else if (toMint === 2) return 'orange';
     else if (toMint === 3) return 'diamond';
-    else if (toMint >= 4) return 'gold';
+    else return 'gold';
   }, [toMint]);
 
   const [activeQuoteIndex, setActiveQuoteIndex] = useState<number>(
@@ -767,7 +774,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
   );
 
   const quote = useMemo(() => {
-    return quotes[activeQuoteIndex];
+    return quotes[activeQuoteIndex] || { avatar: '', text: '', author: '' };
   }, [activeQuoteIndex]);
 
   const canBuy = useMemo(() => {
@@ -780,6 +787,8 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
   }, [data]);
 
   const handleMint = useCallback(async () => {
+    if (!signer) return;
+
     const publicSaleContract = new ethers.Contract(
       '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
       ABI,
@@ -787,12 +796,14 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
     );
 
     if (mintWithAPE) {
-      await sendTx(publicSaleContract.connect(signer).mintWithAPE(toMint));
+      await sendTx(publicSaleContract.connect(signer)['mintWithAPE'](toMint));
     } else {
       await sendTx(
         publicSaleContract
           .connect(signer)
-          .mint(toMint, { value: getContractReadableAmount(toMint * 0.88, 18) })
+          ['mint'](toMint, {
+            value: getContractReadableAmount(toMint * 0.88, 18),
+          })
       );
       setSubmitted(true);
     }
@@ -801,6 +812,8 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
   }, [updateData, signer, mintWithAPE, toMint, sendTx]);
 
   const handleApprove = useCallback(async () => {
+    if (!signer) return;
+
     const publicSaleContract = new ethers.Contract(
       '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
       ABI,
@@ -811,6 +824,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
       '0x4d224452801ACEd8B2F0aebE155379bb5D594381',
       signer
     );
+
     await sendTx(ape.approve(publicSaleContract.address, MAX_VALUE)).then(
       () => {
         setApproved(true);
@@ -839,8 +853,8 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
       const el = document.getElementById('typewriter');
       if (el) {
         let copy = el.cloneNode(true) as HTMLElement;
-        copy.innerHTML = quotes[newIndex].text;
-        el.parentNode.replaceChild(copy, el);
+        copy.innerHTML = quotes[newIndex]?.text || '';
+        el.parentNode?.replaceChild(copy, el);
       }
     }, 3500);
 
@@ -863,7 +877,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
                     variant="h5"
                     className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
                   >
-                    <span className={styles.pepeLink}>Tofunft</span>
+                    <span className={styles['pepeLink']}>Tofunft</span>
                   </Typography>
                 </Box>
               ),
@@ -900,6 +914,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
     [submitted, data, toMint]
   );
 
+  // @ts-ignore
   return (
     <Dialog
       open={open}
@@ -945,7 +960,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
               variant="h5"
               className="text-white font-display font-['Minecraft'] relative z-1"
             >
-              <span className={styles.pepeText}>{box.title}</span>
+              <span className={styles['pepeText']}>{box.title}</span>
             </Typography>
             <Typography
               variant="h5"
@@ -962,7 +977,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
             <Box className="flex flex-row justify-between mb-2 mt-1">
               <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
                 Mint with{' '}
-                <span className={cx("font-['Minecraft']", styles.pepeText)}>
+                <span className={cx("font-['Minecraft']", styles['pepeText'])}>
                   $APE
                 </span>
               </Typography>
@@ -974,14 +989,14 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
             </Box>
             <Box className="flex pl-2 pr-2">
               <button
-                className={styles.pepeButtonSquare}
+                className={styles['pepeButtonSquare']}
                 disabled={toMint < 2}
                 onClick={decreaseToMintAmount}
               >
                 -
               </button>
               <button
-                className={cx('ml-2', styles.pepeButtonSquare)}
+                className={cx('ml-2', styles['pepeButtonSquare'])}
                 onClick={increaseToMintAmount}
               >
                 +
@@ -1054,9 +1069,10 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
                 </Typography>
               </Box>
             </Box>
+            {/* @ts-ignore TODO: FIX */}
             <CustomButton
               size="medium"
-              className={styles.pepeButton}
+              className={styles['pepeButton']}
               disabled={!canBuy}
               onClick={
                 canBuy
@@ -1065,10 +1081,11 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
                       ? handleMint
                       : handleApprove
                     : handleMint
-                  : null
+                  : () => {}
               }
             >
-              <Typography variant="h5" className={styles.pepeButtonText}>
+              {/* @ts-ignore TODO: FIX */}
+              <Typography variant="h5" className={styles['pepeButtonText']}>
                 {canBuy ? 'Mint' : 'Not ready yet'}
               </Typography>
             </CustomButton>
@@ -1086,12 +1103,14 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
               </Typography>
             </Box>
 
+            {/* @ts-ignore TODO: FIX */}
             <CustomButton
               size="medium"
-              className={styles.pepeButton}
+              className={styles['pepeButton']}
               onClick={() => setSubmitted(false)}
             >
-              <Typography variant="h5" className={styles.pepeButtonText}>
+              {/* @ts-ignore TODO: FIX */}
+              <Typography variant="h5" className={styles['pepeButtonText']}>
                 Mint more
               </Typography>
             </CustomButton>
