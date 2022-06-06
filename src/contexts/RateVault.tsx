@@ -1981,7 +1981,6 @@ export const RateVault = () => {
           '0xd8b712d29381748dB89c36BCa0138d7c75866ddF'
         );
       } catch (err) {
-        console.log(err);
         return BigNumber.from('0');
       }
     }
