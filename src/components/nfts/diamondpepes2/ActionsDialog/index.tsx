@@ -886,7 +886,7 @@ const ActionsDialog = ({ open, tab, handleClose, data, updateData }: Props) => {
                     } else {
                       return (
                         <span className="text-wave-blue">
-                          Epoch end in: {days}d {hours}h {minutes}m {seconds}s
+                          Mint ends in: {days}d {hours}h {minutes}m {seconds}s
                         </span>
                       );
                     }
