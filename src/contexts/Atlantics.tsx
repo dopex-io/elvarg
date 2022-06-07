@@ -6,11 +6,17 @@ import {
   useCallback,
 } from 'react';
 import { BigNumber } from 'ethers';
+import {
+  AtlanticPutsPool__factory,
+  AtlanticPutsPool,
+  Addresses,
+  // ERC20__factory,
+} from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-// import { addresses } from 'contracts/addresses';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export interface Atlantics {
   token?: string;
@@ -94,6 +100,7 @@ interface AtlanticsContextInterface {
   setSelectedMarket: (tokenId: string) => void;
   selectedEpoch: number;
   setSelectedEpoch: (epoch: number) => void;
+  updateAtlanticPoolData: (poolId: string) => void;
 }
 
 const initialMarketsData: MarketsDataInterface[] = [];
@@ -147,6 +154,7 @@ const initialAtlanticsData = {
   setSelectedMarket: () => {},
   selectedEpoch: 0,
   setSelectedEpoch: () => {},
+  updateAtlanticPoolData: () => {},
 };
 
 export const AtlanticsContext =
@@ -176,21 +184,6 @@ export const AtlanticsProvider = (props: any) => {
   const updateMarketsData = useCallback(async () => {
     if (!provider || !accountAddress || !contractAddresses) return;
 
-    // const markets = Object.keys(addresses.Atlantics).map((pool: string) => {
-    //   const _length = pool.split('-').length;
-    //   return Object.keys(addresses.Atlantics[pool]).map((key: string) => {
-    //     return {
-    //       strategy: pool,
-    //       underlying: addresses.Atlantics[pool][key].underlying,
-    //       collateral: addresses.Atlantics[pool][key].collateral,
-    //       optionPricing: addresses.Atlantics[pool][key].optionPricing,
-    //       isPut: pool.split('-')[_length - 2] === 'PUTS',
-    //     };
-    //   });
-    // });
-
-    // console.log(markets);
-
     // Mock Data
     const data = [
       {
@@ -202,11 +195,11 @@ export const AtlanticsProvider = (props: any) => {
         pools: [
           {
             strategy: 'PERPETUALS',
-            underlying: 'USDC',
+            underlying: 'USDT',
             isPut: true,
             epoch: BigNumber.from(1),
             tvl: getContractReadableAmount(100023, 18),
-            epochLength: 'monthly' as const,
+            epochLength: 'weekly' as const,
           },
         ],
       },
@@ -216,7 +209,7 @@ export const AtlanticsProvider = (props: any) => {
   }, [accountAddress, contractAddresses, provider]);
 
   const updateAtlanticPoolData = useCallback(
-    async (tokenId: string) => {
+    async (poolId: string) => {
       if (
         !accountAddress ||
         !contractAddresses ||
@@ -227,34 +220,54 @@ export const AtlanticsProvider = (props: any) => {
       )
         return;
 
-      const [
-        tickSize,
-        unwindFeePercentage,
-        fundingRate,
-        gracePeriod,
-        currentEpoch,
-        quoteAsset,
-      ] = [
-        getContractReadableAmount(500, 6),
-        getContractReadableAmount(5, 15),
-        getContractReadableAmount(5, 17),
-        86400,
-        3,
-        'USDC',
-      ];
+      console.log(1);
 
-      setSelectedEpoch(currentEpoch); // fetched from contract
+      console.log(Addresses, chainId, selectedStrategy, poolId);
+
+      const poolAddress: string =
+        Addresses[chainId]['atlantics'][selectedStrategy][poolId]['vault'] ??
+        '';
+
+      const atlantic: AtlanticPutsPool = AtlanticPutsPool__factory.connect(
+        poolAddress,
+        provider
+      );
+      const currentEpoch = await atlantic.currentEpoch();
+
+      // const [
+      //   userMaxStrikeCollaterals,
+      //   epochStrikes,
+      //   vaultEpochState,
+      // ] = await Promise.all([
+      //   atlantic.getUserMaxStrikesCollaterals(accountAddress, currentEpoch),
+      //   atlantic.epochStrikesList(currentEpoch),
+      //   atlantic.epochVaultStates(currentEpoch),
+      // ]);
+
+      const { baseFundingRate, expireDelayTolerance, tickSize, unwindFee } =
+        await atlantic.vaultConfiguration();
+
+      // const { quoteToken, baseToken } = await atlantic.addresses();
+
+      // const [quoteAsset, collateral] = await Promise.all([
+      //   ERC20__factory.connect(quoteToken, provider).symbol(),
+      //   ERC20__factory.connect(baseToken, provider).symbol(),
+      // ]);
+
+      // console.log(quoteAsset, collateral);
+
+      setSelectedEpoch(currentEpoch.toNumber()); // fetched from contract
 
       setAtlanticPoolData({
         tickSize,
-        unwindFeePercentage,
-        fundingRate,
-        gracePeriod,
-        collateral: tokenId, // base
-        quoteAsset,
-        expiryType: 'monthly',
-        poolContract: '0x0000000000000000000000000000000000000000',
-        currentEpoch,
+        unwindFeePercentage: unwindFee,
+        fundingRate: baseFundingRate,
+        gracePeriod: getUserReadableAmount(expireDelayTolerance, 18),
+        collateral: 'ETH', // base
+        quoteAsset: 'USDT', // quote
+        expiryType: 'weekly',
+        poolContract: atlantic.address,
+        currentEpoch: currentEpoch.toNumber(),
       });
     },
     [
@@ -268,18 +281,49 @@ export const AtlanticsProvider = (props: any) => {
   );
 
   const updateAtlanticPoolEpochData = useCallback(
-    (epoch: number) => {
-      if (!provider || !contractAddresses) return;
+    async (epoch: number, poolId: string) => {
+      if (
+        !provider ||
+        !contractAddresses ||
+        selectedEpoch === 0 ||
+        !marketsData
+      )
+        return;
 
-      console.log('Changed Epoch in UI');
+      const poolAddress: string =
+        Addresses[chainId]['atlantics'][selectedStrategy][
+          'ETH-USDT-PUTS-weekly'
+        ]['vault'] ?? '';
+
+      const atlantic: AtlanticPutsPool = AtlanticPutsPool__factory.connect(
+        poolAddress,
+        provider
+      );
+
+      const {
+        startTime,
+        expiryTime,
+        isVaultReady,
+        isVaultExpired,
+        totalEpochActiveCollateral,
+        totalEpochUnlockedCollateral,
+        settlementPrice,
+      } = await atlantic.epochVaultStates(selectedEpoch);
+
+      console.log(
+        'totalEpochActiveCollateral, totalEpochUnlockedCollateral, settlementPrice',
+        totalEpochActiveCollateral,
+        totalEpochUnlockedCollateral,
+        settlementPrice
+      );
 
       setAtlanticPoolEpochData({
         epoch,
-        isBootstrapped: true,
-        isEpochExpired: false,
+        isBootstrapped: isVaultReady,
+        isEpochExpired: isVaultExpired,
         epochTimes: {
-          startTime: BigNumber.from(1652370455), // epochStartTimes[currentEpoch]
-          expiryTime: BigNumber.from(1654962455), // epochExpiryTimes[currentEpoch]
+          startTime,
+          expiryTime: expiryTime,
         },
         maxStrikesData: [
           {
@@ -312,7 +356,14 @@ export const AtlanticsProvider = (props: any) => {
         ],
       });
     },
-    [contractAddresses, provider]
+    [
+      provider,
+      contractAddresses,
+      selectedEpoch,
+      marketsData,
+      chainId,
+      selectedStrategy,
+    ]
   );
 
   // User positions across all pools
@@ -322,15 +373,15 @@ export const AtlanticsProvider = (props: any) => {
     setUserAtlanticsData({
       userPositions: [
         {
-          maxStrike: BigNumber.from(2000),
-          userDeposit: BigNumber.from(1200),
-          feeCollected: BigNumber.from(1),
+          maxStrike: getContractReadableAmount(2000, 18),
+          userDeposit: getContractReadableAmount(1200, 18),
+          feeCollected: getContractReadableAmount(1, 18),
           epoch: 1,
         },
         {
-          maxStrike: BigNumber.from(1750),
-          userDeposit: BigNumber.from(100),
-          feeCollected: BigNumber.from(0),
+          maxStrike: getContractReadableAmount(1750, 18),
+          userDeposit: getContractReadableAmount(100, 18),
+          feeCollected: getContractReadableAmount(0, 18),
           epoch: 1,
         },
       ],
@@ -345,10 +396,10 @@ export const AtlanticsProvider = (props: any) => {
 
   useEffect(() => {
     if (!provider || !contractAddresses || !selectedMarket) return;
-    updateAtlanticPoolData(selectedMarket);
+    // updateAtlanticPoolData(selectedMarket);
     updateUserAtlanticsData();
   }, [
-    updateAtlanticPoolData,
+    // updateAtlanticPoolData,
     selectedMarket,
     provider,
     contractAddresses,
@@ -356,8 +407,9 @@ export const AtlanticsProvider = (props: any) => {
   ]);
 
   useEffect(() => {
-    updateAtlanticPoolEpochData(selectedEpoch);
-  }, [selectedEpoch, updateAtlanticPoolEpochData]);
+    if (!selectedMarket) return;
+    updateAtlanticPoolEpochData(selectedEpoch, selectedMarket);
+  }, [selectedEpoch, selectedMarket, updateAtlanticPoolEpochData]);
 
   const contextValue = {
     atlanticsBool: true,
@@ -367,6 +419,7 @@ export const AtlanticsProvider = (props: any) => {
     atlanticPoolData,
     atlanticPoolEpochData,
     selectedStrategy,
+    updateAtlanticPoolData,
     setSelectedStrategy,
     selectedMarket,
     setSelectedMarket,

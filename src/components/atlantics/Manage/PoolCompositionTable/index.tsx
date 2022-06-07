@@ -69,7 +69,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
 
   const { atlanticPoolEpochData } = useContext(AtlanticsContext);
 
-  console.log(atlanticPoolEpochData);
+  // console.log(atlanticPoolEpochData);
 
   // {
   //   strikePrice: BigNumber.from(2000),
@@ -116,8 +116,8 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
   }, [atlanticPoolEpochData]);
 
   useEffect(() => {
-    console.log(maxStrikesAccumulator);
-  });
+    maxStrikesAccumulator;
+  }, [maxStrikesAccumulator]);
 
   return (
     <TableContainer
@@ -127,7 +127,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
         <TableHead>
           <TableRow>
             <TableHeader align="left" width={525}>
-              Token <ArrowDownwardRoundedIcon />
+              Token <ArrowDownwardRoundedIcon className="p-1" />
             </TableHeader>
             <TableHeader align="right" width={5}>
               Locked
@@ -161,7 +161,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
                 </TableBodyCell>
                 <TableBodyCell width={5}>
                   <Box className="flex space-x-2 bg-umbra rounded-lg p-1 justify-between">
-                    <Typography variant="h6" className="my-auto mx-auto">
+                    <Typography variant="h6" className="my-auto">
                       {'-'}
                     </Typography>
                     <Typography

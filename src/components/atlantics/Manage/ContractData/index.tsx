@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import formatDistance from 'date-fns/formatDistance';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
@@ -17,6 +18,7 @@ const ContractData = () => {
     atlanticPoolEpochData,
     selectedEpoch,
     setSelectedEpoch,
+    selectedStrategy,
   } = useContext(AtlanticsContext);
 
   const [epochDuration, setEpochDuration] = useState('');
@@ -36,11 +38,18 @@ const ContractData = () => {
   }, [atlanticPoolEpochData]);
 
   return (
-    <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 sm:space-y-3 md:space-y-0">
+    <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 space-y-3 sm:space-y-3 lg:space-y-0">
       <Box className="space-y-3">
-        <Typography variant="h6" className="text-stieglitz">
-          Epoch
-        </Typography>
+        <Box className="flex space-x-1">
+          <Typography variant="h6" className="text-stieglitz">
+            Epoch
+          </Typography>
+          {selectedEpoch === atlanticPoolData.currentEpoch ? (
+            <Typography variant="h6" className="text-wave-blue">
+              (In Progress)
+            </Typography>
+          ) : null}
+        </Box>
         <Box className="flex space-x-2 h-[2.2rem]">
           <EpochSelector
             currentEpoch={atlanticPoolData.currentEpoch}
@@ -64,7 +73,7 @@ const ContractData = () => {
             variant="h6"
             className="font-semibold p-2 bg-umbra rounded-lg"
           >
-            {getUserReadableAmount(atlanticPoolData.fundingRate, 18)}%
+            {getUserReadableAmount(atlanticPoolData.fundingRate, 6)}%
           </Typography>
         </Box>
       </Box>
@@ -74,18 +83,23 @@ const ContractData = () => {
         </Typography>
         <ArbiscanLink address={atlanticPoolData.poolContract} />
       </Box>
-      <Box className="space-y-3 h-full">
+      <a
+        href={`https://arbiscan.io`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="space-y-3 h-full"
+      >
         <Typography variant="h6" className="text-stieglitz">
           Strategy
         </Typography>
-        <Typography
-          variant="h6"
-          className="flex space-x-2 bg-umbra rounded-lg p-2"
-        >
-          {atlanticPoolData.expiryType[0]?.toUpperCase() +
-            atlanticPoolData.expiryType.substring(1)}
-        </Typography>
-      </Box>
+        <Box className="flex space-x-2 bg-mineshaft rounded-lg p-2">
+          <OpenInNewIcon className="my-auto h-[1rem] w-[1rem]" />
+
+          <Typography variant="h6" className="my-auto">
+            {selectedStrategy[0]?.toUpperCase() + selectedStrategy.substring(1)}
+          </Typography>
+        </Box>
+      </a>
     </Box>
   );
 };

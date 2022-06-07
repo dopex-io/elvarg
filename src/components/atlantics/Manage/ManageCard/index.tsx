@@ -17,6 +17,7 @@ import LockerIcon from 'svgs/icons/LockerIcon';
 
 import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
+import { AtlanticsContext } from 'contexts/Atlantics';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -33,9 +34,11 @@ const ManageCard = (props: ManageCardProps) => {
 
   const { userAssetBalances } = useContext(AssetsContext);
   const { chainId } = useContext(WalletContext);
+  const { atlanticPoolData, atlanticPoolEpochData } =
+    useContext(AtlanticsContext);
 
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState<number | string>('');
   const [selectedToken, setSelectedToken] = useState('');
 
   const strikesSet = false;
@@ -47,7 +50,7 @@ const ManageCard = (props: ManageCardProps) => {
   }, [open]);
 
   const handleChange = useCallback(
-    (e: { target: { value: React.SetStateAction<string> } }) => {
+    (e: { target: { value: React.SetStateAction<string | number> } }) => {
       setValue(e.target.value);
     },
     []
@@ -55,12 +58,9 @@ const ManageCard = (props: ManageCardProps) => {
 
   const handleMax = useCallback(() => {
     setValue(
-      formatAmount(
-        getUserReadableAmount(
-          userAssetBalances[selectedToken || underlying] ?? '0',
-          getTokenDecimals(selectedToken, chainId)
-        ),
-        3
+      getUserReadableAmount(
+        userAssetBalances[selectedToken || underlying] ?? '0',
+        getTokenDecimals(selectedToken, chainId)
       )
     );
   }, [chainId, selectedToken, underlying, userAssetBalances]);
@@ -129,13 +129,14 @@ const ManageCard = (props: ManageCardProps) => {
             <Box className="flex">
               <LockerIcon className="my-auto m-2" />
               <Typography variant="h6" className="text-stieglitz">
-                Withdrawals are locked until end of Epoch 4
+                Withdrawals are locked until end of Epoch{' '}
+                {atlanticPoolData.currentEpoch}
               </Typography>
             </Box>
             <CustomButton
               className="flex w-full text-center"
               color={strikesSet ? 'primary' : 'mineshaft'}
-              disabled={true}
+              disabled={!atlanticPoolEpochData.isBootstrapped}
             >
               Deposit
             </CustomButton>

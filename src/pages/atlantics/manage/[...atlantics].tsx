@@ -13,6 +13,7 @@ import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
+// Placeholder data for charts
 const bar_graph_data = [
   {
     available: 403,
@@ -83,17 +84,33 @@ interface ManageProps {
 }
 
 const Manage = (props: ManageProps) => {
-  const { poolType, underlying, tokenId, strategy } = props;
+  const { poolType, underlying, tokenId, strategy, epochLength } = props;
 
-  const { atlanticPoolData, setSelectedMarket, setSelectedStrategy } =
-    useContext(AtlanticsContext);
+  const {
+    atlanticPoolData,
+    setSelectedMarket,
+    setSelectedStrategy,
+    updateAtlanticPoolData,
+  } = useContext(AtlanticsContext);
 
   useEffect(() => {
     (async () => {
       setSelectedMarket(tokenId);
       setSelectedStrategy(strategy);
+      updateAtlanticPoolData(
+        `${underlying}-${tokenId}-${poolType}-${epochLength}`
+      );
     })();
-  }, [setSelectedMarket, setSelectedStrategy, strategy, tokenId]);
+  }, [
+    setSelectedMarket,
+    setSelectedStrategy,
+    strategy,
+    tokenId,
+    epochLength,
+    updateAtlanticPoolData,
+    underlying,
+    poolType,
+  ]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">

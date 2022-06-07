@@ -81,6 +81,7 @@ const appLinks = {
     { name: 'pools', to: '/pools' },
     { name: 'portfolio', to: '/portfolio' },
     { name: 'faucet', to: '/faucet' },
+    { name: 'atlantics', to: '/atlantics' },
   ],
   421611: [
     // { name: 'options', to: '/' },

@@ -223,12 +223,17 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   421611: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/images/tokens/avax.svg' },
   1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
+  1337: { name: 'Localhost', icon: '/images/tokens/eth.svg' },
 };
 
 export const TOKEN_DECIMALS = {
   '56': {
     BNB: 18,
     VBNB: 8,
+  },
+  '1337': {
+    WETH: 18,
+    USDT: 6,
   },
   '1': {
     USDT: 6,
