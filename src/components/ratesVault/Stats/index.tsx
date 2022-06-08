@@ -21,11 +21,7 @@ const STRIKE_INDEX_TO_COLOR = {
   4: '#6DFFB9',
 };
 
-const Stats = ({
-  activeVaultContextSide,
-}: {
-  activeVaultContextSide: string;
-}) => {
+const Stats = () => {
   const rateVaultContext = useContext(RateVaultContext);
 
   const {
@@ -122,13 +118,13 @@ const Stats = ({
             {rateVaultContext.rateVaultEpochData.epochStrikes.map(
               (strike, strikeIndex) => {
                 const deposits =
-                  activeVaultContextSide === 'CALL'
-                    ? rateVaultContext.rateVaultEpochData.callsDeposits[
-                        strikeIndex
-                      ]
-                    : rateVaultContext.rateVaultEpochData.putsDeposits[
-                        strikeIndex
-                      ];
+                  rateVaultContext.rateVaultEpochData.callsDeposits[
+                    strikeIndex
+                  ]?.add(
+                    rateVaultContext.rateVaultEpochData.putsDeposits[
+                      strikeIndex
+                    ] || BigNumber.from('0')
+                  );
                 return (
                   <Box className="flex" key={strikeIndex}>
                     <Box
