@@ -82,7 +82,7 @@ export const SSOV_MAP = {
 export const ATLANTIC_STATS_MAPPING: { [key: string]: string } = {
   TVL: 'TVL',
   pools: 'Pools',
-  volume: 'Volume',
+  // volume: 'Volume',
 };
 
 export const SHOWCASE_NFTS = [
@@ -234,6 +234,7 @@ export const TOKEN_DECIMALS = {
   '1337': {
     WETH: 18,
     USDT: 6,
+    USDC: 6,
   },
   '1': {
     USDT: 6,

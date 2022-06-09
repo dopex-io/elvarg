@@ -2,6 +2,17 @@
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 
+import {
+  AtlanticsContext,
+  AtlanticsProvider,
+  IAtlanticPoolCheckpoint,
+  IAtlanticPoolType,
+} from 'contexts/Atlantics';
+import { useContext, useMemo } from 'react';
+import { BigNumber } from 'ethers';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+import formatAmount from 'utils/general/formatAmount';
+
 // import Typography from 'components/UI/Typography';
 
 const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
@@ -13,30 +24,56 @@ const ClientRenderedBarGraph = dynamic(() => import('./LiquidityBarGraph'), {
 });
 
 interface ChartsProps {
-  bar_data: any[];
   line_data: any[];
   underlying: string;
   collateral: string;
-  strategy: string;
+  title: string;
+  type: string;
+}
+
+interface IBarData {
+  deposits: number;
+  unlocked: number;
+  activeCollateral: number;
+  strike: number;
 }
 
 const Charts = (props: ChartsProps) => {
-  const { bar_data, line_data, underlying, collateral, strategy } = props;
-  // const deposits = useMemo(() => {
-  //   return line_chart_data.reduce((acc, curr) => acc + curr.Deposits, 0);
-  // }, []);
-  // const unlocks = useMemo(() => {
-  //   return line_chart_data.reduce((acc, curr) => acc + curr.Unlocks, 0);
-  // }, []);
+  const { line_data, underlying, collateral, title, type } = props;
+  const { selectedPool } = useContext(AtlanticsContext);
+
+  const barData: IBarData[] = useMemo((): IBarData[] => {
+    if (!selectedPool)
+      return [{ deposits: 0, unlocked: 0, activeCollateral: 0, strike: 0 }];
+    const strikes = selectedPool.strikes as BigNumber[];
+    const data = selectedPool.data as IAtlanticPoolCheckpoint[];
+    const decimals = getTokenDecimals(selectedPool?.tokens.deposit, 1337);
+    const barData: IBarData[] = strikes.map(
+      (maxStrike: BigNumber, index: number) => {
+        const deposits = Number(data[index]?.liquidity) / 10 ** decimals;
+        const unlocked = Number(data[index]?.unlockCollateral) / 10 ** decimals;
+        const activeCollateral =
+          Number(data[index]?.activeCollateral) / 10 ** decimals;
+        const strike = Number(maxStrike.div(1e8));
+        return {
+          deposits: parseInt(formatAmount(deposits, 3)),
+          unlocked: parseInt(formatAmount(unlocked, 3)),
+          activeCollateral: parseInt(formatAmount(activeCollateral, 3)),
+          strike,
+        };
+      }
+    );
+    return barData;
+  }, [selectedPool]);
 
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">
       <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-2/3 sm:w-full">
         <ClientRenderedBarGraph
-          data={bar_data}
+          data={barData}
           width={750}
           height={175}
-          header={{ underlying, collateral, strategy }}
+          header={{ underlying, collateral, title, type }}
         />
       </Box>
       <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">

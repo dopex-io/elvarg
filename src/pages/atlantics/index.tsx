@@ -11,10 +11,10 @@ import StrategyFilter from 'components/atlantics/StrategyFilter';
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
 const Atlantics = () => {
-  const { marketsData } = useContext(AtlanticsContext);
-
+  const { pools } = useContext(AtlanticsContext);
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
+      asdasd
       <Head>
         <title>Atlantics | Dopex</title>
       </Head>
@@ -27,20 +27,20 @@ const Atlantics = () => {
               <Stats />
             </Box>
             <Box className="flex w-full justify-between">
-              <StrategyFilter />
+              {/* <StrategyFilter /> */}
               <Box></Box>
             </Box>
           </Box>
           <Box className="sm:flex sm:flex-col lg:grid lg:grid-cols-4 pt-6">
-            <Box className="flex flex-col col-span-1 space-y-4">
-              {marketsData?.map((market, index) => {
+            <Box className="flex flex-col col-span-1 space-y-4 ">
+              {pools?.map((pool, index) => {
                 return (
                   <Accordion
-                    className="bg-cod-gray shadow-none border border-umbra"
+                    className="bg-cod-gray shadow-none border border-1 border-mineshaft"
                     key={index}
-                    header={market.tokenId}
-                    stats={market.stats}
-                    pools={market.pools}
+                    header={pool.asset}
+                    putPools={pool.put}
+                    callPools={pool.call}
                   />
                 );
               })}

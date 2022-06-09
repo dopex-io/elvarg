@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
 import Button from '@mui/material/Button';
@@ -34,13 +34,18 @@ const ManageCard = (props: ManageCardProps) => {
 
   const { userAssetBalances } = useContext(AssetsContext);
   const { chainId } = useContext(WalletContext);
-  const { atlanticPoolData, atlanticPoolEpochData } =
-    useContext(AtlanticsContext);
+  const { selectedPool } = useContext(AtlanticsContext);
+
+  const pool = useMemo(() => {
+    if (!selectedPool) return;
+    return selectedPool;
+  }, [selectedPool]);
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<number | string>('');
-  const [selectedToken, setSelectedToken] = useState('');
-
+  const [selectedToken, setSelectedToken] = useState(
+    pool?.tokens.deposit ?? 'T'
+  );
   const strikesSet = false;
 
   const containerRef = React.useRef(null);
@@ -97,14 +102,12 @@ const ManageCard = (props: ManageCardProps) => {
                     onClick={handleOpenSlider}
                   >
                     <img
-                      src={`/images/tokens/${(
-                        selectedToken || underlying
-                      ).toLowerCase()}.svg`}
+                      src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
                       alt={(selectedToken || underlying).toLowerCase()}
                       className="w-[2.4rem]"
                     />
                     <Typography variant="h5" className="my-auto">
-                      {selectedToken || underlying}
+                      {selectedToken}
                     </Typography>
                     <ArrowDropDownRoundedIcon className="my-auto fill-current text-mineshaft" />
                   </Box>
@@ -130,13 +133,13 @@ const ManageCard = (props: ManageCardProps) => {
               <LockerIcon className="my-auto m-2" />
               <Typography variant="h6" className="text-stieglitz">
                 Withdrawals are locked until end of Epoch{' '}
-                {atlanticPoolData.currentEpoch}
+                <>{selectedPool?.state?.epoch.toString()}</>
               </Typography>
             </Box>
             <CustomButton
               className="flex w-full text-center"
               color={strikesSet ? 'primary' : 'mineshaft'}
-              disabled={!atlanticPoolEpochData.isBootstrapped}
+              disabled={!selectedPool?.state.isVaultReady}
             >
               Deposit
             </CustomButton>
@@ -148,12 +151,8 @@ const ManageCard = (props: ManageCardProps) => {
         setOpen={setOpen}
         tokens={[
           {
-            symbol: tokenId,
-            address: '0x0000000000000000000000000000000000000000',
-          },
-          {
-            symbol: underlying,
-            address: '0x0000000000000000000000000000000000000000',
+            symbol: pool?.tokens.deposit!,
+            address: pool?.contracts?.quoteToken.address!,
           },
         ]}
         setSelection={setSelectedToken}

@@ -12,14 +12,11 @@ interface PoolStatsProps {
 }
 
 const PoolStats = ({ poolType }: PoolStatsProps) => {
-  const { atlanticPoolData, atlanticPoolEpochData } =
-    useContext(AtlanticsContext);
+  const { selectedPool } = useContext(AtlanticsContext);
 
   const epochExpiry = useMemo(() => {
-    return (
-      (atlanticPoolEpochData.epochTimes['expiryTime']?.toNumber() ?? 0) * 1000
-    );
-  }, [atlanticPoolEpochData.epochTimes]);
+    return (selectedPool?.state.expiryTime.toNumber() ?? 0) * 1000;
+  }, [selectedPool?.state.expiryTime]);
 
   return (
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
@@ -30,7 +27,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
       <Box className="flex flex-col space-y-3 p-3">
         <PoolStatsRow
           description="Epoch Type"
-          value={atlanticPoolData.expiryType}
+          value={selectedPool?.duration.toLocaleLowerCase()!}
         />
         <PoolStatsRow description="Side" value={poolType} />
         <PoolStatsRow

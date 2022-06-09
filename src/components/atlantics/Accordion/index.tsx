@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import { css } from '@emotion/css';
+import { useMemo } from 'react';
 
 import Typography from 'components/UI/Typography';
 import PoolCard from 'components/atlantics/Pool';
@@ -13,6 +14,11 @@ import PoolCard from 'components/atlantics/Pool';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import formatAmount from 'utils/general/formatAmount';
+import { useState } from 'react';
+import { Tab, Tabs } from '@mui/material';
+import CallsIcon from 'svgs/icons/CallsIcon';
+import PutsIcon from 'svgs/icons/PutsIcon';
+import { DurationTypesOfPools, IAtlanticPoolType } from 'contexts/Atlantics';
 
 const accordionStyle = css`
   color: 'darkslategray';
@@ -20,29 +26,77 @@ const accordionStyle = css`
 `;
 
 interface CustomAccordionProps {
-  className: string;
   header: string;
-  stats?: { [key: string]: BigNumber };
-  pools?: {
-    strategy: string;
-    underlying: string;
-    isPut: boolean;
-    tvl: BigNumber;
-    epochLength: 'daily' | 'monthly' | 'weekly';
-  }[];
+  putPools: DurationTypesOfPools;
+  callPools: DurationTypesOfPools;
+  className: string;
+}
+
+interface FilteredPoolsInterface {
+  duration: string;
+  pool: IAtlanticPoolType;
 }
 
 const CustomAccordion = ({
+  putPools,
+  callPools,
   header,
-  stats,
-  pools,
   className,
 }: CustomAccordionProps) => {
+  const [expand, setExpand] = useState(true);
+
+  const callPoolFiltered = useMemo(() => {
+    if (!callPools) return;
+    let pools: FilteredPoolsInterface[] = [];
+    const keys: any = Object.keys(callPools);
+    keys
+      .map((key: 'daily' | 'weekly' | 'monthly') => callPools[key])
+      .filter((pool: IAtlanticPoolType, index: any) => {
+        if (pool) {
+          pools = [
+            ...pools,
+            {
+              duration: keys[index] ?? null,
+              pool: pool,
+            },
+          ];
+        }
+        return pool !== null;
+      });
+    return pools;
+  }, [callPools]);
+
+  const putsPoolFiltered = useMemo(() => {
+    if (!putPools) return;
+    let pools: FilteredPoolsInterface[] = [];
+    const keys: any = Object.keys(putPools);
+    keys
+      .map((key: 'daily' | 'weekly' | 'monthly') => putPools[key])
+      .filter((pool: IAtlanticPoolType, index: any) => {
+        if (pool) {
+          pools = [
+            ...pools,
+            {
+              duration: keys[index] ?? null,
+              pool: pool,
+            },
+          ];
+        }
+        return pool !== null;
+      });
+    return pools;
+  }, [putPools]);
+
+  const handleExpand = () => {
+    setExpand((prev) => !prev);
+  };
+
   return (
     <Accordion
       TransitionProps={{ unmountOnExit: true }}
       className={cx(className, accordionStyle)}
-      expanded
+      expanded={true}
+      // onClick={handleExpand}
     >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon className="fill-current text-white" />}
@@ -53,50 +107,47 @@ const CustomAccordion = ({
             alt={header}
             className="h-8 mr-2 border border-mineshaft rounded-full"
           />
+
           <Typography variant="h5" className="text-white my-auto">
             {header}
           </Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails className="rounded-2xl space-y-4">
-        <Box className="flex my-4 space-x-3">
-          {Object.keys(stats!).map((key: string, index: number) => {
-            return (
-              <Box
-                key={index}
-                className="rounded-lg bg-umbra w-1/2 p-2 space-y-2"
-              >
-                <Typography variant="h6">
-                  $
-                  {formatAmount(
-                    // @ts-ignore todo: FIX
-                    getUserReadableAmount(stats[key]!, 18),
-                    3,
-                    true,
-                    true
-                  )}
-                </Typography>
-                <Typography variant="h6" className="text-stieglitz">
-                  {key[0]!.toUpperCase() + key.substring(1)}
-                </Typography>
-              </Box>
-            );
-          })}
+        <Box className="flex flex-col space-x-3">
+          {putsPoolFiltered!.map(
+            ({ duration, pool }: FilteredPoolsInterface, index) => {
+              return (
+                <PoolCard
+                  key={index}
+                  underlying={pool.tokens.underlying}
+                  depositToken={pool.tokens.deposit}
+                  duration={duration.toUpperCase()}
+                  tvl={pool.tvl}
+                  apy={pool.apy}
+                  isPut={true}
+                />
+              );
+            }
+          )}
         </Box>
+
         <Box className="flex flex-col space-y-4">
-          {pools!.map((pool, index) => {
-            return (
-              <PoolCard
-                key={index}
-                tokenId={header}
-                strategy={pool.strategy}
-                underlying={pool.underlying}
-                isPut={pool.isPut}
-                epochLength={pool.epochLength}
-                deposits={pool.tvl}
-              />
-            );
-          })}
+          {callPoolFiltered!.map(
+            ({ duration, pool }: FilteredPoolsInterface, index) => {
+              return (
+                <PoolCard
+                  key={index}
+                  underlying={pool.tokens.underlying}
+                  depositToken={pool.tokens.underlying}
+                  duration={duration.toUpperCase()}
+                  tvl={pool.tvl}
+                  apy={pool.apy}
+                  isPut={false}
+                />
+              );
+            }
+          )}
         </Box>
       </AccordionDetails>
     </Accordion>

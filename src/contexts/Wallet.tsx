@@ -71,6 +71,14 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/atlantics': { default: 1337, all: [1337, 42161, 421611] },
+  '/atlantics/manage/WETH-PUTS-WEEKLY': {
+    default: 1337,
+    all: [1337, 42161, 421611],
+  },
+  '/atlantics/manage/WETH-CALLS-WEEKLY': {
+    default: 1337,
+    all: [1337, 42161, 421611],
+  },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
   '/vaults/ir/MIM3CRV': { default: 42161, all: [42161] },
 };
@@ -176,6 +184,11 @@ export const WalletProvider = (props: { children: ReactNode }) => {
         !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&
         PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length !== 0
       ) {
+        console.log(
+          PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
+          !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId),
+          PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length
+        );
         setState((prevState: any) => ({
           ...prevState,
           wrongNetwork: true,
@@ -187,6 +200,12 @@ export const WalletProvider = (props: { children: ReactNode }) => {
         !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
         chainId !== DEFAULT_CHAIN_ID
       ) {
+        console.log(
+          router.asPath,
+          PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
+          DEFAULT_CHAIN_ID,
+          chainId
+        );
         setState((prevState: any) => ({
           ...prevState,
           wrongNetwork: true,

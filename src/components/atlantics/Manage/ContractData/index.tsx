@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import formatDistance from 'date-fns/formatDistance';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -13,29 +13,15 @@ import { AtlanticsContext } from 'contexts/Atlantics';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const ContractData = () => {
-  const {
-    atlanticPoolData,
-    atlanticPoolEpochData,
-    selectedEpoch,
-    setSelectedEpoch,
-    selectedStrategy,
-  } = useContext(AtlanticsContext);
+  const { selectedPool, selectedEpoch, setSelectedEpoch } =
+    useContext(AtlanticsContext);
 
-  const [epochDuration, setEpochDuration] = useState('');
-
-  useEffect(() => {
-    (async () => {
-      if (!atlanticPoolEpochData) return;
-      const epochTimes = atlanticPoolEpochData.epochTimes;
-
-      const duration = formatDistance(
-        epochTimes['expiryTime']!.toNumber() * 1000,
-        epochTimes['startTime']!.toNumber() * 1000
-      );
-
-      setEpochDuration(duration);
-    })();
-  }, [atlanticPoolEpochData]);
+  const epochDuration = useMemo(() => {
+    return formatDistance(
+      Number(selectedPool?.state.expiryTime) * 1000,
+      Number(selectedPool?.state.startTime) * 1000
+    );
+  }, [selectedPool?.state.startTime, selectedPool?.state.expiryTime]);
 
   return (
     <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 space-y-3 sm:space-y-3 lg:space-y-0">
@@ -44,7 +30,7 @@ const ContractData = () => {
           <Typography variant="h6" className="text-stieglitz">
             Epoch
           </Typography>
-          {selectedEpoch === atlanticPoolData.currentEpoch ? (
+          {selectedEpoch === Number(selectedPool?.state.epoch!) ? (
             <Typography variant="h6" className="text-wave-blue">
               (In Progress)
             </Typography>
@@ -52,7 +38,7 @@ const ContractData = () => {
         </Box>
         <Box className="flex space-x-2 h-[2.2rem]">
           <EpochSelector
-            currentEpoch={atlanticPoolData.currentEpoch}
+            currentEpoch={Number(selectedPool?.state.epoch!)}
             selectedEpoch={selectedEpoch}
             setSelectedEpoch={setSelectedEpoch}
           />
@@ -73,7 +59,11 @@ const ContractData = () => {
             variant="h6"
             className="font-semibold p-2 bg-umbra rounded-lg"
           >
-            {getUserReadableAmount(atlanticPoolData.fundingRate, 6)}%
+            {getUserReadableAmount(
+              selectedPool?.config.baseFundingRate.toNumber()! * 100,
+              6
+            )}
+            %
           </Typography>
         </Box>
       </Box>
@@ -81,25 +71,8 @@ const ContractData = () => {
         <Typography variant="h6" className="text-stieglitz">
           Contract
         </Typography>
-        <ArbiscanLink address={atlanticPoolData.poolContract} />
+        <ArbiscanLink address={selectedPool?.contracts?.withReader.address!} />
       </Box>
-      <a
-        href={`https://arbiscan.io`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="space-y-3 h-full"
-      >
-        <Typography variant="h6" className="text-stieglitz">
-          Strategy
-        </Typography>
-        <Box className="flex space-x-2 bg-mineshaft rounded-lg p-2">
-          <OpenInNewIcon className="my-auto h-[1rem] w-[1rem]" />
-
-          <Typography variant="h6" className="my-auto">
-            {selectedStrategy[0]?.toUpperCase() + selectedStrategy.substring(1)}
-          </Typography>
-        </Box>
-      </a>
     </Box>
   );
 };

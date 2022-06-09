@@ -22,12 +22,15 @@ interface LiquidityBarGraphProps {
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const { data, height, header } = props;
 
+  console.log(' THE DATA ', data);
+
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
       <Box className="flex justify-between p-3">
         <Box className="flex space-x-2 justify-start">
-          {header['strategy'] === 'call' ? (
-            <CallsIcon className="my-auto" />
+          {header['type'] === 'CALLS' ? (
+            // @TODO Fill is hard coded
+            <CallsIcon fill="#8aff95" className="my-auto" />
           ) : (
             <PutsIcon className="my-auto" />
           )}
@@ -53,7 +56,10 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               bottom: 5,
             }}
           >
-            <XAxis type="number" dataKey="borrowed" hide />
+            {/* Tried overlapping the graphs */}
+            <XAxis type="number" dataKey="deposits" hide />
+            <XAxis type="number" dataKey="unlocked" hide />
+            <XAxis type="number" dataKey="activeCollateral" hide />
             <YAxis
               type="category"
               dataKey="strike"
@@ -61,16 +67,18 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               tickSize={5}
               axisLine={false}
               tickLine={false}
+              z="2"
             />
             <Tooltip />
             <Bar
-              dataKey="borrowed"
+              dataKey="activeCollateral"
               stackId="a"
               fill="#3E3E3E"
               label="pv"
               barSize={50}
             />
-            <Bar dataKey="available" stackId="a" fill="#1E1E1E" barSize={50} />
+            <Bar dataKey="unlocked" stackId="a" fill="#FFFFFF" barSize={50} />
+            <Bar dataKey="deposits" stackId="a" fill="#1E1E1E" barSize={50} />
           </BarChart>
         </ResponsiveContainer>
       </Box>

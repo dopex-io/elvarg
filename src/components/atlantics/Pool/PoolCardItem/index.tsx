@@ -11,7 +11,8 @@ const PoolCardItem = (props: PoolCardItemProps) => {
   const { description, value } = props;
   return (
     <Box className="flex justify-between">
-      <Typography variant="h6" className="text-stieglitz">
+      {/* why doesnt stieglitz work lol */}
+      <Typography variant="h6" className="text-stieglitz text-gray-500">
         {description}
       </Typography>
       <Typography variant="h6">{value}</Typography>

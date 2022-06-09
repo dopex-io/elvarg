@@ -11,7 +11,12 @@ import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
 import Typography from 'components/UI/Typography';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
+import {
+  AtlanticsContext,
+  IAtlanticPoolCheckpoint,
+  IAtlanticPoolType,
+} from 'contexts/Atlantics';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 const TableHeader = ({
   // @ts-ignore TODO: FIX
@@ -58,66 +63,40 @@ const TableBodyCell = ({
   );
 };
 
-interface PoolCompositionTableProps {
-  collateral: string;
-  underlying: string;
-}
-
 // Remove repeating components
-const PoolCompositionTable = (props: PoolCompositionTableProps) => {
-  const { collateral, underlying } = props;
+const PoolCompositionTable = () => {
+  const { selectedPool } = useContext(AtlanticsContext);
+  const pool = useMemo(() => {
+    if (!selectedPool) return;
+    return selectedPool as IAtlanticPoolType;
+  }, [selectedPool]);
 
-  const { atlanticPoolEpochData } = useContext(AtlanticsContext);
-
-  // console.log(atlanticPoolEpochData);
-
-  // {
-  //   strikePrice: BigNumber.from(2000),
-  //   liquidity: BigNumber.from(10000),
-  //   liquidityBalance: BigNumber.from(1000),
-  //   premiumCollected: BigNumber.from(60),
-  //   fundingCollected: BigNumber.from(2),
-  //   unwindFeesCollected: BigNumber.from(2),
-  //   underlyingCollected: BigNumber.from(4),
-  // }
-
-  const assetsMapping = useMemo(
-    () => ({
-      Collateral: collateral,
-      Underlying: underlying,
-    }),
-    [collateral, underlying]
-  ) as { [key: string]: string };
-
-  const maxStrikesAccumulator = useMemo(() => {
-    if (!atlanticPoolEpochData.maxStrikesData) return;
-
-    let fundingAccumulator: BigNumber = BigNumber.from(0);
-    let underlyingAccumulator: BigNumber = BigNumber.from(0);
-    let premiumAccumulator: BigNumber = BigNumber.from(0);
-    atlanticPoolEpochData.maxStrikesData.map(
-      (data: { [key: string]: BigNumber }) => {
-        data['premiumCollected'] &&
-          (premiumAccumulator = premiumAccumulator.add(
-            data['premiumCollected']
-          ));
-        data['fundingCollected'] &&
-          (fundingAccumulator = fundingAccumulator.add(
-            data['fundingCollected']
-          ));
-        data['underlyingCollected'] &&
-          (underlyingAccumulator = underlyingAccumulator.add(
-            data['underlyingCollected']
-          ));
-        return data;
-      }
+  const tokenComposition = useMemo((): { [key: string]: number } => {
+    if (!pool) return { Deposit: 0, Underlying: 0 };
+    const maxStrikes = pool.strikes as BigNumber[];
+    const data = pool.data as IAtlanticPoolCheckpoint[];
+    let totalDepositToken = 0;
+    let totalUnderlying = 0;
+    const depositTokenDecimals = getTokenDecimals(pool.tokens.deposit, 1337);
+    const underlyingTokenDecimals = getTokenDecimals(
+      pool.tokens.underlying,
+      1337
     );
-    return { fundingAccumulator, premiumAccumulator, underlyingAccumulator };
-  }, [atlanticPoolEpochData]);
-
-  useEffect(() => {
-    maxStrikesAccumulator;
-  }, [maxStrikesAccumulator]);
+    maxStrikes.forEach((_, index) => {
+      totalDepositToken +=
+        Number(
+          data[index]?.fundingCollected.add(data[index]?.premiumCollected!)
+        ) /
+        10 ** depositTokenDecimals;
+      totalUnderlying +=
+        Number(data[index]?.underlyingCollected) /
+        10 ** underlyingTokenDecimals;
+    });
+    return {
+      [pool.tokens.deposit]: totalDepositToken,
+      [pool.tokens.underlying]: totalUnderlying,
+    };
+  }, [pool]);
 
   return (
     <TableContainer
@@ -130,32 +109,29 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
               Token <ArrowDownwardRoundedIcon className="p-1" />
             </TableHeader>
             <TableHeader align="right" width={5}>
-              Locked
+              Total revenue
             </TableHeader>
             <TableHeader align="right" width={5}>
-              Premia Collected
+              Premia
             </TableHeader>
             <TableHeader align="right" width={5}>
-              Fees
+              Funding
             </TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {Object.keys(assetsMapping).map((key, index) => {
+          {Object.keys(tokenComposition).map((key, index) => {
             return (
               <TableRow className="py-2" key={index}>
                 <TableBodyCell width={525}>
                   <Box className="flex space-x-2">
                     <img
-                      src={`/images/tokens/${assetsMapping[key]}.svg`}
-                      alt={assetsMapping[key]}
+                      src={`/images/tokens/${key}.svg`}
+                      alt={key}
                       className="w-[2rem] h-auto my-auto"
                     />
                     <Box className="text-left my-auto">
-                      <Typography variant="h6">{assetsMapping[key]}</Typography>
-                      <Typography variant="h6" className="text-stieglitz">
-                        {key}
-                      </Typography>
+                      <Typography variant="h6">{key!}</Typography>
                     </Box>
                   </Box>
                 </TableBodyCell>
@@ -168,7 +144,7 @@ const PoolCompositionTable = (props: PoolCompositionTableProps) => {
                       variant="h6"
                       className="text-stieglitz bg-mineshaft rounded-md p-1"
                     >
-                      {assetsMapping[key]}
+                      {tokenComposition[key]}
                     </Typography>
                   </Box>
                 </TableBodyCell>
