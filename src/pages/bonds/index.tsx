@@ -1,12 +1,19 @@
+import { createContext, useState, useContext, useEffect } from 'react';
 import AppBar from 'components/common/AppBar';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import Button from '@mui/material/Button';
 import LaunchIcon from '@mui/icons-material/Launch';
+import CustomButton from 'components/UI/CustomButton';
 
+import { WalletContext } from 'contexts/Wallet';
 import styles from './styles.module.scss';
+import { UserBonds } from 'components/bonds/UserBonds.tsx';
 
 export const BondsPage = () => {
+  const { provider, accountAddress, chainId, contractAddresses } =
+    useContext(WalletContext);
+
   return (
     <>
       <AppBar />
@@ -44,6 +51,14 @@ export const BondsPage = () => {
             USDC
             <div className="text-stieglitz pt-3 pb-3">
               Deposit up to 15,000 USDC
+              <CustomButton
+                variant="text"
+                size="small"
+                className="text-white bg-primary hover:bg-primary ml-10"
+                // onClick={handleClick}
+              >
+                {accountAddress ? 'Bond' : 'Connect'}
+              </CustomButton>
             </div>
           </Box>
           <Box className="bg-cod-gray rounded-2xl p-3 flex flex-col w-[352px]">
@@ -75,13 +90,7 @@ export const BondsPage = () => {
             </a>
           </Box>
         </div>
-
-        <Box className="mt-5">
-          <Typography variant="h5">Your Bonds</Typography>
-          <Box className="border border-[#1E1E1E] rounded-2xl p-3  w-[728px] mt-5">
-            Connect your wallet to see your bonds
-          </Box>
-        </Box>
+        <UserBonds accountAddress={accountAddress} />
       </Box>
     </>
   );
