@@ -6,11 +6,11 @@ import Box from '@mui/material/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
-import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import SsovCard from 'components/ssov/SsovCard';
+import RateVaultCard from 'components/ir/VaultCard';
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
@@ -32,25 +32,21 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
   );
 };
 
+const selectedVaultStates = 'Active';
+
 const Vaults = () => {
   const { chainId, provider } = useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
 
-  const [ssovs, setSsovs] = useState(null);
-  const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([
-    'Active',
-  ]);
-  const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<string>('TVL');
+  const [vaults, setVaults] = useState(null);
 
   const keys = useMemo(() => {
-    if (!ssovs) return [];
+    if (!vaults) return [];
     else if (chainId === 56) return [56, 42161, 43114, 1088];
     else if (chainId === 43114) return [43114, 42161, 56, 1088];
     else if (chainId === 1088) return [1088, 42161, 56, 43114];
     else return [42161, 56, 43114, 1088];
-  }, [ssovs, chainId]);
+  }, [vaults, chainId]);
 
   useEffect(() => {
     if (tokenPrices.length < 0 || !provider) {
@@ -58,10 +54,10 @@ const Vaults = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`${DOPEX_API_BASE_URL}/v2/ssov`)
+        .get(`https://dopex-gfs27gdua-dopex-io.vercel.app/api/v2/rateVaults`)
         .then((payload) => payload.data);
 
-      setSsovs(data);
+      setVaults(data);
     }
     getData();
   }, [provider, tokenPrices]);
@@ -82,44 +78,26 @@ const Vaults = () => {
             option purchases and earn rewards simultaneously.
           </Typography>
         </Box>
-        {ssovs
+        {vaults
           ? keys.map((key) => {
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />
                   <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-                    {ssovs
-                      ? ssovs[key]
-                          // @ts-ignore TODO: FIX
-                          .sort((a, b) =>
-                            parseFloat(a[sortBy.toLowerCase()]) <
-                            parseFloat(b[sortBy.toLowerCase()])
-                              ? 1
-                              : -1
-                          )
-                          // @ts-ignore TODO: FIX
-                          .map((ssov, index) => {
-                            let visible: boolean = false;
-                            if (
-                              (selectedSsovAssets.length === 0 ||
-                                selectedSsovAssets.includes(
-                                  ssov.underlyingSymbol
-                                )) &&
-                              (selectedTypes.length === 0 ||
-                                selectedTypes.includes(
-                                  ssov.type.toUpperCase()
-                                )) &&
-                              ((selectedSsovStates.includes('Active') &&
-                                !ssov.retired) ||
-                                (selectedSsovStates.includes('Retired') &&
-                                  ssov.retired))
-                            )
-                              visible = true;
-                            return visible ? (
-                              <SsovCard key={index} data={{ ...ssov }} />
-                            ) : null;
-                          })
-                      : null}
+                    {/* @ts-ignore TODO: FIX */}
+                    {vaults[key]?.map((vault, index) => {
+                      let visible: boolean = false;
+                      if (
+                        (selectedVaultStates.includes('Active') &&
+                          !vault.retired) ||
+                        (selectedVaultStates.includes('Retired') &&
+                          vault.retired)
+                      )
+                        visible = true;
+                      return visible ? (
+                        <RateVaultCard key={index} data={{ ...vault }} />
+                      ) : null;
+                    })}
                   </Box>
                 </Box>
               );

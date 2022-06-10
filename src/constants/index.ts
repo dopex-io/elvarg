@@ -79,6 +79,12 @@ export const SSOV_MAP = {
   },
 };
 
+export const VAULT_MAP = {
+  MIM3CRV: {
+    imageSrc: '/images/tokens/mim.svg',
+  },
+};
+
 export const SHOWCASE_NFTS = [
   {
     src: '/images/showcase/dopexHideout.jpeg',
