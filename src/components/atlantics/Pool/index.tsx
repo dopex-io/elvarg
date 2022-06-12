@@ -9,7 +9,7 @@ import PoolCardItem from 'components/atlantics/Pool/PoolCardItem';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { TOKEN_DECIMALS } from 'constants/index';
+// import { TOKEN_DECIMALS } from 'constants/index';
 
 interface PoolCardProps {
   depositToken: string;

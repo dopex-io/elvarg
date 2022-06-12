@@ -1,11 +1,10 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import formatDistance from 'date-fns/formatDistance';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
-import ArbiscanLink from 'components/atlantics/Manage/ContractData/ArbiscanLink';
+import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
@@ -17,11 +16,12 @@ const ContractData = () => {
     useContext(AtlanticsContext);
 
   const epochDuration = useMemo(() => {
+    if (!selectedPool) return;
     return formatDistance(
       Number(selectedPool?.state.expiryTime) * 1000,
       Number(selectedPool?.state.startTime) * 1000
     );
-  }, [selectedPool?.state.startTime, selectedPool?.state.expiryTime]);
+  }, [selectedPool]);
 
   return (
     <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 space-y-3 sm:space-y-3 lg:space-y-0">
@@ -30,7 +30,7 @@ const ContractData = () => {
           <Typography variant="h6" className="text-stieglitz">
             Epoch
           </Typography>
-          {selectedEpoch === Number(selectedPool?.state.epoch!) ? (
+          {selectedEpoch === Number(selectedPool?.state.epoch) ? (
             <Typography variant="h6" className="text-wave-blue">
               (In Progress)
             </Typography>
@@ -38,7 +38,7 @@ const ContractData = () => {
         </Box>
         <Box className="flex space-x-2 h-[2.2rem]">
           <EpochSelector
-            currentEpoch={Number(selectedPool?.state.epoch!)}
+            currentEpoch={Number(selectedPool?.state.epoch)}
             selectedEpoch={selectedEpoch}
             setSelectedEpoch={setSelectedEpoch}
           />
@@ -71,7 +71,9 @@ const ContractData = () => {
         <Typography variant="h6" className="text-stieglitz">
           Contract
         </Typography>
-        <ArbiscanLink address={selectedPool?.contracts?.withReader.address!} />
+        <ExplorerLink
+          address={selectedPool?.contracts?.atlanticPool.address ?? '404'}
+        />
       </Box>
     </Box>
   );

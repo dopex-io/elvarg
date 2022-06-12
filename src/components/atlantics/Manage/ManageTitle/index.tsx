@@ -1,7 +1,9 @@
+import { useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
-import { useMemo } from 'react';
+
+import { AtlanticsContext } from 'contexts/Atlantics';
 
 interface ManageCardTitleProps {
   depositToken: string;
@@ -13,6 +15,16 @@ interface ManageCardTitleProps {
 
 const ManageTitle = (props: ManageCardTitleProps) => {
   const { depositToken, underlying, poolType, strategy, epochLength } = props;
+
+  const { selectedPool } = useContext(AtlanticsContext);
+
+  const poolId = useMemo(() => {
+    return `${selectedPool?.tokens.underlying}-${
+      selectedPool?.tokens.deposit
+    }-${
+      selectedPool?.isPut ? 'PUTS' : 'CALLS'
+    }-${selectedPool?.duration.substring(0, 1)}`;
+  }, [selectedPool]);
 
   return (
     <Box className="flex space-x-3 w-3/4">
@@ -32,6 +44,9 @@ const ManageTitle = (props: ManageCardTitleProps) => {
       </Box>
       <Box className="my-auto">
         <Typography variant="h5">{strategy.toUpperCase()}</Typography>
+        <Typography variant="h6" className="text-stieglitz">
+          {poolId}
+        </Typography>
       </Box>
       <Typography
         variant="h6"

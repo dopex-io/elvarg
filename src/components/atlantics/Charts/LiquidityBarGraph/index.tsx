@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import Box from '@mui/material/Box';
 import {
   BarChart,
@@ -12,8 +13,17 @@ import Typography from 'components/UI/Typography';
 import CallsIcon from 'svgs/icons/CallsIcon';
 import PutsIcon from 'svgs/icons/PutsIcon';
 
+import { AtlanticsContext } from 'contexts/Atlantics';
+
+interface IBarData {
+  deposits: number;
+  unlocked: number;
+  activeCollateral: number;
+  strike: number | string;
+}
+
 interface LiquidityBarGraphProps {
-  data: any[];
+  data: IBarData[];
   width: number;
   height: number;
   header: { [key: string]: string | number };
@@ -22,7 +32,7 @@ interface LiquidityBarGraphProps {
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const { data, height, header } = props;
 
-  console.log(' THE DATA ', data);
+  const { selectedPool } = useContext(AtlanticsContext);
 
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
@@ -64,10 +74,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               type="category"
               dataKey="strike"
               orientation="right"
-              tickSize={5}
+              tickSize={[selectedPool?.strikes].length}
               axisLine={false}
               tickLine={false}
+              // ticks={data.map((d) => d.strike)}
               z="2"
+              interval={0}
             />
             <Tooltip />
             <Bar

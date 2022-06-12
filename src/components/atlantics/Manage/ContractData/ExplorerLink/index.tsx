@@ -11,14 +11,14 @@ interface ArbiscanLinkProps {
   address: string;
 }
 
-const ArbiscanLink = (props: ArbiscanLinkProps) => {
+const ExplorerLink = (props: ArbiscanLinkProps) => {
   const { address } = props;
 
   const { chainId = 42161 } = useContext(WalletContext);
 
   return (
     <a
-      href={`https://arbiscan.io/address/${address}`}
+      href={`https://testnet.arbiscan.io/address/${address}`}
       target="_blank"
       rel="noopener noreferrer"
       className="flex space-x-2 bg-arbitrum rounded-lg p-2"
@@ -35,4 +35,4 @@ const ArbiscanLink = (props: ArbiscanLinkProps) => {
   );
 };
 
-export default ArbiscanLink;
+export default ExplorerLink;

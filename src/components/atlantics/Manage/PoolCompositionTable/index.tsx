@@ -1,4 +1,4 @@
-import { useContext, useMemo, useEffect } from 'react';
+import { useContext, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -16,6 +16,8 @@ import {
   IAtlanticPoolCheckpoint,
   IAtlanticPoolType,
 } from 'contexts/Atlantics';
+import { WalletContext } from 'contexts/Wallet';
+
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 const TableHeader = ({
@@ -66,6 +68,8 @@ const TableBodyCell = ({
 // Remove repeating components
 const PoolCompositionTable = () => {
   const { selectedPool } = useContext(AtlanticsContext);
+  const { chainId } = useContext(WalletContext);
+
   const pool = useMemo(() => {
     if (!selectedPool) return;
     return selectedPool as IAtlanticPoolType;
@@ -77,10 +81,10 @@ const PoolCompositionTable = () => {
     const data = pool.data as IAtlanticPoolCheckpoint[];
     let totalDepositToken = 0;
     let totalUnderlying = 0;
-    const depositTokenDecimals = getTokenDecimals(pool.tokens.deposit, 1337);
+    const depositTokenDecimals = getTokenDecimals(pool.tokens.deposit, chainId);
     const underlyingTokenDecimals = getTokenDecimals(
       pool.tokens.underlying,
-      1337
+      chainId
     );
     maxStrikes.forEach((_, index) => {
       totalDepositToken +=
@@ -96,7 +100,7 @@ const PoolCompositionTable = () => {
       [pool.tokens.deposit]: totalDepositToken,
       [pool.tokens.underlying]: totalUnderlying,
     };
-  }, [pool]);
+  }, [chainId, pool]);
 
   return (
     <TableContainer
@@ -138,13 +142,13 @@ const PoolCompositionTable = () => {
                 <TableBodyCell width={5}>
                   <Box className="flex space-x-2 bg-umbra rounded-lg p-1 justify-between">
                     <Typography variant="h6" className="my-auto">
-                      {'-'}
+                      {tokenComposition[key]}
                     </Typography>
                     <Typography
                       variant="h6"
                       className="text-stieglitz bg-mineshaft rounded-md p-1"
                     >
-                      {tokenComposition[key]}
+                      {key}
                     </Typography>
                   </Box>
                 </TableBodyCell>

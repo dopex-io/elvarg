@@ -1,9 +1,20 @@
-import React, { useState, useCallback, useContext, useMemo } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useContext,
+  useMemo,
+  useEffect,
+} from 'react';
 import Box from '@mui/material/Box';
 import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import {
+  AtlanticPutsPool__factory,
+  AtlanticCallsPool__factory,
+  ERC20__factory,
+} from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 import CustomInput from 'components/UI/CustomInput';
@@ -19,22 +30,30 @@ import { AssetsContext } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
-import formatAmount from 'utils/general/formatAmount';
+import useSendTx from 'hooks/useSendTx';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+
+import { TOKEN_DECIMALS } from 'constants/index';
 
 interface ManageCardProps {
   tokenId: string;
   underlying: string;
   poolType: string;
+  duration: string;
 }
 
 const ManageCard = (props: ManageCardProps) => {
-  const { tokenId, underlying, poolType } = props;
+  const { underlying, poolType, duration } = props;
 
   const { userAssetBalances } = useContext(AssetsContext);
-  const { chainId } = useContext(WalletContext);
+  const { chainId, signer, contractAddresses, accountAddress } =
+    useContext(WalletContext);
   const { selectedPool } = useContext(AtlanticsContext);
+
+  const tx = useSendTx();
 
   const pool = useMemo(() => {
     if (!selectedPool) return;
@@ -43,10 +62,11 @@ const ManageCard = (props: ManageCardProps) => {
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<number | string>('');
+  const [maxStrike, setMaxStrike] = useState<number | string>('');
   const [selectedToken, setSelectedToken] = useState(
     pool?.tokens.deposit ?? 'T'
   );
-  const strikesSet = false;
+  const [approved, setApproved] = useState<boolean>(false);
 
   const containerRef = React.useRef(null);
 
@@ -61,6 +81,76 @@ const ManageCard = (props: ManageCardProps) => {
     []
   );
 
+  const handleApprove = useCallback(async () => {
+    if (!signer || !contractAddresses || !accountAddress) return;
+
+    const token = ERC20__factory.connect(
+      contractAddresses[selectedToken],
+      signer
+    );
+
+    await token.approve(
+      contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+      getContractReadableAmount(
+        value,
+        TOKEN_DECIMALS[chainId]?.[selectedToken] ?? 18
+      )
+    );
+    setApproved(true);
+  }, [
+    accountAddress,
+    chainId,
+    contractAddresses,
+    duration,
+    poolType,
+    selectedToken,
+    signer,
+    underlying,
+    value,
+  ]);
+
+  const handleDeposit = useCallback(() => {
+    if (!signer || !contractAddresses || !accountAddress) return;
+
+    let apContract;
+    if (selectedPool?.isPut) {
+      apContract = AtlanticPutsPool__factory.connect(
+        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+        signer
+      );
+      tx(
+        apContract
+          .connect(signer)
+          .deposit(
+            Number(maxStrike) * 1e8,
+            getContractReadableAmount(value, 6),
+            accountAddress
+          )
+      );
+    } else {
+      apContract = AtlanticCallsPool__factory.connect(
+        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+        signer
+      );
+      tx(
+        apContract
+          .connect(signer)
+          .deposit(getContractReadableAmount(value, 18), accountAddress)
+      );
+    }
+  }, [
+    signer,
+    contractAddresses,
+    accountAddress,
+    selectedPool?.isPut,
+    underlying,
+    poolType,
+    duration,
+    tx,
+    maxStrike,
+    value,
+  ]);
+
   const handleMax = useCallback(() => {
     setValue(
       getUserReadableAmount(
@@ -69,6 +159,41 @@ const ManageCard = (props: ManageCardProps) => {
       )
     );
   }, [chainId, selectedToken, underlying, userAssetBalances]);
+
+  useEffect(() => {
+    (async () => {
+      if (!signer || !contractAddresses || !accountAddress) return;
+
+      const token = ERC20__factory.connect(
+        contractAddresses[selectedToken],
+        signer
+      );
+
+      const allowance = await token.allowance(
+        accountAddress,
+        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
+      );
+
+      setApproved(
+        allowance.gte(
+          getContractReadableAmount(
+            value,
+            TOKEN_DECIMALS[chainId]?.[selectedToken] ?? 18
+          )
+        )
+      );
+    })();
+  }, [
+    accountAddress,
+    chainId,
+    contractAddresses,
+    duration,
+    poolType,
+    selectedToken,
+    signer,
+    underlying,
+    value,
+  ]);
 
   return (
     <Box
@@ -123,7 +248,12 @@ const ManageCard = (props: ManageCardProps) => {
               }
             />
           </Box>
-          <MaxStrikeInput />
+          <MaxStrikeInput
+            token={selectedToken}
+            tickSize={pool?.config.tickSize}
+            maxStrikes={pool?.strikes}
+            setMaxStrike={setMaxStrike}
+          />
           <PoolStats poolType={poolType} />
           <Box className="rounded-xl bg-umbra p-3 space-y-3">
             <Box className="rounded-md bg-carbon p-3">
@@ -138,10 +268,13 @@ const ManageCard = (props: ManageCardProps) => {
             </Box>
             <CustomButton
               className="flex w-full text-center"
-              color={strikesSet ? 'primary' : 'mineshaft'}
-              disabled={!selectedPool?.state.isVaultReady}
+              color={selectedPool?.state.isVaultReady ? 'primary' : 'mineshaft'}
+              disabled={
+                !selectedPool?.state.isVaultReady || !value || !maxStrike
+              }
+              onClick={approved ? handleDeposit : handleApprove}
             >
-              Deposit
+              {approved ? 'Deposit' : 'Approve'}
             </CustomButton>
           </Box>
         </>
@@ -151,8 +284,10 @@ const ManageCard = (props: ManageCardProps) => {
         setOpen={setOpen}
         tokens={[
           {
-            symbol: pool?.tokens.deposit!,
-            address: pool?.contracts?.quoteToken.address!,
+            symbol: pool?.tokens.deposit ?? 'DEEZ',
+            address:
+              pool?.contracts?.quoteToken.address ??
+              '0x0000000000000000000000000000000000000000',
           },
         ]}
         setSelection={setSelectedToken}

@@ -9,7 +9,7 @@ import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
 import PoolCompositionTable from 'components/atlantics/Manage/PoolCompositionTable';
 import Typography from 'components/UI/Typography';
-import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
+// import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 
 import {
   AtlanticsContext,
@@ -19,33 +19,6 @@ import {
 import { ATLANTIC_POOL_INFO } from 'contexts/Atlantics';
 
 // Placeholder data for charts
-const bar_graph_data = [
-  {
-    available: 403,
-    borrowed: 1201,
-    strike: '3500',
-  },
-  {
-    strike: '3000',
-    available: 713,
-    borrowed: 2405,
-  },
-  {
-    strike: '2500',
-    available: 810,
-    borrowed: 2810,
-  },
-  {
-    strike: '2000',
-    available: 910,
-    borrowed: 3198,
-  },
-  {
-    strike: '1500',
-    available: 1000,
-    borrowed: 4400,
-  },
-];
 
 const line_chart_data = [
   {
@@ -99,10 +72,11 @@ const Manage = (props: ManageProps) => {
   const { setSelectedPool, selectedPool } = useContext(AtlanticsContext);
 
   useEffect(() => {
+    if (!selectedPool || !underlying || !type || !duration) return;
     (async () => {
-      setSelectedPool(underlying, type, 0, duration);
+      await setSelectedPool(underlying, type, duration);
     })();
-  }, [setSelectedPool, duration, type, underlying]);
+  }, [setSelectedPool, duration, type, underlying, selectedPool]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -114,7 +88,7 @@ const Manage = (props: ManageProps) => {
         <Box className="flex space-x-0 sm:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
           <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
             <ManageTitle
-              depositToken={selectedPool?.tokens.deposit!}
+              depositToken={selectedPool?.tokens.deposit ?? ''}
               underlying={underlying}
               strategy={title}
               epochLength={duration}
@@ -145,6 +119,7 @@ const Manage = (props: ManageProps) => {
               tokenId={tokenId}
               underlying={underlying}
               poolType={type}
+              duration={duration}
             />
           </Box>
         </Box>

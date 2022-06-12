@@ -4,48 +4,29 @@ import {
   useContext,
   useState,
   useCallback,
-  useMemo,
+  // useMemo,
 } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import {
-  Addresses,
   ERC20,
   ERC20__factory,
   // ERC20__factory,
-} from '@dopex-io/sdk';
-
-import { WalletContext } from './Wallet';
-
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import {
   AtlanticCallsPool,
   AtlanticCallsPool__factory,
   AtlanticPutsPool,
   AtlanticPutsPool__factory,
-} from '../contracts/types';
-import { expandToDecimals } from 'utils/contracts/expandToDecimals';
-import { TOKEN_DECIMALS } from 'constants/index';
+} from '@dopex-io/sdk';
+
+import { WalletContext } from './Wallet';
+
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-import { KeyboardReturnTwoTone } from '@mui/icons-material';
+
+// import { TOKEN_DECIMALS } from 'constants/index';
 
 const tokenPrices = {
   WETH: 1800,
   USDT: 1,
-};
-
-const addresses: any = {
-  'ATLANTIC-POOLS': {
-    WETH: {
-      PUTS: {
-        WEEKLY: '0x927b167526bAbB9be047421db732C663a0b77B11',
-      },
-      CALLS: {
-        WEEKLY: '0x32EEce76C2C2e8758584A83Ee2F522D4788feA0f',
-      },
-    },
-  },
 };
 
 interface IAtlanticPoolsInfo {
@@ -56,12 +37,12 @@ interface IAtlanticPoolsInfo {
 }
 export const ATLANTIC_POOL_INFO: IAtlanticPoolsInfo = {
   CALLS: {
-    title: '33%+ Single OTM Strike',
+    title: 'ETH CALLS',
     description:
       'Deposit underlying into to vault to write OTM calls 33%+ OTM from spot price on bootstrap to earn premiums and fundings.',
   },
   PUTS: {
-    title: 'Max Strikes Vault',
+    title: 'ETH PUTS',
     description:
       'Deposit into max strikes to write options to write puts of a particular strike as well as strikes below and OTM to earn premium, fundings and underlying on unwinds of options',
   },
@@ -102,8 +83,7 @@ export interface IAtlanticPoolCheckpoint {
 }
 
 interface IContracts {
-  withReader: AtlanticCallsPool | AtlanticPutsPool;
-  withSigner: AtlanticCallsPool | AtlanticPutsPool;
+  atlanticPool: AtlanticCallsPool | AtlanticPutsPool;
   quoteToken: ERC20;
   baseToken: ERC20;
 }
@@ -126,7 +106,7 @@ export interface IAtlanticPoolType {
   duration: string;
 }
 
-const AtlanticPoolsZeroData: IAtlanticPoolType = {
+const atlanticPoolsZeroData: IAtlanticPoolType = {
   asset: 'Asset',
   isPut: false,
   duration: '',
@@ -167,7 +147,7 @@ const AtlanticPoolsZeroData: IAtlanticPoolType = {
   },
 
   tokens: {
-    deposit: 'USDC',
+    deposit: 'USDT',
     underlying: 'WETH',
   },
   tvl: 0,
@@ -176,23 +156,23 @@ const AtlanticPoolsZeroData: IAtlanticPoolType = {
 };
 
 // Interface for deposit type (Calls and puts pool)
-interface IUserDeposit {
-  liquidity: BigNumber;
-  premiumRatio: BigNumber;
-  fundingRatio: BigNumber;
-  underlyingRatio?: BigNumber;
-}
+// interface IUserDeposit {
+//   liquidity: BigNumber;
+//   premiumRatio: BigNumber;
+//   fundingRatio: BigNumber;
+//   underlyingRatio?: BigNumber;
+// }
 
-interface UserPositionInterface {
-  maxStrike: BigNumber;
-  userDeposit: BigNumber;
-  epoch: number;
-  feeCollected: BigNumber;
-}
+// interface UserPositionInterface {
+//   maxStrike: BigNumber;
+//   userDeposit: BigNumber;
+//   epoch: number;
+//   feeCollected: BigNumber;
+// }
 
-interface UserAtlanticsData {
-  userPositions: UserPositionInterface[];
-}
+// interface UserAtlanticsData {
+//   userPositions: UserPositionInterface[];
+// }
 interface Stats {
   tvl: number;
   volume: number;
@@ -203,21 +183,18 @@ interface AtlanticsContextInterface {
   pools: Pool[];
   stats: Stats;
   getCallPool: (
-    epoch: number | BigNumber,
     address: string,
     duration: string
-  ) => Promise<IAtlanticPoolType | null> | null;
+  ) => Promise<IAtlanticPoolType> | {};
   getPutPool: (
-    epoch: number | BigNumber,
     address: string,
     duration: string
-  ) => Promise<IAtlanticPoolType | null> | null;
+  ) => Promise<IAtlanticPoolType> | {};
   getPool: (
     underlying: string,
     type: string,
-    epoch: number,
     duration: string
-  ) => Promise<IAtlanticPoolType | null> | null;
+  ) => Promise<IAtlanticPoolType> | {};
   selectedEpoch?: number | any;
   setSelectedEpoch?: any;
   selectedPool?: IAtlanticPoolType;
@@ -231,18 +208,18 @@ const initialAtlanticsData = {
     volume: 0,
     poolsCount: 0,
   },
-  getCallPool: () => null,
-  getPutPool: () => null,
-  getPool: () => null,
+  getCallPool: () => ({}),
+  getPutPool: () => ({}),
+  getPool: () => ({}),
 };
 
 export const AtlanticsContext =
   createContext<AtlanticsContextInterface>(initialAtlanticsData);
 
 export interface DurationTypesOfPools {
-  daily?: IAtlanticPoolType | null;
-  weekly?: IAtlanticPoolType | null;
-  monthly?: IAtlanticPoolType | null;
+  daily?: IAtlanticPoolType | undefined;
+  weekly?: IAtlanticPoolType | undefined;
+  monthly?: IAtlanticPoolType | undefined;
 }
 
 interface Pool {
@@ -252,8 +229,7 @@ interface Pool {
 }
 
 export const AtlanticsProvider = (props: any) => {
-  // const { accountAddress, contractAddresses, chainId, provider /*, signer */ } =
-  //   useContext(WalletContext);
+  const { contractAddresses, signer, provider } = useContext(WalletContext);
 
   const [pools, setPools] = useState<Pool[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -262,48 +238,40 @@ export const AtlanticsProvider = (props: any) => {
     poolsCount: 0,
   });
   const [selectedPool, _setSelectedPool] = useState<IAtlanticPoolType>(
-    AtlanticPoolsZeroData
+    atlanticPoolsZeroData
   );
   const [selectedEpoch, setSelectedEpoch] = useState<number>(1);
 
   // Fetches type IAtlanticPoolType for a pool
   const getPutPool = useCallback(
     async (
-      epoch: number | BigNumber,
       address: string,
       duration: string
-    ): Promise<IAtlanticPoolType | null> => {
-      if (!address) return null;
-      const provider = new ethers.providers.Web3Provider(window?.ethereum);
-      const signer = await provider.getSigner();
+    ): Promise<IAtlanticPoolType | undefined> => {
+      if (!address) return undefined;
 
-      if (!window.ethereum || !provider || !signer || !addresses) return null;
+      const atlanticPool = AtlanticPutsPool__factory.connect(address, provider);
 
-      const withSigner = AtlanticPutsPool__factory.connect(address, signer);
-      const withReader = AtlanticPutsPool__factory.connect(address, provider);
-
-      if (epoch === 0) {
-        epoch = await withReader.currentEpoch();
-      }
+      const epoch = await atlanticPool.currentEpoch();
 
       const latestCheckpoints: BigNumber[] =
-        await withReader.getEpochCurrentMaxStrikeCheckpoints(epoch);
+        await atlanticPool.getEpochCurrentMaxStrikeCheckpoints(epoch);
 
       // Strikes
-      const maxStrikes = await withReader.getEpochMaxStrikes(epoch);
+      const maxStrikes = await atlanticPool.getEpochMaxStrikes(epoch);
 
       const latestCheckpointsCalls = maxStrikes.map(
         async (maxStrike: BigNumber, index: number) => {
           const checkpoint = Number(latestCheckpoints[index]);
-          return withReader.checkpoints(epoch, maxStrike, checkpoint);
+          return atlanticPool.checkpoints(epoch, maxStrike, checkpoint);
         }
       );
 
       const checkpoints = await Promise.all(latestCheckpointsCalls);
       let [{ baseToken, quoteToken }, state, config] = await Promise.all([
-        withReader.addresses(),
-        withReader.epochVaultStates(epoch),
-        withReader.vaultConfiguration(),
+        atlanticPool.addresses(),
+        atlanticPool.epochVaultStates(epoch),
+        atlanticPool.vaultConfiguration(),
       ]);
 
       let data: IAtlanticPoolCheckpoint[] = [];
@@ -337,10 +305,9 @@ export const AtlanticsProvider = (props: any) => {
       });
 
       const contracts: IContracts = {
-        withReader,
-        withSigner,
-        baseToken: ERC20__factory.connect(baseToken, signer),
-        quoteToken: ERC20__factory.connect(quoteToken, signer),
+        atlanticPool,
+        baseToken: ERC20__factory.connect(baseToken, provider),
+        quoteToken: ERC20__factory.connect(quoteToken, provider),
       };
 
       const underlying = await contracts?.baseToken?.symbol();
@@ -402,41 +369,36 @@ export const AtlanticsProvider = (props: any) => {
         duration,
       };
     },
-    []
+    [provider]
   );
 
   const getCallPool = useCallback(
     async (
-      epoch: number | BigNumber,
       address: string,
       duration: string
-    ): Promise<IAtlanticPoolType | null> => {
-      if (!address) return null;
-      const provider = new ethers.providers.Web3Provider(window?.ethereum);
-      const signer = await provider.getSigner();
+    ): Promise<IAtlanticPoolType | undefined> => {
+      if (!address || !provider || !signer || !contractAddresses) return;
 
-      if (!window.ethereum || !provider || !signer || !addresses) return null;
+      const atlanticPool = AtlanticCallsPool__factory.connect(
+        address,
+        provider
+      );
 
-      const withSigner = AtlanticCallsPool__factory.connect(address, signer);
-      const withReader = AtlanticCallsPool__factory.connect(address, provider);
+      const epoch = await atlanticPool.currentEpoch();
 
-      if (epoch === 0) {
-        epoch = await withReader.currentEpoch();
-      }
-      const latestCheckpoint = await withReader.checkpointsCount(epoch);
+      const latestCheckpoint = await atlanticPool.checkpointsCount(epoch);
 
       const [state, config, checkpoint, { baseToken }] = await Promise.all([
-        withReader.epochVaultStates(epoch),
-        withReader.vaultConfiguration(),
-        withReader.checkpoints(epoch, latestCheckpoint),
-        withReader.addresses(),
+        atlanticPool.epochVaultStates(epoch),
+        atlanticPool.vaultConfiguration(),
+        atlanticPool.checkpoints(epoch, latestCheckpoint),
+        atlanticPool.addresses(),
       ]);
 
       const contracts: IContracts = {
-        withReader,
-        withSigner,
-        quoteToken: ERC20__factory.connect(baseToken, signer ?? provider),
-        baseToken: ERC20__factory.connect(baseToken, signer ?? provider),
+        atlanticPool,
+        quoteToken: ERC20__factory.connect(baseToken, signer),
+        baseToken: ERC20__factory.connect(baseToken, signer),
       };
 
       const data: IAtlanticPoolCheckpoint = {
@@ -493,84 +455,78 @@ export const AtlanticsProvider = (props: any) => {
         duration,
       };
     },
-    []
+    [contractAddresses, provider, signer]
   );
 
   const updatePools = useCallback(async () => {
-    Object.keys(addresses['ATLANTIC-POOLS']).map(async (asset: string) => {
-      const currentPool = {
-        asset,
-        put: {
-          daily: await getPutPool(
-            0,
-            addresses['ATLANTIC-POOLS'][asset]['PUTS']?.DAILY ?? null,
-            'DAILY'
-          ),
-          weekly: await getPutPool(
-            0,
-            addresses['ATLANTIC-POOLS'][asset]['PUTS']?.WEEKLY ?? null,
-            'WEEKLY'
-          ),
-          monthly: await getPutPool(
-            0,
-            addresses['ATLANTIC-POOLS'][asset]['PUTS']?.MONTHLY ?? null,
-            'MONTHLY'
-          ),
-        },
-        call: {
-          daily: await getCallPool(
-            0,
-            addresses['ATLANTIC-POOLS'][asset]['CALLS']?.DAILY ?? null,
-            'DAILY'
-          ),
-          weekly: await getCallPool(
-            0,
-            addresses['ATLANTIC-POOLS'][asset]['CALLS']?.WEEKLY ?? null,
-            'WEEKLY'
-          ),
-          monthly: await getCallPool(
-            0,
-            addresses['ATLANTIC-POOLS'][asset]['CALLS']?.MONTHLY ?? null,
-            'MONTHLY'
-          ),
-        },
-      };
-      setPools((prev) => [...prev, currentPool]);
-    });
-  }, [getCallPool, getPutPool]);
+    if (!contractAddresses || !provider) return;
+
+    Object.keys(contractAddresses['ATLANTIC-POOLS']).map(
+      async (asset: string) => {
+        const currentPool: Pool = {
+          asset,
+          put: {
+            daily: await getPutPool(
+              contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'].DAILY,
+              'DAILY'
+            ),
+            weekly: await getPutPool(
+              contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'].WEEKLY,
+              'WEEKLY'
+            ),
+            monthly: await getPutPool(
+              contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'].MONTHLY,
+              'MONTHLY'
+            ),
+          },
+          call: {
+            daily: await getCallPool(
+              contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].DAILY,
+              'DAILY'
+            ),
+            weekly: await getCallPool(
+              contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].WEEKLY,
+              'WEEKLY'
+            ),
+            monthly: await getCallPool(
+              contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].MONTHLY,
+              'MONTHLY'
+            ),
+          },
+        };
+
+        setPools((prev) => [...prev, currentPool]);
+      }
+    );
+  }, [contractAddresses, getCallPool, getPutPool, provider]);
 
   const getPool = useCallback(
     async (
       underlying: string,
       type: string,
-      epoch: number,
       duration: string
-    ): Promise<IAtlanticPoolType | null> => {
+    ): Promise<IAtlanticPoolType | undefined> => {
       const poolAddress =
-        addresses['ATLANTIC-POOLS'][underlying][type][duration];
-      console.log('POOL ADDRESS', poolAddress);
+        contractAddresses['ATLANTIC-POOLS'][underlying][type][duration];
+
       if (type === 'CALLS') {
-        return await getCallPool(epoch, poolAddress, duration);
+        return await getCallPool(poolAddress, duration);
       } else if (type === 'PUTS') {
-        return await getPutPool(epoch, poolAddress, duration);
+        return await getPutPool(poolAddress, duration);
       } else {
-        return null;
+        return undefined;
       }
     },
-    []
+    [contractAddresses, getCallPool, getPutPool]
   );
 
   const setSelectedPool = useCallback(
-    async (
-      underlying: string,
-      type: string,
-      epoch: number,
-      duration: string
-    ) => {
-      const pool: any = await getPool(underlying, type, epoch, duration);
-      _setSelectedPool(() => pool!);
+    async (underlying: string, type: string, duration: string) => {
+      if (!contractAddresses || !provider) return;
+      const pool: any = await getPool(underlying, type, duration);
+      _setSelectedPool(pool);
     },
-    [getPool]
+    [contractAddresses, getPool, provider]
   );
 
   useEffect(() => {

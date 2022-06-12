@@ -53,7 +53,7 @@ const TokenSelector = (props: TokenSelectorProps) => {
       container={containerRef.current}
     >
       <Box className="overflow-y-auto w-full bg-cod-gray">
-        {tokens.map((token, index) => {
+        {tokens?.map((token, index) => {
           return (
             <Box
               key={index}

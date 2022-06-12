@@ -1,9 +1,9 @@
+import { useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
-import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import { css } from '@emotion/css';
 import { useMemo } from 'react';
@@ -11,13 +11,6 @@ import { useMemo } from 'react';
 import Typography from 'components/UI/Typography';
 import PoolCard from 'components/atlantics/Pool';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import formatAmount from 'utils/general/formatAmount';
-import { useState } from 'react';
-import { Tab, Tabs } from '@mui/material';
-import CallsIcon from 'svgs/icons/CallsIcon';
-import PutsIcon from 'svgs/icons/PutsIcon';
 import { DurationTypesOfPools, IAtlanticPoolType } from 'contexts/Atlantics';
 
 const accordionStyle = css`
@@ -44,6 +37,8 @@ const CustomAccordion = ({
   className,
 }: CustomAccordionProps) => {
   const [expand, setExpand] = useState(true);
+
+  console.log(expand);
 
   const callPoolFiltered = useMemo(() => {
     if (!callPools) return;
@@ -91,6 +86,8 @@ const CustomAccordion = ({
     setExpand((prev) => !prev);
   };
 
+  console.log(handleExpand);
+
   return (
     <Accordion
       TransitionProps={{ unmountOnExit: true }}
@@ -131,7 +128,6 @@ const CustomAccordion = ({
             }
           )}
         </Box>
-
         <Box className="flex flex-col space-y-4">
           {callPoolFiltered!.map(
             ({ duration, pool }: FilteredPoolsInterface, index) => {

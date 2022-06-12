@@ -12,6 +12,7 @@ import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
 const Atlantics = () => {
   const { pools } = useContext(AtlanticsContext);
+
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       asdasd

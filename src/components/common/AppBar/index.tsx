@@ -90,7 +90,8 @@ const appLinks = {
     // { name: 'faucet', to: '/faucet' },
     // { name: 'swap', to: '/swap' },
     // { name: 'SSOV', to: '/ssov' },
-    { name: 'OTC', to: '/' },
+    // { name: 'OTC', to: '/otc' },
+    { name: 'Atlantics', to: '/atlantics' },
   ],
   42161: [
     { name: 'farms', to: '/farms' },

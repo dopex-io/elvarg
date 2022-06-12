@@ -4,9 +4,9 @@ import Box from '@mui/material/Box';
 
 import {
   AtlanticsContext,
-  AtlanticsProvider,
+  // AtlanticsProvider,
   IAtlanticPoolCheckpoint,
-  IAtlanticPoolType,
+  // IAtlanticPoolType,
 } from 'contexts/Atlantics';
 import { useContext, useMemo } from 'react';
 import { BigNumber } from 'ethers';
@@ -35,7 +35,7 @@ interface IBarData {
   deposits: number;
   unlocked: number;
   activeCollateral: number;
-  strike: number;
+  strike: string | number;
 }
 
 const Charts = (props: ChartsProps) => {
@@ -48,7 +48,7 @@ const Charts = (props: ChartsProps) => {
     const strikes = selectedPool.strikes as BigNumber[];
     const data = selectedPool.data as IAtlanticPoolCheckpoint[];
     const decimals = getTokenDecimals(selectedPool?.tokens.deposit, 1337);
-    const barData: IBarData[] = strikes.map(
+    const barData: IBarData[] = strikes?.map(
       (maxStrike: BigNumber, index: number) => {
         const deposits = Number(data[index]?.liquidity) / 10 ** decimals;
         const unlocked = Number(data[index]?.unlockCollateral) / 10 ** decimals;
@@ -57,7 +57,7 @@ const Charts = (props: ChartsProps) => {
         const strike = Number(maxStrike.div(1e8));
         return {
           deposits: parseInt(formatAmount(deposits, 3)),
-          unlocked: parseInt(formatAmount(unlocked, 3)),
+          unlocked: parseInt(formatAmount(unlocked, 3)) ?? 0,
           activeCollateral: parseInt(formatAmount(activeCollateral, 3)),
           strike,
         };
