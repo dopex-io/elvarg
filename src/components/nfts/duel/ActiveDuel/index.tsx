@@ -29,7 +29,7 @@ const ActiveDuel = ({
   return (
     <Box className="w-full flex p-5 bg-[#181C24] relative">
       <img
-        src={`https://img.tofunft.com/image/https%3A%2F%2Fimg.tofunft.com%2Fipfs%2FQmaUb8EfVMoe13QWdH3tBqR8mMiv73Lq9ZGyxZU5xHocVk%2F${duelist}.png/280.jpg`}
+        src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/280/static.jpg`}
         className="rounded-md w-14 h-14 mt-1 mr-3"
       />
       <Box>
@@ -140,7 +140,7 @@ const ActiveDuel = ({
         </Typography>
       </Box>
       <img
-        src={`https://img.tofunft.com/image/https%3A%2F%2Fimg.tofunft.com%2Fipfs%2FQmaUb8EfVMoe13QWdH3tBqR8mMiv73Lq9ZGyxZU5xHocVk%2F${opponent}.png/280.jpg`}
+        src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/280/static.jpg`}
         className="rounded-md w-14 h-14 ml-6 mt-1"
       />
 

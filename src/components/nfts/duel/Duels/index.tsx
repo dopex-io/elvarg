@@ -103,7 +103,7 @@ const Duels = () => {
                     <TableCell align="left" className="mx-0 pt-2">
                       <Box className="flex">
                         <img
-                          src={`https://img.tofunft.com/image/https%3A%2F%2Fimg.tofunft.com%2Fipfs%2FQmaUb8EfVMoe13QWdH3tBqR8mMiv73Lq9ZGyxZU5xHocVk%2F234.png/280.jpg`}
+                          src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/633/280/static.jpg`}
                           className="rounded-md w-12 h-12 mt-1 mr-1"
                         />
                         <Box>
