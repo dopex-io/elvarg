@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import { format, formatDistance } from 'date-fns';
 import TableContainer from '@mui/material/TableContainer';
@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+import { Box } from '@mui/system';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -16,6 +17,10 @@ import AlarmIcon from 'svgs/icons/AlarmIcon';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+import formatAmount from 'utils/general/formatAmount';
+
+import { WalletContext } from 'contexts/Wallet';
 
 const TableHeader = ({
   // @ts-ignore TODO: FIX
@@ -62,15 +67,35 @@ const TableBodyCell = ({
   );
 };
 
-interface UserDepositsTableProps {
-  underlying: string;
-  collateral: string;
-}
+const TokenSymbol = ({ token }: { token: string }) => (
+  <img
+    src={`/images/tokens/${token.toLowerCase()}.svg`}
+    alt={token.toLowerCase()}
+    className="w-[1.2rem] ml-1"
+  />
+);
 
-const UserDepositsTable = (props: UserDepositsTableProps) => {
-  const { underlying, collateral } = props;
+const CustomTableHeader = ({
+  token,
+  header,
+}: {
+  token: string | undefined;
+  header: string;
+}) =>
+  token ? (
+    <TableHeader>
+      <Box className="flex  items-center">
+        <Typography variant="h6">{header}</Typography>
+        <TokenSymbol token={token} />
+      </Box>
+    </TableHeader>
+  ) : (
+    <> ... </>
+  );
 
-  const { userPositions, selectedPool } = useContext(AtlanticsContext);
+const UserDepositsTable = () => {
+  const { chainId } = useContext(WalletContext);
+  const { userPositions, selectedPool, revenue } = useContext(AtlanticsContext);
 
   const [epochDuration, setEpochDuration] = useState('');
 
@@ -90,7 +115,7 @@ const UserDepositsTable = (props: UserDepositsTableProps) => {
     })();
   }, [selectedPool]);
 
-  return userPositions?.length! > 0 ? (
+  return (
     <TableContainer className={`rounded-xl max-h-80 w-full overflow-x-auto`}>
       <Table>
         <TableHead>
@@ -98,56 +123,132 @@ const UserDepositsTable = (props: UserDepositsTableProps) => {
             <TableHeader>
               Max Strike <ArrowDownwardRoundedIcon className="p-1 my-auto" />
             </TableHeader>
-            <TableHeader>Time</TableHeader>
-            <TableHeader>Liquidity</TableHeader>
-            <TableHeader>Fee Collected</TableHeader>
+            <TableHeader>Deposit Date</TableHeader>
+            <CustomTableHeader
+              token={selectedPool?.tokens.deposit}
+              header="Liquidity"
+            />
+            <CustomTableHeader
+              token={selectedPool?.tokens.deposit}
+              header="Premia"
+            />
+            <CustomTableHeader
+              token={selectedPool?.tokens.deposit}
+              header="funding"
+            />
+            {selectedPool?.isPut && (
+              <CustomTableHeader
+                token={selectedPool?.tokens.deposit}
+                header="Underlying"
+              />
+            )}
             <TableHeader align="right">Settle</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {userPositions?.map((position, index) => (
-            <TableRow key={index}>
-              <TableBodyCell>
-                {/* Placeholder for strike */}
-                <Typography variant="h6">{index}</Typography>
-              </TableBodyCell>
-              <TableBodyCell>
-                <Typography variant="h6">
-                  {format(new Date(position.timestamp * 1000), 'd LLLL yyyy')}
-                </Typography>
-              </TableBodyCell>
-              <TableBodyCell>
-                <Typography variant="h6">
-                  {getUserReadableAmount(position.liquidity, 6)} {collateral}
-                </Typography>
-              </TableBodyCell>
-              <TableBodyCell>
-                <Typography variant="h6">
-                  {getUserReadableAmount(position.premiumDistributionRatio, 18)}{' '}
-                  {underlying}
-                </Typography>
-              </TableBodyCell>
-              <TableBodyCell align="right">
-                <CustomButton
-                  onClick={() => {
-                    console.log('Clicked');
-                  }}
-                  disabled={true}
-                  color={'mineshaft'}
-                  className="space-x-3 p-2 rounded-lg bg-umbra"
-                >
-                  <AlarmIcon fill="#8E8E8E" />
-                  <Typography variant="h6" className="my-auto">
-                    {epochDuration}
+          {userPositions?.length !== 0 ? (
+            userPositions?.map((position, index) => (
+              <TableRow key={index}>
+                <TableBodyCell>{position.strike}</TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    {format(new Date(position.timestamp * 1000), 'd LLLL yyyy')}
                   </Typography>
-                </CustomButton>
-              </TableBodyCell>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    {formatAmount(
+                      getUserReadableAmount(
+                        // @ts-ignore
+                        position.liquidity,
+                        getTokenDecimals(
+                          selectedPool?.tokens?.deposit as string,
+                          chainId
+                        )
+                      ),
+                      3,
+                      true
+                    )}{' '}
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    {formatAmount(
+                      getUserReadableAmount(
+                        // @ts-ignore
+                        revenue[index]?.premium,
+                        getTokenDecimals(
+                          selectedPool?.tokens?.deposit as string,
+                          chainId
+                        )
+                      ),
+                      3,
+                      true
+                    )}
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    {formatAmount(
+                      getUserReadableAmount(
+                        // @ts-ignore
+                        revenue[index]?.funding,
+                        getTokenDecimals(
+                          selectedPool?.tokens?.deposit as string,
+                          chainId
+                        )
+                      ),
+                      3,
+                      true
+                    )}
+                  </Typography>
+                </TableBodyCell>{' '}
+                {selectedPool?.isPut && (
+                  <TableBodyCell>
+                    <Typography variant="h6">
+                      {formatAmount(
+                        getUserReadableAmount(
+                          // @ts-ignore
+                          revenue[index]?.underlying,
+                          getTokenDecimals(
+                            selectedPool?.tokens?.deposit as string,
+                            chainId
+                          )
+                        ),
+                        3,
+                        true
+                      )}
+                    </Typography>
+                  </TableBodyCell>
+                )}
+                <TableBodyCell align="right">
+                  <CustomButton
+                    onClick={() => {
+                      console.log('Clicked');
+                    }}
+                    disabled={true}
+                    color={'mineshaft'}
+                    className="space-x-3 p-2 rounded-lg bg-umbra"
+                  >
+                    <AlarmIcon fill="#8E8E8E" />
+                    <Typography variant="h6" className="my-auto">
+                      {epochDuration}
+                    </Typography>
+                  </CustomButton>
+                </TableBodyCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell>
+                <Typography variant="h6">No positions found</Typography>
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </TableContainer>
-  ) : null;
+  );
 };
 
 export default UserDepositsTable;

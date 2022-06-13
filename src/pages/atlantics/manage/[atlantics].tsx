@@ -69,7 +69,8 @@ const Manage = (props: ManageProps) => {
     useContext(AtlanticsContext);
 
   useEffect(() => {
-    if (!selectedPool || !underlying || !type || !duration) return;
+    if (selectedPool?.asset !== 'Asset' || !underlying || !type || !duration)
+      return;
     (async () => {
       await setSelectedPool(underlying, type, selectedEpoch, duration);
     })();
@@ -115,10 +116,7 @@ const Manage = (props: ManageProps) => {
             </Box> */}
             <Box className="w-full space-y-4">
               <Typography variant="h5">Deposits</Typography>
-              <UserDepositsTable
-                underlying={underlying}
-                collateral={selectedPool?.tokens.deposit ?? ''}
-              />
+              <UserDepositsTable />
             </Box>
           </Box>
           <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full">

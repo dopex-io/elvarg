@@ -14,8 +14,6 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 import { CircularProgress } from '@mui/material';
 
-// import Typography from 'components/UI/Typography';
-
 const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
   ssr: false,
 });

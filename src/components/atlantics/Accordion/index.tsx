@@ -38,8 +38,6 @@ const CustomAccordion = ({
 }: CustomAccordionProps) => {
   const [expand, setExpand] = useState(true);
 
-  console.log(expand);
-
   const callPoolFiltered = useMemo(() => {
     if (!callPools) return;
     let pools: FilteredPoolsInterface[] = [];
@@ -85,8 +83,6 @@ const CustomAccordion = ({
   const handleExpand = () => {
     setExpand((prev) => !prev);
   };
-
-  console.log(handleExpand);
 
   return (
     <Accordion
