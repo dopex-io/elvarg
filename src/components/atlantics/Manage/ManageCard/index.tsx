@@ -284,7 +284,7 @@ const ManageCard = (props: ManageCardProps) => {
         setOpen={setOpen}
         tokens={[
           {
-            symbol: pool?.tokens.deposit ?? 'DEEZ',
+            symbol: pool?.tokens.deposit ?? '',
             address:
               pool?.contracts?.quoteToken.address ??
               '0x0000000000000000000000000000000000000000',

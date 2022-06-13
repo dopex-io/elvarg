@@ -104,6 +104,7 @@ export interface IAtlanticPoolType {
   volume: number;
   apy: string | string[];
   duration: string;
+  underlyingPrice: BigNumber;
 }
 
 const atlanticPoolsZeroData: IAtlanticPoolType = {
@@ -153,6 +154,7 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   tvl: 0,
   volume: 0,
   apy: '0',
+  underlyingPrice: BigNumber.from(0),
 };
 
 // Interface for deposit type (Calls and puts pool)
@@ -268,11 +270,13 @@ export const AtlanticsProvider = (props: any) => {
       );
 
       const checkpoints = await Promise.all(latestCheckpointsCalls);
-      let [{ baseToken, quoteToken }, state, config] = await Promise.all([
-        atlanticPool.addresses(),
-        atlanticPool.epochVaultStates(epoch),
-        atlanticPool.vaultConfiguration(),
-      ]);
+      let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
+        await Promise.all([
+          atlanticPool.addresses(),
+          atlanticPool.epochVaultStates(epoch),
+          atlanticPool.vaultConfiguration(),
+          atlanticPool.getUsdPrice(),
+        ]);
 
       let data: IAtlanticPoolCheckpoint[] = [];
       // Saving checkpoints for all max strikes
@@ -367,6 +371,7 @@ export const AtlanticsProvider = (props: any) => {
         volume: _volume,
         apy: '0',
         duration,
+        underlyingPrice,
       };
     },
     [provider]
@@ -388,12 +393,14 @@ export const AtlanticsProvider = (props: any) => {
 
       const latestCheckpoint = await atlanticPool.checkpointsCount(epoch);
 
-      const [state, config, checkpoint, { baseToken }] = await Promise.all([
-        atlanticPool.epochVaultStates(epoch),
-        atlanticPool.vaultConfiguration(),
-        atlanticPool.checkpoints(epoch, latestCheckpoint),
-        atlanticPool.addresses(),
-      ]);
+      const [state, config, checkpoint, { baseToken }, underlyingPrice] =
+        await Promise.all([
+          atlanticPool.epochVaultStates(epoch),
+          atlanticPool.vaultConfiguration(),
+          atlanticPool.checkpoints(epoch, latestCheckpoint),
+          atlanticPool.addresses(),
+          atlanticPool.getUsdPrice(),
+        ]);
 
       const contracts: IContracts = {
         atlanticPool,
@@ -453,6 +460,7 @@ export const AtlanticsProvider = (props: any) => {
         volume: currentVolume,
         apy,
         duration,
+        underlyingPrice,
       };
     },
     [contractAddresses, provider, signer]

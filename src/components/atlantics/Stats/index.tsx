@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -14,7 +14,7 @@ const Stats = () => {
     <Box className="grid grid-cols-3 grid-flow-col border-2 border-umbra rounded-md divide-x divide-umbra my-auto mb-6">
       <Box className="p-4">
         <Typography variant="h6" className="p-2 text-stieglitz">
-          ${formatAmount(stats.tvl, 3, true)}
+          {stats.tvl ? `$${formatAmount(stats.tvl, 3, true)}` : '...'}
         </Typography>
         <Typography variant="h5" className="text-gray-400">
           TVL
@@ -22,7 +22,7 @@ const Stats = () => {
       </Box>
       <Box className="p-4">
         <Typography variant="h6" className="p-2 text-stieglitz">
-          ${formatAmount(stats.volume, 3, true)}
+          {stats.volume ? `$${formatAmount(stats.volume, 3, true)}` : '...'}
         </Typography>
         <Typography variant="h5" className="text-gray-400">
           Volume
@@ -30,7 +30,9 @@ const Stats = () => {
       </Box>
       <Box className="p-4">
         <Typography variant="h6" className="p-2 text-stieglitz">
-          {stats.poolsCount}
+          {stats.poolsCount
+            ? `${formatAmount(stats.poolsCount, 3, true)}`
+            : '...'}
         </Typography>
         <Typography variant="h5" className="text-gray-400">
           Pools

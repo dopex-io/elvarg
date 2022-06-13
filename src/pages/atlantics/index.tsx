@@ -9,13 +9,13 @@ import Stats from 'components/atlantics/Stats';
 import StrategyFilter from 'components/atlantics/StrategyFilter';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
+import { CircularProgress } from '@mui/material';
 
 const Atlantics = () => {
   const { pools } = useContext(AtlanticsContext);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
-      asdasd
       <Head>
         <title>Atlantics | Dopex</title>
       </Head>
@@ -32,21 +32,33 @@ const Atlantics = () => {
               <Box></Box>
             </Box>
           </Box>
-          <Box className="sm:flex sm:flex-col lg:grid lg:grid-cols-4 pt-6">
-            <Box className="flex flex-col col-span-1 space-y-4 ">
-              {pools?.map((pool, index) => {
-                return (
-                  <Accordion
-                    className="bg-cod-gray shadow-none border border-1 border-mineshaft"
-                    key={index}
-                    header={pool.asset}
-                    putPools={pool.put}
-                    callPools={pool.call}
-                  />
-                );
-              })}
+          {pools && pools.length !== 0 ? (
+            pools.map((pool, index) => {
+              return (
+                <Box
+                  key={index}
+                  className="sm:flex sm:flex-col lg:grid lg:grid-cols-4 pt-6"
+                >
+                  <Box className="flex flex-col col-span-1 space-y-4 ">
+                    <Accordion
+                      className="bg-cod-gray shadow-none border border-1 border-mineshaft"
+                      header={pool.asset}
+                      putPools={pool.put}
+                      callPools={pool.call}
+                    />
+                  </Box>
+                </Box>
+              );
+            })
+          ) : (
+            <Box className="flex justify-center items-center h-screen">
+              <CircularProgress
+                className="mb-[30rem]"
+                size="40px"
+                color="primary"
+              />
             </Box>
-          </Box>
+          )}
         </Box>
       </Box>
     </Box>

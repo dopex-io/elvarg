@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+import { CircularProgress } from '@mui/material';
 
 import Typography from 'components/UI/Typography';
 
@@ -76,30 +77,38 @@ const PoolCompositionTable = () => {
   }, [selectedPool]);
 
   const tokenComposition = useMemo((): { [key: string]: number } => {
-    if (!pool) return { Deposit: 0, Underlying: 0 };
+    if (!pool) return { '': 0 };
     const maxStrikes = pool.strikes as BigNumber[];
     const data = pool.data as IAtlanticPoolCheckpoint[];
     let totalDepositToken = 0;
     let totalUnderlying = 0;
-    const depositTokenDecimals = getTokenDecimals(pool.tokens.deposit, chainId);
-    const underlyingTokenDecimals = getTokenDecimals(
-      pool.tokens.underlying,
-      chainId
-    );
-    maxStrikes.forEach((_, index) => {
-      totalDepositToken +=
-        Number(
-          data[index]?.fundingCollected.add(data[index]?.premiumCollected!)
-        ) /
-        10 ** depositTokenDecimals;
-      totalUnderlying +=
-        Number(data[index]?.underlyingCollected) /
-        10 ** underlyingTokenDecimals;
-    });
-    return {
-      [pool.tokens.deposit]: totalDepositToken,
-      [pool.tokens.underlying]: totalUnderlying,
-    };
+
+    if (pool.isPut) {
+      const depositTokenDecimals = getTokenDecimals(
+        pool.tokens.deposit,
+        chainId
+      );
+      const underlyingTokenDecimals = getTokenDecimals(
+        pool.tokens.underlying,
+        chainId
+      );
+      maxStrikes.forEach((_, index) => {
+        totalDepositToken +=
+          Number(
+            data[index]?.fundingCollected.add(data[index]?.premiumCollected!)
+          ) /
+          10 ** depositTokenDecimals;
+        totalUnderlying +=
+          Number(data[index]?.underlyingCollected) /
+          10 ** underlyingTokenDecimals;
+      });
+      return {
+        [pool.tokens.deposit]: totalDepositToken,
+        [pool.tokens.underlying]: totalUnderlying,
+      };
+    } else {
+      return { '': 0 };
+    }
   }, [chainId, pool]);
 
   return (
@@ -129,11 +138,15 @@ const PoolCompositionTable = () => {
               <TableRow className="py-2" key={index}>
                 <TableBodyCell width={525}>
                   <Box className="flex space-x-2">
-                    <img
-                      src={`/images/tokens/${key}.svg`}
-                      alt={key}
-                      className="w-[2rem] h-auto my-auto"
-                    />
+                    {key !== '' ? (
+                      <img
+                        src={`/images/tokens/${key}.svg`}
+                        alt={key}
+                        className="w-[2rem] h-auto my-auto"
+                      />
+                    ) : (
+                      <CircularProgress size="20px" />
+                    )}
                     <Box className="text-left my-auto">
                       <Typography variant="h6">{key!}</Typography>
                     </Box>

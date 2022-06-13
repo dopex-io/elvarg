@@ -81,7 +81,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               z="2"
               interval={0}
             />
-            <Tooltip />
+            {/* <Tooltip /> */}
             <Bar
               dataKey="activeCollateral"
               stackId="a"

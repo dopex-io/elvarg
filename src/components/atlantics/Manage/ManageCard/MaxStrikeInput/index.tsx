@@ -8,6 +8,7 @@ import Input from '@mui/material/Input';
 import Typography from 'components/UI/Typography';
 
 import { WalletContext } from 'contexts/Wallet';
+import { AtlanticsContext } from 'contexts/Atlantics';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
@@ -22,8 +23,10 @@ interface MaxStrikeInputProps {
 
 const MaxStrikeInput = (props: MaxStrikeInputProps) => {
   const { token, tickSize, setMaxStrike } = props;
-
   const { chainId } = useContext(WalletContext);
+  const {
+    selectedEpoch: { underlyingPrice },
+  } = useContext(AtlanticsContext);
 
   const [error, setError] = useState('');
 
