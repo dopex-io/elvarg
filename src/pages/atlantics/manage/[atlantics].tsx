@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -9,13 +9,9 @@ import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
 import PoolCompositionTable from 'components/atlantics/Manage/PoolCompositionTable';
 import Typography from 'components/UI/Typography';
-// import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
+import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 
-import {
-  AtlanticsContext,
-  AtlanticsProvider,
-  IAtlanticPoolType,
-} from 'contexts/Atlantics';
+import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 import { ATLANTIC_POOL_INFO } from 'contexts/Atlantics';
 
 // Placeholder data for charts
@@ -69,14 +65,22 @@ const Manage = (props: ManageProps) => {
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
 
-  const { setSelectedPool, selectedPool } = useContext(AtlanticsContext);
+  const { setSelectedPool, selectedPool, selectedEpoch } =
+    useContext(AtlanticsContext);
 
   useEffect(() => {
     if (!selectedPool || !underlying || !type || !duration) return;
     (async () => {
-      await setSelectedPool(underlying, type, duration);
+      await setSelectedPool(underlying, type, selectedEpoch, duration);
     })();
-  }, [setSelectedPool, duration, type, underlying, selectedPool]);
+  }, [
+    setSelectedPool,
+    duration,
+    type,
+    underlying,
+    selectedPool,
+    selectedEpoch,
+  ]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -105,13 +109,16 @@ const Manage = (props: ManageProps) => {
                 type={type}
               />
             </Box>
-            <Box className="w-full space-y-4">
+            {/* <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>
               <PoolCompositionTable />
-            </Box>
+            </Box> */}
             <Box className="w-full space-y-4">
               <Typography variant="h5">Deposits</Typography>
-              {/* <UserDepositsTable data={[]} /> */}
+              <UserDepositsTable
+                underlying={underlying}
+                collateral={selectedPool?.tokens.deposit ?? ''}
+              />
             </Box>
           </Box>
           <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full">

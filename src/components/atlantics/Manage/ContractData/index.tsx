@@ -45,7 +45,7 @@ const ContractData = () => {
           <Box className="flex space-x-3 p-2 rounded-lg bg-umbra">
             <AlarmIcon fill="#8E8E8E" />
             <Typography variant="h6" className="my-auto font-semibold">
-              {epochDuration}
+              {epochDuration === 'less than a minute' ? '...' : epochDuration}
             </Typography>
           </Box>
         </Box>
@@ -59,11 +59,12 @@ const ContractData = () => {
             variant="h6"
             className="font-semibold p-2 bg-umbra rounded-lg"
           >
-            {getUserReadableAmount(
-              selectedPool?.config.baseFundingRate.toNumber()! * 100,
-              6
-            )}
-            %
+            {!selectedPool?.config.baseFundingRate.isZero()
+              ? getUserReadableAmount(
+                  selectedPool?.config.baseFundingRate.toNumber()! * 100,
+                  6
+                ) + '%'
+              : '...'}
           </Typography>
         </Box>
       </Box>
@@ -72,7 +73,7 @@ const ContractData = () => {
           Contract
         </Typography>
         <ExplorerLink
-          address={selectedPool?.contracts?.atlanticPool.address ?? '404'}
+          address={selectedPool?.contracts?.atlanticPool.address ?? '...'}
         />
       </Box>
     </Box>

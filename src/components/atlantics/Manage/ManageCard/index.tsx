@@ -37,6 +37,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { TOKEN_DECIMALS } from 'constants/index';
+import { BigNumber } from 'ethers';
 
 interface ManageCardProps {
   tokenId: string;
@@ -48,12 +49,12 @@ interface ManageCardProps {
 const ManageCard = (props: ManageCardProps) => {
   const { underlying, poolType, duration } = props;
 
+  const tx = useSendTx();
+
   const { userAssetBalances } = useContext(AssetsContext);
   const { chainId, signer, contractAddresses, accountAddress } =
     useContext(WalletContext);
   const { selectedPool } = useContext(AtlanticsContext);
-
-  const tx = useSendTx();
 
   const pool = useMemo(() => {
     if (!selectedPool) return;
@@ -67,6 +68,9 @@ const ManageCard = (props: ManageCardProps) => {
     pool?.tokens.deposit ?? 'T'
   );
   const [approved, setApproved] = useState<boolean>(false);
+  const [currentPrice, setCurrentPrice] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
 
   const containerRef = React.useRef(null);
 
@@ -122,7 +126,7 @@ const ManageCard = (props: ManageCardProps) => {
         apContract
           .connect(signer)
           .deposit(
-            Number(maxStrike) * 1e8,
+            getContractReadableAmount(maxStrike, 8),
             getContractReadableAmount(value, 6),
             accountAddress
           )
@@ -195,6 +199,31 @@ const ManageCard = (props: ManageCardProps) => {
     value,
   ]);
 
+  useEffect(() => {
+    (async () => {
+      if (!signer || !contractAddresses) return;
+
+      let pool = selectedPool?.isPut
+        ? AtlanticPutsPool__factory.connect(
+            contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+            signer
+          )
+        : AtlanticCallsPool__factory.connect(
+            contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+            signer
+          );
+
+      setCurrentPrice(await pool.getUsdPrice());
+    })();
+  }, [
+    contractAddresses,
+    duration,
+    poolType,
+    selectedPool?.isPut,
+    signer,
+    underlying,
+  ]);
+
   return (
     <Box
       className="flex flex-col bg-cod-gray rounded-2xl p-3 space-y-3 h-full"
@@ -250,6 +279,7 @@ const ManageCard = (props: ManageCardProps) => {
           </Box>
           <MaxStrikeInput
             token={selectedToken}
+            currentPrice={currentPrice}
             tickSize={pool?.config.tickSize}
             maxStrikes={pool?.strikes}
             setMaxStrike={setMaxStrike}

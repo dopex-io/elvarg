@@ -113,7 +113,7 @@ const PoolCompositionTable = () => {
 
   return (
     <TableContainer
-      className={`rounded-xl border-umbra border border-b-0 max-h-80 w-full overflow-x-auto`}
+      className={`rounded-xl border-umbra border border-b-0 w-full overflow-x-auto`}
     >
       <Table>
         <TableHead>

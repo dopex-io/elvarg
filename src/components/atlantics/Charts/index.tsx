@@ -74,7 +74,7 @@ const Charts = (props: ChartsProps) => {
 
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">
-      <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-2/3 sm:w-full">
+      <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-full sm:w-full">
         {barData[0]?.deposits !== 0 ? (
           <ClientRenderedBarGraph
             data={barData}

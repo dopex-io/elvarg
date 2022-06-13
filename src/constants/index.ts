@@ -245,6 +245,7 @@ export const TOKEN_DECIMALS: {
   '421611': {
     USDT: 6,
     USDC: 6,
+    WETH: 18,
   },
   '42161': {
     USDT: 6,

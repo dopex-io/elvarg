@@ -4,25 +4,21 @@ import {
   useContext,
   useState,
   useCallback,
-  // useMemo,
 } from 'react';
 import { BigNumber } from 'ethers';
 import {
   ERC20,
   ERC20__factory,
-  // ERC20__factory,
   AtlanticCallsPool,
   AtlanticCallsPool__factory,
   AtlanticPutsPool,
   AtlanticPutsPool__factory,
 } from '@dopex-io/sdk';
 
-import { WalletContext } from './Wallet';
+import { WalletContext } from 'contexts/Wallet';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-
-// import { TOKEN_DECIMALS } from 'constants/index';
 
 const tokenPrices = {
   WETH: 1800,
@@ -35,6 +31,7 @@ interface IAtlanticPoolsInfo {
     description: string;
   };
 }
+
 export const ATLANTIC_POOL_INFO: IAtlanticPoolsInfo = {
   CALLS: {
     title: 'ETH CALLS',
@@ -88,6 +85,61 @@ interface IContracts {
   baseToken: ERC20;
 }
 
+// Interface for deposit type (Calls and puts pool)
+interface IUserPosition {
+  // strike: BigNumber;
+  timestamp: number;
+  liquidity: BigNumber;
+  premiumDistributionRatio: BigNumber;
+  fundingDistributionRatio: BigNumber;
+  underlyingDistributionRatio: BigNumber;
+  depositor: string;
+}
+
+// interface UserPositionInterface {
+//   maxStrike: BigNumber;
+//   userDeposit: BigNumber;
+//   epoch: number;
+//   feeCollected: BigNumber;
+// }
+
+interface UserAtlanticsData {
+  userPositions: IUserPosition[];
+}
+
+interface Stats {
+  tvl: number;
+  volume: number;
+  poolsCount: number;
+}
+
+interface AtlanticsContextInterface {
+  pools: Pool[];
+  stats: Stats;
+  getCallPool: (
+    address: string,
+    selectedEpoch: number,
+    duration: string
+  ) => Promise<IAtlanticPoolType> | {};
+  getPutPool: (
+    address: string,
+    selectedEpoch: number,
+    duration: string
+  ) => Promise<IAtlanticPoolType> | {};
+  getPool: (
+    underlying: string,
+    type: string,
+    selectedEpoch: number,
+    duration: string
+  ) => Promise<IAtlanticPoolType> | {};
+  selectedEpoch?: number | any;
+  setSelectedEpoch?: any;
+  selectedPool?: IAtlanticPoolType;
+  setSelectedPool?: any;
+  userPositions?: IUserPosition[];
+  updateUserPositions?: any;
+}
+
 export interface IAtlanticPoolType {
   asset: string;
   isPut: boolean;
@@ -104,7 +156,6 @@ export interface IAtlanticPoolType {
   volume: number;
   apy: string | string[];
   duration: string;
-  underlyingPrice: BigNumber;
 }
 
 const atlanticPoolsZeroData: IAtlanticPoolType = {
@@ -154,54 +205,9 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   tvl: 0,
   volume: 0,
   apy: '0',
-  underlyingPrice: BigNumber.from(0),
 };
 
-// Interface for deposit type (Calls and puts pool)
-// interface IUserDeposit {
-//   liquidity: BigNumber;
-//   premiumRatio: BigNumber;
-//   fundingRatio: BigNumber;
-//   underlyingRatio?: BigNumber;
-// }
-
-// interface UserPositionInterface {
-//   maxStrike: BigNumber;
-//   userDeposit: BigNumber;
-//   epoch: number;
-//   feeCollected: BigNumber;
-// }
-
-// interface UserAtlanticsData {
-//   userPositions: UserPositionInterface[];
-// }
-interface Stats {
-  tvl: number;
-  volume: number;
-  poolsCount: number;
-}
-
-interface AtlanticsContextInterface {
-  pools: Pool[];
-  stats: Stats;
-  getCallPool: (
-    address: string,
-    duration: string
-  ) => Promise<IAtlanticPoolType> | {};
-  getPutPool: (
-    address: string,
-    duration: string
-  ) => Promise<IAtlanticPoolType> | {};
-  getPool: (
-    underlying: string,
-    type: string,
-    duration: string
-  ) => Promise<IAtlanticPoolType> | {};
-  selectedEpoch?: number | any;
-  setSelectedEpoch?: any;
-  selectedPool?: IAtlanticPoolType;
-  setSelectedPool?: any;
-}
+const initialUserPositions: IUserPosition[] | [] = [];
 
 const initialAtlanticsData = {
   pools: [],
@@ -213,6 +219,7 @@ const initialAtlanticsData = {
   getCallPool: () => ({}),
   getPutPool: () => ({}),
   getPool: () => ({}),
+  userPositions: initialUserPositions,
 };
 
 export const AtlanticsContext =
@@ -231,7 +238,8 @@ interface Pool {
 }
 
 export const AtlanticsProvider = (props: any) => {
-  const { contractAddresses, signer, provider } = useContext(WalletContext);
+  const { contractAddresses, signer, provider, accountAddress } =
+    useContext(WalletContext);
 
   const [pools, setPools] = useState<Pool[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -242,41 +250,40 @@ export const AtlanticsProvider = (props: any) => {
   const [selectedPool, _setSelectedPool] = useState<IAtlanticPoolType>(
     atlanticPoolsZeroData
   );
+  const [userPositions, setUserPositions] =
+    useState<IUserPosition[]>(initialUserPositions);
   const [selectedEpoch, setSelectedEpoch] = useState<number>(1);
 
   // Fetches type IAtlanticPoolType for a pool
   const getPutPool = useCallback(
     async (
       address: string,
+      selectedEpoch: number,
       duration: string
     ): Promise<IAtlanticPoolType | undefined> => {
       if (!address) return undefined;
 
       const atlanticPool = AtlanticPutsPool__factory.connect(address, provider);
 
-      const epoch = await atlanticPool.currentEpoch();
-
       const latestCheckpoints: BigNumber[] =
-        await atlanticPool.getEpochCurrentMaxStrikeCheckpoints(epoch);
+        await atlanticPool.getEpochCurrentMaxStrikeCheckpoints(selectedEpoch);
 
       // Strikes
-      const maxStrikes = await atlanticPool.getEpochMaxStrikes(epoch);
+      const maxStrikes = await atlanticPool.getEpochMaxStrikes(selectedEpoch);
 
       const latestCheckpointsCalls = maxStrikes.map(
         async (maxStrike: BigNumber, index: number) => {
           const checkpoint = Number(latestCheckpoints[index]);
-          return atlanticPool.checkpoints(epoch, maxStrike, checkpoint);
+          return atlanticPool.checkpoints(selectedEpoch, maxStrike, checkpoint);
         }
       );
 
       const checkpoints = await Promise.all(latestCheckpointsCalls);
-      let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
-        await Promise.all([
-          atlanticPool.addresses(),
-          atlanticPool.epochVaultStates(epoch),
-          atlanticPool.vaultConfiguration(),
-          atlanticPool.getUsdPrice(),
-        ]);
+      let [{ baseToken, quoteToken }, state, config] = await Promise.all([
+        atlanticPool.addresses(),
+        atlanticPool.epochVaultStates(selectedEpoch),
+        atlanticPool.vaultConfiguration(),
+      ]);
 
       let data: IAtlanticPoolCheckpoint[] = [];
       // Saving checkpoints for all max strikes
@@ -359,7 +366,7 @@ export const AtlanticsProvider = (props: any) => {
         data,
         state: {
           ...state,
-          epoch,
+          epoch: selectedEpoch,
         },
         config,
         contracts,
@@ -371,7 +378,6 @@ export const AtlanticsProvider = (props: any) => {
         volume: _volume,
         apy: '0',
         duration,
-        underlyingPrice,
       };
     },
     [provider]
@@ -380,6 +386,7 @@ export const AtlanticsProvider = (props: any) => {
   const getCallPool = useCallback(
     async (
       address: string,
+      selectedEpoch: number,
       duration: string
     ): Promise<IAtlanticPoolType | undefined> => {
       if (!address || !provider || !signer || !contractAddresses) return;
@@ -389,18 +396,16 @@ export const AtlanticsProvider = (props: any) => {
         provider
       );
 
-      const epoch = await atlanticPool.currentEpoch();
+      const latestCheckpoint = await atlanticPool.checkpointsCount(
+        selectedEpoch
+      );
 
-      const latestCheckpoint = await atlanticPool.checkpointsCount(epoch);
-
-      const [state, config, checkpoint, { baseToken }, underlyingPrice] =
-        await Promise.all([
-          atlanticPool.epochVaultStates(epoch),
-          atlanticPool.vaultConfiguration(),
-          atlanticPool.checkpoints(epoch, latestCheckpoint),
-          atlanticPool.addresses(),
-          atlanticPool.getUsdPrice(),
-        ]);
+      const [state, config, checkpoint, { baseToken }] = await Promise.all([
+        atlanticPool.epochVaultStates(selectedEpoch),
+        atlanticPool.vaultConfiguration(),
+        atlanticPool.checkpoints(selectedEpoch, latestCheckpoint),
+        atlanticPool.addresses(),
+      ]);
 
       const contracts: IContracts = {
         atlanticPool,
@@ -448,7 +453,7 @@ export const AtlanticsProvider = (props: any) => {
         asset: underlying,
         isPut: false,
         strikes: state.strike,
-        state: { ...state, epoch },
+        state: { ...state, epoch: selectedEpoch },
         data,
         config,
         contracts,
@@ -460,7 +465,6 @@ export const AtlanticsProvider = (props: any) => {
         volume: currentVolume,
         apy,
         duration,
-        underlyingPrice,
       };
     },
     [contractAddresses, provider, signer]
@@ -476,28 +480,34 @@ export const AtlanticsProvider = (props: any) => {
           put: {
             daily: await getPutPool(
               contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'].DAILY,
+              selectedEpoch,
               'DAILY'
             ),
             weekly: await getPutPool(
               contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'].WEEKLY,
+              selectedEpoch,
               'WEEKLY'
             ),
             monthly: await getPutPool(
               contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'].MONTHLY,
+              selectedEpoch,
               'MONTHLY'
             ),
           },
           call: {
             daily: await getCallPool(
               contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].DAILY,
+              selectedEpoch,
               'DAILY'
             ),
             weekly: await getCallPool(
               contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].WEEKLY,
+              selectedEpoch,
               'WEEKLY'
             ),
             monthly: await getCallPool(
               contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].MONTHLY,
+              selectedEpoch,
               'MONTHLY'
             ),
           },
@@ -506,21 +516,22 @@ export const AtlanticsProvider = (props: any) => {
         setPools((prev) => [...prev, currentPool]);
       }
     );
-  }, [contractAddresses, getCallPool, getPutPool, provider]);
+  }, [contractAddresses, getCallPool, getPutPool, provider, selectedEpoch]);
 
   const getPool = useCallback(
     async (
       underlying: string,
       type: string,
+      selectedEpoch: number,
       duration: string
     ): Promise<IAtlanticPoolType | undefined> => {
       const poolAddress =
         contractAddresses['ATLANTIC-POOLS'][underlying][type][duration];
 
       if (type === 'CALLS') {
-        return await getCallPool(poolAddress, duration);
+        return await getCallPool(poolAddress, selectedEpoch, duration);
       } else if (type === 'PUTS') {
-        return await getPutPool(poolAddress, duration);
+        return await getPutPool(poolAddress, selectedEpoch, duration);
       } else {
         return undefined;
       }
@@ -528,13 +539,74 @@ export const AtlanticsProvider = (props: any) => {
     [contractAddresses, getCallPool, getPutPool]
   );
 
-  const setSelectedPool = useCallback(
-    async (underlying: string, type: string, duration: string) => {
-      if (!contractAddresses || !provider) return;
-      const pool: any = await getPool(underlying, type, duration);
-      _setSelectedPool(pool);
+  const updateUserPositions = useCallback(
+    async (pool: IAtlanticPoolType) => {
+      if (
+        !signer ||
+        !provider ||
+        !contractAddresses ||
+        !accountAddress ||
+        userPositions.length !== 0
+      )
+        return;
+
+      if (!pool.isPut) return;
+
+      const poolType = pool.isPut ? 'PUTS' : 'CALLS';
+
+      const atlanticPool = AtlanticPutsPool__factory.connect(
+        contractAddresses['ATLANTIC-POOLS'][pool.tokens.underlying][poolType][
+          pool.duration
+        ],
+        signer
+      );
+
+      const poolDeposits = await atlanticPool.getEpochDeposits(selectedEpoch);
+
+      const userDeposits = poolDeposits.filter(
+        (deposit) => deposit.depositor === accountAddress
+      );
+
+      const _userDeposits = userDeposits.map((deposit) => ({
+        // strike: deposit.strike,
+        timestamp: deposit.timestamp.toNumber(),
+        liquidity: deposit.liquidity,
+        premiumDistributionRatio: deposit.premiumDistributionRatio,
+        fundingDistributionRatio: deposit.fundingDistributionRatio,
+        underlyingDistributionRatio: deposit.underlyingDistributionRatio,
+        depositor: deposit.depositor,
+      }));
+
+      setUserPositions(_userDeposits);
     },
-    [contractAddresses, getPool, provider]
+    [
+      accountAddress,
+      contractAddresses,
+      provider,
+      selectedEpoch,
+      signer,
+      userPositions,
+    ]
+  );
+
+  const setSelectedPool = useCallback(
+    async (
+      underlying: string,
+      type: string,
+      selectedEpoch: number,
+      duration: string
+    ) => {
+      if (!contractAddresses || !provider) return;
+      const pool = (await getPool(
+        underlying,
+        type,
+        selectedEpoch,
+        duration
+      )) as IAtlanticPoolType;
+      _setSelectedPool(pool);
+      await updateUserPositions(pool);
+    },
+    [contractAddresses, getPool, provider, updateUserPositions]
   );
 
   useEffect(() => {
@@ -547,8 +619,10 @@ export const AtlanticsProvider = (props: any) => {
     getCallPool,
     getPutPool,
     getPool,
-    setSelectedPool,
     selectedPool,
+    setSelectedPool,
+    userPositions,
+    updateUserPositions,
     selectedEpoch,
     setSelectedEpoch,
   };

@@ -1,9 +1,7 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
-
-// import CustomInput from 'components/UI/CustomInput';
 
 import Typography from 'components/UI/Typography';
 
@@ -16,17 +14,16 @@ import { TOKEN_DECIMALS } from 'constants/index';
 
 interface MaxStrikeInputProps {
   token: string;
+  currentPrice: BigNumber;
   tickSize?: BigNumber | undefined;
   maxStrikes?: any;
   setMaxStrike: (e: string | number) => void;
 }
 
 const MaxStrikeInput = (props: MaxStrikeInputProps) => {
-  const { token, tickSize, setMaxStrike } = props;
-  const { chainId } = useContext(WalletContext);
-  const {
-    selectedEpoch: { underlyingPrice },
-  } = useContext(AtlanticsContext);
+  const { currentPrice, token, tickSize, setMaxStrike } = props;
+
+  const { chainId, signer } = useContext(WalletContext);
 
   const [error, setError] = useState('');
 
@@ -34,36 +31,25 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
     (e: { target: { value: number | string } }) => {
       if (Number(e.target.value) === 0) return;
 
-      // console.log(
-      //   'Tick Size: ',
-      //   tickSize?.toNumber(),
-      //   tickSize?.mod(
-      //     getContractReadableAmount(
-      //       Number(e.target.value),
-      //       TOKEN_DECIMALS[chainId]?.[token] ?? 18
-      //     )
-      //   )
-      // );
+      const _input = getContractReadableAmount(
+        Number(e.target.value),
+        TOKEN_DECIMALS[chainId]?.[token] ?? 18
+      ).mul(1e2);
+
+      let _mod = _input.mod(tickSize ?? BigNumber.from(0));
 
       if (
-        tickSize
-          ?.mod(
-            getContractReadableAmount(
-              Number(e.target.value),
-              TOKEN_DECIMALS[chainId]?.[token] ?? 18
-            )
-          )
-          .eq(BigNumber.from(0))
+        _mod.eq('0') &&
+        currentPrice.gte(_input) &&
+        _input.gt(BigNumber.from(0))
       ) {
-        // console.log('Divisible');
         setMaxStrike(e.target.value);
         setError('');
       } else {
-        // console.log('Not divisble');
         setError('Invalid Strike Price');
       }
     },
-    [tickSize, chainId, token, setMaxStrike]
+    [tickSize, chainId, token, currentPrice, setMaxStrike]
   );
 
   return (
