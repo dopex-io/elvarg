@@ -103,9 +103,7 @@ const PoolCompositionTable = () => {
   }, [chainId, pool]);
 
   return (
-    <TableContainer
-      className={`rounded-xl border-umbra border border-b-0 max-h-80 w-full overflow-x-auto`}
-    >
+    <TableContainer className={`rounded-xl max-h-80 w-full overflow-x-auto`}>
       <Table>
         <TableHead>
           <TableRow>
