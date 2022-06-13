@@ -7,7 +7,7 @@ const Description = () => {
     <Box className={'lg:w-3/4'}>
       <Box className={'flex'}>
         <Box className={'rounded-full mt-auto mb-auto'}>
-          {/* <img src="/images/tokens/mim.svg" className="w-[6rem]" alt="ir" /> */}
+          <img src="/images/tokens/pusd.svg" className="w-[6rem]" alt="ir" />
         </Box>
         <Typography
           variant="h3"
