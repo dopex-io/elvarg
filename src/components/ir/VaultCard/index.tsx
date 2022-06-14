@@ -100,7 +100,7 @@ function VaultCard(props: Props) {
               <Typography variant="h4" className="mr-2 font-bold">
                 {symbol.split('-')[0]}
                 {retired ? (
-                  <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
+                  <span className="bg-red-500 p-1 text-sm rounded-sm ml-4">
                     RETIRED
                   </span>
                 ) : null}
