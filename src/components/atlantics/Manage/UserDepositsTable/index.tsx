@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState, useMemo } from 'react';
-import { BigNumber } from 'ethers';
-import { format, formatDistance } from 'date-fns';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { format } from 'date-fns';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
@@ -12,15 +11,22 @@ import { Box } from '@mui/system';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
+
+import useSendTx from 'hooks/useSendTx';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
 import { WalletContext } from 'contexts/Wallet';
+import {
+  AtlanticCallsPool,
+  AtlanticCallsPool__factory,
+  AtlanticPutsPool,
+  AtlanticPutsPool__factory,
+} from '@dopex-io/sdk';
 
 const TableHeader = ({
   // @ts-ignore TODO: FIX
@@ -94,26 +100,52 @@ const CustomTableHeader = ({
   );
 
 const UserDepositsTable = () => {
-  const { chainId } = useContext(WalletContext);
-  const { userPositions, selectedPool, revenue } = useContext(AtlanticsContext);
+  const { chainId, provider, signer } = useContext(WalletContext);
+  const { userPositions, selectedPool, revenue, selectedEpoch } =
+    useContext(AtlanticsContext);
+  const [canWithdraw, setCanWithdraw] = useState<boolean>(true);
 
-  const [epochDuration, setEpochDuration] = useState('');
+  const tx = useSendTx();
 
   useEffect(() => {
     (async () => {
-      const epochTimes = {
-        startTime: selectedPool?.state.startTime ?? BigNumber.from(0),
-        expiryTime: selectedPool?.state.expiryTime ?? BigNumber.from(0),
-      };
-
-      const duration = formatDistance(
-        epochTimes['expiryTime'].toNumber() * 1000,
-        epochTimes['startTime'].toNumber() * 1000
-      );
-
-      setEpochDuration(duration);
+      if (!selectedPool || !provider) return;
+      const blockNumber = await provider.getBlockNumber();
+      const timestamp = (await provider.getBlock(blockNumber)).timestamp;
+      if (timestamp > Number(selectedPool.state.expiryTime)) {
+        setCanWithdraw(() => false);
+      }
     })();
-  }, [selectedPool]);
+  }, [provider, selectedPool]);
+
+  const handleWithdraw = useCallback(
+    async (strike: number) => {
+      if (
+        !selectedPool?.contracts?.atlanticPool.address ||
+        !selectedPool ||
+        !selectedEpoch ||
+        !signer
+      ) {
+        return;
+      }
+
+      const poolAddress = selectedPool.contracts.atlanticPool.address;
+      if (selectedPool.isPut) {
+        const apContract = AtlanticPutsPool__factory.connect(
+          poolAddress,
+          signer
+        );
+        tx(apContract.withdraw(strike * 1e8, selectedEpoch));
+      } else {
+        const apContract = AtlanticCallsPool__factory.connect(
+          poolAddress,
+          signer
+        );
+        tx(apContract.withdraw(selectedEpoch));
+      }
+    },
+    [selectedEpoch, selectedPool, signer, tx]
+  );
 
   return (
     <TableContainer className={`rounded-xl max-h-80 w-full overflow-x-auto`}>
@@ -227,16 +259,17 @@ const UserDepositsTable = () => {
                 )}
                 <TableBodyCell align="right">
                   <CustomButton
-                    onClick={() => {
-                      console.log('Clicked');
+                    onClick={async () => {
+                      await handleWithdraw(position.strike ?? 0);
                     }}
-                    disabled={true}
+                    disabled={canWithdraw}
                     color={'mineshaft'}
-                    className="space-x-3 p-2 rounded-lg bg-umbra"
+                    className={`space-x-3 p-2 rounded-lg ${
+                      !canWithdraw ? 'bg-primary' : 'bg-umbra'
+                    }`}
                   >
-                    <AlarmIcon fill="#8E8E8E" />
                     <Typography variant="h6" className="my-auto">
-                      {epochDuration}
+                      Withdraw
                     </Typography>
                   </CustomButton>
                 </TableBodyCell>
