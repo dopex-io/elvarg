@@ -609,8 +609,6 @@ export const AtlanticsProvider = (props: any) => {
         fundingDistributionRatio: deposit.fundingDistributionRatio,
         depositor: deposit.depositor,
       }));
-
-      console.log(_userDeposits);
       setUserPositions(() => _userDeposits);
     } else {
       return;
