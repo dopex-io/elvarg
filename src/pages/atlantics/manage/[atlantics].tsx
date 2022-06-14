@@ -8,7 +8,6 @@ import ManageCard from 'components/atlantics/Manage/ManageCard';
 import Charts from 'components/atlantics/Charts';
 import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
-import PoolCompositionTable from 'components/atlantics/Manage/PoolCompositionTable';
 import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 
@@ -102,7 +101,6 @@ const Manage = (props: ManageProps) => {
     } else if (type === 'PUTS') {
       const apys = selectedPool?.apy as any[];
       let total = 0;
-      console.log(typeof apys);
       if (typeof apys != 'string') {
         apys.map((apy) => {
           total += Number(apy);
@@ -111,7 +109,11 @@ const Manage = (props: ManageProps) => {
       const avgApy = total / apys.length;
       const strikes = selectedPool.strikes as BigNumber[];
       return [
-        { heading: 'AVG APY', value: String(avgApy) + '%', Icon: Action },
+        {
+          heading: 'AVG APY',
+          value: formatAmount(avgApy, 3) + '%',
+          Icon: Action,
+        },
         {
           heading: 'TVL',
           value: formatAmount(selectedPool.tvl, 3, true),
