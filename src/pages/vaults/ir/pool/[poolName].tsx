@@ -65,7 +65,7 @@ const Manage = () => {
           className="mt-10 lg:mt-20 lg:mb-20 lg:pl-5 lg:pr-5"
         >
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
-            <Description />
+            <Description poolName={String(poolName)} />
           </Box>
 
           <Box className="lg:hidden">

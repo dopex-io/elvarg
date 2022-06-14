@@ -410,7 +410,7 @@ const Deposits = () => {
                         strikeIndex={Number(strikeIndex)}
                         price={price}
                         epochEndTime={epochEndTime}
-                        imgSrc={'pusd.svg'}
+                        imgSrc={'2crv.svg'}
                         tokenSymbol={'2CRV'}
                         isBootstrapped={
                           rateVaultContext.rateVaultEpochData.isBootstrapped

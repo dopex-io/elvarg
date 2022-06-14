@@ -1,19 +1,20 @@
 import Box from '@mui/material/Box';
 
+import { VAULT_MAP } from 'constants/index';
 import Typography from 'components/UI/Typography';
 
-const Description = () => {
+const Description = ({ poolName }: { poolName: string }) => {
   return (
     <Box className={'lg:w-3/4'}>
       <Box className={'flex'}>
         <Box className={'rounded-full mt-auto mb-auto'}>
-          <img src="/images/tokens/pusd.svg" className="w-[6rem]" alt="ir" />
+          <img src={VAULT_MAP[poolName]?.src} className="w-[6rem]" alt="ir" />
         </Box>
         <Typography
           variant="h3"
           className="ml-5 flex items-center space-x-3 lg:text-4xl"
         >
-          PUSD Interest Rate Vaults
+          {poolName} Interest Rate Vaults
         </Typography>
         <Typography
           variant="h3"
