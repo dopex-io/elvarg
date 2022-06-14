@@ -6,19 +6,16 @@ import React, {
   useEffect,
 } from 'react';
 import Box from '@mui/material/Box';
-import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {
   AtlanticPutsPool__factory,
   AtlanticCallsPool__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import CustomInput from 'components/UI/CustomInput';
-import TokenSelector from 'components/atlantics/TokenSelector';
 import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInput';
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -37,7 +34,6 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { TOKEN_DECIMALS } from 'constants/index';
-import { BigNumber } from 'ethers';
 
 interface ManageCardProps {
   tokenId: string;
