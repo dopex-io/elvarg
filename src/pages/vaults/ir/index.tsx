@@ -39,9 +39,11 @@ const Vaults = () => {
       chainId: number;
       collateralDecimals: number;
       address: string;
-      tvl: string;
-      rate: string;
-      currentEpoch: string;
+      tvl: number;
+      rate: number;
+      currentEpoch: number;
+      totalEpochDeposits: string;
+      retired: boolean;
     }[];
   }>({});
 
@@ -58,7 +60,20 @@ const Vaults = () => {
       const vaultsOfKey = vaults[key];
       if (vaultsOfKey)
         return vaultsOfKey.map((vault, index) => (
-          <RateVaultCard key={index} data={{ ...vault }} />
+          <RateVaultCard
+            key={index}
+            className={''}
+            data={{
+              currentEpoch: vault['currentEpoch'],
+              totalEpochDeposits: vault['totalEpochDeposits'],
+              rate: vault['rate'],
+              tvl: vault['tvl'],
+              underlyingSymbol: vault['underlyingSymbol'],
+              retired: vault['retired'],
+              symbol: vault['symbol'],
+              version: vault['version'],
+            }}
+          />
         ));
       else return null;
     },
