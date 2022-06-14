@@ -21,11 +21,7 @@ const STRIKE_INDEX_TO_COLOR = {
   4: '#6DFFB9',
 };
 
-const Stats = ({
-  activeVaultContextSide,
-}: {
-  activeVaultContextSide: string;
-}) => {
+const Stats = () => {
   const rateVaultContext = useContext(RateVaultContext);
 
   const {
@@ -122,13 +118,13 @@ const Stats = ({
             {rateVaultContext.rateVaultEpochData.epochStrikes.map(
               (strike, strikeIndex) => {
                 const deposits =
-                  activeVaultContextSide === 'CALL'
-                    ? rateVaultContext.rateVaultEpochData.callsDeposits[
-                        strikeIndex
-                      ]
-                    : rateVaultContext.rateVaultEpochData.putsDeposits[
-                        strikeIndex
-                      ];
+                  rateVaultContext.rateVaultEpochData.callsDeposits[
+                    strikeIndex
+                  ]?.add(
+                    rateVaultContext.rateVaultEpochData.putsDeposits[
+                      strikeIndex
+                    ] || BigNumber.from('0')
+                  );
                 return (
                   <Box className="flex" key={strikeIndex}>
                     <Box
@@ -171,23 +167,14 @@ const Stats = ({
                 'p-4 pl-5 pr-5 rounded-xl rounded-tr-none rounded-tl-none border-r-none border-[0.1px] border-gray-600 w-full'
               }
             >
-              <Box className="flex mb-1">
+              {/* <Box className="flex mb-1">
                 <Typography variant="h5" className="text-stieglitz">
-                  Current MIM3CRV rate
+                  Current PUSD rate
                 </Typography>
                 <Typography variant="h5" className="mr-1 ml-auto text-white">
-                  <span>
-                    {formatAmount(
-                      getUserReadableAmount(
-                        rateVaultContext.rateVaultEpochData.rate,
-                        8
-                      ),
-                      2
-                    )}
-                    %
-                  </span>
+                  <span>~10.04%</span>
                 </Typography>
-              </Box>
+              </Box> */}
             </Box>
           </Box>
         </Box>

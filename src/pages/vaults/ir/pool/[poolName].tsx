@@ -77,7 +77,7 @@ const Manage = () => {
           </Box>
 
           <Box className="mb-10">
-            <Stats activeVaultContextSide={activeVaultContextSide} />
+            <Stats />
           </Box>
 
           {activeView === 'vault' ? (

@@ -79,9 +79,15 @@ export const SSOV_MAP = {
   },
 };
 
-export const VAULT_MAP = {
-  IR: {
-    imageSrc: '/images/tokens/mim.svg',
+export const VAULT_MAP: { [key: string]: { src: string } } = {
+  'MIM3CRV-1': {
+    src: '/images/tokens/mim.svg',
+  },
+  'MIM3CRV-2': {
+    src: '/images/tokens/mim.svg',
+  },
+  PUSD: {
+    src: '/images/tokens/pusd.svg',
   },
 };
 

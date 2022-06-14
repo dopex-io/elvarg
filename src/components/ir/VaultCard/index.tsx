@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
@@ -17,11 +16,25 @@ import Action from 'svgs/icons/Action';
 import formatAmount from 'utils/general/formatAmount';
 
 import { VAULT_MAP } from 'constants/index';
-import vaultInfo from 'constants/vaultInfo';
 
 import styles from './styles.module.scss';
 
-function VaultCard(props) {
+interface Props {
+  className: string;
+  data: {
+    currentEpoch: number;
+    totalEpochDeposits: string;
+    rate: number;
+    tvl: number;
+    underlyingSymbol: string;
+    duration: string;
+    retired: boolean;
+    symbol: string;
+    version: string;
+  };
+}
+
+function VaultCard(props: Props) {
   const { className, data } = props;
   const { convertToBNB } = useContext(BnbConversionContext);
   const {
@@ -30,7 +43,6 @@ function VaultCard(props) {
     rate,
     tvl,
     underlyingSymbol: name,
-    type,
     duration,
     retired,
     symbol,
@@ -41,7 +53,7 @@ function VaultCard(props) {
       {
         heading: 'RATE',
         value: `${
-          rate > 0 && rate !== 'Infinity'
+          rate > 0 && String(rate) !== 'Infinity'
             ? formatAmount(rate, 2, true).toString() + '%'
             : '...'
         }`,
@@ -64,13 +76,13 @@ function VaultCard(props) {
           0,
           true
         )}`,
-        imgSrc: VAULT_MAP['IR'],
+        imgSrc: VAULT_MAP[symbol]?.src,
       },
     ];
-  }, [rate, convertToBNB, name, totalEpochDeposits, tvl, type]);
+  }, [rate, convertToBNB, name, totalEpochDeposits, tvl, symbol]);
 
   return (
-    <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
+    <Box className={cx('p-[1px] rounded-xl', styles[name], styles['Box'])}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -82,8 +94,8 @@ function VaultCard(props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                src={VAULT_MAP['IR'].imageSrc}
                 alt={symbol}
+                src={VAULT_MAP[symbol]?.src}
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">
@@ -98,12 +110,12 @@ function VaultCard(props) {
               <img
                 src={'/assets/calls.svg'}
                 className="w-12 mt-1.5 ml-auto mr-2"
-                alt={type}
+                alt={'CALLS'}
               />
               <img
                 src={'/assets/puts.svg'}
                 className="w-12 mt-1.5"
-                alt={type}
+                alt={'PUTS'}
               />
             </Box>
           </Box>

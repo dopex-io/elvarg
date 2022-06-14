@@ -1732,7 +1732,7 @@ export const RateVault = () => {
     useContext(WalletContext);
 
   const [selectedPoolName, setSelectedPoolName] = useState<string | null>(null);
-  const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
+  const [selectedEpoch, setSelectedEpoch] = useState<number | null>(1);
   const [rateVaultData, setRateVaultData] = useState<RateVaultData>();
   const [rateVaultEpochData, setRateVaultEpochData] =
     useState<RateVaultEpochData>();
@@ -1740,7 +1740,7 @@ export const RateVault = () => {
     useState<RateVaultUserData>();
   const rateVaultContract = useMemo(() => {
     return new ethers.Contract(
-      '0x3BBCbe743AbeD14072EC26dABc4663Fa850f38D5',
+      '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41',
       abi,
       signer
     );
@@ -1752,6 +1752,8 @@ export const RateVault = () => {
       signer
     );
   }, [signer]);
+
+  console.log(selectedEpoch);
 
   const getUserStrikePurchaseData = useCallback(
     async (strike: BigNumber, strikeIndex: number) => {
@@ -2019,9 +2021,10 @@ export const RateVault = () => {
       const volatilitiesPromises = [];
 
       for (let i in epochStrikes) {
-        volatilitiesPromises.push(
-          rateVaultContract['getVolatility'](epochStrikes[i])
-        );
+        // volatilitiesPromises.push(
+        //   rateVaultContract['getVolatility'](epochStrikes[i])
+        // );
+        volatilitiesPromises.push(BigNumber.from(0));
         callsPremiumCostsPromises.push(
           calculatePremium(epochStrikes[i], false)
         );
@@ -2172,7 +2175,7 @@ export const RateVault = () => {
 
   useEffect(() => {
     async function update() {
-      const rateVaultAddresses = '0x3BBCbe743AbeD14072EC26dABc4663Fa850f38D5';
+      const rateVaultAddresses = '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
 
       const _rateVaultContract = new ethers.Contract(
         rateVaultAddresses,
