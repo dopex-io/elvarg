@@ -64,12 +64,7 @@ function VaultCard(props) {
           0,
           true
         )}`,
-        imgSrc:
-          type === 'put'
-            ? '/images/tokens/2crv.png'
-            : VAULT_MAP[name]
-            ? VAULT_MAP[name].imageSrc
-            : '',
+        imgSrc: VAULT_MAP['IR'],
       },
     ];
   }, [rate, convertToBNB, name, totalEpochDeposits, tvl, type]);
@@ -87,13 +82,13 @@ function VaultCard(props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                src={VAULT_MAP[symbol].imageSrc}
+                src={VAULT_MAP['IR'].imageSrc}
                 alt={symbol}
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h4" className="mr-2 font-bold">
-                {symbol} {duration === 'weekly' ? 'weekly' : ''}{' '}
+                {symbol.split('-')[0]} {duration === 'weekly' ? 'weekly' : ''}{' '}
                 {retired ? (
                   <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
                     RETIRED

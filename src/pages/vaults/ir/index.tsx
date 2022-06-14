@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -17,28 +17,34 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
     <Box className="flex space-x-4 mb-8">
       <img
         className="w-8 h-8"
-        // @ts-ignore TODO: FIX
-        src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
-        // @ts-ignore TODO: FIX
-        alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
+        src={CHAIN_ID_TO_NETWORK_DATA[chainId]?.icon}
+        alt={CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
       />
       <Typography variant="h4">
-        {
-          // @ts-ignore TODO: FIX
-          CHAIN_ID_TO_NETWORK_DATA[chainId].name
-        }
+        {CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
       </Typography>
     </Box>
   );
 };
 
-const selectedVaultStates = 'Active';
-
 const Vaults = () => {
   const { chainId, provider } = useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
 
-  const [vaults, setVaults] = useState(null);
+  const [vaults, setVaults] = useState<{
+    [key: number]: {
+      underlyingSymbol: string;
+      symbol: string;
+      version: string;
+      chainId: number;
+      collateralDecimals: number;
+      duration: string;
+      address: string;
+      tvl: string;
+      rate: string;
+      currentEpoch: string;
+    }[];
+  }>({});
 
   const keys = useMemo(() => {
     if (!vaults) return [];
@@ -48,13 +54,25 @@ const Vaults = () => {
     else return [42161, 56, 43114, 1088];
   }, [vaults, chainId]);
 
+  const getRateVaultCards = useCallback(
+    (key: number) => {
+      const vaultsOfKey = vaults[key];
+      if (vaultsOfKey)
+        return vaultsOfKey.map((vault, index) => (
+          <RateVaultCard key={index} data={{ ...vault }} />
+        ));
+      else return null;
+    },
+    [vaults]
+  );
+
   useEffect(() => {
     if (tokenPrices.length < 0 || !provider) {
       return;
     }
     async function getData() {
       let data = await axios
-        .get(`https://dopex-gfs27gdua-dopex-io.vercel.app/api/v2/rateVaults`)
+        .get(`https://dopex-3dham3t03-dopex-io.vercel.app/api/v2/rateVaults`)
         .then((payload) => payload.data);
 
       setVaults(data);
@@ -84,20 +102,7 @@ const Vaults = () => {
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />
                   <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-                    {/* @ts-ignore TODO: FIX */}
-                    {vaults[key]?.map((vault, index) => {
-                      let visible: boolean = false;
-                      if (
-                        (selectedVaultStates.includes('Active') &&
-                          !vault.retired) ||
-                        (selectedVaultStates.includes('Retired') &&
-                          vault.retired)
-                      )
-                        visible = true;
-                      return visible ? (
-                        <RateVaultCard key={index} data={{ ...vault }} />
-                      ) : null;
-                    })}
+                    {getRateVaultCards(key)}
                   </Box>
                 </Box>
               );

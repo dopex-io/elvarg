@@ -80,7 +80,7 @@ export const SSOV_MAP = {
 };
 
 export const VAULT_MAP = {
-  MIM3CRV: {
+  IR: {
     imageSrc: '/images/tokens/mim.svg',
   },
 };
