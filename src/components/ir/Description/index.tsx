@@ -14,7 +14,7 @@ const Description = ({ poolName }: { poolName: string }) => {
           variant="h3"
           className="ml-5 flex items-center space-x-3 lg:text-4xl"
         >
-          {poolName} Interest Rate Vaults
+          {poolName} Interest Rate Vault
         </Typography>
         <Typography
           variant="h3"
