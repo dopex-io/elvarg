@@ -86,7 +86,7 @@ export const VAULT_MAP: { [key: string]: { src: string } } = {
   'MIM3CRV-2': {
     src: '/images/tokens/mim.svg',
   },
-  PUSD: {
+  PUSD3CRV: {
     src: '/images/tokens/pusd.svg',
   },
 };
