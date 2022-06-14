@@ -56,17 +56,19 @@ const ManageCard = (props: ManageCardProps) => {
     useContext(WalletContext);
   const { selectedPool } = useContext(AtlanticsContext);
 
-  const pool = useMemo(() => {
-    if (!selectedPool) return;
-    return selectedPool;
-  }, [selectedPool]);
+  const depositToken = useMemo(() => {
+    if (!selectedPool) {
+      if (poolType == 'CALLS') {
+        return 'WETH';
+      } else {
+        return 'USDT';
+      }
+    }
+    return selectedPool.tokens.deposit;
+  }, [selectedPool, poolType]);
 
-  const [open, setOpen] = useState(false);
   const [value, setValue] = useState<number | string>('');
   const [maxStrike, setMaxStrike] = useState<number | string>('');
-  const [selectedToken, setSelectedToken] = useState(
-    pool?.tokens.deposit ?? 'T'
-  );
   const [approved, setApproved] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)
@@ -74,9 +76,13 @@ const ManageCard = (props: ManageCardProps) => {
 
   const containerRef = React.useRef(null);
 
-  const handleOpenSlider = useCallback(() => {
-    setOpen(!open);
-  }, [open]);
+  const disableButton = useMemo(() => {
+    if (poolType === 'CALLS') {
+      return !selectedPool?.state.isVaultReady || !value;
+    } else {
+      return !selectedPool?.state.isVaultReady || !value || !maxStrike;
+    }
+  }, [poolType, , value, maxStrike, selectedPool?.state.isVaultReady]);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -89,7 +95,7 @@ const ManageCard = (props: ManageCardProps) => {
     if (!signer || !contractAddresses || !accountAddress) return;
 
     const token = ERC20__factory.connect(
-      contractAddresses[selectedToken],
+      contractAddresses[depositToken],
       signer
     );
 
@@ -97,7 +103,7 @@ const ManageCard = (props: ManageCardProps) => {
       contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
       getContractReadableAmount(
         value,
-        TOKEN_DECIMALS[chainId]?.[selectedToken] ?? 18
+        TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
       )
     );
     setApproved(true);
@@ -107,7 +113,7 @@ const ManageCard = (props: ManageCardProps) => {
     contractAddresses,
     duration,
     poolType,
-    selectedToken,
+    depositToken,
     signer,
     underlying,
     value,
@@ -158,18 +164,18 @@ const ManageCard = (props: ManageCardProps) => {
   const handleMax = useCallback(() => {
     setValue(
       getUserReadableAmount(
-        userAssetBalances[selectedToken || underlying] ?? '0',
-        getTokenDecimals(selectedToken, chainId)
+        userAssetBalances[depositToken || underlying] ?? '0',
+        getTokenDecimals(depositToken, chainId)
       )
     );
-  }, [chainId, selectedToken, underlying, userAssetBalances]);
+  }, [chainId, depositToken, underlying, userAssetBalances]);
 
   useEffect(() => {
     (async () => {
       if (!signer || !contractAddresses || !accountAddress) return;
 
       const token = ERC20__factory.connect(
-        contractAddresses[selectedToken],
+        contractAddresses[depositToken],
         signer
       );
 
@@ -182,7 +188,7 @@ const ManageCard = (props: ManageCardProps) => {
         allowance.gte(
           getContractReadableAmount(
             value,
-            TOKEN_DECIMALS[chainId]?.[selectedToken] ?? 18
+            TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
           )
         )
       );
@@ -193,7 +199,7 @@ const ManageCard = (props: ManageCardProps) => {
     contractAddresses,
     duration,
     poolType,
-    selectedToken,
+    depositToken,
     signer,
     underlying,
     value,
@@ -233,96 +239,72 @@ const ManageCard = (props: ManageCardProps) => {
         <Typography variant="h5" className="my-auto">
           Deposit
         </Typography>
-        {open && (
-          <IconButton onClick={handleOpenSlider} className="p-0">
-            <CloseRoundedIcon className="fill-current text-white" />
-          </IconButton>
-        )}
       </Box>
-      {!open && (
-        <>
-          <Box className="bg-umbra rounded-xl w-full">
-            <CustomInput
-              size="small"
-              variant="outlined"
-              outline="umbra"
-              value={value}
-              onChange={handleChange}
-              leftElement={
-                <Box className="flex h-full my-auto">
-                  <Box
-                    className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1"
-                    role="button"
-                    onClick={handleOpenSlider}
-                  >
-                    <img
-                      src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
-                      alt={(selectedToken || underlying).toLowerCase()}
-                      className="w-[2.4rem]"
-                    />
-                    <Typography variant="h5" className="my-auto">
-                      {selectedToken}
-                    </Typography>
-                    <ArrowDropDownRoundedIcon className="my-auto fill-current text-mineshaft" />
-                  </Box>
-                  <Button
-                    className="rounded-lg bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto"
-                    onClick={handleMax}
-                  >
-                    <Typography variant="h6" className="text-stieglitz text-xs">
-                      MAX
-                    </Typography>
-                  </Button>
-                </Box>
-              }
-            />
-          </Box>
-          <MaxStrikeInput
-            token={selectedToken}
-            currentPrice={currentPrice}
-            tickSize={pool?.config.tickSize}
-            maxStrikes={pool?.strikes}
-            setMaxStrike={setMaxStrike}
-          />
-          <PoolStats poolType={poolType} />
-          <Box className="rounded-xl bg-umbra p-3 space-y-3">
-            <Box className="rounded-md bg-carbon p-3">
-              <EstimatedGasCostButton gas={500000} chainId={chainId} />
+      <Box className="bg-umbra rounded-xl w-full">
+        <CustomInput
+          size="small"
+          variant="outlined"
+          outline="umbra"
+          value={value}
+          onChange={handleChange}
+          leftElement={
+            <Box className="flex h-full my-auto">
+              <Box
+                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1"
+                role="button"
+              >
+                <img
+                  src={`/images/tokens/${depositToken.toLowerCase()}.svg`}
+                  alt={(depositToken || underlying).toLowerCase()}
+                  className="w-[2.4rem]"
+                />
+                <Typography variant="h5" className="my-auto">
+                  {depositToken}
+                </Typography>
+              </Box>
+              <Button
+                className="rounded-lg bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto"
+                onClick={handleMax}
+              >
+                <Typography variant="h6" className="text-stieglitz text-xs">
+                  MAX
+                </Typography>
+              </Button>
             </Box>
-            <Box className="flex">
-              <LockerIcon className="my-auto m-2" />
-              <Typography variant="h6" className="text-stieglitz">
-                Withdrawals are locked until end of Epoch{' '}
-                <>{selectedPool?.state?.epoch.toString()}</>
-              </Typography>
-            </Box>
-            <CustomButton
-              className="flex w-full text-center"
-              color={selectedPool?.state.isVaultReady ? 'primary' : 'mineshaft'}
-              disabled={
-                !selectedPool?.state.isVaultReady || !value || !maxStrike
-              }
-              onClick={approved ? handleDeposit : handleApprove}
-            >
-              {approved ? 'Deposit' : 'Approve'}
-            </CustomButton>
-          </Box>
-        </>
+          }
+        />
+      </Box>
+      {selectedPool?.isPut && (
+        <MaxStrikeInput
+          token={depositToken}
+          currentPrice={currentPrice}
+          tickSize={selectedPool?.config.tickSize}
+          maxStrikes={selectedPool?.strikes}
+          setMaxStrike={setMaxStrike}
+        />
       )}
-      <TokenSelector
-        open={open}
-        setOpen={setOpen}
-        tokens={[
-          {
-            symbol: pool?.tokens.deposit ?? '',
-            address:
-              pool?.contracts?.quoteToken.address ??
-              '0x0000000000000000000000000000000000000000',
-          },
-        ]}
-        setSelection={setSelectedToken}
-        containerRef={containerRef}
-      />
+
+      <PoolStats poolType={poolType} />
+      <Box className="rounded-xl bg-umbra p-3 space-y-3">
+        <Box className="rounded-md bg-carbon p-3">
+          <EstimatedGasCostButton gas={500000} chainId={chainId} />
+        </Box>
+        <Box className="flex">
+          <LockerIcon className="my-auto m-2" />
+          <Typography variant="h6" className="text-stieglitz">
+            Withdrawals are locked until end of Epoch{' '}
+            <>{selectedPool?.state?.epoch.toString()}</>
+          </Typography>
+        </Box>
+        <CustomButton
+          className="flex w-full text-center"
+          color={selectedPool?.state.isVaultReady ? 'primary' : 'mineshaft'}
+          disabled={disableButton}
+          onClick={approved ? handleDeposit : handleApprove}
+        >
+          {approved ? 'Deposit' : 'Approve'}
+        </CustomButton>
+      </Box>
     </Box>
   );
 };

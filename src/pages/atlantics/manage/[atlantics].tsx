@@ -1,6 +1,7 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import { BigNumber } from 'ethers';
 
 import AppBar from 'components/common/AppBar';
 import ManageCard from 'components/atlantics/Manage/ManageCard';
@@ -13,9 +14,12 @@ import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 import { ATLANTIC_POOL_INFO } from 'contexts/Atlantics';
+import InfoBox from 'components/ssov-v3/InfoBox';
+import Action from 'svgs/icons/Action';
+import Coin from 'svgs/icons/Coin';
+import formatAmount from 'utils/general/formatAmount';
 
 // Placeholder data for charts
-
 const line_chart_data = [
   {
     name: '1/05',
@@ -83,6 +87,52 @@ const Manage = (props: ManageProps) => {
     selectedEpoch,
   ]);
 
+  const info = useMemo(() => {
+    if (!selectedPool) return [{ heading: '', value: '' }];
+
+    if (type === 'CALLS') {
+      return [
+        { heading: 'APY', value: selectedPool?.apy + '%', Icon: Action },
+        {
+          heading: 'TVL',
+          value: formatAmount(selectedPool?.tvl, 3, true),
+          Icon: Coin,
+        },
+      ];
+    } else if (type === 'PUTS') {
+      const apys = selectedPool?.apy as any[];
+      let total = 0;
+      console.log(typeof apys);
+      if (typeof apys != 'string') {
+        apys.map((apy) => {
+          total += Number(apy);
+        });
+      }
+      const avgApy = total / apys.length;
+      const strikes = selectedPool.strikes as BigNumber[];
+      return [
+        { heading: 'AVG APY', value: String(avgApy) + '%', Icon: Action },
+        {
+          heading: 'TVL',
+          value: formatAmount(selectedPool.tvl, 3, true),
+          Icon: Coin,
+        },
+        {
+          heading: 'HIGHEST STRIKE',
+          value: strikes[0]?.div(1e8).toString(),
+          Icon: Coin,
+        },
+        {
+          heading: 'LOWEST STRIKE',
+          value: strikes[strikes.length - 1]?.div(1e8).toString(),
+          Icon: Coin,
+        },
+      ];
+    } else {
+      return [{ heading: '', value: '' }];
+    }
+  }, [type, selectedPool]);
+
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       <Head>
@@ -101,14 +151,40 @@ const Manage = (props: ManageProps) => {
             />
             <ContractData />
             <Box className="w-full space-y-4 flex flex-col">
-              <Typography variant="h5">Liquidity</Typography>
-              <Charts
-                line_data={line_chart_data}
-                underlying={underlying}
-                collateral={tokenId}
-                title={title}
-                type={type}
-              />
+              {type === 'CALLS' ? null : (
+                <Typography variant="h5">Liquidity</Typography>
+              )}
+              <Box className="flex flex-row">
+                {type === 'CALLS' ? null : (
+                  <>
+                    <Box className="flex-1">
+                      <Charts
+                        line_data={line_chart_data}
+                        underlying={underlying}
+                        collateral={tokenId}
+                        title={title}
+                        type={type}
+                      />
+                    </Box>
+                  </>
+                )}
+                <Box className={`${type === 'PUTS' && 'flex-[0.5] ml-2'}`}>
+                  <Box className="grid grid-cols-2 gap-2 mb-6">
+                    {info.map((item) => {
+                      return (
+                        // @ts-ignore
+                        <InfoBox
+                          key={item.heading}
+                          {...item}
+                          className={`flex ${
+                            type === 'PUTS' && 'justify-center items-center'
+                          }`}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Box>
+              </Box>
             </Box>
             {/* <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>

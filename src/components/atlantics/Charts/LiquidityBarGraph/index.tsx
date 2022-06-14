@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import {
   BarChart,
@@ -77,20 +77,28 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               tickSize={[selectedPool?.strikes].length}
               axisLine={false}
               tickLine={false}
-              // ticks={data.map((d) => d.strike)}
-              z="2"
               interval={0}
             />
-            {/* <Tooltip /> */}
             <Bar
               dataKey="activeCollateral"
               stackId="a"
               fill="#3E3E3E"
-              label="pv"
+              name="Active Collateral"
+            />
+            <Bar
+              name="Deposits"
+              dataKey="deposits"
+              stackId="a"
+              fill="#1E1E1E"
               barSize={50}
             />
-            <Bar dataKey="unlocked" stackId="a" fill="#FFFFFF" barSize={50} />
-            <Bar dataKey="deposits" stackId="a" fill="#1E1E1E" barSize={50} />
+            <Bar
+              name="Unlocked collateral"
+              dataKey="unlocked"
+              stackId="a"
+              fill="#FFFFFF"
+              barSize={50}
+            />
           </BarChart>
         </ResponsiveContainer>
       </Box>

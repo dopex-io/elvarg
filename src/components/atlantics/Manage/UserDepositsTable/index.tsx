@@ -120,9 +120,11 @@ const UserDepositsTable = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableHeader>
-              Max Strike <ArrowDownwardRoundedIcon className="p-1 my-auto" />
-            </TableHeader>
+            {selectedPool?.isPut && (
+              <TableHeader>
+                Max Strike <ArrowDownwardRoundedIcon className="p-1 my-auto" />
+              </TableHeader>
+            )}
             <TableHeader>Deposit Date</TableHeader>
             <CustomTableHeader
               token={selectedPool?.tokens.deposit}
@@ -134,7 +136,7 @@ const UserDepositsTable = () => {
             />
             <CustomTableHeader
               token={selectedPool?.tokens.deposit}
-              header="funding"
+              header="Funding"
             />
             {selectedPool?.isPut && (
               <CustomTableHeader
@@ -149,7 +151,9 @@ const UserDepositsTable = () => {
           {userPositions?.length !== 0 ? (
             userPositions?.map((position, index) => (
               <TableRow key={index}>
-                <TableBodyCell>{position.strike}</TableBodyCell>
+                {selectedPool?.isPut && (
+                  <TableBodyCell>{position.strike}</TableBodyCell>
+                )}
                 <TableBodyCell>
                   <Typography variant="h6">
                     {format(new Date(position.timestamp * 1000), 'd LLLL yyyy')}

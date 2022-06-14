@@ -1,7 +1,8 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+import Tooltip from '@mui/material/Tooltip';
 
 import Typography from 'components/UI/Typography';
 
@@ -10,6 +11,7 @@ import { WalletContext } from 'contexts/Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { TOKEN_DECIMALS } from 'constants/index';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 interface MaxStrikeInputProps {
   token: string;
@@ -25,6 +27,18 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
   const { chainId } = useContext(WalletContext);
 
   const [error, setError] = useState('');
+
+  const depositPlaceHolderText = useMemo(() => {
+    if (!tickSize || !currentPrice) return 'Enter Max Strike';
+    const _tickSize = Number(tickSize) / 1e8;
+    const _currentPrice = Number(currentPrice) / 1e8;
+    const excess = _currentPrice % _tickSize;
+    const validStrike = _currentPrice - excess;
+
+    return `i.e. ${validStrike}, ${validStrike - _tickSize}, ${
+      validStrike - _tickSize * 2
+    } ...`;
+  }, [tickSize, currentPrice]);
 
   const handleChange = useCallback(
     (e: { target: { value: number | string } }) => {
@@ -53,12 +67,15 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
 
   return (
     <Box className="flex flex-col bg-umbra p-3 w-full rounded-xl space-y-3">
-      <Typography variant="h6" className="text-stieglitz">
-        Max Strike
+      <Typography variant="h6" className="text-right text-stieglitz">
+        Enter Max Strike{' '}
+        <Tooltip title="Choice of strike must be below spot price and modulo of strike by tick size should be 0.">
+          <InfoOutlined className="h-4" />
+        </Tooltip>
       </Typography>
       <Input
         disableUnderline
-        placeholder="Enter Strike"
+        placeholder={depositPlaceHolderText}
         onChange={handleChange}
         type="number"
         className={`border ${

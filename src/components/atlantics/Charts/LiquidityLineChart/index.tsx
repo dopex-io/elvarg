@@ -37,7 +37,6 @@ const LiquidityLineChart = (props: LiquidityLineChartProps) => {
           <LineChart data={data} className="py-3">
             <XAxis ticks={['13/05', '20/05', '27/05']} hide dataKey="name" />
             <YAxis axisLine={false} dataKey="deposits" hide />
-            <Tooltip />
             <Line
               type="monotone"
               dataKey="unlocks"

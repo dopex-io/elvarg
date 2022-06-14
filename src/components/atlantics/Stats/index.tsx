@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo } from 'react';
+import { useContext } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';

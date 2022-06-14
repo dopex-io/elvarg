@@ -88,21 +88,14 @@ interface IContracts {
 
 // Interface for deposit type (Calls and puts pool)
 interface IUserPosition {
-  strike: number;
+  strike?: number;
   timestamp: number;
   liquidity: BigNumber;
   premiumDistributionRatio: BigNumber;
   fundingDistributionRatio: BigNumber;
-  underlyingDistributionRatio: BigNumber;
+  underlyingDistributionRatio?: BigNumber;
   depositor: string;
 }
-
-// interface UserPositionInterface {
-//   maxStrike: BigNumber;
-//   userDeposit: BigNumber;
-//   epoch: number;
-//   feeCollected: BigNumber;
-// }
 
 interface UserAtlanticsData {
   userPositions: IUserPosition[];
@@ -159,6 +152,7 @@ export interface IAtlanticPoolType {
   volume: number;
   apy: string | string[];
   duration: string;
+  underlyingPrice: number;
 }
 
 const atlanticPoolsZeroData: IAtlanticPoolType = {
@@ -208,6 +202,7 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   tvl: 0,
   volume: 0,
   apy: '0',
+  underlyingPrice: 0,
 };
 
 const initialUserPositions: IUserPosition[] | [] = [];
@@ -285,11 +280,13 @@ export const AtlanticsProvider = (props: any) => {
       );
 
       const checkpoints = await Promise.all(latestCheckpointsCalls);
-      let [{ baseToken, quoteToken }, state, config] = await Promise.all([
-        atlanticPool.addresses(),
-        atlanticPool.epochVaultStates(selectedEpoch),
-        atlanticPool.vaultConfiguration(),
-      ]);
+      let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
+        await Promise.all([
+          atlanticPool.addresses(),
+          atlanticPool.epochVaultStates(selectedEpoch),
+          atlanticPool.vaultConfiguration(),
+          atlanticPool.getUsdPrice(),
+        ]);
 
       let data: IAtlanticPoolCheckpoint[] = [];
       // Saving checkpoints for all max strikes
@@ -349,12 +346,14 @@ export const AtlanticsProvider = (props: any) => {
           _volume +
           (Number(_data.premiumCollected) / 10 ** depositTokenDecimals) *
             tokenPrice;
-        // APY
-        const earningsPerDeposit =
-          Number(_data.premiumCollected.add(_data.fundingCollected)) /
-          10 ** depositTokenDecimals /
-          (Number(_data.liquidity) / 10 ** depositTokenDecimals);
 
+        // APY
+        const numerator =
+          Number(_data.premiumCollected.add(_data.fundingCollected)) /
+          10 ** depositTokenDecimals;
+        const denominator =
+          Number(_data.liquidity) / 10 ** depositTokenDecimals;
+        const earningsPerDeposit = numerator / denominator;
         const _apy = formatAmount(earningsPerDeposit * timeFactor * 100, 3);
         apy = [...apy, _apy];
       });
@@ -382,8 +381,9 @@ export const AtlanticsProvider = (props: any) => {
         },
         tvl: _tvl,
         volume: _volume,
-        apy: '0',
+        apy: apy,
         duration,
+        underlyingPrice: Number(underlyingPrice.div(1e8)),
       };
     },
     [provider]
@@ -406,14 +406,14 @@ export const AtlanticsProvider = (props: any) => {
         selectedEpoch
       );
 
-      const [state, config, checkpoint, { baseToken }] = await Promise.all([
-        atlanticPool.epochVaultStates(selectedEpoch),
-        atlanticPool.vaultConfiguration(),
-        // @ts-ignore
-
-        atlanticPool.checkpoints(selectedEpoch, latestCheckpoint),
-        atlanticPool.addresses(),
-      ]);
+      const [state, config, checkpoint, { baseToken }, underlyingPrice] =
+        await Promise.all([
+          atlanticPool.epochVaultStates(selectedEpoch),
+          atlanticPool.vaultConfiguration(),
+          atlanticPool.checkpoints(selectedEpoch, latestCheckpoint),
+          atlanticPool.addresses(),
+          atlanticPool.getUsdPrice(),
+        ]);
 
       const contracts: IContracts = {
         atlanticPool,
@@ -474,13 +474,14 @@ export const AtlanticsProvider = (props: any) => {
         volume: currentVolume,
         apy,
         duration,
+        underlyingPrice: Number(underlyingPrice.div(1e8)),
       };
     },
     [contractAddresses, provider, signer]
   );
 
   const updatePools = useCallback(async () => {
-    if (!contractAddresses || !provider) return;
+    if (!contractAddresses || !provider || pools.length !== 0) return;
 
     Object.keys(contractAddresses['ATLANTIC-POOLS']).map(
       async (asset: string) => {
@@ -525,7 +526,14 @@ export const AtlanticsProvider = (props: any) => {
         setPools((prev) => [...prev, currentPool]);
       }
     );
-  }, [contractAddresses, getCallPool, getPutPool, provider, selectedEpoch]);
+  }, [
+    contractAddresses,
+    getCallPool,
+    getPutPool,
+    provider,
+    selectedEpoch,
+    pools.length,
+  ]);
 
   const getPool = useCallback(
     async (
@@ -560,36 +568,53 @@ export const AtlanticsProvider = (props: any) => {
 
     const pool = selectedPool;
     const poolType = pool.isPut ? 'PUTS' : 'CALLS';
-    if (
-      !contractAddresses['ATLANTIC-POOLS'][pool.tokens.underlying][poolType][
-        pool.duration
-      ]
-    )
-      return;
-    const atlanticPool = AtlanticPutsPool__factory.connect(
+    const contractAddress =
       contractAddresses['ATLANTIC-POOLS'][pool.tokens.underlying][poolType][
         pool.duration
-      ],
-      signer
-    );
+      ];
+    if (!contractAddress) return;
+    const atlanticPool =
+      poolType === 'PUTS'
+        ? AtlanticPutsPool__factory.connect(contractAddress, signer)
+        : AtlanticCallsPool__factory.connect(contractAddress, signer);
 
-    const poolDeposits = await atlanticPool.getEpochDeposits(selectedEpoch);
+    const poolDeposits = (await atlanticPool.getEpochDeposits(
+      selectedEpoch
+    )) as any[];
 
-    const userDeposits = poolDeposits.filter(
-      (deposit) => deposit.depositor === accountAddress
-    );
+    if (poolType === 'PUTS') {
+      const userDeposits = poolDeposits.filter(
+        (deposit: any) => deposit.depositor === accountAddress
+      );
 
-    const _userDeposits = userDeposits.map((deposit) => ({
-      strike: deposit.strike.toNumber() / 1e8,
-      timestamp: deposit.timestamp.toNumber(),
-      liquidity: deposit.liquidity,
-      premiumDistributionRatio: deposit.premiumDistributionRatio,
-      fundingDistributionRatio: deposit.fundingDistributionRatio,
-      underlyingDistributionRatio: deposit.underlyingDistributionRatio,
-      depositor: deposit.depositor,
-    }));
+      const _userDeposits = userDeposits.map((deposit: any) => ({
+        strike: deposit.strike.toNumber() / 1e8,
+        timestamp: deposit.timestamp.toNumber(),
+        liquidity: deposit.liquidity,
+        premiumDistributionRatio: deposit.premiumDistributionRatio,
+        fundingDistributionRatio: deposit.fundingDistributionRatio,
+        underlyingDistributionRatio: deposit.underlyingDistributionRatio,
+        depositor: deposit.depositor,
+      }));
 
-    setUserPositions(_userDeposits);
+      setUserPositions(() => _userDeposits);
+    } else if (poolType === 'CALLS') {
+      const userDeposits = poolDeposits.filter(
+        (deposit: any) => deposit.depositor === accountAddress
+      );
+      const _userDeposits = userDeposits.map((deposit: any) => ({
+        timestamp: deposit.timestamp.toNumber(),
+        liquidity: deposit.liquidity,
+        premiumDistributionRatio: deposit.premiumDistributionRatio,
+        fundingDistributionRatio: deposit.fundingDistributionRatio,
+        depositor: deposit.depositor,
+      }));
+
+      console.log(_userDeposits);
+      setUserPositions(() => _userDeposits);
+    } else {
+      return;
+    }
   }, [
     accountAddress,
     contractAddresses,
@@ -605,12 +630,11 @@ export const AtlanticsProvider = (props: any) => {
 
     userPositions.map(async (position) => {
       if (selectedPool.isPut) {
+        if (!position.strike) return;
+        const pool = selectedPool.contracts?.atlanticPool as AtlanticPutsPool;
         const latestRatios =
           // @ts-ignore
-          await selectedPool.contracts?.atlanticPool.onUpdateCheckpoint(
-            selectedEpoch,
-            position.strike * 1e8
-          );
+          await pool.onUpdateCheckpoint(selectedEpoch, position.strike * 1e8);
 
         let premium = Number(
           latestRatios?.newPremiumRatio
@@ -635,12 +659,9 @@ export const AtlanticsProvider = (props: any) => {
 
         setRevenue((prev: any) => [...prev, { premium, funding, underlying }]);
       } else {
-        const latestRatios =
-          // @ts-ignore
-          await selectedPool.contracts?.atlanticPool.onUpdateCheckpoint(
-            selectedEpoch,
-            position.strike * 1e8
-          );
+        const pool = selectedPool.contracts?.atlanticPool as AtlanticCallsPool;
+
+        const latestRatios = await pool.onUpdateCheckpoint(selectedEpoch);
 
         let premium = Number(
           latestRatios?.newPremiumRatio

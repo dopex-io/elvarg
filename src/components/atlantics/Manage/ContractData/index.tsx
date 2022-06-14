@@ -10,6 +10,7 @@ import AlarmIcon from 'svgs/icons/AlarmIcon';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const ContractData = () => {
   const { selectedPool, selectedEpoch, setSelectedEpoch } =
@@ -67,6 +68,14 @@ const ContractData = () => {
               : '...'}
           </Typography>
         </Box>
+      </Box>
+      <Box className="space-y-3">
+        <Typography variant="h6" className="text-stieglitz">
+          Current price
+        </Typography>
+        <Typography variant="h6" className="my-auto p-2 font-semibold">
+          ${formatAmount(selectedPool?.underlyingPrice, 3)}
+        </Typography>
       </Box>
       <Box className="space-y-3">
         <Typography variant="h6" className="text-stieglitz">

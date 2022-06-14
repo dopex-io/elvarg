@@ -1,6 +1,7 @@
 // import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
+import { CircularProgress } from '@mui/material';
 
 import {
   AtlanticsContext,
@@ -12,7 +13,6 @@ import { useContext, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-import { CircularProgress } from '@mui/material';
 
 const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
   ssr: false,
@@ -77,7 +77,7 @@ const Charts = (props: ChartsProps) => {
           <ClientRenderedBarGraph
             data={barData}
             width={750}
-            height={175}
+            height={205}
             header={{ underlying, collateral, title, type }}
           />
         ) : (
@@ -85,9 +85,6 @@ const Charts = (props: ChartsProps) => {
             <CircularProgress size="30px" />
           </Box>
         )}
-      </Box>
-      <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">
-        <ClientRenderedLineChart data={line_data} width={340} height={150} />
       </Box>
     </Box>
   );
