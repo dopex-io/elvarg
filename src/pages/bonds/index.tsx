@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import AppBar from 'components/common/AppBar';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
@@ -8,11 +8,16 @@ import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
 import styles from './styles.module.scss';
-import { UserBonds } from 'components/bonds/UserBonds.tsx';
+import { UserBonds } from 'components/bonds/UserBonds';
+import { ModalBonds } from 'components/bonds//ModalBonds';
 
 export const BondsPage = () => {
-  const { provider, accountAddress, chainId, contractAddresses } =
-    useContext(WalletContext);
+  const { accountAddress } = useContext(WalletContext);
+  const [modalOpen, setModal] = useState(false);
+
+  const handleModal = () => {
+    setModal(!modalOpen);
+  };
 
   return (
     <>
@@ -26,6 +31,7 @@ export const BondsPage = () => {
         <Box className="bg-cod-gray rounded-lg flex w-[728px] mb-5 text/-center">
           <Box className="p-3 flex-1 border-r border-[#1E1E1E] ">
             <Box className="text-stieglitz mb-3">Epoch</Box>
+            {/* @ts-ignore TODO: FIX */}
             <Button className={styles['button']}>01-01-2022</Button>
           </Box>
           <Box className="p-3 flex-1 border-r border-[#1E1E1E]">
@@ -47,15 +53,20 @@ export const BondsPage = () => {
           operations.
         </div>
         <Box className="flex">
-          <Box className="bg-cod-gray rounded-2xl p-3 fle/x w-[352px] mr-10">
+          <Box className="bg-cod-gray rounded-2xl p-3  w-[352px] mr-10">
             USDC
-            <div className="text-stieglitz pt-3 pb-3">
+            <div className="text-stieglitz pt-3 pb-3 flex justify-between items-center">
+              <img
+                src={'/images/tokens/usdc.svg'}
+                alt={'usdc'}
+                className="w-8 h-8 mr-3"
+              />
               Deposit up to 15,000 USDC
               <CustomButton
                 variant="text"
                 size="small"
                 className="text-white bg-primary hover:bg-primary ml-10"
-                // onClick={handleClick}
+                onClick={handleModal}
               >
                 {accountAddress ? 'Bond' : 'Connect'}
               </CustomButton>
@@ -90,8 +101,9 @@ export const BondsPage = () => {
             </a>
           </Box>
         </div>
-        <UserBonds accountAddress={accountAddress} />
+        <UserBonds accountAddress={accountAddress} handleModal={handleModal} />
       </Box>
+      <ModalBonds modalOpen={modalOpen} handleModal={handleModal} />
     </>
   );
 };
