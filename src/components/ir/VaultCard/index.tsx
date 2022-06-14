@@ -27,7 +27,6 @@ interface Props {
     rate: number;
     tvl: number;
     underlyingSymbol: string;
-    duration: string;
     retired: boolean;
     symbol: string;
     version: string;
@@ -43,7 +42,6 @@ function VaultCard(props: Props) {
     rate,
     tvl,
     underlyingSymbol: name,
-    duration,
     retired,
     symbol,
     version,
@@ -100,7 +98,7 @@ function VaultCard(props: Props) {
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h4" className="mr-2 font-bold">
-                {symbol.split('-')[0]} {duration === 'weekly' ? 'weekly' : ''}{' '}
+                {symbol.split('-')[0]}
                 {retired ? (
                   <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
                     RETIRED

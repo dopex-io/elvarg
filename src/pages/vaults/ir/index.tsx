@@ -38,7 +38,6 @@ const Vaults = () => {
       version: string;
       chainId: number;
       collateralDecimals: number;
-      duration: string;
       address: string;
       tvl: string;
       rate: string;
@@ -72,7 +71,7 @@ const Vaults = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://dopex-3dham3t03-dopex-io.vercel.app/api/v2/irVaults`)
+        .get(`https://dopex-5oc4xvocl-dopex-io.vercel.app/api/v2/irVaults`)
         .then((payload) => payload.data);
 
       setVaults(data);
