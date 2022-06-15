@@ -28,7 +28,7 @@ export const BondsPage = () => {
           Swap your stables at a premium for vested DPX and support Dopex’s
           operations.
         </Box>
-        <Box className="bg-cod-gray rounded-lg flex w-[728px] mb-5 text/-center">
+        <Box className="bg-cod-gray rounded-lg flex w-[728px] mb-5">
           <Box className="p-3 flex-1 border-r border-[#1E1E1E] ">
             <Box className="text-stieglitz mb-3">Epoch</Box>
             {/* @ts-ignore TODO: FIX */}
@@ -53,15 +53,20 @@ export const BondsPage = () => {
           operations.
         </div>
         <Box className="flex">
-          <Box className="bg-cod-gray rounded-2xl p-3  w-[352px] mr-10">
-            USDC
-            <div className="text-stieglitz pt-3 pb-3 flex justify-between items-center">
+          <Box className="bg-cod-gray rounded-2xl p-3 w-[352px] mr-10">
+            <div className="flex pt-3 pb-3 items-center">
               <img
                 src={'/images/tokens/usdc.svg'}
                 alt={'usdc'}
-                className="w-8 h-8 mr-3"
+                className="w-[40px] mr-3"
               />
-              Deposit up to 15,000 USDC
+              <div className="flex-1">
+                USDC <br />
+                <span className="flex-1 text-stieglitz text-xs">
+                  Deposit up to 15,000 USDC
+                </span>
+              </div>
+
               <CustomButton
                 variant="text"
                 size="small"
@@ -72,10 +77,19 @@ export const BondsPage = () => {
               </CustomButton>
             </div>
           </Box>
-          <Box className="bg-cod-gray rounded-2xl p-3 flex flex-col w-[352px]">
-            Looking for other stables?
-            <div className="text-stieglitz pt-3 pb-3">
-              Not yet but maybe soon anon.
+          <Box className="bg-cod-gray rounded-2xl p-3 w-[352px]">
+            <div className="flex pt-3 flex items-center">
+              <img
+                src={'/images/tokens/stables-group.svg'}
+                alt={'usdc'}
+                className="w-[50px] mr-3"
+              />
+              <div className="flex-1">
+                Looking for other stables? <br />
+                <span className="text-stieglitz text-xs">
+                  Not yet but maybe soon anon.
+                </span>
+              </div>
             </div>
           </Box>
         </Box>
