@@ -67,6 +67,21 @@ interface IVaultState {
   isVaultReady: boolean;
   isVaultExpired: boolean;
 }
+
+interface IAtlanticPutsPoolCheckpoint {
+  premiumCollected: BigNumber;
+  fundingCollected: BigNumber;
+  underlyingCollected: BigNumber;
+  liquidity: BigNumber;
+  liquidityBalance: BigNumber;
+  activeCollateral: BigNumber;
+  unlockedCollateral: BigNumber;
+  refund: BigNumber;
+  premiumDistributionRatio: BigNumber;
+  fundingDistributionRatio: BigNumber;
+  underlyingDistributionRatio: BigNumber;
+}
+
 export interface IAtlanticPoolCheckpoint {
   liquidity: BigNumber;
   liquidityBalance: BigNumber;
@@ -87,18 +102,14 @@ interface IContracts {
 }
 
 // Interface for deposit type (Calls and puts pool)
-interface IUserPosition {
-  strike?: number;
-  timestamp: number;
+export interface IUserPosition {
+  strike?: BigNumber;
+  timestamp: BigNumber;
   liquidity: BigNumber;
   premiumDistributionRatio: BigNumber;
   fundingDistributionRatio: BigNumber;
   underlyingDistributionRatio?: BigNumber;
   depositor: string;
-}
-
-interface UserAtlanticsData {
-  userPositions: IUserPosition[];
 }
 
 interface Stats {
@@ -126,13 +137,13 @@ interface AtlanticsContextInterface {
     selectedEpoch: number,
     duration: string
   ) => Promise<IAtlanticPoolType> | {};
-  selectedEpoch?: number | any;
-  setSelectedEpoch?: any;
-  selectedPool?: IAtlanticPoolType;
-  setSelectedPool?: any;
-  userPositions?: IUserPosition[];
-  updateUserPositions?: any;
-  getRevenueEarnedForCurrentPool?: any;
+  selectedEpoch: number;
+  setSelectedEpoch: Function;
+  selectedPool: IAtlanticPoolType;
+  setSelectedPool: Function;
+  userPositions: IUserPosition[];
+  updateUserPositions: Function;
+  getRevenueEarnedForCurrentPool?: Function;
   revenue: { premium: BigNumber; funding: BigNumber; underlying: BigNumber }[];
 }
 
@@ -218,8 +229,19 @@ const initialAtlanticsData = {
   getPutPool: () => ({}),
   getPool: () => ({}),
   userPositions: initialUserPositions,
-  getRevenueEarnedForCurrentPool: null,
-  revenue: [],
+  selectedEpoch: 0,
+  setSelectedEpoch: () => null,
+  selectedPool: atlanticPoolsZeroData,
+  setSelectedPool: () => null,
+  updateUserPositions: Function,
+  getRevenueEarnedForCurrentPool: Function,
+  revenue: [
+    {
+      premium: BigNumber.from(0),
+      funding: BigNumber.from(0),
+      underlying: BigNumber.from(0),
+    },
+  ],
 };
 
 export const AtlanticsContext =
@@ -279,7 +301,10 @@ export const AtlanticsProvider = (props: any) => {
         }
       );
 
-      const checkpoints = await Promise.all(latestCheckpointsCalls);
+      const checkpoints = (await Promise.all(
+        latestCheckpointsCalls
+      )) as IAtlanticPutsPoolCheckpoint[];
+
       let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
         await Promise.all([
           atlanticPool.addresses(),
@@ -289,8 +314,9 @@ export const AtlanticsProvider = (props: any) => {
         ]);
 
       let data: IAtlanticPoolCheckpoint[] = [];
+      if (!checkpoints) return;
       // Saving checkpoints for all max strikes
-      maxStrikes.map((_: any, index: number) => {
+      maxStrikes.map((_: BigNumber, index: number) => {
         // Caching to ensure types
         let checkpoint: IAtlanticPoolCheckpoint = {
           liquidity: checkpoints[index]?.liquidity ?? BigNumber.from(0),
@@ -314,6 +340,7 @@ export const AtlanticsProvider = (props: any) => {
             checkpoints[index]?.underlyingDistributionRatio ??
             BigNumber.from(0),
         };
+
         // Pushing to array
         data = [...data, checkpoint];
       });
@@ -431,6 +458,7 @@ export const AtlanticsProvider = (props: any) => {
         premiumRatio: checkpoint.premiumDistributionRatio,
         fundingRatio: checkpoint.fundingDistributionRatio,
       };
+
       const underlying = await contracts?.baseToken?.symbol();
       const tokenDecimals = getTokenDecimals(underlying, 1337);
       let apy;
@@ -578,32 +606,40 @@ export const AtlanticsProvider = (props: any) => {
         ? AtlanticPutsPool__factory.connect(contractAddress, signer)
         : AtlanticCallsPool__factory.connect(contractAddress, signer);
 
-    const poolDeposits = (await atlanticPool.getEpochDeposits(
-      selectedEpoch
-    )) as any[];
-
+    let poolDeposits;
+    let userDeposits;
     if (poolType === 'PUTS') {
-      const userDeposits = poolDeposits.filter(
-        (deposit: any) => deposit.depositor === accountAddress
+      poolDeposits = (await atlanticPool.getEpochDeposits(
+        selectedEpoch
+      )) as IUserPosition[];
+
+      userDeposits = poolDeposits.filter(
+        (deposit: IUserPosition) => deposit.depositor === accountAddress
       );
 
-      const _userDeposits = userDeposits.map((deposit: any) => ({
-        strike: deposit.strike.toNumber() / 1e8,
-        timestamp: deposit.timestamp.toNumber(),
-        liquidity: deposit.liquidity,
+      const _userDeposits = userDeposits.map((deposit: IUserPosition) => ({
+        strike: deposit.strike ? deposit?.strike.div(1e8) : BigNumber.from(0),
+        timestamp: deposit.timestamp,
+        liquidity: deposit.liquidity.div(1e6),
         premiumDistributionRatio: deposit.premiumDistributionRatio,
         fundingDistributionRatio: deposit.fundingDistributionRatio,
-        underlyingDistributionRatio: deposit.underlyingDistributionRatio,
+        underlyingDistributionRatio: deposit.underlyingDistributionRatio
+          ? deposit.underlyingDistributionRatio
+          : BigNumber.from(0),
         depositor: deposit.depositor,
       }));
 
       setUserPositions(() => _userDeposits);
     } else if (poolType === 'CALLS') {
-      const userDeposits = poolDeposits.filter(
-        (deposit: any) => deposit.depositor === accountAddress
+      poolDeposits = (await atlanticPool.getEpochDeposits(
+        selectedEpoch
+      )) as IUserPosition[];
+
+      userDeposits = poolDeposits.filter(
+        (deposit: IUserPosition) => deposit.depositor === accountAddress
       );
       const _userDeposits = userDeposits.map((deposit: any) => ({
-        timestamp: deposit.timestamp.toNumber(),
+        timestamp: deposit.timestamp,
         liquidity: deposit.liquidity,
         premiumDistributionRatio: deposit.premiumDistributionRatio,
         fundingDistributionRatio: deposit.fundingDistributionRatio,

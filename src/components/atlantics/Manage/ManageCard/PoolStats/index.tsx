@@ -21,7 +21,9 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
   const poolShareStats = useMemo(() => {
     if (!selectedPool || !userPositions)
       return { userShare: 0, totalDeposits: 0 };
+
     const decimals = getTokenDecimals(selectedPool.tokens.deposit, chainId);
+
     if (selectedPool.isPut) {
       const checkpoints = selectedPool.data as IAtlanticPoolCheckpoint[];
       let totalDeposits: number = 0;
@@ -47,7 +49,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
         return acc + Number(position.liquidity) / 10 ** decimals;
       }, 0);
 
-      const userShare = (totalDeposits / totalUserDeposits) * 100;
+      const userShare = (totalUserDeposits / totalDeposits) * 100;
 
       return {
         userShare,
@@ -74,10 +76,10 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
       <Box className="flex divide-x divide-umbra">
         <PoolStatsBox
           stat={poolShareStats.totalDeposits}
-          description="Deposit"
+          description="Total Deposits"
         />
         <PoolStatsBox
-          stat={poolShareStats.userShare + '%'}
+          stat={formatAmount(poolShareStats.userShare, 3) + '%'}
           description="Pool Share"
         />
       </Box>

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
@@ -8,11 +8,15 @@ import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 import { Box } from '@mui/system';
+import {
+  AtlanticCallsPool__factory,
+  AtlanticPutsPool__factory,
+} from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
+import { AtlanticsContext, IUserPosition } from 'contexts/Atlantics';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -21,12 +25,6 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
 import { WalletContext } from 'contexts/Wallet';
-import {
-  AtlanticCallsPool,
-  AtlanticCallsPool__factory,
-  AtlanticPutsPool,
-  AtlanticPutsPool__factory,
-} from '@dopex-io/sdk';
 
 const TableHeader = ({
   // @ts-ignore TODO: FIX
@@ -118,6 +116,20 @@ const UserDepositsTable = () => {
     })();
   }, [provider, selectedPool]);
 
+  const userPositionDataSanitized = useMemo(() => {
+    if (userPositions && userPositions.length !== 0) {
+      const positions = userPositions.map((_position: IUserPosition) => {
+        return {
+          strike: _position.strike && _position.strike.toNumber(),
+          liquidity: Number(_position.liquidity) / 1e6,
+          timestamp: Number(_position.timestamp),
+        };
+      });
+      return positions;
+    }
+    return [];
+  }, [userPositions]);
+
   const handleWithdraw = useCallback(
     async (strike: number) => {
       if (
@@ -181,7 +193,7 @@ const UserDepositsTable = () => {
         </TableHead>
         <TableBody>
           {userPositions?.length !== 0 ? (
-            userPositions?.map((position, index) => (
+            userPositionDataSanitized.map((position, index) => (
               <TableRow key={index}>
                 {selectedPool?.isPut && (
                   <TableBodyCell>{position.strike}</TableBodyCell>

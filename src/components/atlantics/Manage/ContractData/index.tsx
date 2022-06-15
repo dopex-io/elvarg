@@ -24,6 +24,13 @@ const ContractData = () => {
     );
   }, [selectedPool]);
 
+  const vaultStatusMessage = useMemo(() => {
+    const expired = selectedPool.state.isVaultExpired;
+    const ongoing = selectedPool.state.isVaultReady;
+    if (expired) return 'Expired';
+    if (ongoing) return 'In Progress';
+  }, [selectedPool.state.isVaultExpired, selectedPool.state.isVaultReady]);
+
   return (
     <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 space-y-3 sm:space-y-3 lg:space-y-0">
       <Box className="space-y-3">
@@ -33,7 +40,7 @@ const ContractData = () => {
           </Typography>
           {selectedEpoch === Number(selectedPool?.state.epoch) ? (
             <Typography variant="h6" className="text-wave-blue">
-              (In Progress)
+              ({vaultStatusMessage})
             </Typography>
           ) : null}
         </Box>
