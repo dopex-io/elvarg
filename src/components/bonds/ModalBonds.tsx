@@ -7,6 +7,7 @@ import CustomButton from 'components/UI/CustomButton';
 import LaunchIcon from '@mui/icons-material/Launch';
 import LinearProgress from '@mui/material/LinearProgress';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import Input from 'components/UI/Input';
 
 export interface ModalBondsProps {
@@ -33,19 +34,24 @@ const BondsInfo = ({ title, value }: { title: string; value: string }) => {
 };
 
 export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
+  const [err, setErr] = useState(false);
+
   return (
     <Dialog
       PaperProps={{ style: { backgroundColor: 'transparent' } }}
       open={modalOpen}
       onClose={handleModal}
     >
-      <Box className="bg-cod-gray rounded-2xl p-4  w-[343px] ">
+      <Box className="bg-cod-gray rounded-2xl p-4  md:w-[343px] ">
         <Box className="flex mb-3">
-          <Typography className="flex-1" variant="h5">
+          <Typography className="flex-1 pt-2" variant="h5">
             Bond
           </Typography>
+          <Box className="bg-mineshaft text-white test-xs p-2 rounded-md mr-3">
+            Bridgoor x 2
+          </Box>
           <CloseIcon
-            className="fill-current text-stieglitz"
+            className="fill-current text-white mt-3"
             onClick={handleModal}
           />
         </Box>
@@ -68,26 +74,41 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             </Box>
           }
           bottomElement={
-            <Typography variant="caption" color="stieglitz">
-              Balance:
-            </Typography>
+            <div className="flex">
+              <Typography
+                className="flex-1"
+                variant="caption"
+                color="stieglitz"
+              >
+                Balance:
+              </Typography>
+              <Typography variant="caption" color="white">
+                21000 USDC
+              </Typography>
+            </div>
           }
           placeholder="0.0"
         />
+        {err && (
+          <Box className="bg-[#FF617D] rounded-2xl mt-3 p-2">
+            <AccessibleForwardIcon /> Something went wrong
+          </Box>
+        )}
+
         <Box className="flex mt-3">
           <Box className="flex-1 bg-cod-gray  border border-[#1E1E1E] p-2">
             <Typography variant="caption" className="text-white  pt-3">
               -
             </Typography>
-            <div className="text-stieglitz pb-3 justify-between items-center">
+            <Box className="text-stieglitz pb-3 justify-between items-center">
               To DPX
-            </div>
+            </Box>
           </Box>
           <Box className="flex-1  bg-cod-gray  border border-[#1E1E1E] p-2">
             <Typography variant="caption" className="text-white  pt-3">
               -
             </Typography>
-            <div className="text-stieglitz">Discount</div>
+            <Box className="text-stieglitz">Discount</Box>
           </Box>
         </Box>
         <Box className="border border-[#1E1E1E] p-3">
@@ -97,7 +118,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           <BondsInfo title="Total Bonding Limit" value="45134.11 / 85000" />
           <LinearProgress variant="determinate" value={25} />
         </Box>
-        <Box className={'bg-umbra p-4 rounded-xl mt-3'}>
+        <Box className="bg-umbra p-4 rounded-xl mt-3">
           <Box className="flex mb-2">
             <Typography
               variant="caption"
@@ -142,6 +163,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         <CustomButton
           variant="text"
           size="small"
+          color="umbra"
           className="text-white bg-primary hover:bg-primary w-full mt-5  p-4"
           disabled
         >

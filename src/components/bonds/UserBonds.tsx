@@ -14,7 +14,7 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
     <Box className="mt-5">
       <Typography variant="h5">Your Bonds</Typography>
       {accountAddress ? (
-        <Box className="border border-[#1E1E1E] rounded-2xl p-3 w-[728px] mt-5">
+        <Box className="border border-[#1E1E1E] rounded-2xl p-3 md:w-[728px] mt-5">
           <div className="text-center">
             You have no vested DPX.{' '}
             <span className="text-[#22E1FF]" onClick={handleModal}>
@@ -36,6 +36,7 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
           </CustomButton>
         </Box>
       )}
+      <Box></Box>
     </Box>
   );
 };
