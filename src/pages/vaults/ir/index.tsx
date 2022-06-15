@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -28,7 +28,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Vaults = () => {
-  const { chainId, provider } = useContext(WalletContext);
+  const { provider } = useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
 
   const [vaults, setVaults] = useState<{
@@ -46,14 +46,6 @@ const Vaults = () => {
       retired: boolean;
     }[];
   }>({});
-
-  const keys = useMemo(() => {
-    if (!vaults) return [];
-    else if (chainId === 56) return [56, 42161, 43114, 1088];
-    else if (chainId === 43114) return [43114, 42161, 56, 1088];
-    else if (chainId === 1088) return [1088, 42161, 56, 43114];
-    else return [42161, 56, 43114, 1088];
-  }, [vaults, chainId]);
 
   const getRateVaultCards = useCallback(
     (key: number) => {
@@ -110,18 +102,12 @@ const Vaults = () => {
             option purchases and earn rewards simultaneously.
           </Typography>
         </Box>
-        {vaults
-          ? keys.map((key) => {
-              return (
-                <Box key={key} className="mb-12">
-                  <NetworkHeader chainId={Number(key)} />
-                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-                    {getRateVaultCards(key)}
-                  </Box>
-                </Box>
-              );
-            })
-          : null}
+        <Box className="mb-12">
+          <NetworkHeader chainId={42161} />
+          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+            {getRateVaultCards(42161)}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
