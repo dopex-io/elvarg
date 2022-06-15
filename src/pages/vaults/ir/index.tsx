@@ -78,7 +78,7 @@ const Vaults = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://dopex-5oc4xvocl-dopex-io.vercel.app/api/v2/irVaults`)
+        .get(`https://api.dopex.io/api/v2/irVaults`)
         .then((payload) => payload.data);
 
       setVaults(data);
