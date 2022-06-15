@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useCallback,
+  ReactNode,
 } from 'react';
 import {
   SsovV3__factory,
@@ -15,13 +16,16 @@ import {
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
+import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
-import { AssetsContext } from './Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 import { DOPEX_API_BASE_URL } from 'constants/index';
+
+import { TokenData } from 'types';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;
@@ -41,13 +45,14 @@ export interface SsovV3Data {
 }
 
 export interface SsovV3EpochData {
-  epochTimes: {};
+  epochTimes: BigNumber[];
   isEpochExpired: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   availableCollateralForStrikes: BigNumber[];
+  rewardTokens: TokenData[];
   settlementPrice: BigNumber;
   epochStrikeTokens: string[];
   APY: string;
@@ -59,6 +64,7 @@ export interface WritePositionInterface {
   strike: BigNumber;
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
+  estimatedPnl: BigNumber;
   epoch: number;
   tokenId: BigNumber;
 }
@@ -71,11 +77,11 @@ interface SsovV3ContextInterface {
   ssovEpochData?: SsovV3EpochData;
   ssovUserData?: SsovV3UserData;
   ssovSigner: SsovV3Signer;
-  selectedEpoch?: number;
+  selectedEpoch?: number | null;
   selectedSsovV3?: string;
-  updateSsovV3EpochData?: Function;
-  updateSsovV3UserData?: Function;
-  setSelectedSsovV3?: Function;
+  updateSsovV3EpochData: Function;
+  updateSsovV3UserData: Function;
+  setSelectedSsovV3: Function;
   setSelectedEpoch?: Function;
 }
 
@@ -83,31 +89,30 @@ const initialSsovV3UserData = {
   writePositions: [],
 };
 
-const initialSsovV3Signer = {
-  token: null,
-  ssovContractWithSigner: null,
-};
+const initialSsovV3Signer = {};
 
 export const SsovV3Context = createContext<SsovV3ContextInterface>({
   ssovUserData: initialSsovV3UserData,
   ssovSigner: initialSsovV3Signer,
   selectedSsovV3: '',
+  updateSsovV3EpochData: noop,
+  updateSsovV3UserData: noop,
+  setSelectedSsovV3: noop,
 });
 
-export const SsovV3Provider = (props) => {
+export const SsovV3Provider = (props: { children: ReactNode }) => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
-  const { tokenPrices } = useContext(AssetsContext);
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsovV3, setSelectedSsovV3] = useState<string>('');
 
-  const [ssovData, setSsovV3Data] = useState<SsovV3Data>();
+  const [ssovData, setSsovV3Data] = useState<SsovV3Data>({});
   const [ssovEpochData, setSsovV3EpochData] = useState<SsovV3EpochData>();
-  const [ssovUserData, setSsovV3UserData] = useState<SsovV3UserData>();
-  const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({
-    ssovContractWithSigner: null,
-  });
+  const [ssovUserData, setSsovV3UserData] = useState<SsovV3UserData>(
+    initialSsovV3UserData
+  );
+  const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({});
 
   const updateSsovV3UserData = useCallback(async () => {
     if (
@@ -129,6 +134,8 @@ export const SsovV3Provider = (props) => {
       provider
     );
 
+    console.log(contractAddresses['SSOV-V3'].VIEWER);
+
     const writePositions = await ssovViewerContract.walletOfOwner(
       accountAddress,
       ssovAddress
@@ -149,14 +156,15 @@ export const SsovV3Provider = (props) => {
     setSsovV3UserData({
       writePositions: data.map((o, i) => {
         return {
-          tokenId: writePositions[i],
+          tokenId: writePositions[i] as BigNumber,
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
-          accruedRewards: moreData[i].rewardTokenWithdrawAmounts,
-          accruedPremiums: moreData[i].collateralTokenWithdrawAmount.sub(
-            o.collateralAmount
-          ),
+          estimatedPnl: o.collateralAmount
+            .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
+            .add(moreData[i]?.premiumsAccrued || BigNumber.from(0)),
+          accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
+          accruedPremiums: moreData[i]?.premiumsAccrued || BigNumber.from(0),
         };
       }),
     });
@@ -169,13 +177,15 @@ export const SsovV3Provider = (props) => {
   ]);
 
   const updateSsovV3EpochData = useCallback(async () => {
-    if (!contractAddresses || !selectedEpoch || !selectedSsovV3) return;
+    if (!contractAddresses || !selectedEpoch || !selectedSsovV3 || !provider)
+      return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
+
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       contractAddresses['SSOV-V3'].VIEWER,
       provider
@@ -247,6 +257,14 @@ export const SsovV3Provider = (props) => {
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
+      rewardTokens: epochData.rewardTokensToDistribute.map((token) => {
+        return (
+          TOKEN_ADDRESS_TO_DATA[token.toLowerCase()] || {
+            symbol: 'UNKNOWN',
+            imgSrc: '',
+          }
+        );
+      }),
       APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
@@ -314,11 +332,10 @@ export const SsovV3Provider = (props) => {
             provider
           ),
         };
+        setSsovV3Data(_ssovData);
       } catch (err) {
         console.log(err);
       }
-
-      setSsovV3Data(_ssovData);
     }
 
     update();
@@ -355,7 +372,7 @@ export const SsovV3Provider = (props) => {
 
   const contextValue = {
     ssovData,
-    ssovEpochData,
+    ...(ssovEpochData && { ssovEpochData: ssovEpochData }),
     ssovUserData,
     ssovSigner,
     selectedSsovV3,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, {
   useCallback,
   useContext,
@@ -33,10 +34,10 @@ import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
-import ZapInButton from 'components/ZapInButton';
-import ZapIn from 'components/ZapIn';
-import ZapOutButton from 'components/ZapOutButton';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import ZapInButton from 'components/common/ZapInButton';
+import ZapIn from 'components/common/ZapIn';
+import ZapOutButton from 'components/common/ZapOutButton';
 import Curve2PoolDepositSelector from './Curve2PoolDepositSelector';
 import Withdraw from './Withdraw';
 
@@ -50,11 +51,11 @@ import get1inchQuote from 'utils/general/get1inchQuote';
 
 import { MAX_VALUE, SSOV_MAP } from 'constants/index';
 
-import ZapIcon from 'components/Icons/ZapIcon';
-import TransparentCrossIcon from 'components/Icons/TransparentCrossIcon';
-import ArrowRightIcon from 'components/Icons/ArrowRightIcon';
-import LockerIcon from 'components/Icons/LockerIcon';
-import WhiteLockerIcon from 'components/Icons/WhiteLockerIcon';
+import ZapIcon from 'svgs/icons/ZapIcon';
+import TransparentCrossIcon from 'svgs/icons/TransparentCrossIcon';
+import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
+import LockerIcon from 'svgs/icons/LockerIcon';
+import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
 
 import styles from './styles.module.scss';
 
@@ -247,7 +248,7 @@ const ManageCard = () => {
         return erc20SSOV1inchRouter?.address;
       }
     } else if (ssovTokenName === 'BNB') {
-      return ssovRouter.address;
+      return ssovRouter?.address || '';
     } else {
       return ssovContractWithSigner?.address;
     }

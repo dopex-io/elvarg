@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
@@ -28,9 +29,9 @@ import Orders from 'components/tzwap/Orders';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import AppBar from 'components/AppBar';
-import TokenSelector from 'components/TokenSelector';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import AppBar from 'components/common/AppBar';
+import TokenSelector from 'components/common/TokenSelector';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -39,7 +40,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import get1inchQuote from 'utils/general/get1inchQuote';
 import displayAddress from 'utils/general/displayAddress';
 
-import RedTriangleIcon from 'components/Icons/RedTriangleIcon';
+import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import { WalletContext } from 'contexts/Wallet';
@@ -654,7 +655,7 @@ const Tzwap = () => {
                               {fromTokenName !== '' ? (
                                 <img
                                   src={
-                                    '/assets/' +
+                                    '/images/tokens/' +
                                     fromTokenName.toLowerCase().split('.e')[0] +
                                     '.svg'
                                   }
@@ -741,7 +742,7 @@ const Tzwap = () => {
                               {toTokenName !== '' ? (
                                 <img
                                   src={
-                                    '/assets/' +
+                                    '/images/tokens/' +
                                     toTokenName.toLowerCase().split('.e')[0] +
                                     '.svg'
                                   }
@@ -1036,7 +1037,7 @@ const Tzwap = () => {
                           ) : (
                             <Box className="flex">
                               <img
-                                src={'/assets/1inch.svg'}
+                                src={'/images/exchanges/1inch.svg'}
                                 className={'w-5 h-5'}
                                 alt={'1inch'}
                               />

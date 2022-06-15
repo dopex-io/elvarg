@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  SetStateAction,
+} from 'react';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
@@ -41,6 +48,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
     useState<string>('0');
 
+  // @ts-ignore TODO: FIX
   const { epochStrikes, epochStrikeTokens } = ssovEpochData;
 
   const strikePrice = getUserReadableAmount(epochStrikes[strikeIndex] ?? 0, 8);
@@ -77,15 +85,22 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance.toString());
   }, [epochStrikeToken, accountAddress, provider]);
 
-  const handleRecipientChange = useCallback((e) => {
-    setRecipient(e.target.value.toString());
-  }, []);
+  const handleRecipientChange = useCallback(
+    (e: { target: { value: { toString: () => SetStateAction<string> } } }) => {
+      setRecipient(e.target.value.toString());
+    },
+    []
+  );
 
-  const handleAmountChange = useCallback((e) => {
-    setTransferAmount(e.target.value.toString());
-  }, []);
+  const handleAmountChange = useCallback(
+    (e: { target: { value: { toString: () => SetStateAction<string> } } }) => {
+      setTransferAmount(e.target.value.toString());
+    },
+    []
+  );
 
   const handleMax = useCallback(() => {
+    // @ts-ignore TODO: FIX
     setTransferAmount(userEpochStrikeTokenBalance);
   }, [userEpochStrikeTokenBalance]);
 
@@ -93,12 +108,15 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     if (!accountAddress || !epochStrikeToken) return;
     try {
       sendTx(
+        // @ts-ignore TODO: FIX
         ERC20__factory.connect(epochStrikeToken, signer).transfer(
           recipient,
           ethersUtils.parseEther(String(transferAmount))
         )
       );
+      // @ts-ignore TODO: FIX
       updateSsovV3EpochData();
+      // @ts-ignore TODO: FIX
       updateSsovV3UserData();
       updateUserEpochStrikeTokenBalance();
       setTransferAmount('0');
@@ -160,12 +178,12 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={`/assets/${ssovData.underlyingSymbol}.svg`}
-                  alt={ssovData.underlyingSymbol}
+                  src={`/images/tokens/${ssovData?.underlyingSymbol}.svg`}
+                  alt={ssovData?.underlyingSymbol}
                 />
               </Box>
               <Typography variant="h5" className="text-white">
-                {ssovData.underlyingSymbol}
+                {ssovData?.underlyingSymbol}
               </Typography>
             </Box>
             <Input

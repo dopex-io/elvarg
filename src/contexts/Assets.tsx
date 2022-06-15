@@ -4,9 +4,11 @@ import {
   useState,
   useContext,
   useCallback,
+  ReactNode,
 } from 'react';
 import { ERC20__factory, Addresses } from '@dopex-io/sdk';
 import axios from 'axios';
+import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
@@ -20,7 +22,7 @@ interface AssetsContextInterface {
     change24h: number;
   }[];
   userAssetBalances: { [key: string]: string };
-  updateAssetBalances?: Function;
+  updateAssetBalances: Function;
 }
 
 const initKeysToVal = (arr: Array<string>, val: any) => {
@@ -29,14 +31,14 @@ const initKeysToVal = (arr: Array<string>, val: any) => {
   }, {});
 };
 
-export const CHAIN_ID_TO_NATIVE = {
+export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
   42161: 'ETH',
   56: 'BNB',
   43114: 'AVAX',
   1: 'ETH',
 };
 
-export const IS_NATIVE = (asset) => {
+export const IS_NATIVE = (asset: string) => {
   return ['ETH', 'BNB', 'AVAX'].includes(asset);
 };
 
@@ -44,12 +46,13 @@ const initialState: AssetsContextInterface = {
   tokens: TOKENS,
   tokenPrices: [],
   userAssetBalances: initKeysToVal(TOKENS, '0'),
+  updateAssetBalances: noop,
 };
 
 export const AssetsContext =
   createContext<AssetsContextInterface>(initialState);
 
-export const AssetsProvider = (props) => {
+export const AssetsProvider = (props: { children: ReactNode }) => {
   const { provider, contractAddresses, accountAddress, chainId } =
     useContext(WalletContext);
 
@@ -58,7 +61,7 @@ export const AssetsProvider = (props) => {
   useEffect(() => {
     if (!provider || !contractAddresses) return;
     const usdtContract = ERC20__factory.connect(
-      contractAddresses.USDT,
+      contractAddresses['USDT'],
       provider
     );
 
@@ -73,6 +76,7 @@ export const AssetsProvider = (props) => {
       const cgIds: string[] = [];
 
       for (let i = 0; i < state.tokens.length; i++) {
+        // @ts-ignore TODO: FIX
         cgIds.push(TOKEN_DATA[state.tokens[i]].cgId);
       }
 
@@ -83,6 +87,7 @@ export const AssetsProvider = (props) => {
       );
 
       const data = Object.keys(payload.data).map((_key, index) => {
+        // @ts-ignore TODO: FIX
         const temp = payload.data[TOKEN_DATA[state.tokens[index]].cgId];
         return {
           name: state.tokens[index],
@@ -91,6 +96,7 @@ export const AssetsProvider = (props) => {
         };
       });
 
+      // @ts-ignore TODO: FIX
       setState((prevState) => ({ ...prevState, tokenPrices: data }));
     };
 
@@ -109,12 +115,14 @@ export const AssetsProvider = (props) => {
 
       const assets = Object.keys(userAssetBalances)
         .map((asset) => {
+          // @ts-ignore TODO: FIX
           return Addresses[chainId][asset] ? asset : '';
         })
         .filter((asset) => asset !== '');
 
       const assetAddresses = Object.keys(userAssetBalances)
         .map((asset) => {
+          // @ts-ignore TODO: FIX
           return Addresses[chainId][asset] ?? '';
         })
         .filter((asset) => asset !== '');
@@ -126,6 +134,7 @@ export const AssetsProvider = (props) => {
       const balances = await Promise.all(balanceCalls);
 
       for (let i = 0; i < assetAddresses.length; i++) {
+        // @ts-ignore TODO: FIX
         userAssetBalances[assets[i]] = balances[i].toString();
       }
 

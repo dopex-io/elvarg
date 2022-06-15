@@ -1,3 +1,4 @@
+// @ts-nocheck TODO: FIX
 import { useState, useContext, useCallback, useLayoutEffect } from 'react';
 import { useWindowSize } from 'react-use';
 import Head from 'next/head';
@@ -9,7 +10,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import OtcBanner from 'components/otc/OtcBanner';
 import RfqForm from 'components/otc/RfqForm';
 import Register from 'components/otc/Dialogs/Register';

@@ -10,10 +10,13 @@ import { SsovContext } from 'contexts/Ssov';
 export default function EpochSelector({ className }: { className?: string }) {
   const { selectedEpoch, setSelectedEpoch, ssovData } = useContext(SsovContext);
 
+  // @ts-ignore TODO: FIX
   const { currentEpoch } = ssovData;
 
   const handleSelectChange = useCallback(
+    // @ts-ignore TODO: FIX
     (e) => {
+      // @ts-ignore TODO: FIX
       setSelectedEpoch(Number(e.target.value));
     },
     [setSelectedEpoch]
@@ -22,6 +25,7 @@ export default function EpochSelector({ className }: { className?: string }) {
   const epochs = useMemo(() => {
     let _epoch = currentEpoch;
 
+    // @ts-ignore TODO: FIX
     if (ssovData.isCurrentEpochExpired) {
       _epoch += 1;
     }

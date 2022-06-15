@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useCallback, useContext } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';

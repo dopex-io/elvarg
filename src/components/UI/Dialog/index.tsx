@@ -23,6 +23,7 @@ interface Props extends Omit<MaterialDialogProps, 'onClose'> {
   width?: number;
   background?: string;
   showCloseIcon?: boolean;
+  // @ts-ignore TODO: FIX
   handleClose?: (e, reason) => void;
 }
 
@@ -35,9 +36,11 @@ const Dialog = ({
   width,
   ...props
 }: Props) => {
+  // @ts-ignore TODO: FIX
   const onClick = (e) => handleClose(e, 'closeIconClick');
 
   return (
+    // @ts-ignore TODO: FIX
     <StyledMaterialDialog
       {...props}
       classes={{

@@ -22,8 +22,10 @@ import formatAmount from 'utils/general/formatAmount';
 
 const ROWS_PER_PAGE = 4;
 
+// @ts-ignore TODO: FIX
 const TableHeader = ({ children, align = 'left', textColor = 'stieglitz' }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
@@ -37,12 +39,14 @@ const TableHeader = ({ children, align = 'left', textColor = 'stieglitz' }) => {
 };
 
 const TableBodyCell = ({
+  // @ts-ignore TODO: FIX
   children,
   align = 'left',
   textColor = 'stieglitz',
   fill = 'bg-cod-gray',
 }) => {
   return (
+    // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="td"
@@ -79,6 +83,7 @@ const UserOrders = () => {
   }, []);
 
   useEffect(() => {
+    // @ts-ignore TODO: FIX
     setUserOrders(userDepositsData);
   }, [loaded, userDepositsData, userOrders]);
 
@@ -131,13 +136,23 @@ const UserOrders = () => {
                   return (
                     <TableRow key={i}>
                       <TableBodyCell align="left" textColor="white">
-                        {row.isBuy ? 'Buy' : 'Sell'}
+                        {
+                          // @ts-ignore TODO: FIX
+                          row.isBuy ? 'Buy' : 'Sell'
+                        }
                       </TableBodyCell>
                       <TableBodyCell align="left">
-                        {row.isBuy ? row.base.symbol : row.quote.symbol}
+                        {
+                          // @ts-ignore TODO: FIX
+                          row.isBuy ? row.base.symbol : row.quote.symbol
+                        }
                       </TableBodyCell>
                       <TableBodyCell align="center">
-                        {getUserReadableAmount(row.amount, 18).toString()}
+                        {getUserReadableAmount(
+                          // @ts-ignore TODO: FIX
+                          row.amount,
+                          18
+                        ).toString()}
                       </TableBodyCell>
                       <TableBodyCell
                         align="center"
@@ -145,13 +160,20 @@ const UserOrders = () => {
                         fill="bg-umbra"
                       >
                         <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
-                          {row.isBuy
-                            ? formatAmount(
-                                Number(getUserReadableAmount(row.price, 18)) /
-                                  Number(getUserReadableAmount(row.amount, 18)),
-                                5
-                              )
-                            : '-'}
+                          {
+                            // @ts-ignore TODO: FIX
+                            row.isBuy
+                              ? formatAmount(
+                                  // @ts-ignore TODO: FIX
+                                  Number(getUserReadableAmount(row.price, 18)) /
+                                    Number(
+                                      // @ts-ignore TODO: FIX
+                                      getUserReadableAmount(row.amount, 18)
+                                    ),
+                                  5
+                                )
+                              : '-'
+                          }
                         </Box>
                       </TableBodyCell>
                       <TableBodyCell
@@ -160,24 +182,53 @@ const UserOrders = () => {
                         fill="bg-umbra"
                       >
                         <Box className="bg-cod-gray p-1 px-2 rounded-md text-center">
-                          {!row.isBuy
-                            ? formatAmount(
-                                Number(getUserReadableAmount(row.price, 18)) /
-                                  Number(getUserReadableAmount(row.amount, 18)),
-                                5
-                              )
-                            : '-'}
+                          {
+                            // @ts-ignore TODO: FIX
+                            !row.isBuy
+                              ? formatAmount(
+                                  // @ts-ignore TODO: FIX
+                                  Number(getUserReadableAmount(row.price, 18)) /
+                                    Number(
+                                      // @ts-ignore TODO: FIX
+                                      getUserReadableAmount(row.amount, 18)
+                                    ),
+                                  5
+                                )
+                              : '-'
+                          }
                         </Box>
                       </TableBodyCell>
                       <TableBodyCell align="right">
-                        {row.isBuy ? row.quote.symbol : row.base.symbol}
+                        {
+                          // @ts-ignore TODO: FIX
+                          row.isBuy
+                            ? // @ts-ignore TODO: FIX
+                              row.quote.symbol
+                            : // @ts-ignore TODO: FIX
+                              row.base.symbol
+                        }
                       </TableBodyCell>
                       <TableBodyCell align="right">
-                        {getUserReadableAmount(row.price, 18)}{' '}
-                        {row.isBuy ? row.quote.symbol : row.base.symbol}
+                        {getUserReadableAmount(
+                          // @ts-ignore TODO: FIX
+                          row.price,
+                          18
+                        )}{' '}
+                        {
+                          // @ts-ignore TODO: FIX
+                          row.isBuy
+                            ? // @ts-ignore TODO: FIX
+                              row.quote.symbol
+                            : // @ts-ignore TODO: FIX
+                              row.base.symbol
+                        }
                       </TableBodyCell>
                       <TableBodyCell align="right">
-                        {smartTrim(row.counterParty, 10)}
+                        {smartTrim(
+                          // @ts-ignore TODO: FIX
+                          row.counterParty,
+                          10
+                        )}
                       </TableBodyCell>
                       <TableBodyCell align="right">
                         <CustomButton
@@ -188,6 +239,7 @@ const UserOrders = () => {
                             setIndex(i);
                             setDialogState({
                               open: true,
+                              // @ts-ignore TODO: FIX
                               data: userDepositsData[index],
                               handleClose,
                             });
@@ -198,6 +250,7 @@ const UserOrders = () => {
                         <Withdraw
                           open={dialogState.open}
                           handleClose={handleClose}
+                          // @ts-ignore TODO: FIX
                           data={userDepositsData[index]}
                         />
                       </TableBodyCell>

@@ -1,4 +1,10 @@
-import { useCallback, useContext, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useContext,
+  useState,
+  useMemo,
+  SetStateAction,
+} from 'react';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
@@ -41,7 +47,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
       } catch (err) {
         _error = 'Invalid address';
       }
-      if (recipient.toLowerCase() === accountAddress.toLowerCase()) {
+      if (recipient.toLowerCase() === accountAddress?.toLowerCase()) {
         _error = 'Wallet address cannot be recipient';
       }
     }
@@ -49,11 +55,15 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
     return _error;
   }, [recipient, accountAddress]);
 
-  const handleRecipientChange = useCallback((e) => {
-    setRecipient(e.target.value.toString());
-  }, []);
+  const handleRecipientChange = useCallback(
+    (e: { target: { value: { toString: () => SetStateAction<string> } } }) => {
+      setRecipient(e.target.value.toString());
+    },
+    []
+  );
 
   const handleTransfer = useCallback(async () => {
+    if (!ssovSigner.ssovContractWithSigner || !accountAddress) return;
     await sendTx(
       ssovSigner.ssovContractWithSigner[
         'safeTransferFrom(address,address,uint256)'
@@ -82,9 +92,9 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
           <Typography variant="h3">Transfer</Typography>
         </Box>
         <Box className="bg-umbra rounded-md flex flex-col p-4 space-y-4">
-          <Stat name="Asset" value={ssovData.underlyingSymbol} />
-          <Stat name="Collateral" value={ssovData.collateralSymbol} />
-          <Stat name="Type" value={ssovData.isPut ? 'PUT' : 'CALL'} />
+          <Stat name="Asset" value={ssovData?.underlyingSymbol} />
+          <Stat name="Collateral" value={ssovData?.collateralSymbol} />
+          <Stat name="Type" value={ssovData?.isPut ? 'PUT' : 'CALL'} />
           <Stat
             name="Strike Price"
             value={`$${getUserReadableAmount(data.strike, 8)}`}
@@ -92,7 +102,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
           <Stat
             name="Deposit Amount"
             value={`${getUserReadableAmount(data.collateralAmount, 18)} ${
-              ssovData.collateralSymbol
+              ssovData?.collateralSymbol
             }`}
           />
           <Stat
@@ -100,7 +110,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
             value={
               <>
                 <NumberDisplay n={data.accruedPremiums} decimals={18} />{' '}
-                {ssovData.collateralSymbol}
+                {ssovData?.collateralSymbol}
               </>
             }
           />
@@ -108,7 +118,11 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
             name="Accrued Rewards"
             value={
               <>
-                <NumberDisplay n={data.accruedRewards[0]} decimals={18} />
+                {data.accruedRewards.map((rewards, index) => {
+                  return (
+                    <NumberDisplay key={index} n={rewards} decimals={18} />
+                  );
+                })}
               </>
             }
           />

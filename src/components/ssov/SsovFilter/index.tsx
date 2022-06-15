@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -80,7 +81,7 @@ const SsovFilter = ({
           <Box className={'flex'}>
             {showImages ? (
               <img
-                src={'/assets/' + option.toLowerCase() + '.svg'}
+                src={'/images/tokens/' + option.toLowerCase() + '.svg'}
                 alt={option}
                 className="w-6 ml-3 mt-[0.4px]"
               />

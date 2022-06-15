@@ -1,4 +1,6 @@
-function Etherscan(props) {
+import { SVGProps } from 'react';
+
+function Etherscan(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="15"

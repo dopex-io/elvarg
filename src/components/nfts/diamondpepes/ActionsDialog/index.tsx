@@ -6,9 +6,9 @@ import IconButton from '@mui/material/IconButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
-import BigCrossIcon from 'components/Icons/BigCrossIcon';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { Data, UserData } from 'types/diamondpepes';
 
@@ -57,6 +57,7 @@ const ActionsDialog = ({
 
   const handleMint = useCallback(async () => {
     try {
+      // @ts-ignore TODO: FIX
       await sendTx(yieldMint.connect(signer).claimMint());
       await updateData();
       await updateUserData();
@@ -210,13 +211,15 @@ const ActionsDialog = ({
                   24/2/2022
                 </Typography>
               </Box>
+              {/* @ts-ignore TODO: FIX */}
               <CustomButton
                 size="medium"
-                className={styles.pepeButton}
+                className={styles['pepeButton']}
                 disabled={!data.isFarmingPeriod || userData.minted}
                 onClick={handleMint}
               >
-                <Typography variant="h5" className={styles.pepeButtonText}>
+                {/* @ts-ignore TODO: FIX */}
+                <Typography variant="h5" className={styles['pepeButtonText']}>
                   {data.isFarmingPeriod
                     ? userData.minted
                       ? 'Already minted'

@@ -4,9 +4,9 @@ import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/AppBar';
+import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
-import PageLoader from 'components/PageLoader';
+import PageLoader from 'components/common/PageLoader';
 import OracleCard from 'components/oracles/OracleCard';
 
 import { CHAIN_ID_TO_RPC } from 'constants/index';
@@ -17,7 +17,7 @@ const TOKENS = [
     type: 'dopex',
     contractUrl:
       'https://arbiscan.io/address/0x252c07e0356d3b1a8ce273e39885b094053137b9',
-    imgSrc: '/assets/dpx.svg',
+    imgSrc: '/images/tokens/dpx.svg',
     imgAlt: 'DPX',
   },
   {
@@ -25,7 +25,7 @@ const TOKENS = [
     type: 'dopex',
     contractUrl:
       'https://arbiscan.io/address/0xC0cdD1176aA1624b89B7476142b41C04414afaa0',
-    imgSrc: '/assets/rdpx.svg',
+    imgSrc: '/images/tokens/rdpx.svg',
     imgAlt: 'rDPX',
   },
   {
@@ -33,7 +33,7 @@ const TOKENS = [
     type: 'chainlink',
     contractUrl:
       'https://arbiscan.io/address/0x6cb7d5bd21664e0201347bd93d66ce18bc48a807',
-    imgSrc: '/assets/gohm.svg',
+    imgSrc: '/images/tokens/gohm.svg',
     imgAlt: 'gOHM',
   },
   {
@@ -41,7 +41,7 @@ const TOKENS = [
     type: 'uniswapV3',
     contractUrl:
       'https://arbiscan.io/address/0x60E07B25Ba79bf8D40831cdbDA60CF49571c7Ee0',
-    imgSrc: '/assets/gmx.svg',
+    imgSrc: '/images/tokens/gmx.svg',
     imgAlt: 'GMX',
   },
   {
@@ -49,7 +49,7 @@ const TOKENS = [
     type: 'chainlink',
     contractUrl:
       'https://bscscan.com/address/0x0567f2323251f0aab15c8dfb1967e4e8a7d42aee',
-    imgSrc: '/assets/bnb.svg',
+    imgSrc: '/images/tokens/bnb.svg',
     imgAlt: 'BNB',
   },
   {
@@ -57,7 +57,7 @@ const TOKENS = [
     type: 'chainlink',
     contractUrl:
       'https://snowtrace.io/address/0x0A77230d17318075983913bC2145DB16C7366156',
-    imgSrc: '/assets/avax.svg',
+    imgSrc: '/images/tokens/avax.svg',
     imgAlt: 'AVAX',
   },
 ];
@@ -125,10 +125,10 @@ const Oracles = () => {
       );
 
       const [bnbData, gohmData, gmxData, avaxData] = await Promise.all([
-        bnbOracle.latestRoundData(),
-        gohmOracle.getPriceInUSD(),
-        gmxOracle.getPriceInUSD(),
-        avaxOracle.latestRoundData(),
+        bnbOracle['latestRoundData'](),
+        gohmOracle['getPriceInUSD'](),
+        gmxOracle['getPriceInUSD'](),
+        avaxOracle['latestRoundData'](),
       ]);
 
       const _state = {
@@ -151,23 +151,28 @@ const Oracles = () => {
             _dopexOraclesData[0][_dopexOraclesData[0].length - 1].twap,
           lastUpdated:
             _dopexOraclesData[0][_dopexOraclesData[0].length - 1].timestamp,
-          allData: _dopexOraclesData[0].map((item) => ({
-            price: ethers.utils.formatUnits(item.twap, 8),
-            timestamp: item.timestamp,
-          })),
+          allData: _dopexOraclesData[0].map(
+            (item: { twap: ethers.BigNumberish; timestamp: any }) => ({
+              price: ethers.utils.formatUnits(item.twap, 8),
+              timestamp: item.timestamp,
+            })
+          ),
         },
         rDPX: {
           currentPrice:
             _dopexOraclesData[1][_dopexOraclesData[1].length - 1].twap,
           lastUpdated:
             _dopexOraclesData[1][_dopexOraclesData[1].length - 1].timestamp,
-          allData: _dopexOraclesData[1].map((item) => ({
-            price: Number(ethers.utils.formatUnits(item.twap, 8)),
-            timestamp: item.timestamp,
-          })),
+          allData: _dopexOraclesData[1].map(
+            (item: { twap: ethers.BigNumberish; timestamp: any }) => ({
+              price: Number(ethers.utils.formatUnits(item.twap, 8)),
+              timestamp: item.timestamp,
+            })
+          ),
         },
       };
 
+      // @ts-ignore TODO: FIX
       setState(_state);
     }
     getData();
@@ -192,6 +197,7 @@ const Oracles = () => {
                 return (
                   <OracleCard
                     key={token.tokenSymbol}
+                    // @ts-ignore TODO: FIX
                     data={{ ...token, ...state[token.tokenSymbol] }}
                   />
                 );

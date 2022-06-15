@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, {
   useEffect,
   useContext,
@@ -30,14 +31,14 @@ import axios from 'axios';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import PnlChart from 'components/PnlChart';
-import ZapIn from 'components/ZapIn';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
-import ZapInButton from 'components/ZapInButton';
-import ZapOutButton from 'components/ZapOutButton';
-import BigCrossIcon from 'components/Icons/BigCrossIcon';
-import CircleIcon from 'components/Icons/CircleIcon';
-import AlarmIcon from 'components/Icons/AlarmIcon';
+import PnlChart from 'components/common/PnlChart';
+import ZapIn from 'components/common/ZapIn';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import ZapInButton from 'components/common/ZapInButton';
+import ZapOutButton from 'components/common/ZapOutButton';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
+import CircleIcon from 'svgs/icons/CircleIcon';
+import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import { getValueInUsdFromSymbol } from 'utils/general/getValueInUsdFromSymbol';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';

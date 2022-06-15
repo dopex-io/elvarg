@@ -1,4 +1,8 @@
-function DepositClosed(props) {
+import { SVGProps } from 'react';
+
+function DepositClosed(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       width="26"

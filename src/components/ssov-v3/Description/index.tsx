@@ -3,12 +3,13 @@ import cx from 'classnames';
 import Box from '@mui/material/Box';
 
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/WalletButton';
+import WalletButton from 'components/common/WalletButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
@@ -51,18 +52,30 @@ const Description = ({
   ];
 
   return (
-    <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
-      <Typography variant="h1" className="mb-6 flex items-center space-x-3">
-        <span>{ssovData.underlyingSymbol}</span>
-        <span
-          className={cx(
-            'text-lg text-black p-1.5 rounded-md',
-            ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500'
-          )}
+    <Box className={cx('flex flex-col md:mr-5', styles['wrapperWidth'])}>
+      <Box className={'flex'}>
+        <Typography variant="h1" className="mb-6 flex items-center space-x-3">
+          <span>{ssovData.underlyingSymbol}</span>
+          <span
+            className={cx(
+              'text-lg text-black p-1.5 rounded-md',
+              ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500'
+            )}
+          >
+            {type + 'S'}
+          </span>
+        </Typography>
+        <Typography
+          variant="h4"
+          className="mb-6 ml-3 flex text-lg items-center space-x-3 border border-primary py-1 px-2 rounded-md"
         >
-          {type + 'S'}
-        </span>
-      </Typography>
+          $
+          {formatAmount(
+            getUserReadableAmount(ssovData.tokenPrice || '0', 8),
+            2
+          )}
+        </Typography>
+      </Box>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
           {ssovData.underlyingSymbol} Single Staking Option Vault V3
@@ -95,13 +108,15 @@ const Description = ({
           *Effective APY if you deposit now
         </Typography>
       </Box>
-      <Box
-        role="button"
-        className="underline mt-3"
-        onClick={() => setWrapOpen(true)}
-      >
-        Wrap ETH
-      </Box>
+      {ssovData.isPut ? null : (
+        <Box
+          role="button"
+          className="underline mt-3"
+          onClick={() => setWrapOpen(true)}
+        >
+          Wrap ETH
+        </Box>
+      )}
       <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       {purchaseState && (
         <PurchaseDialog

@@ -10,10 +10,10 @@ export interface CustomButtonProps extends Omit<ButtonProps, 'color' | 'size'> {
 }
 
 const CLASSES = {
-  small: `${styles.button} ${styles.small} text-white hover:bg-opacity-70`,
-  medium: `${styles.button} ${styles.medium} text-white hover:bg-opacity-70`,
-  large: `${styles.button} ${styles.large} text-white hover:bg-opacity-70`,
-  xl: `${styles.button} ${styles.xl} text-white hover:bg-opacity-70`,
+  small: `${styles['button']} ${styles['small']} text-white hover:bg-opacity-70`,
+  medium: `${styles['button']} ${styles['medium']} text-white hover:bg-opacity-70`,
+  large: `${styles['button']} ${styles['large']} text-white hover:bg-opacity-70`,
+  xl: `${styles['button']} ${styles['xl']} text-white hover:bg-opacity-70`,
 };
 
 const CustomButton: FC<CustomButtonProps> = forwardRef((props, ref) => {

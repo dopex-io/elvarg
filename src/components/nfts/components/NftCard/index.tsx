@@ -35,6 +35,7 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
       };
     } else {
       return {
+        // @ts-ignore TODO: FIX
         balance: userNftsData[index].balance,
         nftName: nftData.nftName,
       };

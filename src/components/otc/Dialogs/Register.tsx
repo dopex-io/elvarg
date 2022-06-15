@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useMemo, useContext, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -11,7 +12,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import Input from 'components/UI/Input';
-import ErrorBox from 'components/ErrorBox';
+import ErrorBox from 'components/common/ErrorBox';
 import InfoPopover from 'components/UI/InfoPopover';
 
 import { WalletContext } from 'contexts/Wallet';

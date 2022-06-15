@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
 import { emojisplosions } from 'emojisplosion';
@@ -10,9 +11,9 @@ import Switch from '@mui/material/Switch';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import EstimatedGasCostButton from 'components/EstimatedGasCostButton';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
-import BigCrossIcon from 'components/Icons/BigCrossIcon';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { WalletContext } from 'contexts/Wallet';
 
@@ -48,7 +49,7 @@ const Hero = ({ active, heroColor, letter }) => {
       >
         <Typography
           variant="h6"
-          className={"text-stieglitz font-['Minecraft'] text-black pt-0.5"}
+          className={"font-['Minecraft'] text-black pt-0.5"}
         >
           {letter}
         </Typography>
@@ -274,7 +275,6 @@ const ActionsDialog = ({ open, tab, handleClose }: Props) => {
               className="ml-[2px] w-16"
               alt={''}
             />
-
             <Box className="bg-[#343C4D] rounded-xs flex flex-col p-3 pb-1.5 w-full ml-4 relative">
               <img
                 src="/assets/polygon-left.svg"
