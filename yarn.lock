@@ -583,8 +583,9 @@
     rxjs "^6.6.3"
     stream-browserify "^3.0.0"
 
-"@dopex-io/sdk@../sdk":
-  version "1.0.0-beta.2"
+"@dopex-io/sdk@https://github.com/dopex-io/sdk.git#feat/atlantics":
+  version "1.0.0-beta.3"
+  resolved "https://github.com/dopex-io/sdk.git#05a1abfc3d699469c3981c278a1b97a6212c6e24"
   dependencies:
     ethers "^5.6.4"
 
@@ -658,7 +659,7 @@
     "@emotion/weak-memoize" "^0.2.5"
     hoist-non-react-statics "^3.3.1"
 
-"@emotion/serialize@^1.0.2", "@emotion/serialize@^1.0.4":
+"@emotion/serialize@^1.0.2", "@emotion/serialize@^1.0.3", "@emotion/serialize@^1.0.4":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@emotion/serialize/-/serialize-1.0.4.tgz#ff31fd11bb07999611199c2229e152faadc21a3c"
   integrity sha512-1JHamSpH8PIfFwAMryO2bNka+y8+KA5yga5Ocf2d7ZEiJjb7xlLW7aknBGZqJLajuLOvJ+72vN+IBSwPlXD1Pg==
@@ -669,7 +670,7 @@
     "@emotion/utils" "^1.0.0"
     csstype "^3.0.2"
 
-"@emotion/sheet@^1.1.1":
+"@emotion/sheet@^1.0.3", "@emotion/sheet@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@emotion/sheet/-/sheet-1.1.1.tgz#015756e2a9a3c7c5f11d8ec22966a8dbfbfac787"
   integrity sha512-J3YPccVRMiTZxYAY0IOq3kd+hUP8idY8Kz6B/Cyo+JuXq52Ek+zbPbSQUrVQp95aJ+lsAW7DPL1P2Z+U1jGkKA==
