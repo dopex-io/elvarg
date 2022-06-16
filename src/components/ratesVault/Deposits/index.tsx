@@ -81,7 +81,7 @@ const DepositsTableData = (
       !isTotalCallUserDepositsEmpty &&
       isBootstrapped
     );
-  }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime]);
+  }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime, isBootstrapped]);
 
   const isTotalPutUserDepositsEmpty: boolean = useMemo(() => {
     let _isEmpty: boolean = true;
@@ -410,7 +410,7 @@ const Deposits = () => {
                         strikeIndex={Number(strikeIndex)}
                         price={price}
                         epochEndTime={epochEndTime}
-                        imgSrc={'mim.svg'}
+                        imgSrc={'pusd.svg'}
                         tokenSymbol={'2CRV'}
                         isBootstrapped={
                           rateVaultContext.rateVaultEpochData.isBootstrapped

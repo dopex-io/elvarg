@@ -5,13 +5,11 @@ import Box from '@mui/material/Box';
 import Countdown from 'react-countdown';
 import TableHead from '@mui/material/TableHead';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import CircularProgress from '@mui/material/CircularProgress';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import TableCell from '@mui/material/TableCell';
 import { ERC20__factory } from '@dopex-io/sdk';
 
@@ -27,6 +25,7 @@ import formatAmount from 'utils/general/formatAmount';
 import TransferDialog from 'components/ratesVault/Dialogs/Transfer';
 
 import styles from './styles.module.scss';
+import { MAX_VALUE } from 'constants/index';
 
 export interface PositionProps {
   strike: number;
@@ -44,7 +43,6 @@ const Positions = () => {
   const rateVaultContext = useContext(RateVaultContext);
   const { accountAddress, signer } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
-  const [updated, setUpdated] = useState<boolean>(false);
   const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
     string | null
   >(null);
@@ -76,13 +74,26 @@ const Positions = () => {
 
       if (!tokenAddress || !accountAddress || !signer) return;
 
-      const amount = ERC20__factory.connect(tokenAddress, signer).balanceOf(
-        accountAddress
+      const token = ERC20__factory.connect(tokenAddress, signer);
+
+      const amount = await token.balanceOf(accountAddress);
+
+      const allowance = await token.allowance(
+        accountAddress,
+        rateVaultContract.address
       );
 
-      rateVaultContract
+      if (allowance.eq(0)) {
+        await token
+          .connect(signer)
+          .approve(rateVaultContract.address, MAX_VALUE);
+      }
+
+      await rateVaultContract
         .connect(signer)
-        .settle(strikeIndex, isPut, amount, selectedEpoch);
+        .settle(strikeIndex, isPut, amount, selectedEpoch, {
+          gasLimit: 2000000,
+        });
 
       updateAssetBalances();
       updateRateVaultUserData();
@@ -100,17 +111,19 @@ const Positions = () => {
 
   useEffect(() => {
     async function updatePositions() {
+      if (!signer || !accountAddress) return;
+
       setIsPositionsStatsLoading(true);
       const _positions: any[] = [];
 
-      rateVaultUserData?.userStrikePurchaseData?.map((purchase) => {
-        ['CALL', 'PUT'].map((contextSide) => {
+      rateVaultUserData?.userStrikePurchaseData?.map(async (purchase) => {
+        ['CALL', 'PUT'].map(async (contextSide) => {
           const duration =
             (rateVaultEpochData.epochTimes[1].toNumber() -
               epochTimes[0].toNumber()) /
             86400;
           let pnl = 0;
-          const price = getUserReadableAmount(rateVaultEpochData.rate, 18);
+          const price = rateVaultEpochData.rate.toNumber();
           const strike = purchase.strike.toNumber();
           const amount = getUserReadableAmount(
             contextSide === 'CALL'
@@ -118,7 +131,6 @@ const Positions = () => {
               : purchase.putsPurchased,
             18
           );
-
           if (contextSide === 'CALL') {
             if (strike < price) {
               pnl = ((price - strike) * amount * duration) / 36500 / 1e8;
@@ -128,6 +140,16 @@ const Positions = () => {
               pnl = ((strike - price) * amount * duration) / 36500 / 1e8;
             }
           }
+
+          const tokenAddress = String(
+            contextSide === 'PUT'
+              ? rateVaultEpochData.putsToken[purchase.strikeIndex]
+              : rateVaultEpochData.callsToken[purchase.strikeIndex]
+          );
+
+          const token = ERC20__factory.connect(tokenAddress, signer);
+
+          const tokenBalance = await token.balanceOf(accountAddress);
 
           if (
             (contextSide === 'CALL' && purchase.callsPurchased.gt(0)) ||
@@ -147,7 +169,8 @@ const Positions = () => {
                 18
               ),
               side: contextSide,
-              canBeSettled: new Date() > epochEndTime && pnl > 0,
+              canBeSettled:
+                new Date() > epochEndTime && pnl > 0 && tokenBalance.gte(0),
               pnl: pnl,
             });
         });
@@ -155,17 +178,17 @@ const Positions = () => {
 
       setPositions(_positions);
       setIsPositionsStatsLoading(false);
-      setUpdated(true);
     }
 
-    if (updated === false) updatePositions();
+    updatePositions();
   }, [
     rateVaultEpochData,
     rateVaultUserData,
-    updated,
     epochEndTime,
     tokenPrice,
     epochTimes,
+    signer,
+    accountAddress,
   ]);
 
   const handleTransfer = useCallback(
@@ -183,7 +206,7 @@ const Positions = () => {
     [rateVaultEpochData]
   );
 
-  return positions.length > 0 || isPositionsStatsLoading ? (
+  return (
     <Box>
       <TransferDialog
         setTokenAddressToTransfer={setTokenAddressToTransfer}
@@ -193,12 +216,6 @@ const Positions = () => {
         <Typography variant="h4" className="text-white mb-7">
           Positions
         </Typography>
-        <Tooltip title={'Refresh'}>
-          <RefreshIcon
-            className="mt-1 ml-2 hover:opacity-70 cursor-pointer"
-            onClick={() => setUpdated(false)}
-          />
-        </Tooltip>
       </Box>
       <Box className={'bg-cod-gray w-full p-4 pt-2 pb-4.5 pb-0 rounded-xl'}>
         <Box className="balances-table text-white">
@@ -214,57 +231,59 @@ const Positions = () => {
               </Box>
             ) : (
               <Table>
-                <TableHead className="bg-umbra">
-                  <TableRow className="bg-umbra">
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6">Strike</Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Purchased
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        PnL ($)
-                      </Typography>
-                    </TableCell>
+                {positions.length > 0 ? (
+                  <TableHead className="bg-umbra">
+                    <TableRow className="bg-umbra">
+                      <TableCell
+                        align="left"
+                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                      >
+                        <Typography variant="h6">Strike</Typography>
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                      >
+                        <Typography variant="h6" className="text-stieglitz">
+                          Purchased
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                      >
+                        <Typography variant="h6" className="text-stieglitz">
+                          PnL ($)
+                        </Typography>
+                      </TableCell>
 
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Type
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Settle
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      className="text-stieglitz bg-cod-gray border-0 pb-0"
-                    >
-                      <Typography variant="h6" className="text-stieglitz">
-                        Transfer
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
+                      <TableCell
+                        align="left"
+                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                      >
+                        <Typography variant="h6" className="text-stieglitz">
+                          Type
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                      >
+                        <Typography variant="h6" className="text-stieglitz">
+                          Settle
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                      >
+                        <Typography variant="h6" className="text-stieglitz">
+                          Transfer
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                ) : null}
                 <TableBody className={cx('rounded-lg')}>
                   {positions.map((position, i) => (
                     <TableRow
@@ -277,11 +296,11 @@ const Positions = () => {
                             className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}
                           >
                             <Typography variant="h6">
-                              $
                               {formatAmount(
                                 getUserReadableAmount(position['strike'], 8),
                                 0
                               )}
+                              %
                             </Typography>
                           </Box>
                         </Box>
@@ -381,10 +400,17 @@ const Positions = () => {
               </Table>
             )}
           </TableContainer>
+          {positions.length === 0 ? (
+            <Box className="text-center">
+              <Typography variant="h6" className="py-8 text-stieglitz my-auto">
+                Your positions will appear here
+              </Typography>
+            </Box>
+          ) : null}
         </Box>
       </Box>
     </Box>
-  ) : null;
+  );
 };
 
 export default Positions;

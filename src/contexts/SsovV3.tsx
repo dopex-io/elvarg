@@ -64,6 +64,7 @@ export interface WritePositionInterface {
   strike: BigNumber;
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
+  estimatedPnl: BigNumber;
   epoch: number;
   tokenId: BigNumber;
 }
@@ -133,6 +134,8 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       provider
     );
 
+    console.log(contractAddresses['SSOV-V3'].VIEWER);
+
     const writePositions = await ssovViewerContract.walletOfOwner(
       accountAddress,
       ssovAddress
@@ -157,11 +160,11 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
+          estimatedPnl: o.collateralAmount
+            .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
+            .add(moreData[i]?.premiumsAccrued || BigNumber.from(0)),
           accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
-          accruedPremiums:
-            moreData[i]?.collateralTokenWithdrawAmount.sub(
-              o.collateralAmount
-            ) || BigNumber.from(0),
+          accruedPremiums: moreData[i]?.premiumsAccrued || BigNumber.from(0),
         };
       }),
     });
@@ -256,7 +259,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       availableCollateralForStrikes,
       rewardTokens: epochData.rewardTokensToDistribute.map((token) => {
         return (
-          TOKEN_ADDRESS_TO_DATA[token] || { symbol: 'UNKNOWN', imgSrc: '' }
+          TOKEN_ADDRESS_TO_DATA[token.toLowerCase()] || {
+            symbol: 'UNKNOWN',
+            imgSrc: '',
+          }
         );
       }),
       APY: apyPayload.data.apy,

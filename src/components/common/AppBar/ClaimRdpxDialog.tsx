@@ -20,7 +20,7 @@ import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 
-import airdropAddresses from 'constants/airdropAddresses.json';
+import airdropAddresses from 'constants/json/airdropAddresses.json';
 
 interface Props {
   open: boolean;

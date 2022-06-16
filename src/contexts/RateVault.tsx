@@ -1604,6 +1604,36 @@ const abi = [
   },
 ];
 
+const oracleAbi = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_gaugeSnapshotReceiverAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_chainlinkCRVAddress',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    inputs: [
+      { internalType: 'uint256', name: 'epochStart', type: 'uint256' },
+      { internalType: 'uint256', name: 'epochEnd', type: 'uint256' },
+      { internalType: 'address', name: 'gauge', type: 'address' },
+    ],
+    name: 'getRate',
+    outputs: [{ internalType: 'uint256', name: 'rate', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
+
 export interface RateVault {
   token?: string;
 }
@@ -1702,7 +1732,7 @@ export const RateVault = () => {
     useContext(WalletContext);
 
   const [selectedPoolName, setSelectedPoolName] = useState<string | null>(null);
-  const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
+  const [selectedEpoch, setSelectedEpoch] = useState<number | null>(1);
   const [rateVaultData, setRateVaultData] = useState<RateVaultData>();
   const [rateVaultEpochData, setRateVaultEpochData] =
     useState<RateVaultEpochData>();
@@ -1710,11 +1740,20 @@ export const RateVault = () => {
     useState<RateVaultUserData>();
   const rateVaultContract = useMemo(() => {
     return new ethers.Contract(
-      '0x602B9f9B7126DEce2b9a589B49Fe5947c903A156',
+      '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41',
       abi,
       signer
     );
   }, [signer]);
+  const gaugeOracle = useMemo(() => {
+    return new ethers.Contract(
+      '0xF45f20bc21C9933ae8613EdD8EF108b7fD25E527',
+      oracleAbi,
+      signer
+    );
+  }, [signer]);
+
+  console.log(selectedEpoch);
 
   const getUserStrikePurchaseData = useCallback(
     async (strike: BigNumber, strikeIndex: number) => {
@@ -1876,9 +1915,13 @@ export const RateVault = () => {
   }, [rateVaultContract, selectedEpoch]);
 
   const getEpochPremiums = useCallback(async () => {
-    return await rateVaultContract['getEpochPremiums'](
-      Math.max(selectedEpoch || 0, 1)
-    );
+    try {
+      return await rateVaultContract['getEpochPremiums'](
+        Math.max(selectedEpoch || 0, 1)
+      );
+    } catch (err) {
+      return [];
+    }
   }, [rateVaultContract, selectedEpoch]);
 
   const getTotalStrikeData = useCallback(
@@ -1914,7 +1957,7 @@ export const RateVault = () => {
   const calculatePurchaseFee = useCallback(
     async (rate: BigNumber, strike: BigNumber, isPut: boolean) => {
       try {
-        return await rateVaultContract['calculatePremium'](
+        return await rateVaultContract['calculatePurchaseFees'](
           rate,
           strike,
           BigNumber.from('1000000000000000000'),
@@ -1931,7 +1974,17 @@ export const RateVault = () => {
     try {
       return await rateVaultContract['getCurrentRate']();
     } catch (err) {
-      return BigNumber.from('0');
+      try {
+        const endTime = Math.floor(new Date().getTime() / 1000);
+        const startTime = endTime - 24 * 3600;
+        return await gaugeOracle['getRate'](
+          startTime,
+          endTime,
+          '0xd8b712d29381748dB89c36BCa0138d7c75866ddF'
+        );
+      } catch (err) {
+        return BigNumber.from('0');
+      }
     }
   }, [rateVaultContract]);
 
@@ -1968,9 +2021,10 @@ export const RateVault = () => {
       const volatilitiesPromises = [];
 
       for (let i in epochStrikes) {
-        volatilitiesPromises.push(
-          rateVaultContract['getVolatility'](epochStrikes[i])
-        );
+        // volatilitiesPromises.push(
+        //   rateVaultContract['getVolatility'](epochStrikes[i])
+        // );
+        volatilitiesPromises.push(BigNumber.from(0));
         callsPremiumCostsPromises.push(
           calculatePremium(epochStrikes[i], false)
         );
@@ -2121,7 +2175,7 @@ export const RateVault = () => {
 
   useEffect(() => {
     async function update() {
-      const rateVaultAddresses = '0x602B9f9B7126DEce2b9a589B49Fe5947c903A156';
+      const rateVaultAddresses = '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
 
       const _rateVaultContract = new ethers.Contract(
         rateVaultAddresses,
