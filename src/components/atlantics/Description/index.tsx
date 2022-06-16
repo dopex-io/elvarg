@@ -6,7 +6,7 @@ const Description = () => {
   return (
     <Box className="space-y-1 py-4">
       <Typography variant="h4">Pools</Typography>
-      <Typography variant="h6" className="text-stieglitz">
+      <Typography variant="h6" color="stieglitz">
         Deposit and Earn
       </Typography>
     </Box>

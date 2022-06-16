@@ -35,7 +35,8 @@ const InfoBox = ({
         <Typography
           variant="caption"
           component="div"
-          className="text-stieglitz text-left"
+          className="text-left"
+          color="stieglitz"
         >
           {heading}
         </Typography>

@@ -262,7 +262,7 @@ const ManageCard = (props: ManageCardProps) => {
                 className="rounded-lg bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto"
                 onClick={handleMax}
               >
-                <Typography variant="h6" className="text-stieglitz text-xs">
+                <Typography variant="h6" className="text-xs" color="stieglitz">
                   MAX
                 </Typography>
               </Button>
@@ -287,7 +287,7 @@ const ManageCard = (props: ManageCardProps) => {
         </Box>
         <Box className="flex">
           <LockerIcon className="my-auto m-2" />
-          <Typography variant="h6" className="text-stieglitz">
+          <Typography variant="h6" color="stieglitz">
             Withdrawals are locked until end of Epoch{' '}
             <>{selectedPool?.state?.epoch.toString()}</>
           </Typography>

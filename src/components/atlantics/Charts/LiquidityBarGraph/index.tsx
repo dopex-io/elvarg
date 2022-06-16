@@ -44,7 +44,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
           ) : (
             <PutsIcon className="my-auto" />
           )}
-          <Typography variant="h6" className="text-stieglitz align-center">
+          <Typography variant="h6" className="align-center" color="stieglitz">
             Available ({header['collateral']})
           </Typography>
         </Box>

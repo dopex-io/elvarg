@@ -43,7 +43,7 @@ const TableHeader = ({
       className="bg-cod-gray border-1 border-umbra py-3"
       sx={{ width }}
     >
-      <Typography variant="h6" className={`text-${textColor}`}>
+      <Typography variant="h6" color={textColor}>
         {children}
       </Typography>
     </TableCell>

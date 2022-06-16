@@ -105,7 +105,7 @@ const CustomAccordion = ({
             className="h-8 mr-2 border border-mineshaft rounded-full"
           />
 
-          <Typography variant="h5" className="text-white my-auto">
+          <Typography variant="h5" className="my-auto">
             {header}
           </Typography>
         </Box>

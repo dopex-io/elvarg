@@ -46,11 +46,11 @@ const ContractData = () => {
     <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 space-y-3 sm:space-y-3 lg:space-y-0">
       <Box className="space-y-3">
         <Box className="flex space-x-1">
-          <Typography variant="h6" className="text-stieglitz">
+          <Typography variant="h6" color="stieglitz">
             Epoch
           </Typography>
           {selectedEpoch === Number(selectedPool?.state.epoch) ? (
-            <Typography variant="h6" className="text-wave-blue">
+            <Typography variant="h6" color="wave-blue">
               ({vaultStatusMessage})
             </Typography>
           ) : null}
@@ -63,14 +63,18 @@ const ContractData = () => {
           />
           <Box className="flex space-x-3 p-2 rounded-lg bg-umbra">
             <AlarmIcon fill="#8E8E8E" />
-            <Typography variant="h6" className="my-auto font-semibold">
+            <Typography
+              variant="h6"
+              className="my-auto font-semibold"
+              color="stieglitz"
+            >
               {epochDuration === 'less than a minute' ? '...' : epochDuration}
             </Typography>
           </Box>
         </Box>
       </Box>
       <Box className="space-y-3">
-        <Typography variant="h6" className="text-stieglitz">
+        <Typography variant="h6" color="stieglitz">
           Funding Rate
         </Typography>
         <Box className="flex">
@@ -88,15 +92,15 @@ const ContractData = () => {
         </Box>
       </Box>
       <Box className="space-y-3">
-        <Typography variant="h6" className="text-stieglitz">
+        <Typography variant="h6" color="stieglitz">
           Current price
         </Typography>
-        <Typography variant="h6" className="my-auto p-2 font-semibold">
+        <Typography variant="h6" className="my-auto p-2 pl-0 font-semibold">
           ${formatAmount(selectedPool?.underlyingPrice, 3)}
         </Typography>
       </Box>
       <Box className="space-y-3">
-        <Typography variant="h6" className="text-stieglitz">
+        <Typography variant="h6" color="stieglitz">
           Contract
         </Typography>
         <ExplorerLink

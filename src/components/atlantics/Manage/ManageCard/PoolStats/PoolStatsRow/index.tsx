@@ -12,7 +12,7 @@ const PoolStatsRow = (props: PoolStatsRowProps) => {
 
   return (
     <Box className="flex justify-between">
-      <Typography variant="h6" className="text-stieglitz">
+      <Typography variant="h6" color="stieglitz">
         {description}
       </Typography>
       <Typography variant="h6">{value}</Typography>

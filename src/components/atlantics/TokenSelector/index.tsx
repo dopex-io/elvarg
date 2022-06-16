@@ -74,7 +74,11 @@ const TokenSelector = (props: TokenSelectorProps) => {
                   <Typography variant="h5" className="my-auto font-normal">
                     {token.symbol}
                   </Typography>
-                  <Typography variant="h6" className="my-auto text-stieglitz">
+                  <Typography
+                    variant="h6"
+                    className="my-auto"
+                    color="stieglitz"
+                  >
                     {TOKEN_DATA[token.symbol.toUpperCase()]?.name}
                   </Typography>
                 </Box>
@@ -90,7 +94,11 @@ const TokenSelector = (props: TokenSelectorProps) => {
                     3
                   )}
                 </Typography>
-                <Typography variant="h6" className="text-gray-500 font-small">
+                <Typography
+                  variant="h6"
+                  className="font-small"
+                  color="stieglitz"
+                >
                   ${formatAmount(getValueInUsd(token.symbol), 2)}{' '}
                 </Typography>
               </Box>

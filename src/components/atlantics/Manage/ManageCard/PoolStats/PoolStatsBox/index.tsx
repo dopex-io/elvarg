@@ -12,10 +12,8 @@ const PoolStatsBox = (props: PoolStatsBoxInterface) => {
 
   return (
     <Box className="w-1/2 p-3">
-      <Typography variant="h6" className="text-stieglitz">
-        {stat}
-      </Typography>
-      <Typography variant="h6" className="text-stieglitz">
+      <Typography variant="h6">{stat}</Typography>
+      <Typography variant="h6" color="stieglitz">
         {description}
       </Typography>
     </Box>

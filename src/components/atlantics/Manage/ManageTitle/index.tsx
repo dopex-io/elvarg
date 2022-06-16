@@ -44,7 +44,7 @@ const ManageTitle = (props: ManageCardTitleProps) => {
       </Box>
       <Box className="my-auto">
         <Typography variant="h5">{strategy.toUpperCase()}</Typography>
-        <Typography variant="h6" className="text-stieglitz">
+        <Typography variant="h6" color="stieglitz">
           {poolId}
         </Typography>
       </Box>

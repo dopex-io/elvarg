@@ -159,7 +159,8 @@ const PoolCompositionTable = () => {
                     </Typography>
                     <Typography
                       variant="h6"
-                      className="text-stieglitz bg-mineshaft rounded-md p-1"
+                      className="bg-mineshaft rounded-md p-1"
+                      color="stieglitz"
                     >
                       {key}
                     </Typography>
@@ -167,14 +168,18 @@ const PoolCompositionTable = () => {
                 </TableBodyCell>
                 <TableBodyCell align="right" width={5}>
                   <Box className="flex flex-col items-end">
-                    <Typography variant="h6" className="my-auto text-stieglitz">
+                    <Typography
+                      variant="h6"
+                      className="my-auto"
+                      color="stieglitz"
+                    >
                       {'-'}
                     </Typography>
                   </Box>
                 </TableBodyCell>
                 <TableBodyCell align="right" width={5}>
                   <Box className="flex flex-col items-end">
-                    <Typography variant="h6" className="text-stieglitz">
+                    <Typography variant="h6" color="stieglitz">
                       {'-'}
                     </Typography>
                   </Box>

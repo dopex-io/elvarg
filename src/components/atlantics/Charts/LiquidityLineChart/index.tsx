@@ -24,11 +24,11 @@ const LiquidityLineChart = (props: LiquidityLineChartProps) => {
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
       <Box className="flex space-x-2 justify-start mb-3">
         <LegendIcon color="#22E1FF" className="my-auto" />
-        <Typography variant="h6" className="text-stieglitz align-center">
+        <Typography variant="h6" className="align-center" color="stieglitz">
           Deposits
         </Typography>
         <LegendIcon color="#7B61FF" className="my-auto" />
-        <Typography variant="h6" className="text-stieglitz">
+        <Typography variant="h6" color="stieglitz">
           Unlocks
         </Typography>
       </Box>

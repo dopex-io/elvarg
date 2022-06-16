@@ -124,12 +124,12 @@ const Manage = (props: ManageProps) => {
           Icon: Coin,
         },
         {
-          heading: 'HIGHEST STRIKE',
+          heading: 'Highest Strike',
           value: strikes[0]?.div(1e8).toString(),
           Icon: Coin,
         },
         {
-          heading: 'LOWEST STRIKE',
+          heading: 'Lowest Strike',
           value: strikes[strikes.length - 1]?.div(1e8).toString(),
           Icon: Coin,
         },
