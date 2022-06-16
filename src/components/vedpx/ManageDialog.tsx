@@ -75,8 +75,6 @@ const ManageDialog = (props: any) => {
     const maxTime = currentTime + 4 * 365 * 86400;
     const unlockTime = userData.lockEnd.toNumber() + lockPeriod * 86400 * 7;
 
-    console.log(maxTime, unlockTime);
-
     if (!value) {
       setError('');
     } else if (isNaN(Number(value))) {
@@ -107,16 +105,13 @@ const ManageDialog = (props: any) => {
 
       const _amount = utils.parseEther(amount);
 
-      const unlockTime = currentTime + lockPeriod * 86400 * 7;
-
-      console.log(action);
+      const unlockTime = (currentTime + lockPeriod * 86400 * 7).toFixed();
 
       if (action === 'create_lock') {
         await sendTx(vedpx.create_lock(_amount, unlockTime));
       } else if (action === 'increase_amount_and_time') {
         await sendTx(vedpx.increase_amount_and_time(_amount, unlockTime));
       } else if (action === 'increase_unlock_time') {
-        console.log('ASda');
         await sendTx(vedpx.increase_unlock_time(unlockTime));
       } else if (action === 'increase_amount') {
         await sendTx(vedpx.increase_amount(_amount));
@@ -236,7 +231,11 @@ const ManageDialog = (props: any) => {
               <ArrowForwardIcon className="w-4 text-mineshaft mr-2" />
               <Typography variant="h5" color="wave-blue">
                 {format(
-                  (userData.lockEnd.toNumber() + lockPeriod * 86400 * 7) * 1000,
+                  action === 'create_lock'
+                    ? (new Date().getTime() / 1000 + lockPeriod * 86400 * 7) *
+                        1000
+                    : (userData.lockEnd.toNumber() + lockPeriod * 86400 * 7) *
+                        1000,
                   'do MMM yyyy'
                 )}
               </Typography>
