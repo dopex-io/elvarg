@@ -58,6 +58,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   [key: string]: { default: number; all: number[] };
 } = {
   '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/governance/vedpx': { default: 421611, all: [421611] },
   '/farms': { default: 42161, all: [1, 42161] },
   '/farms/manage': { default: 42161, all: [1, 42161] },
   '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
