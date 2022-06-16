@@ -68,14 +68,14 @@ const Manage = (props: ManageProps) => {
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
 
-  const { setSelectedPool, selectedPool, selectedEpoch } =
+  const { setSelectedPool, selectedPool, setSelectedEpoch, selectedEpoch } =
     useContext(AtlanticsContext);
 
   useEffect(() => {
     if (selectedPool?.asset !== 'Asset' || !underlying || !type || !duration)
       return;
     (async () => {
-      await setSelectedPool(underlying, type, selectedEpoch, duration);
+      await setSelectedPool(underlying, type, 1, duration);
     })();
   }, [
     setSelectedPool,
@@ -84,6 +84,7 @@ const Manage = (props: ManageProps) => {
     underlying,
     selectedPool,
     selectedEpoch,
+    setSelectedEpoch,
   ]);
 
   const info = useMemo(() => {

@@ -83,6 +83,7 @@ interface IAtlanticPutsPoolCheckpoint {
 }
 
 export interface IAtlanticPoolCheckpoint {
+  strike?: BigNumber;
   liquidity: BigNumber;
   liquidityBalance: BigNumber;
   unlockCollateral: BigNumber;
@@ -173,6 +174,7 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   strikes: [BigNumber.from(0)],
   data: [
     {
+      strike: BigNumber.from(0),
       liquidity: BigNumber.from(0),
       liquidityBalance: BigNumber.from(0),
       unlockCollateral: BigNumber.from(0),
@@ -281,7 +283,7 @@ export const AtlanticsProvider = (props: any) => {
   const getPutPool = useCallback(
     async (
       address: string,
-      selectedEpoch: number,
+      epoch: number,
       duration: string
     ): Promise<IAtlanticPoolType | undefined> => {
       if (!address) return undefined;
@@ -289,15 +291,15 @@ export const AtlanticsProvider = (props: any) => {
       const atlanticPool = AtlanticPutsPool__factory.connect(address, provider);
 
       const latestCheckpoints: BigNumber[] =
-        await atlanticPool.getEpochCurrentMaxStrikeCheckpoints(selectedEpoch);
+        await atlanticPool.getEpochCurrentMaxStrikeCheckpoints(epoch);
 
       // Strikes
-      const maxStrikes = await atlanticPool.getEpochMaxStrikes(selectedEpoch);
+      const maxStrikes = await atlanticPool.getEpochMaxStrikes(epoch);
 
       const latestCheckpointsCalls = maxStrikes.map(
         async (maxStrike: BigNumber, index: number) => {
           const checkpoint = Number(latestCheckpoints[index]);
-          return atlanticPool.checkpoints(selectedEpoch, maxStrike, checkpoint);
+          return atlanticPool.checkpoints(epoch, maxStrike, checkpoint);
         }
       );
 
@@ -308,7 +310,7 @@ export const AtlanticsProvider = (props: any) => {
       let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
         await Promise.all([
           atlanticPool.addresses(),
-          atlanticPool.epochVaultStates(selectedEpoch),
+          atlanticPool.epochVaultStates(epoch),
           atlanticPool.vaultConfiguration(),
           atlanticPool.getUsdPrice(),
         ]);
@@ -319,6 +321,7 @@ export const AtlanticsProvider = (props: any) => {
       maxStrikes.map((_: BigNumber, index: number) => {
         // Caching to ensure types
         let checkpoint: IAtlanticPoolCheckpoint = {
+          strike: maxStrikes[index] ?? BigNumber.from(0),
           liquidity: checkpoints[index]?.liquidity ?? BigNumber.from(0),
           liquidityBalance:
             checkpoints[index]?.liquidityBalance ?? BigNumber.from(0),
@@ -398,7 +401,7 @@ export const AtlanticsProvider = (props: any) => {
         data,
         state: {
           ...state,
-          epoch: selectedEpoch,
+          epoch,
         },
         config,
         contracts,
@@ -419,7 +422,7 @@ export const AtlanticsProvider = (props: any) => {
   const getCallPool = useCallback(
     async (
       address: string,
-      selectedEpoch: number,
+      epoch: number,
       duration: string
     ): Promise<IAtlanticPoolType | undefined> => {
       if (!address || !provider || !signer || !contractAddresses) return;
@@ -429,15 +432,13 @@ export const AtlanticsProvider = (props: any) => {
         provider
       );
       // @ts-ignore
-      const latestCheckpoint = await atlanticPool.checkpointsCount(
-        selectedEpoch
-      );
+      const latestCheckpoint = await atlanticPool.checkpointsCount(epoch);
 
       const [state, config, checkpoint, { baseToken }, underlyingPrice] =
         await Promise.all([
-          atlanticPool.epochVaultStates(selectedEpoch),
+          atlanticPool.epochVaultStates(epoch),
           atlanticPool.vaultConfiguration(),
-          atlanticPool.checkpoints(selectedEpoch, latestCheckpoint),
+          atlanticPool.checkpoints(epoch, latestCheckpoint),
           atlanticPool.addresses(),
           atlanticPool.getUsdPrice(),
         ]);
@@ -490,7 +491,7 @@ export const AtlanticsProvider = (props: any) => {
         isPut: false,
         // @ts-ignore
         strikes: state.strike,
-        state: { ...state, epoch: selectedEpoch },
+        state: { ...state, epoch },
         data,
         config,
         contracts,
@@ -617,17 +618,19 @@ export const AtlanticsProvider = (props: any) => {
         (deposit: IUserPosition) => deposit.depositor === accountAddress
       );
 
-      const _userDeposits = userDeposits.map((deposit: IUserPosition) => ({
-        strike: deposit.strike ? deposit?.strike.div(1e8) : BigNumber.from(0),
-        timestamp: deposit.timestamp,
-        liquidity: deposit.liquidity.div(1e6),
-        premiumDistributionRatio: deposit.premiumDistributionRatio,
-        fundingDistributionRatio: deposit.fundingDistributionRatio,
-        underlyingDistributionRatio: deposit.underlyingDistributionRatio
-          ? deposit.underlyingDistributionRatio
-          : BigNumber.from(0),
-        depositor: deposit.depositor,
-      }));
+      const _userDeposits = userDeposits.map((deposit: IUserPosition) => {
+        return {
+          strike: deposit.strike ? deposit?.strike.div(1e8) : BigNumber.from(0),
+          timestamp: deposit.timestamp,
+          liquidity: deposit.liquidity,
+          premiumDistributionRatio: deposit.premiumDistributionRatio,
+          fundingDistributionRatio: deposit.fundingDistributionRatio,
+          underlyingDistributionRatio: deposit.underlyingDistributionRatio
+            ? deposit.underlyingDistributionRatio
+            : BigNumber.from(0),
+          depositor: deposit.depositor,
+        };
+      });
 
       setUserPositions(() => _userDeposits);
     } else if (poolType === 'CALLS') {
@@ -659,68 +662,100 @@ export const AtlanticsProvider = (props: any) => {
   ]);
 
   const getRevenueEarnedForCurrentPool = useCallback(async () => {
-    if (!selectedPool || !accountAddress || !userPositions) return;
+    if (
+      !selectedPool ||
+      !accountAddress ||
+      !userPositions ||
+      !selectedPool.contracts
+    )
+      return [];
+
     let revenue: any[] = [];
 
-    userPositions.map(async (position) => {
+    for (var i = 0; i < userPositions.length; i++) {
       if (selectedPool.isPut) {
-        if (!position.strike) return;
-        const pool = selectedPool.contracts?.atlanticPool as AtlanticPutsPool;
-        const latestRatios =
-          // @ts-ignore
-          await pool.onUpdateCheckpoint(selectedEpoch, position.strike * 1e8);
+        const pool = selectedPool.contracts.atlanticPool as AtlanticPutsPool;
+
+        const _position = {
+          strike: userPositions[i]?.strike ?? BigNumber.from(0),
+          liquidity: userPositions[i]?.liquidity ?? BigNumber.from(0),
+          premiumDistributionRatio:
+            userPositions[i]?.premiumDistributionRatio ?? BigNumber.from(0),
+          fundingDistributionRatio:
+            userPositions[i]?.fundingDistributionRatio ?? BigNumber.from(0),
+          underlyingDistributionRatio:
+            userPositions[i]?.underlyingDistributionRatio ?? BigNumber.from(0),
+        };
+
+        const latestRatios = await pool.onUpdateCheckpoint(
+          selectedEpoch,
+          _position.strike.mul(1e8)
+        );
 
         let premium = Number(
           latestRatios?.newPremiumRatio
-            ?.sub(position.premiumDistributionRatio)
-            .mul(position.liquidity)
+            ?.sub(_position.premiumDistributionRatio)
+            .mul(_position.liquidity)
             .div(oneEBigNumber(18))
         );
 
         let funding = Number(
           latestRatios?.newFundingRatio
-            ?.sub(position.fundingDistributionRatio)
-            .mul(position.liquidity)
+            ?.sub(_position.fundingDistributionRatio)
+            .mul(_position.liquidity)
             .div(oneEBigNumber(18))
         );
 
         let underlying = Number(
           latestRatios?.newUnderlyingRatio
-            ?.sub(position.fundingDistributionRatio)
-            .mul(position.liquidity)
+            ?.sub(_position?.underlyingDistributionRatio)
+            .mul(_position.liquidity)
             .div(oneEBigNumber(18))
         );
 
-        setRevenue((prev: any) => [...prev, { premium, funding, underlying }]);
+        revenue.push({
+          premium,
+          funding,
+          underlying,
+        });
       } else {
         const pool = selectedPool.contracts?.atlanticPool as AtlanticCallsPool;
 
         const latestRatios = await pool.onUpdateCheckpoint(selectedEpoch);
 
+        const _position = {
+          strike: userPositions[i]?.strike ?? BigNumber.from(0),
+          liquidity: userPositions[i]?.liquidity ?? BigNumber.from(0),
+          premiumDistributionRatio:
+            userPositions[i]?.premiumDistributionRatio ?? BigNumber.from(0),
+          fundingDistributionRatio:
+            userPositions[i]?.fundingDistributionRatio ?? BigNumber.from(0),
+          underlyingDistributionRatio: BigNumber.from(0),
+        };
+
         let premium = Number(
           latestRatios?.newPremiumRatio
-            ?.sub(position.premiumDistributionRatio)
-            .mul(position.liquidity)
+            ?.sub(_position.premiumDistributionRatio)
+            .mul(_position.liquidity)
             .div(oneEBigNumber(18))
         );
 
         let funding = Number(
           latestRatios?.newFundingRatio
-            ?.sub(position.fundingDistributionRatio)
-            .mul(position.liquidity)
+            ?.sub(_position.fundingDistributionRatio)
+            .mul(_position.liquidity)
             .div(oneEBigNumber(18))
         );
 
-        setRevenue((prev: any) => [
-          ...prev,
-          { premium, funding, underlying: 0 },
-        ]);
+        revenue.push({
+          premium,
+          funding,
+          underlying: 0,
+        });
       }
-    });
-
-    setRevenue(() => {
-      return revenue;
-    });
+    }
+    setRevenue(() => revenue);
+    return [revenue];
   }, [accountAddress, selectedPool, selectedEpoch, userPositions]);
 
   useEffect(() => {
@@ -731,17 +766,20 @@ export const AtlanticsProvider = (props: any) => {
     async (
       underlying: string,
       type: string,
-      selectedEpoch: number,
+      epoch: number,
       duration: string
     ) => {
       if (!contractAddresses || !provider) return;
       const pool = (await getPool(
         underlying,
         type,
-        selectedEpoch,
+        epoch,
         duration
       )) as IAtlanticPoolType;
 
+      if (!pool || !pool.contracts || !pool.contracts.atlanticPool) return;
+      const latestEpoch = await pool.contracts.atlanticPool.currentEpoch();
+      setSelectedEpoch(Number(latestEpoch));
       _setSelectedPool(pool);
     },
     [contractAddresses, getPool, provider]

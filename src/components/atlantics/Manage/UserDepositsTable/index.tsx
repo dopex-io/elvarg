@@ -117,18 +117,26 @@ const UserDepositsTable = () => {
   }, [provider, selectedPool]);
 
   const userPositionDataSanitized = useMemo(() => {
+    if (!selectedPool) return [];
     if (userPositions && userPositions.length !== 0) {
-      const positions = userPositions.map((_position: IUserPosition) => {
+      const tokenDecimals = getTokenDecimals(
+        selectedPool.tokens.deposit,
+        chainId
+      );
+      const positions = userPositions.map((_position: IUserPosition, index) => {
         return {
           strike: _position.strike && _position.strike.toNumber(),
-          liquidity: Number(_position.liquidity) / 1e6,
+          liquidity: Number(_position.liquidity) / 10 ** tokenDecimals,
           timestamp: Number(_position.timestamp),
+          premium: Number(revenue[index]?.premium) / 10 ** tokenDecimals,
+          funding: Number(revenue[index]?.funding) / 10 ** tokenDecimals,
+          underlying: Number(revenue[index]?.underlying) / 10 ** 18,
         };
       });
       return positions;
     }
     return [];
-  }, [userPositions]);
+  }, [userPositions, chainId, selectedPool, revenue]);
 
   const handleWithdraw = useCallback(
     async (strike: number) => {
@@ -205,67 +213,23 @@ const UserDepositsTable = () => {
                 </TableBodyCell>
                 <TableBodyCell>
                   <Typography variant="h6">
-                    {formatAmount(
-                      getUserReadableAmount(
-                        // @ts-ignore
-                        position.liquidity,
-                        getTokenDecimals(
-                          selectedPool?.tokens?.deposit as string,
-                          chainId
-                        )
-                      ),
-                      3,
-                      true
-                    )}{' '}
+                    {formatAmount(position.liquidity, 3, true)}{' '}
                   </Typography>
                 </TableBodyCell>
                 <TableBodyCell>
                   <Typography variant="h6">
-                    {formatAmount(
-                      getUserReadableAmount(
-                        // @ts-ignore
-                        revenue[index]?.premium,
-                        getTokenDecimals(
-                          selectedPool?.tokens?.deposit as string,
-                          chainId
-                        )
-                      ),
-                      3,
-                      true
-                    )}
+                    {formatAmount(position.premium, 3, true)}
                   </Typography>
                 </TableBodyCell>
                 <TableBodyCell>
                   <Typography variant="h6">
-                    {formatAmount(
-                      getUserReadableAmount(
-                        // @ts-ignore
-                        revenue[index]?.funding,
-                        getTokenDecimals(
-                          selectedPool?.tokens?.deposit as string,
-                          chainId
-                        )
-                      ),
-                      3,
-                      true
-                    )}
+                    {formatAmount(position.funding, 3, true)}
                   </Typography>
                 </TableBodyCell>{' '}
                 {selectedPool?.isPut && (
                   <TableBodyCell>
                     <Typography variant="h6">
-                      {formatAmount(
-                        getUserReadableAmount(
-                          // @ts-ignore
-                          revenue[index]?.underlying,
-                          getTokenDecimals(
-                            selectedPool?.tokens?.deposit as string,
-                            chainId
-                          )
-                        ),
-                        3,
-                        true
-                      )}
+                      {formatAmount(position.underlying, 3, true)}
                     </Typography>
                   </TableBodyCell>
                 )}

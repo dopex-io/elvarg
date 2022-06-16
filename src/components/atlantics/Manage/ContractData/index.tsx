@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import formatDistance from 'date-fns/formatDistance';
 
@@ -13,6 +13,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const ContractData = () => {
+  const [currentEpoch, setCurrentEpoch] = useState(0);
+
   const { selectedPool, selectedEpoch, setSelectedEpoch } =
     useContext(AtlanticsContext);
 
@@ -24,11 +26,20 @@ const ContractData = () => {
     );
   }, [selectedPool]);
 
+  useEffect(() => {
+    (async () => {
+      if (!selectedPool || !selectedPool.contracts) return;
+      const epoch = await selectedPool.contracts.atlanticPool.currentEpoch();
+      setCurrentEpoch(Number(epoch));
+    })();
+  }, [selectedPool]);
+
   const vaultStatusMessage = useMemo(() => {
     const expired = selectedPool.state.isVaultExpired;
     const ongoing = selectedPool.state.isVaultReady;
     if (expired) return 'Expired';
     if (ongoing) return 'In Progress';
+    return 'In Progress';
   }, [selectedPool.state.isVaultExpired, selectedPool.state.isVaultReady]);
 
   return (
@@ -46,7 +57,7 @@ const ContractData = () => {
         </Box>
         <Box className="flex space-x-2 h-[2.2rem]">
           <EpochSelector
-            currentEpoch={Number(selectedPool?.state.epoch)}
+            currentEpoch={currentEpoch}
             selectedEpoch={selectedEpoch}
             setSelectedEpoch={setSelectedEpoch}
           />

@@ -32,7 +32,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
         totalDeposits += Number(checkpoint.liquidity) / 10 ** decimals;
       });
       userPositions.map((position) => {
-        userDeposits += Number(position?.liquidity) / 10 ** decimals;
+        userDeposits += Number(position?.liquidity);
       });
 
       const userShare = (userDeposits / totalDeposits) * 100;
