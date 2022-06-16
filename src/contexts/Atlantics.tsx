@@ -15,35 +15,15 @@ import {
   AtlanticPutsPool__factory,
 } from '@dopex-io/sdk';
 
+import { WalletContext } from 'contexts/Wallet';
+
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-import { WalletContext } from 'contexts/Wallet';
-
 const tokenPrices = {
   WETH: 1800,
   USDT: 1,
-};
-
-interface IAtlanticPoolsInfo {
-  [key: string]: {
-    title: string;
-    description: string;
-  };
-}
-
-export const ATLANTIC_POOL_INFO: IAtlanticPoolsInfo = {
-  CALLS: {
-    title: 'ETH CALLS',
-    description:
-      'Deposit underlying into to vault to write OTM calls 33%+ OTM from spot price on bootstrap to earn premiums and fundings.',
-  },
-  PUTS: {
-    title: 'ETH PUTS',
-    description:
-      'Deposit into max strikes to write options to write puts of a particular strike as well as strikes below and OTM to earn premium, fundings and underlying on unwinds of options',
-  },
 };
 
 interface IVaultConfiguration {
@@ -510,11 +490,13 @@ export const AtlanticsProvider = (props: any) => {
   );
 
   const updatePools = useCallback(async () => {
-    if (!contractAddresses || !provider || pools.length !== 0) return;
+    if (!contractAddresses || !provider || pools.length > 0) return;
+
+    let pool: Pool;
 
     Object.keys(contractAddresses['ATLANTIC-POOLS']).map(
       async (asset: string) => {
-        const currentPool: Pool = {
+        pool = {
           asset,
           put: {
             daily: await getPutPool(
@@ -552,7 +534,7 @@ export const AtlanticsProvider = (props: any) => {
           },
         };
 
-        setPools((prev) => [...prev, currentPool]);
+        setPools([pool]);
       }
     );
   }, [

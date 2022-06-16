@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import Box from '@mui/material/Box';
 import {
   BarChart,
@@ -57,16 +57,17 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
           <BarChart
             data={data}
             barCategoryGap="10%"
-            barSize={25}
+            barSize={50}
             layout="vertical"
             margin={{
-              top: 20,
+              top: 10,
               right: 0,
               left: 10,
               bottom: 5,
             }}
           >
             {/* Tried overlapping the graphs */}
+            <Tooltip wrapperClassName="rounded-xl flex text-right h-auto" />
             <XAxis type="number" dataKey="deposits" hide />
             <XAxis type="number" dataKey="unlocked" hide />
             <XAxis type="number" dataKey="activeCollateral" hide />
@@ -80,24 +81,28 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               interval={0}
             />
             <Bar
+              name="Active Collateral"
               dataKey="activeCollateral"
               stackId="a"
               fill="#3E3E3E"
-              name="Active Collateral"
+              label="activeCollateral"
+              barSize={100}
             />
             <Bar
               name="Deposits"
               dataKey="deposits"
               stackId="a"
               fill="#1E1E1E"
-              barSize={50}
+              label="deposits"
+              barSize={100}
             />
             <Bar
-              name="Unlocked collateral"
+              name="Unlocked Collateral"
               dataKey="unlocked"
               stackId="a"
-              fill="#FFFFFF"
-              barSize={50}
+              fill="#2D2D2D"
+              label="unlockedCollateral"
+              barSize={100}
             />
           </BarChart>
         </ResponsiveContainer>

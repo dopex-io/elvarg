@@ -38,6 +38,8 @@ const CustomAccordion = ({
 }: CustomAccordionProps) => {
   const [expand, setExpand] = useState(true);
 
+  console.log(expand);
+
   const callPoolFiltered = useMemo(() => {
     if (!callPools) return;
     let pools: FilteredPoolsInterface[] = [];
@@ -83,6 +85,8 @@ const CustomAccordion = ({
   const handleExpand = () => {
     setExpand((prev) => !prev);
   };
+
+  console.log(handleExpand);
 
   return (
     <Accordion
@@ -147,11 +151,3 @@ const CustomAccordion = ({
 };
 
 export default CustomAccordion;
-/* Accordion component for AP markets
- Accordion Description 
--- Icon + Token Symbol [+ Note. Eg: 'New pools' for new pools added (insured stables, gmx perps, etc.)]
-Accordion Body
--- Stats card (TVL & Volume) 
--- Count (Pools)
--- Cards (Pools)
-*/

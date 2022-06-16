@@ -12,6 +12,7 @@ const PoolCardItem = (props: PoolCardItemProps) => {
   return (
     <Box className="flex justify-between">
       {/* why doesnt stieglitz work lol */}
+      {/* lol no idea even hyphenated colors in tailwind config don't work */}
       <Typography variant="h6" className="text-stieglitz text-gray-500">
         {description}
       </Typography>

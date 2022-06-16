@@ -6,11 +6,12 @@ import { BigNumber } from 'ethers';
 import PoolStatsRow from 'components/atlantics/Manage/ManageCard/PoolStats/PoolStatsRow';
 import PoolStatsBox from 'components/atlantics/Manage/ManageCard/PoolStats/PoolStatsBox';
 
+import { WalletContext } from 'contexts/Wallet';
+import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
+
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
-import { WalletContext } from 'contexts/Wallet';
-import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
 interface PoolStatsProps {
   poolType: string;
 }
@@ -19,7 +20,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
   const { selectedPool, userPositions } = useContext(AtlanticsContext);
   const { chainId } = useContext(WalletContext);
   const poolShareStats = useMemo(() => {
-    if (!selectedPool || !userPositions)
+    if (!selectedPool?.duration || !userPositions)
       return { userShare: 0, totalDeposits: 0 };
 
     const decimals = getTokenDecimals(selectedPool.tokens.deposit, chainId);
@@ -38,7 +39,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
       const userShare = (userDeposits / totalDeposits) * 100;
 
       return {
-        userShare,
+        userShare: formatAmount(userShare, 3),
         totalDeposits: formatAmount(totalDeposits, 3, true),
       };
     } else {
@@ -52,7 +53,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
       const userShare = (totalUserDeposits / totalDeposits) * 100;
 
       return {
-        userShare,
+        userShare: formatAmount(userShare, 3),
         totalDeposits: formatAmount(totalDeposits, 3, true),
       };
     }
@@ -102,9 +103,9 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
         )}
         <PoolStatsRow
           description="Epoch Type"
-          value={selectedPool?.duration.toLocaleLowerCase()!}
+          value={selectedPool?.duration.toLocaleUpperCase()!}
         />
-        <PoolStatsRow description="Side" value={poolType.toLocaleLowerCase()} />
+        <PoolStatsRow description="Side" value={poolType.toLocaleUpperCase()} />
         <PoolStatsRow
           description="Expiry"
           value={format(epochExpiry, 'dd LLLL, yyyy')}

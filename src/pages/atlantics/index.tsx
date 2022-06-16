@@ -6,7 +6,7 @@ import AppBar from 'components/common/AppBar';
 import Accordion from 'components/atlantics/Accordion';
 import Description from 'components/atlantics/Description';
 import Stats from 'components/atlantics/Stats';
-import StrategyFilter from 'components/atlantics/StrategyFilter';
+// import StrategyFilter from 'components/atlantics/StrategyFilter';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 import { CircularProgress } from '@mui/material';
@@ -41,7 +41,7 @@ const Atlantics = () => {
                 >
                   <Box className="flex flex-col col-span-1 space-y-4 ">
                     <Accordion
-                      className="bg-cod-gray shadow-none border border-1 border-mineshaft"
+                      className="bg-cod-gray shadow-none"
                       header={pool.asset}
                       putPools={pool.put}
                       callPools={pool.call}

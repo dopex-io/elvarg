@@ -14,5 +14,3 @@ const Description = () => {
 };
 
 export default Description;
-
-// Landing page description

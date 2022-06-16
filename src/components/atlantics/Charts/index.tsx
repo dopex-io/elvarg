@@ -1,22 +1,16 @@
-// import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import { CircularProgress } from '@mui/material';
-
-import {
-  AtlanticsContext,
-  // AtlanticsProvider,
-  IAtlanticPoolCheckpoint,
-  // IAtlanticPoolType,
-} from 'contexts/Atlantics';
-import { useContext, useMemo } from 'react';
+import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
 import { BigNumber } from 'ethers';
+
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
-const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
-  ssr: false,
-});
+// const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
+//   ssr: false,
+// });
 
 const ClientRenderedBarGraph = dynamic(() => import('./LiquidityBarGraph'), {
   ssr: false,
@@ -38,7 +32,7 @@ interface IBarData {
 }
 
 const Charts = (props: ChartsProps) => {
-  const { line_data, underlying, collateral, title, type } = props;
+  const { /* line_data, */ underlying, collateral, title, type } = props;
   const { selectedPool } = useContext(AtlanticsContext);
 
   const barData: IBarData[] = useMemo((): IBarData[] => {
@@ -81,7 +75,7 @@ const Charts = (props: ChartsProps) => {
             header={{ underlying, collateral, title, type }}
           />
         ) : (
-          <Box className="p-3 flex h-full items-center justify-center">
+          <Box className="p-3 flex items-center justify-center">
             <CircularProgress size="30px" />
           </Box>
         )}

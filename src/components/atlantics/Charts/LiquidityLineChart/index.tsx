@@ -3,7 +3,7 @@ import {
   LineChart,
   XAxis,
   YAxis,
-  Tooltip,
+  // Tooltip,
   Line,
   ResponsiveContainer,
 } from 'recharts';

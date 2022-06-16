@@ -1,30 +1,32 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { format } from 'date-fns';
+import { format, formatDistance } from 'date-fns';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import Box from '@mui/material/Box';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
-import { Box } from '@mui/system';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import {
   AtlanticCallsPool__factory,
   AtlanticPutsPool__factory,
 } from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
+import AlarmIcon from 'svgs/icons/AlarmIcon';
+
 import { AtlanticsContext, IUserPosition } from 'contexts/Atlantics';
+import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-
-import { WalletContext } from 'contexts/Wallet';
 
 const TableHeader = ({
   // @ts-ignore TODO: FIX
@@ -38,7 +40,7 @@ const TableHeader = ({
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
-      className="bg-cod-gray border-1 border-b-0 border-umbra py-2"
+      className="bg-cod-gray border-1 border-umbra py-3"
       sx={{ width }}
     >
       <Typography variant="h6" className={`text-${textColor}`}>
@@ -71,37 +73,13 @@ const TableBodyCell = ({
   );
 };
 
-const TokenSymbol = ({ token }: { token: string }) => (
-  <img
-    src={`/images/tokens/${token.toLowerCase()}.svg`}
-    alt={token.toLowerCase()}
-    className="w-[1.2rem] ml-1"
-  />
-);
-
-const CustomTableHeader = ({
-  token,
-  header,
-}: {
-  token: string | undefined;
-  header: string;
-}) =>
-  token ? (
-    <TableHeader>
-      <Box className="flex  items-center">
-        <Typography variant="h6">{header}</Typography>
-        <TokenSymbol token={token} />
-      </Box>
-    </TableHeader>
-  ) : (
-    <> ... </>
-  );
-
 const UserDepositsTable = () => {
   const { chainId, provider, signer } = useContext(WalletContext);
   const { userPositions, selectedPool, revenue, selectedEpoch } =
     useContext(AtlanticsContext);
+
   const [canWithdraw, setCanWithdraw] = useState<boolean>(true);
+  const [epochDuration, setEpochDuration] = useState<string>('0');
 
   const tx = useSendTx();
 
@@ -115,6 +93,22 @@ const UserDepositsTable = () => {
       }
     })();
   }, [provider, selectedPool]);
+
+  useEffect(() => {
+    (async () => {
+      const epochTimes = {
+        startTime: selectedPool?.state.startTime ?? BigNumber.from(0),
+        expiryTime: selectedPool?.state.expiryTime ?? BigNumber.from(0),
+      };
+
+      const duration = formatDistance(
+        epochTimes['expiryTime'].toNumber() * 1000,
+        epochTimes['startTime'].toNumber() * 1000
+      );
+
+      setEpochDuration(duration);
+    })();
+  }, [selectedPool]);
 
   const userPositionDataSanitized = useMemo(() => {
     if (!selectedPool) return [];
@@ -167,8 +161,8 @@ const UserDepositsTable = () => {
     [selectedEpoch, selectedPool, signer, tx]
   );
 
-  return (
-    <TableContainer className={`rounded-xl max-h-80 w-full overflow-x-auto`}>
+  return userPositions?.length !== 0 ? (
+    <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto">
       <Table>
         <TableHead>
           <TableRow>
@@ -178,89 +172,82 @@ const UserDepositsTable = () => {
               </TableHeader>
             )}
             <TableHeader>Deposit Date</TableHeader>
-            <CustomTableHeader
-              token={selectedPool?.tokens.deposit}
-              header="Liquidity"
-            />
-            <CustomTableHeader
-              token={selectedPool?.tokens.deposit}
-              header="Premia"
-            />
-            <CustomTableHeader
-              token={selectedPool?.tokens.deposit}
-              header="Funding"
-            />
+            <TableHeader>Liquidity</TableHeader>
+            <TableHeader>Premia Collected</TableHeader>
+            <TableHeader>Funding Collected</TableHeader>
             {selectedPool?.isPut && (
-              <CustomTableHeader
-                token={selectedPool?.tokens.deposit}
-                header="Underlying"
-              />
+              <TableHeader>Underlying Collected</TableHeader>
             )}
             <TableHeader align="right">Settle</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {userPositions?.length !== 0 ? (
-            userPositionDataSanitized.map((position, index) => (
-              <TableRow key={index}>
-                {selectedPool?.isPut && (
-                  <TableBodyCell>{position.strike}</TableBodyCell>
-                )}
+          {userPositionDataSanitized.map((position, index) => (
+            <TableRow key={index}>
+              {selectedPool?.isPut && (
+                <TableBodyCell>
+                  <ArrowUpward className="h-[0.8rem]" />${position.strike}
+                </TableBodyCell>
+              )}
+              <TableBodyCell>
+                <Typography variant="h6">
+                  {format(new Date(position.timestamp * 1000), 'd LLLL yyyy')}
+                </Typography>
+              </TableBodyCell>
+              <TableBodyCell>
+                <Typography variant="h6">
+                  {formatAmount(position.liquidity, 3, true)}{' '}
+                </Typography>
+              </TableBodyCell>
+              <TableBodyCell>
+                <Typography variant="h6">
+                  {formatAmount(position.premium, 3, true)}
+                </Typography>
+              </TableBodyCell>
+              <TableBodyCell>
+                <Typography variant="h6">
+                  {formatAmount(position.funding, 3, true)}
+                </Typography>
+              </TableBodyCell>{' '}
+              {selectedPool?.isPut && (
                 <TableBodyCell>
                   <Typography variant="h6">
-                    {format(new Date(position.timestamp * 1000), 'd LLLL yyyy')}
+                    {formatAmount(position.underlying, 3, true)}
                   </Typography>
                 </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    {formatAmount(position.liquidity, 3, true)}{' '}
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    {formatAmount(position.premium, 3, true)}
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    {formatAmount(position.funding, 3, true)}
-                  </Typography>
-                </TableBodyCell>{' '}
-                {selectedPool?.isPut && (
-                  <TableBodyCell>
-                    <Typography variant="h6">
-                      {formatAmount(position.underlying, 3, true)}
-                    </Typography>
-                  </TableBodyCell>
-                )}
-                <TableBodyCell align="right">
-                  <CustomButton
-                    onClick={async () => {
-                      await handleWithdraw(position.strike ?? 0);
-                    }}
-                    disabled={canWithdraw}
-                    color={'mineshaft'}
-                    className={`space-x-3 p-2 rounded-lg ${
-                      !canWithdraw ? 'bg-primary' : 'bg-umbra'
-                    }`}
-                  >
-                    <Typography variant="h6" className="my-auto">
+              )}
+              <TableBodyCell align="right">
+                <CustomButton
+                  onClick={async () => {
+                    await handleWithdraw(position.strike ?? 0);
+                  }}
+                  disabled={!canWithdraw}
+                  color={canWithdraw ? 'primary' : 'mineshaft'}
+                  className="p-2 rounded-lg"
+                >
+                  {canWithdraw ? (
+                    <Typography variant="h6" className="my-auto p-3">
                       Withdraw
                     </Typography>
-                  </CustomButton>
-                </TableBodyCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell>
-                <Typography variant="h6">No positions found</Typography>
-              </TableCell>
+                  ) : (
+                    <>
+                      <AlarmIcon fill="#8E8E8E" />
+                      <Typography variant="h6" className="my-auto ml-2">
+                        {epochDuration}
+                      </Typography>
+                    </>
+                  )}
+                </CustomButton>
+              </TableBodyCell>
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
     </TableContainer>
+  ) : (
+    <Box className="w-full text-center bg-cod-gray rounded-xl p-4">
+      <Typography variant="h6">No Deposits</Typography>
+    </Box>
   );
 };
 

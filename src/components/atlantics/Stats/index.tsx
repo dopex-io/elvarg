@@ -3,9 +3,9 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-import formatAmount from 'utils/general/formatAmount';
-
 import { AtlanticsContext } from 'contexts/Atlantics';
+
+import formatAmount from 'utils/general/formatAmount';
 
 const Stats = () => {
   const { stats } = useContext(AtlanticsContext);

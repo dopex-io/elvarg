@@ -10,13 +10,16 @@ import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
 import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
-
-import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
-import { ATLANTIC_POOL_INFO } from 'contexts/Atlantics';
 import InfoBox from 'components/ssov-v3/InfoBox';
+
 import Action from 'svgs/icons/Action';
 import Coin from 'svgs/icons/Coin';
+
+import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
+
 import formatAmount from 'utils/general/formatAmount';
+
+import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
 
 // Placeholder data for charts
 const line_chart_data = [
@@ -157,34 +160,34 @@ const Manage = (props: ManageProps) => {
               {type === 'CALLS' ? null : (
                 <Typography variant="h5">Liquidity</Typography>
               )}
-              <Box className="flex flex-row">
+              <Box className="flex flex-col xl:flex-row">
                 {type === 'CALLS' ? null : (
-                  <>
-                    <Box className="flex-1">
-                      <Charts
-                        line_data={line_chart_data}
-                        underlying={underlying}
-                        collateral={tokenId}
-                        title={title}
-                        type={type}
-                      />
-                    </Box>
-                  </>
+                  <Box className="flex-1">
+                    <Charts
+                      line_data={line_chart_data}
+                      underlying={underlying}
+                      collateral={tokenId}
+                      title={title}
+                      type={type}
+                    />
+                  </Box>
                 )}
-                <Box className={`${type === 'PUTS' && 'flex-[0.5] ml-2'}`}>
-                  <Box className="grid grid-cols-2 gap-2 mb-6">
-                    {info.map((item) => {
-                      return (
-                        // @ts-ignore
-                        <InfoBox
-                          key={item.heading}
-                          {...item}
-                          className={`flex ${
-                            type === 'PUTS' && 'justify-center items-center'
-                          }`}
-                        />
-                      );
-                    })}
+                <Box
+                  className={`${
+                    type === 'PUTS' && 'flex-[0.5] mt-2 xl:ml-2 xl:mt-0'
+                  }`}
+                >
+                  <Box className="grid grid-cols-2 gap-2 mb-6 h-auto">
+                    {info.map((item) => (
+                      // @ts-ignore
+                      <InfoBox
+                        key={item.heading}
+                        {...item}
+                        className={`flex ${
+                          type === 'PUTS' && 'justify-center items-center'
+                        }`}
+                      />
+                    ))}
                   </Box>
                 </Box>
               </Box>
