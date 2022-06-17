@@ -455,10 +455,15 @@ const DuelPepes = () => {
               src={'/assets/export.svg'}
               className={'w-5 h-5 ml-auto mt-1'}
               alt={'Mint Gen2 Pepe'}
+              onClick={() =>
+                window.location.replace(
+                  'https://app.dopex.io/nfts/diamondpepes2'
+                )
+              }
             />
             <Typography
               variant="h5"
-              className="text-[#78859E] font-['Minecraft'] relative z-1 ml-4 mt-1"
+              className="text-[#78859E] font-['Minecraft'] relative z-1 ml-4 mt-1 cursor-pointer"
             >
               <span className={styles['pepeLink']}>Mint Gen2 Pepe</span>
             </Typography>
@@ -470,7 +475,7 @@ const DuelPepes = () => {
             />
             <Typography
               variant="h5"
-              className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1"
+              className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
             >
               <span className={styles['pepeLink']}>How to play</span>
             </Typography>
@@ -482,7 +487,10 @@ const DuelPepes = () => {
             />
             <Typography
               variant="h5"
-              className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-4 mt-1"
+              className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-4 mt-1 cursor-pointer"
+              onClick={() =>
+                window.location.replace('https://twitter.com/chutoro_au')
+              }
             >
               <span className={styles['pepeLink']}>CEO</span>
             </Typography>
