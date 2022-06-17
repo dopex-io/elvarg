@@ -106,12 +106,12 @@ function VaultCard(props: Props) {
                 ) : null}
               </Typography>
               <img
-                src={'/assets/calls.svg'}
+                src={'/images/misc/calls.svg'}
                 className="w-12 mt-1.5 ml-auto mr-2"
                 alt={'CALLS'}
               />
               <img
-                src={'/assets/puts.svg'}
+                src={'/images/misc/puts.svg'}
                 className="w-12 mt-1.5"
                 alt={'PUTS'}
               />

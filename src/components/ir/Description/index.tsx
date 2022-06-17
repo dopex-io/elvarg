@@ -8,7 +8,11 @@ const Description = ({ poolName }: { poolName: string }) => {
     <Box className={'lg:w-3/4'}>
       <Box className={'flex'}>
         <Box className={'rounded-full mt-auto mb-auto'}>
-          <img src={VAULT_MAP[poolName]?.src} className="w-[6rem]" alt="ir" />
+          <img
+            src={VAULT_MAP[poolName]?.src}
+            className="w-[6rem]"
+            alt={poolName}
+          />
         </Box>
         <Typography
           variant="h3"

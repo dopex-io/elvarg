@@ -106,7 +106,7 @@ function SsovCard(props) {
                 ) : null}
               </Typography>
               <img
-                src={'/assets/' + type + 's.svg'}
+                src={'/images/misc/' + type + 's.svg'}
                 className="w-12 mt-1.5"
                 alt={type}
               />
