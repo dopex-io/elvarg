@@ -7,6 +7,7 @@ import CustomButton from 'components/UI/CustomButton';
 import { DpxBondsContext } from 'contexts/Bonds';
 import format from 'date-fns/format';
 
+// import formatAmount from 'utils/general/formatAmount';
 import styles from './styles.module.scss';
 
 type EpochData = {
@@ -15,7 +16,8 @@ type EpochData = {
 };
 
 export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
-  const { epochExpiry, epochStartTime } = useContext(DpxBondsContext);
+  const { epochNumber, epochExpiry, epochStartTime, dopexBondsNftBalance } =
+    useContext(DpxBondsContext);
 
   return (
     <>
@@ -24,7 +26,7 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
           <Box className="text-stieglitz mb-3">Epoch</Box>
           {/*  @ts-ignore TODO: FIX */}
           <Button className={styles['button']}>
-            {epochStartTime && format(epochStartTime, 'MM/dd/yyyy')}
+            {epochExpiry && format(epochStartTime, 'MM/dd/yyyy')}
           </Button>
         </Box>
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">

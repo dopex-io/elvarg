@@ -17,6 +17,7 @@ interface DpxBondsData {
   epochExpiry: number;
   depositPerNft: number;
   epochStartTime: number;
+  maxDepositsPerEpoch: number;
 }
 
 interface DpxBondsContextInterface extends DpxBondsData {}
@@ -26,6 +27,8 @@ const initialData = {
   epochExpiry: null,
   depositPerNft: '',
   epochStartTime: null,
+  maxDepositsPerEpoch: 0,
+  dopexBondsNftBalance: 9,
 };
 
 export const DpxBondsContext =
@@ -47,13 +50,23 @@ export const DpxBondsProvider = (props) => {
 
   const getEpochData = async () => {
     let epochNumber = parseInt(await bondsContract.epochNumber());
-    let epochStartTime = new Date(await bondsContract.startTime());
-    let epochExpiry = new Date(await bondsContract.epochExpiry(epochNumber));
+    let epochStartTime = (await bondsContract.startTime()) * 1000;
+    let epochExpiry = parseInt(await bondsContract.epochExpiry(1)) * 1000;
+    let maxDepositsPerEpoch = parseInt(
+      await bondsContract.maxDepositsPerEpoch(epochNumber)
+    );
+    let dopexBondsNftBalance = parseInt(
+      await bondsContract.getDopexBondsNftBalance(accountAddress)
+    );
+    // usableNfts = await dpxBonds.getUsableNfts(signer.address)
+
     setState((prevState: any) => ({
       ...prevState,
       epochNumber: epochNumber,
       epochExpiry: epochExpiry,
       epochStartTime: epochStartTime,
+      maxDepositsPerEpoch: maxDepositsPerEpoch,
+      dopexBondsNftBalance: dopexBondsNftBalance,
     }));
   };
 
