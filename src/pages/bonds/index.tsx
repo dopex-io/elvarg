@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import AppBar from 'components/common/AppBar';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
@@ -6,13 +6,19 @@ import Typography from 'components/UI/Typography';
 import { UserBonds } from 'components/bonds/UserBonds';
 import { ModalBonds } from 'components/bonds//ModalBonds';
 import { EpochData } from 'components/bonds/EpochData';
-
 import { WalletContext } from 'contexts/Wallet';
+import { DpxBondsContext, DpxBondsProvider } from 'contexts/Bonds';
 
-export const BondsPage = () => {
+export const Bonds = () => {
   const { accountAddress } = useContext(WalletContext);
-  const [modalOpen, setModal] = useState(false);
+  // const { epochNumber, epochStartTime } = useContext(DpxBondsContext);
 
+  // useEffect(() => {
+  //   console.log("Here epochNumber", epochNumber, epochStartTime)
+
+  // }, [epochNumber, epochStartTime])
+
+  const [modalOpen, setModal] = useState(false);
   const handleModal = () => {
     setModal(!modalOpen);
   };
@@ -34,4 +40,12 @@ export const BondsPage = () => {
   );
 };
 
-export default BondsPage;
+// export default BondsPage;
+
+export default function BondsPaget() {
+  return (
+    <DpxBondsProvider>
+      <Bonds />
+    </DpxBondsProvider>
+  );
+}

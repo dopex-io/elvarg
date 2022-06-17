@@ -1,8 +1,11 @@
+import { useContext } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import Button from '@mui/material/Button';
 import LaunchIcon from '@mui/icons-material/Launch';
 import CustomButton from 'components/UI/CustomButton';
+import { DpxBondsContext } from 'contexts/Bonds';
+import format from 'date-fns/format';
 
 import styles from './styles.module.scss';
 
@@ -12,13 +15,17 @@ type EpochData = {
 };
 
 export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
+  const { epochExpiry, epochStartTime } = useContext(DpxBondsContext);
+
   return (
     <>
       <Box className="bg-cod-gray rounded-lg flex flex-wrap md:w-[728px] mb-5">
         <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">Epoch</Box>
           {/*  @ts-ignore TODO: FIX */}
-          <Button className={styles['button']}>01-01-2022</Button>
+          <Button className={styles['button']}>
+            {epochStartTime && format(epochStartTime, 'MM/dd/yyyy')}
+          </Button>
         </Box>
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">DPX Available</Box>
@@ -35,7 +42,7 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
         </Box>
         <Box className="p-3 md:flex-1">
           <Box className="text-stieglitz mb-3">Unlocks</Box>
-          08-01-2022
+          {epochExpiry && format(epochExpiry, 'MM/dd/yyyy')}
         </Box>
       </Box>
       <Typography variant="h5">Bond with Stablecoins</Typography>
