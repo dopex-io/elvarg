@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-import { BigNumber, ethers, utils } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -27,6 +27,7 @@ import { AssetsContext } from 'contexts/Assets';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import styles from './styles.module.scss';
 import { DiamondPepeNFTs__factory } from '@dopex-io/sdk';
@@ -362,6 +363,8 @@ const ABI = [
   },
 ];
 
+const feesPercentage = 10;
+
 const CreateDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses } = useContext(WalletContext);
   const accountAddress = '0x4F30A0D841088BaCddC7C179BE06564Fc4D0B7E7';
@@ -393,12 +396,20 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const duel = useMemo(
     () =>
       new ethers.Contract(
-        '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
+        '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
         ABI,
         signer
       ),
     [signer]
   );
+
+  const fees = useMemo(() => {
+    return (wager * feesPercentage) / 100;
+  }, [wager]);
+
+  const maxPayout = useMemo(() => {
+    return wager * 2 - fees;
+  }, [wager]);
 
   const kickMovesSelected = useMemo(() => {
     let counter: number = 0;
@@ -498,16 +509,20 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       .connect(signer)
       ['createDuel'](
         identifier,
-        wager,
+        getContractReadableAmount(wager, getTokenDecimals(tokenName, chainId)),
         contractAddresses[tokenName],
         '0xede855ceD3e5A59Aaa267aBdDdB0dB21CCFE5072',
         duelist,
-        movesSig
+        movesSig,
+        {
+          gasLimit: 2000000,
+          value: tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
+        }
       );
 
     setMoves([]);
     handleClose();
-  }, [duel, signer, contractAddresses, tokenName]);
+  }, [duel, signer, contractAddresses, tokenName, chainId]);
 
   const readableBalance = useMemo(() => {
     return getUserReadableAmount(
@@ -646,7 +661,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     >
       {isTokenSelectorVisible ? ( // @ts-ignore
         <Box className="h-[52.8rem]">
-          {' '}
+          {/* @ts-ignore TODO: FIX */}
           <TokenSelector
             open={isTokenSelectorVisible}
             setOpen={setIsTokenSelectorVisible}
@@ -677,6 +692,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           </Box>
           {isLoadingNfts ? (
             <Box className="h-[40rem] overflow-hidden mt-2">
+              {/* @ts-ignore TODO: FIX */}
               <Box className={styles['darkBg']}>
                 <Box className="absolute left-[20%] top-[40%] z-50 text-center">
                   <Typography
@@ -730,6 +746,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             </Box>
           ) : (
             <Box className="h-[40rem] overflow-hidden mt-2 pt-2">
+              {/* @ts-ignore TODO: FIX */}
               <Box className={styles['darkBg']}>
                 <Box className="flex lg:grid lg:grid-cols-12 mb-3">
                   {userNfts.map((userNft) => (
@@ -790,6 +807,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             </Box>
             <Box className="flex mt-5 mb-1 ml-2">
               <Moves />
+              {/* @ts-ignore TODO: FIX */}
               {[...Array(5 - moves.length)].map((w, i) => (
                 <Box className="flex">
                   <Box className="mr-3">
@@ -1003,11 +1021,13 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
+              {/* @ts-ignore TODO: FIX */}
               <CustomButton
                 size="medium"
                 className={styles['pepeButton']}
                 onClick={() => setMoves([])}
               >
+                {/* @ts-ignore TODO: FIX */}
                 <Typography variant="h5" className={styles['pepeButtonText']}>
                   RESET
                 </Typography>
@@ -1015,11 +1035,13 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             </Box>
 
             <Box className="w-1/2 ml-2 mr-4">
+              {/* @ts-ignore TODO: FIX */}
               <CustomButton
                 size="medium"
                 className={styles['pepeButton']}
                 onClick={saveMoves}
               >
+                {/* @ts-ignore TODO: FIX */}
                 <Typography variant="h5" className={styles['pepeButtonText']}>
                   SAVE
                 </Typography>
@@ -1193,7 +1215,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    -
+                    {maxPayout}
                   </Typography>
                 </Box>
               </Box>
@@ -1206,7 +1228,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    -
+                    {fees}
                   </Typography>
                 </Box>
               </Box>
@@ -1223,6 +1245,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </span>
               </Typography>
             </Box>
+            {/* @ts-ignore TODO: FIX */}
             <CustomButton
               size="medium"
               className={styles['pepeButton']}

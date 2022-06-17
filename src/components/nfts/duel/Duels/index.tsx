@@ -24,7 +24,7 @@ import React from 'react';
 
 const Duels = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [duels, setDuels] = useState<any[]>([1]);
+  const [duels, setDuels] = useState<{ [key: string]: any }[]>([1]);
 
   return (
     <Box className={'bg-[#181C24] w-full p-4 pt-2 pb-4.5 pb-0 rounded-sm'}>
@@ -98,6 +98,7 @@ const Duels = () => {
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
+                {/* @ts-ignore TODO: FIX */}
                 {duels.map((duel, i) => (
                   <TableRow key={i} className="text-white mb-2 rounded-lg mt-2">
                     <TableCell align="left" className="mx-0 pt-2">
@@ -154,6 +155,7 @@ const Duels = () => {
                         size="medium"
                         className={styles['smallPepeButton']}
                       >
+                        {/* @ts-ignore TODO: FIX */}
                         <Typography
                           variant="h5"
                           className={styles['pepeButtonText']}
@@ -171,7 +173,7 @@ const Duels = () => {
         {duels.length == 0 ? (
           <Box className="text-stieglitz text-center pt-8 pb-9">
             <Typography variant="h6" className="text-white font-['Minecraft']">
-              Your duels will appear here
+              No active duels to show
             </Typography>
           </Box>
         ) : null}
