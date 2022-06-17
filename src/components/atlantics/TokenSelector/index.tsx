@@ -21,7 +21,7 @@ interface TokenSelectorProps {
     address: string;
   }[];
   setSelection: (symbol: string) => void;
-  containerRef: React.RefObject<HTMLInputElement>;
+  containerRef?: React.RefObject<HTMLInputElement>;
 }
 
 const TokenSelector = (props: TokenSelectorProps) => {
@@ -50,7 +50,7 @@ const TokenSelector = (props: TokenSelectorProps) => {
       in={open}
       mountOnEnter
       unmountOnExit
-      container={containerRef.current}
+      // container={containerRef?.current}
     >
       <Box className="overflow-y-auto w-full bg-cod-gray">
         {tokens?.map((token, index) => {

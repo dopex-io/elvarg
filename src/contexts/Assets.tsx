@@ -36,6 +36,7 @@ export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
   56: 'BNB',
   43114: 'AVAX',
   1: 'ETH',
+  1337: 'ETH',
 };
 
 export const IS_NATIVE = (asset: string) => {

@@ -20,6 +20,7 @@ import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 import formatAmount from 'utils/general/formatAmount';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
+import { Slider } from '@mui/material';
 
 // Placeholder data for charts
 const line_chart_data = [
@@ -90,6 +91,16 @@ const Manage = (props: ManageProps) => {
     setSelectedEpoch,
   ]);
 
+  const depositToken = useMemo((): string => {
+    if (!selectedPool) return '';
+    const { deposit } = selectedPool.tokens;
+    if (deposit) {
+      return deposit;
+    } else {
+      return selectedPool.asset;
+    }
+  }, [selectedPool]);
+
   const info = useMemo(() => {
     if (!selectedPool) return [{ heading: '', value: '' }];
 
@@ -149,7 +160,7 @@ const Manage = (props: ManageProps) => {
         <Box className="flex space-x-0 sm:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
           <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
             <ManageTitle
-              depositToken={selectedPool?.tokens.deposit ?? ''}
+              depositToken={depositToken}
               underlying={underlying}
               strategy={title}
               epochLength={duration}
@@ -192,6 +203,7 @@ const Manage = (props: ManageProps) => {
                 </Box>
               </Box>
             </Box>
+
             {/* <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>
               <PoolCompositionTable />

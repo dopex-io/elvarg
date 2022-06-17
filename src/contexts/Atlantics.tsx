@@ -4,6 +4,8 @@ import {
   useContext,
   useState,
   useCallback,
+  Dispatch,
+  SetStateAction,
 } from 'react';
 import { BigNumber } from 'ethers';
 import {
@@ -119,7 +121,7 @@ interface AtlanticsContextInterface {
     duration: string
   ) => Promise<IAtlanticPoolType> | {};
   selectedEpoch: number;
-  setSelectedEpoch: Function;
+  setSelectedEpoch: Dispatch<SetStateAction<number>>;
   selectedPool: IAtlanticPoolType;
   setSelectedPool: Function;
   userPositions: IUserPosition[];
@@ -136,10 +138,7 @@ export interface IAtlanticPoolType {
   state: IVaultState;
   config: IVaultConfiguration;
   contracts?: IContracts;
-  tokens: {
-    deposit: string;
-    underlying: string;
-  };
+  tokens: { [key: string]: string };
   tvl: number;
   volume: number;
   apy: string | string[];
@@ -580,9 +579,7 @@ export const AtlanticsProvider = (props: any) => {
     const pool = selectedPool;
     const poolType = pool.isPut ? 'PUTS' : 'CALLS';
     const contractAddress =
-      contractAddresses['ATLANTIC-POOLS'][pool.tokens.underlying][poolType][
-        pool.duration
-      ];
+      contractAddresses['ATLANTIC-POOLS'][pool.asset][poolType][pool.duration];
     if (!contractAddress) return;
     const atlanticPool =
       poolType === 'PUTS'
