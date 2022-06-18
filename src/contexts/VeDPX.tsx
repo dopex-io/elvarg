@@ -2,6 +2,7 @@ import {
   createContext,
   useState,
   useContext,
+  useCallback,
   useEffect,
   ReactNode,
 } from 'react';
@@ -11,6 +12,7 @@ import {
   DPXVotingEscrow__factory,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
@@ -37,6 +39,8 @@ interface userVedpxData {
 interface VeDPXContextInterface {
   data: vedpxData;
   userData: userVedpxData;
+  updateData: Function;
+  updateUserData: Function;
 }
 
 const initialData = {
@@ -51,12 +55,14 @@ const initialUserData = {
   dpxBalance: BigNumber.from(0),
   lockEnd: BigNumber.from(0),
   dpxEarned: BigNumber.from(0),
-  userIsInitialized: false,
+  userIsInitialized: true,
 };
 
 export const VeDPXContext = createContext<VeDPXContextInterface>({
   data: initialData,
   userData: initialUserData,
+  updateData: noop,
+  updateUserData: noop,
 });
 
 export const VeDPXProvider = (props: { children: ReactNode }) => {
@@ -65,70 +71,72 @@ export const VeDPXProvider = (props: { children: ReactNode }) => {
   const [data, setData] = useState<vedpxData>(initialData);
   const [userData, setUserData] = useState<userVedpxData>(initialUserData);
 
-  useEffect(() => {
+  const updateData = useCallback(async () => {
     if (!provider) return;
-    async function updateData() {
-      const dpx = ERC20__factory.connect(
-        '0x3330BF0253f841d148F20500464D30cd42beCf6b',
-        provider
-      );
+    const dpx = ERC20__factory.connect(
+      '0x3330BF0253f841d148F20500464D30cd42beCf6b',
+      provider
+    );
 
-      const vedpx = DPXVotingEscrow__factory.connect(vedpxAddress, provider);
+    const vedpx = DPXVotingEscrow__factory.connect(vedpxAddress, provider);
 
-      const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
-        vedpxYieldDistributorAddress,
-        provider
-      );
+    const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
+      vedpxYieldDistributorAddress,
+      provider
+    );
 
-      const [vedpxTotalSupply, dpxLocked, totalVeDPXParticipating] =
-        await Promise.all([
-          vedpx.totalSupply(),
-          dpx.balanceOf(vedpx.address),
-          vedpxYieldDistributor.totalVeDPXParticipating(),
-        ]);
+    const [vedpxTotalSupply, dpxLocked, totalVeDPXParticipating] =
+      await Promise.all([
+        vedpx.totalSupply(),
+        dpx.balanceOf(vedpx.address),
+        vedpxYieldDistributor.totalVeDPXParticipating(),
+      ]);
 
-      setData({ vedpxTotalSupply, dpxLocked, totalVeDPXParticipating });
-    }
-    updateData();
+    setData({ vedpxTotalSupply, dpxLocked, totalVeDPXParticipating });
   }, [provider]);
 
   useEffect(() => {
-    async function updateUserData() {
-      if (!accountAddress) return;
-      const dpx = ERC20__factory.connect(
-        '0x3330BF0253f841d148F20500464D30cd42beCf6b',
-        provider
-      );
+    updateData();
+  }, [updateData]);
 
-      const vedpx = DPXVotingEscrow__factory.connect(vedpxAddress, provider);
+  const updateUserData = useCallback(async () => {
+    if (!accountAddress) return;
+    const dpx = ERC20__factory.connect(
+      '0x3330BF0253f841d148F20500464D30cd42beCf6b',
+      provider
+    );
 
-      const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
-        vedpxYieldDistributorAddress,
-        provider
-      );
+    const vedpx = DPXVotingEscrow__factory.connect(vedpxAddress, provider);
 
-      const [vedpxBalance, locked, dpxBalance, dpxEarned, userIsInitialized] =
-        await Promise.all([
-          vedpx.balanceOf(accountAddress),
-          vedpx.locked(accountAddress),
-          dpx.balanceOf(accountAddress),
-          vedpxYieldDistributor.earned(accountAddress),
-          vedpxYieldDistributor.userIsInitialized(accountAddress),
-        ]);
+    const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
+      vedpxYieldDistributorAddress,
+      provider
+    );
 
-      setUserData({
-        vedpxBalance,
-        dpxBalance,
-        dpxEarned,
-        userIsInitialized,
-        lockedDpxBalance: locked.amount,
-        lockEnd: locked.end,
-      });
-    }
+    const [vedpxBalance, locked, dpxBalance, dpxEarned, userIsInitialized] =
+      await Promise.all([
+        vedpx.balanceOf(accountAddress),
+        vedpx.locked(accountAddress),
+        dpx.balanceOf(accountAddress),
+        vedpxYieldDistributor.earned(accountAddress),
+        vedpxYieldDistributor.userIsInitialized(accountAddress),
+      ]);
+
+    setUserData({
+      vedpxBalance,
+      dpxBalance,
+      dpxEarned,
+      userIsInitialized,
+      lockedDpxBalance: locked.amount,
+      lockEnd: locked.end,
+    });
+  }, [accountAddress, provider]);
+
+  useEffect(() => {
     updateUserData();
-  }, [provider, accountAddress]);
+  }, [updateUserData]);
 
-  let contextValue = { userData, data };
+  let contextValue = { userData, data, updateData, updateUserData };
 
   return (
     <VeDPXContext.Provider value={contextValue}>

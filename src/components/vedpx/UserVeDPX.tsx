@@ -5,7 +5,7 @@ import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
-import ManageDialog from './ManageDialog';
+import LockDialog from './LockDialog';
 import Stat from './Stat';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -13,7 +13,7 @@ import formatAmount from 'utils/general/formatAmount';
 import { VeDPXContext } from 'contexts/VeDPX';
 
 const UserVeDPX = () => {
-  const [dialog, setDialog] = useState<any>({});
+  const [dialog, setDialog] = useState<{ open: boolean }>({ open: false });
 
   const { userData } = useContext(VeDPXContext);
 
@@ -52,10 +52,11 @@ const UserVeDPX = () => {
           />
           <Stat
             name="Locked Until"
-            value={`${format(
-              userData.lockEnd.toNumber() * 1000,
-              'do MMM yyyy'
-            )}`}
+            value={
+              userData.lockEnd.toNumber() === 0
+                ? '--'
+                : `${format(userData.lockEnd.toNumber() * 1000, 'do MMM yyyy')}`
+            }
           />
           <Box className="p-3">
             <WalletButton onClick={() => setDialog({ open: true })}>
@@ -64,7 +65,7 @@ const UserVeDPX = () => {
           </Box>
         </Box>
       </Box>
-      <ManageDialog {...dialog} handleClose={handleClose} />
+      <LockDialog {...dialog} handleClose={handleClose} />
     </Box>
   );
 };

@@ -16,7 +16,8 @@ import useSendTx from 'hooks/useSendTx';
 
 const VeDPXYield = () => {
   const { accountAddress, signer } = useContext(WalletContext);
-  const { userData, data } = useContext(VeDPXContext);
+  const { userData, data, updateData, updateUserData } =
+    useContext(VeDPXContext);
 
   const sendTx = useSendTx();
 
@@ -28,6 +29,9 @@ const VeDPXYield = () => {
     );
 
     await sendTx(vedpxYieldDistributor.checkpoint());
+
+    await updateData();
+    await updateUserData();
   };
 
   const handleClaim = useCallback(async () => {
@@ -58,13 +62,13 @@ const VeDPXYield = () => {
             src="/images/tokens/dpx.svg"
             alt="DPX"
           />
-          <Box className="flex-grow">
+          <Box className="flex-grow font-">
             <Typography variant="h5">veDPX</Typography>
             <Typography variant="h6" color="stieglitz">
               Earn DPX
             </Typography>
           </Box>
-          {!userData.userIsInitialized ? (
+          {!userData.vedpxBalance.isZero() && !userData.userIsInitialized ? (
             <WalletButton
               className="justify-self-end"
               onClick={handleCheckpoint}

@@ -1,6 +1,10 @@
 import { useState, useCallback, useContext, useEffect, useMemo } from 'react';
-import { utils } from 'ethers';
-import { ERC20__factory, DPXVotingEscrow__factory } from '@dopex-io/sdk';
+import { BigNumber, utils } from 'ethers';
+import {
+  ERC20__factory,
+  DPXVotingEscrow__factory,
+  VeDPXYieldDistributor__factory,
+} from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
@@ -19,7 +23,11 @@ import { WalletContext } from 'contexts/Wallet';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
-import { VeDPXContext, vedpxAddress } from 'contexts/VeDPX';
+import {
+  VeDPXContext,
+  vedpxAddress,
+  vedpxYieldDistributorAddress,
+} from 'contexts/VeDPX';
 
 const ACTION_COPY = {
   create_lock: {
@@ -44,7 +52,7 @@ const ACTION_COPY = {
   no_change: { cta: 'Lock', description: '' },
 };
 
-const ManageDialog = (props: any) => {
+const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
   const { open, handleClose } = props;
 
   const [error, setError] = useState('');
@@ -55,20 +63,10 @@ const ManageDialog = (props: any) => {
   const [amount] = useDebounce(value, 1000);
 
   const { signer } = useContext(WalletContext);
-  const { userData, data } = useContext(VeDPXContext);
+  const { userData, data, updateData, updateUserData } =
+    useContext(VeDPXContext);
 
   const sendTx = useSendTx();
-
-  const action = useMemo(() => {
-    const _amount = utils.parseEther(value || '0');
-
-    if (userData.vedpxBalance.isZero()) return 'create_lock';
-    if (lockPeriod && !_amount.isZero()) return 'increase_amount_and_time';
-    if (!_amount.isZero()) return 'increase_amount';
-    if (lockPeriod) return 'increase_unlock_time';
-
-    return 'no_change';
-  }, [lockPeriod, userData.vedpxBalance, value]);
 
   useEffect(() => {
     const currentTime = new Date().getTime() / 1000;
@@ -88,6 +86,22 @@ const ManageDialog = (props: any) => {
     }
   }, [value, userData, lockPeriod]);
 
+  const action = useMemo(() => {
+    let _amount;
+    try {
+      _amount = utils.parseEther(value);
+    } catch {
+      _amount = BigNumber.from(0);
+    }
+
+    if (userData.vedpxBalance.isZero()) return 'create_lock';
+    if (lockPeriod && !_amount.isZero()) return 'increase_amount_and_time';
+    if (!_amount.isZero()) return 'increase_amount';
+    if (lockPeriod) return 'increase_unlock_time';
+
+    return 'no_change';
+  }, [lockPeriod, userData.vedpxBalance, value]);
+
   const handleChange = useCallback((e: { target: { value: string } }) => {
     setValue(e.target.value);
   }, []);
@@ -100,6 +114,10 @@ const ManageDialog = (props: any) => {
     if (!signer) return;
     try {
       const vedpx = DPXVotingEscrow__factory.connect(vedpxAddress, signer);
+      const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
+        vedpxYieldDistributorAddress,
+        signer
+      );
 
       const currentTime = new Date().getTime() / 1000;
 
@@ -116,10 +134,15 @@ const ManageDialog = (props: any) => {
       } else if (action === 'increase_amount') {
         await sendTx(vedpx.increase_amount(_amount));
       }
+
+      await sendTx(vedpxYieldDistributor.checkpoint());
+
+      await updateData();
+      await updateUserData();
     } catch (err) {
       console.log(err);
     }
-  }, [action, amount, lockPeriod, sendTx, signer]);
+  }, [action, amount, lockPeriod, sendTx, signer, updateData, updateUserData]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
@@ -170,6 +193,7 @@ const ManageDialog = (props: any) => {
       <Box className="flex flex-col space-y-3">
         <Typography variant="h5">Lock DPX</Typography>
         <Input
+          type="number"
           leftElement={
             <Box className="mr-2 flex space-x-2">
               <img
@@ -215,7 +239,9 @@ const ManageDialog = (props: any) => {
                 {formatAmount(
                   utils.formatEther(
                     userData.lockedDpxBalance.add(
-                      utils.parseEther(value || '0')
+                      utils.parseEther(
+                        (isNaN(Number(value)) ? '0' : value) || '0'
+                      )
                     )
                   ),
                   2
@@ -274,4 +300,4 @@ const ManageDialog = (props: any) => {
   );
 };
 
-export default ManageDialog;
+export default LockDialog;
