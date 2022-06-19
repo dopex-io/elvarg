@@ -3,6 +3,7 @@ import cx from 'classnames';
 import Box from '@mui/material/Box';
 import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
+import { css } from '@emotion/css';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
@@ -17,8 +18,6 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { VAULT_MAP } from 'constants/index';
 
-import styles from './styles.module.scss';
-
 interface Props {
   className: string;
   data: {
@@ -32,6 +31,15 @@ interface Props {
     version: string;
   };
 }
+
+const backgrounds: { [key: string]: string } = {
+  'MIM3CRV-1':
+    'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)',
+  PUSD3CRV:
+    'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #22e1ff 99.1%)',
+  'MIM3CRV-2':
+    'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)',
+};
 
 function VaultCard(props: Props) {
   const { className, data } = props;
@@ -80,7 +88,9 @@ function VaultCard(props: Props) {
   }, [rate, convertToBNB, name, totalEpochDeposits, tvl, symbol]);
 
   return (
-    <Box className={cx('p-[1px] rounded-xl', styles[name], styles['Box'])}>
+    <Box
+      className={cx('p-[1px] rounded-xl w-[350px]', css(backgrounds[symbol]))}
+    >
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
