@@ -18,7 +18,7 @@ export const Bonds = () => {
 
   // }, [epochNumber, epochStartTime])
 
-  const [modalOpen, setModal] = useState(false);
+  const [modalOpen, setModal] = useState(true);
   const handleModal = () => {
     setModal(!modalOpen);
   };

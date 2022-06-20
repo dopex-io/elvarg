@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
@@ -9,6 +9,9 @@ import LinearProgress from '@mui/material/LinearProgress';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import Input from 'components/UI/Input';
+import { DpxBondsContext } from 'contexts/Bonds';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 export interface ModalBondsProps {
   modalOpen: boolean;
@@ -34,8 +37,40 @@ const BondsInfo = ({ title, value }: { title: string; value: string }) => {
 };
 
 export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
-  const [err, setErr] = useState(false);
+  const {
+    dopexBridgoorNFTBalance,
+    maxDepositsPerEpoch,
+    usdcBalance,
+    dpxPrice,
+    dpxBondsAddress,
+    epochDiscount,
+    depositUSDC,
+  } = useContext(DpxBondsContext);
+  let deposited = maxDepositsPerEpoch / 4;
+  const [err, setErr] = useState('');
+  const [inputValue, setValue] = useState(0);
+  let priceWithDiscount = getUserReadableAmount(
+    dpxPrice - dpxPrice * (epochDiscount / 100),
+    6
+  );
+  let walletLimit = 5000 * dopexBridgoorNFTBalance;
 
+  const handleMax = () => {
+    setValue(walletLimit);
+  };
+
+  const handleChange = (e: any) => {
+    let value = e.target.value;
+    setErr('');
+    if (isNaN(Number(value))) {
+      setErr('Please only enter numbers');
+    } else if (value > walletLimit) {
+      setErr('Cannot deposit more than wallet limit');
+    } else {
+      setValue(value);
+    }
+  };
+  console.log('price with discount', priceWithDiscount);
   return (
     <Dialog
       PaperProps={{ style: { backgroundColor: 'transparent' } }}
@@ -48,7 +83,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             Bond
           </Typography>
           <Box className="bg-mineshaft text-white test-xs p-2 rounded-md mr-3">
-            Bridgoor x 2
+            Bridgoor x {dopexBridgoorNFTBalance}
           </Box>
           <CloseIcon
             className="fill-current text-white mt-3"
@@ -67,7 +102,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
                 size="small"
                 color="secondary"
                 className="bg-mineshaft px-5 min-w-0 text-xs"
-                // onClick={handleMax}
+                onClick={handleMax}
               >
                 MAX
               </CustomButton>
@@ -83,22 +118,23 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
                 Balance:
               </Typography>
               <Typography variant="caption" color="white">
-                21000 USDC
+                {getUserReadableAmount(usdcBalance, 6)} USDC
               </Typography>
             </div>
           }
-          placeholder="0.0"
+          placeholder={inputValue.toString()}
+          onChange={handleChange}
         />
         {err && (
           <Box className="bg-[#FF617D] rounded-2xl mt-3 p-2">
-            <AccessibleForwardIcon /> Something went wrong
+            <AccessibleForwardIcon /> {err}
           </Box>
         )}
 
         <Box className="flex mt-3">
           <Box className="flex-1 bg-cod-gray  border border-[#1E1E1E] p-2">
             <Typography variant="caption" className="text-white  pt-3">
-              -
+              {inputValue / priceWithDiscount || '-'}
             </Typography>
             <Box className="text-stieglitz pb-3 justify-between items-center">
               To DPX
@@ -106,49 +142,42 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           </Box>
           <Box className="flex-1  bg-cod-gray  border border-[#1E1E1E] p-2">
             <Typography variant="caption" className="text-white  pt-3">
-              -
+              {epochDiscount} %
             </Typography>
             <Box className="text-stieglitz">Discount</Box>
           </Box>
         </Box>
         <Box className="border border-[#1E1E1E] p-3">
-          <BondsInfo title="Bonding Price" value="410 USDC" />
+          <BondsInfo
+            title="Bonding Price"
+            value={`${getUserReadableAmount(dpxPrice, 6)} USDC`}
+          />
           <BondsInfo title="Oracle Price" value="416 USDC" />
           <BondsInfo title="Vesting Term" value="1 Week" />
-          <BondsInfo title="Total Bonding Limit" value="45134.11 / 85000" />
-          <LinearProgress variant="determinate" value={25} />
+          <BondsInfo
+            title="Total Bonding Limit"
+            value={`${getUserReadableAmount(
+              deposited,
+              6
+            )} / ${getUserReadableAmount(maxDepositsPerEpoch, 6)}`}
+          />
+          <LinearProgress
+            variant="determinate"
+            value={(deposited / maxDepositsPerEpoch) * 100}
+          />
         </Box>
         <Box className="bg-umbra p-4 rounded-xl mt-3">
-          <Box className="flex mb-2">
-            <Typography
-              variant="caption"
-              className=" text-xs text-stieglitz ml-0 mr-auto flex"
-            >
-              <img
-                src="/assets/gasicon.svg"
-                className="mr-2 h-[0.8rem]"
-                alt="Gas"
-              />
-              Est. Gas Cost
-            </Typography>
-            <Box>
-              <Typography
-                variant="caption"
-                className="text-xs text-white mr-auto ml-0 flex"
-              >
-                <span className="opacity-70 mr-2">~$5</span>
-                0.003 ETH
-              </Typography>
-            </Box>
-          </Box>
-          <Box className="flex mb-2">
+          <EstimatedGasCostButton gas={500000} chainId={42161} />
+          <Box className="flex mb-2 mt-2">
             <Typography
               variant="caption"
               className="text-stieglitz mr-auto flex"
             >
               Contract <LaunchIcon className="w-3 ml-1 pb-2" />
             </Typography>
-            <Box className="text-xs text-white"> 0x134 </Box>
+            <Box className="text-xs text-white">
+              {dpxBondsAddress?.slice(0, 5)}
+            </Box>
           </Box>
           <Box className="flex">
             <Typography
@@ -157,7 +186,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             >
               Wallet Limit <HelpOutlineIcon className="w-3 ml-1 pb-2" />
             </Typography>
-            <Box className="text-[#22E1FF] text-xs">15000</Box>
+            <Box className="text-[#22E1FF] text-xs">{walletLimit}</Box>
           </Box>
         </Box>
         <CustomButton
@@ -165,9 +194,10 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           size="small"
           color="umbra"
           className="text-white bg-primary hover:bg-primary w-full mt-5  p-4"
-          disabled
+          disabled={inputValue ? false : true}
+          onClick={() => depositUSDC(inputValue)}
         >
-          Select Amount
+          {inputValue ? 'Bond' : 'Select Amount'}
         </CustomButton>
       </Box>
     </Dialog>

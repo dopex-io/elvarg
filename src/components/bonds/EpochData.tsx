@@ -109,7 +109,10 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
             Every Bridgoor NFT increases your cap of an additional 5000 USDC for
             every epoch.
           </div>
-          <a className="text-[#22E1FF]" href="#">
+          <a
+            className="text-[#22E1FF]"
+            href="https://tofunft.com/collection/dopex-bridgoor/items"
+          >
             TofuNFT <LaunchIcon className="w-4" />
           </a>
         </Box>

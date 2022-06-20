@@ -28,8 +28,8 @@ const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
 
   useEffect(() => {
     const updateEstimatedGasCost = async () => {
-      const feeData = await provider.getFeeData();
-      if (feeData.gasPrice)
+      const feeData = await provider?.getFeeData();
+      if (feeData?.gasPrice)
         setEstimatedGasCost(
           getUserReadableAmount(gas * feeData.gasPrice.toNumber(), 18)
         );
