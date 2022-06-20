@@ -11,14 +11,8 @@ import { DpxBondsContext, DpxBondsProvider } from 'contexts/Bonds';
 
 export const Bonds = () => {
   const { accountAddress } = useContext(WalletContext);
-  // const { epochNumber, epochStartTime } = useContext(DpxBondsContext);
+  const [modalOpen, setModal] = useState(false);
 
-  // useEffect(() => {
-  //   console.log("Here epochNumber", epochNumber, epochStartTime)
-
-  // }, [epochNumber, epochStartTime])
-
-  const [modalOpen, setModal] = useState(true);
   const handleModal = () => {
     setModal(!modalOpen);
   };

@@ -13,17 +13,31 @@ import dopexBridgoorNFTAbi from '../pages/Bonds/dopexBridgoorNFT.json';
 import usdcAbi from '../pages/Bonds/usdc.json';
 import { BigNumber, ethers } from 'ethers';
 import { WalletContext } from './Wallet';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
+interface bondsState {
+  epoch: number;
+  issued: number;
+  maturityTime: number;
+}
 interface DpxBondsData {
   epochNumber: number;
   epochExpiry: number;
   depositPerNft: number;
   epochStartTime: number;
   maxDepositsPerEpoch: number;
+  dopexBridgoorNFTBalance: number;
   epochDiscount: number;
+  usdcBalance: number;
+  dpxBondsAddress: string;
+  dpxPrice: number;
   depositUSDC: Function;
+  dopexBondsNftBalance: number;
+  userDpxBondsState: bondsState[];
+  totalEpochDeposits: number;
+  bondsDpx: number;
 }
 
 interface DpxBondsContextInterface extends DpxBondsData {}
@@ -41,6 +55,8 @@ const initialData = {
   dpxBondsAddress: '',
   epochDiscount: 0,
   depositUSDC: () => {},
+  totalEpochDeposits: 0,
+  userDpxBondsState: [],
 };
 
 export const DpxBondsContext =
@@ -76,6 +92,29 @@ export const DpxBondsProvider = (props) => {
     );
   }, [signer]);
 
+  const getBondsById = async (dopexBondsNftBalance) => {
+    let bondsIds = [];
+    for (let i = 0; i < dopexBondsNftBalance; i++) {
+      bondsIds.push(
+        parseInt(await bondsContract.tokenOfOwnerByIndex(accountAddress, i))
+      );
+    }
+    return bondsIds;
+  };
+
+  const getUserBondsNftsState = async (bondsIds) => {
+    let userBondsState = [];
+    for (let i = 0; i < bondsIds.length; i++) {
+      let userBond = await bondsContract.nftsState(bondsIds[i]);
+      userBondsState.push({
+        epoch: parseInt(userBond.epoch),
+        issued: parseInt(userBond.issued),
+        maturityTime: parseInt(userBond.maturityTime),
+      });
+    }
+    return userBondsState;
+  };
+
   const getEpochData = async () => {
     let dopexBridgoorNFTBalance = parseInt(
       await dopexBridgoorNFTContract.balanceOf(accountAddress)
@@ -88,6 +127,9 @@ export const DpxBondsProvider = (props) => {
     );
     let epochStartTime = (await bondsContract.startTime()) * 1000;
     let epochExpiry = parseInt(await bondsContract.epochExpiry(1)) * 1000;
+    let totalEpochDeposits = parseInt(
+      await bondsContract.totalEpochDeposits(epochNumber)
+    );
     let usableNfts = (await bondsContract.getUsableNfts(accountAddress)).map(
       (nftId) => parseInt(nftId)
     );
@@ -97,10 +139,11 @@ export const DpxBondsProvider = (props) => {
     let dopexBondsNftBalance = parseInt(
       await bondsContract.getDopexBondsNftBalance(accountAddress)
     );
-
+    let dopexBondsIds = await getBondsById(dopexBondsNftBalance);
+    // let bondsContractDpxBalance = parseInt(await );vv nftsState
+    // let userBondsNfts
     const depositUSDC = async (value) => {
       let nftsToDeposit = usableNfts.slice(0, value / 5000);
-      console.log('Deposit', value, nftsToDeposit, usableNfts);
       await sendTx(
         usdcContract.approve(
           bondsContract.address,
@@ -110,9 +153,12 @@ export const DpxBondsProvider = (props) => {
       // await usdcContract.approve( bondsContract.address, (nftsToDeposit.length * 10 ** 6)*5000);
       await sendTx(bondsContract.mint(nftsToDeposit));
     };
-    // let maxDepositsPerEpoch = parseInt(await bondsContract.maxDepositsPerEpoch(epochNumber))
-
-    console.log('usableNfts, userDeposit', usableNfts);
+    let userDpxBondsState = await getUserBondsNftsState(dopexBondsIds);
+    let bondsDpx = parseInt(
+      (maxDepositsPerEpoch * 10 ** 18) /
+        ((dpxPrice * (100 - epochDiscount)) / 100)
+    );
+    // console.log('ensName', ensName,);
 
     setState((prevState: any) => ({
       ...prevState,
@@ -127,6 +173,10 @@ export const DpxBondsProvider = (props) => {
       dpxBondsAddress: bondsContract.address,
       epochDiscount: epochDiscount,
       depositUSDC: depositUSDC,
+      totalEpochDeposits: totalEpochDeposits,
+      bondsDpx: bondsDpx,
+      dopexBondsIds: dopexBondsIds,
+      userDpxBondsState: userDpxBondsState,
     }));
   };
 

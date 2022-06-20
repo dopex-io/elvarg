@@ -70,7 +70,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
       setValue(value);
     }
   };
-  console.log('price with discount', priceWithDiscount);
+
   return (
     <Dialog
       PaperProps={{ style: { backgroundColor: 'transparent' } }}
@@ -192,7 +192,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         <CustomButton
           variant="text"
           size="small"
-          color="umbra"
+          color={inputValue ? '' : 'umbra'}
           className="text-white bg-primary hover:bg-primary w-full mt-5  p-4"
           disabled={inputValue ? false : true}
           onClick={() => depositUSDC(inputValue)}

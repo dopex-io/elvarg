@@ -6,8 +6,8 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import CustomButton from 'components/UI/CustomButton';
 import { DpxBondsContext } from 'contexts/Bonds';
 import format from 'date-fns/format';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-// import formatAmount from 'utils/general/formatAmount';
 import styles from './styles.module.scss';
 
 type EpochData = {
@@ -16,8 +16,16 @@ type EpochData = {
 };
 
 export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
-  const { epochNumber, epochExpiry, epochStartTime, dopexBondsNftBalance } =
-    useContext(DpxBondsContext);
+  const {
+    epochNumber,
+    epochExpiry,
+    epochStartTime,
+    dopexBondsNftBalance,
+    maxDepositsPerEpoch,
+    totalEpochDeposits,
+    dpxPrice,
+    bondsDpx,
+  } = useContext(DpxBondsContext);
 
   return (
     <>
@@ -25,25 +33,24 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
         <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">Epoch</Box>
           {/*  @ts-ignore TODO: FIX */}
-          <Button className={styles['button']}>
-            {epochExpiry && format(epochStartTime, 'MM/dd/yyyy')}
-          </Button>
+          <Button className={styles['button']}>{epochNumber}</Button>
         </Box>
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">DPX Available</Box>
           <Box>
-            209 / 350{' '}
-            <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5">
+            {getUserReadableAmount(bondsDpx) - totalEpochDeposits / dpxPrice} /{' '}
+            {getUserReadableAmount(bondsDpx)}
+            <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
               DPX
             </span>
           </Box>
         </Box>
         <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-[#1E1E1E] w-2/4">
-          <Box className="text-stieglitz mb-3">TBV</Box>
-          $57,013
+          <Box className="text-stieglitz mb-3">TBV</Box>$
+          {getUserReadableAmount(totalEpochDeposits, 6)}
         </Box>
         <Box className="p-3 md:flex-1">
-          <Box className="text-stieglitz mb-3">Unlocks</Box>
+          <Box className="text-stieglitz mb-3">Expiry</Box>
           {epochExpiry && format(epochExpiry, 'MM/dd/yyyy')}
         </Box>
       </Box>
@@ -63,7 +70,10 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
             <Box className="flex-1">
               USDC <br />
               <span className="flex-1 text-stieglitz text-xs">
-                Deposit up to 15,000 USDC
+                Deposit up to{' '}
+                {getUserReadableAmount(maxDepositsPerEpoch, 6) -
+                  getUserReadableAmount(totalEpochDeposits, 6)}{' '}
+                USDC
               </span>
             </Box>
             <CustomButton
@@ -95,7 +105,7 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
       <div className="md:flex mt-5">
         <Box className="p-3 w-[352px] mr-10">
           <Typography variant="h5">Program Goals</Typography>
-          <div className="text-stieglitz h-24  mb-5">
+          <div className="text-stieglitz h-24  mb-7">
             Commit stablecoins upfront and receive vested DPX from treasury at a
             lower market price. Proceeds supports Dopex operations.
           </div>
@@ -109,12 +119,17 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
             Every Bridgoor NFT increases your cap of an additional 5000 USDC for
             every epoch.
           </div>
-          <a
-            className="text-[#22E1FF]"
-            href="https://tofunft.com/collection/dopex-bridgoor/items"
-          >
-            TofuNFT <LaunchIcon className="w-4" />
-          </a>
+          <Box className="flex">
+            <Box className="bg-mineshaft text-white test-xs p-2 rounded-md mr-5">
+              Check Eligibility
+            </Box>
+            <a
+              className="text-[#22E1FF] mt-2 "
+              href="https://tofunft.com/collection/dopex-bridgoor/items"
+            >
+              TofuNFT <LaunchIcon className="w-4" />
+            </a>
+          </Box>
         </Box>
       </div>
     </>

@@ -4,6 +4,8 @@ import Typography from 'components/UI/Typography';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CustomButton from 'components/UI/CustomButton';
 import { DpxBondsContext } from 'contexts/Bonds';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import format from 'date-fns/format';
 
 type UserBondsProps = {
   accountAddress: string | undefined;
@@ -11,9 +13,23 @@ type UserBondsProps = {
 };
 
 export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
-  const { epochNumber, epochExpiry, epochStartTime, dopexBondsNftBalance } =
-    useContext(DpxBondsContext);
+  const {
+    epochNumber,
+    dpxPrice,
+    epochDiscount,
+    dopexBondsNftBalance,
+    userDpxBondsState,
+  } = useContext(DpxBondsContext);
+  let userBondsPerSelectedEpoch = userDpxBondsState.filter(
+    (bond: any) => bond?.epoch == epochNumber
+  );
+  let lockedUntil = userBondsPerSelectedEpoch[0]?.maturityTime;
 
+  let priceWithDiscount = getUserReadableAmount(
+    dpxPrice - dpxPrice * (epochDiscount / 100),
+    6
+  );
+  console.log((dopexBondsNftBalance * 5000) / priceWithDiscount);
   return (
     <Box className="mt-5">
       <Typography variant="h5">Your Bonds</Typography>
@@ -29,8 +45,8 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
               <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3 ">DPX Available</Box>
                 <Box>
-                  36.55{' '}
-                  <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5">
+                  {(dopexBondsNftBalance * 5000) / priceWithDiscount}
+                  <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
                     DPX
                   </span>
                 </Box>
@@ -39,7 +55,7 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
                 <Box className="text-stieglitz mb-3">Vested</Box>
                 <Box>
                   209 / 350
-                  <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5">
+                  <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
                     DPX
                   </span>
                 </Box>
@@ -48,14 +64,15 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
                 <Box className="text-stieglitz mb-3">Unlocked</Box>
                 <Box>
                   0
-                  <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5">
+                  <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
                     DPX
                   </span>
                 </Box>
               </Box>
               <Box className="p-3 md:flex-1">
                 <Box className="text-stieglitz mb-3">Locked Until</Box>
-                08-01-2022
+                {lockedUntil &&
+                  format(new Date(lockedUntil * 1000), 'MM/dd/yyyy')}
               </Box>
             </Box>
           </Box>
