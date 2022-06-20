@@ -22,7 +22,7 @@ const ContractData = () => {
     if (!selectedPool) return;
     return formatDistance(
       Number(selectedPool?.state.expiryTime) * 1000,
-      Number(selectedPool?.state.startTime) * 1000
+      Number(new Date())
     );
   }, [selectedPool]);
 

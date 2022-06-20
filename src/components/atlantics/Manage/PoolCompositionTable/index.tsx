@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
-import { CircularProgress } from '@mui/material';
+// import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
 
@@ -33,10 +33,10 @@ const TableHeader = ({
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
-      className="bg-cod-gray border-1 border-b-0 border-umbra py-2"
+      className="bg-cod-gray border-1 border-b-0 border-umbra py-3"
       sx={{ width }}
     >
-      <Typography variant="h6" className={`text-${textColor}`}>
+      <Typography variant="h6" color={textColor}>
         {children}
       </Typography>
     </TableCell>
@@ -59,14 +59,13 @@ const TableBodyCell = ({
       className={`${fill} border-0 py-3`}
       sx={{ width }}
     >
-      <Typography variant="h6" className={`text-${textColor}`}>
+      <Typography variant="h6" color={textColor}>
         {children}
       </Typography>
     </TableCell>
   );
 };
 
-// Remove repeating components
 const PoolCompositionTable = () => {
   const { selectedPool } = useContext(AtlanticsContext);
   const { chainId } = useContext(WalletContext);
@@ -111,7 +110,7 @@ const PoolCompositionTable = () => {
     }
   }, [chainId, pool]);
 
-  return (
+  return Object.keys(tokenComposition)[0] !== '' ? (
     <TableContainer
       className={`rounded-xl border-umbra border border-b-0 w-full overflow-x-auto`}
     >
@@ -138,17 +137,16 @@ const PoolCompositionTable = () => {
               <TableRow className="py-2" key={index}>
                 <TableBodyCell width={525}>
                   <Box className="flex space-x-2">
-                    {key !== '' ? (
-                      <img
-                        src={`/images/tokens/${key}.svg`}
-                        alt={key}
-                        className="w-[2rem] h-auto my-auto"
-                      />
-                    ) : (
-                      <CircularProgress size="20px" />
-                    )}
+                    <img
+                      src={`/images/tokens/${key}.svg`}
+                      alt={key}
+                      className="w-[2rem] h-auto my-auto"
+                    />
                     <Box className="text-left my-auto">
                       <Typography variant="h6">{key!}</Typography>
+                      <Typography variant="h6" color="stieglitz">
+                        {index === 0 ? 'Collateral' : 'Underlying'}
+                      </Typography>
                     </Box>
                   </Box>
                 </TableBodyCell>
@@ -173,14 +171,14 @@ const PoolCompositionTable = () => {
                       className="my-auto"
                       color="stieglitz"
                     >
-                      {'-'}
+                      {tokenComposition[pool!.tokens.deposit]}
                     </Typography>
                   </Box>
                 </TableBodyCell>
                 <TableBodyCell align="right" width={5}>
                   <Box className="flex flex-col items-end">
                     <Typography variant="h6" color="stieglitz">
-                      {'-'}
+                      {tokenComposition[pool!.tokens.underlying]}
                     </Typography>
                   </Box>
                 </TableBodyCell>
@@ -190,6 +188,15 @@ const PoolCompositionTable = () => {
         </TableBody>
       </Table>
     </TableContainer>
+  ) : (
+    <Box>
+      <Typography
+        variant="h6"
+        className="p-4 bg-cod-gray rounded-xl text-stieglitz text-center"
+      >
+        No Data Available
+      </Typography>
+    </Box>
   );
 };
 

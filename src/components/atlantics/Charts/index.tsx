@@ -44,12 +44,13 @@ const Charts = (props: ChartsProps) => {
       const decimals = getTokenDecimals(selectedPool?.tokens.deposit, 1337);
       const barData: IBarData[] = strikes?.map(
         (maxStrike: BigNumber, index: number) => {
-          const deposits = Number(data[index]?.liquidity) / 10 ** decimals;
           const unlocked =
-            Number(data[index]?.unlockCollateral) / 10 ** decimals;
+            Number(data[index]?.unlockCollateral) / 10 ** decimals + 10;
           const activeCollateral =
-            Number(data[index]?.activeCollateral) / 10 ** decimals;
+            Number(data[index]?.activeCollateral) / 10 ** decimals + 15;
           const strike = Number(maxStrike.div(1e8));
+          const deposits =
+            Number(data[index]?.liquidity) / 10 ** decimals - unlocked;
           return {
             deposits: parseInt(formatAmount(deposits, 3)),
             unlocked: parseInt(formatAmount(unlocked, 3)) ?? 0,
@@ -70,12 +71,12 @@ const Charts = (props: ChartsProps) => {
         {barData[0]?.deposits !== 0 ? (
           <ClientRenderedBarGraph
             data={barData}
-            width={750}
-            height={205}
+            width={1000}
+            height={230}
             header={{ underlying, collateral, title, type }}
           />
         ) : (
-          <Box className="p-3 flex items-center justify-center">
+          <Box className="p-3 items-center text-center h-[15.7rem] py-[8.65rem]">
             <CircularProgress size="30px" />
           </Box>
         )}

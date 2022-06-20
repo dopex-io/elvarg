@@ -294,7 +294,7 @@ const ManageCard = (props: ManageCardProps) => {
         </Box>
         <CustomButton
           className="flex w-full text-center"
-          color={selectedPool?.state.isVaultReady ? 'primary' : 'mineshaft'}
+          color="mineshaft"
           disabled={disableButton}
           onClick={approved ? handleDeposit : handleApprove}
         >

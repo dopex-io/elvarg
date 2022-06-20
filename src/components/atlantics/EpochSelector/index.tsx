@@ -18,7 +18,7 @@ const EpochSelector = (props: EpochSelectorProps) => {
       .split(',')
       .map((_i, index) => {
         return (
-          <MenuItem value={index + 1} key={index} color="stieglitz">
+          <MenuItem value={index + 1} key={index} className="text-stieglitz">
             {`${index + 1}${
               index + 1 === range(currentEpoch).length ? '*' : ''
             }`}

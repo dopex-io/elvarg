@@ -103,7 +103,7 @@ const UserDepositsTable = () => {
 
       const duration = formatDistance(
         epochTimes['expiryTime'].toNumber() * 1000,
-        epochTimes['startTime'].toNumber() * 1000
+        Number(new Date())
       );
 
       setEpochDuration(duration);
