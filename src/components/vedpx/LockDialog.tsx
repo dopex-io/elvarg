@@ -124,7 +124,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
       const _amount = utils.parseEther(amount);
 
       const unlockTime = userData.lockEnd.isZero()
-        ? (currentTime + lockPeriod * 86400 * 7).toFixed()
+        ? Number(currentTime.toFixed()) + lockPeriod * 86400 * 7
         : (userData.lockEnd.toNumber() + lockPeriod * 86400 * 7).toFixed();
 
       if (action === 'create_lock') {
