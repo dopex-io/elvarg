@@ -37,17 +37,17 @@ const ACTION_COPY = {
   increase_amount: {
     cta: 'Increase Amount',
     description:
-      'You are increasing the amount of DPX that you have locked. Your unlock time will remain the same.',
+      'You are increasing the total amount of locked DPX. Your unlock time will remain the same.',
   },
   increase_amount_and_time: {
     cta: 'Increase Amount & Time',
     description:
-      'You are increasing the amount of DPX that is locked and the unlock time for your DPX.',
+      'You are increasing the total amount of locked DPX and the unlock time for your DPX.',
   },
   increase_unlock_time: {
     cta: 'Increase Time',
     description:
-      'You are increasing the unlock time for your DPX. The amount of DPX locked will remain the same.',
+      'You are increasing the unlock time for your locked DPX. The amount of DPX locked will remain the same.',
   },
   no_change: { cta: 'Lock', description: '' },
 };
@@ -291,7 +291,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
         </Box>
         {action !== 'no_change' ? (
           <Box className="bg-umbra p-3 rounded-md">
-            <Typography variant="caption" color="wave-blue">
+            <Typography variant="h5" color="down-bad">
               {ACTION_COPY[action].description}
             </Typography>
           </Box>
