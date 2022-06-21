@@ -103,10 +103,10 @@ const VeDPXYield = () => {
               color="stieglitz"
               className="mb-1.5 font-medium"
             >
-              Yield APR
+              Yield Rate
             </Typography>
             <Typography variant="h5" className="font-medium">
-              --
+              41.5 DPX/day
             </Typography>
           </Box>
           <Box className="p-3 bg-umbra rounded-xl w-full">
@@ -118,11 +118,12 @@ const VeDPXYield = () => {
               TVL
             </Typography>
             <Typography variant="h5" className="font-medium">
-              {formatAmount(
+              --
+              {/* {formatAmount(
                 ethersUtils.formatEther(data.totalVeDPXParticipating),
                 3
               )}{' '}
-              veDPX
+              veDPX */}
             </Typography>
           </Box>
         </Box>
