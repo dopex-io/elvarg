@@ -70,7 +70,10 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
-  '/vaults/ir/MIM3CRV': { default: 42161, all: [42161] },
+  '/vaults/ir/pool/MIM3CRV-1': { default: 42161, all: [42161] },
+  '/vaults/ir/pool/MIM3CRV-2': { default: 42161, all: [42161] },
+  '/vaults/ir/pool/PUSD3CRV': { default: 42161, all: [42161] },
+  '/vaults/ir': { default: 42161, all: [42161] },
 };
 
 let web3Modal: Web3Modal | undefined;
