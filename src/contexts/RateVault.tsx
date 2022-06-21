@@ -9,1630 +9,16 @@ import {
   ReactFragment,
   ReactPortal,
 } from 'react';
-import { VolatilityOracle, SSOVOptionPricing } from '@dopex-io/sdk';
+import {
+  VolatilityOracle,
+  SSOVOptionPricing,
+  RateVault__factory,
+  CurveGaugesOracle__factory,
+} from '@dopex-io/sdk';
 
 import { BigNumber, ethers } from 'ethers';
 
 import { WalletContext } from './Wallet';
-
-const abi = [
-  {
-    inputs: [
-      {
-        internalType: 'bytes32[]',
-        name: 'sources',
-        type: 'bytes32[]',
-      },
-      {
-        internalType: 'address[]',
-        name: 'destinations',
-        type: 'address[]',
-      },
-      {
-        internalType: 'address',
-        name: '_crvLP',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_crvPool',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'source',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'destination',
-        type: 'address',
-      },
-    ],
-    name: 'ZeroAddress',
-    type: 'error',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: '_contract',
-        type: 'address',
-      },
-    ],
-    name: 'AddToContractWhitelist',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'bytes32',
-        name: 'name',
-        type: 'bytes32',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'destination',
-        type: 'address',
-      },
-    ],
-    name: 'AddressSet',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'Bootstrap',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'Leverage',
-        type: 'uint256',
-      },
-    ],
-    name: 'CallsLeverageSet',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'rewards',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'oldBalance',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'newBalance',
-        type: 'uint256',
-      },
-    ],
-    name: 'Compound',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
-      },
-    ],
-    name: 'Deposit',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
-      },
-    ],
-    name: 'EmergencyWithdraw',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'rateAtSettlement',
-        type: 'uint256',
-      },
-    ],
-    name: 'EpochExpired',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'expireDelayTolerance',
-        type: 'uint256',
-      },
-    ],
-    name: 'ExpireDelayToleranceUpdate',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'previousOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnershipTransferred',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'Paused',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'premium',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'fee',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
-      },
-    ],
-    name: 'Purchase',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'Leverage',
-        type: 'uint256',
-      },
-    ],
-    name: 'PutsLeverageSet',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: '_contract',
-        type: 'address',
-      },
-    ],
-    name: 'RemoveFromContractWhitelist',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'pnl',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'fee',
-        type: 'uint256',
-      },
-    ],
-    name: 'Settle',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-    ],
-    name: 'StrikeSet',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'Unpaused',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'windowSizeInHours',
-        type: 'uint256',
-      },
-    ],
-    name: 'WindowSizeUpdate',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'userDeposits',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'crvLPWithdrawn',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'crvRewards',
-        type: 'uint256',
-      },
-    ],
-    name: 'Withdraw',
-    type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_contract',
-        type: 'address',
-      },
-    ],
-    name: 'addToContractWhitelist',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    name: 'addresses',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_expiry',
-        type: 'uint256',
-      },
-    ],
-    name: 'bootstrap',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'price',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-    ],
-    name: 'calculatePnl',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_strike',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: '_isPut',
-        type: 'bool',
-      },
-    ],
-    name: 'calculatePremium',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'premium',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'price',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-    ],
-    name: 'calculatePurchaseFees',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'rateAtSettlement',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'pnl',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-    ],
-    name: 'calculateSettlementFees',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'crvLP',
-    outputs: [
-      {
-        internalType: 'contract ICrv2Pool',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'crvPool',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'currentEpoch',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256[]',
-        name: 'strikeIndex',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'callLeverageIndex',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'putLeverageIndex',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'amount',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-    ],
-    name: 'depositMultiple',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address[]',
-        name: 'tokens',
-        type: 'address[]',
-      },
-      {
-        internalType: 'bool',
-        name: 'transferNative',
-        type: 'bool',
-      },
-    ],
-    name: 'emergencyWithdraw',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'expireDelayTolerance',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'expireEpoch',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'rateAtSettlement',
-        type: 'uint256',
-      },
-    ],
-    name: 'expireEpoch',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'name',
-        type: 'bytes32',
-      },
-    ],
-    name: 'getAddress',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getCurrentRate',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'getEpochData',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'address[]',
-        name: '',
-        type: 'address[]',
-      },
-      {
-        internalType: 'address[]',
-        name: '',
-        type: 'address[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'getEpochLeverages',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'getEpochPremiums',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-    ],
-    name: 'getEpochStrikeData',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'getEpochStrikes',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'getEpochTimes',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'start',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'end',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'getEpochTokens',
-    outputs: [
-      {
-        internalType: 'address[]',
-        name: '',
-        type: 'address[]',
-      },
-      {
-        internalType: 'address[]',
-        name: '',
-        type: 'address[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getLpPrice',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_strike',
-        type: 'uint256',
-      },
-    ],
-    name: 'getVolatility',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'addr',
-        type: 'address',
-      },
-    ],
-    name: 'isContract',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'optionsTokenImplementation',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'owner',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'pause',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'paused',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'strikeIndex',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-    ],
-    name: 'purchase',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_contract',
-        type: 'address',
-      },
-    ],
-    name: 'removeFromContractWhitelist',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'renounceOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32[]',
-        name: 'names',
-        type: 'bytes32[]',
-      },
-      {
-        internalType: 'address[]',
-        name: 'destinations',
-        type: 'address[]',
-      },
-    ],
-    name: 'setAddresses',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256[]',
-        name: 'callsLeverages',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'putsLeverages',
-        type: 'uint256[]',
-      },
-    ],
-    name: 'setLeverages',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256[]',
-        name: 'strikes',
-        type: 'uint256[]',
-      },
-    ],
-    name: 'setStrikes',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'strikeIndex',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'settle',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'pnl',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'totalEpochData',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'totalCallsDeposits',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalPutsDeposits',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalTokenDeposits',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'epochCallsPremium',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'epochPutsPremium',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalCallsPurchased',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalPutsPurchased',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'epochStartTimes',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'epochExpiryTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'isEpochExpired',
-        type: 'bool',
-      },
-      {
-        internalType: 'bool',
-        name: 'isVaultReady',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'epochBalanceAfterUnstaking',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'crvToDistribute',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'rateAtSettlement',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'totalStrikeData',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'totalTokensStrikeDeposits',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalCallsStrikeDeposits',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalPutsStrikeDeposits',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalCallsPurchased',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalPutsPurchased',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'callsSettlement',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'putsSettlement',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'unpause',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_expireDelayTolerance',
-        type: 'uint256',
-      },
-    ],
-    name: 'updateExpireDelayTolerance',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    name: 'userEpochStrikeDeposits',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'callLeverage',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'putLeverage',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    name: 'userStrikePurchaseData',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'putsPurchased',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'callsPurchased',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'userEpochCallsPremium',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'userEpochPutsPremium',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'whitelistedContracts',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'strikeIndex',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'callLeverageIndex',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'putLeverageIndex',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-    ],
-    name: 'withdrawMultiple',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-];
-
-const oracleAbi = [
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_gaugeSnapshotReceiverAddress',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_chainlinkCRVAddress',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
-  },
-  {
-    inputs: [
-      { internalType: 'uint256', name: 'epochStart', type: 'uint256' },
-      { internalType: 'uint256', name: 'epochEnd', type: 'uint256' },
-      { internalType: 'address', name: 'gauge', type: 'address' },
-    ],
-    name: 'getRate',
-    outputs: [{ internalType: 'uint256', name: 'rate', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-];
 
 export interface RateVault {
   token?: string;
@@ -1739,21 +125,22 @@ export const RateVault = () => {
   const [rateVaultUserData, setRateVaultUserData] =
     useState<RateVaultUserData>();
   const rateVaultContract = useMemo(() => {
-    return new ethers.Contract(
-      '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41',
-      abi,
-      signer
-    );
-  }, [signer]);
-  const gaugeOracle = useMemo(() => {
-    return new ethers.Contract(
-      '0xF45f20bc21C9933ae8613EdD8EF108b7fD25E527',
-      oracleAbi,
-      signer
-    );
-  }, [signer]);
+    if (!selectedPoolName || !signer) return;
+    else
+      return RateVault__factory.connect(
+        contractAddresses['RATE-VAULTS'][selectedPoolName],
+        signer
+      );
+  }, [signer, selectedPoolName]);
 
-  console.log(selectedEpoch);
+  const gaugeOracle = useMemo(() => {
+    if (!provider) return;
+    else
+      return CurveGaugesOracle__factory.connect(
+        contractAddresses['CurveGaugesOracle'],
+        provider
+      );
+  }, [provider]);
 
   const getUserStrikePurchaseData = useCallback(
     async (strike: BigNumber, strikeIndex: number) => {
@@ -1763,7 +150,7 @@ export const RateVault = () => {
       );
 
       return {
-        purchase: await rateVaultContract['userStrikePurchaseData'](
+        purchase: await rateVaultContract!['userStrikePurchaseData'](
           Math.max(selectedEpoch || 0, 1),
           identifier
         ),
@@ -1789,7 +176,7 @@ export const RateVault = () => {
       return {
         strike: strike,
         strikeIndex: strikeIndex,
-        deposits: await rateVaultContract['userEpochStrikeDeposits'](
+        deposits: await rateVaultContract!['userEpochStrikeDeposits'](
           Math.max(selectedEpoch || 0, 1),
           identifier
         ),
@@ -1883,14 +270,14 @@ export const RateVault = () => {
   ]);
 
   const getEpochStrikes = useCallback(async () => {
-    return await rateVaultContract['getEpochStrikes'](
+    return await rateVaultContract!['getEpochStrikes'](
       Math.max(selectedEpoch || 0, 1)
     );
   }, [rateVaultContract, selectedEpoch]);
 
   const getEpochData = useCallback(async () => {
     try {
-      return await rateVaultContract['getEpochData'](
+      return await rateVaultContract!['getEpochData'](
         Math.max(selectedEpoch || 0, 1)
       );
     } catch (err) {
@@ -1899,14 +286,14 @@ export const RateVault = () => {
   }, [rateVaultContract, selectedEpoch]);
 
   const getTotalEpochData = useCallback(async () => {
-    return await rateVaultContract['totalEpochData'](
+    return await rateVaultContract!['totalEpochData'](
       Math.max(selectedEpoch || 0, 1)
     );
   }, [rateVaultContract, selectedEpoch]);
 
   const getEpochLeverages = useCallback(async () => {
     try {
-      return await rateVaultContract['getEpochLeverages'](
+      return await rateVaultContract!['getEpochLeverages'](
         Math.max(selectedEpoch || 0, 1)
       );
     } catch (err) {
@@ -1916,7 +303,7 @@ export const RateVault = () => {
 
   const getEpochPremiums = useCallback(async () => {
     try {
-      return await rateVaultContract['getEpochPremiums'](
+      return await rateVaultContract!['getEpochPremiums'](
         Math.max(selectedEpoch || 0, 1)
       );
     } catch (err) {
@@ -1927,13 +314,13 @@ export const RateVault = () => {
   const getTotalStrikeData = useCallback(
     async (strike: BigNumber) => {
       try {
-        return await rateVaultContract['totalStrikeData'](
+        return await rateVaultContract!['totalStrikeData'](
           Math.max(selectedEpoch || 0, 1),
           strike
         );
       } catch (err) {
         console.log(err);
-        return BigNumber.from('0');
+        return [];
       }
     },
     [rateVaultContract, selectedEpoch, provider]
@@ -1942,7 +329,7 @@ export const RateVault = () => {
   const calculatePremium = useCallback(
     async (strike: BigNumber, isPut: boolean) => {
       try {
-        return await rateVaultContract['calculatePremium'](
+        return await rateVaultContract!['calculatePremium'](
           strike,
           BigNumber.from('1000000000000000000'),
           isPut
@@ -1957,7 +344,7 @@ export const RateVault = () => {
   const calculatePurchaseFee = useCallback(
     async (rate: BigNumber, strike: BigNumber, isPut: boolean) => {
       try {
-        return await rateVaultContract['calculatePurchaseFees'](
+        return await rateVaultContract!['calculatePurchaseFees'](
           rate,
           strike,
           BigNumber.from('1000000000000000000'),
@@ -1972,12 +359,12 @@ export const RateVault = () => {
 
   const getCurrentRate = useCallback(async () => {
     try {
-      return await rateVaultContract['getCurrentRate']();
+      return await rateVaultContract!['getCurrentRate']();
     } catch (err) {
       try {
         const endTime = Math.floor(new Date().getTime() / 1000);
         const startTime = endTime - 24 * 3600;
-        return await gaugeOracle['getRate'](
+        return await gaugeOracle!['getRate'](
           startTime,
           endTime,
           '0xd8b712d29381748dB89c36BCa0138d7c75866ddF'
@@ -1990,7 +377,7 @@ export const RateVault = () => {
 
   const updateRateVaultEpochData = useCallback(async () => {
     if (selectedEpoch === null || !selectedPoolName) return;
-    const lpPrice = await rateVaultContract['getLpPrice']();
+    const lpPrice = await rateVaultContract!['getLpPrice']();
 
     try {
       const promises = await Promise.all([
@@ -2007,7 +394,7 @@ export const RateVault = () => {
 
       let epochTimes;
 
-      epochTimes = await rateVaultContract['getEpochTimes'](
+      epochTimes = await rateVaultContract!['getEpochTimes'](
         Math.max(selectedEpoch, 1)
       );
 
@@ -2016,7 +403,7 @@ export const RateVault = () => {
       const callsFeesPromises = [];
       const putsFeesPromises = [];
       const totalStrikesDataPromises = [];
-      const curveLpPrice = await rateVaultContract['getLpPrice']();
+      const curveLpPrice = await rateVaultContract!['getLpPrice']();
       const rate = await getCurrentRate();
       const volatilitiesPromises = [];
 
@@ -2025,18 +412,17 @@ export const RateVault = () => {
         //   rateVaultContract['getVolatility'](epochStrikes[i])
         // );
         volatilitiesPromises.push(BigNumber.from(0));
-        callsPremiumCostsPromises.push(
-          calculatePremium(epochStrikes[i], false)
-        );
-        putsPremiumCostsPromises.push(calculatePremium(epochStrikes[i], true));
+        const epochStrike = epochStrikes[i];
+        if (epochStrike) {
+          callsPremiumCostsPromises.push(calculatePremium(epochStrike, false));
+          putsPremiumCostsPromises.push(calculatePremium(epochStrike, true));
 
-        callsFeesPromises.push(
-          calculatePurchaseFee(rate, epochStrikes[i], false)
-        );
-        putsFeesPromises.push(
-          calculatePurchaseFee(rate, epochStrikes[i], true)
-        );
-        totalStrikesDataPromises.push(getTotalStrikeData(epochStrikes[i]));
+          callsFeesPromises.push(
+            calculatePurchaseFee(rate, epochStrike, false)
+          );
+          putsFeesPromises.push(calculatePurchaseFee(rate, epochStrike, true));
+          totalStrikesDataPromises.push(getTotalStrikeData(epochStrike));
+        }
       }
 
       const volatilities = await Promise.all(volatilitiesPromises);
@@ -2053,8 +439,12 @@ export const RateVault = () => {
       let totalPutsPremiums = BigNumber.from('0');
 
       for (let i in promises[3][0]) {
-        totalCallsPremiums = totalCallsPremiums.add(promises[3][0][i]);
-        totalPutsPremiums = totalPutsPremiums.add(promises[3][1][i]);
+        totalCallsPremiums = totalCallsPremiums.add(
+          promises[3][0][i] || BigNumber.from('0')
+        );
+        totalPutsPremiums = totalPutsPremiums.add(
+          promises[3][1][i] || BigNumber.from('0')
+        );
       }
 
       const callsCosts: BigNumber[] = [];
@@ -2063,11 +453,17 @@ export const RateVault = () => {
       const putsDeposits: BigNumber[] = [];
 
       for (let i in callsPremiumCosts) {
-        callsCosts.push(callsPremiumCosts[i].add(callsFees[i]));
-        putsCosts.push(putsPremiumCosts[i].add(putsFees[i]));
+        callsCosts.push(
+          callsPremiumCosts[i]!.add(callsFees[i] || BigNumber.from('0'))
+        );
+        putsCosts.push(
+          putsPremiumCosts[i]!.add(putsFees[i] || BigNumber.from('0'))
+        );
 
-        callsDeposits.push(totalStrikesData[i].totalCallsStrikeDeposits);
-        putsDeposits.push(totalStrikesData[i].totalPutsStrikeDeposits);
+        // @ts-ignore
+        callsDeposits.push(totalStrikesData[i]!.totalCallsStrikeDeposits);
+        // @ts-ignore
+        putsDeposits.push(totalStrikesData[i]!.totalPutsStrikeDeposits);
       }
 
       setRateVaultEpochData({
@@ -2111,10 +507,10 @@ export const RateVault = () => {
       });
     } catch (err) {
       console.log(err);
-      const epochTimes = await rateVaultContract['getEpochTimes'](
+      const epochTimes = await rateVaultContract!['getEpochTimes'](
         Math.max(selectedEpoch, 1)
       );
-      const curveLpPrice = await rateVaultContract['getLpPrice']();
+      const curveLpPrice = await rateVaultContract!['getLpPrice']();
       const rate = BigNumber.from('100000000');
       setRateVaultEpochData({
         volatilities: [],
@@ -2175,33 +571,25 @@ export const RateVault = () => {
 
   useEffect(() => {
     async function update() {
-      const rateVaultAddresses = '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
-
-      const _rateVaultContract = new ethers.Contract(
-        rateVaultAddresses,
-        abi,
-        signer
-      );
-
       let currentEpoch;
 
       try {
-        currentEpoch = parseInt(await _rateVaultContract['currentEpoch']());
+        currentEpoch = (await rateVaultContract!['currentEpoch']()).toNumber();
       } catch (err) {
         console.log(err);
         return;
       }
 
-      setSelectedEpoch(Number(currentEpoch));
+      setSelectedEpoch(currentEpoch);
 
       setRateVaultData({
         currentEpoch: Number(currentEpoch),
-        rateVaultContract: _rateVaultContract,
+        rateVaultContract: rateVaultContract,
       });
     }
 
     update();
-  }, [contractAddresses, provider]);
+  }, [contractAddresses, provider, selectedPoolName, rateVaultContract]);
 
   useEffect(() => {
     updateRateVaultUserData();
