@@ -16,10 +16,10 @@ import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
-export const vedpxAddress = '0xdda230D9C8df41BC43797D5237dead9FAe3647e8';
+export const vedpxAddress = '0x80789D252A288E93b01D82373d767D71a75D9F16';
 
 export const vedpxYieldDistributorAddress =
-  '0x06A6137AD9463b9EC55cbC7D7Bb9e33f25b3Cbc8';
+  '0xCBBFB7e0E6782DF0d3e91F8D785A5Bf9E8d9775F';
 
 interface vedpxData {
   vedpxTotalSupply: BigNumber;
@@ -74,7 +74,7 @@ export const VeDPXProvider = (props: { children: ReactNode }) => {
   const updateData = useCallback(async () => {
     if (!provider) return;
     const dpx = ERC20__factory.connect(
-      '0x3330BF0253f841d148F20500464D30cd42beCf6b',
+      '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
       provider
     );
 
@@ -102,7 +102,7 @@ export const VeDPXProvider = (props: { children: ReactNode }) => {
   const updateUserData = useCallback(async () => {
     if (!accountAddress) return;
     const dpx = ERC20__factory.connect(
-      '0x3330BF0253f841d148F20500464D30cd42beCf6b',
+      '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
       provider
     );
 

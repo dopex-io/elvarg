@@ -159,7 +159,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
     if (!signer) return;
     try {
       const dpx = ERC20__factory.connect(
-        '0x3330BF0253f841d148F20500464D30cd42beCf6b',
+        '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
         signer
       );
 
@@ -176,7 +176,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
 
       const _accountAddress = await signer?.getAddress();
       let allowance = await ERC20__factory.connect(
-        '0x3330BF0253f841d148F20500464D30cd42beCf6b',
+        '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
         signer
       ).allowance(_accountAddress, vedpxAddress);
 
