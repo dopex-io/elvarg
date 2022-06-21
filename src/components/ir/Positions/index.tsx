@@ -22,7 +22,7 @@ import { AssetsContext } from 'contexts/Assets';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import TransferDialog from 'components/ratesVault/Dialogs/Transfer';
+import TransferDialog from 'components/ir/Dialogs/Transfer';
 
 import styles from './styles.module.scss';
 import { MAX_VALUE } from 'constants/index';

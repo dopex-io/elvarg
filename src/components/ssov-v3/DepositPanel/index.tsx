@@ -176,18 +176,20 @@ const DepositPanel = () => {
         <Typography variant="h3" className="text-stieglitz">
           Deposit
         </Typography>
-        <a
-          href="https://arbitrum.curve.fi/2pool"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-auto mt-1"
-        >
-          <Box role="button" className="underline">
-            <Typography variant="h6" className="text-stieglitz">
-              Get 2CRV
-            </Typography>
-          </Box>
-        </a>
+        {ssovData?.isPut ? (
+          <a
+            href="https://arbitrum.curve.fi/2pool"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto mt-1"
+          >
+            <Box role="button" className="underline">
+              <Typography variant="h6" className="text-stieglitz">
+                Get 2CRV
+              </Typography>
+            </Box>
+          </a>
+        ) : null}
       </Box>
 
       <Box>
