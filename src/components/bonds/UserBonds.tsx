@@ -29,7 +29,17 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
   let userBondsPerSelectedEpoch = userDpxBondsState.filter(
     (bond: any) => bond?.epoch == epochNumber
   );
+
+  // let availableDpxForWithdraw = userDpxBondsState.filter(
+  //   (bond: any) => ((new Date().valueOf()) - bond.maturityTime * 1000) >= 0);
+
   let lockedUntil = userBondsPerSelectedEpoch[0]?.maturityTime;
+  let availableForWithdraw =
+    (lockedUntil &&
+      new Date().valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
+    0;
+
+  console.log('availableToWithdraw', availableForWithdraw);
 
   let priceWithDiscount = getUserReadableAmount(
     dpxPrice - dpxPrice * (epochDiscount / 100),
@@ -83,8 +93,8 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                     variant="text"
                     size="small"
                     className={`${styles['button']} mt-5`}
-                    disabled
-                    // onClick={handleModal}
+                    disabled={availableForWithdraw > 0 ? false : true}
+                    // onClick={handleWithdraw}
                   >
                     Withdraw
                   </CustomButton>
