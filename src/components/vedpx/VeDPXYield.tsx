@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react';
 import Box from '@mui/material/Box';
-import { utils as ethersUtils } from 'ethers';
+// import { utils as ethersUtils } from 'ethers';
 import { VeDPXYieldDistributor__factory } from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
@@ -10,13 +10,13 @@ import NumberDisplay from 'components/UI/NumberDisplay';
 import { VeDPXContext, vedpxYieldDistributorAddress } from 'contexts/VeDPX';
 import { WalletContext } from 'contexts/Wallet';
 
-import formatAmount from 'utils/general/formatAmount';
+// import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
 const VeDPXYield = () => {
   const { accountAddress, signer } = useContext(WalletContext);
-  const { userData, data, updateData, updateUserData } =
+  const { userData, /*data,*/ updateData, updateUserData } =
     useContext(VeDPXContext);
 
   const sendTx = useSendTx();
