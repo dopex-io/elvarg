@@ -127,6 +127,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             </div>
           }
           placeholder={inputValue.toString()}
+          size="small"
           onChange={handleChange}
         />
         {err && (

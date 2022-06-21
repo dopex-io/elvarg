@@ -13,9 +13,14 @@ import styles from './styles.module.scss';
 type EpochData = {
   accountAddress: string | undefined;
   handleModal: () => void;
+  handleEligibilityModal: () => void;
 };
 
-export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
+export const EpochData = ({
+  accountAddress,
+  handleModal,
+  handleEligibilityModal,
+}: EpochData) => {
   const {
     epochNumber,
     epochExpiry,
@@ -117,7 +122,10 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
             every epoch.
           </div>
           <Box className="flex">
-            <Box className="bg-mineshaft text-white test-xs p-2 rounded-md mr-5">
+            <Box
+              onClick={handleEligibilityModal}
+              className="bg-mineshaft text-white test-xs p-2 rounded-md mr-5"
+            >
               Check Eligibility
             </Box>
             <a

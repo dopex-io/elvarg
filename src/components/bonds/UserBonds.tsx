@@ -39,8 +39,6 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
       new Date().valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
     0;
 
-  console.log('availableToWithdraw', availableForWithdraw);
-
   let priceWithDiscount = getUserReadableAmount(
     dpxPrice - dpxPrice * (epochDiscount / 100),
     6
