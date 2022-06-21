@@ -3,16 +3,19 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CustomButton from 'components/UI/CustomButton';
-import { DpxBondsContext } from 'contexts/Bonds';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import format from 'date-fns/format';
+import styles from './styles.module.scss';
+import Button from '@mui/material/Button';
+import displayAddress from 'utils/general/displayAddress';
+import { DpxBondsContext } from 'contexts/Bonds';
+import { WalletContext } from 'contexts/Wallet';
 
 type UserBondsProps = {
-  accountAddress: string | undefined;
   handleModal: () => void;
 };
 
-export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
+export const UserBonds = ({ handleModal }: UserBondsProps) => {
   const {
     epochNumber,
     dpxPrice,
@@ -20,6 +23,9 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
     dopexBondsNftBalance,
     userDpxBondsState,
   } = useContext(DpxBondsContext);
+
+  const { accountAddress, ensAvatar, ensName } = useContext(WalletContext);
+
   let userBondsPerSelectedEpoch = userDpxBondsState.filter(
     (bond: any) => bond?.epoch == epochNumber
   );
@@ -29,7 +35,7 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
     dpxPrice - dpxPrice * (epochDiscount / 100),
     6
   );
-  console.log((dopexBondsNftBalance * 5000) / priceWithDiscount);
+
   return (
     <Box className="mt-5">
       <Typography variant="h5">Your Bonds</Typography>
@@ -37,24 +43,21 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
         dopexBondsNftBalance ? (
           <Box>
             <Box className="bg-cod-gray border-b border-[#1E1E1E] rounded-t-lg md:w-[728px] mt-3 p-3">
-              <Box className="bg-mineshaft text-white test-xs p-1 rounded-md mr-3 w-[110px]">
-                Jams.eth
-              </Box>
+              <Button
+                variant="text"
+                className="bg-mineshaft text-white border-cod-gray hover:border-wave-blue border border-solid"
+              >
+                {ensAvatar && (
+                  <img src={ensAvatar} className="w-5 mr-2" alt="ens avatar" />
+                )}
+                {ensName ? ensName : displayAddress(accountAddress)}
+              </Button>
             </Box>
             <Box className="bg-cod-gray rounded-b-lg flex flex-wrap md:w-[728px] mb-5">
               <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3 ">DPX Available</Box>
                 <Box>
                   {(dopexBondsNftBalance * 5000) / priceWithDiscount}
-                  <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
-                    DPX
-                  </span>
-                </Box>
-              </Box>
-              <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
-                <Box className="text-stieglitz mb-3">Vested</Box>
-                <Box>
-                  209 / 350
                   <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
                     DPX
                   </span>
@@ -69,10 +72,23 @@ export const UserBonds = ({ accountAddress, handleModal }: UserBondsProps) => {
                   </span>
                 </Box>
               </Box>
-              <Box className="p-3 md:flex-1">
+              <Box className="p-3 md:flex-1 border-r md:border-t-0 border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3">Locked Until</Box>
                 {lockedUntil &&
                   format(new Date(lockedUntil * 1000), 'MM/dd/yyyy')}
+              </Box>
+              <Box className="p-3 text-center md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
+                <Box>
+                  <CustomButton
+                    variant="text"
+                    size="small"
+                    className={`${styles['button']} mt-5`}
+                    disabled
+                    // onClick={handleModal}
+                  >
+                    Withdraw
+                  </CustomButton>
+                </Box>
               </Box>
             </Box>
           </Box>

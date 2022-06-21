@@ -19,8 +19,6 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
   const {
     epochNumber,
     epochExpiry,
-    epochStartTime,
-    dopexBondsNftBalance,
     maxDepositsPerEpoch,
     totalEpochDeposits,
     dpxPrice,
@@ -29,11 +27,10 @@ export const EpochData = ({ accountAddress, handleModal }: EpochData) => {
 
   return (
     <>
-      <Box className="bg-cod-gray rounded-lg flex flex-wrap md:w-[728px] mb-5">
+      <Box className="bg-cod-gray rounded-lg flex flex-wrap md:w-[728px] mb-5 mt-5">
         <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">Epoch</Box>
-          {/*  @ts-ignore TODO: FIX */}
-          <Button className={styles['button']}>{epochNumber}</Button>
+          <Button className={`${styles['button']}`}>{epochNumber}</Button>
         </Box>
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">DPX Available</Box>

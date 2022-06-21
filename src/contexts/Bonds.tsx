@@ -66,7 +66,8 @@ export const DpxBondsProvider = (props) => {
   const sendTx = useSendTx();
 
   const [state, setState] = useState(initialData);
-  const { accountAddress, provider, signer } = useContext(WalletContext);
+  const { accountAddress, provider, signer, ensAvatar, ensName } =
+    useContext(WalletContext);
 
   const bondsContract = useMemo(() => {
     return new ethers.Contract(
@@ -158,7 +159,6 @@ export const DpxBondsProvider = (props) => {
       (maxDepositsPerEpoch * 10 ** 18) /
         ((dpxPrice * (100 - epochDiscount)) / 100)
     );
-    // console.log('ensName', ensName,);
 
     setState((prevState: any) => ({
       ...prevState,

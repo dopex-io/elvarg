@@ -22,12 +22,8 @@ export const Bonds = () => {
       <AppBar />
       <Box className="mt-20 md:mt-32 p-3">
         <Typography variant="h5">Bonding</Typography>
-        <Box className="text-stieglitz mb-5">
-          Swap your stables at a premium for vested DPX and support Dopex's
-          operations.
-        </Box>
         <EpochData accountAddress={accountAddress} handleModal={handleModal} />
-        <UserBonds accountAddress={accountAddress} handleModal={handleModal} />
+        <UserBonds handleModal={handleModal} />
       </Box>
       <ModalBonds modalOpen={modalOpen} handleModal={handleModal} />
     </>

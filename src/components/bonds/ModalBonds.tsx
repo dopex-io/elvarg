@@ -82,8 +82,12 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           <Typography className="flex-1 pt-2" variant="h5">
             Bond
           </Typography>
-          <Box className="bg-mineshaft text-white test-xs p-2 rounded-md mr-3">
-            Bridgoor x {dopexBridgoorNFTBalance}
+          <Box className="bg-mineshaft text-white test-xs p-1 rounded-md mr-3 flex">
+            <img
+              className="w-[22px] h-[22px] mr-2 mt-1"
+              src="/images/nfts/DopexBridgoorNFT.gif"
+            ></img>
+            Bridgoor × {dopexBridgoorNFTBalance}
           </Box>
           <CloseIcon
             className="fill-current text-white mt-3"
