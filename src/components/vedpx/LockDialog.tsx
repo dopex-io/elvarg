@@ -123,9 +123,13 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
 
       const _amount = utils.parseEther(amount);
 
-      const unlockTime = userData.lockEnd.isZero()
+      let unlockTime = userData.lockEnd.isZero()
         ? Number(currentTime.toFixed()) + lockPeriod * 86400 * 7
-        : (userData.lockEnd.toNumber() + lockPeriod * 86400 * 7).toFixed();
+        : Number(
+            (userData.lockEnd.toNumber() + lockPeriod * 86400 * 7).toFixed()
+          );
+
+      unlockTime = unlockTime + 600;
 
       if (action === 'create_lock') {
         await sendTx(vedpx.create_lock(_amount, unlockTime));
