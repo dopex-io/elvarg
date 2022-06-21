@@ -31,7 +31,7 @@ const UserVeDPX = () => {
         </Typography>
         <Typography variant="h6" component="p" color="stieglitz">
           DPX can be locked for upto 4 years, locking 1 DPX for 4 years will get
-          you 4 veDPX.
+          you 1 veDPX.
         </Typography>
       </Box>
       <Box className="bg-cod-gray rounded-xl mb-6 max-w-md">

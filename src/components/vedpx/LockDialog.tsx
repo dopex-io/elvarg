@@ -123,7 +123,9 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
 
       const _amount = utils.parseEther(amount);
 
-      const unlockTime = (currentTime + lockPeriod * 86400 * 7).toFixed();
+      const unlockTime = userData.lockEnd.isZero()
+        ? (currentTime + lockPeriod * 86400 * 7).toFixed()
+        : (userData.lockEnd.toNumber() + lockPeriod * 86400 * 7).toFixed();
 
       if (action === 'create_lock') {
         await sendTx(vedpx.create_lock(_amount, unlockTime));
@@ -142,7 +144,16 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
     } catch (err) {
       console.log(err);
     }
-  }, [action, amount, lockPeriod, sendTx, signer, updateData, updateUserData]);
+  }, [
+    action,
+    amount,
+    lockPeriod,
+    sendTx,
+    signer,
+    userData,
+    updateData,
+    updateUserData,
+  ]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
@@ -187,6 +198,13 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
   ) => {
     setLockPeriod(_value as number);
   };
+
+  const buttonDisabled = useMemo(() => {
+    if (!!error || (!Number(value) && !lockPeriod)) return true;
+    else if (action === 'create_lock' && (!lockPeriod || !Number(value)))
+      return true;
+    return false;
+  }, [action, error, lockPeriod, value]);
 
   return (
     <Dialog open={open} showCloseIcon handleClose={handleClose}>
@@ -290,7 +308,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
         <CustomButton
           size="medium"
           fullWidth
-          disabled={!!error || (!Number(value) && !lockPeriod)}
+          disabled={buttonDisabled}
           onClick={approved ? handleDeposit : handleApprove}
         >
           {approved ? ACTION_COPY[action].cta : 'Approve'}
