@@ -1,37 +1,55 @@
-// @ts-nocheck
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
+import { css } from '@emotion/css';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
-import InfoBox from 'components/ssov-v3/InfoBox';
+import InfoBox from 'components/ir/InfoBox';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
+import { VAULT_MAP } from 'constants/index';
 
-import styles from './styles.module.scss';
+interface Props {
+  className: string;
+  data: {
+    currentEpoch: number;
+    totalEpochDeposits: string;
+    rate: number;
+    tvl: number;
+    underlyingSymbol: string;
+    retired: boolean;
+    symbol: string;
+    version: string;
+  };
+}
 
-function SsovCard(props) {
+const backgrounds: { [key: string]: string } = {
+  'MIM3CRV-1':
+    'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)',
+  PUSD3CRV:
+    'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #22e1ff 99.1%)',
+  'MIM3CRV-2':
+    'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)',
+};
+
+function VaultCard(props: Props) {
   const { className, data } = props;
   const { convertToBNB } = useContext(BnbConversionContext);
   const {
     currentEpoch,
     totalEpochDeposits,
-    apy,
+    rate,
     tvl,
     underlyingSymbol: name,
-    type,
-    duration,
     retired,
     symbol,
     version,
@@ -39,19 +57,14 @@ function SsovCard(props) {
   const info = useMemo(() => {
     return [
       {
-        heading: 'APY',
+        heading: 'RATE',
         value: `${
-          apy > 0 && apy !== 'Infinity'
-            ? formatAmount(apy, 0, true).toString() + '%'
+          rate > 0 && String(rate) !== 'Infinity'
+            ? formatAmount(rate, 2, true).toString() + '%'
             : '...'
         }`,
         Icon: Action,
-        tooltip:
-          type === 'put'
-            ? 'This is the base APY calculated from Curve 2Pool Fees and Rewards'
-            : ssovInfo[name]
-            ? ssovInfo[name].aprToolTipMessage
-            : undefined,
+        tooltip: 'Current rate of the pool MIM3CRV',
       },
       {
         heading: 'TVL',
@@ -69,18 +82,15 @@ function SsovCard(props) {
           0,
           true
         )}`,
-        imgSrc:
-          type === 'put'
-            ? '/images/tokens/2crv.png'
-            : SSOV_MAP[name]
-            ? SSOV_MAP[name].imageSrc
-            : '',
+        imgSrc: VAULT_MAP[symbol]?.src,
       },
     ];
-  }, [apy, convertToBNB, name, totalEpochDeposits, tvl, type]);
+  }, [rate, convertToBNB, name, totalEpochDeposits, tvl, symbol]);
 
   return (
-    <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
+    <Box
+      className={cx('p-[1px] rounded-xl w-[350px]', css(backgrounds[symbol]))}
+    >
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -92,23 +102,28 @@ function SsovCard(props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                src={SSOV_MAP[name].imageSrc}
-                alt={name}
+                alt={symbol}
+                src={VAULT_MAP[symbol]?.src}
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h4" className="mr-2 font-bold">
-                {name} {duration === 'weekly' ? 'weekly' : ''}{' '}
+                {symbol.split('-')[0]}
                 {retired ? (
-                  <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
+                  <span className="bg-red-500 p-1 text-sm rounded-sm ml-4">
                     RETIRED
                   </span>
                 ) : null}
               </Typography>
               <img
-                src={'/images/misc/' + type + 's.svg'}
+                src={'/images/misc/calls.svg'}
+                className="w-12 mt-1.5 ml-auto mr-2"
+                alt={'CALLS'}
+              />
+              <img
+                src={'/images/misc/puts.svg'}
                 className="w-12 mt-1.5"
-                alt={type}
+                alt={'PUTS'}
               />
             </Box>
           </Box>
@@ -117,12 +132,7 @@ function SsovCard(props) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link
-            href={
-              version === 3 ? `/ssov-v3/${symbol}` : `/ssov/${type}/${name}`
-            }
-            passHref
-          >
+          <Link href={`/vaults/ir/pool/${symbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>
@@ -141,4 +151,4 @@ function SsovCard(props) {
   );
 }
 
-export default SsovCard;
+export default VaultCard;
