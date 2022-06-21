@@ -129,10 +129,8 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
             (userData.lockEnd.toNumber() + lockPeriod * 86400 * 7).toFixed()
           );
 
-      unlockTime = unlockTime + 600;
-
       if (action === 'create_lock') {
-        await sendTx(vedpx.create_lock(_amount, unlockTime));
+        await sendTx(vedpx.create_lock(_amount, unlockTime + 86400 * 7));
       } else if (action === 'increase_amount_and_time') {
         await sendTx(vedpx.increase_amount_and_time(_amount, unlockTime));
       } else if (action === 'increase_unlock_time') {
