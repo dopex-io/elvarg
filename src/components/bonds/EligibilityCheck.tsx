@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useRef } from 'react';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
@@ -9,6 +9,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import { WalletContext } from 'contexts/Wallet';
 import Chip from '@mui/material/Chip';
 import Input from 'components/UI/Input';
+import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 
 export interface EligibilityCheckProps {
   eligibilityModal: boolean;
@@ -19,12 +22,43 @@ export const EligibilityCheck = ({
   eligibilityModal,
   handleEligibilityModal,
 }: EligibilityCheckProps) => {
+  const [err, setErr] = useState(false);
+  const [eligible, setEligible] = useState(true);
+  const [showIcon, setShowIcon] = useState(false);
+
   const { accountAddress } = useContext(WalletContext);
-  const { usableNfts, dopexBridgoorNFTBalance, bridgoorNFTIds } =
-    useContext(DpxBondsContext);
+
+  const {
+    usableNfts,
+    dopexBridgoorNFTBalance,
+    bridgoorNFTIds,
+    getDepositsPerNftId,
+  } = useContext(DpxBondsContext);
+
   const usedNfts = bridgoorNFTIds.filter(
     (id: number) => usableNfts.indexOf(id) == -1
   );
+
+  const handleCheckNft = async (id: number) => {
+    let result = await getDepositsPerNftId(id);
+    if (result > 0) {
+      setEligible(false);
+    } else {
+      setEligible(true);
+    }
+    setShowIcon(true);
+    return result;
+  };
+
+  const handleChange = (e: any) => {
+    let value = e.target.value;
+    if (value) {
+      handleCheckNft(value);
+    } else {
+      setEligible(true);
+      setShowIcon(false);
+    }
+  };
 
   return (
     <Dialog
@@ -50,7 +84,24 @@ export const EligibilityCheck = ({
           />
         </Box>
         <Box className="bg-[#1E1E1E] rounded-2xl p-2 mt-5 pb-5">
-          <div className="text-[#8E8E8E] text-xs pt-1 mb-2">Search by ID</div>
+          <Box className="flex">
+            <div className="text-[#8E8E8E] text-xs pt-1 mb-2 flex-1">
+              Search by ID
+            </div>
+            {showIcon &&
+              (!eligible ? (
+                <Box className="text-white">
+                  Used
+                  <ErrorIcon className="text-[#FF617D] mr-1 ml-2 mb-1" />
+                </Box>
+              ) : (
+                <Box className="text-white">
+                  Eligible
+                  <CheckCircleIcon className="text-[#6DFFB9] mr-1 ml-2 mb-1" />
+                </Box>
+              ))}
+          </Box>
+
           <Box className="h-[36px]">
             <Input
               leftElement={<SearchIcon className="text-[#8E8E8E]" />}
@@ -58,11 +109,22 @@ export const EligibilityCheck = ({
                 fontSize: '14px !important',
                 height: '30px !important',
               }}
+              inputProps={{
+                pattern: '[0-9]*',
+              }}
               placeholder="ex: 1"
               className="my-0 py-1 border border-[#646464]"
+              onChange={(e) =>
+                e.target.validity.valid ? handleChange(e) : setErr(true)
+              }
             />
           </Box>
         </Box>
+        {err && (
+          <Box className="bg-[#FF617D] rounded-2xl mt-3 p-2">
+            <AccessibleForwardIcon /> Please only enter numbers
+          </Box>
+        )}
         <Box className="bg-[#1E1E1E] rounded-2xl p-2 mt-5 ">
           <Box className="flex">
             <Box className="flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
@@ -73,7 +135,7 @@ export const EligibilityCheck = ({
           <Box className="flex overflow-x-auto">
             {usableNfts.map((id: number) => {
               return (
-                <Box className="flex-none text-center">
+                <Box className="flex-none text-center" key={id}>
                   <img
                     className="w-[70px] h-[70px] m-1 mb-[-20px]"
                     src="/images/nfts/DopexBridgoorNFT.gif"
@@ -96,7 +158,7 @@ export const EligibilityCheck = ({
           <Box className="flex overflow-x-auto">
             {usedNfts.map((id: number) => {
               return (
-                <Box className="flex-none text-center">
+                <Box className="flex-none text-center" key={id}>
                   <img
                     className="w-[70px] h-[70px] m-1 mb-[-20px]"
                     src="/images/nfts/DopexBridgoorNFT.gif"
