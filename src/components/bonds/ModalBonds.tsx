@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
@@ -13,12 +13,20 @@ import { DpxBondsContext } from 'contexts/Bonds';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
+import axios from 'axios';
+
 export interface ModalBondsProps {
   modalOpen: boolean;
   handleModal: () => void;
 }
 
-const BondsInfo = ({ title, value }: { title: string; value: string }) => {
+const BondsInfo = ({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | number;
+}) => {
   return (
     <Box className="flex mb-3">
       <Typography
@@ -47,15 +55,35 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     epochDiscount,
     depositUSDC,
   } = useContext(DpxBondsContext);
+
   const [err, setErr] = useState('');
   const [inputValue, setValue] = useState(0);
+  const [dpxOraclePrice, setOraclePrice] = useState(0);
+
+  useEffect(() => {
+    async function getData() {
+      const payload = await Promise.all([
+        axios.get(
+          'https://8iiu5p3f28.execute-api.us-east-2.amazonaws.com/default/fetchPriceUpdates?tokenSymbol=DPX'
+        ),
+      ]);
+      const _dopexOraclesData = payload.map((item) => {
+        return item.data.data;
+      });
+      const dpxPrice =
+        _dopexOraclesData[0][_dopexOraclesData[0].length - 1].twap || 0;
+
+      setOraclePrice(dpxPrice);
+    }
+    getData();
+  }, []);
+
+  const walletLimit = 5000 * dopexBridgoorNFTBalance;
 
   const priceWithDiscount = getUserReadableAmount(
     dpxPrice - dpxPrice * (epochDiscount / 100),
     6
   );
-
-  const walletLimit = 5000 * dopexBridgoorNFTBalance;
 
   const handleMax = () => {
     setValue(walletLimit);
@@ -70,6 +98,15 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
       setErr('Cannot deposit more than wallet limit');
     } else {
       setValue(value);
+    }
+  };
+
+  const hadleDeposit = async () => {
+    if (inputValue % 5000 == 0) {
+      await depositUSDC(inputValue);
+      handleModal();
+    } else {
+      setErr('Deposit must be divisible by 5000');
     }
   };
 
@@ -159,7 +196,10 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             title="Bonding Price"
             value={`${getUserReadableAmount(dpxPrice, 6)} USDC`}
           />
-          <BondsInfo title="Oracle Price" value="416 USDC" />
+          <BondsInfo
+            title="Oracle Price"
+            value={getUserReadableAmount(dpxOraclePrice, 8).toFixed(2)}
+          />
           <BondsInfo title="Vesting Term" value="1 Week" />
           <BondsInfo
             title="Total Bonding Limit"
@@ -202,7 +242,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           color={inputValue ? '' : 'umbra'}
           className="text-white bg-primary hover:bg-primary w-full mt-5  p-4"
           disabled={inputValue ? false : true}
-          onClick={() => depositUSDC(inputValue)}
+          onClick={hadleDeposit}
         >
           {inputValue ? 'Bond' : 'Select Amount'}
         </CustomButton>
