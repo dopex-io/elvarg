@@ -8,12 +8,12 @@ import { ModalBonds } from 'components/bonds//ModalBonds';
 import { EligibilityCheck } from 'components/bonds/EligibilityCheck';
 import { EpochData } from 'components/bonds/EpochData';
 import { WalletContext } from 'contexts/Wallet';
-import { DpxBondsContext, DpxBondsProvider } from 'contexts/Bonds';
+import { DpxBondsProvider } from 'contexts/Bonds';
 
 export const Bonds = () => {
   const { accountAddress } = useContext(WalletContext);
-  const [modalOpen, setModal] = useState(false);
-  const [eligibilityModal, setEligibilityModal] = useState(true);
+  const [modalOpen, setModal] = useState(true);
+  const [eligibilityModal, setEligibilityModal] = useState(false);
 
   const handleModal = () => {
     setModal(!modalOpen);
@@ -21,8 +21,7 @@ export const Bonds = () => {
   const handleEligibilityModal = () => {
     setEligibilityModal(!eligibilityModal);
   };
-  // EligibilityModal: boolean;
-  // handleEligibilityModal: () => void;
+
   return (
     <>
       <AppBar />
@@ -43,8 +42,6 @@ export const Bonds = () => {
     </>
   );
 };
-
-// export default BondsPage;
 
 export default function BondsPaget() {
   return (

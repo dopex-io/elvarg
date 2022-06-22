@@ -41,19 +41,21 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     dopexBridgoorNFTBalance,
     maxDepositsPerEpoch,
     usdcBalance,
+    usdcContractBalance,
     dpxPrice,
     dpxBondsAddress,
     epochDiscount,
     depositUSDC,
   } = useContext(DpxBondsContext);
-  let deposited = maxDepositsPerEpoch / 4;
   const [err, setErr] = useState('');
   const [inputValue, setValue] = useState(0);
-  let priceWithDiscount = getUserReadableAmount(
+
+  const priceWithDiscount = getUserReadableAmount(
     dpxPrice - dpxPrice * (epochDiscount / 100),
     6
   );
-  let walletLimit = 5000 * dopexBridgoorNFTBalance;
+
+  const walletLimit = 5000 * dopexBridgoorNFTBalance;
 
   const handleMax = () => {
     setValue(walletLimit);
@@ -162,13 +164,13 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           <BondsInfo
             title="Total Bonding Limit"
             value={`${getUserReadableAmount(
-              deposited,
+              usdcContractBalance,
               6
             )} / ${getUserReadableAmount(maxDepositsPerEpoch, 6)}`}
           />
           <LinearProgress
             variant="determinate"
-            value={(deposited / maxDepositsPerEpoch) * 100}
+            value={(usdcContractBalance / maxDepositsPerEpoch) * 100}
           />
         </Box>
         <Box className="bg-umbra p-4 rounded-xl mt-3">

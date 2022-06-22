@@ -40,6 +40,7 @@ interface DpxBondsData {
   usableNfts: Array;
   bridgoorNFTIds: Array;
   getDepositsPerNftId: Function;
+  usdcContractBalance: number;
 }
 
 interface DpxBondsContextInterface extends DpxBondsData {}
@@ -137,6 +138,9 @@ export const DpxBondsProvider = (props) => {
       await dopexBridgoorNFTContract.balanceOf(accountAddress)
     );
     const usdcBalance = parseInt(await usdcContract.balanceOf(accountAddress));
+    const usdcContractBalance = parseInt(
+      await usdcContract.balanceOf(bondsContract.address)
+    );
     const epochNumber = parseInt(await bondsContract.epochNumber());
     const dpxPrice = parseInt(await bondsContract.dpxPrice(epochNumber));
     const epochDiscount = parseInt(
@@ -189,6 +193,7 @@ export const DpxBondsProvider = (props) => {
       dopexBondsNftBalance: dopexBondsNftBalance,
       dopexBridgoorNFTBalance: dopexBridgoorNFTBalance,
       usdcBalance: usdcBalance,
+      usdcContractBalance: usdcContractBalance,
       dpxPrice: dpxPrice,
       dpxBondsAddress: bondsContract.address,
       epochDiscount: epochDiscount,
