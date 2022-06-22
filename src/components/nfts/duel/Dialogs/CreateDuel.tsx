@@ -28,9 +28,10 @@ import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
-import { DiamondPepeNFTs__factory } from '@dopex-io/sdk';
+import { DiamondPepeNFTs__factory, ERC20__factory } from '@dopex-io/sdk';
 import cx from 'classnames';
 
 export interface Props {
@@ -366,8 +367,8 @@ const ABI = [
 const feesPercentage = 10;
 
 const CreateDuel = ({ open, handleClose }: Props) => {
-  const { chainId, signer, contractAddresses } = useContext(WalletContext);
-  const accountAddress = '0x4F30A0D841088BaCddC7C179BE06564Fc4D0B7E7';
+  const { chainId, signer, contractAddresses, accountAddress } =
+    useContext(WalletContext);
   const [tokenName, setTokenName] = useState<string>('ETH');
   const [wager, setWager] = useState<number>(1);
   const { userAssetBalances } = useContext(AssetsContext);
@@ -388,7 +389,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const diamondPepeNfts = useMemo(() => {
     if (!signer) return;
     return DiamondPepeNFTs__factory.connect(
-      contractAddresses['NFTS']['DiamondPepesNFT'],
+      '0xc05ccE32B474ed1EAFE35AAbFdaD07cF024353B5',
       signer
     );
   }, [contractAddresses, signer]);
@@ -396,7 +397,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const duel = useMemo(
     () =>
       new ethers.Contract(
-        '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        '0x60ebb6174F2c71B2f3d30965A2ffeCa89647c358',
         ABI,
         signer
       ),
@@ -475,8 +476,12 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   }, [moves]);
 
   const handleCreate = useCallback(async () => {
-    if (!signer) return;
+    if (!signer || !accountAddress) return;
     if (moves.length < 5) return;
+
+    const token = ERC20__factory.connect(contractAddresses[tokenName], signer);
+
+    const allowance = await token.allowance(accountAddress, duel.address);
 
     const identifier = ethers.utils.formatBytes32String(
       [...Array(30)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
@@ -505,13 +510,17 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     let messageHash = ethers.utils.hashMessage(ethers.utils.arrayify(hash));
     const movesSig = await signer.signMessage(messageHash);
 
+    if (allowance.eq(0)) {
+      await token.approve(duel.address, MAX_VALUE);
+    }
+
     await duel
       .connect(signer)
       ['createDuel'](
         identifier,
         getContractReadableAmount(wager, getTokenDecimals(tokenName, chainId)),
         contractAddresses[tokenName],
-        '0xede855ceD3e5A59Aaa267aBdDdB0dB21CCFE5072',
+        '0xc05ccE32B474ed1EAFE35AAbFdaD07cF024353B5',
         duelist,
         movesSig,
         {
@@ -536,13 +545,13 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     else if (!duelist) return false;
 
     return true;
-  }, [tokenName, chainId]);
+  }, [moves, duelist]);
 
   const Moves = useCallback(() => {
     return (
       <Box className="flex">
         {moves.map((move, i) => (
-          <Box className="flex">
+          <Box className="flex" key={i}>
             <Box className="mr-3">
               <Box className="bg-[#343C4D] flex h-10 w-10 rounded-md">
                 <img
@@ -621,7 +630,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
     setIsLoadingNfts(true);
 
-    const _nfts: { id: string; img: string }[] = [];
+    let _nfts: { id: string; img: string }[] = [];
 
     let i = 0;
     while (true) {
@@ -631,7 +640,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           .tokenOfOwnerByIndex(accountAddress, i);
         _nfts.push({
           id: nftId.toString(),
-          img: `https://ipfs.io/ipfs/QmZGtzDodjfRTGJErqpJ7oFRJ4GM1R1DZkGPnRYVzZ9ZsC/${nftId}.png`,
+          img: `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${nftId}/1440/image.jpg`,
         });
         i++;
       } catch (e) {
@@ -639,6 +648,14 @@ const CreateDuel = ({ open, handleClose }: Props) => {
         break;
       }
     }
+
+    // TODO: REMOVE
+    _nfts = [
+      {
+        id: '2',
+        img: `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/629/1440/image.jpg`,
+      },
+    ];
 
     setUserNfts(_nfts);
     setIsLoadingNfts(false);
@@ -749,13 +766,14 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               {/* @ts-ignore TODO: FIX */}
               <Box className={styles['darkBg']}>
                 <Box className="flex lg:grid lg:grid-cols-12 mb-3">
-                  {userNfts.map((userNft) => (
+                  {userNfts.map((userNft, i) => (
                     <Box
                       className="col-span-3 pl-2 pr-2 relative cursor-pointer group"
                       onClick={() => updateDuelist(userNft.id)}
+                      key={i}
                     >
                       <img
-                        src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${userNft.id}/280/static.jpg`}
+                        src={userNft.img}
                         className="w-full border-4 border-[#343C4D] group-hover:border-[#343C3A]"
                         alt="Pepe"
                       />
@@ -1134,7 +1152,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             {duelist ? (
               <Box className="flex relative">
                 <img
-                  src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/280/static.jpg`}
+                  src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
                   className="w-10 h-10 mt-3 cursor-pointer"
                   onClick={() => setIsSelectingNfts(true)}
                 />
