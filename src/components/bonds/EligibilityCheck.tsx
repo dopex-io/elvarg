@@ -12,6 +12,8 @@ import Input from 'components/UI/Input';
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import Tooltip from '@mui/material/Tooltip';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 export interface EligibilityCheckProps {
   eligibilityModal: boolean;
@@ -87,18 +89,25 @@ export const EligibilityCheck = ({
           <Box className="flex">
             <div className="text-[#8E8E8E] text-xs pt-1 mb-2 flex-1">
               Search by ID
+              <Tooltip title="NFT token ID can be found under details/info. Use this form to verify the eligibility of the NFT.">
+                <HelpOutlineIcon className="h-[14px] mb-0.5" />
+              </Tooltip>
             </div>
             {showIcon &&
               (!eligible ? (
-                <Box className="text-white">
-                  Used
-                  <ErrorIcon className="text-[#FF617D] mr-1 ml-2 mb-1" />
-                </Box>
+                <Tooltip title="This NFT is ineligible because it has been used before in the bonds program.">
+                  <Box className="text-white text-xs mt-1 ">
+                    Used
+                    <ErrorIcon className="text-[#FF617D] mb-0.5 h-[15px]  " />
+                  </Box>
+                </Tooltip>
               ) : (
-                <Box className="text-white">
-                  Eligible
-                  <CheckCircleIcon className="text-[#6DFFB9] mr-1 ml-2 mb-1" />
-                </Box>
+                <Tooltip title="This NFT is eligible and has not been used in the bonds program.">
+                  <Box className="text-white text-xs mt-1 ">
+                    Eligible
+                    <CheckCircleIcon className="text-[#6DFFB9] mb-0.5 h-[15px] " />
+                  </Box>
+                </Tooltip>
               ))}
           </Box>
 
@@ -125,56 +134,7 @@ export const EligibilityCheck = ({
             <AccessibleForwardIcon /> Please only enter numbers
           </Box>
         )}
-        <Box className="bg-[#1E1E1E] rounded-2xl p-2 mt-5 ">
-          <Box className="flex">
-            <Box className="flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
-              Your eligible NFTs
-            </Box>
-            <Typography variant="caption">{usableNfts.length}</Typography>
-          </Box>
-          <Box className="flex overflow-x-auto">
-            {usableNfts.map((id: number) => {
-              return (
-                <Box className="flex-none text-center" key={id}>
-                  <img
-                    className="w-[70px] h-[70px] m-1 mb-[-20px]"
-                    src="/images/nfts/DopexBridgoorNFT.gif"
-                  ></img>
-                  <Chip
-                    label={`#${id}`}
-                    size="small"
-                    className="bg-[#1E1E1E] text-white"
-                  />
-                </Box>
-              );
-            })}
-          </Box>
-          <Box className="flex">
-            <Box className=" flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
-              Inligible NFTs
-            </Box>
-            <Typography variant="caption">{usedNfts.length}</Typography>
-          </Box>
-          <Box className="flex overflow-x-auto">
-            {usedNfts.map((id: number) => {
-              return (
-                <Box className="flex-none text-center" key={id}>
-                  <img
-                    className="w-[70px] h-[70px] m-1 mb-[-20px]"
-                    src="/images/nfts/DopexBridgoorNFT.gif"
-                  ></img>
-                  <Chip
-                    label={`#${id}`}
-                    size="small"
-                    className="bg-[#1E1E1E] text-white"
-                  />
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
-
-        {!accountAddress && (
+        {!accountAddress ? (
           <Box className="bg-[#1E1E1E] border border-[#1E1E1E] rounded-2xl p-3 flex  mt-5">
             <div className="flex-1 text-white text-xs pt-1">
               Connect to see your NFTs
@@ -186,6 +146,55 @@ export const EligibilityCheck = ({
             >
               Connect
             </CustomButton>
+          </Box>
+        ) : (
+          <Box className="bg-[#1E1E1E] rounded-2xl p-2 mt-5 ">
+            <Box className="flex">
+              <Box className="flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
+                Your eligible NFTs
+              </Box>
+              <Typography variant="caption">{usableNfts.length}</Typography>
+            </Box>
+            <Box className="flex overflow-x-auto">
+              {usableNfts.map((id: number) => {
+                return (
+                  <Box className="flex-none text-center" key={id}>
+                    <img
+                      className="w-[70px] h-[70px] m-1 mb-[-20px]"
+                      src="/images/nfts/DopexBridgoorNFT.gif"
+                    ></img>
+                    <Chip
+                      label={`#${id}`}
+                      size="small"
+                      className="bg-[#1E1E1E] text-white"
+                    />
+                  </Box>
+                );
+              })}
+            </Box>
+            <Box className="flex">
+              <Box className=" flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
+                Inligible NFTs
+              </Box>
+              <Typography variant="caption">{usedNfts.length}</Typography>
+            </Box>
+            <Box className="flex overflow-x-auto">
+              {usedNfts.map((id: number) => {
+                return (
+                  <Box className="flex-none text-center" key={id}>
+                    <img
+                      className="w-[70px] h-[70px] m-1 mb-[-20px]"
+                      src="/images/nfts/DopexBridgoorNFT.gif"
+                    ></img>
+                    <Chip
+                      label={`#${id}`}
+                      size="small"
+                      className="bg-[#1E1E1E] text-white"
+                    />
+                  </Box>
+                );
+              })}
+            </Box>
           </Box>
         )}
         <Box className=" border border-[#1E1E1E] rounded-2xl p-3 fl/ex  mt-2">
