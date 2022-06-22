@@ -82,7 +82,18 @@ export const SSOV_MAP = {
 export const ATLANTIC_STATS_MAPPING: { [key: string]: string } = {
   TVL: 'TVL',
   pools: 'Pools',
-  // volume: 'Volume',
+};
+// volume: 'Volume',
+export const VAULT_MAP: { [key: string]: { src: string } } = {
+  'MIM3CRV-1': {
+    src: '/images/tokens/mim.svg',
+  },
+  'MIM3CRV-2': {
+    src: '/images/tokens/mim.svg',
+  },
+  PUSD3CRV: {
+    src: '/images/tokens/pusd.svg',
+  },
 };
 
 export const SHOWCASE_NFTS = [
