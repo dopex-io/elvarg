@@ -93,10 +93,10 @@ const appLinks = {
   ],
   42161: [
     { name: 'Farms', to: '/farms' },
+    { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'OTC', to: '/otc' },
-    { name: 'veDPX', to: '/governance/vedpx' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
