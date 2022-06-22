@@ -6,6 +6,7 @@ import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
 import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
+import PoolStrategies from './PoolStrategies/PoolStrategies';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
 
@@ -22,7 +23,7 @@ const ContractData = () => {
     if (!selectedPool) return;
     return formatDistance(
       Number(selectedPool?.state.expiryTime) * 1000,
-      Number(selectedPool?.state.startTime) * 1000
+      Number(new Date())
     );
   }, [selectedPool]);
 
@@ -80,7 +81,7 @@ const ContractData = () => {
         <Box className="flex">
           <Typography
             variant="h6"
-            className="font-semibold p-2 bg-umbra rounded-lg"
+            className="font-semibold p-2 bg-umbra rounded-lg font-mono"
           >
             {!selectedPool?.config.baseFundingRate.isZero()
               ? getUserReadableAmount(
@@ -95,7 +96,10 @@ const ContractData = () => {
         <Typography variant="h6" color="stieglitz">
           Current price
         </Typography>
-        <Typography variant="h6" className="my-auto p-2 pl-0 font-semibold">
+        <Typography
+          variant="h6"
+          className="my-auto p-2 pl-0 font-semibold font-mono"
+        >
           ${formatAmount(selectedPool?.underlyingPrice, 3)}
         </Typography>
       </Box>
@@ -106,6 +110,12 @@ const ContractData = () => {
         <ExplorerLink
           address={selectedPool?.contracts?.atlanticPool.address ?? '...'}
         />
+      </Box>
+      <Box className="space-y-3 flex flex-col">
+        <Typography variant="h6" color="stieglitz">
+          Strategies (1)
+        </Typography>
+        <PoolStrategies />
       </Box>
     </Box>
   );

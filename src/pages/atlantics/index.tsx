@@ -1,15 +1,14 @@
 import { useContext } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import { CircularProgress } from '@mui/material';
 
 import AppBar from 'components/common/AppBar';
 import Accordion from 'components/atlantics/Accordion';
 import Description from 'components/atlantics/Description';
 import Stats from 'components/atlantics/Stats';
-// import StrategyFilter from 'components/atlantics/StrategyFilter';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
-import { CircularProgress } from '@mui/material';
 
 const Atlantics = () => {
   const { pools } = useContext(AtlanticsContext);

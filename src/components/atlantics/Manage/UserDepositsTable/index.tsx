@@ -7,8 +7,6 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
-import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import {
   AtlanticCallsPool__factory,
   AtlanticPutsPool__factory,
@@ -28,7 +26,7 @@ import useSendTx from 'hooks/useSendTx';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
-const TableHeader = ({
+export const TableHeader = ({
   // @ts-ignore TODO: FIX
   children,
   align = 'left',
@@ -50,7 +48,7 @@ const TableHeader = ({
   );
 };
 
-const TableBodyCell = ({
+export const TableBodyCell = ({
   // @ts-ignore TODO: FIX
   children,
   align = 'left',
@@ -103,7 +101,7 @@ const UserDepositsTable = () => {
 
       const duration = formatDistance(
         epochTimes['expiryTime'].toNumber() * 1000,
-        epochTimes['startTime'].toNumber() * 1000
+        Number(new Date())
       );
 
       setEpochDuration(duration);
@@ -113,10 +111,9 @@ const UserDepositsTable = () => {
   const userPositionDataSanitized = useMemo(() => {
     if (!selectedPool) return [];
     if (userPositions && userPositions.length !== 0) {
-      const tokenDecimals = getTokenDecimals(
-        selectedPool.tokens.deposit,
-        chainId
-      );
+      const { deposit } = selectedPool.tokens;
+      if (!deposit) return [];
+      const tokenDecimals = getTokenDecimals(deposit, chainId);
       const positions = userPositions.map((_position: IUserPosition, index) => {
         return {
           strike: _position.strike && _position.strike.toNumber(),
@@ -166,11 +163,7 @@ const UserDepositsTable = () => {
       <Table>
         <TableHead>
           <TableRow>
-            {selectedPool?.isPut && (
-              <TableHeader>
-                Max Strike <ArrowDownwardRoundedIcon className="p-1 my-auto" />
-              </TableHeader>
-            )}
+            {selectedPool?.isPut && <TableHeader>Max Strike</TableHeader>}
             <TableHeader>Deposit Date</TableHeader>
             <TableHeader>Liquidity</TableHeader>
             <TableHeader>Premia Collected</TableHeader>
@@ -185,9 +178,7 @@ const UserDepositsTable = () => {
           {userPositionDataSanitized.map((position, index) => (
             <TableRow key={index}>
               {selectedPool?.isPut && (
-                <TableBodyCell>
-                  <ArrowUpward className="h-[0.8rem]" />${position.strike}
-                </TableBodyCell>
+                <TableBodyCell>${position.strike}</TableBodyCell>
               )}
               <TableBodyCell>
                 <Typography variant="h6">

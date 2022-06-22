@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import {
   BarChart,
@@ -7,6 +7,8 @@ import {
   Tooltip,
   Bar,
   ResponsiveContainer,
+  LabelList,
+  Cell,
 } from 'recharts';
 
 import Typography from 'components/UI/Typography';
@@ -31,6 +33,8 @@ interface LiquidityBarGraphProps {
 
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const { data, height, header } = props;
+
+  const [focusBar, setFocusBar] = useState<any>(null);
 
   const { selectedPool } = useContext(AtlanticsContext);
 
@@ -60,14 +64,26 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             barSize={50}
             layout="vertical"
             margin={{
-              top: 10,
+              top: 5,
               right: 0,
-              left: 10,
+              left: 7,
               bottom: 5,
+            }}
+            onMouseMove={(state) => {
+              if (state.isTooltipActive) {
+                setFocusBar(state.activeTooltipIndex);
+              } else {
+                setFocusBar(null);
+              }
             }}
           >
             {/* Tried overlapping the graphs */}
-            <Tooltip wrapperClassName="rounded-xl flex text-right h-auto" />
+            <Tooltip
+              wrapperClassName="rounded-xl flex text-right h-auto"
+              cursor={{
+                fill: '#151515',
+              }}
+            />
             <XAxis type="number" dataKey="deposits" hide />
             <XAxis type="number" dataKey="unlocked" hide />
             <XAxis type="number" dataKey="activeCollateral" hide />
@@ -81,29 +97,57 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               interval={0}
             />
             <Bar
-              name="Active Collateral"
-              dataKey="activeCollateral"
-              stackId="a"
-              fill="#3E3E3E"
-              label="activeCollateral"
-              barSize={100}
-            />
-            <Bar
               name="Deposits"
               dataKey="deposits"
               stackId="a"
               fill="#1E1E1E"
               label="deposits"
               barSize={100}
-            />
+              radius={[5, 0, 0, 5]}
+              z="1"
+            >
+              <LabelList
+                dataKey="deposits"
+                position="insideLeft"
+                fill="white"
+              />
+              {data.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={focusBar === index ? '#3E3E3E' : '#3E3E3E'}
+                />
+              ))}
+            </Bar>
+            <Bar
+              name="Active Collateral"
+              dataKey="activeCollateral"
+              stackId="a"
+              fill="#2D2D2D"
+              label="activeCollateral"
+              barSize={100}
+            >
+              {data.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={focusBar === index ? '#8E8E8E' : '#2D2D2D'}
+                />
+              ))}
+            </Bar>
             <Bar
               name="Unlocked Collateral"
               dataKey="unlocked"
               stackId="a"
-              fill="#2D2D2D"
+              fill="#1E1E1E"
               label="unlockedCollateral"
               barSize={100}
-            />
+            >
+              {data.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={focusBar === index ? '#C4C4C4' : '#1E1E1E'}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </Box>

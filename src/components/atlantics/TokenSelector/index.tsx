@@ -46,13 +46,14 @@ const TokenSelector = (props: TokenSelectorProps) => {
 
   return (
     <Slide
+      className="z-10"
       direction="up"
       in={open}
       mountOnEnter
       unmountOnExit
       // container={containerRef?.current}
     >
-      <Box className="overflow-y-auto w-full bg-cod-gray">
+      <Box className="overflow-y-auto w-full bg-cod-gray z-20">
         {tokens?.map((token, index) => {
           return (
             <Box

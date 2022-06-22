@@ -20,6 +20,7 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/CustomButton';
+import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -34,8 +35,6 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { TOKEN_DECIMALS } from 'constants/index';
-import Dialog from '@mui/material/Dialog';
-import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
 
 interface ManageCardProps {
   tokenId: string;
@@ -220,9 +219,7 @@ const ManageCard = (props: ManageCardProps) => {
   };
 
   const closePositionManager = () => {
-    console.log('CLOSING');
     setOpenPositionManager(() => false);
-    console.log(openPositionManager, 'RESULT');
   };
 
   useEffect(() => {
@@ -329,7 +326,7 @@ const ManageCard = (props: ManageCardProps) => {
         </Box>
         <CustomButton
           className="flex w-full text-center"
-          color={selectedPool?.state.isVaultReady ? 'primary' : 'mineshaft'}
+          color="mineshaft"
           disabled={disableButton}
           onClick={approved ? handleDeposit : handleApprove}
         >

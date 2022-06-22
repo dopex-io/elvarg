@@ -23,10 +23,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-const tokenPrices = {
-  WETH: 1800,
-  USDT: 1,
-};
+import { AssetsContext } from './Assets';
 
 interface IVaultConfiguration {
   collateralUtilizationWeight: BigNumber;
@@ -241,8 +238,9 @@ interface Pool {
 }
 
 export const AtlanticsProvider = (props: any) => {
-  const { contractAddresses, signer, provider, accountAddress } =
+  const { contractAddresses, signer, provider, accountAddress, chainId } =
     useContext(WalletContext);
+  const { tokenPrices, tokens } = useContext(AssetsContext);
 
   const [pools, setPools] = useState<Pool[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -332,16 +330,18 @@ export const AtlanticsProvider = (props: any) => {
         baseToken: ERC20__factory.connect(baseToken, provider),
         quoteToken: ERC20__factory.connect(quoteToken, provider),
       };
-
-      const underlying = await contracts?.baseToken?.symbol();
+      if (!contracts) return;
+      const underlying = await contracts.baseToken?.symbol();
       const depositToken = await contracts.quoteToken.symbol();
 
       let _tvl: number = 0;
       let _volume: number = 0;
       let apy: string[] = [];
-      // @ts-ignore
-      const tokenPrice = tokenPrices[depositToken];
-      const depositTokenDecimals = getTokenDecimals(depositToken, 1337);
+
+      const index = tokens.indexOf(depositToken);
+      const tokenPrice = tokenPrices[index]?.price ?? 0;
+
+      const depositTokenDecimals = getTokenDecimals(depositToken, chainId);
       const timeFactor =
         365 - Number(state.expiryTime.sub(state.startTime)) / 86400;
 
@@ -440,7 +440,7 @@ export const AtlanticsProvider = (props: any) => {
       };
 
       const underlying = await contracts?.baseToken?.symbol();
-      const tokenDecimals = getTokenDecimals(underlying, 1337);
+      const tokenDecimals = getTokenDecimals(underlying, chainId);
       let apy;
 
       const earningsPerToken =
@@ -452,8 +452,9 @@ export const AtlanticsProvider = (props: any) => {
 
       apy = formatAmount(earningsPerToken * timeFactor * 100, 3);
 
-      // @ts-ignore
-      const tokenPrice = tokenPrices[underlying];
+      const index = tokens.indexOf(underlying);
+      const tokenPrice = tokenPrices[index]?.price ?? 0;
+
       const denominator = 10 ** tokenDecimals;
       const currentTvl = (Number(data.liquidity) / denominator) * tokenPrice;
       const currentVolume =

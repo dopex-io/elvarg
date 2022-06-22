@@ -27,6 +27,6 @@
     "noFallthroughCasesInSwitch": true,
     "incremental": true
   },
-  "include": ["src", "src/constants"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

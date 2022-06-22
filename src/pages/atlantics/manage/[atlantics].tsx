@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
@@ -11,6 +11,7 @@ import ContractData from 'components/atlantics/Manage/ContractData';
 import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 import InfoBox from 'components/ssov-v3/InfoBox';
+import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
 import Action from 'svgs/icons/Action';
 import Coin from 'svgs/icons/Coin';
@@ -20,7 +21,6 @@ import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 import formatAmount from 'utils/general/formatAmount';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
-import { Slider } from '@mui/material';
 
 // Placeholder data for charts
 const line_chart_data = [
@@ -68,7 +68,13 @@ interface Info {
   title: string;
 }
 
+interface IUserPositionTables {
+  positionTableType: string;
+}
+
 const Manage = (props: ManageProps) => {
+  const [selectedPositionTable, setSelectedPositionTable] =
+    useState<string>('pool-deposits');
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
 
@@ -150,6 +156,10 @@ const Manage = (props: ManageProps) => {
     }
   }, [type, selectedPool]);
 
+  const changePositionTable = (positionTable: string) => {
+    setSelectedPositionTable(() => positionTable);
+  };
+
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       <Head>
@@ -171,7 +181,7 @@ const Manage = (props: ManageProps) => {
               {type === 'CALLS' ? null : (
                 <Typography variant="h5">Liquidity</Typography>
               )}
-              <Box className="flex flex-col xl:flex-row">
+              <Box className="flex flex-col xl:flex-row h-full">
                 {type === 'CALLS' ? null : (
                   <Box className="flex-1">
                     <Charts
@@ -188,7 +198,7 @@ const Manage = (props: ManageProps) => {
                     type === 'PUTS' && 'flex-[0.5] mt-2 xl:ml-2 xl:mt-0'
                   }`}
                 >
-                  <Box className="grid grid-cols-2 gap-2 mb-6 h-auto">
+                  <Box className="grid grid-cols-2 gap-2 mb-6 h-full">
                     {info.map((item) => (
                       // @ts-ignore
                       <InfoBox
@@ -203,14 +213,37 @@ const Manage = (props: ManageProps) => {
                 </Box>
               </Box>
             </Box>
-
             {/* <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>
               <PoolCompositionTable />
             </Box> */}
             <Box className="w-full space-y-4">
-              <Typography variant="h5">Deposits</Typography>
-              <UserDepositsTable />
+              <Box className="flex space-x-3">
+                <Typography
+                  onClick={() => changePositionTable('pool-deposits')}
+                  color={`${
+                    selectedPositionTable !== 'pool-deposits' && 'stieglitz'
+                  }`}
+                  className="cursor-pointer"
+                  variant="h5"
+                >
+                  Deposits
+                </Typography>
+                <Typography
+                  onClick={() => changePositionTable('insured-perps')}
+                  color={`${
+                    selectedPositionTable !== 'insured-perps' && 'stieglitz'
+                  }`}
+                  className="cursor-pointer"
+                  variant="h5"
+                >
+                  Insured Perpetuals
+                </Typography>
+              </Box>
+              {selectedPositionTable === 'pool-deposits' && (
+                <UserDepositsTable />
+              )}
+              {selectedPositionTable === 'insured-perps' && <UserPositions />}
             </Box>
           </Box>
           <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full">
