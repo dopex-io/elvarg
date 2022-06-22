@@ -583,10 +583,10 @@
     rxjs "^6.6.3"
     stream-browserify "^3.0.0"
 
-"@dopex-io/sdk@1.0.0-beta.3":
-  version "1.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.3.tgz#c5e842bcab2d49c62e9537b59cb6c4d07dd2060e"
-  integrity sha512-/wtiIt5UfIudErTGJG/EQr3BYm2X1z1pPEmazlUuNPCHwBalry8IMQi0RcWZ4jvNV4R9AkaxjjsHZ5AY2rdwaA==
+"@dopex-io/sdk@^1.0.0-beta.4":
+  version "1.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.4.tgz#92e71337623221880429276be4c05162e87aff6a"
+  integrity sha512-Py3TML9v0p3JXIcBiZGxbr7MADLUf4gLtzqW7HojBBL93KtIKf7IU4WzQrblMo7fuc4zir+OX3gmn+SCOFUTZw==
   dependencies:
     ethers "^5.6.4"
 
