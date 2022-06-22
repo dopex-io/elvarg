@@ -286,6 +286,8 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
   };
 
   function onChangeLeverage(event: Event, value: any, aciveThumb: any) {
+    event;
+    aciveThumb;
     setLeverage(() => value);
   }
 
@@ -500,6 +502,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
   ]);
 
   const handleKeepCollateral = (event: any, checked: boolean) => {
+    event;
     setKeepCollateral(() => checked);
   };
 

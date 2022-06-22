@@ -25,7 +25,7 @@ interface TokenSelectorProps {
 }
 
 const TokenSelector = (props: TokenSelectorProps) => {
-  const { open, setOpen, tokens, containerRef, setSelection } = props;
+  const { open, setOpen, tokens, setSelection } = props;
   const { chainId } = useContext(WalletContext);
   const { userAssetBalances, tokenPrices } = useContext(AssetsContext);
 

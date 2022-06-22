@@ -66,8 +66,7 @@ const UserPositions = () => {
       return;
     const strategyContractAddress: string =
       contractAddresses['STRATEGIES']['INSURED-PERPS'];
-    const gmxVaultAddress: string =
-      '0x0165878A594ca255338adfa4d48449f69242Eb8F';
+    const gmxVaultAddress: string = contractAddresses['GAMBIT']['VAULT'];
     const { underlying } = selectedPool.tokens;
 
     if (!underlying) return;

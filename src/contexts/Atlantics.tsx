@@ -395,7 +395,7 @@ export const AtlanticsProvider = (props: any) => {
         underlyingPrice: Number(underlyingPrice.div(1e8)),
       };
     },
-    [provider]
+    [provider, chainId, tokens, tokenPrices]
   );
 
   const getCallPool = useCallback(
@@ -486,7 +486,7 @@ export const AtlanticsProvider = (props: any) => {
         underlyingPrice: Number(underlyingPrice.div(1e8)),
       };
     },
-    [contractAddresses, provider, signer]
+    [contractAddresses, provider, signer, chainId, tokenPrices, tokens]
   );
 
   const updatePools = useCallback(async () => {

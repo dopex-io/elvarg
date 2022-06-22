@@ -2,11 +2,13 @@ import { useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import { CircularProgress } from '@mui/material';
-import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
 import { BigNumber } from 'ethers';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
+
+import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
+import { WalletContext } from 'contexts/Wallet';
 
 // const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
 //   ssr: false,
@@ -34,6 +36,7 @@ interface IBarData {
 const Charts = (props: ChartsProps) => {
   const { /* line_data, */ underlying, collateral, title, type } = props;
   const { selectedPool } = useContext(AtlanticsContext);
+  const { chainId } = useContext(WalletContext);
 
   const barData: IBarData[] = useMemo((): IBarData[] => {
     if (!selectedPool)
@@ -41,7 +44,11 @@ const Charts = (props: ChartsProps) => {
     if (selectedPool.isPut) {
       const strikes = selectedPool.strikes as BigNumber[];
       const data = selectedPool.data as IAtlanticPoolCheckpoint[];
-      const decimals = getTokenDecimals(selectedPool?.tokens.deposit, 1337);
+      const { deposit } = selectedPool.tokens;
+      if (!deposit)
+        return [{ deposits: 0, unlocked: 0, activeCollateral: 0, strike: 0 }];
+      const decimals = getTokenDecimals(deposit, chainId);
+
       const barData: IBarData[] = strikes?.map(
         (maxStrike: BigNumber, index: number) => {
           const unlocked =
@@ -63,7 +70,7 @@ const Charts = (props: ChartsProps) => {
     } else {
       return [{ deposits: 0, unlocked: 0, activeCollateral: 0, strike: 0 }];
     }
-  }, [selectedPool]);
+  }, [selectedPool, chainId]);
 
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">

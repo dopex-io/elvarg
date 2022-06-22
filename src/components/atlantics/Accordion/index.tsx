@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -36,7 +35,7 @@ const CustomAccordion = ({
   header,
   className,
 }: CustomAccordionProps) => {
-  const [expand, setExpand] = useState(true);
+  // const [, setExpand] = useState(true);
 
   const callPoolFiltered = useMemo(() => {
     if (!callPools) return;
@@ -80,9 +79,9 @@ const CustomAccordion = ({
     return pools;
   }, [putPools]);
 
-  const handleExpand = () => {
-    setExpand((prev) => !prev);
-  };
+  // const handleExpand = () => {
+  //   setExpand((prev) => !prev);
+  // };
 
   return (
     <Accordion

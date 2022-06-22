@@ -68,10 +68,6 @@ interface Info {
   title: string;
 }
 
-interface IUserPositionTables {
-  positionTableType: string;
-}
-
 const Manage = (props: ManageProps) => {
   const [selectedPositionTable, setSelectedPositionTable] =
     useState<string>('pool-deposits');
