@@ -1,5 +1,5 @@
-import { Box } from '@mui/system';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
@@ -14,7 +14,7 @@ const PoolStrategies = () => {
 };
 
 const StrategyInfo = () => {
-  const { contractAddresses } = useContext(WalletContext);
+  const {} = useContext(WalletContext);
 
   return (
     <Box className="bg-arbitrum  rounded-lg text-center p-2 font-mono">
