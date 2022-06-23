@@ -94,13 +94,13 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
       _amount = BigNumber.from(0);
     }
 
-    if (userData.vedpxBalance.isZero()) return 'create_lock';
+    if (userData.lockedDpxBalance.isZero()) return 'create_lock';
     if (lockPeriod && !_amount.isZero()) return 'increase_amount_and_time';
     if (!_amount.isZero()) return 'increase_amount';
     if (lockPeriod) return 'increase_unlock_time';
 
     return 'no_change';
-  }, [lockPeriod, userData.vedpxBalance, value]);
+  }, [lockPeriod, userData, value]);
 
   const handleChange = useCallback((e: { target: { value: string } }) => {
     setValue(e.target.value);
