@@ -19,15 +19,15 @@ import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-
-import formatAmount from 'utils/general/formatAmount';
-
-import { MAX_VALUE } from 'constants/index';
 import {
   VeDPXContext,
   vedpxAddress,
   vedpxYieldDistributorAddress,
 } from 'contexts/VeDPX';
+
+import formatAmount from 'utils/general/formatAmount';
+
+import { MAX_VALUE } from 'constants/index';
 
 const ACTION_COPY = {
   create_lock: {
