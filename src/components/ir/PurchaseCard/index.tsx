@@ -95,7 +95,7 @@ const PurchaseCard = ({
           rateVaultContext.rateVaultEpochData.totalCallsPurchased
         );
     } else if (activeVaultContextSide === 'PUT') {
-      deposits = rateVaultContext.rateVaultEpochData.callsDeposits[strikeIndex];
+      deposits = rateVaultContext.rateVaultEpochData.putsDeposits[strikeIndex];
       if (deposits)
         available = deposits.sub(
           rateVaultContext.rateVaultEpochData.totalPutsPurchased
