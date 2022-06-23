@@ -19,13 +19,13 @@ const StrategyInfo = () => {
   return (
     <Box className="bg-arbitrum  rounded-lg text-center p-2 font-mono">
       <Typography variant="h6">
-        <a
-          href={`https://testnet.arbiscan.io/address/${contractAddresses['STRATEGIES']['INSURED-PERPS']}`}
+        {/* <a
+          href={`https://testnet.arbiscan.io/address/${contractAddresses['STRATEGIES']['INSURED-PERPS'] ?? ''}`}
           rel="noopener noreferrer"
           target={'_blank'}
-        >
-          Insured Long Perpetuals
-        </a>
+        > */}
+        Insured Long Perpetuals
+        {/* </a> */}
       </Typography>
     </Box>
   );
