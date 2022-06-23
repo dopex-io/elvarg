@@ -248,7 +248,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
             <Typography variant="caption">{lockPeriod} Weeks</Typography>
           </Box>
           <Box className="mx-3">
-            <Slider value={lockPeriod} onChange={handleLockPeriod} max={208} />
+            <Slider value={lockPeriod} onChange={handleLockPeriod} max={207} />
           </Box>
         </Box>
         <Box className="border-umbra border rounded-lg flex justify-evenly">
