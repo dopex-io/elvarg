@@ -16,7 +16,7 @@ const VeDPX = () => {
           <title>veDPX | Dopex</title>
         </Head>
         <AppBar />
-        <Box className="pt-32 pb-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <Box className="py-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
           <Overview />
           <Box className="flex flex-col space-x-0 lg:space-x-4 lg:flex-row">
             <UserVeDPX />

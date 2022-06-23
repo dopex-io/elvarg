@@ -76,8 +76,7 @@ const Overview = () => {
             value={`${formatAmount(dpxCirculatingSupply, 2, true)} DPX`}
           />
         </Box>
-        <Box className="relative top-24 left-40">Coming Soon</Box>
-        <Box className="w-full h-40 p-3 blur-sm">
+        <Box className="w-full h-40 p-3">
           <SupplyChart />
         </Box>
       </Box>
