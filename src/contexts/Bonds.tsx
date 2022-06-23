@@ -8,14 +8,14 @@ import {
   useMemo,
 } from 'react';
 
-import abi from '../pages/Bonds/abi.json';
-import dopexBridgoorNFTAbi from '../pages/Bonds/dopexBridgoorNFT.json';
-import usdcAbi from '../pages/Bonds/usdc.json';
 import { BigNumber, ethers } from 'ethers';
 import { WalletContext } from './Wallet';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
 import useSendTx from 'hooks/useSendTx';
+
+import abi from '../pages/Bonds/abi/abi.json';
+import dopexBridgoorNFTAbi from '../pages/Bonds/abi/dopexBridgoorNFT.json';
+import usdcAbi from '../pages/Bonds/abi/usdc.json';
 
 interface bondsState {
   epoch: number;
@@ -26,7 +26,7 @@ interface bondsState {
 interface DpxBondsData {
   epochNumber: number;
   epochExpiry: number;
-  epochStartTime: number;
+  //   epochStartTime: number;
   maxDepositsPerEpoch: number;
   dopexBridgoorNFTBalance: number;
   epochDiscount: number;
@@ -79,7 +79,7 @@ export const DpxBondsProvider = (props) => {
 
   const bondsContract = useMemo(() => {
     return new ethers.Contract(
-      '0xdA0Fb91C9b6eD017c9e2C21dA8133bf79B73B178',
+      '0x05904287ccA5B9eE233c177BAAbe97A0b15ADA21',
       abi,
       signer
     );
@@ -87,7 +87,7 @@ export const DpxBondsProvider = (props) => {
 
   const dopexBridgoorNFTContract = useMemo(() => {
     return new ethers.Contract(
-      '0x83C9D349501bB53e95b99EBF6538d4a867De9953',
+      '0x6C51C3CC0F5Af833bDC0F6A8a33E468fFB755CDd',
       dopexBridgoorNFTAbi,
       signer
     );
@@ -95,7 +95,7 @@ export const DpxBondsProvider = (props) => {
 
   const usdcContract = useMemo(() => {
     return new ethers.Contract(
-      '0x83EccfFc332c3bbEdc2F2473fFF8dc408FD36C16',
+      '0xF31dBc6e1eB12764B0F0eb4C4CfA3F0a42e0caEF',
       usdcAbi,
       signer
     );
@@ -150,7 +150,7 @@ export const DpxBondsProvider = (props) => {
     const epochDiscount = parseInt(
       await bondsContract.epochDiscount(epochNumber)
     );
-    const epochStartTime = (await bondsContract.startTime()) * 1000;
+    // const epochStartTime = (await bondsContract.startTime()) * 1000;
     const epochExpiry = parseInt(await bondsContract.epochExpiry(1)) * 1000;
     const totalEpochDeposits = parseInt(
       await bondsContract.totalEpochDeposits(epochNumber)
@@ -193,7 +193,7 @@ export const DpxBondsProvider = (props) => {
       (maxDepositsPerEpoch * 10 ** 18) /
         ((dpxPrice * (100 - epochDiscount)) / 100)
     );
-
+    console.log('bondsDpx', bondsDpx, totalEpochDeposits);
     const bridgoorNFTIds = await getBridgoorNFTIds(dopexBridgoorNFTBalance);
 
     const getDepositsPerNftId = async (id: number) =>
@@ -203,7 +203,7 @@ export const DpxBondsProvider = (props) => {
       ...prevState,
       epochNumber: epochNumber,
       epochExpiry: epochExpiry,
-      epochStartTime: epochStartTime,
+      //   epochStartTime: epochStartTime,
       maxDepositsPerEpoch: maxDepositsPerEpoch,
       dopexBondsNftBalance: dopexBondsNftBalance,
       dopexBridgoorNFTBalance: dopexBridgoorNFTBalance,

@@ -23,12 +23,17 @@ export const EpochData = ({
 }: EpochData) => {
   const {
     epochNumber,
+    epochDiscount,
     epochExpiry,
     maxDepositsPerEpoch,
     totalEpochDeposits,
     dpxPrice,
     bondsDpx,
   } = useContext(DpxBondsContext);
+
+  let availableDpx =
+    getUserReadableAmount(bondsDpx) -
+    totalEpochDeposits / (dpxPrice - dpxPrice * (epochDiscount / 100));
 
   return (
     <>
@@ -40,8 +45,7 @@ export const EpochData = ({
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">DPX Available</Box>
           <Box>
-            {getUserReadableAmount(bondsDpx) - totalEpochDeposits / dpxPrice} /{' '}
-            {getUserReadableAmount(bondsDpx)}
+            {availableDpx.toFixed(2)} / {getUserReadableAmount(bondsDpx)}
             <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
               DPX
             </span>
