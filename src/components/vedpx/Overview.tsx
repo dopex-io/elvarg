@@ -1,17 +1,30 @@
-import { useContext } from 'react';
-import Box from '@mui/material/Box';
+import { useContext, useEffect, useState } from 'react';
 import { utils as ethersUtils } from 'ethers';
+import axios from 'axios';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
+import Stat from './Stat';
+import SupplyChart from './SupplyChart';
 
 import { VeDPXContext } from 'contexts/VeDPX';
 
 import formatAmount from 'utils/general/formatAmount';
-import Stat from './Stat';
-import SupplyChart from './SupplyChart';
+
+import { DOPEX_API_BASE_URL } from 'constants/index';
 
 const Overview = () => {
   const { data } = useContext(VeDPXContext);
+
+  const [dpxCirculatingSupply, setDpxCirculatingSupply] = useState(0);
+
+  useEffect(() => {
+    async function update() {
+      const payload = await axios.get(`${DOPEX_API_BASE_URL}/v1/dpx/supply`);
+      setDpxCirculatingSupply(payload.data.circulatingSupply);
+    }
+    update();
+  }, []);
 
   return (
     <Box>
@@ -25,17 +38,42 @@ const Overview = () => {
         </Typography>
       </Box>
       <Box className="bg-cod-gray max-w-md rounded-xl mb-6">
-        <Box className="grid grid-cols-2">
+        <Box className="grid grid-cols-3">
           <Stat
             name="veDPX Supply"
             value={formatAmount(
               ethersUtils.formatEther(data.vedpxTotalSupply),
-              3
+              2,
+              true
             )}
           />
           <Stat
             name="Total Locked DPX"
-            value={formatAmount(ethersUtils.formatEther(data.dpxLocked), 3)}
+            value={formatAmount(
+              ethersUtils.formatEther(data.dpxLocked),
+              2,
+              true
+            )}
+          />
+          <Stat
+            name="Avg. Lock Time"
+            value={`~${(
+              4 *
+              (Number(ethersUtils.formatEther(data.vedpxTotalSupply)) /
+                Number(ethersUtils.formatEther(data.dpxLocked)))
+            ).toFixed(2)} years`}
+          />
+          <Stat
+            name="% Supply Locked"
+            value={`${(
+              (Number(ethersUtils.formatEther(data.dpxLocked)) /
+                dpxCirculatingSupply) *
+              100
+            ).toFixed(2)}%`}
+          />
+          <Stat
+            name="DPX Circ. Supply"
+            value={`${formatAmount(dpxCirculatingSupply, 2, true)} DPX`}
           />
         </Box>
         <Box className="relative top-24 left-40">Coming Soon</Box>

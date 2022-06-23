@@ -1,14 +1,12 @@
 import { useContext, useState } from 'react';
 import Box from '@mui/material/Box';
-import { utils as ethersUtils } from 'ethers';
 import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
+import NumberDisplay from 'components/UI/NumberDisplay';
 import WalletButton from 'components/common/WalletButton';
 import LockDialog from './LockDialog';
 import Stat from './Stat';
-
-import formatAmount from 'utils/general/formatAmount';
 
 import { VeDPXContext } from 'contexts/VeDPX';
 
@@ -38,17 +36,20 @@ const UserVeDPX = () => {
         <Box className="grid grid-cols-3">
           <Stat
             name="veDPX Balance"
-            value={`${formatAmount(
-              ethersUtils.formatEther(userData.vedpxBalance),
-              3
-            )} DPX`}
+            value={
+              <>
+                <NumberDisplay n={userData.vedpxBalance} decimals={18} /> veDPX
+              </>
+            }
           />
           <Stat
             name="Your Locked DPX"
-            value={`${formatAmount(
-              ethersUtils.formatEther(userData.lockedDpxBalance),
-              3
-            )} DPX`}
+            value={
+              <>
+                <NumberDisplay n={userData.lockedDpxBalance} decimals={18} />{' '}
+                DPX
+              </>
+            }
           />
           <Stat
             name="Locked Until"
