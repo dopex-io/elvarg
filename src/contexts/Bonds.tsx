@@ -21,6 +21,7 @@ interface bondsState {
   epoch: number;
   issued: number;
   maturityTime: number;
+  redeemed: boolean;
 }
 interface DpxBondsData {
   epochNumber: number;
@@ -41,6 +42,7 @@ interface DpxBondsData {
   bridgoorNFTIds: Array;
   getDepositsPerNftId: Function;
   usdcContractBalance: number;
+  withdrawDpx: Function;
 }
 
 interface DpxBondsContextInterface extends DpxBondsData {}
@@ -62,6 +64,7 @@ const initialData = {
   usableNfts: [],
   bridgoorNFTIds: [],
   getDepositsPerNftId: () => {},
+  withdrawDpx: () => {},
 };
 
 export const DpxBondsContext =
@@ -128,6 +131,7 @@ export const DpxBondsProvider = (props) => {
         epoch: parseInt(userBond.epoch),
         issued: parseInt(userBond.issued),
         maturityTime: parseInt(userBond.maturityTime),
+        redeemed: userBond.redeemed,
       });
     }
     return userBondsState;
@@ -173,6 +177,17 @@ export const DpxBondsProvider = (props) => {
       await sendTx(bondsContract.mint(nftsToDeposit));
     };
 
+    const withdrawableNftsForSelectedEpoch = async () => {
+      return await bondsContract.getWithdrawableNftsForSelectedEpoch(
+        accountAddress,
+        epochNumber
+      );
+    };
+
+    const withdrawDpx = async () => {
+      await sendTx(bondsContract.redeem(epochNumber));
+    };
+
     const userDpxBondsState = await getUserBondsNftsState(dopexBondsIds);
     const bondsDpx = parseInt(
       (maxDepositsPerEpoch * 10 ** 18) /
@@ -205,6 +220,7 @@ export const DpxBondsProvider = (props) => {
       userDpxBondsState: userDpxBondsState,
       usableNfts: usableNfts,
       bridgoorNFTIds: bridgoorNFTIds,
+      withdrawDpx: withdrawDpx,
     }));
   };
 

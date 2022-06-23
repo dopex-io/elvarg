@@ -12,7 +12,7 @@ import { DpxBondsProvider } from 'contexts/Bonds';
 
 export const Bonds = () => {
   const { accountAddress } = useContext(WalletContext);
-  const [modalOpen, setModal] = useState(true);
+  const [modalOpen, setModal] = useState(false);
   const [eligibilityModal, setEligibilityModal] = useState(false);
 
   const handleModal = () => {

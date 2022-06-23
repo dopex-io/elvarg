@@ -16,24 +16,21 @@ type UserBondsProps = {
 };
 
 export const UserBonds = ({ handleModal }: UserBondsProps) => {
-  const {
-    epochNumber,
-    dpxPrice,
-    epochDiscount,
-    dopexBondsNftBalance,
-    userDpxBondsState,
-  } = useContext(DpxBondsContext);
+  const { dpxPrice, epochDiscount, userDpxBondsState, withdrawDpx } =
+    useContext(DpxBondsContext);
 
   const { accountAddress, ensAvatar, ensName } = useContext(WalletContext);
 
-  let userBondsPerSelectedEpoch = userDpxBondsState.filter(
-    (bond: any) => bond?.epoch == epochNumber
+  let notRedeemedBonds = userDpxBondsState.filter(
+    (bond: any) => bond?.redeemed == false
   );
 
-  // let availableDpxForWithdraw = userDpxBondsState.filter(
-  //   (bond: any) => ((new Date().valueOf()) - bond.maturityTime * 1000) >= 0);
+  // let aWeek = new Date().valueOf() + 5*24*60*60*1000;
+  let availableBondsForWithdraw = userDpxBondsState.filter(
+    (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
+  );
 
-  let lockedUntil = userBondsPerSelectedEpoch[0]?.maturityTime;
+  let lockedUntil = notRedeemedBonds[0]?.maturityTime;
   let availableForWithdraw =
     (lockedUntil &&
       new Date().valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
@@ -48,7 +45,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     <Box className="mt-5">
       <Typography variant="h5">Your Bonds</Typography>
       {accountAddress ? (
-        dopexBondsNftBalance ? (
+        notRedeemedBonds.length > 0 ? (
           <Box>
             <Box className="bg-cod-gray border-b border-[#1E1E1E] rounded-t-lg md:w-[728px] mt-3 p-3">
               <Button
@@ -65,7 +62,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
               <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3 ">DPX Available</Box>
                 <Box>
-                  {(dopexBondsNftBalance * 5000) / priceWithDiscount}
+                  {(notRedeemedBonds.length * 5000) / priceWithDiscount}
                   <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
                     DPX
                   </span>
@@ -74,7 +71,8 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
               <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3">Unlocked</Box>
                 <Box>
-                  0
+                  {(availableBondsForWithdraw.length * 5000) /
+                    priceWithDiscount}
                   <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
                     DPX
                   </span>
@@ -92,7 +90,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                     size="small"
                     className={`${styles['button']} mt-5`}
                     disabled={availableForWithdraw > 0 ? false : true}
-                    // onClick={handleWithdraw}
+                    onClick={withdrawDpx}
                   >
                     Withdraw
                   </CustomButton>
