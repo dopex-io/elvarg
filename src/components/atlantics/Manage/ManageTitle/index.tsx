@@ -19,9 +19,10 @@ const ManageTitle = (props: ManageCardTitleProps) => {
   const { selectedPool } = useContext(AtlanticsContext);
 
   const poolId = useMemo(() => {
-    return `${selectedPool?.tokens.underlying}-${
-      selectedPool?.tokens.deposit
-    }-${
+    const { underlying, deposit } = selectedPool.tokens;
+    if (!underlying || !deposit) return;
+
+    return `${underlying}-${deposit}-${
       selectedPool?.isPut ? 'PUTS' : 'CALLS'
     }-${selectedPool?.duration.substring(0, 1)}`;
   }, [selectedPool]);

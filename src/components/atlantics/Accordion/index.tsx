@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -36,9 +35,7 @@ const CustomAccordion = ({
   header,
   className,
 }: CustomAccordionProps) => {
-  const [expand, setExpand] = useState(true);
-
-  console.log(expand);
+  // const [, setExpand] = useState(true);
 
   const callPoolFiltered = useMemo(() => {
     if (!callPools) return;
@@ -82,11 +79,9 @@ const CustomAccordion = ({
     return pools;
   }, [putPools]);
 
-  const handleExpand = () => {
-    setExpand((prev) => !prev);
-  };
-
-  console.log(handleExpand);
+  // const handleExpand = () => {
+  //   setExpand((prev) => !prev);
+  // };
 
   return (
     <Accordion
@@ -117,8 +112,8 @@ const CustomAccordion = ({
               return (
                 <PoolCard
                   key={index}
-                  underlying={pool.tokens.underlying}
-                  depositToken={pool.tokens.deposit}
+                  underlying={pool.tokens['underlying'] ?? ''}
+                  depositToken={pool.tokens['deposit'] ?? ''}
                   duration={duration.toUpperCase()}
                   tvl={pool.tvl}
                   apy={pool.apy}
@@ -134,8 +129,8 @@ const CustomAccordion = ({
               return (
                 <PoolCard
                   key={index}
-                  underlying={pool.tokens.underlying}
-                  depositToken={pool.tokens.underlying}
+                  underlying={pool.tokens['underlying'] ?? ''}
+                  depositToken={pool.tokens['underlying'] ?? ''}
                   duration={duration.toUpperCase()}
                   tvl={pool.tvl}
                   apy={pool.apy}

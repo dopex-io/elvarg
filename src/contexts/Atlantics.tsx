@@ -4,6 +4,8 @@ import {
   useContext,
   useState,
   useCallback,
+  Dispatch,
+  SetStateAction,
 } from 'react';
 import { BigNumber } from 'ethers';
 import {
@@ -21,10 +23,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-const tokenPrices = {
-  WETH: 1800,
-  USDT: 1,
-};
+import { AssetsContext } from './Assets';
 
 interface IVaultConfiguration {
   collateralUtilizationWeight: BigNumber;
@@ -119,7 +118,7 @@ interface AtlanticsContextInterface {
     duration: string
   ) => Promise<IAtlanticPoolType> | {};
   selectedEpoch: number;
-  setSelectedEpoch: Function;
+  setSelectedEpoch: Dispatch<SetStateAction<number>>;
   selectedPool: IAtlanticPoolType;
   setSelectedPool: Function;
   userPositions: IUserPosition[];
@@ -136,10 +135,7 @@ export interface IAtlanticPoolType {
   state: IVaultState;
   config: IVaultConfiguration;
   contracts?: IContracts;
-  tokens: {
-    deposit: string;
-    underlying: string;
-  };
+  tokens: { [key: string]: string };
   tvl: number;
   volume: number;
   apy: string | string[];
@@ -242,8 +238,9 @@ interface Pool {
 }
 
 export const AtlanticsProvider = (props: any) => {
-  const { contractAddresses, signer, provider, accountAddress } =
+  const { contractAddresses, signer, provider, accountAddress, chainId } =
     useContext(WalletContext);
+  const { tokenPrices, tokens } = useContext(AssetsContext);
 
   const [pools, setPools] = useState<Pool[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -333,16 +330,18 @@ export const AtlanticsProvider = (props: any) => {
         baseToken: ERC20__factory.connect(baseToken, provider),
         quoteToken: ERC20__factory.connect(quoteToken, provider),
       };
-
-      const underlying = await contracts?.baseToken?.symbol();
+      if (!contracts) return;
+      const underlying = await contracts.baseToken?.symbol();
       const depositToken = await contracts.quoteToken.symbol();
 
       let _tvl: number = 0;
       let _volume: number = 0;
       let apy: string[] = [];
-      // @ts-ignore
-      const tokenPrice = tokenPrices[depositToken];
-      const depositTokenDecimals = getTokenDecimals(depositToken, 1337);
+
+      const index = tokens.indexOf(depositToken);
+      const tokenPrice = tokenPrices[index]?.price ?? 0;
+
+      const depositTokenDecimals = getTokenDecimals(depositToken, chainId);
       const timeFactor =
         365 - Number(state.expiryTime.sub(state.startTime)) / 86400;
 
@@ -396,7 +395,7 @@ export const AtlanticsProvider = (props: any) => {
         underlyingPrice: Number(underlyingPrice.div(1e8)),
       };
     },
-    [provider]
+    [provider, chainId, tokens, tokenPrices]
   );
 
   const getCallPool = useCallback(
@@ -441,7 +440,7 @@ export const AtlanticsProvider = (props: any) => {
       };
 
       const underlying = await contracts?.baseToken?.symbol();
-      const tokenDecimals = getTokenDecimals(underlying, 1337);
+      const tokenDecimals = getTokenDecimals(underlying, chainId);
       let apy;
 
       const earningsPerToken =
@@ -453,8 +452,9 @@ export const AtlanticsProvider = (props: any) => {
 
       apy = formatAmount(earningsPerToken * timeFactor * 100, 3);
 
-      // @ts-ignore
-      const tokenPrice = tokenPrices[underlying];
+      const index = tokens.indexOf(underlying);
+      const tokenPrice = tokenPrices[index]?.price ?? 0;
+
       const denominator = 10 ** tokenDecimals;
       const currentTvl = (Number(data.liquidity) / denominator) * tokenPrice;
       const currentVolume =
@@ -486,7 +486,7 @@ export const AtlanticsProvider = (props: any) => {
         underlyingPrice: Number(underlyingPrice.div(1e8)),
       };
     },
-    [contractAddresses, provider, signer]
+    [contractAddresses, provider, signer, chainId, tokenPrices, tokens]
   );
 
   const updatePools = useCallback(async () => {
@@ -580,9 +580,7 @@ export const AtlanticsProvider = (props: any) => {
     const pool = selectedPool;
     const poolType = pool.isPut ? 'PUTS' : 'CALLS';
     const contractAddress =
-      contractAddresses['ATLANTIC-POOLS'][pool.tokens.underlying][poolType][
-        pool.duration
-      ];
+      contractAddresses['ATLANTIC-POOLS'][pool.asset][poolType][pool.duration];
     if (!contractAddress) return;
     const atlanticPool =
       poolType === 'PUTS'

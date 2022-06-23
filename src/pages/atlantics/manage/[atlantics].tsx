@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
@@ -11,7 +11,7 @@ import ContractData from 'components/atlantics/Manage/ContractData';
 import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 import InfoBox from 'components/ssov-v3/InfoBox';
-import PoolCompositionTable from 'components/atlantics/Manage/PoolCompositionTable';
+import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
 import Action from 'svgs/icons/Action';
 import Coin from 'svgs/icons/Coin';
@@ -69,6 +69,8 @@ interface Info {
 }
 
 const Manage = (props: ManageProps) => {
+  const [selectedPositionTable, setSelectedPositionTable] =
+    useState<string>('pool-deposits');
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
 
@@ -90,6 +92,16 @@ const Manage = (props: ManageProps) => {
     selectedEpoch,
     setSelectedEpoch,
   ]);
+
+  const depositToken = useMemo((): string => {
+    if (!selectedPool) return '';
+    const { deposit } = selectedPool.tokens;
+    if (deposit) {
+      return deposit;
+    } else {
+      return selectedPool.asset;
+    }
+  }, [selectedPool]);
 
   const info = useMemo(() => {
     if (!selectedPool) return [{ heading: '', value: '' }];
@@ -140,6 +152,10 @@ const Manage = (props: ManageProps) => {
     }
   }, [type, selectedPool]);
 
+  const changePositionTable = (positionTable: string) => {
+    setSelectedPositionTable(() => positionTable);
+  };
+
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       <Head>
@@ -150,7 +166,7 @@ const Manage = (props: ManageProps) => {
         <Box className="flex space-x-0 sm:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
           <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
             <ManageTitle
-              depositToken={selectedPool?.tokens.deposit ?? ''}
+              depositToken={depositToken}
               underlying={underlying}
               strategy={title}
               epochLength={duration}
@@ -193,13 +209,37 @@ const Manage = (props: ManageProps) => {
                 </Box>
               </Box>
             </Box>
-            <Box className="w-full space-y-4">
+            {/* <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>
               <PoolCompositionTable />
-            </Box>
+            </Box> */}
             <Box className="w-full space-y-4">
-              <Typography variant="h5">Deposits</Typography>
-              <UserDepositsTable />
+              <Box className="flex space-x-3">
+                <Typography
+                  onClick={() => changePositionTable('pool-deposits')}
+                  color={`${
+                    selectedPositionTable !== 'pool-deposits' && 'stieglitz'
+                  }`}
+                  className="cursor-pointer"
+                  variant="h5"
+                >
+                  Deposits
+                </Typography>
+                <Typography
+                  onClick={() => changePositionTable('insured-perps')}
+                  color={`${
+                    selectedPositionTable !== 'insured-perps' && 'stieglitz'
+                  }`}
+                  className="cursor-pointer"
+                  variant="h5"
+                >
+                  Insured Perpetuals
+                </Typography>
+              </Box>
+              {selectedPositionTable === 'pool-deposits' && (
+                <UserDepositsTable />
+              )}
+              {selectedPositionTable === 'insured-perps' && <UserPositions />}
             </Box>
           </Box>
           <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full">

@@ -47,7 +47,7 @@ const AppLink = ({
   className?: string;
 }) => {
   const linkClassName = cx(
-    'hover:no-underline hover:text-white capitalize cursor-pointer',
+    'hover:no-underline hover:text-white cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
   if (to.startsWith('http')) {
@@ -72,8 +72,8 @@ const AppLink = ({
 
 const appLinks = {
   1: [
-    { name: 'farms', to: '/farms' },
-    { name: 'sale', to: '/sale' },
+    { name: 'Farms', to: '/farms' },
+    { name: 'Sale', to: '/sale' },
   ],
   56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
@@ -92,11 +92,13 @@ const appLinks = {
     // { name: 'SSOV', to: '/ssov' },
     // { name: 'OTC', to: '/otc' },
     { name: 'Atlantics', to: '/atlantics' },
+    { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
-    { name: 'farms', to: '/farms' },
+    { name: 'Farms', to: '/farms' },
+    { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
-    { name: 'Rate Vaults', to: '/vaults/ir/PUSD' },
+    { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'OTC', to: '/otc' },
     { name: 'atlantics', to: '/atlantics' },
   ],

@@ -20,6 +20,7 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/CustomButton';
+import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -45,6 +46,15 @@ interface ManageCardProps {
 const ManageCard = (props: ManageCardProps) => {
   const { underlying, poolType, duration } = props;
 
+  const [value, setValue] = useState<number | string>('');
+  const [maxStrike, setMaxStrike] = useState<number | string>('');
+  const [approved, setApproved] = useState<boolean>(false);
+  const [currentPrice, setCurrentPrice] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
+  const [openPositionManager, setOpenPositionManager] =
+    useState<boolean>(false);
+
   const tx = useSendTx();
 
   const { userAssetBalances } = useContext(AssetsContext);
@@ -60,15 +70,10 @@ const ManageCard = (props: ManageCardProps) => {
         return 'USDT';
       }
     }
-    return selectedPool.tokens.deposit;
+    const { deposit } = selectedPool.tokens;
+    if (!deposit) return selectedPool.asset;
+    return deposit;
   }, [selectedPool, poolType]);
-
-  const [value, setValue] = useState<number | string>('');
-  const [maxStrike, setMaxStrike] = useState<number | string>('');
-  const [approved, setApproved] = useState<boolean>(false);
-  const [currentPrice, setCurrentPrice] = useState<BigNumber>(
-    BigNumber.from(0)
-  );
 
   const containerRef = React.useRef(null);
 
@@ -88,7 +93,8 @@ const ManageCard = (props: ManageCardProps) => {
   );
 
   const handleApprove = useCallback(async () => {
-    if (!signer || !contractAddresses || !accountAddress) return;
+    if (!signer || !contractAddresses || !accountAddress || !depositToken)
+      return;
 
     const token = ERC20__factory.connect(
       contractAddresses[depositToken],
@@ -109,10 +115,10 @@ const ManageCard = (props: ManageCardProps) => {
     contractAddresses,
     duration,
     poolType,
-    depositToken,
     signer,
     underlying,
     value,
+    depositToken,
   ]);
 
   const handleDeposit = useCallback(() => {
@@ -158,22 +164,29 @@ const ManageCard = (props: ManageCardProps) => {
   ]);
 
   const handleMax = useCallback(() => {
+    const { deposit } = selectedPool.tokens;
+    if (!deposit) return;
     setValue(
       getUserReadableAmount(
-        userAssetBalances[depositToken || underlying] ?? '0',
-        getTokenDecimals(depositToken, chainId)
+        userAssetBalances[deposit || underlying] ?? '0',
+        getTokenDecimals(deposit, chainId)
       )
     );
-  }, [chainId, depositToken, underlying, userAssetBalances]);
+  }, [chainId, selectedPool.tokens, underlying, userAssetBalances]);
 
   useEffect(() => {
     (async () => {
-      if (!signer || !contractAddresses || !accountAddress) return;
+      if (
+        !signer ||
+        !contractAddresses ||
+        !accountAddress ||
+        !selectedPool.tokens
+      )
+        return;
+      const { deposit } = selectedPool.tokens;
+      if (!deposit) return;
 
-      const token = ERC20__factory.connect(
-        contractAddresses[depositToken],
-        signer
-      );
+      const token = ERC20__factory.connect(contractAddresses[deposit], signer);
 
       const allowance = await token.allowance(
         accountAddress,
@@ -184,7 +197,7 @@ const ManageCard = (props: ManageCardProps) => {
         allowance.gte(
           getContractReadableAmount(
             value,
-            TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
+            TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
           )
         )
       );
@@ -195,11 +208,19 @@ const ManageCard = (props: ManageCardProps) => {
     contractAddresses,
     duration,
     poolType,
-    depositToken,
     signer,
     underlying,
     value,
+    selectedPool.tokens,
   ]);
+
+  const openPositionManagerModal = () => {
+    setOpenPositionManager(() => true);
+  };
+
+  const closePositionManager = () => {
+    setOpenPositionManager(() => false);
+  };
 
   useEffect(() => {
     (async () => {
@@ -235,6 +256,17 @@ const ManageCard = (props: ManageCardProps) => {
         <Typography variant="h5" className="my-auto">
           Deposit
         </Typography>
+        <Typography
+          onClick={openPositionManagerModal}
+          variant="h6"
+          className="text-gray-300 underline cursor-pointer"
+        >
+          Open a long position
+        </Typography>
+        <OpenPositionDialog
+          isOpen={openPositionManager}
+          setClose={closePositionManager}
+        />
       </Box>
       <Box className="bg-umbra rounded-xl w-full">
         <CustomInput
@@ -250,7 +282,7 @@ const ManageCard = (props: ManageCardProps) => {
                 role="button"
               >
                 <img
-                  src={`/images/tokens/${depositToken.toLowerCase()}.svg`}
+                  src={`/images/tokens/${depositToken?.toLowerCase()}.svg`}
                   alt={(depositToken || underlying).toLowerCase()}
                   className="w-[2.4rem]"
                 />

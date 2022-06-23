@@ -23,7 +23,10 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     if (!selectedPool?.duration || !userPositions)
       return { userShare: 0, totalDeposits: 0 };
 
-    const decimals = getTokenDecimals(selectedPool.tokens.deposit, chainId);
+    const { deposit } = selectedPool.tokens;
+    if (!deposit) return { userShare: 0, totalDeposits: 0 };
+
+    const decimals = getTokenDecimals(deposit, chainId);
 
     if (selectedPool.isPut) {
       const checkpoints = selectedPool.data as IAtlanticPoolCheckpoint[];
