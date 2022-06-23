@@ -587,7 +587,7 @@
 
 "@dopex-io/sdk@https://github.com/dopex-io/sdk.git#feat/atlantics":
   version "1.0.0-beta.4"
-  resolved "https://github.com/dopex-io/sdk.git#c5876690474366a8d649884e78ad57c59d37fe3a"
+  resolved "https://github.com/dopex-io/sdk.git#f6a5de24be53a9a82424ec9b91e1c47f2db97fbe"
   dependencies:
     ethers "^5.6.4"
 

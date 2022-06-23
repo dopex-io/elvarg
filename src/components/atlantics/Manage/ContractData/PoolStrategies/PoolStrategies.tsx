@@ -5,8 +5,6 @@ import Typography from 'components/UI/Typography';
 
 import { WalletContext } from 'contexts/Wallet';
 
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
-
 const PoolStrategies = () => {
   return (
     <Box className="flex">
