@@ -6,6 +6,8 @@ import IconButton from '@mui/material/IconButton';
 
 import Typography from 'components/UI/Typography';
 import PoolCardItem from 'components/atlantics/Pool/PoolCardItem';
+import PutsIcon from 'svgs/icons/PutsIcon';
+import CallsIcon from 'svgs/icons/CallsIcon';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -37,18 +39,19 @@ const PoolCard = (props: PoolCardProps) => {
         <Box className="flex justify-between">
           <Box className="flex space-x-2">
             <img
-              src={`/images/tokens/${depositToken}.svg`}
-              alt={depositToken?.toLowerCase()}
+              src={`/images/tokens/${depositToken.toLowerCase()}.svg`}
+              alt={depositToken.toLowerCase()}
               className="h-[2rem] w-[2rem] border border-mineshaft rounded-full"
             />
             <Typography variant="h6" className=" ml=[3rem] my-auto">
               {isPut ? 'Max strikes Vault' : '33%+ Single OTM Strike'}
             </Typography>
-            <img
-              src={`/assets/${type}.svg`}
-              className="w-10 h-4 my-auto"
-              alt={'calls'}
-            />
+            {!isPut ? (
+              // @TODO Fill is hard coded
+              <CallsIcon fill="#8aff95" className="my-auto" />
+            ) : (
+              <PutsIcon className="my-auto" />
+            )}
           </Box>
           <IconButton className="p-0">
             <ArrowForwardRoundedIcon className="fill-current text-white" />

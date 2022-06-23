@@ -99,7 +99,7 @@ const StrategyDetails = (props: {
         getUserReadableAmount(positionCollateral, basetokenDecimals) *
           baseTokenPrice;
     }
-    if (selectedToken === 'USDT') {
+    if (selectedToken === 'USDC') {
       totalQuoteAsset.amount = totalQuoteAsset.amount.add(positionCollateral);
       totalQuoteAsset.usdValue =
         totalQuoteAsset.usdValue +
@@ -247,8 +247,8 @@ const StrategyDetails = (props: {
                   )}
                 </Typography>
                 <img
-                  src={`/images/tokens/${'WETH'}.svg`}
-                  alt={'WETH'}
+                  src={`/images/tokens/${baseToken.toLowerCase()}.svg`}
+                  alt={baseToken.toLowerCase()}
                   className="h-[1rem] mx-1"
                 />
               </Box>
@@ -261,8 +261,8 @@ const StrategyDetails = (props: {
                   )}
                 </Typography>
                 <img
-                  src={`/images/tokens/${'USDT'}.svg`}
-                  alt={'USDT'}
+                  src={`/images/tokens/${quoteToken.toLowerCase()}.svg`}
+                  alt={quoteToken.toLowerCase()}
                   className="h-[1rem]  ml-1"
                 />
               </Box>

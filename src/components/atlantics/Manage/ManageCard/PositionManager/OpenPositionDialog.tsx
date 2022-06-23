@@ -18,14 +18,15 @@ import {
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
 import { Button, SelectChangeEvent, Switch, Tooltip } from '@mui/material';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
-import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/CustomButton';
 import CollateralSelector from 'components/atlantics/InsuredPerpsModal/CollateralSelector/CollateralSelector';
-import StrategyDetails from '../../../InsuredPerpsModal/StrategyDetails/StrategyDetails';
+import StrategyDetails from 'components/atlantics/InsuredPerpsModal/StrategyDetails/StrategyDetails';
+import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -40,7 +41,6 @@ import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
 import { DEFAULT_REFERRAL_CODE, MIN_EXECUTION_FEE } from 'constants/gmx';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 interface IProps {
   isOpen: boolean;
@@ -97,7 +97,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
   });
   const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
   const [keepCollateral, setKeepCollateral] = useState<boolean>(false);
-  const [selectedToken, setSelectedToken] = useState<string>('USDT');
+  const [selectedToken, setSelectedToken] = useState<string>('USDC');
   const [positionBalance, setPositionBalance] = useState<string>('');
   const [selectedCollateral, setSelectedCollateral] = useState<string>('');
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
@@ -156,6 +156,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
 
   const getPreStrategyCalculations = useCallback(async () => {
     if (
+      !selectedPool ||
       !selectedPool?.tokens ||
       !contractAddresses ||
       !selectedPool.contracts ||
@@ -266,12 +267,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
   }, [
     selectedToken,
     selectedCollateral,
-    selectedPool.state.expiryTime,
-    selectedPool.asset,
-    selectedPool.config.tickSize,
-    selectedPool.contracts,
-    selectedPool.duration,
-    selectedPool.tokens,
+    selectedPool,
     leverage,
     contractAddresses,
     positionBalance,
@@ -319,10 +315,12 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
 
   const checkIfApproved = useCallback(async () => {
     if (
+      !selectedPool ||
       !selectedPool.contracts ||
       !accountAddress ||
       !selectedPool.asset ||
-      !contractAddresses
+      !contractAddresses ||
+      !selectToken
     )
       return;
     const quoteToken = selectedPool.contracts.quoteToken;
@@ -365,23 +363,19 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
       base: !baseTokenAllowance.isZero(),
     }));
   }, [
-    selectedPool.contracts,
+    selectedPool,
     accountAddress,
-    selectedPool.asset,
     contractAddresses,
     chainId,
     positionBalance,
     selectedToken,
-    strategyDetails.callOptionsFees,
-    strategyDetails.callOptionsPremium,
-    strategyDetails.callsFundingFee,
-    strategyDetails.putOptionsPremium,
-    strategyDetails.putOptionsfees,
+    strategyDetails,
   ]);
 
   const handleApproveQuoteToken = useCallback(async () => {
     if (
       !signer ||
+      !selectedPool ||
       !selectedPool.contracts ||
       !selectedPool.tokens ||
       !contractAddresses
@@ -397,18 +391,12 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
     );
     tx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
     await checkIfApproved();
-  }, [
-    signer,
-    selectedPool.contracts,
-    contractAddresses,
-    selectedPool.tokens,
-    checkIfApproved,
-    tx,
-  ]);
+  }, [signer, selectedPool, contractAddresses, checkIfApproved, tx]);
 
   const handleApproveBaseToken = useCallback(async () => {
     if (
       !signer ||
+      !selectedPool ||
       !selectedPool.contracts ||
       !selectedPool.tokens ||
       !contractAddresses
@@ -425,14 +413,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
     );
     tx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
     await checkIfApproved();
-  }, [
-    signer,
-    selectedPool.contracts,
-    contractAddresses,
-    tx,
-    selectedPool.tokens,
-    checkIfApproved,
-  ]);
+  }, [signer, contractAddresses, tx, checkIfApproved, selectedPool]);
 
   useEffect(() => {
     checkIfApproved();
@@ -464,12 +445,12 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
     );
 
     let path: string[] = [];
-    if (selectedToken === 'USDT') {
-      path = [contractAddresses['USDT'], contractAddresses['WETH']];
+    if (selectedToken === 'USDC') {
+      path = [contractAddresses['USDC'], contractAddresses['WETH']];
     }
     if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
 
-    await strategyContract.useStrategyAndOpenLongPosition(
+    const _tx = strategyContract.useStrategyAndOpenLongPosition(
       {
         path: path,
         indexToken: contractAddresses['WETH'],
@@ -489,6 +470,8 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
         value: MIN_EXECUTION_FEE,
       }
     );
+
+    tx(_tx);
   }, [
     chainId,
     contractAddresses,
@@ -496,6 +479,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
     selectedCollateral,
     selectedPool,
     selectedToken,
+    tx,
     signer,
     strategyDetails.positionSize,
     keepCollateral,
@@ -654,7 +638,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
                 !isApproved.quote && 'animate-pulse '
               }`}
             >
-              Approve {'USDT'}
+              Approve {'USDC'}
             </CustomButton>
           </Box>
           <CustomButton

@@ -185,7 +185,7 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   },
 
   tokens: {
-    deposit: 'USDT',
+    deposit: 'USDC',
     underlying: 'WETH',
   },
   tvl: 0,

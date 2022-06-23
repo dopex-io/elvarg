@@ -163,7 +163,7 @@ const Manage = (props: ManageProps) => {
       </Head>
       <AppBar active="atlantics" />
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
-        <Box className="flex space-x-0 sm:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
+        <Box className="flex space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
           <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
             <ManageTitle
               depositToken={depositToken}
@@ -242,7 +242,7 @@ const Manage = (props: ManageProps) => {
               {selectedPositionTable === 'insured-perps' && <UserPositions />}
             </Box>
           </Box>
-          <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full">
+          <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
             <ManageCard
               tokenId={tokenId}
               underlying={underlying}

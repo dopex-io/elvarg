@@ -67,7 +67,7 @@ const ManageCard = (props: ManageCardProps) => {
       if (poolType == 'CALLS') {
         return 'WETH';
       } else {
-        return 'USDT';
+        return 'USDC';
       }
     }
     const { deposit } = selectedPool.tokens;
@@ -256,17 +256,22 @@ const ManageCard = (props: ManageCardProps) => {
         <Typography variant="h5" className="my-auto">
           Deposit
         </Typography>
-        <Typography
-          onClick={openPositionManagerModal}
-          variant="h6"
-          className="text-gray-300 underline cursor-pointer"
-        >
-          Open a long position
-        </Typography>
-        <OpenPositionDialog
-          isOpen={openPositionManager}
-          setClose={closePositionManager}
-        />
+        {poolType === 'PUTS' ? (
+          <>
+            <Typography
+              onClick={openPositionManagerModal}
+              variant="h6"
+              className="text-gray-300 underline cursor-pointer"
+            >
+              Open a long position
+            </Typography>
+
+            <OpenPositionDialog
+              isOpen={openPositionManager}
+              setClose={closePositionManager}
+            />
+          </>
+        ) : null}
       </Box>
       <Box className="bg-umbra rounded-xl w-full">
         <CustomInput

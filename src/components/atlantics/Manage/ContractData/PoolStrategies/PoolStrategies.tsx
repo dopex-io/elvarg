@@ -16,12 +16,13 @@ const PoolStrategies = () => {
 };
 
 const StrategyInfo = () => {
-  const { chainId, contractAddresses } = useContext(WalletContext);
+  const { contractAddresses } = useContext(WalletContext);
+
   return (
     <Box className="bg-arbitrum  rounded-lg text-center p-2 font-mono">
       <Typography variant="h6">
         <a
-          href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${contractAddresses['ATLANTIC-POOLS']['STRATEGIES']}`}
+          href={`https://testnet.arbiscan.io/address/${contractAddresses['STRATEGIES']['INSURED-PERPS']}`}
           rel="noopener noreferrer"
           target={'_blank'}
         >

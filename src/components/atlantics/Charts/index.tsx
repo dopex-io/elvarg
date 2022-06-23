@@ -52,9 +52,9 @@ const Charts = (props: ChartsProps) => {
       const barData: IBarData[] = strikes?.map(
         (maxStrike: BigNumber, index: number) => {
           const unlocked =
-            Number(data[index]?.unlockCollateral) / 10 ** decimals + 10;
+            Number(data[index]?.unlockCollateral) / 10 ** decimals;
           const activeCollateral =
-            Number(data[index]?.activeCollateral) / 10 ** decimals + 15;
+            Number(data[index]?.activeCollateral) / 10 ** decimals;
           const strike = Number(maxStrike.div(1e8));
           const deposits =
             Number(data[index]?.liquidity) / 10 ** decimals - unlocked;
