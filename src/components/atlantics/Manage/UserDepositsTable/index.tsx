@@ -214,10 +214,10 @@ const UserDepositsTable = () => {
                   }}
                   disabled={!canWithdraw}
                   color={canWithdraw ? 'primary' : 'mineshaft'}
-                  className="p-2 rounded-lg"
+                  className="rounded-md"
                 >
                   {canWithdraw ? (
-                    <Typography variant="h6" className="my-auto p-3">
+                    <Typography variant="h6" className="my-auto">
                       Withdraw
                     </Typography>
                   ) : (

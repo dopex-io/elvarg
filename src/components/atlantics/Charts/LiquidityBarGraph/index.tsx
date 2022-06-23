@@ -18,9 +18,9 @@ import PutsIcon from 'svgs/icons/PutsIcon';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 interface IBarData {
-  deposits: number;
-  unlocked: number;
-  activeCollateral: number;
+  deposits: number | string;
+  unlocked: number | string;
+  activeCollateral: number | string;
   strike: number | string;
 }
 
@@ -77,7 +77,6 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               }
             }}
           >
-            {/* Tried overlapping the graphs */}
             <Tooltip
               wrapperClassName="rounded-xl flex text-right h-auto"
               cursor={{

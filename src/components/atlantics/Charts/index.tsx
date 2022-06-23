@@ -5,7 +5,6 @@ import { CircularProgress } from '@mui/material';
 import { BigNumber } from 'ethers';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-import formatAmount from 'utils/general/formatAmount';
 
 import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
 import { WalletContext } from 'contexts/Wallet';
@@ -27,10 +26,10 @@ interface ChartsProps {
 }
 
 interface IBarData {
-  deposits: number;
-  unlocked: number;
-  activeCollateral: number;
-  strike: string | number;
+  deposits: number | string;
+  unlocked: number | string;
+  activeCollateral: number | string;
+  strike: number | string;
 }
 
 const Charts = (props: ChartsProps) => {
@@ -58,10 +57,12 @@ const Charts = (props: ChartsProps) => {
           const strike = Number(maxStrike.div(1e8));
           const deposits =
             Number(data[index]?.liquidity) / 10 ** decimals - unlocked;
+
+          console.log(unlocked, activeCollateral, deposits);
           return {
-            deposits: parseInt(formatAmount(deposits, 3)),
-            unlocked: parseInt(formatAmount(unlocked, 3)) ?? 0,
-            activeCollateral: parseInt(formatAmount(activeCollateral, 3)),
+            deposits: deposits,
+            unlocked: unlocked,
+            activeCollateral: activeCollateral,
             strike,
           };
         }

@@ -10,7 +10,7 @@ import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
 import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
-import InfoBox from 'components/ssov-v3/InfoBox';
+import InfoBox from 'components/atlantics/InfoBox';
 import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
 import Action from 'svgs/icons/Action';
@@ -127,24 +127,20 @@ const Manage = (props: ManageProps) => {
       const strikes = selectedPool.strikes as BigNumber[];
       return [
         {
-          heading: 'AVG APY',
-          value: formatAmount(avgApy, 3) + '%',
-          Icon: Action,
-        },
-        {
           heading: 'TVL',
           value: formatAmount(selectedPool.tvl, 3, true),
-          Icon: Coin,
+        },
+        {
+          heading: 'Average APY',
+          value: formatAmount(avgApy, 3) + '%',
         },
         {
           heading: 'Highest Strike',
           value: strikes[0]?.div(1e8).toString(),
-          Icon: Coin,
         },
         {
           heading: 'Lowest Strike',
           value: strikes[strikes.length - 1]?.div(1e8).toString(),
-          Icon: Coin,
         },
       ];
     } else {
@@ -162,7 +158,7 @@ const Manage = (props: ManageProps) => {
         <title>Atlantics | Dopex</title>
       </Head>
       <AppBar active="atlantics" />
-      <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
+      <Box className="container my-32 mx-auto px-4 lg:px-0 h-screen">
         <Box className="flex space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
           <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
             <ManageTitle
@@ -194,18 +190,10 @@ const Manage = (props: ManageProps) => {
                     type === 'PUTS' && 'flex-[0.5] mt-2 xl:ml-2 xl:mt-0'
                   }`}
                 >
-                  <Box className="grid grid-cols-2 gap-2 mb-6 h-full">
-                    {info.map((item) => (
-                      // @ts-ignore
-                      <InfoBox
-                        key={item.heading}
-                        {...item}
-                        className={`flex ${
-                          type === 'PUTS' && 'justify-center items-center'
-                        }`}
-                      />
-                    ))}
-                  </Box>
+                  <InfoBox
+                    info={info}
+                    className="grid grid-cols-2 bg-cod-gray rounded-xl h-full"
+                  />
                 </Box>
               </Box>
             </Box>

@@ -4,7 +4,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
 import cx from 'classnames';
-import { css } from '@emotion/css';
+// import { css } from '@emotion/css';
 import { useMemo } from 'react';
 
 import Typography from 'components/UI/Typography';
@@ -12,10 +12,10 @@ import PoolCard from 'components/atlantics/Pool';
 
 import { DurationTypesOfPools, IAtlanticPoolType } from 'contexts/Atlantics';
 
-const accordionStyle = css`
-  color: 'darkslategray';
-  border-radius: 0.6rem !important;
-`;
+// const accordionStyle = css`
+//   color: 'darkslategray';
+//   border-radius: 0.6rem !important;
+// `;
 
 interface CustomAccordionProps {
   header: string;
@@ -86,7 +86,7 @@ const CustomAccordion = ({
   return (
     <Accordion
       TransitionProps={{ unmountOnExit: true }}
-      className={cx(className, accordionStyle)}
+      className={cx(className /*, accordionStyle*/)}
       expanded={true}
       // onClick={handleExpand}
     >
