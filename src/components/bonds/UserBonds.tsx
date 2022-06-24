@@ -25,7 +25,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     (bond: any) => bond?.redeemed == false
   );
 
-  let aWeek = new Date().valueOf() + 7 * 24 * 60 * 60 * 1000;
+  let aWeek = new Date().valueOf() + 6.5 * 24 * 60 * 60 * 1000;
   let availableBondsForWithdraw = userDpxBondsState.filter(
     (bond: any) => new Date(aWeek).valueOf() - bond.maturityTime * 1000 >= 0
   );
@@ -93,7 +93,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                     size="small"
                     className={`${styles['button']} mt-5`}
                     disabled={availableForWithdraw > 0 ? false : true}
-                    onClick={withdrawDpx}
+                    onClick={() => withdrawDpx()}
                   >
                     Withdraw
                   </CustomButton>

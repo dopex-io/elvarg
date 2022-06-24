@@ -12,6 +12,7 @@ import Input from 'components/UI/Input';
 import { DpxBondsContext } from 'contexts/Bonds';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import axios from 'axios';
 
@@ -54,6 +55,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     dpxBondsAddress,
     epochDiscount,
     depositUSDC,
+    usableNfts,
   } = useContext(DpxBondsContext);
 
   const [err, setErr] = useState('');
@@ -78,7 +80,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     getData();
   }, []);
 
-  const walletLimit = 5000 * dopexBridgoorNFTBalance;
+  const walletLimit = 5000 * usableNfts.length;
 
   const priceWithDiscount = getUserReadableAmount(
     dpxPrice - dpxPrice * (epochDiscount / 100),
@@ -101,7 +103,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     }
   };
 
-  const hadleDeposit = async () => {
+  const handleDeposit = async () => {
     if (inputValue % 5000 == 0) {
       await depositUSDC(inputValue);
       handleModal();
@@ -177,15 +179,20 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
         <Box className="flex mt-3">
           <Box className="flex-1 bg-cod-gray  border border-[#1E1E1E] p-2">
-            <Typography variant="caption" className="text-white  pt-3">
-              {inputValue / priceWithDiscount || '-'}
-            </Typography>
-            <Box className="text-stieglitz pb-3 justify-between items-center">
-              To DPX
-            </Box>
+            {inputValue ? (
+              <Typography variant="h5" className="text-[#22E1FF] pt-3 h-[40px]">
+                <ArrowForwardIcon className="text-[#3E3E3E] w-[20px] mr-1 mb-1" />
+                {inputValue / priceWithDiscount}
+              </Typography>
+            ) : (
+              <Typography variant="h5" className="text-white">
+                -
+              </Typography>
+            )}
+            <Box className="text-stieglitz pb-3">To DPX</Box>
           </Box>
           <Box className="flex-1  bg-cod-gray  border border-[#1E1E1E] p-2">
-            <Typography variant="caption" className="text-white  pt-3">
+            <Typography variant="h5" className="text-white  pt-3 h-[40px]">
               {epochDiscount} %
             </Typography>
             <Box className="text-stieglitz">Discount</Box>
@@ -242,7 +249,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           color={inputValue ? '' : 'umbra'}
           className="text-white bg-primary hover:bg-primary w-full mt-5  p-4"
           disabled={inputValue ? false : true}
-          onClick={hadleDeposit}
+          onClick={handleDeposit}
         >
           {inputValue ? 'Bond' : 'Select Amount'}
         </CustomButton>

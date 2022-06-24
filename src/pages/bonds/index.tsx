@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useMemo } from 'react';
+import { useContext, useState } from 'react';
 import AppBar from 'components/common/AppBar';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
@@ -43,7 +43,7 @@ export const Bonds = () => {
   );
 };
 
-export default function BondsPaget() {
+export default function BondsPage() {
   return (
     <DpxBondsProvider>
       <Bonds />
