@@ -70,7 +70,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
   '/vaults/ir/MIM3CRV': { default: 42161, all: [42161] },
-  '/bonds': { default: 421611, all: [421611] },
+  '/bonds': { default: 421611, all: [421611, 1337, 31337] },
 };
 
 let web3Modal: Web3Modal | undefined;
