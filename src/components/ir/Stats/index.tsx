@@ -169,19 +169,10 @@ const Stats = () => {
             >
               <Box className="flex mb-1">
                 <Typography variant="h5" className="text-stieglitz">
-                  Current MIM3CRV rate
+                  Current PUSD rate
                 </Typography>
                 <Typography variant="h5" className="mr-1 ml-auto text-white">
-                  <span>
-                    {formatAmount(
-                      getUserReadableAmount(
-                        rateVaultContext.rateVaultEpochData.rate,
-                        8
-                      ),
-                      2
-                    )}
-                    %
-                  </span>
+                  <span>~10.04%</span>
                 </Typography>
               </Box>
             </Box>

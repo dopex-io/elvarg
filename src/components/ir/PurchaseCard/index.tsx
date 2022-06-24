@@ -95,7 +95,7 @@ const PurchaseCard = ({
           rateVaultContext.rateVaultEpochData.totalCallsPurchased
         );
     } else if (activeVaultContextSide === 'PUT') {
-      deposits = rateVaultContext.rateVaultEpochData.callsDeposits[strikeIndex];
+      deposits = rateVaultContext.rateVaultEpochData.putsDeposits[strikeIndex];
       if (deposits)
         available = deposits.sub(
           rateVaultContext.rateVaultEpochData.totalPutsPurchased
@@ -168,7 +168,7 @@ const PurchaseCard = ({
   }, [purchaseTokenName, activeVaultContextSide]);
 
   const spender = useMemo(() => {
-    return '0x3BBCbe743AbeD14072EC26dABc4663Fa850f38D5';
+    return '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
   }, []);
 
   const purchasePower: number = useMemo(() => {

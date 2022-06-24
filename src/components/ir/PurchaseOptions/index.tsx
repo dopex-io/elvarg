@@ -225,10 +225,7 @@ const PurchaseOptions = ({
                   <TableBody className={cx('rounded-lg')}>
                     {['CALL', 'PUT'].map((ssovContextSide) =>
                       purchaseOptions[ssovContextSide]?.map((row, i) => {
-                        const isDisabled =
-                          row['available'] < 0.1 ||
-                          rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() <
-                            new Date().getTime() / 1000;
+                        const isDisabled = row['available'] < 0.1;
                         return (
                           <TableRow
                             key={i}

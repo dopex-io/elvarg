@@ -7,6 +7,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 const useSendTx = () => {
   const { wrongNetwork, chainId } = useContext(WalletContext);
+
   const sendTx = useCallback(
     async (
       transaction: Promise<ContractTransaction>,
@@ -55,15 +56,13 @@ const useSendTx = () => {
             }
           );
         }
-      } catch (err) {
-        // @ts-ignore TODO: FIX
+      } catch (err: any) {
         if (err?.data?.message !== undefined) {
-          // @ts-ignore TODO: FIX
           toast.error(err.data.message);
         } else {
-          // @ts-ignore TODO: FIX
           toast.error(err.message);
         }
+        throw Error(err);
       }
     },
     [wrongNetwork, chainId]

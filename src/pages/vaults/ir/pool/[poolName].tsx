@@ -5,18 +5,18 @@ import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
 import PageLoader from 'components/common/PageLoader';
-import Description from 'components/ratesVault/Description';
-import ManageCard from 'components/ratesVault/ManageCard';
-import MobileMenu from 'components/ratesVault/MobileMenu';
-import Sidebar from 'components/ratesVault/Sidebar';
-import SelectStrikeWidget from 'components/ratesVault/SelectStrikeWidget';
-import Deposits from 'components/ratesVault/Deposits';
-import Positions from 'components/ratesVault/Positions';
-import PurchaseCard from 'components/ratesVault/PurchaseCard';
-import PurchaseOptions from 'components/ratesVault/PurchaseOptions';
-import Stats from 'components/ratesVault/Stats';
-import WithdrawalInfo from 'components/ratesVault/WithdrawalInfo';
-import AutoExerciseInfo from 'components/ratesVault/AutoExerciseInfo';
+import Description from 'components/ir/Description';
+import ManageCard from 'components/ir/ManageCard';
+import MobileMenu from 'components/ir/MobileMenu';
+import Sidebar from 'components/ir/Sidebar';
+import SelectStrikeWidget from 'components/ir/SelectStrikeWidget';
+import Deposits from 'components/ir/Deposits';
+import Positions from 'components/ir/Positions';
+import PurchaseCard from 'components/ir/PurchaseCard';
+import PurchaseOptions from 'components/ir/PurchaseOptions';
+import Stats from 'components/ir/Stats';
+import WithdrawalInfo from 'components/ir/WithdrawalInfo';
+import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
 import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
@@ -65,7 +65,7 @@ const Manage = () => {
           className="mt-10 lg:mt-20 lg:mb-20 lg:pl-5 lg:pr-5"
         >
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
-            <Description />
+            <Description poolName={String(poolName)} />
           </Box>
 
           <Box className="lg:hidden">
