@@ -20,6 +20,29 @@ export interface EligibilityCheckProps {
   handleEligibilityModal: () => void;
 }
 
+const nftList = (listOfNfts: Array<number>) => {
+  return (
+    <Box className="flex overflow-x-auto">
+      {listOfNfts.map((id: number) => {
+        return (
+          <Box className="flex-none text-center" key={id}>
+            <img
+              className="w-[70px] h-[70px] m-1 mb-[-20px]"
+              src="/images/nfts/DopexBridgoorNFT.gif"
+              alt="DopexBridgoorNFT"
+            ></img>
+            <Chip
+              label={`#${id}`}
+              size="small"
+              className="bg-[#1E1E1E] text-white"
+            />
+          </Box>
+        );
+      })}
+    </Box>
+  );
+};
+
 export const EligibilityCheck = ({
   eligibilityModal,
   handleEligibilityModal,
@@ -77,6 +100,7 @@ export const EligibilityCheck = ({
             <img
               className="w-[22px] h-[22px] mr-2 mt-1"
               src="/images/nfts/DopexBridgoorNFT.gif"
+              alt="DopexBridgoorNFT"
             ></img>
             Bridgoor × {dopexBridgoorNFTBalance}
           </Box>
@@ -155,46 +179,14 @@ export const EligibilityCheck = ({
               </Box>
               <Typography variant="caption">{usableNfts.length}</Typography>
             </Box>
-            <Box className="flex overflow-x-auto">
-              {usableNfts.map((id: number) => {
-                return (
-                  <Box className="flex-none text-center" key={id}>
-                    <img
-                      className="w-[70px] h-[70px] m-1 mb-[-20px]"
-                      src="/images/nfts/DopexBridgoorNFT.gif"
-                    ></img>
-                    <Chip
-                      label={`#${id}`}
-                      size="small"
-                      className="bg-[#1E1E1E] text-white"
-                    />
-                  </Box>
-                );
-              })}
-            </Box>
+            {nftList(usableNfts)}
             <Box className="flex">
               <Box className=" flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
                 Inligible NFTs
               </Box>
               <Typography variant="caption">{usedNfts.length}</Typography>
             </Box>
-            <Box className="flex overflow-x-auto">
-              {usedNfts.map((id: number) => {
-                return (
-                  <Box className="flex-none text-center" key={id}>
-                    <img
-                      className="w-[70px] h-[70px] m-1 mb-[-20px]"
-                      src="/images/nfts/DopexBridgoorNFT.gif"
-                    ></img>
-                    <Chip
-                      label={`#${id}`}
-                      size="small"
-                      className="bg-[#1E1E1E] text-white"
-                    />
-                  </Box>
-                );
-              })}
-            </Box>
+            {nftList(usedNfts)}
           </Box>
         )}
         <Box className=" border border-[#1E1E1E] rounded-2xl p-3 fl/ex  mt-2">

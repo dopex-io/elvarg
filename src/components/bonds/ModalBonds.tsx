@@ -127,6 +127,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             <img
               className="w-[22px] h-[22px] mr-2 mt-1"
               src="/images/nfts/DopexBridgoorNFT.gif"
+              alt="DopexBridgoorNFT"
             ></img>
             Bridgoor × {dopexBridgoorNFTBalance}
           </Box>
