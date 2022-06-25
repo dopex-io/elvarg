@@ -815,7 +815,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const diamondPepeNfts = useMemo(() => {
     if (!signer) return;
     return DiamondPepeNFTs__factory.connect(
-      '0xc05ccE32B474ed1EAFE35AAbFdaD07cF024353B5',
+      '0xede855ceD3e5A59Aaa267aBdDdB0dB21CCFE5072',
       signer
     );
   }, [contractAddresses, signer]);
@@ -914,15 +914,6 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         break;
       }
     }
-
-    // TODO: REMOVE
-    _nfts = [
-      {
-        id: 2,
-        src: `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/629/1440/image.jpg`,
-        collectionAddress: diamondPepeNfts.address,
-      },
-    ];
 
     setNfts(_nfts);
     setIsLoading(false);
