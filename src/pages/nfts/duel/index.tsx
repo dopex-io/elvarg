@@ -137,8 +137,8 @@ const DuelPepes = () => {
             </Typography>
           </Box>
 
-          {duels.map((duel) => (
-            <Box className="mb-16">
+          {duels.map((duel, key) => (
+            <Box className="mb-16" key={key}>
               <ActiveDuel duel={duel} />
             </Box>
           ))}
