@@ -16,9 +16,10 @@ import CallsIcon from 'svgs/icons/CallsIcon';
 import PutsIcon from 'svgs/icons/PutsIcon';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
+import formatAmount from 'utils/general/formatAmount';
 
 interface IBarData {
-  deposits: number | string;
+  availableCollateral: number | string;
   unlocked: number | string;
   activeCollateral: number | string;
   strike: number | string;
@@ -82,8 +83,9 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               cursor={{
                 fill: '#151515',
               }}
+              formatter={(value: number) => '$' + formatAmount(value, 3)}
             />
-            <XAxis type="number" dataKey="deposits" hide />
+            <XAxis type="number" dataKey="availableCollateral" hide />
             <XAxis type="number" dataKey="unlocked" hide />
             <XAxis type="number" dataKey="activeCollateral" hide />
             <YAxis
@@ -96,19 +98,18 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               interval={0}
             />
             <Bar
-              name="Deposits"
-              dataKey="deposits"
+              name="Available Collateral"
+              dataKey="availableCollateral"
               stackId="a"
               fill="#1E1E1E"
-              label="deposits"
-              barSize={100}
+              label="availableCollateral"
               radius={[5, 0, 0, 5]}
-              z="1"
             >
               <LabelList
-                dataKey="deposits"
+                dataKey="availableCollateral"
                 position="insideLeft"
                 fill="white"
+                formatter={(value: number) => formatAmount(value, 3)}
               />
               {data.map((_, index) => (
                 <Cell
@@ -123,7 +124,6 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               stackId="a"
               fill="#2D2D2D"
               label="activeCollateral"
-              barSize={100}
             >
               {data.map((_, index) => (
                 <Cell
@@ -138,7 +138,6 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               stackId="a"
               fill="#1E1E1E"
               label="unlockedCollateral"
-              barSize={100}
             >
               {data.map((_, index) => (
                 <Cell
