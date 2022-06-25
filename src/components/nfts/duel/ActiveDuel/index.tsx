@@ -3,33 +3,16 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
 
+import { Duel } from 'contexts/Duel';
+
 import styles from '../styles.module.scss';
+import Countdown from 'react-countdown';
 
-interface ActiveDuelProps {
-  duelist: number;
-  opponent: number;
-  opponentAddress: string;
-  duelId: number;
-  moves: string[];
-  wager: number;
-  isCreatorWinner: boolean;
-  isRevealed: boolean;
-}
-
-const ActiveDuel = ({
-  duelist,
-  opponent,
-  opponentAddress,
-  duelId,
-  moves,
-  wager,
-  isCreatorWinner,
-  isRevealed,
-}: ActiveDuelProps) => {
+const ActiveDuel = ({ duel }: { duel: Duel }) => {
   return (
     <Box className="w-full flex p-5 bg-[#181C24] relative">
       <img
-        src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/280/static.jpg`}
+        src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
         className="rounded-md w-14 h-14 mt-1 mr-3"
       />
       <Box>
@@ -37,7 +20,7 @@ const ActiveDuel = ({
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
         >
-          <span>#{duelist}</span>
+          <span>#{duel['duelist']}</span>
         </Typography>
         <Typography
           variant="h4"
@@ -51,7 +34,7 @@ const ActiveDuel = ({
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
         >
-          <span>#{duelId}</span>
+          <span>#{duel['id']}</span>
         </Typography>
         <Typography
           variant="h4"
@@ -62,13 +45,37 @@ const ActiveDuel = ({
       </Box>
       <Box className="ml-10 mt-2 mr-8">
         <Box className="flex">
-          {moves.map((move, i) => (
-            <img
-              key={i}
-              src={`/images/nfts/pepes/${move}.png`}
-              className={'w-4 h-4 ' + (i < moves.length - 1 ? 'mr-1' : '')}
-            />
-          ))}
+          {duel['isRevealed'] ? (
+            duel['duelistMoves'].map((move, i) => (
+              <img
+                key={i}
+                src={`/images/nfts/pepes/${move}.png`}
+                className={
+                  'w-4 h-4 ' +
+                  (i < duel['duelistMoves'].length - 1 ? 'mr-1' : '')
+                }
+              />
+            ))
+          ) : (
+            <Box className="flex">
+              <img
+                src="/images/nfts/pepes/help-center.png"
+                className="w-4 h-4 mr-1"
+              />
+              <img
+                src="/images/nfts/pepes/help-center.png"
+                className="w-4 h-4 mr-1"
+              />
+              <img
+                src="/images/nfts/pepes/help-center.png"
+                className="w-4 h-4 mr-1"
+              />
+              <img
+                src="/images/nfts/pepes/help-center.png"
+                className="w-4 h-4"
+              />
+            </Box>
+          )}
         </Box>
         <Typography
           variant="h4"
@@ -80,8 +87,8 @@ const ActiveDuel = ({
 
       <Box className="ml-auto mr-auto mt-2.5">
         <button className={styles['pepeButton']}>
-          {isRevealed
-            ? isCreatorWinner
+          {duel['isRevealed']
+            ? duel['isCreatorWinner']
               ? 'YOU WON'
               : 'YOU LOST'
             : 'REVEAL MOVE'}
@@ -116,7 +123,7 @@ const ActiveDuel = ({
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
         >
-          <span>{displayAddress(opponentAddress)}</span>
+          <span>{displayAddress(duel['challengerAddress'])}</span>
         </Typography>
         <Typography
           variant="h4"
@@ -130,7 +137,9 @@ const ActiveDuel = ({
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-right text-white"
         >
-          <span>#{opponent}</span>
+          <span>
+            #{duel['challengerAddress'] === '?' ? '?' : duel['challenger']}
+          </span>
         </Typography>
         <Typography
           variant="h4"
@@ -140,11 +149,15 @@ const ActiveDuel = ({
         </Typography>
       </Box>
       <img
-        src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/280/static.jpg`}
+        src={
+          duel['challengerAddress'] === '?'
+            ? '/images/nfts/pepes/pepe-frame-1.png'
+            : `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`
+        }
         className="rounded-md w-14 h-14 ml-6 mt-1"
       />
 
-      {isRevealed && !isCreatorWinner ? (
+      {duel['isRevealed'] && !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FFD50B]">
           <img src="/images/misc/crown.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
@@ -153,7 +166,7 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {isRevealed && isCreatorWinner ? (
+      {duel['isRevealed'] && duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FF2727]">
           <img src="/images/misc/fire.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
@@ -162,7 +175,7 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {!isRevealed ? (
+      {!duel['isRevealed'] ? (
         <Box className="absolute bg-[#343C4D] px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem]">
           <img
             src="/assets/timer.svg"
@@ -171,7 +184,25 @@ const ActiveDuel = ({
           />
           <Typography variant="h6">
             <span className="text-wave-blue font-['Minecraft']">
-              11H 11M 11S
+              {duel['challengerAddress'] !== '?' ? (
+                <Countdown
+                  date={duel['finishDate']}
+                  renderer={({ hours, minutes }) => {
+                    return (
+                      <Box className={'flex'}>
+                        <Typography
+                          variant="h5"
+                          className="ml-auto text-stieglitz mr-1"
+                        >
+                          {hours}h {minutes}m
+                        </Typography>
+                      </Box>
+                    );
+                  }}
+                />
+              ) : (
+                'Not started'
+              )}
             </span>
           </Typography>
         </Box>
@@ -193,8 +224,8 @@ const ActiveDuel = ({
         <img src="/images/misc/diamond.svg" className="w-4 h-4 mr-1 mt-1" />
         <Typography variant="h6">
           <span className="font-['Minecraft'] text-stieglitz">
-            <span className="text-white">{wager} </span>
-            USDC
+            <span className="text-white">{duel['wager']} </span>
+            {duel['tokenName']}
           </span>
         </Typography>
       </Box>
@@ -205,7 +236,7 @@ const ActiveDuel = ({
         </Typography>
       </Box>
 
-      {isRevealed && isCreatorWinner ? (
+      {duel['isRevealed'] && duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FFD50B]">
           <img src="/images/misc/crown.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
@@ -214,7 +245,7 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {isRevealed && !isCreatorWinner ? (
+      {duel['isRevealed'] && !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FF2727]">
           <img src="/images/misc/fire.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
@@ -223,7 +254,7 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {!isRevealed ? (
+      {!duel['isRevealed'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#343C4D]">
           <img
             src="/assets/timer.svg"
@@ -232,7 +263,25 @@ const ActiveDuel = ({
           />
           <Typography variant="h6">
             <span className="text-wave-blue font-['Minecraft']">
-              11H 11M 11S
+              {duel['challengerAddress'] !== '?' ? (
+                <Countdown
+                  date={duel['finishDate']}
+                  renderer={({ hours, minutes }) => {
+                    return (
+                      <Box className={'flex'}>
+                        <Typography
+                          variant="h5"
+                          className="ml-auto text-stieglitz mr-1"
+                        >
+                          {hours}h {minutes}m
+                        </Typography>
+                      </Box>
+                    );
+                  }}
+                />
+              ) : (
+                'Not started'
+              )}
             </span>
           </Typography>
         </Box>

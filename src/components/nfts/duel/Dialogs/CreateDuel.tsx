@@ -1,11 +1,6 @@
-import React, {
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-} from 'react';
+import React, { useContext, useState, useMemo, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
+import { ERC20__factory } from '@dopex-io/sdk';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -23,6 +18,7 @@ import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
+import { DuelContext } from 'contexts/Duel';
 
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -31,7 +27,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
-import { DiamondPepeNFTs__factory, ERC20__factory } from '@dopex-io/sdk';
+
 import cx from 'classnames';
 
 export interface Props {
@@ -39,370 +35,23 @@ export interface Props {
   handleClose: () => void;
 }
 
-const ABI = [
-  {
-    inputs: [
-      { internalType: 'address', name: '_feeCollector', type: 'address' },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'collection',
-        type: 'address',
-      },
-    ],
-    name: 'LogAddToWhitelist',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'challenger',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'creator',
-        type: 'address',
-      },
-    ],
-    name: 'LogChallengedDuel',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'creator',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'challenger',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'bool',
-        name: 'isCreatorWinner',
-        type: 'bool',
-      },
-    ],
-    name: 'LogDecidedDuel',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'creator',
-        type: 'address',
-      },
-    ],
-    name: 'LogNewDuel',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'previousOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnershipTransferred',
-    type: 'event',
-  },
-  {
-    inputs: [{ internalType: 'address', name: '_collection', type: 'address' }],
-    name: 'addToWhitelist',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'uint256', name: 'id', type: 'uint256' },
-      { internalType: 'address', name: 'collection', type: 'address' },
-      { internalType: 'uint256', name: 'nftId', type: 'uint256' },
-      { internalType: 'uint256[5]', name: 'moves', type: 'uint256[5]' },
-    ],
-    name: 'challenge',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'challengeTimelimit',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-    name: 'claimForfeit',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'bytes32', name: 'identifier', type: 'bytes32' },
-      { internalType: 'uint256', name: 'wager', type: 'uint256' },
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'address', name: 'collection', type: 'address' },
-      { internalType: 'uint256', name: 'nftId', type: 'uint256' },
-      { internalType: 'bytes', name: 'movesSig', type: 'bytes' },
-    ],
-    name: 'createDuel',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-    name: 'decideDuel',
-    outputs: [
-      { internalType: 'uint256', name: 'creatorDamage', type: 'uint256' },
-      { internalType: 'uint256', name: 'challengerDamage', type: 'uint256' },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'duelCount',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
-    name: 'duelIdentifiers',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    name: 'duels',
-    outputs: [
-      { internalType: 'bytes32', name: 'identifier', type: 'bytes32' },
-      { internalType: 'uint256', name: 'wager', type: 'uint256' },
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'uint256', name: 'fees', type: 'uint256' },
-      { internalType: 'bytes', name: 'initialMovesSignature', type: 'bytes' },
-      { internalType: 'bool', name: 'isCreatorWinner', type: 'bool' },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'feeCollector',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'fees',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-    ],
-    name: 'moveAttributes',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-    ],
-    name: 'nftLeaderboard',
-    outputs: [
-      { internalType: 'uint256', name: 'wins', type: 'uint256' },
-      { internalType: 'uint256', name: 'losses', type: 'uint256' },
-      { internalType: 'uint256', name: 'draws', type: 'uint256' },
-      { internalType: 'uint256', name: 'winnings', type: 'uint256' },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'owner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'percentagePrecision',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'renounceOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'uint256', name: 'id', type: 'uint256' },
-      { internalType: 'uint256[5]', name: 'moves', type: 'uint256[5]' },
-    ],
-    name: 'revealDuel',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'revealTimeLimit',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
-    name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-    name: 'undoDuel',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-    ],
-    name: 'userDuels',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: '', type: 'address' }],
-    name: 'userLeaderboard',
-    outputs: [
-      { internalType: 'uint256', name: 'wins', type: 'uint256' },
-      { internalType: 'uint256', name: 'losses', type: 'uint256' },
-      { internalType: 'uint256', name: 'draws', type: 'uint256' },
-      { internalType: 'uint256', name: 'winnings', type: 'uint256' },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256[5]', name: 'moves', type: 'uint256[5]' }],
-    name: 'validateMoves',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'bytes32', name: 'data', type: 'bytes32' },
-      { internalType: 'bytes', name: 'signature', type: 'bytes' },
-      { internalType: 'address', name: 'account', type: 'address' },
-    ],
-    name: 'verify',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'pure',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: '', type: 'address' }],
-    name: 'whitelistedCollections',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-];
-
 const feesPercentage = 10;
 
 const CreateDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress } =
     useContext(WalletContext);
+  const { isLoading, duelContract, nfts, updateDuels } =
+    useContext(DuelContext);
+  const { userAssetBalances } = useContext(AssetsContext);
   const [tokenName, setTokenName] = useState<string>('ETH');
   const [wager, setWager] = useState<number>(1);
-  const { userAssetBalances } = useContext(AssetsContext);
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
-  const [isLoadingNfts, setIsLoadingNfts] = useState<boolean>(true);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
-  const [duelist, setDuelist] = useState<string | null>(null);
+  const [duelist, setDuelist] = useState<number | null>(null);
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
-  const [userNfts, setUserNfts] = useState<
-    Array<{
-      img: string;
-      id: string;
-    }>
-  >([]);
-  const diamondPepeNfts = useMemo(() => {
-    if (!signer) return;
-    return DiamondPepeNFTs__factory.connect(
-      '0xc05ccE32B474ed1EAFE35AAbFdaD07cF024353B5',
-      signer
-    );
-  }, [contractAddresses, signer]);
-
-  const duel = useMemo(
-    () =>
-      new ethers.Contract(
-        '0x60ebb6174F2c71B2f3d30965A2ffeCa89647c358',
-        ABI,
-        signer
-      ),
-    [signer]
-  );
 
   const fees = useMemo(() => {
     return (wager * feesPercentage) / 100;
@@ -476,12 +125,15 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   }, [moves]);
 
   const handleCreate = useCallback(async () => {
-    if (!signer || !accountAddress) return;
+    if (!signer || !accountAddress || !duelContract || !updateDuels) return;
     if (moves.length < 5) return;
 
     const token = ERC20__factory.connect(contractAddresses[tokenName], signer);
 
-    const allowance = await token.allowance(accountAddress, duel.address);
+    const allowance = await token.allowance(
+      accountAddress,
+      duelContract.address
+    );
 
     const identifier = ethers.utils.formatBytes32String(
       [...Array(30)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
@@ -511,10 +163,10 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     const movesSig = await signer.signMessage(messageHash);
 
     if (allowance.eq(0)) {
-      await token.approve(duel.address, MAX_VALUE);
+      await token.approve(duelContract.address, MAX_VALUE);
     }
 
-    await duel
+    await duelContract
       .connect(signer)
       ['createDuel'](
         identifier,
@@ -531,7 +183,8 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
     setMoves([]);
     handleClose();
-  }, [duel, signer, contractAddresses, tokenName, chainId]);
+    await updateDuels();
+  }, [duelContract, signer, contractAddresses, tokenName, chainId]);
 
   const readableBalance = useMemo(() => {
     return getUserReadableAmount(
@@ -546,6 +199,11 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
     return true;
   }, [moves, duelist]);
+
+  const updateDuelist = (nftId: number) => {
+    setDuelist(nftId);
+    setIsSelectingNfts(false);
+  };
 
   const Moves = useCallback(() => {
     return (
@@ -620,51 +278,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     );
   }, [moves]);
 
-  const updateDuelist = (nftId: string) => {
-    setDuelist(nftId);
-    setIsSelectingNfts(false);
-  };
-
-  const getNfts = useCallback(async () => {
-    if (!signer || !accountAddress || !diamondPepeNfts) return;
-
-    setIsLoadingNfts(true);
-
-    let _nfts: { id: string; img: string }[] = [];
-
-    let i = 0;
-    while (true) {
-      try {
-        const nftId = await diamondPepeNfts
-          .connect(signer)
-          .tokenOfOwnerByIndex(accountAddress, i);
-        _nfts.push({
-          id: nftId.toString(),
-          img: `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${nftId}/1440/image.jpg`,
-        });
-        i++;
-      } catch (e) {
-        console.log(e);
-        break;
-      }
-    }
-
-    // TODO: REMOVE
-    _nfts = [
-      {
-        id: '2',
-        img: `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/629/1440/image.jpg`,
-      },
-    ];
-
-    setUserNfts(_nfts);
-    setIsLoadingNfts(false);
-  }, [diamondPepeNfts, accountAddress, signer]);
-
-  useEffect(() => {
-    getNfts();
-  }, [getNfts]);
-
   // @ts-ignore
   return (
     <Dialog
@@ -707,7 +320,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               alt="Your nfts"
             />
           </Box>
-          {isLoadingNfts ? (
+          {isLoading ? (
             <Box className="h-[40rem] overflow-hidden mt-2">
               {/* @ts-ignore TODO: FIX */}
               <Box className={styles['darkBg']}>
@@ -725,9 +338,9 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                   />
                 </Box>
 
-                {[...Array(8)].map(() => {
+                {[...Array(8)].map((i) => {
                   return (
-                    <Box className="flex lg:grid lg:grid-cols-12 mb-3">
+                    <Box className="flex lg:grid lg:grid-cols-12 mb-3" key={i}>
                       <Box className="col-span-3 pl-2 pr-2 relative">
                         <img
                           src="/images/nfts/pepes/pepe-frame-3.png"
@@ -766,14 +379,14 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               {/* @ts-ignore TODO: FIX */}
               <Box className={styles['darkBg']}>
                 <Box className="flex lg:grid lg:grid-cols-12 mb-3">
-                  {userNfts.map((userNft, i) => (
+                  {nfts.map((userNft, i) => (
                     <Box
                       className="col-span-3 pl-2 pr-2 relative cursor-pointer group"
                       onClick={() => updateDuelist(userNft.id)}
                       key={i}
                     >
                       <img
-                        src={userNft.img}
+                        src={userNft.src}
                         className="w-full border-4 border-[#343C4D] group-hover:border-[#343C3A]"
                         alt="Pepe"
                       />
@@ -827,7 +440,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               <Moves />
               {/* @ts-ignore TODO: FIX */}
               {[...Array(5 - moves.length)].map((w, i) => (
-                <Box className="flex">
+                <Box className="flex" key={i}>
                   <Box className="mr-3">
                     <img src="/images/misc/plus.png" />
                     <Box className="mt-1 text-center">
