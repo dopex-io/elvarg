@@ -173,7 +173,7 @@ const Stats = () => {
                   Current Rate
                 </Typography>
                 <Typography variant="h5" className="mr-1 ml-auto text-white">
-                  <span>~${ethers.utils.formatUnits(rate, 8)}%</span>
+                  <span>~{ethers.utils.formatUnits(rate, 8)}%</span>
                 </Typography>
               </Box>
             </Box>
