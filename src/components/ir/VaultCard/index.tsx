@@ -67,7 +67,7 @@ function VaultCard(props: Props) {
             : '...'
         }`,
         Icon: Action,
-        tooltip: 'Current rate of the pool MIM3CRV',
+        tooltip: 'Current rate of the pool',
       },
       {
         heading: 'TVL',
