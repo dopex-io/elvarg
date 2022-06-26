@@ -575,6 +575,12 @@ export const RateVault = () => {
 
       try {
         currentEpoch = (await rateVaultContract!['currentEpoch']()).toNumber();
+
+        const totalEpochData = await rateVaultContract!['totalEpochData'](
+          currentEpoch
+        );
+        const isEpochExpired = totalEpochData[9];
+        if (isEpochExpired) currentEpoch += 1;
       } catch (err) {
         console.log(err);
         return;
