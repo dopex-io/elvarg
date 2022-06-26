@@ -47,7 +47,7 @@ const AppLink = ({
   className?: string;
 }) => {
   const linkClassName = cx(
-    'hover:no-underline hover:text-white capitalize cursor-pointer',
+    'hover:no-underline hover:text-white cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
   if (to.startsWith('http')) {
@@ -72,15 +72,15 @@ const AppLink = ({
 
 const appLinks = {
   1: [
-    { name: 'farms', to: '/farms' },
-    { name: 'sale', to: '/sale' },
+    { name: 'Farms', to: '/farms' },
+    { name: 'Sale', to: '/sale' },
   ],
   56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
-    { name: 'options', to: '/' },
-    { name: 'pools', to: '/pools' },
-    { name: 'portfolio', to: '/portfolio' },
-    { name: 'faucet', to: '/faucet' },
+    { name: 'Options', to: '/' },
+    { name: 'Pools', to: '/pools' },
+    { name: 'Portfolio', to: '/portfolio' },
+    { name: 'Faucet', to: '/faucet' },
   ],
   421611: [
     // { name: 'options', to: '/' },
@@ -89,10 +89,11 @@ const appLinks = {
     // { name: 'faucet', to: '/faucet' },
     // { name: 'swap', to: '/swap' },
     // { name: 'SSOV', to: '/ssov' },
-    { name: 'OTC', to: '/' },
+    { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
-    { name: 'farms', to: '/farms' },
+    { name: 'Farms', to: '/farms' },
+    { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'OTC', to: '/otc' },

@@ -1,6 +1,7 @@
 import StylesProvider from '@mui/styles/StylesProvider';
-import type { AppProps } from 'next/app';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import type { AppProps } from 'next/app';
 
 import { WalletProvider } from 'contexts/Wallet';
 import { AssetsProvider } from 'contexts/Assets';
@@ -18,6 +19,7 @@ function App({ Component, pageProps }: AppProps) {
         <ThemeProvider theme={theme}>
           <WalletProvider>
             <AssetsProvider>
+              <Toaster position="bottom-right" reverseOrder={true} />
               <Component {...pageProps} />
               <ChangeNetworkDialog />
             </AssetsProvider>
