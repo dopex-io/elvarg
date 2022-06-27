@@ -3,7 +3,7 @@ import { BigNumber, utils } from 'ethers';
 import {
   ERC20__factory,
   StakingRewards__factory,
-  StakingRewardV3__factory,
+  StakingRewardsV3__factory,
 } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 import Box from '@mui/material/Box';
@@ -149,7 +149,7 @@ const ManageDialog = (props: Props) => {
     try {
       if (data.version === 3) {
         await sendTx(
-          StakingRewardV3__factory.connect(
+          StakingRewardsV3__factory.connect(
             data.stakingRewardsAddress,
             signer
           ).unstake(utils.parseEther(amount))

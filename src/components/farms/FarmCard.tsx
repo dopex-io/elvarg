@@ -21,7 +21,7 @@ import { LpData } from 'types/farms';
 import {
   ERC20__factory,
   StakingRewards__factory,
-  StakingRewardV3__factory,
+  StakingRewardsV3__factory,
 } from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 
@@ -157,7 +157,7 @@ const FarmCard = (props: Props) => {
       signer
     );
 
-    const newStakingRewards = StakingRewardV3__factory.connect(
+    const newStakingRewards = StakingRewardsV3__factory.connect(
       newStakingRewardsAddress,
       signer
     );

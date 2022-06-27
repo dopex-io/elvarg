@@ -8,7 +8,7 @@ import {
 } from 'react';
 import {
   ERC20__factory,
-  StakingRewardV3__factory,
+  StakingRewardsV3__factory,
   UniswapPair__factory,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
@@ -192,7 +192,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
         provider
       );
 
-      const stakingRewardsContract = StakingRewardV3__factory.connect(
+      const stakingRewardsContract = StakingRewardsV3__factory.connect(
         farm.stakingRewardsAddress,
         provider
       );
@@ -272,7 +272,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
         provider
       );
 
-      const stakingRewardsContract = StakingRewardV3__factory.connect(
+      const stakingRewardsContract = StakingRewardsV3__factory.connect(
         farm.stakingRewardsAddress,
         provider
       );
