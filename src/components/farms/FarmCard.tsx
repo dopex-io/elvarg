@@ -185,7 +185,7 @@ const FarmCard = (props: Props) => {
     return 0;
   }, [lpData, stakingTokenSymbol]);
 
-  if (!userStakingRewardsBalance.isZero() && status === 'RETIRED') return <></>;
+  if (userStakingRewardsBalance.isZero() && status === 'RETIRED') return <></>;
 
   return (
     <Box className="bg-cod-gray text-red rounded-2xl p-3 flex flex-col space-y-3 w-[343px]">
