@@ -28,6 +28,7 @@ export interface BasicManageDialogProps {
     stakingTokenSymbol: string;
     stakingRewardsAddress: string;
     stakingTokenAddress: string;
+    version?: number;
   };
   open: boolean;
 }

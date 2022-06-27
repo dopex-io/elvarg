@@ -585,10 +585,9 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
-"@dopex-io/sdk@^1.0.0-beta.4":
+"@dopex-io/sdk@https://github.com/dopex-io/sdk#feat/staking-rewards-v3":
   version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.4.tgz#92e71337623221880429276be4c05162e87aff6a"
-  integrity sha512-Py3TML9v0p3JXIcBiZGxbr7MADLUf4gLtzqW7HojBBL93KtIKf7IU4WzQrblMo7fuc4zir+OX3gmn+SCOFUTZw==
+  resolved "https://github.com/dopex-io/sdk#a6eecbff24ddbeea2769e28a22b3142fb7c504bd"
   dependencies:
     ethers "^5.6.4"
 
