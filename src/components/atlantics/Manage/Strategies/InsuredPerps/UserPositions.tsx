@@ -16,7 +16,6 @@ import {
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
 
-import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -28,7 +27,10 @@ import useSendTx from 'hooks/useSendTx';
 import { AtlanticsContext } from 'contexts/Atlantics';
 import { WalletContext } from 'contexts/Wallet';
 
-import { TableHeader, TableBodyCell } from '../../UserDepositsTable';
+import {
+  TableHeader,
+  TableBodyCell,
+} from 'components/atlantics/Manage/UserDepositsTable';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 
