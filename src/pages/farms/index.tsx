@@ -4,22 +4,21 @@ import { useContext, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
-import { css } from '@emotion/react';
 
 import AppBar from 'components/common/AppBar';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
-import FarmCard from 'components/farms/FarmCard';
+// import FarmCard from 'components/farms/FarmCard';
 import ManageDialog, {
   BasicManageDialogProps,
 } from 'components/farms/ManageDialog';
-import Typography from 'components/UI/Typography';
-import ClaimCard from 'components/farms/ClaimCard';
-import QuickLinks from 'components/farms/QuickLinks';
+// import Typography from 'components/UI/Typography';
+// import ClaimCard from 'components/farms/ClaimCard';
+// import QuickLinks from 'components/farms/QuickLinks';
 
 import { WalletContext } from 'contexts/Wallet';
-import { FarmingContext, FarmingProvider } from 'contexts/Farming';
+import { FarmingProvider } from 'contexts/Farming';
 
-import { FARMS } from 'constants/farms';
+// import { FARMS } from 'constants/farms';
 
 const initialDialogData: BasicManageDialogProps = {
   data: {
@@ -34,9 +33,9 @@ const initialDialogData: BasicManageDialogProps = {
 };
 
 const Farms = () => {
-  const { chainId, accountAddress } = useContext(WalletContext);
+  const { chainId } = useContext(WalletContext);
 
-  const data = useContext(FarmingContext);
+  // const data = useContext(FarmingContext);
 
   const [dialog, setDialog] =
     useState<BasicManageDialogProps>(initialDialogData);
