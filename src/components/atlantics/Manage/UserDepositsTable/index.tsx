@@ -76,19 +76,17 @@ const UserDepositsTable = () => {
   const { userPositions, selectedPool, revenue, selectedEpoch } =
     useContext(AtlanticsContext);
 
-  const [canWithdraw, setCanWithdraw] = useState<boolean>(true);
+  const [canWithdraw, setCanWithdraw] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('0');
 
-  const tx = useSendTx();
+  const sendTx = useSendTx();
 
   useEffect(() => {
     (async () => {
-      if (!selectedPool || !provider) return;
+      if (!selectedPool.state.expiryTime.gt(0) || !provider) return;
       const blockNumber = await provider.getBlockNumber();
       const timestamp = (await provider.getBlock(blockNumber)).timestamp;
-      if (timestamp > Number(selectedPool.state.expiryTime)) {
-        setCanWithdraw(() => false);
-      }
+      setCanWithdraw(timestamp > selectedPool.state.expiryTime.toNumber());
     })();
   }, [provider, selectedPool]);
 
@@ -141,21 +139,25 @@ const UserDepositsTable = () => {
       }
 
       const poolAddress = selectedPool.contracts.atlanticPool.address;
-      if (selectedPool.isPut) {
-        const apContract = AtlanticPutsPool__factory.connect(
-          poolAddress,
-          signer
-        );
-        tx(apContract.withdraw(strike * 1e8, selectedEpoch));
-      } else {
-        const apContract = AtlanticCallsPool__factory.connect(
-          poolAddress,
-          signer
-        );
-        tx(apContract.withdraw(selectedEpoch));
+      try {
+        if (selectedPool.isPut) {
+          const apContract = AtlanticPutsPool__factory.connect(
+            poolAddress,
+            signer
+          );
+          await sendTx(apContract.withdraw(strike * 1e8, selectedEpoch));
+        } else {
+          const apContract = AtlanticCallsPool__factory.connect(
+            poolAddress,
+            signer
+          );
+          await sendTx(apContract.withdraw(selectedEpoch));
+        }
+      } catch (err) {
+        console.log(err);
       }
     },
-    [selectedEpoch, selectedPool, signer, tx]
+    [selectedEpoch, selectedPool, signer, sendTx]
   );
 
   return userPositions?.length !== 0 ? (
@@ -223,7 +225,7 @@ const UserDepositsTable = () => {
                   ) : (
                     <>
                       <AlarmIcon fill="#8E8E8E" />
-                      <Typography variant="h6" className="my-auto ml-2">
+                      <Typography variant="h6" className="ml-2">
                         {epochDuration}
                       </Typography>
                     </>

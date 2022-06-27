@@ -81,7 +81,7 @@ const appLinks = {
     { name: 'pools', to: '/pools' },
     { name: 'portfolio', to: '/portfolio' },
     { name: 'faucet', to: '/faucet' },
-    { name: 'atlantics', to: '/atlantics' },
+    { name: 'Atlantics', to: '/atlantics' },
   ],
   421611: [
     // { name: 'options', to: '/' },
@@ -100,7 +100,7 @@ const appLinks = {
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'OTC', to: '/otc' },
-    { name: 'atlantics', to: '/atlantics' },
+    { name: 'Atlantics', to: '/atlantics' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -134,7 +134,7 @@ interface AppBarProps {
     | 'swap'
     | 'OTC'
     | 'vaults'
-    | 'atlantics';
+    | 'Atlantics';
 }
 
 export default function AppBar(props: AppBarProps) {

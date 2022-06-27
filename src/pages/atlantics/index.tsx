@@ -18,7 +18,7 @@ const Atlantics = () => {
       <Head>
         <title>Atlantics | Dopex</title>
       </Head>
-      <AppBar active="atlantics" />
+      <AppBar active="Atlantics" />
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
         <Box className="mx-auto mb-8">
           <Box className="flex flex-col divide-umbra md:divide-y divide-y-0">

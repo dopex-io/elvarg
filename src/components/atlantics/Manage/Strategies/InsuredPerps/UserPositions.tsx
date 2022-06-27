@@ -171,18 +171,22 @@ const UserPositions = () => {
     async (index: number) => {
       if (!contractAddresses || !accountAddress || !signer || !selectedPool)
         return;
-      const strategyContractAddress: string =
-        contractAddresses['STRATEGIES']['INSURED-PERPS'];
+      try {
+        const strategyContractAddress: string =
+          contractAddresses['STRATEGIES']['INSURED-PERPS'];
 
-      const strategyContract = LongPerpStrategy__factory.connect(
-        strategyContractAddress,
-        signer
-      );
+        const strategyContract = LongPerpStrategy__factory.connect(
+          strategyContractAddress,
+          signer
+        );
 
-      const tx = strategyContract.exitStrategy(index, {
-        value: MIN_EXECUTION_FEE,
-      });
-      sendTx(tx);
+        const tx = strategyContract.exitStrategy(index, {
+          value: MIN_EXECUTION_FEE,
+        });
+        await sendTx(tx);
+      } catch (err) {
+        console.log(err);
+      }
     },
     [accountAddress, contractAddresses, selectedPool, signer, sendTx]
   );
@@ -191,18 +195,21 @@ const UserPositions = () => {
     async (index: number) => {
       if (!contractAddresses || !accountAddress || !signer || !selectedPool)
         return;
-      const strategyContractAddress: string =
-        contractAddresses['STRATEGIES']['INSURED-PERPS'];
+      try {
+        const strategyContractAddress: string =
+          contractAddresses['STRATEGIES']['INSURED-PERPS'];
+        const strategyContract = LongPerpStrategy__factory.connect(
+          strategyContractAddress,
+          signer
+        );
 
-      const strategyContract = LongPerpStrategy__factory.connect(
-        strategyContractAddress,
-        signer
-      );
-
-      const tx = strategyContract.keepCollateral(index, {
-        value: MIN_EXECUTION_FEE,
-      });
-      sendTx(tx);
+        const tx = strategyContract.keepCollateral(index, {
+          value: MIN_EXECUTION_FEE,
+        });
+        await sendTx(tx);
+      } catch (err) {
+        console.log(err);
+      }
     },
     [accountAddress, contractAddresses, selectedPool, signer, sendTx]
   );
@@ -223,63 +230,53 @@ const UserPositions = () => {
                 <TableHeader>Leverage</TableHeader>
                 <TableHeader>PnL</TableHeader>
                 <TableHeader>Status</TableHeader>
-                <TableHeader>Action</TableHeader>
+                <TableHeader align="right">Action</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              {gmxPositions.length !== 0 ? (
-                gmxPositions.map((position, index) => (
-                  <TableRow key={index}>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        ${position.entryPrice}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        ${position.positionBalance}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        ${position.positionSize}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">{position.leverage}x</Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography
-                        className={`${
-                          Number(position.pnl) > 0
-                            ? 'text-green-500'
-                            : 'text-white'
-                        }`}
-                        variant="h6"
-                      >
-                        {position.pnl}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">{position.status}</Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <ActionButton
-                        closePosition={closePosition}
-                        keepCollateral={keepCollateral}
-                        isCollateralOptionToken={
-                          position.isCollateralOptionToken
-                        }
-                        index={position.index}
-                      />
-                    </TableBodyCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableBodyCell>No Positions found</TableBodyCell>
+              {gmxPositions.map((position, index) => (
+                <TableRow key={index}>
+                  <TableBodyCell>
+                    <Typography variant="h6">${position.entryPrice}</Typography>
+                  </TableBodyCell>
+                  <TableBodyCell>
+                    <Typography variant="h6">
+                      ${position.positionBalance}
+                    </Typography>
+                  </TableBodyCell>
+                  <TableBodyCell>
+                    <Typography variant="h6">
+                      ${position.positionSize}
+                    </Typography>
+                  </TableBodyCell>
+                  <TableBodyCell>
+                    <Typography variant="h6">{position.leverage}x</Typography>
+                  </TableBodyCell>
+                  <TableBodyCell>
+                    <Typography
+                      className={`${
+                        Number(position.pnl) > 0
+                          ? 'text-green-500'
+                          : 'text-white'
+                      }`}
+                      variant="h6"
+                    >
+                      {position.pnl}
+                    </Typography>
+                  </TableBodyCell>
+                  <TableBodyCell>
+                    <Typography variant="h6">{position.status}</Typography>
+                  </TableBodyCell>
+                  <TableBodyCell align="right">
+                    <ActionButton
+                      closePosition={closePosition}
+                      keepCollateral={keepCollateral}
+                      isCollateralOptionToken={position.isCollateralOptionToken}
+                      index={position.index}
+                    />
+                  </TableBodyCell>
                 </TableRow>
-              )}
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -314,15 +311,10 @@ const ActionButton = ({
   }, [keepCollateral, index]);
 
   return (
-    <Box className="flex w-full">
+    <Box className="flex justify-end">
       <Select
         className="bg-primary rounded-md h-[2rem] text-white w-[8rem]"
         displayEmpty
-        sx={{
-          '.MuiList-root': {
-            colorr: 'white',
-          },
-        }}
         renderValue={() => {
           return (
             <Typography
@@ -335,27 +327,31 @@ const ActionButton = ({
         }}
         MenuProps={{
           classes: {
-            paper: 'bg-primary w-[8rem]',
+            paper: 'bg-umbra',
           },
         }}
+        classes={{
+          icon: 'text-white',
+        }}
       >
-        <MenuItem>
-          {' '}
-          <CustomButton
+        <MenuItem onClick={handleClosePosition}>
+          <Typography
+            variant="h6"
+            role="button"
             className="flex-1 font-xs w-full"
-            onClick={handleClosePosition}
           >
             Close Position
-          </CustomButton>
+          </Typography>
         </MenuItem>
         {!isCollateralOptionToken && (
-          <MenuItem>
-            <CustomButton
+          <MenuItem onClick={handleKeepCollateral}>
+            <Typography
+              variant="h6"
+              role="button"
               className="flex-1 font-xs w-full"
-              onClick={handleKeepCollateral}
             >
               Keep Collateral
-            </CustomButton>
+            </Typography>
           </MenuItem>
         )}
       </Select>

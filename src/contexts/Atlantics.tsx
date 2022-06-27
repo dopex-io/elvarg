@@ -490,7 +490,8 @@ export const AtlanticsProvider = (props: any) => {
   );
 
   const updatePools = useCallback(async () => {
-    if (!contractAddresses || !provider || pools.length > 0) return;
+    if (!contractAddresses['ATLANTIC-POOLS'] || !provider || pools.length > 0)
+      return;
 
     let pool: Pool;
 
@@ -553,6 +554,8 @@ export const AtlanticsProvider = (props: any) => {
       selectedEpoch: number,
       duration: string
     ): Promise<IAtlanticPoolType | undefined> => {
+      if (!contractAddresses['ATLANTIC-POOLS']) return;
+
       const poolAddress =
         contractAddresses['ATLANTIC-POOLS'][underlying][type][duration];
 

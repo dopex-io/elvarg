@@ -67,7 +67,6 @@ const Charts = (props: ChartsProps) => {
           const availableCollateral =
             Number(data[index]?.liquidity) / 10 ** decimals - activeCollateral;
 
-          console.log(unlocked, activeCollateral, availableCollateral);
           return {
             availableCollateral,
             unlocked,

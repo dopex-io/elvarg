@@ -113,7 +113,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
     expiry: BigNumber.from(0),
   });
 
-  const tx = useSendTx();
+  const sendTx = useSendTx();
 
   const selectedPoolTokens = useMemo((): {
     deposit: string;
@@ -389,9 +389,15 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
       contractAddresses[deposit],
       signer
     );
-    tx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+
+    try {
+      await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+    } catch (err) {
+      console.log(err);
+    }
+
     await checkIfApproved();
-  }, [signer, selectedPool, contractAddresses, checkIfApproved, tx]);
+  }, [signer, selectedPool, contractAddresses, checkIfApproved, sendTx]);
 
   const handleApproveBaseToken = useCallback(async () => {
     if (
@@ -402,18 +408,22 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
       !contractAddresses
     )
       return;
-    const strategyContractAddress =
-      contractAddresses['STRATEGIES']['INSURED-PERPS'];
-    const { underlying } = selectedPool.tokens;
-    if (!underlying) return;
+    try {
+      const strategyContractAddress =
+        contractAddresses['STRATEGIES']['INSURED-PERPS'];
+      const { underlying } = selectedPool.tokens;
+      if (!underlying) return;
 
-    const tokenContract = ERC20__factory.connect(
-      contractAddresses[underlying],
-      signer
-    );
-    tx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+      const tokenContract = ERC20__factory.connect(
+        contractAddresses[underlying],
+        signer
+      );
+      await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+    } catch (err) {
+      console.log(err);
+    }
     await checkIfApproved();
-  }, [signer, contractAddresses, tx, checkIfApproved, selectedPool]);
+  }, [signer, contractAddresses, sendTx, checkIfApproved, selectedPool]);
 
   useEffect(() => {
     checkIfApproved();
@@ -425,7 +435,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
 
   const useStrategy = useCallback(async () => {
     if (
-      !contractAddresses ||
+      !contractAddresses['STRATEGIES']['INSURED-PERPS'] ||
       !signer ||
       !selectedPool ||
       !selectedPool.state.expiryTime ||
@@ -439,39 +449,43 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
       return;
     }
 
-    const strategyContract = LongPerpStrategy__factory.connect(
-      contractAddresses['STRATEGIES']['INSURED-PERPS'],
-      signer
-    );
+    try {
+      const strategyContract = LongPerpStrategy__factory.connect(
+        contractAddresses['STRATEGIES']['INSURED-PERPS'],
+        signer
+      );
 
-    let path: string[] = [];
-    if (selectedToken === 'USDC') {
-      path = [contractAddresses['USDC'], contractAddresses['WETH']];
-    }
-    if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
-
-    const _tx = strategyContract.useStrategyAndOpenLongPosition(
-      {
-        path: path,
-        indexToken: contractAddresses['WETH'],
-        positionCollateralSize: getContractReadableAmount(
-          positionBalance,
-          getTokenDecimals(selectedToken, chainId)
-          // getTokenDecimals(selectedToken, chainId)
-        ),
-        positionSize: strategyDetails.positionSize,
-        executionFee: MIN_EXECUTION_FEE,
-        referralCode: DEFAULT_REFERRAL_CODE,
-        isCollateralOptionToken: selectedCollateral === 'AC-OPTIONS',
-      },
-      keepCollateral,
-      selectedPool.state.expiryTime,
-      {
-        value: MIN_EXECUTION_FEE,
+      let path: string[] = [];
+      if (selectedToken === 'USDC') {
+        path = [contractAddresses['USDC'], contractAddresses['WETH']];
       }
-    );
+      if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
 
-    tx(_tx);
+      const _tx = strategyContract.useStrategyAndOpenLongPosition(
+        {
+          path: path,
+          indexToken: contractAddresses['WETH'],
+          positionCollateralSize: getContractReadableAmount(
+            positionBalance,
+            getTokenDecimals(selectedToken, chainId)
+            // getTokenDecimals(selectedToken, chainId)
+          ),
+          positionSize: strategyDetails.positionSize,
+          executionFee: MIN_EXECUTION_FEE,
+          referralCode: DEFAULT_REFERRAL_CODE,
+          isCollateralOptionToken: selectedCollateral === 'AC-OPTIONS',
+        },
+        keepCollateral,
+        selectedPool.state.expiryTime,
+        {
+          value: MIN_EXECUTION_FEE,
+        }
+      );
+
+      await sendTx(_tx);
+    } catch (err) {
+      console.log(err);
+    }
   }, [
     chainId,
     contractAddresses,
@@ -479,7 +493,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
     selectedCollateral,
     selectedPool,
     selectedToken,
-    tx,
+    sendTx,
     signer,
     strategyDetails.positionSize,
     keepCollateral,

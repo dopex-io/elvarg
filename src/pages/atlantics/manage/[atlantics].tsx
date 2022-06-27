@@ -157,7 +157,7 @@ const Manage = (props: ManageProps) => {
       <Head>
         <title>Atlantics | Dopex</title>
       </Head>
-      <AppBar active="atlantics" />
+      <AppBar active="Atlantics" />
       <Box className="container my-32 mx-auto px-4 lg:px-0 h-screen">
         <Box className="flex space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
           <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">

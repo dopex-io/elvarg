@@ -55,7 +55,7 @@ const ManageCard = (props: ManageCardProps) => {
   const [openPositionManager, setOpenPositionManager] =
     useState<boolean>(false);
 
-  const tx = useSendTx();
+  const sendTx = useSendTx();
 
   const { userAssetBalances } = useContext(AssetsContext);
   const { chainId, signer, contractAddresses, accountAddress } =
@@ -96,19 +96,24 @@ const ManageCard = (props: ManageCardProps) => {
     if (!signer || !contractAddresses || !accountAddress || !depositToken)
       return;
 
-    const token = ERC20__factory.connect(
-      contractAddresses[depositToken],
-      signer
-    );
-
-    await token.approve(
-      contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-      getContractReadableAmount(
-        value,
-        TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
-      )
-    );
-    setApproved(true);
+    try {
+      const token = ERC20__factory.connect(
+        contractAddresses[depositToken],
+        signer
+      );
+      await sendTx(
+        token.approve(
+          contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+          getContractReadableAmount(
+            value,
+            TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
+          )
+        )
+      );
+      setApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
   }, [
     accountAddress,
     chainId,
@@ -119,36 +124,47 @@ const ManageCard = (props: ManageCardProps) => {
     underlying,
     value,
     depositToken,
+    sendTx,
   ]);
 
-  const handleDeposit = useCallback(() => {
-    if (!signer || !contractAddresses || !accountAddress) return;
+  const handleDeposit = useCallback(async () => {
+    if (!signer || !accountAddress || !contractAddresses['ATLANTIC-POOLS'])
+      return;
 
     let apContract;
+
     if (selectedPool?.isPut) {
-      apContract = AtlanticPutsPool__factory.connect(
-        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-        signer
-      );
-      tx(
-        apContract
-          .connect(signer)
-          .deposit(
-            getContractReadableAmount(maxStrike, 8),
-            getContractReadableAmount(value, 6),
-            accountAddress
-          )
-      );
+      try {
+        apContract = AtlanticPutsPool__factory.connect(
+          contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+          signer
+        );
+        await sendTx(
+          apContract
+            .connect(signer)
+            .deposit(
+              getContractReadableAmount(maxStrike, 8),
+              getContractReadableAmount(value, 6),
+              accountAddress
+            )
+        );
+      } catch (err) {
+        console.log(err);
+      }
     } else {
-      apContract = AtlanticCallsPool__factory.connect(
-        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-        signer
-      );
-      tx(
-        apContract
-          .connect(signer)
-          .deposit(getContractReadableAmount(value, 18), accountAddress)
-      );
+      try {
+        apContract = AtlanticCallsPool__factory.connect(
+          contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+          signer
+        );
+        await sendTx(
+          apContract
+            .connect(signer)
+            .deposit(getContractReadableAmount(value, 18), accountAddress)
+        );
+      } catch (err) {
+        console.log(err);
+      }
     }
   }, [
     signer,
@@ -158,7 +174,7 @@ const ManageCard = (props: ManageCardProps) => {
     underlying,
     poolType,
     duration,
-    tx,
+    sendTx,
     maxStrike,
     value,
   ]);
@@ -180,7 +196,8 @@ const ManageCard = (props: ManageCardProps) => {
         !signer ||
         !contractAddresses ||
         !accountAddress ||
-        !selectedPool.tokens
+        !selectedPool.tokens ||
+        !contractAddresses['ATLANTIC-POOLS']
       )
         return;
       const { deposit } = selectedPool.tokens;
@@ -224,7 +241,7 @@ const ManageCard = (props: ManageCardProps) => {
 
   useEffect(() => {
     (async () => {
-      if (!signer || !contractAddresses) return;
+      if (!signer || !contractAddresses['ATLANTIC-POOLS']) return;
 
       let pool = selectedPool?.isPut
         ? AtlanticPutsPool__factory.connect(
@@ -331,7 +348,7 @@ const ManageCard = (props: ManageCardProps) => {
         </Box>
         <CustomButton
           className="flex w-full text-center"
-          color="mineshaft"
+          color="primary"
           disabled={disableButton}
           onClick={approved ? handleDeposit : handleApprove}
         >
