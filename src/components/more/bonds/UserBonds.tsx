@@ -47,7 +47,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
       {accountAddress ? (
         notRedeemedBonds.length > 0 ? (
           <Box>
-            <Box className="bg-cod-gray border-b border-[#1E1E1E] rounded-t-lg md:w-[728px] mt-3 p-3">
+            <Box className="bg-cod-gray border-b border-[#1E1E1E] rounded-t-lg lg:w-[728px] mt-3 p/-3">
               <Button
                 variant="text"
                 className="bg-mineshaft text-white border-cod-gray hover:border-wave-blue border border-solid"
@@ -58,8 +58,8 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                 {ensName ? ensName : displayAddress(accountAddress)}
               </Button>
             </Box>
-            <Box className="bg-cod-gray rounded-b-lg flex flex-wrap md:w-[728px] mb-5">
-              <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
+            <Box className="bg-cod-gray rounded-b-lg flex flex-wrap lg:w-[728px] mb-5">
+              <Box className="p-3 flex-2 lg:flex-1 border-r border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3 ">DPX Available</Box>
                 <Box>
                   {(
@@ -71,7 +71,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                   </span>
                 </Box>
               </Box>
-              <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-[#1E1E1E] w-2/4">
+              <Box className="p-3 lg:flex-1 border-t border-r lg:border-t-0 border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3">Unlocked</Box>
                 <Box>
                   {(availableBondsForWithdraw.length * 5000) /
@@ -81,12 +81,12 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                   </span>
                 </Box>
               </Box>
-              <Box className="p-3 md:flex-1 border-r md:border-t-0 border-[#1E1E1E] w-2/4">
+              <Box className="p-3 lg:flex-1 border-r lg:border-t-0 border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3">Locked Until</Box>
                 {lockedUntil &&
                   format(new Date(lockedUntil * 1000), 'MM/dd/yyyy')}
               </Box>
-              <Box className="p-3 text-center md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
+              <Box className="p-3 text-center lg:flex-1 lg:border-r border-b lg:border-b-0 border-[#1E1E1E] w-2/4">
                 <Box>
                   <CustomButton
                     variant="text"
