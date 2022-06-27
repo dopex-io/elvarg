@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useContext, version } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 import { BigNumber, utils } from 'ethers';
 import {
   ERC20__factory,
