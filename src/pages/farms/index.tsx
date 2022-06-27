@@ -4,22 +4,21 @@ import { useContext, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
-import { css } from '@emotion/react';
 
 import AppBar from 'components/common/AppBar';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
-import FarmCard from 'components/farms/FarmCard';
+// import FarmCard from 'components/farms/FarmCard';
 import ManageDialog, {
   BasicManageDialogProps,
 } from 'components/farms/ManageDialog';
-import Typography from 'components/UI/Typography';
-import ClaimCard from 'components/farms/ClaimCard';
-import QuickLinks from 'components/farms/QuickLinks';
+// import Typography from 'components/UI/Typography';
+// import ClaimCard from 'components/farms/ClaimCard';
+// import QuickLinks from 'components/farms/QuickLinks';
 
 import { WalletContext } from 'contexts/Wallet';
-import { FarmingContext, FarmingProvider } from 'contexts/Farming';
+import { FarmingProvider } from 'contexts/Farming';
 
-import { FARMS } from 'constants/farms';
+// import { FARMS } from 'constants/farms';
 
 const initialDialogData: BasicManageDialogProps = {
   data: {
@@ -34,9 +33,9 @@ const initialDialogData: BasicManageDialogProps = {
 };
 
 const Farms = () => {
-  const { chainId, accountAddress } = useContext(WalletContext);
+  const { chainId } = useContext(WalletContext);
 
-  const data = useContext(FarmingContext);
+  // const data = useContext(FarmingContext);
 
   const [dialog, setDialog] =
     useState<BasicManageDialogProps>(initialDialogData);
@@ -54,7 +53,7 @@ const Farms = () => {
       </Head>
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar active="farms" />
-      <Box className="flex mt-32 justify-end lg:mx-6 lg:space-x-reverse mb-32 lg:flex-row-reverse flex-col">
+      {/* <Box className="flex mt-32 justify-end lg:mx-6 lg:space-x-reverse mb-32 lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">
           <Typography variant="h5" className="mb-6">
             Farms
@@ -166,7 +165,7 @@ const Farms = () => {
             : 'Please connect your wallet'}
           <QuickLinks />
         </Box>
-      </Box>
+      </Box> */}
       <ManageDialog {...dialog} handleClose={handleClose} />
     </Box>
   );
