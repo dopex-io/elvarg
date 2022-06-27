@@ -8,7 +8,6 @@ import {
 } from 'react';
 import {
   ERC20__factory,
-  StakingRewards__factory,
   StakingRewardV3__factory,
   UniswapPair__factory,
 } from '@dopex-io/sdk';
