@@ -165,9 +165,9 @@ const FarmCard = (props: Props) => {
     const stakingToken = ERC20__factory.connect(stakingTokenAddress, signer);
 
     try {
-      await sendTx(oldStakingRewards.withdraw(userStakingTokenBalance)); // Withdraw
+      await sendTx(oldStakingRewards.withdraw(userStakingRewardsBalance)); // Withdraw
       await sendTx(stakingToken.approve(newStakingRewardsAddress, MAX_VALUE)); // Approve
-      await sendTx(newStakingRewards.stake(userStakingTokenBalance)); // Stake in new farm
+      await sendTx(newStakingRewards.stake(userStakingRewardsBalance)); // Stake in new farm
     } catch (err) {
       console.log('Something went wrong', err);
     }
