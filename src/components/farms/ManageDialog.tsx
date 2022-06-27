@@ -1,6 +1,10 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 import { BigNumber, utils } from 'ethers';
-import { ERC20__factory, StakingRewards__factory } from '@dopex-io/sdk';
+import {
+  ERC20__factory,
+  StakingRewards__factory,
+  StakingRewardV3__factory,
+} from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 import Box from '@mui/material/Box';
 
@@ -28,6 +32,7 @@ export interface BasicManageDialogProps {
     stakingTokenSymbol: string;
     stakingRewardsAddress: string;
     stakingTokenAddress: string;
+    version?: number;
   };
   open: boolean;
 }
@@ -142,12 +147,21 @@ const ManageDialog = (props: Props) => {
   const handleWithdraw = useCallback(async () => {
     if (!signer) return;
     try {
-      await sendTx(
-        StakingRewards__factory.connect(
-          data.stakingRewardsAddress,
-          signer
-        ).withdraw(utils.parseEther(amount))
-      );
+      if (data.version === 3) {
+        await sendTx(
+          StakingRewardV3__factory.connect(
+            data.stakingRewardsAddress,
+            signer
+          ).unstake(utils.parseEther(amount))
+        );
+      } else {
+        await sendTx(
+          StakingRewards__factory.connect(
+            data.stakingRewardsAddress,
+            signer
+          ).withdraw(utils.parseEther(amount))
+        );
+      }
     } catch (err) {
       console.log(err);
     }

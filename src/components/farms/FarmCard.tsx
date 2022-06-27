@@ -18,17 +18,29 @@ import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 
 import { LpData } from 'types/farms';
+import {
+  ERC20__factory,
+  StakingRewards__factory,
+  StakingRewardV3__factory,
+} from '@dopex-io/sdk';
+import useSendTx from 'hooks/useSendTx';
+
+import { MAX_VALUE } from 'constants/index';
 
 const Header = ({
   stakingTokenSymbol,
   type,
   onManage,
+  onMigrate,
   status,
+  version,
 }: {
   stakingTokenSymbol: string;
   type: 'SINGLE' | 'LP';
   status: 'RETIRED' | 'ACTIVE';
   onManage: any;
+  onMigrate: any;
+  version: number;
 }) => {
   return (
     <Box className="flex justify-between">
@@ -50,6 +62,11 @@ const Header = ({
           </Typography>
         </Box>
       </Box>
+      {version === 2 && type === 'LP' ? (
+        <CustomButton size="small" onClick={onMigrate} className="mr-1">
+          Migrate
+        </CustomButton>
+      ) : null}
       <CustomButton size="small" onClick={onManage}>
         Manage
       </CustomButton>
@@ -91,6 +108,8 @@ interface Props {
   userDataLoading: boolean;
   status: 'RETIRED' | 'ACTIVE';
   type: 'SINGLE' | 'LP';
+  version: number;
+  newStakingRewardsAddress?: string | undefined;
 }
 
 const FarmCard = (props: Props) => {
@@ -102,6 +121,7 @@ const FarmCard = (props: Props) => {
     stakingTokenSymbol,
     userStakingRewardsBalance,
     stakingRewardsAddress,
+    newStakingRewardsAddress,
     stakingTokenAddress,
     userStakingTokenBalance,
     type,
@@ -109,9 +129,12 @@ const FarmCard = (props: Props) => {
     setDialog,
     lpData,
     farmTotalSupply,
+    version,
   } = props;
 
-  const { accountAddress, chainId } = useContext(WalletContext);
+  const { accountAddress, chainId, signer } = useContext(WalletContext);
+
+  const sendTx = useSendTx();
 
   const onManage = () => {
     setDialog({
@@ -125,6 +148,29 @@ const FarmCard = (props: Props) => {
       },
       open: true,
     });
+  };
+
+  const onMigrate = async () => {
+    if (!signer || !newStakingRewardsAddress) return;
+    const oldStakingRewards = StakingRewards__factory.connect(
+      stakingRewardsAddress,
+      signer
+    );
+
+    const newStakingRewards = StakingRewardV3__factory.connect(
+      newStakingRewardsAddress,
+      signer
+    );
+
+    const stakingToken = ERC20__factory.connect(stakingTokenAddress, signer);
+
+    try {
+      await sendTx(oldStakingRewards.withdraw(userStakingTokenBalance)); // Withdraw
+      await sendTx(stakingToken.approve(newStakingRewardsAddress, MAX_VALUE)); // Approve
+      await sendTx(newStakingRewards.stake(userStakingTokenBalance)); // Stake in new farm
+    } catch (err) {
+      console.log('Something went wrong', err);
+    }
   };
 
   const stakingTokenPrice = useMemo(() => {
@@ -148,6 +194,8 @@ const FarmCard = (props: Props) => {
         type={type}
         status={status}
         onManage={onManage}
+        onMigrate={onMigrate}
+        version={version}
       />
       <Box className="flex space-x-3">
         {farmsDataLoading ? (
