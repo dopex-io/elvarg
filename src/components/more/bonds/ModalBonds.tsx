@@ -118,7 +118,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
       open={modalOpen}
       onClose={handleModal}
     >
-      <Box className="bg-cod-gray rounded-2xl p-4  md:w-[343px] ">
+      <Box className="bg-cod-gray rounded-2xl p-4  w-[343px] ">
         <Box className="flex mb-3">
           <Typography className="flex-1 pt-2" variant="h5">
             Bond

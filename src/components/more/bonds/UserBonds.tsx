@@ -47,7 +47,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
       {accountAddress ? (
         notRedeemedBonds.length > 0 ? (
           <Box>
-            <Box className="bg-cod-gray border-b border-[#1E1E1E] rounded-t-lg lg:w-[728px] mt-3 p/-3">
+            <Box className="bg-cod-gray border-b border-[#1E1E1E] rounded-t-lg max-w-[728px] mt-3 p/-3">
               <Button
                 variant="text"
                 className="bg-mineshaft text-white border-cod-gray hover:border-wave-blue border border-solid"
@@ -58,7 +58,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                 {ensName ? ensName : displayAddress(accountAddress)}
               </Button>
             </Box>
-            <Box className="bg-cod-gray rounded-b-lg flex flex-wrap lg:w-[728px] mb-5">
+            <Box className="bg-cod-gray rounded-b-lg flex flex-wrap max-w-[728px] mb-5">
               <Box className="p-3 flex-2 lg:flex-1 border-r border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3 ">DPX Available</Box>
                 <Box>
@@ -102,7 +102,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
             </Box>
           </Box>
         ) : (
-          <Box className="border border-[#1E1E1E] rounded-2xl p-3 md:w-[728px] mt-5">
+          <Box className="border border-[#1E1E1E] rounded-2xl p-3 max-w-[728px] mt-5">
             <div className="text-center">
               You have no vested DPX.
               <span className="text-[#22E1FF]" onClick={handleModal}>
@@ -112,7 +112,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
           </Box>
         )
       ) : (
-        <Box className="border border-[#1E1E1E] rounded-2xl p-3 flex w-[728px] mt-5">
+        <Box className="border border-[#1E1E1E] rounded-2xl p-3 flex max-w-[728px] mt-5">
           <div className="flex-1">
             <AccountBalanceWalletIcon /> Connect your wallet to see your bonds
           </div>

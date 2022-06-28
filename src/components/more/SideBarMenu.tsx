@@ -30,14 +30,12 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
   };
 
   return (
-    <Box className="w-[240px] text-[#8E8E8E] lg:ml-[200px] cursor-pointer margin-auto mb-5 md:mr-10">
+    <Box className="md:w-[240px] text-[#8E8E8E] cursor-pointer">
       <Box
         className="flex md:hidden border-b border-umbra mb-2"
         onClick={handleOpen}
       >
-        <Typography variant="h4" className="text-[#3E3E3E] mb-2 flex-1">
-          More
-        </Typography>
+        <Box className="text-[#777777] mb-2 flex-1">More</Box>
         {open ? (
           <KeyboardArrowUpIcon className="mt-2" />
         ) : (
@@ -45,11 +43,9 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
         )}
       </Box>
       <Box className={`${!open && 'hidden'} md:inline`}>
-        <Typography variant="h5" className="text-[#3E3E3E] mb-2">
-          Governance
-        </Typography>
+        <Box className="text-[#3E3E3E] mb-2">Governance</Box>
         <Box
-          className={`pl-5 p-2 hover:bg-mineshaft ${
+          className={`pl-5 p-2 hover:bg-mineshaft fl/ex ${
             active == 'veDPX' && 'bg-mineshaft text-white'
           }`}
           onClick={() => handleClick('veDPX')}
@@ -61,9 +57,7 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
           />
           veDPX
         </Box>
-        <Typography variant="h5" className="text-[#3E3E3E] mb-2 mt-2">
-          NFTs
-        </Typography>
+        <Box className="text-[#3E3E3E] mb-2 mt-2">NFTs</Box>
         <Link href="/nfts/community">
           <Box
             className={`pl-5 p-2 flex hover:bg-mineshaft ${
@@ -101,9 +95,7 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
             <LaunchIcon className="h-[12px] mt-2" />
           </Box>
         </Link>
-        <Typography variant="h5" className="text-[#3E3E3E] mb-2 mt-2">
-          Misc
-        </Typography>
+        <Box className="text-[#3E3E3E] mb-2 mt-2">Misc</Box>
         <Box
           className={`pl-5 p-2 hover:bg-mineshaft ${
             active == 'bond' && 'bg-mineshaft text-white'

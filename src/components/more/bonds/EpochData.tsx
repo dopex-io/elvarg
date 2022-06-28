@@ -37,7 +37,7 @@ export const EpochData = ({
 
   return (
     <>
-      <Box className="bg-cod-gray rounded-lg flex flex-wrap lg:w-[728px] mb-5 mt-5">
+      <Box className="bg-cod-gray rounded-lg flex flex-wrap max-w-[728px] mb-5 mt-5">
         <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
           <Box className="text-stieglitz mb-3">Epoch</Box>
           <Button className={`${styles['button']}`}>{epochNumber}</Button>

@@ -18,8 +18,10 @@ const Governance = () => {
         <title> Governance | Dopex</title>
       </Head>
       <AppBar />
-      <Box className="md:flex py-20 md:py-32 p-3  m-auto">
-        <SideBarMenu active={active} setActive={setActive} />
+      <Box className="md:flex py-20 md:py-32 p-3">
+        <Box className="flex-2 lg:ml-[15%] md:mr-[20px] mb-5">
+          <SideBarMenu active={active} setActive={setActive} />
+        </Box>
         <Box className="flex-1">
           {active === 'veDPX' && <VeDPX />}
           {active === 'bond' && <BondsPage />}
