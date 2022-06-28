@@ -231,13 +231,13 @@ const ManageCard = (props: ManageCardProps) => {
     selectedPool.tokens,
   ]);
 
-  const openPositionManagerModal = () => {
-    setOpenPositionManager(() => true);
-  };
+  const openPositionManagerModal = useCallback(() => {
+    setOpenPositionManager(true);
+  }, []);
 
-  const closePositionManager = () => {
-    setOpenPositionManager(() => false);
-  };
+  const closePositionManager = useCallback(() => {
+    setOpenPositionManager(false);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -285,7 +285,7 @@ const ManageCard = (props: ManageCardProps) => {
 
             <OpenPositionDialog
               isOpen={openPositionManager}
-              setClose={closePositionManager}
+              handleClose={closePositionManager}
             />
           </>
         ) : null}
@@ -300,7 +300,7 @@ const ManageCard = (props: ManageCardProps) => {
           leftElement={
             <Box className="flex h-full my-auto">
               <Box
-                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1"
+                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-3"
                 role="button"
               >
                 <img

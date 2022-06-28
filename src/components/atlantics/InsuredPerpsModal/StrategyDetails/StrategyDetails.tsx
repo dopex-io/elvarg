@@ -1,9 +1,11 @@
-import { Box, Divider, Tooltip } from '@mui/material';
-import React, { useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
-import { IStrategyDetails } from '../../Manage/ManageCard/PositionManager/OpenPositionDialog';
+import { IStrategyDetails } from 'components/atlantics/Manage/ManageCard/PositionManager/OpenPositionDialog';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -127,159 +129,152 @@ const StrategyDetails = (props: {
   ]);
 
   return (
-    <>
-      <Box className="w-full flex flex-col">
-        <Box className="border-2 border-neutral-800 rounded-lg w-full mb-4">
-          <Box className="flex flex-row">
-            <Tooltip title="Put strike that will be purchased for insurance">
-              <Box className="flex-1 p-4 border-r-2 border-neutral-800">
-                <Box className="flex space-y-1 flex-col">
-                  <Typography variant="h6">
-                    {getUserReadableAmount(putStrike, 8)}
-                  </Typography>
-                  <Typography variant="h6">Put Strike</Typography>
-                </Box>
-              </Box>
-            </Tooltip>
-            <Tooltip title="Expiry of the pool, After which users' long position will be unwinded to closed">
-              <Box className="flex-1 p-4">
-                <Box className="flex space-y-1 flex-col">
-                  <Typography variant="h6">
-                    {new Date(expiry.mul(1000).toNumber()).toDateString()}
-                  </Typography>
-                  <Typography variant="h6">Expiry</Typography>
-                </Box>
-              </Box>
-            </Tooltip>
-          </Box>
-        </Box>
-        <Box className="border-2 mt-2 border-neutral-800 bg-umbra w-full p-4 rounded-lg">
-          <Box className="flex flex-col w-full bg-neutral-800 rounded-lg p-4">
-            <Typography variant="h6" color="stieglitz" className="mb-2">
-              Futures Position Details
-            </Typography>
-            <ContentRow title="Index Token" content="WETH" />
-            <ContentRow
-              title="Liquidation Price"
-              content={
-                '$' +
-                formatAmount(getUserReadableAmount(liquidationPrice, 30), 3)
-              }
-            />
-            <ContentRow
-              title="Position Size"
-              content={
-                '$' + formatAmount(getUserReadableAmount(positionSize, 30), 3)
-              }
-            />
-            <Divider className="bg-umbra my-2" />
-            <Typography variant="h6" color="stieglitz" className="mt-2 mb-2">
-              Put Options Details
-            </Typography>
-            <ContentRow
-              title="Premium + Fees"
-              content={
-                '$' +
-                formatAmount(getUserReadableAmount(putOptionsPremium, 6), 3) +
-                ' + ' +
-                '$' +
-                formatAmount(getUserReadableAmount(putOptionsfees, 6), 3)
-              }
-            />
-            <ContentRow
-              title="Amount"
-              content={formatAmount(
-                getUserReadableAmount(optionsAmount, 18),
-                3
-              )}
-            />
-            {selectedCollateral === 'AC-OPTIONS' && (
-              <>
-                <Divider className="bg-umbra my-2" />
-                <Typography
-                  variant="h6"
-                  color="stieglitz"
-                  className="mt-2 mb-2"
-                >
-                  Call Options Details
-                </Typography>
-                <ContentRow
-                  title="Premium + Fees"
-                  content={
-                    formatAmount(
-                      getUserReadableAmount(callOptionsPremium, 18),
-                      8
-                    ) +
-                    ' + ' +
-                    formatAmount(getUserReadableAmount(callOptionsFees, 18), 8)
-                  }
-                />
-                <ContentRow
-                  title="Funding"
-                  content={formatAmount(
-                    getUserReadableAmount(callsFundingFee, 18),
-                    3
-                  )}
-                />
-                <ContentRow
-                  title="Amount"
-                  content={formatAmount(
-                    getUserReadableAmount(optionsAmount, 18),
-                    3
-                  )}
-                />
-              </>
-            )}
-          </Box>
-        </Box>
-        <Box className="border-2 border-neutral-800 rounded-lg px-2 py-2 mt-2">
-          <Box className="flex justify-between px-4">
-            <Typography variant="h6" className="mr-2">
-              {' '}
-              Σ{' '}
-            </Typography>
-            <Box className="flex justify-center items-center">
-              <Box className="flex justify-center items-center">
+    <Box className="w-full flex flex-col">
+      <Box className="border border-neutral-800 rounded-xl w-full">
+        <Box className="flex flex-row">
+          <Tooltip title="Put strike that will be purchased for insurance">
+            <Box className="flex-1 p-4 border-r-2 border-neutral-800">
+              <Box className="flex space-y-1 flex-col">
                 <Typography variant="h6">
-                  {formatAmount(
-                    getUserReadableAmount(total.totalBaseAsset.amount, 18),
-                    5
-                  )}
+                  {getUserReadableAmount(putStrike, 8)}
                 </Typography>
-                <img
-                  src={`/images/tokens/${baseToken.toLowerCase()}.svg`}
-                  alt={baseToken.toLowerCase()}
-                  className="h-[1rem] mx-1"
-                />
+                <Typography variant="h6" color="stieglitz">
+                  Put Strike
+                </Typography>
               </Box>
-              <Typography variant="h6">{' + '}</Typography>
-              <Box className="ml-2 flex justify-center items-center">
+            </Box>
+          </Tooltip>
+          <Tooltip title="Expiry of the pool, After which users' long position will be unwinded to closed">
+            <Box className="flex-1 p-4">
+              <Box className="flex space-y-1 flex-col">
                 <Typography variant="h6">
-                  {formatAmount(
-                    getUserReadableAmount(total.totalQuoteAsset.amount, 6),
-                    5
-                  )}
+                  {new Date(expiry.mul(1000).toNumber()).toDateString()}
                 </Typography>
-                <img
-                  src={`/images/tokens/${quoteToken.toLowerCase()}.svg`}
-                  alt={quoteToken.toLowerCase()}
-                  className="h-[1rem]  ml-1"
-                />
+                <Typography variant="h6" color="stieglitz">
+                  Expiry
+                </Typography>
               </Box>
-              <Typography className="text-xs ml-2" variant="caption">
-                $(
-                {formatAmount(
-                  total.totalBaseAsset.usdValue +
-                    total.totalQuoteAsset.usdValue,
+            </Box>
+          </Tooltip>
+        </Box>
+      </Box>
+      <Box className="border border-neutral-800 mt-2 bg-umbra w-full p-4 rounded-xl">
+        <Box className="flex flex-col w-full bg-neutral-800 rounded-md p-4">
+          <Typography variant="h6" className="mb-2">
+            Futures Position Details
+          </Typography>
+          <ContentRow title="Index Token" content="WETH" />
+          <ContentRow
+            title="Liquidation Price"
+            content={
+              '$' + formatAmount(getUserReadableAmount(liquidationPrice, 30), 3)
+            }
+          />
+          <ContentRow
+            title="Position Size"
+            content={
+              '$' + formatAmount(getUserReadableAmount(positionSize, 30), 3)
+            }
+          />
+          <Divider className="bg-mineshaft my-2" />
+          <Typography variant="h6" className="mt-2 mb-2">
+            Put Options Details
+          </Typography>
+          <ContentRow
+            title="Premium + Fees"
+            content={
+              '$' +
+              formatAmount(getUserReadableAmount(putOptionsPremium, 6), 3) +
+              ' + ' +
+              '$' +
+              formatAmount(getUserReadableAmount(putOptionsfees, 6), 3)
+            }
+          />
+          <ContentRow
+            title="Amount"
+            content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
+          />
+          {selectedCollateral === 'AC-OPTIONS' && (
+            <>
+              <Divider className="bg-mineshaft my-2" />
+              <Typography variant="h6" color="stieglitz" className="mt-2 mb-2">
+                Call Options Details
+              </Typography>
+              <ContentRow
+                title="Premium + Fees"
+                content={
+                  formatAmount(
+                    getUserReadableAmount(callOptionsPremium, 18),
+                    8
+                  ) +
+                  ' + ' +
+                  formatAmount(getUserReadableAmount(callOptionsFees, 18), 8)
+                }
+              />
+              <ContentRow
+                title="Funding"
+                content={formatAmount(
+                  getUserReadableAmount(callsFundingFee, 18),
                   3
                 )}
-                )
+              />
+              <ContentRow
+                title="Amount"
+                content={formatAmount(
+                  getUserReadableAmount(optionsAmount, 18),
+                  3
+                )}
+              />
+            </>
+          )}
+        </Box>
+      </Box>
+      <Box className="border border-mineshaft rounded-lg px-2 py-2 mt-2">
+        <Box className="flex justify-between px-4">
+          <Typography variant="h6" className="mr-2">
+            {' '}
+            Σ{' '}
+          </Typography>
+          <Box className="flex justify-center items-center">
+            <Box className="flex justify-center items-center">
+              <Typography variant="h6">
+                {formatAmount(
+                  getUserReadableAmount(total.totalBaseAsset.amount, 18),
+                  5
+                )}
               </Typography>
+              <img
+                src={`/images/tokens/${baseToken.toLowerCase()}.svg`}
+                alt={baseToken.toLowerCase()}
+                className="h-[1rem] mx-1"
+              />
             </Box>
+            <Typography variant="h6">{' + '}</Typography>
+            <Box className="ml-2 flex justify-center items-center">
+              <Typography variant="h6">
+                {formatAmount(
+                  getUserReadableAmount(total.totalQuoteAsset.amount, 6),
+                  5
+                )}
+              </Typography>
+              <img
+                src={`/images/tokens/${quoteToken.toLowerCase()}.svg`}
+                alt={quoteToken.toLowerCase()}
+                className="h-[1rem]  ml-1"
+              />
+            </Box>
+            <Typography className="text-xs ml-2" variant="caption">
+              $(
+              {formatAmount(
+                total.totalBaseAsset.usdValue + total.totalQuoteAsset.usdValue,
+                3
+              )}
+              )
+            </Typography>
           </Box>
         </Box>
       </Box>
-    </>
+    </Box>
   );
 };
 
@@ -290,13 +285,11 @@ interface IContentRowProps {
 
 const ContentRow = ({ title, content }: IContentRowProps) => {
   return (
-    <Box className="flex space-y-2 flex-row w-full justify-center items-center">
-      <Typography className="flex-1" variant="h6">
+    <Box className="flex space-y-2 flex-row w-full justify-between items-center">
+      <Typography variant="h6" color="stieglitz">
         {title}
       </Typography>
-      <Typography className="flex-1 text-right" variant="h6">
-        {content}
-      </Typography>
+      <Typography variant="h6">{content}</Typography>
     </Box>
   );
 };

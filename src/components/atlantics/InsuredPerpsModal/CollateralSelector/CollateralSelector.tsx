@@ -1,5 +1,5 @@
+import { FC } from 'react';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import React, { FC } from 'react';
 import { MenuItem, Select, SelectChangeEvent, Tooltip } from '@mui/material';
 import Box from '@mui/material/Box';
 
@@ -22,18 +22,16 @@ const CollateralSelector: FC<IProps> = ({
   collateral,
 }) => {
   return (
-    <Box className="h-[3rem] w-full flex justify-center items-center bg-cod-gray p-1 mt-2">
-      <Typography variant="h6" className=" flex-1">
+    <Box className="h-[3rem] w-full flex justify-between items-center bg-cod-gray p-1 mt-2">
+      <Typography variant="h6">
         Select Collateral
-        <Tooltip
-          className="h-4 my-auto"
-          title="Select collateral to deposit for using this strategy"
-        >
-          <InfoOutlined />
+        <Tooltip title="Select collateral to deposit for using this strategy">
+          <InfoOutlined className="h-4 fill-current text-mineshaft" />
         </Tooltip>
       </Typography>
       <Select
         value={collateral}
+        defaultValue={collateral}
         onChange={setCollateral}
         placeholder="Select Collateral"
         MenuProps={{
@@ -42,6 +40,17 @@ const CollateralSelector: FC<IProps> = ({
         className={`text-white bg-mineshaft flex-0.3 h-[2rem] ${
           collateral === '' && 'animate-pulse'
         }`}
+        classes={{
+          icon: 'text-white',
+        }}
+        renderValue={() => (
+          <Typography
+            variant="h6"
+            className="text-white text-center w-full relative"
+          >
+            {collateral}
+          </Typography>
+        )}
       >
         {options.map(({ title, asset }, index) => (
           <MenuItem className="text-white text-sm" value={asset} key={index}>
@@ -49,7 +58,6 @@ const CollateralSelector: FC<IProps> = ({
           </MenuItem>
         ))}
       </Select>
-      <Box></Box>
     </Box>
   );
 };

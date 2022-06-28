@@ -17,7 +17,9 @@ import {
   ERC20__factory,
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
-import { Button, SelectChangeEvent, Switch, Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
+import { SelectChangeEvent } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
@@ -26,7 +28,7 @@ import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/CustomButton';
 import CollateralSelector from 'components/atlantics/InsuredPerpsModal/CollateralSelector/CollateralSelector';
 import StrategyDetails from 'components/atlantics/InsuredPerpsModal/StrategyDetails/StrategyDetails';
-import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
+import Switch from 'components/UI/Switch';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -44,7 +46,7 @@ import { DEFAULT_REFERRAL_CODE, MIN_EXECUTION_FEE } from 'constants/gmx';
 
 interface IProps {
   isOpen: boolean;
-  setClose: () => void;
+  handleClose: () => void;
 }
 
 const marks = [
@@ -83,7 +85,7 @@ export interface IStrategyDetails {
   expiry: BigNumber;
 }
 
-export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
+export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   const { signer, accountAddress, provider, contractAddresses, chainId } =
     useContext(WalletContext);
   const { selectedPool } = useContext(AtlanticsContext);
@@ -112,6 +114,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
     putStrike: BigNumber.from(0),
     expiry: BigNumber.from(0),
   });
+  const containerRef = React.useRef(null);
 
   const sendTx = useSendTx();
 
@@ -289,7 +292,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
 
   const onEscapePressed = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
-      setClose();
+      handleClose();
     }
   };
 
@@ -505,15 +508,15 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onKeyPress={onEscapePressed}>
-      <Box className="flex flex-row justify-center items-center mb-5">
-        <Typography className="w-full text-center" variant="h6">
-          Open Long Position
-        </Typography>
-        <Box onClick={setClose} className=" flex flex-row-reverse">
-          <ArrowRightIcon fill="white" className="cursor-pointer" />
-        </Box>
-      </Box>
+    <Dialog
+      open={isOpen}
+      onKeyPress={onEscapePressed}
+      handleClose={handleClose}
+      showCloseIcon
+    >
+      <Typography className="w-full mb-4" variant="h5">
+        Open Long Position
+      </Typography>
       <Box>
         <CustomInput
           size="small"
@@ -524,7 +527,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
           leftElement={
             <Box className="flex my-auto">
               <Box
-                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1"
+                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-3"
                 role="button"
                 onClick={() => setOpenTokenSelector(() => true)}
               >
@@ -553,14 +556,17 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
             </Box>
           }
         />
-        <TokenSelector
-          setSelection={selectToken}
-          open={openTokenSelector}
-          setOpen={setOpenTokenSelector}
-          tokens={allowedTokens}
-        />
+        <Box ref={containerRef}>
+          <TokenSelector
+            setSelection={selectToken}
+            open={openTokenSelector}
+            setOpen={setOpenTokenSelector}
+            tokens={allowedTokens}
+            containerRef={containerRef}
+          />
+        </Box>
       </Box>
-      <Box className="flex p-3 flex-col ">
+      <Box className="flex p-1 flex-col space-y-2">
         <Box className="flex flex-col items-center">
           <Typography
             variant="h6"
@@ -604,11 +610,11 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
           />
         </Box>
         {selectedCollateral !== 'AC-OPTIONS' && (
-          <Box className="px-1 mb-2 flex justify-between items-center ">
+          <Box className="px-1 mb-2 flex justify-between items-center">
             <Typography variant="h6">
               Keep Collateral on Expiry
               <Tooltip title="Choose whether to keep collateral incase puts are ITM and would like to keep the position post expiry. Note: Positions that have AC options as collateral cannot keep collateral beyond expiry of the pool and will be automatically closed on expiry.">
-                <InfoOutlined className="h-4" />
+                <InfoOutlined className="h-4 fill-current text-mineshaft" />
               </Tooltip>
             </Typography>
             <Switch
@@ -630,7 +636,7 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}
         />
-        <Box className="flex flex-col w-full mt-2 p-4">
+        <Box className="flex flex-col w-full">
           <Box className="flex flex-row w-full">
             <CustomButton
               onClick={handleApproveBaseToken}
@@ -663,7 +669,6 @@ export const OpenPositionDialog = ({ isOpen, setClose }: IProps) => {
               parseInt(positionBalance) === 0
             }
             onClick={useStrategy}
-            className="mx-1 my-1"
           >
             Long
           </CustomButton>

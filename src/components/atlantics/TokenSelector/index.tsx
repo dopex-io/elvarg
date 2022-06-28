@@ -21,11 +21,11 @@ interface TokenSelectorProps {
     address: string;
   }[];
   setSelection: (symbol: string) => void;
-  containerRef?: React.RefObject<HTMLInputElement>;
+  containerRef: React.RefObject<HTMLInputElement>;
 }
 
 const TokenSelector = (props: TokenSelectorProps) => {
-  const { open, setOpen, tokens, setSelection } = props;
+  const { open, setOpen, tokens, setSelection, containerRef } = props;
   const { chainId } = useContext(WalletContext);
   const { userAssetBalances, tokenPrices } = useContext(AssetsContext);
 
@@ -46,12 +46,11 @@ const TokenSelector = (props: TokenSelectorProps) => {
 
   return (
     <Slide
-      className="z-10"
       direction="up"
       in={open}
       mountOnEnter
       unmountOnExit
-      // container={containerRef?.current}
+      container={containerRef.current}
     >
       <Box className="overflow-y-auto w-full bg-cod-gray z-20">
         {tokens?.map((token, index) => {
