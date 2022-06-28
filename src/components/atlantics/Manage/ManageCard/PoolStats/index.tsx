@@ -19,6 +19,7 @@ interface PoolStatsProps {
 const PoolStats = ({ poolType }: PoolStatsProps) => {
   const { selectedPool, userPositions } = useContext(AtlanticsContext);
   const { chainId } = useContext(WalletContext);
+
   const poolShareStats = useMemo(() => {
     if (!selectedPool?.duration || !userPositions)
       return { userShare: 0, totalDeposits: 0 };
@@ -36,19 +37,18 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
         totalDeposits += Number(checkpoint.liquidity) / 10 ** decimals;
       });
       userPositions.map((position) => {
-        userDeposits += Number(position?.liquidity);
+        userDeposits += Number(position?.liquidity) / 10 ** decimals;
       });
 
       const userShare = (userDeposits / totalDeposits) * 100;
 
       return {
-        userShare: formatAmount(userShare, 3),
-        totalDeposits: formatAmount(totalDeposits, 3, true),
+        userShare,
+        totalDeposits,
       };
     } else {
       const checkpoint = selectedPool.data as IAtlanticPoolCheckpoint;
       const totalDeposits = Number(checkpoint.liquidity) / 10 ** decimals;
-      // const totalDeposits = checkpoint.liquidity;
       let totalUserDeposits = userPositions.reduce((acc, position) => {
         return acc + Number(position.liquidity) / 10 ** decimals;
       }, 0);
@@ -56,8 +56,8 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
       const userShare = (totalUserDeposits / totalDeposits) * 100;
 
       return {
-        userShare: formatAmount(userShare, 3),
-        totalDeposits: formatAmount(totalDeposits, 3, true),
+        userShare,
+        totalDeposits,
       };
     }
   }, [selectedPool, userPositions, chainId]);
@@ -79,11 +79,11 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
       <Box className="flex divide-x divide-umbra">
         <PoolStatsBox
-          stat={poolShareStats.totalDeposits}
+          stat={formatAmount(poolShareStats.totalDeposits, 8, true)}
           description="Total Deposits"
         />
         <PoolStatsBox
-          stat={formatAmount(poolShareStats.userShare, 3) + '%'}
+          stat={formatAmount(poolShareStats.userShare, 8, true) + '%'}
           description="Pool Share"
         />
       </Box>
