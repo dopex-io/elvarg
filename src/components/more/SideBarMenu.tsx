@@ -1,4 +1,4 @@
-import { ReactNode, useState, forwardRef } from 'react';
+import { ReactNode, useState } from 'react';
 import Box from '@mui/material/Box';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -99,11 +99,11 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
         <Link href="/nfts/diamondpepes">
           <Box>
             <MenuBtn
-              text="Dual Pepe"
+              text="Duel Pepes"
               icon={
                 <SportsMmaOutlinedIcon
                   className={`mr-2 h-[16px] mb-1 ${
-                    active == 'Dual Pepe' && 'text-[#FF617D]'
+                    active == 'Duel Pepes' && 'text-[#FF617D]'
                   }`}
                 />
               }
