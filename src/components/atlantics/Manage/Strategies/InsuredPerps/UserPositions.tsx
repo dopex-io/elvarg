@@ -134,12 +134,20 @@ const UserPositions = () => {
 
     const gmxPositions: IGMXPosition[] = positions.map((position, index) => {
       const initialValue = getUserReadableAmount(
-        position[0].mul(oneEBigNumber(30)).div(position[2]),
+        position[0]
+          .mul(oneEBigNumber(30))
+          .div(position[2])
+          .mul(position[2])
+          .div(oneEBigNumber(30)),
         30
       );
 
       const currentValue = getUserReadableAmount(
-        position[0].mul(oneEBigNumber(30)).div(markPrice),
+        position[0]
+          .mul(oneEBigNumber(30))
+          .div(position[2])
+          .mul(markPrice)
+          .div(oneEBigNumber(30)),
         30
       );
 
