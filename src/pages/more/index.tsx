@@ -10,7 +10,7 @@ import Oracles from 'components/more/Oracles';
 import Tzwap from 'components/more/tzwap';
 
 const Governance = () => {
-  const [active, setActive] = useState('bond');
+  const [active, setActive] = useState('veDPX');
 
   return (
     <Box className="bg-black min-h-screen m-auto">
@@ -24,9 +24,9 @@ const Governance = () => {
         </Box>
         <Box className="flex-1">
           {active === 'veDPX' && <VeDPX />}
-          {active === 'bond' && <BondsPage />}
-          {active === 'oracles' && <Oracles />}
-          {active === 'tzwap' && <Tzwap />}
+          {active === 'Bond' && <BondsPage />}
+          {active === 'Oracles' && <Oracles />}
+          {active === 'Tzwap' && <Tzwap />}
         </Box>
       </Box>
     </Box>

@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { ReactNode, useState, forwardRef } from 'react';
 import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
@@ -29,6 +28,33 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
     setActive(active);
   };
 
+  const MenuBtn = ({
+    text,
+    icon,
+    link,
+  }: {
+    text: string;
+    icon: ReactNode;
+    link?: boolean;
+  }) => {
+    return (
+      <>
+        <Box
+          className={`pl-5 p-2 hover:bg-mineshaft flex ${
+            active == text && 'bg-mineshaft text-white'
+          } `}
+          onClick={() => handleClick(text)}
+        >
+          <Box className="flex-1">
+            {icon}
+            {text}
+          </Box>
+          {link && <LaunchIcon className="h-[12px] mt-2" />}
+        </Box>
+      </>
+    );
+  };
+
   return (
     <Box className="md:w-[240px] text-[#8E8E8E] cursor-pointer">
       <Box
@@ -44,99 +70,78 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
       </Box>
       <Box className={`${!open && 'hidden'} md:inline`}>
         <Box className="text-[#3E3E3E] mb-2">Governance</Box>
-        <Box
-          className={`pl-5 p-2 hover:bg-mineshaft fl/ex ${
-            active == 'veDPX' && 'bg-mineshaft text-white'
-          }`}
-          onClick={() => handleClick('veDPX')}
-        >
-          <AutoAwesomeIcon
-            className={`mr-2 h-[16px] mb-1 ${
-              active == 'veDPX' && 'text-[#FFE94D]'
-            }`}
-          />
-          veDPX
-        </Box>
+        <MenuBtn
+          text="veDPX"
+          icon={
+            <AutoAwesomeIcon
+              className={`mr-2 h-[16px] mb-1 ${
+                active == 'veDPX' && 'text-[#FFE94D]'
+              }`}
+            />
+          }
+        />
         <Box className="text-[#3E3E3E] mb-2 mt-2">NFTs</Box>
         <Link href="/nfts/community">
-          <Box
-            className={`pl-5 p-2 flex hover:bg-mineshaft ${
-              active == 'nft' && 'bg-mineshaft text-white'
-            }`}
-            onClick={() => handleClick('nft')}
-          >
-            <Box className="flex-1">
-              <HexagonIcon
-                className={`mr-2 h-[16px] mb-1  ${
-                  active == 'nft' && 'text-[#7B61FF]'
-                }`}
-              />
-              NFTs
-            </Box>
-
-            <LaunchIcon className="h-[12px] mt-2" />
+          <Box>
+            <MenuBtn
+              text="NFTs"
+              icon={
+                <HexagonIcon
+                  className={`mr-2 h-[16px] mb-1 ${
+                    active == 'NFTs' && 'text-[#7B61FF]'
+                  }`}
+                />
+              }
+              link={true}
+            />
           </Box>
         </Link>
         <Link href="/nfts/diamondpepes">
-          <Box
-            className={`pl-5 p-2 flex hover:bg-mineshaft ${
-              active == 'dualpepe' && 'bg-mineshaft text-white'
-            }`}
-            onClick={() => handleClick('dualpepe')}
-          >
-            <Box className="flex-1">
-              <SportsMmaOutlinedIcon
-                className={`mr-2 h-[16px] mb-1  ${
-                  active == 'dualpepe' && 'text-[#FF617D]'
-                }`}
-              />
-              Dual Pepe
-            </Box>
-            <LaunchIcon className="h-[12px] mt-2" />
+          <Box>
+            <MenuBtn
+              text="Dual Pepe"
+              icon={
+                <SportsMmaOutlinedIcon
+                  className={`mr-2 h-[16px] mb-1 ${
+                    active == 'Dual Pepe' && 'text-[#FF617D]'
+                  }`}
+                />
+              }
+              link={true}
+            />
           </Box>
         </Link>
         <Box className="text-[#3E3E3E] mb-2 mt-2">Misc</Box>
-        <Box
-          className={`pl-5 p-2 hover:bg-mineshaft ${
-            active == 'bond' && 'bg-mineshaft text-white'
-          }`}
-          onClick={() => handleClick('bond')}
-        >
-          <LoyaltyIcon
-            className={`mr-2 h-[16px] mb-1  ${
-              active == 'bond' && 'text-[#6DFFB9]'
-            }`}
-          />
-          Bond
-        </Box>
-        <Box
-          className={`pl-5 p-2 hover:bg-mineshaft ${
-            active == 'oracles' && 'bg-mineshaft text-white'
-          }`}
-          onClick={() => handleClick('oracles')}
-        >
-          <HexagonOutlinedIcon
-            className={`mr-2 h-[16px] mb-1  ${
-              active == 'oracles' && 'text-[#22E1FF]'
-            }`}
-          />
-          Oracles
-        </Box>
-        <Box
-          className={`pl-5 p-2 flex hover:bg-mineshaft ${
-            active == 'tzwap' && 'bg-mineshaft text-white'
-          }`}
-          onClick={() => handleClick('tzwap')}
-        >
-          <Box className="flex-1">
-            <SwapVerticalCircleIcon
+        <MenuBtn
+          text="Bond"
+          icon={
+            <LoyaltyIcon
               className={`mr-2 h-[16px] mb-1  ${
-                active == 'tzwap' && 'text-[#C3F8FF]'
+                active == 'Bond' && 'text-[#6DFFB9]'
               }`}
             />
-            Tzwap
-          </Box>
-        </Box>
+          }
+        />
+        <MenuBtn
+          text="Oracles"
+          icon={
+            <HexagonOutlinedIcon
+              className={`mr-2 h-[16px] mb-1  ${
+                active == 'Oracles' && 'text-[#22E1FF]'
+              }`}
+            />
+          }
+        />
+        <MenuBtn
+          text="Tzwap"
+          icon={
+            <SwapVerticalCircleIcon
+              className={`mr-2 h-[16px] mb-1  ${
+                active == 'Tzwap' && 'text-[#C3F8FF]'
+              }`}
+            />
+          }
+        />
       </Box>
     </Box>
   );
