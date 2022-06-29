@@ -13,34 +13,34 @@ const REWARD_TOKENS = [
 
 export const FARMS: { [key: number]: Farm[] } = {
   42161: [
-    {
-      stakingTokenSymbol: 'DPX-WETH',
-      stakingTokenAddress: '0x0C1Cf6883efA1B496B01f654E247B9b419873054',
-      stakingRewardsAddress: '0x0A95222B5Ed8690a0279993E63903687536cCEcD',
-      rewardTokens: [
-        {
-          symbol: 'DPX',
-          address: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
-        },
-      ],
-      status: 'ACTIVE',
-      type: 'LP',
-      version: 3,
-    },
-    {
-      stakingTokenSymbol: 'RDPX-WETH',
-      stakingTokenAddress: '0x7418F5A2621E13c05d1EFBd71ec922070794b90a',
-      stakingRewardsAddress: '0x738ee36d7B860CeffF526553e28a2b8928dE4483',
-      rewardTokens: [
-        {
-          symbol: 'DPX',
-          address: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
-        },
-      ],
-      status: 'ACTIVE',
-      type: 'LP',
-      version: 3,
-    },
+    // {
+    //   stakingTokenSymbol: 'DPX-WETH',
+    //   stakingTokenAddress: '0x0C1Cf6883efA1B496B01f654E247B9b419873054',
+    //   stakingRewardsAddress: '0x0A95222B5Ed8690a0279993E63903687536cCEcD',
+    //   rewardTokens: [
+    //     {
+    //       symbol: 'DPX',
+    //       address: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
+    //     },
+    //   ],
+    //   status: 'ACTIVE',
+    //   type: 'LP',
+    //   version: 3,
+    // },
+    // {
+    //   stakingTokenSymbol: 'RDPX-WETH',
+    //   stakingTokenAddress: '0x7418F5A2621E13c05d1EFBd71ec922070794b90a',
+    //   stakingRewardsAddress: '0x738ee36d7B860CeffF526553e28a2b8928dE4483',
+    //   rewardTokens: [
+    //     {
+    //       symbol: 'DPX',
+    //       address: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
+    //     },
+    //   ],
+    //   status: 'ACTIVE',
+    //   type: 'LP',
+    //   version: 3,
+    // },
     {
       stakingTokenSymbol: 'DPX-WETH',
       stakingTokenAddress: '0x0C1Cf6883efA1B496B01f654E247B9b419873054',
