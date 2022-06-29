@@ -29,6 +29,7 @@ export const EpochData = ({
     totalEpochDeposits,
     dpxPrice,
     bondsDpx,
+    depositPerNft,
   } = useContext(DpxBondsContext);
 
   let availableDpx =
@@ -122,8 +123,8 @@ export const EpochData = ({
         <Box className="p-3 w-[352px]">
           <Typography variant="h5">Eligibility</Typography>
           <div className="text-stieglitz md:h-24 mb-5">
-            Every Bridgoor NFT increases your cap of an additional 5000 USDC for
-            every epoch.
+            Every Bridgoor NFT increases your cap of an additional{' '}
+            {depositPerNft} USDC for every epoch.
           </div>
           <Box className="flex">
             <Box

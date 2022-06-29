@@ -56,6 +56,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     epochDiscount,
     depositUSDC,
     usableNfts,
+    depositPerNft,
   } = useContext(DpxBondsContext);
 
   const [err, setErr] = useState('');
@@ -80,7 +81,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     getData();
   }, []);
 
-  const walletLimit = 5000 * usableNfts.length;
+  const walletLimit = 5 * usableNfts.length;
 
   const priceWithDiscount = getUserReadableAmount(
     dpxPrice - dpxPrice * (epochDiscount / 100),
@@ -104,11 +105,11 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   };
 
   const handleDeposit = async () => {
-    if (inputValue % 5000 == 0) {
+    if (inputValue % depositPerNft == 0) {
       await depositUSDC(inputValue);
       handleModal();
     } else {
-      setErr('Deposit must be divisible by 5000');
+      setErr(`Deposit must be divisible by ${depositPerNft}`);
     }
   };
 

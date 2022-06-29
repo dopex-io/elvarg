@@ -16,8 +16,13 @@ type UserBondsProps = {
 };
 
 export const UserBonds = ({ handleModal }: UserBondsProps) => {
-  const { dpxPrice, epochDiscount, userDpxBondsState, withdrawDpx } =
-    useContext(DpxBondsContext);
+  const {
+    dpxPrice,
+    epochDiscount,
+    userDpxBondsState,
+    withdrawDpx,
+    depositPerNft,
+  } = useContext(DpxBondsContext);
 
   const { accountAddress, ensAvatar, ensName } = useContext(WalletContext);
 
@@ -25,15 +30,15 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     (bond: any) => bond?.redeemed == false
   );
 
-  let aWeek = new Date().valueOf() + 6.5 * 24 * 60 * 60 * 1000;
+  // let aWeek = new Date().valueOf() + 6.5 * 24 * 60 * 60 * 1000;
   let availableBondsForWithdraw = userDpxBondsState.filter(
-    (bond: any) => new Date(aWeek).valueOf() - bond.maturityTime * 1000 >= 0
+    (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
   );
 
   let lockedUntil = notRedeemedBonds[0]?.maturityTime;
   let availableForWithdraw =
     (lockedUntil &&
-      new Date(aWeek).valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
+      new Date().valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
     0;
 
   let priceWithDiscount = getUserReadableAmount(
@@ -63,7 +68,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                 <Box className="text-stieglitz mb-3 ">DPX Available</Box>
                 <Box>
                   {(
-                    (notRedeemedBonds.length * 5000) /
+                    (notRedeemedBonds.length * depositPerNft) /
                     priceWithDiscount
                   ).toFixed(2)}
                   <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
@@ -74,7 +79,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
               <Box className="p-3 lg:flex-1 border-t border-r lg:border-t-0 border-[#1E1E1E] w-2/4">
                 <Box className="text-stieglitz mb-3">Unlocked</Box>
                 <Box>
-                  {(availableBondsForWithdraw.length * 5000) /
+                  {(availableBondsForWithdraw.length * depositPerNft) /
                     priceWithDiscount}
                   <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
                     DPX

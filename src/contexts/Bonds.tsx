@@ -11,9 +11,9 @@ import { ethers } from 'ethers';
 import { WalletContext } from './Wallet';
 import useSendTx from 'hooks/useSendTx';
 
-import abi from '../pages/Bonds/abi/abi.json';
-import dopexBridgoorNFTAbi from '../pages/Bonds/abi/dopexBridgoorNFT.json';
-import usdcAbi from '../pages/Bonds/abi/usdc.json';
+import abi from '../components/more/Bonds/abi/bonds.json';
+import dopexBridgoorNFTAbi from '../components/more/Bonds/abi/dopexBridgoorNFT.json';
+import usdcAbi from '../components/more/Bonds/abi/usdc.json';
 
 interface bondsState {
   epoch: number;
@@ -40,6 +40,7 @@ interface DpxBondsData {
   depositUSDC: Function;
   getDepositsPerNftId: Function;
   withdrawDpx: Function;
+  depositPerNft: number;
 }
 
 interface DpxBondsContextInterface extends DpxBondsData {}
@@ -63,6 +64,7 @@ const initialData = {
   depositUSDC: () => {},
   getDepositsPerNftId: () => {},
   withdrawDpx: () => {},
+  depositPerNft: 0,
 };
 
 export const DpxBondsContext =
@@ -76,7 +78,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
 
   const bondsContract = useMemo(() => {
     return new ethers.Contract(
-      '0x05904287ccA5B9eE233c177BAAbe97A0b15ADA21',
+      '0x83EccfFc332c3bbEdc2F2473fFF8dc408FD36C16',
       abi,
       signer
     );
@@ -84,7 +86,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
 
   const dopexBridgoorNFTContract = useMemo(() => {
     return new ethers.Contract(
-      '0x6C51C3CC0F5Af833bDC0F6A8a33E468fFB755CDd',
+      '0x4Ee9fe9500E7C4Fe849AdD9b14beEc5eC5b7d955',
       dopexBridgoorNFTAbi,
       signer
     );
@@ -92,7 +94,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
 
   const usdcContract = useMemo(() => {
     return new ethers.Contract(
-      '0xF31dBc6e1eB12764B0F0eb4C4CfA3F0a42e0caEF',
+      '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
       usdcAbi,
       signer
     );
@@ -168,12 +170,15 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
     );
     const dopexBondsIds = await getBondsById(dopexBondsNftBalance);
 
+    const depositPerNft =
+      parseInt(await bondsContract['depositPerNft']()) / 10 ** 6;
+
     const depositUSDC = async (value: number) => {
-      let nftsToDeposit = usableNfts.slice(0, value / 5000);
+      let nftsToDeposit = usableNfts.slice(0, value / depositPerNft);
       await sendTx(
         usdcContract['approve'](
           bondsContract.address,
-          nftsToDeposit.length * 10 ** 6 * 5000
+          nftsToDeposit.length * 10 ** 6 * depositPerNft
         )
       );
       await sendTx(bondsContract['mint'](nftsToDeposit));
@@ -213,6 +218,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
       depositUSDC: depositUSDC,
       getDepositsPerNftId: getDepositsPerNftId,
       withdrawDpx: withdrawDpx,
+      depositPerNft: depositPerNft,
     }));
   };
 
