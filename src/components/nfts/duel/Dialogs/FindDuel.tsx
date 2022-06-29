@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useContext, useState, useMemo, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
