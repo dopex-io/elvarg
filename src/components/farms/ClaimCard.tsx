@@ -39,8 +39,6 @@ const ClaimCard = (props: Props) => {
 
   const handleClaim = useCallback(async () => {
     if (!signer) return;
-    console.log(version);
-
     try {
       if (version === 3) {
         const stakingRewardsContract = StakingRewardsV3__factory.connect(
