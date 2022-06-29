@@ -16,7 +16,7 @@ export const FARMS: { [key: number]: Farm[] } = {
     {
       stakingTokenSymbol: 'DPX-WETH',
       stakingTokenAddress: '0x0C1Cf6883efA1B496B01f654E247B9b419873054',
-      stakingRewardsAddress: '0x0A95222B5Ed8690a0279993E63903687536cCEcD',
+      stakingRewardsAddress: '0x1f80C96ca521d7247a818A09b0b15C38E3e58a28',
       rewardTokens: [
         {
           symbol: 'DPX',
@@ -30,7 +30,7 @@ export const FARMS: { [key: number]: Farm[] } = {
     {
       stakingTokenSymbol: 'RDPX-WETH',
       stakingTokenAddress: '0x7418F5A2621E13c05d1EFBd71ec922070794b90a',
-      stakingRewardsAddress: '0x738ee36d7B860CeffF526553e28a2b8928dE4483',
+      stakingRewardsAddress: '0xEb0F03A203F25F08c7aFF0e1b1C2E0EE25Ca29Eb',
       rewardTokens: [
         {
           symbol: 'DPX',
@@ -49,7 +49,7 @@ export const FARMS: { [key: number]: Farm[] } = {
       status: 'RETIRED',
       type: 'LP',
       version: 2,
-      newStakingRewardsAddress: '0x0A95222B5Ed8690a0279993E63903687536cCEcD',
+      newStakingRewardsAddress: '0x1f80C96ca521d7247a818A09b0b15C38E3e58a28',
     },
     {
       stakingTokenSymbol: 'RDPX-WETH',
@@ -59,7 +59,7 @@ export const FARMS: { [key: number]: Farm[] } = {
       status: 'RETIRED',
       type: 'LP',
       version: 2,
-      newStakingRewardsAddress: '0x738ee36d7B860CeffF526553e28a2b8928dE4483',
+      newStakingRewardsAddress: '0xEb0F03A203F25F08c7aFF0e1b1C2E0EE25Ca29Eb',
     },
     {
       stakingTokenSymbol: 'RDPX',
@@ -98,6 +98,19 @@ export const FARMS: { [key: number]: Farm[] } = {
       status: 'RETIRED',
       type: 'LP',
       version: 1,
+    },
+  ],
+  421611: [
+    {
+      stakingTokenSymbol: 'ST',
+      stakingTokenAddress: '0xfAcEC50912e55c1D7C79f3312419CCDF001d45c2',
+      stakingRewardsAddress: '0xDA2d91A827849580B75e668f22F49f9857bF3dF8',
+      rewardTokens: [
+        { symbol: 'RT', address: '0xf306fd3A1c3eFFD814E682Eb934Ce43Be81c3e1b' },
+      ],
+      status: 'ACTIVE',
+      type: 'LP',
+      version: 3,
     },
   ],
 };

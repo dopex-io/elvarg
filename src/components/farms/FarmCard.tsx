@@ -145,6 +145,7 @@ const FarmCard = (props: Props) => {
         stakingRewardsAddress,
         userStakingTokenBalance,
         userStakingRewardsBalance,
+        version,
       },
       open: true,
     });

@@ -61,6 +61,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
   useEffect(() => {
     async function updateLpData() {
       if (!provider) return;
+      if (chainId === 421611) return;
 
       const ethPriceFinal = (
         await axios.get(
@@ -157,7 +158,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
     }
 
     updateLpData();
-  }, [contractAddresses, provider]);
+  }, [contractAddresses, provider, chainId]);
 
   const getFarmData = useCallback(
     async (farm: Farm, lpData: any) => {
