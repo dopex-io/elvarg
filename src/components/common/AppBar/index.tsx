@@ -43,7 +43,7 @@ const AppLink = ({
   className,
   icon,
 }: {
-  name: string;
+  name: Key | null | undefined | string;
   to: string;
   active?: boolean;
   className?: string;
@@ -261,16 +261,12 @@ export default function AppBar(props: AppBarProps) {
                     return (
                       <AppLink
                         to={link.to}
-                        // TODO: FIX
-                        // @ts-ignore
                         name={link.name}
                         key={link.name}
                         active
                       />
                     );
                   return (
-                    // TODO: FIX
-                    // @ts-ignore
                     <AppLink
                       to={link.to}
                       name={link.name}
