@@ -1,6 +1,10 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 import { BigNumber, utils } from 'ethers';
-import { ERC20__factory, StakingRewards__factory } from '@dopex-io/sdk';
+import {
+  ERC20__factory,
+  StakingRewards__factory,
+  StakingRewardsV3__factory,
+} from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 import Box from '@mui/material/Box';
 
@@ -28,6 +32,7 @@ export interface BasicManageDialogProps {
     stakingTokenSymbol: string;
     stakingRewardsAddress: string;
     stakingTokenAddress: string;
+    version?: number;
   };
   open: boolean;
 }
@@ -46,7 +51,7 @@ const ManageDialog = (props: Props) => {
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer } = useContext(WalletContext);
+  const { signer, accountAddress } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
@@ -63,7 +68,6 @@ const ManageDialog = (props: Props) => {
   }, [activeTab, data]);
 
   useEffect(() => {
-    console.log(value);
     if (!value) {
       setError('');
     } else if (isNaN(Number(value))) {
@@ -134,24 +138,33 @@ const ManageDialog = (props: Props) => {
           MAX_VALUE
         )
       );
+      setApproved(true);
     } catch (err) {
       console.log(err);
     }
   }, [signer, sendTx, data]);
 
   const handleWithdraw = useCallback(async () => {
-    if (!signer) return;
+    if (!signer || !accountAddress) return;
+    console.log(data.version, data.stakingRewardsAddress, amount);
     try {
-      await sendTx(
-        StakingRewards__factory.connect(
+      if (data.version === 3) {
+        await StakingRewardsV3__factory.connect(
           data.stakingRewardsAddress,
           signer
-        ).withdraw(utils.parseEther(amount))
-      );
+        ).unstake(utils.parseEther(amount));
+      } else {
+        await sendTx(
+          StakingRewards__factory.connect(
+            data.stakingRewardsAddress,
+            signer
+          ).withdraw(utils.parseEther(amount))
+        );
+      }
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, amount, data]);
+  }, [signer, sendTx, amount, data, accountAddress]);
 
   return (
     <Dialog open={open} showCloseIcon handleClose={handleClose}>

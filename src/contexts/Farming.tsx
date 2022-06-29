@@ -8,7 +8,7 @@ import {
 } from 'react';
 import {
   ERC20__factory,
-  StakingRewards__factory,
+  StakingRewardsV3__factory,
   UniswapPair__factory,
 } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
@@ -61,6 +61,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
   useEffect(() => {
     async function updateLpData() {
       if (!provider) return;
+      if (chainId === 421611) return;
 
       const ethPriceFinal = (
         await axios.get(
@@ -157,7 +158,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
     }
 
     updateLpData();
-  }, [contractAddresses, provider]);
+  }, [contractAddresses, provider, chainId]);
 
   const getFarmData = useCallback(
     async (farm: Farm, lpData: any) => {
@@ -165,6 +166,10 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
         return;
       }
       if (farm.status === 'RETIRED') {
+        return { APR: 0, TVL: 0 };
+      }
+
+      if (farm.version === 3) {
         return { APR: 0, TVL: 0 };
       }
 
@@ -188,7 +193,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
         provider
       );
 
-      const stakingRewardsContract = StakingRewards__factory.connect(
+      const stakingRewardsContract = StakingRewardsV3__factory.connect(
         farm.stakingRewardsAddress,
         provider
       );
@@ -216,10 +221,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
           Number(new BN(tokenTotalSupply.toString()).dividedBy(1e18));
       }
 
-      let [DPX, RDPX] = await Promise.all([
-        stakingRewardsContract.rewardRateDPX(),
-        stakingRewardsContract.rewardRateRDPX(),
-      ]);
+      let [DPX] = await Promise.all([stakingRewardsContract.rewardRate()]);
 
       const TVL = farmTotalSupply
         .mul(Math.round(priceLP))
@@ -227,18 +229,14 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
         .toNumber();
 
       let DPXemitted;
-      let RDPXemitted;
 
       const rewardsDuration = BigNumber.from(86400 * 365);
 
       DPXemitted = DPX.mul(rewardsDuration)
         .mul(Math.round(dpxPrice))
         .div(oneEBigNumber(18));
-      RDPXemitted = RDPX.mul(rewardsDuration)
-        .mul(Math.round(rdpxPrice))
-        .div(oneEBigNumber(18));
 
-      const denominator = TVL + DPXemitted.toNumber() + RDPXemitted.toNumber();
+      const denominator = TVL + DPXemitted.toNumber();
       let APR: number | null = (denominator / TVL - 1) * 100;
 
       if (farmTotalSupply.eq(0)) {
@@ -275,25 +273,29 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
         provider
       );
 
-      const stakingRewardsContract = StakingRewards__factory.connect(
+      const stakingRewardsContract = StakingRewardsV3__factory.connect(
         farm.stakingRewardsAddress,
         provider
       );
 
-      const [
-        userStakingTokenBalance,
-        userStakingRewardsBalance,
-        userRewardsEarned,
-      ] = await Promise.all([
-        stakingTokenContract.balanceOf(accountAddress),
-        stakingRewardsContract.balanceOf(accountAddress),
-        stakingRewardsContract.earned(accountAddress),
-      ]);
+      const [userStakingTokenBalance, userStakingRewardsBalance] =
+        await Promise.all([
+          stakingTokenContract.balanceOf(accountAddress),
+          stakingRewardsContract.balanceOf(accountAddress),
+        ]);
+
+      let userRewardsEarned;
+
+      try {
+        userRewardsEarned = await stakingRewardsContract.earned(accountAddress);
+      } catch {
+        userRewardsEarned = BigNumber.from(0);
+      }
 
       return {
         userStakingTokenBalance,
         userStakingRewardsBalance,
-        userRewardsEarned,
+        userRewardsEarned: [userRewardsEarned],
       };
     },
     [accountAddress, provider]

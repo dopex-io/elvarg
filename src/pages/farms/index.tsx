@@ -29,6 +29,7 @@ const initialDialogData: BasicManageDialogProps = {
     stakingTokenSymbol: '',
     stakingRewardsAddress: '',
     stakingTokenAddress: '',
+    version: 0,
   },
   open: false,
 };
@@ -89,9 +90,11 @@ const Farms = () => {
                   userDataLoading={data.userDataLoading}
                   stakingTokenSymbol={farm.stakingTokenSymbol}
                   stakingRewardsAddress={farm.stakingRewardsAddress}
+                  newStakingRewardsAddress={farm?.newStakingRewardsAddress}
                   stakingTokenAddress={farm.stakingTokenAddress}
                   type={farm.type}
                   status={farm.status}
+                  version={farm.version}
                   lpData={data.lpData}
                   TVL={data.farmsData[index]?.TVL || 0}
                   APR={data.farmsData[index]?.APR || 0}
@@ -118,10 +121,7 @@ const Farms = () => {
           {data.userData.filter((item, index) => {
             if (!item) {
               return false;
-            } else if (
-              !item.userRewardsEarned[0]?.isZero() ||
-              !item.userRewardsEarned[1]?.isZero()
-            ) {
+            } else if (checkBNZero(item.userRewardsEarned)) {
               let _farms = FARMS[chainId];
 
               if (!_farms) return false;
@@ -139,10 +139,7 @@ const Farms = () => {
           {accountAddress
             ? data.userData.map((item, index) => {
                 if (!item) return null;
-                if (
-                  !item.userRewardsEarned[0]?.isZero() ||
-                  !item.userRewardsEarned[1]?.isZero()
-                ) {
+                if (checkBNZero(item.userRewardsEarned)) {
                   let _farms = FARMS[chainId];
 
                   if (!_farms) return null;
@@ -158,6 +155,7 @@ const Farms = () => {
                       stakingRewardsAddress={_farm.stakingRewardsAddress}
                       userRewardsEarned={item.userRewardsEarned}
                       rewardTokens={_farm.rewardTokens}
+                      version={_farm.version}
                     />
                   );
                 }
@@ -181,3 +179,12 @@ export const FarmsPage = () => {
 };
 
 export default FarmsPage;
+
+function checkBNZero(arr: BigNumber[]) {
+  if (arr.length === 0) return false;
+  for (let i = 0; i < arr.length; i++) {
+    if ((arr[i] as BigNumber).isZero()) return false;
+  }
+
+  return true;
+}

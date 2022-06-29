@@ -18,6 +18,8 @@ export interface Farm {
   status: 'ACTIVE' | 'RETIRED';
   type: 'SINGLE' | 'LP';
   rewardTokens: { symbol: string; address: string }[];
+  version: number;
+  newStakingRewardsAddress?: string;
 }
 
 export interface FarmData {
