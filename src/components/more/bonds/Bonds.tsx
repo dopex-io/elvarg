@@ -7,9 +7,12 @@ import { EligibilityCheck } from './EligibilityCheck';
 import { EpochData } from './EpochData';
 import { WalletContext } from 'contexts/Wallet';
 import { DpxBondsProvider } from 'contexts/Bonds';
+import { DpxBondsContext } from 'contexts/Bonds';
+import PageLoader from 'components/common/PageLoader';
 
 export const Bonds = () => {
   const { accountAddress } = useContext(WalletContext);
+  const { epochNumber } = useContext(DpxBondsContext);
   const [modalOpen, setModal] = useState(false);
   const [eligibilityModal, setEligibilityModal] = useState(false);
 
@@ -22,13 +25,19 @@ export const Bonds = () => {
 
   return (
     <>
-      <Typography variant="h5">Bonding</Typography>
-      <EpochData
-        accountAddress={accountAddress}
-        handleModal={handleModal}
-        handleEligibilityModal={handleEligibilityModal}
-      />
-      <UserBonds handleModal={handleModal} />
+      {epochNumber ? (
+        <>
+          <Typography variant="h5">Bonding</Typography>
+          <EpochData
+            accountAddress={accountAddress}
+            handleModal={handleModal}
+            handleEligibilityModal={handleEligibilityModal}
+          />
+          <UserBonds handleModal={handleModal} />
+        </>
+      ) : (
+        <PageLoader />
+      )}
       <EligibilityCheck
         eligibilityModal={eligibilityModal}
         handleEligibilityModal={handleEligibilityModal}

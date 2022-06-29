@@ -30,7 +30,6 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     (bond: any) => bond?.redeemed == false
   );
 
-  // let aWeek = new Date().valueOf() + 6.5 * 24 * 60 * 60 * 1000;
   let availableBondsForWithdraw = userDpxBondsState.filter(
     (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
   );

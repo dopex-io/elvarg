@@ -32,10 +32,13 @@ export const EpochData = ({
     depositPerNft,
   } = useContext(DpxBondsContext);
 
-  let availableDpx =
+  const availableDpx =
     getUserReadableAmount(bondsDpx) -
     totalEpochDeposits / (dpxPrice - dpxPrice * (epochDiscount / 100));
 
+  const epochExpired =
+    (epochExpiry && new Date().valueOf() - new Date(epochExpiry).valueOf()) ||
+    0;
   return (
     <>
       <Box className="bg-cod-gray rounded-lg flex flex-wrap max-w-[728px] mb-5 mt-5">
@@ -57,7 +60,9 @@ export const EpochData = ({
           {getUserReadableAmount(totalEpochDeposits, 6)}
         </Box>
         <Box className="p-3 md:flex-1">
-          <Box className="text-stieglitz mb-3">Expiry</Box>
+          <Box className="text-stieglitz mb-3">
+            {epochExpired > 0 ? 'Expired' : 'Expiry'}
+          </Box>
           {epochExpiry && format(epochExpiry, 'MM/dd/yyyy')}
         </Box>
       </Box>
