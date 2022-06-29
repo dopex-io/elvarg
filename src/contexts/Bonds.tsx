@@ -10,7 +10,7 @@ import {
 import { ethers } from 'ethers';
 import { WalletContext } from './Wallet';
 import useSendTx from 'hooks/useSendTx';
-
+// @ts-ignore TODO: FIX
 import abi from '../components/more/Bonds/abi/bonds.json';
 import dopexBridgoorNFTAbi from '../components/more/Bonds/abi/dopexBridgoorNFT.json';
 import usdcAbi from '../components/more/Bonds/abi/usdc.json';
