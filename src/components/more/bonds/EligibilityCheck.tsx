@@ -182,7 +182,7 @@ export const EligibilityCheck = ({
             {nftList(usableNfts)}
             <Box className="flex">
               <Box className=" flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
-                Inligible NFTs
+                Ineligible NFTs
               </Box>
               <Typography variant="caption">{usedNfts.length}</Typography>
             </Box>
@@ -191,7 +191,7 @@ export const EligibilityCheck = ({
         )}
         <Box className=" border border-[#1E1E1E] rounded-2xl p-3 fl/ex  mt-2">
           <Typography className="mb-2" variant="h6">
-            About Eligiblity
+            About Eligibility
           </Typography>
           <Typography variant="caption" color="stieglitz">
             Every eligible Bridgoor NFT can only be used once. Always check here
