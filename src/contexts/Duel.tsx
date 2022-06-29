@@ -13,6 +13,8 @@ import { DiamondPepeNFTs__factory, ERC20__factory } from '@dopex-io/sdk';
 import { WalletContext } from 'contexts/Wallet';
 import getUserReadableAmount from '../utils/contracts/getUserReadableAmount';
 import getTokenDecimals from '../utils/general/getTokenDecimals';
+import addHoursToDate from '../utils/date/addHoursToDate';
+import { AssetsContext } from './Assets';
 
 export interface Duel {
   id: number;
@@ -27,11 +29,14 @@ export interface Duel {
   challenger: number;
   isCreatorWinner: boolean;
   creationDate: Date;
+  challengedLimitDate: Date;
   challengedDate: Date;
   finishDate: Date;
   isRevealed: boolean;
   duelistMoves: string[];
   challengerMoves: string[];
+  status: string;
+  wagerValueInUSD: string;
 }
 
 export interface UserNft {
@@ -43,6 +48,7 @@ export interface UserNft {
 interface DuelContextInterface {
   nfts: UserNft[];
   duels: Duel[];
+  activeDuels: Duel[];
   updateDuels?: Function;
   updateUserNfts?: Function;
   isLoading: boolean;
@@ -52,6 +58,7 @@ interface DuelContextInterface {
 const initialData: DuelContextInterface = {
   nfts: [],
   duels: [],
+  activeDuels: [],
   isLoading: true,
 };
 
@@ -802,6 +809,7 @@ export const DuelContext = createContext<DuelContextInterface>(initialData);
 export const DuelProvider = (props: { children: ReactNode }) => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
+  const { tokenPrices } = useContext(AssetsContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const duelContract = useMemo(
     () =>
@@ -822,6 +830,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
   const [nfts, setNfts] = useState<UserNft[]>([]);
   const [duels, setDuels] = useState<Duel[]>([]);
+  const [activeDuels, setActiveDuels] = useState<Duel[]>([]);
 
   const updateDuels = useCallback(async () => {
     if (!signer || !accountAddress) return;
@@ -830,13 +839,12 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
     const duelCount = await duelContract['duelCount']();
     const _duels: Duel[] = [];
+    const _activeDuels: Duel[] = [];
 
     for (let i = 1; i <= duelCount; i++) {
       const duelData = await duelContract['getDuel'](i);
 
-      console.log(duelData);
-
-      const finishDate = duelData[10][2];
+      const finishDate = new Date(duelData[10][2].toNumber() * 1000);
 
       const rawMoves = duelData[8];
       const duelistMoves: string[] = [];
@@ -865,28 +873,80 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       if (challengerAddress.includes('0x00000000000000000000'))
         challengerAddress = '?';
 
-      _duels.push({
+      const creationDate = new Date(duelData[10][0].toNumber() * 1000);
+      const challengedLimitDate = addHoursToDate(
+        new Date(duelData[10][0].toNumber() * 1000),
+        12
+      );
+      let status = 'waiting';
+
+      const duelistAddress = duelData[1][0];
+
+      const isRevealed = finishDate < new Date() && challengerAddress !== '?';
+
+      const isCreatorWinner = duelData[9];
+
+      if (finishDate.getTime() > 1000 && finishDate < new Date()) {
+        if (isCreatorWinner && duelistAddress === accountAddress)
+          status = 'won';
+        else if (isCreatorWinner && challengerAddress === accountAddress)
+          status = 'lost';
+        else status = 'tie';
+      } else {
+        if (new Date() > challengedLimitDate && challengerAddress === '?')
+          status = 'requireUndo';
+        else if (challengerAddress !== '?' && accountAddress !== duelistAddress)
+          status = 'requireReveal';
+      }
+
+      const wager = getUserReadableAmount(duelData[2], decimals);
+
+      let wagerValueInUSD = 0;
+
+      tokenPrices.map((tokenPrice) => {
+        if (tokenPrice['name'] === symbol) {
+          wagerValueInUSD = wager * tokenPrice['price'];
+        }
+      });
+
+      let duelist = duelData[6][0].toNumber();
+      if (duelist === 2) duelist = 666;
+
+      const _duel = {
         id: i,
         identifier: duelData[0],
-        duelistAddress: duelData[1][0],
+        duelistAddress: duelistAddress,
         challengerAddress: challengerAddress,
-        wager: getUserReadableAmount(duelData[2], decimals),
+        wager: wager,
         tokenName: symbol,
         tokenAddress: duelData[3],
         fees: duelData[4],
-        duelist: duelData[6][0].toNumber(),
+        duelist: duelist,
         challenger: duelData[6][1].toNumber(),
-        isCreatorWinner: duelData[9],
-        creationDate: duelData[10][0],
-        challengedDate: duelData[10][1],
+        isCreatorWinner: isCreatorWinner,
+        creationDate: creationDate,
+        challengedLimitDate: challengedLimitDate,
+        challengedDate: new Date(duelData[10][1].toNumber() * 1000),
         finishDate: finishDate,
-        isRevealed: finishDate < new Date() && challengerAddress !== '?',
+        isRevealed: isRevealed,
         duelistMoves: duelistMoves,
         challengerMoves: challengerMoves,
-      });
+        status: status,
+        wagerValueInUSD: wagerValueInUSD,
+      };
+
+      if (
+        challengerAddress === accountAddress ||
+        duelistAddress === accountAddress
+      )
+        _activeDuels.push(_duel);
+      else _duels.push(_duel);
     }
 
+    _duels.reverse();
+    _activeDuels.reverse();
     setDuels(_duels);
+    setActiveDuels(_activeDuels);
     setIsLoading(false);
   }, [provider, contractAddresses, duelContract, chainId]);
 
@@ -929,6 +989,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
   let contextValue = {
     duels,
+    activeDuels,
     nfts,
     updateDuels,
     updateNfts,

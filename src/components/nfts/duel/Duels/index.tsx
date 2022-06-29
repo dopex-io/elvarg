@@ -16,6 +16,8 @@ import { DuelContext } from 'contexts/Duel';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+import displayAddress from 'utils/general/displayAddress';
+import Countdown from 'react-countdown';
 
 const Duels = () => {
   const { duels, isLoading } = useContext(DuelContext);
@@ -86,19 +88,18 @@ const Duels = () => {
                     className="bg-[#181C24] border-0 pb-0"
                   >
                     <Typography variant="h6">
-                      <span className="text-stieglitz">Head</span>
+                      <span className="text-stieglitz">Action</span>
                     </Typography>
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
-                {/* @ts-ignore TODO: FIX */}
                 {duels.map((duel, i) => (
                   <TableRow key={i} className="text-white mb-2 rounded-lg mt-2">
                     <TableCell align="left" className="mx-0 pt-2">
                       <Box className="flex">
                         <img
-                          src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/633/280/static.jpg`}
+                          src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
                           className="rounded-md w-12 h-12 mt-1 mr-1"
                         />
                         <Box>
@@ -106,7 +107,7 @@ const Duels = () => {
                             variant="h5"
                             className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
                           >
-                            <span>#677</span>
+                            <span>#{duel['duelist']}</span>
                           </Typography>
                           <Typography
                             variant="h5"
@@ -119,28 +120,47 @@ const Duels = () => {
                     </TableCell>
                     <TableCell align="left" className="pt-2">
                       <Typography variant="h5" className="font-['Minecraft']">
-                        0X013A
+                        {displayAddress(duel['challengerAddress'])}
                       </Typography>
                     </TableCell>
 
                     <TableCell align="left" className="pt-2">
                       <Typography variant="h5" className="font-['Minecraft']">
-                        11H 11M 11S
+                        <Countdown
+                          date={duel['challengedLimitDate']}
+                          renderer={({ days, hours, minutes, seconds }) => {
+                            if (days < 1 && hours < 1) {
+                              return (
+                                <span>
+                                  {minutes}m {seconds}s
+                                </span>
+                              );
+                            } else {
+                              return (
+                                <span>
+                                  {hours}h {minutes}m {seconds}s
+                                </span>
+                              );
+                            }
+                          }}
+                        />
                       </Typography>
                     </TableCell>
 
                     <TableCell align="left" className="px-6 pt-2">
                       <Typography variant="h5" className="font-['Minecraft']">
-                        #234
+                        #{duel['id']}
                       </Typography>
                     </TableCell>
 
                     <TableCell align="left" className="px-6 pt-2">
                       <Typography variant="h5" className="font-['Minecraft']">
-                        1234.4 USDC
+                        {duel['wager']} {duel['tokenName']}
                       </Typography>
                       <Typography variant="h6" className="font-['Minecraft']">
-                        <span className="text-stieglitz">~$1341.23</span>
+                        <span className="text-stieglitz">
+                          ~${duel['wagerValueInUSD']}
+                        </span>
                       </Typography>
                     </TableCell>
 
@@ -149,6 +169,7 @@ const Duels = () => {
                       <CustomButton
                         size="medium"
                         className={styles['smallPepeButton']}
+                        disabled={duel['challengedLimitDate'] < new Date()}
                       >
                         {/* @ts-ignore TODO: FIX */}
                         <Typography

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -8,7 +9,28 @@ import { Duel } from 'contexts/Duel';
 import styles from '../styles.module.scss';
 import Countdown from 'react-countdown';
 
-const ActiveDuel = ({ duel }: { duel: Duel }) => {
+const ActiveDuel = ({
+  duel,
+  handleUndo,
+  handleReveal,
+}: {
+  duel: Duel;
+  handleUndo: Function;
+  handleReveal: Function;
+}) => {
+  const handleClick = () => {
+    if (duel['status'] === 'requireUndo') handleUndo(duel['id']);
+    else if (duel['status'] === 'requireReveal') handleReveal(duel['id']);
+  };
+
+  const message = useMemo(() => {
+    if (duel['status'] === 'waiting') return 'WAIT...';
+    else if (duel['status'] === 'requireUndo') return 'UNDO';
+    else if (duel['status'] === 'won') return 'YOU WON';
+    else if (duel['status'] === 'lost') return 'YOU LOST';
+    else return 'TIE';
+  }, [duel]);
+
   return (
     <Box className="w-full flex p-5 bg-[#181C24] relative">
       <img
@@ -86,12 +108,8 @@ const ActiveDuel = ({ duel }: { duel: Duel }) => {
       </Box>
 
       <Box className="ml-auto mr-auto mt-2.5">
-        <button className={styles['pepeButton']}>
-          {duel['isRevealed']
-            ? duel['isCreatorWinner']
-              ? 'YOU WON'
-              : 'YOU LOST'
-            : 'REVEAL MOVE'}
+        <button className={styles['pepeButton']} onClick={handleClick}>
+          {message}
         </button>
       </Box>
 

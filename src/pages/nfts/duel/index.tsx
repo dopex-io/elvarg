@@ -1,10 +1,12 @@
 import Head from 'next/head';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { DuelContext } from 'contexts/Duel';
+import { DuelProvider } from 'contexts/Duel';
+import { WalletContext } from 'contexts/Wallet';
 
 import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
@@ -14,13 +16,27 @@ import Duels from 'components/nfts/duel/Duels';
 import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
-import { DuelProvider } from 'contexts/Duel';
 
 const DuelPepes = () => {
-  const { isLoading, duels } = useContext(DuelContext);
+  const { isLoading, activeDuels, updateDuels, duelContract } =
+    useContext(DuelContext);
+  const { signer } = useContext(WalletContext);
   const [activeFilter, setActiveFilter] = useState<string>('open');
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
     useState<boolean>(false);
+
+  const handleReveal = useCallback(async () => {}, []);
+
+  const handleUndo = useCallback(
+    async (id) => {
+      if (!signer || !duelContract || !duelContract || !updateDuels) return;
+
+      await duelContract.undoDuel(id);
+
+      await updateDuels();
+    },
+    [duelContract, signer, updateDuels]
+  );
 
   return (
     <Box className="bg-black min-h-screen">
@@ -137,13 +153,17 @@ const DuelPepes = () => {
             </Typography>
           </Box>
 
-          {duels.map((duel, key) => (
+          {activeDuels.map((duel, key) => (
             <Box className="mb-16" key={key}>
-              <ActiveDuel duel={duel} />
+              <ActiveDuel
+                duel={duel}
+                handleUndo={handleUndo}
+                handleReveal={handleReveal}
+              />
             </Box>
           ))}
 
-          {duels.length == 0 ? (
+          {activeDuels.length == 0 ? (
             isLoading ? (
               <Box className="text-stieglitz text-center pt-8 pb-9">
                 <CircularProgress size={26} color="inherit" />
@@ -176,7 +196,7 @@ const DuelPepes = () => {
           </Typography>
         </Box>
 
-        <Box className={'flex mt-4 z-50 relative'}>
+        {/* <Box className={'flex mt-4 z-50 relative'}>
           <Box
             className={
               'flex flex-row mb-3 justify-between p-1 border-[1px] border-[#232935] rounded-md w-36 ml-auto mr-3'
@@ -244,9 +264,9 @@ const DuelPepes = () => {
               </Typography>
             </Box>
           </Box>
-        </Box>
+        </Box> */}
 
-        <Box className="pt-2 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0 mt-3">
+        <Box className="pt-2 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0 mt-8">
           <Duels />
         </Box>
       </Box>
