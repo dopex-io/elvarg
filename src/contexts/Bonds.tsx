@@ -12,7 +12,9 @@ import { WalletContext } from './Wallet';
 import useSendTx from 'hooks/useSendTx';
 // @ts-ignore TODO: FIX
 import abi from '../components/more/Bonds/abi/bonds.json';
+// @ts-ignore TODO: FIX
 import dopexBridgoorNFTAbi from '../components/more/Bonds/abi/dopexBridgoorNFT.json';
+// @ts-ignore TODO: FIX
 import usdcAbi from '../components/more/Bonds/abi/usdc.json';
 
 interface bondsState {
