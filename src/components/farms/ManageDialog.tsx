@@ -51,7 +51,7 @@ const ManageDialog = (props: Props) => {
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer } = useContext(WalletContext);
+  const { signer, accountAddress } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
@@ -68,7 +68,6 @@ const ManageDialog = (props: Props) => {
   }, [activeTab, data]);
 
   useEffect(() => {
-    console.log(value);
     if (!value) {
       setError('');
     } else if (isNaN(Number(value))) {
@@ -139,21 +138,21 @@ const ManageDialog = (props: Props) => {
           MAX_VALUE
         )
       );
+      setApproved(true);
     } catch (err) {
       console.log(err);
     }
   }, [signer, sendTx, data]);
 
   const handleWithdraw = useCallback(async () => {
-    if (!signer) return;
+    if (!signer || !accountAddress) return;
+    console.log(data.version, data.stakingRewardsAddress, amount);
     try {
       if (data.version === 3) {
-        await sendTx(
-          StakingRewardsV3__factory.connect(
-            data.stakingRewardsAddress,
-            signer
-          ).unstake(utils.parseEther(amount))
-        );
+        await StakingRewardsV3__factory.connect(
+          data.stakingRewardsAddress,
+          signer
+        ).unstake(utils.parseEther(amount));
       } else {
         await sendTx(
           StakingRewards__factory.connect(
@@ -165,7 +164,7 @@ const ManageDialog = (props: Props) => {
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, amount, data]);
+  }, [signer, sendTx, amount, data, accountAddress]);
 
   return (
     <Dialog open={open} showCloseIcon handleClose={handleClose}>

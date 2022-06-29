@@ -2,7 +2,10 @@ import { useCallback, useContext } from 'react';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
 
-import { StakingRewards__factory } from '@dopex-io/sdk';
+import {
+  StakingRewardsV3__factory,
+  StakingRewards__factory,
+} from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -18,6 +21,7 @@ interface Props {
   stakingRewardsAddress: string;
   userRewardsEarned: BigNumber[];
   rewardTokens: { symbol: string; address: string }[];
+  version: number;
 }
 
 const ClaimCard = (props: Props) => {
@@ -26,6 +30,7 @@ const ClaimCard = (props: Props) => {
     stakingRewardsAddress,
     userRewardsEarned,
     rewardTokens,
+    version,
   } = props;
 
   const sendTx = useSendTx();
@@ -34,17 +39,28 @@ const ClaimCard = (props: Props) => {
 
   const handleClaim = useCallback(async () => {
     if (!signer) return;
-    try {
-      const stakingRewardsContract = StakingRewards__factory.connect(
-        stakingRewardsAddress,
-        signer
-      );
+    console.log(version);
 
-      await sendTx(stakingRewardsContract.getReward(2));
+    try {
+      if (version === 3) {
+        const stakingRewardsContract = StakingRewardsV3__factory.connect(
+          stakingRewardsAddress,
+          signer
+        );
+
+        await sendTx(stakingRewardsContract.claim());
+      } else {
+        const stakingRewardsContract = StakingRewards__factory.connect(
+          stakingRewardsAddress,
+          signer
+        );
+
+        await sendTx(stakingRewardsContract.getReward(2));
+      }
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, stakingRewardsAddress]);
+  }, [signer, sendTx, stakingRewardsAddress, version]);
 
   return (
     <Box className="bg-cod-gray rounded-2xl p-3 flex flex-col space-y-3 w-80">

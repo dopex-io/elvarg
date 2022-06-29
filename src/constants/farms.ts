@@ -100,4 +100,17 @@ export const FARMS: { [key: number]: Farm[] } = {
       version: 1,
     },
   ],
+  421611: [
+    {
+      stakingTokenSymbol: 'ST',
+      stakingTokenAddress: '0xfAcEC50912e55c1D7C79f3312419CCDF001d45c2',
+      stakingRewardsAddress: '0xDA2d91A827849580B75e668f22F49f9857bF3dF8',
+      rewardTokens: [
+        { symbol: 'RT', address: '0xf306fd3A1c3eFFD814E682Eb934Ce43Be81c3e1b' },
+      ],
+      status: 'ACTIVE',
+      type: 'LP',
+      version: 3,
+    },
+  ],
 };

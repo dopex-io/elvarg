@@ -29,6 +29,7 @@ const initialDialogData: BasicManageDialogProps = {
     stakingTokenSymbol: '',
     stakingRewardsAddress: '',
     stakingTokenAddress: '',
+    version: 0,
   },
   open: false,
 };
@@ -154,6 +155,7 @@ const Farms = () => {
                       stakingRewardsAddress={_farm.stakingRewardsAddress}
                       userRewardsEarned={item.userRewardsEarned}
                       rewardTokens={_farm.rewardTokens}
+                      version={_farm.version}
                     />
                   );
                 }
