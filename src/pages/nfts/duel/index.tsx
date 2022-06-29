@@ -14,6 +14,7 @@ import Typography from 'components/UI/Typography';
 import ActiveDuel from 'components/nfts/duel/ActiveDuel';
 import Duels from 'components/nfts/duel/Duels';
 import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
+import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
 
@@ -21,14 +22,19 @@ const DuelPepes = () => {
   const { isLoading, activeDuels, updateDuels, duelContract } =
     useContext(DuelContext);
   const { signer } = useContext(WalletContext);
-  const [activeFilter, setActiveFilter] = useState<string>('open');
+  {
+    /* const [activeFilter, setActiveFilter] = useState<string>('open'); */
+  }
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
     useState<boolean>(false);
+  const [isFindDuelDialogOpen, setIsFindDuelDialogOpen] =
+    useState<boolean>(false);
+  const [duelId, setDuelId] = useState<number>(0);
 
   const handleReveal = useCallback(async () => {}, []);
 
   const handleUndo = useCallback(
-    async (id) => {
+    async (id: number) => {
       if (!signer || !duelContract || !duelContract || !updateDuels) return;
 
       await duelContract.undoDuel(id);
@@ -37,6 +43,11 @@ const DuelPepes = () => {
     },
     [duelContract, signer, updateDuels]
   );
+
+  const findDuel = (id: number) => {
+    setIsFindDuelDialogOpen(true);
+    setDuelId(id);
+  };
 
   return (
     <Box className="bg-black min-h-screen">
@@ -57,6 +68,15 @@ const DuelPepes = () => {
           handleClose={() => {
             setIsCreateDuelDialogOpen(false);
           }}
+        />
+
+        <FindDuel
+          open={isFindDuelDialogOpen}
+          handleClose={() => {
+            setIsFindDuelDialogOpen(false);
+          }}
+          duelId={duelId}
+          setDuelId={setDuelId}
         />
 
         <Box className="pt-28 md:pt-32 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
@@ -267,7 +287,7 @@ const DuelPepes = () => {
         </Box> */}
 
         <Box className="pt-2 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0 mt-8">
-          <Duels />
+          <Duels findDuel={findDuel} />
         </Box>
       </Box>
     </Box>

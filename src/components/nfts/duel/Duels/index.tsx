@@ -19,7 +19,7 @@ import CustomButton from 'components/UI/CustomButton';
 import displayAddress from 'utils/general/displayAddress';
 import Countdown from 'react-countdown';
 
-const Duels = () => {
+const Duels = ({ findDuel }: { findDuel: Function }) => {
   const { duels, isLoading } = useContext(DuelContext);
 
   return (
@@ -170,6 +170,7 @@ const Duels = () => {
                         size="medium"
                         className={styles['smallPepeButton']}
                         disabled={duel['challengedLimitDate'] < new Date()}
+                        onClick={() => findDuel(duel['id'])}
                       >
                         {/* @ts-ignore TODO: FIX */}
                         <Typography
