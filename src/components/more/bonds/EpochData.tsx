@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import Button from '@mui/material/Button';
@@ -7,6 +7,7 @@ import CustomButton from 'components/UI/CustomButton';
 import { DpxBondsContext } from 'contexts/Bonds';
 import format from 'date-fns/format';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { WalletContext } from 'contexts/Wallet';
 
 import styles from './styles.module.scss';
 
@@ -32,6 +33,12 @@ export const EpochData = ({
     depositPerNft,
   } = useContext(DpxBondsContext);
 
+  const { connect } = useContext(WalletContext);
+
+  const handleWalletConnect = useCallback(() => {
+    connect && connect();
+  }, [connect]);
+
   const availableDpx =
     getUserReadableAmount(bondsDpx) -
     totalEpochDeposits / (dpxPrice - dpxPrice * (epochDiscount / 100));
@@ -39,6 +46,7 @@ export const EpochData = ({
   const epochExpired =
     (epochExpiry && new Date().valueOf() - new Date(epochExpiry).valueOf()) ||
     0;
+
   return (
     <>
       <Box className="bg-cod-gray rounded-lg flex flex-wrap max-w-[728px] mb-5 mt-5">
@@ -92,7 +100,7 @@ export const EpochData = ({
               variant="text"
               size="small"
               className="text-white bg-primary hover:bg-primary ml-10"
-              onClick={handleModal}
+              onClick={accountAddress ? handleModal : handleWalletConnect}
             >
               {accountAddress ? 'Bond' : 'Connect'}
             </CustomButton>

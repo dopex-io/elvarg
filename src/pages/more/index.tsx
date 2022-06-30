@@ -10,7 +10,7 @@ import Oracles from 'components/more/Oracles';
 import Tzwap from 'components/more/tzwap';
 
 const Governance = () => {
-  const [active, setActive] = useState('veDPX');
+  const [active, setActive] = useState('Bond');
 
   return (
     <Box className="bg-black min-h-screen m-auto">

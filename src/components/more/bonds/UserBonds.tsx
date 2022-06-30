@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
@@ -24,7 +24,12 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     depositPerNft,
   } = useContext(DpxBondsContext);
 
-  const { accountAddress, ensAvatar, ensName } = useContext(WalletContext);
+  const { accountAddress, ensAvatar, ensName, connect } =
+    useContext(WalletContext);
+
+  const handleWalletConnect = useCallback(() => {
+    connect && connect();
+  }, [connect]);
 
   let notRedeemedBonds = userDpxBondsState.filter(
     (bond: any) => bond?.redeemed == false
@@ -124,6 +129,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
             variant="text"
             size="small"
             className="text-white bg-primary hover:bg-primary"
+            onClick={handleWalletConnect}
           >
             Connect {accountAddress}
           </CustomButton>
