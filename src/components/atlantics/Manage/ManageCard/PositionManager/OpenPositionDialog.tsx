@@ -636,14 +636,14 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}
         />
-        <Box className="flex flex-col w-full">
-          <Box className="flex flex-row w-full">
+        <Box className="flex flex-col w-full space-y-2">
+          <Box className="flex flex-row w-full space-x-2">
             <CustomButton
               onClick={handleApproveBaseToken}
               disabled={
                 positionBalance === '' || parseInt(positionBalance) === 0
               }
-              className={`${isApproved.base && 'hidden'} flex-1 mx-1 display ${
+              className={`${isApproved.base && 'hidden'} flex-1 display ${
                 !isApproved.base && 'animate-pulse '
               }`}
             >
@@ -654,7 +654,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
               disabled={
                 positionBalance === '' || parseInt(positionBalance) === 0
               }
-              className={` ${isApproved.quote && 'hidden'} flex-1 mx-1 ${
+              className={` ${isApproved.quote && 'hidden'} flex-1 ${
                 !isApproved.quote && 'animate-pulse '
               }`}
             >
