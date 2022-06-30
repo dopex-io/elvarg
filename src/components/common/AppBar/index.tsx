@@ -96,11 +96,6 @@ const appLinks = {
     // { name: 'swap', to: '/swap' },
     // { name: 'SSOV', to: '/ssov' },
     { name: 'veDPX', to: '/governance/vedpx' },
-    // {
-    //   name: '',
-    //   to: '/more',
-    //   icon: <GridViewIcon fontSize="small" className="pb-0.5" />,
-    // },
   ],
   42161: [
     { name: 'Farms', to: '/farms' },
