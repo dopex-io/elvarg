@@ -113,6 +113,9 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
       (maxDepositsPerEpoch * 10 ** 18) /
       ((dpxPrice * (100 - epochDiscount)) / 100);
 
+    const depositPerNft =
+      Number(await bondsContract['depositPerNft']()) / 10 ** 6;
+
     setState((prevState: any) => ({
       ...prevState,
       epochNumber: epochNumber,
@@ -123,6 +126,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
       dpxPrice: dpxPrice,
       epochDiscount: epochDiscount,
       bondsDpx: bondsDpx,
+      depositPerNft: depositPerNft,
     }));
   };
 
@@ -187,16 +191,13 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
     const dopexBondsIds =
       dopexBondsNftBalance && (await getBondsById(dopexBondsNftBalance));
 
-    const depositPerNft =
-      Number(await bondsContract['depositPerNft']()) / 10 ** 6;
-
     const depositUSDC = async (value: number) => {
-      let nftsToDeposit = usableNfts?.slice(0, value / depositPerNft);
+      let nftsToDeposit = usableNfts?.slice(0, value / state.depositPerNft);
       if (nftsToDeposit) {
         await sendTx(
           usdcContract['approve'](
             bondsContract.address,
-            nftsToDeposit.length * 10 ** 6 * depositPerNft
+            nftsToDeposit.length * 10 ** 6 * state.depositPerNft
           )
         );
         // @ts-ignore TODO: FIX
@@ -234,7 +235,6 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
       depositUSDC: depositUSDC,
       getDepositsPerNftId: getDepositsPerNftId,
       withdrawDpx: withdrawDpx,
-      depositPerNft: depositPerNft,
     }));
   };
 

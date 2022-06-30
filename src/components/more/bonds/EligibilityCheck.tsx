@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useCallback } from 'react';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
@@ -51,7 +51,7 @@ export const EligibilityCheck = ({
   const [eligible, setEligible] = useState(true);
   const [showIcon, setShowIcon] = useState(false);
 
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress, connect } = useContext(WalletContext);
 
   const {
     usableNfts,
@@ -59,6 +59,10 @@ export const EligibilityCheck = ({
     bridgoorNFTIds,
     getDepositsPerNftId,
   } = useContext(DpxBondsContext);
+
+  const handleWalletConnect = useCallback(() => {
+    connect && connect();
+  }, [connect]);
 
   const usedNfts = bridgoorNFTIds.filter(
     (id: number) => usableNfts.indexOf(id) == -1
@@ -167,6 +171,7 @@ export const EligibilityCheck = ({
               variant="text"
               size="small"
               className=" text-white text-xs bg-primary hover:bg-primary"
+              onClick={handleWalletConnect}
             >
               Connect
             </CustomButton>

@@ -136,7 +136,7 @@ export const EpochData = ({
         <Box className="p-3 w-[352px]">
           <Typography variant="h5">Eligibility</Typography>
           <div className="text-stieglitz md:h-24 mb-5">
-            Every Bridgoor NFT increases your cap of an additional{' '}
+            Every Bridgoor NFT increases your cap by an additional{' '}
             {depositPerNft} USDC for every epoch.
           </div>
           <Box className="flex">

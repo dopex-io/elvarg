@@ -9,13 +9,13 @@ import VeDPX from 'components/more/Vedpx';
 import Oracles from 'components/more/Oracles';
 import Tzwap from 'components/more/tzwap';
 
-const Governance = () => {
-  const [active, setActive] = useState('Bond');
+const More = () => {
+  const [active, setActive] = useState('veDPX');
 
   return (
     <Box className="bg-black min-h-screen m-auto">
       <Head>
-        <title> Governance | Dopex</title>
+        <title> More | Dopex</title>
       </Head>
       <AppBar />
       <Box className="md:flex py-20 md:py-32 p-3">
@@ -33,4 +33,4 @@ const Governance = () => {
   );
 };
 
-export default Governance;
+export default More;
