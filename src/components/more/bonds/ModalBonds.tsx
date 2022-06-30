@@ -15,6 +15,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import displayAddress from 'utils/general/displayAddress';
 import Link from 'next/link';
+import Tooltip from '@mui/material/Tooltip';
 
 import axios from 'axios';
 
@@ -245,7 +246,12 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
               variant="caption"
               className=" text-xs text-stieglitz mr-auto flex"
             >
-              Wallet Limit <HelpOutlineIcon className="w-3 ml-1 pb-2" />
+              Wallet Limit
+              <Tooltip
+                title={` Every Bridgoor NFT increases your cap by an additional ${depositPerNft} USDC for every epoch.`}
+              >
+                <HelpOutlineIcon className="w-3 ml-1 pb-2" />
+              </Tooltip>
             </Typography>
             <Box className="text-[#22E1FF] text-xs">{walletLimit}</Box>
           </Box>
