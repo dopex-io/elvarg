@@ -123,7 +123,7 @@ export const EpochData = ({
         </Box>
       </Box>
       <div className="lg:flex mt-5">
-        <Box className="p-3 w-[352px] mr-10">
+        <Box className="p-3 w-[352px] mr-5">
           <Typography variant="h5">Program Goals</Typography>
           <div className="text-stieglitz h-24  mb-7">
             Commit stablecoins upfront and receive vested DPX from treasury at a
