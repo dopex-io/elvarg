@@ -31,13 +31,17 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     connect && connect();
   }, [connect]);
 
-  let notRedeemedBonds = userDpxBondsState.filter(
-    (bond: any) => bond?.redeemed == false
-  );
+  let notRedeemedBonds =
+    (userDpxBondsState &&
+      userDpxBondsState.filter((bond: any) => bond?.redeemed == false)) ||
+    [];
 
-  let availableBondsForWithdraw = userDpxBondsState.filter(
-    (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
-  );
+  let availableBondsForWithdraw =
+    (userDpxBondsState &&
+      userDpxBondsState.filter(
+        (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
+      )) ||
+    [];
 
   let lockedUntil = notRedeemedBonds[0]?.maturityTime;
   let availableForWithdraw =

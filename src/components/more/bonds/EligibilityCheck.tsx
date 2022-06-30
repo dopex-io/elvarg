@@ -63,10 +63,11 @@ export const EligibilityCheck = ({
   const handleWalletConnect = useCallback(() => {
     connect && connect();
   }, [connect]);
-
-  const usedNfts = bridgoorNFTIds.filter(
-    (id: number) => usableNfts.indexOf(id) == -1
-  );
+  // console.log(bridgoorNFTIds, "bridgoorNFTIds")
+  const usedNfts =
+    (bridgoorNFTIds &&
+      bridgoorNFTIds.filter((id: number) => usableNfts.indexOf(id) == -1)) ||
+    [];
 
   const handleCheckNft = async (id: number) => {
     let result = await getDepositsPerNftId(id);
