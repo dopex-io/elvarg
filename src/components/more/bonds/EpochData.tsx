@@ -142,7 +142,7 @@ export const EpochData = ({
           <Box className="flex">
             <Box
               onClick={handleEligibilityModal}
-              className="bg-mineshaft text-white test-xs p-2 rounded-md mr-5"
+              className="bg-mineshaft text-white test-xs p-2 rounded-md mr-5 cursor-pointer"
             >
               Check Eligibility
             </Box>

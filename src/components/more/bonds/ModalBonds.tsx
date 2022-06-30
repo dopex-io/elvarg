@@ -13,6 +13,8 @@ import { DpxBondsContext } from 'contexts/Bonds';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import displayAddress from 'utils/general/displayAddress';
+import Link from 'next/link';
 
 import axios from 'axios';
 
@@ -229,10 +231,13 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
               variant="caption"
               className="text-stieglitz mr-auto flex"
             >
-              Contract <LaunchIcon className="w-3 ml-1 pb-2" />
+              Contract
+              <Link href={'https://arbiscan.io/address/' + dpxBondsAddress}>
+                <LaunchIcon className="w-3 ml-1 pb-2" />
+              </Link>
             </Typography>
             <Box className="text-xs text-white">
-              {dpxBondsAddress?.slice(0, 5)}
+              {displayAddress(dpxBondsAddress)}
             </Box>
           </Box>
           <Box className="flex">
