@@ -3,16 +3,18 @@ import {
   useState,
   useContext,
   useEffect,
-  useMemo,
   ReactNode,
 } from 'react';
 
-import { ethers } from 'ethers';
 import { WalletContext } from './Wallet';
 import useSendTx from 'hooks/useSendTx';
-import abi from 'components/more/Bonds/abi/bonds.json';
-import dopexBridgoorNFTAbi from 'components/more/Bonds/abi/dopexBridgoorNFT.json';
-import usdcAbi from 'components/more/Bonds/abi/usdc.json';
+
+import {
+  Addresses,
+  ERC20__factory,
+  BaseNFT__factory,
+  DPXBonds__factory,
+} from '@dopex-io/sdk';
 
 interface bondsState {
   epoch: number;
@@ -41,7 +43,6 @@ interface DpxBondsData {
   withdrawDpx: Function;
   depositPerNft: number;
 }
-
 interface DpxBondsContextInterface extends DpxBondsData {}
 
 const initialData = {
@@ -71,41 +72,32 @@ export const DpxBondsContext =
 
 export const DpxBondsProvider = (props: { children: ReactNode }) => {
   const sendTx = useSendTx();
-
   const [state, setState] = useState(initialData);
-  const { accountAddress, signer } = useContext(WalletContext);
+  const { accountAddress, signer, chainId, provider } =
+    useContext(WalletContext);
 
-  const bondsContract = useMemo(() => {
-    return new ethers.Contract(
-      '0x83EccfFc332c3bbEdc2F2473fFF8dc408FD36C16',
-      abi,
-      signer
-    );
-  }, [signer]);
+  const bondsContract = DPXBonds__factory.connect(
+    Addresses[chainId].DPXBonds,
+    provider
+  );
 
-  const dopexBridgoorNFTContract = useMemo(() => {
-    return new ethers.Contract(
-      '0x4Ee9fe9500E7C4Fe849AdD9b14beEc5eC5b7d955',
-      dopexBridgoorNFTAbi,
-      signer
-    );
-  }, [signer]);
+  const dopexBridgoorNFTContract = BaseNFT__factory.connect(
+    Addresses[chainId].NFTS.DopexBridgoorNFT,
+    provider
+  );
 
-  const usdcContract = useMemo(() => {
-    return new ethers.Contract(
-      '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
-      usdcAbi,
-      signer
-    );
-  }, [signer]);
+  const usdcContract = ERC20__factory.connect(
+    Addresses[chainId].USDC,
+    provider
+  );
 
   const getBridgoorNFTIds = async (dopexBridgoorNFTBalance: number) => {
     let bridgoorIds = [];
     for (let i = 0; i < dopexBridgoorNFTBalance; i++) {
       bridgoorIds.push(
-        parseInt(
+        Number(
           await dopexBridgoorNFTContract['tokenOfOwnerByIndex'](
-            accountAddress,
+            accountAddress || '',
             i
           )
         )
@@ -118,7 +110,9 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
     let bondsIds = [];
     for (let i = 0; i < dopexBondsNftBalance; i++) {
       bondsIds.push(
-        parseInt(await bondsContract['tokenOfOwnerByIndex'](accountAddress, i))
+        Number(
+          await bondsContract['tokenOfOwnerByIndex'](accountAddress || '', i)
+        )
       );
     }
     return bondsIds;
@@ -126,12 +120,14 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
 
   const getUserBondsNftsState = async (bondsIds: Array<number>) => {
     let userBondsState = [];
+
     for (let i = 0; i < bondsIds.length; i++) {
+      // @ts-ignore TODO: FIX
       let userBond = await bondsContract['nftsState'](bondsIds[i]);
       userBondsState.push({
-        epoch: parseInt(userBond.epoch),
-        issued: parseInt(userBond.issued),
-        maturityTime: parseInt(userBond.maturityTime),
+        epoch: Number(userBond.epoch),
+        issued: Number(userBond.issued),
+        maturityTime: Number(userBond.maturityTime),
         redeemed: userBond.redeemed,
       });
     }
@@ -139,38 +135,40 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
   };
 
   const getEpochData = async () => {
-    const dopexBridgoorNFTBalance = parseInt(
-      await dopexBridgoorNFTContract['balanceOf'](accountAddress)
+    const dopexBridgoorNFTBalance = Number(
+      await dopexBridgoorNFTContract['balanceOf'](accountAddress || '')
     );
-    const usdcBalance = parseInt(
-      await usdcContract['balanceOf'](accountAddress)
+    const usdcBalance = Number(
+      await usdcContract['balanceOf'](accountAddress || '')
     );
-    const usdcContractBalance = parseInt(
+    const usdcContractBalance = Number(
       await usdcContract['balanceOf'](bondsContract.address)
     );
-    const epochNumber = parseInt(await bondsContract['epochNumber']());
-    const dpxPrice = parseInt(await bondsContract['dpxPrice'](epochNumber));
-    const epochDiscount = parseInt(
+    const epochNumber = Number(await bondsContract['epochNumber']());
+    const dpxPrice = Number(await bondsContract['dpxPrice'](epochNumber));
+    const epochDiscount = Number(
       await bondsContract['epochDiscount'](epochNumber)
     );
     const epochExpiry =
-      parseInt(await bondsContract['epochExpiry'](epochNumber)) * 1000;
-    const totalEpochDeposits = parseInt(
+      Number(await bondsContract['epochExpiry'](epochNumber)) * 1000;
+    const totalEpochDeposits = Number(
       await bondsContract['totalEpochDeposits'](epochNumber)
     );
+
     const usableNfts = (
-      await bondsContract['getUsableNfts'](accountAddress)
-    ).map((nftId: number) => Number(nftId));
-    const maxDepositsPerEpoch = parseInt(
+      await bondsContract['getUsableNfts'](accountAddress || '')
+    ).map((nftId) => Number(nftId));
+
+    const maxDepositsPerEpoch = Number(
       await bondsContract['maxDepositsPerEpoch'](epochNumber)
     );
-    const dopexBondsNftBalance = parseInt(
-      await bondsContract['getDopexBondsNftBalance'](accountAddress)
+    const dopexBondsNftBalance = Number(
+      await bondsContract['getDopexBondsNftBalance'](accountAddress || '')
     );
     const dopexBondsIds = await getBondsById(dopexBondsNftBalance);
 
     const depositPerNft =
-      parseInt(await bondsContract['depositPerNft']()) / 10 ** 6;
+      Number(await bondsContract['depositPerNft']()) / 10 ** 6;
 
     const depositUSDC = async (value: number) => {
       let nftsToDeposit = usableNfts.slice(0, value / depositPerNft);
@@ -194,7 +192,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
     const bridgoorNFTIds = await getBridgoorNFTIds(dopexBridgoorNFTBalance);
 
     const getDepositsPerNftId = async (id: number) =>
-      parseInt(await bondsContract['depositsPerNftId'](epochNumber, id));
+      Number(await bondsContract['depositsPerNftId'](epochNumber, id));
 
     setState((prevState: any) => ({
       ...prevState,
