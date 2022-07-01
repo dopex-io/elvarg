@@ -14,6 +14,7 @@ import {
 import { BigNumber } from 'ethers';
 import BN from 'bignumber.js';
 import axios from 'axios';
+import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
@@ -40,12 +41,16 @@ export const FarmingContext = createContext<{
   farmsDataLoading: boolean;
   userDataLoading: boolean;
   lpData: LpData;
+  getFarmData: Function;
+  getUserData: Function;
 }>({
   farmsData: [],
   farmsDataLoading: false,
   userDataLoading: false,
   userData: [],
   lpData: initialLpData,
+  getFarmData: noop,
+  getUserData: noop,
 });
 
 export const FarmingProvider = (props: { children: ReactNode }) => {
@@ -165,11 +170,7 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
       if (!provider) {
         return;
       }
-      if (farm.status === 'RETIRED') {
-        return { APR: 0, TVL: 0 };
-      }
-
-      if (farm.version === 3) {
+      if (farm.status !== 'ACTIVE') {
         return { APR: 0, TVL: 0 };
       }
 
@@ -301,19 +302,19 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
     [accountAddress, provider]
   );
 
-  useEffect(() => {
-    async function getAllUserData() {
-      setUserDataLoading(true);
-      const p = await Promise.all(
-        FARMS[chainId]?.map((farm) => getUserData(farm)) || []
-      );
+  const getAllUserData = useCallback(async () => {
+    setUserDataLoading(true);
+    const p = await Promise.all(
+      FARMS[chainId]?.map((farm) => getUserData(farm)) || []
+    );
 
-      setUserData(p as UserData[]);
-      setUserDataLoading(false);
-    }
-
-    getAllUserData();
+    setUserData(p as UserData[]);
+    setUserDataLoading(false);
   }, [chainId, getUserData]);
+
+  useEffect(() => {
+    getAllUserData();
+  }, [getAllUserData]);
 
   let contextValue = {
     lpData,
@@ -321,6 +322,8 @@ export const FarmingProvider = (props: { children: ReactNode }) => {
     userData,
     farmsDataLoading,
     userDataLoading,
+    getUserData: getAllUserData,
+    getFarmData,
   };
 
   return (

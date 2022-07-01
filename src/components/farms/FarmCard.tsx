@@ -3,6 +3,11 @@ import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { BigNumber, utils } from 'ethers';
 import BN from 'bignumber.js';
+import {
+  ERC20__factory,
+  StakingRewards__factory,
+  StakingRewardsV3__factory,
+} from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -17,12 +22,8 @@ import { WalletContext } from 'contexts/Wallet';
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 
-import { LpData } from 'types/farms';
-import {
-  ERC20__factory,
-  StakingRewards__factory,
-  StakingRewardsV3__factory,
-} from '@dopex-io/sdk';
+import { FarmStatus, LpData } from 'types/farms';
+
 import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
@@ -37,7 +38,7 @@ const Header = ({
 }: {
   stakingTokenSymbol: string;
   type: 'SINGLE' | 'LP';
-  status: 'RETIRED' | 'ACTIVE';
+  status: FarmStatus;
   onManage: any;
   onMigrate: any;
   version: number;
@@ -51,14 +52,13 @@ const Header = ({
           className="w-8 h-8 block"
         />
         <Box>
-          <Typography variant="h5">
-            {stakingTokenSymbol}
-            <span className="text-down-bad">
-              {status === 'RETIRED' ? '(Retired)' : null}
-            </span>
-          </Typography>
+          <Typography variant="h5">{stakingTokenSymbol}</Typography>
           <Typography variant="caption" color="stieglitz">
             {type === 'SINGLE' ? 'Single Side Farm' : 'LP Farm'}
+            <span className="text-down-bad">
+              {' '}
+              {status !== 'ACTIVE' ? `(${status})` : null}
+            </span>
           </Typography>
         </Box>
       </Box>
@@ -106,7 +106,7 @@ interface Props {
   stakingTokenAddress: string;
   farmsDataLoading: boolean;
   userDataLoading: boolean;
-  status: 'RETIRED' | 'ACTIVE';
+  status: FarmStatus;
   type: 'SINGLE' | 'LP';
   version: number;
   newStakingRewardsAddress?: string | undefined;
@@ -186,7 +186,7 @@ const FarmCard = (props: Props) => {
     return 0;
   }, [lpData, stakingTokenSymbol]);
 
-  if (userStakingRewardsBalance.isZero() && status === 'RETIRED') return <></>;
+  if (userStakingRewardsBalance.isZero() && status !== 'ACTIVE') return <></>;
 
   return (
     <Box className="bg-cod-gray text-red rounded-2xl p-3 flex flex-col space-y-3 w-[343px]">

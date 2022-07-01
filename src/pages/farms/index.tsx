@@ -63,7 +63,7 @@ const Farms = () => {
           {FARMS[chainId]?.filter((farm, index) => {
             if (
               data.userData[index]?.userStakingRewardsBalance.isZero() &&
-              farm.status === 'RETIRED'
+              farm.status !== 'ACTIVE'
             )
               return false;
             return true;
@@ -130,6 +130,8 @@ const Farms = () => {
 
               if (!_farm) return false;
 
+              if (_farm.status === 'CLOSED') return false;
+
               return true;
             }
             return false;
@@ -147,6 +149,8 @@ const Farms = () => {
                   let _farm = _farms[index];
 
                   if (!_farm) return null;
+
+                  if (_farm.status === 'CLOSED') return null;
 
                   return (
                     <ClaimCard
