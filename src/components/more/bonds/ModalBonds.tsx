@@ -159,7 +159,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             </Box>
           }
           bottomElement={
-            <div className="flex">
+            <Box className="flex">
               <Typography
                 className="flex-1"
                 variant="caption"
@@ -170,7 +170,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
               <Typography variant="caption" color="white">
                 {getUserReadableAmount(usdcBalance, 6)} USDC
               </Typography>
-            </div>
+            </Box>
           }
           placeholder={inputValue.toString()}
           size="small"
@@ -183,7 +183,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         )}
 
         <Box className="flex mt-3">
-          <Box className="flex-1 bg-cod-gray  border border-[#1E1E1E] p-2">
+          <Box className="flex-1 bg-cod-gray  border border-umbra p-2">
             {inputValue ? (
               <Typography variant="h5" className="text-[#22E1FF] pt-3 h-[40px]">
                 <ArrowForwardIcon className="text-[#3E3E3E] w-[20px] mr-1 mb-1" />
@@ -196,14 +196,14 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             )}
             <Box className="text-stieglitz pb-3">To DPX</Box>
           </Box>
-          <Box className="flex-1  bg-cod-gray  border border-[#1E1E1E] p-2">
+          <Box className="flex-1  bg-cod-gray  border border-umbra p-2">
             <Typography variant="h5" className="text-white  pt-3 h-[40px]">
               {epochDiscount} %
             </Typography>
             <Box className="text-stieglitz">Discount</Box>
           </Box>
         </Box>
-        <Box className="border border-[#1E1E1E] p-3">
+        <Box className="border border-umbra p-3">
           <BondsInfo
             title="Bonding Price"
             value={`${getUserReadableAmount(dpxPrice, 6)} USDC`}

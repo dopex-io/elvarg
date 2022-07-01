@@ -49,8 +49,6 @@ import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
 import { Order } from '../../types/tzwap';
 
-import styles from './styles.module.scss';
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -602,16 +600,11 @@ const Tzwap = () => {
           </Box>
         </Box>
         <Box className="flex mx-auto max-w-xl mb-8 mt-8">
-          <Box
-            className={cx(
-              'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto',
-              styles.cardWidth
-            )}
-          >
+          <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto w-full md:w-[370px]">
             {!(isFromTokenSelectorVisible || isToTokenSelectorVisible) ? (
               <Box className={''}>
                 <Box className={'w-full'}>
-                  <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
+                  <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-umbra rounded-md">
                     <Box
                       className={
                         activeTab === 0
@@ -1133,12 +1126,7 @@ const Tzwap = () => {
             )}
           </Box>
         </Box>
-        <Box
-          className={cx(
-            'flex mx-auto max-w-xl mb-8 mt-32 text-center',
-            styles.cardWidth
-          )}
-        >
+        <Box className="flex mx-auto max-w-xl mb-8 mt-32 text-center w-full md:w-[370px]">
           <Typography variant="h5" className="z-1 text-stieglitz">
             <span className={'text-white'}>TZWAP</span> allows anyone to create
             an on-chain TWAP order split by intervals and ticksizes that can be

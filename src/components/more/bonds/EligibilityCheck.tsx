@@ -116,12 +116,12 @@ export const EligibilityCheck = ({
         </Box>
         <Box className="bg-[#1E1E1E] rounded-2xl p-2 mt-5 pb-5">
           <Box className="flex">
-            <div className="text-[#8E8E8E] text-xs pt-1 mb-2 flex-1">
+            <Box className="text-[#8E8E8E] text-xs pt-1 mb-2 flex-1">
               Search by ID
               <Tooltip title="NFT token ID can be found under details/info. Use this form to verify the eligibility of the NFT.">
                 <HelpOutlineIcon className="h-[14px] mb-0.5" />
               </Tooltip>
-            </div>
+            </Box>
             {showIcon &&
               (!eligible ? (
                 <Tooltip title="This NFT is ineligible because it has been used before in the bonds program.">
@@ -164,10 +164,10 @@ export const EligibilityCheck = ({
           </Box>
         )}
         {!accountAddress ? (
-          <Box className="bg-[#1E1E1E] border border-[#1E1E1E] rounded-2xl p-3 flex  mt-5">
-            <div className="flex-1 text-white text-xs pt-1">
+          <Box className="bg-[#1E1E1E] border border-umbra rounded-2xl p-3 flex  mt-5">
+            <Box className="flex-1 text-white text-xs pt-1">
               Connect to see your NFTs
-            </div>
+            </Box>
             <CustomButton
               variant="text"
               size="small"
@@ -195,7 +195,7 @@ export const EligibilityCheck = ({
             {nftList(usedNfts)}
           </Box>
         )}
-        <Box className=" border border-[#1E1E1E] rounded-2xl p-3 fl/ex  mt-2">
+        <Box className=" border border-umbra rounded-2xl p-3 fl/ex  mt-2">
           <Typography className="mb-2" variant="h6">
             About Eligibility
           </Typography>

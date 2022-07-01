@@ -1,15 +1,16 @@
-import { useContext, useCallback } from 'react';
+/** @jsxImportSource @emotion/react */
+import { useContext, useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CustomButton from 'components/UI/CustomButton';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import format from 'date-fns/format';
-import styles from './styles.module.scss';
 import Button from '@mui/material/Button';
 import displayAddress from 'utils/general/displayAddress';
 import { DpxBondsContext } from 'contexts/Bonds';
 import { WalletContext } from 'contexts/Wallet';
+import { css } from '@emotion/react';
 
 type UserBondsProps = {
   handleModal: () => void;
@@ -31,28 +32,40 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     connect && connect();
   }, [connect]);
 
-  let notRedeemedBonds =
-    (userDpxBondsState &&
-      userDpxBondsState.filter((bond: any) => bond?.redeemed == false)) ||
-    [];
+  const notRedeemedBonds = useMemo(() => {
+    return (
+      (userDpxBondsState &&
+        userDpxBondsState.filter((bond: any) => bond?.redeemed == false)) ||
+      []
+    );
+  }, [userDpxBondsState]);
 
-  let availableBondsForWithdraw =
-    (userDpxBondsState &&
-      userDpxBondsState.filter(
-        (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
-      )) ||
-    [];
+  const availableBondsForWithdraw = useMemo(() => {
+    return (
+      (userDpxBondsState &&
+        userDpxBondsState.filter(
+          (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
+        )) ||
+      []
+    );
+  }, [userDpxBondsState]);
 
   let lockedUntil = notRedeemedBonds[0]?.maturityTime;
-  let availableForWithdraw =
-    (lockedUntil &&
-      new Date().valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
-    0;
 
-  let priceWithDiscount = getUserReadableAmount(
-    dpxPrice - dpxPrice * (epochDiscount / 100),
-    6
-  );
+  const availableForWithdraw = useMemo(() => {
+    return (
+      (lockedUntil &&
+        new Date().valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
+      0
+    );
+  }, [lockedUntil]);
+
+  const priceWithDiscount = useMemo(() => {
+    return getUserReadableAmount(
+      dpxPrice - dpxPrice * (epochDiscount / 100),
+      6
+    );
+  }, [dpxPrice, epochDiscount]);
 
   return (
     <Box className="mt-5">
@@ -60,7 +73,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
       {accountAddress ? (
         notRedeemedBonds.length > 0 ? (
           <Box>
-            <Box className="bg-cod-gray border-b border-[#1E1E1E] rounded-t-lg max-w-[728px] mt-3 p/-3">
+            <Box className="bg-cod-gray border-b border-umbra rounded-t-lg max-w-[728px] mt-3 p/-3">
               <Button
                 variant="text"
                 className="bg-mineshaft text-white border-cod-gray hover:border-wave-blue border border-solid"
@@ -72,7 +85,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
               </Button>
             </Box>
             <Box className="bg-cod-gray rounded-b-lg flex flex-wrap max-w-[728px] mb-5">
-              <Box className="p-3 flex-2 lg:flex-1 border-r border-[#1E1E1E] w-2/4">
+              <Box className="p-3 flex-2 lg:flex-1 border-r border-umbra w-2/4">
                 <Box className="text-stieglitz mb-3 ">DPX Available</Box>
                 <Box>
                   {(
@@ -84,7 +97,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                   </span>
                 </Box>
               </Box>
-              <Box className="p-3 lg:flex-1 border-t border-r lg:border-t-0 border-[#1E1E1E] w-2/4">
+              <Box className="p-3 lg:flex-1 border-t border-r lg:border-t-0 border-umbra w-2/4">
                 <Box className="text-stieglitz mb-3">Unlocked</Box>
                 <Box>
                   {(availableBondsForWithdraw.length * depositPerNft) /
@@ -94,41 +107,52 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                   </span>
                 </Box>
               </Box>
-              <Box className="p-3 lg:flex-1 border-r lg:border-t-0 border-[#1E1E1E] w-2/4">
+              <Box className="p-3 lg:flex-1 border-r lg:border-t-0 border-umbra w-2/4">
                 <Box className="text-stieglitz mb-3">Locked Until</Box>
                 {lockedUntil &&
                   format(new Date(lockedUntil * 1000), 'MM/dd/yyyy')}
               </Box>
-              <Box className="p-3 text-center lg:flex-1 lg:border-r border-b lg:border-b-0 border-[#1E1E1E] w-2/4">
+              <Box className="p-3 m-auto text-center lg:flex-1 lg:border-r border-b lg:border-b-0 border-umbra w-2/4">
                 <Box>
-                  <CustomButton
-                    variant="text"
-                    size="small"
-                    className={`${styles['button']} mt-5`}
-                    disabled={availableForWithdraw > 0 ? false : true}
-                    onClick={() => withdrawDpx()}
+                  <Box
+                    css={css`
+                      background: linear-gradient(
+                        318.43deg,
+                        #002eff -7.57%,
+                        #22e1ff 100%
+                      );
+                      border-radius: 5px;
+                      color: white;
+                      padding: 8px;
+                      width: 80%;
+                      margin: auto;
+                      text-align: center;
+                      cursor: not-allowed;
+                    `}
+                    className={`${availableForWithdraw < 0 && 'grayscale'}`}
+                    onClick={() => availableForWithdraw > 0 && withdrawDpx()}
                   >
                     Withdraw
-                  </CustomButton>
+                  </Box>
                 </Box>
               </Box>
             </Box>
           </Box>
         ) : (
-          <Box className="border border-[#1E1E1E] rounded-2xl p-3 max-w-[728px] mt-5">
-            <div className="text-center">
+          <Box className="border border-umbra rounded-2xl p-3 max-w-[728px] mt-5">
+            <Box className="text-center">
               You have no vested DPX.
-              <span className="text-[#22E1FF]" onClick={handleModal}>
+              <Typography variant="h5" onClick={handleModal}>
                 Bond Now
-              </span>
-            </div>
+              </Typography>
+            </Box>
           </Box>
         )
       ) : (
-        <Box className="border border-[#1E1E1E] rounded-2xl p-3 flex max-w-[728px] mt-5">
-          <div className="flex-1">
+        <Box className="border border-umbra rounded-2xl p-3 flex max-w-[728px] mt-5">
+          <Box className="flex-1">
             <AccountBalanceWalletIcon /> Connect your wallet to see your bonds
-          </div>
+          </Box>
           <CustomButton
             variant="text"
             size="small"

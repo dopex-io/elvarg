@@ -40,7 +40,7 @@ export const SideBarMenu = ({ active, setActive }: SideBarMenuProps) => {
     return (
       <>
         <Box
-          className={`pl-5 p-2 hover:bg-mineshaft flex ${
+          className={`pl-5 p-2 hover:bg-mineshaft rounded flex ${
             active == text && 'bg-mineshaft text-white'
           } `}
           onClick={() => handleClick(text)}

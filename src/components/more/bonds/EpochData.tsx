@@ -1,15 +1,14 @@
+/** @jsxImportSource @emotion/react */
 import { useContext, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
-import Button from '@mui/material/Button';
 import LaunchIcon from '@mui/icons-material/Launch';
 import CustomButton from 'components/UI/CustomButton';
 import { DpxBondsContext } from 'contexts/Bonds';
 import format from 'date-fns/format';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { WalletContext } from 'contexts/Wallet';
-
-import styles from './styles.module.scss';
+import { css } from '@emotion/react';
 
 type EpochData = {
   accountAddress: string | undefined;
@@ -50,11 +49,27 @@ export const EpochData = ({
   return (
     <>
       <Box className="bg-cod-gray rounded-lg flex flex-wrap max-w-[728px] mb-5 mt-5">
-        <Box className="p-3 flex-2 md:flex-1 border-r border-[#1E1E1E] w-2/4">
+        <Box className="p-3 flex-2 md:flex-1 border-r border-umbra w-2/4">
           <Box className="text-stieglitz mb-3">Epoch</Box>
-          <Button className={`${styles['button']}`}>{epochNumber}</Button>
+          <Box
+            css={css`
+              background: linear-gradient(
+                318.43deg,
+                #002eff -7.57%,
+                #22e1ff 100%
+              );
+              border-radius: 5px;
+              color: white;
+              width: 70px;
+              padding: 8px;
+              text-align: center;
+              cursor: not-allowed;
+            `}
+          >
+            {epochNumber}
+          </Box>
         </Box>
-        <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-[#1E1E1E] w-2/4">
+        <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-umbra w-2/4">
           <Box className="text-stieglitz mb-3">DPX Available</Box>
           <Box>
             {availableDpx.toFixed(2)} / {getUserReadableAmount(bondsDpx)}
@@ -63,7 +78,7 @@ export const EpochData = ({
             </span>
           </Box>
         </Box>
-        <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-[#1E1E1E] w-2/4">
+        <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-umbra w-2/4">
           <Box className="text-stieglitz mb-3">TBV</Box>$
           {getUserReadableAmount(totalEpochDeposits, 6)}
         </Box>
@@ -80,7 +95,7 @@ export const EpochData = ({
         operations.
       </Box>
       <Box className="lg:flex">
-        <Box className="bg-cod-gray rounded-2xl p-3 w-[352px] mb-5 lg:mb-0 md:mr-5">
+        <Box className="bg-cod-gray rounded-2xl p-2 w-[352px] mb-5 lg:mb-0 md:mr-5">
           <Box className="flex pt-3 pb-3 items-center">
             <img
               src={'/images/tokens/usdc.svg'}
@@ -89,12 +104,12 @@ export const EpochData = ({
             />
             <Box className="flex-1">
               USDC <br />
-              <span className="flex-1 text-stieglitz text-xs">
+              <Typography variant="h6" color="stieglitz" className="flex-1">
                 Deposit up to{' '}
                 {getUserReadableAmount(maxDepositsPerEpoch, 6) -
                   getUserReadableAmount(totalEpochDeposits, 6)}{' '}
                 USDC
-              </span>
+              </Typography>
             </Box>
             <CustomButton
               variant="text"
@@ -106,39 +121,39 @@ export const EpochData = ({
             </CustomButton>
           </Box>
         </Box>
-        <Box className="bg-cod-gray rounded-2xl p-3 w-[352px]">
-          <div className="flex pt-3 flex items-center">
+        <Box className="bg-cod-gray rounded-2xl p-2 w-[352px]">
+          <Box className="flex pt-3 flex items-center">
             <img
               src={'/images/tokens/stables-group.svg'}
               alt={'usdc'}
               className="w-[50px] mr-3 grayscale"
             />
-            <div className="flex-1">
+            <Box className="flex-1">
               Looking for other stables? <br />
-              <span className="text-stieglitz text-xs">
+              <Typography variant="h6" color="stieglitz" className="flex-1">
                 Not yet but maybe soon anon.
-              </span>
-            </div>
-          </div>
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </Box>
-      <div className="lg:flex mt-5">
+      <Box className="lg:flex mt-5">
         <Box className="p-3 w-[352px] mr-5">
           <Typography variant="h5">Program Goals</Typography>
-          <div className="text-stieglitz h-24  mb-7">
+          <Box className="text-stieglitz h-24  mb-7">
             Commit stablecoins upfront and receive vested DPX from treasury at a
             lower market price. Proceeds supports Dopex operations.
-          </div>
+          </Box>
           <a className="text-[#22E1FF]" href="#">
             Bonding Article <LaunchIcon className="w-4" />
           </a>
         </Box>
         <Box className="p-3 w-[352px]">
           <Typography variant="h5">Eligibility</Typography>
-          <div className="text-stieglitz md:h-24 mb-5">
+          <Box className="text-stieglitz md:h-24 mb-5">
             Every Bridgoor NFT increases your cap by an additional{' '}
             {depositPerNft} USDC for every epoch.
-          </div>
+          </Box>
           <Box className="flex">
             <Box
               onClick={handleEligibilityModal}
@@ -154,7 +169,7 @@ export const EpochData = ({
             </a>
           </Box>
         </Box>
-      </div>
+      </Box>
     </>
   );
 };
