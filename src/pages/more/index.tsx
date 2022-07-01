@@ -13,7 +13,7 @@ const More = () => {
   const [active, setActive] = useState('veDPX');
 
   return (
-    <Box className="bg-black min-h-screen m-auto">
+    <Box className="bg-black min-h-screen m-auto p-3">
       <Head>
         <title> More | Dopex</title>
       </Head>
