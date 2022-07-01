@@ -32,6 +32,7 @@ import { CURRENCIES_MAP } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import GridViewIcon from '@mui/icons-material/GridView';
 
 import styles from './styles.module.scss';
 
@@ -40,16 +41,19 @@ const AppLink = ({
   to,
   active,
   className,
+  icon,
 }: {
-  name: string;
+  name: Key | null | undefined | string;
   to: string;
   active?: boolean;
   className?: string;
+  icon?: ReactNode;
 }) => {
   const linkClassName = cx(
     'hover:no-underline hover:text-white cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
+
   if (to.startsWith('http')) {
     return (
       <a
@@ -64,7 +68,9 @@ const AppLink = ({
   } else {
     return (
       <Link href={to} passHref>
-        <Box className={linkClassName}>{name}</Box>
+        <Box className={linkClassName}>
+          {name} {icon}
+        </Box>
       </Link>
     );
   }
@@ -97,6 +103,11 @@ const appLinks = {
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'OTC', to: '/otc' },
+    {
+      name: '',
+      to: '/more',
+      icon: <GridViewIcon fontSize="small" className="pb-0.5" />,
+    },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -236,22 +247,27 @@ export default function AppBar(props: AppBarProps) {
             </a>
             <Box className="space-x-10 mr-10 hidden lg:flex">
               {links.map(
-                (link: { name: Key | null | undefined; to: string }) => {
+                (link: {
+                  name: Key | null | undefined;
+                  to: string;
+                  icon: ReactNode;
+                }) => {
                   if (link.name === active)
                     return (
                       <AppLink
                         to={link.to}
-                        // TODO: FIX
-                        // @ts-ignore
                         name={link.name}
                         key={link.name}
                         active
                       />
                     );
                   return (
-                    // TODO: FIX
-                    // @ts-ignore
-                    <AppLink to={link.to} name={link.name} key={link.name} />
+                    <AppLink
+                      to={link.to}
+                      name={link.name}
+                      key={link.name}
+                      icon={link.icon}
+                    />
                   );
                 }
               )}
