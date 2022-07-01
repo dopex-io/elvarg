@@ -17,6 +17,7 @@ import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
 import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
+import { AssetsContext } from '../../../contexts/Assets';
 
 const DuelPepes = () => {
   const { isLoading, activeDuels, updateDuels, duelContract } =
@@ -25,6 +26,7 @@ const DuelPepes = () => {
   {
     /* const [activeFilter, setActiveFilter] = useState<string>('open'); */
   }
+  const { updateAssetBalances } = useContext(AssetsContext);
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
     useState<boolean>(false);
   const [isFindDuelDialogOpen, setIsFindDuelDialogOpen] =
@@ -49,6 +51,16 @@ const DuelPepes = () => {
     setDuelId(id);
   };
 
+  const openCreateDuelDialog = async () => {
+    await updateAssetBalances();
+    setIsCreateDuelDialogOpen(true);
+  };
+
+  const openFindDuelDialog = async () => {
+    await updateAssetBalances();
+    setIsFindDuelDialogOpen(true);
+  };
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -65,16 +77,12 @@ const DuelPepes = () => {
 
         <CreateDuel
           open={isCreateDuelDialogOpen}
-          handleClose={() => {
-            setIsCreateDuelDialogOpen(false);
-          }}
+          handleClose={openCreateDuelDialog}
         />
 
         <FindDuel
           open={isFindDuelDialogOpen}
-          handleClose={() => {
-            setIsFindDuelDialogOpen(false);
-          }}
+          handleClose={openFindDuelDialog}
           duelId={duelId}
           setDuelId={setDuelId}
         />

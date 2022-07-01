@@ -1,4 +1,10 @@
-import React, { useContext, useState, useMemo, useCallback } from 'react';
+import React, {
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+} from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 
@@ -17,7 +23,6 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
 import { DuelContext } from 'contexts/Duel';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -41,13 +46,12 @@ export interface Props {
 const feesPercentage = 10;
 
 const CreateDuel = ({ open, handleClose }: Props) => {
-  const { chainId, signer, contractAddresses, accountAddress } =
+  const { chainId, signer, contractAddresses, accountAddress, provider } =
     useContext(WalletContext);
   const { isLoading, duelContract, nfts, updateDuels } =
     useContext(DuelContext);
   const sendTx = useSendTx();
-  const { userAssetBalances } = useContext(AssetsContext);
-  const [tokenName, setTokenName] = useState<string>('ETH');
+  const [tokenName, setTokenName] = useState<string>('USDC');
   const [wager, setWager] = useState<number>(1);
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
@@ -56,6 +60,9 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [duelist, setDuelist] = useState<number | null>(null);
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
+  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
 
   const fees = useMemo(() => {
     return (wager * feesPercentage) / 100;
@@ -198,14 +205,31 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     setMoves([]);
     handleClose();
     await updateDuels();
-  }, [duelContract, signer, contractAddresses, tokenName, chainId]);
+  }, [
+    duelContract,
+    signer,
+    accountAddress,
+    updateDuels,
+    contractAddresses,
+    tokenName,
+    chainId,
+    moves,
+  ]);
 
-  const readableBalance = useMemo(() => {
-    return getUserReadableAmount(
-      userAssetBalances[tokenName] || BigNumber.from('0'),
-      getTokenDecimals(tokenName, chainId)
-    );
-  }, [tokenName, chainId, userAssetBalances]);
+  // Updates the approved and user balance state
+  useEffect(() => {
+    (async function () {
+      const _token = ERC20__factory.connect(
+        // @ts-ignore TODO: FIX
+        contractAddresses[tokenName],
+        provider
+      );
+
+      // @ts-ignore TODO: FIX
+      const userAmount = await _token.balanceOf(accountAddress);
+      setUserTokenBalance(userAmount);
+    })();
+  }, [accountAddress, provider, contractAddresses]);
 
   const canCreate = useMemo(() => {
     if (moves.length < 5) return false;
@@ -291,6 +315,13 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       </Box>
     );
   }, [moves]);
+
+  const readableBalance = useMemo(() => {
+    return getUserReadableAmount(
+      userTokenBalance || BigNumber.from('0'),
+      getTokenDecimals(tokenName, chainId)
+    );
+  }, [tokenName, chainId, userTokenBalance]);
 
   // @ts-ignore
   return (

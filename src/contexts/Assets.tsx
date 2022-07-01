@@ -4,6 +4,7 @@ import {
   useState,
   useContext,
   useCallback,
+  useMemo,
   ReactNode,
 } from 'react';
 import { ERC20__factory, Addresses } from '@dopex-io/sdk';
