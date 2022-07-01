@@ -76,7 +76,6 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
   const [state, setState] = useState<DpxBondsData>(initialData);
   const { accountAddress, signer, chainId, provider } =
     useContext(WalletContext);
-  console.log('SIGNER', signer, provider);
 
   let bondsContract = DPXBonds__factory.connect(
     Addresses[chainId].DPXBonds,
