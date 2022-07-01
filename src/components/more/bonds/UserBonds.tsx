@@ -139,13 +139,15 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
             </Box>
           </Box>
         ) : (
-          <Box className="border border-umbra rounded-2xl p-3 max-w-[728px] mt-5">
-            <Box className="text-center">
-              You have no vested DPX.
-              <Typography variant="h5" onClick={handleModal}>
-                Bond Now
-              </Typography>
-            </Box>
+          <Box className="border flex m-auto justify-center border-umbra rounded-2xl p-3 max-w-[728px] mt-5">
+            You have no vested DPX.
+            <Typography
+              variant="h5"
+              className="text-[#22E1FF] ml-2"
+              onClick={handleModal}
+            >
+              Bond Now
+            </Typography>
           </Box>
         )
       ) : (

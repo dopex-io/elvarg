@@ -18,8 +18,8 @@ const More = () => {
         <title> More | Dopex</title>
       </Head>
       <AppBar />
-      <Box className="py-20 md:py-32 md:flex m-auto lg:w-[980px] p-/3">
-        <Box className="flex-2 lg:ml-[/15%] md:mr-[2%] mb-5">
+      <Box className="py-20 md:py-32 md:flex m-auto lg:w-[980px]">
+        <Box className="flex-2 md:mr-[2%] mb-5">
           <SideBarMenu active={active} setActive={setActive} />
         </Box>
         <Box className="flex-1">
