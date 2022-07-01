@@ -210,15 +210,23 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
 
     const depositUSDC = async (value: number) => {
       let nftsToDeposit = usableNfts?.slice(0, value / state.depositPerNft);
-      if (nftsToDeposit) {
-        await sendTx(
-          usdcContract['approve'](
-            bondsContract.address,
-            nftsToDeposit.length * 10 ** 6 * state.depositPerNft
-          )
-        );
-        // @ts-ignore TODO: FIX
-        await sendTx(bondsContract['mint'](nftsToDeposit));
+      if (nftsToDeposit && signer) {
+        try {
+          await sendTx(
+            ERC20__factory.connect(Addresses[chainId].USDC, signer)['approve'](
+              bondsContract.address,
+              nftsToDeposit.length * 10 ** 6 * state.depositPerNft
+            )
+          );
+          await sendTx(
+            DPXBonds__factory.connect(Addresses[chainId].DPXBonds, signer)[
+              'mint'
+              // @ts-ignore TODO: FIX
+            ](nftsToDeposit)
+          );
+        } catch (err) {
+          console.log(err);
+        }
       }
     };
 
