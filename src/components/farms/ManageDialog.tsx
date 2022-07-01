@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { useEffect, useState, useCallback, useContext, useMemo } from 'react';
 import { BigNumber, utils } from 'ethers';
 import {
   ERC20__factory,
@@ -19,16 +19,19 @@ import Tab from 'components/UI/Tab';
 import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
 
 import { WalletContext } from 'contexts/Wallet';
+import { FarmingContext } from 'contexts/Farming';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
+import { FarmStatus } from 'types/farms';
+
 export interface BasicManageDialogProps {
   data: {
     userStakingRewardsBalance: BigNumber;
     userStakingTokenBalance: BigNumber;
-    status: 'RETIRED' | 'ACTIVE';
+    status: FarmStatus;
     stakingTokenSymbol: string;
     stakingRewardsAddress: string;
     stakingTokenAddress: string;
@@ -47,11 +50,12 @@ const ManageDialog = (props: Props) => {
   const [activeTab, setActiveTab] = useState(1);
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
-  const [approved, setApproved] = useState(false);
+  const [allowance, setAllowance] = useState(BigNumber.from(0));
 
   const [amount] = useDebounce(value, 1000);
 
   const { signer, accountAddress } = useContext(WalletContext);
+  const { getUserData } = useContext(FarmingContext);
 
   const sendTx = useSendTx();
 
@@ -89,31 +93,17 @@ const ManageDialog = (props: Props) => {
 
   useEffect(() => {
     (async function () {
-      if (
-        !!error ||
-        !signer ||
-        !data.stakingRewardsAddress ||
-        !data.stakingTokenAddress ||
-        !amount
-      )
+      if (!signer || !data.stakingRewardsAddress || !data.stakingTokenAddress)
         return;
-
       const _accountAddress = await signer?.getAddress();
-      let allowance = await ERC20__factory.connect(
+      let _allowance = await ERC20__factory.connect(
         data.stakingTokenAddress,
         signer
       ).allowance(_accountAddress, data.stakingRewardsAddress);
 
-      if (
-        utils.parseEther(amount).lte(allowance) &&
-        allowance.toString() !== '0'
-      ) {
-        setApproved(true);
-      } else {
-        setApproved(false);
-      }
+      setAllowance(_allowance);
     })();
-  }, [signer, data, amount, error]);
+  }, [signer, data]);
 
   const handleDeposit = useCallback(async () => {
     if (!signer) return;
@@ -124,10 +114,12 @@ const ManageDialog = (props: Props) => {
           signer
         ).stake(utils.parseEther(amount))
       );
+      await getUserData();
+      handleClose();
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, amount, data]);
+  }, [signer, sendTx, amount, data, getUserData, handleClose]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
@@ -138,7 +130,7 @@ const ManageDialog = (props: Props) => {
           MAX_VALUE
         )
       );
-      setApproved(true);
+      setAllowance(BigNumber.from(MAX_VALUE));
     } catch (err) {
       console.log(err);
     }
@@ -146,13 +138,14 @@ const ManageDialog = (props: Props) => {
 
   const handleWithdraw = useCallback(async () => {
     if (!signer || !accountAddress) return;
-    console.log(data.version, data.stakingRewardsAddress, amount);
     try {
       if (data.version === 3) {
         await StakingRewardsV3__factory.connect(
           data.stakingRewardsAddress,
           signer
         ).unstake(utils.parseEther(amount));
+        await getUserData();
+        handleClose();
       } else {
         await sendTx(
           StakingRewards__factory.connect(
@@ -164,7 +157,11 @@ const ManageDialog = (props: Props) => {
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, amount, data, accountAddress]);
+  }, [signer, accountAddress, data, amount, getUserData, handleClose, sendTx]);
+
+  const approved = useMemo(() => {
+    return allowance.gte(utils.parseEther(value || '0'));
+  }, [allowance, value]);
 
   return (
     <Dialog open={open} showCloseIcon handleClose={handleClose}>
@@ -174,7 +171,7 @@ const ManageDialog = (props: Props) => {
           <Tab
             active={activeTab === 0}
             onClick={() => setActiveTab(0)}
-            disabled={data.status === 'RETIRED'}
+            disabled={data.status !== 'ACTIVE'}
             title="Deposit"
           />
           <Tab
