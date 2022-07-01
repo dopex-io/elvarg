@@ -55,6 +55,7 @@ const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
   const [duelist, setDuelist] = useState<number | null>(null);
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
+  const [isSearchModeActive, setIsSearchModeActive] = useState<boolean>(false);
 
   const fees = useMemo(() => {
     return (wager * feesPercentage) / 100;
@@ -292,7 +293,26 @@ const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
         paperScrollPaper: 'overflow-x-hidden',
       }}
     >
-      {isTokenSelectorVisible ? ( // @ts-ignore
+      {isSearchModeActive ? (
+        <Box>
+          <Box className="flex flex-row items-center mb-4">
+            <img
+              src={'/images/nfts/pepes/find-duel-button.png'}
+              className={'w-46 mr-1 ml-auto'}
+              alt={'Create duel'}
+            />
+            <IconButton
+              className="p-0 pb-1 mr-1.5 mt-0.5 ml-auto"
+              onClick={() => setIsSearchModeActive(false)}
+              size="large"
+            >
+              <BigCrossIcon className="" />
+            </IconButton>
+          </Box>
+
+          <Box className="flex flex-row items-center mb-24 mt-2"></Box>
+        </Box>
+      ) : isTokenSelectorVisible ? ( // @ts-ignore
         <Box className="h-[52.8rem]">
           {/* @ts-ignore TODO: FIX */}
           <TokenSelector
@@ -686,6 +706,15 @@ const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
       ) : (
         <Box>
           <Box className="flex flex-row items-center mb-4">
+            <IconButton
+              className="p-0 pb-1 mr-0 mr-auto ml-0.5 opacity-20 hover:opacity-100"
+              size="large"
+              onClick={() => setIsSearchModeActive(true)}
+            >
+              <Tooltip title={'Search duel'}>
+                <img src="/images/misc/search.svg" alt="Search" />
+              </Tooltip>
+            </IconButton>
             <img
               src={'/images/nfts/pepes/find-duel-button.png'}
               className={'w-46 mr-1 ml-auto'}
@@ -699,6 +728,7 @@ const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
               <BigCrossIcon className="" />
             </IconButton>
           </Box>
+
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
             <Box className="flex flex-row justify-between">
               <Box

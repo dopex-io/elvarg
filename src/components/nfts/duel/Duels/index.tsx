@@ -18,6 +18,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import displayAddress from 'utils/general/displayAddress';
 import Countdown from 'react-countdown';
+import formatAmount from '../../../../utils/general/formatAmount';
 
 const Duels = ({ findDuel }: { findDuel: Function }) => {
   const { duels, isLoading } = useContext(DuelContext);
@@ -159,7 +160,7 @@ const Duels = ({ findDuel }: { findDuel: Function }) => {
                       </Typography>
                       <Typography variant="h6" className="font-['Minecraft']">
                         <span className="text-stieglitz">
-                          ~${duel['wagerValueInUSD']}
+                          ~${formatAmount(duel['wagerValueInUSD'], 2)}
                         </span>
                       </Typography>
                     </TableCell>

@@ -876,10 +876,15 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         challengerAddress = '?';
 
       const creationDate = new Date(duelData[10][0].toNumber() * 1000);
-      const challengedLimitDate = addHoursToDate(
-        new Date(duelData[10][0].toNumber() * 1000),
-        12
-      );
+
+      console.log(i);
+
+      console.log(creationDate);
+
+      const challengedLimitDate = addHoursToDate(creationDate, 12);
+
+      console.log(challengedLimitDate);
+
       let status = 'waiting';
 
       const duelistAddress = duelData[1][0];

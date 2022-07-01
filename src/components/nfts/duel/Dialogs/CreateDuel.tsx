@@ -24,6 +24,9 @@ import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+
+import useSendTx from 'hooks/useSendTx';
+
 import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
@@ -42,6 +45,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     useContext(WalletContext);
   const { isLoading, duelContract, nfts, updateDuels } =
     useContext(DuelContext);
+  const sendTx = useSendTx();
   const { userAssetBalances } = useContext(AssetsContext);
   const [tokenName, setTokenName] = useState<string>('ETH');
   const [wager, setWager] = useState<number>(1);
@@ -128,13 +132,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
     if (moves.length < 5) return;
 
-    const token = ERC20__factory.connect(contractAddresses[tokenName], signer);
-
-    const allowance = await token.allowance(
-      accountAddress,
-      duelContract.address
-    );
-
     const identifier = ethers.utils.formatBytes32String(
       [...Array(30)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
     );
@@ -162,24 +159,41 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     let messageHash = ethers.utils.hashMessage(ethers.utils.arrayify(hash));
     const movesSig = await signer.signMessage(messageHash);
 
-    if (allowance.eq(0)) {
-      await token.approve(duelContract.address, MAX_VALUE);
+    if (tokenName !== 'ETH') {
+      const token = ERC20__factory.connect(
+        contractAddresses[tokenName],
+        signer
+      );
+
+      const allowance = await token.allowance(
+        accountAddress,
+        duelContract.address
+      );
+
+      if (allowance.eq(0)) {
+        await token.approve(duelContract.address, MAX_VALUE);
+      }
     }
 
-    await duelContract
-      .connect(signer)
-      ['createDuel'](
-        identifier,
-        getContractReadableAmount(wager, getTokenDecimals(tokenName, chainId)),
-        contractAddresses[tokenName],
-        '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
-        duelist,
-        movesSig,
-        {
-          gasLimit: 60000,
-          value: tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
-        }
-      );
+    await sendTx(
+      duelContract
+        .connect(signer)
+        ['createDuel'](
+          identifier,
+          getContractReadableAmount(
+            wager,
+            getTokenDecimals(tokenName, chainId)
+          ),
+          contractAddresses[tokenName],
+          '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
+          duelist,
+          movesSig,
+          {
+            value:
+              tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
+          }
+        )
+    );
 
     setMoves([]);
     handleClose();
@@ -191,7 +205,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       userAssetBalances[tokenName] || BigNumber.from('0'),
       getTokenDecimals(tokenName, chainId)
     );
-  }, [tokenName, chainId]);
+  }, [tokenName, chainId, userAssetBalances]);
 
   const canCreate = useMemo(() => {
     if (moves.length < 5) return false;
