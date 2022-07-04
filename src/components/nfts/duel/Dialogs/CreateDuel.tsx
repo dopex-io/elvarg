@@ -196,6 +196,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           duelist,
           movesSig,
           {
+            gasLimit: 1000000,
             value:
               tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
           }
@@ -214,6 +215,8 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     tokenName,
     chainId,
     moves,
+    wager,
+    tokenName,
   ]);
 
   // Updates the approved and user balance state
@@ -891,7 +894,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {maxPayout}
+                    {maxPayout} {tokenName}
                   </Typography>
                 </Box>
               </Box>

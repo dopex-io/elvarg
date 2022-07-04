@@ -44,8 +44,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
   const { isLoading, duelContract, nfts, updateDuels, selectedDuel } =
     useContext(DuelContext);
   const { userAssetBalances } = useContext(AssetsContext);
-  const [tokenName, setTokenName] = useState<string>('ETH');
-  const [wager, setWager] = useState<number>(1);
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
@@ -56,12 +54,14 @@ const FindDuel = ({ open, handleClose }: Props) => {
   const [isSearchModeActive, setIsSearchModeActive] = useState<boolean>(false);
 
   const fees = useMemo(() => {
-    return (wager * feesPercentage) / 100;
-  }, [wager]);
+    if (!selectedDuel) return 0;
+    return (selectedDuel['wager'] * feesPercentage) / 100;
+  }, [selectedDuel]);
 
   const maxPayout = useMemo(() => {
-    return wager * 2 - fees;
-  }, [wager]);
+    if (!selectedDuel) return 0;
+    return selectedDuel['wager'] * 2 - fees;
+  }, [selectedDuel, fees]);
 
   const kickMovesSelected = useMemo(() => {
     let counter: number = 0;
@@ -126,19 +126,18 @@ const FindDuel = ({ open, handleClose }: Props) => {
     setIsSelectingMoves(false);
   }, [moves]);
 
-  const handleCreate = useCallback(async () => {
+  const handleMatch = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
     if (moves.length < 5) return;
 
-    const token = ERC20__factory.connect(contractAddresses[tokenName], signer);
+    const token = ERC20__factory.connect(
+      contractAddresses[selectedDuel['tokenName']],
+      signer
+    );
 
     const allowance = await token.allowance(
       accountAddress,
       duelContract.address
-    );
-
-    const identifier = ethers.utils.formatBytes32String(
-      [...Array(30)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
     );
 
     const numericMoves: number[] = [];
@@ -149,51 +148,39 @@ const FindDuel = ({ open, handleClose }: Props) => {
       else numericMoves.push(2);
     });
 
-    let hash = ethers.utils.solidityKeccak256(
-      ['bytes32', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'],
-      [
-        identifier,
-        numericMoves[0],
-        numericMoves[1],
-        numericMoves[2],
-        numericMoves[3],
-        numericMoves[4],
-      ]
-    );
-
-    let messageHash = ethers.utils.hashMessage(ethers.utils.arrayify(hash));
-    const movesSig = await signer.signMessage(messageHash);
-
     if (allowance.eq(0)) {
       await token.approve(duelContract.address, MAX_VALUE);
     }
 
+    console.log(selectedDuel['id']);
+
     await duelContract
       .connect(signer)
-      ['createDuel'](
-        identifier,
-        getContractReadableAmount(wager, getTokenDecimals(tokenName, chainId)),
-        contractAddresses[tokenName],
+      ['challenge'](
+        selectedDuel['id'],
         '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
         duelist,
-        movesSig,
+        numericMoves,
         {
-          gasLimit: 60000,
-          value: tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
+          gasLimit: 1000000,
+          value:
+            selectedDuel['tokenName'] === 'ETH'
+              ? getContractReadableAmount(selectedDuel['wager'], 18)
+              : 0,
         }
       );
 
     setMoves([]);
     handleClose();
     await updateDuels();
-  }, [duelContract, signer, contractAddresses, tokenName, chainId]);
-
-  const readableBalance = useMemo(() => {
-    return getUserReadableAmount(
-      userAssetBalances[tokenName] || BigNumber.from('0'),
-      getTokenDecimals(tokenName, chainId)
-    );
-  }, [tokenName, chainId]);
+  }, [
+    duelContract,
+    signer,
+    contractAddresses,
+    chainId,
+    selectedDuel,
+    accountAddress,
+  ]);
 
   const canCreate = useMemo(() => {
     if (moves.length < 5) return false;
@@ -760,7 +747,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
           </Box>
 
           <Box className="flex relative">
-            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 mr-[0.1px]">
+            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 mr-[1px]">
               <Box className="flex">
                 <img
                   src="/images/misc/person.svg"
@@ -809,50 +796,34 @@ const FindDuel = ({ open, handleClose }: Props) => {
               src="/images/nfts/pepes/vs.png"
               className="absolute left-[45%] top-[30%] z-50"
             />
-            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 ml-[0.1px]">
+            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 ml-[1px]">
               <Box className="flex">
                 <img
                   src="/images/misc/person.svg"
                   className="w-3.5 h-3.5 mr-1.5 mt-1"
                 />
                 <Typography variant="h6" className="text-[#78859E] text-sm">
-                  Select Challenger
+                  Duelist
                 </Typography>
               </Box>
-              {duelist ? (
-                <Box className="flex relative">
-                  <img
-                    src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
-                    className="w-10 h-10 mt-3 cursor-pointer"
-                    onClick={() => setIsSelectingNfts(true)}
-                  />
-                  <Box className="ml-3 mt-2">
-                    <Typography
-                      variant="h6"
-                      className="font-['Minecraft'] mt-1.5"
-                    >
-                      {duelist}
-                    </Typography>
-                    <Typography variant="h6">
-                      <span className="text-[#78859E]">Diamond Pepes</span>
-                    </Typography>
-                  </Box>
+              <Box className="flex relative">
+                <Box className="mr-2 ml-1.5 mt-2 text-right">
+                  <Typography
+                    variant="h6"
+                    className="font-['Minecraft'] mt-1.5"
+                  >
+                    {selectedDuel['duelist']}
+                  </Typography>
+                  <Typography variant="h6">
+                    <span className="text-[#78859E]">Diamond Pepes</span>
+                  </Typography>
                 </Box>
-              ) : (
-                <Box className="flex relative">
-                  <img
-                    src="/images/misc/plus.png"
-                    className="w-10 h-10 mt-3 cursor-pointer"
-                    onClick={() => setIsSelectingNfts(true)}
-                  />
-                  <Box className="ml-3 mt-2">
-                    <Typography variant="h5">-</Typography>
-                    <Typography variant="h6">
-                      <span className="text-stieglitz">-</span>
-                    </Typography>
-                  </Box>
-                </Box>
-              )}
+                <img
+                  src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${selectedDuel['duelist']}/1440/image.jpg`}
+                  className="w-10 h-10 mt-3 cursor-pointer"
+                  onClick={() => setIsSelectingNfts(true)}
+                />
+              </Box>
             </Box>
           </Box>
 
@@ -904,7 +875,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {maxPayout}
+                    {maxPayout} {duelist['tokenName']}
                   </Typography>
                 </Box>
               </Box>
@@ -929,8 +900,8 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Box>
               <Typography variant="h6" className="mt-1">
                 <span className="text-[#78859E]">
-                  This duel will remain available for the next 12 hours to
-                  challenge.
+                  You will automatically win if your opponent does not reveal
+                  his moves in 24 hours
                 </span>
               </Typography>
             </Box>
@@ -940,11 +911,11 @@ const FindDuel = ({ open, handleClose }: Props) => {
               className={styles['pepeButton']}
               color={canCreate ? 'primary' : 'mineshaft'}
               disabled={!canCreate}
-              onClick={handleCreate}
+              onClick={handleMatch}
             >
               {/* @ts-ignore TODO: FIX */}
               <Typography variant="h5" className={styles['pepeButtonText']}>
-                CREATE
+                DUEL
               </Typography>
             </CustomButton>
           </Box>
