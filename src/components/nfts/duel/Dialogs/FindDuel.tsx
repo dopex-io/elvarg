@@ -34,16 +34,14 @@ import cx from 'classnames';
 export interface Props {
   open: boolean;
   handleClose: () => void;
-  duelId: number;
-  setDuelId: Function;
 }
 
 const feesPercentage = 10;
 
-const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
+const FindDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress } =
     useContext(WalletContext);
-  const { isLoading, duelContract, nfts, updateDuels } =
+  const { isLoading, duelContract, nfts, updateDuels, selectedDuel } =
     useContext(DuelContext);
   const { userAssetBalances } = useContext(AssetsContext);
   const [tokenName, setTokenName] = useState<string>('ETH');
@@ -293,7 +291,9 @@ const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
         paperScrollPaper: 'overflow-x-hidden',
       }}
     >
-      {isSearchModeActive ? (
+      {!selectedDuel ? (
+        <Box></Box>
+      ) : isSearchModeActive ? (
         <Box>
           <Box className="flex flex-row items-center mb-4">
             <img
@@ -709,9 +709,8 @@ const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
             <IconButton
               className="p-0 pb-1 mr-0 mr-auto ml-0.5 opacity-20 hover:opacity-100"
               size="large"
-              onClick={() => setIsSearchModeActive(true)}
             >
-              <Tooltip title={'Search duel'}>
+              <Tooltip title={'Not enabled yet'}>
                 <img src="/images/misc/search.svg" alt="Search" />
               </Tooltip>
             </IconButton>
@@ -729,106 +728,132 @@ const FindDuel = ({ open, handleClose, duelId, setDuelId }: Props) => {
             </IconButton>
           </Box>
 
-          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
-            <Box className="flex flex-row justify-between">
-              <Box
-                className="h-10 bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer"
-                onClick={() => setIsTokenSelectorVisible(true)}
-              >
-                <Box className="flex flex-row h-10 pr-14">
-                  <img
-                    src={`/images/tokens/${tokenName.toLowerCase()}.svg`}
-                    alt={tokenName}
-                    className="w-8 h-8 mt-1"
-                  />
-                  <Typography
-                    variant="h5"
-                    className="text-stieglitz text-sm pl-1 pt-1 ml-1 mt-1"
-                  >
-                    {tokenName}
-                  </Typography>
-                  <img
-                    src="/images/misc/arrow-down.svg"
-                    className="w-3 h-1 ml-3 mt-4"
-                  />
-                </Box>
-              </Box>
-              <Input
-                disableUnderline
-                placeholder="0"
-                type="number"
-                className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
-                value={wager}
-                onChange={(e) => setWager(Number(e.target.value))}
-                classes={{ input: 'text-right' }}
-              />
-            </Box>
-            <Box className="flex flex-row justify-between">
+          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-1 p-1 pr-2">
+            <Box className="flex flex-row justify-between mb-1.5">
               <Box className="flex">
                 <img
                   src="/images/nfts/pepes/crown.svg"
-                  className="w-3 h-3 mt-auto mb-1 mr-0.5"
+                  className="w-3 h-3 mt-3 mb-0.5 mr-0.5 ml-2"
                 />
                 <Typography
                   variant="h6"
-                  className="text-[#78859E] text-sm pl-1 pt-2"
+                  className="text-[#78859E] text-sm pl-1 pt-1.5"
                 >
                   Wager
                 </Typography>
               </Box>
-              <Box className="ml-auto mr-0">
-                <Typography variant="h6" className="text-sm pl-1 pt-2 pr-3">
-                  <span className="text-[#78859E]">Balance: </span>
-                  {formatAmount(readableBalance, 2)}
+              <Box className="ml-auto bg-[#343C4D] pt-1 pb-0 px-2 rounded-sm mt-1.5 mr-2 flex">
+                <img
+                  src={`/images/tokens/${selectedDuel[
+                    'tokenName'
+                  ].toLowerCase()}.svg`}
+                  className="h-3.5 w-3.5 mr-2"
+                />
+                <Typography variant="h6" className="text-sm font-['Minecraft']">
+                  {formatAmount(selectedDuel['wager'], 2)}
+                  <span className="text-[#78859E] ml-1">
+                    {selectedDuel['tokenName']}
+                  </span>
                 </Typography>
               </Box>
             </Box>
           </Box>
 
-          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
-            <Box className="flex">
-              <img
-                src="/images/misc/person.svg"
-                className="w-3.5 h-3.5 mr-1.5 mt-1"
-              />
-              <Typography variant="h6" className="text-[#78859E] text-sm">
-                Select Challenger
-              </Typography>
+          <Box className="flex relative">
+            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 mr-[0.1px]">
+              <Box className="flex">
+                <img
+                  src="/images/misc/person.svg"
+                  className="w-3.5 h-3.5 mr-1.5 mt-1"
+                />
+                <Typography variant="h6" className="text-[#78859E] text-sm">
+                  Select Challenger
+                </Typography>
+              </Box>
+              {duelist ? (
+                <Box className="flex relative">
+                  <img
+                    src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
+                    className="w-10 h-10 mt-3 cursor-pointer"
+                    onClick={() => setIsSelectingNfts(true)}
+                  />
+                  <Box className="ml-3 mt-2">
+                    <Typography
+                      variant="h6"
+                      className="font-['Minecraft'] mt-1.5"
+                    >
+                      {duelist}
+                    </Typography>
+                    <Typography variant="h6">
+                      <span className="text-[#78859E]">Diamond Pepes</span>
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : (
+                <Box className="flex relative">
+                  <img
+                    src="/images/misc/plus.png"
+                    className="w-10 h-10 mt-3 cursor-pointer"
+                    onClick={() => setIsSelectingNfts(true)}
+                  />
+                  <Box className="ml-3 mt-2">
+                    <Typography variant="h5">-</Typography>
+                    <Typography variant="h6">
+                      <span className="text-stieglitz">-</span>
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
             </Box>
-            {duelist ? (
-              <Box className="flex relative">
+            <img
+              src="/images/nfts/pepes/vs.png"
+              className="absolute left-[45%] top-[30%] z-50"
+            />
+            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 ml-[0.1px]">
+              <Box className="flex">
                 <img
-                  src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
-                  className="w-10 h-10 mt-3 cursor-pointer"
-                  onClick={() => setIsSelectingNfts(true)}
+                  src="/images/misc/person.svg"
+                  className="w-3.5 h-3.5 mr-1.5 mt-1"
                 />
-                <Box className="ml-3 mt-2">
-                  <Typography
-                    variant="h6"
-                    className="font-['Minecraft'] mt-1.5"
-                  >
-                    {duelist}
-                  </Typography>
-                  <Typography variant="h6">
-                    <span className="text-[#78859E]">Diamond Pepes</span>
-                  </Typography>
-                </Box>
+                <Typography variant="h6" className="text-[#78859E] text-sm">
+                  Select Challenger
+                </Typography>
               </Box>
-            ) : (
-              <Box className="flex relative">
-                <img
-                  src="/images/misc/plus.png"
-                  className="w-10 h-10 mt-3 cursor-pointer"
-                  onClick={() => setIsSelectingNfts(true)}
-                />
-                <Box className="ml-3 mt-2">
-                  <Typography variant="h5">-</Typography>
-                  <Typography variant="h6">
-                    <span className="text-stieglitz">-</span>
-                  </Typography>
+              {duelist ? (
+                <Box className="flex relative">
+                  <img
+                    src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
+                    className="w-10 h-10 mt-3 cursor-pointer"
+                    onClick={() => setIsSelectingNfts(true)}
+                  />
+                  <Box className="ml-3 mt-2">
+                    <Typography
+                      variant="h6"
+                      className="font-['Minecraft'] mt-1.5"
+                    >
+                      {duelist}
+                    </Typography>
+                    <Typography variant="h6">
+                      <span className="text-[#78859E]">Diamond Pepes</span>
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            )}
+              ) : (
+                <Box className="flex relative">
+                  <img
+                    src="/images/misc/plus.png"
+                    className="w-10 h-10 mt-3 cursor-pointer"
+                    onClick={() => setIsSelectingNfts(true)}
+                  />
+                  <Box className="ml-3 mt-2">
+                    <Typography variant="h5">-</Typography>
+                    <Typography variant="h6">
+                      <span className="text-stieglitz">-</span>
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Box>
           </Box>
 
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 px-3 py-3">

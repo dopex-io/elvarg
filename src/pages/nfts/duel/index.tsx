@@ -4,7 +4,7 @@ import { useCallback, useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { DuelContext } from 'contexts/Duel';
+import { DuelContext, Duel } from 'contexts/Duel';
 import { DuelProvider } from 'contexts/Duel';
 import { WalletContext } from 'contexts/Wallet';
 
@@ -17,21 +17,15 @@ import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
 import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
-import { AssetsContext } from '../../../contexts/Assets';
 
 const DuelPepes = () => {
-  const { isLoading, activeDuels, updateDuels, duelContract } =
+  const { isLoading, activeDuels, updateDuels, duelContract, setSelectedDuel } =
     useContext(DuelContext);
   const { signer } = useContext(WalletContext);
-  {
-    /* const [activeFilter, setActiveFilter] = useState<string>('open'); */
-  }
-  const { updateAssetBalances } = useContext(AssetsContext);
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
     useState<boolean>(false);
   const [isFindDuelDialogOpen, setIsFindDuelDialogOpen] =
     useState<boolean>(false);
-  const [duelId, setDuelId] = useState<number>(0);
 
   const handleReveal = useCallback(async () => {}, []);
 
@@ -46,19 +40,17 @@ const DuelPepes = () => {
     [duelContract, signer, updateDuels]
   );
 
-  const findDuel = (id: number) => {
+  const findDuel = (duel: Duel) => {
+    setSelectedDuel!(duel);
     setIsFindDuelDialogOpen(true);
-    setDuelId(id);
   };
 
-  const openCreateDuelDialog = async () => {
-    await updateAssetBalances();
-    setIsCreateDuelDialogOpen(true);
+  const closeCreateDuelDialog = async () => {
+    setIsCreateDuelDialogOpen(false);
   };
 
-  const openFindDuelDialog = async () => {
-    await updateAssetBalances();
-    setIsFindDuelDialogOpen(true);
+  const closeFindDuelDialog = async () => {
+    setIsFindDuelDialogOpen(false);
   };
 
   return (
@@ -77,14 +69,12 @@ const DuelPepes = () => {
 
         <CreateDuel
           open={isCreateDuelDialogOpen}
-          handleClose={openCreateDuelDialog}
+          handleClose={closeCreateDuelDialog}
         />
 
         <FindDuel
           open={isFindDuelDialogOpen}
-          handleClose={openFindDuelDialog}
-          duelId={duelId}
-          setDuelId={setDuelId}
+          handleClose={closeFindDuelDialog}
         />
 
         <Box className="pt-28 md:pt-32 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">

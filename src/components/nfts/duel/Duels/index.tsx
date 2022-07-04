@@ -171,7 +171,7 @@ const Duels = ({ findDuel }: { findDuel: Function }) => {
                         size="medium"
                         className={styles['smallPepeButton']}
                         disabled={duel['challengedLimitDate'] < new Date()}
-                        onClick={() => findDuel(duel['id'])}
+                        onClick={() => findDuel(duel)}
                       >
                         {/* @ts-ignore TODO: FIX */}
                         <Typography

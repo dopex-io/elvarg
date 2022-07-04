@@ -55,6 +55,8 @@ interface DuelContextInterface {
   updateUserNfts?: Function;
   isLoading: boolean;
   duelContract?: any;
+  selectedDuel: Duel | null;
+  setSelectedDuel?: Function;
 }
 
 const initialData: DuelContextInterface = {
@@ -62,6 +64,7 @@ const initialData: DuelContextInterface = {
   duels: [],
   activeDuels: [],
   isLoading: true,
+  selectedDuel: null,
 };
 
 const ABI = [
@@ -833,6 +836,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const [nfts, setNfts] = useState<UserNft[]>([]);
   const [duels, setDuels] = useState<Duel[]>([]);
   const [activeDuels, setActiveDuels] = useState<Duel[]>([]);
+  const [selectedDuel, setSelectedDuel] = useState<null | Duel>(null);
 
   const updateDuels = useCallback(async () => {
     if (!signer || !accountAddress) return;
@@ -877,13 +881,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
       const creationDate = new Date(duelData[10][0].toNumber() * 1000);
 
-      console.log(i);
-
-      console.log(creationDate);
-
       const challengedLimitDate = addHoursToDate(creationDate, 12);
-
-      console.log(challengedLimitDate);
 
       let status = 'waiting';
 
@@ -1002,6 +1000,8 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     updateNfts,
     isLoading,
     duelContract,
+    selectedDuel,
+    setSelectedDuel,
   };
 
   return (
