@@ -812,7 +812,7 @@ const ABI = [
 export const DuelContext = createContext<DuelContextInterface>(initialData);
 
 export const DuelProvider = (props: { children: ReactNode }) => {
-  const { contractAddresses, provider, signer, chainId } =
+  const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
 
   const { tokenPrices } = useContext(AssetsContext);
