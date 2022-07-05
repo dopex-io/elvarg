@@ -41,14 +41,9 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     useContext(WalletContext);
   const { isLoading, duelContract, nfts, updateDuels, selectedDuel } =
     useContext(DuelContext);
-  const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
-  const [duelist, setDuelist] = useState<number | null>(null);
-  const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
-    useState<boolean>(false);
-  const [isSearchModeActive, setIsSearchModeActive] = useState<boolean>(false);
 
   const fees = useMemo(() => {
     if (!selectedDuel) return 0;
@@ -123,19 +118,9 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     setIsSelectingMoves(false);
   }, [moves]);
 
-  const handleMatch = useCallback(async () => {
+  const handleReveal = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
     if (moves.length < 5) return;
-
-    const token = ERC20__factory.connect(
-      contractAddresses[selectedDuel['tokenName']],
-      signer
-    );
-
-    const allowance = await token.allowance(
-      accountAddress,
-      duelContract.address
-    );
 
     const numericMoves: number[] = [];
     moves.map((move) => {
@@ -145,25 +130,12 @@ const RevealDuel = ({ open, handleClose }: Props) => {
       else numericMoves.push(2);
     });
 
-    if (allowance.eq(0)) {
-      await token.approve(duelContract.address, MAX_VALUE);
-    }
-
     await duelContract
       .connect(signer)
-      ['challenge'](
-        selectedDuel['id'],
-        '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
-        duelist,
-        numericMoves,
-        {
-          gasLimit: 3000000,
-          value:
-            selectedDuel['tokenName'] === 'ETH'
-              ? getContractReadableAmount(selectedDuel['wager'], 18)
-              : 0,
-        }
-      );
+      ['revealDuel'](selectedDuel['id'], numericMoves, {
+        gasLimit: 1000000,
+        value: 0,
+      });
 
     setMoves([]);
     handleClose();
@@ -175,16 +147,14 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     chainId,
     selectedDuel,
     accountAddress,
-    duelist,
     moves,
   ]);
 
-  const canCreate = useMemo(() => {
+  const canReveal = useMemo(() => {
     if (moves.length < 5) return false;
-    else if (!duelist) return false;
 
     return true;
-  }, [moves, duelist]);
+  }, [moves]);
 
   const updateDuelist = (nftId: number) => {
     setDuelist(nftId);
@@ -277,141 +247,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     >
       {!selectedDuel ? (
         <Box></Box>
-      ) : isSearchModeActive ? (
-        <Box>
-          <Box className="flex flex-row items-center mb-4">
-            <img
-              src={'/images/nfts/pepes/find-duel-button.png'}
-              className={'w-46 mr-1 ml-auto'}
-              alt={'Create duel'}
-            />
-            <IconButton
-              className="p-0 pb-1 mr-1.5 mt-0.5 ml-auto"
-              onClick={() => setIsSearchModeActive(false)}
-              size="large"
-            >
-              <BigCrossIcon className="" />
-            </IconButton>
-          </Box>
-
-          <Box className="flex flex-row items-center mb-24 mt-2"></Box>
-        </Box>
-      ) : isTokenSelectorVisible ? ( // @ts-ignore
-        <Box className="h-[52.8rem]">
-          {/* @ts-ignore TODO: FIX */}
-          <TokenSelector
-            open={isTokenSelectorVisible}
-            setOpen={setIsTokenSelectorVisible}
-            setFromTokenSymbol={setTokenName}
-            isInDialog={true}
-            tokensToExclude={[]}
-          />{' '}
-        </Box>
-      ) : isSelectingNfts ? (
-        <Box>
-          <Box className="flex flex-row items-center mb-4">
-            <IconButton
-              className="p-0 pb-1 mr-auto mt-0.5 ml-0"
-              onClick={() => setIsSelectingNfts(false)}
-              size="large"
-            >
-              <img
-                src="/images/misc/arrow-left-white.svg"
-                className="w-46 ml-auto"
-                alt="Go back"
-              />
-            </IconButton>
-            <img
-              src="/images/nfts/pepes/your-nfts.png"
-              className="w-46 mr-auto"
-              alt="Your nfts"
-            />
-          </Box>
-          {isLoading ? (
-            <Box className="h-[40rem] overflow-hidden mt-2">
-              {/* @ts-ignore TODO: FIX */}
-              <Box className={styles['darkBg']}>
-                <Box className="absolute left-[20%] top-[40%] z-50 text-center">
-                  <Typography
-                    variant="h5"
-                    className="text-[#9CECFD] font-['Minecraft']"
-                  >
-                    Checking for whitelisted NFTs...
-                  </Typography>
-                  <CircularProgress
-                    color="inherit"
-                    size="17px"
-                    className="mr-auto ml-auto mt-0.5 text-[#9CECFD]"
-                  />
-                </Box>
-
-                {[...Array(8)].map((i) => {
-                  return (
-                    <Box className="flex lg:grid lg:grid-cols-12 mb-3" key={i}>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-3.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-1.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-2.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-1.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Box>
-          ) : (
-            <Box className="h-[40rem] overflow-hidden mt-2 pt-2">
-              {/* @ts-ignore TODO: FIX */}
-              <Box className={styles['darkBg']}>
-                <Box className="flex lg:grid lg:grid-cols-12 mb-3">
-                  {nfts.map((userNft, i) => (
-                    <Box
-                      className="col-span-3 pl-2 pr-2 relative cursor-pointer group"
-                      onClick={() => updateDuelist(userNft.id)}
-                      key={i}
-                    >
-                      <img
-                        src={userNft.src}
-                        className="w-full border-4 border-[#343C4D] group-hover:border-[#343C3A]"
-                        alt="Pepe"
-                      />
-                      <Box
-                        className={cx(
-                          styles['diamondTag'],
-                          "absolute ml-3 mt-[-1rem] text-sm font-['Minecraft'] text-center mx-auto my-auto"
-                        )}
-                      >
-                        {userNft.id}
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Box>
       ) : isSelectingMoves ? (
         <Box>
           <Box className="flex flex-row items-center mb-4">
@@ -690,14 +525,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
       ) : (
         <Box>
           <Box className="flex flex-row items-center mb-4">
-            <IconButton
-              className="p-0 pb-1 mr-0 mr-auto ml-0.5 opacity-20 hover:opacity-100"
-              size="large"
-            >
-              <Tooltip title={'Not enabled yet'}>
-                <img src="/images/misc/search.svg" alt="Search" />
-              </Tooltip>
-            </IconButton>
             <img
               src={'/images/nfts/pepes/find-duel-button.png'}
               className={'w-46 mr-1 ml-auto'}
@@ -711,127 +538,14 @@ const RevealDuel = ({ open, handleClose }: Props) => {
               <BigCrossIcon className="" />
             </IconButton>
           </Box>
-
-          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-1 p-1 pr-2">
-            <Box className="flex flex-row justify-between mb-1.5">
-              <Box className="flex">
-                <img
-                  src="/images/nfts/pepes/crown.svg"
-                  className="w-3 h-3 mt-3 mb-0.5 mr-0.5 ml-2"
-                />
-                <Typography
-                  variant="h6"
-                  className="text-[#78859E] text-sm pl-1 pt-1.5"
-                >
-                  Wager
-                </Typography>
-              </Box>
-              <Box className="ml-auto bg-[#343C4D] pt-1 pb-0 px-2 rounded-sm mt-1.5 mr-2 flex">
-                <img
-                  src={`/images/tokens/${selectedDuel[
-                    'tokenName'
-                  ].toLowerCase()}.svg`}
-                  className="h-3.5 w-3.5 mr-2"
-                />
-                <Typography variant="h6" className="text-sm font-['Minecraft']">
-                  {formatAmount(selectedDuel['wager'], 2)}
-                  <span className="text-[#78859E] ml-1">
-                    {selectedDuel['tokenName']}
-                  </span>
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          <Box className="flex relative">
-            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 mr-[1px]">
-              <Box className="flex">
-                <img
-                  src="/images/misc/person.svg"
-                  className="w-3.5 h-3.5 mr-1.5 mt-1"
-                />
-                <Typography variant="h6" className="text-[#78859E] text-sm">
-                  Select Challenger
-                </Typography>
-              </Box>
-              {duelist ? (
-                <Box className="flex relative">
-                  <img
-                    src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
-                    className="w-10 h-10 mt-3 cursor-pointer"
-                    onClick={() => setIsSelectingNfts(true)}
-                  />
-                  <Box className="ml-3 mt-2">
-                    <Typography
-                      variant="h6"
-                      className="font-['Minecraft'] mt-1.5"
-                    >
-                      {duelist}
-                    </Typography>
-                    <Typography variant="h6">
-                      <span className="text-[#78859E]">Diamond Pepes</span>
-                    </Typography>
-                  </Box>
-                </Box>
-              ) : (
-                <Box className="flex relative">
-                  <img
-                    src="/images/misc/plus.png"
-                    className="w-10 h-10 mt-3 cursor-pointer"
-                    onClick={() => setIsSelectingNfts(true)}
-                  />
-                  <Box className="ml-3 mt-2">
-                    <Typography variant="h5">-</Typography>
-                    <Typography variant="h6">
-                      <span className="text-stieglitz">-</span>
-                    </Typography>
-                  </Box>
-                </Box>
-              )}
-            </Box>
-            <img
-              src="/images/nfts/pepes/vs.png"
-              className="absolute left-[45%] top-[30%] z-50"
-            />
-            <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 ml-[1px]">
-              <Box className="flex">
-                <img
-                  src="/images/misc/person.svg"
-                  className="w-3.5 h-3.5 mr-1.5 mt-1"
-                />
-                <Typography variant="h6" className="text-[#78859E] text-sm">
-                  Duelist
-                </Typography>
-              </Box>
-              <Box className="flex relative">
-                <Box className="mr-2 ml-1.5 mt-2 text-right">
-                  <Typography
-                    variant="h6"
-                    className="font-['Minecraft'] mt-1.5"
-                  >
-                    {selectedDuel['duelist']}
-                  </Typography>
-                  <Typography variant="h6">
-                    <span className="text-[#78859E]">Diamond Pepes</span>
-                  </Typography>
-                </Box>
-                <img
-                  src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${selectedDuel['duelist']}/1440/image.jpg`}
-                  className="w-10 h-10 mt-3 cursor-pointer"
-                  onClick={() => setIsSelectingNfts(true)}
-                />
-              </Box>
-            </Box>
-          </Box>
-
-          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 px-3 py-3">
+          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 px-3 py-3 mt-6">
             <Box className="flex">
               <img
                 src="/images/misc/gamepad.svg"
                 className="w-3.5 h-3.5 mr-1.5 mt-1"
               />
               <Typography variant="h6" className="text-[#78859E] text-sm">
-                Select Moves
+                Reveal Moves
               </Typography>
               {moves.length === 5 ? (
                 <Typography
@@ -893,12 +607,22 @@ const RevealDuel = ({ open, handleClose }: Props) => {
 
             <Box className="flex mb-1.5">
               <Box className="flex text-center p-2 mr-2 mt-1">
-                <img src="/images/misc/clock.svg" className="w-7 h-5 mt-1" />
+                <img src="/images/misc/clock.svg" className="w-9 h-5 mt-1" />
               </Box>
               <Typography variant="h6" className="mt-1">
                 <span className="text-[#78859E]">
-                  You will automatically win if your opponent does not reveal
-                  his moves in 24 hours
+                  You will automatically lose if you do not reveal your moves
+                  within 24 hours from the challenge
+                </span>
+              </Typography>
+            </Box>
+            <Box className="flex mb-1.5">
+              <Box className="flex text-center p-2 mr-2 mt-1">
+                <img src="/images/misc/fire.svg" className="w-7 h-5 mt-1" />
+              </Box>
+              <Typography variant="h6" className="mt-1">
+                <span className="text-[#78859E]">
+                  The quicker you reveal more bonus fee you earn, run friend!
                 </span>
               </Typography>
             </Box>
@@ -906,13 +630,13 @@ const RevealDuel = ({ open, handleClose }: Props) => {
             <CustomButton
               size="medium"
               className={styles['pepeButton']}
-              color={canCreate ? 'primary' : 'mineshaft'}
-              disabled={!canCreate}
-              onClick={handleMatch}
+              color={canReveal ? 'primary' : 'mineshaft'}
+              disabled={!canReveal}
+              onClick={handleReveal}
             >
               {/* @ts-ignore TODO: FIX */}
               <Typography variant="h5" className={styles['pepeButtonText']}>
-                DUEL
+                REVEAL
               </Typography>
             </CustomButton>
           </Box>
