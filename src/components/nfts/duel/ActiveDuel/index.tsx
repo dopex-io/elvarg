@@ -18,6 +18,8 @@ const ActiveDuel = ({
   handleUndo: Function;
   handleReveal: Function;
 }) => {
+  const { accountAddress } = useContext(WalletContext);
+
   const handleClick = () => {
     if (duel['status'] === 'requireUndo') handleUndo(duel['id']);
     else if (duel['status'] === 'requireReveal') handleReveal(duel['id']);
@@ -28,9 +30,18 @@ const ActiveDuel = ({
     else if (duel['status'] === 'requireUndo') return 'UNDO';
     else if (duel['status'] === 'won') return 'YOU WON';
     else if (duel['status'] === 'lost') return 'YOU LOST';
-    else if (duel['status'] === 'requireReveal') return 'WAIT REVEAL...';
+    else if (
+      duel['status'] === 'requireReveal' &&
+      duel['duelistAddress'] === accountAddress
+    )
+      return 'REVEAL';
+    else if (
+      duel['status'] === 'requireReveal' &&
+      duel['duelistAddress'] !== accountAddress
+    )
+      return 'WAIT REVEAL...';
     else return 'TIE';
-  }, [duel]);
+  }, [duel, accountAddress]);
 
   return (
     <Box className="w-full flex p-5 bg-[#181C24] relative">
