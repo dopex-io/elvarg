@@ -1,11 +1,10 @@
-import { useMemo, useContext } from 'react';
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
 
 import { Duel } from 'contexts/Duel';
-import { WalletContext } from 'contexts/Wallet';
 
 import styles from '../styles.module.scss';
 import Countdown from 'react-countdown';
@@ -19,11 +18,12 @@ const ActiveDuel = ({
   handleUndo: Function;
   handleReveal: Function;
 }) => {
-  const { accountAddress } = useContext(WalletContext);
+  // const { accountAddress  } = useContext(WalletContext);
+  const accountAddress = '0x2822dd75E4B7F6d7BCFf1d63Ce05Fe2118dD92Cf';
 
   const handleClick = () => {
     if (duel['status'] === 'requireUndo') handleUndo(duel['id']);
-    else if (duel['status'] === 'requireReveal') handleReveal(duel['id']);
+    else if (duel['status'] === 'requireReveal') handleReveal(duel);
   };
 
   const message = useMemo(() => {

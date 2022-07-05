@@ -15,6 +15,7 @@ import ActiveDuel from 'components/nfts/duel/ActiveDuel';
 import Duels from 'components/nfts/duel/Duels';
 import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
 import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
+import RevealDuel from 'components/nfts/duel/Dialogs/RevealDuel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
 
@@ -26,8 +27,8 @@ const DuelPepes = () => {
     useState<boolean>(false);
   const [isFindDuelDialogOpen, setIsFindDuelDialogOpen] =
     useState<boolean>(false);
-
-  const handleReveal = useCallback(async () => {}, []);
+  const [isRevealDuelDialogOpen, setIsRevealDuelDialogOpen] =
+    useState<boolean>(false);
 
   const handleUndo = useCallback(
     async (id: number) => {
@@ -45,12 +46,21 @@ const DuelPepes = () => {
     setIsFindDuelDialogOpen(true);
   };
 
+  const revealDuel = (duel: Duel) => {
+    setSelectedDuel!(duel);
+    setIsRevealDuelDialogOpen(true);
+  };
+
   const closeCreateDuelDialog = async () => {
     setIsCreateDuelDialogOpen(false);
   };
 
   const closeFindDuelDialog = async () => {
     setIsFindDuelDialogOpen(false);
+  };
+
+  const closeRevealDuelDialog = async () => {
+    setIsRevealDuelDialogOpen(false);
   };
 
   return (
@@ -75,6 +85,11 @@ const DuelPepes = () => {
         <FindDuel
           open={isFindDuelDialogOpen}
           handleClose={closeFindDuelDialog}
+        />
+
+        <RevealDuel
+          open={isRevealDuelDialogOpen}
+          handleClose={closeRevealDuelDialog}
         />
 
         <Box className="pt-28 md:pt-32 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
@@ -176,7 +191,7 @@ const DuelPepes = () => {
               <ActiveDuel
                 duel={duel}
                 handleUndo={handleUndo}
-                handleReveal={handleReveal}
+                handleReveal={revealDuel}
               />
             </Box>
           ))}
