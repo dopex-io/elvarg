@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useContext } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
 
 import { Duel } from 'contexts/Duel';
+import { WalletContext } from 'contexts/Wallet';
 
 import styles from '../styles.module.scss';
 import Countdown from 'react-countdown';
