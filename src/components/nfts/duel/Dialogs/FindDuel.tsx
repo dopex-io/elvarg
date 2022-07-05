@@ -162,7 +162,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
         duelist,
         numericMoves,
         {
-          gasLimit: 1000000,
+          gasLimit: 3000000,
           value:
             selectedDuel['tokenName'] === 'ETH'
               ? getContractReadableAmount(selectedDuel['wager'], 18)

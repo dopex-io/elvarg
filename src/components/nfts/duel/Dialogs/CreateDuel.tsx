@@ -196,7 +196,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           duelist,
           movesSig,
           {
-            gasLimit: 1000000,
+            gasLimit: 3000000,
             value:
               tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
           }
