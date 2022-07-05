@@ -850,7 +850,9 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     for (let i = 1; i <= duelCount; i++) {
       const duelData = await duelContract['getDuel'](i);
 
-      const finishDate = new Date(duelData[10][2].toNumber() * 1000);
+      const finishDate = new Date(duelData[10][1].toNumber() * 1000);
+
+      const revealDate = new Date(duelData[10][2].toNumber() * 1000);
 
       const rawMoves = duelData[8];
       const duelistMoves: string[] = [];
@@ -891,17 +893,21 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
       const isCreatorWinner = duelData[9];
 
-      if (finishDate.getTime() > 1000 && finishDate < new Date()) {
-        if (isCreatorWinner && duelistAddress === accountAddress)
-          status = 'won';
-        else if (isCreatorWinner && challengerAddress === accountAddress)
-          status = 'lost';
-        else status = 'tie';
+      if (finishDate.getTime() > 1000) {
+        if (revealDate.getTime() > new Date().getTime()) {
+          if (isCreatorWinner && duelistAddress === accountAddress)
+            status = 'won';
+          else if (isCreatorWinner && challengerAddress === accountAddress)
+            status = 'lost';
+          else {
+            status = 'tie';
+          }
+        } else {
+          status = 'requireReveal';
+        }
       } else {
         if (new Date() > challengedLimitDate && challengerAddress === '?')
           status = 'requireUndo';
-        else if (challengerAddress !== '?' && accountAddress !== duelistAddress)
-          status = 'requireReveal';
       }
 
       const wager = getUserReadableAmount(duelData[2], decimals);

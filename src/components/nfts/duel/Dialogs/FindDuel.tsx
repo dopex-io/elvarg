@@ -22,8 +22,6 @@ import { AssetsContext } from 'contexts/Assets';
 import { DuelContext } from 'contexts/Duel';
 
 import formatAmount from 'utils/general/formatAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import { MAX_VALUE } from 'constants/index';
 

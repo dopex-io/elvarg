@@ -28,6 +28,7 @@ const ActiveDuel = ({
     else if (duel['status'] === 'requireUndo') return 'UNDO';
     else if (duel['status'] === 'won') return 'YOU WON';
     else if (duel['status'] === 'lost') return 'YOU LOST';
+    else if (duel['status'] === 'requireReveal') return 'WAIT REVEAL...';
     else return 'TIE';
   }, [duel]);
 
@@ -170,12 +171,13 @@ const ActiveDuel = ({
         src={
           duel['challengerAddress'] === '?'
             ? '/images/nfts/pepes/pepe-frame-1.png'
-            : `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`
+            : `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['challenger']}/280/static.jpg`
         }
         className="rounded-md w-14 h-14 ml-6 mt-1"
       />
 
-      {duel['isRevealed'] && !duel['isCreatorWinner'] ? (
+      {['won', 'lost', 'tie'].includes(duel['status']) &&
+      !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FFD50B]">
           <img src="/images/misc/crown.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
@@ -184,7 +186,8 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {duel['isRevealed'] && duel['isCreatorWinner'] ? (
+      {['won', 'lost', 'tie'].includes(duel['status']) &&
+      duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FF2727]">
           <img src="/images/misc/fire.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
@@ -254,7 +257,8 @@ const ActiveDuel = ({
         </Typography>
       </Box>
 
-      {duel['isRevealed'] && duel['isCreatorWinner'] ? (
+      {['won', 'lost', 'tie'].includes(duel['status']) &&
+      duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FFD50B]">
           <img src="/images/misc/crown.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
@@ -263,7 +267,8 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {duel['isRevealed'] && !duel['isCreatorWinner'] ? (
+      {['won', 'lost', 'tie'].includes(duel['status']) &&
+      !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FF2727]">
           <img src="/images/misc/fire.svg" className="w-4 h-4 mr-1 mt-0.5" />
           <Typography variant="h6">
