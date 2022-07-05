@@ -1,10 +1,8 @@
 // @ts-nocheck
 import React, { useContext, useState, useMemo, useCallback } from 'react';
-import { BigNumber, ethers } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 
 import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -41,7 +39,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
     useContext(WalletContext);
   const { isLoading, duelContract, nfts, updateDuels, selectedDuel } =
     useContext(DuelContext);
-  const { userAssetBalances } = useContext(AssetsContext);
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
