@@ -814,6 +814,7 @@ export const DuelContext = createContext<DuelContextInterface>(initialData);
 export const DuelProvider = (props: { children: ReactNode }) => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
     useContext(WalletContext);
+
   const { tokenPrices } = useContext(AssetsContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const duelContract = useMemo(
