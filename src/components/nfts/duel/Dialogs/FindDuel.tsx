@@ -152,8 +152,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
       await token.approve(duelContract.address, MAX_VALUE);
     }
 
-    console.log(selectedDuel['id']);
-
     await duelContract
       .connect(signer)
       ['challenge'](
@@ -180,6 +178,8 @@ const FindDuel = ({ open, handleClose }: Props) => {
     chainId,
     selectedDuel,
     accountAddress,
+    duelist,
+    moves,
   ]);
 
   const canCreate = useMemo(() => {
@@ -875,7 +875,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {maxPayout} {duelist['tokenName']}
+                    {maxPayout} {selectedDuel['tokenName']}
                   </Typography>
                 </Box>
               </Box>
