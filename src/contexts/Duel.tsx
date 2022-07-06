@@ -853,6 +853,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
       const finishDate = new Date(duelData[10][1].toNumber() * 1000);
 
+      const maxRevealDate = addHoursToDate(finishDate, 12);
       const revealDate = new Date(duelData[10][2].toNumber() * 1000);
 
       const rawMoves = duelData[8];
@@ -904,7 +905,19 @@ export const DuelProvider = (props: { children: ReactNode }) => {
             status = 'tie';
           }
         } else {
-          status = 'requireReveal';
+          if (maxRevealDate.getTime() < new Date().getTime()) {
+            status = 'forfeit';
+          } else {
+            status = 'requireReveal';
+          }
+        }
+        if (
+          revealDate.getTime() === 0 &&
+          maxRevealDate.getTime() < new Date().getTime() &&
+          revealDate.getTime()
+        ) {
+          if (duelistAddress !== accountAddress) status = 'requireClaimForfeit';
+          else status = 'waitClaimForfeit';
         }
       } else {
         if (new Date() > challengedLimitDate && challengerAddress === '?')

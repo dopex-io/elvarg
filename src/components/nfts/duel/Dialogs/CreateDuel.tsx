@@ -151,6 +151,15 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       else numericMoves.push(2);
     });
 
+    const _historicalMovesStringified = localStorage.getItem('moves');
+    let _historicalMoves = [];
+    if (_historicalMovesStringified) {
+      _historicalMoves = JSON.parse(_historicalMovesStringified);
+    }
+    _historicalMoves.push(moves);
+
+    localStorage.setItem('moves', JSON.stringify(_historicalMoves));
+
     let hash = ethers.utils.solidityKeccak256(
       ['bytes32', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'],
       [

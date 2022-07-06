@@ -14,16 +14,20 @@ const ActiveDuel = ({
   duel,
   handleUndo,
   handleReveal,
+  handleClaimForfeit,
 }: {
   duel: Duel;
   handleUndo: Function;
   handleReveal: Function;
+  handleClaimForfeit: Function;
 }) => {
   const { accountAddress } = useContext(WalletContext);
 
   const handleClick = () => {
     if (duel['status'] === 'requireUndo') handleUndo(duel['id']);
     else if (duel['status'] === 'requireReveal') handleReveal(duel);
+    else if (duel['status'] === 'requireClaimForfeit')
+      handleClaimForfeit(duel['id']);
   };
 
   const message = useMemo(() => {
@@ -41,6 +45,10 @@ const ActiveDuel = ({
       duel['duelistAddress'] !== accountAddress
     )
       return 'WAIT REVEAL...';
+    else if (duel['status'] === 'requireClaimForfeit') return 'CLAIM FORFEIT';
+    else if (duel['status'] === 'waitClaimForfeit')
+      return 'WAIT CLAIM FORFEIT...';
+    else if (duel['status'] === 'forfeit') return 'FORFEIT';
     else return 'TIE';
   }, [duel, accountAddress]);
 
@@ -121,7 +129,11 @@ const ActiveDuel = ({
       </Box>
 
       <Box className="ml-auto mr-auto mt-2.5">
-        <button className={styles['pepeButton']} onClick={handleClick}>
+        <button
+          className={styles['pepeButton']}
+          onClick={handleClick}
+          disabled={['forfeit', 'tie'].includes(duel['status'])}
+        >
           {message}
         </button>
       </Box>

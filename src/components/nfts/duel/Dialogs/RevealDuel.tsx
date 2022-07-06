@@ -1,5 +1,11 @@
 // @ts-nocheck
-import React, { useContext, useState, useMemo, useCallback } from 'react';
+import React, {
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+} from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 
@@ -156,11 +162,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     return true;
   }, [moves]);
 
-  const updateDuelist = (nftId: number) => {
-    setDuelist(nftId);
-    setIsSelectingNfts(false);
-  };
-
   const Moves = useCallback(() => {
     return (
       <Box className="flex">
@@ -233,6 +234,20 @@ const RevealDuel = ({ open, handleClose }: Props) => {
       </Box>
     );
   }, [moves]);
+
+  const loadInitialMoves = () => {
+    let _historicalMoves = localStorage.getItem('moves');
+    let _moves;
+    if (_historicalMoves) {
+      _moves = JSON.parse(_historicalMoves);
+      const moves = _moves[_moves.length - 1];
+      setMoves(moves);
+    }
+  };
+
+  useEffect(() => {
+    loadInitialMoves();
+  }, []);
 
   // @ts-ignore
   return (

@@ -41,6 +41,17 @@ const DuelPepes = () => {
     [duelContract, signer, updateDuels]
   );
 
+  const handleClaimForfeit = useCallback(
+    async (id: number) => {
+      if (!signer || !duelContract || !duelContract || !updateDuels) return;
+
+      await duelContract.claimForfeit(id);
+
+      await updateDuels();
+    },
+    [duelContract, signer, updateDuels]
+  );
+
   const findDuel = (duel: Duel) => {
     setSelectedDuel!(duel);
     setIsFindDuelDialogOpen(true);
@@ -192,6 +203,7 @@ const DuelPepes = () => {
                 duel={duel}
                 handleUndo={handleUndo}
                 handleReveal={revealDuel}
+                handleClaimForfeit={handleClaimForfeit}
               />
             </Box>
           ))}
