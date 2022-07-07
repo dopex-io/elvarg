@@ -44,6 +44,7 @@ const Vaults = () => {
       currentEpoch: number;
       totalEpochDeposits: string;
       retired: boolean;
+      duration: string;
     }[];
   }>({});
 
@@ -64,6 +65,7 @@ const Vaults = () => {
               retired: vault['retired'],
               symbol: vault['symbol'],
               version: vault['version'],
+              duration: vault['duration'],
             }}
           />
         ));

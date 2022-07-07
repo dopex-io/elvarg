@@ -29,6 +29,7 @@ interface Props {
     retired: boolean;
     symbol: string;
     version: string;
+    duration: string;
   };
 }
 
@@ -56,6 +57,7 @@ function VaultCard(props: Props) {
     retired,
     symbol,
     version,
+    duration,
   } = data;
   const info = useMemo(() => {
     return [
@@ -141,6 +143,9 @@ function VaultCard(props: Props) {
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
               Epoch {currentEpoch}
+            </Typography>
+            <Typography variant="h6" className="text-stieglitz capitalize">
+              {duration}
             </Typography>
             <Typography variant="h6" className="text-stieglitz">
               Version {version}

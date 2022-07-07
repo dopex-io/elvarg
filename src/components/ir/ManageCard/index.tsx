@@ -75,7 +75,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const rateVaultContext = useContext(RateVaultContext);
-  const { selectedEpoch } = rateVaultContext;
+  const { selectedEpoch, selectedPoolName } = rateVaultContext;
 
   const sendTx = useSendTx();
 
@@ -229,8 +229,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     useState<string>(ssovTokenName);
 
   const spender = useMemo(() => {
-    return '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
-  }, []);
+    return contractAddresses['RATE-VAULTS'][selectedPoolName];
+  }, [selectedPoolName, contractAddresses]);
 
   const quotePrice: number = useMemo(() => {
     if (!quote['toTokenAmount']) return 0;
