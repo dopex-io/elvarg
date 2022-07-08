@@ -11,7 +11,7 @@ import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import RateVaultCard from 'components/ir/VaultCard';
-import SsovFilter from '../../../components/ssov/SsovFilter';
+import Filter from 'components/ir/Filter';
 
 const ssovStates: string[] = ['Active', 'Retired'];
 
@@ -116,7 +116,7 @@ const Vaults = () => {
         <Box className="mb-12">
           <Box className="flex mb-4">
             <Box className="ml-auto mr-auto">
-              <SsovFilter
+              <Filter
                 activeFilters={selectedStates}
                 setActiveFilters={setselectedStates}
                 text={'State'}
