@@ -77,10 +77,11 @@ const appLinks = {
   ],
   56: [{ name: 'SSOV', to: '/ssov' }],
   1337: [
-    { name: 'Options', to: '/' },
-    { name: 'Pools', to: '/pools' },
-    { name: 'Portfolio', to: '/portfolio' },
-    { name: 'Faucet', to: '/faucet' },
+    { name: 'options', to: '/' },
+    { name: 'pools', to: '/pools' },
+    { name: 'portfolio', to: '/portfolio' },
+    { name: 'faucet', to: '/faucet' },
+    { name: 'Atlantics', to: '/atlantics' },
   ],
   421611: [
     // { name: 'options', to: '/' },
@@ -89,6 +90,8 @@ const appLinks = {
     // { name: 'faucet', to: '/faucet' },
     // { name: 'swap', to: '/swap' },
     // { name: 'SSOV', to: '/ssov' },
+    // { name: 'OTC', to: '/otc' },
+    { name: 'Atlantics', to: '/atlantics' },
     { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
@@ -97,6 +100,7 @@ const appLinks = {
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'OTC', to: '/otc' },
+    { name: 'Atlantics', to: '/atlantics' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -129,7 +133,8 @@ interface AppBarProps {
     | 'leaderboard'
     | 'swap'
     | 'OTC'
-    | 'vaults';
+    | 'vaults'
+    | 'Atlantics';
 }
 
 export default function AppBar(props: AppBarProps) {

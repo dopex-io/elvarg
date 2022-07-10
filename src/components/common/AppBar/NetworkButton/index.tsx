@@ -6,7 +6,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
-export default function NetworkButton({ className }: { className?: string }) {
+export default function NetworkButton({ className }: { className: string }) {
   const { chainId, setChangeNetwork } = useContext(WalletContext);
 
   const handleOpen = useCallback(
@@ -15,8 +15,6 @@ export default function NetworkButton({ className }: { className?: string }) {
   );
 
   return (
-    // TODO: FIX
-    // @ts-ignore
     <CustomButton
       size="medium"
       className={className}
@@ -24,9 +22,9 @@ export default function NetworkButton({ className }: { className?: string }) {
       startIcon={
         <img
           // @ts-ignore TODO: FIX
-          src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
+          src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon ?? ''}
           // @ts-ignore TODO: FIX
-          alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
+          alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name ?? ''}
           style={{ width: 13, height: 'auto' }}
         />
       }

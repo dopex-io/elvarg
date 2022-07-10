@@ -79,6 +79,11 @@ export const SSOV_MAP = {
   },
 };
 
+export const ATLANTIC_STATS_MAPPING: { [key: string]: string } = {
+  TVL: 'TVL',
+  pools: 'Pools',
+};
+// volume: 'Volume',
 export const VAULT_MAP: { [key: string]: { src: string } } = {
   'MIM3CRV-1': {
     src: '/images/tokens/mim.svg',
@@ -226,12 +231,20 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   421611: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/images/tokens/avax.svg' },
   1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
+  1337: { name: 'Localhost', icon: '/images/tokens/eth.svg' },
 };
 
-export const TOKEN_DECIMALS = {
+export const TOKEN_DECIMALS: {
+  [key: string | number]: { [key: string]: number };
+} = {
   '56': {
     BNB: 18,
     VBNB: 8,
+  },
+  '1337': {
+    WETH: 18,
+    USDT: 6,
+    USDC: 6,
   },
   '1': {
     USDT: 6,
@@ -240,6 +253,7 @@ export const TOKEN_DECIMALS = {
   '421611': {
     USDT: 6,
     USDC: 6,
+    WETH: 18,
   },
   '42161': {
     USDT: 6,
