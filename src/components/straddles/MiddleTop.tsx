@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -9,7 +9,7 @@ import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 import Typography from 'components/UI/Typography';
 
 const MiddleTop = () => {
-  const [epoch, setEpoch] = React.useState('');
+  const [epoch, setEpoch] = useState<string>('');
 
   const handleChange = (event: SelectChangeEvent) => {
     setEpoch(event.target.value as string);
