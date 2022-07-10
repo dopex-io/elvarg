@@ -357,6 +357,17 @@ export const RateVault = () => {
     [rateVaultContract]
   );
 
+  const getVolatility = useCallback(
+    async (strike: BigNumber) => {
+      try {
+        return await rateVaultContract!['getVolatility'](strike);
+      } catch (err) {
+        return BigNumber.from('0');
+      }
+    },
+    [rateVaultContract]
+  );
+
   const getCurrentRate = useCallback(async () => {
     try {
       return await rateVaultContract!['getCurrentRate']();
@@ -408,11 +419,8 @@ export const RateVault = () => {
       const volatilitiesPromises = [];
 
       for (let i in epochStrikes) {
-        // volatilitiesPromises.push(
-        //   rateVaultContract['getVolatility'](epochStrikes[i])
-        // );
-        volatilitiesPromises.push(BigNumber.from(0));
         const epochStrike = epochStrikes[i];
+        volatilitiesPromises.push(getVolatility(epochStrike!));
         if (epochStrike) {
           callsPremiumCostsPromises.push(calculatePremium(epochStrike, false));
           putsPremiumCostsPromises.push(calculatePremium(epochStrike, true));
