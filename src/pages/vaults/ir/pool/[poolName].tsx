@@ -1,6 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
@@ -21,9 +20,11 @@ import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
-const Manage = () => {
-  const router = useRouter();
-  const { poolName } = router.query;
+interface Props {
+  poolName: string;
+}
+
+const Manage = ({ poolName }: Props) => {
   const { accountAddress, connect } = useContext(WalletContext);
   const rateVaultContext = useContext(RateVaultContext);
   const { setSelectedPoolName } = rateVaultContext;
@@ -121,6 +122,7 @@ const Manage = () => {
                   activeVaultContextSide={activeVaultContextSide}
                   strikeIndex={strikeIndex}
                   setStrikeIndex={setStrikeIndex}
+                  poolName={poolName}
                 />
               ) : (
                 <SelectStrikeWidget />
@@ -133,10 +135,20 @@ const Manage = () => {
   );
 };
 
-const ManagePage = () => {
+export async function getServerSideProps(context: {
+  query: { poolName: string };
+}) {
+  return {
+    props: {
+      poolName: context.query.poolName,
+    },
+  };
+}
+
+const ManagePage = ({ poolName }: Props) => {
   return (
     <RateVaultProvider>
-      <Manage />
+      <Manage poolName={poolName} />
     </RateVaultProvider>
   );
 };
