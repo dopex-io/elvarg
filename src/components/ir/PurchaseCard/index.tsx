@@ -46,6 +46,7 @@ export interface Props {
   activeVaultContextSide: string;
   strikeIndex: number;
   setStrikeIndex: Function;
+  poolName: string;
 }
 
 const now = new Date();
@@ -54,6 +55,7 @@ const PurchaseCard = ({
   activeVaultContextSide,
   strikeIndex,
   setStrikeIndex,
+  poolName,
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
   const { rateVaultEpochData } = rateVaultContext;
@@ -168,8 +170,9 @@ const PurchaseCard = ({
   }, [purchaseTokenName, activeVaultContextSide]);
 
   const spender = useMemo(() => {
-    return '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
-  }, []);
+    if (!contractAddresses) return;
+    return contractAddresses['RATE-VAULTS'][poolName];
+  }, [contractAddresses, poolName]);
 
   const purchasePower: number = useMemo(() => {
     return parseFloat(
