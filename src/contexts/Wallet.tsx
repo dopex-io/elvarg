@@ -186,11 +186,6 @@ export const WalletProvider = (props: { children: ReactNode }) => {
         !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&
         PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length !== 0
       ) {
-        console.log(
-          PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath],
-          !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId),
-          PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length
-        );
         setState((prevState: any) => ({
           ...prevState,
           wrongNetwork: true,

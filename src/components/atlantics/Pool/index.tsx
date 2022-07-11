@@ -26,7 +26,7 @@ const PoolCard = (props: PoolCardProps) => {
   const { depositToken, underlying, duration, isPut, tvl, apy } = props;
   const type: string = isPut ? 'PUTS' : 'CALLS';
   const _apy = useMemo(() => {
-    return isPut ? 'Variable as per max strike' : apy + '%';
+    return isPut ? '-' : apy + '%';
   }, [isPut, apy]);
 
   return (
@@ -44,7 +44,7 @@ const PoolCard = (props: PoolCardProps) => {
               className="h-[2rem] w-[2rem] border border-mineshaft rounded-full"
             />
             <Typography variant="h6" className=" ml=[3rem] my-auto">
-              {isPut ? 'Max strikes Vault' : '33%+ Single OTM Strike'}
+              {`${underlying}-${type}-${duration}`}
             </Typography>
             {!isPut ? (
               // @TODO Fill is hard coded

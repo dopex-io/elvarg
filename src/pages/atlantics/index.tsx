@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { CircularProgress } from '@mui/material';
@@ -7,11 +7,21 @@ import AppBar from 'components/common/AppBar';
 import Accordion from 'components/atlantics/Accordion';
 import Description from 'components/atlantics/Description';
 import Stats from 'components/atlantics/Stats';
+import Filter from 'components/atlantics/Filter';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
 const Atlantics = () => {
   const { pools } = useContext(AtlanticsContext);
+  const [selectedAtlanticsAssets, setSelectedAtlanticsAssets] = useState<
+    string | string[]
+  >([]);
+
+  const filteredPools = useMemo(() => {
+    return pools.filter(
+      (pool) => !selectedAtlanticsAssets.includes(pool.asset)
+    );
+  }, [pools, selectedAtlanticsAssets]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -27,12 +37,17 @@ const Atlantics = () => {
               <Stats />
             </Box>
             <Box className="flex w-full justify-between">
-              {/* <StrategyFilter /> */}
-              <Box></Box>
+              <Filter
+                activeFilters={selectedAtlanticsAssets}
+                setActiveFilters={setSelectedAtlanticsAssets}
+                text={'Filter by Asset'}
+                multiple={true}
+                options={pools}
+              />
             </Box>
           </Box>
           {pools && pools.length !== 0 ? (
-            pools.map((pool, index) => {
+            filteredPools.map((pool, index) => {
               return (
                 <Box
                   key={index}

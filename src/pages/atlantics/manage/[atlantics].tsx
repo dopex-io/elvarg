@@ -78,10 +78,9 @@ const Manage = (props: ManageProps) => {
     useContext(AtlanticsContext);
 
   useEffect(() => {
-    if (selectedPool?.asset !== 'Asset' || !underlying || !type || !duration)
-      return;
+    if (!underlying || !type || !duration) return;
     (async () => {
-      await setSelectedPool(underlying, type, 1, duration);
+      await setSelectedPool(underlying, type, selectedEpoch, duration);
     })();
   }, [
     setSelectedPool,
@@ -169,7 +168,7 @@ const Manage = (props: ManageProps) => {
               poolType={type}
             />
             <ContractData />
-            <Box className="w-full space-y-4 flex flex-col">
+            {/* <Box className="w-full space-y-4 flex flex-col">
               {type === 'CALLS' ? null : (
                 <Typography variant="h5">Liquidity</Typography>
               )}
@@ -196,7 +195,7 @@ const Manage = (props: ManageProps) => {
                   />
                 </Box>
               </Box>
-            </Box>
+            </Box> */}
             {/* <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>
               <PoolCompositionTable />
