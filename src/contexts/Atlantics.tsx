@@ -300,7 +300,6 @@ export const AtlanticsProvider = (props: any) => {
       // };
 
       let data: IEpochData[] = [];
-      console.log(checkpoints);
       if (!checkpoints) return;
       // Saving checkpoints for all max strikes
 
@@ -360,8 +359,6 @@ export const AtlanticsProvider = (props: any) => {
       const depositTokenDecimals = getTokenDecimals(depositToken, chainId);
       const timeFactor =
         365 - Number(state.expiryTime.sub(state.startTime)) / 86400;
-
-      console.log('Data: ', data);
 
       data.map((_data) => {
         // TVL
@@ -577,10 +574,11 @@ export const AtlanticsProvider = (props: any) => {
 
     const pool = selectedPool;
     const poolType = pool.isPut ? 'PUTS' : 'CALLS';
-    console.log('Contract addresses', contractAddresses['ATLANTIC-POOLS']);
     const contractAddress =
       contractAddresses['ATLANTIC-POOLS'][pool.asset][poolType][pool.duration];
+
     if (!contractAddress) return;
+
     let atlanticPool: AtlanticPutsPool | AtlanticCallsPool;
 
     let poolDeposits;
@@ -595,34 +593,28 @@ export const AtlanticsProvider = (props: any) => {
       );
 
       const depositCheckpointCalls = userDeposits.map((deposit) => {
-        return (atlanticPool as AtlanticPutsPool).getEpochMaxStrikeCheckpoints(
+        return (atlanticPool as AtlanticPutsPool).epochMaxStrikeCheckpoints(
           selectedEpoch,
-          deposit.strike
+          deposit.strike,
+          deposit.checkpoint
         );
       });
 
-      let [depositCheckpoints] = await Promise.all(depositCheckpointCalls);
-
+      let depositCheckpoints = await Promise.all(depositCheckpointCalls);
       const _userDeposits = userDeposits.map(
         (
           { strike, timestamp, liquidity, checkpoint, depositor },
           index: number
         ) => {
           const fundingEarned = liquidity
-            // @ts-ignore
-            .mul(depositCheckpoints[index].fundingAccrued)
-            // @ts-ignore
-            .div(depositCheckpoints[index].totalLiquidity);
+            .mul(depositCheckpoints[index]?.fundingAccrued ?? 0)
+            .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
           const underlyingEarned = liquidity
-            // @ts-ignore
-            .mul(depositCheckpoints[index].underlyingAccrued)
-            // @ts-ignore
-            .div(depositCheckpoints[index].totalLiquidity);
+            .mul(depositCheckpoints[index]?.underlyingAccrued ?? 0)
+            .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
           const premiumsEarned = liquidity
-            // @ts-ignore
-            .mul(depositCheckpoints[index].premiumAccrued)
-            // @ts-ignore
-            .div(depositCheckpoints[index].totalLiquidity);
+            .mul(depositCheckpoints[index]?.premiumAccrued ?? 0)
+            .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
 
           return {
             strike,
@@ -643,26 +635,29 @@ export const AtlanticsProvider = (props: any) => {
         contractAddress,
         signer
       );
-      poolDeposits = await (atlanticPool as AtlanticCallsPool).getEpochDeposits(
-        selectedEpoch
-      );
+      poolDeposits = await atlanticPool.getEpochDeposits(selectedEpoch);
       userDeposits = poolDeposits.filter(
         (deposit) => deposit.depositor === accountAddress
       );
 
+      const depositCheckpointCalls = userDeposits.map((deposit) => {
+        return (atlanticPool as AtlanticCallsPool).epochCheckpoints(
+          selectedEpoch,
+          deposit.checkpoint
+        );
+      });
+
+      let depositCheckpoints = await Promise.all(depositCheckpointCalls);
+
       const _userDeposits = userDeposits.map(
         ({ timestamp, liquidity, checkpoint, depositor }, index: number) => {
           const fundingEarned = liquidity
-            // @ts-ignore
-            .mul(depositCheckpoints[index].fundingAccrued)
-            // @ts-ignore
-            .div(depositCheckpoints[index].totalLiquidity);
+            .mul(depositCheckpoints[index]?.fundingAccrued ?? 0)
+            .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
 
           const premiumsEarned = liquidity
-            // @ts-ignore
-            .mul(depositCheckpoints[index].premiumAccrued)
-            // @ts-ignore
-            .div(depositCheckpoints[index].totalLiquidity);
+            .mul(depositCheckpoints[index]?.premiumAccrued ?? 0)
+            .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
 
           return {
             timestamp,
@@ -674,7 +669,6 @@ export const AtlanticsProvider = (props: any) => {
           };
         }
       );
-
       setUserPositions(() => _userDeposits);
     } else {
       return;
