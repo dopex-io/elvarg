@@ -5,10 +5,9 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
-
 import Typography from 'components/UI/Typography';
 
-const MiddleTop = () => {
+const StatsTab = () => {
   const [epoch, setEpoch] = useState<string>('');
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -19,7 +18,7 @@ const MiddleTop = () => {
     <Box className="flex text-gray-400">
       <Box className="w-full">
         <Box className="border rounded-tl-lg border-neutral-800 p-2">
-          <Typography variant="h6" className="mb-1">
+          <Typography variant="h6" className="mb-1 text-gray-400">
             Epoch
           </Typography>
           <Box className="flex">
@@ -59,18 +58,30 @@ const MiddleTop = () => {
           </Box>
         </Box>
         <Box className="border flex justify-between border-neutral-800 p-2">
-          <Typography>Funding Rate</Typography>
-          <Typography className="text-white">8.91%</Typography>
+          <Typography variant="h6" className="text-gray-400">
+            Funding Rate
+          </Typography>
+          <Typography variant="h6" className="text-white">
+            8.91%
+          </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
-          <Typography>Options Sold</Typography>
-          <Typography className="text-white ml-auto mr-1">134.13</Typography>
-          <Typography>ETH</Typography>
+          <Typography variant="h6" className="text-gray-400">
+            Options Sold
+          </Typography>
+          <Typography variant="h6" className="text-white ml-auto mr-1">
+            134.13
+          </Typography>
+          <Typography variant="h6" className="text-gray-400">
+            ETH
+          </Typography>
         </Box>
       </Box>
       <Box className="w-full">
         <Box className="border border-neutral-800 p-2">
-          <Typography className="mb-1">Contract</Typography>
+          <Typography variant="h6" className="mb-1 text-gray-400">
+            Contract
+          </Typography>
           <Button
             size="medium"
             color="secondary"
@@ -85,26 +96,44 @@ const MiddleTop = () => {
           </Button>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
-          <Typography className="flex justify-center items-center">
+          <Typography
+            variant="h6"
+            className="flex justify-center items-center text-gray-400"
+          >
             APR
             <HelpOutlineIcon className="w-5 h-5 ml-1" />
           </Typography>
-          <Typography className="ml-auto mr-1">~</Typography>
-          <Typography className="text-white">13.1%</Typography>
+          <Typography variant="h6" className="ml-auto mr-1 text-gray-400">
+            ~
+          </Typography>
+          <Typography variant="h6" className="text-white">
+            13.1%
+          </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
-          <Typography className="flex justify-center items-center">
+          <Typography
+            variant="h6"
+            className="flex justify-center items-center text-gray-400"
+          >
             Utilization
             <HelpOutlineIcon className="w-5 h-5 ml-1" />
           </Typography>
-          <Typography className="ml-auto mr-1">~</Typography>
-          <Typography className="mr-1 text-white">$871.21k</Typography>
-          <Typography>USDC</Typography>
+          <Typography variant="h6" className="ml-auto mr-1 text-gray-400">
+            ~
+          </Typography>
+          <Typography variant="h6" className="mr-1 text-white">
+            $871.21k
+          </Typography>
+          <Typography variant="h6" className="text-gray-400">
+            USDC
+          </Typography>
         </Box>
       </Box>
       <Box className="w-full">
         <Box className="border border-neutral-800 rounded-tr-lg p-2">
-          <Typography className="mb-1">Strategy</Typography>
+          <Typography variant="h6" className="mb-1 text-gray-400">
+            Strategy
+          </Typography>
           <Button
             size="medium"
             color="secondary"
@@ -114,17 +143,27 @@ const MiddleTop = () => {
           </Button>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
-          <Typography>Epoch Length</Typography>
-          <Typography className="text-white">7 Days</Typography>
+          <Typography variant="h6" className="text-gray-400">
+            Epoch Length
+          </Typography>
+          <Typography variant="h6" className="text-white">
+            7 Days
+          </Typography>
         </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
-          <Typography>Premiums</Typography>
-          <Typography className="text-white ml-auto mr-1">$10.34k</Typography>
-          <Typography>USDC</Typography>
+          <Typography variant="h6" className="text-gray-400">
+            Premiums
+          </Typography>
+          <Typography variant="h6" className="text-white ml-auto mr-1">
+            $10.34k
+          </Typography>
+          <Typography variant="h6" className="text-gray-400">
+            USDC
+          </Typography>
         </Box>
       </Box>
     </Box>
   );
 };
 
-export default MiddleTop;
+export default StatsTab;
