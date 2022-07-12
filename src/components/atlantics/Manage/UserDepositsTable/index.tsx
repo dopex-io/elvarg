@@ -167,6 +167,8 @@ const UserDepositsTable = () => {
             {selectedPool?.isPut && (
               <TableHeader>Underlying Collected</TableHeader>
             )}
+            <TableHeader>checkpoint</TableHeader>
+            <TableHeader>APY</TableHeader>
             <TableHeader align="right">Settle</TableHeader>
           </TableRow>
         </TableHead>
@@ -221,7 +223,7 @@ const UserDepositsTable = () => {
                     true
                   )}
                 </Typography>
-              </TableBodyCell>{' '}
+              </TableBodyCell>
               {selectedPool?.isPut && (
                 <TableBodyCell>
                   <Typography variant="h6">
@@ -236,6 +238,16 @@ const UserDepositsTable = () => {
                   </Typography>
                 </TableBodyCell>
               )}
+              <TableBodyCell>
+                <Typography variant="h6">
+                  {formatAmount(position.checkpoint.add(1).toString(), 3, true)}
+                </Typography>
+              </TableBodyCell>
+              <TableBodyCell>
+                <Typography variant="h6">
+                  {formatAmount(position.apy, 8, true) + '%'}
+                </Typography>
+              </TableBodyCell>
               <TableBodyCell align="right">
                 <CustomButton
                   onClick={async () => {

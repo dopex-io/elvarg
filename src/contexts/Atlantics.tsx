@@ -19,11 +19,8 @@ import {
 
 import { WalletContext } from 'contexts/Wallet';
 
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
-
-import { AssetsContext } from './Assets';
+import { AppType } from 'next/dist/shared/lib/utils';
 
 interface IVaultConfiguration {
   collateralUtilizationWeight: BigNumber;
@@ -97,6 +94,7 @@ export interface IUserPosition {
   premiumsEarned: BigNumber;
   fundingEarned: BigNumber;
   underlyingEarned?: BigNumber;
+  apy: number;
 }
 
 interface Stats {
@@ -148,6 +146,12 @@ export interface IAtlanticPoolType {
   apy: string | string[];
   duration: string;
   underlyingPrice: number;
+  checkpoints:
+    | BigNumber[]
+    | {
+        strike: BigNumber;
+        checkpoint: BigNumber;
+      }[];
 }
 
 const atlanticPoolsZeroData: IAtlanticPoolType = {
@@ -189,6 +193,7 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   volume: BigNumber.from(0),
   apy: '0',
   underlyingPrice: 0,
+  checkpoints: [BigNumber.from(0)],
 };
 
 const initialUserPositions: IUserPosition[] | [] = [];
@@ -299,13 +304,16 @@ export const AtlanticsProvider = (props: any) => {
 
       let epochStrikeData: IEpochStrikeData[] = [];
 
+      let maxStrikeCheckpoints = [];
+
       for (let i = 0; i < maxStrikes.length; i++) {
         let [
           totalEpochMaxStrikeLiquidity,
           totalEpochMaxStrikeUnlockedCollateral,
           totalEpochMaxStrikeActiveCollateral,
+          checkpointsArray,
         ] = await Promise.all([
-          atlanticPool.totalEpochMaxStrikeUnlockedCollateral(
+          atlanticPool.totalEpochMaxStrikeLiquidity(
             epoch,
             maxStrikes[i] ?? BigNumber.from(0)
           ),
@@ -314,6 +322,10 @@ export const AtlanticsProvider = (props: any) => {
             maxStrikes[i] ?? BigNumber.from(0)
           ),
           atlanticPool.totalEpochMaxStrikeActiveCollateral(
+            epoch,
+            maxStrikes[i] ?? BigNumber.from(0)
+          ),
+          atlanticPool.getEpochMaxStrikeCheckpoints(
             epoch,
             maxStrikes[i] ?? BigNumber.from(0)
           ),
@@ -335,6 +347,7 @@ export const AtlanticsProvider = (props: any) => {
           activeCollateral: totalEpochMaxStrikeActiveCollateral,
         });
       }
+
       data = accumulator; // *note: shallow copy
 
       const contracts: IContracts = {
@@ -375,6 +388,7 @@ export const AtlanticsProvider = (props: any) => {
         apy: ['0'],
         duration,
         underlyingPrice: Number(underlyingPrice.div(1e8)),
+        checkpoints: [BigNumber.from(0)],
       };
     },
     [contractAddresses, provider]
@@ -452,6 +466,7 @@ export const AtlanticsProvider = (props: any) => {
         apy: ['0'],
         duration,
         underlyingPrice: Number(underlyingPrice.div(1e8)),
+        checkpoints: [BigNumber.from(0)],
       };
     },
     [contractAddresses, provider, signer]
@@ -553,12 +568,15 @@ export const AtlanticsProvider = (props: any) => {
     const contractAddress =
       contractAddresses['ATLANTIC-POOLS'][pool.asset][poolType][pool.duration];
 
-    if (!contractAddress) return;
-
     let atlanticPool: AtlanticPutsPool | AtlanticCallsPool;
 
     let poolDeposits;
     let userDeposits;
+
+    const daysPassed =
+      (Math.floor(new Date().getTime() / 1000) -
+        Number(selectedPool.state.startTime)) /
+      86400;
 
     if (poolType === 'PUTS') {
       atlanticPool = AtlanticPutsPool__factory.connect(contractAddress, signer);
@@ -582,7 +600,7 @@ export const AtlanticsProvider = (props: any) => {
           { strike, timestamp, liquidity, checkpoint, depositor },
           index: number
         ) => {
-          const fundingEarned = liquidity
+          const fundingEarned: BigNumber = liquidity
             .mul(depositCheckpoints[index]?.fundingAccrued ?? 0)
             .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
           const underlyingEarned = liquidity
@@ -591,6 +609,18 @@ export const AtlanticsProvider = (props: any) => {
           const premiumsEarned = liquidity
             .mul(depositCheckpoints[index]?.premiumAccrued ?? 0)
             .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
+
+          // In 1e6 decimals
+          const totalRevenue = Number(
+            fundingEarned
+              .add(premiumsEarned)
+              .add(
+                underlyingEarned
+                  .mul(selectedPool.underlyingPrice)
+                  .div(oneEBigNumber(12))
+              )
+          );
+          const apy = (totalRevenue / Number(liquidity)) * 100;
 
           return {
             strike,
@@ -601,6 +631,7 @@ export const AtlanticsProvider = (props: any) => {
             underlyingEarned,
             premiumsEarned,
             depositor,
+            apy,
           };
         }
       );
@@ -635,6 +666,10 @@ export const AtlanticsProvider = (props: any) => {
             .mul(depositCheckpoints[index]?.premiumAccrued ?? 0)
             .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
 
+          // In 1e18 decimals
+          const totalRevenue = Number(fundingEarned.add(premiumsEarned));
+          const apy = (totalRevenue / Number(liquidity)) * 100;
+
           return {
             timestamp,
             liquidity,
@@ -642,6 +677,7 @@ export const AtlanticsProvider = (props: any) => {
             fundingEarned,
             premiumsEarned,
             depositor,
+            apy,
           };
         }
       );
