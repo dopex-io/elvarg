@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
+import { AtlanticsContext, IEpochStrikeData } from 'contexts/Atlantics';
 import { WalletContext } from 'contexts/Wallet';
 
 // const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
@@ -43,40 +43,36 @@ const Charts = (props: ChartsProps) => {
         { availableCollateral: 0, unlocked: 0, activeCollateral: 0, strike: 0 },
       ];
     if (selectedPool.isPut) {
-      const strikes = selectedPool.strikes as BigNumber[];
+      const data = selectedPool.epochStrikeData as IEpochStrikeData[];
 
-      // const strikes.map
-      // const data = selectedPool.data as IAtlanticPoolCheckpoint[];
-      // const { deposit } = selectedPool.tokens;
-      // if (!deposit)
-      //   return [
-      //     {
-      //       availableCollateral: 0,
-      //       unlocked: 0,
-      //       activeCollateral: 0,
-      //       strike: 0,
-      //     },
-      //   ];
-      // const decimals = getTokenDecimals(deposit, chainId);
+      const { deposit } = selectedPool.tokens;
+      if (!deposit)
+        return [
+          {
+            availableCollateral: 0,
+            unlocked: 0,
+            activeCollateral: 0,
+            strike: 0,
+          },
+        ];
 
-      // const barData: IBarData[] = strikes?.map(
-      //   (maxStrike: BigNumber, index: number) => {
-      //     const unlocked =
-      //       Number(data[index]?.unlockCollateral) / 10 ** decimals;
-      //     const activeCollateral =
-      //       Number(data[index]?.activeCollateral) / 10 ** decimals;
-      //     const strike = Number(maxStrike.div(1e8));
-      //     const availableCollateral =
-      //       Number(data[index]?.liquidity) / 10 ** decimals - activeCollateral;
+      const decimals = getTokenDecimals(deposit, chainId);
 
-      //     return {
-      //       availableCollateral,
-      //       unlocked,
-      //       activeCollateral,
-      //       strike,
-      //     };
-      //   }
-      // );
+      console.log(decimals);
+
+      const barData: IBarData[] = data?.map((data) => {
+        const unlocked = Number(data.unlocked) ?? 0;
+        const activeCollateral = Number(data.activeCollateral) ?? 0;
+        const strike = Number(data.strike.div(1e8)) ?? 0;
+        const availableCollateral = Number(data?.availableCollateral) ?? 0;
+
+        return {
+          availableCollateral,
+          unlocked,
+          activeCollateral,
+          strike,
+        };
+      });
       return barData;
     } else {
       return [

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import formatDistance from 'date-fns/formatDistance';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
@@ -20,9 +21,9 @@ const ContractData = () => {
     useContext(AtlanticsContext);
 
   const epochDuration = useMemo(() => {
-    if (!selectedPool) return;
+    if (selectedPool.state.expiryTime.eq(BigNumber.from(0))) return '...';
     return formatDistance(
-      Number(selectedPool?.state.expiryTime) * 1000,
+      Number(selectedPool.state.expiryTime) * 1000,
       Number(new Date())
     );
   }, [selectedPool]);

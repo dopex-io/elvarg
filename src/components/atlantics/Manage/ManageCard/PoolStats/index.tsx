@@ -7,10 +7,11 @@ import PoolStatsRow from 'components/atlantics/Manage/ManageCard/PoolStats/PoolS
 import PoolStatsBox from 'components/atlantics/Manage/ManageCard/PoolStats/PoolStatsBox';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AtlanticsContext, IAtlanticPoolCheckpoint } from 'contexts/Atlantics';
+import { AtlanticsContext } from 'contexts/Atlantics';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface PoolStatsProps {
   poolType: string;
@@ -30,34 +31,22 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     const decimals = getTokenDecimals(deposit, chainId);
 
     if (selectedPool.isPut) {
-      const checkpoints = selectedPool.data as IAtlanticPoolCheckpoint[];
-      let totalDeposits: number = 0;
-      let userDeposits: number = 0;
-      checkpoints.map((checkpoint: any) => {
-        totalDeposits += Number(checkpoint.liquidity) / 10 ** decimals;
-      });
-      userPositions.map((position) => {
-        userDeposits += Number(position?.liquidity) / 10 ** decimals;
-      });
+      let userDeposits = userPositions.reduce(
+        (prev, curr) => prev.add(curr.liquidity),
+        BigNumber.from(0)
+      );
 
-      const userShare = (userDeposits / totalDeposits) * 100;
-
+      console.log('Fire: ', selectedPool.epochData.totalEpochLiquidity);
       return {
-        userShare,
-        totalDeposits,
+        userShare: userDeposits
+          .div(selectedPool.epochData.totalEpochLiquidity.add(1))
+          .mul(100),
+        totalDeposits: selectedPool.epochData.totalEpochLiquidity,
       };
     } else {
-      const checkpoint = selectedPool.data as IAtlanticPoolCheckpoint;
-      const totalDeposits = Number(checkpoint.liquidity) / 10 ** decimals;
-      let totalUserDeposits = userPositions.reduce((acc, position) => {
-        return acc + Number(position.liquidity) / 10 ** decimals;
-      }, 0);
-
-      const userShare = (totalUserDeposits / totalDeposits) * 100;
-
       return {
-        userShare,
-        totalDeposits,
+        userShare: BigNumber.from(0),
+        totalDeposits: BigNumber.from(0),
       };
     }
   }, [selectedPool, userPositions, chainId]);
@@ -79,11 +68,20 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
       <Box className="flex divide-x divide-umbra">
         <PoolStatsBox
-          stat={formatAmount(poolShareStats.totalDeposits, 8, true)}
+          stat={formatAmount(
+            getUserReadableAmount(poolShareStats.totalDeposits, 6),
+            8
+          )}
           description="Total Deposits"
         />
         <PoolStatsBox
-          stat={formatAmount(poolShareStats.userShare, 8, true) + '%'}
+          stat={
+            formatAmount(
+              getUserReadableAmount(poolShareStats?.userShare, 6),
+              8,
+              true
+            ) + '%'
+          }
           description="Pool Share"
         />
       </Box>

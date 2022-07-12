@@ -19,6 +19,7 @@ import Coin from 'svgs/icons/Coin';
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
 
@@ -78,7 +79,7 @@ const Manage = (props: ManageProps) => {
     useContext(AtlanticsContext);
 
   useEffect(() => {
-    if (!underlying || !type || !duration) return;
+    if (!underlying || !type || !duration || !selectedPool) return;
     (async () => {
       await setSelectedPool(underlying, type, selectedEpoch, duration);
     })();
@@ -110,7 +111,11 @@ const Manage = (props: ManageProps) => {
         { heading: 'APY', value: selectedPool?.apy + '%', Icon: Action },
         {
           heading: 'TVL',
-          value: formatAmount(selectedPool?.tvl, 3, true),
+          value: formatAmount(
+            getUserReadableAmount(selectedPool?.tvl, 6),
+            3,
+            true
+          ),
           Icon: Coin,
         },
       ];
@@ -124,10 +129,11 @@ const Manage = (props: ManageProps) => {
       }
       const avgApy = total / apys.length;
       const strikes = selectedPool.strikes as BigNumber[];
+      const tvl = getUserReadableAmount(selectedPool.tvl, 6);
       return [
         {
           heading: 'TVL',
-          value: formatAmount(selectedPool.tvl, 3, true),
+          value: formatAmount(tvl, 3, true),
         },
         {
           heading: 'Average APY',
@@ -168,7 +174,7 @@ const Manage = (props: ManageProps) => {
               poolType={type}
             />
             <ContractData />
-            {/* <Box className="w-full space-y-4 flex flex-col">
+            <Box className="w-full space-y-4 flex flex-col">
               {type === 'CALLS' ? null : (
                 <Typography variant="h5">Liquidity</Typography>
               )}
@@ -195,7 +201,7 @@ const Manage = (props: ManageProps) => {
                   />
                 </Box>
               </Box>
-            </Box> */}
+            </Box>
             {/* <Box className="w-full space-y-4">
               <Typography variant="h5">Composition</Typography>
               <PoolCompositionTable />

@@ -47,30 +47,38 @@ interface IVaultState {
   isVaultExpired: boolean;
 }
 
-interface EpochDepositCheckpoint {
-  startTime: BigNumber;
-  totalLiquidity: BigNumber;
-  totalLiquidityBalance: BigNumber;
-  activeCollateral: BigNumber;
-  unlockedCollateral: BigNumber;
-  premiumAccrued: BigNumber;
-  fundingAccrued: BigNumber;
-}
+// interface EpochDepositCheckpoint {
+//   startTime: BigNumber;
+//   totalLiquidity: BigNumber;
+//   totalLiquidityBalance: BigNumber;
+//   activeCollateral: BigNumber;
+//   unlockedCollateral: BigNumber;
+//   premiumAccrued: BigNumber;
+//   fundingAccrued: BigNumber;
+// }
 
-interface EpochMaxStrikeCheckpoint {
-  startTime: BigNumber;
-  totalLiquidity: BigNumber;
-  totalLiquidityBalance: BigNumber;
-  activeCollateral: BigNumber;
-  unlockedCollateral: BigNumber;
-  premiumAccrued: BigNumber;
-  fundingAccrued: BigNumber;
-  underlyingAccrued: BigNumber;
-}
+// interface EpochMaxStrikeCheckpoint {
+//   startTime: BigNumber;
+//   totalLiquidity: BigNumber;
+//   totalLiquidityBalance: BigNumber;
+//   activeCollateral: BigNumber;
+//   unlockedCollateral: BigNumber;
+//   premiumAccrued: BigNumber;
+//   fundingAccrued: BigNumber;
+//   underlyingAccrued: BigNumber;
+// }
+
 interface IEpochData {
   totalEpochLiquidity: BigNumber;
   totalEpochActiveCollateral: BigNumber;
   totalEpochUnlockedCollateral: BigNumber;
+}
+
+export interface IEpochStrikeData {
+  availableCollateral: BigNumber;
+  unlocked: BigNumber;
+  activeCollateral: BigNumber;
+  strike: BigNumber;
 }
 
 interface IContracts {
@@ -128,7 +136,8 @@ export interface IAtlanticPoolType {
   asset: string;
   isPut: boolean;
   strikes: BigNumber | BigNumber[];
-  data: IEpochData[] | IEpochData;
+  epochData: IEpochData;
+  epochStrikeData?: IEpochStrikeData[];
   state: IVaultState;
   config: IVaultConfiguration;
   contracts?: IContracts;
@@ -145,13 +154,11 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   isPut: false,
   duration: '',
   strikes: [BigNumber.from(0)],
-  data: [
-    {
-      totalEpochLiquidity: BigNumber.from(0),
-      totalEpochActiveCollateral: BigNumber.from(0),
-      totalEpochUnlockedCollateral: BigNumber.from(0),
-    },
-  ],
+  epochData: {
+    totalEpochLiquidity: BigNumber.from(0),
+    totalEpochActiveCollateral: BigNumber.from(0),
+    totalEpochUnlockedCollateral: BigNumber.from(0),
+  },
   state: {
     epoch: 0,
     totalEpochUnlockedCollateral: BigNumber.from(0),
@@ -219,9 +226,8 @@ interface Pool {
 }
 
 export const AtlanticsProvider = (props: any) => {
-  const { contractAddresses, signer, provider, accountAddress, chainId } =
+  const { contractAddresses, signer, provider, accountAddress } =
     useContext(WalletContext);
-  const { tokenPrices, tokens } = useContext(AssetsContext);
 
   const [pools, setPools] = useState<Pool[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -243,12 +249,16 @@ export const AtlanticsProvider = (props: any) => {
       epoch: number,
       duration: string
     ): Promise<IAtlanticPoolType | undefined> => {
-      if (!address) return undefined;
+      if (!address || !contractAddresses || !provider) return;
 
       const atlanticPool = AtlanticPutsPool__factory.connect(address, provider);
 
       // Strikes
-      const maxStrikes = await atlanticPool.getEpochMaxStrikes(epoch);
+      const maxStrikes: BigNumber[] = await atlanticPool.getEpochMaxStrikes(
+        epoch
+      );
+
+      if (maxStrikes.length === 0) return;
 
       const latestCheckpointsCalls = maxStrikes.map(
         async (maxStrike: BigNumber) => {
@@ -266,25 +276,12 @@ export const AtlanticsProvider = (props: any) => {
           atlanticPool.getUsdPrice(),
         ]);
 
-      // const data: IAtlanticPoolCheckpoint = {
-      //   liquidity: checkpoint.liquidity,
-      //   liquidityBalance: checkpoint.liquidityBalance,
-      //   unlockCollateral: checkpoint.unlockedCollateral,
-      //   activeCollateral: checkpoint.activeCollateral,
-      //   premiumCollected: checkpoint.premiumCollected,
-      //   fundingCollected: checkpoint.fundingCollected,
-      //   premiumRatio: checkpoint.premiumDistributionRatio,
-      //   fundingRatio: checkpoint.fundingDistributionRatio,
-      // };
-
-      let data: IEpochData[] = [];
+      let data: IEpochData;
       if (!checkpoints) return;
-      // Saving checkpoints for all max strikes
 
       const [
         totalEpochActiveCollateral,
-        totalEpochCummulativeLiquidity,
-        unlockedCollateral,
+        totalEpochCumulativeLiquidity,
         activeCollateral,
       ] = await Promise.all([
         atlanticPool.totalEpochActiveCollateral(epoch),
@@ -293,23 +290,51 @@ export const AtlanticsProvider = (props: any) => {
         atlanticPool.totalEpochActiveCollateral(epoch),
       ]);
 
+      let accumulator: IEpochData = {
+        totalEpochActiveCollateral: BigNumber.from(0),
+        totalEpochLiquidity: BigNumber.from(0),
+        totalEpochUnlockedCollateral: BigNumber.from(0),
+      };
+
+      let epochStrikeData: IEpochStrikeData[] = [];
+
       for (let i = 0; i < maxStrikes.length; i++) {
-        let epochData: IEpochData = {
-          totalEpochActiveCollateral:
-            await atlanticPool.totalEpochActiveCollateral(epoch),
-          totalEpochLiquidity: await atlanticPool.totalEpochMaxStrikeLiquidity(
+        let [
+          totalEpochMaxStrikeLiquidity,
+          totalEpochMaxStrikeUnlockedCollateral,
+          totalEpochMaxStrikeActiveCollateral,
+        ] = await Promise.all([
+          atlanticPool.totalEpochMaxStrikeUnlockedCollateral(
             epoch,
             maxStrikes[i] ?? BigNumber.from(0)
           ),
-          totalEpochUnlockedCollateral:
-            await atlanticPool.totalEpochMaxStrikeUnlockedCollateral(
-              epoch,
-              maxStrikes[i] ?? BigNumber.from(0)
-            ),
-        };
-        // Pushing to array
-        data.push(epochData);
+          atlanticPool.totalEpochMaxStrikeUnlockedCollateral(
+            epoch,
+            maxStrikes[i] ?? BigNumber.from(0)
+          ),
+          atlanticPool.totalEpochMaxStrikeActiveCollateral(
+            epoch,
+            maxStrikes[i] ?? BigNumber.from(0)
+          ),
+        ]);
+
+        accumulator.totalEpochLiquidity = accumulator.totalEpochLiquidity.add(
+          totalEpochMaxStrikeLiquidity
+        );
+
+        accumulator.totalEpochUnlockedCollateral =
+          accumulator.totalEpochUnlockedCollateral.add(
+            totalEpochMaxStrikeUnlockedCollateral
+          );
+
+        epochStrikeData.push({
+          strike: maxStrikes[i] ?? BigNumber.from(0),
+          availableCollateral: totalEpochMaxStrikeLiquidity,
+          unlocked: totalEpochMaxStrikeUnlockedCollateral,
+          activeCollateral: totalEpochMaxStrikeActiveCollateral,
+        });
       }
+      data = accumulator; // *note: shallow copy
 
       const contracts: IContracts = {
         atlanticPool,
@@ -317,23 +342,14 @@ export const AtlanticsProvider = (props: any) => {
         quoteToken: ERC20__factory.connect(quoteToken, provider),
       };
       if (!contracts) return;
-      const underlying = await contracts.baseToken?.symbol();
+      const underlying = await contracts.baseToken.symbol();
       const depositToken = await contracts.quoteToken.symbol();
 
-      let _tvl: number = 0;
-      let _volume: number = 0;
-      let apy: string[] = [];
-
-      const index = tokens.indexOf(depositToken);
-      const tokenPrice = tokenPrices[index]?.price ?? 0;
-
-      const depositTokenDecimals = getTokenDecimals(depositToken, chainId);
-      const timeFactor =
-        365 - Number(state.expiryTime.sub(state.startTime)) / 86400;
+      await atlanticPool.getEpochMaxStrikesCollaterals(epoch);
 
       setStats(({ tvl, volume, poolsCount }) => ({
-        tvl: tvl + _tvl,
-        volume: 0,
+        tvl,
+        volume,
         poolsCount: poolsCount + 1,
       }));
 
@@ -341,7 +357,8 @@ export const AtlanticsProvider = (props: any) => {
         asset: underlying,
         isPut: true,
         strikes: maxStrikes,
-        data,
+        epochData: data,
+        epochStrikeData,
         state: { ...state, epoch },
         config,
         contracts,
@@ -349,14 +366,14 @@ export const AtlanticsProvider = (props: any) => {
           deposit: depositToken,
           underlying: underlying,
         },
-        tvl: totalEpochActiveCollateral.add(totalEpochCummulativeLiquidity),
+        tvl: totalEpochActiveCollateral.add(totalEpochCumulativeLiquidity),
         volume: activeCollateral,
         apy: ['0'],
         duration,
         underlyingPrice: Number(underlyingPrice.div(1e8)),
       };
     },
-    [provider, chainId, tokens, tokenPrices]
+    [contractAddresses, provider]
   );
 
   const getCallPool = useCallback(
@@ -404,18 +421,12 @@ export const AtlanticsProvider = (props: any) => {
 
       const underlying = await contracts?.baseToken?.symbol();
 
-      console.log(
-        'TVLS',
-        'CALL',
-        totalLiquidity.mul(underlyingPrice).div(oneEBigNumber(20)),
-        activeCollateral.mul(underlyingPrice).div(oneEBigNumber(20))
-      );
       return {
         asset: underlying,
         isPut: false,
         strikes: state.strike,
         state: { ...state, epoch },
-        data,
+        epochData: data,
         config,
         contracts,
         tokens: {
@@ -650,7 +661,6 @@ export const AtlanticsProvider = (props: any) => {
       )) as IAtlanticPoolType;
       if (!pool || !pool.contracts || !pool.contracts.atlanticPool) return;
       const latestEpoch = await pool.contracts.atlanticPool.currentEpoch();
-      console.log(pool);
       setSelectedEpoch(Number(latestEpoch));
       _setSelectedPool(pool);
     },
