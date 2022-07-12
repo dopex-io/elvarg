@@ -6,7 +6,7 @@ import Typography from 'components/UI/Typography';
 
 const DepositsCard = () => {
   return (
-    <Box className="text-gray-400 w-full h-fit">
+    <Box className="text-gray-400 w-full h-fit rounded-lg">
       <Box className="border rounded-t-xl border-cod-gray py-2 bg-cod-gray">
         <Box className="flex ml-3">
           <Box className="rounded-md bg-neutral-700 flex mb-2 mt-1">
@@ -32,12 +32,8 @@ const DepositsCard = () => {
           </Box>
         </Box>
       </Box>
-      <Box className="mb-5 border rounded-b-xl border-cod-gray border-t-neutral-800 bg-cod-gray">
-        <Box className="m-2 flex">
-          <Box className="ml-2">
-            <DepositsTable />
-          </Box>
-        </Box>
+      <Box className="border rounded-b-xl border-cod-gray border-t-neutral-800 bg-cod-gray">
+        <DepositsTable />
       </Box>
     </Box>
   );
