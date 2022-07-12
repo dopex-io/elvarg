@@ -30,23 +30,44 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
 
     const decimals = getTokenDecimals(deposit, chainId);
 
+    let _userDeposits;
+    let _totalDeposits;
+    let _userShare;
     if (selectedPool.isPut) {
       let userDeposits = userPositions.reduce(
         (prev, curr) => prev.add(curr.liquidity),
         BigNumber.from(0)
       );
 
-      console.log('Fire: ', selectedPool.epochData.totalEpochLiquidity);
+      _userDeposits = Number(userDeposits) / 10 ** decimals;
+      _totalDeposits =
+        Number(selectedPool.epochData.totalEpochLiquidity) / 10 ** decimals;
+      _userShare = (_userDeposits / _totalDeposits) * 100;
+
       return {
-        userShare: userDeposits
-          .div(selectedPool.epochData.totalEpochLiquidity.add(1))
-          .mul(100),
-        totalDeposits: selectedPool.epochData.totalEpochLiquidity,
+        userShare: _userShare,
+        totalDeposits: formatAmount(_totalDeposits, 3, true),
+      };
+    }
+    if (!selectedPool.isPut) {
+      let userDeposits = userPositions.reduce(
+        (prev, curr) => prev.add(curr.liquidity),
+        BigNumber.from(0)
+      );
+
+      _userDeposits = Number(userDeposits) / 10 ** decimals;
+      _totalDeposits =
+        Number(selectedPool.epochData.totalEpochLiquidity) / 10 ** decimals;
+      _userShare = (_userDeposits / _totalDeposits) * 100;
+
+      return {
+        userShare: _userShare,
+        totalDeposits: _totalDeposits,
       };
     } else {
       return {
-        userShare: BigNumber.from(0),
-        totalDeposits: BigNumber.from(0),
+        userShare: 0,
+        totalDeposits: 0,
       };
     }
   }, [selectedPool, userPositions, chainId]);
@@ -68,20 +89,11 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
       <Box className="flex divide-x divide-umbra">
         <PoolStatsBox
-          stat={formatAmount(
-            getUserReadableAmount(poolShareStats.totalDeposits, 6),
-            8
-          )}
+          stat={formatAmount(poolShareStats.totalDeposits, 8)}
           description="Total Deposits"
         />
         <PoolStatsBox
-          stat={
-            formatAmount(
-              getUserReadableAmount(poolShareStats?.userShare, 6),
-              8,
-              true
-            ) + '%'
-          }
+          stat={formatAmount(poolShareStats.userShare, 8, true) + '%'}
           description="Pool Share"
         />
       </Box>
