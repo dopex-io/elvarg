@@ -45,8 +45,7 @@ const feesPercentage = 10;
 const RevealDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress } =
     useContext(WalletContext);
-  const { isLoading, duelContract, nfts, updateDuels, selectedDuel } =
-    useContext(DuelContext);
+  const { duelContract, updateDuels, selectedDuel } = useContext(DuelContext);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);

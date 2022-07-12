@@ -172,8 +172,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       ]
     );
 
-    let messageHash = ethers.utils.hashMessage(ethers.utils.arrayify(hash));
-    const movesSig = await signer.signMessage(messageHash);
+    const movesSig = await signer.signMessage(ethers.utils.arrayify(hash));
 
     if (tokenName !== 'ETH') {
       const token = ERC20__factory.connect(
