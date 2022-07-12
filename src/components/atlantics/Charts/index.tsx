@@ -44,37 +44,39 @@ const Charts = (props: ChartsProps) => {
       ];
     if (selectedPool.isPut) {
       const strikes = selectedPool.strikes as BigNumber[];
-      const data = selectedPool.data as IAtlanticPoolCheckpoint[];
-      const { deposit } = selectedPool.tokens;
-      if (!deposit)
-        return [
-          {
-            availableCollateral: 0,
-            unlocked: 0,
-            activeCollateral: 0,
-            strike: 0,
-          },
-        ];
-      const decimals = getTokenDecimals(deposit, chainId);
 
-      const barData: IBarData[] = strikes?.map(
-        (maxStrike: BigNumber, index: number) => {
-          const unlocked =
-            Number(data[index]?.unlockCollateral) / 10 ** decimals;
-          const activeCollateral =
-            Number(data[index]?.activeCollateral) / 10 ** decimals;
-          const strike = Number(maxStrike.div(1e8));
-          const availableCollateral =
-            Number(data[index]?.liquidity) / 10 ** decimals - activeCollateral;
+      // const strikes.map
+      // const data = selectedPool.data as IAtlanticPoolCheckpoint[];
+      // const { deposit } = selectedPool.tokens;
+      // if (!deposit)
+      //   return [
+      //     {
+      //       availableCollateral: 0,
+      //       unlocked: 0,
+      //       activeCollateral: 0,
+      //       strike: 0,
+      //     },
+      //   ];
+      // const decimals = getTokenDecimals(deposit, chainId);
 
-          return {
-            availableCollateral,
-            unlocked,
-            activeCollateral,
-            strike,
-          };
-        }
-      );
+      // const barData: IBarData[] = strikes?.map(
+      //   (maxStrike: BigNumber, index: number) => {
+      //     const unlocked =
+      //       Number(data[index]?.unlockCollateral) / 10 ** decimals;
+      //     const activeCollateral =
+      //       Number(data[index]?.activeCollateral) / 10 ** decimals;
+      //     const strike = Number(maxStrike.div(1e8));
+      //     const availableCollateral =
+      //       Number(data[index]?.liquidity) / 10 ** decimals - activeCollateral;
+
+      //     return {
+      //       availableCollateral,
+      //       unlocked,
+      //       activeCollateral,
+      //       strike,
+      //     };
+      //   }
+      // );
       return barData;
     } else {
       return [

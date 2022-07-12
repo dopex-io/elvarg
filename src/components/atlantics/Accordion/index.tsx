@@ -1,21 +1,21 @@
+import { useState, useMemo } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
 import cx from 'classnames';
-// import { css } from '@emotion/css';
-import { useMemo } from 'react';
+import { styled } from '@mui/material/styles';
 
 import Typography from 'components/UI/Typography';
 import PoolCard from 'components/atlantics/Pool';
 
 import { DurationTypesOfPools, IAtlanticPoolType } from 'contexts/Atlantics';
 
-// const accordionStyle = css`
-//   color: 'darkslategray';
-//   border-radius: 0.6rem !important;
-// `;
+const CustomizedAccordion = styled(Accordion)`
+  color: 'darkslategray';
+  border-radius: 0.6rem !important;
+`;
 
 interface CustomAccordionProps {
   header: string;
@@ -35,7 +35,7 @@ const CustomAccordion = ({
   header,
   className,
 }: CustomAccordionProps) => {
-  // const [, setExpand] = useState(true);
+  const [expand, setExpand] = useState(true);
 
   const callPoolFiltered = useMemo(() => {
     if (!callPools) return;
@@ -79,16 +79,16 @@ const CustomAccordion = ({
     return pools;
   }, [putPools]);
 
-  // const handleExpand = () => {
-  //   setExpand((prev) => !prev);
-  // };
+  const handleExpand = () => {
+    setExpand((_) => expand);
+  };
 
   return (
-    <Accordion
+    <CustomizedAccordion
       TransitionProps={{ unmountOnExit: true }}
-      className={cx(className /*, accordionStyle*/)}
+      className={className}
       expanded={true}
-      // onClick={handleExpand}
+      onClick={handleExpand}
     >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon className="fill-current text-white" />}
@@ -116,7 +116,7 @@ const CustomAccordion = ({
                   depositToken={pool.tokens['deposit'] ?? ''}
                   duration={duration.toUpperCase()}
                   tvl={pool.tvl}
-                  apy={pool.apy}
+                  apy={'0'}
                   isPut={true}
                 />
               );
@@ -133,7 +133,7 @@ const CustomAccordion = ({
                   depositToken={pool.tokens['underlying'] ?? ''}
                   duration={duration.toUpperCase()}
                   tvl={pool.tvl}
-                  apy={pool.apy}
+                  apy={'0'}
                   isPut={false}
                 />
               );
@@ -141,7 +141,7 @@ const CustomAccordion = ({
           )}
         </Box>
       </AccordionDetails>
-    </Accordion>
+    </CustomizedAccordion>
   );
 };
 

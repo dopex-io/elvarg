@@ -23,8 +23,8 @@ import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
 
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export const TableHeader = ({
   // @ts-ignore TODO: FIX
@@ -72,8 +72,8 @@ export const TableBodyCell = ({
 };
 
 const UserDepositsTable = () => {
-  const { chainId, provider, signer } = useContext(WalletContext);
-  const { userPositions, selectedPool, revenue, selectedEpoch } =
+  const { provider, signer } = useContext(WalletContext);
+  const { userPositions, selectedPool, selectedEpoch } =
     useContext(AtlanticsContext);
 
   const [canWithdraw, setCanWithdraw] = useState<boolean>(false);
@@ -106,26 +106,20 @@ const UserDepositsTable = () => {
     })();
   }, [selectedPool]);
 
-  const userPositionDataSanitized = useMemo(() => {
-    if (!selectedPool) return [];
-    if (userPositions && userPositions.length !== 0) {
-      const { deposit } = selectedPool.tokens;
-      if (!deposit) return [];
-      const tokenDecimals = getTokenDecimals(deposit, chainId);
-      const positions = userPositions.map((_position: IUserPosition, index) => {
-        return {
-          strike: _position.strike && _position.strike.toNumber(),
-          liquidity: Number(_position.liquidity) / 10 ** tokenDecimals,
-          timestamp: Number(_position.timestamp),
-          premium: Number(revenue[index]?.premium) / 10 ** tokenDecimals,
-          funding: Number(revenue[index]?.funding) / 10 ** tokenDecimals,
-          underlying: Number(revenue[index]?.underlying) / 10 ** 18,
-        };
-      });
-      return positions;
-    }
-    return [];
-  }, [userPositions, chainId, selectedPool, revenue]);
+  const tokenDecimals = useMemo(() => {
+    if (!selectedPool)
+      return {
+        funding: 6,
+        premium: 6,
+        underlying: 18,
+      };
+
+    return {
+      funding: selectedPool.isPut ? 6 : 18,
+      premium: selectedPool.isPut ? 6 : 18,
+      underlying: 18,
+    };
+  }, [selectedPool]);
 
   const handleWithdraw = useCallback(
     async (strike: number) => {
@@ -177,42 +171,75 @@ const UserDepositsTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {userPositionDataSanitized.map((position, index) => (
+          {userPositions.map((position, index) => (
             <TableRow key={index}>
               {selectedPool?.isPut && (
-                <TableBodyCell>${position.strike}</TableBodyCell>
+                <TableBodyCell>
+                  ${getUserReadableAmount(position?.strike ?? 0, 8)}
+                </TableBodyCell>
               )}
               <TableBodyCell>
                 <Typography variant="h6">
-                  {format(new Date(position.timestamp * 1000), 'd LLLL yyyy')}
+                  {format(
+                    new Date(position.timestamp.toNumber() * 1000),
+                    'd LLLL yyyy'
+                  )}
                 </Typography>
               </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
-                  {formatAmount(position.liquidity, 3, true)}{' '}
+                  {formatAmount(
+                    getUserReadableAmount(
+                      position.liquidity,
+                      tokenDecimals.premium
+                    ),
+                    3,
+                    true
+                  )}{' '}
                 </Typography>
               </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
-                  {formatAmount(position.premium, 3, true)}
+                  {formatAmount(
+                    getUserReadableAmount(
+                      position.premiumsEarned,
+                      tokenDecimals.premium
+                    ),
+                    3,
+                    true
+                  )}
                 </Typography>
               </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
-                  {formatAmount(position.funding, 3, true)}
+                  {formatAmount(
+                    getUserReadableAmount(
+                      position.fundingEarned,
+                      tokenDecimals.funding
+                    ),
+                    3,
+                    true
+                  )}
                 </Typography>
               </TableBodyCell>{' '}
               {selectedPool?.isPut && (
                 <TableBodyCell>
                   <Typography variant="h6">
-                    {formatAmount(position.underlying, 3, true)}
+                    {formatAmount(
+                      getUserReadableAmount(
+                        position?.underlyingEarned ?? 0,
+                        tokenDecimals.underlying
+                      ),
+                      3,
+                      true
+                    )}
                   </Typography>
                 </TableBodyCell>
               )}
               <TableBodyCell align="right">
                 <CustomButton
                   onClick={async () => {
-                    await handleWithdraw(position.strike ?? 0);
+                    await handleWithdraw(position?.strike?.toNumber() ?? 0);
                   }}
                   disabled={!canWithdraw}
                   color={canWithdraw ? 'primary' : 'mineshaft'}

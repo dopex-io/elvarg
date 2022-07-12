@@ -29,6 +29,7 @@ const EpochSelector = (props: EpochSelectorProps) => {
 
   const handleEpochSelection = useCallback(
     (e: any) => {
+      console.log(e.target.value);
       setSelectedEpoch(Number(e.target.value));
     },
     [setSelectedEpoch]

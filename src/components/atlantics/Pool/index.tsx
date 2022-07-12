@@ -10,6 +10,8 @@ import PutsIcon from 'svgs/icons/PutsIcon';
 import CallsIcon from 'svgs/icons/CallsIcon';
 
 import formatAmount from 'utils/general/formatAmount';
+import { BigNumber } from 'ethers';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 // import { TOKEN_DECIMALS } from 'constants/index';
 
@@ -18,15 +20,15 @@ interface PoolCardProps {
   underlying: string;
   duration: string | null;
   isPut: boolean;
-  tvl: string | number;
-  apy: string | string[];
+  tvl: BigNumber;
+  apy: BigNumber | BigNumber[] | string;
 }
 
 const PoolCard = (props: PoolCardProps) => {
   const { depositToken, underlying, duration, isPut, tvl, apy } = props;
   const type: string = isPut ? 'PUTS' : 'CALLS';
   const _apy = useMemo(() => {
-    return isPut ? 'Variable as per max strike' : apy + '%';
+    return isPut ? '-' : apy + '%';
   }, [isPut, apy]);
 
   return (
@@ -44,7 +46,7 @@ const PoolCard = (props: PoolCardProps) => {
               className="h-[2rem] w-[2rem] border border-mineshaft rounded-full"
             />
             <Typography variant="h6" className=" ml=[3rem] my-auto">
-              {isPut ? 'Max strikes Vault' : '33%+ Single OTM Strike'}
+              {`${underlying}-${type}-${duration}`}
             </Typography>
             {!isPut ? (
               // @TODO Fill is hard coded
@@ -64,7 +66,7 @@ const PoolCard = (props: PoolCardProps) => {
           />
           <PoolCardItem
             description="TVL"
-            value={'$' + formatAmount(tvl.toString(), 3, true)}
+            value={'$' + formatAmount(getUserReadableAmount(tvl, 6), 3, true)}
           />
           <PoolCardItem description="APY" value={_apy} />
         </Box>

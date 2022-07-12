@@ -11,30 +11,30 @@ const Stats = () => {
   const { stats } = useContext(AtlanticsContext);
 
   return (
-    <Box className="grid grid-cols-3 grid-flow-col border-2 border-umbra rounded-md divide-x divide-umbra my-auto mb-6">
-      <Box className="p-4">
-        <Typography variant="h6" className="p-2" color="stieglitz">
+    <Box className="grid grid-cols-3 grid-flow-col border border-umbra rounded-md divide-x divide-umbra my-auto mb-6">
+      <Box className="p-4 text-left space-y-2">
+        <Typography variant="h6">
           {stats.tvl ? `$${formatAmount(stats.tvl, 3, true)}` : '...'}
         </Typography>
-        <Typography variant="h5" color="stieglitz">
+        <Typography variant="h6" color="stieglitz">
           TVL
         </Typography>
       </Box>
-      <Box className="p-4">
-        <Typography variant="h6" className="p-2" color="stieglitz">
+      <Box className="p-4 text-left space-y-2">
+        <Typography variant="h6">
           {stats.volume ? `$${formatAmount(stats.volume, 3, true)}` : '...'}
         </Typography>
-        <Typography variant="h5" color="stieglitz">
+        <Typography variant="h6" color="stieglitz">
           Volume
         </Typography>
       </Box>
-      <Box className="p-4">
-        <Typography variant="h6" className="p-2" color="stieglitz">
+      <Box className="p-4 text-left space-y-2">
+        <Typography variant="h6">
           {stats.poolsCount
             ? `${formatAmount(stats.poolsCount, 3, true)}`
             : '...'}
         </Typography>
-        <Typography variant="h5" color="stieglitz">
+        <Typography variant="h6" color="stieglitz">
           Pools
         </Typography>
       </Box>
