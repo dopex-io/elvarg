@@ -100,9 +100,10 @@ export interface IUserPosition {
 }
 
 interface Stats {
-  tvl: number;
-  volume: number;
-  poolsCount: number;
+  // IMPORTANT: All in 1e6 decimals
+  tvl: BigNumber;
+  volume: BigNumber;
+  poolsCount: BigNumber;
 }
 
 interface AtlanticsContextInterface {
@@ -195,9 +196,9 @@ const initialUserPositions: IUserPosition[] | [] = [];
 const initialAtlanticsData = {
   pools: [],
   stats: {
-    tvl: 0,
-    volume: 0,
-    poolsCount: 0,
+    tvl: BigNumber.from(0),
+    volume: BigNumber.from(0),
+    poolsCount: BigNumber.from(0),
   },
   getCallPool: () => ({}),
   getPutPool: () => ({}),
@@ -231,9 +232,9 @@ export const AtlanticsProvider = (props: any) => {
 
   const [pools, setPools] = useState<Pool[]>([]);
   const [stats, setStats] = useState<Stats>({
-    tvl: 0,
-    volume: 0,
-    poolsCount: 0,
+    tvl: BigNumber.from(0),
+    volume: BigNumber.from(0),
+    poolsCount: BigNumber.from(0),
   });
   const [selectedPool, _setSelectedPool] = useState<IAtlanticPoolType>(
     atlanticPoolsZeroData
@@ -341,6 +342,7 @@ export const AtlanticsProvider = (props: any) => {
         baseToken: ERC20__factory.connect(baseToken, provider),
         quoteToken: ERC20__factory.connect(quoteToken, provider),
       };
+
       if (!contracts) return;
       const underlying = await contracts.baseToken.symbol();
       const depositToken = await contracts.quoteToken.symbol();
@@ -348,9 +350,11 @@ export const AtlanticsProvider = (props: any) => {
       await atlanticPool.getEpochMaxStrikesCollaterals(epoch);
 
       setStats(({ tvl, volume, poolsCount }) => ({
-        tvl,
-        volume,
-        poolsCount: poolsCount + 1,
+        tvl: tvl.add(
+          totalEpochCumulativeLiquidity.add(totalEpochActiveCollateral)
+        ),
+        volume: volume.add(totalEpochActiveCollateral),
+        poolsCount: poolsCount.add(1),
       }));
 
       return {
@@ -420,6 +424,16 @@ export const AtlanticsProvider = (props: any) => {
       };
 
       const underlying = await contracts?.baseToken?.symbol();
+
+      setStats(({ poolsCount, tvl, volume }) => ({
+        poolsCount: poolsCount.add(1),
+        tvl: tvl.add(
+          totalLiquidity.mul(underlyingPrice).div(oneEBigNumber(20))
+        ),
+        volume: volume.add(
+          activeCollateral.mul(underlyingPrice).div(oneEBigNumber(20))
+        ),
+      }));
 
       return {
         asset: underlying,
