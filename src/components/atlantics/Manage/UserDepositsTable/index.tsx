@@ -18,7 +18,7 @@ import CustomButton from 'components/UI/CustomButton';
 
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
-import { AtlanticsContext, IUserPosition } from 'contexts/Atlantics';
+import { AtlanticsContext } from 'contexts/Atlantics';
 import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';

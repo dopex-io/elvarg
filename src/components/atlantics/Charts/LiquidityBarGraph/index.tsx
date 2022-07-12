@@ -1,4 +1,5 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import {
   BarChart,
@@ -17,12 +18,13 @@ import PutsIcon from 'svgs/icons/PutsIcon';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface IBarData {
-  availableCollateral: number | string;
-  unlocked: number | string;
-  activeCollateral: number | string;
-  strike: number | string;
+  availableCollateral: BigNumber;
+  unlocked: BigNumber;
+  activeCollateral: BigNumber;
+  strike: BigNumber;
 }
 
 interface LiquidityBarGraphProps {
@@ -36,6 +38,17 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const { data, height, header } = props;
 
   const [focusBar, setFocusBar] = useState<any>(null);
+
+  const formattedBarData = useMemo(() => {
+    return data.map((bar: IBarData) => {
+      return {
+        availableCollateral: getUserReadableAmount(bar.availableCollateral, 6),
+        unlocked: getUserReadableAmount(bar.unlocked, 6),
+        activeCollateral: getUserReadableAmount(bar.activeCollateral, 6),
+        strike: getUserReadableAmount(bar.strike, 8),
+      };
+    });
+  }, [data]);
 
   const { selectedPool } = useContext(AtlanticsContext);
 
@@ -60,9 +73,8 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       <Box className="flex justify-around">
         <ResponsiveContainer width="100%" height={height}>
           <BarChart
-            data={data}
-            barCategoryGap="10%"
-            barSize={50}
+            data={formattedBarData}
+            barCategoryGap="5%"
             layout="vertical"
             margin={{
               top: 5,

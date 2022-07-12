@@ -32,7 +32,6 @@ import Switch from 'components/UI/Switch';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
@@ -330,8 +329,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     const quoteToken = selectedPool.contracts.quoteToken;
     const baseToken = selectedPool.contracts.baseToken;
     const underlying = selectedPool.asset;
-
-    console.log('fire: ', baseToken, quoteToken, underlying);
 
     const strategyAddress = contractAddresses['STRATEGIES']['INSURED-PERPS'];
 

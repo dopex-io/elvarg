@@ -79,7 +79,7 @@ const Manage = (props: ManageProps) => {
     useContext(AtlanticsContext);
 
   useEffect(() => {
-    if (!underlying || !type || !duration || !selectedPool) return;
+    if (!underlying || !type || !duration) return;
     (async () => {
       await setSelectedPool(underlying, type, selectedEpoch, duration);
     })();
@@ -88,7 +88,6 @@ const Manage = (props: ManageProps) => {
     duration,
     type,
     underlying,
-    selectedPool,
     selectedEpoch,
     setSelectedEpoch,
   ]);

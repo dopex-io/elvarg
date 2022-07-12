@@ -6,7 +6,7 @@ import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 interface InputProps extends MuiInputProps {
   leftElement: ReactNode;
   bottomElement?: ReactNode;
-  variant: string;
+  variant?: string;
   placeholder?: string;
 }
 

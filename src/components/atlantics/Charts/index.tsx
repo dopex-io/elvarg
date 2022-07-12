@@ -4,10 +4,7 @@ import Box from '@mui/material/Box';
 import { CircularProgress } from '@mui/material';
 import { BigNumber } from 'ethers';
 
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-
 import { AtlanticsContext, IEpochStrikeData } from 'contexts/Atlantics';
-import { WalletContext } from 'contexts/Wallet';
 
 // const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
 //   ssr: false,
@@ -26,21 +23,26 @@ interface ChartsProps {
 }
 
 interface IBarData {
-  availableCollateral: number | string;
-  unlocked: number | string;
-  activeCollateral: number | string;
-  strike: number | string;
+  availableCollateral: BigNumber;
+  unlocked: BigNumber;
+  activeCollateral: BigNumber;
+  strike: BigNumber;
 }
 
 const Charts = (props: ChartsProps) => {
   const { /* line_data, */ underlying, collateral, title, type } = props;
   const { selectedPool } = useContext(AtlanticsContext);
-  const { chainId } = useContext(WalletContext);
+  // const { chainId } = useContext(WalletContext);
 
   const barData: IBarData[] = useMemo((): IBarData[] => {
     if (!selectedPool)
       return [
-        { availableCollateral: 0, unlocked: 0, activeCollateral: 0, strike: 0 },
+        {
+          availableCollateral: BigNumber.from(0),
+          unlocked: BigNumber.from(0),
+          activeCollateral: BigNumber.from(0),
+          strike: BigNumber.from(0),
+        },
       ];
     if (selectedPool.isPut) {
       const data = selectedPool.epochStrikeData as IEpochStrikeData[];
@@ -49,22 +51,19 @@ const Charts = (props: ChartsProps) => {
       if (!deposit)
         return [
           {
-            availableCollateral: 0,
-            unlocked: 0,
-            activeCollateral: 0,
-            strike: 0,
+            availableCollateral: BigNumber.from(0),
+            unlocked: BigNumber.from(0),
+            activeCollateral: BigNumber.from(0),
+            strike: BigNumber.from(0),
           },
         ];
 
-      const decimals = getTokenDecimals(deposit, chainId);
-
-      console.log(decimals);
-
       const barData: IBarData[] = data?.map((data) => {
-        const unlocked = Number(data.unlocked) ?? 0;
-        const activeCollateral = Number(data.activeCollateral) ?? 0;
-        const strike = Number(data.strike.div(1e8)) ?? 0;
-        const availableCollateral = Number(data?.availableCollateral) ?? 0;
+        const unlocked = data.unlocked ?? BigNumber.from(0);
+        const activeCollateral = data.activeCollateral ?? BigNumber.from(0);
+        const strike = data.strike ?? BigNumber.from(0);
+        const availableCollateral =
+          data.totalEpochMaxStrikeLiquidity ?? BigNumber.from(0);
 
         return {
           availableCollateral,
@@ -76,15 +75,20 @@ const Charts = (props: ChartsProps) => {
       return barData;
     } else {
       return [
-        { availableCollateral: 0, unlocked: 0, activeCollateral: 0, strike: 0 },
+        {
+          availableCollateral: BigNumber.from(0),
+          unlocked: BigNumber.from(0),
+          activeCollateral: BigNumber.from(0),
+          strike: BigNumber.from(0),
+        },
       ];
     }
-  }, [selectedPool, chainId]);
+  }, [selectedPool]);
 
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">
       <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-full sm:w-full">
-        {barData[0]?.availableCollateral !== 0 ? (
+        {barData[0]?.strike.gt(0) ? (
           <ClientRenderedBarGraph
             data={barData}
             width={1000}

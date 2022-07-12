@@ -11,7 +11,6 @@ import { AtlanticsContext } from 'contexts/Atlantics';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface PoolStatsProps {
   poolType: string;
