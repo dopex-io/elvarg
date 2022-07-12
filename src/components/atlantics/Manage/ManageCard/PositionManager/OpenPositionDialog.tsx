@@ -209,7 +209,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     const putStrike = (
       await strategyContract.eligiblePutPurchaseStrike(
         liquidationPrice,
-        selectedPool.config.tickSize
+        selectedPool.config.tickSize,
+        contractAddresses[underlying]
       )
     ).div(oneEBigNumber(22));
 

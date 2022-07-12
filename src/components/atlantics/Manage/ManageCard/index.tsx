@@ -20,7 +20,7 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/CustomButton';
-// import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
+import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -283,10 +283,10 @@ const ManageCard = (props: ManageCardProps) => {
               Open a long position
             </Typography>
 
-            {/* <OpenPositionDialog
+            <OpenPositionDialog
               isOpen={openPositionManager}
               handleClose={closePositionManager}
-            /> */}
+            />
           </>
         ) : null}
       </Box>
