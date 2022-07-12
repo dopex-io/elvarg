@@ -43,10 +43,9 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
       _totalDeposits =
         Number(selectedPool.epochData.totalEpochLiquidity) / 10 ** decimals;
       _userShare = (_userDeposits / _totalDeposits) * 100;
-
       return {
         userShare: _userShare,
-        totalDeposits: formatAmount(_totalDeposits, 3, true),
+        totalDeposits: _totalDeposits,
       };
     }
     if (!selectedPool.isPut) {
@@ -89,7 +88,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
       <Box className="flex divide-x divide-umbra">
         <PoolStatsBox
-          stat={formatAmount(poolShareStats.totalDeposits, 8)}
+          stat={formatAmount(poolShareStats.totalDeposits, 8, true)}
           description="Total Deposits"
         />
         <PoolStatsBox
