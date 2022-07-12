@@ -684,11 +684,11 @@ export const AtlanticsProvider = (props: any) => {
     [contractAddresses, getPool, provider]
   );
 
-  // useEffect(() => {
-  //   if (selectedPool.asset === 'Asset') {
-  //     updateUserPositions();
-  //   }
-  // }, [updateUserPositions, selectedPool]);
+  useEffect(() => {
+    if (selectedPool.asset !== 'Asset') {
+      updateUserPositions();
+    }
+  }, [updateUserPositions, selectedPool]);
 
   useEffect(() => {
     updatePools();
