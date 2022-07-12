@@ -116,7 +116,7 @@ const CustomAccordion = ({
                   depositToken={pool.tokens['deposit'] ?? ''}
                   duration={duration.toUpperCase()}
                   tvl={pool.tvl}
-                  apy={pool.apy}
+                  apy={'0'}
                   isPut={true}
                 />
               );
@@ -133,7 +133,7 @@ const CustomAccordion = ({
                   depositToken={pool.tokens['underlying'] ?? ''}
                   duration={duration.toUpperCase()}
                   tvl={pool.tvl}
-                  apy={pool.apy}
+                  apy={'0'}
                   isPut={false}
                 />
               );

@@ -330,6 +330,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     const baseToken = selectedPool.contracts.baseToken;
     const underlying = selectedPool.asset;
 
+    console.log('fire: ', baseToken, quoteToken, underlying);
+
     const strategyAddress = contractAddresses['STRATEGIES']['INSURED-PERPS'];
 
     const quoteTokenAllowance = await quoteToken.allowance(

@@ -10,6 +10,8 @@ import PutsIcon from 'svgs/icons/PutsIcon';
 import CallsIcon from 'svgs/icons/CallsIcon';
 
 import formatAmount from 'utils/general/formatAmount';
+import { BigNumber } from 'ethers';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 // import { TOKEN_DECIMALS } from 'constants/index';
 
@@ -18,8 +20,8 @@ interface PoolCardProps {
   underlying: string;
   duration: string | null;
   isPut: boolean;
-  tvl: string | number;
-  apy: string | string[];
+  tvl: BigNumber;
+  apy: BigNumber | BigNumber[] | string;
 }
 
 const PoolCard = (props: PoolCardProps) => {
@@ -64,7 +66,7 @@ const PoolCard = (props: PoolCardProps) => {
           />
           <PoolCardItem
             description="TVL"
-            value={'$' + formatAmount(tvl.toString(), 3, true)}
+            value={'$' + formatAmount(getUserReadableAmount(tvl, 6), 3, true)}
           />
           <PoolCardItem description="APY" value={_apy} />
         </Box>
