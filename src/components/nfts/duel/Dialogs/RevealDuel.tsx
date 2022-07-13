@@ -138,7 +138,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     await duelContract
       .connect(signer)
       ['revealDuel'](selectedDuel['id'], numericMoves, {
-        gasLimit: 1000000,
         value: 0,
       });
 
