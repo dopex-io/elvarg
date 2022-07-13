@@ -19,6 +19,8 @@ import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 import { DuelContext } from 'contexts/Duel';
 
+import useSendTx from 'hooks/useSendTx';
+
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import { MAX_VALUE } from 'constants/index';
@@ -39,6 +41,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
     useContext(WalletContext);
   const { isLoading, duelContract, nfts, updateDuels, selectedDuel } =
     useContext(DuelContext);
+  const sendTx = useSendTx();
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
@@ -147,21 +150,23 @@ const FindDuel = ({ open, handleClose }: Props) => {
       await token.approve(duelContract.address, MAX_VALUE);
     }
 
-    await duelContract
-      .connect(signer)
-      ['challenge'](
-        selectedDuel['id'],
-        '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
-        duelist,
-        numericMoves,
-        {
-          gasLimit: 3000000,
-          value:
-            selectedDuel['tokenName'] === 'ETH'
-              ? getContractReadableAmount(selectedDuel['wager'], 18)
-              : 0,
-        }
-      );
+    await sendTx(
+      duelContract
+        .connect(signer)
+        ['challenge'](
+          selectedDuel['id'],
+          '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
+          duelist,
+          numericMoves,
+          {
+            gasLimit: 3000000,
+            value:
+              selectedDuel['tokenName'] === 'ETH'
+                ? getContractReadableAmount(selectedDuel['wager'], 18)
+                : 0,
+          }
+        )
+    );
 
     setMoves([]);
     handleClose();

@@ -27,6 +27,8 @@ import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 import { DuelContext } from 'contexts/Duel';
 
+import useSendTx from 'hooks/useSendTx';
+
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import { MAX_VALUE } from 'constants/index';
@@ -45,6 +47,7 @@ const feesPercentage = 10;
 const RevealDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress } =
     useContext(WalletContext);
+  const sendTx = useSendTx();
   const { duelContract, updateDuels, selectedDuel } = useContext(DuelContext);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
@@ -135,11 +138,13 @@ const RevealDuel = ({ open, handleClose }: Props) => {
       else numericMoves.push(2);
     });
 
-    await duelContract
-      .connect(signer)
-      ['revealDuel'](selectedDuel['id'], numericMoves, {
-        value: 0,
-      });
+    await sendTx(
+      duelContract
+        .connect(signer)
+        ['revealDuel'](selectedDuel['id'], numericMoves, {
+          value: 0,
+        })
+    );
 
     setMoves([]);
     handleClose();

@@ -817,15 +817,14 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
   const { tokenPrices } = useContext(AssetsContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const duelContract = useMemo(
-    () =>
-      new ethers.Contract(
-        '0x37c163aF0812Eb0E3f88c61987F82A92f2a0f3E4',
-        ABI,
-        signer
-      ),
-    [signer]
-  );
+  const duelContract = useMemo(() => {
+    if (!signer) return;
+    return new ethers.Contract(
+      '0x37c163aF0812Eb0E3f88c61987F82A92f2a0f3E4',
+      ABI,
+      signer
+    );
+  }, [signer]);
   const diamondPepeNfts = useMemo(() => {
     if (!signer) return;
     return DiamondPepeNFTs__factory.connect(
@@ -839,16 +838,8 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const [activeDuels, setActiveDuels] = useState<Duel[]>([]);
   const [selectedDuel, setSelectedDuel] = useState<null | Duel>(null);
 
-  const updateDuels = useCallback(async () => {
-    if (!signer || !accountAddress) return;
-
-    setIsLoading(true);
-
-    const duelCount = await duelContract['duelCount']();
-    const _duels: Duel[] = [];
-    const _activeDuels: Duel[] = [];
-
-    for (let i = 1; i <= duelCount; i++) {
+  const getDuelData = useCallback(
+    async (i) => {
       const duelData = await duelContract['getDuel'](i);
 
       const finishDate = new Date(duelData[10][1].toNumber() * 1000);
@@ -896,14 +887,13 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       const isCreatorWinner = duelData[9];
 
       if (finishDate.getTime() > 1000) {
-        if (revealDate.getTime() > new Date().getTime()) {
-          if (isCreatorWinner && duelistAddress === accountAddress)
+        if (
+          revealDate.getTime() < new Date().getTime() &&
+          revealDate.getTime() > 1000
+        ) {
+          if (isCreatorWinner === true && duelistAddress === accountAddress)
             status = 'won';
-          else if (isCreatorWinner && challengerAddress === accountAddress)
-            status = 'lost';
-          else {
-            status = 'tie';
-          }
+          else status = 'lost';
         } else {
           if (maxRevealDate.getTime() < new Date().getTime()) {
             status = 'forfeit';
@@ -937,7 +927,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       let duelist = duelData[6][0].toNumber();
       if (duelist === 2) duelist = 666;
 
-      const _duel = {
+      const duel = {
         id: i,
         identifier: duelData[0],
         duelistAddress: duelistAddress,
@@ -960,23 +950,45 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         wagerValueInUSD: wagerValueInUSD,
       };
 
+      return duel;
+    },
+    [duelContract, signer, accountAddress, provider]
+  );
+
+  const updateDuels = useCallback(async () => {
+    if (!signer || !accountAddress || !provider || !duelContract) return;
+
+    setIsLoading(true);
+
+    const duelCount = await duelContract['duelCount']();
+    const _duels: Duel[] = [];
+    const _activeDuels: Duel[] = [];
+    const _promises = [];
+
+    for (let i = 1; i <= duelCount; i++) {
+      _promises.push(getDuelData(i));
+    }
+
+    const results = await Promise.all(_promises);
+
+    results.map((_duel) => {
       if (
-        challengerAddress === accountAddress ||
-        duelistAddress === accountAddress
+        _duel['challengerAddress'] === accountAddress ||
+        _duel['duelistAddress'] === accountAddress
       )
         _activeDuels.push(_duel);
       else _duels.push(_duel);
-    }
+    });
 
     _duels.reverse();
     _activeDuels.reverse();
     setDuels(_duels);
     setActiveDuels(_activeDuels);
     setIsLoading(false);
-  }, [provider, contractAddresses, duelContract, chainId]);
+  }, [provider, signer, contractAddresses, duelContract, chainId]);
 
   const updateNfts = useCallback(async () => {
-    if (!signer || !accountAddress || !diamondPepeNfts) return;
+    if (!signer || !accountAddress || !diamondPepeNfts || !provider) return;
 
     setIsLoading(true);
 
@@ -1002,7 +1014,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
     setNfts(_nfts);
     setIsLoading(false);
-  }, [accountAddress, contractAddresses, signer, diamondPepeNfts]);
+  }, [accountAddress, contractAddresses, signer, provider, diamondPepeNfts]);
 
   useEffect(() => {
     updateDuels();
