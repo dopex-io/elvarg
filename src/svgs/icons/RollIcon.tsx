@@ -1,6 +1,12 @@
 import React from 'react';
 const RollIcon = ({ className }: any) => (
-  <svg width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width="18"
+    height="18"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
     <path
       d="M9 .538A8.463 8.463 0 0 0 .538 9 8.463 8.463 0 0 0 9 17.462 8.463 8.463 0 0 0 17.462 9 8.463 8.463 0 0 0 9 .538Z"
       fill="url(#a)"
