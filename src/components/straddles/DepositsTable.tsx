@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -12,10 +13,14 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import styles from 'components/ir/Positions/styles.module.scss';
 import cx from 'classnames';
 import Typography from 'components/UI/Typography';
+import WithdrawModal from './WithdrawModal';
 
 const DepositsTable = () => {
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
+    useState<boolean>(false);
+
   return (
-    <Box className="">
+    <Box className="-mb-4">
       <TableContainer
         className={cx(styles['optionsTable'], 'bg-cod-gray', 'rounded-xl')}
       >
@@ -52,7 +57,7 @@ const DepositsTable = () => {
           <TableBody className={cx('rounded-lg')}>
             <TableRow key="a" className="mt-2">
               <TableCell className="pt-2">
-                <Box className={'pt-2'}>
+                <Box className={''}>
                   <Box className={`rounded-md flex px-2 py-2 bg-umbra w-fit`}>
                     <Typography variant="h6" className="pr-7 pt-[2px]">
                       101.2
@@ -80,13 +85,23 @@ const DepositsTable = () => {
               </TableCell>
               <TableCell className="pt-2 flex justify-end">
                 <Button
-                  onClick={() => true}
+                  onClick={() => setIsWithdrawModalOpen(true)}
                   className={
                     'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white'
                   }
                 >
                   Withdraw
                 </Button>
+                {isWithdrawModalOpen && (
+                  <WithdrawModal
+                    open={isWithdrawModalOpen}
+                    handleClose={
+                      (() => {
+                        setIsWithdrawModalOpen(false);
+                      }) as any
+                    }
+                  />
+                )}
               </TableCell>
             </TableRow>
           </TableBody>
