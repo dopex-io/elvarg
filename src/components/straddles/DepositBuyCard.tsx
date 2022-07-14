@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+
+import { WalletContext } from 'contexts/Wallet';
+
 import Typography from 'components/UI/Typography';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
 import ArrowUpDownIcon from 'svgs/icons/ArrowsUpDownIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 
 const DepositBuyCard = () => {
+  const { chainId } = useContext(WalletContext);
+
   return (
     <Box className="bg-umbra rounded-xl p-3 max-w-sm">
       <Box className="mb-4">
@@ -99,30 +105,19 @@ const DepositBuyCard = () => {
       </Box>
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">
-          <Box className="bg-neutral-700 rounded-md flex items-center p-2 mb-3">
-            <img className="" src="/assets/gasicon.svg" alt={'gas icon'} />
-            <Typography variant="h6" className="ml-3 text-gray-400">
-              Est. Gas Cost
-            </Typography>
-            <Box className="flex justify-between ml-auto">
-              <Typography variant="h6" className="mx-1 text-gray-400">
-                ~ $6,2
-              </Typography>
-              <Typography variant="h6" className="mx-1">
-                0.003 ETH
-              </Typography>
-            </Box>
+          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-neutral-600">
+            <EstimatedGasCostButton gas={5000000} chainId={chainId} />
           </Box>
-          <Box className="bg-neutral-600 rounded-md flex items-center p-2 mb-3">
+          <Box className="bg-neutral-600 rounded-md flex items-center pr-2 pl-4 py-3 mb-3">
             <ArrowUpDownIcon className="" />
             <Typography variant="h6" className="mx-3">
               Get 2CRV
             </Typography>
             <OpenInNewIcon role="button" className="w-5 h-5 ml-auto" />
           </Box>
-          <Box className="bg-neutral-600 rounded-md flex items-center p-2">
+          <Box className="bg-neutral-600 rounded-md flex items-center pr-2 pl-3.5 py-3">
             <CalculatorIcon className="w-3 h-3" />
-            <Typography variant="h6" className="mx-2">
+            <Typography variant="h6" className="mx-2 pl-1">
               Payout Calculator
             </Typography>
           </Box>
