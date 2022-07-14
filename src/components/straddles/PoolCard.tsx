@@ -7,7 +7,7 @@ import PoolChart from './PoolChart';
 const PoolCard = () => {
   return (
     <Box className="text-gray-400 w-full mb-2">
-      <Box className="border rounded-t-xl border-cod-gray py-2 bg-cod-gray">
+      <Box className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <Box className="flex">
           <SignalCellularAltRoundedIcon className="mx-2" />
           <Typography variant="h6" className="text-gray-400">
@@ -15,7 +15,7 @@ const PoolCard = () => {
           </Typography>
         </Box>
       </Box>
-      <Box className="border rounded-b-xl border-cod-gray border-t-neutral-800 bg-cod-gray">
+      <Box className="border rounded-b-xl border-cod-gray border-t-neutral-800 bg-umbra">
         <Box className="m-2 flex">
           <Box className="ml-2">
             <Typography variant="h6" className="pt-1 pb-4 text-gray-400">

@@ -20,31 +20,31 @@ const DepositsTable = () => {
     useState<boolean>(false);
 
   return (
-    <Box className="-mb-4">
+    <Box className="">
       <TableContainer
-        className={cx(styles['optionsTable'], 'bg-cod-gray', 'rounded-xl')}
+        className={cx(styles['optionsTable'], '-my-2', 'rounded-xl')}
       >
         <Table className="rounded-xl">
-          <TableHead className="bg-umbra rounded-xl mb-0">
-            <TableRow className="bg-umbra">
-              <TableCell className="bg-cod-gray border-0 pb-0">
+          <TableHead className="rounded-xl">
+            <TableRow className="">
+              <TableCell className="border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400">
                   Amount
                   <ArrowDownwardIcon className="w-4 pb-2 ml-2" />
                 </Typography>
               </TableCell>
-              <TableCell className="bg-cod-gray border-0 pb-0">
+              <TableCell className="border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400">
                   Premiums
                 </Typography>
               </TableCell>
-              <TableCell className="bg-cod-gray border-0 pb-0">
+              <TableCell className=" border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400 flex">
                   Epoch
                   <HelpOutlineIcon className="w-5 h-5 ml-1" />
                 </Typography>
               </TableCell>
-              <TableCell className="bg-cod-gray border-0 pb-0">
+              <TableCell className=" border-0 pb-0">
                 <Typography
                   variant="h6"
                   className="text-gray-400 flex justify-end"
@@ -55,14 +55,18 @@ const DepositsTable = () => {
             </TableRow>
           </TableHead>
           <TableBody className={cx('rounded-lg')}>
-            <TableRow key="a" className="mt-2">
+            <TableRow key="a" className="">
               <TableCell className="pt-2">
                 <Box className={''}>
-                  <Box className={`rounded-md flex px-2 py-2 bg-umbra w-fit`}>
+                  <Box
+                    className={`rounded-md flex items-center px-2 py-2 w-fit`}
+                  >
                     <Typography variant="h6" className="pr-7 pt-[2px]">
                       101.2
                     </Typography>
-                    <Box className={`rounded-sm w-fit bg-neutral-700`}>
+                    <Box
+                      className={`rounded-sm w-fit bg-neutral-700 flex items-center`}
+                    >
                       <Typography
                         variant="h6"
                         className="px-1 py-[2px] text-gray-400"
@@ -73,17 +77,17 @@ const DepositsTable = () => {
                   </Box>
                 </Box>
               </TableCell>
-              <TableCell className="pt-2">
+              <TableCell className="pt-1">
                 <Typography variant="h6" className="text-[#6DFFB9]">
                   $231.22
                 </Typography>
               </TableCell>
-              <TableCell className="pt-2">
+              <TableCell className="pt-1">
                 <Typography variant="h6" className="">
                   1
                 </Typography>
               </TableCell>
-              <TableCell className="pt-2 flex justify-end">
+              <TableCell className="flex justify-end">
                 <Button
                   onClick={() => setIsWithdrawModalOpen(true)}
                   className={

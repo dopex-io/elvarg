@@ -29,6 +29,7 @@ const StatsTab = () => {
                   '.MuiMenu-paper': {
                     background: 'black',
                     color: 'white',
+                    fill: 'white',
                   },
                   '.Mui-selected': {
                     background:
