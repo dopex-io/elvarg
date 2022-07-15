@@ -1,6 +1,7 @@
 import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -86,16 +87,25 @@ const Description = ({
       <EpochSelector className="mb-6" />
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">
-          <WalletButton
-            size="medium"
-            fullWidth
-            className="rounded-lg"
-            onClick={() => {
-              accountAddress ? setPurchaseState(true) : connect();
-            }}
+          <Tooltip
+            title={
+              ssovData?.underlyingSymbol === 'rDPX'
+                ? 'Purchases will be available soon'
+                : 'Open'
+            }
           >
-            Buy {type} Options
-          </WalletButton>
+            <WalletButton
+              size="medium"
+              fullWidth
+              className="rounded-lg"
+              onClick={() => {
+                accountAddress ? setPurchaseState(true) : connect();
+              }}
+              disabled={ssovData?.underlyingSymbol === 'rDPX'}
+            >
+              Buy {type} Options
+            </WalletButton>
+          </Tooltip>
         </Box>
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
