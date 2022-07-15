@@ -12,7 +12,6 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import Slide from '@mui/material/Slide';
-import Tooltip from '@mui/material/Tooltip';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { BigNumber, ethers } from 'ethers';
@@ -267,7 +266,7 @@ const PurchaseDialog = ({
   ]);
 
   const purchaseButtonProps = useMemo(() => {
-    let disabled = Boolean(
+    const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
         (isPut
@@ -289,8 +288,6 @@ const PurchaseDialog = ({
               .div(ssovData.tokenPrice)
               .gt(userTokenBalance))
     );
-
-    if (ssovTokenName?.includes('rDPX')) disabled = true;
 
     let onClick = () => {};
 
@@ -359,7 +356,6 @@ const PurchaseDialog = ({
     availableCollateralForStrikes,
     strikeIndex,
     strikes,
-    ssovTokenName,
   ]);
 
   return (
@@ -703,23 +699,15 @@ const PurchaseDialog = ({
             and can be settled anytime after expiry.
           </Typography>
         </Box>
-        <Tooltip
-          title={
-            ssovTokenName?.includes('rDPX')
-              ? 'Purchases will be available soon'
-              : 'Purchase'
-          }
+        <CustomButton
+          size="medium"
+          className="w-full mt-4 !rounded-md"
+          color={purchaseButtonProps.color}
+          disabled={purchaseButtonProps.disabled}
+          onClick={purchaseButtonProps.onClick}
         >
-          <CustomButton
-            size="medium"
-            className="w-full mt-4 !rounded-md"
-            color={purchaseButtonProps.color}
-            disabled={purchaseButtonProps.disabled}
-            onClick={purchaseButtonProps.onClick}
-          >
-            {purchaseButtonProps.children}
-          </CustomButton>
-        </Tooltip>
+          {purchaseButtonProps.children}
+        </CustomButton>
       </Box>
     </Dialog>
   );
