@@ -1,5 +1,4 @@
 import { useContext, useState, useMemo, useCallback } from 'react';
-import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
@@ -34,18 +33,13 @@ interface StatsTableDataProps {
   isPut: boolean;
 }
 
-const YEAR_SECONDS = 31536000;
-
-const StatsTableData = (
-  props: StatsTableDataProps & { price: number; epochTime: number }
-) => {
+const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
   const {
     strikePrice,
     totalDeposits,
     totalPurchased,
     totalPremiums,
     price,
-    epochTime,
     underlyingSymbol,
     collateralSymbol,
     isPut,
@@ -101,19 +95,6 @@ const StatsTableData = (
           {formatAmount(isPut ? totalPremiums : totalPremiums * price, 2)}
         </Box>
       </TableCell>
-      <TableCell align="right" className="px-6 pt-2">
-        <Typography variant="h6">
-          {formatAmount(
-            epochTime > 0 && totalDeposits > 0
-              ? 100 *
-                  (YEAR_SECONDS / epochTime) *
-                  (totalPremiums / totalDeposits)
-              : 0,
-            2
-          )}
-          {'%'}
-        </Typography>
-      </TableCell>
     </TableRow>
   );
 };
@@ -125,27 +106,8 @@ const Stats = (props: { className?: string }) => {
 
   const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovV3Context);
 
-  // @ts-ignore TODO: FIX
-  const { tokenPrice, underlyingSymbol, collateralSymbol, isPut } = ssovData;
-  const {
-    // @ts-ignore TODO: FIX
-    epochTimes,
-    // @ts-ignore TODO: FIX
-    epochStrikes,
-    // @ts-ignore TODO: FIX
-    totalEpochPremium,
-    // @ts-ignore TODO: FIX
-    totalEpochStrikeDeposits,
-    // @ts-ignore TODO: FIX
-    totalEpochOptionsPurchased,
-  } = ssovEpochData;
-
-  const epochTime =
-    epochTimes && epochTimes[0] && epochTimes[1]
-      ? (epochTimes[1] as BigNumber).sub(epochTimes[0] as BigNumber).toNumber()
-      : 0;
-
   const [page, setPage] = useState(0);
+
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
       setPage(newPage);
@@ -154,26 +116,25 @@ const Stats = (props: { className?: string }) => {
   );
 
   const price = useMemo(
-    () => getUserReadableAmount(tokenPrice ?? 0, 8),
-    [tokenPrice]
+    () => getUserReadableAmount(ssovData?.tokenPrice ?? 0, 8),
+    [ssovData]
   );
 
   const stats: any[] = useMemo(
     () =>
-      // @ts-ignore TODO: FIX
-      epochStrikes.map((strike, strikeIndex) => {
+      ssovEpochData?.epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
         const totalDeposits = getUserReadableAmount(
-          totalEpochStrikeDeposits[strikeIndex] ?? 0,
+          ssovEpochData?.totalEpochStrikeDeposits[strikeIndex] ?? 0,
           18
         );
         const totalPurchased = getUserReadableAmount(
-          totalEpochOptionsPurchased[strikeIndex] ?? 0,
+          ssovEpochData?.totalEpochOptionsPurchased[strikeIndex] ?? 0,
           18
         );
 
         const totalPremiums = getUserReadableAmount(
-          totalEpochPremium[strikeIndex] ?? 0,
+          ssovEpochData?.totalEpochPremium[strikeIndex] ?? 0,
           18
         );
 
@@ -184,17 +145,11 @@ const Stats = (props: { className?: string }) => {
           totalPurchased,
           totalPremiums,
         };
-      }),
-    [
-      epochStrikes,
-      totalEpochStrikeDeposits,
-      totalEpochOptionsPurchased,
-      totalEpochPremium,
-    ]
+      }) ?? [],
+    [ssovEpochData]
   );
 
-  // @ts-ignore TODO: FIX
-  return selectedEpoch > 0 ? (
+  return Number(selectedEpoch) > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
@@ -206,7 +161,7 @@ const Stats = (props: { className?: string }) => {
       </Box>
       <Box className="balances-table text-white pb-4">
         <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
-          {isEmpty(epochStrikes) ? (
+          {isEmpty(ssovEpochData?.epochStrikes) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
               {range(3).map((_, index) => (
                 <Skeleton
@@ -260,14 +215,6 @@ const Stats = (props: { className?: string }) => {
                       Total Premiums
                     </Typography>
                   </TableCell>
-                  <TableCell
-                    align="right"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6" className="text-stieglitz">
-                      APR
-                    </Typography>
-                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
@@ -293,10 +240,9 @@ const Stats = (props: { className?: string }) => {
                           totalPurchased={totalPurchased}
                           totalPremiums={totalPremiums}
                           price={price}
-                          epochTime={epochTime}
-                          underlyingSymbol={underlyingSymbol}
-                          collateralSymbol={collateralSymbol}
-                          isPut={isPut}
+                          underlyingSymbol={ssovData?.underlyingSymbol || ''}
+                          collateralSymbol={ssovData?.collateralSymbol || ''}
+                          isPut={ssovData?.isPut || false}
                         />
                       );
                     }
@@ -305,12 +251,12 @@ const Stats = (props: { className?: string }) => {
             </Table>
           )}
         </TableContainer>
-        {epochStrikes.length > ROWS_PER_PAGE ? (
+        {ssovEpochData?.epochStrikes?.length ?? 0 > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"
             id="stats"
             rowsPerPageOptions={[ROWS_PER_PAGE]}
-            count={epochStrikes.length}
+            count={ssovEpochData?.epochStrikes?.length ?? 0}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={ROWS_PER_PAGE}
