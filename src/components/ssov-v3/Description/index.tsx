@@ -1,6 +1,7 @@
 import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import format from 'date-fns/format';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -37,6 +38,9 @@ const Description = ({
   const type = useMemo(() => {
     return ssovData.isPut ? 'PUT' : 'CALL';
   }, [ssovData]);
+
+  const epochStartTime = Number(ssovEpochData.epochTimes[0]?.toNumber());
+  const epochEndTime = Number(ssovEpochData.epochTimes[1]?.toNumber());
 
   const info = [
     {
@@ -84,6 +88,13 @@ const Description = ({
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
       <EpochSelector className="mb-6" />
+      <Box className="mb-3">
+        Epoch duration:{' '}
+        <span className="font-bold">
+          {format(epochStartTime * 1000, 'do MMM')} -{' '}
+          {format(epochEndTime * 1000, 'do MMM')}
+        </span>
+      </Box>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">
           <WalletButton
