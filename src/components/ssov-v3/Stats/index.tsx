@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo, useCallback } from 'react';
+import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
@@ -7,13 +7,11 @@ import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
-import TablePaginationActions from 'components/UI/TablePaginationActions';
 
 import { SsovV3Context } from 'contexts/SsovV3';
 
@@ -99,21 +97,10 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
   );
 };
 
-const ROWS_PER_PAGE = 5;
-
 const Stats = (props: { className?: string }) => {
   const { className } = props;
 
   const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovV3Context);
-
-  const [page, setPage] = useState(0);
-
-  const handleChangePage = useCallback(
-    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-      setPage(newPage);
-    },
-    [setPage]
-  );
 
   const price = useMemo(
     () => getUserReadableAmount(ssovData?.tokenPrice ?? 0, 8),
@@ -218,52 +205,34 @@ const Stats = (props: { className?: string }) => {
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
-                {stats
-                  .slice(
-                    page * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
-                  )
-                  ?.map(
-                    ({
-                      strikeIndex,
-                      strikePrice,
-                      totalDeposits,
-                      totalPurchased,
-                      totalPremiums,
-                    }) => {
-                      return (
-                        <StatsTableData
-                          key={strikeIndex}
-                          strikeIndex={strikeIndex}
-                          strikePrice={strikePrice}
-                          totalDeposits={totalDeposits}
-                          totalPurchased={totalPurchased}
-                          totalPremiums={totalPremiums}
-                          price={price}
-                          underlyingSymbol={ssovData?.underlyingSymbol || ''}
-                          collateralSymbol={ssovData?.collateralSymbol || ''}
-                          isPut={ssovData?.isPut || false}
-                        />
-                      );
-                    }
-                  )}
+                {stats?.map(
+                  ({
+                    strikeIndex,
+                    strikePrice,
+                    totalDeposits,
+                    totalPurchased,
+                    totalPremiums,
+                  }) => {
+                    return (
+                      <StatsTableData
+                        key={strikeIndex}
+                        strikeIndex={strikeIndex}
+                        strikePrice={strikePrice}
+                        totalDeposits={totalDeposits}
+                        totalPurchased={totalPurchased}
+                        totalPremiums={totalPremiums}
+                        price={price}
+                        underlyingSymbol={ssovData?.underlyingSymbol || ''}
+                        collateralSymbol={ssovData?.collateralSymbol || ''}
+                        isPut={ssovData?.isPut || false}
+                      />
+                    );
+                  }
+                )}
               </TableBody>
             </Table>
           )}
         </TableContainer>
-        {ssovEpochData?.epochStrikes?.length ?? 0 > ROWS_PER_PAGE ? (
-          <TablePagination
-            component="div"
-            id="stats"
-            rowsPerPageOptions={[ROWS_PER_PAGE]}
-            count={ssovEpochData?.epochStrikes?.length ?? 0}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={ROWS_PER_PAGE}
-            className="text-stieglitz border-0 flex flex-grow justify-center"
-            ActionsComponent={TablePaginationActions}
-          />
-        ) : null}
       </Box>
     </Box>
   ) : null;
