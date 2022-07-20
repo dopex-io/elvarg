@@ -242,13 +242,13 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
         <Box className="absolute right-[10px] top-[8px] bg-mineshaft p-2 pt-1 pb-1 rounded-md">
           <a
             className={'cursor-pointer'}
-            href={`${getExplorerUrl(
-              chainId
-            )}/address/${'0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41'}`}
+            href={`${getExplorerUrl(chainId)}/address/${
+              rateVaultContext.rateVaultData.rateVaultContract.address
+            }`}
           >
             <Typography variant="h5" className="text-white text-[11px]">
               {displayAddress(
-                '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41',
+                rateVaultContext.rateVaultData.rateVaultContract.address,
                 undefined
               )}
             </Typography>
