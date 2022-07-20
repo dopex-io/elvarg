@@ -1,5 +1,8 @@
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+
+import { StraddlesProvider, StraddlesContext } from 'contexts/Straddles';
+
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import TopBar from 'components/straddles/TopBar';
@@ -8,8 +11,20 @@ import PoolCard from 'components/straddles/PoolCard';
 import TVLCard from 'components/straddles/TVLCard';
 import DepositsCard from 'components/straddles/DepositsCard';
 import DepositBuyCard from 'components/straddles/DepositBuyCard';
+import { useContext, useEffect } from 'react';
 
-const Straddles = () => {
+interface Props {
+  poolName: string;
+}
+
+const Straddles = ({ poolName }: Props) => {
+  const { straddlesEpochData, straddlesUserData, setSelectedPoolName } =
+    useContext(StraddlesContext);
+
+  useEffect(() => {
+    if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
+  }, [poolName, setSelectedPoolName]);
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -53,4 +68,22 @@ const Straddles = () => {
   );
 };
 
-export default Straddles;
+export async function getServerSideProps(context: {
+  query: { poolName: string };
+}) {
+  return {
+    props: {
+      poolName: context.query.poolName,
+    },
+  };
+}
+
+const ManagePage = ({ poolName }: Props) => {
+  return (
+    <StraddlesProvider>
+      <Straddles poolName={poolName} />
+    </StraddlesProvider>
+  );
+};
+
+export default ManagePage;

@@ -863,7 +863,25 @@ export interface StraddlesEpochData {
   underlyingPurchased: number;
 }
 
-export interface StraddlesUserData {}
+export interface WritePosition {
+  epoch: number;
+  usdDeposit: number;
+  roolover: boolean;
+  pnl: number;
+  withdrawn: boolean;
+}
+
+export interface StraddlePosition {
+  epoch: number;
+  amount: number;
+  apStrike: number;
+  exercised: boolean;
+}
+
+export interface StraddlesUserData {
+  writePositions?: WritePosition[];
+  straddlePositions?: StraddlePosition[];
+}
 
 interface StraddlesContextInterface {
   straddlesData?: StraddlesData;
@@ -878,13 +896,23 @@ interface StraddlesContextInterface {
 }
 
 const initialStraddlesUserData = {};
+const initialStraddlesEpochData = {
+  startTime: new Date().getTime(),
+  expiry: 0,
+  usdDeposits: 0,
+  activeUsdDeposits: 0,
+  strikes: [],
+  settlementPrice: 0,
+  underlyingPurchased: 0,
+};
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
   straddlesUserData: initialStraddlesUserData,
+  straddlesEpochData: initialStraddlesEpochData,
 });
 
 export const Straddles = () => {
-  const { accountAddress, contractAddresses, provider, signer } =
+  const { accountAddress, contractAddresses, provider } =
     useContext(WalletContext);
 
   const [selectedPoolName, setSelectedPoolName] = useState<string | null>(null);
@@ -899,342 +927,54 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x0dcd1bf9a1b36ce34237eeafef220932846bcd82',
+        '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
         ABI,
         provider
       );
   }, [provider, selectedPoolName]);
 
   const updateStraddlesUserData = useCallback(async () => {
-    if (
-      !contractAddresses ||
-      !accountAddress ||
-      !straddlesEpochData?.strikes ||
-      !selectedPoolName
-    )
-      return;
+    if (selectedEpoch === null || !selectedPoolName || !accountAddress) return;
+
+    const straddlePositions: StraddlePosition[] = [];
+    const writePositions: WritePosition[] = [];
+
+    setStraddlesUserData({
+      straddlePositions: straddlePositions,
+      writePositions: writePositions,
+    });
   }, [
-    accountAddress,
+    straddlesContract,
     contractAddresses,
-    provider,
     selectedEpoch,
-    straddlesEpochData,
-    selectedPoolName,
+    provider,
+    accountAddress,
   ]);
 
-  const getEpochData = useCallback(async () => {
-    try {
-      return await rateVaultContract!['getEpochData'](
-        Math.max(selectedEpoch || 0, 1)
-      );
-    } catch (err) {
-      return [[], [], []];
-    }
-  }, [rateVaultContract, selectedEpoch]);
-
-  const getTotalEpochData = useCallback(async () => {
-    return await rateVaultContract!['totalEpochData'](
-      Math.max(selectedEpoch || 0, 1)
-    );
-  }, [rateVaultContract, selectedEpoch]);
-
-  const getEpochLeverages = useCallback(async () => {
-    try {
-      return await rateVaultContract!['getEpochLeverages'](
-        Math.max(selectedEpoch || 0, 1)
-      );
-    } catch (err) {
-      return [[], []];
-    }
-  }, [rateVaultContract, selectedEpoch]);
-
-  const getEpochPremiums = useCallback(async () => {
-    try {
-      return await rateVaultContract!['getEpochPremiums'](
-        Math.max(selectedEpoch || 0, 1)
-      );
-    } catch (err) {
-      return [];
-    }
-  }, [rateVaultContract, selectedEpoch]);
-
-  const getTotalStrikeData = useCallback(
-    async (strike: BigNumber) => {
-      try {
-        return await rateVaultContract!['totalStrikeData'](
-          Math.max(selectedEpoch || 0, 1),
-          strike
-        );
-      } catch (err) {
-        console.log(err);
-        return [];
-      }
-    },
-    [rateVaultContract, selectedEpoch, provider]
-  );
-
-  const calculatePremium = useCallback(
-    async (strike: BigNumber, isPut: boolean) => {
-      try {
-        return await rateVaultContract!['calculatePremium'](
-          strike,
-          BigNumber.from('1000000000000000000'),
-          isPut
-        );
-      } catch (err) {
-        return BigNumber.from('0');
-      }
-    },
-    [rateVaultContract]
-  );
-
-  const calculatePurchaseFee = useCallback(
-    async (rate: BigNumber, strike: BigNumber, isPut: boolean) => {
-      try {
-        return await rateVaultContract!['calculatePurchaseFees'](
-          rate,
-          strike,
-          BigNumber.from('1000000000000000000'),
-          isPut
-        );
-      } catch (err) {
-        return BigNumber.from('0');
-      }
-    },
-    [rateVaultContract]
-  );
-
-  const getVolatility = useCallback(
-    async (strike: BigNumber) => {
-      try {
-        return await rateVaultContract!['getVolatility'](strike);
-      } catch (err) {
-        return BigNumber.from('0');
-      }
-    },
-    [rateVaultContract]
-  );
-
-  const getCurrentRate = useCallback(async () => {
-    try {
-      return await rateVaultContract!['getCurrentRate']();
-    } catch (err) {
-      try {
-        const endTime = Math.floor(new Date().getTime() / 1000);
-        const startTime = endTime - 24 * 3600;
-        return await gaugeOracle!['getRate'](
-          startTime,
-          endTime,
-          '0xd8b712d29381748dB89c36BCa0138d7c75866ddF'
-        );
-      } catch (err) {
-        return BigNumber.from('0');
-      }
-    }
-  }, [rateVaultContract]);
-
-  const updateRateVaultEpochData = useCallback(async () => {
+  const updateStraddlesEpochData = useCallback(async () => {
     if (selectedEpoch === null || !selectedPoolName) return;
-    const lpPrice = await rateVaultContract!['getLpPrice']();
+
+    let epochData;
 
     try {
-      const promises = await Promise.all([
-        getEpochData(),
-        getTotalEpochData(),
-        getEpochLeverages(),
-        getEpochPremiums(),
-        getEpochStrikes(),
-      ]);
-
-      const epochStrikes = promises[4];
-      const epochCallsStrikeTokens = promises[0][1];
-      const epochPutsStrikeTokens = promises[0][2];
-
-      let epochTimes;
-
-      epochTimes = await rateVaultContract!['getEpochTimes'](
-        Math.max(selectedEpoch, 1)
+      epochData = await straddlesContract!['epochData'](
+        Math.max(selectedEpoch || 0, 1)
       );
-
-      const callsPremiumCostsPromises = [];
-      const putsPremiumCostsPromises = [];
-      const callsFeesPromises = [];
-      const putsFeesPromises = [];
-      const totalStrikesDataPromises = [];
-      const curveLpPrice = await rateVaultContract!['getLpPrice']();
-      const rate = await getCurrentRate();
-      const volatilitiesPromises = [];
-
-      for (let i in epochStrikes) {
-        const epochStrike = epochStrikes[i];
-        volatilitiesPromises.push(getVolatility(epochStrike!));
-        if (epochStrike) {
-          callsPremiumCostsPromises.push(calculatePremium(epochStrike, false));
-          putsPremiumCostsPromises.push(calculatePremium(epochStrike, true));
-
-          callsFeesPromises.push(
-            calculatePurchaseFee(rate, epochStrike, false)
-          );
-          putsFeesPromises.push(calculatePurchaseFee(rate, epochStrike, true));
-          totalStrikesDataPromises.push(getTotalStrikeData(epochStrike));
-        }
-      }
-
-      const volatilities = await Promise.all(volatilitiesPromises);
-      const totalStrikesData = await Promise.all(totalStrikesDataPromises);
-      const callsPremiumCosts = await Promise.all(callsPremiumCostsPromises);
-      const putsPremiumCosts = await Promise.all(putsPremiumCostsPromises);
-      const callsFees = await Promise.all(callsFeesPromises);
-      const putsFees = await Promise.all(putsFeesPromises);
-
-      const callsLeverages = promises[2][0];
-      const putsLeverages = promises[2][1];
-
-      let totalCallsPremiums = BigNumber.from('0');
-      let totalPutsPremiums = BigNumber.from('0');
-
-      for (let i in promises[3][0]) {
-        totalCallsPremiums = totalCallsPremiums.add(
-          promises[3][0][i] || BigNumber.from('0')
-        );
-        totalPutsPremiums = totalPutsPremiums.add(
-          promises[3][1][i] || BigNumber.from('0')
-        );
-      }
-
-      const callsCosts: BigNumber[] = [];
-      const putsCosts: BigNumber[] = [];
-      const callsDeposits: BigNumber[] = [];
-      const putsDeposits: BigNumber[] = [];
-
-      for (let i in callsPremiumCosts) {
-        callsCosts.push(
-          callsPremiumCosts[i]!.add(callsFees[i] || BigNumber.from('0'))
-        );
-        putsCosts.push(
-          putsPremiumCosts[i]!.add(putsFees[i] || BigNumber.from('0'))
-        );
-
-        // @ts-ignore
-        callsDeposits.push(totalStrikesData[i]!.totalCallsStrikeDeposits);
-        // @ts-ignore
-        putsDeposits.push(totalStrikesData[i]!.totalPutsStrikeDeposits);
-      }
-
-      setRateVaultEpochData({
-        volatilities: volatilities,
-        callsFees: callsFees,
-        putsFees: putsFees,
-        callsPremiumCosts: callsPremiumCosts,
-        putsPremiumCosts: putsPremiumCosts,
-        lpPrice: lpPrice,
-        callsCosts: callsCosts,
-        putsCosts: putsCosts,
-        totalCallsPremiums: totalCallsPremiums,
-        totalPutsPremiums: totalPutsPremiums,
-        callsDeposits: callsDeposits,
-        putsDeposits: putsDeposits,
-        totalCallsPurchased: BigNumber.from('0'),
-        totalPutsPurchased: BigNumber.from('0'),
-        totalCallsDeposits: promises[1][0],
-        totalPutsDeposits: promises[1][1],
-        totalTokenDeposits: promises[1][2],
-        epochCallsPremium: promises[1][5],
-        epochPutsPremium: promises[1][6],
-        epochStartTimes: promises[1][7],
-        epochEndTimes: epochTimes[1],
-        epochTimes: epochTimes,
-        isEpochExpired: promises[1][9],
-        isVaultReady: promises[1][10],
-        epochBalanceAfterUnstaking: promises[1][8],
-        crvToDistribute: promises[1][11],
-        rateAtSettlement: promises[1][12],
-        epochStrikes: epochStrikes,
-        callsLeverages: callsLeverages,
-        putsLeverages: putsLeverages,
-        callsToken: epochCallsStrikeTokens,
-        isBootstrapped: epochCallsStrikeTokens.length > 0,
-        putsToken: epochPutsStrikeTokens,
-        epochStrikeCallsPremium: promises[3][0],
-        epochStrikePutsPremium: promises[3][1],
-        curveLpPrice: curveLpPrice,
-        rate: rate,
-      });
     } catch (err) {
-      console.log(err);
-      const epochTimes = await rateVaultContract!['getEpochTimes'](
-        Math.max(selectedEpoch, 1)
-      );
-      const curveLpPrice = await rateVaultContract!['getLpPrice']();
-      const rate = BigNumber.from('100000000');
-      setRateVaultEpochData({
-        volatilities: [],
-        callsFees: [],
-        putsFees: [],
-        callsPremiumCosts: [],
-        putsPremiumCosts: [],
-        lpPrice: lpPrice,
-        callsCosts: [],
-        putsCosts: [],
-        totalCallsPremiums: BigNumber.from('0'),
-        totalPutsPremiums: BigNumber.from('0'),
-        callsDeposits: [],
-        putsDeposits: [],
-        totalCallsPurchased: BigNumber.from('0'),
-        totalPutsPurchased: BigNumber.from('0'),
-        totalCallsDeposits: BigNumber.from('0'),
-        totalPutsDeposits: BigNumber.from('0'),
-        totalTokenDeposits: BigNumber.from('0'),
-        epochCallsPremium: BigNumber.from('0'),
-        epochPutsPremium: BigNumber.from('0'),
-        epochStartTimes: epochTimes[0],
-        epochEndTimes: epochTimes[1],
-        epochTimes: epochTimes,
-        isEpochExpired: true,
-        isVaultReady: false,
-        epochBalanceAfterUnstaking: BigNumber.from('0'),
-        crvToDistribute: BigNumber.from('0'),
-        rateAtSettlement: BigNumber.from('0'),
-        epochStrikes: [
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-        ],
-        callsLeverages: [],
-        putsLeverages: [],
-        callsToken: [],
-        putsToken: [],
-        isBootstrapped: false,
-        epochStrikeCallsPremium: [
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-        ],
-        epochStrikePutsPremium: [
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-          BigNumber.from('0'),
-        ],
-        curveLpPrice: curveLpPrice,
-        rate: rate,
-      });
+      epochData = initialStraddlesEpochData;
     }
-  }, [rateVaultContract, contractAddresses, selectedEpoch, provider]);
+
+    setStraddlesEpochData(epochData);
+  }, [straddlesContract, contractAddresses, selectedEpoch, provider]);
 
   useEffect(() => {
     async function update() {
-      let currentEpoch;
+      let currentEpoch = 0;
 
       try {
-        currentEpoch = (await rateVaultContract!['currentEpoch']()).toNumber();
+        currentEpoch = await straddlesContract!['currentEpoch']();
 
-        const totalEpochData = await rateVaultContract!['totalEpochData'](
-          currentEpoch
-        );
-        const isEpochExpired = totalEpochData[9];
+        const isEpochExpired = await straddlesContract!['isEpochExpired']();
         if (isEpochExpired) currentEpoch += 1;
       } catch (err) {
         console.log(err);
@@ -1243,37 +983,37 @@ export const Straddles = () => {
 
       setSelectedEpoch(currentEpoch);
 
-      setRateVaultData({
+      setStraddlesData({
         currentEpoch: Number(currentEpoch),
-        rateVaultContract: rateVaultContract,
+        straddlesContract: straddlesContract,
       });
     }
 
-    update();
-  }, [contractAddresses, provider, selectedPoolName, rateVaultContract]);
+    if (straddlesContract) update();
+  }, [contractAddresses, provider, selectedPoolName, straddlesContract]);
 
   useEffect(() => {
-    updateRateVaultUserData();
-  }, [updateRateVaultUserData]);
+    updateStraddlesUserData();
+  }, [updateStraddlesUserData]);
 
   useEffect(() => {
-    updateRateVaultEpochData();
-  }, [updateRateVaultEpochData]);
+    updateStraddlesEpochData();
+  }, [updateStraddlesEpochData]);
 
   return {
-    rateVaultData,
-    rateVaultEpochData,
-    rateVaultUserData,
+    straddlesData,
+    straddlesEpochData,
+    straddlesUserData,
     selectedEpoch,
-    updateRateVaultEpochData,
-    updateRateVaultUserData,
+    updateStraddlesEpochData,
+    updateStraddlesUserData,
     setSelectedEpoch,
     setSelectedPoolName,
     selectedPoolName,
   };
 };
 
-export const RateVaultProvider = (props: {
+export const StraddlesProvider = (props: {
   children:
     | string
     | number
@@ -1284,12 +1024,12 @@ export const RateVaultProvider = (props: {
     | null
     | undefined;
 }) => {
-  const contextValue = RateVault();
+  const contextValue = Straddles();
 
   return (
     // @ts-ignore TODO: FIX
-    <RateVaultContext.Provider value={contextValue}>
+    <StraddlesContext.Provider value={contextValue}>
       {props.children}
-    </RateVaultContext.Provider>
+    </StraddlesContext.Provider>
   );
 };
