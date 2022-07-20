@@ -2,6 +2,8 @@ import { useContext, useState, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+
 import AppBar from 'components/common/AppBar';
 import PageLoader from 'components/common/PageLoader';
 import Typography from 'components/UI/Typography';
