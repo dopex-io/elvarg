@@ -243,12 +243,12 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
           <a
             className={'cursor-pointer'}
             href={`${getExplorerUrl(chainId)}/address/${
-              rateVaultContext.rateVaultData.rateVaultContract.address
+              rateVaultData.rateVaultContract.address
             }`}
           >
             <Typography variant="h5" className="text-white text-[11px]">
               {displayAddress(
-                rateVaultContext.rateVaultData.rateVaultContract.address,
+                rateVaultData.rateVaultContract.address,
                 undefined
               )}
             </Typography>
