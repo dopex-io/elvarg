@@ -532,7 +532,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
                 onClick={() => setOpenTokenSelector(() => true)}
               >
                 <img
-                  src={`/images/tokens/${selectedToken}.svg`}
+                  src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
                   alt={selectedToken}
                   className="w-[2rem]"
                 />
