@@ -1,22 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
-import DepositsTable from './DepositsTable';
 import Typography from 'components/UI/Typography';
+import displayAddress from 'utils/general/displayAddress';
+import { WalletContext } from 'contexts/Wallet';
+import DepositsTable from './DepositsTable';
 
 const DepositsCard = () => {
+  const { accountAddress, ensName } = useContext(WalletContext);
+
   return (
     <Box className="text-gray-400 w-full rounded-lg">
       <Box className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <Box className="flex ml-3">
           <Box className="rounded-md bg-neutral-700 flex mb-2 mt-1">
-            <img
-              className="w-6 h-6 m-1"
-              src="images/misc/avatar.svg"
-              alt={'profile_pic'}
-            />
+            <img className="w-6 h-6 m-1" src="/images/misc/avatar.svg" />
             <Typography variant="h6" className="ml-auto mr-2 pt-1">
-              James.eth
+              {displayAddress(accountAddress, ensName)}
             </Typography>
           </Box>
           <Box className="flex ml-3">

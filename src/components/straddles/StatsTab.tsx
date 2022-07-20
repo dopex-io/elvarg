@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
+
 import Typography from 'components/UI/Typography';
+import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
+import displayAddress from 'utils/general/displayAddress';
+
+import { WalletContext } from 'contexts/Wallet';
 
 const StatsTab = () => {
   const [epoch, setEpoch] = useState<string>('');
+  const { chainId } = useContext(WalletContext);
 
   const handleChange = (event: SelectChangeEvent) => {
     setEpoch(event.target.value as string);
@@ -89,11 +96,23 @@ const StatsTab = () => {
             className="text-white text-md h-8 p-2 hover:text-gray-200 hover:bg-slate-800 bg-slate-700"
           >
             <img
-              className="w-4 mr-2"
-              src="images/networks/arbitrum.svg"
-              alt={'arbitrium icon'}
+              className="w-16 h-6 mr-2"
+              src={getExtendedLogoFromChainId(chainId)}
+              alt={'Arbitrum'}
             />
-            0x1b7...e169
+            <a
+              className={'cursor-pointer'}
+              href={`${getExplorerUrl(
+                chainId
+              )}/address/${'0x1b700000000000000000000000000000e169'}`}
+            >
+              <Typography variant="h5" className="text-white text-[11px]">
+                {displayAddress(
+                  '0x1b700000000000000000000000000000e169',
+                  undefined
+                )}
+              </Typography>
+            </a>
           </Button>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
