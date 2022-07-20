@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
 import PageLoader from 'components/common/PageLoader';
+import Typography from 'components/UI/Typography';
 import Description from 'components/ir/Description';
 import ManageCard from 'components/ir/ManageCard';
 import MobileMenu from 'components/ir/MobileMenu';
@@ -19,8 +20,6 @@ import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
 import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
-import Typography from '../../../../components/UI/Typography';
-import { CHAIN_ID_TO_EXPLORER } from '../../../../constants';
 
 interface Props {
   poolName: string;
