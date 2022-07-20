@@ -30,7 +30,7 @@ interface Props {
 const Manage = ({ poolName }: Props) => {
   const { accountAddress, connect, chainId } = useContext(WalletContext);
   const rateVaultContext = useContext(RateVaultContext);
-  const { setSelectedPoolName } = rateVaultContext;
+  const { setSelectedPoolName, rateVaultData } = rateVaultContext;
   const [activeVaultContextSide, setActiveVaultContextSide] =
     useState<string>('CALL');
   const [activeView, setActiveView] = useState<string>('vault');
@@ -143,11 +143,11 @@ const Manage = ({ poolName }: Props) => {
           className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
         >
           <a
-            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultContext.rateVaultData.rateVaultContract.address}`}
+            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultData.rateVaultContract.address}`}
             rel="noopener noreferrer"
             target={'_blank'}
           >
-            {rateVaultContext.rateVaultData.rateVaultContract.address}
+            {rateVaultData.rateVaultContract.address}
           </a>
         </Typography>
       </Box>
