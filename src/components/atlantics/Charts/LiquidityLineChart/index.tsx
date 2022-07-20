@@ -3,7 +3,7 @@ import {
   LineChart,
   XAxis,
   YAxis,
-  // Tooltip,
+  Tooltip,
   Line,
   ResponsiveContainer,
 } from 'recharts';
@@ -34,7 +34,23 @@ const LiquidityLineChart = (props: LiquidityLineChartProps) => {
       </Box>
       <Box className="h-full">
         <ResponsiveContainer width="100%" height={height}>
-          <LineChart data={data} className="py-3">
+          <LineChart
+            data={data}
+            className="py-3"
+            margin={{
+              top: 10,
+              right: 0,
+              left: 0,
+              bottom: 20,
+            }}
+          >
+            <Tooltip
+              wrapperClassName="rounded-xl flex text-right h-auto"
+              cursor={{
+                fill: '#151515',
+              }}
+              formatter={(value: number) => '$' + value}
+            />
             <XAxis ticks={['13/05', '20/05', '27/05']} hide dataKey="name" />
             <YAxis axisLine={false} dataKey="deposits" hide />
             <Line

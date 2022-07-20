@@ -38,12 +38,14 @@ const EpochSelector = (props: EpochSelectorProps) => {
     <Select
       value={selectedEpoch}
       onChange={handleEpochSelection}
-      className="h-full bg-gradient-to-r from-primary to-wave-blue rounded-lg text-center font-semibold my-auto text-white"
+      className="bg-gradient-to-r from-primary to-wave-blue rounded-lg text-center font-semibold text-white"
       MenuProps={{
         classes: { paper: 'bg-umbra' },
       }}
-      classes={{ icon: 'text-white' }}
+      classes={{ icon: 'text-white', select: 'px-3' }}
       placeholder={'-'}
+      variant="standard"
+      disableUnderline
     >
       {epochs}
     </Select>

@@ -6,9 +6,9 @@ import { BigNumber } from 'ethers';
 
 import { AtlanticsContext, IEpochStrikeData } from 'contexts/Atlantics';
 
-// const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
-//   ssr: false,
-// });
+const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
+  ssr: false,
+});
 
 const ClientRenderedBarGraph = dynamic(() => import('./LiquidityBarGraph'), {
   ssr: false,
@@ -29,10 +29,14 @@ interface IBarData {
   strike: BigNumber;
 }
 
+interface ILineData {
+  totalEpochLiquidityByCheckpoint: BigNumber[];
+  totalEpochUnlockedCollateralByCheckpoint: BigNumber[];
+}
+
 const Charts = (props: ChartsProps) => {
-  const { /* line_data, */ underlying, collateral, title, type } = props;
+  const { line_data, underlying, collateral, title, type } = props;
   const { selectedPool } = useContext(AtlanticsContext);
-  // const { chainId } = useContext(WalletContext);
 
   const barData: IBarData[] = useMemo((): IBarData[] => {
     if (!selectedPool)
@@ -85,9 +89,50 @@ const Charts = (props: ChartsProps) => {
     }
   }, [selectedPool]);
 
+  const lineData: ILineData = useMemo(() => {
+    if (!selectedPool || selectedPool.checkpoints.length <= 1)
+      return {
+        totalEpochLiquidityByCheckpoint: [],
+        totalEpochUnlockedCollateralByCheckpoint: [],
+      };
+
+    const _checkpoints = selectedPool.checkpoints;
+
+    const _checkpointStrikeData = _checkpoints
+      .map((strike: any) => {
+        return strike.map((data: any) => ({
+          unlocks: data.activeCollateral,
+          liquidity: data.totalLiquidity,
+          // timestamp: Number(data.startTime),
+        }));
+      })
+      .flat();
+
+    const _aggregatedUnlocks = _checkpointStrikeData.reduce(
+      (acc, curr) => ({
+        unlocks: acc.unlocks.add(curr.unlocks),
+        liquidity: acc.liquidity.add(curr.liquidity),
+        timestamp: acc.timestamp,
+      }),
+      {
+        unlocks: BigNumber.from(0),
+        liquidity: BigNumber.from(0),
+      }
+    );
+
+    console.log(_aggregatedUnlocks);
+
+    return {
+      totalEpochLiquidityByCheckpoint: [],
+      totalEpochUnlockedCollateralByCheckpoint: [],
+    };
+  }, [selectedPool]);
+
+  console.log(lineData);
+
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">
-      <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-full sm:w-full">
+      <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-2/3 sm:w-full">
         {barData[0]?.strike.gt(0) ? (
           <ClientRenderedBarGraph
             data={barData}
@@ -100,6 +145,9 @@ const Charts = (props: ChartsProps) => {
             <CircularProgress size="30px" />
           </Box>
         )}
+      </Box>
+      <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">
+        <ClientRenderedLineChart data={line_data} width={340} height={230} />
       </Box>
     </Box>
   );

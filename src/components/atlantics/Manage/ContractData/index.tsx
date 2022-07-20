@@ -6,26 +6,30 @@ import { BigNumber } from 'ethers';
 import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
 import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
+import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies/PoolStrategies';
+import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
-import PoolStrategies from './PoolStrategies/PoolStrategies';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 
 const ContractData = () => {
   const [currentEpoch, setCurrentEpoch] = useState(0);
+  const [utilizationRate, setUtilizationRate] = useState(BigNumber.from(0));
 
   const { selectedPool, selectedEpoch, setSelectedEpoch } =
     useContext(AtlanticsContext);
 
   const epochDuration = useMemo(() => {
     if (selectedPool.state.expiryTime.eq(BigNumber.from(0))) return '...';
-    return formatDistance(
-      Number(selectedPool.state.expiryTime) * 1000,
-      Number(new Date())
-    );
+
+    if (!selectedPool.state.isVaultExpired)
+      return formatDistance(
+        Number(selectedPool.state.expiryTime) * 1000,
+        Number(new Date())
+      );
+    else return 'Expired';
   }, [selectedPool]);
 
   useEffect(() => {
@@ -33,8 +37,15 @@ const ContractData = () => {
       if (!selectedPool || !selectedPool.contracts) return;
       const epoch = await selectedPool.contracts.atlanticPool.currentEpoch();
       setCurrentEpoch(Number(epoch));
+
+      const _utilRate =
+        await selectedPool.contracts?.atlanticPool.getUtilizationRate(
+          selectedEpoch
+        );
+
+      setUtilizationRate(_utilRate);
     })();
-  }, [selectedPool]);
+  }, [selectedPool, selectedEpoch]);
 
   const vaultStatusMessage = useMemo(() => {
     const expired = selectedPool.state.isVaultExpired;
@@ -45,9 +56,9 @@ const ContractData = () => {
   }, [selectedPool.state.isVaultExpired, selectedPool.state.isVaultReady]);
 
   return (
-    <Box className="flex flex-col flex-wrap sm:flex-col md:flex-row p-3 border border-umbra rounded-xl w-auto sm:space-x-0 md:space-x-8 space-y-3 sm:space-y-3 lg:space-y-0">
-      <Box className="space-y-3">
-        <Box className="flex space-x-1">
+    <Box className="grid grid-cols-2 md:grid-cols-3 grid-row-4 divide-x divide-y divide-umbra border border-umbra rounded-md">
+      <Box className="p-3 space-y-3">
+        <Box className="flex space-x-2">
           <Typography variant="h6" color="stieglitz">
             Epoch
           </Typography>
@@ -57,7 +68,7 @@ const ContractData = () => {
             </Typography>
           ) : null}
         </Box>
-        <Box className="flex space-x-2 h-[2.2rem]">
+        <Box className="flex space-x-2">
           <EpochSelector
             currentEpoch={currentEpoch}
             selectedEpoch={selectedEpoch}
@@ -75,15 +86,24 @@ const ContractData = () => {
           </Box>
         </Box>
       </Box>
-      <Box className="space-y-3">
-        <Typography variant="h6" color="stieglitz">
-          Funding Rate
-        </Typography>
-        <Box className="flex">
-          <Typography
-            variant="h6"
-            className="font-semibold p-2 bg-umbra rounded-lg font-mono"
-          >
+      <ContractDataItem
+        description="Contract"
+        value={
+          <ExplorerLink
+            address={selectedPool?.contracts?.atlanticPool.address ?? '...'}
+          />
+        }
+        variant="col"
+      />
+      <ContractDataItem
+        description="Strategies (1)"
+        value={<PoolStrategies />}
+        variant="col"
+      />
+      <ContractDataItem
+        description="Funding Rate"
+        value={
+          <Typography variant="h6" className="font-semibold">
             {!selectedPool?.config.baseFundingRate.isZero()
               ? getUserReadableAmount(
                   selectedPool?.config.baseFundingRate.toNumber()! * 100,
@@ -91,33 +111,45 @@ const ContractData = () => {
                 ) + '%'
               : '...'}
           </Typography>
-        </Box>
-      </Box>
-      <Box className="space-y-3">
-        <Typography variant="h6" color="stieglitz">
-          Current price
-        </Typography>
-        <Typography
-          variant="h6"
-          className="my-auto p-2 pl-0 font-semibold font-mono"
-        >
-          ${formatAmount(selectedPool?.underlyingPrice, 3)}
-        </Typography>
-      </Box>
-      <Box className="space-y-3">
-        <Typography variant="h6" color="stieglitz">
-          Contract
-        </Typography>
-        <ExplorerLink
-          address={selectedPool?.contracts?.atlanticPool.address ?? '...'}
-        />
-      </Box>
-      <Box className="space-y-3 flex flex-col">
-        <Typography variant="h6" color="stieglitz">
-          Strategies (1)
-        </Typography>
-        <PoolStrategies />
-      </Box>
+        }
+        variant="row"
+      />
+      <ContractDataItem
+        description="APR"
+        value={<Typography variant="h6">~{selectedPool.apy}%</Typography>}
+        variant="row"
+      />
+      <ContractDataItem
+        description="Epoch Length"
+        value={
+          <Typography variant="h6">
+            {selectedPool?.duration
+              ? selectedPool?.duration[0] +
+                selectedPool?.duration.substring(1).toLowerCase()
+              : '...'}
+          </Typography>
+        }
+        variant="row"
+      />
+      <ContractDataItem
+        description="Utilization"
+        value={
+          <Typography variant="h6">
+            {getUserReadableAmount(utilizationRate, 18)}%
+          </Typography>
+        }
+        variant="row"
+      />
+      <ContractDataItem
+        description="Options Sold"
+        value={<Typography variant="h6">{'...'}</Typography>}
+        variant="row"
+      />
+      <ContractDataItem
+        description="Premiums"
+        value={<Typography variant="h6">{'...'}</Typography>}
+        variant="row"
+      />
     </Box>
   );
 };

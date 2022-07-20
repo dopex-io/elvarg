@@ -23,7 +23,7 @@ const StrategyInfo = () => {
       }`}
       rel="noopener noreferrer"
       target={'_blank'}
-      className="bg-arbitrum  rounded-lg text-center p-2 font-mono"
+      className="bg-mineshaft rounded-lg text-center p-2 font-mono"
     >
       <Typography variant="h6">Insured Long Perpetuals</Typography>
     </a>

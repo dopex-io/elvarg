@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
-import { BigNumber } from 'ethers';
 
 import AppBar from 'components/common/AppBar';
 import ManageCard from 'components/atlantics/Manage/ManageCard';
@@ -10,16 +9,9 @@ import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
 import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
-import InfoBox from 'components/atlantics/InfoBox';
 import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
-import Action from 'svgs/icons/Action';
-import Coin from 'svgs/icons/Coin';
-
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
-
-import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
 
@@ -102,56 +94,6 @@ const Manage = (props: ManageProps) => {
     }
   }, [selectedPool]);
 
-  const info = useMemo(() => {
-    if (!selectedPool) return [{ heading: '', value: '' }];
-
-    if (type === 'CALLS') {
-      return [
-        { heading: 'APY', value: selectedPool?.apy + '%', Icon: Action },
-        {
-          heading: 'TVL',
-          value: formatAmount(
-            getUserReadableAmount(selectedPool?.tvl, 6),
-            3,
-            true
-          ),
-          Icon: Coin,
-        },
-      ];
-    } else if (type === 'PUTS') {
-      const apys = selectedPool?.apy as any[];
-      let total = 0;
-      if (typeof apys != 'string') {
-        apys.map((apy) => {
-          total += Number(apy);
-        });
-      }
-      const avgApy = total / apys.length;
-      const strikes = selectedPool.strikes as BigNumber[];
-      const tvl = getUserReadableAmount(selectedPool.tvl, 6);
-      return [
-        {
-          heading: 'TVL',
-          value: formatAmount(tvl, 3, true),
-        },
-        {
-          heading: 'Average APY',
-          value: formatAmount(avgApy, 3) + '%',
-        },
-        {
-          heading: 'Highest Strike',
-          value: strikes[0]?.div(1e8).toString(),
-        },
-        {
-          heading: 'Lowest Strike',
-          value: strikes[strikes.length - 1]?.div(1e8).toString(),
-        },
-      ];
-    } else {
-      return [{ heading: '', value: '' }];
-    }
-  }, [type, selectedPool]);
-
   const changePositionTable = (positionTable: string) => {
     setSelectedPositionTable(() => positionTable);
   };
@@ -177,34 +119,14 @@ const Manage = (props: ManageProps) => {
               {type === 'CALLS' ? null : (
                 <Typography variant="h5">Liquidity</Typography>
               )}
-              <Box className="flex flex-col xl:flex-row h-full">
-                {type === 'CALLS' ? null : (
-                  <Box className="flex-1">
-                    <Charts
-                      line_data={line_chart_data}
-                      underlying={underlying}
-                      collateral={tokenId}
-                      title={title}
-                      type={type}
-                    />
-                  </Box>
-                )}
-                <Box
-                  className={`${
-                    type === 'PUTS' && 'flex-[0.5] mt-2 xl:ml-2 xl:mt-0'
-                  }`}
-                >
-                  <InfoBox
-                    info={info}
-                    className="grid grid-cols-2 bg-cod-gray rounded-xl h-full"
-                  />
-                </Box>
-              </Box>
+              <Charts
+                line_data={line_chart_data}
+                underlying={underlying}
+                collateral={tokenId}
+                title={title}
+                type={type}
+              />
             </Box>
-            {/* <Box className="w-full space-y-4">
-              <Typography variant="h5">Composition</Typography>
-              <PoolCompositionTable />
-            </Box> */}
             <Box className="w-full space-y-4">
               <Box className="flex space-x-3">
                 <Typography

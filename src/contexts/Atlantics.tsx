@@ -125,12 +125,7 @@ export interface IAtlanticPoolType {
   apy: string | string[];
   duration: string;
   underlyingPrice: number;
-  checkpoints:
-    | BigNumber[]
-    | {
-        strike: BigNumber;
-        checkpoint: BigNumber;
-      }[];
+  checkpoints: BigNumber[] | any[];
 }
 
 const atlanticPoolsZeroData: IAtlanticPoolType = {
@@ -251,6 +246,8 @@ export const AtlanticsProvider = (props: any) => {
 
       const checkpoints = await Promise.all(latestCheckpointsCalls);
 
+      console.log('Checkpoint in context: ', checkpoints);
+
       let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
         await Promise.all([
           atlanticPool.addresses(),
@@ -260,6 +257,7 @@ export const AtlanticsProvider = (props: any) => {
         ]);
 
       let data: IEpochData;
+
       if (!checkpoints) return;
 
       const [totalEpochActiveCollateral, totalEpochCumulativeLiquidity] =
@@ -353,7 +351,7 @@ export const AtlanticsProvider = (props: any) => {
         apy: ['0'],
         duration,
         underlyingPrice: Number(underlyingPrice.div(1e8)),
-        checkpoints: [BigNumber.from(0)],
+        checkpoints: checkpoints,
       };
     },
     [contractAddresses, provider]
@@ -677,8 +675,6 @@ export const AtlanticsProvider = (props: any) => {
         duration
       )) as IAtlanticPoolType;
       if (!pool || !pool.contracts) return;
-      const latestEpoch = await pool.contracts.atlanticPool.currentEpoch();
-      setSelectedEpoch(Number(latestEpoch));
       _setSelectedPool(pool);
     },
     [contractAddresses, getPool, provider]
