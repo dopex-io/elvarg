@@ -19,13 +19,15 @@ import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
 import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
+import Typography from '../../../../components/UI/Typography';
+import { CHAIN_ID_TO_EXPLORER } from '../../../../constants';
 
 interface Props {
   poolName: string;
 }
 
 const Manage = ({ poolName }: Props) => {
-  const { accountAddress, connect } = useContext(WalletContext);
+  const { accountAddress, connect, chainId } = useContext(WalletContext);
   const rateVaultContext = useContext(RateVaultContext);
   const { setSelectedPoolName } = rateVaultContext;
   const [activeVaultContextSide, setActiveVaultContextSide] =
@@ -130,6 +132,23 @@ const Manage = ({ poolName }: Props) => {
             ) : null}
           </Box>
         </Box>
+      </Box>
+      <Box className="flex justify-center space-x-2 my-8">
+        <Typography variant="h5" className="text-silver">
+          Contract Address:
+        </Typography>
+        <Typography
+          variant="h5"
+          className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
+        >
+          <a
+            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultContext.rateVaultData.rateVaultContract.address}`}
+            rel="noopener noreferrer"
+            target={'_blank'}
+          >
+            {rateVaultContext.rateVaultData.rateVaultContract.address}
+          </a>
+        </Typography>
       </Box>
     </Box>
   );
