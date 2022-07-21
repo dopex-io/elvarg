@@ -1449,14 +1449,22 @@ export const Straddles = () => {
 
   const getStraddlePosition = useCallback(
     async (i: number) => {
-      return await straddlesContract!['straddlePositions'](i);
+      try {
+        return await straddlesContract!['straddlePositions'](i);
+      } catch {
+        return [];
+      }
     },
     [accountAddress, straddlesContract]
   );
 
   const getWritePosition = useCallback(
     async (i: number) => {
-      return await straddlesContract!['writePositions'](i);
+      try {
+        return await straddlesContract!['writePositions'](i);
+      } catch {
+        return [];
+      }
     },
     [accountAddress, straddlesContract]
   );
