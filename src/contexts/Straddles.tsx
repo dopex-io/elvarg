@@ -1334,15 +1334,12 @@ const ERC721ABI = [
   },
 ];
 
-export interface Straddles {
-  token?: string;
-}
-
 export interface StraddlesData {
   straddlesContract: any;
   straddlePositionsMinter: any;
   writePositionsMinter: any;
   currentEpoch: number;
+  underlying: string;
   straddlesOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
@@ -1551,9 +1548,12 @@ export const Straddles = () => {
         return;
       }
 
+      const underlying = await straddlesContract!['underlying']();
+
       setSelectedEpoch(currentEpoch);
 
       setStraddlesData({
+        underlying: underlying,
         currentEpoch: Number(currentEpoch),
         straddlesContract: straddlesContract,
         straddlePositionsMinter: straddlePositionsMinterContract,

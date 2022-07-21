@@ -13,7 +13,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import styles from 'components/ir/Positions/styles.module.scss';
 import cx from 'classnames';
 import Typography from 'components/UI/Typography';
-import WithdrawModal from './WithdrawModal';
+import WithdrawModal from '../WithdrawModal';
 
 const DepositsTable = () => {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =

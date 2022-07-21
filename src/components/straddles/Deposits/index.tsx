@@ -6,7 +6,7 @@ import displayAddress from 'utils/general/displayAddress';
 import { WalletContext } from 'contexts/Wallet';
 import DepositsTable from './DepositsTable';
 
-const DepositsCard = () => {
+const Deposits = () => {
   const { accountAddress, ensName } = useContext(WalletContext);
 
   return (
@@ -39,4 +39,4 @@ const DepositsCard = () => {
   );
 };
 
-export default DepositsCard;
+export default Deposits;

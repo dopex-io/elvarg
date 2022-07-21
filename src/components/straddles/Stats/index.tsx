@@ -13,7 +13,7 @@ import displayAddress from 'utils/general/displayAddress';
 
 import { WalletContext } from 'contexts/Wallet';
 
-const StatsTab = () => {
+const Stats = () => {
   const [epoch, setEpoch] = useState<string>('');
   const { chainId } = useContext(WalletContext);
 
@@ -186,4 +186,4 @@ const StatsTab = () => {
   );
 };
 
-export default StatsTab;
+export default Stats;

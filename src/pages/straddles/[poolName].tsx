@@ -6,11 +6,11 @@ import { StraddlesProvider, StraddlesContext } from 'contexts/Straddles';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import TopBar from 'components/straddles/TopBar';
-import StatsTab from 'components/straddles/StatsTab';
+import Stats from 'components/straddles/Stats';
 import PoolCard from 'components/straddles/PoolCard';
 import TVLCard from 'components/straddles/TVLCard';
-import DepositsCard from 'components/straddles/DepositsCard';
-import DepositBuyCard from 'components/straddles/DepositBuyCard';
+import Deposits from 'components/straddles/Deposits';
+import DepositPanel from 'components/straddles/DepositPanel';
 import { useContext, useEffect } from 'react';
 
 interface Props {
@@ -18,8 +18,7 @@ interface Props {
 }
 
 const Straddles = ({ poolName }: Props) => {
-  const { straddlesEpochData, straddlesUserData, setSelectedPoolName } =
-    useContext(StraddlesContext);
+  const { setSelectedPoolName } = useContext(StraddlesContext);
 
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
@@ -37,7 +36,7 @@ const Straddles = ({ poolName }: Props) => {
             <TopBar />
           </Box>
           <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
-            <StatsTab />
+            <Stats />
           </Box>
           <Box className="pt-8 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
             <Typography variant="h6" className="-ml-1">
@@ -55,12 +54,12 @@ const Straddles = ({ poolName }: Props) => {
             </Typography>
           </Box>
           <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 flex-auto">
-            <DepositsCard />
+            <Deposits />
           </Box>
         </Box>
         <Box className="w-1/3">
           <Box className="lg:pt-32 sm:pt-20 pt-20 mx-5 px-2 lg:px-0">
-            <DepositBuyCard />
+            <DepositPanel />
           </Box>
         </Box>
       </Box>

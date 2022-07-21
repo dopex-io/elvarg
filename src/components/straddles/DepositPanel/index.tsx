@@ -1,56 +1,73 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import Select from '@mui/material/Select';
+import Input from '@mui/material/Input';
+import MenuItem from '@mui/material/MenuItem';
 
 import { WalletContext } from 'contexts/Wallet';
+import { StraddlesContext } from 'contexts/Straddles';
 
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
 import ArrowUpDownIcon from 'svgs/icons/ArrowsUpDownIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { SsovV3Context } from '../../../contexts/SsovV3';
 
-const DepositBuyCard = () => {
+const DepositPanel = () => {
   const { chainId } = useContext(WalletContext);
+  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
+  const { straddlesEpochData, straddlesData, straddlesUserData } =
+    useContext(StraddlesContext);
+
+  const [strikeDepositAmount, setStrikeDepositAmount] = useState<
+    number | string
+  >(0);
 
   return (
     <Box className="bg-umbra rounded-xl p-3 max-w-sm">
       <Box className="mb-4">
         <Typography variant="h6">Deposit</Typography>
       </Box>
-      <Box className="rounded-lg bg-neutral-800">
-        <Box className="flex items-center">
-          <Box className="mx-4 p-1 bg-umbra w-fit rounded-full flex items-center">
-            <img
-              className="w-6 h-6"
-              src="/images/tokens/usdc.svg"
-              alt={'usdc icon'}
-            />
-            <Typography variant="h6" className="mx-2">
-              USDC
-            </Typography>
-          </Box>
-          <Box className=" bg-neutral-600 w-fit h-fit rounded-md">
-            <Typography variant="h6" className="mx-2 py-1 text-gray-400">
-              MAX
-            </Typography>
-          </Box>
-          <Typography variant="h6" className="m-4 text-neutral-400 ml-auto">
-            0.0
-          </Typography>
-        </Box>
-        <Box className="flex items-center mx-4 pb-2">
-          <Typography variant="h6" className=" text-neutral-400">
+      <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
+        <Box className="flex">
+          <Typography
+            variant="h6"
+            className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
+          >
             Balance
           </Typography>
-          <Typography variant="h6" className=" text-white ml-auto mr-2">
-            100
+          <Typography
+            variant="h6"
+            className="text-white ml-auto mr-0 text-[0.72rem]"
+          >
+            {formatAmount(getUserReadableAmount(userTokenBalance, 18), 8)}{' '}
+            {straddlesData?.underlying}
           </Typography>
-          <Typography variant="h6" className=" text-white">
-            WETH
-          </Typography>
+        </Box>
+        <Box className="mt-3">
+          <Box className="flex mb-3 group">
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Amount
+            </Typography>
+            <Input
+              disableUnderline={true}
+              type="number"
+              className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
+              classes={{ input: 'text-white text-xs text-right' }}
+              value={strikeDepositAmount}
+              placeholder="0"
+              onChange={() => {}}
+            />
+          </Box>
         </Box>
       </Box>
       <Box className="mt-4 flex justify-center">
@@ -149,4 +166,4 @@ const DepositBuyCard = () => {
   );
 };
 
-export default DepositBuyCard;
+export default DepositPanel;
