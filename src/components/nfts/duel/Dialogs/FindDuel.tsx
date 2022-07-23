@@ -9,7 +9,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import TokenSelector from 'components/common/TokenSelector';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
@@ -45,8 +44,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
   const [duelist, setDuelist] = useState<number | null>(null);
-  const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
-    useState<boolean>(false);
   const [isSearchModeActive, setIsSearchModeActive] = useState<boolean>(false);
 
   const fees = useMemo(() => {
@@ -300,16 +297,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
           </Box>
 
           <Box className="flex flex-row items-center mb-24 mt-2"></Box>
-        </Box>
-      ) : isTokenSelectorVisible ? (
-        <Box className="h-[52.8rem]">
-          <TokenSelector
-            open={isTokenSelectorVisible}
-            setOpen={setIsTokenSelectorVisible}
-            setFromTokenSymbol={setTokenName}
-            isInDialog={true}
-            tokensToExclude={[]}
-          />{' '}
         </Box>
       ) : isSelectingNfts ? (
         <Box>
