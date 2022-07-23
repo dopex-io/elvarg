@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, {
   useContext,
   useState,
@@ -6,36 +5,24 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-import { BigNumber, ethers } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
 
 import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import CircularProgress from '@mui/material/CircularProgress';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import TokenSelector from 'components/common/TokenSelector';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
 import { DuelContext } from 'contexts/Duel';
 
 import useSendTx from 'hooks/useSendTx';
 
-import formatAmount from 'utils/general/formatAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { MAX_VALUE } from 'constants/index';
-
 import styles from './styles.module.scss';
-
-import cx from 'classnames';
 
 export interface Props {
   open: boolean;
@@ -45,8 +32,7 @@ export interface Props {
 const feesPercentage = 10;
 
 const RevealDuel = ({ open, handleClose }: Props) => {
-  const { chainId, signer, contractAddresses, accountAddress } =
-    useContext(WalletContext);
+  const { chainId, signer } = useContext(WalletContext);
   const sendTx = useSendTx();
   const { duelContract, updateDuels, selectedDuel } = useContext(DuelContext);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
@@ -118,6 +104,7 @@ const RevealDuel = ({ open, handleClose }: Props) => {
       specialMovesSelected,
       blockMovesSelected,
       kickMovesSelected,
+      moves,
     ]
   );
 
@@ -127,7 +114,7 @@ const RevealDuel = ({ open, handleClose }: Props) => {
   }, [moves]);
 
   const handleReveal = useCallback(async () => {
-    if (!signer || !accountAddress || !duelContract || !updateDuels) return;
+    if (!signer || !duelContract || !updateDuels) return;
     if (moves.length < 5) return;
 
     const numericMoves: number[] = [];
@@ -141,7 +128,7 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     await sendTx(
       duelContract
         .connect(signer)
-        ['revealDuel'](selectedDuel['id'], numericMoves, {
+        ['revealDuel'](selectedDuel!['id'], numericMoves, {
           value: 0,
         })
     );
@@ -152,11 +139,11 @@ const RevealDuel = ({ open, handleClose }: Props) => {
   }, [
     duelContract,
     signer,
-    contractAddresses,
-    chainId,
     selectedDuel,
-    accountAddress,
     moves,
+    handleClose,
+    sendTx,
+    updateDuels,
   ]);
 
   const canReveal = useMemo(() => {
@@ -175,6 +162,7 @@ const RevealDuel = ({ open, handleClose }: Props) => {
                 <img
                   src={`/images/nfts/pepes/${move}.png`}
                   className="my-auto mx-auto"
+                  alt="Move"
                 />
               </Box>
 
@@ -230,6 +218,7 @@ const RevealDuel = ({ open, handleClose }: Props) => {
               <img
                 src="/images/misc/arrow-right-black.svg"
                 className="w-2.5 h-3 mt-3 mr-3"
+                alt="Arrow right black"
               />
             ) : null}
           </Box>
@@ -252,7 +241,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
     loadInitialMoves();
   }, []);
 
-  // @ts-ignore
   return (
     <Dialog
       open={open}
@@ -291,6 +279,7 @@ const RevealDuel = ({ open, handleClose }: Props) => {
               <img
                 src="/images/misc/gamepad.svg"
                 className="w-3.5 h-3.5 mr-1.5 mt-1"
+                alt="Game pad"
               />
               <Typography variant="h6" className="text-[#78859E] text-sm">
                 Select Moves
@@ -298,8 +287,7 @@ const RevealDuel = ({ open, handleClose }: Props) => {
             </Box>
             <Box className="flex mt-5 mb-1 ml-2">
               <Moves />
-              {/* @ts-ignore TODO: FIX */}
-              {[...Array(5 - moves.length)].map((w, i) => (
+              {[...Array(5 - moves.length)].map((i) => (
                 <Box className="flex" key={i}>
                   <Box className="mr-3">
                     <img src="/images/misc/plus.png" />
@@ -512,28 +500,24 @@ const RevealDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
-              {/* @ts-ignore TODO: FIX */}
               <CustomButton
                 size="medium"
-                className={styles['pepeButton']}
+                className={styles['pepeButton']!}
                 onClick={() => setMoves([])}
               >
-                {/* @ts-ignore TODO: FIX */}
-                <Typography variant="h5" className={styles['pepeButtonText']}>
+                <Typography variant="h5" className={styles['pepeButtonText']!}>
                   RESET
                 </Typography>
               </CustomButton>
             </Box>
 
             <Box className="w-1/2 ml-2 mr-4">
-              {/* @ts-ignore TODO: FIX */}
               <CustomButton
                 size="medium"
-                className={styles['pepeButton']}
+                className={styles['pepeButton']!}
                 onClick={saveMoves}
               >
-                {/* @ts-ignore TODO: FIX */}
-                <Typography variant="h5" className={styles['pepeButtonText']}>
+                <Typography variant="h5" className={styles['pepeButtonText']!}>
                   SAVE
                 </Typography>
               </CustomButton>
@@ -644,16 +628,14 @@ const RevealDuel = ({ open, handleClose }: Props) => {
                 </span>
               </Typography>
             </Box>
-            {/* @ts-ignore TODO: FIX */}
             <CustomButton
               size="medium"
-              className={styles['pepeButton']}
+              className={styles['pepeButton']!}
               color={canReveal ? 'primary' : 'mineshaft'}
               disabled={!canReveal}
               onClick={handleReveal}
             >
-              {/* @ts-ignore TODO: FIX */}
-              <Typography variant="h5" className={styles['pepeButtonText']}>
+              <Typography variant="h5" className={styles['pepeButtonText']!}>
                 REVEAL
               </Typography>
             </CustomButton>

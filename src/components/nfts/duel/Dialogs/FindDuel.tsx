@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useContext, useState, useMemo, useCallback } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 
@@ -16,7 +15,6 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
 import { DuelContext } from 'contexts/Duel';
 
 import useSendTx from 'hooks/useSendTx';
@@ -116,6 +114,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
       specialMovesSelected,
       blockMovesSelected,
       kickMovesSelected,
+      moves,
     ]
   );
 
@@ -129,7 +128,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
     if (moves.length < 5) return;
 
     const token = ERC20__factory.connect(
-      contractAddresses[selectedDuel['tokenName']],
+      contractAddresses[selectedDuel!['tokenName']],
       signer
     );
 
@@ -154,15 +153,15 @@ const FindDuel = ({ open, handleClose }: Props) => {
       duelContract
         .connect(signer)
         ['challenge'](
-          selectedDuel['id'],
+          selectedDuel!['id'],
           '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
           duelist,
           numericMoves,
           {
             gasLimit: 3000000,
             value:
-              selectedDuel['tokenName'] === 'ETH'
-                ? getContractReadableAmount(selectedDuel['wager'], 18)
+              selectedDuel!['tokenName'] === 'ETH'
+                ? getContractReadableAmount(selectedDuel!['wager'], 18)
                 : 0,
           }
         )
@@ -175,11 +174,13 @@ const FindDuel = ({ open, handleClose }: Props) => {
     duelContract,
     signer,
     contractAddresses,
-    chainId,
     selectedDuel,
     accountAddress,
     duelist,
     moves,
+    handleClose,
+    updateDuels,
+    sendTx,
   ]);
 
   const canCreate = useMemo(() => {
@@ -204,6 +205,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 <img
                   src={`/images/nfts/pepes/${move}.png`}
                   className="my-auto mx-auto"
+                  alt="Move"
                 />
               </Box>
 
@@ -259,6 +261,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
               <img
                 src="/images/misc/arrow-right-black.svg"
                 className="w-2.5 h-3 mt-3 mr-3"
+                alt="Arrow right"
               />
             ) : null}
           </Box>
@@ -267,7 +270,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
     );
   }, [moves]);
 
-  // @ts-ignore
   return (
     <Dialog
       open={open}
@@ -299,9 +301,8 @@ const FindDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex flex-row items-center mb-24 mt-2"></Box>
         </Box>
-      ) : isTokenSelectorVisible ? ( // @ts-ignore
+      ) : isTokenSelectorVisible ? (
         <Box className="h-[52.8rem]">
-          {/* @ts-ignore TODO: FIX */}
           <TokenSelector
             open={isTokenSelectorVisible}
             setOpen={setIsTokenSelectorVisible}
@@ -332,8 +333,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
           </Box>
           {isLoading ? (
             <Box className="h-[40rem] overflow-hidden mt-2">
-              {/* @ts-ignore TODO: FIX */}
-              <Box className={styles['darkBg']}>
+              <Box className={styles['darkBg']!}>
                 <Box className="absolute left-[20%] top-[40%] z-50 text-center">
                   <Typography
                     variant="h5"
@@ -386,8 +386,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
             </Box>
           ) : (
             <Box className="h-[40rem] overflow-hidden mt-2 pt-2">
-              {/* @ts-ignore TODO: FIX */}
-              <Box className={styles['darkBg']}>
+              <Box className={styles['darkBg']!}>
                 <Box className="flex lg:grid lg:grid-cols-12 mb-3">
                   {nfts.map((userNft, i) => (
                     <Box
@@ -448,11 +447,10 @@ const FindDuel = ({ open, handleClose }: Props) => {
             </Box>
             <Box className="flex mt-5 mb-1 ml-2">
               <Moves />
-              {/* @ts-ignore TODO: FIX */}
-              {[...Array(5 - moves.length)].map((w, i) => (
+              {[...Array(5 - moves.length)].map((i) => (
                 <Box className="flex" key={i}>
                   <Box className="mr-3">
-                    <img src="/images/misc/plus.png" />
+                    <img src="/images/misc/plus.png" alt="Plus" />
                     <Box className="mt-1 text-center">
                       <Typography variant="h6" className="mt-1 text-[10px]">
                         <span className="text-[#78859E]">*</span>
@@ -466,6 +464,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                     <img
                       src="/images/misc/arrow-right-black.svg"
                       className="w-2.5 h-3 mt-3 mr-3"
+                      alt="Arrow right"
                     />
                   ) : null}
                 </Box>
@@ -586,6 +585,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                   <img
                     src="/images/nfts/pepes/kick.png"
                     className="mx-auto my-auto w-6 h-6"
+                    alt="Kick"
                   />
                 </Box>
               </Tooltip>
@@ -610,6 +610,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                   <img
                     src="/images/nfts/pepes/block.png"
                     className="mx-auto my-auto w-6 h-6"
+                    alt="Block"
                   />
                 </Box>
               </Tooltip>
@@ -629,6 +630,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                   <img
                     src="/images/nfts/pepes/special.png"
                     className="mx-auto my-auto w-6 h-6"
+                    alt="Special"
                   />
                 </Box>
               </Tooltip>
@@ -654,6 +656,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                   <img
                     src="/images/nfts/pepes/punch.png"
                     className="mx-auto my-auto w-6 h-6"
+                    alt="Punch"
                   />
                 </Box>
               </Box>
@@ -662,28 +665,24 @@ const FindDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
-              {/* @ts-ignore TODO: FIX */}
               <CustomButton
                 size="medium"
-                className={styles['pepeButton']}
+                className={styles['pepeButton']!}
                 onClick={() => setMoves([])}
               >
-                {/* @ts-ignore TODO: FIX */}
-                <Typography variant="h5" className={styles['pepeButtonText']}>
+                <Typography variant="h5" className={styles['pepeButtonText']!}>
                   RESET
                 </Typography>
               </CustomButton>
             </Box>
 
             <Box className="w-1/2 ml-2 mr-4">
-              {/* @ts-ignore TODO: FIX */}
               <CustomButton
                 size="medium"
-                className={styles['pepeButton']}
+                className={styles['pepeButton']!}
                 onClick={saveMoves}
               >
-                {/* @ts-ignore TODO: FIX */}
-                <Typography variant="h5" className={styles['pepeButtonText']}>
+                <Typography variant="h5" className={styles['pepeButtonText']!}>
                   SAVE
                 </Typography>
               </CustomButton>
@@ -694,7 +693,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
         <Box>
           <Box className="flex flex-row items-center mb-4">
             <IconButton
-              className="p-0 pb-1 mr-0 mr-auto ml-0.5 opacity-20 hover:opacity-100"
+              className="p-0 pb-1 mr-auto ml-0.5 opacity-20 hover:opacity-100"
               size="large"
             >
               <Tooltip title={'Not enabled yet'}>
@@ -721,6 +720,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 <img
                   src="/images/nfts/pepes/crown.svg"
                   className="w-3 h-3 mt-3 mb-0.5 mr-0.5 ml-2"
+                  alt="Wager"
                 />
                 <Typography
                   variant="h6"
@@ -735,6 +735,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                     'tokenName'
                   ].toLowerCase()}.svg`}
                   className="h-3.5 w-3.5 mr-2"
+                  alt="Token"
                 />
                 <Typography variant="h6" className="text-sm font-['Minecraft']">
                   {formatAmount(selectedDuel['wager'], 2)}
@@ -752,6 +753,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 <img
                   src="/images/misc/person.svg"
                   className="w-3.5 h-3.5 mr-1.5 mt-1"
+                  alt="Challenger"
                 />
                 <Typography variant="h6" className="text-[#78859E] text-sm">
                   Select Challenger
@@ -763,6 +765,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                     src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
                     className="w-10 h-10 mt-3 cursor-pointer"
                     onClick={() => setIsSelectingNfts(true)}
+                    alt="Duelist"
                   />
                   <Box className="ml-3 mt-2">
                     <Typography
@@ -782,6 +785,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                     src="/images/misc/plus.png"
                     className="w-10 h-10 mt-3 cursor-pointer"
                     onClick={() => setIsSelectingNfts(true)}
+                    alt="Plus"
                   />
                   <Box className="ml-3 mt-2">
                     <Typography variant="h5">-</Typography>
@@ -795,12 +799,14 @@ const FindDuel = ({ open, handleClose }: Props) => {
             <img
               src="/images/nfts/pepes/vs.png"
               className="absolute left-[45%] top-[30%] z-50"
+              alt="VS"
             />
             <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2 w-1/2 ml-[1px]">
               <Box className="flex">
                 <img
                   src="/images/misc/person.svg"
                   className="w-3.5 h-3.5 mr-1.5 mt-1"
+                  alt="Duelist"
                 />
                 <Typography variant="h6" className="text-[#78859E] text-sm">
                   Duelist
@@ -822,6 +828,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                   src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${selectedDuel['duelist']}/1440/image.jpg`}
                   className="w-10 h-10 mt-3 cursor-pointer"
                   onClick={() => setIsSelectingNfts(true)}
+                  alt="Duelist"
                 />
               </Box>
             </Box>
@@ -832,6 +839,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
               <img
                 src="/images/misc/gamepad.svg"
                 className="w-3.5 h-3.5 mr-1.5 mt-1"
+                alt="Gamepad"
               />
               <Typography variant="h6" className="text-[#78859E] text-sm">
                 Select Moves
@@ -857,6 +865,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
                   <img
                     src="/images/misc/plus-skin.svg"
                     className="ml-auto mr-auto"
+                    alt="Plus"
                   />
                 </Box>
               )}
@@ -896,7 +905,11 @@ const FindDuel = ({ open, handleClose }: Props) => {
 
             <Box className="flex mb-1.5">
               <Box className="flex text-center p-2 mr-2 mt-1">
-                <img src="/images/misc/clock.svg" className="w-7 h-5 mt-1" />
+                <img
+                  src="/images/misc/clock.svg"
+                  className="w-7 h-5 mt-1"
+                  alt="Clock"
+                />
               </Box>
               <Typography variant="h6" className="mt-1">
                 <span className="text-[#78859E]">
@@ -905,16 +918,14 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 </span>
               </Typography>
             </Box>
-            {/* @ts-ignore TODO: FIX */}
             <CustomButton
               size="medium"
-              className={styles['pepeButton']}
+              className={styles['pepeButton']!}
               color={canCreate ? 'primary' : 'mineshaft'}
               disabled={!canCreate}
               onClick={handleMatch}
             >
-              {/* @ts-ignore TODO: FIX */}
-              <Typography variant="h5" className={styles['pepeButtonText']}>
+              <Typography variant="h5" className={styles['pepeButtonText']!}>
                 DUEL
               </Typography>
             </CustomButton>

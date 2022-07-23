@@ -20,7 +20,7 @@ import displayAddress from 'utils/general/displayAddress';
 import Countdown from 'react-countdown';
 import formatAmount from '../../../../utils/general/formatAmount';
 
-const Duels = ({ findDuel }: { findDuel: Function }) => {
+export const Duels = ({ findDuel }: { findDuel: Function }) => {
   const { duels, isLoading } = useContext(DuelContext);
 
   return (
@@ -101,6 +101,7 @@ const Duels = ({ findDuel }: { findDuel: Function }) => {
                       <Box className="flex">
                         <img
                           src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
+                          alt={'Duelist'}
                           className="rounded-md w-12 h-12 mt-1 mr-1"
                         />
                         <Box>
@@ -166,17 +167,15 @@ const Duels = ({ findDuel }: { findDuel: Function }) => {
                     </TableCell>
 
                     <TableCell align="left" className="px-6 pt-2">
-                      {/* @ts-ignore TODO: FIX */}
                       <CustomButton
                         size="medium"
-                        className={styles['smallPepeButton']}
+                        className={styles['smallPepeButton']!}
                         disabled={duel['challengedLimitDate'] < new Date()}
                         onClick={() => findDuel(duel)}
                       >
-                        {/* @ts-ignore TODO: FIX */}
                         <Typography
                           variant="h5"
-                          className={styles['pepeButtonText']}
+                          className={styles['pepeButtonText']!}
                         >
                           DUEL
                         </Typography>
@@ -199,5 +198,3 @@ const Duels = ({ findDuel }: { findDuel: Function }) => {
     </Box>
   );
 };
-
-export default Duels;

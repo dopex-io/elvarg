@@ -57,6 +57,7 @@ const ActiveDuel = ({
       <img
         src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
         className="rounded-md w-14 h-14 mt-1 mr-3"
+        alt={'Duelist'}
       />
       <Box>
         <Typography
@@ -93,6 +94,7 @@ const ActiveDuel = ({
               <img
                 key={i}
                 src={`/images/nfts/pepes/${move}.png`}
+                alt={move}
                 className={
                   'w-4 h-4 ' +
                   (i < duel['duelistMoves'].length - 1 ? 'mr-1' : '')
@@ -104,18 +106,22 @@ const ActiveDuel = ({
               <img
                 src="/images/nfts/pepes/help-center.png"
                 className="w-4 h-4 mr-1"
+                alt="?"
               />
               <img
                 src="/images/nfts/pepes/help-center.png"
                 className="w-4 h-4 mr-1"
+                alt="?"
               />
               <img
                 src="/images/nfts/pepes/help-center.png"
                 className="w-4 h-4 mr-1"
+                alt="?"
               />
               <img
                 src="/images/nfts/pepes/help-center.png"
                 className="w-4 h-4"
+                alt="?"
               />
             </Box>
           )}
@@ -143,16 +149,23 @@ const ActiveDuel = ({
           <img
             src="/images/nfts/pepes/help-center.png"
             className="w-4 h-4 mr-1"
+            alt="?"
           />
           <img
             src="/images/nfts/pepes/help-center.png"
             className="w-4 h-4 mr-1"
+            alt="?"
           />
           <img
             src="/images/nfts/pepes/help-center.png"
             className="w-4 h-4 mr-1"
+            alt="?"
           />
-          <img src="/images/nfts/pepes/help-center.png" className="w-4 h-4" />
+          <img
+            src="/images/nfts/pepes/help-center.png"
+            className="w-4 h-4"
+            alt="?"
+          />
         </Box>
         <Typography
           variant="h4"
@@ -198,12 +211,17 @@ const ActiveDuel = ({
             : `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['challenger']}/280/static.jpg`
         }
         className="rounded-md w-14 h-14 ml-6 mt-1"
+        alt="?"
       />
 
       {['won', 'lost', 'tie'].includes(duel['status']) &&
       !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FFD50B]">
-          <img src="/images/misc/crown.svg" className="w-4 h-4 mr-1 mt-0.5" />
+          <img
+            src="/images/misc/crown.svg"
+            className="w-4 h-4 mr-1 mt-0.5"
+            alt="?"
+          />
           <Typography variant="h6">
             <span className="font-['Minecraft'] text-black">WINNER</span>
           </Typography>
@@ -213,7 +231,11 @@ const ActiveDuel = ({
       {['won', 'lost', 'tie'].includes(duel['status']) &&
       duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FF2727]">
-          <img src="/images/misc/fire.svg" className="w-4 h-4 mr-1 mt-0.5" />
+          <img
+            src="/images/misc/fire.svg"
+            className="w-4 h-4 mr-1 mt-0.5"
+            alt="?"
+          />
           <Typography variant="h6">
             <span className="font-['Minecraft'] text-[#FFD50B]">REKT</span>
           </Typography>
@@ -266,7 +288,11 @@ const ActiveDuel = ({
       </Box>
 
       <Box className="absolute bg-[#343C4D] px-3 py-1 flex rounded-md right-[47%] top-[-1rem]">
-        <img src="/images/misc/diamond.svg" className="w-4 h-4 mr-1 mt-1" />
+        <img
+          src="/images/misc/diamond.svg"
+          className="w-4 h-4 mr-1 mt-1"
+          alt="Diamond"
+        />
         <Typography variant="h6">
           <span className="font-['Minecraft'] text-stieglitz">
             <span className="text-white">{duel['wager']} </span>
@@ -284,7 +310,11 @@ const ActiveDuel = ({
       {['won', 'lost', 'tie'].includes(duel['status']) &&
       duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FFD50B]">
-          <img src="/images/misc/crown.svg" className="w-4 h-4 mr-1 mt-0.5" />
+          <img
+            src="/images/misc/crown.svg"
+            className="w-4 h-4 mr-1 mt-0.5"
+            alt="Winner"
+          />
           <Typography variant="h6">
             <span className="font-['Minecraft'] text-black">WINNER</span>
           </Typography>
@@ -294,7 +324,11 @@ const ActiveDuel = ({
       {['won', 'lost', 'tie'].includes(duel['status']) &&
       !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FF2727]">
-          <img src="/images/misc/fire.svg" className="w-4 h-4 mr-1 mt-0.5" />
+          <img
+            src="/images/misc/fire.svg"
+            className="w-4 h-4 mr-1 mt-0.5"
+            alt="Rekt"
+          />
           <Typography variant="h6">
             <span className="font-['Minecraft'] text-[#FFD50B]">REKT</span>
           </Typography>
