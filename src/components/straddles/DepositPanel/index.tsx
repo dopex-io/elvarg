@@ -1,12 +1,11 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import Select from '@mui/material/Select';
 import Input from '@mui/material/Input';
-import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
 
 import { WalletContext } from 'contexts/Wallet';
 import { StraddlesContext } from 'contexts/Straddles';
@@ -18,55 +17,107 @@ import ArrowUpDownIcon from 'svgs/icons/ArrowsUpDownIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { SsovV3Context } from '../../../contexts/SsovV3';
+import { format } from 'date-fns';
+import getContractReadableAmount from '../../../utils/contracts/getContractReadableAmount';
+import { ERC20__factory } from '@dopex-io/sdk';
 
 const DepositPanel = () => {
-  const { chainId } = useContext(WalletContext);
+  const { chainId, accountAddress, signer, contractAddresses } =
+    useContext(WalletContext);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const { straddlesEpochData, straddlesData, straddlesUserData } =
+  const { straddlesEpochData, selectedEpoch, straddlesData } =
     useContext(StraddlesContext);
+  const [approved, setApproved] = useState(false);
 
-  const [strikeDepositAmount, setStrikeDepositAmount] = useState<
-    number | string
-  >(0);
+  const [rawAmount, setRawAmount] = useState<string>('1000');
+
+  const amount: number = useMemo(() => {
+    return parseFloat(rawAmount) || 0;
+  }, [rawAmount]);
+
+  const open2CRV = () => {
+    window.open('https://arbitrum.curve.fi/2pool', '_blank');
+  };
+
+  const readableExpiry = useMemo(() => {
+    if (straddlesEpochData?.expiry.gt(0))
+      return format(
+        getUserReadableAmount(straddlesEpochData?.expiry!, 0),
+        'd LLL YYY'
+      );
+    else return '-';
+  }, [straddlesEpochData]);
+
+  // Updates approved state and user balance
+  useEffect(() => {
+    (async () => {
+      if (!accountAddress || !signer) return;
+
+      const finalAmount: BigNumber = getContractReadableAmount(amount, 18);
+      const token = ERC20__factory.connect(contractAddresses['USDC'], signer);
+      const allowance: BigNumber = await token.allowance(
+        accountAddress,
+        straddlesData?.straddlesContract?.address
+      );
+      const balance: BigNumber = await token.balanceOf(accountAddress);
+      setApproved(allowance.gte(finalAmount));
+      setUserTokenBalance(balance);
+    })();
+  }, [
+    contractAddresses,
+    accountAddress,
+    approved,
+    amount,
+    signer,
+    chainId,
+    straddlesData,
+  ]);
 
   return (
-    <Box className="bg-umbra rounded-xl p-3 max-w-sm">
+    <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
       <Box className="mb-4">
         <Typography variant="h6">Deposit</Typography>
       </Box>
-      <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
-        <Box className="flex">
-          <Typography
-            variant="h6"
-            className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
-          >
-            Balance
-          </Typography>
-          <Typography
-            variant="h6"
-            className="text-white ml-auto mr-0 text-[0.72rem]"
-          >
-            {formatAmount(getUserReadableAmount(userTokenBalance, 18), 8)}{' '}
-            {straddlesData?.underlying}
-          </Typography>
+      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <Box className="flex flex-row justify-between">
+          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+            <Box className="flex flex-row h-10 w-[100px] p-1">
+              <img src={'/images/tokens/usdc.svg'} alt={'USDC'} />
+              <Typography
+                variant="h6"
+                className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
+              >
+                <span className="text-white">USDC</span>
+              </Typography>
+            </Box>
+          </Box>
+          <Input
+            disableUnderline
+            id="notionalSize"
+            name="notionalSize"
+            placeholder="0"
+            type="number"
+            className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
+            value={rawAmount}
+            onChange={(e) => setRawAmount(e.target.value)}
+            classes={{ input: 'text-right' }}
+          />
         </Box>
-        <Box className="mt-3">
-          <Box className="flex mb-3 group">
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Amount
+        <Box className="flex flex-row justify-between">
+          <Box className="flex">
+            <Typography variant="h6" className="text-sm pl-1 pt-2">
+              <span className="text-stieglitz">Balance</span>
             </Typography>
-            <Input
-              disableUnderline={true}
-              type="number"
-              className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
-              classes={{ input: 'text-white text-xs text-right' }}
-              value={strikeDepositAmount}
-              placeholder="0"
-              onChange={() => {}}
-            />
+          </Box>
+          <Box className="ml-auto mr-0">
+            <Typography
+              variant="h6"
+              className="text-stieglitz text-sm pl-1 pt-2 pr-3"
+            >
+              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)} USDC
+            </Typography>
           </Box>
         </Box>
       </Box>
@@ -101,10 +152,10 @@ const DepositPanel = () => {
         </Box>
         <Box className="">
           <Typography variant="h6" className="mx-2  text-white">
-            24 Jun 2022
+            {readableExpiry}
           </Typography>
           <Typography variant="h6" className="mx-2 mt-2 text-white">
-            27 Jun 2022
+            {readableExpiry}
           </Typography>
         </Box>
       </Box>
@@ -122,32 +173,38 @@ const DepositPanel = () => {
       </Box>
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">
-          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-neutral-600">
+          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
             <EstimatedGasCostButton gas={5000000} chainId={chainId} />
           </Box>
-          <Box className="bg-neutral-600 rounded-md flex items-center pr-2 pl-4 py-3 mb-3">
+          <Box
+            className="bg-mineshaft rounded-md flex items-center pr-2 pl-4 py-3 mb-3 cursor-pointer"
+            onClick={open2CRV}
+          >
             <ArrowUpDownIcon className="" />
             <Typography variant="h6" className="mx-3">
               Get 2CRV
             </Typography>
             <OpenInNewIcon role="button" className="w-5 h-5 ml-auto" />
           </Box>
-          <Box className="bg-neutral-600 rounded-md flex items-center pr-2 pl-3.5 py-3">
-            <CalculatorIcon className="w-3 h-3" />
-            <Typography variant="h6" className="mx-2 pl-1">
-              Payout Calculator
-            </Typography>
-          </Box>
-          <Box className="flex items-center mt-2">
+          <Tooltip title="Not available yet">
+            <Box className="bg-mineshaft rounded-md flex items-center pr-2 pl-3.5 py-3 cursor-pointer">
+              <CalculatorIcon className="w-3 h-3" />
+              <Typography variant="h6" className="mx-2 pl-1">
+                Payout Calculator
+              </Typography>
+            </Box>
+          </Tooltip>
+          <Box className="flex items-center mt-5 mb-5">
             <LockOutlinedIcon className="w-5 h-5 text-gray-400" />
             <Box>
               <Typography variant="h6" className="text-gray-400 mx-2">
-                Withdrawals are locked until end of Epoch 4
+                Withdrawals are locked until end of Epoch{' '}
+                {String(selectedEpoch)}
                 <Typography
                   variant="h6"
                   className="text-white inline-flex items-baseline ml-2"
                 >
-                  20 December
+                  {readableExpiry}
                 </Typography>
               </Typography>
             </Box>

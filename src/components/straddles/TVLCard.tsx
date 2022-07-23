@@ -6,7 +6,7 @@ import TVLChart from './TVLChart';
 
 const TVLCard = () => {
   return (
-    <Box className="text-gray-400 w-full">
+    <Box className="text-gray-400 w-full opacity-30">
       <Box className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <Box className="flex">
           <SignalCellularAltRoundedIcon className="mx-2" />

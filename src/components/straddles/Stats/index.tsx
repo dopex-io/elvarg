@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 
 import Typography from 'components/UI/Typography';
@@ -12,17 +12,42 @@ import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 
 import { WalletContext } from 'contexts/Wallet';
+import { StraddlesContext } from 'contexts/Straddles';
 
 const Stats = () => {
-  const [epoch, setEpoch] = useState<string>('');
   const { chainId } = useContext(WalletContext);
+  const { selectedEpoch, setSelectedEpoch } = useContext(StraddlesContext);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setEpoch(event.target.value as string);
-  };
+  const epochs = useMemo(() => {
+    if (!selectedEpoch) return [];
+
+    let _epoch = selectedEpoch + 1;
+
+    return Array(_epoch - 1)
+      .join()
+      .split(',')
+      .map((_i, index) => {
+        return (
+          <MenuItem
+            value={index + 1}
+            key={index + 1}
+            className="text-stieglitz"
+          >
+            {index + 1}
+          </MenuItem>
+        );
+      });
+  }, [selectedEpoch]);
+
+  const handleSelectChange = useCallback(
+    (e: { target: { value: any } }) => {
+      if (setSelectedEpoch) setSelectedEpoch(Number(e.target.value));
+    },
+    [setSelectedEpoch]
+  );
 
   return (
-    <Box className="flex text-gray-400">
+    <Box className="flex text-gray-400 ">
       <Box className="w-full">
         <Box className="border rounded-tl-lg border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
@@ -46,14 +71,10 @@ const Stats = () => {
               }}
               displayEmpty
               autoWidth
-              value={epoch}
-              onChange={handleChange}
+              value={selectedEpoch || 1}
+              onChange={handleSelectChange}
             >
-              <MenuItem value={''}>01</MenuItem>
-              <MenuItem value={10}>02</MenuItem>
-              <MenuItem value={20}>03</MenuItem>
-              <MenuItem value={30}>04</MenuItem>
-              <MenuItem value={40}>05</MenuItem>
+              {epochs}
             </Select>
             <Button
               size="small"
@@ -167,7 +188,7 @@ const Stats = () => {
             Epoch Length
           </Typography>
           <Typography variant="h6" className="text-white">
-            7 Days
+            28 Days
           </Typography>
         </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">

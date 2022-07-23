@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { VolatilityOracle, SSOVOptionPricing } from '@dopex-io/sdk';
 
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { WalletContext } from './Wallet';
 
@@ -122,25 +122,6 @@ const ABI = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: 'address',
-        name: 'previousOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnershipTransferred',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: 'address',
         name: 'user',
@@ -160,6 +141,81 @@ const ABI = [
       },
     ],
     name: 'Purchase',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'previousAdminRole',
+        type: 'bytes32',
+      },
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'newAdminRole',
+        type: 'bytes32',
+      },
+    ],
+    name: 'RoleAdminChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
+      },
+    ],
+    name: 'RoleGranted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
+      },
+    ],
+    name: 'RoleRevoked',
     type: 'event',
   },
   {
@@ -230,6 +286,32 @@ const ABI = [
     ],
     name: 'Withdraw',
     type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'DEFAULT_ADMIN_ROLE',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MANAGER_ROLE',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
@@ -426,6 +508,11 @@ const ABI = [
       },
       {
         internalType: 'uint256',
+        name: 'settlementPercentage',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
         name: 'underlyingPurchased',
         type: 'uint256',
       },
@@ -460,6 +547,25 @@ const ABI = [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+    ],
+    name: 'getRoleAdmin',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'getUnderlyingPrice',
     outputs: [
@@ -486,6 +592,48 @@ const ABI = [
         internalType: 'uint256',
         name: '',
         type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'grantRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'hasRole',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
     stateMutability: 'view',
@@ -557,19 +705,6 @@ const ABI = [
   },
   {
     inputs: [],
-    name: 'owner',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
     name: 'percentagePrecision',
     outputs: [
       {
@@ -579,6 +714,25 @@ const ABI = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'percentage',
+        type: 'uint256',
+      },
+    ],
+    name: 'preExpireEpoch',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -619,8 +773,37 @@ const ABI = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'renounceOwnership',
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'renounceRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'revokeRole',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -707,6 +890,44 @@ const ABI = [
   {
     inputs: [
       {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'straddlePositionsOfOwner',
+    outputs: [
+      {
+        internalType: 'uint256[]',
+        name: 'tokenIds',
+        type: 'uint256[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes4',
+        name: 'interfaceId',
+        type: 'bytes4',
+      },
+    ],
+    name: 'supportsInterface',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'uint256',
         name: 'id',
         type: 'uint256',
@@ -720,19 +941,6 @@ const ABI = [
         type: 'bool',
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'transferOwnership',
-    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -835,6 +1043,25 @@ const ABI = [
         internalType: 'bool',
         name: 'withdrawn',
         type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'writePositionsOfOwner',
+    outputs: [
+      {
+        internalType: 'uint256[]',
+        name: 'tokenIds',
+        type: 'uint256[]',
       },
     ],
     stateMutability: 'view',
@@ -1345,13 +1572,15 @@ export interface StraddlesData {
 }
 
 export interface StraddlesEpochData {
-  startTime: number;
-  expiry: number;
-  usdDeposits: number;
-  activeUsdDeposits: number;
+  startTime: BigNumber;
+  expiry: BigNumber;
+  usdDeposits: BigNumber;
+  activeUsdDeposits: BigNumber;
   strikes: number[];
-  settlementPrice: number;
-  underlyingPurchased: number;
+  settlementPrice: BigNumber;
+  underlyingPurchased: BigNumber;
+  usdPremiums: BigNumber;
+  usdFunding: BigNumber;
 }
 
 export interface WritePosition {
@@ -1388,13 +1617,15 @@ interface StraddlesContextInterface {
 
 const initialStraddlesUserData = {};
 const initialStraddlesEpochData = {
-  startTime: new Date().getTime(),
-  expiry: 0,
-  usdDeposits: 0,
-  activeUsdDeposits: 0,
+  startTime: BigNumber.from(new Date().getTime()),
+  expiry: BigNumber.from('0'),
+  usdDeposits: BigNumber.from('0'),
+  activeUsdDeposits: BigNumber.from('0'),
   strikes: [],
-  settlementPrice: 0,
-  underlyingPurchased: 0,
+  settlementPrice: BigNumber.from('0'),
+  underlyingPurchased: BigNumber.from('0'),
+  usdFunding: BigNumber.from('0'),
+  usdPremium: BigNumber.from('0'),
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -1418,7 +1649,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
+        '0x620a32516c5af97eb4f1420e395dab4291458e34',
         ABI,
         provider
       );
@@ -1471,18 +1702,18 @@ export const Straddles = () => {
       selectedEpoch === null ||
       !selectedPoolName ||
       !accountAddress ||
-      !writePositionsMinterContract ||
-      !straddlePositionsMinterContract
+      !straddlesContract
     )
       return;
 
     const straddlePositionsPromises: any[] = [];
     const writePositionsPromises: any[] = [];
 
-    const straddlePositionsIndexes: number[] =
-      await straddlePositionsMinterContract['walletOfOwner'](accountAddress);
-    const writePositionsIndexes: number[] = await writePositionsMinterContract[
-      'walletOfOwner'
+    const straddlePositionsIndexes: number[] = await straddlesContract[
+      'straddlePositionsOfOwner'
+    ](accountAddress);
+    const writePositionsIndexes: number[] = await straddlesContract[
+      'writePositionsOfOwner'
     ](accountAddress);
 
     straddlePositionsIndexes.map((straddlePositionsIndex) =>
@@ -1501,17 +1732,12 @@ export const Straddles = () => {
       writePositionsPromises
     );
 
-    console.log(straddlePositions);
-    console.log(writePositions);
-
     setStraddlesUserData({
       straddlePositions: straddlePositions,
       writePositions: writePositions,
     });
   }, [
     straddlesContract,
-    writePositionsMinterContract,
-    straddlePositionsMinterContract,
     contractAddresses,
     selectedEpoch,
     provider,
@@ -1541,7 +1767,9 @@ export const Straddles = () => {
       try {
         currentEpoch = await straddlesContract!['currentEpoch']();
 
-        const isEpochExpired = await straddlesContract!['isEpochExpired']();
+        const isEpochExpired = await straddlesContract!['isEpochExpired'](
+          currentEpoch
+        );
         if (isEpochExpired) currentEpoch += 1;
       } catch (err) {
         console.log(err);

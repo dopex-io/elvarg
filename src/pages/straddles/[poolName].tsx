@@ -43,7 +43,10 @@ const Straddles = ({ poolName }: Props) => {
               Liquidity
             </Typography>
           </Box>
-          <Box className="pt-3 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 lg:flex md:flex">
+          <Box className="pt-3 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 lg:flex md:flex relative">
+            <Typography variant="h4" className="left-[40%] top-[40%] absolute">
+              <span className="text-white">Not available yet</span>
+            </Typography>
             <PoolCard />
             <Box className="mx-2"></Box>
             <TVLCard />
