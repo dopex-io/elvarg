@@ -1625,7 +1625,7 @@ const initialStraddlesEpochData = {
   settlementPrice: BigNumber.from('0'),
   underlyingPurchased: BigNumber.from('0'),
   usdFunding: BigNumber.from('0'),
-  usdPremium: BigNumber.from('0'),
+  usdPremiums: BigNumber.from('0'),
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
