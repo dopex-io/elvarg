@@ -28,11 +28,7 @@ const Stats = () => {
       .split(',')
       .map((_i, index) => {
         return (
-          <MenuItem
-            value={index + 1}
-            key={index + 1}
-            className="text-stieglitz"
-          >
+          <MenuItem value={index} key={index} className="text-stieglitz">
             {index + 1}
           </MenuItem>
         );
@@ -71,7 +67,7 @@ const Stats = () => {
               }}
               displayEmpty
               autoWidth
-              value={selectedEpoch || 1}
+              value={selectedEpoch! || 0}
               onChange={handleSelectChange}
             >
               {epochs}

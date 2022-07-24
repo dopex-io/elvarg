@@ -1,5 +1,13 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { BigNumber } from 'ethers';
+import { format } from 'date-fns';
+import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -7,9 +15,12 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 
+import useSendTx from 'hooks/useSendTx';
+
 import { WalletContext } from 'contexts/Wallet';
 import { StraddlesContext } from 'contexts/Straddles';
 
+import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
@@ -17,9 +28,8 @@ import ArrowUpDownIcon from 'svgs/icons/ArrowsUpDownIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { format } from 'date-fns';
-import getContractReadableAmount from '../../../utils/contracts/getContractReadableAmount';
-import { ERC20__factory } from '@dopex-io/sdk';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { MAX_VALUE } from 'constants/index';
 
 const DepositPanel = () => {
   const { chainId, accountAddress, signer, contractAddresses } =
@@ -27,11 +37,28 @@ const DepositPanel = () => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const { straddlesEpochData, selectedEpoch, straddlesData } =
-    useContext(StraddlesContext);
+  const {
+    straddlesEpochData,
+    selectedEpoch,
+    straddlesData,
+    straddlesUserData,
+  } = useContext(StraddlesContext);
+
+  const sendTx = useSendTx();
+
   const [approved, setApproved] = useState(false);
 
   const [rawAmount, setRawAmount] = useState<string>('1000');
+
+  const totalUSDDeposit = useMemo(() => {
+    let total = BigNumber.from('0');
+
+    straddlesUserData?.writePositions?.map((position) => {
+      total.add(position.usdDeposit);
+    });
+
+    return total;
+  }, [straddlesUserData]);
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -49,6 +76,48 @@ const DepositPanel = () => {
       );
     else return '-';
   }, [straddlesEpochData]);
+
+  const vaultShare = useMemo(() => {
+    if (!straddlesEpochData) return 0;
+    return (
+      (totalUSDDeposit.toNumber() / straddlesEpochData.usdDeposits.toNumber()) *
+        100 || 0
+    );
+  }, [straddlesEpochData]);
+
+  const futureVaultShare = useMemo(() => {
+    if (!straddlesEpochData) return 0;
+    let share =
+      ((totalUSDDeposit.toNumber() + amount * 10 ** 6) /
+        straddlesEpochData.usdDeposits.toNumber()) *
+      100;
+    if (String(share) === 'Infinity') share = 100;
+    return share;
+  }, [straddlesEpochData]);
+
+  // Handle Deposit
+  const handleDeposit = useCallback(async () => {
+    if (!straddlesData || !accountAddress) return;
+    try {
+    } catch (err) {
+      console.log(err);
+    }
+  }, [accountAddress, straddlesData]);
+
+  const handleApprove = useCallback(async () => {
+    if (!straddlesData || !signer || !contractAddresses) return;
+    try {
+      await sendTx(
+        ERC20__factory.connect(contractAddresses['USDC'], signer).approve(
+          straddlesData.straddlesContract.address,
+          MAX_VALUE
+        )
+      );
+      setApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [sendTx, signer, straddlesData, contractAddresses]);
 
   // Updates approved state and user balance
   useEffect(() => {
@@ -123,16 +192,20 @@ const DepositPanel = () => {
       </Box>
       <Box className="mt-4 flex justify-center">
         <Box className="py-2 w-full rounded-tl-lg border border-neutral-800">
-          <Typography variant="h6" className="mx-2 text-neutral-400">
-            -
+          <Typography variant="h6" className="mx-2 text-white">
+            {formatAmount(getUserReadableAmount(totalUSDDeposit, 6), 2)} {'->'}{' '}
+            {formatAmount(
+              getUserReadableAmount(userTokenBalance, 6) + amount,
+              2
+            )}
           </Typography>
           <Typography variant="h6" className="mx-2 text-neutral-400">
             Deposit
           </Typography>
         </Box>
         <Box className="py-2 w-full rounded-tr-lg border border-neutral-800">
-          <Typography variant="h6" className="mx-2 text-neutral-400">
-            -
+          <Typography variant="h6" className="mx-2 text-white">
+            {vaultShare}% {'->'} {futureVaultShare}%
           </Typography>
           <Typography variant="h6" className="mx-2 text-neutral-400">
             Vault Share
@@ -199,7 +272,7 @@ const DepositPanel = () => {
             <Box>
               <Typography variant="h6" className="text-gray-400 mx-2">
                 Withdrawals are locked until end of Epoch{' '}
-                {String(selectedEpoch)}
+                {Number(selectedEpoch!) + 1}
                 <Typography
                   variant="h6"
                   className="text-white inline-flex items-baseline ml-2"
@@ -209,14 +282,27 @@ const DepositPanel = () => {
               </Typography>
             </Box>
           </Box>
-          <Box
-            role="button"
-            className="bg-neutral-700 rounded-md flex justify-center items-center p-2 mt-2"
+          <CustomButton
+            size="medium"
+            className="w-full !rounded-md"
+            color={
+              !approved ||
+              (amount > 0 &&
+                amount <= getUserReadableAmount(userTokenBalance, 6))
+                ? 'primary'
+                : 'mineshaft'
+            }
+            disabled={amount <= 0}
+            onClick={approved ? handleDeposit : handleApprove}
           >
-            <Typography variant="h6" className="text-gray-400">
-              Deposit
-            </Typography>
-          </Box>
+            {approved
+              ? amount == 0
+                ? 'Insert an amount'
+                : amount > getUserReadableAmount(userTokenBalance, 6)
+                ? 'Insufficient balance'
+                : 'Deposit'
+              : 'Approve'}
+          </CustomButton>
         </Box>
       </Box>
     </Box>

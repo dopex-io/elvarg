@@ -1586,7 +1586,7 @@ export interface StraddlesEpochData {
 export interface WritePosition {
   epoch: number;
   usdDeposit: number;
-  roolover: boolean;
+  rollover: boolean;
   pnl: number;
   withdrawn: boolean;
 }
