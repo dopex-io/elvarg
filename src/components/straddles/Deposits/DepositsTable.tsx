@@ -126,7 +126,7 @@ const DepositsTable = () => {
         </Table>
       </TableContainer>
       <Box className="flex">
-        {straddlesUserData?.writePositions?.length === 0 ? (
+        {straddlesUserData?.writePositions!.length === 0 ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
         ) : null}
       </Box>
