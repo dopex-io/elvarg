@@ -99,6 +99,13 @@ const DepositPanel = () => {
   const handleDeposit = useCallback(async () => {
     if (!straddlesData || !accountAddress) return;
     try {
+      await sendTx(
+        straddlesData.straddlesContract.deposit(
+          getContractReadableAmount(amount, 6),
+          true,
+          accountAddress
+        )
+      );
     } catch (err) {
       console.log(err);
     }
