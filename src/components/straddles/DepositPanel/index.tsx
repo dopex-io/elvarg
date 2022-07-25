@@ -54,7 +54,7 @@ const DepositPanel = () => {
     let total = BigNumber.from('0');
 
     straddlesUserData?.writePositions?.map((position) => {
-      total.add(position.usdDeposit);
+      total = total.add(position.usdDeposit);
     });
 
     return total;
@@ -80,7 +80,8 @@ const DepositPanel = () => {
   const vaultShare = useMemo(() => {
     if (!straddlesEpochData) return 0;
     return (
-      (totalUSDDeposit.toNumber() / straddlesEpochData.usdDeposits.toNumber()) *
+      (getUserReadableAmount(totalUSDDeposit, 18) /
+        getUserReadableAmount(straddlesEpochData.usdDeposits, 18)) *
         100 || 0
     );
   }, [straddlesEpochData]);
@@ -88,12 +89,21 @@ const DepositPanel = () => {
   const futureVaultShare = useMemo(() => {
     if (!straddlesEpochData) return 0;
     let share =
-      ((totalUSDDeposit.toNumber() + amount * 10 ** 18) /
-        straddlesEpochData.usdDeposits.toNumber()) *
+      (getUserReadableAmount(
+        totalUSDDeposit.add(getContractReadableAmount(amount, 18)),
+        18
+      ) /
+        getUserReadableAmount(
+          straddlesEpochData.usdDeposits.add(
+            getContractReadableAmount(amount, 18)
+          ),
+          18
+        )) *
       100;
     if (String(share) === 'Infinity') share = 100;
     if (String(share) === 'NaN') share = 100;
-    return share;
+
+    return formatAmount(share, 0);
   }, [straddlesEpochData]);
 
   // Handle Deposit

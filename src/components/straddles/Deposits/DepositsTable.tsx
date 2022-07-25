@@ -103,9 +103,8 @@ const DepositsTable = () => {
                   <Button
                     onClick={() => setIsWithdrawModalOpen(true)}
                     className={
-                      'cursor-pointer bg-primary hover:bg-primary hover:opacity-90 text-white'
+                      'cursor-pointer bg-cod-gray hover:opacity-40 text-stieglitz'
                     }
-                    disabled={true}
                   >
                     Withdraw
                   </Button>
