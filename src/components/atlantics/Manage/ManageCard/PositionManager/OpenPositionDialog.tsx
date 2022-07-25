@@ -183,9 +183,9 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     const leverageBN = getContractReadableAmount(leverage * 10, 29);
 
     // index token price in 1e30 decimals
-    const indexTokenPrice = await (
-      await putsContract.getUsdPrice()
-    ).mul(oneEBigNumber(22));
+    const indexTokenPrice = (await putsContract.getUsdPrice()).mul(
+      oneEBigNumber(22)
+    );
 
     // spot price / leverage
     const difference = indexTokenPrice.mul(oneEBigNumber(30)).div(leverageBN);

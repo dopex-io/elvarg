@@ -3,7 +3,7 @@ import {
   LineChart,
   XAxis,
   YAxis,
-  Tooltip,
+  // Tooltip,
   Line,
   ResponsiveContainer,
 } from 'recharts';
@@ -44,13 +44,13 @@ const LiquidityLineChart = (props: LiquidityLineChartProps) => {
               bottom: 20,
             }}
           >
-            <Tooltip
+            {/* <Tooltip
               wrapperClassName="rounded-xl flex text-right h-auto"
               cursor={{
                 fill: '#151515',
               }}
               formatter={(value: number) => '$' + value}
-            />
+            /> */}
             <XAxis ticks={['13/05', '20/05', '27/05']} hide dataKey="name" />
             <YAxis axisLine={false} dataKey="deposits" hide />
             <Line
@@ -58,12 +58,14 @@ const LiquidityLineChart = (props: LiquidityLineChartProps) => {
               dataKey="unlocks"
               stroke="#7B61FF"
               dot={false}
+              className="blur-sm"
             />
             <Line
               type="monotone"
               dataKey="deposits"
               stroke="#22E1FF"
               dot={false}
+              className="blur-sm"
             />
           </LineChart>
         </ResponsiveContainer>

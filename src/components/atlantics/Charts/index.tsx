@@ -29,10 +29,10 @@ interface IBarData {
   strike: BigNumber;
 }
 
-interface ILineData {
-  totalEpochLiquidityByCheckpoint: BigNumber[];
-  totalEpochUnlockedCollateralByCheckpoint: BigNumber[];
-}
+// interface ILineData {
+//   totalEpochLiquidityByCheckpoint: BigNumber[];
+//   totalEpochUnlockedCollateralByCheckpoint: BigNumber[];
+// }
 
 const Charts = (props: ChartsProps) => {
   const { line_data, underlying, collateral, title, type } = props;
@@ -89,46 +89,43 @@ const Charts = (props: ChartsProps) => {
     }
   }, [selectedPool]);
 
-  const lineData: ILineData = useMemo(() => {
-    if (!selectedPool || selectedPool.checkpoints.length <= 1)
-      return {
-        totalEpochLiquidityByCheckpoint: [],
-        totalEpochUnlockedCollateralByCheckpoint: [],
-      };
+  // const lineData: ILineData = useMemo(() => {
+  //   if (!selectedPool || selectedPool.checkpoints.length <= 1)
+  //     return {
+  //       totalEpochLiquidityByCheckpoint: [],
+  //       totalEpochUnlockedCollateralByCheckpoint: [],
+  //     };
 
-    const _checkpoints = selectedPool.checkpoints;
+  //   const _checkpoints = selectedPool.checkpoints;
 
-    const _checkpointStrikeData = _checkpoints
-      .map((strike: any) => {
-        return strike.map((data: any) => ({
-          unlocks: data.activeCollateral,
-          liquidity: data.totalLiquidity,
-          // timestamp: Number(data.startTime),
-        }));
-      })
-      .flat();
+  //   const _checkpointStrikeData = _checkpoints
+  //     .map((strike: any) => {
+  //       return strike.map((data: any) => ({
+  //         unlocks: data.activeCollateral,
+  //         liquidity: data.totalLiquidity,
+  //         timestamp: Number(data.startTime),
+  //       }));
+  //     })
+  //     .flat();
 
-    const _aggregatedUnlocks = _checkpointStrikeData.reduce(
-      (acc, curr) => ({
-        unlocks: acc.unlocks.add(curr.unlocks),
-        liquidity: acc.liquidity.add(curr.liquidity),
-        timestamp: acc.timestamp,
-      }),
-      {
-        unlocks: BigNumber.from(0),
-        liquidity: BigNumber.from(0),
-      }
-    );
+  //   const _aggregatedUnlocks = _checkpointStrikeData.reduce(
+  //     (acc, curr) => ({
+  //       unlocks: acc.unlocks.add(curr.unlocks),
+  //       liquidity: acc.liquidity.add(curr.liquidity),
+  //     }),
+  //     {
+  //       unlocks: BigNumber.from(0),
+  //       liquidity: BigNumber.from(0),
+  //     }
+  //   );
 
-    console.log(_aggregatedUnlocks);
+  //   return {
+  //     totalEpochLiquidityByCheckpoint: [],
+  //     totalEpochUnlockedCollateralByCheckpoint: [],
+  //   };
+  // }, [selectedPool]);
 
-    return {
-      totalEpochLiquidityByCheckpoint: [],
-      totalEpochUnlockedCollateralByCheckpoint: [],
-    };
-  }, [selectedPool]);
-
-  console.log(lineData);
+  // console.log(lineData);
 
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">

@@ -15,7 +15,7 @@ import { AtlanticsContext } from 'contexts/Atlantics';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const ContractData = () => {
-  const [currentEpoch, setCurrentEpoch] = useState(0);
+  const [currentEpoch, setCurrentEpoch] = useState<number>(0);
   const [utilizationRate, setUtilizationRate] = useState(BigNumber.from(0));
 
   const { selectedPool, selectedEpoch, setSelectedEpoch } =
@@ -105,10 +105,10 @@ const ContractData = () => {
         value={
           <Typography variant="h6" className="font-semibold">
             {!selectedPool?.config.baseFundingRate.isZero()
-              ? getUserReadableAmount(
+              ? `${getUserReadableAmount(
                   selectedPool?.config.baseFundingRate.toNumber()! * 100,
                   6
-                ) + '%'
+                )}%`
               : '...'}
           </Typography>
         }
