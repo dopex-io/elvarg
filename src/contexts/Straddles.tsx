@@ -1567,6 +1567,7 @@ export interface StraddlesData {
   writePositionsMinter: any;
   currentEpoch: number;
   underlying: string;
+  usd: string;
   straddlesOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
 }
@@ -1649,7 +1650,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x620a32516c5af97eb4f1420e395dab4291458e34',
+        '0x948878dbC8cdeaB493cc84d7384271D4800e36b3',
         ABI,
         provider
       );
@@ -1659,7 +1660,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+        '0x64D7bbE55bc6276619E993D63e29b029bc56565e',
         ERC721ABI,
         provider
       );
@@ -1669,7 +1670,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+        '0xc2B7F2081CF9774b1c588F0FABD72774Cc2985B1',
         ERC721ABI,
         provider
       );
@@ -1777,10 +1778,12 @@ export const Straddles = () => {
       }
 
       const underlying = await straddlesContract!['underlying']();
+      const usd = await straddlesContract!['usd']();
 
       setSelectedEpoch(currentEpoch);
 
       setStraddlesData({
+        usd: usd,
         underlying: underlying,
         currentEpoch: Number(currentEpoch),
         straddlesContract: straddlesContract,

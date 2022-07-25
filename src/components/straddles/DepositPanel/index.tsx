@@ -88,34 +88,40 @@ const DepositPanel = () => {
   const futureVaultShare = useMemo(() => {
     if (!straddlesEpochData) return 0;
     let share =
-      ((totalUSDDeposit.toNumber() + amount * 10 ** 6) /
+      ((totalUSDDeposit.toNumber() + amount * 10 ** 18) /
         straddlesEpochData.usdDeposits.toNumber()) *
       100;
     if (String(share) === 'Infinity') share = 100;
+    if (String(share) === 'NaN') share = 100;
     return share;
   }, [straddlesEpochData]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
-    if (!straddlesData || !accountAddress) return;
+    if (!straddlesData || !accountAddress || !signer) return;
     try {
       await sendTx(
-        straddlesData.straddlesContract.deposit(
-          getContractReadableAmount(amount, 6),
-          true,
-          accountAddress
-        )
+        straddlesData.straddlesContract
+          .connect(signer)
+          .deposit(
+            getContractReadableAmount(amount, 18),
+            true,
+            accountAddress,
+            {
+              gasLimit: 1000000,
+            }
+          )
       );
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress, straddlesData]);
+  }, [accountAddress, straddlesData, signer]);
 
   const handleApprove = useCallback(async () => {
     if (!straddlesData || !signer || !contractAddresses) return;
     try {
       await sendTx(
-        ERC20__factory.connect(contractAddresses['USDC'], signer).approve(
+        ERC20__factory.connect(straddlesData.usd, signer).approve(
           straddlesData.straddlesContract.address,
           MAX_VALUE
         )
@@ -129,10 +135,10 @@ const DepositPanel = () => {
   // Updates approved state and user balance
   useEffect(() => {
     (async () => {
-      if (!accountAddress || !signer) return;
+      if (!accountAddress || !signer || !straddlesData) return;
 
       const finalAmount: BigNumber = getContractReadableAmount(amount, 18);
-      const token = ERC20__factory.connect(contractAddresses['USDC'], signer);
+      const token = ERC20__factory.connect(straddlesData.usd, signer);
       const allowance: BigNumber = await token.allowance(
         accountAddress,
         straddlesData?.straddlesContract?.address
@@ -192,7 +198,8 @@ const DepositPanel = () => {
               variant="h6"
               className="text-stieglitz text-sm pl-1 pt-2 pr-3"
             >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)} USDC
+              {formatAmount(getUserReadableAmount(userTokenBalance, 18), 2)}{' '}
+              USDC
             </Typography>
           </Box>
         </Box>
@@ -200,9 +207,9 @@ const DepositPanel = () => {
       <Box className="mt-4 flex justify-center">
         <Box className="py-2 w-full rounded-tl-lg border border-neutral-800">
           <Typography variant="h6" className="mx-2 text-white">
-            {formatAmount(getUserReadableAmount(totalUSDDeposit, 6), 2)} {'->'}{' '}
+            {formatAmount(getUserReadableAmount(totalUSDDeposit, 18), 2)} {'->'}{' '}
             {formatAmount(
-              getUserReadableAmount(userTokenBalance, 6) + amount,
+              getUserReadableAmount(totalUSDDeposit, 18) + amount,
               2
             )}
           </Typography>
@@ -295,7 +302,7 @@ const DepositPanel = () => {
             color={
               !approved ||
               (amount > 0 &&
-                amount <= getUserReadableAmount(userTokenBalance, 6))
+                amount <= getUserReadableAmount(userTokenBalance, 18))
                 ? 'primary'
                 : 'mineshaft'
             }
@@ -305,7 +312,7 @@ const DepositPanel = () => {
             {approved
               ? amount == 0
                 ? 'Insert an amount'
-                : amount > getUserReadableAmount(userTokenBalance, 6)
+                : amount > getUserReadableAmount(userTokenBalance, 18)
                 ? 'Insufficient balance'
                 : 'Deposit'
               : 'Approve'}
