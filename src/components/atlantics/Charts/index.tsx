@@ -134,7 +134,7 @@ const Charts = (props: ChartsProps) => {
           <ClientRenderedBarGraph
             data={barData}
             width={1000}
-            height={230}
+            height={240}
             header={{ underlying, collateral, title, type }}
           />
         ) : (
@@ -144,7 +144,7 @@ const Charts = (props: ChartsProps) => {
         )}
       </Box>
       <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">
-        <ClientRenderedLineChart data={line_data} width={340} height={230} />
+        <ClientRenderedLineChart data={line_data} width={340} height={220} />
       </Box>
     </Box>
   );

@@ -5,6 +5,8 @@ import Typography from 'components/UI/Typography';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
 
+import formatAmount from 'utils/general/formatAmount';
+
 interface ManageCardTitleProps {
   depositToken: string;
   underlying: string;
@@ -60,6 +62,12 @@ const ManageTitle = (props: ManageCardTitleProps) => {
         className="my-auto bg-umbra rounded-[0.4em] px-2 py-1"
       >
         {poolType.toUpperCase()}
+      </Typography>
+      <Typography
+        variant="h6"
+        className="my-auto border border-primary rounded-[0.4em] px-2 py-1"
+      >
+        {`$${formatAmount(selectedPool?.underlyingPrice, 3)}`}
       </Typography>
     </Box>
   );
