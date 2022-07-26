@@ -60,8 +60,8 @@ const Straddles = ({ poolName }: Props) => {
             <Deposits />
           </Box>
         </Box>
-        <Box className="w-1/3">
-          <Box className="lg:pt-32 sm:pt-20 pt-20 mx-5 px-2 lg:px-0">
+        <Box className="w-1/3 flex">
+          <Box className="lg:pt-32 sm:pt-20 pt-20 lg:mr-auto px-2 lg:px-0">
             <DepositPanel />
           </Box>
         </Box>

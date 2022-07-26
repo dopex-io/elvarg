@@ -467,6 +467,11 @@ const ABI = [
         name: 'usdFunding',
         type: 'uint256',
       },
+      {
+        internalType: 'uint256',
+        name: 'totalSold',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -1582,6 +1587,7 @@ export interface StraddlesEpochData {
   underlyingPurchased: BigNumber;
   usdPremiums: BigNumber;
   usdFunding: BigNumber;
+  totalSold: BigNumber;
 }
 
 export interface WritePosition {
@@ -1627,6 +1633,7 @@ const initialStraddlesEpochData = {
   underlyingPurchased: BigNumber.from('0'),
   usdFunding: BigNumber.from('0'),
   usdPremiums: BigNumber.from('0'),
+  totalSold: BigNumber.from('0'),
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -1650,7 +1657,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x948878dbC8cdeaB493cc84d7384271D4800e36b3',
+        '0xDef7A171db6F3b425CBaB922300F195e4713FF73',
         ABI,
         provider
       );
@@ -1754,6 +1761,12 @@ export const Straddles = () => {
       epochData = await straddlesContract!['epochData'](
         Math.max(selectedEpoch || 0, 1)
       );
+      const epochCollectionsData = await straddlesContract![
+        'epochCollectionsData'
+      ];
+      epochData['usdFunding'] = epochCollectionsData['usdFunding'];
+      epochData['usdPremiums'] = epochCollectionsData['usdPremiums'];
+      epochData['totalSold'] = epochCollectionsData['totalSold'];
     } catch (err) {
       epochData = initialStraddlesEpochData;
     }

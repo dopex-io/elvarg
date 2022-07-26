@@ -17,8 +17,8 @@ const WithdrawModal = ({ open, handleClose }: Props) => {
       open={open}
       onClose={handleClose}
     >
-      <Box className=" max-w-sm">
-        <Box className="bg-cod-gray rounded-2xl p-3 pr-2">
+      <Box className="max-w-sm">
+        <Box className="bg-cod-gray rounded-2xl p-4 pr-3">
           <Box className="flex justify-between items-center mb-2">
             <Typography variant="h6" className="text-sm">
               Withdrawal Method

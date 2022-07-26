@@ -22,13 +22,17 @@ import { StraddlesContext } from 'contexts/Straddles';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
+
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
 import ArrowUpDownIcon from 'svgs/icons/ArrowsUpDownIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
+
 import formatAmount from 'utils/general/formatAmount';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+
 import { MAX_VALUE } from 'constants/index';
 
 const DepositPanel = () => {
@@ -37,11 +41,14 @@ const DepositPanel = () => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
+  const [activeTab, setActiveTab] = useState<string>('Deposit');
   const {
     straddlesEpochData,
     selectedEpoch,
     straddlesData,
     straddlesUserData,
+    updateStraddlesEpochData,
+    updateStraddlesUserData,
   } = useContext(StraddlesContext);
 
   const sendTx = useSendTx();
@@ -80,8 +87,8 @@ const DepositPanel = () => {
   const vaultShare = useMemo(() => {
     if (!straddlesEpochData) return 0;
     return (
-      (getUserReadableAmount(totalUSDDeposit, 18) /
-        getUserReadableAmount(straddlesEpochData.usdDeposits, 18)) *
+      (getUserReadableAmount(totalUSDDeposit, 6) /
+        getUserReadableAmount(straddlesEpochData.usdDeposits, 6)) *
         100 || 0
     );
   }, [straddlesEpochData]);
@@ -90,14 +97,14 @@ const DepositPanel = () => {
     if (!straddlesEpochData) return 0;
     let share =
       (getUserReadableAmount(
-        totalUSDDeposit.add(getContractReadableAmount(amount, 18)),
-        18
+        totalUSDDeposit.add(getContractReadableAmount(amount, 6)),
+        6
       ) /
         getUserReadableAmount(
           straddlesEpochData.usdDeposits.add(
-            getContractReadableAmount(amount, 18)
+            getContractReadableAmount(amount, 6)
           ),
-          18
+          6
         )) *
       100;
     if (String(share) === 'Infinity') share = 100;
@@ -108,24 +115,35 @@ const DepositPanel = () => {
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
-    if (!straddlesData || !accountAddress || !signer) return;
+    if (
+      !straddlesData ||
+      !accountAddress ||
+      !signer ||
+      !updateStraddlesEpochData ||
+      !updateStraddlesUserData
+    )
+      return;
     try {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)
-          .deposit(
-            getContractReadableAmount(amount, 18),
-            true,
-            accountAddress,
-            {
-              gasLimit: 1000000,
-            }
-          )
+          .deposit(getContractReadableAmount(amount, 6), true, accountAddress, {
+            gasLimit: 1000000,
+          })
       );
+      await updateStraddlesUserData();
+      await updateStraddlesEpochData();
     } catch (err) {
       console.log(err);
     }
-  }, [accountAddress, straddlesData, signer]);
+  }, [
+    accountAddress,
+    straddlesData,
+    signer,
+    amount,
+    updateStraddlesUserData,
+    updateStraddlesEpochData,
+  ]);
 
   const handleApprove = useCallback(async () => {
     if (!straddlesData || !signer || !contractAddresses) return;
@@ -147,7 +165,7 @@ const DepositPanel = () => {
     (async () => {
       if (!accountAddress || !signer || !straddlesData) return;
 
-      const finalAmount: BigNumber = getContractReadableAmount(amount, 18);
+      const finalAmount: BigNumber = getContractReadableAmount(amount, 6);
       const token = ERC20__factory.connect(straddlesData.usd, signer);
       const allowance: BigNumber = await token.allowance(
         accountAddress,
@@ -169,8 +187,31 @@ const DepositPanel = () => {
 
   return (
     <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
-      <Box className="mb-4">
-        <Typography variant="h6">Deposit</Typography>
+      <Box className={'flex'}>
+        <Box className={'w-full'}>
+          <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
+            <Box
+              className={`text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
+                activeTab === 'Deposit' ? 'bg-[#2D2D2D]' : ''
+              }`}
+              onClick={() => setActiveTab('Deposit')}
+            >
+              <Typography variant="h6" className="text-xs font-normal">
+                Deposit
+              </Typography>
+            </Box>
+            <Box
+              className={`text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
+                activeTab === 'Purchase' ? 'bg-[#2D2D2D]' : ''
+              }`}
+              onClick={() => setActiveTab('Purchase')}
+            >
+              <Typography variant="h6" className="text-xs font-normal">
+                Purchase
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
       </Box>
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="flex flex-row justify-between">
@@ -208,8 +249,7 @@ const DepositPanel = () => {
               variant="h6"
               className="text-stieglitz text-sm pl-1 pt-2 pr-3"
             >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 18), 2)}{' '}
-              USDC
+              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)} USDC
             </Typography>
           </Box>
         </Box>
@@ -217,9 +257,9 @@ const DepositPanel = () => {
       <Box className="mt-4 flex justify-center">
         <Box className="py-2 w-full rounded-tl-lg border border-neutral-800">
           <Typography variant="h6" className="mx-2 text-white">
-            {formatAmount(getUserReadableAmount(totalUSDDeposit, 18), 2)} {'->'}{' '}
+            {formatAmount(getUserReadableAmount(totalUSDDeposit, 6), 2)} {'->'}{' '}
             {formatAmount(
-              getUserReadableAmount(totalUSDDeposit, 18) + amount,
+              getUserReadableAmount(totalUSDDeposit, 6) + amount,
               2
             )}
           </Typography>
@@ -312,7 +352,7 @@ const DepositPanel = () => {
             color={
               !approved ||
               (amount > 0 &&
-                amount <= getUserReadableAmount(userTokenBalance, 18))
+                amount <= getUserReadableAmount(userTokenBalance, 6))
                 ? 'primary'
                 : 'mineshaft'
             }
@@ -322,7 +362,7 @@ const DepositPanel = () => {
             {approved
               ? amount == 0
                 ? 'Insert an amount'
-                : amount > getUserReadableAmount(userTokenBalance, 18)
+                : amount > getUserReadableAmount(userTokenBalance, 6)
                 ? 'Insufficient balance'
                 : 'Deposit'
               : 'Approve'}

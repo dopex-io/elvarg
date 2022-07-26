@@ -10,13 +10,16 @@ import Typography from 'components/UI/Typography';
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { WalletContext } from 'contexts/Wallet';
 import { StraddlesContext } from 'contexts/Straddles';
 
 const Stats = () => {
   const { chainId } = useContext(WalletContext);
-  const { selectedEpoch, setSelectedEpoch } = useContext(StraddlesContext);
+  const { selectedEpoch, setSelectedEpoch, straddlesEpochData } =
+    useContext(StraddlesContext);
 
   const epochs = useMemo(() => {
     if (!selectedEpoch) return [];
@@ -95,7 +98,10 @@ const Stats = () => {
             Options Sold
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
-            134.13
+            {formatAmount(
+              getUserReadableAmount(straddlesEpochData?.totalSold!, 18),
+              2
+            )}
           </Typography>
           <Typography variant="h6" className="text-gray-400">
             ETH
@@ -159,7 +165,7 @@ const Stats = () => {
             ~
           </Typography>
           <Typography variant="h6" className="mr-1 text-white">
-            $871.21k
+            $0k
           </Typography>
           <Typography variant="h6" className="text-gray-400">
             USDC
@@ -192,7 +198,10 @@ const Stats = () => {
             Premiums
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
-            $10.34k
+            {formatAmount(
+              getUserReadableAmount(straddlesEpochData?.usdPremiums!, 6),
+              2
+            )}
           </Typography>
           <Typography variant="h6" className="text-gray-400">
             USDC

@@ -72,7 +72,7 @@ const DepositsTable = () => {
                     >
                       <Typography variant="h6" className="pr-7 pt-[2px]">
                         {formatAmount(
-                          getUserReadableAmount(position.usdDeposit, 18),
+                          getUserReadableAmount(position.usdDeposit, 6),
                           2
                         )}
                       </Typography>
@@ -103,7 +103,7 @@ const DepositsTable = () => {
                   <Button
                     onClick={() => setIsWithdrawModalOpen(true)}
                     className={
-                      'cursor-pointer bg-cod-gray hover:opacity-40 text-stieglitz'
+                      'cursor-pointer bg-primary hover:bg-primary text-white'
                     }
                   >
                     Withdraw
