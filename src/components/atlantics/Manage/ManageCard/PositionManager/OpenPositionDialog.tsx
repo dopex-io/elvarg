@@ -463,7 +463,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       }
       if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
 
-      const gmxVaultAddress = '0x1227bd8e6FEdc79aC327570d606adD27Bae623B6';
+      const gmxVaultAddress = contractAddresses['GMX-VAULT'];
       const gmxVaultContract = GmxVault__factory.connect(
         gmxVaultAddress,
         provider

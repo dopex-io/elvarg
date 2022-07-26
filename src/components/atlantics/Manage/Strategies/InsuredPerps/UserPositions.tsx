@@ -17,6 +17,10 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
+import {
+  TableHeader,
+  TableBodyCell,
+} from 'components/atlantics/Manage/UserDepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -26,11 +30,6 @@ import useSendTx from 'hooks/useSendTx';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
 import { WalletContext } from 'contexts/Wallet';
-
-import {
-  TableHeader,
-  TableBodyCell,
-} from 'components/atlantics/Manage/UserDepositsTable';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 
@@ -68,8 +67,7 @@ const UserPositions = () => {
       return;
     const strategyContractAddress: string =
       contractAddresses['STRATEGIES']['INSURED-PERPS'];
-    const gmxVaultAddress: string =
-      '0x1227bd8e6FEdc79aC327570d606adD27Bae623B6';
+    const gmxVaultAddress: string = contractAddresses['GMX-VAULT'];
     const { underlying } = selectedPool.tokens;
 
     if (!underlying) return;
