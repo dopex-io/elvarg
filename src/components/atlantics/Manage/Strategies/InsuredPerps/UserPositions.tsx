@@ -68,7 +68,8 @@ const UserPositions = () => {
       return;
     const strategyContractAddress: string =
       contractAddresses['STRATEGIES']['INSURED-PERPS'];
-    const gmxVaultAddress: string = contractAddresses['GAMBIT']['VAULT'];
+    const gmxVaultAddress: string =
+      '0x1227bd8e6FEdc79aC327570d606adD27Bae623B6';
     const { underlying } = selectedPool.tokens;
 
     if (!underlying) return;
@@ -96,7 +97,10 @@ const UserPositions = () => {
     }[] = [];
 
     userStrategyPositions.map((position, index) => {
-      if (!position.expiry.isZero() && position.user === accountAddress) {
+      if (
+        !position.insurance.expiry.isZero() &&
+        position.user === accountAddress
+      ) {
         userStrategyPositionsWithIndex.push({
           position,
           index,
@@ -169,7 +173,7 @@ const UserPositions = () => {
         pnl: formatAmount(currentValue - initialValue, 3),
         index: Number(userStrategyPositionsWithIndex[index]?.index),
         isCollateralOptionToken:
-          userStrategyPositionsWithIndex[index]?.position
+          userStrategyPositionsWithIndex[index]?.position.insurance
             .isCollateralOptionToken ?? false,
       };
     });

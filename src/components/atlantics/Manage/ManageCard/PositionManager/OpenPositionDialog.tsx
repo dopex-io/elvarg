@@ -15,6 +15,7 @@ import {
   AtlanticCallsPool__factory,
   AtlanticPutsPool,
   ERC20__factory,
+  GmxVault__factory,
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
 import Button from '@mui/material/Button';
@@ -214,11 +215,10 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     ).div(oneEBigNumber(22));
 
     // Collateral accessible
-    const collateralAccess =
-      await strategyContract.calculateAmountOfOptionsToPurchase(
-        positionBalanceValue,
-        leverageBN
-      );
+    const collateralAccess = await strategyContract.getRequiredCollateralAccess(
+      positionBalanceValue,
+      leverageBN
+    );
 
     const optionsAmount = collateralAccess
       .mul(oneEBigNumber(20))
@@ -331,7 +331,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     const underlying = selectedPool.asset;
 
     const strategyAddress = contractAddresses['STRATEGIES']['INSURED-PERPS'];
-
     const quoteTokenAllowance = await quoteToken.allowance(
       accountAddress,
       strategyAddress
@@ -463,6 +462,29 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
         path = [contractAddresses['USDC'], contractAddresses['WETH']];
       }
       if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
+
+      const gmxVaultAddress = '0x1227bd8e6FEdc79aC327570d606adD27Bae623B6';
+      const gmxVaultContract = GmxVault__factory.connect(
+        gmxVaultAddress,
+        provider
+      );
+
+      console.log('=====================');
+      console.log(
+        'Max Price',
+        await (
+          await gmxVaultContract.getMaxPrice(contractAddresses['WETH'])
+        ).toString()
+      );
+      console.log(
+        'Min Price',
+        await (
+          await gmxVaultContract.getMinPrice(contractAddresses['WETH'])
+        ).toString()
+      );
+      console.log('Collateral size', positionBalance.toString());
+      console.log('Position size', strategyDetails.positionSize.toString());
+      console.log('=====================');
 
       const _tx = strategyContract.useStrategyAndOpenLongPosition(
         {
@@ -662,12 +684,12 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             </CustomButton>
           </Box>
           <CustomButton
-            disabled={
-              !isApproved.base ||
-              !isApproved.quote ||
-              positionBalance === '' ||
-              parseInt(positionBalance) === 0
-            }
+            // disabled={
+            //   !isApproved.base ||
+            //   !isApproved.quote ||
+            //   positionBalance === '' ||
+            //   parseInt(positionBalance) === 0
+            // }
             onClick={useStrategy}
           >
             Long
