@@ -302,7 +302,7 @@ const DepositPanel = () => {
                 {epochTimes[1]
                   ? format(
                       new Date(epochTimes[1].toNumber() * 1000),
-                      'd LLLL yyyy'
+                      'd MMM yyyy HH:mm'
                     )
                   : '-'}
                 )

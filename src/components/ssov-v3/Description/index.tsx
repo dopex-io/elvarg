@@ -89,10 +89,10 @@ const Description = ({
       </Typography>
       <EpochSelector className="mb-6" />
       <Box className="mb-3">
-        Epoch duration:{' '}
+        Epoch duration:
         <span className="font-bold">
-          {format(epochStartTime * 1000, 'do MMM HH:mm')} -{' '}
-          {format(epochEndTime * 1000, 'do MMM HH:mm')}
+          {format(epochStartTime * 1000, 'd MMM yyyy HH:mm')} -{' '}
+          {format(epochEndTime * 1000, 'd MMM yyyy HH:mm')}
         </span>
       </Box>
       <Box className="flex justify-center items-center flex-row mb-6">
