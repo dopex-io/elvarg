@@ -52,7 +52,8 @@ const PurchaseDialog = ({
   ssovData,
   ssovEpochData,
 }: Props) => {
-  const { ssovSigner } = useContext(SsovV3Context);
+  const { ssovSigner, updateSsovV3UserData, updateSsovV3EpochData } =
+    useContext(SsovV3Context);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider, signer, contractAddresses } =
     useContext(WalletContext);
@@ -129,6 +130,8 @@ const PurchaseDialog = ({
       setRawOptionsAmount('0');
       // @ts-ignore TODO: FIX
       updateAssetBalances();
+      updateSsovV3UserData();
+      updateSsovV3EpochData();
     } catch (err) {
       console.log(err);
       setRawOptionsAmount('0');
@@ -140,6 +143,8 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     strikeIndex,
     updateAssetBalances,
+    updateSsovV3UserData,
+    updateSsovV3EpochData,
   ]);
 
   // Calculate the Option Price & Fees
