@@ -91,7 +91,7 @@ const Manage = () => {
         getUserReadableAmount(straddlesEpochData.usdDeposits, 6)) *
         100 || 0
     );
-  }, [straddlesEpochData]);
+  }, [straddlesEpochData, totalUSDDeposit]);
 
   const futureVaultShare = useMemo(() => {
     if (!straddlesEpochData) return 0;
@@ -111,7 +111,7 @@ const Manage = () => {
     if (String(share) === 'NaN') share = 100;
 
     return formatAmount(share, 0);
-  }, [straddlesEpochData]);
+  }, [straddlesEpochData, amount, totalUSDDeposit]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
@@ -143,6 +143,8 @@ const Manage = () => {
     amount,
     updateStraddlesUserData,
     updateStraddlesEpochData,
+    sendTx,
+    straddlesEpochData,
   ]);
 
   // Handle Purchase
@@ -418,7 +420,7 @@ const Manage = () => {
           <Box className="mt-4 flex justify-center mb-4">
             <Box className="py-2 w-full rounded border border-neutral-800">
               <Typography variant="h6" className="mx-2 text-white">
-                You'll obtain{' '}
+                You'll obtain {''}
                 {formatAmount(
                   amount /
                     getUserReadableAmount(
@@ -426,8 +428,8 @@ const Manage = () => {
                       18
                     ),
                   6
-                )}{' '}
-                straddles
+                )}
+                {''} straddles
               </Typography>
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Current price is $
