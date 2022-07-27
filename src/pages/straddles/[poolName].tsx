@@ -10,7 +10,8 @@ import Stats from 'components/straddles/Stats';
 import PoolCard from 'components/straddles/Charts/PoolCard';
 import TVLCard from 'components/straddles/Charts/TVLCard';
 import Deposits from 'components/straddles/Deposits';
-import DepositPanel from 'components/straddles/DepositPanel';
+import Positions from 'components/straddles/Positions';
+import Manage from 'components/straddles/Manage';
 import { useContext, useEffect } from 'react';
 
 interface Props {
@@ -59,10 +60,18 @@ const Straddles = ({ poolName }: Props) => {
           <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 flex-auto">
             <Deposits />
           </Box>
+          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
+            <Typography variant="h6" className="-ml-1">
+              Positions
+            </Typography>
+          </Box>
+          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 flex-auto">
+            <Positions />
+          </Box>
         </Box>
         <Box className="w-1/3 flex">
           <Box className="lg:pt-32 sm:pt-20 pt-20 lg:mr-auto px-2 lg:px-0">
-            <DepositPanel />
+            <Manage />
           </Box>
         </Box>
       </Box>

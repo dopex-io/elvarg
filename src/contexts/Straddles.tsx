@@ -1575,6 +1575,7 @@ export interface StraddlesData {
   usd: string;
   straddlesOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
+  isVaultReady: boolean;
 }
 
 export interface StraddlesEpochData {
@@ -1588,20 +1589,21 @@ export interface StraddlesEpochData {
   usdPremiums: BigNumber;
   usdFunding: BigNumber;
   totalSold: BigNumber;
+  currentPrice: BigNumber;
 }
 
 export interface WritePosition {
   epoch: number;
-  usdDeposit: number;
-  rollover: boolean;
-  pnl: number;
+  usdDeposit: BigNumber;
+  rollover: BigNumber;
+  pnl: BigNumber;
   withdrawn: boolean;
 }
 
 export interface StraddlePosition {
   epoch: number;
-  amount: number;
-  apStrike: number;
+  amount: BigNumber;
+  apStrike: BigNumber;
   exercised: boolean;
 }
 
@@ -1634,6 +1636,7 @@ const initialStraddlesEpochData = {
   usdFunding: BigNumber.from('0'),
   usdPremiums: BigNumber.from('0'),
   totalSold: BigNumber.from('0'),
+  currentPrice: BigNumber.from('0'),
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -1657,7 +1660,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0xDef7A171db6F3b425CBaB922300F195e4713FF73',
+        '0xa031be4e198394560357CCb6b49C2c94cCeDD251',
         ABI,
         provider
       );
@@ -1741,8 +1744,12 @@ export const Straddles = () => {
     );
 
     setStraddlesUserData({
-      straddlePositions: straddlePositions,
-      writePositions: writePositions,
+      straddlePositions: straddlePositions.filter(function (el) {
+        return !el['amount'].eq(0);
+      }),
+      writePositions: writePositions.filter(function (el) {
+        return !el['usdDeposit'].eq(0);
+      }),
     });
   }, [
     straddlesContract,
@@ -1755,23 +1762,31 @@ export const Straddles = () => {
   const updateStraddlesEpochData = useCallback(async () => {
     if (selectedEpoch === null || !selectedPoolName) return;
 
-    let epochData;
+    const epochData = await straddlesContract!['epochData'](
+      Math.max(selectedEpoch || 0, 1)
+    );
 
-    try {
-      epochData = await straddlesContract!['epochData'](
-        Math.max(selectedEpoch || 0, 1)
-      );
-      const epochCollectionsData = await straddlesContract![
-        'epochCollectionsData'
-      ];
-      epochData['usdFunding'] = epochCollectionsData['usdFunding'];
-      epochData['usdPremiums'] = epochCollectionsData['usdPremiums'];
-      epochData['totalSold'] = epochCollectionsData['totalSold'];
-    } catch (err) {
-      epochData = initialStraddlesEpochData;
-    }
+    const epochCollectionsData = await straddlesContract![
+      'epochCollectionsData'
+    ];
+    const currentPrice = await straddlesContract!['getUnderlyingPrice']();
+    const usdFunding = epochCollectionsData['usdFunding'];
+    const usdPremiums = epochCollectionsData['usdPremiums'];
+    const totalSold = epochCollectionsData['totalSold'];
 
-    setStraddlesEpochData(epochData);
+    setStraddlesEpochData({
+      activeUsdDeposits: epochData['activeUsdDeposits'],
+      expiry: epochData['expiry'],
+      strikes: epochData['strikes'],
+      settlementPrice: epochData['settlementPrice'],
+      startTime: epochData['startTime'],
+      underlyingPurchased: epochData['underlyingPurchased'],
+      usdDeposits: epochData['usdDeposits'],
+      usdFunding: usdFunding,
+      totalSold: totalSold,
+      usdPremiums: usdPremiums,
+      currentPrice: currentPrice,
+    });
   }, [straddlesContract, contractAddresses, selectedEpoch, provider]);
 
   useEffect(() => {
@@ -1793,6 +1808,10 @@ export const Straddles = () => {
       const underlying = await straddlesContract!['underlying']();
       const usd = await straddlesContract!['usd']();
 
+      const isVaultReady = await straddlesContract!['isVaultReady'](
+        currentEpoch
+      );
+
       setSelectedEpoch(currentEpoch);
 
       setStraddlesData({
@@ -1802,6 +1821,7 @@ export const Straddles = () => {
         straddlesContract: straddlesContract,
         straddlePositionsMinter: straddlePositionsMinterContract,
         writePositionsMinter: writePositionsMinterContract,
+        isVaultReady: isVaultReady,
       });
     }
 
