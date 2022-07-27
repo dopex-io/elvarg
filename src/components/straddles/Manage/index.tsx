@@ -144,7 +144,6 @@ const Manage = () => {
     updateStraddlesUserData,
     updateStraddlesEpochData,
     sendTx,
-    straddlesEpochData,
   ]);
 
   // Handle Purchase
@@ -182,6 +181,8 @@ const Manage = () => {
     accountAddress,
     straddlesData,
     signer,
+    sendTx,
+    straddlesEpochData,
     amount,
     updateStraddlesUserData,
     updateStraddlesEpochData,
@@ -420,7 +421,7 @@ const Manage = () => {
           <Box className="mt-4 flex justify-center mb-4">
             <Box className="py-2 w-full rounded border border-neutral-800">
               <Typography variant="h6" className="mx-2 text-white">
-                You'll obtain {''}
+                {"You'll obtain "}
                 {formatAmount(
                   amount /
                     getUserReadableAmount(
@@ -428,8 +429,8 @@ const Manage = () => {
                       18
                     ),
                   6
-                )}
-                {''} straddles
+                )}{' '}
+                straddles
               </Typography>
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Current price is $
