@@ -67,7 +67,7 @@ const PositionsTable = () => {
                     >
                       <Typography variant="h6" className="pr-7 pt-[2px]">
                         {formatAmount(
-                          getUserReadableAmount(position.amount, 6),
+                          getUserReadableAmount(position.amount, 18),
                           2
                         )}
                       </Typography>
