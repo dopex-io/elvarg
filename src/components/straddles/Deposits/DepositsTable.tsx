@@ -96,7 +96,7 @@ const DepositsTable = () => {
                 </TableCell>
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="">
-                    {Number(selectedEpoch!) + 1}
+                    {Number(selectedEpoch!)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">

@@ -76,7 +76,7 @@ const Manage = () => {
   };
 
   const readableExpiry = useMemo(() => {
-    if (straddlesEpochData?.expiry.gt(0))
+    if (straddlesEpochData?.expiry.gt(10000000000))
       return format(
         getUserReadableAmount(straddlesEpochData?.expiry!, 0),
         'd LLL YYY'

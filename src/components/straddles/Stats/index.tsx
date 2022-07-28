@@ -32,7 +32,7 @@ const Stats = () => {
       .map((_i, index) => {
         return (
           <MenuItem value={index} key={index} className="text-stieglitz">
-            {index + 1}
+            {index}
           </MenuItem>
         );
       });

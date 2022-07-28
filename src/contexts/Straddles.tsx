@@ -1799,7 +1799,7 @@ export const Straddles = () => {
         const isEpochExpired = await straddlesContract!['isEpochExpired'](
           currentEpoch
         );
-        if (isEpochExpired) currentEpoch += 1;
+        if (isEpochExpired) currentEpoch = Number(isEpochExpired) + 1;
       } catch (err) {
         console.log(err);
         return;
