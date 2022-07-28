@@ -1768,7 +1768,7 @@ export const Straddles = () => {
 
     const epochCollectionsData = await straddlesContract![
       'epochCollectionsData'
-    ];
+    ](selectedEpoch);
     const currentPrice = await straddlesContract!['getUnderlyingPrice']();
     const usdFunding = epochCollectionsData['usdFunding'];
     const usdPremiums = epochCollectionsData['usdPremiums'];

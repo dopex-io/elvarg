@@ -103,9 +103,6 @@ const Stats = () => {
               2
             )}
           </Typography>
-          <Typography variant="h6" className="text-gray-400">
-            ETH
-          </Typography>
         </Box>
       </Box>
       <Box className="w-full">
@@ -161,14 +158,12 @@ const Stats = () => {
             Utilization
             <HelpOutlineIcon className="w-5 h-5 ml-1" />
           </Typography>
-          <Typography variant="h6" className="ml-auto mr-1 text-gray-400">
-            ~
-          </Typography>
-          <Typography variant="h6" className="mr-1 text-white">
-            $0k
-          </Typography>
-          <Typography variant="h6" className="text-gray-400">
-            USDC
+          <Typography variant="h6" className="text-white">
+            {formatAmount(
+              getUserReadableAmount(straddlesEpochData?.activeUsdDeposits!, 26),
+              2
+            )}
+            <span className="text-gray-400"> USDC</span>
           </Typography>
         </Box>
       </Box>
@@ -190,7 +185,7 @@ const Stats = () => {
             Epoch Length
           </Typography>
           <Typography variant="h6" className="text-white">
-            28 Days
+            3 Days
           </Typography>
         </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
@@ -199,7 +194,7 @@ const Stats = () => {
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.usdPremiums!, 6),
+              getUserReadableAmount(straddlesEpochData?.usdPremiums!, 18),
               2
             )}
           </Typography>
