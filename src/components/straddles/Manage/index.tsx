@@ -163,12 +163,12 @@ const Manage = () => {
           .purchase(
             getContractReadableAmount(
               amount /
-                getUserReadableAmount(straddlesEpochData?.currentPrice!, 18),
+                getUserReadableAmount(straddlesEpochData?.currentPrice!, 8),
               18
             ),
             accountAddress,
             {
-              gasLimit: 1000000,
+              gasLimit: 3000000,
             }
           )
       );
@@ -315,7 +315,8 @@ const Manage = () => {
             </Box>
             <Box className="py-2 w-full rounded-tr-lg border border-neutral-800">
               <Typography variant="h6" className="mx-2 text-white">
-                {vaultShare}% {'->'} {futureVaultShare}%
+                {formatAmount(vaultShare, 1)}% {'->'}{' '}
+                {formatAmount(futureVaultShare, 1)}%
               </Typography>
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Vault Share
@@ -424,10 +425,7 @@ const Manage = () => {
                 {"You'll obtain "}
                 {formatAmount(
                   amount /
-                    getUserReadableAmount(
-                      straddlesEpochData?.currentPrice!,
-                      18
-                    ),
+                    getUserReadableAmount(straddlesEpochData?.currentPrice!, 8),
                   6
                 )}{' '}
                 straddles
@@ -435,7 +433,7 @@ const Manage = () => {
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Current price is $
                 {formatAmount(
-                  getUserReadableAmount(straddlesEpochData?.currentPrice!, 18),
+                  getUserReadableAmount(straddlesEpochData?.currentPrice!, 8),
                   2
                 )}
               </Typography>
