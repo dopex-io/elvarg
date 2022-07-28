@@ -15,7 +15,6 @@ import {
   AtlanticCallsPool__factory,
   AtlanticPutsPool,
   ERC20__factory,
-  GmxVault__factory,
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
 import Button from '@mui/material/Button';
@@ -463,12 +462,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       }
       if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
 
-      const gmxVaultAddress = contractAddresses['GMX-VAULT'];
-      const gmxVaultContract = GmxVault__factory.connect(
-        gmxVaultAddress,
-        provider
-      );
-
       const _tx = strategyContract.useStrategyAndOpenLongPosition(
         {
           path: path,
@@ -496,7 +489,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   }, [
     chainId,
     contractAddresses,
-    provider,
     positionBalance,
     selectedCollateral,
     selectedPool,
