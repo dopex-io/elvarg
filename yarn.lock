@@ -586,8 +586,8 @@
     util "^0.12.4"
 
 "@dopex-io/sdk@https://github.com/dopex-io/sdk.git#feat/atlantics":
-  version "1.0.0-beta.12"
-  resolved "https://github.com/dopex-io/sdk.git#f9bb334b026bd37ac8773b0cf1489a6ef10b3a5c"
+  version "1.0.0-beta.13"
+  resolved "https://github.com/dopex-io/sdk.git#6efd26c06cba871f3eb43859b46b7bbed78bff1f"
   dependencies:
     ethers "^5.6.4"
 

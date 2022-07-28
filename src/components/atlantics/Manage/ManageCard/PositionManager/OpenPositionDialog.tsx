@@ -67,8 +67,8 @@ const marks = [
     label: '4x',
   },
   {
-    value: 5,
-    label: '5x',
+    value: 4.9,
+    label: '4.9x',
   },
 ];
 
@@ -469,23 +469,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
         provider
       );
 
-      console.log('=====================');
-      console.log(
-        'Max Price',
-        await (
-          await gmxVaultContract.getMaxPrice(contractAddresses['WETH'])
-        ).toString()
-      );
-      console.log(
-        'Min Price',
-        await (
-          await gmxVaultContract.getMinPrice(contractAddresses['WETH'])
-        ).toString()
-      );
-      console.log('Collateral size', positionBalance.toString());
-      console.log('Position size', strategyDetails.positionSize.toString());
-      console.log('=====================');
-
       const _tx = strategyContract.useStrategyAndOpenLongPosition(
         {
           path: path,
@@ -493,7 +476,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           positionCollateralSize: getContractReadableAmount(
             positionBalance,
             getTokenDecimals(selectedToken, chainId)
-            // getTokenDecimals(selectedToken, chainId)
           ),
           positionSize: strategyDetails.positionSize,
           executionFee: MIN_EXECUTION_FEE,
@@ -514,6 +496,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   }, [
     chainId,
     contractAddresses,
+    provider,
     positionBalance,
     selectedCollateral,
     selectedPool,
@@ -610,7 +593,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             onChange={onChangeLeverage}
             step={0.1}
             min={1.1}
-            max={5}
+            max={4.9}
             valueLabelDisplay="auto"
             marks={marks}
           />
