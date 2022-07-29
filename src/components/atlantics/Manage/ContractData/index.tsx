@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
 import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
-import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies/PoolStrategies';
+import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies';
 import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 

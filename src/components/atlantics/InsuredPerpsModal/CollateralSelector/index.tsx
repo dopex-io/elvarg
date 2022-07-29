@@ -32,12 +32,13 @@ const CollateralSelector: FC<IProps> = ({
       <Select
         value={collateral}
         defaultValue={collateral}
+        displayEmpty
         onChange={setCollateral}
         placeholder="Select Collateral"
         MenuProps={{
           classes: { paper: 'bg-umbra' },
         }}
-        className={`text-white bg-mineshaft flex-0.3 h-[2rem] ${
+        className={`text-white bg-mineshaft flex w-auto h-[2rem] ${
           collateral === '' && 'animate-pulse'
         }`}
         classes={{

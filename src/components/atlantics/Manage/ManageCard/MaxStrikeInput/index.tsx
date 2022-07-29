@@ -51,11 +51,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
 
       let _mod = _input.mod(tickSize ?? BigNumber.from(0));
 
-      if (
-        _mod.eq('0') &&
-        currentPrice.gte(_input) &&
-        _input.gt(BigNumber.from(0))
-      ) {
+      if (_mod.eq('0') && currentPrice.gte(_input) && _input.gt('0')) {
         setMaxStrike(e.target.value);
         setError('');
       } else {
@@ -84,7 +80,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
         classes={{ input: 'text-white text-xs text-right py-2' }}
       />
       {error ? (
-        <Typography variant="h6" className="text-red-400 text-right">
+        <Typography variant="h6" className="text-right" color="down-bad">
           {error}
         </Typography>
       ) : null}

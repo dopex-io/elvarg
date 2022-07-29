@@ -21,12 +21,13 @@ import Button from '@mui/material/Button';
 import { SelectChangeEvent } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import { useDebounce } from 'use-debounce';
 
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/CustomButton';
-import CollateralSelector from 'components/atlantics/InsuredPerpsModal/CollateralSelector/CollateralSelector';
+import CollateralSelector from 'components/atlantics/InsuredPerpsModal/CollateralSelector';
 import StrategyDetails from 'components/atlantics/InsuredPerpsModal/StrategyDetails/StrategyDetails';
 import Switch from 'components/UI/Switch';
 
@@ -113,6 +114,10 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     putStrike: BigNumber.from(0),
     expiry: BigNumber.from(0),
   });
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
+
   const containerRef = React.useRef(null);
 
   const sendTx = useSendTx();
@@ -339,11 +344,11 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       strategyAddress
     );
 
-    let baseTokenCost = strategyDetails.callOptionsFees
-      .add(strategyDetails.callOptionsPremium)
-      .add(strategyDetails.callsFundingFee);
-    let quoteTokenCost = strategyDetails.putOptionsPremium.add(
-      strategyDetails.putOptionsfees
+    let baseTokenCost = debouncedStrategyDetails[0].callOptionsFees
+      .add(debouncedStrategyDetails[0].callOptionsPremium)
+      .add(debouncedStrategyDetails[0].callsFundingFee);
+    let quoteTokenCost = debouncedStrategyDetails[0].putOptionsPremium.add(
+      debouncedStrategyDetails[0].putOptionsfees
     );
 
     const decimals = getTokenDecimals(selectedToken, chainId);
@@ -367,10 +372,10 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     selectedPool,
     accountAddress,
     contractAddresses,
+    debouncedStrategyDetails,
+    selectedToken,
     chainId,
     positionBalance,
-    selectedToken,
-    strategyDetails,
   ]);
 
   const handleApproveQuoteToken = useCallback(async () => {
@@ -434,6 +439,22 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     getPreStrategyCalculations();
   }, [getPreStrategyCalculations]);
 
+  useEffect(() => {
+    setLoading(
+      debouncedStrategyDetails[0].expiry.eq('0') ||
+        positionBalance.length === 0 ||
+        selectedToken === '' ||
+        !isApproved.base ||
+        !isApproved.quote
+    );
+  }, [
+    debouncedStrategyDetails,
+    isApproved.base,
+    isApproved.quote,
+    positionBalance,
+    selectedToken,
+  ]);
+
   const useStrategy = useCallback(async () => {
     if (
       !contractAddresses['STRATEGIES']['INSURED-PERPS'] ||
@@ -470,7 +491,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             positionBalance,
             getTokenDecimals(selectedToken, chainId)
           ),
-          positionSize: strategyDetails.positionSize,
+          positionSize: debouncedStrategyDetails[0].positionSize,
           executionFee: MIN_EXECUTION_FEE,
           referralCode: DEFAULT_REFERRAL_CODE,
           isCollateralOptionToken: selectedCollateral === 'AC-OPTIONS',
@@ -487,16 +508,16 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       console.log(err);
     }
   }, [
-    chainId,
     contractAddresses,
-    positionBalance,
-    selectedCollateral,
-    selectedPool,
-    selectedToken,
-    sendTx,
     signer,
-    strategyDetails.positionSize,
+    selectedPool,
+    chainId,
+    selectedCollateral,
+    positionBalance,
+    selectedToken,
+    debouncedStrategyDetails,
     keepCollateral,
+    sendTx,
   ]);
 
   const handleKeepCollateral = (event: any, checked: boolean) => {
@@ -623,7 +644,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           </Box>
         )}
         <StrategyDetails
-          data={strategyDetails}
+          data={debouncedStrategyDetails[0]}
           selectedCollateral={selectedCollateral}
           selectedToken={selectedToken}
           positionCollateral={getContractReadableAmount(
@@ -659,7 +680,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             </CustomButton>
           </Box>
           <CustomButton
-            // disabled={
+            disabled={loading}
+            // {
             //   !isApproved.base ||
             //   !isApproved.quote ||
             //   positionBalance === '' ||
