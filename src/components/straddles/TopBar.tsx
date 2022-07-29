@@ -26,7 +26,7 @@ const TopBar = () => {
         <Box className="ml-4">
           <Typography variant="h5">LONG STRADDLE</Typography>
           <Typography variant="h6" className="text-gray-500">
-            ETH-USDC-PUTS-3D
+            ETH
           </Typography>
         </Box>
         <Box className="mx-4 mt-1">
