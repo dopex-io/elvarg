@@ -4,6 +4,8 @@ import cx from 'classnames';
 import Box from '@mui/material/Box';
 import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
+import { styled } from '@mui/material/styles';
+// import format from 'date-fns/format';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
@@ -19,7 +21,22 @@ import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
-import styles from './styles.module.scss';
+const nameToSsovStyle: { [key: string]: string } = {
+  ETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)',
+  DPX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #22e1ff 99.1%)',
+  RDPX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)',
+  GOHM: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #e6e6e6 99.1%)',
+  BNB: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #fffb00 99.1%)',
+  GMX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #04a7f0 99.1%)',
+  AVAX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f00404 99.1%)',
+  CRV: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #82f004 99.1%)',
+  BTC: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f06a04 99.1%)',
+};
+
+const CustomBox = styled(Box)(({ token }) => ({
+  background: nameToSsovStyle[token],
+  width: '350px',
+}));
 
 function SsovCard(props) {
   const { className, data } = props;
@@ -35,6 +52,7 @@ function SsovCard(props) {
     retired,
     symbol,
     version,
+    startTimes,
   } = data;
   const info = useMemo(() => {
     return [
@@ -80,7 +98,7 @@ function SsovCard(props) {
   }, [apy, convertToBNB, name, totalEpochDeposits, tvl, type]);
 
   return (
-    <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
+    <CustomBox className="p-[1px] rounded-xl" token={name}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -128,6 +146,10 @@ function SsovCard(props) {
             </CustomButton>
           </Link>
           <Box className="flex justify-between">
+            {/* <Typography variant="h6" className="text-stieglitz">
+              Epoch {format(new Date(startTimes[0] * 1000), 'd LLL yyyy')} -
+              {format(new Date(startTimes[1] * 1000), 'd LLL yyyy')}
+            </Typography> */}
             <Typography variant="h6" className="text-stieglitz">
               Epoch {currentEpoch}
             </Typography>
@@ -137,7 +159,7 @@ function SsovCard(props) {
           </Box>
         </Box>
       </Box>
-    </Box>
+    </CustomBox>
   );
 }
 
