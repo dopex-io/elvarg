@@ -1598,6 +1598,7 @@ export interface WritePosition {
   rollover: BigNumber;
   pnl: BigNumber;
   withdrawn: boolean;
+  id: number;
 }
 
 export interface StraddlePosition {
@@ -1605,6 +1606,7 @@ export interface StraddlePosition {
   amount: BigNumber;
   apStrike: BigNumber;
   exercised: boolean;
+  id: number;
 }
 
 export interface StraddlesUserData {
@@ -1637,6 +1639,7 @@ const initialStraddlesEpochData = {
   usdPremiums: BigNumber.from('0'),
   totalSold: BigNumber.from('0'),
   currentPrice: BigNumber.from('0'),
+  selectedPositionNftId: 0,
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -1687,25 +1690,45 @@ export const Straddles = () => {
   }, [provider, selectedPoolName]);
 
   const getStraddlePosition = useCallback(
-    async (i: number) => {
+    async (id: number) => {
       try {
-        return await straddlesContract!['straddlePositions'](i);
+        const data = await straddlesContract!['straddlePositions'](id);
+        return {
+          id: id,
+          epoch: data['epoch'],
+          amount: data['amount'],
+          apStrike: data['apStrike'],
+          exercised: data['exercised'],
+        };
       } catch {
-        return [];
+        return {
+          amount: BigNumber.from('0'),
+        };
       }
     },
-    [accountAddress, straddlesContract]
+    [accountAddress, straddlesContract, straddlePositionsMinterContract]
   );
 
   const getWritePosition = useCallback(
-    async (i: number) => {
+    async (id: number) => {
       try {
-        return await straddlesContract!['writePositions'](i);
+        const data = await straddlesContract!['writePositions'](id);
+
+        return {
+          id: id,
+          epoch: data['epoch'],
+          usdDeposit: data['usdDeposit'],
+          rollover: data['rollover'],
+          pnl: data['pnl'],
+          withdrawn: data['withdrawn'],
+        };
       } catch {
-        return [];
+        return {
+          usdDeposit: BigNumber.from('0'),
+        };
       }
     },
-    [accountAddress, straddlesContract]
+    [accountAddress, straddlesContract, writePositionsMinterContract]
   );
 
   const updateStraddlesUserData = useCallback(async () => {

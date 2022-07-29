@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import cx from 'classnames';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
@@ -11,6 +11,8 @@ import TableCell from '@mui/material/TableCell';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
+import useSendTx from 'hooks/useSendTx';
+
 import styles from 'components/ir/Positions/styles.module.scss';
 import Typography from 'components/UI/Typography';
 
@@ -18,9 +20,31 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { StraddlesContext } from 'contexts/Straddles';
+import { WalletContext } from 'contexts/Wallet';
 
 const PositionsTable = () => {
-  const { straddlesUserData, selectedEpoch } = useContext(StraddlesContext);
+  const sendTx = useSendTx();
+  const { signer } = useContext(WalletContext);
+  const {
+    straddlesUserData,
+    selectedEpoch,
+    straddlesData,
+    updateStraddlesUserData,
+  } = useContext(StraddlesContext);
+
+  const handleExercise = useCallback(
+    async (selectedPositionNftIndex: number) => {
+      await sendTx(
+        straddlesData?.straddlesContract
+          .connect(signer)
+          .settle(
+            straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
+          )
+      );
+      await updateStraddlesUserData!();
+    },
+    [straddlesData, signer, updateStraddlesUserData]
+  );
 
   return (
     <Box>
@@ -89,6 +113,7 @@ const PositionsTable = () => {
                     className={
                       'cursor-pointer bg-primary hover:bg-primary text-white'
                     }
+                    onClick={() => handleExercise(i)}
                   >
                     Exercise
                   </Button>

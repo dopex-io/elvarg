@@ -26,6 +26,14 @@ const DepositsTable = () => {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
   const { straddlesUserData, selectedEpoch } = useContext(StraddlesContext);
+  const [selectedPositionNftIndex, setSelectedPositionNftIndex] = useState<
+    number | null
+  >(null);
+
+  const handleWithdraw = (id: number) => {
+    setIsWithdrawModalOpen(true);
+    setSelectedPositionNftIndex(id);
+  };
 
   return (
     <Box>
@@ -101,7 +109,7 @@ const DepositsTable = () => {
                 </TableCell>
                 <TableCell className="flex justify-end">
                   <Button
-                    onClick={() => setIsWithdrawModalOpen(true)}
+                    onClick={() => handleWithdraw(i)}
                     className={
                       'cursor-pointer bg-primary hover:bg-primary text-white'
                     }
@@ -111,6 +119,7 @@ const DepositsTable = () => {
                   {isWithdrawModalOpen && (
                     <WithdrawModal
                       open={isWithdrawModalOpen}
+                      selectedPositionNftIndex={selectedPositionNftIndex}
                       handleClose={
                         (() => {
                           setIsWithdrawModalOpen(false);

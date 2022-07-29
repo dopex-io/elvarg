@@ -1,16 +1,88 @@
-import React from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
+import cx from 'classnames';
+import Countdown from 'react-countdown';
+
+import { StraddlesContext } from 'contexts/Straddles';
+import { WalletContext } from 'contexts/Wallet';
+
+import useSendTx from 'hooks/useSendTx';
+
 import Box from '@mui/material/Box';
 import CloseIcon from '@mui/icons-material/Close';
-import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
 
 export interface Props {
   open: boolean;
   handleClose: () => {};
+  selectedPositionNftIndex: number | null;
 }
 
-const WithdrawModal = ({ open, handleClose }: Props) => {
+const WithdrawModal = ({
+  open,
+  handleClose,
+  selectedPositionNftIndex,
+}: Props) => {
+  const {
+    straddlesUserData,
+    straddlesData,
+    straddlesEpochData,
+    updateStraddlesUserData,
+  } = useContext(StraddlesContext);
+  const { signer } = useContext(WalletContext);
+
+  const sendTx = useSendTx();
+
+  const isWithdrawalEnabled: boolean = useMemo(() => {
+    if (!straddlesEpochData) return false;
+
+    return (
+      new Date().getTime() > straddlesEpochData?.expiry.toNumber() &&
+      !straddlesData?.isVaultReady
+    );
+  }, [straddlesEpochData, straddlesData]);
+
+  const handleWithdraw = useCallback(async () => {
+    await sendTx(
+      straddlesData?.straddlesContract
+        .connect(signer)
+        .withdraw(
+          straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
+        )
+    );
+    await updateStraddlesUserData!();
+  }, [
+    straddlesData,
+    straddlesUserData,
+    selectedPositionNftIndex,
+    signer,
+    updateStraddlesUserData,
+  ]);
+
+  const handleToggleRollover = useCallback(async () => {
+    await sendTx(
+      straddlesData?.straddlesContract
+        .connect(signer)
+        .toggleRollover(
+          straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
+        )
+    );
+    await updateStraddlesUserData!();
+  }, [
+    straddlesData,
+    straddlesUserData,
+    selectedPositionNftIndex,
+    signer,
+    updateStraddlesUserData,
+  ]);
+
+  const rolloverText = useMemo(() => {
+    if (straddlesUserData?.writePositions![selectedPositionNftIndex!]?.rollover)
+      return 'Disable';
+    return 'Enable';
+  }, [straddlesUserData, selectedPositionNftIndex]);
+
   return (
     <Modal
       className="flex items-center justify-center"
@@ -19,7 +91,7 @@ const WithdrawModal = ({ open, handleClose }: Props) => {
     >
       <Box className="max-w-sm">
         <Box className="bg-cod-gray rounded-2xl p-4 pr-3">
-          <Box className="flex justify-between items-center mb-2">
+          <Box className="flex justify-between items-center mb-6">
             <Typography variant="h6" className="text-sm">
               Withdrawal Method
             </Typography>
@@ -29,47 +101,77 @@ const WithdrawModal = ({ open, handleClose }: Props) => {
               onClick={() => handleClose()}
             />
           </Box>
-          <Box className="border rounded-lg border-neutral-800 mb-2">
+          <Box className="border rounded-lg border-neutral-800 mb-4 p-2">
             <Box className="flex justify-between items-center m-2">
               <Typography variant="h6" className="text-sm">
-                Delegate Withdrawal
+                Automatic rollover
               </Typography>
-              <Box className="h-fit w-fit bg-primary px-1 rounded-sm">
-                <Typography variant="h6" className="text-sm">
-                  Queue
-                </Typography>
+              <Box className="flex items-center">
+                <Button
+                  onClick={handleToggleRollover}
+                  className={cx(
+                    'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
+                    'bg-primary hover:bg-primary text-white'
+                  )}
+                >
+                  {rolloverText}
+                </Button>
               </Box>
             </Box>
-            <Box className="m-2">
+            <Box className="m-2 mt-5">
               <Typography variant="h6" className="text-gray-400 text-sm">
-                Managed contracts will automatically send your funds to your
-                address as soon the epoch expires.
-              </Typography>
-              <Typography
-                role="button"
-                variant="h6"
-                className="w-fit pt-4 text-sm text-wave-blue"
-              >
-                Contract
+                Your funds will be used as deposit for the next epoch if
+                rollover is enabled
               </Typography>
             </Box>
           </Box>
-          <Box className="border rounded-lg border-neutral-800 mt-2">
+          <Box className="border rounded-lg border-neutral-800 mt-2 p-2">
             <Box className="flex justify-between items-center m-2">
               <Typography variant="h6" className="text-sm">
-                Withdraw Manually
+                Withdraw manually
               </Typography>
-              <Box className="w-fit bg-neutral-800 px-2 rounded-sm flex items-center text-gray-400">
-                <TimerOutlinedIcon className="w-4 mr-1" />
-                <Typography variant="h6" className="text-sm">
-                  2D 11H 3M
-                </Typography>
+              <Box className="flex items-center">
+                <Button
+                  onClick={handleWithdraw}
+                  className={cx(
+                    'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
+                    !isWithdrawalEnabled
+                      ? 'bg-umbra hover:bg-cod-gray'
+                      : 'bg-primary hover:bg-primary text-white'
+                  )}
+                  disabled={!isWithdrawalEnabled}
+                >
+                  {isWithdrawalEnabled || !straddlesData?.isVaultReady ? (
+                    'Withdraw'
+                  ) : (
+                    <Countdown
+                      date={straddlesEpochData?.expiry.toNumber()}
+                      renderer={({ days, hours, minutes }) => {
+                        return (
+                          <Box className={'flex'}>
+                            <img
+                              src="/assets/timer.svg"
+                              className="h-[0.9rem] mr-2 ml-1"
+                              alt="Timer"
+                            />
+                            <Typography
+                              variant="inherit"
+                              className="ml-auto text-stieglitz mr-1"
+                            >
+                              {days}d {hours}h {minutes}m
+                            </Typography>
+                          </Box>
+                        );
+                      }}
+                    />
+                  )}
+                </Button>
               </Box>
             </Box>
-            <Box className="m-2">
+            <Box className="m-2 mt-5">
               <Typography variant="h6" className="text-gray-400 text-sm">
-                You can only withdraw after this epochs expiry and before next
-                one.
+                You can withdraw at any time after this epoch ends if rollover
+                is disabled
               </Typography>
             </Box>
           </Box>
