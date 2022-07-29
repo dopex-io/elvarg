@@ -78,7 +78,7 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
       for (let i = 0; i < state.tokens.length; i++) {
         const tokenKey = state.tokens[i];
 
-        if (tokenKey) {
+        if (tokenKey && tokenKey != '2CRV') {
           const tokenData = TOKEN_DATA[tokenKey];
           tokenData && cgIds.push(tokenData.cgId);
         }
