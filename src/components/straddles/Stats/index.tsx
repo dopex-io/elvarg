@@ -90,7 +90,7 @@ const Stats = () => {
             Funding Rate
           </Typography>
           <Typography variant="h6" className="text-white">
-            8.91%
+            16%
           </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
