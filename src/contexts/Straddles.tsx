@@ -1663,7 +1663,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x6257C074E3cE8b34F494e8C690F95994c5aeE08f',
+        '0x061900029EcF40Eb54d0Aa21f962020547c7dFa6',
         ABI,
         provider
       );
@@ -1673,7 +1673,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x64D7bbE55bc6276619E993D63e29b029bc56565e',
+        '0x19F2C0D8303fAc251c05cCfCF8e479f0e0405e1A',
         ERC721ABI,
         provider
       );
@@ -1683,7 +1683,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0xc2B7F2081CF9774b1c588F0FABD72774Cc2985B1',
+        '0x5aECd604f9EbC01Bece351784e156A382937F78f',
         ERC721ABI,
         provider
       );
