@@ -150,21 +150,23 @@ function SsovCard(props) {
             <Typography variant="h6" className="text-stieglitz">
               Epoch {currentEpoch}
             </Typography>
-            <Tooltip
-              className="text-stieglitz"
-              arrow={true}
-              title="Epoch Start & Expiry Times"
-            >
-              <Box>
-                <Typography variant="h6" color="stieglitz">
-                  {format(Number(epochTimes.startTime.hex) * 1000, 'd LLL')} -{' '}
-                  {format(
-                    Number(Number(epochTimes.expiry.hex) * 1000),
-                    'd LLL'
-                  )}
-                </Typography>
-              </Box>
-            </Tooltip>
+            {!retired ? (
+              <Tooltip
+                className="text-stieglitz"
+                arrow={true}
+                title="Epoch Start & Expiry Times"
+              >
+                <Box>
+                  <Typography variant="h6" color="stieglitz">
+                    {format(Number(epochTimes.startTime.hex) * 1000, 'd LLL')} -{' '}
+                    {format(
+                      Number(Number(epochTimes.expiry.hex) * 1000),
+                      'd LLL'
+                    )}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            ) : null}
             <Typography variant="h6" className="text-stieglitz">
               Version {version}
             </Typography>
