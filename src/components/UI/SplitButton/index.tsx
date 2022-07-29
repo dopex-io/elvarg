@@ -13,9 +13,11 @@ import CustomButton from '../CustomButton';
 export default function SplitButton({
   options,
   handleClick,
+  isExpired,
 }: {
   options: string[];
   handleClick: Function;
+  isExpired: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
@@ -50,6 +52,7 @@ export default function SplitButton({
         color="primary"
         ref={anchorRef}
         aria-label="split button"
+        disabled={!isExpired}
       >
         <CustomButton onClick={_handleClick}>
           {options[selectedIndex]}
