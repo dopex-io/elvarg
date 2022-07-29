@@ -2,10 +2,11 @@
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
 import { styled } from '@mui/material/styles';
-// import format from 'date-fns/format';
+import format from 'date-fns/format';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
@@ -52,7 +53,7 @@ function SsovCard(props) {
     retired,
     symbol,
     version,
-    startTimes,
+    epochTimes,
   } = data;
   const info = useMemo(() => {
     return [
@@ -146,13 +147,24 @@ function SsovCard(props) {
             </CustomButton>
           </Link>
           <Box className="flex justify-between">
-            {/* <Typography variant="h6" className="text-stieglitz">
-              Epoch {format(new Date(startTimes[0] * 1000), 'd LLL yyyy')} -
-              {format(new Date(startTimes[1] * 1000), 'd LLL yyyy')}
-            </Typography> */}
             <Typography variant="h6" className="text-stieglitz">
               Epoch {currentEpoch}
             </Typography>
+            <Tooltip
+              className="text-stieglitz"
+              arrow={true}
+              title="Epoch Start & Expiry Times"
+            >
+              <Box>
+                <Typography variant="h6" color="stieglitz">
+                  {format(Number(epochTimes.startTime.hex) * 1000, 'd LLL')} -{' '}
+                  {format(
+                    Number(Number(epochTimes.expiry.hex) * 1000),
+                    'd LLL'
+                  )}
+                </Typography>
+              </Box>
+            </Tooltip>
             <Typography variant="h6" className="text-stieglitz">
               Version {version}
             </Typography>
