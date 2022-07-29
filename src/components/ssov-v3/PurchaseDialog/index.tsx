@@ -52,7 +52,8 @@ const PurchaseDialog = ({
   ssovData,
   ssovEpochData,
 }: Props) => {
-  const { ssovSigner } = useContext(SsovV3Context);
+  const { ssovSigner, updateSsovV3UserData, updateSsovV3EpochData } =
+    useContext(SsovV3Context);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider, signer, contractAddresses } =
     useContext(WalletContext);
@@ -84,8 +85,7 @@ const PurchaseDialog = ({
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
 
   const spender = useMemo(() => {
-    // @ts-ignore TODO: FIX
-    return ssovContractWithSigner.address;
+    return ssovContractWithSigner?.address;
   }, [ssovContractWithSigner]);
 
   const sendTx = useSendTx();
@@ -104,10 +104,11 @@ const PurchaseDialog = ({
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
   const handleApprove = useCallback(async () => {
+    if (!spender || !signer) return;
+
     try {
       await sendTx(
-        // @ts-ignore TODO: FIX
-        ERC20__factory.connect(ssovData.collateralAddress, signer).approve(
+        ERC20__factory.connect(ssovData?.collateralAddress!, signer).approve(
           spender,
           MAX_VALUE
         )
@@ -119,16 +120,19 @@ const PurchaseDialog = ({
   }, [sendTx, signer, spender, ssovData]);
 
   const handlePurchase = useCallback(async () => {
+    if (!ssovContractWithSigner || !accountAddress) return;
+
     const _amount = getContractReadableAmount(optionsAmount, 18);
 
     try {
       await sendTx(
-        // @ts-ignore TODO: FIX
         ssovContractWithSigner.purchase(strikeIndex, _amount, accountAddress)
       );
       setRawOptionsAmount('0');
-      // @ts-ignore TODO: FIX
+
       updateAssetBalances();
+      updateSsovV3UserData();
+      updateSsovV3EpochData();
     } catch (err) {
       console.log(err);
       setRawOptionsAmount('0');
@@ -140,6 +144,8 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     strikeIndex,
     updateAssetBalances,
+    updateSsovV3UserData,
+    updateSsovV3EpochData,
   ]);
 
   // Calculate the Option Price & Fees
@@ -163,22 +169,22 @@ const PurchaseDialog = ({
     }
 
     async function updateOptionPrice() {
-      // @ts-ignore TODO: FIX
-      const strike = epochStrikes[strikeIndex];
-      try {
-        const volatility = // @ts-ignore TODO: FIX
-          (await ssovContract.getVolatility(strike)).toNumber();
+      if (!ssovContract || !ssovEpochData || !ssovData || !tokenPrice) return;
 
-        // @ts-ignore TODO: FIX
-        const expiry = ssovEpochData.epochTimes[1].toNumber();
+      const strike = epochStrikes[strikeIndex];
+
+      try {
+        const volatility = (
+          await ssovContract.getVolatility(strike!)
+        ).toNumber();
+
+        const expiry = ssovEpochData.epochTimes[1]!.toNumber();
 
         const optionPrice =
-          // @ts-ignore TODO: FIX
-          await ssovData.ssovOptionPricingContract.getOptionPrice(
-            // @ts-ignore TODO: FIX
-            isPut,
+          await ssovData.ssovOptionPricingContract!.getOptionPrice(
+            isPut!,
             expiry,
-            strike,
+            strike!,
             tokenPrice,
             volatility
           );
@@ -187,10 +193,8 @@ const PurchaseDialog = ({
           .mul(getContractReadableAmount(optionsAmount, 18))
           .div(oneEBigNumber(18)); // avoid crashing when users buy <1 options
 
-        // @ts-ignore TODO: FIX
         let fees = await ssovContract.calculatePurchaseFees(
-          // @ts-ignore TODO: FIX
-          strike,
+          strike!,
           getContractReadableAmount(String(optionsAmount), 18)
         );
 
@@ -198,7 +202,6 @@ const PurchaseDialog = ({
         if (isPut) {
           _totalCost = premium.mul(oneEBigNumber(10)).add(fees);
         } else {
-          // @ts-ignore TODO: FIX
           _totalCost = premium.mul(oneEBigNumber(18)).add(fees.mul(tokenPrice));
         }
 
@@ -208,7 +211,6 @@ const PurchaseDialog = ({
           premium,
           fees,
           expiry,
-          // @ts-ignore TODO: FIX
           totalCost: isPut ? _totalCost : _totalCost.div(tokenPrice),
         });
 
@@ -235,18 +237,17 @@ const PurchaseDialog = ({
   // Updates the approved and user balance state
   useEffect(() => {
     (async function () {
+      if (!ssovData || !accountAddress || !spender) return;
+
       const finalAmount = state.totalCost;
       const _token = ERC20__factory.connect(
-        // @ts-ignore TODO: FIX
-        ssovData.collateralAddress,
+        ssovData.collateralAddress!,
         provider
       );
 
-      // @ts-ignore TODO: FIX
       const userAmount = await _token.balanceOf(accountAddress);
       setUserTokenBalance(userAmount);
 
-      // @ts-ignore TODO: FIX
       const allowance = await _token.allowance(accountAddress, spender);
 
       if (finalAmount.lte(allowance)) {
@@ -270,22 +271,17 @@ const PurchaseDialog = ({
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
         (isPut
-          ? // @ts-ignore TODO: FIX
-            availableCollateralForStrikes[strikeIndex]
-              .mul(oneEBigNumber(8))
-              // @ts-ignore TODO: FIX
-              .div(getContractReadableAmount(strikes[strikeIndex], 8))
+          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+              .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : // @ts-ignore TODO: FIX
-            availableCollateralForStrikes[strikeIndex].lt(
+          : availableCollateralForStrikes[strikeIndex]!.lt(
               getContractReadableAmount(optionsAmount, 18)
             )) ||
         (isPut
           ? state.totalCost.gt(userTokenBalance)
           : state.totalCost
               .mul(1e8)
-              // @ts-ignore TODO: FIX
-              .div(ssovData.tokenPrice)
+              .div(ssovData.tokenPrice!)
               .gt(userTokenBalance))
     );
 
@@ -306,14 +302,10 @@ const PurchaseDialog = ({
     } else if (optionsAmount > 0) {
       if (
         isPut
-          ? // @ts-ignore TODO: FIX
-            availableCollateralForStrikes[strikeIndex]
-              .mul(oneEBigNumber(8))
-              // @ts-ignore TODO: FIX
-              .div(getContractReadableAmount(strikes[strikeIndex], 8))
+          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+              .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : // @ts-ignore TODO: FIX
-            availableCollateralForStrikes[strikeIndex].lt(
+          : availableCollateralForStrikes[strikeIndex]!.lt(
               getContractReadableAmount(optionsAmount, 18)
             )
       ) {
@@ -323,8 +315,7 @@ const PurchaseDialog = ({
           ? state.totalCost.gt(userTokenBalance)
           : state.totalCost
               .mul(1e8)
-              // @ts-ignore TODO: FIX
-              .div(ssovData.tokenPrice)
+              .div(ssovData.tokenPrice!)
               .gt(userTokenBalance)
       ) {
         children = 'Insufficient Balance';
@@ -412,13 +403,11 @@ const PurchaseDialog = ({
                 {formatAmount(
                   isPut
                     ? getUserReadableAmount(
-                        // @ts-ignore TODO: FIX
-                        availableCollateralForStrikes[strikeIndex],
+                        availableCollateralForStrikes[strikeIndex]!,
                         18
                       ) / Number(strikes[strikeIndex])
                     : getUserReadableAmount(
-                        // @ts-ignore TODO: FIX
-                        availableCollateralForStrikes[strikeIndex],
+                        availableCollateralForStrikes[strikeIndex]!,
                         18
                       ),
                   5
@@ -451,12 +440,9 @@ const PurchaseDialog = ({
                 }
                 optionPrice={getUserReadableAmount(state.optionPrice, 8)}
                 amount={optionsAmount}
-                // @ts-ignore TODO: FIX
-                isPut={isPut}
-                // @ts-ignore TODO: FIX
-                price={getUserReadableAmount(tokenPrice, 8)}
-                // @ts-ignore TODO: FIX
-                symbol={ssovTokenName}
+                isPut={isPut!}
+                price={getUserReadableAmount(tokenPrice!, 8)}
+                symbol={ssovTokenName!}
               />
             </Box>
           </Slide>
@@ -657,12 +643,10 @@ const PurchaseDialog = ({
                 {formatAmount(
                   isPut
                     ? getUserReadableAmount(
-                        // @ts-ignore TODO: FIX
-                        state.fees.mul(ssovData.lpPrice),
+                        state.fees.mul(ssovData.lpPrice!),
                         36
                       )
-                    : // @ts-ignore TODO: FIX
-                      getUserReadableAmount(state.fees.mul(tokenPrice), 26),
+                    : getUserReadableAmount(state.fees.mul(tokenPrice!), 26),
                   5
                 )}
               </Typography>

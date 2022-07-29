@@ -120,8 +120,7 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
                 ? '-'
                 : getFormattedDate(
                     new Date(
-                      (rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() +
-                        86400 * 3) *
+                      rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() *
                         1000
                     )
                   )}

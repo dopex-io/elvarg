@@ -15,7 +15,7 @@ import {
   ERC20__factory,
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
-import axios from 'axios';
+// import axios from 'axios';
 import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
@@ -23,7 +23,7 @@ import { WalletContext } from './Wallet';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
-import { DOPEX_API_BASE_URL } from 'constants/index';
+// import { DOPEX_API_BASE_URL } from 'constants/index';
 
 import { TokenData } from 'types';
 
@@ -134,8 +134,6 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       provider
     );
 
-    console.log(contractAddresses['SSOV-V3'].VIEWER);
-
     const writePositions = await ssovViewerContract.walletOfOwner(
       accountAddress,
       ssovAddress
@@ -199,7 +197,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       totalEpochPremium,
       epochData,
       epochStrikeTokens,
-      apyPayload,
+      // apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovContract.getEpochStrikes(selectedEpoch),
@@ -220,7 +218,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
         selectedEpoch,
         ssovContract.address
       ),
-      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
+      // axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
     ]);
 
     const epochStrikeDataArray = await Promise.all(
@@ -230,9 +228,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     );
 
     const availableCollateralForStrikes = epochStrikeDataArray.map((item) => {
-      return item.lastVaultCheckpoint.totalCollateral.sub(
-        item.lastVaultCheckpoint.activeCollateral
-      );
+      return item.totalCollateral.sub(item.activeCollateral);
     });
 
     const totalEpochDeposits = totalEpochStrikeDeposits.reduce(
@@ -265,7 +261,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
           }
         );
       }),
-      APY: apyPayload.data.apy,
+      APY: '0',
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
     };
