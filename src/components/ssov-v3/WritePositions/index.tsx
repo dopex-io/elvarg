@@ -145,7 +145,9 @@ const WritePositions = (props: { className?: string }) => {
                     const openWithdraw = () => {
                       setDialog({ open: true, type: 'WITHDRAW', data: o });
                     };
-                    return (
+
+                    // only display positions for selected epoch
+                    return o.epoch === selectedEpoch ? (
                       <WritePositionTableData
                         key={i}
                         {...o}
@@ -153,9 +155,9 @@ const WritePositions = (props: { className?: string }) => {
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
                         rewardTokens={ssovEpochData?.rewardTokens || []}
-                        isExpired={isCurrentEpochExpired || false}
+                        currentEpochExpired={isCurrentEpochExpired || false}
                       />
-                    );
+                    ) : null;
                   })}
               </TableBody>
             </Table>
