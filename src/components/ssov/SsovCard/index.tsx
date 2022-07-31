@@ -117,7 +117,7 @@ function SsovCard(props) {
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h4" className="mr-2 font-bold">
-                {name} {duration === 'weekly' ? 'weekly' : ''}{' '}
+                {name} {duration}{' '}
                 {retired ? (
                   <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
                     RETIRED
