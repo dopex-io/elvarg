@@ -123,10 +123,9 @@ const Positions = () => {
               epochTimes[0].toNumber()) /
             86400;
           let pnl = 0;
-          const price =
-            rateVaultEpochData.rateAtSettlement.toNumber() === 0
-              ? rateVaultEpochData.rate.toNumber()
-              : rateVaultEpochData.rateAtSettlement.toNumber();
+          const price = rateVaultEpochData.isEpochExpired
+            ? rateVaultEpochData.rateAtSettlement.toNumber()
+            : rateVaultEpochData.rate.toNumber();
           const strike = purchase.strike.toNumber();
           const amount = getUserReadableAmount(
             contextSide === 'CALL'
