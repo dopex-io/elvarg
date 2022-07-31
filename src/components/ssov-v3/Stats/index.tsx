@@ -24,6 +24,7 @@ interface StatsTableDataProps {
   strikeIndex: number;
   strikePrice: number;
   totalDeposits: number;
+  pendingDeposits: number;
   totalPurchased: number;
   totalPremiums: number;
   underlyingSymbol: string;
@@ -35,6 +36,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
   const {
     strikePrice,
     totalDeposits,
+    pendingDeposits,
     totalPurchased,
     totalPremiums,
     price,
@@ -68,6 +70,15 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
           {formatAmount(isPut ? totalDeposits : totalDeposits * price, 2)}
+        </Box>
+      </TableCell>
+      <TableCell align="left" className="pt-2">
+        <Typography variant="h6">
+          {formatAmount(pendingDeposits, 5)} {collateralSymbol}
+        </Typography>
+        <Box component="h6" className="text-xs text-stieglitz">
+          {'$'}
+          {formatAmount(isPut ? pendingDeposits : pendingDeposits * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
@@ -115,6 +126,10 @@ const Stats = (props: { className?: string }) => {
           ssovEpochData?.totalEpochStrikeDeposits[strikeIndex] ?? 0,
           18
         );
+        const pendingDeposits = getUserReadableAmount(
+          ssovEpochData?.totalEpochStrikeDepositsPending[strikeIndex] ?? 0,
+          18
+        );
         const totalPurchased = getUserReadableAmount(
           ssovEpochData?.totalEpochOptionsPurchased[strikeIndex] ?? 0,
           18
@@ -129,6 +144,7 @@ const Stats = (props: { className?: string }) => {
           strikeIndex,
           strikePrice,
           totalDeposits,
+          pendingDeposits,
           totalPurchased,
           totalPremiums,
         };
@@ -191,6 +207,14 @@ const Stats = (props: { className?: string }) => {
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
                     <Typography variant="h6" className="text-stieglitz">
+                      Pending Deposits
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    className="text-stieglitz bg-cod-gray border-0 pb-0"
+                  >
+                    <Typography variant="h6" className="text-stieglitz">
                       Total Purchased
                     </Typography>
                   </TableCell>
@@ -210,6 +234,7 @@ const Stats = (props: { className?: string }) => {
                     strikeIndex,
                     strikePrice,
                     totalDeposits,
+                    pendingDeposits,
                     totalPurchased,
                     totalPremiums,
                   }) => {
@@ -219,6 +244,7 @@ const Stats = (props: { className?: string }) => {
                         strikeIndex={strikeIndex}
                         strikePrice={strikePrice}
                         totalDeposits={totalDeposits}
+                        pendingDeposits={pendingDeposits}
                         totalPurchased={totalPurchased}
                         totalPremiums={totalPremiums}
                         price={price}

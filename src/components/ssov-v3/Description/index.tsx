@@ -31,7 +31,7 @@ const Description = ({
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useContext(WalletContext);
 
-  const { APY, TVL } = ssovEpochData;
+  const { APY, TVL, pendingDeposits } = ssovEpochData;
 
   const [wrapOpen, setWrapOpen] = useState(false);
 
@@ -51,6 +51,13 @@ const Description = ({
     {
       heading: 'TVL',
       value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
+      Icon: Coin,
+    },
+    {
+      heading: 'Pending Deposits',
+      value: pendingDeposits
+        ? `$${formatAmount(pendingDeposits, 0, true)}`
+        : '...',
       Icon: Coin,
     },
   ];
