@@ -57,7 +57,7 @@ const WritePositions = (props: { className?: string }) => {
   const { selectedEpoch, ssovUserData, ssovData, ssovEpochData } =
     useContext(SsovV3Context);
 
-  const { collateralSymbol, isCurrentEpochExpired } = ssovData as SsovV3Data;
+  const { collateralSymbol } = ssovData as SsovV3Data;
 
   const [page, setPage] = useState(0);
 
@@ -155,7 +155,9 @@ const WritePositions = (props: { className?: string }) => {
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
                         rewardTokens={ssovEpochData?.rewardTokens || []}
-                        currentEpochExpired={isCurrentEpochExpired || false}
+                        currentEpochExpired={
+                          ssovEpochData?.isEpochExpired || false
+                        }
                       />
                     ) : null;
                   })}
