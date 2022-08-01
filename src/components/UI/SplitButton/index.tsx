@@ -26,7 +26,7 @@ export default function SplitButton({
   const _handleClick = () => handleClick(selectedIndex);
 
   const handleMenuItemClick = (
-    _event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
     index: number
   ) => {
     setSelectedIndex(index);
@@ -56,7 +56,10 @@ export default function SplitButton({
         ref={anchorRef}
         aria-label="split button"
       >
-        <CustomButton onClick={_handleClick}>
+        <CustomButton
+          onClick={_handleClick}
+          disabled={!!disableButtons[selectedIndex]}
+        >
           {options[selectedIndex]}
         </CustomButton>
         <CustomButton
@@ -87,12 +90,11 @@ export default function SplitButton({
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
                   {options.map((option, index) => {
-                    // @ts-ignore TODO: FIX
                     return (
                       <MenuItem
-                        className="text-white"
                         key={option}
-                        disabled={index === 2 || disableButtons[index]}
+                        className="text-white"
+                        disabled={!!disableButtons[index]}
                         selected={index === selectedIndex}
                         onClick={(event) => handleMenuItemClick(event, index)}
                       >
