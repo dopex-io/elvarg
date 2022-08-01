@@ -155,9 +155,7 @@ const WritePositions = (props: { className?: string }) => {
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
                         rewardTokens={ssovEpochData?.rewardTokens || []}
-                        currentEpochExpired={
-                          ssovEpochData?.isEpochExpired || false
-                        }
+                        epochExpired={ssovEpochData?.isEpochExpired || false}
                       />
                     ) : null;
                   })}
