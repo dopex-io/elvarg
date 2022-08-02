@@ -583,10 +583,10 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
-"@dopex-io/sdk@^1.0.0-beta.11":
-  version "1.0.0-beta.11"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.11.tgz#2483d56a0e2ea8b9d8b187c69dd0e4b34516f642"
-  integrity sha512-CFIdAFuMkcSna0aLgxWsw08O9b1T9sRvi+3iGrDykiYA04EkDoX7KNtYx76Ql3BxNAakh+u/px2Wo/T6Kj2JHw==
+"@dopex-io/sdk@1.0.0-beta.12":
+  version "1.0.0-beta.12"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.12.tgz#7524656cd52c1b0baebda83851e4ce928b1c2eda"
+  integrity sha512-3L+CVXMYqZ5wVy92ja7qOu/dnKQJdZW+5NPs7xlWCKddcZSxZ699sjJP412oeoV+tbdj9Qood6YQ08Gi2ivg+A==
   dependencies:
     ethers "^5.6.4"
 
