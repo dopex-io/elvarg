@@ -178,7 +178,7 @@ const DepositPanel = () => {
         </Typography>
         {ssovData?.isPut ? (
           <a
-            href="https://arbitrum.curve.fi/2pool"
+            href="https://arbitrum.curve.fi/2pool/deposit"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-auto mt-1"
