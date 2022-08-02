@@ -474,7 +474,7 @@ const Manage = () => {
                     ? 'primary'
                     : 'mineshaft'
                 }
-                disabled={amount <= 0 || !straddlesData?.isVaultReady}
+                disabled={amount < 3 || !straddlesData?.isVaultReady}
                 onClick={approved ? handlePurchase : handleApprove}
               >
                 {approved
@@ -483,7 +483,9 @@ const Manage = () => {
                     : amount > getUserReadableAmount(userTokenBalance, 6)
                     ? 'Insufficient balance'
                     : straddlesData?.isVaultReady!
-                    ? 'Purchase'
+                    ? amount < 3
+                      ? 'Min. purchase is $3'
+                      : 'Purchase'
                     : 'Vault not ready'
                   : 'Approve'}
               </CustomButton>
