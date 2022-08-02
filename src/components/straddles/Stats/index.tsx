@@ -18,7 +18,7 @@ import { StraddlesContext } from 'contexts/Straddles';
 
 const Stats = () => {
   const { chainId } = useContext(WalletContext);
-  const { selectedEpoch, setSelectedEpoch, straddlesEpochData } =
+  const { selectedEpoch, setSelectedEpoch, straddlesEpochData, straddlesData } =
     useContext(StraddlesContext);
 
   const epochs = useMemo(() => {
@@ -116,19 +116,21 @@ const Stats = () => {
             className="text-white text-md h-8 p-2 hover:text-gray-200 hover:bg-slate-800 bg-slate-700"
           >
             <img
-              className="w-16 h-6 mr-2"
+              className="w-auto h-6 mr-2"
               src={getExtendedLogoFromChainId(chainId)}
               alt={'Arbitrum'}
             />
             <a
               className={'cursor-pointer'}
-              href={`${getExplorerUrl(
-                chainId
-              )}/address/${'0x1b700000000000000000000000000000e169'}`}
+              href={`${getExplorerUrl(chainId)}/address/${
+                straddlesData?.straddlesContract.address
+              }`}
+              target="_blank"
+              rel="noreferrer noopener"
             >
               <Typography variant="h5" className="text-white text-[11px]">
                 {displayAddress(
-                  '0x1b700000000000000000000000000000e169',
+                  straddlesData?.straddlesContract.address,
                   undefined
                 )}
               </Typography>
