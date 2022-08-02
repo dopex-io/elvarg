@@ -32,7 +32,7 @@ const Straddles = ({ poolName }: Props) => {
       </Head>
       <AppBar />
       <Box className="flex pt-5">
-        <Box className="w-2/3 ml-5">
+        <Box className="ml-auto lg:w-[45%]">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">
             <TopBar />
           </Box>
@@ -44,13 +44,16 @@ const Straddles = ({ poolName }: Props) => {
               Liquidity
             </Typography>
           </Box>
-          <Box className="pt-3 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 lg:flex md:flex relative">
+          <Box className="pt-3 flex relative">
             <Typography variant="h4" className="left-[40%] top-[40%] absolute">
               <span className="text-white">Not available yet</span>
             </Typography>
-            <PoolCard />
-            <Box className="mx-2"></Box>
-            <TVLCard />
+            <Box className="w-1/2 pr-2">
+              <PoolCard />
+            </Box>
+            <Box className="w-1/2 pl-2">
+              <TVLCard />
+            </Box>
           </Box>
           <Box className="pt-2 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
             <Typography variant="h6" className="-ml-1">
@@ -69,10 +72,8 @@ const Straddles = ({ poolName }: Props) => {
             <Positions />
           </Box>
         </Box>
-        <Box className="w-1/3 flex">
-          <Box className="lg:pt-32 sm:pt-20 pt-20 lg:mr-auto px-2 lg:px-0">
-            <Manage />
-          </Box>
+        <Box className="lg:pt-32 sm:pt-20 pt-20 lg:mr-auto px-2 lg:px-0 lg:ml-32">
+          <Manage />
         </Box>
       </Box>
     </Box>
