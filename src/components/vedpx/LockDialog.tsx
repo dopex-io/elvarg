@@ -19,15 +19,15 @@ import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/CustomButton';
 
 import { WalletContext } from 'contexts/Wallet';
-
-import formatAmount from 'utils/general/formatAmount';
-
-import { MAX_VALUE } from 'constants/index';
 import {
   VeDPXContext,
   vedpxAddress,
   vedpxYieldDistributorAddress,
 } from 'contexts/VeDPX';
+
+import formatAmount from 'utils/general/formatAmount';
+
+import { MAX_VALUE } from 'constants/index';
 
 const ACTION_COPY = {
   create_lock: {
@@ -94,13 +94,13 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
       _amount = BigNumber.from(0);
     }
 
-    if (userData.vedpxBalance.isZero()) return 'create_lock';
+    if (userData.lockedDpxBalance.isZero()) return 'create_lock';
     if (lockPeriod && !_amount.isZero()) return 'increase_amount_and_time';
     if (!_amount.isZero()) return 'increase_amount';
     if (lockPeriod) return 'increase_unlock_time';
 
     return 'no_change';
-  }, [lockPeriod, userData.vedpxBalance, value]);
+  }, [lockPeriod, userData, value]);
 
   const handleChange = useCallback((e: { target: { value: string } }) => {
     setValue(e.target.value);
@@ -248,7 +248,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
             <Typography variant="caption">{lockPeriod} Weeks</Typography>
           </Box>
           <Box className="mx-3">
-            <Slider value={lockPeriod} onChange={handleLockPeriod} max={208} />
+            <Slider value={lockPeriod} onChange={handleLockPeriod} max={207} />
           </Box>
         </Box>
         <Box className="border-umbra border rounded-lg flex justify-evenly">

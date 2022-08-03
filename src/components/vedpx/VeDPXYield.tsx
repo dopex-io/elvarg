@@ -1,22 +1,23 @@
-import { useCallback, useContext } from 'react';
-import Box from '@mui/material/Box';
-// import { utils as ethersUtils } from 'ethers';
+import { useCallback, useContext, useMemo } from 'react';
+import { utils as ethersUtils } from 'ethers';
 import { VeDPXYieldDistributor__factory } from '@dopex-io/sdk';
+import Box from '@mui/material/Box';
 
-import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
+import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
+import InfoTooltip from 'components/UI/InfoTooltip';
 
 import { VeDPXContext, vedpxYieldDistributorAddress } from 'contexts/VeDPX';
 import { WalletContext } from 'contexts/Wallet';
 
-// import formatAmount from 'utils/general/formatAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
 const VeDPXYield = () => {
   const { accountAddress, signer } = useContext(WalletContext);
-  const { userData, /*data,*/ updateData, updateUserData } =
+  const { userData, data, updateData, updateUserData } =
     useContext(VeDPXContext);
 
   const sendTx = useSendTx();
@@ -43,6 +44,13 @@ const VeDPXYield = () => {
 
     await sendTx(vedpxYieldDistributor.getYield());
   }, [accountAddress, sendTx, signer]);
+
+  const apy = useMemo(() => {
+    const dpxEmittedInAYear = 41.5 * 365;
+    const totalDpx = Number(ethersUtils.formatEther(data.vedpxTotalSupply));
+
+    return (dpxEmittedInAYear / totalDpx) * 100;
+  }, [data.vedpxTotalSupply]);
 
   return (
     <Box>
@@ -91,7 +99,11 @@ const VeDPXYield = () => {
             </Typography>
           </Box>
           <Box>
-            <WalletButton className="justify-self-end" onClick={handleClaim}>
+            <WalletButton
+              className="justify-self-end"
+              onClick={handleClaim}
+              disabled={userData.dpxEarned.isZero()}
+            >
               Claim
             </WalletButton>
           </Box>
@@ -115,15 +127,14 @@ const VeDPXYield = () => {
               color="stieglitz"
               className="mb-1.5 font-medium"
             >
-              TVL
+              APY{' '}
+              <InfoTooltip
+                title="This considers 1 veDPX = 1 DPX (1 DPX locked for 4 years)"
+                iconClassName="w-4 h-4"
+              />
             </Typography>
             <Typography variant="h5" className="font-medium">
-              --
-              {/* {formatAmount(
-                ethersUtils.formatEther(data.totalVeDPXParticipating),
-                3
-              )}{' '}
-              veDPX */}
+              {formatAmount(apy, 2)} %{' '}
             </Typography>
           </Box>
         </Box>

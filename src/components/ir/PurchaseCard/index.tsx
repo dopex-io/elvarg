@@ -46,6 +46,7 @@ export interface Props {
   activeVaultContextSide: string;
   strikeIndex: number;
   setStrikeIndex: Function;
+  poolName: string;
 }
 
 const now = new Date();
@@ -54,6 +55,7 @@ const PurchaseCard = ({
   activeVaultContextSide,
   strikeIndex,
   setStrikeIndex,
+  poolName,
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
   const { rateVaultEpochData } = rateVaultContext;
@@ -95,7 +97,7 @@ const PurchaseCard = ({
           rateVaultContext.rateVaultEpochData.totalCallsPurchased
         );
     } else if (activeVaultContextSide === 'PUT') {
-      deposits = rateVaultContext.rateVaultEpochData.callsDeposits[strikeIndex];
+      deposits = rateVaultContext.rateVaultEpochData.putsDeposits[strikeIndex];
       if (deposits)
         available = deposits.sub(
           rateVaultContext.rateVaultEpochData.totalPutsPurchased
@@ -168,8 +170,9 @@ const PurchaseCard = ({
   }, [purchaseTokenName, activeVaultContextSide]);
 
   const spender = useMemo(() => {
-    return '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
-  }, []);
+    if (!contractAddresses) return;
+    return contractAddresses['RATE-VAULTS'][poolName];
+  }, [contractAddresses, poolName]);
 
   const purchasePower: number = useMemo(() => {
     return parseFloat(
@@ -562,16 +565,6 @@ const PurchaseCard = ({
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(getUserReadableAmount(premium, 18), 2)}{' '}
                 {purchaseTokenName}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Purchase Power
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(purchasePower, 5)} {purchaseTokenName}
               </Typography>
             </Box>
           </Box>

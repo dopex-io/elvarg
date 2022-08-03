@@ -259,13 +259,15 @@ const OTC = () => {
 };
 
 const OTCPage = () => {
-  return (
-    <ApolloProvider client={otcGraphClient}>
-      <OtcProvider>
-        <OTC />
-      </OtcProvider>
-    </ApolloProvider>
-  );
+  // return (
+  //   <ApolloProvider client={otcGraphClient}>
+  //     <OtcProvider>
+  //       <OTC />
+  //     </OtcProvider>
+  //   </ApolloProvider>
+  // );
+
+  return <></>;
 };
 
 export default OTCPage;

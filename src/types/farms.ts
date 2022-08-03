@@ -1,5 +1,7 @@
 import { BigNumber } from 'ethers';
 
+export type FarmStatus = 'ACTIVE' | 'RETIRED' | 'CLOSED';
+
 export interface LpData {
   ethReserveOfDpxWethPool: number;
   dpxReserveOfDpxWethPool: number;
@@ -15,9 +17,11 @@ export interface Farm {
   stakingTokenSymbol: string;
   stakingTokenAddress: string;
   stakingRewardsAddress: string;
-  status: 'ACTIVE' | 'RETIRED';
+  status: FarmStatus;
   type: 'SINGLE' | 'LP';
   rewardTokens: { symbol: string; address: string }[];
+  version: number;
+  newStakingRewardsAddress?: string;
 }
 
 export interface FarmData {

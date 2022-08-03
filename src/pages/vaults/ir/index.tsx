@@ -11,6 +11,9 @@ import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import RateVaultCard from 'components/ir/VaultCard';
+import Filter from 'components/ir/Filter';
+
+const ssovStates: string[] = ['Active', 'Retired'];
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
@@ -30,6 +33,9 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 const Vaults = () => {
   const { provider } = useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
+  const [selectedStates, setselectedStates] = useState<string[] | string>([
+    'Active',
+  ]);
 
   const [vaults, setVaults] = useState<{
     [key: number]: {
@@ -44,6 +50,7 @@ const Vaults = () => {
       currentEpoch: number;
       totalEpochDeposits: string;
       retired: boolean;
+      duration: string;
     }[];
   }>({});
 
@@ -51,25 +58,29 @@ const Vaults = () => {
     (key: number) => {
       const vaultsOfKey = vaults[key];
       if (vaultsOfKey)
-        return vaultsOfKey.map((vault, index) => (
-          <RateVaultCard
-            key={index}
-            className={''}
-            data={{
-              currentEpoch: vault['currentEpoch'],
-              totalEpochDeposits: vault['totalEpochDeposits'],
-              rate: vault['rate'],
-              tvl: vault['tvl'],
-              underlyingSymbol: vault['underlyingSymbol'],
-              retired: vault['retired'],
-              symbol: vault['symbol'],
-              version: vault['version'],
-            }}
-          />
-        ));
+        return vaultsOfKey.map((vault, index) =>
+          (selectedStates.includes('Active') && !vault.retired) ||
+          (selectedStates.includes('Retired') && vault.retired) ? (
+            <RateVaultCard
+              key={index}
+              className={''}
+              data={{
+                currentEpoch: vault['currentEpoch'],
+                totalEpochDeposits: vault['totalEpochDeposits'],
+                rate: vault['rate'],
+                tvl: vault['tvl'],
+                underlyingSymbol: vault['underlyingSymbol'],
+                retired: vault['retired'],
+                symbol: vault['symbol'],
+                version: vault['version'],
+                duration: vault['duration'],
+              }}
+            />
+          ) : null
+        );
       else return null;
     },
-    [vaults]
+    [vaults, selectedStates]
   );
 
   useEffect(() => {
@@ -103,6 +114,18 @@ const Vaults = () => {
           </Typography>
         </Box>
         <Box className="mb-12">
+          <Box className="flex mb-4">
+            <Box className="ml-auto mr-auto">
+              <Filter
+                activeFilters={selectedStates}
+                setActiveFilters={setselectedStates}
+                text={'State'}
+                options={ssovStates}
+                multiple={true}
+                showImages={false}
+              />
+            </Box>
+          </Box>
           <NetworkHeader chainId={42161} />
           <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
             {getRateVaultCards(42161)}

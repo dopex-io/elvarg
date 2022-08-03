@@ -15,7 +15,7 @@ import {
   ERC20__factory,
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
-import axios from 'axios';
+// import axios from 'axios';
 import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
@@ -23,7 +23,7 @@ import { WalletContext } from './Wallet';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
-import { DOPEX_API_BASE_URL } from 'constants/index';
+// import { DOPEX_API_BASE_URL } from 'constants/index';
 
 import { TokenData } from 'types';
 
@@ -49,6 +49,7 @@ export interface SsovV3EpochData {
   isEpochExpired: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
+  totalEpochStrikeDepositsPending: BigNumber[];
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   availableCollateralForStrikes: BigNumber[];
@@ -57,6 +58,7 @@ export interface SsovV3EpochData {
   epochStrikeTokens: string[];
   APY: string;
   TVL: number;
+  pendingDeposits: number;
 }
 
 export interface WritePositionInterface {
@@ -134,8 +136,6 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       provider
     );
 
-    console.log(contractAddresses['SSOV-V3'].VIEWER);
-
     const writePositions = await ssovViewerContract.walletOfOwner(
       accountAddress,
       ssovAddress
@@ -199,7 +199,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       totalEpochPremium,
       epochData,
       epochStrikeTokens,
-      apyPayload,
+      // apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovContract.getEpochStrikes(selectedEpoch),
@@ -220,7 +220,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
         selectedEpoch,
         ssovContract.address
       ),
-      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
+      // axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
     ]);
 
     const epochStrikeDataArray = await Promise.all(
@@ -229,10 +229,30 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       )
     );
 
+    const epochStrikeDataCheckpoints = await Promise.all(
+      epochStrikes.map((strike) =>
+        ssovContract.getCheckpoints(selectedEpoch, strike)
+      )
+    );
+
+    const totalEpochStrikeDepositsPending = epochStrikeDataCheckpoints.map(
+      (item) => {
+        const lastCheckpointDeposits = item[item?.length - 1];
+
+        const checkpointStart =
+          lastCheckpointDeposits?.startTime || BigNumber.from(0);
+        const pendingCollateral =
+          lastCheckpointDeposits?.totalCollateral || BigNumber.from(0);
+
+        const timeNow = BigNumber.from(Math.floor(Date.now() / 1000));
+        return lastCheckpointDeposits && checkpointStart.add(2 * 3600) < timeNow
+          ? pendingCollateral
+          : BigNumber.from(0);
+      }
+    );
+
     const availableCollateralForStrikes = epochStrikeDataArray.map((item) => {
-      return item.lastVaultCheckpoint.totalCollateral.sub(
-        item.lastVaultCheckpoint.activeCollateral
-      );
+      return item.totalCollateral.sub(item.activeCollateral);
     });
 
     const totalEpochDeposits = totalEpochStrikeDeposits.reduce(
@@ -248,12 +268,25 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
         getUserReadableAmount(underlyingPrice, 8)
       : getUserReadableAmount(totalEpochDeposits, 18);
 
+    const totalEpochDepositsPending = totalEpochStrikeDepositsPending?.reduce(
+      (acc, deposit) => {
+        return acc.add(deposit);
+      },
+      BigNumber.from(0)
+    );
+
+    const totalEpochDepositsPendingInUSD = !(await ssovContract.isPut())
+      ? getUserReadableAmount(totalEpochDepositsPending, 18) *
+        getUserReadableAmount(underlyingPrice, 8)
+      : getUserReadableAmount(totalEpochDepositsPending, 18);
+
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
       settlementPrice: epochData.settlementPrice,
       epochTimes,
       epochStrikes,
       totalEpochStrikeDeposits,
+      totalEpochStrikeDepositsPending,
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
@@ -265,9 +298,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
           }
         );
       }),
-      APY: apyPayload.data.apy,
+      APY: '0',
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
+      pendingDeposits: totalEpochDepositsPendingInUSD,
     };
 
     setSsovV3EpochData(_ssovEpochData);

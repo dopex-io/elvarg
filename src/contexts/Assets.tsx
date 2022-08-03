@@ -76,8 +76,12 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
       const cgIds: string[] = [];
 
       for (let i = 0; i < state.tokens.length; i++) {
-        // @ts-ignore TODO: FIX
-        cgIds.push(TOKEN_DATA[state.tokens[i]].cgId);
+        const tokenKey = state.tokens[i];
+
+        if (tokenKey && tokenKey != '2CRV') {
+          const tokenData = TOKEN_DATA[tokenKey];
+          tokenData && cgIds.push(tokenData.cgId);
+        }
       }
 
       cgIds.push('weth');
@@ -86,18 +90,37 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
         `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
       );
 
-      const data = Object.keys(payload.data).map((_key, index) => {
-        // @ts-ignore TODO: FIX
-        const temp = payload.data[TOKEN_DATA[state.tokens[index]].cgId];
-        return {
-          name: state.tokens[index],
-          change24h: temp?.usd_24h_change || 0,
-          price: temp?.usd || 0,
-        };
-      });
+      const data = Object.keys(payload.data)
+        .map((_key, index) => {
+          const tokenKey = state.tokens[index];
 
-      // @ts-ignore TODO: FIX
-      setState((prevState) => ({ ...prevState, tokenPrices: data }));
+          if (tokenKey) {
+            const tokenData = TOKEN_DATA[tokenKey];
+            if (tokenData) {
+              const temp = payload.data[tokenData.cgId];
+              return {
+                name: tokenKey,
+                change24h: temp?.usd_24h_change || 0,
+                price: temp?.usd || 0,
+              };
+            }
+          }
+
+          return null;
+        })
+        .filter((item) => {
+          if (item === null) return false;
+          return true;
+        });
+
+      setState((prevState) => ({
+        ...prevState,
+        tokenPrices: data as {
+          name: string;
+          change24h: any;
+          price: any;
+        }[],
+      }));
     };
 
     updateTokenPrices();
@@ -115,14 +138,12 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
 
       const assets = Object.keys(userAssetBalances)
         .map((asset) => {
-          // @ts-ignore TODO: FIX
           return Addresses[chainId][asset] ? asset : '';
         })
         .filter((asset) => asset !== '');
 
       const assetAddresses = Object.keys(userAssetBalances)
         .map((asset) => {
-          // @ts-ignore TODO: FIX
           return Addresses[chainId][asset] ?? '';
         })
         .filter((asset) => asset !== '');
@@ -134,8 +155,10 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
       const balances = await Promise.all(balanceCalls);
 
       for (let i = 0; i < assetAddresses.length; i++) {
-        // @ts-ignore TODO: FIX
-        userAssetBalances[assets[i]] = balances[i].toString();
+        const _asset = assets[i];
+        const _balance = balances[i];
+
+        if (_asset && _balance) userAssetBalances[_asset] = _balance.toString();
       }
 
       if (chainId === 56) {

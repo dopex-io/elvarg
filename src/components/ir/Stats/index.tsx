@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
 
@@ -29,6 +29,7 @@ const Stats = () => {
     totalPutsPurchased,
     totalCallsDeposits,
     totalPutsDeposits,
+    rate,
   } = rateVaultContext.rateVaultEpochData;
 
   return rateVaultContext?.rateVaultEpochData?.epochStrikes ? (
@@ -167,14 +168,14 @@ const Stats = () => {
                 'p-4 pl-5 pr-5 rounded-xl rounded-tr-none rounded-tl-none border-r-none border-[0.1px] border-gray-600 w-full'
               }
             >
-              {/* <Box className="flex mb-1">
+              <Box className="flex mb-1">
                 <Typography variant="h5" className="text-stieglitz">
-                  Current PUSD rate
+                  Current Rate
                 </Typography>
                 <Typography variant="h5" className="mr-1 ml-auto text-white">
-                  <span>~10.04%</span>
+                  <span>~{ethers.utils.formatUnits(rate, 8)}%</span>
                 </Typography>
-              </Box> */}
+              </Box>
             </Box>
           </Box>
         </Box>

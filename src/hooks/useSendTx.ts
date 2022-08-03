@@ -21,8 +21,8 @@ const useSendTx = () => {
         toast.error('Wrong Network');
         return;
       }
+      toastId = toast.loading(waitingMessage);
       try {
-        toastId = toast.loading(waitingMessage);
         const tx = await transaction;
         toast.loading(
           TransactionToast({
@@ -58,9 +58,9 @@ const useSendTx = () => {
         }
       } catch (err: any) {
         if (err?.data?.message !== undefined) {
-          toast.error(err.data.message);
+          toast.error(err.data.message, { id: toastId });
         } else {
-          toast.error(err.message);
+          toast.error(err.message, { id: toastId });
         }
         throw Error(err);
       }

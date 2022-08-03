@@ -71,6 +71,7 @@ const SupplyChart = () => {
           dataKey="uv"
           stroke="#22e1ff"
           fill="url(#colorUv)"
+          className="blur-sm"
         />
       </AreaChart>
     </ResponsiveContainer>
