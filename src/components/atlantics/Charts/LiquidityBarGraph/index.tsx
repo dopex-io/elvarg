@@ -57,7 +57,6 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       <Box className="flex justify-between p-3">
         <Box className="flex space-x-2 justify-start">
           {header['type'] === 'CALLS' ? (
-            // @TODO Fill is hard coded
             <CallsIcon fill="#8aff95" className="my-auto" />
           ) : (
             <PutsIcon className="my-auto" />
