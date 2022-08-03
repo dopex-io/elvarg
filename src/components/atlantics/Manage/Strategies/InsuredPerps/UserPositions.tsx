@@ -66,7 +66,7 @@ const UserPositions = () => {
     if (!contractAddresses || !accountAddress || !provider || !selectedPool)
       return;
     const strategyContractAddress: string =
-      contractAddresses['STRATEGIES']['INSURED-PERPS'];
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
     const gmxVaultAddress: string = contractAddresses['GMX-VAULT'];
     const { underlying } = selectedPool.tokens;
 
@@ -86,15 +86,15 @@ const UserPositions = () => {
       contractAddresses[underlying]
     );
 
-    let userStrategyPositions: LongPerpStrategy.StrategyPositionStructOutput[] =
+    let userStrategyPositions: any =
       await strategyContract.getAllStrategyPositions();
 
     let userStrategyPositionsWithIndex: {
-      position: LongPerpStrategy.StrategyPositionStructOutput;
+      position: any;
       index: number;
     }[] = [];
 
-    userStrategyPositions.map((position, index) => {
+    userStrategyPositions.map((position: any, index: any) => {
       if (
         !position.insurance.expiry.isZero() &&
         position.user === accountAddress
@@ -185,7 +185,7 @@ const UserPositions = () => {
         return;
       try {
         const strategyContractAddress: string =
-          contractAddresses['STRATEGIES']['INSURED-PERPS'];
+          contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
 
         const strategyContract = LongPerpStrategy__factory.connect(
           strategyContractAddress,
@@ -209,7 +209,7 @@ const UserPositions = () => {
         return;
       try {
         const strategyContractAddress: string =
-          contractAddresses['STRATEGIES']['INSURED-PERPS'];
+          contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
         const strategyContract = LongPerpStrategy__factory.connect(
           strategyContractAddress,
           signer

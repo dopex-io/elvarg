@@ -202,6 +202,7 @@ const ManageCard = (props: ManageCardProps) => {
         return;
       const { deposit } = selectedPool.tokens;
       if (!deposit) return;
+      if (!contractAddresses[deposit]) return;
 
       const token = ERC20__factory.connect(contractAddresses[deposit], signer);
 

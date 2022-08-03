@@ -10,11 +10,12 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   AtlanticCallsPool__factory,
   AtlanticPutsPool,
   ERC20__factory,
+  GmxVault__factory,
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
 import Button from '@mui/material/Button';
@@ -43,6 +44,7 @@ import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
 import { DEFAULT_REFERRAL_CODE, MIN_EXECUTION_FEE } from 'constants/gmx';
+import vaultInfo from 'constants/vaultInfo';
 
 interface IProps {
   isOpen: boolean;
@@ -50,10 +52,6 @@ interface IProps {
 }
 
 const marks = [
-  {
-    value: 1.1,
-    label: '1.1x',
-  },
   {
     value: 2,
     label: '2x',
@@ -67,8 +65,8 @@ const marks = [
     label: '4x',
   },
   {
-    value: 4.9,
-    label: '4.9x',
+    value: 5,
+    label: '5x',
   },
 ];
 
@@ -89,7 +87,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   const { signer, accountAddress, provider, contractAddresses, chainId } =
     useContext(WalletContext);
   const { selectedPool } = useContext(AtlanticsContext);
-  const [leverage, setLeverage] = useState<number>(1.1);
+  const [leverage, setLeverage] = useState<number>(2);
   const [isApproved, setIsApproved] = useState<{
     quote: boolean;
     base: boolean;
@@ -178,11 +176,13 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     const putsContract = selectedPool.contracts.atlanticPool;
 
     const insured_perps_address =
-      contractAddresses['STRATEGIES']['INSURED-PERPS'];
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
     const strategyContract = LongPerpStrategy__factory.connect(
       insured_perps_address,
       provider
     );
+
+    const pool = selectedPool.contracts.atlanticPool as AtlanticPutsPool;
 
     // Leverage in bigNumber 1e30 decimals
     const leverageBN = getContractReadableAmount(leverage * 10, 29);
@@ -211,10 +211,13 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
 
     // Put strike
     const putStrike = (
-      await strategyContract.eligiblePutPurchaseStrike(
+      await pool.eligiblePutPurchaseStrike(
         liquidationPrice,
-        selectedPool.config.tickSize,
-        contractAddresses[underlying]
+        (
+          await strategyContract.tokenStrategyConfigs(
+            contractAddresses[underlying]
+          )
+        ).optionStrikeOffsetPercentage
       )
     ).div(oneEBigNumber(22));
 
@@ -334,7 +337,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     const baseToken = selectedPool.contracts.baseToken;
     const underlying = selectedPool.asset;
 
-    const strategyAddress = contractAddresses['STRATEGIES']['INSURED-PERPS'];
+    const strategyAddress =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
     const quoteTokenAllowance = await quoteToken.allowance(
       accountAddress,
       strategyAddress
@@ -388,7 +392,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     )
       return;
     const strategyContractAddress =
-      contractAddresses['STRATEGIES']['INSURED-PERPS'];
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
     const { deposit } = selectedPool.tokens;
     if (!deposit) return;
     const tokenContract = ERC20__factory.connect(
@@ -416,7 +420,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       return;
     try {
       const strategyContractAddress =
-        contractAddresses['STRATEGIES']['INSURED-PERPS'];
+        contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
       const { underlying } = selectedPool.tokens;
       if (!underlying) return;
 
@@ -457,7 +461,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
 
   const useStrategy = useCallback(async () => {
     if (
-      !contractAddresses['STRATEGIES']['INSURED-PERPS'] ||
+      !contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'] ||
       !signer ||
       !selectedPool ||
       !selectedPool.state.expiryTime ||
@@ -471,27 +475,90 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       return;
     }
 
-    try {
-      const strategyContract = LongPerpStrategy__factory.connect(
-        contractAddresses['STRATEGIES']['INSURED-PERPS'],
-        signer
-      );
+    const strategyContract = LongPerpStrategy__factory.connect(
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
+      signer
+    );
+    const gmxVault = GmxVault__factory.connect(
+      contractAddresses['GMX-VAULT'],
+      signer
+    );
 
+    try {
       let path: string[] = [];
       if (selectedToken === 'USDC') {
         path = [contractAddresses['USDC'], contractAddresses['WETH']];
       }
       if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
 
+      const indexToken = selectedPool.asset;
+
+      if (!path[0]) return;
+
+      const marginFeeBasisPoints = 10;
+      const divisor = 10000;
+
+      let positionBalanceWithDecimals = getContractReadableAmount(
+        positionBalance,
+        getTokenDecimals(selectedToken, chainId)
+      );
+
+      let positionCollateral;
+      let positionSize;
+      let indexTokenMaxPrice = await gmxVault.getMaxPrice(
+        contractAddresses[indexToken]
+      );
+
+      if (path[0] !== contractAddresses[indexToken]) {
+        console.log('amount', await gmxVault.swapFeeBasisPoints().toString());
+        const abi = [
+          'function getAmountOut(address _vault, address _tokenIn, address _tokenOut, uint256 _amountIn) public view returns (uint256, uint256)',
+        ];
+        const reader = new ethers.Contract(
+          '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1',
+          abi,
+          signer
+        );
+
+        const amountOut = (
+          await reader['getAmountOut'](
+            gmxVault.address,
+            path[0],
+            path[1],
+            positionBalanceWithDecimals
+          )
+        )[0];
+
+        const newePositionSize = amountOut
+          .mul(indexTokenMaxPrice)
+          .div(oneEBigNumber(18))
+          .mul(leverage * 10)
+          .div(10);
+        const positionSizeSubFee = newePositionSize
+          .mul(divisor - marginFeeBasisPoints)
+          .div(divisor);
+
+        positionCollateral = positionBalanceWithDecimals;
+        positionSize = positionSizeSubFee;
+      } else {
+        // const positionSizein30Usd = await gmxVault.tokenToUsdMin(contractAddresses['WETH'], strategyDetails.positionSize)
+        const afterfeeUsd = strategyDetails.positionSize
+          .mul(divisor - marginFeeBasisPoints)
+          .div(divisor);
+        const feeInTokenDecimals = await gmxVault.usdToTokenMin(
+          contractAddresses[indexToken],
+          strategyDetails.positionSize.sub(afterfeeUsd)
+        );
+        positionCollateral =
+          positionBalanceWithDecimals.add(feeInTokenDecimals);
+        positionSize = strategyDetails.positionSize;
+      }
       const _tx = strategyContract.useStrategyAndOpenLongPosition(
         {
           path: path,
-          indexToken: contractAddresses['WETH'],
-          positionCollateralSize: getContractReadableAmount(
-            positionBalance,
-            getTokenDecimals(selectedToken, chainId)
-          ),
-          positionSize: debouncedStrategyDetails[0].positionSize,
+          indexToken: contractAddresses[indexToken],
+          positionCollateralSize: positionCollateral,
+          positionSize: positionSize,
           executionFee: MIN_EXECUTION_FEE,
           referralCode: DEFAULT_REFERRAL_CODE,
           isCollateralOptionToken: selectedCollateral === 'AC-OPTIONS',
@@ -515,8 +582,9 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     selectedCollateral,
     positionBalance,
     selectedToken,
-    debouncedStrategyDetails,
     keepCollateral,
+    strategyDetails.positionSize,
+    leverage,
     sendTx,
   ]);
 
@@ -602,11 +670,11 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             className="w-[20rem]"
             color="primary"
             aria-label="Small steps"
-            defaultValue={1.1}
+            defaultValue={2}
             onChange={onChangeLeverage}
             step={0.1}
-            min={1.1}
-            max={4.9}
+            min={2}
+            max={5}
             valueLabelDisplay="auto"
             marks={marks}
           />
@@ -685,7 +753,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             //   !isApproved.base ||
             //   !isApproved.quote ||
             //   positionBalance === '' ||
-            //   parseInt(positionBalance) === 0
             // }
             onClick={useStrategy}
           >

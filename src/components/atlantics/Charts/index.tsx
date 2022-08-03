@@ -4,6 +4,8 @@ import Box from '@mui/material/Box';
 import { CircularProgress } from '@mui/material';
 import { BigNumber } from 'ethers';
 
+import CallPoolStats from 'components/atlantics/Charts/CallPoolStats';
+
 import { AtlanticsContext, IEpochStrikeData } from 'contexts/Atlantics';
 
 const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {
@@ -22,7 +24,7 @@ interface ChartsProps {
   type: string;
 }
 
-interface IBarData {
+interface IPoolData {
   availableCollateral: BigNumber;
   unlocked: BigNumber;
   activeCollateral: BigNumber;
@@ -38,31 +40,40 @@ const Charts = (props: ChartsProps) => {
   const { line_data, underlying, collateral, title, type } = props;
   const { selectedPool } = useContext(AtlanticsContext);
 
-  const barData: IBarData[] = useMemo((): IBarData[] => {
-    if (!selectedPool)
-      return [
-        {
-          availableCollateral: BigNumber.from(0),
-          unlocked: BigNumber.from(0),
-          activeCollateral: BigNumber.from(0),
-          strike: BigNumber.from(0),
-        },
-      ];
-    if (selectedPool.isPut) {
-      const data = selectedPool.epochStrikeData as IEpochStrikeData[];
-
-      const { deposit } = selectedPool.tokens;
-      if (!deposit)
-        return [
+  const poolData: {
+    type: string;
+    data: IPoolData[] | IPoolData;
+  } = useMemo(() => {
+    if (selectedPool.config.tickSize?.eq(0))
+      return {
+        type: 'loading',
+        data: [
           {
             availableCollateral: BigNumber.from(0),
             unlocked: BigNumber.from(0),
             activeCollateral: BigNumber.from(0),
             strike: BigNumber.from(0),
           },
-        ];
+        ],
+      };
+    if (selectedPool.isPut) {
+      const data = selectedPool.epochStrikeData as IEpochStrikeData[];
 
-      const barData: IBarData[] = data?.map((data) => {
+      const { deposit } = selectedPool.tokens;
+      if (!deposit)
+        return {
+          type: 'loading',
+          data: [
+            {
+              availableCollateral: BigNumber.from(0),
+              unlocked: BigNumber.from(0),
+              activeCollateral: BigNumber.from(0),
+              strike: BigNumber.from(0),
+            },
+          ],
+        };
+
+      const barData: IPoolData[] = data?.map((data) => {
         const unlocked = data.unlocked ?? BigNumber.from(0);
         const activeCollateral = data.activeCollateral ?? BigNumber.from(0);
         const strike = data.strike ?? BigNumber.from(0);
@@ -76,18 +87,47 @@ const Charts = (props: ChartsProps) => {
           strike,
         };
       });
-      return barData;
+      return {
+        type: 'barData',
+        data: barData,
+      };
     } else {
-      return [
-        {
-          availableCollateral: BigNumber.from(0),
-          unlocked: BigNumber.from(0),
-          activeCollateral: BigNumber.from(0),
-          strike: BigNumber.from(0),
-        },
-      ];
+      const data = selectedPool;
+
+      const strike = String(data.strikes);
+
+      const callPoolData = {
+        availableCollateral: data.epochData.totalEpochLiquidity.sub(
+          data.epochData.totalEpochUnlockedCollateral
+        ),
+        unlocked: data.epochData.totalEpochUnlockedCollateral,
+        activeCollateral: data.epochData.totalEpochActiveCollateral,
+        strike: BigNumber.from(strike),
+      };
+
+      return {
+        type: 'callData',
+        data: callPoolData,
+      };
     }
   }, [selectedPool]);
+
+  const renderComponent: React.ReactNode = useMemo(() => {
+    const isPut = selectedPool.isPut;
+
+    const renderCondition = isPut && poolData.type === 'barData';
+
+    return renderCondition ? (
+      <ClientRenderedBarGraph
+        data={poolData.data as IPoolData[]}
+        width={1000}
+        height={240}
+        header={{ underlying, collateral, title, type }}
+      />
+    ) : (
+      <CallPoolStats data={poolData} underlyingSymbol={underlying} />
+    );
+  }, [collateral, poolData, selectedPool.isPut, title, type, underlying]);
 
   // const lineData: ILineData = useMemo(() => {
   //   if (!selectedPool || selectedPool.checkpoints.length <= 1)
@@ -125,18 +165,11 @@ const Charts = (props: ChartsProps) => {
   //   };
   // }, [selectedPool]);
 
-  // console.log(lineData);
-
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">
       <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-2/3 sm:w-full">
-        {barData[0]?.strike.gt(0) ? (
-          <ClientRenderedBarGraph
-            data={barData}
-            width={1000}
-            height={240}
-            header={{ underlying, collateral, title, type }}
-          />
+        {poolData.type !== 'loading' ? (
+          renderComponent
         ) : (
           <Box className="p-3 items-center text-center h-[15.7rem] py-[8.65rem]">
             <CircularProgress size="30px" />

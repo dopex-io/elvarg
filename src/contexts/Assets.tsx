@@ -60,19 +60,6 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
   const [state, setState] = useState<AssetsContextInterface>(initialState);
 
   useEffect(() => {
-    if (!provider || !contractAddresses) return;
-    const usdtContract = ERC20__factory.connect(
-      contractAddresses['USDT'],
-      provider
-    );
-
-    setState((s) => ({
-      ...s,
-      usdtContract,
-    }));
-  }, [provider, contractAddresses]);
-
-  useEffect(() => {
     const updateTokenPrices = async () => {
       const cgIds: string[] = [];
 

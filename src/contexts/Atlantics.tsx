@@ -246,8 +246,6 @@ export const AtlanticsProvider = (props: any) => {
 
       const checkpoints = await Promise.all(latestCheckpointsCalls);
 
-      console.log('Checkpoint in context: ', checkpoints);
-
       let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
         await Promise.all([
           atlanticPool.addresses(),
@@ -322,8 +320,6 @@ export const AtlanticsProvider = (props: any) => {
       if (!contracts) return;
       const underlying = await contracts.baseToken.symbol();
       const depositToken = await contracts.quoteToken.symbol();
-
-      await atlanticPool.getEpochMaxStrikesCollaterals(epoch);
 
       setStats(({ tvl, volume, poolsCount }) => ({
         tvl: tvl.add(
