@@ -135,7 +135,7 @@ const ContractData = () => {
         description="Utilization"
         value={
           <Typography variant="h6">
-            {getUserReadableAmount(utilizationRate, 18)}%
+            {getUserReadableAmount(utilizationRate, 4)}%
           </Typography>
         }
         variant="row"

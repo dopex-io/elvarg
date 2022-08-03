@@ -17,6 +17,7 @@ const CallPoolStats = (props: CallPoolStatsInterface) => {
     <Box className="grid grid-cols-2 h-full">
       <CallPoolStatItem
         description="Available Collateral"
+        border="border-r"
         value={formatAmount(
           getUserReadableAmount(data.data.availableCollateral),
           3
@@ -25,11 +26,13 @@ const CallPoolStats = (props: CallPoolStatsInterface) => {
       />
       <CallPoolStatItem
         description="Unlocked Collateral"
+        border="border-b"
         value={formatAmount(getUserReadableAmount(data.data.unlocked), 3)}
         symbol={underlyingSymbol}
       />
       <CallPoolStatItem
         description="Active Collateral"
+        border="border-t"
         value={formatAmount(
           getUserReadableAmount(data.data.activeCollateral),
           3
@@ -38,6 +41,7 @@ const CallPoolStats = (props: CallPoolStatsInterface) => {
       />
       <CallPoolStatItem
         description="Strike"
+        border="border-l"
         value={'$' + getUserReadableAmount(data.data.strike, 8)}
       />
     </Box>
