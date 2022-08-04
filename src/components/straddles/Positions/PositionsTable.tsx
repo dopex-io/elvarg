@@ -25,12 +25,8 @@ import { WalletContext } from 'contexts/Wallet';
 const PositionsTable = () => {
   const sendTx = useSendTx();
   const { signer } = useContext(WalletContext);
-  const {
-    straddlesUserData,
-    selectedEpoch,
-    straddlesData,
-    updateStraddlesUserData,
-  } = useContext(StraddlesContext);
+  const { straddlesUserData, straddlesData, updateStraddlesUserData } =
+    useContext(StraddlesContext);
 
   const handleExercise = useCallback(
     async (selectedPositionNftIndex: number) => {
@@ -105,7 +101,7 @@ const PositionsTable = () => {
                 </TableCell>
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="">
-                    {Number(selectedEpoch!)}
+                    {Number(position.epoch!)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">

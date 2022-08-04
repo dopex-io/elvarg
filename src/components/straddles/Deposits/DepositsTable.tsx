@@ -25,7 +25,7 @@ import WithdrawModal from '../Dialogs/Withdraw';
 const DepositsTable = () => {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
-  const { straddlesUserData, selectedEpoch } = useContext(StraddlesContext);
+  const { straddlesUserData } = useContext(StraddlesContext);
   const [selectedPositionNftIndex, setSelectedPositionNftIndex] = useState<
     number | null
   >(null);
@@ -104,7 +104,7 @@ const DepositsTable = () => {
                 </TableCell>
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="">
-                    {Number(selectedEpoch!)}
+                    {Number(position.epoch!)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">
