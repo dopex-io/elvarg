@@ -237,15 +237,15 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     const totalEpochStrikeDepositsPending = epochStrikeDataCheckpoints.map(
       (item) => {
-        const lastCheckpointDeposits = item[item?.length - 1];
+        const lastCheckpoint = item[item?.length - 1];
 
-        const checkpointStart =
-          lastCheckpointDeposits?.startTime || BigNumber.from(0);
+        const checkpointStart = lastCheckpoint?.startTime || BigNumber.from(0);
         const pendingCollateral =
-          lastCheckpointDeposits?.totalCollateral || BigNumber.from(0);
+          lastCheckpoint?.totalCollateral || BigNumber.from(0);
 
         const timeNow = BigNumber.from(Math.floor(Date.now() / 1000));
-        return lastCheckpointDeposits && checkpointStart.add(2 * 3600) < timeNow
+
+        return lastCheckpoint && checkpointStart.add(2 * 3600).gt(timeNow)
           ? pendingCollateral
           : BigNumber.from(0);
       }
