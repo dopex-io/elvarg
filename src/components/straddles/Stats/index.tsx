@@ -26,7 +26,7 @@ const Stats = () => {
 
     let _epoch = selectedEpoch + 1;
 
-    return Array(_epoch - 1)
+    return Array(_epoch)
       .join()
       .split(',')
       .map((_i, index) => {

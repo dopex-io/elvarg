@@ -107,10 +107,8 @@ const Manage = () => {
           6
         )) *
       100;
-    if (String(share) === 'Infinity') share = 100;
-    if (String(share) === 'NaN') share = 100;
 
-    return formatAmount(share, 0);
+    return formatAmount(Math.min(share, 100), 0);
   }, [straddlesEpochData, amount, totalUSDDeposit]);
 
   // Handle Deposit
