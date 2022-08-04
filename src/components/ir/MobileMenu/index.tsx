@@ -1,4 +1,5 @@
 import { useContext, useCallback, useMemo } from 'react';
+import cx from 'classnames';
 import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -76,10 +77,11 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
               {epochs}
             </Select>
           </Box>
-          {/* @ts-ignore TODO: FIX */}
-          <Button className={styles['button']}>
+          <Button className={cx('', styles['button'])}>
             <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
-            {!rateVaultContext?.rateVaultEpochData?.isVaultReady
+            {rateVaultContext?.rateVaultEpochData?.isEpochExpired
+              ? 'Vault purchases are closed'
+              : !rateVaultContext?.rateVaultEpochData?.isVaultReady
               ? 'Vault open for deposits'
               : 'Vault open for purchases'}
           </Button>
