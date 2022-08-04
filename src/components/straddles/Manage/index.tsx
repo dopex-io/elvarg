@@ -55,7 +55,7 @@ const Manage = () => {
 
   const [approved, setApproved] = useState(false);
 
-  const [rawAmount, setRawAmount] = useState<string>('1000');
+  const [rawAmount, setRawAmount] = useState<string>('1');
 
   const totalUSDDeposit = useMemo(() => {
     let total = BigNumber.from('0');
