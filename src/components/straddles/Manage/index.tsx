@@ -127,9 +127,7 @@ const Manage = () => {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)
-          .deposit(getContractReadableAmount(amount, 6), true, accountAddress, {
-            gasLimit: 1000000,
-          })
+          .deposit(getContractReadableAmount(amount, 6), true, accountAddress)
       );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
@@ -156,21 +154,12 @@ const Manage = () => {
       !updateStraddlesUserData
     )
       return;
+
     try {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)
-          .purchase(
-            getContractReadableAmount(
-              amount /
-                getUserReadableAmount(straddlesEpochData?.currentPrice!, 8),
-              18
-            ),
-            accountAddress,
-            {
-              gasLimit: 3000000,
-            }
-          )
+          .purchase(getContractReadableAmount(amount, 18), accountAddress)
       );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
@@ -202,6 +191,12 @@ const Manage = () => {
       console.log(err);
     }
   }, [sendTx, signer, straddlesData, contractAddresses]);
+
+  const totalCost = useMemo(() => {
+    return getContractReadableAmount(amount, 18).mul(
+      straddlesEpochData?.currentPrice!
+    );
+  }, [amount, straddlesEpochData]);
 
   // Updates approved state and user balance
   useEffect(() => {
@@ -256,49 +251,50 @@ const Manage = () => {
           </Box>
         </Box>
       </Box>
-      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <Box className="flex flex-row justify-between">
-          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
-            <Box className="flex flex-row h-10 w-[100px] p-1">
-              <img src={'/images/tokens/usdc.svg'} alt={'USDC'} />
-              <Typography
-                variant="h6"
-                className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
-              >
-                <span className="text-white">USDC</span>
-              </Typography>
-            </Box>
-          </Box>
-          <Input
-            disableUnderline
-            id="notionalSize"
-            name="notionalSize"
-            placeholder="0"
-            type="number"
-            className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
-            value={rawAmount}
-            onChange={(e) => setRawAmount(e.target.value)}
-            classes={{ input: 'text-right' }}
-          />
-        </Box>
-        <Box className="flex flex-row justify-between">
-          <Box className="flex">
-            <Typography variant="h6" className="text-sm pl-1 pt-2">
-              <span className="text-stieglitz">Balance</span>
-            </Typography>
-          </Box>
-          <Box className="ml-auto mr-0">
-            <Typography
-              variant="h6"
-              className="text-stieglitz text-sm pl-1 pt-2 pr-3"
-            >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)} USDC
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
       {activeTab === 'Deposit' ? (
         <Box>
+          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+            <Box className="flex flex-row justify-between">
+              <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+                <Box className="flex flex-row h-10 w-[100px] p-1">
+                  <img src={'/images/tokens/usdc.svg'} alt={'USDC'} />
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
+                  >
+                    <span className="text-white">USDC</span>
+                  </Typography>
+                </Box>
+              </Box>
+              <Input
+                disableUnderline
+                id="notionalSize"
+                name="notionalSize"
+                placeholder="0"
+                type="number"
+                className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
+                value={rawAmount}
+                onChange={(e) => setRawAmount(e.target.value)}
+                classes={{ input: 'text-right' }}
+              />
+            </Box>
+            <Box className="flex flex-row justify-between">
+              <Box className="flex">
+                <Typography variant="h6" className="text-sm pl-1 pt-2">
+                  <span className="text-stieglitz">Balance</span>
+                </Typography>
+              </Box>
+              <Box className="ml-auto mr-0">
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz text-sm pl-1 pt-2 pr-3"
+                >
+                  {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)}{' '}
+                  USDC
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
           <Box className="mt-4 flex justify-center">
             <Box className="py-2 w-full rounded-tl-lg border border-neutral-800">
               <Typography variant="h6" className="mx-2 text-white">
@@ -419,16 +415,37 @@ const Manage = () => {
         </Box>
       ) : (
         <Box>
+          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+            <Box className="flex flex-row justify-between">
+              <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+                <Box className="flex flex-row h-10 w-[130px] p-1">
+                  <img src={'/images/tokens/eth.svg'} alt={'ETH STRADDLE'} />
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
+                  >
+                    <span className="text-white">Straddle</span>
+                  </Typography>
+                </Box>
+              </Box>
+              <Input
+                disableUnderline
+                id="notionalSize"
+                name="notionalSize"
+                placeholder="0"
+                type="number"
+                className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
+                value={rawAmount}
+                onChange={(e) => setRawAmount(e.target.value)}
+                classes={{ input: 'text-right' }}
+              />
+            </Box>
+          </Box>
           <Box className="mt-4 flex justify-center mb-4">
             <Box className="py-2 w-full rounded border border-neutral-800">
               <Typography variant="h6" className="mx-2 text-white">
-                {"You'll obtain "}
-                {formatAmount(
-                  amount /
-                    getUserReadableAmount(straddlesEpochData?.currentPrice!, 8),
-                  6
-                )}{' '}
-                straddles
+                {"You'll spend "}
+                {formatAmount(getUserReadableAmount(totalCost, 26), 2)} USDC
               </Typography>
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Current price is $
@@ -474,18 +491,24 @@ const Manage = () => {
                     ? 'primary'
                     : 'mineshaft'
                 }
-                disabled={amount < 3 || !straddlesData?.isVaultReady}
+                disabled={
+                  !straddlesData?.isVaultReady ||
+                  !(
+                    straddlesData?.isVaultReady! &&
+                    straddlesData?.isEpochExpired!
+                  )
+                }
                 onClick={approved ? handlePurchase : handleApprove}
               >
                 {approved
                   ? amount == 0
                     ? 'Insert an amount'
-                    : amount > getUserReadableAmount(userTokenBalance, 6)
+                    : getUserReadableAmount(totalCost, 26) >
+                      getUserReadableAmount(userTokenBalance, 6)
                     ? 'Insufficient balance'
-                    : straddlesData?.isVaultReady!
-                    ? amount < 3
-                      ? 'Min. purchase is $3'
-                      : 'Purchase'
+                    : straddlesData?.isVaultReady! &&
+                      straddlesData?.isEpochExpired!
+                    ? 'Purchase'
                     : 'Vault not ready'
                   : 'Approve'}
               </CustomButton>

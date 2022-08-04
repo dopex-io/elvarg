@@ -29,22 +29,6 @@ const TopBar = () => {
             ETH
           </Typography>
         </Box>
-        <Box className="mx-4 mt-1">
-          <Button
-            size="medium"
-            color="secondary"
-            className="mx-2 text-white text-md h-8 p-3 hover:text-gray-200 hover:bg-mineshaft bg-neutral-800"
-          >
-            Weekly
-          </Button>
-          <Button
-            size="medium"
-            color="secondary"
-            className="mx-2 text-white text-md h-8 p-3 hover:text-gray-200 hover:bg-mineshaft bg-neutral-800"
-          >
-            Puts
-          </Button>
-        </Box>
       </Box>
     </Box>
   );

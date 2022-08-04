@@ -1576,6 +1576,7 @@ export interface StraddlesData {
   straddlesOptionPricingContract?: SSOVOptionPricing;
   volatilityOracleContract?: VolatilityOracle;
   isVaultReady: boolean;
+  isEpochExpired: boolean;
 }
 
 export interface StraddlesEpochData {
@@ -1815,11 +1816,12 @@ export const Straddles = () => {
   useEffect(() => {
     async function update() {
       let currentEpoch = 0;
+      let isEpochExpired;
 
       try {
         currentEpoch = await straddlesContract!['currentEpoch']();
 
-        const isEpochExpired = await straddlesContract!['isEpochExpired'](
+        isEpochExpired = await straddlesContract!['isEpochExpired'](
           currentEpoch
         );
         if (isEpochExpired) currentEpoch = Number(isEpochExpired) + 1;
@@ -1845,6 +1847,7 @@ export const Straddles = () => {
         straddlePositionsMinter: straddlePositionsMinterContract,
         writePositionsMinter: writePositionsMinterContract,
         isVaultReady: isVaultReady,
+        isEpochExpired: isEpochExpired,
       });
     }
 

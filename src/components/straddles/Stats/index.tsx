@@ -105,6 +105,7 @@ const Stats = () => {
           </Typography>
         </Box>
       </Box>
+
       <Box className="w-full">
         <Box className="border border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
@@ -196,7 +197,7 @@ const Stats = () => {
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.usdPremiums!, 18),
+              getUserReadableAmount(straddlesEpochData?.usdPremiums!, 18 + 6),
               2
             )}
           </Typography>
