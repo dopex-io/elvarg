@@ -193,8 +193,10 @@ const Manage = () => {
   }, [sendTx, signer, straddlesData, contractAddresses]);
 
   const totalCost = useMemo(() => {
+    if (!straddlesEpochData?.currentPrice) return BigNumber.from('0');
+
     return getContractReadableAmount(amount, 18).mul(
-      straddlesEpochData?.currentPrice!
+      straddlesEpochData?.currentPrice
     );
   }, [amount, straddlesEpochData]);
 
