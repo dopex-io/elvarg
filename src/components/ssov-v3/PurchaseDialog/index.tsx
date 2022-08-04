@@ -76,6 +76,9 @@ const PurchaseDialog = ({
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
+  const [usableCollateral, setUsableCollateral] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -266,17 +269,50 @@ const PurchaseDialog = ({
     ssovData,
   ]);
 
+  useEffect(() => {
+    (async function () {
+      if (!ssovContract || !ssovEpochData || !ssovData || !tokenPrice) return;
+
+      const strike = epochStrikes[strikeIndex] || -1;
+
+      const epochStrikeDataCheckpoint = await ssovContract?.getCheckpoints(
+        ssovContract.currentEpoch(),
+        strike
+      );
+
+      const lastCheckpoint =
+        epochStrikeDataCheckpoint[epochStrikeDataCheckpoint?.length - 1];
+
+      const checkpointStart = lastCheckpoint?.startTime || BigNumber.from(0);
+      const pendingCollateral =
+        lastCheckpoint?.totalCollateral || BigNumber.from(0);
+
+      console.log(`pendingCollateral: ${pendingCollateral}`);
+
+      const timeNow = BigNumber.from(Math.floor(Date.now() / 1000));
+
+      if (pendingCollateral && checkpointStart.add(2 * 3600).lt(timeNow)) {
+        setUsableCollateral(pendingCollateral);
+      } else {
+        setUsableCollateral(BigNumber.from(0));
+      }
+    })();
+  }, [ssovData, strikeIndex]);
+
+  console.log(`usableCollateral: ${usableCollateral}`);
+
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
         (isPut
-          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+          ? availableCollateralForStrikes[strikeIndex]!.add(usableCollateral)
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.lt(
-              getContractReadableAmount(optionsAmount, 18)
-            )) ||
+          : availableCollateralForStrikes[strikeIndex]!.add(
+              usableCollateral
+            ).lt(getContractReadableAmount(optionsAmount, 18))) ||
         (isPut
           ? state.totalCost.gt(userTokenBalance)
           : state.totalCost
@@ -302,12 +338,13 @@ const PurchaseDialog = ({
     } else if (optionsAmount > 0) {
       if (
         isPut
-          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+          ? availableCollateralForStrikes[strikeIndex]!.add(usableCollateral)
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.lt(
-              getContractReadableAmount(optionsAmount, 18)
-            )
+          : availableCollateralForStrikes[strikeIndex]!.add(
+              usableCollateral
+            ).lt(getContractReadableAmount(optionsAmount, 18))
       ) {
         children = 'Collateral not available';
       } else if (
@@ -403,11 +440,15 @@ const PurchaseDialog = ({
                 {formatAmount(
                   isPut
                     ? getUserReadableAmount(
-                        availableCollateralForStrikes[strikeIndex]!,
+                        availableCollateralForStrikes[strikeIndex]!.add(
+                          usableCollateral
+                        ),
                         18
                       ) / Number(strikes[strikeIndex])
                     : getUserReadableAmount(
-                        availableCollateralForStrikes[strikeIndex]!,
+                        availableCollateralForStrikes[strikeIndex]!.add(
+                          usableCollateral
+                        ),
                         18
                       ),
                   5
