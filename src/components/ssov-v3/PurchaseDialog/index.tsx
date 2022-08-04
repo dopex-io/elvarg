@@ -287,8 +287,6 @@ const PurchaseDialog = ({
       const pendingCollateral =
         lastCheckpoint?.totalCollateral || BigNumber.from(0);
 
-      console.log(`pendingCollateral: ${pendingCollateral}`);
-
       const timeNow = BigNumber.from(Math.floor(Date.now() / 1000));
 
       if (pendingCollateral && checkpointStart.add(2 * 3600).lt(timeNow)) {
@@ -298,8 +296,6 @@ const PurchaseDialog = ({
       }
     })();
   }, [ssovData, strikeIndex]);
-
-  console.log(`usableCollateral: ${usableCollateral}`);
 
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
