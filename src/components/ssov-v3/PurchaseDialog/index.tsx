@@ -273,7 +273,7 @@ const PurchaseDialog = ({
     ssovData,
   ]);
 
-  useEffect(() => {
+  useMemo(() => {
     setUsableCollateral(totalEpochStrikeDepositsUsable[strikeIndex]!);
   }, [ssovEpochData, strikeIndex]);
 
