@@ -95,13 +95,22 @@ const Stats = () => {
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
-            Options Sold
+            Total Liquidity
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.totalSold!, 18),
+              getUserReadableAmount(straddlesEpochData?.usdDeposits!, 6),
               6
+            )}{' '}
+            (
+            {formatAmount(
+              getUserReadableAmount(
+                straddlesEpochData?.activeUsdDeposits!,
+                6 + 18 + 2
+              ),
+              2
             )}
+            ) <span className="text-gray-400"> USDC</span>
           </Typography>
         </Box>
       </Box>
