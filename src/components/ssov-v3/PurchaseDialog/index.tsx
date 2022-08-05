@@ -61,7 +61,11 @@ const PurchaseDialog = ({
   const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
 
-  const { epochStrikes, availableCollateralForStrikes } = ssovEpochData;
+  const {
+    epochStrikes,
+    availableCollateralForStrikes,
+    totalEpochStrikeDepositsUsable,
+  } = ssovEpochData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -270,32 +274,8 @@ const PurchaseDialog = ({
   ]);
 
   useEffect(() => {
-    (async function () {
-      if (!ssovContract || !ssovEpochData || !ssovData || !tokenPrice) return;
-
-      const strike = epochStrikes[strikeIndex] || -1;
-
-      const epochStrikeDataCheckpoint = await ssovContract?.getCheckpoints(
-        ssovContract.currentEpoch(),
-        strike
-      );
-
-      const lastCheckpoint =
-        epochStrikeDataCheckpoint[epochStrikeDataCheckpoint?.length - 1];
-
-      const checkpointStart = lastCheckpoint?.startTime || BigNumber.from(0);
-      const pendingCollateral =
-        lastCheckpoint?.totalCollateral || BigNumber.from(0);
-
-      const timeNow = BigNumber.from(Math.floor(Date.now() / 1000));
-
-      if (pendingCollateral && checkpointStart.add(2 * 3600).lt(timeNow)) {
-        setUsableCollateral(pendingCollateral);
-      } else {
-        setUsableCollateral(BigNumber.from(0));
-      }
-    })();
-  }, [ssovData, strikeIndex]);
+    setUsableCollateral(totalEpochStrikeDepositsUsable[strikeIndex]!);
+  }, [ssovEpochData, strikeIndex]);
 
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
