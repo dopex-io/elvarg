@@ -14,6 +14,7 @@ import { VolatilityOracle, SSOVOptionPricing } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 
 import { WalletContext } from './Wallet';
+import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
 
 const ABI = [
   {
@@ -1591,6 +1592,7 @@ export interface StraddlesEpochData {
   usdFunding: BigNumber;
   totalSold: BigNumber;
   currentPrice: BigNumber;
+  straddlePrice: BigNumber;
 }
 
 export interface WritePosition {
@@ -1640,7 +1642,7 @@ const initialStraddlesEpochData = {
   usdPremiums: BigNumber.from('0'),
   totalSold: BigNumber.from('0'),
   currentPrice: BigNumber.from('0'),
-  selectedPositionNftId: 0,
+  straddlePrice: BigNumber.from('0'),
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -1797,6 +1799,22 @@ export const Straddles = () => {
     const usdFunding = epochCollectionsData['usdFunding'];
     const usdPremiums = epochCollectionsData['usdPremiums'];
     const totalSold = epochCollectionsData['totalSold'];
+    let straddlePrice = await straddlesContract!['calculatePremium'](
+      false,
+      currentPrice,
+      getContractReadableAmount(1, 18),
+      epochData['expiry']
+    );
+
+    const timeToExpiry =
+      epochData['expiry'].toNumber() - new Date().getTime() / 1000;
+
+    const straddlePriceFunding = currentPrice
+      .mul(getContractReadableAmount(16, 17))
+      .mul(BigNumber.from(Math.round(timeToExpiry)))
+      .div(BigNumber.from(365 * 86400));
+
+    straddlePrice = straddlePrice.add(straddlePriceFunding);
 
     setStraddlesEpochData({
       activeUsdDeposits: epochData['activeUsdDeposits'],
@@ -1810,6 +1828,7 @@ export const Straddles = () => {
       totalSold: totalSold,
       usdPremiums: usdPremiums,
       currentPrice: currentPrice,
+      straddlePrice: straddlePrice,
     });
   }, [straddlesContract, contractAddresses, selectedEpoch, provider]);
 

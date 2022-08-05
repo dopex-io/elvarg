@@ -24,7 +24,7 @@ const Stats = () => {
   const epochs = useMemo(() => {
     if (!selectedEpoch) return [];
 
-    let _epoch = selectedEpoch + 1;
+    let _epoch = Number(selectedEpoch) + 1;
 
     return Array(_epoch)
       .join()
@@ -100,7 +100,7 @@ const Stats = () => {
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
               getUserReadableAmount(straddlesEpochData?.totalSold!, 18),
-              2
+              6
             )}
           </Typography>
         </Box>
@@ -197,8 +197,11 @@ const Stats = () => {
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.usdPremiums!, 18 + 6),
-              2
+              getUserReadableAmount(
+                straddlesEpochData?.usdPremiums!,
+                18 + 6 + 2
+              ),
+              4
             )}
           </Typography>
           <Typography variant="h6" className="text-gray-400">

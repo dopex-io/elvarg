@@ -11,7 +11,6 @@ import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -25,7 +24,6 @@ import Typography from 'components/UI/Typography';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
-import ArrowUpDownIcon from 'svgs/icons/ArrowsUpDownIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -70,10 +68,6 @@ const Manage = () => {
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
-
-  const open2CRV = () => {
-    window.open('https://arbitrum.curve.fi/2pool', '_blank');
-  };
 
   const readableExpiry = useMemo(() => {
     if (straddlesEpochData?.expiry.gt(10000000000))
@@ -190,11 +184,11 @@ const Manage = () => {
     }
   }, [sendTx, signer, straddlesData, contractAddresses]);
 
-  const totalCost = useMemo(() => {
-    if (!straddlesEpochData?.currentPrice) return BigNumber.from('0');
+  const totalCost: number = useMemo(() => {
+    if (!straddlesEpochData?.straddlePrice) return 0;
 
-    return getContractReadableAmount(amount, 18).mul(
-      straddlesEpochData?.currentPrice
+    return (
+      getUserReadableAmount(straddlesEpochData?.straddlePrice!, 26) * amount
     );
   }, [amount, straddlesEpochData]);
 
@@ -356,16 +350,6 @@ const Manage = () => {
               <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
                 <EstimatedGasCostButton gas={5000000} chainId={chainId} />
               </Box>
-              <Box
-                className="bg-mineshaft rounded-md flex items-center pr-2 pl-4 py-3 mb-3 cursor-pointer"
-                onClick={open2CRV}
-              >
-                <ArrowUpDownIcon className="" />
-                <Typography variant="h6" className="mx-3">
-                  Get 2CRV
-                </Typography>
-                <OpenInNewIcon role="button" className="w-5 h-5 ml-auto" />
-              </Box>
               <Tooltip title="Not available yet">
                 <Box className="bg-mineshaft rounded-md flex items-center pr-2 pl-3.5 py-3 cursor-pointer">
                   <CalculatorIcon className="w-3 h-3" />
@@ -445,12 +429,12 @@ const Manage = () => {
             <Box className="py-2 w-full rounded border border-neutral-800">
               <Typography variant="h6" className="mx-2 text-white">
                 {"You'll spend "}
-                {formatAmount(getUserReadableAmount(totalCost, 26), 2)} USDC
+                {formatAmount(totalCost, 5)} USDC
               </Typography>
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Current price is $
                 {formatAmount(
-                  getUserReadableAmount(straddlesEpochData?.currentPrice!, 8),
+                  getUserReadableAmount(straddlesEpochData?.straddlePrice!, 26),
                   2
                 )}
               </Typography>
@@ -461,16 +445,6 @@ const Manage = () => {
             <Box className="p-3">
               <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
                 <EstimatedGasCostButton gas={5000000} chainId={chainId} />
-              </Box>
-              <Box
-                className="bg-mineshaft rounded-md flex items-center pr-2 pl-4 py-3 mb-3 cursor-pointer"
-                onClick={open2CRV}
-              >
-                <ArrowUpDownIcon className="" />
-                <Typography variant="h6" className="mx-3">
-                  Get 2CRV
-                </Typography>
-                <OpenInNewIcon role="button" className="w-5 h-5 ml-auto" />
               </Box>
               <Tooltip title="Not available yet">
                 <Box className="bg-mineshaft rounded-md flex items-center pr-2 pl-3.5 py-3 cursor-pointer">
@@ -495,7 +469,7 @@ const Manage = () => {
                   !straddlesData?.isVaultReady ||
                   !(
                     straddlesData?.isVaultReady! &&
-                    straddlesData?.isEpochExpired!
+                    !straddlesData?.isEpochExpired!
                   )
                 }
                 onClick={approved ? handlePurchase : handleApprove}
@@ -507,7 +481,7 @@ const Manage = () => {
                       getUserReadableAmount(userTokenBalance, 6)
                     ? 'Insufficient balance'
                     : straddlesData?.isVaultReady! &&
-                      straddlesData?.isEpochExpired!
+                      !straddlesData?.isEpochExpired!
                     ? 'Purchase'
                     : 'Vault not ready'
                   : 'Approve'}
