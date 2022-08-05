@@ -39,7 +39,7 @@ const WithdrawModal = ({
 
     return (
       new Date().getTime() > straddlesEpochData?.expiry.toNumber() &&
-      !straddlesData?.isVaultReady
+      !straddlesData?.isEpochExpired
     );
   }, [straddlesEpochData, straddlesData]);
 
@@ -141,7 +141,7 @@ const WithdrawModal = ({
                   )}
                   disabled={!isWithdrawalEnabled}
                 >
-                  {isWithdrawalEnabled || !straddlesData?.isVaultReady ? (
+                  {isWithdrawalEnabled || !straddlesData?.isEpochExpired ? (
                     'Withdraw'
                   ) : (
                     <Countdown

@@ -1771,10 +1771,10 @@ export const Straddles = () => {
 
     setStraddlesUserData({
       straddlePositions: straddlePositions.filter(function (el) {
-        return !el['amount'].eq(0);
+        return !el['amount'].eq(0) && !el['exercised'];
       }),
       writePositions: writePositions.filter(function (el) {
-        return !el['usdDeposit'].eq(0);
+        return !el['usdDeposit'].eq(0) && !el['withdrawn'];
       }),
     });
   }, [
@@ -1799,12 +1799,19 @@ export const Straddles = () => {
     const usdFunding = epochCollectionsData['usdFunding'];
     const usdPremiums = epochCollectionsData['usdPremiums'];
     const totalSold = epochCollectionsData['totalSold'];
-    let straddlePrice = await straddlesContract!['calculatePremium'](
-      false,
-      currentPrice,
-      getContractReadableAmount(1, 18),
-      epochData['expiry']
-    );
+
+    let straddlePrice;
+
+    try {
+      straddlePrice = await straddlesContract!['calculatePremium'](
+        false,
+        currentPrice,
+        getContractReadableAmount(1, 18),
+        epochData['expiry']
+      );
+    } catch (e) {
+      straddlePrice = BigNumber.from('0');
+    }
 
     const timeToExpiry =
       epochData['expiry'].toNumber() - new Date().getTime() / 1000;
@@ -1815,6 +1822,8 @@ export const Straddles = () => {
       .div(BigNumber.from(365 * 86400));
 
     straddlePrice = straddlePrice.add(straddlePriceFunding);
+
+    console.log(straddlePrice);
 
     setStraddlesEpochData({
       activeUsdDeposits: epochData['activeUsdDeposits'],
