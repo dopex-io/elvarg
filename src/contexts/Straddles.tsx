@@ -1666,7 +1666,7 @@ export const Straddles = () => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x87E9D1Dd41C91e6C29c6668C89266d5671b390E0',
+        '0x70BA30CC9373e662F840123bD937C44D4084a80c',
         ABI,
         provider
       );
