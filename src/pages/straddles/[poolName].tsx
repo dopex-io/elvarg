@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useContext, useEffect } from 'react';
 import Box from '@mui/material/Box';
 
 import { StraddlesProvider, StraddlesContext } from 'contexts/Straddles';
@@ -12,7 +13,6 @@ import TVLCard from 'components/straddles/Charts/TVLCard';
 import Deposits from 'components/straddles/Deposits';
 import Positions from 'components/straddles/Positions';
 import Manage from 'components/straddles/Manage';
-import { useContext, useEffect } from 'react';
 
 interface Props {
   poolName: string;

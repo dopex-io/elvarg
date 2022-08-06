@@ -466,9 +466,8 @@ const Manage = () => {
                     : 'mineshaft'
                 }
                 disabled={
-                  !straddlesData?.isVaultReady ||
                   !(
-                    straddlesData?.isVaultReady! &&
+                    !straddlesData?.isVaultReady! &&
                     !straddlesData?.isEpochExpired!
                   )
                 }
@@ -480,7 +479,7 @@ const Manage = () => {
                     : getUserReadableAmount(totalCost, 26) >
                       getUserReadableAmount(userTokenBalance, 6)
                     ? 'Insufficient balance'
-                    : straddlesData?.isVaultReady! &&
+                    : !straddlesData?.isVaultReady! &&
                       !straddlesData?.isEpochExpired!
                     ? 'Purchase'
                     : 'Vault not ready'

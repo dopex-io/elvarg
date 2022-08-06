@@ -2,16 +2,18 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Countdown from 'react-countdown';
 
-import { StraddlesContext } from 'contexts/Straddles';
-import { WalletContext } from 'contexts/Wallet';
-
-import useSendTx from 'hooks/useSendTx';
-
 import Box from '@mui/material/Box';
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
+
+import { StraddlesContext } from 'contexts/Straddles';
+import { WalletContext } from 'contexts/Wallet';
+
+import CustomButton from 'components/UI/CustomButton';
+
+import useSendTx from 'hooks/useSendTx';
 
 export interface Props {
   open: boolean;
@@ -37,10 +39,12 @@ const WithdrawModal = ({
   const isWithdrawalEnabled: boolean = useMemo(() => {
     if (!straddlesEpochData) return false;
 
-    return (
+    if (
       new Date().getTime() > straddlesEpochData?.expiry.toNumber() &&
-      !straddlesData?.isEpochExpired
-    );
+      straddlesData?.isEpochExpired
+    )
+      return true;
+    else return false;
   }, [straddlesEpochData, straddlesData]);
 
   const handleWithdraw = useCallback(async () => {
@@ -131,7 +135,7 @@ const WithdrawModal = ({
                 Withdraw manually
               </Typography>
               <Box className="flex items-center">
-                <Button
+                <CustomButton
                   onClick={handleWithdraw}
                   className={cx(
                     'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
@@ -140,6 +144,7 @@ const WithdrawModal = ({
                       : 'bg-primary hover:bg-primary text-white'
                   )}
                   disabled={!isWithdrawalEnabled}
+                  color={isWithdrawalEnabled ? 'primary' : 'mineshaft'}
                 >
                   {isWithdrawalEnabled || !straddlesData?.isEpochExpired ? (
                     'Withdraw'
@@ -165,7 +170,7 @@ const WithdrawModal = ({
                       }}
                     />
                   )}
-                </Button>
+                </CustomButton>
               </Box>
             </Box>
             <Box className="m-2 mt-5">

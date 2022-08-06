@@ -5,11 +5,8 @@ import {
   useState,
   useCallback,
   useMemo,
-  ReactElement,
-  ReactFragment,
-  ReactPortal,
+  ReactNode,
 } from 'react';
-import { VolatilityOracle, SSOVOptionPricing } from '@dopex-io/sdk';
 
 import { BigNumber, ethers } from 'ethers';
 
@@ -1574,8 +1571,6 @@ export interface StraddlesData {
   currentEpoch: number;
   underlying: string;
   usd: string;
-  straddlesOptionPricingContract?: SSOVOptionPricing;
-  volatilityOracleContract?: VolatilityOracle;
   isVaultReady: boolean;
   isEpochExpired: boolean;
 }
@@ -1618,11 +1613,11 @@ export interface StraddlesUserData {
 }
 
 interface StraddlesContextInterface {
-  straddlesData?: StraddlesData;
-  straddlesEpochData?: StraddlesEpochData;
-  straddlesUserData?: StraddlesUserData;
-  selectedPoolName?: string;
-  selectedEpoch?: number;
+  straddlesData?: StraddlesData | undefined;
+  straddlesEpochData?: StraddlesEpochData | undefined;
+  straddlesUserData?: StraddlesUserData | undefined;
+  selectedPoolName?: string | null;
+  selectedEpoch?: number | null;
   updateStraddlesEpochData?: Function;
   updateStraddlesUserData?: Function;
   setSelectedEpoch?: Function;
@@ -1650,13 +1645,15 @@ export const StraddlesContext = createContext<StraddlesContextInterface>({
   straddlesEpochData: initialStraddlesEpochData,
 });
 
-export const Straddles = () => {
+export const StraddlesProvider = (props: { children: ReactNode }) => {
   const { accountAddress, contractAddresses, provider } =
     useContext(WalletContext);
 
   const [selectedPoolName, setSelectedPoolName] = useState<string | null>(null);
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(1);
-  const [straddlesData, setStraddlesData] = useState<StraddlesData>();
+  const [straddlesData, setStraddlesData] = useState<
+    StraddlesData | undefined
+  >();
   const [straddlesEpochData, setStraddlesEpochData] =
     useState<StraddlesEpochData>();
   const [straddlesUserData, setStraddlesUserData] =
@@ -1823,7 +1820,7 @@ export const Straddles = () => {
 
     straddlePrice = straddlePrice.add(straddlePriceFunding);
 
-    console.log(straddlePrice);
+    if (straddlePrice.lt(0)) straddlePrice = BigNumber.from(0);
 
     setStraddlesEpochData({
       activeUsdDeposits: epochData['activeUsdDeposits'],
@@ -1890,34 +1887,19 @@ export const Straddles = () => {
     updateStraddlesEpochData();
   }, [updateStraddlesEpochData]);
 
-  return {
+  const contextValue = {
     straddlesData,
     straddlesEpochData,
     straddlesUserData,
+    selectedPoolName,
     selectedEpoch,
     updateStraddlesEpochData,
     updateStraddlesUserData,
     setSelectedEpoch,
     setSelectedPoolName,
-    selectedPoolName,
   };
-};
-
-export const StraddlesProvider = (props: {
-  children:
-    | string
-    | number
-    | boolean
-    | ReactElement
-    | ReactFragment
-    | ReactPortal
-    | null
-    | undefined;
-}) => {
-  const contextValue = Straddles();
 
   return (
-    // @ts-ignore TODO: FIX
     <StraddlesContext.Provider value={contextValue}>
       {props.children}
     </StraddlesContext.Provider>

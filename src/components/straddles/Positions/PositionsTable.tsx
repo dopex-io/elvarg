@@ -2,7 +2,6 @@ import React, { useCallback, useContext } from 'react';
 import cx from 'classnames';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -13,14 +12,16 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 import useSendTx from 'hooks/useSendTx';
 
-import styles from 'components/ir/Positions/styles.module.scss';
 import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/CustomButton';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { StraddlesContext } from 'contexts/Straddles';
 import { WalletContext } from 'contexts/Wallet';
+
+import styles from 'components/ir/Positions/styles.module.scss';
 
 const PositionsTable = () => {
   const sendTx = useSendTx();
@@ -30,16 +31,20 @@ const PositionsTable = () => {
 
   const handleExercise = useCallback(
     async (selectedPositionNftIndex: number) => {
+      if (!straddlesData?.isEpochExpired) return;
+
       await sendTx(
         straddlesData?.straddlesContract
           .connect(signer)
           .settle(
-            straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
+            straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
+              'id'
+            ]
           )
       );
       await updateStraddlesUserData!();
     },
-    [straddlesData, signer, updateStraddlesUserData]
+    [straddlesData, straddlesUserData, signer, updateStraddlesUserData]
   );
 
   return (
@@ -105,14 +110,16 @@ const PositionsTable = () => {
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">
-                  <Button
-                    className={
-                      'cursor-pointer bg-primary hover:bg-primary text-white'
+                  <CustomButton
+                    className={'cursor-pointer text-white'}
+                    color={
+                      straddlesData?.isEpochExpired ? 'mineshaft' : 'primary'
                     }
+                    disabled={!straddlesData?.isEpochExpired}
                     onClick={() => handleExercise(i)}
                   >
                     Exercise
-                  </Button>
+                  </CustomButton>
                 </TableCell>
               </TableRow>
             ))}
