@@ -80,9 +80,7 @@ const PurchaseDialog = ({
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const [usableCollateral, setUsableCollateral] = useState<BigNumber>(
-    BigNumber.from('0')
-  );
+
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -273,9 +271,10 @@ const PurchaseDialog = ({
     ssovData,
   ]);
 
-  useMemo(() => {
-    setUsableCollateral(totalEpochStrikeDepositsUsable[strikeIndex]!);
-  }, [ssovEpochData, strikeIndex]);
+  const usableCollateral = useMemo(
+    () => totalEpochStrikeDepositsUsable[strikeIndex] || BigNumber.from(0),
+    [ssovEpochData, strikeIndex]
+  );
 
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
