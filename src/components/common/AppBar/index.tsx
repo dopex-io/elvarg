@@ -32,7 +32,6 @@ import { CURRENCIES_MAP } from 'constants/index';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import GridViewIcon from '@mui/icons-material/GridView';
 
 import styles from './styles.module.scss';
 
@@ -104,9 +103,8 @@ const appLinks = {
     { name: 'Rate Vaults', to: '/vaults/ir' },
     // { name: 'OTC', to: '/otc' },
     {
-      name: '',
-      to: '/more',
-      icon: <GridViewIcon fontSize="small" className="pb-0.5" />,
+      name: 'DPX Bonds',
+      to: '/dpx-bonds',
     },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
