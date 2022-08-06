@@ -1,6 +1,9 @@
 import React, { useContext } from 'react';
 import { useState } from 'react';
 import cx from 'classnames';
+
+import { css } from '@emotion/react';
+
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -12,7 +15,6 @@ import TableCell from '@mui/material/TableCell';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
-import styles from 'components/ir/Positions/styles.module.scss';
 import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -23,9 +25,9 @@ import { StraddlesContext } from 'contexts/Straddles';
 import WithdrawModal from '../Dialogs/Withdraw';
 
 const DepositsTable = () => {
+  const { straddlesUserData } = useContext(StraddlesContext);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
-  const { straddlesUserData } = useContext(StraddlesContext);
   const [selectedPositionNftIndex, setSelectedPositionNftIndex] = useState<
     number | null
   >(null);
@@ -38,7 +40,35 @@ const DepositsTable = () => {
   return (
     <Box>
       <TableContainer
-        className={cx(styles['optionsTable'], '-my-2', 'rounded-xl')}
+        className="rounded-xl"
+        css={css`
+          .optionsTable td {
+            border: none !important;
+          }
+
+          .optionsTable table {
+            border-collapse: separate !important;
+            border-spacing: 0 0.5em !important;
+          }
+
+          .optionsTable td {
+            border: solid 1px #000;
+            border-style: solid none;
+            padding: 10px 16px;
+          }
+
+          .optionsTable td:first-child {
+            border-left-style: solid;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+          }
+
+          .optionsTable td:last-child {
+            border-right-style: solid;
+            border-bottom-right-radius: 10px;
+            border-top-right-radius: 10px;
+          }
+        `}
       >
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
@@ -74,7 +104,7 @@ const DepositsTable = () => {
             {straddlesUserData?.writePositions?.map((position, i) => (
               <TableRow key={i} className="">
                 <TableCell className="pt-2">
-                  <Box className={''}>
+                  <Box>
                     <Box
                       className={`rounded-md flex items-center px-2 py-2 w-fit`}
                     >
