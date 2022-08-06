@@ -89,6 +89,7 @@ const ClaimCard = (props: Props) => {
                 <NumberDisplay
                   n={userRewardsEarned[index] || BigNumber.from(0)}
                   decimals={18}
+                  decimalsToShow={4}
                 />
               }
             />

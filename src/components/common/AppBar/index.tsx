@@ -102,7 +102,7 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
-    { name: 'OTC', to: '/otc' },
+    // { name: 'OTC', to: '/otc' },
     {
       name: '',
       to: '/more',

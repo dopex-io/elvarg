@@ -82,7 +82,8 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
         ssovSigner.ssovContractWithSigner.settle(
           strikeIndex,
           userEpochStrikeTokenBalance,
-          selectedEpoch
+          selectedEpoch,
+          accountAddress
         )
       );
       updateSsovV3EpochData();

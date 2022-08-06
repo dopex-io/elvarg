@@ -166,7 +166,8 @@ export const RateVault = () => {
       strike: BigNumber,
       strikeIndex: number,
       callLeverage: any,
-      putLeverage: any
+      putLeverage: any,
+      isEpochExpired: boolean
     ) => {
       const identifier = ethers.utils.solidityKeccak256(
         ['address', 'uint256', 'uint256', 'uint256'],
@@ -177,7 +178,10 @@ export const RateVault = () => {
         strike: strike,
         strikeIndex: strikeIndex,
         deposits: await rateVaultContract!['userEpochStrikeDeposits'](
-          Math.max(selectedEpoch || 0, 1),
+          Math.max(
+            (isEpochExpired ? selectedEpoch! - 1 : selectedEpoch) || 0,
+            1
+          ),
           identifier
         ),
       };
@@ -210,7 +214,8 @@ export const RateVault = () => {
               strike,
               strikeIndex,
               rateVaultEpochData.callsLeverages[i],
-              rateVaultEpochData.putsLeverages[j]
+              rateVaultEpochData.putsLeverages[j],
+              rateVaultEpochData.isEpochExpired
             )
           );
         });
@@ -357,6 +362,17 @@ export const RateVault = () => {
     [rateVaultContract]
   );
 
+  const getVolatility = useCallback(
+    async (strike: BigNumber) => {
+      try {
+        return await rateVaultContract!['getVolatility'](strike);
+      } catch (err) {
+        return BigNumber.from('0');
+      }
+    },
+    [rateVaultContract]
+  );
+
   const getCurrentRate = useCallback(async () => {
     try {
       return await rateVaultContract!['getCurrentRate']();
@@ -408,11 +424,8 @@ export const RateVault = () => {
       const volatilitiesPromises = [];
 
       for (let i in epochStrikes) {
-        // volatilitiesPromises.push(
-        //   rateVaultContract['getVolatility'](epochStrikes[i])
-        // );
-        volatilitiesPromises.push(BigNumber.from(0));
         const epochStrike = epochStrikes[i];
+        volatilitiesPromises.push(getVolatility(epochStrike!));
         if (epochStrike) {
           callsPremiumCostsPromises.push(calculatePremium(epochStrike, false));
           putsPremiumCostsPromises.push(calculatePremium(epochStrike, true));
@@ -582,7 +595,6 @@ export const RateVault = () => {
         const isEpochExpired = totalEpochData[9];
         if (isEpochExpired) currentEpoch += 1;
       } catch (err) {
-        console.log(err);
         return;
       }
 

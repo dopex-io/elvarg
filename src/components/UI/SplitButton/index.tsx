@@ -13,18 +13,22 @@ import CustomButton from '../CustomButton';
 export default function SplitButton({
   options,
   handleClick,
+  disableButtons,
 }: {
   options: string[];
   handleClick: Function;
+  disableButtons: boolean[];
 }) {
   const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(1);
 
   const _handleClick = () => handleClick(selectedIndex);
 
-  // @ts-ignore TODO: FIX
-  const handleMenuItemClick = (_event, index) => {
+  const handleMenuItemClick = (
+    _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    index: number
+  ) => {
     setSelectedIndex(index);
     setOpen(false);
   };
@@ -33,10 +37,11 @@ export default function SplitButton({
     setOpen((prevOpen) => !prevOpen);
   };
 
-  // @ts-ignore TODO: FIX
-  const handleClose = (event) => {
-    // @ts-ignore TODO: FIX
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+  const handleClose = (event: Event) => {
+    if (
+      anchorRef.current &&
+      anchorRef.current.contains(event.target as HTMLElement)
+    ) {
       return;
     }
 
@@ -51,7 +56,10 @@ export default function SplitButton({
         ref={anchorRef}
         aria-label="split button"
       >
-        <CustomButton onClick={_handleClick}>
+        <CustomButton
+          onClick={_handleClick}
+          disabled={!!disableButtons[selectedIndex]}
+        >
           {options[selectedIndex]}
         </CustomButton>
         <CustomButton
@@ -69,7 +77,6 @@ export default function SplitButton({
         anchorEl={anchorRef.current}
         role={undefined}
         transition
-        disablePortal
       >
         {({ TransitionProps, placement }) => (
           <Grow
@@ -82,17 +89,19 @@ export default function SplitButton({
             <Paper className="bg-umbra">
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                  {options.map((option, index) => (
-                    <MenuItem
-                      className="text-white"
-                      key={option}
-                      disabled={index === 2}
-                      selected={index === selectedIndex}
-                      onClick={(event) => handleMenuItemClick(event, index)}
-                    >
-                      {option}
-                    </MenuItem>
-                  ))}
+                  {options.map((option, index) => {
+                    return (
+                      <MenuItem
+                        key={option}
+                        className="text-white"
+                        disabled={!!disableButtons[index]}
+                        selected={index === selectedIndex}
+                        onClick={(event) => handleMenuItemClick(event, index)}
+                      >
+                        {option}
+                      </MenuItem>
+                    );
+                  })}
                 </MenuList>
               </ClickAwayListener>
             </Paper>

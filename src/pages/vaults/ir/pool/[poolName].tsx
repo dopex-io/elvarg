@@ -1,10 +1,12 @@
 import { useContext, useState, useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
+
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 import AppBar from 'components/common/AppBar';
 import PageLoader from 'components/common/PageLoader';
+import Typography from 'components/UI/Typography';
 import Description from 'components/ir/Description';
 import ManageCard from 'components/ir/ManageCard';
 import MobileMenu from 'components/ir/MobileMenu';
@@ -21,12 +23,14 @@ import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 import { WalletContext } from 'contexts/Wallet';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
-const Manage = () => {
-  const router = useRouter();
-  const { poolName } = router.query;
-  const { accountAddress, connect } = useContext(WalletContext);
+interface Props {
+  poolName: string;
+}
+
+const Manage = ({ poolName }: Props) => {
+  const { accountAddress, connect, chainId } = useContext(WalletContext);
   const rateVaultContext = useContext(RateVaultContext);
-  const { setSelectedPoolName } = rateVaultContext;
+  const { setSelectedPoolName, rateVaultData } = rateVaultContext;
   const [activeVaultContextSide, setActiveVaultContextSide] =
     useState<string>('CALL');
   const [activeView, setActiveView] = useState<string>('vault');
@@ -121,6 +125,7 @@ const Manage = () => {
                   activeVaultContextSide={activeVaultContextSide}
                   strikeIndex={strikeIndex}
                   setStrikeIndex={setStrikeIndex}
+                  poolName={poolName}
                 />
               ) : (
                 <SelectStrikeWidget />
@@ -129,14 +134,41 @@ const Manage = () => {
           </Box>
         </Box>
       </Box>
+      <Box className="flex justify-center space-x-2 my-8">
+        <Typography variant="h5" className="text-silver">
+          Contract Address:
+        </Typography>
+        <Typography
+          variant="h5"
+          className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
+        >
+          <a
+            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultData.rateVaultContract.address}`}
+            rel="noopener noreferrer"
+            target={'_blank'}
+          >
+            {rateVaultData.rateVaultContract.address}
+          </a>
+        </Typography>
+      </Box>
     </Box>
   );
 };
 
-const ManagePage = () => {
+export async function getServerSideProps(context: {
+  query: { poolName: string };
+}) {
+  return {
+    props: {
+      poolName: context.query.poolName,
+    },
+  };
+}
+
+const ManagePage = ({ poolName }: Props) => {
   return (
     <RateVaultProvider>
-      <Manage />
+      <Manage poolName={poolName} />
     </RateVaultProvider>
   );
 };

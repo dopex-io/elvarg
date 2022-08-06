@@ -1,9 +1,11 @@
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
 import { styled } from '@mui/material/styles';
+import format from 'date-fns/format';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
@@ -29,6 +31,11 @@ interface Props {
     retired: boolean;
     symbol: string;
     version: string;
+    duration: string;
+    epochTimes: {
+      startTime: string;
+      expiry: string;
+    };
   };
 }
 
@@ -56,6 +63,8 @@ function VaultCard(props: Props) {
     retired,
     symbol,
     version,
+    duration,
+    epochTimes,
   } = data;
   const info = useMemo(() => {
     return [
@@ -142,8 +151,27 @@ function VaultCard(props: Props) {
             <Typography variant="h6" className="text-stieglitz">
               Epoch {currentEpoch}
             </Typography>
+            {!retired ? (
+              <Tooltip
+                className="text-stieglitz"
+                arrow={true}
+                title="Epoch Start & Expiry Times"
+              >
+                <Box>
+                  <Typography variant="h6" color="stieglitz">
+                    {format(Number(epochTimes.startTime) * 1000, 'd LLL')} -{' '}
+                    {format(Number(epochTimes.expiry) * 1000, 'd LLL')}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            ) : null}
             <Typography variant="h6" className="text-stieglitz">
               Version {version}
+            </Typography>
+          </Box>
+          <Box className="text-center pt-2">
+            <Typography variant="h6" className="capitalize" color="stieglitz">
+              {duration}
             </Typography>
           </Box>
         </Box>
