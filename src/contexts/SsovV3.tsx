@@ -314,7 +314,14 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     };
 
     setSsovV3EpochData(_ssovEpochData);
-  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3]);
+  }, [
+    contractAddresses,
+    selectedEpoch,
+    provider,
+    selectedSsovV3,
+    totalEpochStrikeDepositsPending,
+    totalEpochStrikeDepositsUsable,
+  ]);
 
   useEffect(() => {
     if (
