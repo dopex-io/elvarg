@@ -165,11 +165,13 @@ function VaultCard(props: Props) {
                 </Box>
               </Tooltip>
             ) : null}
-            <Typography variant="h6" className="text-stieglitz capitalize">
-              {duration}
-            </Typography>
             <Typography variant="h6" className="text-stieglitz">
               Version {version}
+            </Typography>
+          </Box>
+          <Box className="text-center pt-2">
+            <Typography variant="h6" className="capitalize" color="stieglitz">
+              {duration}
             </Typography>
           </Box>
         </Box>
