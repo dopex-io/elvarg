@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import getValueColorClass from 'utils/general/getValueColorClass';
+import formatAmount from 'utils/general/formatAmount';
 
 interface Props {
   asset: string;
@@ -33,7 +34,7 @@ const PriceTag = (props: Props) => {
           component="span"
           className="text-stieglitz"
         >
-          ${price}
+          ${formatAmount(price, 2)}
         </Typography>
         <Typography
           variant="caption"

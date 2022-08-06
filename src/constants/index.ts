@@ -29,6 +29,12 @@ export const SSOV_MAP = {
     coinGeckoId: 'ethereum',
     tokens: ['WETH'],
   },
+  PLS: {
+    tokenSymbol: 'PLS',
+    imageSrc: '/images/tokens/pls.svg',
+    coinGeckoId: 'plutusdao',
+    tokens: ['PLS'],
+  },
   BNB: {
     tokenSymbol: 'BNB',
     imageSrc: '/images/tokens/bnb.svg',
@@ -266,6 +272,7 @@ export const TOKEN_DATA: {
   ETH: { cgId: 'ethereum', name: 'Ethereum' },
   WETH: { cgId: 'weth', name: 'Wrapped Etheruem' },
   WBTC: { cgId: 'bitcoin', name: 'Wrapped Bitcoin' },
+  PLS: { cgId: 'plutusdao', name: 'Plutus DAO' },
   BNB: { cgId: 'binancecoin', name: 'Binance Coin' },
   USDT: { cgId: 'tether', name: 'Tether USD' },
   USDC: { cgId: 'usd-coin', name: 'Circle USD' },
