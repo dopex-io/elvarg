@@ -41,11 +41,14 @@ const WithdrawModal = ({
 
     if (
       new Date().getTime() > straddlesEpochData?.expiry.toNumber() &&
-      straddlesData?.isEpochExpired
+      straddlesData?.isEpochExpired &&
+      straddlesUserData?.writePositions![selectedPositionNftIndex!]![
+        'epoch'
+      ]! <= straddlesData.currentEpoch
     )
       return true;
     else return false;
-  }, [straddlesEpochData, straddlesData]);
+  }, [straddlesEpochData, straddlesData, selectedPositionNftIndex]);
 
   const handleWithdraw = useCallback(async () => {
     await sendTx(

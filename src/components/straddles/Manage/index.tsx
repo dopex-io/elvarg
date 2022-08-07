@@ -10,7 +10,6 @@ import { format } from 'date-fns';
 import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -317,11 +316,9 @@ const Manage = () => {
             <Box className="">
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Next Epoch
-                <HelpOutlineIcon className="h-4 mb-1" />
               </Typography>
               <Typography variant="h6" className="mx-2 mt-2 text-neutral-400">
                 Withdrawable
-                <HelpOutlineIcon className="h-4 mb-1" />
               </Typography>
             </Box>
             <Box className="">
@@ -467,7 +464,7 @@ const Manage = () => {
                 }
                 disabled={
                   !(
-                    !straddlesData?.isVaultReady! &&
+                    straddlesData?.isVaultReady! &&
                     !straddlesData?.isEpochExpired!
                   )
                 }
@@ -479,7 +476,7 @@ const Manage = () => {
                     : getUserReadableAmount(totalCost, 26) >
                       getUserReadableAmount(userTokenBalance, 6)
                     ? 'Insufficient balance'
-                    : !straddlesData?.isVaultReady! &&
+                    : straddlesData?.isVaultReady! &&
                       !straddlesData?.isEpochExpired!
                     ? 'Purchase'
                     : 'Vault not ready'

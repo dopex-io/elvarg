@@ -13,7 +13,6 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 import Typography from 'components/UI/Typography';
 
@@ -87,7 +86,6 @@ const DepositsTable = () => {
               <TableCell className=" border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400 flex">
                   Epoch
-                  <HelpOutlineIcon className="w-5 h-5 ml-1" />
                 </Typography>
               </TableCell>
               <TableCell className=" border-0 pb-0">

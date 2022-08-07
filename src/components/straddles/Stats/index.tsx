@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
@@ -46,7 +45,7 @@ const Stats = () => {
   );
 
   return (
-    <Box className="flex text-gray-400 ">
+    <Box className="md:flex text-gray-400 ">
       <Box className="w-full">
         <Box className="border rounded-tl-lg border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
@@ -153,7 +152,6 @@ const Stats = () => {
             className="flex justify-center items-center text-gray-400"
           >
             APR
-            <HelpOutlineIcon className="w-5 h-5 ml-1" />
           </Typography>
           <Typography variant="h6" className="ml-auto mr-1 text-gray-400">
             ~
@@ -168,7 +166,6 @@ const Stats = () => {
             className="flex justify-center items-center text-gray-400"
           >
             Utilization
-            <HelpOutlineIcon className="w-5 h-5 ml-1" />
           </Typography>
           <Typography variant="h6" className="text-white">
             {formatAmount(

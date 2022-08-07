@@ -1605,6 +1605,7 @@ export interface StraddlePosition {
   apStrike: BigNumber;
   exercised: boolean;
   id: number;
+  pnl: BigNumber;
 }
 
 export interface StraddlesUserData {
@@ -1663,7 +1664,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x1E89678D6dCDC67000da125F04C9346B4b5A788e',
+        '0x269Af6744C612c099Fb0e614f0e28f0825498969',
         ABI,
         provider
       );
@@ -1673,7 +1674,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x2323ACF8FF6cbd447aa5d16b655CC1F0a3209d36',
+        '0x46B852311c561A8274D5c4671c79D90F6aDf0234',
         ERC721ABI,
         provider
       );
@@ -1683,7 +1684,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return new ethers.Contract(
-        '0x40d3ee90c63607C22b10F3B95d9F6424584c66c7',
+        '0x44a7bd59628F86c2773B2c531c0f7dDa1f7D4539',
         ERC721ABI,
         provider
       );
@@ -1693,12 +1694,14 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     async (id: number) => {
       try {
         const data = await straddlesContract!['straddlePositions'](id);
+        const pnl = await straddlesContract!['getPnl'](id);
         return {
           id: id,
           epoch: data['epoch'],
           amount: data['amount'],
           apStrike: data['apStrike'],
           exercised: data['exercised'],
+          pnl: pnl,
         };
       } catch {
         return {
