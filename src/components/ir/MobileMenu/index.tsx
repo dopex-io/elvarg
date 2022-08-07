@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import styled from '@emotion/styled';
 
 import Typography from 'components/UI/Typography';
 import CircleIcon from 'svgs/icons/CircleIcon';
@@ -12,7 +13,17 @@ import { RateVaultContext } from 'contexts/RateVault';
 
 import getFormattedDate from 'utils/date/getFormattedDate';
 
-import styles from './styles.module.scss';
+const EpochStatusButton = styled(Button)`
+  color: white;
+  padding-right: 15px;
+  padding-left: 15px;
+  cursor: not-allowed;
+`;
+
+const EpochStatusBox = styled(Box)`
+  background: linear-gradient(318.43deg, #002eff -7.57%, #22e1ff 100%);
+  border-radius: 5px;
+`;
 
 export interface Props {
   asset: string;
@@ -76,13 +87,16 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
               {epochs}
             </Select>
           </Box>
-          {/* @ts-ignore TODO: FIX */}
-          <Button className={styles['button']}>
-            <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
-            {!rateVaultContext?.rateVaultEpochData?.isVaultReady
-              ? 'Vault open for deposits'
-              : 'Vault open for purchases'}
-          </Button>
+          <EpochStatusBox>
+            <EpochStatusButton>
+              <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
+              {rateVaultContext?.rateVaultEpochData?.isEpochExpired
+                ? 'Vault purchases are closed'
+                : !rateVaultContext?.rateVaultEpochData?.isVaultReady
+                ? 'Vault open for deposits'
+                : 'Vault open for purchases'}
+            </EpochStatusButton>
+          </EpochStatusBox>
         </Box>
         <Box className={'bg-[#2D2D2D] p-3 rounded-md mt-3'}>
           <Box className={'flex'}>
