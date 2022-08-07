@@ -265,7 +265,7 @@ const Tzwap = () => {
 
   const minFees: number = useMemo(() => {
     if (tickInUsd === 0) return 0;
-    else if (chainId === 42161) return (100 * 9) / tickInUsd;
+    else if (chainId === 42161) return (100 * 2) / tickInUsd;
     else return (100 * 75) / tickInUsd;
   }, [tickInUsd, chainId]);
 
