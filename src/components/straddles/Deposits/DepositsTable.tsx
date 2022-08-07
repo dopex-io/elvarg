@@ -36,6 +36,10 @@ const DepositsTable = () => {
     setSelectedPositionNftIndex(id);
   };
 
+  const closeWithdrawModal = () => {
+    setIsWithdrawModalOpen(false);
+  };
+
   return (
     <Box>
       <TableContainer
@@ -71,18 +75,14 @@ const DepositsTable = () => {
       >
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
-            <TableRow className="">
+            <TableRow>
               <TableCell className="border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400">
                   Amount
                   <ArrowDownwardIcon className="w-4 pb-2 ml-2" />
                 </Typography>
               </TableCell>
-              <TableCell className="border-0 pb-0">
-                <Typography variant="h6" className="text-gray-400">
-                  Premiums
-                </Typography>
-              </TableCell>
+
               <TableCell className=" border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400 flex">
                   Epoch
@@ -125,11 +125,7 @@ const DepositsTable = () => {
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell className="pt-1">
-                  <Typography variant="h6" className="text-[#6DFFB9]">
-                    $0
-                  </Typography>
-                </TableCell>
+
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="">
                     {Number(position.epoch!)}
@@ -148,11 +144,7 @@ const DepositsTable = () => {
                     <WithdrawModal
                       open={isWithdrawModalOpen}
                       selectedPositionNftIndex={selectedPositionNftIndex}
-                      handleClose={
-                        (() => {
-                          setIsWithdrawModalOpen(false);
-                        }) as any
-                      }
+                      handleClose={closeWithdrawModal}
                     />
                   )}
                 </TableCell>

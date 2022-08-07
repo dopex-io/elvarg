@@ -75,7 +75,7 @@ const Straddles = ({ poolName }: Props) => {
             <Positions />
           </Box>
         </Box>
-        <Box className="lg:pt-32 sm:pt-20 pt-20 lg:mr-auto px-2 lg:px-0 lg:ml-32">
+        <Box className="lg:pt-32 sm:pt-20 lg:mr-auto md:mx-0 mx-4 mb-8 px-2 lg:px-0 lg:ml-32">
           <Manage />
         </Box>
       </Box>

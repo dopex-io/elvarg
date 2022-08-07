@@ -81,7 +81,7 @@ const PositionsTable = () => {
       >
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
-            <TableRow className="">
+            <TableRow>
               <TableCell className="border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400">
                   Amount
@@ -112,7 +112,7 @@ const PositionsTable = () => {
             {straddlesUserData?.straddlePositions?.map((position, i) => (
               <TableRow key={i} className="">
                 <TableCell className="pt-2">
-                  <Box className={''}>
+                  <Box>
                     <Box
                       className={`rounded-md flex items-center px-2 py-2 w-fit`}
                     >
