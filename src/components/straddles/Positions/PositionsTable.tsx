@@ -1,5 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import cx from 'classnames';
+import { css } from '@emotion/react';
+
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -19,8 +21,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { StraddlesContext } from 'contexts/Straddles';
 import { WalletContext } from 'contexts/Wallet';
-
-import styles from 'components/ir/Positions/styles.module.scss';
 
 const PositionsTable = () => {
   const sendTx = useSendTx();
@@ -49,7 +49,35 @@ const PositionsTable = () => {
   return (
     <Box>
       <TableContainer
-        className={cx(styles['optionsTable'], '-my-2', 'rounded-xl')}
+        className="rounded-xl"
+        css={css`
+          .optionsTable td {
+            border: none !important;
+          }
+
+          .optionsTable table {
+            border-collapse: separate !important;
+            border-spacing: 0 0.5em !important;
+          }
+
+          .optionsTable td {
+            border: solid 1px #000;
+            border-style: solid none;
+            padding: 10px 16px;
+          }
+
+          .optionsTable td:first-child {
+            border-left-style: solid;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+          }
+
+          .optionsTable td:last-child {
+            border-right-style: solid;
+            border-bottom-right-radius: 10px;
+            border-top-right-radius: 10px;
+          }
+        `}
       >
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
