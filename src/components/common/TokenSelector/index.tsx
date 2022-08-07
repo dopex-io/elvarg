@@ -21,7 +21,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
-import { TOKEN_DATA } from 'constants/index';
+import { TOKEN_DATA } from 'constants/tokens';
 
 export interface Props {
   open: boolean;
@@ -46,14 +46,12 @@ const TokenSelector = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const getValueInUsd = useCallback(
-    // @ts-ignore TODO: FIX
-    (symbol) => {
+    (symbol: string) => {
       let value = 0;
       tokenPrices.map((record) => {
         if (record['name'] === symbol) {
           value =
-            // @ts-ignore TODO: FIX
-            (record['price'] * parseInt(userAssetBalances[symbol])) /
+            (record['price'] * parseInt(userAssetBalances[symbol] || '0')) /
             10 ** getTokenDecimals(symbol, chainId);
         }
       });
@@ -107,9 +105,7 @@ const TokenSelector = ({
                 return getValueInUsd(b) - getValueInUsd(a);
               })
               .map((symbol) =>
-                // @ts-ignore TODO: FIX
                 (Addresses[chainId][symbol] ||
-                  // @ts-ignore TODO: FIX
                   CHAIN_ID_TO_NATIVE[chainId] === symbol) &&
                 symbol.includes(searchTerm.toUpperCase()) &&
                 !tokensToExclude.includes(symbol.toUpperCase()) ? (
@@ -143,10 +139,7 @@ const TokenSelector = ({
                           {symbol}
                         </Typography>
                         <Typography variant="h6" className="text-gray-400">
-                          {
-                            // @ts-ignore TODO: FIX
-                            TOKEN_DATA[symbol].name
-                          }
+                          {TOKEN_DATA[symbol]?.name}
                         </Typography>
                       </Box>{' '}
                     </Box>
@@ -157,8 +150,7 @@ const TokenSelector = ({
                       >
                         {formatAmount(
                           getUserReadableAmount(
-                            // @ts-ignore TODO: FIX
-                            userAssetBalances[symbol],
+                            userAssetBalances[symbol] ?? '0',
                             getTokenDecimals(symbol, chainId)
                           ),
                           3

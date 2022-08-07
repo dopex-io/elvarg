@@ -347,19 +347,19 @@ const PurchaseDialog = ({
       onClick,
     };
   }, [
-    approved,
-    handleApprove,
-    handlePurchase,
-    isPurchaseStatsLoading,
     optionsAmount,
-    state.totalCost,
-    usableCollateral,
-    userTokenBalance,
-    ssovData.tokenPrice,
+    isPurchaseStatsLoading,
     isPut,
     availableCollateralForStrikes,
     strikeIndex,
+    usableCollateral,
     strikes,
+    state,
+    userTokenBalance,
+    ssovData,
+    approved,
+    handlePurchase,
+    handleApprove,
   ]);
 
   return (
