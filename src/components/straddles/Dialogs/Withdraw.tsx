@@ -17,7 +17,7 @@ import useSendTx from 'hooks/useSendTx';
 
 export interface Props {
   open: boolean;
-  handleClose: () => {};
+  handleClose: Function;
   selectedPositionNftIndex: number | null;
 }
 
@@ -48,7 +48,12 @@ const WithdrawModal = ({
     )
       return true;
     else return false;
-  }, [straddlesEpochData, straddlesData, selectedPositionNftIndex]);
+  }, [
+    straddlesEpochData,
+    straddlesData,
+    selectedPositionNftIndex,
+    straddlesUserData,
+  ]);
 
   const handleWithdraw = useCallback(async () => {
     await sendTx(
@@ -65,6 +70,7 @@ const WithdrawModal = ({
     selectedPositionNftIndex,
     signer,
     updateStraddlesUserData,
+    sendTx,
   ]);
 
   const handleToggleRollover = useCallback(async () => {
@@ -82,6 +88,7 @@ const WithdrawModal = ({
     selectedPositionNftIndex,
     signer,
     updateStraddlesUserData,
+    sendTx,
   ]);
 
   const rolloverText = useMemo(() => {
@@ -94,7 +101,7 @@ const WithdrawModal = ({
     <Modal
       className="flex items-center justify-center"
       open={open}
-      onClose={handleClose}
+      onClose={() => handleClose}
     >
       <Box className="max-w-sm">
         <Box className="bg-cod-gray rounded-2xl p-4 pr-3">

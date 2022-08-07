@@ -22,6 +22,8 @@ import { RateVaultContext } from 'contexts/RateVault';
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
+import useSendTx from 'hooks/useSendTx';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -226,6 +228,8 @@ const Deposits = () => {
   const { selectedEpoch, rateVaultUserData } = rateVaultContext;
   const { rateVaultContract } = rateVaultContext.rateVaultData;
 
+  const sendTx = useSendTx();
+
   const epochTime: number = useMemo(() => {
     return rateVaultContext.rateVaultEpochData.epochStartTimes &&
       rateVaultContext.rateVaultEpochData.epochEndTimes
@@ -333,12 +337,15 @@ const Deposits = () => {
   }, [rateVaultUserData]);
 
   const handleWithdraw = useCallback(async () => {
-    rateVaultContract.withdrawMultiple(
-      selectedEpoch,
-      withdrawData.strikesIndexes,
-      withdrawData.callLeveragesIndexes,
-      withdrawData.putLeveragesIndexes,
-      accountAddress
+    await sendTx(
+      rateVaultContract.withdrawMultiple(
+        selectedEpoch,
+        withdrawData.strikesIndexes,
+        withdrawData.callLeveragesIndexes,
+        withdrawData.putLeveragesIndexes,
+        accountAddress,
+        { gasLimit: 3000000 }
+      )
     );
 
     updateAssetBalances();
@@ -351,6 +358,7 @@ const Deposits = () => {
     accountAddress,
     rateVaultContract,
     rateVaultContext,
+    sendTx
   ]);
 
   return rateVaultContext?.rateVaultEpochData.epochStrikes ? (

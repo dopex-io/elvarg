@@ -162,7 +162,6 @@ const Manage = () => {
     straddlesData,
     signer,
     sendTx,
-    straddlesEpochData,
     amount,
     updateStraddlesUserData,
     updateStraddlesEpochData,
@@ -190,6 +189,27 @@ const Manage = () => {
       getUserReadableAmount(straddlesEpochData?.straddlePrice!, 26) * amount
     );
   }, [amount, straddlesEpochData]);
+
+  const purchaseButtonMessage: string = useMemo(() => {
+    if (!approved) return 'Approve';
+    else if (amount == 0) return 'Insert an amount';
+    else if (
+      getUserReadableAmount(totalCost, 26) >
+      getUserReadableAmount(userTokenBalance, 6)
+    )
+      return 'Insufficient balance';
+    else if (!(straddlesData?.isVaultReady! && !straddlesData?.isEpochExpired!))
+      return 'Vault not ready';
+    return 'Purchase';
+  }, [approved, amount, totalCost, userTokenBalance, straddlesData]);
+
+  const depositButtonMessage: string = useMemo(() => {
+    if (!approved) return 'Approve';
+    else if (amount == 0) return 'Insert an amount';
+    else if (amount > getUserReadableAmount(userTokenBalance, 6))
+      return 'Insufficient balance';
+    return 'Deposit';
+  }, [approved, amount, userTokenBalance]);
 
   // Updates approved state and user balance
   useEffect(() => {
@@ -383,13 +403,7 @@ const Manage = () => {
                 disabled={amount <= 0}
                 onClick={approved ? handleDeposit : handleApprove}
               >
-                {approved
-                  ? amount == 0
-                    ? 'Insert an amount'
-                    : amount > getUserReadableAmount(userTokenBalance, 6)
-                    ? 'Insufficient balance'
-                    : 'Deposit'
-                  : 'Approve'}
+                {depositButtonMessage}
               </CustomButton>
             </Box>
           </Box>
@@ -470,17 +484,7 @@ const Manage = () => {
                 }
                 onClick={approved ? handlePurchase : handleApprove}
               >
-                {approved
-                  ? amount == 0
-                    ? 'Insert an amount'
-                    : getUserReadableAmount(totalCost, 26) >
-                      getUserReadableAmount(userTokenBalance, 6)
-                    ? 'Insufficient balance'
-                    : straddlesData?.isVaultReady! &&
-                      !straddlesData?.isEpochExpired!
-                    ? 'Purchase'
-                    : 'Vault not ready'
-                  : 'Approve'}
+                {purchaseButtonMessage}
               </CustomButton>
             </Box>
           </Box>

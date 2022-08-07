@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { styled } from '@mui/material/styles';
 
 import Typography from 'components/UI/Typography';
 import CircleIcon from 'svgs/icons/CircleIcon';
@@ -16,7 +17,17 @@ import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import getFormattedDate from 'utils/date/getFormattedDate';
 
-import styles from './styles.module.scss';
+const EpochStatusButton = styled(Button)`
+  color: white;
+  padding-right: 15px;
+  padding-left: 15px;
+  cursor: not-allowed;
+`;
+
+const EpochStatusBox = styled(Box)`
+  background: linear-gradient(318.43deg, #002eff -7.57%, #22e1ff 100%);
+  border-radius: 5px;
+`;
 
 export interface Props {
   activeView: string;
@@ -81,13 +92,16 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
               {epochs}
             </Select>
           </Box>
-          {/* @ts-ignore TODO: FIX */}
-          <Button className={styles.button}>
-            <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
-            {!rateVaultContext.rateVaultEpochData.isVaultReady
-              ? 'Vault open for deposits'
-              : 'Vault open for purchases'}
-          </Button>
+          <EpochStatusBox>
+            <EpochStatusButton>
+              <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
+              {rateVaultContext?.rateVaultEpochData?.isEpochExpired
+                ? 'Vault purchases are closed'
+                : !rateVaultContext?.rateVaultEpochData?.isVaultReady
+                ? 'Vault open for deposits'
+                : 'Vault open for purchases'}
+            </EpochStatusButton>
+          </EpochStatusBox>
           {/*<Box className={'bg-[#2D2D2D] p-2 pr-4 pl-4 rounded-md ml-auto'}>
             <img src={'/assets/threedots.svg'} className={'h-4 mt-[6px]'} />
           </Box>*/}
@@ -128,8 +142,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
                 ? '-'
                 : getFormattedDate(
                     new Date(
-                      (rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() +
-                        86400 * 3) *
+                      rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() *
                         1000
                     )
                   )}
@@ -242,13 +255,13 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
         <Box className="absolute right-[10px] top-[8px] bg-mineshaft p-2 pt-1 pb-1 rounded-md">
           <a
             className={'cursor-pointer'}
-            href={`${getExplorerUrl(
-              chainId
-            )}/address/${'0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41'}`}
+            href={`${getExplorerUrl(chainId)}/address/${
+              rateVaultData.rateVaultContract.address
+            }`}
           >
             <Typography variant="h5" className="text-white text-[11px]">
               {displayAddress(
-                '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41',
+                rateVaultData.rateVaultContract.address,
                 undefined
               )}
             </Typography>

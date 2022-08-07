@@ -42,6 +42,7 @@ const DepositsTable = () => {
 
   return (
     <Box>
+      {/* @ts-ignore TODO: FIX */}
       <TableContainer
         className="rounded-xl"
         css={css`

@@ -43,13 +43,15 @@ const PositionsTable = () => {
       );
       await updateStraddlesUserData!();
     },
-    [straddlesData, straddlesUserData, signer, updateStraddlesUserData]
+    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx]
   );
 
   return (
     <Box>
+      {/* @ts-ignore TODO: FIX */}
       <TableContainer
         className="rounded-xl"
+        //@ts-ignore
         css={css`
           .optionsTable td {
             border: none !important;

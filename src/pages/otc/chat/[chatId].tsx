@@ -221,12 +221,15 @@ const Chatroom = (props) => {
 
 const Chatroompage = (props) => {
   const { chatId } = props;
-  return (
-    <OtcProvider>
-      <Chatroom chatId={chatId} />
-    </OtcProvider>
-  );
+  // return (
+  //   <OtcProvider>
+  //     <Chatroom chatId={chatId} />
+  //   </OtcProvider>
+  // );
+
+  return <></>;
 };
+
 export async function getServerSideProps(context) {
   return {
     props: {

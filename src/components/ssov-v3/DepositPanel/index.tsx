@@ -178,7 +178,7 @@ const DepositPanel = () => {
         </Typography>
         {ssovData?.isPut ? (
           <a
-            href="https://arbitrum.curve.fi/2pool"
+            href="https://arbitrum.curve.fi/2pool/deposit"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-auto mt-1"
@@ -302,7 +302,7 @@ const DepositPanel = () => {
                 {epochTimes[1]
                   ? format(
                       new Date(epochTimes[1].toNumber() * 1000),
-                      'd LLLL yyyy'
+                      'd MMM yyyy HH:mm'
                     )
                   : '-'}
                 )

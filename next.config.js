@@ -10,6 +10,16 @@ module.exports = {
         destination: '/ssov',
         permanent: false,
       },
+      {
+        source: '/otc',
+        destination: '/ssov',
+        permanent: false,
+      },
+      {
+        source: '/otc/chat',
+        destination: '/ssov',
+        permanent: false,
+      },
     ];
   },
 };
