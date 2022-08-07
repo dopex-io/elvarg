@@ -273,7 +273,7 @@ const PurchaseDialog = ({
 
   const usableCollateral = useMemo(
     () => totalEpochStrikeDepositsUsable[strikeIndex] || BigNumber.from(0),
-    [ssovEpochData, strikeIndex]
+    [strikeIndex, totalEpochStrikeDepositsUsable]
   );
 
   const purchaseButtonProps = useMemo(() => {
@@ -347,18 +347,19 @@ const PurchaseDialog = ({
       onClick,
     };
   }, [
-    approved,
-    handleApprove,
-    handlePurchase,
-    isPurchaseStatsLoading,
     optionsAmount,
-    state.totalCost,
-    userTokenBalance,
-    ssovData.tokenPrice,
+    isPurchaseStatsLoading,
     isPut,
     availableCollateralForStrikes,
     strikeIndex,
+    usableCollateral,
     strikes,
+    state,
+    userTokenBalance,
+    ssovData,
+    approved,
+    handlePurchase,
+    handleApprove,
   ]);
 
   return (
