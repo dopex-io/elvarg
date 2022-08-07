@@ -10,7 +10,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 import { RateVaultContext } from 'contexts/RateVault';
 
@@ -27,7 +27,7 @@ const Transfer = ({
   setTokenAddressToTransfer,
   tokenAddressToTransfer,
 }: Props) => {
-  const { accountAddress, signer } = useContext(WalletContext);
+  const { accountAddress, signer } = useWalletStore();
   const { updateAssetBalances } = useContext(AssetsContext);
   const rateVaultContext = useContext(RateVaultContext);
   const { updateRateVaultUserData } = rateVaultContext;

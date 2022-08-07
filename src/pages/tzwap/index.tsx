@@ -43,7 +43,7 @@ import displayAddress from 'utils/general/displayAddress';
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
@@ -82,7 +82,7 @@ const SelectMenuProps = {
 const Tzwap = () => {
   const sendTx = useSendTx();
   const { chainId, signer, accountAddress, provider, contractAddresses } =
-    useContext(WalletContext);
+    useWalletStore();
   const { userAssetBalances, tokenPrices, updateAssetBalances } =
     useContext(AssetsContext);
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);

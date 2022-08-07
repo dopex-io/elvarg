@@ -1,12 +1,13 @@
-import { useContext, useCallback } from 'react';
+import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { ContractTransaction } from 'ethers';
 
 import TransactionToast from 'components/UI/TransactionToast';
-import { WalletContext } from 'contexts/Wallet';
+
+import { useWalletStore } from 'store/Wallet';
 
 const useSendTx = () => {
-  const { wrongNetwork, chainId } = useContext(WalletContext);
+  const { wrongNetwork, chainId } = useWalletStore();
 
   const sendTx = useCallback(
     async (

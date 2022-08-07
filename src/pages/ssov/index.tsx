@@ -3,7 +3,7 @@ import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
@@ -41,7 +41,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Ssov = () => {
-  const { chainId, provider } = useContext(WalletContext);
+  const { chainId, provider } = useWalletStore();
   const { tokenPrices } = useContext(AssetsContext);
 
   const [ssovs, setSsovs] = useState(null);

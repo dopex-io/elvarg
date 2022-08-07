@@ -19,7 +19,7 @@ import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
 import { RateVaultContext } from 'contexts/RateVault';
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import useSendTx from 'hooks/useSendTx';
@@ -222,7 +222,7 @@ const ROWS_PER_PAGE = 5;
 
 const Deposits = () => {
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, ensName } = useContext(WalletContext);
+  const { accountAddress, ensName } = useWalletStore();
   const { updateAssetBalances } = useContext(AssetsContext);
 
   const { selectedEpoch, rateVaultUserData } = rateVaultContext;
@@ -352,11 +352,14 @@ const Deposits = () => {
     rateVaultContext.updateRateVaultEpochData();
     rateVaultContext.updateRateVaultUserData();
   }, [
-    withdrawData,
-    selectedEpoch,
-    updateAssetBalances,
-    accountAddress,
+    sendTx,
     rateVaultContract,
+    selectedEpoch,
+    withdrawData.strikesIndexes,
+    withdrawData.callLeveragesIndexes,
+    withdrawData.putLeveragesIndexes,
+    accountAddress,
+    updateAssetBalances,
     rateVaultContext,
   ]);
 

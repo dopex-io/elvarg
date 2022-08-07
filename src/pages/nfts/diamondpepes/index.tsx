@@ -20,7 +20,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { Data, UserData, initialData } from 'types/diamondpepes';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { NftsProvider } from 'contexts/Nfts';
 
 import useSendTx from 'hooks/useSendTx';
@@ -29,7 +29,7 @@ import styles from 'components/nfts/diamondpepes/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
-    useContext(WalletContext);
+    useWalletStore();
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({

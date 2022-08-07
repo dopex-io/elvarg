@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import MoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import BidAsk from 'components/otc/Dialogs/BidAsk';
 import CloseRfqDialog from 'components/otc/Dialogs/CloseRfqDialog';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 interface CustomMenuProps {
   id: string;
@@ -33,7 +33,7 @@ const DIALOGS = {
 const CustomMenu = (props: CustomMenuProps) => {
   const { data, actions, id } = props;
 
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress } = useWalletStore();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogState, setDialogState] = useState({

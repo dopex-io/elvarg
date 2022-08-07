@@ -10,7 +10,7 @@ import Typography from 'components/UI/Typography';
 import CircleIcon from 'svgs/icons/CircleIcon';
 
 import { RateVaultContext } from 'contexts/RateVault';
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import displayAddress from 'utils/general/displayAddress';
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
@@ -38,7 +38,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
   const { selectedEpoch, setSelectedEpoch, rateVaultData } = rateVaultContext;
   const { currentEpoch } = rateVaultData;
-  const { chainId } = useContext(WalletContext);
+  const { chainId } = useWalletStore();
 
   const handleSelectChange = useCallback(
     // @ts-ignore TODO: FIX

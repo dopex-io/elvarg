@@ -25,7 +25,7 @@ import CustomButton from 'components/UI/CustomButton';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 
 import { AssetsContext } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import { CURRENCIES_MAP } from 'constants/index';
 
@@ -135,7 +135,7 @@ interface AppBarProps {
 export default function AppBar(props: AppBarProps) {
   const { active } = props;
   const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
-    useContext(WalletContext);
+    useWalletStore();
   const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

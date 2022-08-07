@@ -16,7 +16,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import Stat from '../Stat';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -32,7 +32,7 @@ export interface Props {
 
 const TransferDialog = ({ open, handleClose, data }: Props) => {
   const { ssovData, ssovSigner } = useContext(SsovV3Context);
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress } = useWalletStore();
 
   const sendTx = useSendTx();
 

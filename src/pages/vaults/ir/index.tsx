@@ -3,7 +3,7 @@ import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
@@ -31,7 +31,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Vaults = () => {
-  const { provider } = useContext(WalletContext);
+  const { provider } = useWalletStore();
   const { tokenPrices } = useContext(AssetsContext);
   const [selectedStates, setselectedStates] = useState<string[] | string>([
     'Active',

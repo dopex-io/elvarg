@@ -9,7 +9,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -44,7 +44,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     ssovSigner,
     selectedEpoch,
   } = useContext(SsovV3Context);
-  const { accountAddress, provider, signer } = useContext(WalletContext);
+  const { accountAddress, provider, signer } = useWalletStore();
 
   const sendTx = useSendTx();
 

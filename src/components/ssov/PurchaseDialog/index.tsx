@@ -50,7 +50,6 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import {
   SsovContext,
@@ -90,7 +89,7 @@ const PurchaseDialog = ({
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
-    useContext(WalletContext);
+    useWalletStore();
   const { convertToVBNB } = useContext(BnbConversionContext);
 
   const {

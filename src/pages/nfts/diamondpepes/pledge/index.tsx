@@ -21,14 +21,14 @@ import { Data, UserData, initialData } from 'types/diamondpepes';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { NftsProvider } from 'contexts/Nfts';
 
 import styles from 'components/nfts/diamondpepes/PledgeDialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, provider, signer, chainId } =
-    useContext(WalletContext);
+  const { accountAddress, provider, signer, chainId } = useWalletStore();
+
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =

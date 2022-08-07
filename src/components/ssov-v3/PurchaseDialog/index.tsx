@@ -33,7 +33,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 import { SsovV3Context, SsovV3Data, SsovV3EpochData } from 'contexts/SsovV3';
 
@@ -56,7 +56,7 @@ const PurchaseDialog = ({
     useContext(SsovV3Context);
   const { updateAssetBalances } = useContext(AssetsContext);
   const { accountAddress, provider, signer, contractAddresses } =
-    useContext(WalletContext);
+    useWalletStore();
 
   const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
@@ -273,7 +273,7 @@ const PurchaseDialog = ({
 
   const usableCollateral = useMemo(
     () => totalEpochStrikeDepositsUsable[strikeIndex] || BigNumber.from(0),
-    [ssovEpochData, strikeIndex]
+    [strikeIndex, totalEpochStrikeDepositsUsable]
   );
 
   const purchaseButtonProps = useMemo(() => {
@@ -353,6 +353,7 @@ const PurchaseDialog = ({
     isPurchaseStatsLoading,
     optionsAmount,
     state.totalCost,
+    usableCollateral,
     userTokenBalance,
     ssovData.tokenPrice,
     isPut,

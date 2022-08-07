@@ -1,10 +1,9 @@
-import { useContext } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import AddTokenButton from './AddTokenButton';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import { S3_BUCKET_RESOURCES } from 'constants/index';
 
@@ -18,7 +17,7 @@ interface BalanceItemProps {
 
 const BalanceItem = (props: BalanceItemProps) => {
   const { balance, token, iconSrc, iconAlt, decimals } = props;
-  const { contractAddresses } = useContext(WalletContext);
+  const { contractAddresses } = useWalletStore();
 
   const upperCaseToken = token.toUpperCase();
 

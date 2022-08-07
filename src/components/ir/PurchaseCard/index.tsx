@@ -33,7 +33,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 import { RateVaultContext } from 'contexts/RateVault';
 
@@ -62,7 +62,7 @@ const PurchaseCard = ({
 
   const { updateAssetBalances, tokenPrices } = useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
-    useContext(WalletContext);
+    useWalletStore();
 
   const { epochTimes } = rateVaultContext.rateVaultEpochData;
 

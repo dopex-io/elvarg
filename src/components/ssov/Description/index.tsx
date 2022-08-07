@@ -7,8 +7,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
-import { WalletContext } from 'contexts/Wallet';
 import { BnbConversionContext } from 'contexts/BnbConversion';
+import { useWalletStore } from 'store/Wallet';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
@@ -36,7 +36,7 @@ const Description = ({
   type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useContext(WalletContext);
+  const { accountAddress, connect } = useWalletStore();
   const { convertToBNB } = useContext(BnbConversionContext);
 
   const { APY, isVaultReady } = ssovEpochData;

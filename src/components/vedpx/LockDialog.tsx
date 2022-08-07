@@ -18,7 +18,7 @@ import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/CustomButton';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import {
   VeDPXContext,
   vedpxAddress,
@@ -62,7 +62,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer } = useContext(WalletContext);
+  const { signer } = useWalletStore();
   const { userData, data, updateData, updateUserData } =
     useContext(VeDPXContext);
 

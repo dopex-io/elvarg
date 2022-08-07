@@ -1,10 +1,10 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import Box from '@mui/material/Box';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import changeOrAddNetwork from 'utils/general/changeOrAddNetwork';
 
@@ -39,7 +39,7 @@ const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
 
 const ChangeNetworkDialog = () => {
   const { wrongNetwork, supportedChainIds, changeNetwork, setChangeNetwork } =
-    useContext(WalletContext);
+    useWalletStore();
 
   useEffect(() => {
     setChangeNetwork(wrongNetwork ? 'wrong-network' : 'close');

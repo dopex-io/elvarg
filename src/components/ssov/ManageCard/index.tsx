@@ -28,7 +28,7 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 
@@ -89,7 +89,7 @@ function TabPanel(props) {
 
 const ManageCard = () => {
   const { accountAddress, chainId, provider, signer, contractAddresses } =
-    useContext(WalletContext);
+    useWalletStore();
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const {

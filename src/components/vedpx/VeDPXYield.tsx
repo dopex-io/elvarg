@@ -9,14 +9,14 @@ import NumberDisplay from 'components/UI/NumberDisplay';
 import InfoTooltip from 'components/UI/InfoTooltip';
 
 import { VeDPXContext, vedpxYieldDistributorAddress } from 'contexts/VeDPX';
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
 const VeDPXYield = () => {
-  const { accountAddress, signer } = useContext(WalletContext);
+  const { accountAddress, signer } = useWalletStore();
   const { userData, data, updateData, updateUserData } =
     useContext(VeDPXContext);
 

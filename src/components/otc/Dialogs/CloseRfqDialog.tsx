@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import {
   doc,
@@ -17,7 +17,7 @@ import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import { db } from 'utils/firebase/initialize';
 
@@ -31,7 +31,8 @@ interface CloseRfqDialogProps {
 const CloseRfqDialog = (props: CloseRfqDialogProps) => {
   const { open, id, data, handleClose } = props;
 
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress } = useWalletStore();
+
   const [disabled, setDisabled] = useState(false);
 
   const handleSubmit = useCallback(async () => {

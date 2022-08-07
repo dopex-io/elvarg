@@ -16,7 +16,7 @@ import Typography from 'components/UI/Typography';
 import ClaimCard from 'components/farms/ClaimCard';
 import QuickLinks from 'components/farms/QuickLinks';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { FarmingContext, FarmingProvider } from 'contexts/Farming';
 
 import { FARMS } from 'constants/farms';
@@ -35,7 +35,7 @@ const initialDialogData: BasicManageDialogProps = {
 };
 
 const Farms = () => {
-  const { chainId, accountAddress } = useContext(WalletContext);
+  const { chainId, accountAddress } = useWalletStore();
 
   const data = useContext(FarmingContext);
 

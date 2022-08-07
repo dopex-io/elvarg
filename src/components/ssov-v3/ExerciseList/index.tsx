@@ -18,8 +18,8 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/common/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
-import { WalletContext } from 'contexts/Wallet';
 import { SsovV3Context } from 'contexts/SsovV3';
+import { useWalletStore } from 'store/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
@@ -40,7 +40,7 @@ interface userExercisableOption {
 const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
-  const { accountAddress, provider } = useContext(WalletContext);
+  const { accountAddress, provider } = useWalletStore();
   const { ssovData, ssovEpochData, selectedEpoch } = useContext(SsovV3Context);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
@@ -99,6 +99,7 @@ const ExerciseList = () => {
             settleableAmount.gt(0) &&
             ((isPut && settlementPrice.lt(strike)) ||
               (!isPut && settlementPrice.gt(strike)));
+
           // @ts-ignore TODO: FIX
           const isPastEpoch = selectedEpoch < currentEpoch;
           const pnlAmount = settlementPrice.isZero()

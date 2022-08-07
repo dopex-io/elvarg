@@ -14,7 +14,7 @@ import ClaimSection from 'components/sale/ClaimSection';
 import StatsSection from 'components/sale/StatsSection';
 import InfoSection from 'components/sale/InfoSection';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { TokenSaleContext, TokenSaleProvider } from 'contexts/TokenSale';
 
 import useEthPrice from 'hooks/useEthPrice';
@@ -35,8 +35,7 @@ const TokenSale = () => {
     blockTime,
   } = useContext(TokenSaleContext);
 
-  const { accountAddress, signer, contractAddresses } =
-    useContext(WalletContext);
+  const { accountAddress, signer, contractAddresses } = useWalletStore();
 
   const ethPrice = useEthPrice();
   const sendTx = useSendTx();

@@ -12,7 +12,7 @@ import Typography from 'components/UI/Typography';
 
 import { BnbConversionProvider } from 'contexts/BnbConversion';
 import { SsovContext, SsovProvider } from 'contexts/Ssov';
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
@@ -29,7 +29,7 @@ const Manage = ({ type, name }: Props) => {
     setSelectedSsov,
     selectedSsov,
   } = useContext(SsovContext);
-  const { chainId } = useContext(WalletContext);
+  const { chainId } = useWalletStore();
 
   useEffect(() => {
     // @ts-ignore TODO: FIX

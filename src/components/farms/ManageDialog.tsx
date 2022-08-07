@@ -18,7 +18,7 @@ import Tab from 'components/UI/Tab';
 
 import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { FarmingContext } from 'contexts/Farming';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -54,7 +54,7 @@ const ManageDialog = (props: Props) => {
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer, accountAddress } = useContext(WalletContext);
+  const { signer, accountAddress } = useWalletStore();
   const { getUserData } = useContext(FarmingContext);
 
   const sendTx = useSendTx();

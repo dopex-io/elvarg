@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext } from 'react';
+import { useState, useCallback /*, useContext */ } from 'react';
 import {} from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -8,7 +8,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import BalanceItem from 'components/common/BalanceItem';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
@@ -25,28 +25,25 @@ interface Props {
 
 const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
-    useContext(WalletContext);
+    useWalletStore();
 
   const [copyState, setCopyState] = useState('Copy Address');
 
   const copyToClipboard = () => {
     setCopyState('Copied');
     delay(() => setCopyState('Copy Address'), 500);
-    // @ts-ignore TODO: FIX
-    navigator.clipboard.writeText(accountAddress);
+    navigator.clipboard.writeText(accountAddress ?? '-');
   };
 
   const changeWalletClick = useCallback(() => {
-    // @ts-ignore TODO: FIX
     changeWallet();
     handleClose();
   }, [handleClose, changeWallet]);
 
   const disconnectWalletClick = useCallback(() => {
-    // @ts-ignore TODO: FIX
     disconnect();
     handleClose();
-  }, [disconnect, handleClose]);
+  }, [handleClose, disconnect]);
 
   return (
     // @ts-ignore TODO: FIX

@@ -17,7 +17,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import TokenSelector from '../TokenSelector';
@@ -70,7 +70,7 @@ const ZapIn = ({
   lpPrice = 1,
 }: Props) => {
   const { userAssetBalances } = useContext(AssetsContext);
-  const { chainId } = useContext(WalletContext);
+  const { chainId } = useWalletStore();
 
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);

@@ -12,14 +12,14 @@ import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Slide from '@mui/material/Slide';
 
-import Typography from '../../UI/Typography';
+import Typography from 'components/UI/Typography';
+
+import { useWalletStore } from 'store/Wallet';
+import { CHAIN_ID_TO_NATIVE, AssetsContext } from 'contexts/Assets';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-
-import { WalletContext } from 'contexts/Wallet';
-import { CHAIN_ID_TO_NATIVE, AssetsContext } from 'contexts/Assets';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
+import formatAmount from 'utils/general/formatAmount';
 
 import { TOKEN_DATA } from 'constants/index';
 
@@ -40,7 +40,7 @@ const TokenSelector = ({
   tokensToExclude = ['2CRV'],
   enableSearch = true,
 }: Props) => {
-  const { chainId } = useContext(WalletContext);
+  const { chainId } = useWalletStore();
   const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
 
   const [searchTerm, setSearchTerm] = useState<string>('');

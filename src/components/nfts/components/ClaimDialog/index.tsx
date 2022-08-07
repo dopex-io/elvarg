@@ -16,7 +16,7 @@ import BalanceTree from 'utils/merkle/balance-tree';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { NftsContext } from 'contexts/Nfts';
 
 import dopexBridgoorAddresses from 'constants/json/dopexBridgoorAddresses.json';
@@ -24,7 +24,7 @@ import dopexHalloweenAddresses from 'constants/json/dopexHalloweenAddresses.json
 
 // @ts-ignore TODO: FIX
 const ClaimModal = ({ open, handleClose, index, name }) => {
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress } = useWalletStore();
   const { userNftsData } = useContext(NftsContext);
 
   const sendTx = useSendTx();

@@ -13,12 +13,12 @@ import CustomButton from 'components/UI/CustomButton';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { NftsContext } from 'contexts/Nfts';
 
 // @ts-ignore TODO: FIX
 const TransferModal = ({ open, handleClose, index }) => {
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress } = useWalletStore();
   const { userNftsData } = useContext(NftsContext);
 
   // @ts-ignore TODO: FIX

@@ -14,7 +14,7 @@ import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
 import { AssetsContext } from 'contexts/Assets';
 
@@ -46,7 +46,7 @@ const SelectMenuProps = {
 };
 
 const DepositPanel = () => {
-  const { accountAddress, chainId, signer } = useContext(WalletContext);
+  const { accountAddress, chainId, signer } = useWalletStore();
   const { updateAssetBalances } = useContext(AssetsContext);
   const {
     updateSsovV3EpochData: updateSsovEpochData,

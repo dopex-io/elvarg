@@ -17,14 +17,13 @@ import Pledge2Dialog from 'components/nfts/diamondpepes/Pledge2Dialog';
 
 import { Data, UserData, initialData } from 'types/diamondpepes';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useWalletStore } from 'store/Wallet';
 import { NftsProvider } from 'contexts/Nfts';
 
 import styles from 'components/nfts/diamondpepes/Pledge2Dialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, provider, signer, chainId } =
-    useContext(WalletContext);
+  const { accountAddress, provider, signer, chainId } = useWalletStore();
   const [data, setData] = useState<Data>(initialData.data);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
