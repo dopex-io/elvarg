@@ -151,6 +151,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       } catch {
         return {
           amount: BigNumber.from('0'),
+          exercised: false
         };
       }
     },
