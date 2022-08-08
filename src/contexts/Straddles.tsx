@@ -288,12 +288,12 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       let isEpochExpired;
 
       try {
-        currentEpoch = await straddlesContract!['currentEpoch']();
+        currentEpoch = Number(await straddlesContract!['currentEpoch']());
 
         isEpochExpired = await straddlesContract!['isEpochExpired'](
           currentEpoch
         );
-        if (isEpochExpired) currentEpoch = Number(isEpochExpired) + 1;
+        if (isEpochExpired) currentEpoch = currentEpoch + 1;
       } catch (err) {
         console.log(err);
         return;
