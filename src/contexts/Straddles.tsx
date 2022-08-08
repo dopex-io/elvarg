@@ -9,7 +9,7 @@ import {
 } from 'react';
 
 import { BigNumber } from 'ethers';
-import { AtlanticStraddle__Factory, ERC721__Factory } from '@dopex-io/sdk';
+import { AtlanticStraddle__factory, ERC721__factory } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
 import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
@@ -113,7 +113,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
   const straddlesContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
-    else return AtlanticStraddle__Factory.connect(
+    else return AtlanticStraddle__factory.connect(
         "0x269Af6744C612c099Fb0e614f0e28f0825498969",
         provider
     )
@@ -121,7 +121,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
   const straddlePositionsMinterContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
-    else return ERC721__Factory.connect(
+    else return ERC721__factory.connect(
         "0x46B852311c561A8274D5c4671c79D90F6aDf0234",
         provider
     )
@@ -129,7 +129,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
   const writePositionsMinterContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
-    else return ERC721__Factory.connect(
+    else return ERC721__factory.connect(
         "0x44a7bd59628F86c2773B2c531c0f7dDa1f7D4539",
         provider
     )
