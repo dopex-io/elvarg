@@ -113,7 +113,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   const straddlesContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
     else return AtlanticStraddle__factory.connect(
-        "0x269Af6744C612c099Fb0e614f0e28f0825498969",
+        "0xD533eF961aF47384de1aec58A2256d90134b2fEe",
         provider
     )
   }, [provider, selectedPoolName]);
@@ -121,7 +121,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   const straddlePositionsMinterContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
     else return ERC721__factory.connect(
-        "0x46B852311c561A8274D5c4671c79D90F6aDf0234",
+        "0x0f4a22977DF09f2A52BEC2D4f5722251d73664B5",
         provider
     )
   }, [provider, selectedPoolName]);
@@ -129,7 +129,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   const writePositionsMinterContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
     else return ERC721__factory.connect(
-        "0x44a7bd59628F86c2773B2c531c0f7dDa1f7D4539",
+        "0xe0FB2A10c5fF1032AA8F41d3E2A195eBc451b43C",
         provider
     )
   }, [provider, selectedPoolName]);
