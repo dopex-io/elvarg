@@ -16,12 +16,7 @@ const Deposits = () => {
       <Box className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <Box className="flex ml-3">
           <Box className="rounded-md bg-neutral-700 flex mb-2 mt-1">
-            <img
-              className="w-6 h-6 m-1"
-              src="/images/misc/avatar.svg"
-              alt={accountAddress}
-            />
-            <Typography variant="h6" className="ml-auto mr-2 pt-1">
+            <Typography variant="h6" className="ml-auto p-1">
               {displayAddress(accountAddress, ensName)}
             </Typography>
           </Box>
