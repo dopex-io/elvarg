@@ -14,7 +14,6 @@ import { AtlanticStraddle__factory, ERC721__factory } from '@dopex-io/sdk';
 import { WalletContext } from './Wallet';
 import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
 
-
 export interface StraddlesData {
   straddlesContract: any;
   straddlePositionsMinter: any;
@@ -110,26 +109,29 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
   const straddlesContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
-    else return AtlanticStraddle__factory.connect(
-        "0xD533eF961aF47384de1aec58A2256d90134b2fEe",
+    else
+      return AtlanticStraddle__factory.connect(
+        '0xD533eF961aF47384de1aec58A2256d90134b2fEe',
         provider
-    )
+      );
   }, [provider, selectedPoolName]);
 
   const straddlePositionsMinterContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
-    else return ERC721__factory.connect(
-        "0x0f4a22977DF09f2A52BEC2D4f5722251d73664B5",
+    else
+      return ERC721__factory.connect(
+        '0x0f4a22977DF09f2A52BEC2D4f5722251d73664B5',
         provider
-    )
+      );
   }, [provider, selectedPoolName]);
 
   const writePositionsMinterContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;
-    else return ERC721__factory.connect(
-        "0xe0FB2A10c5fF1032AA8F41d3E2A195eBc451b43C",
+    else
+      return ERC721__factory.connect(
+        '0xe0FB2A10c5fF1032AA8F41d3E2A195eBc451b43C',
         provider
-    )
+      );
   }, [provider, selectedPoolName]);
 
   const getStraddlePosition = useCallback(
@@ -146,7 +148,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       } catch {
         return {
-          amount: BigNumber.from('0')
+          amount: BigNumber.from('0'),
         };
       }
     },
@@ -162,7 +164,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
           id: id,
           epoch: data['epoch'],
           usdDeposit: data['usdDeposit'],
-          rollover: data['rollover']
+          rollover: data['rollover'],
         };
       } catch {
         return {
@@ -222,11 +224,12 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     accountAddress,
     getStraddlePosition,
     getWritePosition,
-    selectedPoolName
+    selectedPoolName,
   ]);
 
   const updateStraddlesEpochData = useCallback(async () => {
-    if (selectedEpoch === null || !selectedPoolName || !straddlesContract) return;
+    if (selectedEpoch === null || !selectedPoolName || !straddlesContract)
+      return;
 
     const epochData = await straddlesContract!['epochData'](
       Math.max(selectedEpoch || 0, 1)
@@ -297,8 +300,11 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         return;
       }
 
-      const underlying = await straddlesContract!['underlying']();
-      const usd = await straddlesContract!['usd']();
+      const addresses = await straddlesContract!['addresses']();
+
+      const underlying = addresses['underlying'];
+
+      const usd = addresses['usd'];
 
       const isVaultReady = await straddlesContract!['isVaultReady'](
         currentEpoch
@@ -319,7 +325,12 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     }
 
     if (straddlesContract) update();
-  }, [selectedPoolName, straddlesContract, straddlePositionsMinterContract, writePositionsMinterContract]);
+  }, [
+    selectedPoolName,
+    straddlesContract,
+    straddlePositionsMinterContract,
+    writePositionsMinterContract,
+  ]);
 
   useEffect(() => {
     updateStraddlesUserData();
