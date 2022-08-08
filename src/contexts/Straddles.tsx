@@ -150,7 +150,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract, straddlePositionsMinterContract]
+    [straddlesContract]
   );
 
   const getWritePosition = useCallback(
@@ -218,9 +218,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     });
   }, [
     straddlesContract,
-    contractAddresses,
     selectedEpoch,
-    provider,
     accountAddress,
     getStraddlePosition,
     getWritePosition,
@@ -321,7 +319,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     }
 
     if (straddlesContract) update();
-  }, [contractAddresses, provider, selectedPoolName, straddlesContract, straddlePositionsMinterContract, writePositionsMinterContract]);
+  }, [selectedPoolName, straddlesContract, straddlePositionsMinterContract, writePositionsMinterContract]);
 
   useEffect(() => {
     updateStraddlesUserData();
