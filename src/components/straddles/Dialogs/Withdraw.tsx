@@ -32,7 +32,7 @@ const WithdrawModal = ({
     straddlesEpochData,
     updateStraddlesUserData,
   } = useContext(StraddlesContext);
-  const { signer } = useContext(WalletContext);
+  const { signer, accountAddress } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
@@ -56,6 +56,16 @@ const WithdrawModal = ({
   ]);
 
   const handleWithdraw = useCallback(async () => {
+    const approved = await straddlesData!.writePositionsMinter.connect(signer).isApprovedForAll(accountAddress, straddlesData?.straddlesContract.address);
+
+    if (!approved) await sendTx(
+      straddlesData?.writePositionsMinter
+        .connect(signer)
+        .setApprovalForAll(
+          straddlesData?.straddlesContract.address
+        )
+    );
+
     await sendTx(
       straddlesData?.straddlesContract
         .connect(signer)

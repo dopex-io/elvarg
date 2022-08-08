@@ -26,13 +26,23 @@ import { WalletContext } from 'contexts/Wallet';
 
 const PositionsTable = () => {
   const sendTx = useSendTx();
-  const { signer } = useContext(WalletContext);
+  const { signer, accountAddress } = useContext(WalletContext);
   const { straddlesUserData, straddlesData, updateStraddlesUserData } =
     useContext(StraddlesContext);
 
   const handleExercise = useCallback(
     async (selectedPositionNftIndex: number) => {
       if (!straddlesData?.isEpochExpired) return;
+
+      const approved = await straddlesData!.straddlePositionsMinter.connect(signer).isApprovedForAll(accountAddress, straddlesData?.straddlesContract.address);
+
+      if (!approved) await sendTx(
+          straddlesData?.straddlePositionsMinter
+            .connect(signer)
+            .setApprovalForAll(
+              straddlesData?.straddlesContract.address
+            )
+      );
 
       await sendTx(
         straddlesData?.straddlesContract
@@ -45,7 +55,7 @@ const PositionsTable = () => {
       );
       await updateStraddlesUserData!();
     },
-    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx]
+    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx, accountAddress]
   );
 
   return (
