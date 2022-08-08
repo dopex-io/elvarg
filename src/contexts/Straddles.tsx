@@ -278,7 +278,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       currentPrice: currentPrice,
       straddlePrice: straddlePrice,
     });
-  }, [straddlesContract, contractAddresses, selectedEpoch, provider, selectedPoolName]);
+  }, [straddlesContract, selectedEpoch, selectedPoolName]);
 
   useEffect(() => {
     async function update() {
