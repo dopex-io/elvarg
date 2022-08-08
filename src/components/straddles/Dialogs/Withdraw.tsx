@@ -44,7 +44,8 @@ const WithdrawModal = ({
       straddlesData?.isEpochExpired &&
       straddlesUserData?.writePositions![selectedPositionNftIndex!]![
         'epoch'
-      ]! <= straddlesData.currentEpoch + 1
+      ]! <=
+        straddlesData.currentEpoch + 1
     )
       return true;
     else return false;
@@ -56,15 +57,19 @@ const WithdrawModal = ({
   ]);
 
   const handleWithdraw = useCallback(async () => {
-    const approved = await straddlesData!.writePositionsMinter.connect(signer).isApprovedForAll(accountAddress, straddlesData?.straddlesContract.address);
+    const approved = await straddlesData!.writePositionsMinter
+      .connect(signer)
+      .isApprovedForAll(
+        accountAddress,
+        straddlesData?.straddlesContract.address
+      );
 
-    if (!approved) await sendTx(
-      straddlesData?.writePositionsMinter
-        .connect(signer)
-        .setApprovalForAll(
-          straddlesData?.straddlesContract.address
-        )
-    );
+    if (!approved)
+      await sendTx(
+        straddlesData?.writePositionsMinter
+          .connect(signer)
+          .setApprovalForAll(straddlesData?.straddlesContract.address)
+      );
 
     await sendTx(
       straddlesData?.straddlesContract
@@ -81,7 +86,7 @@ const WithdrawModal = ({
     signer,
     updateStraddlesUserData,
     sendTx,
-    accountAddress
+    accountAddress,
   ]);
 
   const handleToggleRollover = useCallback(async () => {
