@@ -135,7 +135,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   }, [provider, selectedPoolName]);
 
   const getStraddlePosition = useCallback(
-    async (id: number) => {
+    async (id: BigNumber) => {
       try {
         const data = await straddlesContract!['straddlePositions'](id);
         const pnl = await straddlesContract!['getPnl'](id);
@@ -156,7 +156,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   );
 
   const getWritePosition = useCallback(
-    async (id: number) => {
+    async (id: BigNumber) => {
       try {
         const data = await straddlesContract!['writePositions'](id);
 
@@ -187,10 +187,10 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     const straddlePositionsPromises: any[] = [];
     const writePositionsPromises: any[] = [];
 
-    const straddlePositionsIndexes: number[] = await straddlesContract[
+    const straddlePositionsIndexes: BigNumber[] = await straddlesContract[
       'straddlePositionsOfOwner'
     ](accountAddress);
-    const writePositionsIndexes: number[] = await straddlesContract[
+    const writePositionsIndexes: BigNumber[] = await straddlesContract[
       'writePositionsOfOwner'
     ](accountAddress);
 
