@@ -30,7 +30,7 @@ const Straddles = ({ poolName }: Props) => {
       <Head>
         <title>Straddles | Dopex</title>
       </Head>
-      <AppBar />
+      <AppBar active="Straddles"/>
       <Box className="md:flex pt-5">
         <Box className="ml-auto lg:w-[45%]">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">

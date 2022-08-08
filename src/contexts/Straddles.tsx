@@ -1817,7 +1817,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       epochData['expiry'].toNumber() - new Date().getTime() / 1000;
 
     const straddlePriceFunding = currentPrice
-      .mul(getContractReadableAmount(16, 17))
+      .mul(getContractReadableAmount(16, 18))
       .mul(BigNumber.from(Math.round(timeToExpiry)))
       .div(BigNumber.from(365 * 86400));
 
