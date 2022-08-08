@@ -1,10 +1,8 @@
 import React from 'react';
-
 import Box from '@mui/material/Box';
 import SignalCellularAltRoundedIcon from '@mui/icons-material/SignalCellularAltRounded';
 
 import Typography from 'components/UI/Typography';
-
 import TVLChart from './TVLChart';
 
 const TVLCard = () => {

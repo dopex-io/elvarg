@@ -1,4 +1,6 @@
-import React, { useContext } from 'react';
+/* eslint-disable react/react-in-jsx-scope -- Unaware of jsxImportSource /
+/** @jsxImportSource @emotion/react/ */
+import { useContext } from 'react';
 import { useState } from 'react';
 import cx from 'classnames';
 
@@ -42,7 +44,6 @@ const DepositsTable = () => {
 
   return (
     <Box>
-      {/* @ts-ignore TODO: FIX */}
       <TableContainer
         className="rounded-xl"
         css={css`

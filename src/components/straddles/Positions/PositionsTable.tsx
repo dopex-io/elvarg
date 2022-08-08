@@ -1,4 +1,6 @@
-import React, { useCallback, useContext } from 'react';
+/* eslint-disable react/react-in-jsx-scope -- Unaware of jsxImportSource /
+/** @jsxImportSource @emotion/react/ */
+import { useCallback, useContext } from 'react';
 import cx from 'classnames';
 import { css } from '@emotion/react';
 
@@ -51,7 +53,6 @@ const PositionsTable = () => {
       {/* @ts-ignore TODO: FIX */}
       <TableContainer
         className="rounded-xl"
-        //@ts-ignore
         css={css`
           .optionsTable td {
             border: none !important;
