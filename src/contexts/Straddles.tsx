@@ -46,7 +46,6 @@ export interface WritePosition {
   usdDeposit: BigNumber;
   rollover: BigNumber;
   pnl: BigNumber;
-  withdrawn: boolean;
   id: number;
 }
 
@@ -145,13 +144,11 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
           epoch: data['epoch'],
           amount: data['amount'],
           apStrike: data['apStrike'],
-          exercised: data['exercised'],
           pnl: pnl,
         };
       } catch {
         return {
-          amount: BigNumber.from('0'),
-          exercised: false
+          amount: BigNumber.from('0')
         };
       }
     },
@@ -167,9 +164,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
           id: id,
           epoch: data['epoch'],
           usdDeposit: data['usdDeposit'],
-          rollover: data['rollover'],
-          pnl: data['pnl'],
-          withdrawn: data['withdrawn'],
+          rollover: data['rollover']
         };
       } catch {
         return {
@@ -217,10 +212,10 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     setStraddlesUserData({
       straddlePositions: straddlePositions.filter(function (el) {
-        return !el['amount'].eq(0) && !el['exercised'];
+        return !el['amount'].eq(0);
       }),
       writePositions: writePositions.filter(function (el) {
-        return !el['usdDeposit'].eq(0) && !el['withdrawn'];
+        return !el['usdDeposit'].eq(0);
       }),
     });
   }, [
