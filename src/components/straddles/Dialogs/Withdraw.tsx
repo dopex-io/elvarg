@@ -81,6 +81,7 @@ const WithdrawModal = ({
     signer,
     updateStraddlesUserData,
     sendTx,
+    accountAddress
   ]);
 
   const handleToggleRollover = useCallback(async () => {
