@@ -94,8 +94,7 @@ export const StraddlesContext = createContext<StraddlesContextInterface>({
 });
 
 export const StraddlesProvider = (props: { children: ReactNode }) => {
-  const { accountAddress, contractAddresses, provider } =
-    useContext(WalletContext);
+  const { accountAddress, provider } = useContext(WalletContext);
 
   const [selectedPoolName, setSelectedPoolName] = useState<string | null>(null);
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(1);
