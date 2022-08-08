@@ -31,7 +31,6 @@ export interface StraddlesEpochData {
   expiry: BigNumber;
   usdDeposits: BigNumber;
   activeUsdDeposits: BigNumber;
-  strikes: number[];
   settlementPrice: BigNumber;
   underlyingPurchased: BigNumber;
   usdPremiums: BigNumber;
@@ -81,7 +80,6 @@ const initialStraddlesEpochData = {
   expiry: BigNumber.from('0'),
   usdDeposits: BigNumber.from('0'),
   activeUsdDeposits: BigNumber.from('0'),
-  strikes: [],
   settlementPrice: BigNumber.from('0'),
   underlyingPurchased: BigNumber.from('0'),
   usdFunding: BigNumber.from('0'),
@@ -272,7 +270,6 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     setStraddlesEpochData({
       activeUsdDeposits: epochData['activeUsdDeposits'],
       expiry: epochData['expiry'],
-      strikes: epochData['strikes'],
       settlementPrice: epochData['settlementPrice'],
       startTime: epochData['startTime'],
       underlyingPurchased: epochData['underlyingPurchased'],
