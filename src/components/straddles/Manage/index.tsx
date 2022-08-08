@@ -48,6 +48,14 @@ const Manage = () => {
     updateStraddlesUserData,
   } = useContext(StraddlesContext);
 
+  const maxStraddlesCanBeBought = useMemo(() => {
+    const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(straddlesEpochData?.activeUsdDeposits);
+
+    if (!availableUsdDeposits) return BigNumber.from(0);
+    return availableUsdDeposits!.mul(BigNumber.from("100000000000000000000")).div(straddlesEpochData?.currentPrice!);
+  }, [straddlesEpochData]);
+
+
   const sendTx = useSendTx();
 
   const [approved, setApproved] = useState(false);
@@ -191,6 +199,9 @@ const Manage = () => {
   }, [amount, straddlesEpochData]);
 
   const purchaseButtonMessage: string = useMemo(() => {
+    console.log(getUserReadableAmount(maxStraddlesCanBeBought, 18));
+    console.log(amount);
+
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
     else if (
@@ -200,8 +211,9 @@ const Manage = () => {
       return 'Insufficient balance';
     else if (!(straddlesData?.isVaultReady! && !straddlesData?.isEpochExpired!))
       return 'Vault not ready';
+    else if (amount > getUserReadableAmount(maxStraddlesCanBeBought, 18)) return "Insufficient liquidity";
     return 'Purchase';
-  }, [approved, amount, totalCost, userTokenBalance, straddlesData]);
+  }, [approved, amount, totalCost, userTokenBalance, straddlesData, maxStraddlesCanBeBought]);
 
   const depositButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
@@ -472,14 +484,15 @@ const Manage = () => {
                 color={
                   !approved ||
                   (amount > 0 &&
-                    amount <= getUserReadableAmount(userTokenBalance, 6))
+                    amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18))
                     ? 'primary'
                     : 'mineshaft'
                 }
                 disabled={
                   !(
                     straddlesData?.isVaultReady! &&
-                    !straddlesData?.isEpochExpired!
+                    !straddlesData?.isEpochExpired! &&
+                    amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18)
                   )
                 }
                 onClick={approved ? handlePurchase : handleApprove}

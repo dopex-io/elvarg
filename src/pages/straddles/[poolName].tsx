@@ -39,12 +39,12 @@ const Straddles = ({ poolName }: Props) => {
           <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
             <Stats />
           </Box>
-          <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
+          <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
             <Typography variant="h6" className="-ml-1">
               Liquidity
             </Typography>
           </Box>
-          <Box className="pt-4 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 relative md:flex">
+          <Box className="pt-4 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 relative md:flex">
             <Typography
               variant="h4"
               className="md:left-[40%] left-[25%] top-[40%] absolute"
@@ -58,20 +58,20 @@ const Straddles = ({ poolName }: Props) => {
               <TVLCard />
             </Box>
           </Box>
-          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 mt-5">
+          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 mt-5">
             <Typography variant="h6" className="-ml-1">
               Deposits
             </Typography>
           </Box>
-          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 flex-auto">
+          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto">
             <Deposits />
           </Box>
-          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
+          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
             <Typography variant="h6" className="-ml-1">
               Positions
             </Typography>
           </Box>
-          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 flex-auto">
+          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto">
             <Positions />
           </Box>
         </Box>
