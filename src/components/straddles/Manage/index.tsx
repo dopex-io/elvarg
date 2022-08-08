@@ -49,7 +49,7 @@ const Manage = () => {
   } = useContext(StraddlesContext);
 
   const maxStraddlesCanBeBought = useMemo(() => {
-    const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(straddlesEpochData?.activeUsdDeposits);
+    const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(straddlesEpochData?.activeUsdDeposits.div("100000000000000000000"));
 
     if (!availableUsdDeposits) return BigNumber.from(0);
     return availableUsdDeposits!.mul(BigNumber.from("100000000000000000000")).div(straddlesEpochData?.currentPrice!);
@@ -199,9 +199,6 @@ const Manage = () => {
   }, [amount, straddlesEpochData]);
 
   const purchaseButtonMessage: string = useMemo(() => {
-    console.log(getUserReadableAmount(maxStraddlesCanBeBought, 18));
-    console.log(amount);
-
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
     else if (
