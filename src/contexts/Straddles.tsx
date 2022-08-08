@@ -230,7 +230,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   ]);
 
   const updateStraddlesEpochData = useCallback(async () => {
-    if (selectedEpoch === null || !selectedPoolName) return;
+    if (selectedEpoch === null || !selectedPoolName || !straddlesContract) return;
 
     const epochData = await straddlesContract!['epochData'](
       Math.max(selectedEpoch || 0, 1)
