@@ -1,9 +1,4 @@
-/* eslint-disable react/react-in-jsx-scope -- Unaware of jsxImportSource /
-/** @jsxImportSource @emotion/react/ */
 import { useCallback, useContext } from 'react';
-import cx from 'classnames';
-import { css } from '@emotion/react';
-
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -34,15 +29,19 @@ const PositionsTable = () => {
     async (selectedPositionNftIndex: number) => {
       if (!straddlesData?.isEpochExpired) return;
 
-      const approved = await straddlesData!.straddlePositionsMinter.connect(signer).isApprovedForAll(accountAddress, straddlesData?.straddlesContract.address);
+      const approved = await straddlesData!.straddlePositionsMinter
+        .connect(signer)
+        .isApprovedForAll(
+          accountAddress,
+          straddlesData?.straddlesContract.address
+        );
 
-      if (!approved) await sendTx(
+      if (!approved)
+        await sendTx(
           straddlesData?.straddlePositionsMinter
             .connect(signer)
-            .setApprovalForAll(
-              straddlesData?.straddlesContract.address
-            )
-      );
+            .setApprovalForAll(straddlesData?.straddlesContract.address)
+        );
 
       await sendTx(
         straddlesData?.straddlesContract
@@ -55,43 +54,19 @@ const PositionsTable = () => {
       );
       await updateStraddlesUserData!();
     },
-    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx, accountAddress]
+    [
+      straddlesData,
+      straddlesUserData,
+      signer,
+      updateStraddlesUserData,
+      sendTx,
+      accountAddress,
+    ]
   );
 
   return (
     <Box>
-      {/* @ts-ignore TODO: FIX */}
-      <TableContainer
-        className="rounded-xl"
-        css={css`
-          .optionsTable td {
-            border: none !important;
-          }
-
-          .optionsTable table {
-            border-collapse: separate !important;
-            border-spacing: 0 0.5em !important;
-          }
-
-          .optionsTable td {
-            border: solid 1px #000;
-            border-style: solid none;
-            padding: 10px 16px;
-          }
-
-          .optionsTable td:first-child {
-            border-left-style: solid;
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-          }
-
-          .optionsTable td:last-child {
-            border-right-style: solid;
-            border-bottom-right-radius: 10px;
-            border-top-right-radius: 10px;
-          }
-        `}
-      >
+      <TableContainer className="rounded-xl">
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
             <TableRow>
@@ -121,7 +96,7 @@ const PositionsTable = () => {
               </TableCell>
             </TableRow>
           </TableHead>
-          <TableBody className={cx('rounded-lg')}>
+          <TableBody className="rounded-lg">
             {straddlesUserData?.straddlePositions?.map((position, i) => (
               <TableRow key={i} className="">
                 <TableCell className="pt-2">
@@ -150,7 +125,7 @@ const PositionsTable = () => {
                 </TableCell>
                 <TableCell className="flex justify-end">
                   <CustomButton
-                    className={'cursor-pointer text-white'}
+                    className="cursor-pointer text-white"
                     color={
                       straddlesData?.isEpochExpired ? 'mineshaft' : 'primary'
                     }
