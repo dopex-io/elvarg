@@ -1,11 +1,5 @@
-/* eslint-disable react/react-in-jsx-scope -- Unaware of jsxImportSource /
-/** @jsxImportSource @emotion/react/ */
 import { useContext } from 'react';
 import { useState } from 'react';
-import cx from 'classnames';
-
-import { css } from '@emotion/react';
-
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -44,37 +38,7 @@ const DepositsTable = () => {
 
   return (
     <Box>
-      <TableContainer
-        className="rounded-xl"
-        css={css`
-          .optionsTable td {
-            border: none !important;
-          }
-
-          .optionsTable table {
-            border-collapse: separate !important;
-            border-spacing: 0 0.5em !important;
-          }
-
-          .optionsTable td {
-            border: solid 1px #000;
-            border-style: solid none;
-            padding: 10px 16px;
-          }
-
-          .optionsTable td:first-child {
-            border-left-style: solid;
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-          }
-
-          .optionsTable td:last-child {
-            border-right-style: solid;
-            border-bottom-right-radius: 10px;
-            border-top-right-radius: 10px;
-          }
-        `}
-      >
+      <TableContainer className="rounded-xl">
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
             <TableRow>
@@ -85,7 +49,7 @@ const DepositsTable = () => {
                 </Typography>
               </TableCell>
 
-              <TableCell className=" border-0 pb-0">
+              <TableCell className="border-0 pb-0">
                 <Typography variant="h6" className="text-gray-400 flex">
                   Epoch
                 </Typography>
@@ -100,23 +64,19 @@ const DepositsTable = () => {
               </TableCell>
             </TableRow>
           </TableHead>
-          <TableBody className={cx('rounded-lg')}>
+          <TableBody className="rounded-lg">
             {straddlesUserData?.writePositions?.map((position, i) => (
-              <TableRow key={i} className="">
+              <TableRow key={i}>
                 <TableCell className="pt-2">
                   <Box>
-                    <Box
-                      className={`rounded-md flex items-center px-2 py-2 w-fit`}
-                    >
+                    <Box className="rounded-md flex items-center px-2 py-2 w-fit">
                       <Typography variant="h6" className="pr-7 pt-[2px]">
                         {formatAmount(
                           getUserReadableAmount(position.usdDeposit, 6),
                           2
                         )}
                       </Typography>
-                      <Box
-                        className={`rounded-sm w-fit bg-neutral-700 flex items-center`}
-                      >
+                      <Box className="rounded-sm w-fit bg-neutral-700 flex items-center">
                         <Typography
                           variant="h6"
                           className="px-1 py-[2px] text-gray-400"
@@ -127,7 +87,6 @@ const DepositsTable = () => {
                     </Box>
                   </Box>
                 </TableCell>
-
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="">
                     {Number(position.epoch!)}
