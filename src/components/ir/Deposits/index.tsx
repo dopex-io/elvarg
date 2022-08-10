@@ -226,22 +226,22 @@ const Deposits = () => {
   const { updateAssetBalances } = useContext(AssetsContext);
 
   const { selectedEpoch, rateVaultUserData } = rateVaultContext;
-  const { rateVaultContract } = rateVaultContext.rateVaultData;
+  const { rateVaultContract } = rateVaultContext.rateVaultData!;
 
   const sendTx = useSendTx();
 
   const epochTime: number = useMemo(() => {
-    return rateVaultContext.rateVaultEpochData.epochStartTimes &&
-      rateVaultContext.rateVaultEpochData.epochEndTimes
-      ? (rateVaultContext.rateVaultEpochData.epochStartTimes as BigNumber)
-          .sub(rateVaultContext.rateVaultEpochData.epochEndTimes as BigNumber)
+    return rateVaultContext.rateVaultEpochData!.epochStartTimes &&
+      rateVaultContext.rateVaultEpochData!.epochEndTimes
+      ? (rateVaultContext.rateVaultEpochData!.epochStartTimes as BigNumber)
+          .sub(rateVaultContext.rateVaultEpochData!.epochEndTimes as BigNumber)
           .toNumber()
       : 0;
   }, [rateVaultContext]);
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(
-      rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() * 1000
+      rateVaultContext.rateVaultEpochData!.epochEndTimes.toNumber() * 1000
     );
   }, [rateVaultContext]);
 
@@ -257,8 +257,9 @@ const Deposits = () => {
 
   const getStrikeIndex = useCallback(
     (strike: BigNumber) => {
-      for (let i in rateVaultContext.rateVaultEpochData.epochStrikes) {
-        const epochStrike = rateVaultContext.rateVaultEpochData.epochStrikes[i];
+      for (let i in rateVaultContext.rateVaultEpochData!.epochStrikes) {
+        const epochStrike =
+          rateVaultContext.rateVaultEpochData!.epochStrikes[i];
         if (epochStrike && strike.eq(epochStrike)) return parseInt(i);
       }
       return -1;
@@ -277,13 +278,13 @@ const Deposits = () => {
       const strikeIndex = getStrikeIndex(row['strike']);
 
       const totalDeposits =
-        rateVaultContext.rateVaultEpochData?.totalTokenDeposits;
+        rateVaultContext.rateVaultEpochData!.totalTokenDeposits;
 
       const callPremium =
-        rateVaultContext.rateVaultEpochData?.callsPremiumCosts[strikeIndex] ||
+        rateVaultContext.rateVaultEpochData!.callsPremiumCosts[strikeIndex] ||
         BigNumber.from('0');
       const putPremium =
-        rateVaultContext.rateVaultEpochData?.putsPremiumCosts[strikeIndex] ||
+        rateVaultContext.rateVaultEpochData!.putsPremiumCosts[strikeIndex] ||
         BigNumber.from('0');
 
       const totalPremiums = callPremium.add(putPremium);
@@ -349,8 +350,8 @@ const Deposits = () => {
     );
 
     updateAssetBalances();
-    rateVaultContext.updateRateVaultEpochData();
-    rateVaultContext.updateRateVaultUserData();
+    rateVaultContext.updateRateVaultEpochData!();
+    rateVaultContext.updateRateVaultUserData!();
   }, [
     withdrawData,
     selectedEpoch,
@@ -358,9 +359,10 @@ const Deposits = () => {
     accountAddress,
     rateVaultContract,
     rateVaultContext,
+    sendTx,
   ]);
 
-  return rateVaultContext?.rateVaultEpochData.epochStrikes ? (
+  return rateVaultContext?.rateVaultEpochData!.epochStrikes ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Deposits
@@ -420,7 +422,7 @@ const Deposits = () => {
                         imgSrc={'2crv.svg'}
                         tokenSymbol={'2CRV'}
                         isBootstrapped={
-                          rateVaultContext.rateVaultEpochData.isBootstrapped
+                          rateVaultContext.rateVaultEpochData!.isBootstrapped
                         }
                       />
                     );

@@ -69,13 +69,14 @@ const Transfer = ({
     return errorMessage;
   }, [recipient, transferAmount, tokenBalance]);
 
-  // @ts-ignore TODO: FIX
-  const handleRecipientChange = useCallback((e) => {
-    setRecipient(e.target.value.toString());
-  }, []);
+  const handleRecipientChange = useCallback(
+    (e: { target: { value: string } }) => {
+      setRecipient(e.target.value.toString());
+    },
+    []
+  );
 
-  // @ts-ignore TODO: FIX
-  const handleAmountChange = useCallback((e) => {
+  const handleAmountChange = useCallback((e: { target: { value: string } }) => {
     setTransferAmount(e.target.value.toString());
   }, []);
 
@@ -84,7 +85,7 @@ const Transfer = ({
   }, [tokenBalance]);
 
   const handleTransfer = useCallback(() => {
-    if (!tokenAddressToTransfer || !signer) return;
+    if (!tokenAddressToTransfer || !signer || !updateRateVaultUserData) return;
 
     ERC20__factory.connect(tokenAddressToTransfer, signer).transfer(
       recipient,

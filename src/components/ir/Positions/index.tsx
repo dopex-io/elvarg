@@ -54,12 +54,12 @@ const Positions = () => {
     updateRateVaultUserData,
     selectedEpoch,
   } = rateVaultContext;
-  const { rateVaultContract } = rateVaultData;
+  const { rateVaultContract } = rateVaultData!;
 
   const [positions, setPositions] = useState<any[]>([]);
   const tokenPrice: number = 1;
 
-  const { epochTimes } = rateVaultContext.rateVaultEpochData;
+  const { epochTimes } = rateVaultContext.rateVaultEpochData!;
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(epochTimes[1].toNumber() * 1000);
@@ -68,6 +68,8 @@ const Positions = () => {
   // Handle settle
   const handleSettle = useCallback(
     async (strikeIndex: number, isPut: boolean) => {
+      if (!rateVaultEpochData || !updateRateVaultUserData) return;
+
       const tokenAddress = isPut
         ? rateVaultEpochData.putsToken[strikeIndex]
         : rateVaultEpochData.callsToken[strikeIndex];
@@ -111,7 +113,7 @@ const Positions = () => {
 
   useEffect(() => {
     async function updatePositions() {
-      if (!signer || !accountAddress) return;
+      if (!signer || !accountAddress || !rateVaultEpochData) return;
 
       setIsPositionsStatsLoading(true);
       const _positions: any[] = [];
@@ -195,6 +197,8 @@ const Positions = () => {
 
   const handleTransfer = useCallback(
     async (side: string, strikeIndex: number) => {
+      if (!rateVaultEpochData) return;
+
       let token;
 
       if (side === 'CALL') {
