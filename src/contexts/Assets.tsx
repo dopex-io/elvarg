@@ -12,7 +12,7 @@ import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
 
-import { TOKEN_DATA, TOKENS } from 'constants/index';
+import { TOKEN_DATA, TOKENS } from 'constants/tokens';
 
 interface AssetsContextInterface {
   tokens: string[];
@@ -43,7 +43,7 @@ export const IS_NATIVE = (asset: string) => {
 };
 
 const initialState: AssetsContextInterface = {
-  tokens: TOKENS,
+  tokens: TOKENS.filter((item) => item !== '2CRV'),
   tokenPrices: [],
   userAssetBalances: initKeysToVal(TOKENS, '0'),
   updateAssetBalances: noop,
@@ -78,13 +78,11 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
       for (let i = 0; i < state.tokens.length; i++) {
         const tokenKey = state.tokens[i];
 
-        if (tokenKey && tokenKey != '2CRV') {
+        if (tokenKey) {
           const tokenData = TOKEN_DATA[tokenKey];
-          tokenData && cgIds.push(tokenData.cgId);
+          tokenData?.cgId && cgIds.push(tokenData.cgId);
         }
       }
-
-      cgIds.push('weth');
 
       const payload = await axios.get(
         `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
@@ -96,7 +94,7 @@ export const AssetsProvider = (props: { children: ReactNode }) => {
 
           if (tokenKey) {
             const tokenData = TOKEN_DATA[tokenKey];
-            if (tokenData) {
+            if (tokenData && tokenData.cgId) {
               const temp = payload.data[tokenData.cgId];
               return {
                 name: tokenKey,

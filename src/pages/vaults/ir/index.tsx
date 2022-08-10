@@ -51,6 +51,10 @@ const Vaults = () => {
       totalEpochDeposits: string;
       retired: boolean;
       duration: string;
+      epochTimes: {
+        startTime: string;
+        expiry: string;
+      };
     }[];
   }>({});
 
@@ -74,6 +78,7 @@ const Vaults = () => {
                 symbol: vault['symbol'],
                 version: vault['version'],
                 duration: vault['duration'],
+                epochTimes: vault['epochTimes'],
               }}
             />
           ) : null

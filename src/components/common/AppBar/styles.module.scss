@@ -7,20 +7,3 @@
 .vertIcon {
   color: #c4c4c4;
 }
-
-.priceFeed {
-  flex: 1;
-  animation: move 60s linear infinite;
-
-}
-
-@keyframes move {
-  from {
-    transform: translateX(0%);
-  }
-
-  to {
-    transform: translateX(-100%);
-  }
-}
-

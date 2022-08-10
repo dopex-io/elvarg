@@ -158,11 +158,8 @@ function SsovCard(props) {
               >
                 <Box>
                   <Typography variant="h6" color="stieglitz">
-                    {format(Number(epochTimes.startTime.hex) * 1000, 'd LLL')} -{' '}
-                    {format(
-                      Number(Number(epochTimes.expiry.hex) * 1000),
-                      'd LLL'
-                    )}
+                    {format(Number(epochTimes.startTime) * 1000, 'd LLL')} -{' '}
+                    {format(Number(epochTimes.expiry) * 1000, 'd LLL')}
                   </Typography>
                 </Box>
               </Tooltip>
