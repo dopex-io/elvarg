@@ -96,7 +96,7 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
-    // { name: 'OTC', to: '/otc' },
+    { name: 'Straddles', to: '/straddles/ETH' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -125,6 +125,7 @@ interface AppBarProps {
     | 'token sale'
     | 'faucet'
     | 'Rate Vaults'
+    | 'Straddles'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'

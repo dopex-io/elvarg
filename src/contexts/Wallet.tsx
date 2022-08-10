@@ -73,6 +73,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/vaults/ir/pool/MIM3CRV-2': { default: 42161, all: [42161] },
   '/vaults/ir/pool/PUSD3CRV': { default: 42161, all: [42161] },
   '/vaults/ir': { default: 42161, all: [42161] },
+  '/straddles/ETH': { default: 42161, all: [] },
 };
 
 let web3Modal: Web3Modal | undefined;

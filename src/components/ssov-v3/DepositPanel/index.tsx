@@ -176,7 +176,7 @@ const DepositPanel = () => {
         <Typography variant="h3" className="text-stieglitz">
           Deposit
         </Typography>
-        {ssovData?.isPut ? (
+        {/* {ssovData?.isPut ? (
           <a
             href="https://arbitrum.curve.fi/2pool/deposit"
             target="_blank"
@@ -189,7 +189,7 @@ const DepositPanel = () => {
               </Typography>
             </Box>
           </a>
-        ) : null}
+        ) : null} */}
       </Box>
 
       <Box>

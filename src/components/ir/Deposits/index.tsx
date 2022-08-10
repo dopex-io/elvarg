@@ -358,6 +358,7 @@ const Deposits = () => {
     accountAddress,
     rateVaultContract,
     rateVaultContext,
+    sendTx,
   ]);
 
   return rateVaultContext?.rateVaultEpochData.epochStrikes ? (

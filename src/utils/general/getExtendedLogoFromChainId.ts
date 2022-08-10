@@ -1,6 +1,6 @@
 const LOGOS: { [key: number]: string } = {
   56: '/images/networks/bnb-smart-chain.svg',
-  42161: '/images/networks/arbitrum-full.svg',
+  42161: '/images/networks/arbitrum.svg',
   43114: '/images/networks/avalanche.svg',
 };
 
