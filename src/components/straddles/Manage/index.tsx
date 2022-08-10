@@ -49,12 +49,15 @@ const Manage = () => {
   } = useContext(StraddlesContext);
 
   const maxStraddlesCanBeBought = useMemo(() => {
-    const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(straddlesEpochData?.activeUsdDeposits.div("100000000000000000000"));
+    const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(
+      straddlesEpochData?.activeUsdDeposits.div('100000000000000000000')
+    );
 
     if (!availableUsdDeposits) return BigNumber.from(0);
-    return availableUsdDeposits!.mul(BigNumber.from("100000000000000000000")).div(straddlesEpochData?.currentPrice!);
+    return availableUsdDeposits!
+      .mul(BigNumber.from('100000000000000000000'))
+      .div(straddlesEpochData?.currentPrice!);
   }, [straddlesEpochData]);
-
 
   const sendTx = useSendTx();
 
@@ -208,9 +211,17 @@ const Manage = () => {
       return 'Insufficient balance';
     else if (!(straddlesData?.isVaultReady! && !straddlesData?.isEpochExpired!))
       return 'Vault not ready';
-    else if (amount > getUserReadableAmount(maxStraddlesCanBeBought, 18)) return "Insufficient liquidity";
+    else if (amount > getUserReadableAmount(maxStraddlesCanBeBought, 18))
+      return 'Insufficient liquidity';
     return 'Purchase';
-  }, [approved, amount, totalCost, userTokenBalance, straddlesData, maxStraddlesCanBeBought]);
+  }, [
+    approved,
+    amount,
+    totalCost,
+    userTokenBalance,
+    straddlesData,
+    maxStraddlesCanBeBought,
+  ]);
 
   const depositButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
@@ -460,7 +471,6 @@ const Manage = () => {
               </Typography>
             </Box>
           </Box>
-
           <Box className="rounded-lg bg-neutral-800">
             <Box className="p-3">
               <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
@@ -474,14 +484,14 @@ const Manage = () => {
                   </Typography>
                 </Box>
               </Tooltip>
-
               <CustomButton
                 size="medium"
                 className="w-full !rounded-md mt-3"
                 color={
                   !approved ||
                   (amount > 0 &&
-                    amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18))
+                    amount <=
+                      getUserReadableAmount(maxStraddlesCanBeBought, 18))
                     ? 'primary'
                     : 'mineshaft'
                 }

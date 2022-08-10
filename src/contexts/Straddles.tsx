@@ -265,7 +265,8 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     const straddlePriceFunding = currentPrice
       .mul(getContractReadableAmount(16, 18))
       .mul(BigNumber.from(Math.round(timeToExpiry)))
-      .div(BigNumber.from(365 * 86400));
+      .div(BigNumber.from(365 * 86400))
+      .div(1e8);
 
     straddlePrice = straddlePrice.add(straddlePriceFunding);
 
