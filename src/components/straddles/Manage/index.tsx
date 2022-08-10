@@ -449,7 +449,7 @@ const Manage = () => {
             <Box className="py-2 w-full rounded border border-neutral-800">
               <Typography variant="h6" className="mx-2 text-white">
                 {"You'll spend "}
-                {formatAmount(totalCost, 5)} USDC
+                {formatAmount(totalCost, 6)} USDC
               </Typography>
               <Typography variant="h6" className="mx-2 text-neutral-400">
                 Current price is $
