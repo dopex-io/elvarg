@@ -166,6 +166,13 @@ const PurchaseCard = () => {
     straddlesData,
   ]);
 
+  const readableStraddlesAvailable = useMemo(() => {
+    const _straddlesAvail = getUserReadableAmount(maxStraddlesCanBeBought, 18);
+    return _straddlesAvail > 0.01
+      ? Math.round(_straddlesAvail * 100) / 100
+      : 0.01;
+  }, [maxStraddlesCanBeBought]);
+
   return (
     <Box>
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
@@ -192,6 +199,15 @@ const PurchaseCard = () => {
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
           />
+        </Box>
+        <Box className="my-1 w-full border-neutral-800">
+          <Typography
+            variant="h6"
+            className="flex justify-between mx-2 pb-2 text-gray-400"
+          >
+            <div>Max amount of straddles available:</div>
+            <div>{readableStraddlesAvailable}</div>
+          </Typography>
         </Box>
       </Box>
       <Box className="mt-4 flex justify-center mb-4">
