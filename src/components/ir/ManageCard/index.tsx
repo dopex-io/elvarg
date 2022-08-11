@@ -622,9 +622,10 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
                 <Select
                   className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
                   fullWidth
-                  multiple
+                  multiple={true}
                   displayEmpty
-                  value={String(selectedStrikeIndexes)}
+                  // @ts-ignore
+                  value={selectedStrikeIndexes}
                   onChange={handleSelectStrikes}
                   input={<Input />}
                   disableUnderline={true}

@@ -393,8 +393,9 @@ export const RateVault = () => {
   }, [rateVaultContract, gaugeOracle]);
 
   const updateRateVaultEpochData = useCallback(async () => {
-    if (selectedEpoch === null || !selectedPoolName) return;
-    const lpPrice = await rateVaultContract!['getLpPrice']();
+    if (selectedEpoch === null || !selectedPoolName || !rateVaultContract)
+      return;
+    const lpPrice = await rateVaultContract['getLpPrice']();
 
     try {
       const promises = await Promise.all([
@@ -411,7 +412,7 @@ export const RateVault = () => {
 
       let epochTimes;
 
-      epochTimes = await rateVaultContract!['getEpochTimes'](
+      epochTimes = await rateVaultContract['getEpochTimes'](
         Math.max(selectedEpoch, 1)
       );
 
@@ -420,7 +421,7 @@ export const RateVault = () => {
       const callsFeesPromises = [];
       const putsFeesPromises = [];
       const totalStrikesDataPromises = [];
-      const curveLpPrice = await rateVaultContract!['getLpPrice']();
+      const curveLpPrice = await rateVaultContract['getLpPrice']();
       const rate = await getCurrentRate();
       const volatilitiesPromises = [];
 
