@@ -95,7 +95,7 @@ const DepositsTableData = (
   return (
     <TableRow className="text-white mb-2 rounded-lg mt-2">
       <TableCell align="left" className="mx-0 pt-2">
-        <Box className={'pt-2'}>
+        <Box className="pt-2">
           <Box className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}>
             <Typography variant="h6">
               {formatAmount(strikePrice, 5)}%
