@@ -230,7 +230,6 @@ const DepositCard = () => {
         </Box>
       </Box>
       <Box className="my-4 w-full rounded-lg border border-neutral-800">
-        <Box className="flex justify-start items-center mx-2"></Box>
         <Typography variant="h6" className="mx-2 pb-2">
           Deposit for epoch {currentEpoch + 1}
         </Typography>
