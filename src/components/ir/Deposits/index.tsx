@@ -12,7 +12,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
@@ -222,10 +221,10 @@ const ROWS_PER_PAGE = 5;
 
 const Deposits = () => {
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, ensName } = useContext(WalletContext);
+  const { ensName, accountAddress } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
 
-  const { selectedEpoch, rateVaultUserData } = rateVaultContext;
+  const { selectedEpoch, rateVaultUserData, isLoading } = rateVaultContext;
   const { rateVaultContract } = rateVaultContext.rateVaultData!;
 
   const sendTx = useSendTx();
@@ -289,9 +288,12 @@ const Deposits = () => {
 
       const totalPremiums = callPremium.add(putPremium);
 
-      const totalUserPremiums = totalDeposits.gt(0)
-        ? totalPremiums?.mul(totalUserDeposits).div(totalDeposits)
-        : BigNumber.from('0');
+      let totalUserPremiums = BigNumber.from('0');
+
+      if (totalDeposits && totalPremiums && totalUserDeposits)
+        totalUserPremiums = totalDeposits.gt(0)
+          ? totalPremiums.mul(totalUserDeposits).div(totalDeposits)
+          : BigNumber.from('0');
 
       if (!(strikeIndex in _deposits)) {
         _deposits[strikeIndex] = {
@@ -323,7 +325,7 @@ const Deposits = () => {
     const putLeveragesIndexes: number[] = [];
 
     rateVaultUserData?.userEpochStrikeDeposits?.map((deposits) => {
-      if (deposits.amount.gt(0)) {
+      if (deposits.amount?.gt(0)) {
         strikesIndexes.push(deposits.strikeIndex);
         callLeveragesIndexes.push(deposits.callLeverageIndex);
         putLeveragesIndexes.push(deposits.putLeverageIndex);
@@ -378,7 +380,19 @@ const Deposits = () => {
 
         <Box className="balances-table text-white min-h-[12rem]">
           <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
-            {!isEmpty(Object.keys(deposits)) ? (
+            {isLoading ? (
+              <Box className="border-4 border-umbra rounded-lg p-3 mb-2">
+                {range(3).map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    variant="text"
+                    animation="wave"
+                    height={60}
+                    className="bg-umbra"
+                  />
+                ))}
+              </Box>
+            ) : (
               <Table>
                 <TableHead className="bg-umbra">
                   <TableRow className="bg-umbra">
@@ -429,18 +443,6 @@ const Deposits = () => {
                   })}
                 </TableBody>
               </Table>
-            ) : (
-              <Box className="border-4 border-umbra rounded-lg p-3 mb-2">
-                {range(3).map((_, index) => (
-                  <Skeleton
-                    key={index}
-                    variant="text"
-                    animation="wave"
-                    height={60}
-                    className="bg-umbra"
-                  />
-                ))}
-              </Box>
             )}
           </TableContainer>
           {rateVaultContext.rateVaultEpochData?.epochStrikes.length >

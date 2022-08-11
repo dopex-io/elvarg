@@ -38,10 +38,8 @@ export interface PositionProps {
 }
 
 const Positions = () => {
-  const [isPositionsStatsLoading, setIsPositionsStatsLoading] =
-    useState<Boolean>(false);
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, signer } = useContext(WalletContext);
+  const { signer, accountAddress } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
     string | null
@@ -53,8 +51,11 @@ const Positions = () => {
     rateVaultData,
     updateRateVaultUserData,
     selectedEpoch,
+    isLoading,
   } = rateVaultContext;
+
   const { rateVaultContract } = rateVaultData!;
+  const { userStrikePurchaseData } = rateVaultUserData!;
 
   const [positions, setPositions] = useState<any[]>([]);
   const tokenPrice: number = 1;
@@ -115,19 +116,24 @@ const Positions = () => {
     async function updatePositions() {
       if (!signer || !accountAddress || !rateVaultEpochData) return;
 
-      setIsPositionsStatsLoading(true);
       const _positions: any[] = [];
+      const sides = ['CALL', 'PUT'];
 
-      rateVaultUserData?.userStrikePurchaseData?.map(async (purchase) => {
-        ['CALL', 'PUT'].map(async (contextSide) => {
+      for (let i in userStrikePurchaseData) {
+        const purchase = userStrikePurchaseData[i]!;
+
+        for (let j in sides) {
+          const contextSide = sides[j]!;
+
           const duration =
             (rateVaultEpochData.epochTimes[1].toNumber() -
               epochTimes[0].toNumber()) /
             86400;
           let pnl = 0;
           const price = rateVaultEpochData.isEpochExpired
-            ? rateVaultEpochData.rateAtSettlement.toNumber()
-            : rateVaultEpochData.rate.toNumber();
+            ? Number(rateVaultEpochData.rateAtSettlement.toString())
+            : Number(rateVaultEpochData.rate.toString());
+
           const strike = purchase.strike.toNumber();
           const amount = getUserReadableAmount(
             contextSide === 'CALL'
@@ -137,11 +143,11 @@ const Positions = () => {
           );
           if (contextSide === 'CALL') {
             if (strike < price) {
-              pnl = ((price - strike) * amount * duration) / 36500 / 1e8;
+              pnl = ((price - strike) * amount * duration) / 36500 / 1e18;
             }
           } else {
             if (strike > price) {
-              pnl = ((strike - price) * amount * duration) / 36500 / 1e8;
+              pnl = ((strike - price) * amount * duration) / 36500 / 1e18;
             }
           }
 
@@ -158,7 +164,7 @@ const Positions = () => {
           if (
             (contextSide === 'CALL' && purchase.callsPurchased.gt(0)) ||
             (contextSide === 'PUT' && purchase.putsPurchased.gt(0))
-          )
+          ) {
             _positions.push({
               strike: purchase.strike,
               strikeIndex: purchase.strikeIndex,
@@ -177,23 +183,25 @@ const Positions = () => {
                 new Date() > epochEndTime && pnl > 0 && tokenBalance.gte(0),
               pnl: pnl,
             });
-        });
-      });
+          }
+        }
+      }
 
       setPositions(_positions);
-      setIsPositionsStatsLoading(false);
     }
 
     updatePositions();
   }, [
     rateVaultEpochData,
-    rateVaultUserData,
+    userStrikePurchaseData,
     epochEndTime,
     tokenPrice,
     epochTimes,
     signer,
     accountAddress,
   ]);
+
+  console.log(positions);
 
   const handleTransfer = useCallback(
     async (side: string, strikeIndex: number) => {
@@ -226,7 +234,7 @@ const Positions = () => {
       <Box className={'bg-cod-gray w-full p-4 pt-2 pb-4.5 pb-0 rounded-xl'}>
         <Box className="balances-table text-white">
           <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
-            {isPositionsStatsLoading ? (
+            {isLoading ? (
               <Box>
                 <Box className={cx('rounded-lg text-center mt-1')}>
                   <CircularProgress size={25} className={'mt-10'} />

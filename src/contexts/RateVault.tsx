@@ -101,6 +101,7 @@ interface RateVaultContextInterface {
   updateRateVaultUserData?: Function;
   setSelectedEpoch?: Function;
   setSelectedPoolName?: Function;
+  isLoading: boolean;
 }
 
 const initialRateVaultUserData = {
@@ -116,12 +117,14 @@ export const RateVaultContext = createContext<RateVaultContextInterface>({
   updateRateVaultUserData: noop,
   setSelectedEpoch: noop,
   setSelectedPoolName: noop,
+  isLoading: true,
 });
 
 export const RateVault = () => {
-  const { accountAddress, contractAddresses, provider, signer } =
+  const { contractAddresses, provider, signer, accountAddress } =
     useContext(WalletContext);
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedPoolName, setSelectedPoolName] = useState<string>('');
   const [selectedEpoch, setSelectedEpoch] = useState<number>(1);
   const [rateVaultData, setRateVaultData] = useState<
@@ -173,7 +176,8 @@ export const RateVault = () => {
       strike: BigNumber,
       strikeIndex: number,
       callLeverage: any,
-      putLeverage: any
+      putLeverage: any,
+      isEpochExpired: boolean
     ) => {
       const identifier = ethers.utils.solidityKeccak256(
         ['address', 'uint256', 'uint256', 'uint256'],
@@ -184,7 +188,10 @@ export const RateVault = () => {
         strike: strike,
         strikeIndex: strikeIndex,
         deposits: await rateVaultContract!['userEpochStrikeDeposits'](
-          Math.max(selectedEpoch || 0, 1),
+          Math.max(
+            (isEpochExpired ? selectedEpoch! - 1 : selectedEpoch) || 0,
+            1
+          ),
           identifier
         ),
       };
@@ -201,6 +208,8 @@ export const RateVault = () => {
     )
       return;
 
+    setIsLoading(true);
+
     const userEpochStrikeDeposits: any[] = [];
     const userStrikePurchaseData: any[] = [];
     const userStrikePurchaseDataPromises: any[] = [];
@@ -215,7 +224,8 @@ export const RateVault = () => {
               strike,
               strikeIndex,
               rateVaultEpochData.callsLeverages[i],
-              rateVaultEpochData.putsLeverages[j]
+              rateVaultEpochData.putsLeverages[j],
+              rateVaultEpochData.isEpochExpired
             )
           );
         });
@@ -226,7 +236,7 @@ export const RateVault = () => {
 
         _userEpochStrikeDeposits.map((record) => {
           userEpochStrikeDeposits.push({
-            amount: BigNumber.from('0'),
+            amount: record['deposits'][Number(record.strikeIndex)],
             callLeverage: rateVaultEpochData.callsLeverages[i]!,
             putLeverage: rateVaultEpochData.putsLeverages[j]!,
             callLeverageIndex: Number(i),
@@ -261,6 +271,8 @@ export const RateVault = () => {
       userEpochStrikeDeposits: userEpochStrikeDeposits,
       userStrikePurchaseData: userStrikePurchaseData,
     });
+
+    setIsLoading(false);
   }, [
     accountAddress,
     contractAddresses,
@@ -636,6 +648,7 @@ export const RateVault = () => {
     setSelectedEpoch,
     setSelectedPoolName,
     selectedPoolName,
+    isLoading,
   };
 };
 
