@@ -124,12 +124,12 @@ const PositionsTable = () => {
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">
-                  <Typography variant="h6" className="">
+                  <Typography variant="h6">
                     ${getUserReadableAmount(position.pnl, 6)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">
-                  <Typography variant="h6" className="">
+                  <Typography variant="h6">
                     {Number(position.epoch!)}
                   </Typography>
                 </TableCell>
