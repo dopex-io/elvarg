@@ -23,15 +23,15 @@ const Stats = () => {
   const currentEpoch = straddlesData?.currentEpoch || 0;
 
   const epochs = useMemo(() => {
-    let _epoch = Number(currentEpoch) + 1;
+    let _epoch = Number(currentEpoch);
 
     return Array(_epoch)
       .join()
       .split(',')
       .map((_i, index) => {
         return (
-          <MenuItem value={index} key={index} className="text-stieglitz">
-            {index}
+          <MenuItem value={index + 1} key={index + 1} className="text-stieglitz">
+            {index + 1}
           </MenuItem>
         );
       });
