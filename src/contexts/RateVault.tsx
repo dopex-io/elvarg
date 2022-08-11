@@ -173,8 +173,7 @@ export const RateVault = () => {
       strike: BigNumber,
       strikeIndex: number,
       callLeverage: any,
-      putLeverage: any,
-      isEpochExpired: boolean
+      putLeverage: any
     ) => {
       const identifier = ethers.utils.solidityKeccak256(
         ['address', 'uint256', 'uint256', 'uint256'],
@@ -185,10 +184,7 @@ export const RateVault = () => {
         strike: strike,
         strikeIndex: strikeIndex,
         deposits: await rateVaultContract!['userEpochStrikeDeposits'](
-          Math.max(
-            (isEpochExpired ? selectedEpoch! - 1 : selectedEpoch) || 0,
-            1
-          ),
+          Math.max(selectedEpoch || 0, 1),
           identifier
         ),
       };
@@ -219,8 +215,7 @@ export const RateVault = () => {
               strike,
               strikeIndex,
               rateVaultEpochData.callsLeverages[i],
-              rateVaultEpochData.putsLeverages[j],
-              rateVaultEpochData.isEpochExpired
+              rateVaultEpochData.putsLeverages[j]
             )
           );
         });
