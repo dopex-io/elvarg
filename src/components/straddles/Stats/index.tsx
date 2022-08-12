@@ -20,22 +20,22 @@ const Stats = () => {
   const { selectedEpoch, setSelectedEpoch, straddlesEpochData, straddlesData } =
     useContext(StraddlesContext);
 
-  const epochs = useMemo(() => {
-    if (!selectedEpoch) return [];
+  const currentEpoch = straddlesData?.currentEpoch || 0;
 
-    let _epoch = Number(selectedEpoch) + 1;
+  const epochs = useMemo(() => {
+    let _epoch = Number(currentEpoch);
 
     return Array(_epoch)
       .join()
       .split(',')
       .map((_i, index) => {
         return (
-          <MenuItem value={index} key={index} className="text-stieglitz">
-            {index}
+          <MenuItem value={index + 1} key={index + 1} className="text-stieglitz">
+            {index + 1}
           </MenuItem>
         );
       });
-  }, [selectedEpoch]);
+  }, [currentEpoch]);
 
   const handleSelectChange = useCallback(
     (e: { target: { value: any } }) => {
