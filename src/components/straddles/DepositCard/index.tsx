@@ -68,12 +68,12 @@ const DepositCard = () => {
   }, [rawAmount]);
 
   const readableExpiry = useMemo(() => {
-    if (straddlesEpochData?.expiry.gt(10000000000))
-      return format(
-        getUserReadableAmount(straddlesEpochData?.expiry!, 0),
-        'd LLL YYY'
-      );
-    else return '-';
+    return straddlesEpochData?.expiry
+      ? format(
+          new Date(straddlesEpochData.expiry.toNumber() * 1000),
+          'd LLL yyyy'
+        )
+      : '-';
   }, [straddlesEpochData]);
 
   const vaultShare = useMemo(() => {
@@ -182,6 +182,10 @@ const DepositCard = () => {
     straddlesData,
   ]);
 
+  const currentEpoch = useMemo(() => {
+    return straddlesData ? straddlesData.currentEpoch : 0;
+  }, [straddlesData]);
+
   return (
     <Box>
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
@@ -224,6 +228,16 @@ const DepositCard = () => {
             </Typography>
           </Box>
         </Box>
+      </Box>
+      <Box className="my-4 w-full rounded-lg border border-neutral-800">
+        <Typography variant="h6" className="mx-2 pb-2">
+          Deposit for epoch {currentEpoch + 1}
+        </Typography>
+        <Typography variant="h6" className="mx-2 pb-2 text-gray-400">
+          {straddlesData?.isEpochExpired
+            ? `Current epoch ${currentEpoch} has expired`
+            : `Current epoch ${currentEpoch} ends on ${readableExpiry}`}
+        </Typography>
       </Box>
       <Box className="mt-4 flex justify-center">
         <Box className="py-2 w-full rounded-tl-lg border border-neutral-800">
