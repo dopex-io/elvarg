@@ -32,7 +32,6 @@ import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';
 import ZapIn from 'components/common/ZapIn';
-import ZapOutButton from 'components/common/ZapOutButton';
 import Curve2PoolDepositSelector from './Curve2PoolDepositSelector';
 
 import useSendTx from 'hooks/useSendTx';
@@ -557,7 +556,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       )}
     >
       <Box className={isZapInVisible ? 'hidden' : 'flex'}>
-        <Box className={isZapActive ? 'w-2/3 mr-2' : 'w-full'}>
+        <Box className="w-full">
           <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
             <Box
               className={
@@ -570,16 +569,6 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
             </Box>
           </Box>
         </Box>
-        {isZapActive ? (
-          <Box className="w-1/3">
-            <ZapOutButton
-              isZapActive={isZapActive}
-              handleClick={() => {
-                setDenominationTokenName(ssovTokenName);
-              }}
-            />
-          </Box>
-        ) : null}
       </Box>
       {isZapInVisible ? (
         <ZapIn

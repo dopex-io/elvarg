@@ -23,7 +23,7 @@ const SelectMenuClasses = {
   select: 'overflow-hidden',
 };
 
-const SUPPORTED_TOKENS = ['2CRV'];
+const SUPPORTED_TOKENS = ['2CRV', 'USDT', 'USDC'];
 
 const Curve2PoolDepositSelector = ({
   depositTokenName,
@@ -33,8 +33,8 @@ const Curve2PoolDepositSelector = ({
   setDepositTokenName: Dispatch<SetStateAction<string>>;
 }) => {
   const handleSelectChange = useCallback(
-    // @ts-ignore TODO: FIX
-    (e) => setDepositTokenName(e.target.value.toString()),
+    (e: { target: { value: string } }) =>
+      setDepositTokenName(e.target.value.toString()),
     [setDepositTokenName]
   );
 
@@ -44,7 +44,8 @@ const Curve2PoolDepositSelector = ({
         className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
         fullWidth
         displayEmpty
-        value={[depositTokenName]}
+        multiple={false}
+        value={depositTokenName}
         onChange={handleSelectChange}
         input={<Input />}
         variant="outlined"
