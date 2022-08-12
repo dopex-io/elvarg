@@ -39,7 +39,7 @@ export interface PositionProps {
 
 const Positions = () => {
   const rateVaultContext = useContext(RateVaultContext);
-  const { signer, accountAddress } = useContext(WalletContext);
+  const { accountAddress, signer } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
   const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
     string | null
