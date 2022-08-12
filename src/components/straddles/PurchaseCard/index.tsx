@@ -19,6 +19,7 @@ import { StraddlesContext } from 'contexts/Straddles';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
+import NumberDisplay from 'components/UI/NumberDisplay';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
@@ -164,7 +165,7 @@ const PurchaseCard = () => {
     signer,
     chainId,
     straddlesData,
-  ]);
+  ]);  
 
   return (
     <Box>
@@ -192,6 +193,21 @@ const PurchaseCard = () => {
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
           />
+        </Box>
+        <Box className="my-1 w-full border-neutral-800">
+          <Typography
+            variant="h6"
+            className="flex justify-between mx-2 pb-2 text-gray-400"
+          >
+            <div>Max amount of straddles available:</div>
+            <div>
+              <NumberDisplay
+                n={maxStraddlesCanBeBought || BigNumber.from(0)}
+                decimals={18}
+                decimalsToShow={2}
+              />
+            </div>
+          </Typography>
         </Box>
       </Box>
       <Box className="mt-4 flex justify-center mb-4">
