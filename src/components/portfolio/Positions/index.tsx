@@ -14,6 +14,12 @@ import {
   ERC20__factory,
   ERC20,
 } from '@dopex-io/sdk';
+import {
+  GetUserSsovOptionPurchasesDocument,
+  GetUserSsovOptionPurchasesQuery,
+} from 'graphql/generated/portfolio';
+import { otcGraphClient, portfolioGraphClient } from 'graphql/apollo';
+import { ApolloQueryResult } from '@apollo/client';
 
 import { MAX_VALUE } from 'constants/index';
 import { WalletContext } from 'contexts/Wallet';
@@ -24,7 +30,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 import getAssetFromVaultName from 'utils/contracts/getAssetFromVaultName';
-
 import Filter from '../Filter';
 
 const sides: string[] = ['CALL', 'PUT'];
@@ -45,8 +50,9 @@ interface Position {
 }
 
 export default function Positions() {
-  const { chainId, contractAddresses, provider, signer, accountAddress } =
+  const { chainId, contractAddresses, provider, signer } =
     useContext(WalletContext);
+  const accountAddress = '0x6f8d0c0a2b28df39cf2a4727d3ecfb60e9ddad27';
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
@@ -58,129 +64,7 @@ export default function Positions() {
 
   const getPosition = useCallback(
     async (vaultName: string) => {
-      const vaults = contractAddresses['SSOV-V3']['VAULTS'];
-
-      const ssovViewerContract = SsovV3Viewer__factory.connect(
-        contractAddresses['SSOV-V3'].VIEWER,
-        provider
-      );
-
-      const vaultAddress = vaults[vaultName];
-      const vault = SsovV3__factory.connect(vaultAddress, provider);
-      const currentEpoch = await vault.currentEpoch();
-
-      const [
-        tokensAddresses,
-        epochStrikes,
-        epochData,
-        tokenPrice,
-        isPut,
-        epochTimes,
-      ] = await Promise.all([
-        await ssovViewerContract.getEpochStrikeTokens(
-          currentEpoch,
-          vaultAddress
-        ),
-        await vault.getEpochStrikes(currentEpoch),
-        await vault.getEpochData(currentEpoch),
-        await vault.getUnderlyingPrice(),
-        await vault.isPut(),
-        await vault.getEpochTimes(currentEpoch),
-      ]);
-
-      const epochEndTime = new Date(epochTimes[1].toNumber() * 1000);
-
-      const settlementPrice = epochData.settlementPrice;
-
-      const userEpochStrikeTokenBalanceArray = tokensAddresses.length
-        ? await Promise.all(
-            tokensAddresses
-              .map((tokenAddress: string) => {
-                const token = ERC20__factory.connect(tokenAddress, provider);
-                if (isZeroAddress(token.address)) return null;
-                return token.balanceOf(String(accountAddress));
-              })
-              .filter((c: any) => c)
-          )
-        : [];
-
-      const userExercisableOptions = epochStrikes.map(
-        (
-          strike: string | number | BigNumber | BigNumber,
-          strikeIndex: string | number
-        ) => {
-          const strikePrice = getUserReadableAmount(strike, 8);
-
-          const purchasedAmount = getUserReadableAmount(
-            userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-              BigNumber.from(0),
-            18
-          );
-          const settleableAmount =
-            userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-            BigNumber.from(0);
-          const isSettleable =
-            settleableAmount.gt(0) &&
-            ((isPut && settlementPrice.lt(strike)) ||
-              (!isPut && settlementPrice.gt(strike)));
-          // @ts-ignore TODO: FIX
-          let pnlAmount = settlementPrice.isZero()
-            ? isPut
-              ? strike
-                  // @ts-ignore TODO: FIX
-                  .sub(tokenPrice)
-                  .mul(userEpochStrikeTokenBalanceArray[Number(strikeIndex)])
-                  .mul(1e10)
-                  .div(ethers.utils.parseEther('1'))
-              : tokenPrice
-                  .sub(strike)
-                  .mul(
-                    userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-                      BigNumber.from('0')
-                  )
-                  .div(tokenPrice)
-            : isPut
-            ? strike
-                // @ts-ignore TODO: FIX
-                .sub(settlementPrice)
-                .mul(settleableAmount)
-                .mul(1e10)
-                .div(ethers.utils.parseEther('1'))
-            : settlementPrice
-                .sub(strike)
-                .mul(
-                  userEpochStrikeTokenBalanceArray[Number(strikeIndex)] ||
-                    BigNumber.from('0')
-                )
-                .div(settlementPrice);
-
-          const assetName = getAssetFromVaultName(vaultName);
-
-          pnlAmount = getUserReadableAmount(
-            pnlAmount,
-            getTokenDecimals(assetName, chainId)
-          );
-
-          const imgSrc = `/assets/${assetName}.svg`;
-
-          return {
-            strikeIndex,
-            strikePrice,
-            purchasedAmount,
-            settleableAmount,
-            pnlAmount,
-            isSettleable,
-            vaultName,
-            imgSrc,
-            isPut,
-            epochEndTime,
-            currentEpoch,
-            assetName,
-          };
-        }
-      );
-
-      return userExercisableOptions;
+      return [];
     },
     [contractAddresses, provider, accountAddress, chainId]
   );
@@ -190,22 +74,17 @@ export default function Positions() {
 
     setIsLoading(true);
 
-    let _positions: any[] = [];
-    const vaults = contractAddresses['SSOV-V3']['VAULTS'];
-
-    const promises = [];
-
-    for (let vaultName in vaults) promises.push(getPosition(vaultName));
-
-    const results = await Promise.all(promises);
-
-    results.forEach((result) => {
-      result.forEach((position) => {
-        if (position.purchasedAmount > 0) _positions.push(position);
+    const queryResult: ApolloQueryResult<GetUserSsovOptionPurchasesQuery> =
+      await portfolioGraphClient.query({
+        query: GetUserSsovOptionPurchasesDocument,
+        variables: { user: accountAddress.toLowerCase() },
+        fetchPolicy: 'no-cache',
       });
-    });
 
-    setPositions(_positions);
+    const { data }: any = queryResult;
+
+    console.log(data);
+
     setIsLoading(false);
   }, [provider, accountAddress, contractAddresses, getPosition]);
 
