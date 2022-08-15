@@ -131,7 +131,7 @@ export const RateVault = () => {
         contractAddresses['RATE-VAULTS'][selectedPoolName],
         signer
       );
-  }, [signer, selectedPoolName]);
+  }, [signer, selectedPoolName, contractAddresses]);
 
   const gaugeOracle = useMemo(() => {
     if (!provider) return;
@@ -140,7 +140,7 @@ export const RateVault = () => {
         contractAddresses['CurveGaugesOracle'],
         provider
       );
-  }, [provider]);
+  }, [provider, contractAddresses]);
 
   const getUserStrikePurchaseData = useCallback(
     async (strike: BigNumber, strikeIndex: number) => {
@@ -158,7 +158,7 @@ export const RateVault = () => {
         strikeIndex: strikeIndex,
       };
     },
-    [rateVaultContract, contractAddresses, accountAddress, selectedEpoch]
+    [rateVaultContract, accountAddress, selectedEpoch]
   );
 
   const getUserStrikeDeposits = useCallback(
@@ -186,7 +186,7 @@ export const RateVault = () => {
         ),
       };
     },
-    [rateVaultContract, contractAddresses, accountAddress, selectedEpoch]
+    [rateVaultContract, accountAddress, selectedEpoch]
   );
 
   const updateRateVaultUserData = useCallback(async () => {
@@ -266,10 +266,10 @@ export const RateVault = () => {
       userStrikePurchaseData: userStrikePurchaseData,
     });
   }, [
+    getUserStrikePurchaseData,
+    getUserStrikeDeposits,
     accountAddress,
     contractAddresses,
-    provider,
-    selectedEpoch,
     rateVaultEpochData,
     selectedPoolName,
   ]);
@@ -328,7 +328,7 @@ export const RateVault = () => {
         return [];
       }
     },
-    [rateVaultContract, selectedEpoch, provider]
+    [rateVaultContract, selectedEpoch]
   );
 
   const calculatePremium = useCallback(
@@ -389,7 +389,7 @@ export const RateVault = () => {
         return BigNumber.from('0');
       }
     }
-  }, [rateVaultContract]);
+  }, [rateVaultContract, gaugeOracle]);
 
   const updateRateVaultEpochData = useCallback(async () => {
     if (selectedEpoch === null || !selectedPoolName) return;
@@ -580,7 +580,21 @@ export const RateVault = () => {
         rate: rate,
       });
     }
-  }, [rateVaultContract, contractAddresses, selectedEpoch, provider]);
+  }, [
+    rateVaultContract,
+    selectedEpoch,
+    calculatePremium,
+    calculatePurchaseFee,
+    getCurrentRate,
+    getEpochData,
+    getEpochLeverages,
+    getEpochPremiums,
+    getEpochStrikes,
+    getTotalEpochData,
+    getTotalStrikeData,
+    getVolatility,
+    selectedPoolName,
+  ]);
 
   useEffect(() => {
     async function update() {
