@@ -201,8 +201,6 @@ const Positions = () => {
     accountAddress,
   ]);
 
-  console.log(positions);
-
   const handleTransfer = useCallback(
     async (side: string, strikeIndex: number) => {
       if (!rateVaultEpochData) return;
