@@ -80,7 +80,7 @@ const PurchaseCard = () => {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)
-          .purchase(getContractReadableAmount(amount, 18), accountAddress)
+          .purchase(getContractReadableAmount(amount, 18), 0, accountAddress)
       );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
@@ -165,7 +165,7 @@ const PurchaseCard = () => {
     signer,
     chainId,
     straddlesData,
-  ]);  
+  ]);
 
   return (
     <Box>

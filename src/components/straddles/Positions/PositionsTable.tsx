@@ -42,17 +42,18 @@ const PositionsTable = () => {
             .connect(signer)
             .setApprovalForAll(straddlesData?.straddlesContract.address)
         );
-
-      await sendTx(
-        straddlesData?.straddlesContract
-          .connect(signer)
-          .settle(
-            straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
-              'id'
-            ]
-          )
-      );
-      await updateStraddlesUserData!();
+      if (straddlesData && straddlesUserData && signer) {
+        await sendTx(
+          straddlesData?.straddlesContract
+            .connect(signer)
+            .settle(
+              straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
+                'id'
+              ]
+            )
+        );
+        await updateStraddlesUserData!();
+      }
     },
     [
       straddlesData,
