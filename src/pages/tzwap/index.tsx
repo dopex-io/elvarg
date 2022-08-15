@@ -83,10 +83,8 @@ const SelectMenuProps = {
 
 const Tzwap = () => {
   const sendTx = useSendTx();
-  const { chainId, signer, provider, contractAddresses } =
+  const { chainId, signer, provider, contractAddresses, accountAddress } =
     useContext(WalletContext);
-
-  const accountAddress = '0x9cf5DEC27768855D478152128851eBDE74f6a3Ed';
 
   const { userAssetBalances, tokenPrices, updateAssetBalances } =
     useContext(AssetsContext);
@@ -170,6 +168,7 @@ const Tzwap = () => {
 
     setIsFetchingOrders(true);
     const ordersCount = (await tzwapRouter.orderCount()).toNumber();
+
     const ids = Array.from(Array(ordersCount).keys());
     const promises = await Promise.all(ids.map((i) => tzwapRouter.orders(i)));
     const _orders: Order[] = [];
@@ -222,12 +221,12 @@ const Tzwap = () => {
     setOrders(_orders);
     setIsFetchingOrders(false);
   }, [
-    ADDRESS_TO_TOKEN,
     accountAddress,
     provider,
     setOrders,
     signer,
     tzwapRouterAddress,
+    ADDRESS_TO_TOKEN,
   ]);
 
   const handleApprove = useCallback(async () => {
@@ -329,7 +328,7 @@ const Tzwap = () => {
   }, [chainId, isFromTokenSelectorVisible]);
 
   const handleCreate = useCallback(async () => {
-    if (!signer) return;
+    if (!signer || !accountAddress) return;
 
     const tzwapRouter = Tzwap1inchRouter__factory.connect(
       tzwapRouterAddress,
@@ -472,7 +471,8 @@ const Tzwap = () => {
 
   useEffect(() => {
     (async function () {
-      if (!tzwapRouterAddress || !fromTokenName || !signer) return;
+      if (!tzwapRouterAddress || !fromTokenName || !signer || !accountAddress)
+        return;
 
       const tzwapRouter = Tzwap1inchRouter__factory.connect(
         tzwapRouterAddress,
