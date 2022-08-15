@@ -68,7 +68,7 @@ const DepositCard = () => {
   }, [rawAmount]);
 
   const readableExpiry = useMemo(() => {
-    return straddlesEpochData?.expiry
+    return straddlesEpochData?.expiry.gt(0)
       ? format(
           new Date(straddlesEpochData.expiry.toNumber() * 1000),
           'd LLL yyyy'
@@ -229,7 +229,7 @@ const DepositCard = () => {
           </Box>
         </Box>
       </Box>
-      <Box className="my-4 w-full rounded-lg border border-neutral-800">
+      <Box className="my-4 w-full rounded-lg border border-neutral-800 pt-2 pb-1">
         <Typography variant="h6" className="mx-2 pb-2">
           Deposit for epoch {currentEpoch + 1}
         </Typography>
