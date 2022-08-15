@@ -70,15 +70,16 @@ const WithdrawModal = ({
           .connect(signer)
           .setApprovalForAll(straddlesData?.straddlesContract.address)
       );
-
-    await sendTx(
-      straddlesData?.straddlesContract
-        .connect(signer)
-        .withdraw(
-          straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
-        )
-    );
-    await updateStraddlesUserData!();
+    if (straddlesData && straddlesUserData && signer) {
+      await sendTx(
+        straddlesData?.straddlesContract
+          .connect(signer)
+          .withdraw(
+            straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
+          )
+      );
+      await updateStraddlesUserData!();
+    }
   }, [
     straddlesData,
     straddlesUserData,
@@ -90,14 +91,16 @@ const WithdrawModal = ({
   ]);
 
   const handleToggleRollover = useCallback(async () => {
-    await sendTx(
-      straddlesData?.straddlesContract
-        .connect(signer)
-        .toggleRollover(
-          straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
-        )
-    );
-    await updateStraddlesUserData!();
+    if (straddlesData && straddlesUserData && signer) {
+      await sendTx(
+        straddlesData.straddlesContract
+          .connect(signer)
+          .toggleRollover(
+            straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
+          )
+      );
+      await updateStraddlesUserData!();
+    }
   }, [
     straddlesData,
     straddlesUserData,

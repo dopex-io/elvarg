@@ -7,19 +7,20 @@ import {
   useMemo,
   ReactNode,
 } from 'react';
-
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   AtlanticStraddle__factory,
   ERC721__factory,
   Addresses,
+  AtlanticStraddle,
 } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
+
 import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
 
 export interface StraddlesData {
-  straddlesContract: any;
+  straddlesContract: AtlanticStraddle;
   straddlePositionsMinter: any;
   writePositionsMinter: any;
   currentEpoch: number;
@@ -111,7 +112,8 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     useState<StraddlesUserData>();
 
   const straddlesContract = useMemo(() => {
-    if (!selectedPoolName || !provider) return;
+    if (!selectedPoolName || !provider)
+      return AtlanticStraddle__factory.connect('', ethers.getDefaultProvider());
     else
       return AtlanticStraddle__factory.connect(
         Addresses[42161].STRADDLES.ETH.Vault,
@@ -141,7 +143,9 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     async (id: BigNumber) => {
       try {
         const data = await straddlesContract!['straddlePositions'](id);
-        const pnl = await straddlesContract!['getPnl'](id);
+        const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
+          id
+        );
         return {
           id: id,
           epoch: data['epoch'],
