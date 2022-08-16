@@ -1,9 +1,8 @@
 import { useContext } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import ArrowBackIosRoundedIcon from '@mui/icons-material/ArrowBackIosRounded';
 
 import Typography from 'components/UI/Typography';
+
 import { AssetsContext } from 'contexts/Assets';
 
 const TopBar = () => {
@@ -14,10 +13,13 @@ const TopBar = () => {
 
   return (
     <Box>
-      <Box className="flex">
-        <Button size="small">
-          <ArrowBackIosRoundedIcon className="text-gray-700" />
-        </Button>
+      <Box className="flex items-center">
+        <Typography
+          variant="h5"
+          className="ml-4 bg-primary rounded-lg p-2 font-bold h-[fit-content]"
+        >
+          BETA
+        </Typography>
         <Box sx={{ p: 1 }} className="flex -space-x-4">
           <img
             className="w-9 h-9 z-10 border border-gray-500 rounded-full"
@@ -36,7 +38,7 @@ const TopBar = () => {
             ETH
           </Typography>
         </Box>
-        <Typography variant="h4" className="text-wave-blue ml-4">
+        <Typography variant="h4" className="ml-4 self-start">
           ${ethPrice}
         </Typography>
       </Box>

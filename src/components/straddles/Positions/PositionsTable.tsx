@@ -27,7 +27,8 @@ const PositionsTable = () => {
 
   const handleExercise = useCallback(
     async (selectedPositionNftIndex: number) => {
-      if (!straddlesData?.isEpochExpired) return;
+      if (!straddlesData?.isEpochExpired || !straddlesData?.straddlesContract)
+        return;
 
       const approved = await straddlesData!.straddlePositionsMinter
         .connect(signer)

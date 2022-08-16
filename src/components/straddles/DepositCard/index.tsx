@@ -106,7 +106,7 @@ const DepositCard = () => {
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     if (
-      !straddlesData ||
+      !straddlesData?.straddlesContract ||
       !accountAddress ||
       !signer ||
       !updateStraddlesEpochData ||
@@ -135,11 +135,12 @@ const DepositCard = () => {
   ]);
 
   const handleApprove = useCallback(async () => {
-    if (!straddlesData || !signer || !contractAddresses) return;
+    if (!straddlesData?.straddlesContract || !signer || !contractAddresses)
+      return;
     try {
       await sendTx(
         ERC20__factory.connect(straddlesData.usd, signer).approve(
-          straddlesData.straddlesContract.address,
+          straddlesData?.straddlesContract?.address,
           MAX_VALUE
         )
       );
@@ -160,7 +161,8 @@ const DepositCard = () => {
   // Updates approved state and user balance
   useEffect(() => {
     (async () => {
-      if (!accountAddress || !signer || !straddlesData) return;
+      if (!accountAddress || !signer || !straddlesData?.straddlesContract)
+        return;
 
       const finalAmount: BigNumber = getContractReadableAmount(amount, 6);
       const token = ERC20__factory.connect(straddlesData.usd, signer);

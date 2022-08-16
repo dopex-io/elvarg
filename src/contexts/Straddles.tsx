@@ -7,7 +7,7 @@ import {
   useMemo,
   ReactNode,
 } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import {
   AtlanticStraddle__factory,
   ERC721__factory,
@@ -20,7 +20,7 @@ import { WalletContext } from './Wallet';
 import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
 
 export interface StraddlesData {
-  straddlesContract: AtlanticStraddle;
+  straddlesContract: AtlanticStraddle | undefined;
   straddlePositionsMinter: any;
   writePositionsMinter: any;
   currentEpoch: number;
@@ -112,14 +112,13 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     useState<StraddlesUserData>();
 
   const straddlesContract = useMemo(() => {
-    if (!selectedPoolName || !provider)
-      return AtlanticStraddle__factory.connect('', ethers.getDefaultProvider());
+    if (!provider) return;
     else
       return AtlanticStraddle__factory.connect(
         Addresses[42161].STRADDLES.ETH.Vault,
         provider
       );
-  }, [provider, selectedPoolName]);
+  }, [provider]);
 
   const straddlePositionsMinterContract = useMemo(() => {
     if (!selectedPoolName || !provider) return;

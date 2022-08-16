@@ -57,6 +57,8 @@ const WithdrawModal = ({
   ]);
 
   const handleWithdraw = useCallback(async () => {
+    if (!straddlesData?.straddlesContract) return;
+
     const approved = await straddlesData!.writePositionsMinter
       .connect(signer)
       .isApprovedForAll(
@@ -91,7 +93,7 @@ const WithdrawModal = ({
   ]);
 
   const handleToggleRollover = useCallback(async () => {
-    if (straddlesData && straddlesUserData && signer) {
+    if (straddlesData?.straddlesContract && straddlesUserData && signer) {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)

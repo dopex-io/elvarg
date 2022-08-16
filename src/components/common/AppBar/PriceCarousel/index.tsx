@@ -18,7 +18,7 @@ interface IPriceFeedProps extends IPriceCarouselProps {
   animationPlayState: 'paused' | 'running';
 }
 
-const StyledPriceFeedWrapper = styled(Box)`
+const StyledPriceFeedWrapper = styled('div')`
   animation-play-state: ${(props: {
     animationPlayState: 'paused' | 'running';
   }) => props.animationPlayState} !important;

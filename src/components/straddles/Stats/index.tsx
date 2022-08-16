@@ -30,7 +30,11 @@ const Stats = () => {
       .split(',')
       .map((_i, index) => {
         return (
-          <MenuItem value={index + 1} key={index + 1} className="text-stieglitz">
+          <MenuItem
+            value={index + 1}
+            key={index + 1}
+            className="text-stieglitz"
+          >
             {index + 1}
           </MenuItem>
         );
@@ -132,14 +136,14 @@ const Stats = () => {
             <a
               className={'cursor-pointer'}
               href={`${getExplorerUrl(chainId)}/address/${
-                straddlesData?.straddlesContract.address
+                straddlesData?.straddlesContract?.address
               }`}
               target="_blank"
               rel="noreferrer noopener"
             >
               <Typography variant="h5" className="text-white text-[11px]">
                 {displayAddress(
-                  straddlesData?.straddlesContract.address,
+                  straddlesData?.straddlesContract?.address,
                   undefined
                 )}
               </Typography>
