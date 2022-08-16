@@ -13,7 +13,7 @@ import Typography from 'components/UI/Typography';
 import ArrowUpIcon from 'svgs/icons/ArrowUpIcon';
 import FlagIcon from 'svgs/icons/FlagIcon';
 
-const STRIKE_INDEX_TO_COLOR = {
+const STRIKE_INDEX_TO_COLOR: { [index: number]: string } = {
   0: '#F80196',
   1: '#FF617D',
   2: '#F09242',
@@ -30,7 +30,7 @@ const Stats = () => {
     totalCallsDeposits,
     totalPutsDeposits,
     rate,
-  } = rateVaultContext.rateVaultEpochData;
+  } = rateVaultContext.rateVaultEpochData!;
 
   return rateVaultContext?.rateVaultEpochData?.epochStrikes ? (
     <Box>
@@ -119,10 +119,10 @@ const Stats = () => {
             {rateVaultContext.rateVaultEpochData.epochStrikes.map(
               (strike, strikeIndex) => {
                 const deposits =
-                  rateVaultContext.rateVaultEpochData.callsDeposits[
+                  rateVaultContext!.rateVaultEpochData!.callsDeposits[
                     strikeIndex
                   ]?.add(
-                    rateVaultContext.rateVaultEpochData.putsDeposits[
+                    rateVaultContext!.rateVaultEpochData!.putsDeposits[
                       strikeIndex
                     ] || BigNumber.from('0')
                   );
@@ -133,8 +133,7 @@ const Stats = () => {
                     >
                       <FlagIcon
                         className={'mt-[6px] mr-1.5'}
-                        /* @ts-ignore TODO: FIX */
-                        fill={STRIKE_INDEX_TO_COLOR[strikeIndex]}
+                        fill={STRIKE_INDEX_TO_COLOR[Number(strikeIndex)]}
                       />
                       <Typography
                         variant={'h6'}

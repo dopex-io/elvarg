@@ -75,6 +75,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
     useContext(AssetsContext);
   const rateVaultContext = useContext(RateVaultContext);
+  const { updateRateVaultEpochData, updateRateVaultUserData } =
+    rateVaultContext;
   const { selectedEpoch, selectedPoolName } = rateVaultContext;
 
   const sendTx = useSendTx();
@@ -113,7 +115,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   );
 
   const { epochTimes, isVaultReady, epochStrikes } =
-    rateVaultContext.rateVaultEpochData;
+    rateVaultContext.rateVaultEpochData!;
 
   const [approved, setApproved] = useState<boolean>(false);
   const [quote, setQuote] = useState<{ [key: string]: any }>({});
@@ -229,7 +231,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     useState<string>(ssovTokenName);
 
   const spender = useMemo(() => {
-    return contractAddresses['RATE-VAULTS'][selectedPoolName];
+    return contractAddresses['RATE-VAULTS'][selectedPoolName!];
   }, [selectedPoolName, contractAddresses]);
 
   const quotePrice: number = useMemo(() => {
@@ -318,8 +320,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
           );
         })
         .sort((a, b) => {
-          // @ts-ignore TODO: FIX
-          return getValueInUsd(b) - getValueInUsd(a);
+          return getValueInUsd(String(b)) - getValueInUsd(String(a));
         });
 
       const filteredToken = filteredTokens[0];
@@ -331,15 +332,14 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   const totalEpochDepositsAmount: number = useMemo(() => {
     return (
       getUserReadableAmount(
-        rateVaultContext.rateVaultEpochData.totalCallsDeposits?.add(
-          rateVaultContext.rateVaultEpochData.totalPutsDeposits
+        rateVaultContext.rateVaultEpochData!.totalCallsDeposits?.add(
+          rateVaultContext.rateVaultEpochData!.totalPutsDeposits
         ),
         18
       ) || 0
     );
   }, [rateVaultContext]);
 
-  // @ts-ignore TODO: FIX
   const handleSelectCallLeverages = useCallback(
     async (index: number, value: number) => {
       let _selectedCallLeverages = Object.assign({}, selectedCallLeverages);
@@ -349,7 +349,6 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     [selectedCallLeverages]
   );
 
-  // @ts-ignore TODO: FIX
   const handleSelectPutLeverages = useCallback(
     async (index: number, value: number) => {
       let _selectedPutLeverages = Object.assign({}, selectedPutLeverages);
@@ -360,15 +359,14 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   );
 
   const handleSelectStrikes = useCallback(
-    // @ts-ignore TODO: FIX
-    (event) => {
-      setSelectedStrikeIndexes(event.target.value as number[]);
+    (event: { target: { value: string } }) => {
+      setSelectedStrikeIndexes(event.target.value as unknown as number[]);
       handleSelectCallLeverages(
-        event.target.value[event.target.value.length - 1],
+        Number(event.target.value[event.target.value.length - 1]),
         0
       );
       handleSelectPutLeverages(
-        event.target.value[event.target.value.length - 1],
+        Number(event.target.value[event.target.value.length - 1]),
         0
       );
     },
@@ -381,8 +379,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       : 0;
   }, [totalDepositAmount, totalEpochDepositsAmount]);
 
-  // @ts-ignore TODO: FIX
-  const unselectStrike = (index) => {
+  const unselectStrike = (index: number) => {
     setSelectedStrikeIndexes(
       selectedStrikeIndexes.filter(function (item) {
         return item !== index;
@@ -397,8 +394,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       value?: number
     ) => {
       let input = e
-        ? // @ts-ignore TODO: FIX
-          [',', '.'].includes(e.target.value[e.target.value.length - 1])
+        ? [',', '.'].includes(e.target.value[e.target.value.length - 1]!)
           ? e.target.value
           : parseFloat(e.target.value.replace(',', '.'))
         : value;
@@ -407,10 +403,10 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
       if (e && parseFloat(e.target.value) === 0) input = e.target.value;
       if (isNaN(input)) input = 0;
-      // @ts-ignore TODO: FIX
+
       setStrikeDepositAmounts((prevState) => ({
         ...prevState,
-        [index]: input,
+        [index]: input!,
       }));
     },
     []
@@ -434,9 +430,11 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
+    if (!updateRateVaultEpochData || !updateRateVaultUserData) return;
+
     if (depositTokenName === '2CRV') {
-      rateVaultContext.rateVaultData.rateVaultContract
-        .connect(signer)
+      rateVaultContext
+        .rateVaultData!.rateVaultContract.connect(signer)
         .depositMultiple(
           selectedStrikeIndexes,
           selectedCallLeveragesIndexes || [],
@@ -451,8 +449,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     setSelectedPutLeverages(() => []);
     setSelectedStrikeIndexes(() => []);
     await updateAssetBalances();
-    await rateVaultContext.updateRateVaultEpochData();
-    await rateVaultContext.updateRateVaultUserData();
+    await updateRateVaultEpochData();
+    await updateRateVaultUserData();
   }, [
     signer,
     updateAssetBalances,
@@ -463,6 +461,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     contractReadableStrikeDepositAmounts,
     selectedCallLeveragesIndexes,
     selectedPutLeveragesIndexes,
+    updateRateVaultUserData,
+    updateRateVaultEpochData,
   ]);
 
   const checkDEXAggregatorStatus = useCallback(async () => {
@@ -622,8 +622,9 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
                 <Select
                   className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
                   fullWidth
-                  multiple
+                  multiple={true}
                   displayEmpty
+                  // @ts-ignore
                   value={selectedStrikeIndexes}
                   onChange={handleSelectStrikes}
                   input={<Input />}
@@ -870,7 +871,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {Math.max(selectedEpoch, 1)}
+                    {Math.max(selectedEpoch!, 1)}
                   </Typography>
                 </Box>
               </Box>
