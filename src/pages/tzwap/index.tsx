@@ -1,4 +1,11 @@
-import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
+import {
+  useEffect,
+  useState,
+  useContext,
+  useMemo,
+  useCallback,
+  ReactNode,
+} from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
 import {
@@ -49,10 +56,9 @@ import { Order } from '../../types/tzwap';
 import styles from './styles.module.scss';
 
 function TabPanel(props: {
-  [x: string]: any;
-  children: any;
-  value: any;
-  index: any;
+  children: ReactNode;
+  value: number;
+  index: number;
 }) {
   const { children, value, index, ...other } = props;
 
