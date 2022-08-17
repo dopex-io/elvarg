@@ -32,7 +32,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
 import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';

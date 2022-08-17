@@ -21,7 +21,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import TokenSelector from '../TokenSelector';
-import CustomButton from '../../UI/CustomButton';
+import CustomButton from '../../UI/Button';
 import Typography from '../../UI/Typography';
 
 import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';

@@ -10,7 +10,7 @@ import format from 'date-fns/format';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import InfoBox from 'components/ssov-v3/InfoBox';
 

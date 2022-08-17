@@ -20,7 +20,7 @@ import Tooltip from '@mui/material/Tooltip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';
 import AlarmIcon from 'svgs/icons/AlarmIcon';

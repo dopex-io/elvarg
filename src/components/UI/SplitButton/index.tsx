@@ -8,7 +8,7 @@ import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 
-import CustomButton from '../CustomButton';
+import CustomButton from '../Button';
 
 export default function SplitButton({
   options,

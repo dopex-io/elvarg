@@ -8,7 +8,7 @@ import { ERC20__factory } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
@@ -186,7 +186,7 @@ const Transfer = ({
         <CustomButton
           className="w-full mb-4"
           onClick={handleTransfer}
-          size="xl"
+          size="large"
           disabled={recipient !== '' && error === undefined ? false : true}
         >
           Transfer
