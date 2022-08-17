@@ -236,7 +236,7 @@ export const RateVault = () => {
 
         _userEpochStrikeDeposits.map((record) => {
           userEpochStrikeDeposits.push({
-            amount: record['deposits'][Number(record.strikeIndex)],
+            amount: record['deposits'][0],
             callLeverage: rateVaultEpochData.callsLeverages[i]!,
             putLeverage: rateVaultEpochData.putsLeverages[j]!,
             callLeverageIndex: Number(i),

@@ -75,15 +75,6 @@ const DepositsTableData = (
     return _isEmpty;
   }, [totalUserDeposits]);
 
-  const isWithdrawalEnabled: boolean = useMemo(() => {
-    return (
-      new Date() > epochEndTime &&
-      epochTime != 0 &&
-      !isTotalCallUserDepositsEmpty &&
-      isBootstrapped
-    );
-  }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime, isBootstrapped]);
-
   const isTotalPutUserDepositsEmpty: boolean = useMemo(() => {
     let _isEmpty: boolean = true;
     totalUserDeposits.map((deposit) =>
@@ -91,6 +82,21 @@ const DepositsTableData = (
     );
     return _isEmpty;
   }, [totalUserDeposits]);
+
+  const isWithdrawalEnabled: boolean = useMemo(() => {
+    return (
+      new Date() > epochEndTime &&
+      epochTime != 0 &&
+      (!isTotalCallUserDepositsEmpty || !isTotalPutUserDepositsEmpty) &&
+      isBootstrapped
+    );
+  }, [
+    epochEndTime,
+    isTotalCallUserDepositsEmpty,
+    isTotalPutUserDepositsEmpty,
+    epochTime,
+    isBootstrapped,
+  ]);
 
   return (
     <TableRow className="text-white mb-2 rounded-lg mt-2">
@@ -221,7 +227,7 @@ const ROWS_PER_PAGE = 5;
 
 const Deposits = () => {
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, ensName } = useContext(WalletContext);
+  const { ensName, accountAddress } = useContext(WalletContext);
   const { updateAssetBalances } = useContext(AssetsContext);
 
   const { selectedEpoch, rateVaultUserData, isLoading } = rateVaultContext;
