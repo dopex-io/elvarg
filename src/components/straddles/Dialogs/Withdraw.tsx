@@ -11,7 +11,7 @@ import Button from '@mui/material/Button';
 import { StraddlesContext } from 'contexts/Straddles';
 import { WalletContext } from 'contexts/Wallet';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import useSendTx from 'hooks/useSendTx';
 

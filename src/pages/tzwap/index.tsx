@@ -28,7 +28,7 @@ import Kill from 'components/tzwap/Dialogs/Kill';
 import Orders from 'components/tzwap/Orders';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import AppBar from 'components/common/AppBar';
 import TokenSelector from 'components/common/TokenSelector';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';

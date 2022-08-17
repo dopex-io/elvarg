@@ -30,7 +30,7 @@ import axios from 'axios';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import PnlChart from 'components/common/PnlChart';
 import ZapIn from 'components/common/ZapIn';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -61,7 +61,6 @@ import {
 
 import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
 
-import styles from './styles.module.scss';
 import { BnbConversionContext } from 'contexts/BnbConversion';
 import Curve2PoolSelector from './components/Curve2PoolSelector';
 
@@ -1362,7 +1361,7 @@ const PurchaseDialog = ({
         </CustomButton>
       </Box>
       <Slide direction="left" in={isZapInVisible} mountOnEnter unmountOnExit>
-        <Box className={styles.zapIn}>
+        <Box className="h-full  absolute bg-cod-gray w-[calc(100%-31px)]">
           <ZapIn
             setOpen={setIsZapInVisible}
             fromTokenSymbol={

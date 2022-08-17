@@ -17,7 +17,7 @@ import useSendTx from 'hooks/useSendTx';
 import { WalletContext } from 'contexts/Wallet';
 import { StraddlesContext } from 'contexts/Straddles';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
 

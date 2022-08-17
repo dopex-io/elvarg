@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 

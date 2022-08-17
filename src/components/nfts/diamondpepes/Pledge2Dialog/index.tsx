@@ -18,7 +18,7 @@ import Input from '@mui/material/Input';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { Data, UserData } from 'types/diamondpepes';
