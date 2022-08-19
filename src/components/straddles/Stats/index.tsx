@@ -157,11 +157,8 @@ const Stats = () => {
           >
             APR
           </Typography>
-          <Typography variant="h6" className="ml-auto mr-1 text-gray-400">
-            ~
-          </Typography>
           <Typography variant="h6" className="text-white">
-            13.1%
+            {straddlesEpochData?.aprPremium}%
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
