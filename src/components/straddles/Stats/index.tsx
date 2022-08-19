@@ -155,7 +155,7 @@ const Stats = () => {
             variant="h6"
             className="flex justify-center items-center text-gray-400"
           >
-            APR
+            Annualized Premium
           </Typography>
           <Typography variant="h6" className="text-white">
             {straddlesEpochData?.aprPremium}%
