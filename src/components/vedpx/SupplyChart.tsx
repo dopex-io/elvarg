@@ -1,52 +1,60 @@
-import React from 'react';
-import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import {
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+  Tooltip,
+  TooltipProps,
+} from 'recharts';
+import { format } from 'date-fns';
 
-const data = [
-  {
-    name: 'Page A',
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: 'Page B',
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: 'Page C',
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: 'Page D',
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: 'Page E',
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: 'Page F',
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: 'Page G',
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
+const CustomTooltip = ({ active, payload }: TooltipProps<any, any>) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-black p-3 rounded-md shadow-2xl">
+        <p className="text-sm text-stieglitz">veDPX Supply</p>
+        <p className="text-wave-blue">{payload[0]?.value} veDPX</p>
+        <p className="text-wave-blue">
+          {format(payload[0]?.payload.timestamp * 1000, 'do LLL')}
+        </p>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 const SupplyChart = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const currentTime = Date.now() / 1000;
+    const from = Math.floor(currentTime - 86400 * 28);
+
+    axios
+      .get(
+        `https://2q7mh3riqd.execute-api.us-east-2.amazonaws.com/default/fetchCirculatingSupply?tokenSymbol=vedpx&from=${from}`
+      )
+      .then((res) =>
+        setData(
+          res.data.data
+            .map((item: any) => {
+              return {
+                ...item,
+                circulatingSupply: Number(
+                  Number(item.circulatingSupply).toFixed(2)
+                ),
+              };
+            })
+            .filter((_: any, index: number) => {
+              if (index % 23 === 1) return true;
+              return false;
+            })
+        )
+      );
+  }, []);
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart
@@ -66,12 +74,12 @@ const SupplyChart = () => {
             <stop offset="99.5%" stopColor="#22e1ff" stopOpacity={0} />
           </linearGradient>
         </defs>
+        <Tooltip content={<CustomTooltip />} />
         <Area
           type="monotone"
-          dataKey="uv"
+          dataKey="circulatingSupply"
           stroke="#22e1ff"
           fill="url(#colorUv)"
-          className="blur-sm"
         />
       </AreaChart>
     </ResponsiveContainer>
