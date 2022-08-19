@@ -124,7 +124,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return ERC721__factory.connect(
-        Addresses[42161].STRADDLES.ETH.StraddlesPositionsMinter,
+        Addresses[42161].STRADDLES.ETH.Vault,
         provider
       );
   }, [provider, selectedPoolName]);
@@ -133,7 +133,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return ERC721__factory.connect(
-        Addresses[42161].STRADDLES.ETH.WritePositionsMinter,
+        Addresses[42161].STRADDLES.ETH.Vault,
         provider
       );
   }, [provider, selectedPoolName]);
