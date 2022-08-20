@@ -114,10 +114,10 @@ const Stats = () => {
         </Box>
         <Box className="border flex justify-between border-neutral-800 p-2">
           <Typography variant="h6" className="text-gray-400">
-            Funding Rate
+            Annualized Funding APR
           </Typography>
           <Typography variant="h6" className="text-white">
-            16%
+            {straddlesEpochData?.aprFunding}%
           </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
