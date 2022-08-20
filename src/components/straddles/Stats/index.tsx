@@ -179,13 +179,10 @@ const Stats = () => {
             variant="h6"
             className="flex justify-center items-center text-gray-400"
           >
-            APR
-          </Typography>
-          <Typography variant="h6" className="ml-auto mr-1 text-gray-400">
-            ~
+            Annualized Premium
           </Typography>
           <Typography variant="h6" className="text-white">
-            13.1%
+            {straddlesEpochData?.aprPremium}%
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">

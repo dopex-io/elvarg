@@ -18,6 +18,7 @@ import {
 import { WalletContext } from './Wallet';
 
 import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from '../utils/contracts/getUserReadableAmount';
 
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
@@ -42,6 +43,7 @@ export interface StraddlesEpochData {
   totalSold: BigNumber;
   currentPrice: BigNumber;
   straddlePrice: BigNumber;
+  aprPremium: string;
 }
 
 export interface WritePosition {
@@ -91,6 +93,7 @@ const initialStraddlesEpochData = {
   totalSold: BigNumber.from('0'),
   currentPrice: BigNumber.from('0'),
   straddlePrice: BigNumber.from('0'),
+  aprPremium: '',
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -265,6 +268,15 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     const timeToExpiry =
       epochData['expiry'].toNumber() - new Date().getTime() / 1000;
 
+    const normPercent = straddlePrice
+      .div(currentPrice)
+      .mul(1e10)
+      .mul(BigNumber.from(365 * 86400))
+      .div(BigNumber.from(Math.round(timeToExpiry)))
+      .div(1e8);
+
+    const aprPremium = getUserReadableAmount(normPercent, 18).toFixed(0);
+
     const straddlePriceFunding = currentPrice
       .mul(getContractReadableAmount(16, 18))
       .mul(BigNumber.from(Math.round(timeToExpiry)))
@@ -287,6 +299,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       usdPremiums: usdPremiums,
       currentPrice: currentPrice,
       straddlePrice: straddlePrice,
+      aprPremium: aprPremium,
     });
   }, [straddlesContract, selectedEpoch, selectedPoolName]);
 
