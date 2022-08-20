@@ -1,9 +1,9 @@
 import React, { useCallback, useContext, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Countdown from 'react-countdown';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 
 import Typography from 'components/UI/Typography';
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
@@ -21,6 +21,12 @@ const Stats = () => {
     useContext(StraddlesContext);
 
   const currentEpoch = straddlesData?.currentEpoch || 0;
+
+  const epochEndTime: Date = useMemo(() => {
+    return straddlesEpochData
+      ? new Date(straddlesEpochData?.expiry?.toNumber() * 1000)
+      : new Date(0);
+  }, [straddlesEpochData]);
 
   const epochs = useMemo(() => {
     let _epoch = Number(currentEpoch);
@@ -83,8 +89,26 @@ const Stats = () => {
               color="secondary"
               className="mx-2 text-gray-500 text-md h-8 py-3 px-2 hover:text-gray-200 hover:bg-mineshaft bg-neutral-800"
             >
-              <TimerOutlinedIcon className="w-4 h-4 mr-1" />
-              16H 11M 11D
+              <Countdown
+                date={epochEndTime}
+                renderer={({ days, hours, minutes }) => {
+                  return (
+                    <Box className={'flex'}>
+                      <img
+                        src="/assets/timer.svg"
+                        className="h-[1rem] mt-1 mr-2 ml-1"
+                        alt="Timer"
+                      />
+                      <Typography
+                        variant="h5"
+                        className="ml-auto text-stieglitz mr-1 text-sm"
+                      >
+                        {days}d {hours}h {minutes}m
+                      </Typography>
+                    </Box>
+                  );
+                }}
+              />
             </Button>
           </Box>
         </Box>
