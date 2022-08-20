@@ -10,7 +10,6 @@ import {
 import { BigNumber } from 'ethers';
 import {
   AtlanticStraddle__factory,
-  ERC721__factory,
   Addresses,
   AtlanticStraddle,
 } from '@dopex-io/sdk';
@@ -22,8 +21,6 @@ import getUserReadableAmount from '../utils/contracts/getUserReadableAmount';
 
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
-  straddlePositionsMinter: any;
-  writePositionsMinter: any;
   currentEpoch: number;
   underlying: string;
   usd: string;
@@ -124,24 +121,6 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         provider
       );
   }, [provider]);
-
-  const straddlePositionsMinterContract = useMemo(() => {
-    if (!selectedPoolName || !provider) return;
-    else
-      return ERC721__factory.connect(
-        Addresses[42161].STRADDLES.ETH.Vault,
-        provider
-      );
-  }, [provider, selectedPoolName]);
-
-  const writePositionsMinterContract = useMemo(() => {
-    if (!selectedPoolName || !provider) return;
-    else
-      return ERC721__factory.connect(
-        Addresses[42161].STRADDLES.ETH.Vault,
-        provider
-      );
-  }, [provider, selectedPoolName]);
 
   const getStraddlePosition = useCallback(
     async (id: BigNumber) => {
@@ -357,20 +336,13 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         underlying: underlying,
         currentEpoch: Number(currentEpoch),
         straddlesContract: straddlesContract,
-        straddlePositionsMinter: straddlePositionsMinterContract,
-        writePositionsMinter: writePositionsMinterContract,
         isVaultReady: isVaultReady,
         isEpochExpired: isEpochExpired,
       });
     }
 
     if (straddlesContract) update();
-  }, [
-    selectedPoolName,
-    straddlesContract,
-    straddlePositionsMinterContract,
-    writePositionsMinterContract,
-  ]);
+  }, [selectedPoolName, straddlesContract]);
 
   useEffect(() => {
     updateStraddlesUserData();

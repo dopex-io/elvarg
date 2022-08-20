@@ -21,7 +21,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 const PositionsTable = () => {
   const sendTx = useSendTx();
-  const { signer, accountAddress } = useContext(WalletContext);
+  const { signer } = useContext(WalletContext);
   const { straddlesUserData, straddlesData, updateStraddlesUserData } =
     useContext(StraddlesContext);
 
@@ -30,19 +30,6 @@ const PositionsTable = () => {
       if (!straddlesData?.isEpochExpired || !straddlesData?.straddlesContract)
         return;
 
-      const approved = await straddlesData!.straddlePositionsMinter
-        .connect(signer)
-        .isApprovedForAll(
-          accountAddress,
-          straddlesData?.straddlesContract.address
-        );
-
-      if (!approved)
-        await sendTx(
-          straddlesData?.straddlePositionsMinter
-            .connect(signer)
-            .setApprovalForAll(straddlesData?.straddlesContract.address)
-        );
       if (straddlesData && straddlesUserData && signer) {
         await sendTx(
           straddlesData?.straddlesContract
@@ -56,14 +43,7 @@ const PositionsTable = () => {
         await updateStraddlesUserData!();
       }
     },
-    [
-      straddlesData,
-      straddlesUserData,
-      signer,
-      updateStraddlesUserData,
-      sendTx,
-      accountAddress,
-    ]
+    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx]
   );
 
   return (

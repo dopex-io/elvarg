@@ -32,7 +32,7 @@ const WithdrawModal = ({
     straddlesEpochData,
     updateStraddlesUserData,
   } = useContext(StraddlesContext);
-  const { signer, accountAddress } = useContext(WalletContext);
+  const { signer } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
@@ -59,19 +59,6 @@ const WithdrawModal = ({
   const handleWithdraw = useCallback(async () => {
     if (!straddlesData?.straddlesContract) return;
 
-    const approved = await straddlesData!.writePositionsMinter
-      .connect(signer)
-      .isApprovedForAll(
-        accountAddress,
-        straddlesData?.straddlesContract.address
-      );
-
-    if (!approved)
-      await sendTx(
-        straddlesData?.writePositionsMinter
-          .connect(signer)
-          .setApprovalForAll(straddlesData?.straddlesContract.address)
-      );
     if (straddlesData && straddlesUserData && signer) {
       await sendTx(
         straddlesData?.straddlesContract
@@ -89,7 +76,6 @@ const WithdrawModal = ({
     signer,
     updateStraddlesUserData,
     sendTx,
-    accountAddress,
   ]);
 
   const handleToggleRollover = useCallback(async () => {
