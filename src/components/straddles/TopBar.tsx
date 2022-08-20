@@ -4,12 +4,15 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 
 import { AssetsContext } from 'contexts/Assets';
+import { StraddlesContext } from 'contexts/Straddles';
 
 const TopBar = () => {
   const { tokenPrices } = useContext(AssetsContext);
 
-  const ethPrice =
-    tokenPrices.find((token) => token.name === 'ETH')?.price || 0;
+  const { selectedPoolName } = useContext(StraddlesContext);
+
+  const tokenPrice =
+    tokenPrices.find((token) => token.name === selectedPoolName)?.price || 0;
 
   return (
     <Box>
@@ -23,23 +26,23 @@ const TopBar = () => {
         <Box sx={{ p: 1 }} className="flex -space-x-4">
           <img
             className="w-9 h-9 z-10 border border-gray-500 rounded-full"
-            src="/images/tokens/eth.svg"
-            alt={'eth icon'}
+            src={`/images/tokens/${selectedPoolName.toLowerCase()}.svg`}
+            alt={selectedPoolName}
           />
           <img
             className="w-9 h-9 z-0"
             src="/images/tokens/usdc.svg"
-            alt={'usdc icon'}
+            alt="USDC"
           />
         </Box>
         <Box className="ml-4">
           <Typography variant="h5">LONG STRADDLE</Typography>
           <Typography variant="h6" className="text-gray-500">
-            ETH
+            {selectedPoolName}
           </Typography>
         </Box>
         <Typography variant="h4" className="ml-4 self-start">
-          ${ethPrice}
+          ${tokenPrice}
         </Typography>
       </Box>
     </Box>

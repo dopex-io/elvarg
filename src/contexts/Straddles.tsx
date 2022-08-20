@@ -67,10 +67,10 @@ export interface StraddlesUserData {
 }
 
 interface StraddlesContextInterface {
+  selectedPoolName: string;
   straddlesData?: StraddlesData | undefined;
   straddlesEpochData?: StraddlesEpochData | undefined;
   straddlesUserData?: StraddlesUserData | undefined;
-  selectedPoolName?: string | null;
   selectedEpoch?: number | null;
   updateStraddlesEpochData?: Function;
   updateStraddlesUserData?: Function;
@@ -96,6 +96,7 @@ const initialStraddlesEpochData = {
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
+  selectedPoolName: 'ETH',
   straddlesUserData: initialStraddlesUserData,
   straddlesEpochData: initialStraddlesEpochData,
 });
@@ -103,7 +104,7 @@ export const StraddlesContext = createContext<StraddlesContextInterface>({
 export const StraddlesProvider = (props: { children: ReactNode }) => {
   const { accountAddress, provider } = useContext(WalletContext);
 
-  const [selectedPoolName, setSelectedPoolName] = useState<string | null>(null);
+  const [selectedPoolName, setSelectedPoolName] = useState<string>('ETH');
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(1);
   const [straddlesData, setStraddlesData] = useState<
     StraddlesData | undefined
@@ -114,13 +115,13 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     useState<StraddlesUserData>();
 
   const straddlesContract = useMemo(() => {
-    if (!provider) return;
+    if (!selectedPoolName || !provider) return;
     else
       return AtlanticStraddle__factory.connect(
-        Addresses[42161].STRADDLES.ETH.Vault,
+        Addresses[42161].STRADDLES[selectedPoolName].Vault,
         provider
       );
-  }, [provider]);
+  }, [provider, selectedPoolName]);
 
   const getStraddlePosition = useCallback(
     async (id: BigNumber) => {
@@ -166,13 +167,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   );
 
   const updateStraddlesUserData = useCallback(async () => {
-    if (
-      selectedEpoch === null ||
-      !selectedPoolName ||
-      !accountAddress ||
-      !straddlesContract
-    )
-      return;
+    if (selectedEpoch === null || !accountAddress || !straddlesContract) return;
 
     const straddlePositionsPromises: any[] = [];
     const writePositionsPromises: any[] = [];
@@ -214,12 +209,10 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     accountAddress,
     getStraddlePosition,
     getWritePosition,
-    selectedPoolName,
   ]);
 
   const updateStraddlesEpochData = useCallback(async () => {
-    if (selectedEpoch === null || !selectedPoolName || !straddlesContract)
-      return;
+    if (selectedEpoch === null || !straddlesContract) return;
 
     const epochData = await straddlesContract!['epochData'](
       Math.max(selectedEpoch || 0, 1)
@@ -300,7 +293,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       aprPremium: aprPremium,
       aprFunding: aprFunding,
     });
-  }, [straddlesContract, selectedEpoch, selectedPoolName]);
+  }, [straddlesContract, selectedEpoch]);
 
   useEffect(() => {
     async function update() {
@@ -342,7 +335,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     }
 
     if (straddlesContract) update();
-  }, [selectedPoolName, straddlesContract]);
+  }, [straddlesContract]);
 
   useEffect(() => {
     updateStraddlesUserData();

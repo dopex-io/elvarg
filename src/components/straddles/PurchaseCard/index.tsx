@@ -34,15 +34,17 @@ import { MAX_VALUE } from 'constants/index';
 const PurchaseCard = () => {
   const { chainId, accountAddress, signer, contractAddresses } =
     useContext(WalletContext);
-  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
-  );
   const {
+    selectedPoolName,
     straddlesEpochData,
     straddlesData,
     updateStraddlesEpochData,
     updateStraddlesUserData,
   } = useContext(StraddlesContext);
+
+  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
 
   const maxStraddlesCanBeBought = useMemo(() => {
     const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(
@@ -175,7 +177,10 @@ const PurchaseCard = () => {
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-[130px] p-1">
-              <img src={'/images/tokens/eth.svg'} alt={'ETH STRADDLE'} />
+              <img
+                src={`/images/tokens/${selectedPoolName.toLowerCase()}.svg`}
+                alt={selectedPoolName}
+              />
               <Typography
                 variant="h6"
                 className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
