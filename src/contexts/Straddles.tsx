@@ -16,7 +16,7 @@ import {
 
 import { WalletContext } from './Wallet';
 
-import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
@@ -40,6 +40,7 @@ export interface StraddlesEpochData {
   currentPrice: BigNumber;
   straddlePrice: BigNumber;
   aprPremium: string;
+  aprFunding: string;
 }
 
 export interface WritePosition {
@@ -90,6 +91,7 @@ const initialStraddlesEpochData = {
   currentPrice: BigNumber.from('0'),
   straddlePrice: BigNumber.from('0'),
   aprPremium: '',
+  aprFunding: '',
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -224,6 +226,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     const totalSold = epochCollectionsData['totalSold'];
 
     let straddlePrice;
+    let aprFunding: BigNumber | string;
 
     try {
       straddlePrice = await straddlesContract!['calculatePremium'](
@@ -235,6 +238,15 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     } catch (e) {
       straddlePrice = BigNumber.from('0');
     }
+
+    try {
+      aprFunding = await straddlesContract!['apFundingPercent']();
+      aprFunding = aprFunding.div(1e6);
+    } catch (e) {
+      aprFunding = BigNumber.from('0');
+    }
+
+    aprFunding = aprFunding.toString();
 
     const timeToExpiry =
       epochData['expiry'].toNumber() - new Date().getTime() / 1000;
@@ -264,12 +276,13 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       startTime: epochData['startTime'],
       underlyingPurchased: epochData['underlyingPurchased'],
       usdDeposits: epochData['usdDeposits'],
-      usdFunding: usdFunding,
-      totalSold: totalSold,
-      usdPremiums: usdPremiums,
-      currentPrice: currentPrice,
-      straddlePrice: straddlePrice,
-      aprPremium: aprPremium,
+      usdFunding,
+      totalSold,
+      usdPremiums,
+      currentPrice,
+      straddlePrice,
+      aprPremium,
+      aprFunding,
     });
   }, [straddlesContract, selectedEpoch]);
 
