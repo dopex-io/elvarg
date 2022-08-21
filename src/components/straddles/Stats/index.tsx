@@ -117,7 +117,7 @@ const Stats = () => {
             Annualized Funding APR
           </Typography>
           <Typography variant="h6" className="text-white">
-            {straddlesEpochData?.aprFunding}%
+            36%
           </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
