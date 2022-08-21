@@ -16,8 +16,7 @@ import {
 
 import { WalletContext } from './Wallet';
 
-import getContractReadableAmount from '../utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from '../utils/contracts/getUserReadableAmount';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
@@ -227,7 +226,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     const totalSold = epochCollectionsData['totalSold'];
 
     let straddlePrice;
-    let straddleFunding: BigNumber;
+    let aprFunding: BigNumber | string;
 
     try {
       straddlePrice = await straddlesContract!['calculatePremium'](
@@ -241,32 +240,24 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     }
 
     try {
-      straddleFunding = await straddlesContract!['calculateApFunding'](
-        currentPrice,
-        getContractReadableAmount(1, 18),
-        epochData['expiry']
-      );
+      aprFunding = await straddlesContract!['apFundingPercent']();
+      aprFunding = aprFunding.div(1e6);
     } catch (e) {
-      straddleFunding = BigNumber.from('0');
+      aprFunding = BigNumber.from('0');
     }
+
+    aprFunding = aprFunding.toString();
 
     const timeToExpiry =
       epochData['expiry'].toNumber() - new Date().getTime() / 1000;
 
-    const normApr = straddlePrice
-      .div(currentPrice)
-      .mul(1e10)
-      .mul(BigNumber.from(365 * 86400))
-      .div(BigNumber.from(Math.round(timeToExpiry)))
-      .div(1e8);
-    const aprPremium = getUserReadableAmount(normApr, 18).toFixed(0);
-
-    const normFunding = straddleFunding
-      .div(currentPrice)
-      .mul(BigNumber.from(365 * 86400))
-      .div(BigNumber.from(Math.round(timeToExpiry)))
-      .div(20);
-    const aprFunding = getUserReadableAmount(normFunding, 18).toFixed(0);
+    const normApr = usdPremiums
+      .mul(BigNumber.from(365))
+      .mul(BigNumber.from(100))
+      .div(epochData['activeUsdDeposits'])
+      .div(BigNumber.from(3))
+      .toNumber();
+    const aprPremium = normApr.toFixed(0);
 
     const straddlePriceFunding = currentPrice
       .mul(getContractReadableAmount(16, 18))
@@ -285,13 +276,13 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       startTime: epochData['startTime'],
       underlyingPurchased: epochData['underlyingPurchased'],
       usdDeposits: epochData['usdDeposits'],
-      usdFunding: usdFunding,
-      totalSold: totalSold,
-      usdPremiums: usdPremiums,
-      currentPrice: currentPrice,
-      straddlePrice: straddlePrice,
-      aprPremium: aprPremium,
-      aprFunding: aprFunding,
+      usdFunding,
+      totalSold,
+      usdPremiums,
+      currentPrice,
+      straddlePrice,
+      aprPremium,
+      aprFunding,
     });
   }, [straddlesContract, selectedEpoch]);
 
