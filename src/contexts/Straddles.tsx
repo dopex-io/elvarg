@@ -122,19 +122,6 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       );
   }, [provider, selectedPoolName]);
 
-  const tokenOfOwnerByIndex = useCallback(async () => {
-    const numTokens = (
-      await straddlesContract!['balanceOf'](accountAddress!)
-    ).toNumber();
-    return await Promise.all(
-      Array(numTokens)
-        .fill(0)
-        .map((id) => {
-          return straddlesContract!['tokenOfOwnerByIndex'](accountAddress!, id);
-        })
-    );
-  }, [straddlesContract, accountAddress]);
-
   const getStraddlePosition = useCallback(
     async (id: BigNumber) => {
       try {
@@ -142,22 +129,21 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
           id
         );
-        return (await tokenOfOwnerByIndex()).includes(id)
-          ? {
-              id: id,
-              epoch: data['epoch'],
-              amount: data['amount'],
-              apStrike: data['apStrike'],
-              pnl: pnl,
-            }
-          : null;
+
+        return {
+          id: id,
+          epoch: data['epoch'],
+          amount: data['amount'],
+          apStrike: data['apStrike'],
+          pnl: pnl,
+        };
       } catch {
         return {
           amount: BigNumber.from('0'),
         };
       }
     },
-    [straddlesContract, tokenOfOwnerByIndex]
+    [straddlesContract]
   );
 
   const getWritePosition = useCallback(
@@ -165,21 +151,19 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       try {
         const data = await straddlesContract!['writePositions'](id);
 
-        return (await tokenOfOwnerByIndex()).includes(id)
-          ? {
-              id: id,
-              epoch: data['epoch'],
-              usdDeposit: data['usdDeposit'],
-              rollover: data['rollover'],
-            }
-          : null;
+        return {
+          id: id,
+          epoch: data['epoch'],
+          usdDeposit: data['usdDeposit'],
+          rollover: data['rollover'],
+        };
       } catch {
         return {
           usdDeposit: BigNumber.from('0'),
         };
       }
     },
-    [straddlesContract, tokenOfOwnerByIndex]
+    [straddlesContract]
   );
 
   const updateStraddlesUserData = useCallback(async () => {
@@ -213,10 +197,10 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     setStraddlesUserData({
       straddlePositions: straddlePositions.filter(function (el) {
-        return !el['amount'].eq(0);
+        return el && el['epoch'];
       }),
       writePositions: writePositions.filter(function (el) {
-        return !el['usdDeposit'].eq(0);
+        return el && el['epoch'];
       }),
     });
   }, [
