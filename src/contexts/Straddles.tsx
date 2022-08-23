@@ -129,7 +129,6 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
           id
         );
-
         return {
           id: id,
           epoch: data['epoch'],
