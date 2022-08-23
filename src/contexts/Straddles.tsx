@@ -122,6 +122,19 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       );
   }, [provider, selectedPoolName]);
 
+  const tokenOfOwnerByIndex = useCallback(async () => {
+    const numTokens = (
+      await straddlesContract!['balanceOf'](accountAddress!)
+    ).toNumber();
+    return await Promise.all(
+      Array(numTokens)
+        .fill(0)
+        .map((id) => {
+          return straddlesContract!['tokenOfOwnerByIndex'](accountAddress!, id);
+        })
+    );
+  }, [straddlesContract, accountAddress]);
+
   const getStraddlePosition = useCallback(
     async (id: BigNumber) => {
       try {
@@ -129,20 +142,22 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
           id
         );
-        return {
-          id: id,
-          epoch: data['epoch'],
-          amount: data['amount'],
-          apStrike: data['apStrike'],
-          pnl: pnl,
-        };
+        return (await tokenOfOwnerByIndex()).includes(id)
+          ? {
+              id: id,
+              epoch: data['epoch'],
+              amount: data['amount'],
+              apStrike: data['apStrike'],
+              pnl: pnl,
+            }
+          : null;
       } catch {
         return {
           amount: BigNumber.from('0'),
         };
       }
     },
-    [straddlesContract]
+    [straddlesContract, tokenOfOwnerByIndex]
   );
 
   const getWritePosition = useCallback(
@@ -150,19 +165,21 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       try {
         const data = await straddlesContract!['writePositions'](id);
 
-        return {
-          id: id,
-          epoch: data['epoch'],
-          usdDeposit: data['usdDeposit'],
-          rollover: data['rollover'],
-        };
+        return (await tokenOfOwnerByIndex()).includes(id)
+          ? {
+              id: id,
+              epoch: data['epoch'],
+              usdDeposit: data['usdDeposit'],
+              rollover: data['rollover'],
+            }
+          : null;
       } catch {
         return {
           usdDeposit: BigNumber.from('0'),
         };
       }
     },
-    [straddlesContract]
+    [straddlesContract, tokenOfOwnerByIndex]
   );
 
   const updateStraddlesUserData = useCallback(async () => {
