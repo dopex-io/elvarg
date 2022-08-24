@@ -196,10 +196,10 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     setStraddlesUserData({
       straddlePositions: straddlePositions.filter(function (el) {
-        return !el['amount'].eq(0);
+        return el && el['epoch'];
       }),
       writePositions: writePositions.filter(function (el) {
-        return !el['usdDeposit'].eq(0);
+        return el && el['epoch'];
       }),
     });
   }, [
