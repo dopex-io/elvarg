@@ -31,15 +31,15 @@ const PnlChart = (props: PnlChartProps) => {
 
   const [state, setState] = useState({ price: 0, pnl: 0 });
 
-  const upwardBreakeven = optionPrice / amount / 0.5 + price;
-  const lowerBreakeven = price - optionPrice / amount / 0.5;
+  const upperBreakeven = optionPrice ? optionPrice / amount / 0.5 + price : 0;
+  const lowerBreakeven = optionPrice ? price - optionPrice / amount / 0.5 : 0;
 
   const pnl = useMemo(() => {
     let value;
-    if (price > upwardBreakeven) value = price - upwardBreakeven;
+    if (price > upperBreakeven) value = price - upperBreakeven;
     else value = lowerBreakeven - price;
     return value * amount;
-  }, [price, upwardBreakeven, lowerBreakeven, amount]);
+  }, [price, upperBreakeven, lowerBreakeven, amount]);
 
   useEffect(() => {
     setState({ price, pnl });
@@ -77,16 +77,15 @@ const PnlChart = (props: PnlChartProps) => {
     () => setState({ price, pnl }),
     [price, pnl]
   );
-  console.log(lowerBreakeven.toFixed(0));
 
   return (
-    <Box className="h-[26rem]">
+    <Box className="h-[24rem]">
       <Box className="flex">
         <Typography variant="h6" className="text-stieglitz font-small mb-2">
           Calculator
         </Typography>
       </Box>
-      <ResponsiveContainer width="100%" height="70%" className="mb-4">
+      <ResponsiveContainer width="100%" height="60%" className="mb-4">
         <LineChart
           width={300}
           height={300}
@@ -101,10 +100,12 @@ const PnlChart = (props: PnlChartProps) => {
             dataKey={'price'}
             domain={['auto', 'auto']}
             width={39}
-            tickSize={2}
+            tickSize={3}
+            tickCount={7}
+            padding={{ top: 10 }}
           />
           <ReferenceLine y={lowerBreakeven} stroke="red" />
-          <ReferenceLine y={upwardBreakeven} stroke="red" />
+          <ReferenceLine y={upperBreakeven} stroke="red" />
         </LineChart>
       </ResponsiveContainer>
       <Box className="flex justify-between mb-3.5">
@@ -142,7 +143,7 @@ const PnlChart = (props: PnlChartProps) => {
         </Typography>
       </Box>
       <Box>
-        <Box className="flex justify-between mb-1">
+        <Box className="flex justify-between mb-3.5">
           <Typography
             variant="caption"
             component="div"
@@ -158,7 +159,7 @@ const PnlChart = (props: PnlChartProps) => {
             ${formatAmount(lowerBreakeven, 3)}
           </Typography>
         </Box>
-        <Box className="flex justify-between mb-0.5">
+        <Box className="flex justify-between">
           <Typography
             variant="caption"
             component="div"
@@ -171,7 +172,7 @@ const PnlChart = (props: PnlChartProps) => {
             component="div"
             className="text-stieglitz text-xs"
           >
-            ${formatAmount(upwardBreakeven, 3)}
+            ${formatAmount(upperBreakeven, 3)}
           </Typography>
         </Box>
       </Box>
