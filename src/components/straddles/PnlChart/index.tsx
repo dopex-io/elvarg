@@ -107,8 +107,8 @@ const PnlChart = (props: PnlChartProps) => {
               tickCount={7}
               padding={{ top: 10 }}
             />
-            <ReferenceLine y={lowerBreakeven} stroke="green" />
-            <ReferenceLine y={upperBreakeven} stroke="green" />
+            <ReferenceLine y={lowerBreakeven} stroke="#22E1FF" />
+            <ReferenceLine y={upperBreakeven} stroke="#22E1FF" />
           </LineChart>
         </ResponsiveContainer>
       ) : (
