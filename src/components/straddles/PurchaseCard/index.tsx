@@ -218,15 +218,13 @@ const PurchaseCard = () => {
           </Typography>
         </Box>
       </Box>
-      <Box>
-        <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
-          <PnlChart
-            optionPrice={totalCost}
-            amount={amount}
-            price={straddlesEpochData?.currentPrice.div(1e8).toNumber()}
-            symbol={'$'}
-          />
-        </Box>
+      <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
+        <PnlChart
+          optionPrice={totalCost}
+          amount={amount}
+          price={straddlesEpochData?.currentPrice.div(1e8).toNumber()}
+          symbol={selectedPoolName}
+        />
       </Box>
       <Box className="mt-4 flex justify-center mb-4">
         <Box className="py-2 w-full rounded border border-neutral-800">

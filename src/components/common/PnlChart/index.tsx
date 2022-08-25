@@ -7,6 +7,7 @@ import Typography from 'components/UI/Typography';
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import getValueSign from 'utils/general/getValueSign';
+import PnlInfoBox from 'components/common/PnlInfoBox';
 
 const CustomTooltip = () => {
   return null;
@@ -91,57 +92,25 @@ const PnlChart = (props: PnlChartProps) => {
           <Line type="monotone" dataKey="value" stroke="white" dot={false} />
         </LineChart>
       </ResponsiveContainer>
-      <Box className="flex justify-between mb-3.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          {symbol} Price
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-white text-xs"
-        >
-          ${formatAmount(state.price, 3)}
-        </Typography>
-      </Box>
-      <Box className="flex justify-between mb-3.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          Estimated PnL
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className={getValueColorClass(state.pnl)}
-        >
+      <PnlInfoBox
+        info={`${symbol} Price`}
+        value={`$${formatAmount(state.price, 3)}`}
+        className={'text-white text-xs'}
+      />
+      <PnlInfoBox
+        info={'Estimated PnL'}
+        value={
           <span className="text-xs">
             {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
           </span>
-        </Typography>
-      </Box>
-
-      <Box className="flex justify-between mb-0.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          Breakeven
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          ${formatAmount(breakEven, 3)}
-        </Typography>
-      </Box>
+        }
+        className={getValueColorClass(state.pnl)}
+      />
+      <PnlInfoBox
+        info={'Breakeven'}
+        value={`$${formatAmount(breakEven, 3)}`}
+        color={'stieglitz'}
+      />
     </Box>
   );
 };

@@ -14,6 +14,7 @@ import Typography from 'components/UI/Typography';
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import getValueSign from 'utils/general/getValueSign';
+import PnlInfoBox from 'components/common/PnlInfoBox';
 
 const CustomTooltip = () => {
   return null;
@@ -104,78 +105,34 @@ const PnlChart = (props: PnlChartProps) => {
             tickCount={7}
             padding={{ top: 10 }}
           />
-          <ReferenceLine y={lowerBreakeven} stroke="red" />
-          <ReferenceLine y={upperBreakeven} stroke="red" />
+          <ReferenceLine y={lowerBreakeven} stroke="green" />
+          <ReferenceLine y={upperBreakeven} stroke="green" />
         </LineChart>
       </ResponsiveContainer>
-      <Box className="flex justify-between mb-3.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          {symbol} Price
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-white text-xs"
-        >
-          ${formatAmount(state.price, 3)}
-        </Typography>
-      </Box>
-      <Box className="flex justify-between mb-3.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          Estimated PnL
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className={getValueColorClass(state.pnl)}
-        >
+      <PnlInfoBox
+        info={`${symbol} Price`}
+        value={`$${formatAmount(state.price, 3)}`}
+        className={'text-white text-xs'}
+      />
+      <PnlInfoBox
+        info={'Estimated PnL'}
+        value={
           <span className="text-xs">
             {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
           </span>
-        </Typography>
-      </Box>
-      <Box>
-        <Box className="flex justify-between mb-3.5">
-          <Typography
-            variant="caption"
-            component="div"
-            className="text-stieglitz text-xs"
-          >
-            Lower Breakeven
-          </Typography>
-          <Typography
-            variant="caption"
-            component="div"
-            className="text-stieglitz text-xs"
-          >
-            ${formatAmount(lowerBreakeven, 3)}
-          </Typography>
-        </Box>
-        <Box className="flex justify-between">
-          <Typography
-            variant="caption"
-            component="div"
-            className="text-stieglitz text-xs"
-          >
-            Upper Breakeven
-          </Typography>
-          <Typography
-            variant="caption"
-            component="div"
-            className="text-stieglitz text-xs"
-          >
-            ${formatAmount(upperBreakeven, 3)}
-          </Typography>
-        </Box>
-      </Box>
+        }
+        className={getValueColorClass(state.pnl)}
+      />
+      <PnlInfoBox
+        info={'Lower Breakeven'}
+        value={`$${formatAmount(lowerBreakeven, 3)}`}
+        color={'stieglitz'}
+      />
+      <PnlInfoBox
+        info={'Upper Breakeven'}
+        value={`$${formatAmount(upperBreakeven, 3)}`}
+        color={'stieglitz'}
+      />
     </Box>
   );
 };
