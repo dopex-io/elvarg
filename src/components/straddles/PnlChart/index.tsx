@@ -10,6 +10,7 @@ import {
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
+import Skeleton from 'components/UI/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
@@ -86,29 +87,38 @@ const PnlChart = (props: PnlChartProps) => {
           Calculator
         </Typography>
       </Box>
-      <ResponsiveContainer width="100%" height="60%" className="mb-4">
-        <LineChart
-          width={300}
-          height={300}
-          data={data}
-          // @ts-ignore TODO: FIX
-          onMouseMove={handleOnMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
-          <Tooltip content={<CustomTooltip />} />
-          <Line type="monotone" dataKey="price" stroke="white" dot={false} />
-          <YAxis
-            dataKey={'price'}
-            domain={['auto', 'auto']}
-            width={39}
-            tickSize={3}
-            tickCount={7}
-            padding={{ top: 10 }}
-          />
-          <ReferenceLine y={lowerBreakeven} stroke="green" />
-          <ReferenceLine y={upperBreakeven} stroke="green" />
-        </LineChart>
-      </ResponsiveContainer>
+      {lowerBreakeven ? (
+        <ResponsiveContainer width="100%" height="60%" className="mb-4">
+          <LineChart
+            width={300}
+            height={300}
+            data={data}
+            // @ts-ignore TODO: FIX
+            onMouseMove={handleOnMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <Tooltip content={<CustomTooltip />} />
+            <Line type="monotone" dataKey="price" stroke="white" dot={false} />
+            <YAxis
+              dataKey={'price'}
+              domain={['auto', 'auto']}
+              width={39}
+              tickSize={3}
+              tickCount={7}
+              padding={{ top: 10 }}
+            />
+            <ReferenceLine y={lowerBreakeven} stroke="green" />
+            <ReferenceLine y={upperBreakeven} stroke="green" />
+          </LineChart>
+        </ResponsiveContainer>
+      ) : (
+        <Skeleton
+          variant="rectangular"
+          width={334}
+          height={220}
+          className="mb-4"
+        />
+      )}
       <PnlInfoBox
         info={`${symbol} Price`}
         value={`$${formatAmount(state.price, 3)}`}
