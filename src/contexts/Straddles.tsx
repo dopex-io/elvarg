@@ -179,12 +179,16 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     ](accountAddress);
 
     straddlePositionsIndexes.map((straddlePositionsIndex) =>
-      straddlePositionsPromises.push(
-        getStraddlePosition(straddlePositionsIndex)
-      )
+      straddlePositionsIndex.gt(0)
+        ? straddlePositionsPromises.push(
+            getStraddlePosition(straddlePositionsIndex)
+          )
+        : null
     );
     writePositionsIndexes.map((writePositionsIndex) =>
-      writePositionsPromises.push(getWritePosition(writePositionsIndex))
+      writePositionsIndex.gt(0)
+        ? writePositionsPromises.push(getWritePosition(writePositionsIndex))
+        : null
     );
 
     const straddlePositions: StraddlePosition[] = await Promise.all(
