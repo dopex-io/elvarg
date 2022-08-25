@@ -125,6 +125,9 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   const getStraddlePosition = useCallback(
     async (id: BigNumber) => {
       try {
+        const owner = await straddlesContract!['ownerOf'](id);
+        if (owner !== accountAddress) throw 'Invalid owner';
+
         const data = await straddlesContract!['straddlePositions'](id);
         const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
           id
@@ -142,12 +145,15 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract]
+    [straddlesContract, accountAddress]
   );
 
   const getWritePosition = useCallback(
     async (id: BigNumber) => {
       try {
+        const owner = await straddlesContract!['ownerOf'](id);
+        if (owner !== accountAddress) throw 'Invalid owner';
+
         const data = await straddlesContract!['writePositions'](id);
 
         return {
@@ -162,7 +168,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract]
+    [straddlesContract, accountAddress]
   );
 
   const updateStraddlesUserData = useCallback(async () => {
@@ -179,16 +185,12 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     ](accountAddress);
 
     straddlePositionsIndexes.map((straddlePositionsIndex) =>
-      straddlePositionsIndex.gt(0)
-        ? straddlePositionsPromises.push(
-            getStraddlePosition(straddlePositionsIndex)
-          )
-        : null
+      straddlePositionsPromises.push(
+        getStraddlePosition(straddlePositionsIndex)
+      )
     );
     writePositionsIndexes.map((writePositionsIndex) =>
-      writePositionsIndex.gt(0)
-        ? writePositionsPromises.push(getWritePosition(writePositionsIndex))
-        : null
+      writePositionsPromises.push(getWritePosition(writePositionsIndex))
     );
 
     const straddlePositions: StraddlePosition[] = await Promise.all(
