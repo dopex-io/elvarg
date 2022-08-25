@@ -236,7 +236,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     try {
       straddlePrice = await straddlesContract!['calculatePremium'](
-        false,
+        true,
         currentPrice,
         getContractReadableAmount(1, 18),
         epochData['expiry']
