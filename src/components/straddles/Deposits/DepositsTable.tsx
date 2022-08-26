@@ -106,7 +106,7 @@ const DepositsTable = () => {
                 </TableCell>
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="">
-                    ${getUserReadableAmount(position.pnl, 8).toFixed(2)}
+                    {Number(position.pnl)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">
