@@ -14,6 +14,8 @@ import Deposits from 'components/straddles/Deposits';
 import Positions from 'components/straddles/Positions';
 import Manage from 'components/straddles/Manage';
 
+const SHOWCHARTS = false;
+
 interface Props {
   poolName: string;
 }
@@ -39,25 +41,31 @@ const Straddles = ({ poolName }: Props) => {
           <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
             <Stats />
           </Box>
-          <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
-            <Typography variant="h6" className="-ml-1">
-              Liquidity
-            </Typography>
-          </Box>
-          <Box className="pt-4 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 relative md:flex">
-            <Typography
-              variant="h4"
-              className="md:left-[40%] left-[25%] top-[40%] absolute"
-            >
-              <span className="text-white">Not available yet</span>
-            </Typography>
-            <Box className="md:w-1/2 w-full md:pr-2">
-              <PoolCard />
+
+          {SHOWCHARTS ? (
+            <Box>
+              <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
+                <Typography variant="h6" className="-ml-1">
+                  Liquidity
+                </Typography>
+              </Box>
+              <Box className="pt-4 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 relative md:flex">
+                <Typography
+                  variant="h4"
+                  className="md:left-[40%] left-[25%] top-[40%] absolute"
+                >
+                  <span className="text-white">Not available yet</span>
+                </Typography>
+                <Box className="md:w-1/2 w-full md:pr-2">
+                  <PoolCard />
+                </Box>
+                <Box className="md:w-1/2 w-full md:pl-2">
+                  <TVLCard />
+                </Box>
+              </Box>
             </Box>
-            <Box className="md:w-1/2 w-full md:pl-2">
-              <TVLCard />
-            </Box>
-          </Box>
+          ) : null}
+
           <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 mt-5">
             <Typography variant="h6" className="-ml-1">
               Deposits
