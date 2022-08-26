@@ -1,5 +1,4 @@
-import { useContext } from 'react';
-import { useState } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -20,17 +19,22 @@ import { StraddlesContext } from 'contexts/Straddles';
 import WithdrawModal from '../Dialogs/Withdraw';
 
 const DepositsTable = () => {
-  const { straddlesUserData } = useContext(StraddlesContext);
+  const { straddlesUserData, straddlesData } = useContext(StraddlesContext);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
   const [selectedPositionNftIndex, setSelectedPositionNftIndex] = useState<
     number | null
   >(null);
 
-  const handleWithdraw = (id: number) => {
-    setIsWithdrawModalOpen(true);
-    setSelectedPositionNftIndex(id);
-  };
+  const handleWithdraw = useCallback(
+    (id: number, positionEpoch: number) => {
+      if (positionEpoch < straddlesData!.currentEpoch) {
+        setIsWithdrawModalOpen(true);
+        setSelectedPositionNftIndex(id);
+      }
+    },
+    [straddlesData]
+  );
 
   const closeWithdrawModal = () => {
     setIsWithdrawModalOpen(false);
@@ -94,7 +98,7 @@ const DepositsTable = () => {
                 </TableCell>
                 <TableCell className="flex justify-end">
                   <Button
-                    onClick={() => handleWithdraw(i)}
+                    onClick={() => handleWithdraw(i, position.epoch!)}
                     className={
                       'cursor-pointer bg-primary hover:bg-primary text-white'
                     }
@@ -103,7 +107,7 @@ const DepositsTable = () => {
                   </Button>
                   {isWithdrawModalOpen && (
                     <WithdrawModal
-                      open={isWithdrawModalOpen}
+                      open={position.epoch! < straddlesData!.currentEpoch}
                       selectedPositionNftIndex={selectedPositionNftIndex}
                       handleClose={closeWithdrawModal}
                     />
