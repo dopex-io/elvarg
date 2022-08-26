@@ -25,7 +25,7 @@ export default function PnlInfoBox({ info, value, className, color }: Props) {
         variant="caption"
         component="div"
         color={color ? color : ''}
-        className={className ? cx(className) : 'text-xs'}
+        className={className ? cx(className) : 'text-xs text-white'}
       >
         {value}
       </Typography>

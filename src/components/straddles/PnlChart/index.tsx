@@ -7,6 +7,7 @@ import {
   ReferenceLine,
   YAxis,
 } from 'recharts';
+import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -68,12 +69,17 @@ const PnlChart = (props: PnlChartProps) => {
       .sort((a, b) => a.price - b.price);
   }, [price, optionPrice, amount, lowerBreakeven]);
 
-  // @ts-ignore TODO: FIX
-  const handleOnMouseMove = useCallback(({ activePayload }) => {
-    if (!activePayload?.length) return;
-    const { payload } = activePayload[0];
-    setState({ price: payload.price, pnl: payload.value });
-  }, []);
+  const handleOnMouseMove: CategoricalChartFunc = useCallback(
+    ({ activePayload }) => {
+      if (!activePayload?.length) return;
+      const { payload } = activePayload[0];
+      setState({
+        price: payload.price,
+        pnl: payload.value,
+      });
+    },
+    []
+  );
 
   const handleMouseLeave = useCallback(
     () => setState({ price, pnl }),
@@ -93,7 +99,6 @@ const PnlChart = (props: PnlChartProps) => {
             width={300}
             height={300}
             data={data}
-            // @ts-ignore TODO: FIX
             onMouseMove={handleOnMouseMove}
             onMouseLeave={handleMouseLeave}
           >
