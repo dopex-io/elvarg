@@ -50,7 +50,6 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
 import {
   SsovContext,
   SsovData,
@@ -58,7 +57,13 @@ import {
   SsovEpochData,
 } from 'contexts/Ssov';
 
-import { CURRENCIES_MAP, MAX_VALUE, SSOV_MAP } from 'constants/index';
+import {
+  CURRENCIES_MAP,
+  MAX_VALUE,
+  SSOV_MAP,
+  IS_NATIVE,
+  CHAIN_ID_TO_NATIVE,
+} from 'constants/index';
 
 import styles from './styles.module.scss';
 import { BnbConversionContext } from 'contexts/BnbConversion';
@@ -86,10 +91,17 @@ const PurchaseDialog = ({
     ssovSigner,
     isPut,
   } = useContext(SsovContext);
-  const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
-    useContext(AssetsContext);
-  const { accountAddress, provider, chainId, signer, contractAddresses } =
-    useWalletStore();
+  const {
+    accountAddress,
+    provider,
+    chainId,
+    signer,
+    contractAddresses,
+    updateAssetBalances,
+    userAssetBalances,
+    tokens,
+    tokenPrices,
+  } = useBoundStore();
   const { convertToVBNB } = useContext(BnbConversionContext);
 
   const {

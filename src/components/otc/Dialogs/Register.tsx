@@ -15,7 +15,7 @@ import Input from 'components/UI/Input';
 import ErrorBox from 'components/common/ErrorBox';
 import InfoPopover from 'components/UI/InfoPopover';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 import { OtcContext } from 'contexts/Otc';
 
 import { db } from 'utils/firebase/initialize';
@@ -26,7 +26,7 @@ interface RegisterProps {
 }
 
 const Register = ({ open, handleClose }: RegisterProps) => {
-  const { accountAddress } = useWalletStore();
+  const { accountAddress } = useBoundStore();
   const { user, users, validateUser } = useContext(OtcContext);
 
   const [loading, setLoading] = useState(true);

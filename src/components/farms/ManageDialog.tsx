@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useContext, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { BigNumber, utils } from 'ethers';
 import {
   ERC20__factory,
@@ -18,8 +18,7 @@ import Tab from 'components/UI/Tab';
 
 import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
 
-import { useWalletStore } from 'store/Wallet';
-import { FarmingContext } from 'contexts/Farming';
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -54,8 +53,7 @@ const ManageDialog = (props: Props) => {
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer, accountAddress } = useWalletStore();
-  const { getUserData } = useContext(FarmingContext);
+  const { signer, accountAddress, getUserData } = useBoundStore();
 
   const sendTx = useSendTx();
 

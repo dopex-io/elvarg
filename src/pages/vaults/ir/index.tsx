@@ -1,10 +1,9 @@
-import { useEffect, useState, useContext, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import { useWalletStore } from 'store/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
@@ -31,8 +30,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Vaults = () => {
-  const { provider } = useWalletStore();
-  const { tokenPrices } = useContext(AssetsContext);
+  const { provider, tokenPrices } = useBoundStore();
   const [selectedStates, setselectedStates] = useState<string[] | string>([
     'Active',
   ]);

@@ -33,8 +33,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { useWalletStore } from 'store/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 import { RateVaultContext } from 'contexts/RateVault';
 
 import { MAX_VALUE } from 'constants/index';
@@ -59,10 +58,15 @@ const PurchaseCard = ({
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
   const { rateVaultEpochData } = rateVaultContext;
-
-  const { updateAssetBalances, tokenPrices } = useContext(AssetsContext);
-  const { accountAddress, provider, chainId, signer, contractAddresses } =
-    useWalletStore();
+  const {
+    accountAddress,
+    provider,
+    chainId,
+    signer,
+    contractAddresses,
+    updateAssetBalances,
+    tokenPrices,
+  } = useBoundStore();
 
   const { epochTimes } = rateVaultContext.rateVaultEpochData;
 

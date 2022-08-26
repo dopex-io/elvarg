@@ -11,7 +11,7 @@ import PageLoader from 'components/common/PageLoader';
 import Typography from 'components/UI/Typography';
 
 import { SsovV3Context } from 'contexts/SsovV3';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 import WritePositions from 'components/ssov-v3/WritePositions';
 
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
@@ -20,7 +20,7 @@ const Manage = (props: { ssov: string }) => {
   const { ssov } = props;
   const { ssovData, ssovEpochData, ssovUserData, setSelectedSsovV3 } =
     useContext(SsovV3Context);
-  const { chainId } = useWalletStore();
+  const { chainId } = useBoundStore();
 
   useEffect(() => {
     setSelectedSsovV3(ssov);

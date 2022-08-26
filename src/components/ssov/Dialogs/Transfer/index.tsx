@@ -10,7 +10,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { SsovContext } from 'contexts/Ssov';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -34,7 +34,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     ssovData,
     selectedEpoch,
   } = useContext(SsovContext);
-  const { accountAddress, signer } = useWalletStore();
+  const { accountAddress, signer } = useBoundStore();
 
   const sendTx = useSendTx();
 

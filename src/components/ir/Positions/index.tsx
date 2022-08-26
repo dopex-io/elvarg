@@ -16,8 +16,7 @@ import { ERC20__factory } from '@dopex-io/sdk';
 import Typography from 'components/UI/Typography';
 
 import { RateVaultContext } from 'contexts/RateVault';
-import { useWalletStore } from 'store/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -41,8 +40,7 @@ const Positions = () => {
   const [isPositionsStatsLoading, setIsPositionsStatsLoading] =
     useState<Boolean>(false);
   const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, signer } = useWalletStore();
-  const { updateAssetBalances } = useContext(AssetsContext);
+  const { accountAddress, signer, updateAssetBalances } = useBoundStore();
   const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
     string | null
   >(null);

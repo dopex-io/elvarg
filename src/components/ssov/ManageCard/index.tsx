@@ -28,9 +28,8 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 import { SsovContext } from 'contexts/Ssov';
-import { AssetsContext, IS_NATIVE, CHAIN_ID_TO_NATIVE } from 'contexts/Assets';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -49,7 +48,12 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
-import { MAX_VALUE, SSOV_MAP } from 'constants/index';
+import {
+  MAX_VALUE,
+  SSOV_MAP,
+  CHAIN_ID_TO_NATIVE,
+  IS_NATIVE,
+} from 'constants/index';
 
 import ZapIcon from 'svgs/icons/ZapIcon';
 import TransparentCrossIcon from 'svgs/icons/TransparentCrossIcon';
@@ -88,10 +92,17 @@ function TabPanel(props) {
 }
 
 const ManageCard = () => {
-  const { accountAddress, chainId, provider, signer, contractAddresses } =
-    useWalletStore();
-  const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
-    useContext(AssetsContext);
+  const {
+    accountAddress,
+    chainId,
+    provider,
+    signer,
+    contractAddresses,
+    updateAssetBalances,
+    userAssetBalances,
+    tokens,
+    tokenPrices,
+  } = useBoundStore();
   const {
     updateSsovEpochData,
     updateSsovUserData,

@@ -4,10 +4,10 @@ import { ContractTransaction } from 'ethers';
 
 import TransactionToast from 'components/UI/TransactionToast';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 const useSendTx = () => {
-  const { wrongNetwork, chainId } = useWalletStore();
+  const { wrongNetwork, chainId } = useBoundStore();
 
   const sendTx = useCallback(
     async (

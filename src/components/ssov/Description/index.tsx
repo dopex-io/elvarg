@@ -8,7 +8,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
 import { BnbConversionContext } from 'contexts/BnbConversion';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
@@ -36,7 +36,7 @@ const Description = ({
   type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useWalletStore();
+  const { accountAddress, connect } = useBoundStore();
   const { convertToBNB } = useContext(BnbConversionContext);
 
   const { APY, isVaultReady } = ssovEpochData;

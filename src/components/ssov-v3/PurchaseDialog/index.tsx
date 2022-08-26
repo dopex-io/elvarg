@@ -33,8 +33,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { useWalletStore } from 'store/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 import { SsovV3Context, SsovV3Data, SsovV3EpochData } from 'contexts/SsovV3';
 
 import { MAX_VALUE } from 'constants/index';
@@ -54,9 +53,13 @@ const PurchaseDialog = ({
 }: Props) => {
   const { ssovSigner, updateSsovV3UserData, updateSsovV3EpochData } =
     useContext(SsovV3Context);
-  const { updateAssetBalances } = useContext(AssetsContext);
-  const { accountAddress, provider, signer, contractAddresses } =
-    useWalletStore();
+  const {
+    accountAddress,
+    provider,
+    signer,
+    contractAddresses,
+    updateAssetBalances,
+  } = useBoundStore();
 
   const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;

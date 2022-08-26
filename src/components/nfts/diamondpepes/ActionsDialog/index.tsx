@@ -12,7 +12,7 @@ import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { Data, UserData } from 'types/diamondpepes';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -39,7 +39,7 @@ const ActionsDialog = ({
   updateData,
   updateUserData,
 }: Props) => {
-  const { chainId, signer } = useWalletStore();
+  const { chainId, signer } = useBoundStore();
 
   const [activeTab, setActiveTab] = useState<string>('mint');
 

@@ -24,7 +24,7 @@ import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 
 import { OtcContext, OtcProvider } from 'contexts/Otc';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import { db } from 'utils/firebase/initialize';
 
@@ -33,7 +33,7 @@ const Chatroom = (props) => {
 
   const router = useRouter();
   const { validateUser, user } = useContext(OtcContext);
-  const { accountAddress } = useWalletStore();
+  const { accountAddress } = useBoundStore();
 
   const validationSchema = yup.object({
     msg: yup.string().required('Cannot send empty message'),

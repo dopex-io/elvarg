@@ -1,10 +1,9 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import { useWalletStore } from 'store/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
@@ -41,8 +40,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Ssov = () => {
-  const { chainId, provider } = useWalletStore();
-  const { tokenPrices } = useContext(AssetsContext);
+  const { chainId, provider, tokenPrices } = useBoundStore();
 
   const [ssovs, setSsovs] = useState(null);
   const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([

@@ -12,7 +12,7 @@ import CustomButton from 'components/UI/CustomButton';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from './Stat';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -35,7 +35,7 @@ const ClaimCard = (props: Props) => {
 
   const sendTx = useSendTx();
 
-  const { signer } = useWalletStore();
+  const { signer } = useBoundStore();
 
   const handleClaim = useCallback(async () => {
     if (!signer) return;

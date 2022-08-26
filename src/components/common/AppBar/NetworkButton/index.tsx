@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 
 import CustomButton from 'components/UI/CustomButton';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 export default function NetworkButton({ className }: { className?: string }) {
-  const { chainId, setChangeNetwork } = useWalletStore();
+  const { chainId, setChangeNetwork } = useBoundStore();
 
   const handleOpen = useCallback(
     () => setChangeNetwork && setChangeNetwork('user'),

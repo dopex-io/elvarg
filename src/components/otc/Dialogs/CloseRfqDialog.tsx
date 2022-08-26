@@ -17,7 +17,7 @@ import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/CustomButton';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import { db } from 'utils/firebase/initialize';
 
@@ -31,7 +31,7 @@ interface CloseRfqDialogProps {
 const CloseRfqDialog = (props: CloseRfqDialogProps) => {
   const { open, id, data, handleClose } = props;
 
-  const { accountAddress } = useWalletStore();
+  const { accountAddress } = useBoundStore();
 
   const [disabled, setDisabled] = useState(false);
 

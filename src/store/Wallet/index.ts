@@ -1,16 +1,18 @@
-import create from 'zustand';
+import { StateCreator } from 'zustand';
 import Router from 'next/router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
-import Web3Modal, { ProviderController } from 'web3modal';
-import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
-import WalletConnectProvider from '@walletconnect/web3-provider';
+import { ProviderController } from 'web3modal';
 
-import { CHAIN_ID_TO_RPC } from 'constants/index';
+import { AssetsSlice } from 'store/Assets';
+import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
+
+import { CHAIN_ID_TO_RPC, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/index';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { FarmingSlice } from 'store/Farming';
 
-interface WalletState {
+export interface WalletSlice {
   updateState: Function;
   accountAddress?: string;
   ensName?: string;
@@ -30,104 +32,36 @@ interface WalletState {
   setChangeNetwork: Function;
 }
 
-const PAGE_TO_SUPPORTED_CHAIN_IDS: {
-  [key: string]: { default: number; all: number[] };
-} = {
-  '/': { default: 42161, all: [1, 42161, 43114, 56] },
-  '/governance/vedpx': { default: 42161, all: [42161] },
-  '/farms': { default: 42161, all: [1, 42161] },
-  '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
-  '/ssov/call/BNB': { default: 56, all: [56] },
-  '/ssov/call/AVAX': { default: 43114, all: [43114] },
-  '/nfts/community': { default: 42161, all: [] },
-  '/nfts/diamondpepes2': { default: 42161, all: [1, 42161] },
-  '/sale': { default: 1, all: [1] },
-  '/oracles': { default: 42161, all: [] },
-  '/tzwap': { default: 42161, all: [1, 42161] },
-  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
-  '/vaults/ir/pool/MIM3CRV-1': { default: 42161, all: [42161] },
-  '/vaults/ir/pool/MIM3CRV-2': { default: 42161, all: [42161] },
-  '/vaults/ir/pool/PUSD3CRV': { default: 42161, all: [42161] },
-  '/vaults/ir': { default: 42161, all: [42161] },
-};
-
-let web3Modal: Web3Modal | undefined;
-
-if (typeof window !== 'undefined') {
-  const providerOptions = {
-    walletconnect: {
-      package: WalletConnectProvider,
-      options: {
-        rpc: CHAIN_ID_TO_RPC,
-      },
-    },
-    walletlink: {
-      package: CoinbaseWalletSDK,
-      options: {
-        appName: 'Dopex',
-        rpc: CHAIN_ID_TO_RPC,
-      },
-    },
-    ...((window as any).clover && {
-      injected: {
-        display: {
-          logo: '/wallets/Clover.png',
-          name: 'Clover Wallet',
-          description: 'Connect to your Clover Wallet',
-        },
-        package: null,
-      },
-    }),
-    ...(window.ethereum?.isCoin98 && {
-      injected: {
-        display: {
-          logo: '/wallets/Coin98.png',
-          name: 'Coin98',
-          description: 'Connect to your Coin98 Wallet',
-        },
-        package: null,
-      },
-    }),
-    ...(window.ethereum?.isBitKeep && {
-      injected: {
-        display: {
-          logo: '/wallets/Bitkeep.png',
-          name: 'Bitkeep',
-          description: 'Connect to your Bitkeep Wallet',
-        },
-        package: null,
-      },
-    }),
-  };
-
-  web3Modal = new Web3Modal({
-    cacheProvider: true,
-    theme: 'dark',
-    providerOptions,
-  });
-}
-
-export const useWalletStore = create<WalletState>()((set, get) => ({
+export const createWalletSlice: StateCreator<
+  WalletSlice & AssetsSlice & FarmingSlice,
+  [['zustand/devtools', never]],
+  [],
+  WalletSlice
+> = (set, get) => ({
   wrongNetwork: false,
   connect: () => {
+    const { updateState } = get();
+    const web3Modal = getWeb3Modal();
+
     web3Modal
       ?.connect()
       .then(async (provider: ProviderController) => {
         provider.on('accountsChanged', async () => {
-          await get().updateState({ provider, isUser: true });
+          await updateState({ provider, isUser: true });
         });
 
         provider.on('chainChanged', async () => {
-          await get().updateState({ provider, isUser: true });
+          await updateState({ provider, isUser: true });
         });
-        await get().updateState({ provider, isUser: true });
+        await updateState({ provider, isUser: true });
       })
       .catch(() => {
         if (window.location.pathname !== '/ssov') window.location.replace('/');
       });
   },
   disconnect: () =>
-    set((prevState: WalletState) => {
+    set((prevState: WalletSlice) => {
+      const web3Modal = getWeb3Modal();
       if (!web3Modal) return prevState;
       web3Modal.clearCachedProvider();
       return {
@@ -141,17 +75,20 @@ export const useWalletStore = create<WalletState>()((set, get) => ({
       };
     }),
   changeWallet: () => {
+    const { updateState, chainId } = get();
+    const web3Modal = getWeb3Modal();
+
     if (!web3Modal) return;
     web3Modal.clearCachedProvider();
     web3Modal
       .connect()
-      .then(async (provider) => {
-        await get().updateState({ provider, isUser: true });
+      .then(async (provider: any) => {
+        await updateState({ provider, isUser: true });
       })
       .catch(async () => {
-        await get().updateState({
+        await updateState({
           provider: new ethers.providers.StaticJsonRpcProvider(
-            CHAIN_ID_TO_RPC[get().chainId]
+            CHAIN_ID_TO_RPC[chainId]
           ),
           isUser: false,
         });
@@ -227,7 +164,7 @@ export const useWalletStore = create<WalletState>()((set, get) => ({
     }));
   },
   setChangeNetwork: (networkStatus: 'user' | 'wrong-network' | 'close') =>
-    set((prevState: WalletState) => ({
+    set((prevState: WalletSlice) => ({
       ...prevState,
       changeNetwork: networkStatus,
     })),
@@ -239,4 +176,4 @@ export const useWalletStore = create<WalletState>()((set, get) => ({
       CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
     )
   ),
-}));
+});

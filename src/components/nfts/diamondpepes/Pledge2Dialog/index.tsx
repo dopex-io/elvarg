@@ -17,7 +17,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { Data, UserData } from 'types/diamondpepes';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -56,7 +56,7 @@ const Pledge2Dialog = ({
   pledge,
 }: Props) => {
   const { accountAddress, chainId, signer, contractAddresses } =
-    useWalletStore();
+    useBoundStore();
 
   const diamondPepeNfts = useMemo(
     () =>

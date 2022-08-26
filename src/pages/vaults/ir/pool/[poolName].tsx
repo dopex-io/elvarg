@@ -20,7 +20,7 @@ import Stats from 'components/ir/Stats';
 import WithdrawalInfo from 'components/ir/WithdrawalInfo';
 import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
 interface Props {
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const Manage = ({ poolName }: Props) => {
-  const { accountAddress, connect, chainId } = useWalletStore();
+  const { accountAddress, connect, chainId } = useBoundStore();
   const rateVaultContext = useContext(RateVaultContext);
 
   const { setSelectedPoolName, rateVaultData } = rateVaultContext;

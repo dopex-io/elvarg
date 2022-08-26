@@ -9,7 +9,7 @@ import CustomButton from 'components/UI/CustomButton';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from '../Stat';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -25,7 +25,7 @@ export interface Props {
 const WithdrawDialog = ({ open, handleClose, data }: Props) => {
   const { ssovData, ssovSigner, updateSsovV3EpochData } =
     useContext(SsovV3Context);
-  const { accountAddress } = useWalletStore();
+  const { accountAddress } = useBoundStore();
 
   const sendTx = useSendTx();
 

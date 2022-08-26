@@ -1,12 +1,14 @@
 import {
   useCallback,
-  useContext,
   useMemo,
   useState,
   ReactNode,
   MouseEvent,
   Key,
+  useEffect,
 } from 'react';
+import Router from 'next/router';
+import { ethers } from 'ethers';
 import cx from 'classnames';
 import Link from 'next/link';
 import Button from '@mui/material/Button';
@@ -24,10 +26,15 @@ import WalletDialog from 'components/common/AppBar/WalletDialog';
 import CustomButton from 'components/UI/CustomButton';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 
-import { AssetsContext } from 'contexts/Assets';
-import { useWalletStore } from 'store/Wallet';
+import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
+import { useBoundStore } from 'store';
 
-import { CURRENCIES_MAP } from 'constants/index';
+import {
+  CHAIN_ID_TO_RPC,
+  CURRENCIES_MAP,
+  PAGE_TO_SUPPORTED_CHAIN_IDS,
+} from 'constants/index';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -134,9 +141,19 @@ interface AppBarProps {
 
 export default function AppBar(props: AppBarProps) {
   const { active } = props;
-  const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
-    useWalletStore();
-  const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
+  const {
+    accountAddress,
+    connect,
+    wrongNetwork,
+    chainId,
+    ensName,
+    ensAvatar,
+    updateState,
+    tokenPrices,
+    updateTokenPrices,
+    userAssetBalances,
+    updateAssetBalances,
+  } = useBoundStore();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
@@ -185,6 +202,10 @@ export default function AppBar(props: AppBarProps) {
     setClaimRdpxDialog(true);
   };
 
+  useEffect(() => {
+    updateAssetBalances();
+  }, [updateAssetBalances]);
+
   const menuItems = useMemo(() => {
     return [
       ...menuLinks,
@@ -203,6 +224,30 @@ export default function AppBar(props: AppBarProps) {
       },
     ].filter((i) => i);
   }, [chainId]);
+
+  useEffect(() => {
+    if (getWeb3Modal()?.cachedProvider) {
+      connect();
+    } else {
+      updateState({
+        provider: new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_RPC[
+            PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
+              DEFAULT_CHAIN_ID
+          ]
+        ),
+      });
+    }
+  }, [connect, updateState]);
+
+  useEffect(() => {
+    updateTokenPrices();
+    const intervalId = setInterval(updateTokenPrices, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [updateTokenPrices]);
 
   return (
     <>

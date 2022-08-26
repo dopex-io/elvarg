@@ -261,6 +261,17 @@ export const TOKEN_DECIMALS = {
   },
 };
 
+export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
+  42161: 'ETH',
+  56: 'BNB',
+  43114: 'AVAX',
+  1: 'ETH',
+};
+
+export const IS_NATIVE = (asset: string) => {
+  return ['ETH', 'BNB', 'AVAX'].includes(asset);
+};
+
 export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
@@ -279,6 +290,27 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
   1088: 'https://andromeda-explorer.metis.io/',
+};
+
+export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
+  [key: string]: { default: number; all: number[] };
+} = {
+  '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/governance/vedpx': { default: 42161, all: [42161] },
+  '/farms': { default: 42161, all: [1, 42161] },
+  '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
+  '/ssov/call/BNB': { default: 56, all: [56] },
+  '/ssov/call/AVAX': { default: 43114, all: [43114] },
+  '/nfts/community': { default: 42161, all: [] },
+  '/nfts/diamondpepes2': { default: 42161, all: [1, 42161] },
+  '/sale': { default: 1, all: [1] },
+  '/oracles': { default: 42161, all: [] },
+  '/tzwap': { default: 42161, all: [1, 42161] },
+  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
+  '/vaults/ir/pool/MIM3CRV-1': { default: 42161, all: [42161] },
+  '/vaults/ir/pool/MIM3CRV-2': { default: 42161, all: [42161] },
+  '/vaults/ir/pool/PUSD3CRV': { default: 42161, all: [42161] },
+  '/vaults/ir': { default: 42161, all: [42161] },
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

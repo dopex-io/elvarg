@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import AddTokenButton from './AddTokenButton';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import { S3_BUCKET_RESOURCES } from 'constants/index';
 
@@ -17,7 +17,7 @@ interface BalanceItemProps {
 
 const BalanceItem = (props: BalanceItemProps) => {
   const { balance, token, iconSrc, iconAlt, decimals } = props;
-  const { contractAddresses } = useWalletStore();
+  const { contractAddresses } = useBoundStore();
 
   const upperCaseToken = token.toUpperCase();
 

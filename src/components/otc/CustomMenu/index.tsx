@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import BidAsk from 'components/otc/Dialogs/BidAsk';
 import CloseRfqDialog from 'components/otc/Dialogs/CloseRfqDialog';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 interface CustomMenuProps {
   id: string;
@@ -33,7 +33,7 @@ const DIALOGS = {
 const CustomMenu = (props: CustomMenuProps) => {
   const { data, actions, id } = props;
 
-  const { accountAddress } = useWalletStore();
+  const { accountAddress } = useBoundStore();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogState, setDialogState] = useState({

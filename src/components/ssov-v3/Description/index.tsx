@@ -7,7 +7,7 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
@@ -29,7 +29,7 @@ const Description = ({
   ssovEpochData: SsovV3EpochData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useWalletStore();
+  const { accountAddress, connect } = useBoundStore();
 
   const { APY, TVL, pendingDeposits } = ssovEpochData;
 

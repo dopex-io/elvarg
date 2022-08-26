@@ -1,10 +1,8 @@
-/* eslint-disable react/react-in-jsx-scope -- Unaware of jsxImportSource */
-/** @jsxImportSource @emotion/react */
-import { useContext, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
-import { css } from '@emotion/react';
+import { styled } from '@mui/material/styles';
 
 import AppBar from 'components/common/AppBar';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
@@ -16,10 +14,20 @@ import Typography from 'components/UI/Typography';
 import ClaimCard from 'components/farms/ClaimCard';
 import QuickLinks from 'components/farms/QuickLinks';
 
-import { useWalletStore } from 'store/Wallet';
-import { FarmingContext, FarmingProvider } from 'contexts/Farming';
+import { useBoundStore } from 'store';
 
 import { FARMS } from 'constants/farms';
+
+import { Farm, FarmData, UserData } from 'types/farms';
+
+const CustomBox = styled(Box)`
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  @media (min-width: 1536px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+`;
 
 const initialDialogData: BasicManageDialogProps = {
   data: {
@@ -35,18 +43,61 @@ const initialDialogData: BasicManageDialogProps = {
 };
 
 const Farms = () => {
-  const { chainId, accountAddress } = useWalletStore();
-
-  const data = useContext(FarmingContext);
+  const {
+    chainId,
+    provider,
+    accountAddress,
+    lpData,
+    getFarmData,
+    getUserData,
+    updateLpData,
+  } = useBoundStore();
 
   const [dialog, setDialog] =
     useState<BasicManageDialogProps>(initialDialogData);
+  const [farmsDataLoading, setFarmsDataLoading] = useState<boolean>(false);
+  const [farmsData, setFarmsData] = useState<FarmData[]>([]);
+  const [userDataLoading, setUserDataLoading] = useState<boolean>(false);
+  const [userData, setUserData] = useState<UserData[]>([]);
 
   const handleClose = () => {
     setDialog((prevState) => {
       return { ...prevState, open: false };
     });
   };
+
+  useEffect(() => {
+    updateLpData();
+  }, [updateLpData]);
+
+  useEffect(() => {
+    async function getAllFarmData() {
+      setFarmsDataLoading(true);
+      if (!lpData) return;
+      const _farms = FARMS[chainId] as Farm[];
+      if (_farms) {
+        const p = await Promise.all(
+          _farms.map((farm) => getFarmData(farm, lpData))
+        );
+        setFarmsDataLoading(false);
+        setFarmsData(p);
+      }
+    }
+    getAllFarmData();
+  }, [chainId, getFarmData, lpData]);
+
+  useEffect(() => {
+    if (!provider) return;
+    (async () => {
+      setUserDataLoading(true);
+      const p = await Promise.all(
+        FARMS[chainId]?.map((farm) => getUserData(farm)) || []
+      );
+
+      setUserData(p as UserData[]);
+      setUserDataLoading(false);
+    })();
+  }, [chainId, getUserData, provider]);
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
@@ -62,7 +113,7 @@ const Farms = () => {
           </Typography>
           {FARMS[chainId]?.filter((farm, index) => {
             if (
-              data.userData[index]?.userStakingRewardsBalance.isZero() &&
+              userData[index]?.userStakingRewardsBalance.isZero() &&
               farm.status !== 'ACTIVE'
             )
               return false;
@@ -70,24 +121,14 @@ const Farms = () => {
           }).length === 0
             ? 'Nothing to show here'
             : null}
-          <Box
-            className="grid grid-cols-1 gap-6"
-            css={css`
-              @media (min-width: 1100px) {
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-              }
-              @media (min-width: 1536px) {
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-              }
-            `}
-          >
+          <CustomBox className="grid grid-cols-1 gap-6">
             {FARMS[chainId]?.map((farm, index) => {
               return (
                 <FarmCard
                   key={index}
                   setDialog={setDialog}
-                  farmsDataLoading={data.farmsDataLoading}
-                  userDataLoading={data.userDataLoading}
+                  farmsDataLoading={farmsDataLoading}
+                  userDataLoading={userDataLoading}
                   stakingTokenSymbol={farm.stakingTokenSymbol}
                   stakingRewardsAddress={farm.stakingRewardsAddress}
                   newStakingRewardsAddress={farm?.newStakingRewardsAddress}
@@ -95,30 +136,30 @@ const Farms = () => {
                   type={farm.type}
                   status={farm.status}
                   version={farm.version}
-                  lpData={data.lpData}
-                  TVL={data.farmsData[index]?.TVL || 0}
-                  APR={data.farmsData[index]?.APR || 0}
+                  lpData={lpData}
+                  TVL={farmsData[index]?.TVL || 0}
+                  APR={farmsData[index]?.APR || 0}
                   farmTotalSupply={
-                    data.farmsData[index]?.farmTotalSupply || BigNumber.from(1)
+                    farmsData[index]?.farmTotalSupply || BigNumber.from(1)
                   }
                   userStakingRewardsBalance={
-                    data.userData[index]?.userStakingRewardsBalance ||
+                    userData[index]?.userStakingRewardsBalance ||
                     BigNumber.from(0)
                   }
                   userStakingTokenBalance={
-                    data.userData[index]?.userStakingTokenBalance ||
+                    userData[index]?.userStakingTokenBalance ||
                     BigNumber.from(0)
                   }
                 />
               );
             })}
-          </Box>
+          </CustomBox>
         </Box>
         <Box className="lg:w-80 flex flex-col mx-4 space-y-4">
           <Typography variant="h5" className="mb-2">
             Claimable
           </Typography>
-          {data.userData.filter((item, index) => {
+          {userData.filter((item, index) => {
             if (!item) {
               return false;
             } else if (checkBNZero(item.userRewardsEarned)) {
@@ -139,7 +180,7 @@ const Farms = () => {
             ? 'Nothing to show here. '
             : null}
           {accountAddress
-            ? data.userData.map((item, index) => {
+            ? userData.map((item, index) => {
                 if (!item) return null;
                 if (checkBNZero(item.userRewardsEarned)) {
                   let _farms = FARMS[chainId];
@@ -175,11 +216,7 @@ const Farms = () => {
 };
 
 export const FarmsPage = () => {
-  return (
-    <FarmingProvider>
-      <Farms />
-    </FarmingProvider>
-  );
+  return <Farms />;
 };
 
 export default FarmsPage;

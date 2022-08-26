@@ -8,7 +8,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import BalanceItem from 'components/common/BalanceItem';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
@@ -25,7 +25,7 @@ interface Props {
 
 const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
   const { accountAddress, changeWallet, disconnect, chainId, ensName } =
-    useWalletStore();
+    useBoundStore();
 
   const [copyState, setCopyState] = useState('Copy Address');
 

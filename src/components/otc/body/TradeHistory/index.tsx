@@ -11,7 +11,7 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 
 import { OtcContext } from 'contexts/Otc';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import smartTrim from 'utils/general/smartTrim';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -60,7 +60,7 @@ const TableBodyCell = ({
 const TradeHistory = (props) => {
   const { smViewport } = props;
   const { tradeHistoryData } = useContext(OtcContext);
-  const { accountAddress } = useWalletStore();
+  const { accountAddress } = useBoundStore();
 
   // @ts-ignore TODO: FIX
   const sanitizedData = useMemo(() => {

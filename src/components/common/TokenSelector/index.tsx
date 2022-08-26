@@ -1,10 +1,4 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { Addresses } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -14,14 +8,14 @@ import Slide from '@mui/material/Slide';
 
 import Typography from 'components/UI/Typography';
 
-import { useWalletStore } from 'store/Wallet';
-import { CHAIN_ID_TO_NATIVE, AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
 import { TOKEN_DATA } from 'constants/tokens';
+import { CHAIN_ID_TO_NATIVE } from 'constants/index';
 
 export interface Props {
   open: boolean;
@@ -40,8 +34,7 @@ const TokenSelector = ({
   tokensToExclude = ['2CRV'],
   enableSearch = true,
 }: Props) => {
-  const { chainId } = useWalletStore();
-  const { userAssetBalances, tokenPrices, tokens } = useContext(AssetsContext);
+  const { chainId, userAssetBalances, tokenPrices, tokens } = useBoundStore();
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 

@@ -15,7 +15,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import styles from './styles.module.scss';
 import cx from 'classnames';
@@ -91,7 +91,7 @@ const quotes = [
 ];
 
 const ActionsDialog = ({ open, tab, handleClose }: Props) => {
-  const { chainId, signer } = useWalletStore();
+  const { chainId, signer } = useBoundStore();
   const [toMint, setToMint] = useState<number>(1);
 
   const decreaseToMintAmount = () => {

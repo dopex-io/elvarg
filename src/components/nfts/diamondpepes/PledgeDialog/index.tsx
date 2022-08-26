@@ -21,8 +21,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { Data, UserData } from 'types/diamondpepes';
 
-import { useWalletStore } from 'store/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -53,9 +52,16 @@ const PledgeDialog = ({
   pledge,
   winners,
 }: Props) => {
-  const { updateAssetBalances, userAssetBalances, tokens, tokenPrices } =
-    useContext(AssetsContext);
-  const { accountAddress, chainId, signer, provider } = useWalletStore();
+  const {
+    accountAddress,
+    chainId,
+    signer,
+    provider,
+    updateAssetBalances,
+    userAssetBalances,
+    tokens,
+    tokenPrices,
+  } = useBoundStore();
 
   const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
     Addresses[chainId]['NFTS']['DiamondPepesNFT'],

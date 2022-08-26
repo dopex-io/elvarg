@@ -1,13 +1,13 @@
 import { FC, useMemo, useCallback } from 'react';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import CustomButton, { CustomButtonProps } from '../../UI/CustomButton';
 
 const WalletButton: FC<CustomButtonProps> = (props) => {
   const { children, onClick, disabled, ...otherProps } = props;
 
-  const { accountAddress, connect } = useWalletStore();
+  const { accountAddress, connect } = useBoundStore();
 
   const isWalletConnected = useMemo(
     () => Boolean(accountAddress),

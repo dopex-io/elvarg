@@ -1,10 +1,9 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-import { useWalletStore } from 'store/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -17,8 +16,7 @@ export interface Props {
 }
 
 const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
-  const { tokenPrices } = useContext(AssetsContext);
-  const { provider } = useWalletStore();
+  const { tokenPrices, provider } = useBoundStore();
 
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
 

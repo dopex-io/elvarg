@@ -10,7 +10,7 @@ import LockDialog from './LockDialog';
 import Stat from './Stat';
 
 import { vedpxAddress, VeDPXContext } from 'contexts/VeDPX';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -18,7 +18,7 @@ const UserVeDPX = () => {
   const [dialog, setDialog] = useState<{ open: boolean }>({ open: false });
 
   const { userData } = useContext(VeDPXContext);
-  const { signer } = useWalletStore();
+  const { signer } = useBoundStore();
 
   const sendTx = useSendTx();
 

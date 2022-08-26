@@ -9,7 +9,7 @@ import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -21,7 +21,7 @@ export interface Props {
 }
 
 const Wrapper = ({ open, handleClose }: Props) => {
-  const { signer } = useWalletStore();
+  const { signer } = useBoundStore();
 
   const sendTx = useSendTx();
 

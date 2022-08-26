@@ -17,7 +17,7 @@ import Stat from './Stat';
 import Chip from './Chip';
 import LpRatios from './LpRatios';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store/index';
 
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
@@ -132,7 +132,7 @@ const FarmCard = (props: Props) => {
     version,
   } = props;
 
-  const { accountAddress, chainId, signer } = useWalletStore();
+  const { accountAddress, chainId, signer } = useBoundStore();
 
   const sendTx = useSendTx();
 

@@ -42,10 +42,9 @@ import displayAddress from 'utils/general/displayAddress';
 
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
-import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
+import { CURRENCIES_MAP, MAX_VALUE, IS_NATIVE } from 'constants/index';
 
 import { Order } from '../../types/tzwap';
 
@@ -81,10 +80,17 @@ const SelectMenuProps = {
 
 const Tzwap = () => {
   const sendTx = useSendTx();
-  const { chainId, signer, accountAddress, provider, contractAddresses } =
-    useWalletStore();
-  const { userAssetBalances, tokenPrices, updateAssetBalances } =
-    useContext(AssetsContext);
+  const {
+    chainId,
+    signer,
+    accountAddress,
+    provider,
+    contractAddresses,
+    userAssetBalances,
+    tokenPrices,
+    updateAssetBalances,
+  } = useBoundStore();
+
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);
   const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);

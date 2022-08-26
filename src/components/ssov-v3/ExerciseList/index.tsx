@@ -19,7 +19,7 @@ import WalletButton from 'components/common/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
 import { SsovV3Context } from 'contexts/SsovV3';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
@@ -40,7 +40,7 @@ interface userExercisableOption {
 const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
-  const { accountAddress, provider } = useWalletStore();
+  const { accountAddress, provider } = useBoundStore();
   const { ssovData, ssovEpochData, selectedEpoch } = useContext(SsovV3Context);
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<

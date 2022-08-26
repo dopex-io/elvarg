@@ -10,7 +10,7 @@ import CustomButton from 'components/UI/CustomButton';
 
 import { SsovContext } from 'contexts/Ssov';
 import { BnbConversionContext } from 'contexts/BnbConversion';
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -44,7 +44,7 @@ const Settle = ({
     selectedEpoch,
     selectedSsov,
   } = useContext(SsovContext);
-  const { accountAddress, signer } = useWalletStore();
+  const { accountAddress, signer } = useBoundStore();
   const { convertToVBNB } = useContext(BnbConversionContext);
 
   // @ts-ignore TODO: FIX

@@ -18,7 +18,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { useWalletStore } from 'store/Wallet';
+import { useBoundStore } from 'store';
 
 import airdropAddresses from 'constants/json/airdropAddresses.json';
 
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const ClaimRdpxModal = ({ open, handleClose }: Props) => {
-  const { accountAddress, signer, contractAddresses } = useWalletStore();
+  const { accountAddress, signer, contractAddresses } = useBoundStore();
 
   const [rdpx, setRdpx] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
