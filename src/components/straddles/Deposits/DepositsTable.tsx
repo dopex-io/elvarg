@@ -59,6 +59,14 @@ const DepositsTable = () => {
                   variant="h6"
                   className="text-gray-400 flex justify-end"
                 >
+                  PnL
+                </Typography>
+              </TableCell>
+              <TableCell className=" border-0 pb-0">
+                <Typography
+                  variant="h6"
+                  className="text-gray-400 flex justify-end"
+                >
                   Action
                 </Typography>
               </TableCell>
@@ -90,6 +98,11 @@ const DepositsTable = () => {
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="">
                     {Number(position.epoch!)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1">
+                  <Typography variant="h6" className="">
+                    {Number(position.pnl)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">
