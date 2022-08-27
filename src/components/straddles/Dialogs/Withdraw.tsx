@@ -40,12 +40,8 @@ const WithdrawModal = ({
     if (!straddlesEpochData) return false;
 
     if (
-      new Date().getTime() > straddlesEpochData?.expiry.toNumber() &&
-      straddlesData?.isEpochExpired &&
-      straddlesUserData?.writePositions![selectedPositionNftIndex!]![
-        'epoch'
-      ]! <=
-        straddlesData.currentEpoch + 1
+      straddlesUserData?.writePositions![selectedPositionNftIndex!]!['epoch']! <
+      straddlesData!.currentEpoch
     )
       return true;
     else return false;
