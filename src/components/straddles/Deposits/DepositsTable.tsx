@@ -101,12 +101,12 @@ const DepositsTable = () => {
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">
-                  <Typography variant="h6" className="">
+                  <Typography variant="h6" className="text-right">
                     ${getUserReadableAmount(position.pnl, 8).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">
-                  <Button
+                  <CustomButton
                     onClick={() => handleWithdraw(i)}
                     className={
                       'cursor-pointer bg-primary hover:bg-primary text-white'
