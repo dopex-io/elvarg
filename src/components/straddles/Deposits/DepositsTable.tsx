@@ -1,4 +1,5 @@
-import { useState, useCallback, useContext } from 'react';
+import { useContext } from 'react';
+import { useState } from 'react';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -19,22 +20,17 @@ import { StraddlesContext } from 'contexts/Straddles';
 import WithdrawModal from '../Dialogs/Withdraw';
 
 const DepositsTable = () => {
-  const { straddlesUserData, straddlesData } = useContext(StraddlesContext);
+  const { straddlesUserData } = useContext(StraddlesContext);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
   const [selectedPositionNftIndex, setSelectedPositionNftIndex] = useState<
     number | null
   >(null);
 
-  const handleWithdraw = useCallback(
-    (id: number, positionEpoch: number) => {
-      if (positionEpoch < straddlesData!.currentEpoch) {
-        setIsWithdrawModalOpen(true);
-        setSelectedPositionNftIndex(id);
-      }
-    },
-    [straddlesData]
-  );
+  const handleWithdraw = (id: number) => {
+    setIsWithdrawModalOpen(true);
+    setSelectedPositionNftIndex(id);
+  };
 
   const closeWithdrawModal = () => {
     setIsWithdrawModalOpen(false);
@@ -105,26 +101,22 @@ const DepositsTable = () => {
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">
-                  <Typography variant="h6" className="">
+                  <Typography variant="h6" className="text-right">
                     ${getUserReadableAmount(position.pnl, 8).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">
                   <CustomButton
-                    className="cursor-pointer text-white"
-                    color={
-                      position.epoch! >= straddlesData!.currentEpoch
-                        ? 'mineshaft'
-                        : 'primary'
+                    onClick={() => handleWithdraw(i)}
+                    className={
+                      'cursor-pointer bg-primary hover:bg-primary text-white'
                     }
-                    disabled={position.epoch! >= straddlesData!.currentEpoch}
-                    onClick={() => handleWithdraw(i, position.epoch!)}
                   >
                     Withdraw
                   </CustomButton>
                   {isWithdrawModalOpen && (
                     <WithdrawModal
-                      open={position.epoch! < straddlesData!.currentEpoch}
+                      open={isWithdrawModalOpen}
                       selectedPositionNftIndex={selectedPositionNftIndex}
                       handleClose={closeWithdrawModal}
                     />
