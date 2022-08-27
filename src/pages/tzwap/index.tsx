@@ -1,5 +1,11 @@
-// @ts-nocheck TODO: FIX
-import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
+import {
+  useEffect,
+  useState,
+  useContext,
+  useMemo,
+  useCallback,
+  ReactNode,
+} from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
 import {
@@ -14,7 +20,6 @@ import { BigNumber } from 'ethers';
 import Input from '@mui/material/Input';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import CircularProgress from '@mui/material/CircularProgress';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import Select from '@mui/material/Select';
@@ -37,7 +42,6 @@ import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import get1inchQuote from 'utils/general/get1inchQuote';
 import displayAddress from 'utils/general/displayAddress';
 
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
@@ -51,7 +55,11 @@ import { Order } from '../../types/tzwap';
 
 import styles from './styles.module.scss';
 
-function TabPanel(props) {
+function TabPanel(props: {
+  children: ReactNode;
+  value: number;
+  index: number;
+}) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -81,8 +89,9 @@ const SelectMenuProps = {
 
 const Tzwap = () => {
   const sendTx = useSendTx();
-  const { chainId, signer, accountAddress, provider, contractAddresses } =
+  const { chainId, signer, provider, contractAddresses, accountAddress } =
     useContext(WalletContext);
+
   const { userAssetBalances, tokenPrices, updateAssetBalances } =
     useContext(AssetsContext);
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);
@@ -93,7 +102,6 @@ const Tzwap = () => {
   const [rawAmount, setRawAmount] = useState<string>('');
   const [rawIntervalAmount, setRawIntervalAmount] = useState<string>('1');
   const [approved, setApproved] = useState<boolean>(false);
-  const [isFetchingQuote, setIsFetchingQuote] = useState<boolean>(false);
   const [isFromTokenSelectorVisible, setIsFromTokenSelectorVisible] =
     useState<boolean>(false);
   const [isToTokenSelectorVisible, setIsToTokenSelectorVisible] =
@@ -103,22 +111,23 @@ const Tzwap = () => {
   );
   const [selectedTickSize, setSelectedTickSize] = useState<number>(3);
   const [selectedInterval, setSelectedInterval] = useState<string>('Min');
-  const [quote, setQuote] = useState<object>({});
   const [orders, setOrders] = useState<Order[]>([]);
 
-  const tzwapRouter = useMemo(
+  const tzwapRouterAddress = useMemo(
     () =>
-      Tzwap1inchRouter__factory.connect(
-        chainId === 1
-          ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
-          : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
-        signer
-      ),
-    [chainId, signer]
+      chainId === 1
+        ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
+        : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
+    [chainId]
   );
 
   const ADDRESS_TO_TOKEN = useMemo(() => {
-    const map = {};
+    const map: {
+      [key: string]: {
+        name: string;
+        decimals: number;
+      };
+    } = {};
     Object.keys(contractAddresses).map((tokenName) => {
       if (typeof contractAddresses[tokenName] === 'string') {
         try {
@@ -127,9 +136,7 @@ const Tzwap = () => {
             name: tokenName.toLowerCase(),
             decimals: decimals,
           };
-        } catch (err) {
-          //
-        }
+        } catch (err) {}
       }
     });
     return map;
@@ -152,41 +159,56 @@ const Tzwap = () => {
   }, []);
 
   const updateOrders = useCallback(async () => {
-    if (!tzwapRouter || !provider || Object.keys(ADDRESS_TO_TOKEN).length === 0)
+    if (
+      !tzwapRouterAddress ||
+      !provider ||
+      Object.keys(ADDRESS_TO_TOKEN).length === 0 ||
+      !signer
+    )
       return;
+
+    const tzwapRouter = Tzwap1inchRouter__factory.connect(
+      tzwapRouterAddress,
+      signer
+    );
 
     setIsFetchingOrders(true);
     const ordersCount = (await tzwapRouter.orderCount()).toNumber();
+
     const ids = Array.from(Array(ordersCount).keys());
     const promises = await Promise.all(ids.map((i) => tzwapRouter.orders(i)));
     const _orders: Order[] = [];
-    promises.map(async (promise, i) => {
+
+    for (let i in promises) {
+      const promise = promises[i]!;
       const srcTokenName =
-        ADDRESS_TO_TOKEN[promise['srcToken'].toLocaleUpperCase()]['name'] ||
+        ADDRESS_TO_TOKEN[promise['srcToken'].toLocaleUpperCase()]!['name'] ||
         'unknown';
       const dstTokenName =
-        ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]['name'] ||
+        ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]!['name'] ||
         'unknown';
       const srcTokenDecimals =
-        ADDRESS_TO_TOKEN[promise['srcToken'].toLocaleUpperCase()]['decimals'] ||
-        'unknown';
+        ADDRESS_TO_TOKEN[promise['srcToken'].toLocaleUpperCase()]![
+          'decimals'
+        ] || 'unknown';
       const dstTokenDecimals =
-        ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]['decimals'] ||
-        'unknown';
+        ADDRESS_TO_TOKEN[promise['dstToken'].toLocaleUpperCase()]![
+          'decimals'
+        ] || 'unknown';
       if (promise['creator'] === accountAddress) {
         _orders.push({
-          id: i,
+          id: Number(i),
           minFees: promise['minFees'],
           maxFees: promise['maxFees'],
           killed: promise['killed'],
           creator: promise['creator'],
           created: promise['created'].toNumber(),
           srcToken: promise['srcToken'],
-          srcTokenDecimals: srcTokenDecimals,
+          srcTokenDecimals: Number(srcTokenDecimals),
           srcTokenName: srcTokenName,
           dstToken: promise['dstToken'],
           dstTokenName: dstTokenName,
-          dstTokenDecimals: dstTokenDecimals,
+          dstTokenDecimals: Number(dstTokenDecimals),
           interval: promise['interval'],
           tickSize: promise['tickSize'],
           total: promise['total'],
@@ -200,41 +222,50 @@ const Tzwap = () => {
           ),
         });
       }
-    });
+    }
+
     setOrders(_orders);
     setIsFetchingOrders(false);
-  }, [ADDRESS_TO_TOKEN, accountAddress, provider, setOrders, tzwapRouter]);
+  }, [
+    accountAddress,
+    provider,
+    setOrders,
+    signer,
+    tzwapRouterAddress,
+    ADDRESS_TO_TOKEN,
+  ]);
 
   const handleApprove = useCallback(async () => {
-    try {
-      await sendTx(
-        ERC20__factory.connect(
-          contractAddresses[fromTokenName],
-          signer
-        ).approve(tzwapRouter.address, MAX_VALUE)
-      );
-      setApproved(true);
-    } catch (err) {
-      console.log(err);
-    }
-  }, [sendTx, contractAddresses, fromTokenName, signer, tzwapRouter.address]);
+    if (!signer) return;
+
+    await sendTx(
+      ERC20__factory.connect(contractAddresses[fromTokenName], signer).approve(
+        tzwapRouterAddress,
+        MAX_VALUE
+      )
+    );
+    setApproved(true);
+  }, [sendTx, contractAddresses, fromTokenName, signer, tzwapRouterAddress]);
 
   const handleKill = useCallback(async () => {
-    try {
-      await sendTx(tzwapRouter.connect(signer).killOrder(openOrder));
-      setOpenOrder(null);
-      updateOrders();
-      updateAssetBalances();
-    } catch (err) {
-      console.log(err);
-    }
+    if (!signer || !openOrder) return;
+
+    const tzwapRouter = Tzwap1inchRouter__factory.connect(
+      tzwapRouterAddress,
+      signer
+    );
+
+    await sendTx(tzwapRouter.connect(signer).killOrder(openOrder));
+    setOpenOrder(null);
+    updateOrders();
+    updateAssetBalances();
   }, [
     signer,
     updateAssetBalances,
     sendTx,
     openOrder,
     updateOrders,
-    tzwapRouter,
+    tzwapRouterAddress,
   ]);
 
   const fromTokenValueInUsd = useMemo(() => {
@@ -242,7 +273,7 @@ const Tzwap = () => {
     tokenPrices.map((record) => {
       if (record['name'] === fromTokenName) {
         value =
-          (record['price'] * parseInt(userAssetBalances[fromTokenName])) /
+          (record['price'] * parseInt(userAssetBalances[fromTokenName]!)) /
           10 ** getTokenDecimals(fromTokenName, chainId);
       }
     });
@@ -303,64 +334,67 @@ const Tzwap = () => {
   }, [chainId, isFromTokenSelectorVisible]);
 
   const handleCreate = useCallback(async () => {
-    try {
-      const seconds =
-        intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
+    if (!signer || !accountAddress) return;
 
-      let precision = 10 ** 12;
-      let tickSize = amount * precision * (selectedTickSize / 100);
-      let total = Math.round((amount * precision) / tickSize) * tickSize;
+    const tzwapRouter = Tzwap1inchRouter__factory.connect(
+      tzwapRouterAddress,
+      signer
+    );
 
-      await sendTx(
-        tzwapRouter.connect(signer).newOrder(
-          {
-            creator: accountAddress,
-            srcToken:
-              fromTokenName === 'ETH'
-                ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-                : contractAddresses[fromTokenName],
-            dstToken:
-              toTokenName === 'ETH'
-                ? Addresses[chainId]['WETH']
-                : contractAddresses[toTokenName],
-            interval: seconds,
-            tickSize: getContractReadableAmount(
-              Math.round(tickSize) / precision,
-              getTokenDecimals(fromTokenName, chainId)
-            ),
-            total: getContractReadableAmount(
-              Math.round(total) / precision,
-              getTokenDecimals(fromTokenName, chainId)
-            ),
-            minFees: Math.round(minFees * 10 ** 3),
-            maxFees: Math.round(maxFees * 10 ** 3),
-            created: Math.round(new Date().getTime() / 1000),
-            killed: false,
-          },
-          {
-            value:
-              fromTokenName === 'ETH'
-                ? getContractReadableAmount(
-                    Math.round(total) / precision,
-                    getTokenDecimals(fromTokenName, chainId)
-                  )
-                : 0,
-            gasLimit: chainId === 1 ? 700000 : 1700000,
-          }
-        )
-      );
-      updateOrders();
-      updateAssetBalances();
-    } catch (err) {
-      console.log(err);
-    }
+    const seconds =
+      intervalAmount * (selectedInterval === 'Min' ? 60 : 60 * 60);
+
+    let precision = 10 ** 12;
+    let tickSize = amount * precision * (selectedTickSize / 100);
+    let total = Math.round((amount * precision) / tickSize) * tickSize;
+
+    await sendTx(
+      tzwapRouter.connect(signer).newOrder(
+        {
+          creator: accountAddress,
+          srcToken:
+            fromTokenName === 'ETH'
+              ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+              : contractAddresses[fromTokenName],
+          dstToken:
+            toTokenName === 'ETH'
+              ? Addresses[chainId]['WETH']
+              : contractAddresses[toTokenName],
+          interval: seconds,
+          tickSize: getContractReadableAmount(
+            Math.round(tickSize) / precision,
+            getTokenDecimals(fromTokenName, chainId)
+          ),
+          total: getContractReadableAmount(
+            Math.round(total) / precision,
+            getTokenDecimals(fromTokenName, chainId)
+          ),
+          minFees: Math.round(minFees * 10 ** 3),
+          maxFees: Math.round(maxFees * 10 ** 3),
+          created: Math.round(new Date().getTime() / 1000),
+          killed: false,
+        },
+        {
+          value:
+            fromTokenName === 'ETH'
+              ? getContractReadableAmount(
+                  Math.round(total) / precision,
+                  getTokenDecimals(fromTokenName, chainId)
+                )
+              : 0,
+          gasLimit: chainId === 1 ? 700000 : 1700000,
+        }
+      )
+    );
+    updateOrders();
+    updateAssetBalances();
   }, [
     intervalAmount,
     selectedInterval,
     amount,
     selectedTickSize,
     sendTx,
-    tzwapRouter,
+    tzwapRouterAddress,
     signer,
     accountAddress,
     fromTokenName,
@@ -434,49 +468,17 @@ const Tzwap = () => {
   }, [updateOrders]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      updateOrders();
-      updateAssetBalances();
-    }, 30000);
-    return () => clearTimeout(timer);
-  }, [updateOrders, updateAssetBalances]);
-
-  // Updates the 1inch quote
-  useEffect(() => {
-    async function updateQuote() {
-      setIsFetchingQuote(true);
-      const fromTokenAddress: string = IS_NATIVE(fromTokenName)
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : contractAddresses[fromTokenName];
-      const toTokenAddress: string = IS_NATIVE(toTokenName)
-        ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-        : contractAddresses[toTokenName];
-
-      if (fromTokenAddress === toTokenAddress) return;
-
-      const amount: number = 10 ** getTokenDecimals(fromTokenName, chainId);
-
-      const quote = await get1inchQuote({
-        fromTokenAddress,
-        toTokenAddress,
-        amount,
-        chainId,
-        accountAddress,
-      });
-
-      setQuote(quote);
-      setIsFetchingQuote(false);
-    }
-
-    updateQuote();
-  }, [accountAddress, chainId, contractAddresses, fromTokenName, toTokenName]);
-
-  useEffect(() => {
     (async function () {
-      if (!tzwapRouter || !fromTokenName) return;
+      if (!tzwapRouterAddress || !fromTokenName || !signer || !accountAddress)
+        return;
+
+      const tzwapRouter = Tzwap1inchRouter__factory.connect(
+        tzwapRouterAddress,
+        signer
+      );
 
       const userAmount = IS_NATIVE(fromTokenName)
-        ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]])
+        ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]!])
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
             signer
@@ -507,7 +509,7 @@ const Tzwap = () => {
     userAssetBalances,
     chainId,
     provider,
-    tzwapRouter,
+    tzwapRouterAddress,
     contractAddresses,
     signer,
   ]);
@@ -560,7 +562,7 @@ const Tzwap = () => {
                     chainId === 1
                       ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
                       : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
-                    null
+                    ''
                   )}
                 </a>{' '}
               </Typography>
@@ -609,7 +611,7 @@ const Tzwap = () => {
           <Box
             className={cx(
               'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto',
-              styles.cardWidth
+              styles['cardWidth']
             )}
           >
             {!(isFromTokenSelectorVisible || isToTokenSelectorVisible) ? (
@@ -1021,45 +1023,19 @@ const Tzwap = () => {
                           ) : null}
                         </Box>
                         <Box className="rounded-md mb-4 p-2 pl-3 pr-3 border border-neutral-800 w-full bg-neutral-800">
-                          {isFetchingQuote ? (
-                            <Box className="flex">
-                              <CircularProgress
-                                className="text-stieglitz mt-0.5 mr-2"
-                                size={15}
-                              />
-                              <Typography
-                                variant="h6"
-                                className="text-white ml-2"
-                              >
-                                Fetching price...
-                              </Typography>
-                            </Box>
-                          ) : (
-                            <Box className="flex">
-                              <img
-                                src={'/images/exchanges/1inch.svg'}
-                                className={'w-5 h-5'}
-                                alt={'1inch'}
-                              />
-                              <Typography
-                                variant="h6"
-                                className="text-white ml-2"
-                              >
-                                {quote['fromToken']
-                                  ? `1 ${
-                                      quote['fromToken']['symbol']
-                                    } = ${formatAmount(
-                                      getUserReadableAmount(
-                                        quote['toTokenAmount'],
-                                        quote['toToken']['decimals']
-                                      ),
-                                      2
-                                    )} 
-                              ${quote['toToken']['symbol']}`
-                                  : 'Router via 1inch'}
-                              </Typography>
-                            </Box>
-                          )}
+                          <Box className="flex">
+                            <img
+                              src={'/images/exchanges/1inch.svg'}
+                              className={'w-5 h-5'}
+                              alt={'1inch'}
+                            />
+                            <Typography
+                              variant="h6"
+                              className="text-white ml-2"
+                            >
+                              Router via 1inch
+                            </Typography>
+                          </Box>
                         </Box>
                         {tickInUsd >= 50000 && chainId === 1 ? (
                           <Box className="flex">
@@ -1140,7 +1116,7 @@ const Tzwap = () => {
         <Box
           className={cx(
             'flex mx-auto max-w-xl mb-8 mt-32 text-center',
-            styles.cardWidth
+            styles['cardWidth']
           )}
         >
           <Typography variant="h5" className="z-1 text-stieglitz">

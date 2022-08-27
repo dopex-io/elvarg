@@ -274,6 +274,8 @@ export const RateVault = () => {
 
     setIsLoading(false);
   }, [
+    getUserStrikePurchaseData,
+    getUserStrikeDeposits,
     accountAddress,
     contractAddresses,
     rateVaultEpochData,
