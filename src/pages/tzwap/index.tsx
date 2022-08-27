@@ -468,14 +468,6 @@ const Tzwap = () => {
   }, [updateOrders]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      updateOrders();
-      updateAssetBalances();
-    }, 30000);
-    return () => clearTimeout(timer);
-  }, [updateOrders, updateAssetBalances]);
-
-  useEffect(() => {
     (async function () {
       if (!tzwapRouterAddress || !fromTokenName || !signer || !accountAddress)
         return;
