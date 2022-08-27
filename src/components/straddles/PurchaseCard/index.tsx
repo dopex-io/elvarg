@@ -20,6 +20,7 @@ import { StraddlesContext } from 'contexts/Straddles';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
+import PnlChart from '../PnlChart';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
@@ -216,6 +217,14 @@ const PurchaseCard = () => {
             </div>
           </Typography>
         </Box>
+      </Box>
+      <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
+        <PnlChart
+          optionPrice={totalCost}
+          amount={amount}
+          price={straddlesEpochData?.currentPrice.div(1e8).toNumber()}
+          symbol={selectedPoolName}
+        />
       </Box>
       <Box className="mt-4 flex justify-center mb-4">
         <Box className="py-2 w-full rounded border border-neutral-800">
