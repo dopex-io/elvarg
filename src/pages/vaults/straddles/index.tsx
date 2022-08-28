@@ -10,8 +10,8 @@ import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
+import Filter from 'components/common/Filter';
 import VaultCard from 'components/straddles/VaultCard';
-import Filter from 'components/straddles/Filter';
 
 const states: string[] = ['Active', 'Retired'];
 
