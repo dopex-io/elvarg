@@ -223,7 +223,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (selectedEpoch === null || !straddlesContract) return;
 
     const epochData = await straddlesContract!['epochData'](
-      Math.max(selectedEpoch || 0, 1)
+      Math.max(selectedEpoch || 1, 1)
     );
 
     const epochCollectionsData = await straddlesContract![
@@ -272,7 +272,11 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     const normApr = usdPremiums
       .mul(BigNumber.from(365))
       .mul(BigNumber.from(100))
-      .div(epochData['activeUsdDeposits'])
+      .div(
+        epochData['activeUsdDeposits'].isZero()
+          ? 1
+          : epochData['activeUsdDeposits']
+      )
       .div(BigNumber.from(3))
       .toNumber();
     const aprPremium = normApr.toFixed(0);
