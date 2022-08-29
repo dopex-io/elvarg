@@ -227,7 +227,7 @@ const Stats = () => {
             Implied Volatility
           </Typography>
           <Typography variant="h6" className="text-white">
-            {straddlesEpochData?.volatility}
+            {straddlesEpochData?.volatility.toString()}
           </Typography>
         </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
