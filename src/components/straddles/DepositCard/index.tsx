@@ -312,7 +312,7 @@ const DepositCard = () => {
             <Box>
               <Typography variant="h6" className="text-gray-400 mx-2">
                 Withdrawals are locked until end of Epoch{' '}
-                {Number(selectedEpoch!) + 1}
+                {Number(selectedEpoch!)}
                 <Typography
                   variant="h6"
                   className="text-white inline-flex items-baseline ml-2"

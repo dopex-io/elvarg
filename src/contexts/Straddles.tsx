@@ -41,6 +41,7 @@ export interface StraddlesEpochData {
   straddlePrice: BigNumber;
   aprPremium: string;
   aprFunding: string;
+  volatility: string;
 }
 
 export interface WritePosition {
@@ -92,6 +93,7 @@ const initialStraddlesEpochData = {
   straddlePrice: BigNumber.from('0'),
   aprPremium: '',
   aprFunding: '',
+  volatility: '',
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -125,6 +127,9 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
   const getStraddlePosition = useCallback(
     async (id: BigNumber) => {
       try {
+        const owner = await straddlesContract!['ownerOf'](id);
+        if (owner !== accountAddress) throw 'Invalid owner';
+
         const data = await straddlesContract!['straddlePositions'](id);
         const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
           id
@@ -142,19 +147,23 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract]
+    [straddlesContract, accountAddress]
   );
 
   const getWritePosition = useCallback(
     async (id: BigNumber) => {
       try {
-        const data = await straddlesContract!['writePositions'](id);
+        const owner = await straddlesContract!['ownerOf'](id);
+        if (owner !== accountAddress) throw 'Invalid owner';
 
+        const data = await straddlesContract!['writePositions'](id);
+        const pnl = await straddlesContract!['calculateWritePositionPnl'](id);
         return {
           id: id,
           epoch: data['epoch'],
           usdDeposit: data['usdDeposit'],
           rollover: data['rollover'],
+          pnl: pnl,
         };
       } catch {
         return {
@@ -162,7 +171,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract]
+    [straddlesContract, accountAddress]
   );
 
   const updateStraddlesUserData = useCallback(async () => {
@@ -196,10 +205,10 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     setStraddlesUserData({
       straddlePositions: straddlePositions.filter(function (el) {
-        return !el['amount'].eq(0);
+        return el && el['epoch'];
       }),
       writePositions: writePositions.filter(function (el) {
-        return !el['usdDeposit'].eq(0);
+        return el && el['epoch'];
       }),
     });
   }, [
@@ -214,7 +223,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (selectedEpoch === null || !straddlesContract) return;
 
     const epochData = await straddlesContract!['epochData'](
-      Math.max(selectedEpoch || 0, 1)
+      Math.max(selectedEpoch || 1, 1)
     );
 
     const epochCollectionsData = await straddlesContract![
@@ -227,10 +236,11 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     let straddlePrice;
     let aprFunding: BigNumber | string;
+    let volatility: string;
 
     try {
       straddlePrice = await straddlesContract!['calculatePremium'](
-        false,
+        true,
         currentPrice,
         getContractReadableAmount(1, 18),
         epochData['expiry']
@@ -248,13 +258,25 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     aprFunding = aprFunding.toString();
 
+    try {
+      volatility = (
+        await straddlesContract!['getVolatility'](currentPrice)
+      ).toString();
+    } catch (e) {
+      volatility = '...';
+    }
+
     const timeToExpiry =
       epochData['expiry'].toNumber() - new Date().getTime() / 1000;
 
     const normApr = usdPremiums
       .mul(BigNumber.from(365))
       .mul(BigNumber.from(100))
-      .div(epochData['activeUsdDeposits'])
+      .div(
+        epochData['activeUsdDeposits'].isZero()
+          ? 1
+          : epochData['activeUsdDeposits']
+      )
       .div(BigNumber.from(3))
       .toNumber();
     const aprPremium = normApr.toFixed(0);
@@ -283,6 +305,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       straddlePrice,
       aprPremium,
       aprFunding,
+      volatility,
     });
   }, [straddlesContract, selectedEpoch]);
 

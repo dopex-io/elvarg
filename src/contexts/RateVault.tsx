@@ -274,12 +274,12 @@ export const RateVault = () => {
 
     setIsLoading(false);
   }, [
+    getUserStrikePurchaseData,
+    getUserStrikeDeposits,
     accountAddress,
     contractAddresses,
     rateVaultEpochData,
     selectedPoolName,
-    getUserStrikeDeposits,
-    getUserStrikePurchaseData,
   ]);
 
   const getEpochStrikes = useCallback(async () => {

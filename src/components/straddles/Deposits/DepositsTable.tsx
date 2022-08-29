@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { useState } from 'react';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -11,6 +10,7 @@ import TableCell from '@mui/material/TableCell';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/Button';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -59,6 +59,14 @@ const DepositsTable = () => {
                   variant="h6"
                   className="text-gray-400 flex justify-end"
                 >
+                  PnL
+                </Typography>
+              </TableCell>
+              <TableCell className=" border-0 pb-0">
+                <Typography
+                  variant="h6"
+                  className="text-gray-400 flex justify-end"
+                >
                   Action
                 </Typography>
               </TableCell>
@@ -92,15 +100,20 @@ const DepositsTable = () => {
                     {Number(position.epoch!)}
                   </Typography>
                 </TableCell>
+                <TableCell className="pt-1">
+                  <Typography variant="h6" className="text-right">
+                    ${getUserReadableAmount(position.pnl, 8).toFixed(2)}
+                  </Typography>
+                </TableCell>
                 <TableCell className="flex justify-end">
-                  <Button
+                  <CustomButton
                     onClick={() => handleWithdraw(i)}
                     className={
                       'cursor-pointer bg-primary hover:bg-primary text-white'
                     }
                   >
                     Withdraw
-                  </Button>
+                  </CustomButton>
                   {isWithdrawModalOpen && (
                     <WithdrawModal
                       open={isWithdrawModalOpen}

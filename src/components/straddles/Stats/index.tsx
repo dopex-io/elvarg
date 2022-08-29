@@ -222,6 +222,14 @@ const Stats = () => {
             3 Days
           </Typography>
         </Box>
+        <Box className="border border-neutral-800 flex justify-between p-2">
+          <Typography variant="h6" className="text-gray-400">
+            Implied Volatility
+          </Typography>
+          <Typography variant="h6" className="text-white">
+            {straddlesEpochData?.volatility}
+          </Typography>
+        </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
             Premiums

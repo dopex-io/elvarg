@@ -94,7 +94,7 @@ const PositionsTable = () => {
                       <Typography variant="h6" className="pr-7 pt-[2px]">
                         {formatAmount(
                           getUserReadableAmount(position.amount, 18),
-                          6
+                          8
                         )}
                       </Typography>
                     </Box>
@@ -102,12 +102,12 @@ const PositionsTable = () => {
                 </TableCell>
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="text-[#6DFFB9]">
-                    ${getUserReadableAmount(position.apStrike, 8)}
+                    ${getUserReadableAmount(position.apStrike, 8).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">
-                  <Typography variant="h6">
-                    ${getUserReadableAmount(position.pnl, 6)}
+                  <Typography variant="h6" className="text-right">
+                    ${getUserReadableAmount(position.pnl, 8).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">
