@@ -5,6 +5,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  XAxis,
   YAxis,
 } from 'recharts';
 import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
@@ -39,8 +40,9 @@ const PnlChart = (props: PnlChartProps) => {
 
   const pnl = useMemo(() => {
     let value;
-    if (price > upperBreakeven) value = price - upperBreakeven;
-    else value = lowerBreakeven - price;
+    if (price > upperBreakeven) value = 0.5 * (price - upperBreakeven);
+    else value = 0.5 * (lowerBreakeven - price);
+
     return value * amount;
   }, [price, upperBreakeven, lowerBreakeven, amount]);
 
@@ -96,24 +98,22 @@ const PnlChart = (props: PnlChartProps) => {
       {lowerBreakeven ? (
         <ResponsiveContainer width="100%" height="60%" className="mb-4">
           <LineChart
-            width={300}
             height={300}
             data={data}
             onMouseMove={handleOnMouseMove}
             onMouseLeave={handleMouseLeave}
           >
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey="price" stroke="white" dot={false} />
-            <YAxis
-              dataKey={'price'}
-              domain={['auto', 'auto']}
-              width={39}
-              tickSize={3}
-              tickCount={7}
-              padding={{ top: 10 }}
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="white"
+              dot={false}
+              strokeWidth={2}
             />
-            <ReferenceLine y={lowerBreakeven} stroke="#22E1FF" />
-            <ReferenceLine y={upperBreakeven} stroke="#22E1FF" />
+            <ReferenceLine y={0} stroke="#22E1FF" strokeWidth={2} />
+            <XAxis type="number" dataKey={'price'} domain={['auto', 'auto']} />
+            <YAxis interval="preserveStartEnd" padding={{ bottom: 5 }} />
           </LineChart>
         </ResponsiveContainer>
       ) : (
