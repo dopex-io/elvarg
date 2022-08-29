@@ -14,7 +14,7 @@
     "@0xsequence/multicall": "^0.40.2",
     "@apollo/client": "^3.6.6",
     "@coinbase/wallet-sdk": "^3.2.0",
-    "@dopex-io/sdk": "https://github.com/dopex-io/sdk.git#feat/atlantics",
+    "@dopex-io/sdk": "../sdk",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.8.2",

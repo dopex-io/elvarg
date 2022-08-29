@@ -274,7 +274,7 @@ const ManageCard = (props: ManageCardProps) => {
         <Typography variant="h5" className="my-auto">
           Deposit
         </Typography>
-        {poolType === 'PUTS' ? (
+        {/* {poolType === 'PUTS' ? (
           <>
             <Typography
               onClick={openPositionManagerModal}
@@ -289,7 +289,7 @@ const ManageCard = (props: ManageCardProps) => {
               handleClose={closePositionManager}
             />
           </>
-        ) : null}
+        ) : null} */}
       </Box>
       <Box className="bg-umbra rounded-xl w-full">
         <CustomInput

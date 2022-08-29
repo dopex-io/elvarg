@@ -15,6 +15,7 @@ import {
   AtlanticCallsPool__factory,
   AtlanticPutsPool,
   AtlanticPutsPool__factory,
+  AtlanticsViewer__factory,
 } from '@dopex-io/sdk';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -234,25 +235,31 @@ export const AtlanticsProvider = (props: any) => {
       const atlanticPool = AtlanticPutsPool__factory.connect(address, provider);
 
       // Strikes
-      const maxStrikes: BigNumber[] = await atlanticPool.getEpochMaxStrikes(
-        epoch
-      );
+      const maxStrikes: BigNumber[] = await atlanticPool.getEpochStrikes(epoch);
 
       const latestCheckpointsCalls = maxStrikes.map(
         async (maxStrike: BigNumber) => {
-          return atlanticPool.getEpochMaxStrikeCheckpoints(epoch, maxStrike);
+          return atlanticPool.getEpochCheckpoints(epoch, maxStrike);
         }
       );
 
       const checkpoints = await Promise.all(latestCheckpointsCalls);
 
-      let [{ baseToken, quoteToken }, state, config, underlyingPrice] =
-        await Promise.all([
-          atlanticPool.addresses(),
-          atlanticPool.epochVaultStates(epoch),
-          atlanticPool.vaultConfiguration(),
-          atlanticPool.getUsdPrice(),
-        ]);
+      let [
+        { baseToken, quoteToken },
+        state,
+        config,
+        underlyingPrice,
+        tickSize,
+        unwindFeePercentage,
+      ] = await Promise.all([
+        atlanticPool.addresses(),
+        atlanticPool.epochVaultStates(epoch),
+        atlanticPool.vaultConfiguration(),
+        atlanticPool.getUsdPrice(),
+        atlanticPool.epochTickSize(epoch),
+        atlanticPool.unwindFeePercentage(),
+      ]);
 
       let data: IEpochData;
 
@@ -336,7 +343,11 @@ export const AtlanticsProvider = (props: any) => {
         epochData: data,
         epochStrikeData,
         state: { ...state, epoch },
-        config,
+        config: {
+          ...config,
+          tickSize,
+          unwindFee: unwindFeePercentage,
+        },
         contracts,
         tokens: {
           deposit: depositToken,
@@ -374,6 +385,7 @@ export const AtlanticsProvider = (props: any) => {
         totalLiquidity,
         unlockedCollateral,
         activeCollateral,
+        strikes,
       ] = await Promise.all([
         atlanticPool.epochVaultStates(epoch),
         atlanticPool.vaultConfiguration(),
@@ -382,6 +394,7 @@ export const AtlanticsProvider = (props: any) => {
         atlanticPool.totalEpochDeposits(epoch),
         atlanticPool.totalEpochUnlockedCollateral(epoch),
         atlanticPool.totalEpochActiveCollateral(epoch),
+        atlanticPool.getEpochStrikes(epoch),
       ]);
 
       const contracts: IContracts = {
@@ -411,7 +424,7 @@ export const AtlanticsProvider = (props: any) => {
       return {
         asset: underlying,
         isPut: false,
-        strikes: state.strike,
+        strikes: strikes,
         state: { ...state, epoch },
         epochData: data,
         config,
@@ -524,26 +537,29 @@ export const AtlanticsProvider = (props: any) => {
     )
       return;
 
-    const contractAddress =
+    const poolAddress =
       contractAddresses['ATLANTIC-POOLS'][selectedPool.asset][poolType][
         selectedPool.duration
       ];
 
+    const atlanticsViewer = AtlanticsViewer__factory.connect(
+      contractAddresses['ATLANTICS-VIEWER'],
+      provider
+    );
+
     let atlanticPool: AtlanticPutsPool | AtlanticCallsPool;
 
-    let poolDeposits;
     let userDeposits;
 
-    // const daysPassed =
-    //   (Math.floor(new Date().getTime() / 1000) -
-    //     Number(selectedPool.state.startTime)) /
-    //   86400;
-
     if (poolType === 'PUTS') {
-      atlanticPool = AtlanticPutsPool__factory.connect(contractAddress, signer);
+      userDeposits = await atlanticsViewer.getUserDeposits(
+        selectedEpoch,
+        poolAddress,
+        accountAddress
+      );
 
-      poolDeposits = await atlanticPool.getEpochDeposits(selectedEpoch);
-      userDeposits = poolDeposits.filter(
+      console.log('user deposits', userDeposits);
+      userDeposits = userDeposits.filter(
         (deposit) => deposit.depositor === accountAddress
       );
 
@@ -599,12 +615,13 @@ export const AtlanticsProvider = (props: any) => {
 
       setUserPositions(() => _userDeposits);
     } else if (poolType === 'CALLS') {
-      atlanticPool = AtlanticCallsPool__factory.connect(
-        contractAddress,
-        signer
+      userDeposits = await atlanticsViewer.getUserDeposits(
+        selectedEpoch,
+        poolAddress,
+        accountAddress
       );
-      poolDeposits = await atlanticPool.getEpochDeposits(selectedEpoch);
-      userDeposits = poolDeposits.filter(
+
+      userDeposits = userDeposits.filter(
         (deposit) => deposit.depositor === accountAddress
       );
 

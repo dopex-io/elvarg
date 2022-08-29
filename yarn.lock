@@ -583,11 +583,8 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
-"@dopex-io/sdk@https://github.com/dopex-io/sdk.git#feat/atlantics":
-  version "1.0.0-beta.13"
-  resolved "https://github.com/dopex-io/sdk.git#a8343a5cda78e98b95818b30df65984e09c10f67"
-  dependencies:
-    ethers "^5.6.4"
+"@dopex-io/sdk@../sdk":
+  version "1.0.0-beta.21"
 
 "@emotion/babel-plugin@^11.7.1":
   version "11.9.2"
@@ -4550,7 +4547,7 @@ ethereumjs-vm@^2.3.4:
     rustbn.js "~0.2.0"
     safe-buffer "^5.1.1"
 
-ethers@^5.5.2, ethers@^5.6.4, ethers@^5.6.6:
+ethers@^5.5.2, ethers@^5.6.6:
   version "5.6.9"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.6.9.tgz#4e12f8dfcb67b88ae7a78a9519b384c23c576a4d"
   integrity sha512-lMGC2zv9HC5EC+8r429WaWu3uWJUCgUCt8xxKCFqkrFuBDZXDYIdzDUECxzjf2BMF8IVBByY1EBoGSL3RTm8RA==
