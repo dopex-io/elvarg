@@ -348,7 +348,7 @@ const Deposits = () => {
   const handleWithdraw = useCallback(async () => {
     await sendTx(
       rateVaultContract.withdrawMultiple(
-        selectedEpoch - 1,
+        selectedEpoch,
         withdrawData.strikesIndexes,
         withdrawData.callLeveragesIndexes,
         withdrawData.putLeveragesIndexes,
