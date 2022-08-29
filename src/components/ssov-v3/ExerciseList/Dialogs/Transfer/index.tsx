@@ -1,6 +1,5 @@
 import {
   useCallback,
-  useContext,
   useEffect,
   useState,
   useMemo,
@@ -18,7 +17,6 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { useBoundStore } from 'store';
-import { SsovV3Context } from 'contexts/SsovV3';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -33,13 +31,15 @@ export interface Props {
 
 const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const {
+    accountAddress,
+    signer,
+    provider,
     updateSsovV3EpochData,
     updateSsovV3UserData,
     ssovEpochData,
     ssovData,
     selectedEpoch,
-  } = useContext(SsovV3Context);
-  const { accountAddress, signer, provider } = useBoundStore();
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 

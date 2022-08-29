@@ -1,10 +1,5 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+// @ts-nocheck
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import cx from 'classnames';
 import format from 'date-fns/format';
@@ -13,9 +8,10 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { styled } from '@mui/material/styles';
 
 import { useBoundStore } from 'store';
-import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
+import { SsovV3EpochData } from 'store/Ssov';
 
 import CustomButton from 'components/UI/CustomButton';
 import Typography from 'components/UI/Typography';
@@ -30,7 +26,32 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
-import styles from './styles.module.scss';
+const stylesToClass: {
+  [key: string]: string | { [key: string]: string };
+} = {
+  cardWidth: {
+    width: '100%',
+    ['@media (min-width:780px)']: {
+      width: '350px',
+    },
+  },
+  optionTypeIndicator: {
+    paddingTop: '5.5px',
+    paddingBottom: '5.5px',
+    borderRadius: '5px',
+  },
+  allocationWidth: {
+    width: '189px',
+  },
+  exerciseModalSize: {
+    width: '343px',
+    height: '433px',
+  },
+};
+
+const CustomBox = styled(Box)(({ attribute }) => ({
+  ...stylesToClass[attribute],
+}));
 
 const SelectMenuProps = {
   PaperProps: {
@@ -45,15 +66,17 @@ const SelectMenuProps = {
 };
 
 const DepositPanel = () => {
-  const { accountAddress, chainId, signer, updateAssetBalances } =
-    useBoundStore();
   const {
+    accountAddress,
+    chainId,
+    signer,
+    updateAssetBalances,
     updateSsovV3EpochData: updateSsovEpochData,
     updateSsovV3UserData: updateSsovUserData,
     ssovData,
     ssovEpochData,
     ssovSigner,
-  } = useContext(SsovV3Context);
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 
@@ -165,11 +188,12 @@ const DepositPanel = () => {
   }, [accountAddress, signer, ssovData]);
 
   return (
-    <Box
+    <CustomBox
       className={cx(
         'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4',
-        styles['cardWidth']
+        stylesToClass['cardWidth']
       )}
+      attribute="cardWidth"
     >
       <Box className="flex mb-3">
         <Typography variant="h3" className="text-stieglitz">
@@ -333,7 +357,7 @@ const DepositPanel = () => {
           </CustomButton>
         </Box>
       </Box>
-    </Box>
+    </CustomBox>
   );
 };
 

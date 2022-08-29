@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import Manage from 'components/ssov-v3/Manage';
 
-import { SsovV3Provider } from 'contexts/SsovV3';
+import { useBoundStore } from 'store';
 
 const SsovV3Page = (props: { ssov: string }) => {
+  const { updateSsovV3, setSsovV3Signer, updateSsovV3EpochData } =
+    useBoundStore();
+
   const { ssov } = props;
-  return (
-    <SsovV3Provider>
-      <Manage ssov={ssov} />
-    </SsovV3Provider>
-  );
+
+  useEffect(() => {
+    setSsovV3Signer();
+    updateSsovV3();
+  }, [setSsovV3Signer, updateSsovV3]);
+
+  useEffect(() => {
+    updateSsovV3EpochData();
+  }, [updateSsovV3EpochData]);
+
+  return <Manage ssov={ssov} />;
 };
 
 export async function getServerSideProps(context: { query: { ssov: string } }) {

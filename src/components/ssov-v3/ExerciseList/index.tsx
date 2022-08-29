@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
@@ -18,7 +18,6 @@ import TablePaginationActions from 'components/UI/TablePaginationActions';
 import WalletButton from 'components/common/WalletButton';
 import ExerciseTableData from './ExerciseTableData';
 
-import { SsovV3Context } from 'contexts/SsovV3';
 import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -40,16 +39,20 @@ interface userExercisableOption {
 const ROWS_PER_PAGE = 5;
 
 const ExerciseList = () => {
-  const { accountAddress, provider } = useBoundStore();
-  const { ssovData, ssovEpochData, selectedEpoch } = useContext(SsovV3Context);
+  const { accountAddress, provider, ssovData, ssovEpochData, selectedEpoch } =
+    useBoundStore();
 
   const [userExercisableOptions, setUserExercisableOptions] = useState<
     userExercisableOption[]
   >([]);
   const [page, setPage] = useState(0);
 
-  // @ts-ignore TODO: FIX
-  const { currentEpoch, tokenPrice, isPut } = ssovData;
+  const { currentEpoch, tokenPrice, isPut } = ssovData ?? {
+    currentEpoch: 0,
+    tokenPrice: BigNumber.from(0),
+    isPut: false,
+  };
+
   const {
     // @ts-ignore TODO: FIX
     epochStrikes,
@@ -83,10 +86,7 @@ const ExerciseList = () => {
         : [];
 
       const userExercisableOptions = epochStrikes.map(
-        (
-          strike: string | number | BigNumber | BigNumber,
-          strikeIndex: string | number
-        ) => {
+        (strike: BigNumber, strikeIndex: string | number) => {
           const strikePrice = getUserReadableAmount(strike, 8);
 
           const purchasedAmount = getUserReadableAmount(
@@ -100,27 +100,26 @@ const ExerciseList = () => {
             ((isPut && settlementPrice.lt(strike)) ||
               (!isPut && settlementPrice.gt(strike)));
 
-          // @ts-ignore TODO: FIX
-          const isPastEpoch = selectedEpoch < currentEpoch;
+          const isPastEpoch =
+            (selectedEpoch ?? false) < (currentEpoch ?? false);
           const pnlAmount = settlementPrice.isZero()
             ? isPut
               ? strike
-                  // @ts-ignore TODO: FIX
-                  .sub(tokenPrice)
+                  .sub(tokenPrice ?? '0')
                   .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
                   .mul(1e10)
-                  .div(ssovData?.lpPrice)
-              : tokenPrice
+                  .div(ssovData?.lpPrice ?? '1')
+              : (tokenPrice ?? BigNumber.from(0))
                   .sub(strike)
                   .mul(userEpochStrikeTokenBalanceArray[strikeIndex])
-                  .div(tokenPrice)
+                  .div(tokenPrice ?? '0')
             : isPut
             ? strike
                 // @ts-ignore TODO: FIX
                 .sub(settlementPrice)
                 .mul(settleableAmount)
                 .mul(1e10)
-                .div(ssovData?.lpPrice)
+                .div(ssovData?.lpPrice ?? '1')
             : settlementPrice
                 .sub(strike)
                 .mul(userEpochStrikeTokenBalanceArray[strikeIndex])

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -10,7 +10,6 @@ import Stats from 'components/ssov-v3/Stats';
 import PageLoader from 'components/common/PageLoader';
 import Typography from 'components/UI/Typography';
 
-import { SsovV3Context } from 'contexts/SsovV3';
 import { useBoundStore } from 'store';
 import WritePositions from 'components/ssov-v3/WritePositions';
 
@@ -18,9 +17,13 @@ import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 const Manage = (props: { ssov: string }) => {
   const { ssov } = props;
-  const { ssovData, ssovEpochData, ssovUserData, setSelectedSsovV3 } =
-    useContext(SsovV3Context);
-  const { chainId } = useBoundStore();
+  const {
+    chainId,
+    ssovData,
+    ssovEpochData,
+    ssovV3UserData: ssovUserData,
+    setSelectedSsovV3,
+  } = useBoundStore();
 
   useEffect(() => {
     setSelectedSsovV3(ssov);

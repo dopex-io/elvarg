@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-} from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -34,7 +28,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 import useSendTx from 'hooks/useSendTx';
 
 import { useBoundStore } from 'store';
-import { SsovV3Context, SsovV3Data, SsovV3EpochData } from 'contexts/SsovV3';
+import { SsovV3Data, SsovV3EpochData } from 'store/Ssov';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -51,14 +45,15 @@ const PurchaseDialog = ({
   ssovData,
   ssovEpochData,
 }: Props) => {
-  const { ssovSigner, updateSsovV3UserData, updateSsovV3EpochData } =
-    useContext(SsovV3Context);
   const {
     accountAddress,
     provider,
     signer,
     contractAddresses,
     updateAssetBalances,
+    ssovSigner,
+    updateSsovV3UserData,
+    updateSsovV3EpochData,
   } = useBoundStore();
 
   const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;

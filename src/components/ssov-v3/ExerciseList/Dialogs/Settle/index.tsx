@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -10,7 +10,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import { useBoundStore } from 'store';
-import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
+import { SsovV3EpochData } from 'store/Ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -38,13 +38,15 @@ const Stat = ({ name, value }: { name: string; value: string }) => {
 
 const Settle = ({ open, handleClose, strikeIndex }: Props) => {
   const {
+    accountAddress,
+    provider,
+    signer,
     updateSsovV3EpochData,
     updateSsovV3UserData,
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
-  } = useContext(SsovV3Context);
-  const { accountAddress, provider, signer } = useBoundStore();
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 

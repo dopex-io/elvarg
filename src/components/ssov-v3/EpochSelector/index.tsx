@@ -1,15 +1,15 @@
-import { useCallback, useMemo, useContext } from 'react';
+import { useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import cx from 'classnames';
 
-import { SsovV3Context } from 'contexts/SsovV3';
+import { useBoundStore } from 'store';
 
 export default function EpochSelector({ className }: { className?: string }) {
   const { ssovData, selectedEpoch, setSelectedEpoch, updateSsovV3UserData } =
-    useContext(SsovV3Context);
+    useBoundStore();
 
   // @ts-ignore TODO: FIX
   const { currentEpoch } = ssovData;

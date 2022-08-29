@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
@@ -17,11 +17,8 @@ import WritePositionTableData from './WritePositionData';
 import TransferDialog from './Dialogs/TransferDialog';
 import WithdrawDialog from './Dialogs/WithdrawDialog';
 
-import {
-  SsovV3Context,
-  SsovV3Data,
-  WritePositionInterface,
-} from 'contexts/SsovV3';
+import { useBoundStore } from 'store';
+import { SsovV3Data, WritePositionInterface } from 'store/Ssov';
 
 import styles from './styles.module.scss';
 
@@ -54,8 +51,12 @@ const COLUMN_HEADERS = [
 const WritePositions = (props: { className?: string }) => {
   const { className } = props;
 
-  const { selectedEpoch, ssovUserData, ssovData, ssovEpochData } =
-    useContext(SsovV3Context);
+  const {
+    selectedEpoch,
+    ssovV3UserData: ssovUserData,
+    ssovData,
+    ssovEpochData,
+  } = useBoundStore();
 
   const { collateralSymbol } = ssovData as SsovV3Data;
 

@@ -1,23 +1,20 @@
-import { useCallback, useMemo, useContext } from 'react';
+import { useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import cx from 'classnames';
 
-import { SsovContext } from 'contexts/Ssov';
+import { useBoundStore } from 'store';
 
 export default function EpochSelector({ className }: { className?: string }) {
-  const { selectedEpoch, setSelectedEpoch, ssovData } = useContext(SsovContext);
+  const { selectedEpoch, setSelectedEpoch, ssovData } = useBoundStore();
 
-  // @ts-ignore TODO: FIX
-  const { currentEpoch } = ssovData;
+  const currentEpoch = ssovData?.currentEpoch ?? 0;
 
   const handleSelectChange = useCallback(
-    // @ts-ignore TODO: FIX
-    (e) => {
-      // @ts-ignore TODO: FIX
-      setSelectedEpoch(Number(e.target.value));
+    (e: { target: { value: string | number } }) => {
+      setSelectedEpoch(Number(e.target.value ?? 0));
     },
     [setSelectedEpoch]
   );
@@ -25,8 +22,7 @@ export default function EpochSelector({ className }: { className?: string }) {
   const epochs = useMemo(() => {
     let _epoch = currentEpoch;
 
-    // @ts-ignore TODO: FIX
-    if (ssovData.isCurrentEpochExpired) {
+    if (ssovData?.isCurrentEpochExpired) {
       _epoch += 1;
     }
 
