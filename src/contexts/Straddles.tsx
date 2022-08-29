@@ -18,6 +18,7 @@ import { WalletContext } from './Wallet';
 import { SECONDS_IN_A_YEAR } from 'constants/index';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getBlackScholes from 'utils/contracts/getBlackScholes';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
@@ -134,19 +135,19 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         const data = await straddlesContract!['straddlePositions'](id);
 
         const currentPrice = straddlesEpochData!.currentPrice.toNumber();
-        const volatility = straddlesEpochData!.volatility.toNumber();
-        const timeToMaturity = straddlesEpochData!.expiry
-          .div(BigNumber.from(SECONDS_IN_A_YEAR))
-          .toNumber();
+        const volatility = straddlesEpochData!.volatility.div(100).toNumber();
+        const timeToExpiry =
+          (straddlesEpochData!.expiry.toNumber() - Date.now() / 1000) /
+          BigNumber.from(SECONDS_IN_A_YEAR).toNumber();
         const strike = data['apStrike'].toNumber();
-
+        const amount = getUserReadableAmount(data['amount']);
         const pnl =
           0.5 *
             getBlackScholes(
               true,
               currentPrice,
               strike,
-              timeToMaturity,
+              timeToExpiry,
               volatility
             ) +
           0.5 *
@@ -154,17 +155,20 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
               false,
               currentPrice,
               strike,
-              timeToMaturity,
+              timeToExpiry,
               volatility
-            );
+            ) *
+            amount;
+
         return {
           id: id,
           epoch: data['epoch'],
           amount: data['amount'],
-          apStrike: data['apStrike'],
+          apStrike: strike,
           pnl: pnl,
         };
-      } catch {
+      } catch (err) {
+        console.log(err);
         return {
           amount: BigNumber.from('0'),
         };

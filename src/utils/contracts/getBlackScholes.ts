@@ -1,4 +1,4 @@
-const RISK_FREE_RATE: number = 0.03;
+const RISK_FREE_RATE: number = 0;
 
 // https://gist.github.com/santacruz123/3623310
 export default function getBlackScholes(
