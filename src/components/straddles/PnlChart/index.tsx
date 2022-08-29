@@ -5,6 +5,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  XAxis,
   YAxis,
 } from 'recharts';
 import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
@@ -103,17 +104,16 @@ const PnlChart = (props: PnlChartProps) => {
             onMouseLeave={handleMouseLeave}
           >
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey="price" stroke="white" dot={false} />
-            <YAxis
-              dataKey={'price'}
-              domain={['auto', 'auto']}
-              width={39}
-              tickSize={3}
-              tickCount={7}
-              padding={{ top: 10 }}
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="white"
+              dot={false}
+              strokeWidth={2}
             />
-            <ReferenceLine y={lowerBreakeven} stroke="#22E1FF" />
-            <ReferenceLine y={upperBreakeven} stroke="#22E1FF" />
+            <ReferenceLine y={0} stroke="#22E1FF" strokeWidth={2} />
+            <XAxis type="number" dataKey={'price'} domain={['auto', 'auto']} />
+            <YAxis interval="preserveStartEnd" padding={{ bottom: 5 }} />
           </LineChart>
         </ResponsiveContainer>
       ) : (
