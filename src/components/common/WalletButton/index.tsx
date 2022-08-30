@@ -2,7 +2,7 @@ import { FC, useMemo, useCallback } from 'react';
 
 import { useBoundStore } from 'store';
 
-import CustomButton, { CustomButtonProps } from '../../UI/CustomButton';
+import CustomButton, { CustomButtonProps } from '../../UI/Button';
 
 const WalletButton: FC<CustomButtonProps> = (props) => {
   const { children, onClick, disabled, ...otherProps } = props;

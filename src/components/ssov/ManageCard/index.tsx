@@ -31,7 +31,7 @@ import Button from '@mui/material/Button';
 import { useBoundStore } from 'store';
 import { SsovContext } from 'contexts/Ssov';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';

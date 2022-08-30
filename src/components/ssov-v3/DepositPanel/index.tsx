@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
-import cx from 'classnames';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
@@ -13,7 +12,7 @@ import { styled } from '@mui/material/styles';
 import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Ssov';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import LockerIcon from 'svgs/icons/LockerIcon';
@@ -25,33 +24,6 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
-
-const stylesToClass: {
-  [key: string]: string | { [key: string]: string };
-} = {
-  cardWidth: {
-    width: '100%',
-    ['@media (min-width:780px)']: {
-      width: '350px',
-    },
-  },
-  optionTypeIndicator: {
-    paddingTop: '5.5px',
-    paddingBottom: '5.5px',
-    borderRadius: '5px',
-  },
-  allocationWidth: {
-    width: '189px',
-  },
-  exerciseModalSize: {
-    width: '343px',
-    height: '433px',
-  },
-};
-
-const CustomBox = styled(Box)(({ attribute }) => ({
-  ...stylesToClass[attribute],
-}));
 
 const SelectMenuProps = {
   PaperProps: {
@@ -188,13 +160,7 @@ const DepositPanel = () => {
   }, [accountAddress, signer, ssovData]);
 
   return (
-    <CustomBox
-      className={cx(
-        'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4',
-        stylesToClass['cardWidth']
-      )}
-      attribute="cardWidth"
-    >
+    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
       <Box className="flex mb-3">
         <Typography variant="h3" className="text-stieglitz">
           Deposit
@@ -214,7 +180,6 @@ const DepositPanel = () => {
           </a>
         ) : null}
       </Box>
-
       <Box>
         <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
           <Box className="flex">
@@ -357,7 +322,7 @@ const DepositPanel = () => {
           </CustomButton>
         </Box>
       </Box>
-    </CustomBox>
+    </Box>
   );
 };
 

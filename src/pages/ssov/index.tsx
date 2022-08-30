@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import { isEmpty } from 'lodash';
 
 import { useBoundStore } from 'store';
 
@@ -24,16 +25,11 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
     <Box className="flex space-x-4 mb-8">
       <img
         className="w-8 h-8"
-        // @ts-ignore TODO: FIX
-        src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
-        // @ts-ignore TODO: FIX
-        alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
+        src={CHAIN_ID_TO_NETWORK_DATA[chainId]!.icon}
+        alt={CHAIN_ID_TO_NETWORK_DATA[chainId]!.name}
       />
       <Typography variant="h4">
-        {
-          // @ts-ignore TODO: FIX
-          CHAIN_ID_TO_NETWORK_DATA[chainId].name
-        }
+        {CHAIN_ID_TO_NETWORK_DATA[chainId]!.name}
       </Typography>
     </Box>
   );
@@ -42,21 +38,29 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 const Ssov = () => {
   const { chainId, provider, tokenPrices } = useBoundStore();
 
-  const [ssovs, setSsovs] = useState(null);
+  const [ssovs, setSsovs] = useState<{ [key: string]: any }>({});
   const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([
     'Active',
   ]);
-  const [selectedSsovAssets, setSelectedSsovAssets] = useState<string[]>([]);
+  const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
 
   const tvl = useMemo(() => {
     let total = 0;
-    // @ts-ignore TODO: FIX
-    for (let i in ssovs) {
-      // @ts-ignore TODO: FIX
-      ssovs[i].map((ssov: { tvl: string }) => (total += parseFloat(ssov.tvl)));
-    }
+    if (isEmpty(ssovs)) return total;
+
+    total = Object.keys(ssovs).reduce((acc, key) => {
+      return (
+        acc +
+        ssovs[key]?.reduce(
+          (_acc: number, ssov: { tvl: string }) =>
+            (_acc += parseFloat(ssov.tvl)),
+          0
+        )
+      );
+    }, 0);
+
     return total;
   }, [ssovs]);
 
@@ -68,17 +72,20 @@ const Ssov = () => {
     else return [42161, 56, 43114];
   }, [ssovs, chainId]);
 
-  const ssovsAssets = useMemo(() => {
+  const ssovsTokens = useMemo(() => {
     if (!ssovs) return [];
-    const assets: string[] = [];
-    Object.keys(ssovs).map((key) => {
-      // @ts-ignore TODO: FIX
-      ssovs[key].map((ssov: { underlyingSymbol: string }) => {
-        const asset = ssov.underlyingSymbol;
-        if (!assets.includes(asset)) assets.push(asset);
-      });
+
+    const tokensSet = new Set<string>();
+
+    Object.keys(ssovs).forEach((key) => {
+      ssovs[key].forEach((so: { underlyingSymbol: string }) =>
+        tokensSet.add(so.underlyingSymbol)
+      );
     });
-    return assets.sort((a, b) => (a > b ? 1 : -1));
+
+    const tokens = Array.from(tokensSet);
+
+    return tokens.sort((a, b) => (a > b ? 1 : -1));
   }, [ssovs]);
 
   useEffect(() => {
@@ -121,89 +128,88 @@ const Ssov = () => {
           </Typography>
         </Box>
         <LegacyEpochsDropDown />
-        <Box className="flex mb-4">
-          <Box className="ml-auto mr-3">
-            <SsovFilter
-              activeFilters={selectedSsovStates}
-              // @ts-ignore TODO: FIX
-              setActiveFilters={setSelectedSsovStates}
-              text={'State'}
-              options={ssovStates}
-              multiple={true}
-              showImages={false}
-            />
-          </Box>
-          <Box className="mr-3">
-            <SsovFilter
-              activeFilters={selectedSsovAssets}
-              // @ts-ignore TODO: FIX
-              setActiveFilters={setSelectedSsovAssets}
-              text={'Asset'}
-              options={ssovsAssets}
-              multiple={true}
-              showImages={true}
-            />
-          </Box>
-          <Box className="mr-3">
-            <SsovFilter
-              activeFilters={selectedTypes}
-              // @ts-ignore TODO: FIX
-              setActiveFilters={setSelectedTypes}
-              text={'Type'}
-              options={ssovStrategies}
-              multiple={true}
-              showImages={false}
-            />
-          </Box>
-          <Box className="mr-auto">
-            <SsovFilter
-              activeFilters={sortBy}
-              // @ts-ignore TODO: FIX
-              setActiveFilters={setSortBy}
-              text={'Sort by'}
-              options={sortOptions}
-              multiple={false}
-              showImages={false}
-            />
-          </Box>
+        <Box className="mb-4 flex flex-wrap justify-center">
+          <SsovFilter
+            activeFilters={selectedSsovStates}
+            setActiveFilters={setSelectedSsovStates}
+            text="State"
+            options={ssovStates}
+            multiple={true}
+            showImages={false}
+          />
+          <SsovFilter
+            activeFilters={selectedSsovTokens}
+            setActiveFilters={setSelectedSsovTokens}
+            text="Tokens"
+            options={ssovsTokens}
+            multiple={true}
+            showImages={true}
+          />
+          <SsovFilter
+            activeFilters={selectedTypes}
+            setActiveFilters={setSelectedTypes}
+            text="Type"
+            options={ssovStrategies}
+            multiple={true}
+            showImages={false}
+          />
+          <SsovFilter
+            activeFilters={sortBy}
+            setActiveFilters={setSortBy}
+            text="Sort by"
+            options={sortOptions}
+            multiple={false}
+            showImages={false}
+          />
         </Box>
-        {ssovs
+        {!isEmpty(ssovs)
           ? keys.map((key) => {
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />
-                  <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+                  <Box className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 place-items-center gap-y-10">
                     {ssovs
                       ? ssovs[key]
-                          // @ts-ignore TODO: FIX
-                          .sort((a, b) =>
-                            parseFloat(a[sortBy.toLowerCase()]) <
-                            parseFloat(b[sortBy.toLowerCase()])
-                              ? 1
-                              : -1
+                          .sort(
+                            (
+                              a: { [x: string]: string },
+                              b: { [x: string]: string }
+                            ) =>
+                              parseFloat(a[sortBy.toLowerCase()]!) <
+                              parseFloat(b[sortBy.toLowerCase()]!)
+                                ? 1
+                                : -1
                           )
-                          // @ts-ignore TODO: FIX
-                          .map((ssov, index) => {
-                            let visible: boolean = false;
-                            if (
-                              (selectedSsovAssets.length === 0 ||
-                                selectedSsovAssets.includes(
-                                  ssov.underlyingSymbol
-                                )) &&
-                              (selectedTypes.length === 0 ||
-                                selectedTypes.includes(
-                                  ssov.type.toUpperCase()
-                                )) &&
-                              ((selectedSsovStates.includes('Active') &&
-                                !ssov.retired) ||
-                                (selectedSsovStates.includes('Retired') &&
-                                  ssov.retired))
-                            )
-                              visible = true;
-                            return visible ? (
-                              <SsovCard key={index} data={{ ...ssov }} />
-                            ) : null;
-                          })
+                          .map(
+                            (
+                              ssov: {
+                                underlyingSymbol: any;
+                                type: string;
+                                retired: any;
+                              },
+                              index: number
+                            ) => {
+                              let visible: boolean = false;
+                              if (
+                                (selectedSsovTokens.length === 0 ||
+                                  selectedSsovTokens.includes(
+                                    ssov.underlyingSymbol
+                                  )) &&
+                                (selectedTypes.length === 0 ||
+                                  selectedTypes.includes(
+                                    ssov.type.toUpperCase()
+                                  )) &&
+                                ((selectedSsovStates.includes('Active') &&
+                                  !ssov.retired) ||
+                                  (selectedSsovStates.includes('Retired') &&
+                                    ssov.retired))
+                              )
+                                visible = true;
+                              return visible ? (
+                                <SsovCard key={index} data={{ ...ssov }} />
+                              ) : null;
+                            }
+                          )
                       : null}
                   </Box>
                 </Box>

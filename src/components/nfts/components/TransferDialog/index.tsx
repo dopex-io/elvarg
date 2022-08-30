@@ -9,7 +9,7 @@ import { BaseNFT } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import useSendTx from 'hooks/useSendTx';
 

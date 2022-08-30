@@ -8,7 +8,7 @@ import {
 } from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from './Stat';
 

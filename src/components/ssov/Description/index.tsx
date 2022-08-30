@@ -2,6 +2,7 @@ import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -22,7 +23,12 @@ import PurchaseDialog from '../PurchaseDialog';
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
 
-import styles from './styles.module.scss';
+const Wrapper = styled(Box)`
+  width: 100%;
+  @media (min-width: 768px) {
+    width: 400px;
+  }
+`;
 
 const Description = ({
   ssovData,
@@ -98,8 +104,7 @@ const Description = ({
   ];
 
   return (
-    // @ts-ignore TODO: FIX
-    <Box className={cx('flex flex-col md:mr-5', styles.wrapperWidth)}>
+    <Wrapper className="flex flex-col md:mr-5">
       <Typography variant="h1" className="mb-6 flex items-center space-x-3">
         <span>{tokenSymbol} SSOV</span>
         <span
@@ -165,7 +170,7 @@ const Description = ({
           }
         />
       )}
-    </Box>
+    </Wrapper>
   );
 };
 

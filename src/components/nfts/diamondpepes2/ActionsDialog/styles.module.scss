@@ -1,9 +1,3 @@
-.zapIn {
-  position: absolute;
-  background: #151515;
-  width: calc(100% - 31px);
-}
-
 .pepeButton:hover {
   opacity: 0.9;
   background: #43609a;
@@ -82,17 +76,22 @@
 }
 
 .blueBackground {
-  background: #43609A;
+  background: #43609a;
 }
 
 .diamondBackground {
-  background: linear-gradient(180deg, #FFFFFF 0%, #9CECFD 64.06%);
+  background: linear-gradient(180deg, #ffffff 0%, #9cecfd 64.06%);
 }
 
 .orangeBackground {
-  background: linear-gradient(180deg, #DB8140 0%, #7B5A43 100%);
+  background: linear-gradient(180deg, #db8140 0%, #7b5a43 100%);
 }
 
 .goldBackground {
-  background: radial-gradient(72.5% 72.5% at 50% 6.67%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, #FFD50B 0%, #FFAD14 100%);
+  background: radial-gradient(
+      72.5% 72.5% at 50% 6.67%,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0) 100%
+    ),
+    linear-gradient(180deg, #ffd50b 0%, #ffad14 100%);
 }

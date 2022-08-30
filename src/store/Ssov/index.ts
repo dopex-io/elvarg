@@ -77,7 +77,7 @@ export interface SsovV3Slice {
   updateSsovV3EpochData: Function;
   updateSsovV3UserData: Function;
   setSelectedSsovV3: Function;
-  setSsovV3Signer: Function;
+  updateSsovV3Signer: Function;
   setSelectedEpoch: Function;
   totalEpochStrikeDepositsPending?: BigNumber[];
   totalEpochStrikeDepositsUsable?: BigNumber[];
@@ -95,7 +95,7 @@ export const createSsovV3Slice: StateCreator<
     writePositions: [],
   },
   ssovSigner: {},
-  setSsovV3Signer: async () => {
+  updateSsovV3Signer: async () => {
     const { contractAddresses, signer, selectedSsovV3 } = get();
 
     if (!contractAddresses || !signer || !selectedSsovV3) return;
@@ -129,8 +129,6 @@ export const createSsovV3Slice: StateCreator<
 
     if (!contractAddresses || !selectedEpoch || !selectedSsovV3 || !provider)
       return;
-
-    console.log('invoked');
 
     if (!contractAddresses['SSOV-V3']) return;
 
@@ -384,10 +382,10 @@ export const createSsovV3Slice: StateCreator<
       console.log(err);
     }
   },
+  selectedEpoch: 1,
   setSelectedEpoch: (epoch: number) => {
-    console.log('epoch selection');
-    console.log(get().selectedEpoch);
     set((prevState) => ({ ...prevState, selectedEpoch: epoch }));
+    get().updateSsovV3EpochData();
   },
   setSelectedSsovV3: (ssov: string) => {
     set((prevState) => ({ ...prevState, selectedSsovV3: ssov }));

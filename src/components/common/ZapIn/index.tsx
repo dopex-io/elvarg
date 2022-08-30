@@ -20,7 +20,7 @@ import { LoaderIcon } from 'react-hot-toast';
 import { useBoundStore } from 'store';
 
 import TokenSelector from '../TokenSelector';
-import CustomButton from '../../UI/CustomButton';
+import CustomButton from '../../UI/Button';
 import Typography from '../../UI/Typography';
 
 import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';

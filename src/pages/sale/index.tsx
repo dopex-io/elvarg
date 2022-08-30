@@ -8,7 +8,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import AppBar from 'components/common/AppBar';
 import ClaimSection from 'components/sale/ClaimSection';
 import StatsSection from 'components/sale/StatsSection';

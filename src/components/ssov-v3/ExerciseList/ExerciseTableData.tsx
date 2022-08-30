@@ -10,7 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import Settle from './Dialogs/Settle';
 import Transfer from './Dialogs/Transfer';

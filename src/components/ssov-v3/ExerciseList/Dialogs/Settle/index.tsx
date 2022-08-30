@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Ssov';
@@ -200,7 +200,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
         <CustomButton
           className="w-full my-4"
           onClick={approved ? handleSettle : handleApprove}
-          size="xl"
+          size="large"
         >
           {approved ? 'Settle' : 'Approve'}
         </CustomButton>

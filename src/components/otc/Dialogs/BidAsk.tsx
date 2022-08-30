@@ -20,7 +20,7 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
 import { OtcContext } from 'contexts/Otc';

@@ -101,6 +101,12 @@ export const VAULT_MAP: { [key: string]: { src: string } } = {
   'PUSD3CRV-BIWEEKLY-1': {
     src: '/images/tokens/pusd.svg',
   },
+  'ETH-ATLANTIC-STRADDLE-2': {
+    src: '/images/tokens/eth.svg',
+  },
+  'RDPX-ATLANTIC-STRADDLE-2': {
+    src: '/images/tokens/rdpx.svg',
+  },
 };
 
 export const SHOWCASE_NFTS = [

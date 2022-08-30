@@ -6,9 +6,10 @@ interface Props extends Omit<TooltipProps, 'children'> {
 }
 
 const InfoTooltip = (props: Props) => {
+  const { iconClassName, ...rest } = props;
   return (
-    <Tooltip {...props}>
-      <InfoIcon className={props.iconClassName || ''} />
+    <Tooltip {...rest}>
+      <InfoIcon className={iconClassName || ''} />
     </Tooltip>
   );
 };

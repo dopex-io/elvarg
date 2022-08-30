@@ -103,7 +103,7 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
             <Typography variant="h5" className="text-stieglitz">
               Time remaining
             </Typography>
-            {rateVaultContext.rateVaultEpochData.epochEndTimes.eq(0) ? (
+            {rateVaultContext.rateVaultEpochData!.epochEndTimes.eq(0) ? (
               <Typography variant="h5" className="text-white ml-auto">
                 -
               </Typography>
@@ -111,7 +111,7 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
               <Countdown
                 date={
                   new Date(
-                    rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() *
+                    rateVaultContext.rateVaultEpochData!.epochEndTimes.toNumber() *
                       1000
                   )
                 }
@@ -130,11 +130,11 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
               Next epoch
             </Typography>
             <Typography variant="h5" className="text-white ml-auto">
-              {rateVaultContext.rateVaultEpochData.epochEndTimes.eq(0)
+              {rateVaultContext.rateVaultEpochData!.epochEndTimes.eq(0)
                 ? '-'
                 : getFormattedDate(
                     new Date(
-                      rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() *
+                      rateVaultContext.rateVaultEpochData!.epochEndTimes.toNumber() *
                         1000
                     )
                   )}

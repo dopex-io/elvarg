@@ -14,7 +14,7 @@ import {
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
 import { useBoundStore } from 'store';

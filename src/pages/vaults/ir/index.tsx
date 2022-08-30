@@ -9,8 +9,8 @@ import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
+import Filter from 'components/common/Filter';
 import RateVaultCard from 'components/ir/VaultCard';
-import Filter from 'components/ir/Filter';
 
 const ssovStates: string[] = ['Active', 'Retired'];
 

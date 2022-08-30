@@ -14,7 +14,7 @@ import { useDebounce } from 'use-debounce';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import PnlChart from 'components/common/PnlChart';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 import CircleIcon from 'svgs/icons/CircleIcon';

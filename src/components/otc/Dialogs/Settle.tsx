@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import { ERC20__factory } from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
 import DialogDataRow from 'components/otc/DialogDataRow';
 

@@ -16,9 +16,7 @@ export default function EpochSelector({ className }: { className?: string }) {
 
   const handleSelectChange = useCallback(
     (e: { target: { value: any } }) => {
-      // @ts-ignore TODO: FIX
       setSelectedEpoch(Number(e.target.value));
-      // @ts-ignore TODO: FIX
       updateSsovV3UserData();
     },
     [setSelectedEpoch, updateSsovV3UserData]

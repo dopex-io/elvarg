@@ -12,7 +12,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
@@ -75,15 +74,6 @@ const DepositsTableData = (
     return _isEmpty;
   }, [totalUserDeposits]);
 
-  const isWithdrawalEnabled: boolean = useMemo(() => {
-    return (
-      new Date() > epochEndTime &&
-      epochTime != 0 &&
-      !isTotalCallUserDepositsEmpty &&
-      isBootstrapped
-    );
-  }, [epochEndTime, isTotalCallUserDepositsEmpty, epochTime, isBootstrapped]);
-
   const isTotalPutUserDepositsEmpty: boolean = useMemo(() => {
     let _isEmpty: boolean = true;
     totalUserDeposits.map((deposit) =>
@@ -92,10 +82,25 @@ const DepositsTableData = (
     return _isEmpty;
   }, [totalUserDeposits]);
 
+  const isWithdrawalEnabled: boolean = useMemo(() => {
+    return (
+      new Date() > epochEndTime &&
+      epochTime != 0 &&
+      (!isTotalCallUserDepositsEmpty || !isTotalPutUserDepositsEmpty) &&
+      isBootstrapped
+    );
+  }, [
+    epochEndTime,
+    isTotalCallUserDepositsEmpty,
+    isTotalPutUserDepositsEmpty,
+    epochTime,
+    isBootstrapped,
+  ]);
+
   return (
     <TableRow className="text-white mb-2 rounded-lg mt-2">
       <TableCell align="left" className="mx-0 pt-2">
-        <Box className={'pt-2'}>
+        <Box className="pt-2">
           <Box className={`rounded-md flex mb-4 p-3 pt-2 pb-2 bg-umbra w-fit`}>
             <Typography variant="h6">
               {formatAmount(strikePrice, 5)}%
@@ -223,23 +228,23 @@ const Deposits = () => {
   const rateVaultContext = useContext(RateVaultContext);
   const { accountAddress, ensName, updateAssetBalances } = useBoundStore();
 
-  const { selectedEpoch, rateVaultUserData } = rateVaultContext;
-  const { rateVaultContract } = rateVaultContext.rateVaultData;
+  const { selectedEpoch, rateVaultUserData, isLoading } = rateVaultContext;
+  const { rateVaultContract } = rateVaultContext.rateVaultData!;
 
   const sendTx = useSendTx();
 
   const epochTime: number = useMemo(() => {
-    return rateVaultContext.rateVaultEpochData.epochStartTimes &&
-      rateVaultContext.rateVaultEpochData.epochEndTimes
-      ? (rateVaultContext.rateVaultEpochData.epochStartTimes as BigNumber)
-          .sub(rateVaultContext.rateVaultEpochData.epochEndTimes as BigNumber)
+    return rateVaultContext.rateVaultEpochData!.epochStartTimes &&
+      rateVaultContext.rateVaultEpochData!.epochEndTimes
+      ? (rateVaultContext.rateVaultEpochData!.epochStartTimes as BigNumber)
+          .sub(rateVaultContext.rateVaultEpochData!.epochEndTimes as BigNumber)
           .toNumber()
       : 0;
   }, [rateVaultContext]);
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(
-      rateVaultContext.rateVaultEpochData.epochEndTimes.toNumber() * 1000
+      rateVaultContext.rateVaultEpochData!.epochEndTimes.toNumber() * 1000
     );
   }, [rateVaultContext]);
 
@@ -255,8 +260,9 @@ const Deposits = () => {
 
   const getStrikeIndex = useCallback(
     (strike: BigNumber) => {
-      for (let i in rateVaultContext.rateVaultEpochData.epochStrikes) {
-        const epochStrike = rateVaultContext.rateVaultEpochData.epochStrikes[i];
+      for (let i in rateVaultContext.rateVaultEpochData!.epochStrikes) {
+        const epochStrike =
+          rateVaultContext.rateVaultEpochData!.epochStrikes[i];
         if (epochStrike && strike.eq(epochStrike)) return parseInt(i);
       }
       return -1;
@@ -275,20 +281,23 @@ const Deposits = () => {
       const strikeIndex = getStrikeIndex(row['strike']);
 
       const totalDeposits =
-        rateVaultContext.rateVaultEpochData?.totalTokenDeposits;
+        rateVaultContext.rateVaultEpochData!.totalTokenDeposits;
 
       const callPremium =
-        rateVaultContext.rateVaultEpochData?.callsPremiumCosts[strikeIndex] ||
+        rateVaultContext.rateVaultEpochData!.callsPremiumCosts[strikeIndex] ||
         BigNumber.from('0');
       const putPremium =
-        rateVaultContext.rateVaultEpochData?.putsPremiumCosts[strikeIndex] ||
+        rateVaultContext.rateVaultEpochData!.putsPremiumCosts[strikeIndex] ||
         BigNumber.from('0');
 
       const totalPremiums = callPremium.add(putPremium);
 
-      const totalUserPremiums = totalDeposits.gt(0)
-        ? totalPremiums?.mul(totalUserDeposits).div(totalDeposits)
-        : BigNumber.from('0');
+      let totalUserPremiums = BigNumber.from('0');
+
+      if (totalDeposits && totalPremiums && totalUserDeposits)
+        totalUserPremiums = totalDeposits.gt(0)
+          ? totalPremiums.mul(totalUserDeposits).div(totalDeposits)
+          : BigNumber.from('0');
 
       if (!(strikeIndex in _deposits)) {
         _deposits[strikeIndex] = {
@@ -320,7 +329,7 @@ const Deposits = () => {
     const putLeveragesIndexes: number[] = [];
 
     rateVaultUserData?.userEpochStrikeDeposits?.map((deposits) => {
-      if (deposits.amount.gt(0)) {
+      if (deposits.amount?.gt(0)) {
         strikesIndexes.push(deposits.strikeIndex);
         callLeveragesIndexes.push(deposits.callLeverageIndex);
         putLeveragesIndexes.push(deposits.putLeverageIndex);
@@ -347,10 +356,9 @@ const Deposits = () => {
     );
 
     updateAssetBalances();
-    rateVaultContext.updateRateVaultEpochData();
-    rateVaultContext.updateRateVaultUserData();
+    rateVaultContext.updateRateVaultEpochData!();
+    rateVaultContext.updateRateVaultUserData!();
   }, [
-    sendTx,
     rateVaultContract,
     selectedEpoch,
     withdrawData.strikesIndexes,
@@ -359,9 +367,10 @@ const Deposits = () => {
     accountAddress,
     updateAssetBalances,
     rateVaultContext,
+    sendTx,
   ]);
 
-  return rateVaultContext?.rateVaultEpochData.epochStrikes ? (
+  return rateVaultContext?.rateVaultEpochData!.epochStrikes ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Deposits
@@ -377,7 +386,19 @@ const Deposits = () => {
 
         <Box className="balances-table text-white min-h-[12rem]">
           <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
-            {!isEmpty(Object.keys(deposits)) ? (
+            {isLoading ? (
+              <Box className="border-4 border-umbra rounded-lg p-3 mb-2">
+                {range(3).map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    variant="text"
+                    animation="wave"
+                    height={60}
+                    className="bg-umbra"
+                  />
+                ))}
+              </Box>
+            ) : (
               <Table>
                 <TableHead className="bg-umbra">
                   <TableRow className="bg-umbra">
@@ -421,25 +442,13 @@ const Deposits = () => {
                         imgSrc={'2crv.svg'}
                         tokenSymbol={'2CRV'}
                         isBootstrapped={
-                          rateVaultContext.rateVaultEpochData.isBootstrapped
+                          rateVaultContext.rateVaultEpochData!.isBootstrapped
                         }
                       />
                     );
                   })}
                 </TableBody>
               </Table>
-            ) : (
-              <Box className="border-4 border-umbra rounded-lg p-3 mb-2">
-                {range(3).map((_, index) => (
-                  <Skeleton
-                    key={index}
-                    variant="text"
-                    animation="wave"
-                    height={60}
-                    className="bg-umbra"
-                  />
-                ))}
-              </Box>
             )}
           </TableContainer>
           {rateVaultContext.rateVaultEpochData?.epochStrikes.length >

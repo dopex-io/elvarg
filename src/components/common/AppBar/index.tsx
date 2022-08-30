@@ -23,7 +23,7 @@ import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
 import Typography from 'components/UI/Typography';
 import WalletDialog from 'components/common/AppBar/WalletDialog';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 
 import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
@@ -39,8 +39,6 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import styles from './styles.module.scss';
 
 const AppLink = ({
   name,
@@ -103,7 +101,7 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
-    // { name: 'OTC', to: '/otc' },
+    { name: 'Straddles', to: '/vaults/straddles' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -132,6 +130,7 @@ interface AppBarProps {
     | 'token sale'
     | 'faucet'
     | 'Rate Vaults'
+    | 'Straddles'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
@@ -260,12 +259,7 @@ export default function AppBar(props: AppBarProps) {
         userBalances={userAssetBalances}
         handleClose={handleWalletDialogClose}
       />
-      <nav
-        className={cx(
-          'fixed top-0 w-full text-gray-600 z-50',
-          styles['appBar']
-        )}
-      >
+      <nav className="fixed top-0 w-full text-gray-600 z-50 backdrop-blur-sm h-[74px]">
         <PriceCarousel tokenPrices={tokenPrices} />
         <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
@@ -356,7 +350,7 @@ export default function AppBar(props: AppBarProps) {
                 className="w-9 long-menu ml-2 rounded-md bg-umbra hover:bg-umbra hover:opacity-80 hidden lg:flex"
                 size="large"
               >
-                <MoreVertIcon className={cx('', styles['vertIcon'])} />
+                <MoreVertIcon className="text-silver" />
               </IconButton>
             </Box>
             <Box>

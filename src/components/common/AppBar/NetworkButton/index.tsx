@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { useBoundStore } from 'store';
 

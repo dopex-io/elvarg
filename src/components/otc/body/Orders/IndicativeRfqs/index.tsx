@@ -18,7 +18,7 @@ import delay from 'lodash/delay';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import CustomMenu from 'components/otc/CustomMenu';
 import IndicativeRfqsSm from 'components/otc/body/Orders/IndicativeRfqs/IndicativeRfqsSm';
 

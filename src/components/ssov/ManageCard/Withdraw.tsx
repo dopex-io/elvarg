@@ -5,7 +5,7 @@ import format from 'date-fns/format';
 import cx from 'classnames';
 import Countdown from 'react-countdown';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
 import { SsovContext } from 'contexts/Ssov';

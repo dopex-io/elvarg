@@ -5,19 +5,22 @@ import Manage from 'components/ssov-v3/Manage';
 import { useBoundStore } from 'store';
 
 const SsovV3Page = (props: { ssov: string }) => {
-  const { updateSsovV3, setSsovV3Signer, updateSsovV3EpochData } =
+  const { updateSsovV3, updateSsovV3Signer, updateSsovV3UserData } =
     useBoundStore();
 
   const { ssov } = props;
 
   useEffect(() => {
-    setSsovV3Signer();
-    updateSsovV3();
-  }, [setSsovV3Signer, updateSsovV3]);
+    updateSsovV3UserData();
+  }, [updateSsovV3UserData]);
 
   useEffect(() => {
-    updateSsovV3EpochData();
-  }, [updateSsovV3EpochData]);
+    updateSsovV3Signer();
+  }, [updateSsovV3Signer]);
+
+  useEffect(() => {
+    updateSsovV3();
+  }, [updateSsovV3]);
 
   return <Manage ssov={ssov} />;
 };
