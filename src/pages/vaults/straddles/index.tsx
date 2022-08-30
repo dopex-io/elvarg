@@ -11,9 +11,9 @@ import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
-import RateVaultCard from 'components/ir/VaultCard';
+import VaultCard from 'components/straddles/VaultCard';
 
-const ssovStates: string[] = ['Active', 'Retired'];
+const states: string[] = ['Active', 'Retired'];
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
@@ -30,10 +30,10 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
   );
 };
 
-const Vaults = () => {
+const Straddles = () => {
   const { provider } = useContext(WalletContext);
   const { tokenPrices } = useContext(AssetsContext);
-  const [selectedStates, setselectedStates] = useState<string[] | string>([
+  const [selectedStates, setSelectedStates] = useState<string[] | string>([
     'Active',
   ]);
 
@@ -48,7 +48,7 @@ const Vaults = () => {
       tvl: number;
       rate: number;
       currentEpoch: number;
-      totalEpochDeposits: string;
+      totalDeposits: string;
       retired: boolean;
       duration: string;
       epochTimes: {
@@ -58,26 +58,22 @@ const Vaults = () => {
     }[];
   }>({});
 
-  const getRateVaultCards = useCallback(
+  const getStraddlesCards = useCallback(
     (key: number) => {
       const vaultsOfKey = vaults[key];
       if (vaultsOfKey)
         return vaultsOfKey.map((vault, index) =>
           (selectedStates.includes('Active') && !vault.retired) ||
           (selectedStates.includes('Retired') && vault.retired) ? (
-            <RateVaultCard
+            <VaultCard
               key={index}
-              className={''}
               data={{
                 currentEpoch: vault['currentEpoch'],
-                totalEpochDeposits: vault['totalEpochDeposits'],
-                rate: vault['rate'],
+                totalDeposits: vault['totalDeposits'],
                 tvl: vault['tvl'],
                 underlyingSymbol: vault['underlyingSymbol'],
                 retired: vault['retired'],
                 symbol: vault['symbol'],
-                version: vault['version'],
-                duration: vault['duration'],
                 epochTimes: vault['epochTimes'],
               }}
             />
@@ -94,7 +90,7 @@ const Vaults = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://api.dopex.io/api/v2/irVaults`)
+        .get(`https://dopex-8ry5tccbo-dopex-io.vercel.app/api/v2/straddles`)
         .then((payload) => payload.data);
 
       setVaults(data);
@@ -105,17 +101,13 @@ const Vaults = () => {
   return (
     <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
-        <title>Rate Vaults | Dopex</title>
+        <title>Straddles | Dopex</title>
       </Head>
-      <AppBar active="Rate Vaults" />
+      <AppBar active="Straddles" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
           <Typography variant="h2" className="z-1 mb-4">
-            Rate Vaults
-          </Typography>
-          <Typography variant="h5" className="text-stieglitz">
-            Supply option liquidity to an Option Vault. Collect premiums from
-            option purchases and earn rewards simultaneously.
+            Straddles
           </Typography>
         </Box>
         <Box className="mb-12">
@@ -123,9 +115,9 @@ const Vaults = () => {
             <Box className="ml-auto mr-auto">
               <Filter
                 activeFilters={selectedStates}
-                setActiveFilters={setselectedStates}
-                text={'State'}
-                options={ssovStates}
+                setActiveFilters={setSelectedStates}
+                text="State"
+                options={states}
                 multiple={true}
                 showImages={false}
               />
@@ -133,7 +125,7 @@ const Vaults = () => {
           </Box>
           <NetworkHeader chainId={42161} />
           <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-            {getRateVaultCards(42161)}
+            {getStraddlesCards(42161)}
           </Box>
         </Box>
       </Box>
@@ -141,4 +133,4 @@ const Vaults = () => {
   );
 };
 
-export default Vaults;
+export default Straddles;
