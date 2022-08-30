@@ -17,7 +17,6 @@ import {
 
 import { WalletContext } from './Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
@@ -148,7 +147,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         const strike = data['apStrike'];
         const amount = data['amount'];
 
-        // pnl = 0.5 * BS(call) + 0.5 * BS(put)
+        // live pnl = 0.5 * BS(call) + 0.5 * BS(put)
         const callPnl = (
           (await optionsPricingContract?.getOptionPrice(
             false,
