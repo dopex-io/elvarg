@@ -127,7 +127,8 @@ const UserDepositsTable = () => {
         !selectedPool?.contracts?.atlanticPool.address ||
         !selectedPool ||
         !selectedEpoch ||
-        !signer
+        !signer ||
+        !depositId
       ) {
         return;
       }
@@ -251,7 +252,7 @@ const UserDepositsTable = () => {
               <TableBodyCell align="right">
                 <CustomButton
                   onClick={async () => {
-                    await handleWithdraw(position?.strike?.toNumber() ?? 0);
+                    await handleWithdraw(position.depositId!);
                   }}
                   disabled={!canWithdraw}
                   color={canWithdraw ? 'primary' : 'mineshaft'}

@@ -66,6 +66,7 @@ interface IContracts {
 
 // Interface for deposit type (Calls and puts pool)
 export interface IUserPosition {
+  depositId: number | undefined;
   strike?: BigNumber;
   timestamp: BigNumber;
   liquidity: BigNumber;
@@ -551,6 +552,8 @@ export const AtlanticsProvider = (props: any) => {
 
     let userDeposits;
 
+    let depositIds: number[] = [];
+
     if (poolType === 'PUTS') {
       atlanticPool = selectedPool.contracts?.atlanticPool;
       userDeposits = await atlanticsViewer.getUserDeposits(
@@ -558,9 +561,12 @@ export const AtlanticsProvider = (props: any) => {
         poolAddress,
         accountAddress
       );
-      userDeposits = userDeposits.filter(
-        (deposit) => deposit.depositor === accountAddress
-      );
+      userDeposits = userDeposits.filter((deposit, index) => {
+        if (deposit.depositor === accountAddress) {
+          depositIds.push(index);
+          return deposit.depositor === accountAddress;
+        } else return false;
+      });
 
       const depositCheckpointCalls = userDeposits.map((deposit) => {
         return (atlanticPool as AtlanticPutsPool).epochMaxStrikeCheckpoints(
@@ -599,6 +605,7 @@ export const AtlanticsProvider = (props: any) => {
           const apy = (totalRevenue / Number(liquidity)) * 100;
 
           return {
+            depositId: depositIds[index],
             strike,
             timestamp,
             liquidity,
@@ -620,10 +627,14 @@ export const AtlanticsProvider = (props: any) => {
         poolAddress,
         accountAddress
       );
+      let depositIds: number[] = [];
 
-      userDeposits = userDeposits.filter(
-        (deposit) => deposit.depositor === accountAddress
-      );
+      userDeposits = userDeposits.filter((deposit, index) => {
+        if (deposit.depositor === accountAddress) {
+          depositIds.push(index);
+          return deposit.depositor === accountAddress;
+        } else return false;
+      });
 
       const depositCheckpointCalls = userDeposits.map((deposit) => {
         return (atlanticPool as AtlanticCallsPool).epochCheckpoints(
@@ -649,6 +660,7 @@ export const AtlanticsProvider = (props: any) => {
           const apy = (totalRevenue / Number(liquidity)) * 100;
 
           return {
+            depositId: depositIds[index],
             timestamp,
             liquidity,
             checkpoint,
