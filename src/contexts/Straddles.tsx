@@ -12,12 +12,11 @@ import {
   AtlanticStraddle__factory,
   Addresses,
   AtlanticStraddle,
+  SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
-import { SECONDS_IN_A_YEAR } from 'constants/index';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getBlackScholes from 'utils/contracts/getBlackScholes';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export interface StraddlesData {
@@ -126,6 +125,15 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       );
   }, [provider, selectedPoolName]);
 
+  const optionsPricingContract = useMemo(() => {
+    if (!selectedPoolName || !provider) return;
+    else
+      return SSOVOptionPricing__factory.connect(
+        Addresses[42161].STRADDLES[selectedPoolName].OptionPricing,
+        provider
+      );
+  }, [provider, selectedPoolName]);
+
   const getStraddlePosition = useCallback(
     async (id: BigNumber) => {
       try {
@@ -134,31 +142,32 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
         const data = await straddlesContract!['straddlePositions'](id);
 
-        const currentPrice = straddlesEpochData!.currentPrice.toNumber();
-        const volatility = straddlesEpochData!.volatility.div(100).toNumber();
-        const timeToExpiry =
-          (straddlesEpochData!.expiry.toNumber() - Date.now() / 1000) /
-          BigNumber.from(SECONDS_IN_A_YEAR).toNumber();
-        const strike = data['apStrike'].toNumber();
-        const amount = getUserReadableAmount(data['amount']);
-        const pnl =
-          0.5 *
-            getBlackScholes(
-              true,
-              currentPrice,
-              strike,
-              timeToExpiry,
-              volatility
-            ) +
-          0.5 *
-            getBlackScholes(
-              false,
-              currentPrice,
-              strike,
-              timeToExpiry,
-              volatility
-            ) *
-            amount;
+        const currentPrice = straddlesEpochData!.currentPrice;
+        const volatility = straddlesEpochData!.volatility;
+        const timeToExpiry = straddlesEpochData!.expiry;
+        const strike = data['apStrike'];
+        const amount = data['amount'];
+
+        // pnl = 0.5 * BS(call) + 0.5 * BS(put)
+        const callPnl = (
+          (await optionsPricingContract?.getOptionPrice(
+            false,
+            currentPrice,
+            strike,
+            timeToExpiry,
+            volatility
+          )) || BigNumber.from(0)
+        ).div(BigNumber.from(2));
+        const putPnl = (
+          (await optionsPricingContract?.getOptionPrice(
+            true,
+            currentPrice,
+            strike,
+            timeToExpiry,
+            volatility
+          )) || BigNumber.from(0)
+        ).div(BigNumber.from(2));
+        const pnl: BigNumber = callPnl.add(putPnl).mul(amount);
 
         return {
           id: id,
@@ -174,7 +183,12 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract, accountAddress, straddlesEpochData]
+    [
+      straddlesContract,
+      accountAddress,
+      straddlesEpochData,
+      optionsPricingContract,
+    ]
   );
 
   const getWritePosition = useCallback(
