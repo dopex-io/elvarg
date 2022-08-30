@@ -547,18 +547,17 @@ export const AtlanticsProvider = (props: any) => {
       provider
     );
 
-    let atlanticPool: AtlanticPutsPool | AtlanticCallsPool;
+    let atlanticPool: AtlanticPutsPool | AtlanticCallsPool | undefined;
 
     let userDeposits;
 
     if (poolType === 'PUTS') {
+      atlanticPool = selectedPool.contracts?.atlanticPool;
       userDeposits = await atlanticsViewer.getUserDeposits(
         selectedEpoch,
         poolAddress,
         accountAddress
       );
-
-      console.log('user deposits', userDeposits);
       userDeposits = userDeposits.filter(
         (deposit) => deposit.depositor === accountAddress
       );
@@ -615,6 +614,7 @@ export const AtlanticsProvider = (props: any) => {
 
       setUserPositions(() => _userDeposits);
     } else if (poolType === 'CALLS') {
+      atlanticPool = selectedPool.contracts?.atlanticPool;
       userDeposits = await atlanticsViewer.getUserDeposits(
         selectedEpoch,
         poolAddress,
