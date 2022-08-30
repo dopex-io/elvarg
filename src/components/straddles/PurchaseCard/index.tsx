@@ -232,13 +232,36 @@ const PurchaseCard = () => {
             {"You'll spend "}
             {formatAmount(totalCost, 6)} USDC
           </Typography>
-          <Typography variant="h6" className="mx-2 text-neutral-400">
-            Current price is $
-            {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.straddlePrice!, 26),
-              2
-            )}
-          </Typography>
+          <Box className="flex-col mx-2">
+            <Typography variant="h6" className="text-neutral-400">
+              Premium: $
+              {formatAmount(
+                getUserReadableAmount(
+                  straddlesEpochData?.straddlePremium!,
+                  26
+                ) * amount,
+                2
+              )}
+            </Typography>
+            <Typography variant="h6" className="text-neutral-400">
+              Funding: $
+              {formatAmount(
+                getUserReadableAmount(
+                  straddlesEpochData?.straddleFunding!,
+                  26
+                ) * amount,
+                4
+              )}
+            </Typography>
+            <Typography variant="h6" className="text-neutral-400">
+              Fees: $
+              {formatAmount(
+                getUserReadableAmount(straddlesEpochData?.purchaseFee!, 26) *
+                  amount,
+                4
+              )}
+            </Typography>
+          </Box>
         </Box>
       </Box>
       <Box className="rounded-lg bg-neutral-800">
