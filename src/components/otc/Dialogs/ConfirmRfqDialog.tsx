@@ -5,7 +5,7 @@ import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
 import { OtcContext } from 'contexts/Otc';

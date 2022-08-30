@@ -19,8 +19,6 @@ import Wrapper from '../Wrapper';
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
 
-import styles from './styles.module.scss';
-
 const Description = ({
   ssovData,
   ssovEpochData,
@@ -31,7 +29,7 @@ const Description = ({
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useContext(WalletContext);
 
-  const { APY, TVL } = ssovEpochData;
+  const { APY, TVL, pendingDeposits } = ssovEpochData;
 
   const [wrapOpen, setWrapOpen] = useState(false);
 
@@ -53,11 +51,18 @@ const Description = ({
       value: TVL ? `$${formatAmount(TVL, 0, true)}` : '...',
       Icon: Coin,
     },
+    {
+      heading: 'Pending Deposits',
+      value: pendingDeposits
+        ? `$${formatAmount(pendingDeposits, 0, true)}`
+        : '...',
+      Icon: Coin,
+    },
   ];
 
   return (
-    <Box className={cx('flex flex-col md:mr-5', styles['wrapperWidth'])}>
-      <Box className={'flex'}>
+    <Box className="flex flex-col md:mr-5 w-full md:w-[400px]">
+      <Box className="flex">
         <Typography variant="h1" className="mb-6 flex items-center space-x-3">
           <span>{ssovData.underlyingSymbol}</span>
           <span

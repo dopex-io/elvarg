@@ -14,7 +14,7 @@ import {
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
@@ -122,7 +122,7 @@ const UserDepositsTable = () => {
   }, [selectedPool]);
 
   const handleWithdraw = useCallback(
-    async (strike: number) => {
+    async (depositId: number) => {
       if (
         !selectedPool?.contracts?.atlanticPool.address ||
         !selectedPool ||
@@ -139,7 +139,7 @@ const UserDepositsTable = () => {
             poolAddress,
             signer
           );
-          await sendTx(apContract.withdraw(strike * 1e8, selectedEpoch));
+          await sendTx(apContract.withdraw(depositId));
         } else {
           const apContract = AtlanticCallsPool__factory.connect(
             poolAddress,

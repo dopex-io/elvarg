@@ -25,6 +25,22 @@ const EPOCHS = [
     name: 'Epoch 5 (March)',
     to: 'https://ssov-epoch-5.dopex.io/',
   },
+  {
+    name: 'Select Retired under state here (April)',
+    to: 'https://app.dopex.io/ssov',
+  },
+  {
+    name: 'V2 Epoch 1 (May)',
+    to: 'https://ssov-epoch-6.dopex.io/',
+  },
+  {
+    name: 'V2 Epoch 2 (June)',
+    to: 'https://ssov-epoch-6.dopex.io/',
+  },
+  {
+    name: 'Select Epoch 1 after you click into SSOV (July)',
+    to: 'https://app.dopex.io/ssov',
+  },
 ];
 
 const LegacyEpochsDropDown = () => {

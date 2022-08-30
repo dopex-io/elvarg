@@ -19,6 +19,7 @@ interface Props extends WritePositionInterface {
   rewardTokens: TokenData[];
   openTransfer: () => void;
   openWithdraw: () => void;
+  epochExpired: boolean;
 }
 
 const WritePositionTableData = (props: Props) => {
@@ -33,6 +34,7 @@ const WritePositionTableData = (props: Props) => {
     openWithdraw,
     rewardTokens,
     estimatedPnl,
+    epochExpired,
   } = props;
 
   return (
@@ -80,6 +82,7 @@ const WritePositionTableData = (props: Props) => {
             if (index === 0) openTransfer();
             else openWithdraw();
           }}
+          disableButtons={[false, !epochExpired]}
         />
       </TableCell>
     </TableRow>

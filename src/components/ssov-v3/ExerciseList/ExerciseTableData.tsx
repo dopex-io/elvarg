@@ -16,7 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { SsovV3Context } from 'contexts/SsovV3';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import Settle from './Dialogs/Settle';
 import Transfer from './Dialogs/Transfer';

@@ -10,8 +10,8 @@ import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
+import Filter from 'components/common/Filter';
 import RateVaultCard from 'components/ir/VaultCard';
-import Filter from 'components/ir/Filter';
 
 const ssovStates: string[] = ['Active', 'Retired'];
 
@@ -51,6 +51,10 @@ const Vaults = () => {
       totalEpochDeposits: string;
       retired: boolean;
       duration: string;
+      epochTimes: {
+        startTime: string;
+        expiry: string;
+      };
     }[];
   }>({});
 
@@ -74,6 +78,7 @@ const Vaults = () => {
                 symbol: vault['symbol'],
                 version: vault['version'],
                 duration: vault['duration'],
+                epochTimes: vault['epochTimes'],
               }}
             />
           ) : null

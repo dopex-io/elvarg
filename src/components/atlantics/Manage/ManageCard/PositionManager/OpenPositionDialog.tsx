@@ -27,7 +27,7 @@ import { useDebounce } from 'use-debounce';
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import CollateralSelector from 'components/atlantics/InsuredPerpsModal/CollateralSelector';
 import StrategyDetails from 'components/atlantics/InsuredPerpsModal/StrategyDetails/StrategyDetails';
 import Switch from 'components/UI/Switch';
@@ -44,7 +44,6 @@ import useSendTx from 'hooks/useSendTx';
 
 import { MAX_VALUE } from 'constants/index';
 import { DEFAULT_REFERRAL_CODE, MIN_EXECUTION_FEE } from 'constants/gmx';
-import vaultInfo from 'constants/vaultInfo';
 
 interface IProps {
   isOpen: boolean;

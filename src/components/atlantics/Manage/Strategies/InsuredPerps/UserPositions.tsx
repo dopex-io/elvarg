@@ -1,8 +1,4 @@
-import {
-  GmxVault__factory,
-  LongPerpStrategy,
-  LongPerpStrategy__factory,
-} from '@dopex-io/sdk';
+import { GmxVault__factory, LongPerpStrategy__factory } from '@dopex-io/sdk';
 import {
   Box,
   MenuItem,

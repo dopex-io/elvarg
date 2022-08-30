@@ -42,7 +42,7 @@ const Manage = ({ poolName }: Props) => {
   }, [accountAddress, connect]);
 
   useEffect(() => {
-    if (poolName) setSelectedPoolName(poolName);
+    if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
   }, [rateVaultContext, poolName, setSelectedPoolName]);
 
   if (!rateVaultContext.rateVaultEpochData?.epochStartTimes)
@@ -143,11 +143,11 @@ const Manage = ({ poolName }: Props) => {
           className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
         >
           <a
-            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultData.rateVaultContract.address}`}
+            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultData?.rateVaultContract.address}`}
             rel="noopener noreferrer"
             target={'_blank'}
           >
-            {rateVaultData.rateVaultContract.address}
+            {rateVaultData?.rateVaultContract.address}
           </a>
         </Typography>
       </Box>

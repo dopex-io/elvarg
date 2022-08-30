@@ -11,7 +11,7 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { TOKEN_DATA } from 'constants/index';
+import { TOKEN_DATA } from 'constants/tokens';
 
 interface TokenSelectorProps {
   open: boolean;

@@ -19,8 +19,7 @@ const StrategyInfo = () => {
   return (
     <a
       href={`https://testnet.arbiscan.io/address/${
-        // contractAddresses['STRATEGIES']?.['INSURED-PERPS']?.['STRATEGY'] ?? ''
-        ''
+        contractAddresses['STRATEGIES']?.['INSURED-PERPS']?.['STRATEGY'] ?? ''
       }`}
       rel="noopener noreferrer"
       target={'_blank'}

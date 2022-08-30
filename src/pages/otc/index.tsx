@@ -14,7 +14,7 @@ import AppBar from 'components/common/AppBar';
 import OtcBanner from 'components/otc/OtcBanner';
 import RfqForm from 'components/otc/RfqForm';
 import Register from 'components/otc/Dialogs/Register';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import Orders from 'components/otc/body/Orders';
 import TradeHistory from 'components/otc/body/TradeHistory';

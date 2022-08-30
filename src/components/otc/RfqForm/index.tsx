@@ -11,7 +11,7 @@ import * as yup from 'yup';
 import { BigNumber, ethers } from 'ethers';
 import Input from '@mui/material/Input';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';

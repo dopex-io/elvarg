@@ -46,6 +46,8 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript": "^2.4.5",
     "@graphql-codegen/typescript-operations": "^2.3.2",
@@ -71,6 +73,9 @@
   "lint-staged": {
     "*.+(js|jsx|ts|tsx|json|css|md)": [
       "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --max-warnings=0"
     ]
   },
   "browserslist": {

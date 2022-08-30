@@ -20,7 +20,7 @@ import { useDebounce } from 'use-debounce';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import PnlChart from 'components/common/PnlChart';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 import CircleIcon from 'svgs/icons/CircleIcon';
@@ -61,7 +61,11 @@ const PurchaseDialog = ({
   const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
 
-  const { epochStrikes, availableCollateralForStrikes } = ssovEpochData;
+  const {
+    epochStrikes,
+    availableCollateralForStrikes,
+    totalEpochStrikeDepositsUsable,
+  } = ssovEpochData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -76,6 +80,7 @@ const PurchaseDialog = ({
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
+
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -266,17 +271,23 @@ const PurchaseDialog = ({
     ssovData,
   ]);
 
+  const usableCollateral = useMemo(
+    () => totalEpochStrikeDepositsUsable[strikeIndex] || BigNumber.from(0),
+    [strikeIndex, totalEpochStrikeDepositsUsable]
+  );
+
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
         (isPut
-          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+          ? availableCollateralForStrikes[strikeIndex]!.add(usableCollateral)
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.lt(
-              getContractReadableAmount(optionsAmount, 18)
-            )) ||
+          : availableCollateralForStrikes[strikeIndex]!.add(
+              usableCollateral
+            ).lt(getContractReadableAmount(optionsAmount, 18))) ||
         (isPut
           ? state.totalCost.gt(userTokenBalance)
           : state.totalCost
@@ -302,12 +313,13 @@ const PurchaseDialog = ({
     } else if (optionsAmount > 0) {
       if (
         isPut
-          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+          ? availableCollateralForStrikes[strikeIndex]!.add(usableCollateral)
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.lt(
-              getContractReadableAmount(optionsAmount, 18)
-            )
+          : availableCollateralForStrikes[strikeIndex]!.add(
+              usableCollateral
+            ).lt(getContractReadableAmount(optionsAmount, 18))
       ) {
         children = 'Collateral not available';
       } else if (
@@ -335,18 +347,19 @@ const PurchaseDialog = ({
       onClick,
     };
   }, [
-    approved,
-    handleApprove,
-    handlePurchase,
-    isPurchaseStatsLoading,
     optionsAmount,
-    state.totalCost,
-    userTokenBalance,
-    ssovData.tokenPrice,
+    isPurchaseStatsLoading,
     isPut,
     availableCollateralForStrikes,
     strikeIndex,
+    usableCollateral,
     strikes,
+    state,
+    userTokenBalance,
+    ssovData,
+    approved,
+    handlePurchase,
+    handleApprove,
   ]);
 
   return (
@@ -403,11 +416,15 @@ const PurchaseDialog = ({
                 {formatAmount(
                   isPut
                     ? getUserReadableAmount(
-                        availableCollateralForStrikes[strikeIndex]!,
+                        availableCollateralForStrikes[strikeIndex]!.add(
+                          usableCollateral
+                        ),
                         18
                       ) / Number(strikes[strikeIndex])
                     : getUserReadableAmount(
-                        availableCollateralForStrikes[strikeIndex]!,
+                        availableCollateralForStrikes[strikeIndex]!.add(
+                          usableCollateral
+                        ),
                         18
                       ),
                   5
