@@ -35,9 +35,9 @@ interface Props {
 
 const StyledWrapper = styled(Box)`
   ${(props: { symbol: string }) => {
-    if (props.symbol === 'ETH-ATLANTIC-STRADDLE-2')
+    if (props.symbol === 'ETH-ATLANTIC-STRADDLE-3')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)';
-    else if (props.symbol === 'RDPX-ATLANTIC-STRADDLE-2')
+    else if (props.symbol === 'RDPX-ATLANTIC-STRADDLE-3')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)';
     return '';
   }};
