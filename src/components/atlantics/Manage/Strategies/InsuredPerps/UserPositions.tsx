@@ -1,4 +1,8 @@
-import { GmxVault__factory, LongPerpStrategy__factory } from '@dopex-io/sdk';
+import {
+  GmxVault__factory,
+  LongPerpStrategyViewer__factory,
+  LongPerpStrategy__factory,
+} from '@dopex-io/sdk';
 import {
   Box,
   MenuItem,
@@ -63,6 +67,8 @@ const UserPositions = () => {
       return;
     const strategyContractAddress: string =
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+    const strategyViewerAddress =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['VIEWER'];
     const gmxVaultAddress: string = contractAddresses['GMX-VAULT'];
     const { underlying } = selectedPool.tokens;
 
@@ -83,7 +89,10 @@ const UserPositions = () => {
     );
 
     let userStrategyPositions: any =
-      await strategyContract.getAllStrategyPositions();
+      await LongPerpStrategyViewer__factory.connect(
+        strategyViewerAddress,
+        provider
+      ).getStrategyPositions();
 
     let userStrategyPositionsWithIndex: {
       position: any;
