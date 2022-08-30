@@ -267,7 +267,7 @@ export const TOKEN_DECIMALS = {
   },
 };
 
-export const DOPEX_API_BASE_URL = 'https://app.dopex.io/api';
+export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,

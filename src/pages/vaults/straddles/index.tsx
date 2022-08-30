@@ -67,7 +67,6 @@ const Straddles = () => {
           (selectedStates.includes('Retired') && vault.retired) ? (
             <VaultCard
               key={index}
-              className={''}
               data={{
                 currentEpoch: vault['currentEpoch'],
                 totalDeposits: vault['totalDeposits'],
@@ -110,9 +109,6 @@ const Straddles = () => {
           <Typography variant="h2" className="z-1 mb-4">
             Straddles
           </Typography>
-          <Typography variant="h5" className="text-stieglitz">
-            -
-          </Typography>
         </Box>
         <Box className="mb-12">
           <Box className="flex mb-4">
@@ -120,7 +116,7 @@ const Straddles = () => {
               <Filter
                 activeFilters={selectedStates}
                 setActiveFilters={setSelectedStates}
-                text={'State'}
+                text="State"
                 options={states}
                 multiple={true}
                 showImages={false}

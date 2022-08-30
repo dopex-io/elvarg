@@ -18,7 +18,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { VAULT_MAP } from 'constants/index';
 
 interface Props {
-  className: string;
+  className?: string;
   data: {
     currentEpoch: number;
     totalDeposits: string;
@@ -92,16 +92,6 @@ function VaultCard(props: Props) {
                   </span>
                 ) : null}
               </Typography>
-              <img
-                src={'/images/misc/calls.svg'}
-                className="w-12 mt-1.5 ml-auto mr-2"
-                alt={'CALLS'}
-              />
-              <img
-                src={'/images/misc/puts.svg'}
-                className="w-12 mt-1.5"
-                alt={'PUTS'}
-              />
             </Box>
           </Box>
           <Box className="grid grid-cols-1 gap-2 mb-2">
