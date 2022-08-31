@@ -7,17 +7,17 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/vaults/straddles',
+        destination: '/straddles',
         permanent: false,
       },
       {
         source: '/otc',
-        destination: '/vaults/straddles',
+        destination: '/straddles',
         permanent: false,
       },
       {
         source: '/otc/chat',
-        destination: '/vaults/straddles',
+        destination: '/straddles',
         permanent: false,
       },
     ];

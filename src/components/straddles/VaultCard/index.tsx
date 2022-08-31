@@ -103,7 +103,7 @@ function VaultCard(props: Props) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/vaults/straddles/pool/${underlyingSymbol}`} passHref>
+          <Link href={`/straddles/${underlyingSymbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>

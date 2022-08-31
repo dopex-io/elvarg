@@ -302,7 +302,6 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       .mul(BigNumber.from(Math.round(timeToExpiry)))
       .div(BigNumber.from(365 * 86400))
       .div(1e2);
-    console.log(straddleFunding.toString());
 
     straddlePrice = straddlePremium.add(straddleFunding).add(purchaseFee);
 
