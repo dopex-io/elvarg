@@ -1,37 +1,28 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
 import { styled } from '@mui/material/styles';
 import format from 'date-fns/format';
-
-import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import InfoBox from 'components/ir/InfoBox';
 
 import Coin from 'svgs/icons/Coin';
-import Action from 'svgs/icons/Action';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { VAULT_MAP } from 'constants/index';
-
 interface Props {
-  className: string;
+  className?: string;
   data: {
-    currentEpoch: number;
-    totalEpochDeposits: string;
-    rate: number;
-    tvl: number;
+    currentEpoch: string;
+    utilization: string;
+    tvl: string;
     underlyingSymbol: string;
     retired: boolean;
     symbol: string;
-    version: string;
-    duration: string;
     epochTimes: {
       startTime: string;
       expiry: string;
@@ -41,63 +32,43 @@ interface Props {
 
 const StyledWrapper = styled(Box)`
   ${(props: { symbol: string }) => {
-    if (props.symbol === 'MIM3CRV-1')
+    if (props.symbol === 'ETH-ATLANTIC-STRADDLE-3')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)';
-    else if (props.symbol === 'MIM3CRV-2')
+    else if (props.symbol === 'RDPX-ATLANTIC-STRADDLE-3')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)';
-    else if (props.symbol === 'PUSD3CRV')
-      return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #22e1ff 99.1%)';
     return '';
   }};
 `;
 
 function VaultCard(props: Props) {
   const { className, data } = props;
-  const { convertToBNB } = useContext(BnbConversionContext);
   const {
     currentEpoch,
-    totalEpochDeposits,
-    rate,
     tvl,
-    underlyingSymbol: name,
+    underlyingSymbol,
     retired,
     symbol,
-    version,
-    duration,
     epochTimes,
+    utilization,
   } = data;
+
   const info = useMemo(() => {
     return [
       {
-        heading: 'RATE',
-        value: `${
-          rate > 0 && String(rate) !== 'Infinity'
-            ? formatAmount(rate, 2, true).toString() + '%'
-            : '...'
-        }`,
-        Icon: Action,
-        tooltip: 'Current rate of the pool',
-      },
-      {
-        heading: 'TVL',
-        value: tvl === 0 ? '...' : formatAmount(tvl, 0, true),
+        heading: 'Total Value Locked ($)',
+        value: Number(tvl) === 0 ? '...' : formatAmount(tvl, 0, true),
         Icon: Coin,
       },
       {
-        heading: 'DEPOSITS',
-        value: `${formatAmount(
-          name === 'BNB' && convertToBNB
-            ? convertToBNB(
-                ethersUtils.parseUnits(totalEpochDeposits, 8)
-              ).toString()
-            : totalEpochDeposits,
-          0,
-          true
-        )}`,
-        imgSrc: VAULT_MAP[symbol]?.src,
+        heading: 'Utilization ($)',
+        value:
+          Number(utilization) === 0
+            ? '...'
+            : formatAmount(utilization, 0, true),
+        Icon: Coin,
       },
     ];
-  }, [rate, convertToBNB, name, totalEpochDeposits, tvl, symbol]);
+  }, [tvl, utilization]);
 
   return (
     <StyledWrapper symbol={symbol} className="p-[1px] rounded-xl w-[350px]">
@@ -112,8 +83,8 @@ function VaultCard(props: Props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                alt={symbol}
-                src={VAULT_MAP[symbol]?.src}
+                alt={underlyingSymbol}
+                src={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">
@@ -125,24 +96,14 @@ function VaultCard(props: Props) {
                   </span>
                 ) : null}
               </Typography>
-              <img
-                src={'/images/misc/calls.svg'}
-                className="w-12 mt-1.5 ml-auto mr-2"
-                alt={'CALLS'}
-              />
-              <img
-                src={'/images/misc/puts.svg'}
-                className="w-12 mt-1.5"
-                alt={'PUTS'}
-              />
             </Box>
           </Box>
-          <Box className="grid grid-cols-3 gap-2 mb-2">
+          <Box className="grid grid-cols-1 gap-2 mb-2">
             {info.map((item) => {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/ir/${symbol}`} passHref>
+          <Link href={`/straddles/${underlyingSymbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>
@@ -165,14 +126,6 @@ function VaultCard(props: Props) {
                 </Box>
               </Tooltip>
             ) : null}
-            <Typography variant="h6" className="text-stieglitz">
-              Version {version}
-            </Typography>
-          </Box>
-          <Box className="text-center pt-2">
-            <Typography variant="h6" className="capitalize" color="stieglitz">
-              {duration}
-            </Typography>
           </Box>
         </Box>
       </Box>

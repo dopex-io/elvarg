@@ -39,6 +39,9 @@ export interface StraddlesEpochData {
   totalSold: BigNumber;
   currentPrice: BigNumber;
   straddlePrice: BigNumber;
+  purchaseFee: BigNumber;
+  straddlePremium: BigNumber;
+  straddleFunding: BigNumber;
   aprPremium: string;
   aprFunding: string;
   volatility: BigNumber;
@@ -91,6 +94,9 @@ const initialStraddlesEpochData = {
   totalSold: BigNumber.from('0'),
   currentPrice: BigNumber.from('0'),
   straddlePrice: BigNumber.from('0'),
+  purchaseFee: BigNumber.from('0'),
+  straddlePremium: BigNumber.from('0'),
+  straddleFunding: BigNumber.from('0'),
   aprPremium: '',
   aprFunding: '',
   volatility: BigNumber.from('0'),
@@ -277,16 +283,19 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     let straddlePrice;
     let aprFunding: BigNumber | string;
     let volatility: BigNumber | string;
+    let purchaseFee: BigNumber | string;
+    let straddlePremium: BigNumber | string;
+    let straddleFunding: BigNumber | string;
 
     try {
-      straddlePrice = await straddlesContract!['calculatePremium'](
+      straddlePremium = await straddlesContract!['calculatePremium'](
         true,
         currentPrice,
         getContractReadableAmount(1, 18),
         epochData['expiry']
       );
     } catch (e) {
-      straddlePrice = BigNumber.from('0');
+      straddlePremium = BigNumber.from('0');
     }
 
     try {
@@ -297,6 +306,13 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     }
 
     aprFunding = aprFunding.toString();
+
+    try {
+      purchaseFee = await straddlesContract!['purchaseFeePercent']();
+      purchaseFee = purchaseFee.mul(currentPrice).mul(1e10);
+    } catch (e) {
+      purchaseFee = BigNumber.from('0');
+    }
 
     try {
       volatility = await straddlesContract!['getVolatility'](currentPrice);
@@ -319,13 +335,13 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       .toNumber();
     const aprPremium = normApr.toFixed(0);
 
-    const straddlePriceFunding = currentPrice
+    straddleFunding = currentPrice
       .mul(getContractReadableAmount(16, 18))
       .mul(BigNumber.from(Math.round(timeToExpiry)))
       .div(BigNumber.from(365 * 86400))
-      .div(1e8);
+      .div(1e2);
 
-    straddlePrice = straddlePrice.add(straddlePriceFunding);
+    straddlePrice = straddlePremium.add(straddleFunding).add(purchaseFee);
 
     if (straddlePrice.lt(0)) straddlePrice = BigNumber.from(0);
 
@@ -341,6 +357,9 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       usdPremiums,
       currentPrice,
       straddlePrice,
+      purchaseFee,
+      straddlePremium,
+      straddleFunding,
       aprPremium,
       aprFunding,
       volatility,

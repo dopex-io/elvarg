@@ -129,19 +129,10 @@ const Stats = () => {
               getUserReadableAmount(straddlesEpochData?.usdDeposits!, 6),
               6
             )}{' '}
-            (
-            {formatAmount(
-              getUserReadableAmount(
-                straddlesEpochData?.activeUsdDeposits!,
-                6 + 18 + 2
-              ),
-              2
-            )}
-            ) <span className="text-gray-400"> USDC</span>
+            <span className="text-gray-400"> USDC</span>
           </Typography>
         </Box>
       </Box>
-
       <Box className="w-full">
         <Box className="border border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
