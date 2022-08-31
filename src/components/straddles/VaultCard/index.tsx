@@ -15,8 +15,6 @@ import Coin from 'svgs/icons/Coin';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { VAULT_MAP } from 'constants/index';
-
 interface Props {
   className?: string;
   data: {
@@ -79,8 +77,8 @@ function VaultCard(props: Props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                alt={symbol}
-                src={VAULT_MAP[symbol]?.src}
+                alt={name}
+                src={`/images/tokens/${name.toLowerCase()}.svg`}
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">

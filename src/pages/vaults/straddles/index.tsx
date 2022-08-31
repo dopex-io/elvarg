@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -90,7 +90,7 @@ const Straddles = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://app.dopex.io/api/v2/straddles`)
+        .get(`${DOPEX_API_BASE_URL}/v2/straddles`)
         .then((payload) => payload.data);
 
       setVaults(data);
