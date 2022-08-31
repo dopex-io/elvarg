@@ -229,7 +229,7 @@ export default function AppBar(props: AppBarProps) {
               />
             </a>
             <Box className="space-x-10 mr-10 hidden lg:flex">
-              {links.map(
+              {links?.map(
                 (link: { name: Key | null | undefined; to: string }) => {
                   if (link.name === active)
                     return (
@@ -331,7 +331,7 @@ export default function AppBar(props: AppBarProps) {
                 </Typography>
                 {/* TODO: FIX */}
                 {/* @ts-ignore */}
-                {links.map((link) => {
+                {links?.map((link) => {
                   return (
                     <MenuItem
                       onClick={handleCloseSmall}

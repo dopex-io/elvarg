@@ -217,7 +217,7 @@ const Stats = () => {
           <Typography variant="h6" className="text-gray-400">
             Implied Volatility
           </Typography>
-          <Typography variant="h6" className="text-white">
+          <Typography variant="h6" color="white">
             {straddlesEpochData?.volatility.toString()}
           </Typography>
         </Box>
