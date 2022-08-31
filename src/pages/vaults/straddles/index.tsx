@@ -45,10 +45,9 @@ const Straddles = () => {
       chainId: number;
       collateralDecimals: number;
       address: string;
-      tvl: number;
-      rate: number;
-      currentEpoch: number;
-      totalDeposits: string;
+      tvl: string;
+      utilization: string;
+      currentEpoch: string;
       retired: boolean;
       duration: string;
       epochTimes: {
@@ -69,8 +68,8 @@ const Straddles = () => {
               key={index}
               data={{
                 currentEpoch: vault['currentEpoch'],
-                totalDeposits: vault['totalDeposits'],
                 tvl: vault['tvl'],
+                utilization: vault['utilization'],
                 underlyingSymbol: vault['underlyingSymbol'],
                 retired: vault['retired'],
                 symbol: vault['symbol'],

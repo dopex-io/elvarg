@@ -13,14 +13,13 @@ import InfoBox from 'components/ir/InfoBox';
 import Coin from 'svgs/icons/Coin';
 
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface Props {
   className?: string;
   data: {
-    currentEpoch: number;
-    totalDeposits: string;
-    tvl: number;
+    currentEpoch: string;
+    utilization: string;
+    tvl: string;
     underlyingSymbol: string;
     retired: boolean;
     symbol: string;
@@ -46,23 +45,30 @@ function VaultCard(props: Props) {
   const {
     currentEpoch,
     tvl,
-    underlyingSymbol: name,
+    underlyingSymbol,
     retired,
     symbol,
     epochTimes,
+    utilization,
   } = data;
+
   const info = useMemo(() => {
     return [
       {
         heading: 'Total Value Locked ($)',
+        value: Number(tvl) === 0 ? '...' : formatAmount(tvl, 0, true),
+        Icon: Coin,
+      },
+      {
+        heading: 'Utilization ($)',
         value:
-          tvl === 0
+          Number(utilization) === 0
             ? '...'
-            : formatAmount(getUserReadableAmount(tvl, 8), 0, true),
+            : formatAmount(utilization, 0, true),
         Icon: Coin,
       },
     ];
-  }, [tvl]);
+  }, [tvl, utilization]);
 
   return (
     <StyledWrapper symbol={symbol} className="p-[1px] rounded-xl w-[350px]">
@@ -77,8 +83,8 @@ function VaultCard(props: Props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                alt={name}
-                src={`/images/tokens/${name.toLowerCase()}.svg`}
+                alt={underlyingSymbol}
+                src={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">
@@ -97,7 +103,7 @@ function VaultCard(props: Props) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/vaults/straddles/pool/${name}`} passHref>
+          <Link href={`/vaults/straddles/pool/${underlyingSymbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>
