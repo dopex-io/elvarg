@@ -13,7 +13,6 @@ import InfoBox from 'components/ir/InfoBox';
 import Coin from 'svgs/icons/Coin';
 
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { VAULT_MAP } from 'constants/index';
 
@@ -57,10 +56,7 @@ function VaultCard(props: Props) {
     return [
       {
         heading: 'Total Value Locked ($)',
-        value:
-          tvl === 0
-            ? '...'
-            : formatAmount(getUserReadableAmount(tvl, 8), 0, true),
+        value: tvl === 0 ? '...' : formatAmount(tvl, 0, true),
         Icon: Coin,
       },
     ];
@@ -99,7 +95,7 @@ function VaultCard(props: Props) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/vaults/straddles/pool/${name}`} passHref>
+          <Link href={`/straddles/${name}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>

@@ -90,7 +90,7 @@ const Straddles = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://app.dopex.io/api/v2/straddles`)
+        .get(`https:/api.dopex.io/api/v2/straddles`)
         .then((payload) => payload.data);
 
       setVaults(data);
