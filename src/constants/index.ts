@@ -186,7 +186,6 @@ export const OPTION_TYPE_NAMES = {
 export const MAX_VALUE: string =
   '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 export const SECONDS_IN_A_DAY: Number = 86400;
-export const SECONDS_IN_A_YEAR: Number = 365 * 24 * 86400;
 
 export const STRIKE_PRECISION: BigNumber = BigNumber.from(10).pow(8);
 
