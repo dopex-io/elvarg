@@ -12,6 +12,7 @@ import Link from 'next/link';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
+import Snackbar from '@mui/material/Snackbar';
 import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
@@ -145,6 +146,8 @@ export default function AppBar(props: AppBarProps) {
   // @ts-ignore
   const links = appLinks[chainId];
 
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(true);
+
   const handleRdpxDialogClose = () => setClaimRdpxDialog(false);
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
@@ -205,6 +208,31 @@ export default function AppBar(props: AppBarProps) {
 
   return (
     <>
+      <Snackbar
+        open={showSnackbar}
+        onClose={() => setShowSnackbar(false)}
+        autoHideDuration={5000}
+        classes={{ anchorOriginTopCenter: 'bg-[#111111cc]' }}
+        message={
+          <Box>
+            <Typography variant="h5" className="z-1 !text-white">
+              Arbitrum Nitro Upgrade
+            </Typography>
+            <img
+              onClick={() => setShowSnackbar(false)}
+              src="/assets/cross.svg"
+              className="absolute right-4 top-4 cursor-pointer"
+              alt="Close"
+            />
+            <Typography variant="h5" className="z-1 !text-stieglitz">
+              Reminder: There will be some planned downtime (2-4 hours) <br />
+              during the Arbitrum Nitro upgrade on Wednesday, 31 Aug 2022, 2:30
+              PM UTC
+            </Typography>
+          </Box>
+        }
+        key={'Arbitrum Nitro Update'}
+      />
       <ClaimRdpxDialog
         open={claimRdpxDialog}
         handleClose={handleRdpxDialogClose}
