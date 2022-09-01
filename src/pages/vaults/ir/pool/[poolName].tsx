@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -21,17 +21,22 @@ import WithdrawalInfo from 'components/ir/WithdrawalInfo';
 import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
 import { useBoundStore } from 'store';
-import { RateVaultProvider, RateVaultContext } from 'contexts/RateVault';
 
 interface Props {
   poolName: string;
 }
 
 const Manage = ({ poolName }: Props) => {
-  const { accountAddress, connect, chainId } = useBoundStore();
-  const rateVaultContext = useContext(RateVaultContext);
+  const {
+    accountAddress,
+    connect,
+    chainId,
+    setSelectedPoolName,
+    rateVaultData,
+    rateVaultEpochData,
+    updateRateVault,
+  } = useBoundStore();
 
-  const { setSelectedPoolName, rateVaultData } = rateVaultContext;
   const [activeVaultContextSide, setActiveVaultContextSide] =
     useState<string>('CALL');
   const [activeView, setActiveView] = useState<string>('vault');
@@ -44,9 +49,13 @@ const Manage = ({ poolName }: Props) => {
 
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
-  }, [rateVaultContext, poolName, setSelectedPoolName]);
+  }, [poolName, setSelectedPoolName]);
 
-  if (!rateVaultContext.rateVaultEpochData?.epochStartTimes)
+  useEffect(() => {
+    updateRateVault();
+  }, [updateRateVault]);
+
+  if (!rateVaultEpochData?.epochStartTimes)
     return (
       <Box className="overflow-x-hidden bg-black h-screen">
         <PageLoader />
@@ -167,11 +176,7 @@ export async function getServerSideProps(context: {
 }
 
 const ManagePage = ({ poolName }: Props) => {
-  return (
-    <RateVaultProvider>
-      <Manage poolName={poolName} />
-    </RateVaultProvider>
-  );
+  return <Manage poolName={poolName} />;
 };
 
 export default ManagePage;

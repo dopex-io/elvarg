@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
@@ -7,10 +6,9 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { styled } from '@mui/material/styles';
 
 import { useBoundStore } from 'store';
-import { SsovV3EpochData } from 'store/Ssov';
+import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';

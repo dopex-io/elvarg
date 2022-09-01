@@ -11,6 +11,7 @@ import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 
 import { WalletSlice } from 'store/Wallet';
+import { CommonSlice } from 'store/Vault/common';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -72,20 +73,20 @@ export interface SsovV3Slice {
   ssovEpochData?: SsovV3EpochData;
   ssovV3UserData?: SsovV3UserData;
   ssovSigner: SsovV3Signer;
-  selectedEpoch?: number | 0;
+  // selectedEpoch?: number | 0;
   selectedSsovV3?: string;
   updateSsovV3EpochData: Function;
   updateSsovV3UserData: Function;
   setSelectedSsovV3: Function;
   updateSsovV3Signer: Function;
-  setSelectedEpoch: Function;
+  // setSelectedEpoch: Function;
   totalEpochStrikeDepositsPending?: BigNumber[];
   totalEpochStrikeDepositsUsable?: BigNumber[];
   updateSsovV3: Function;
 }
 
 export const createSsovV3Slice: StateCreator<
-  SsovV3Slice & WalletSlice,
+  SsovV3Slice & WalletSlice & CommonSlice,
   [['zustand/devtools', never]],
   [],
   SsovV3Slice
@@ -97,8 +98,6 @@ export const createSsovV3Slice: StateCreator<
   ssovSigner: {},
   updateSsovV3Signer: async () => {
     const { contractAddresses, signer, selectedSsovV3 } = get();
-
-    console.log(!contractAddresses, !signer, !selectedSsovV3);
 
     if (!contractAddresses || !signer || !selectedSsovV3) return;
 
@@ -384,10 +383,10 @@ export const createSsovV3Slice: StateCreator<
       console.log(err);
     }
   },
-  selectedEpoch: 1,
-  setSelectedEpoch: (epoch: number) => {
-    set((prevState) => ({ ...prevState, selectedEpoch: epoch }));
-  },
+  // selectedEpoch: 1,
+  // setSelectedEpoch: (epoch: number) => {
+  //   set((prevState) => ({ ...prevState, selectedEpoch: epoch }));
+  // },
   setSelectedSsovV3: (ssov: string) => {
     set((prevState) => ({ ...prevState, selectedSsovV3: ssov }));
   },
