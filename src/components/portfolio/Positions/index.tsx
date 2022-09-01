@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { useCallback, useContext, useState, useMemo } from 'react';
+import { BigNumber } from 'ethers';
 import Link from 'next/link';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -14,22 +14,13 @@ import {
   ERC20__factory,
   ERC20,
 } from '@dopex-io/sdk';
-import {
-  GetUserSsovOptionPurchasesDocument,
-  GetUserSsovOptionPurchasesQuery,
-} from 'graphql/generated/portfolio';
-import { otcGraphClient, portfolioGraphClient } from 'graphql/apollo';
-import { ApolloQueryResult } from '@apollo/client';
 
 import { MAX_VALUE } from 'constants/index';
 import { WalletContext } from 'contexts/Wallet';
+import { PortfolioContext } from 'contexts/Portfolio';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import isZeroAddress from 'utils/contracts/isZeroAddress';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-import getAssetFromVaultName from 'utils/contracts/getAssetFromVaultName';
 import Filter from '../Filter';
 
 const sides: string[] = ['CALL', 'PUT'];
@@ -50,43 +41,16 @@ interface Position {
 }
 
 export default function Positions() {
-  const { chainId, contractAddresses, provider, signer } =
+  const { contractAddresses, provider, signer, accountAddress } =
     useContext(WalletContext);
-  const accountAddress = '0x6f8d0c0a2b28df39cf2a4727d3ecfb60e9ddad27';
+  const { portfolioData, updatePortfolioData, isLoading } =
+    useContext(PortfolioContext);
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
   ]);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>('');
   const sendTx = useSendTx();
-
-  const getPosition = useCallback(
-    async (vaultName: string) => {
-      return [];
-    },
-    [contractAddresses, provider, accountAddress, chainId]
-  );
-
-  const updatePositions = useCallback(async () => {
-    if (!provider || !accountAddress) return;
-
-    setIsLoading(true);
-
-    const queryResult: ApolloQueryResult<GetUserSsovOptionPurchasesQuery> =
-      await portfolioGraphClient.query({
-        query: GetUserSsovOptionPurchasesDocument,
-        variables: { user: accountAddress.toLowerCase() },
-        fetchPolicy: 'no-cache',
-      });
-
-    const { data }: any = queryResult;
-
-    console.log(data);
-
-    setIsLoading(false);
-  }, [provider, accountAddress, contractAddresses, getPosition]);
 
   const handleSettle = useCallback(
     async (
@@ -95,6 +59,8 @@ export default function Positions() {
       userEpochStrikeTokenBalance: BigNumber,
       selectedEpoch: number
     ) => {
+      if (!updatePortfolioData) return;
+
       const vaults = contractAddresses['SSOV-V3']['VAULTS'];
 
       const vaultAddress = vaults[vaultName];
@@ -127,11 +93,16 @@ export default function Positions() {
         await sendTx(
           vault
             .connect(signer)
-            .settle(strikeIndex, userEpochStrikeTokenBalance, selectedEpoch)
+            .settle(
+              strikeIndex,
+              userEpochStrikeTokenBalance,
+              selectedEpoch,
+              accountAddress
+            )
         );
       }
 
-      await updatePositions();
+      await updatePortfolioData();
     },
     [
       accountAddress,
@@ -139,9 +110,14 @@ export default function Positions() {
       signer,
       provider,
       contractAddresses,
-      updatePositions,
+      updatePortfolioData,
     ]
   );
+
+  const positions = useMemo(() => {
+    const _positions: Position[] = [];
+    return _positions;
+  }, [portfolioData]);
 
   const filteredPositions = useMemo(() => {
     const _positions: Position[] = [];
@@ -158,10 +134,6 @@ export default function Positions() {
     });
     return _positions;
   }, [positions, searchText, selectedSides]);
-
-  useEffect(() => {
-    updatePositions();
-  }, [updatePositions]);
 
   return (
     <Box>

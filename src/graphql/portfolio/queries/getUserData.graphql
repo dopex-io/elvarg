@@ -1,4 +1,4 @@
-query getUserSSOVOptionPurchases($user: ID!) {
+query getUserData($user: ID!) {
   users(where: { id: $user })  {
     id
     userPositions {
@@ -12,7 +12,6 @@ query getUserSSOVOptionPurchases($user: ID!) {
         transaction {
             id
         }
-        tokenId
         user {
             id
         }

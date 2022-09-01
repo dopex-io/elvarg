@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import Link from 'next/link';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -7,16 +7,12 @@ import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import format from 'date-fns/format';
-import { SsovV3Viewer__factory, SsovV3__factory } from '@dopex-io/sdk';
 
-import { WalletContext } from 'contexts/Wallet';
+import { PortfolioContext } from 'contexts/Portfolio';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import Filter from '../Filter';
-import getAssetFromVaultName from 'utils/contracts/getAssetFromVaultName';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
@@ -37,119 +33,17 @@ interface Position {
 }
 
 export default function Deposits() {
-  const { chainId, contractAddresses, provider, accountAddress } =
-    useContext(WalletContext);
+  const { portfolioData, isLoading } = useContext(PortfolioContext);
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
   ]);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>('');
 
-  const getPosition = useCallback(
-    async (vaultName: string) => {
-      const vaults = contractAddresses['SSOV-V3']['VAULTS'];
-
-      const ssovViewerContract = SsovV3Viewer__factory.connect(
-        contractAddresses['SSOV-V3'].VIEWER,
-        provider
-      );
-
-      const vaultAddress = vaults[vaultName];
-      const vault = SsovV3__factory.connect(vaultAddress, provider);
-
-      const writePositions = await ssovViewerContract.walletOfOwner(
-        String(accountAddress),
-        vaultAddress
-      );
-
-      const currentEpoch = await vault.currentEpoch();
-
-      const [isPut, epochTimes] = await Promise.all([
-        await vault.isPut(),
-        await vault.getEpochTimes(currentEpoch),
-      ]);
-
-      const epochEndTime = new Date(epochTimes[1].toNumber() * 1000);
-
-      const data = await Promise.all(
-        writePositions.map((i) => {
-          return vault.writePosition(i);
-        })
-      );
-
-      const moreData = await Promise.all(
-        writePositions.map((i) => {
-          return ssovViewerContract.getWritePositionValue(i, vaultAddress);
-        })
-      );
-
-      const assetName = getAssetFromVaultName(vaultName);
-
-      const imgSrc = `/assets/${assetName}.svg`;
-
-      const decimals = getTokenDecimals(assetName, chainId);
-
-      return data.map((o, i) => {
-        return {
-          vaultName: vaultName,
-          imgSrc: imgSrc,
-          assetName: assetName,
-          isPut: isPut,
-          epochEndTime: epochEndTime,
-          tokenId: writePositions[i],
-          collateralAmount: getUserReadableAmount(
-            o.collateralAmount,
-            isPut ? 18 : decimals
-          ),
-          epoch: o.epoch.toNumber(),
-          strikePrice: getUserReadableAmount(o.strike, 8),
-          accruedRewards0: getUserReadableAmount(
-            String(moreData[i]?.rewardTokenWithdrawAmounts[0]),
-            assetName === 'ETH' || isPut ? 18 : decimals
-          ),
-          accruedRewards1: getUserReadableAmount(
-            moreData[i]?.rewardTokenWithdrawAmounts[1]
-              ? String(moreData[i]?.rewardTokenWithdrawAmounts[1])
-              : 0,
-            assetName === 'ETH' || isPut ? 18 : decimals
-          ),
-          accruedPremiums: getUserReadableAmount(
-            String(
-              moreData[i]?.collateralTokenWithdrawAmount.sub(o.collateralAmount)
-            ),
-            isPut ? 8 : decimals
-          ),
-        };
-      });
-    },
-    [contractAddresses, provider, accountAddress, chainId]
-  );
-
-  const updatePositions = useCallback(async () => {
-    if (!provider || !accountAddress) return;
-
-    setIsLoading(true);
-
-    let _positions: any[] = [];
-    const vaults = contractAddresses['SSOV-V3']['VAULTS'];
-
-    const promises = [];
-
-    for (let vaultName in vaults) promises.push(getPosition(vaultName));
-
-    const results = await Promise.all(promises);
-
-    results.forEach((result) => {
-      result.forEach((position) => {
-        _positions.push(position);
-      });
-    });
-
-    setPositions(_positions);
-    setIsLoading(false);
-  }, [provider, accountAddress, contractAddresses, getPosition]);
+  const positions = useMemo(() => {
+    const _positions: Position[] = [];
+    return _positions;
+  }, [portfolioData]);
 
   const filteredPositions = useMemo(() => {
     const _positions: Position[] = [];
@@ -166,10 +60,6 @@ export default function Deposits() {
     });
     return _positions;
   }, [positions, searchText, selectedSides]);
-
-  useEffect(() => {
-    updatePositions();
-  }, [updatePositions]);
 
   return (
     <Box>
