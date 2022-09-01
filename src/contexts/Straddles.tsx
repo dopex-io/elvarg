@@ -153,26 +153,27 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         const strike = data['apStrike'];
         const amount = data['amount'];
 
-        // live pnl = 0.5 * BS(call) + 0.5 * BS(put)
-        const callPnl = (
-          (await optionsPricingContract?.getOptionPrice(
+        let [callPnl, putPnl] = await Promise.all([
+          optionsPricingContract?.getOptionPrice(
             false,
             currentPrice,
             strike,
             timeToExpiry,
             volatility
-          )) || BigNumber.from(0)
-        ).div(BigNumber.from(2));
-        const putPnl = (
-          (await optionsPricingContract?.getOptionPrice(
+          ),
+          optionsPricingContract?.getOptionPrice(
             true,
             currentPrice,
             strike,
             timeToExpiry,
             volatility
-          )) || BigNumber.from(0)
-        ).div(BigNumber.from(2));
-        const pnl: BigNumber = callPnl.add(putPnl).mul(amount);
+          ),
+        ]);
+
+        // live pnl = 0.5 * BS(call) + 0.5 * BS(put)
+        callPnl = callPnl ? callPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+        putPnl = putPnl ? putPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+        const pnl: BigNumber = callPnl.add(putPnl).mul(amount.div(1e18));
 
         return {
           id: id,
