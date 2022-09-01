@@ -67,7 +67,7 @@ const PositionsTable = () => {
                 <Typography
                   variant="h6"
                   color="stieglitz"
-                  className="text-center"
+                  className="text-left"
                 >
                   PnL
                 </Typography>
