@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
 
 export interface CommonSlice {
-  selectedEpoch: number;
+  selectedEpoch: number | null;
   setSelectedEpoch: Function;
   selectedPoolName: string;
   setSelectedPoolName: Function;

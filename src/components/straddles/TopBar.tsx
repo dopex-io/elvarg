@@ -1,15 +1,11 @@
-import { useContext } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-import { AssetsContext } from 'contexts/Assets';
-import { StraddlesContext } from 'contexts/Straddles';
+import { useBoundStore } from 'store';
 
 const TopBar = () => {
-  const { tokenPrices } = useContext(AssetsContext);
-
-  const { selectedPoolName } = useContext(StraddlesContext);
+  const { tokenPrices, selectedPoolName } = useBoundStore();
 
   const tokenPrice =
     tokenPrices.find((token) => token.name === selectedPoolName)?.price || 0;

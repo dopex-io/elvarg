@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Countdown from 'react-countdown';
@@ -6,19 +6,26 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
 import Typography from 'components/UI/Typography';
+
+import { useBoundStore } from 'store';
+
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { WalletContext } from 'contexts/Wallet';
-import { StraddlesContext } from 'contexts/Straddles';
-
 const Stats = () => {
-  const { chainId } = useContext(WalletContext);
-  const { selectedEpoch, setSelectedEpoch, straddlesEpochData, straddlesData } =
-    useContext(StraddlesContext);
+  const {
+    // Wallet
+    chainId,
+    // Straddles
+    selectedEpoch,
+    setSelectedEpoch,
+    straddlesEpochData,
+    updateStraddlesEpochData,
+    straddlesData,
+  } = useBoundStore();
 
   const currentEpoch = straddlesData?.currentEpoch || 0;
 
@@ -50,8 +57,9 @@ const Stats = () => {
   const handleSelectChange = useCallback(
     (e: { target: { value: any } }) => {
       if (setSelectedEpoch) setSelectedEpoch(Number(e.target.value));
+      updateStraddlesEpochData();
     },
-    [setSelectedEpoch]
+    [setSelectedEpoch, updateStraddlesEpochData]
   );
 
   return (
@@ -117,7 +125,7 @@ const Stats = () => {
             Funding %
           </Typography>
           <Typography variant="h6" className="text-white">
-            {straddlesEpochData?.aprFunding}%
+            {straddlesEpochData?.aprFunding.toString()}%
           </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
