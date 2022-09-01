@@ -101,10 +101,10 @@ export const VAULT_MAP: { [key: string]: { src: string } } = {
   'PUSD3CRV-BIWEEKLY-1': {
     src: '/images/tokens/pusd.svg',
   },
-  'ETH-ATLANTIC-STRADDLE-2': {
+  'ETH-ATLANTIC-STRADDLE-3': {
     src: '/images/tokens/eth.svg',
   },
-  'RDPX-ATLANTIC-STRADDLE-2': {
+  'RDPX-ATLANTIC-STRADDLE-3': {
     src: '/images/tokens/rdpx.svg',
   },
 };
@@ -313,10 +313,13 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
-  '/vaults/ir/pool/MIM3CRV-1': { default: 42161, all: [42161] },
-  '/vaults/ir/pool/MIM3CRV-2': { default: 42161, all: [42161] },
-  '/vaults/ir/pool/PUSD3CRV': { default: 42161, all: [42161] },
-  '/vaults/ir': { default: 42161, all: [42161] },
+  '/ir/MIM3CRV-1': { default: 42161, all: [42161] },
+  '/ir/MIM3CRV-2': { default: 42161, all: [42161] },
+  '/ir/PUSD3CRV': { default: 42161, all: [42161] },
+  '/ir': { default: 42161, all: [42161] },
+  '/straddles': { default: 42161, all: [42161] },
+  '/straddles/ETH': { default: 42161, all: [42161] },
+  '/straddles/RDPX': { default: 42161, all: [42161] },
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

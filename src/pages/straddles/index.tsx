@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -45,10 +45,9 @@ const Straddles = () => {
       chainId: number;
       collateralDecimals: number;
       address: string;
-      tvl: number;
-      rate: number;
-      currentEpoch: number;
-      totalDeposits: string;
+      tvl: string;
+      utilization: string;
+      currentEpoch: string;
       retired: boolean;
       duration: string;
       epochTimes: {
@@ -69,8 +68,8 @@ const Straddles = () => {
               key={index}
               data={{
                 currentEpoch: vault['currentEpoch'],
-                totalDeposits: vault['totalDeposits'],
                 tvl: vault['tvl'],
+                utilization: vault['utilization'],
                 underlyingSymbol: vault['underlyingSymbol'],
                 retired: vault['retired'],
                 symbol: vault['symbol'],
@@ -90,7 +89,7 @@ const Straddles = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://dopex-8ry5tccbo-dopex-io.vercel.app/api/v2/straddles`)
+        .get(`${DOPEX_API_BASE_URL}/v2/straddles`)
         .then((payload) => payload.data);
 
       setVaults(data);

@@ -53,22 +53,29 @@ const PnlChart = (props: PnlChartProps) => {
   const data = useMemo(() => {
     const increment = (price - lowerBreakeven) / 4;
 
-    return Array(60)
+    const _data = Array(60)
       .join()
       .split(',')
       .map((_item, index) => {
-        let fPrice;
+        let fPrice: number;
         if (index > 30) fPrice = price - (index - 30) * increment;
         else fPrice = price + index * increment;
-        let pnl;
-        if (fPrice < price) pnl = 0.5 * (price - fPrice);
-        else pnl = 0.5 * (fPrice - price);
-        return {
-          price: fPrice,
-          value: pnl * amount - optionPrice,
-        };
+        if (fPrice > 0) {
+          let pnl;
+          if (fPrice < price) pnl = 0.5 * (price - fPrice);
+          else pnl = 0.5 * (fPrice - price);
+          return {
+            price: fPrice,
+            value: pnl * amount - optionPrice,
+          };
+        }
+        return;
       })
-      .sort((a, b) => a.price - b.price);
+      .filter((item) => item !== undefined);
+
+    return _data.sort((a, b) => {
+      return a!.price - b!.price;
+    });
   }, [price, optionPrice, amount, lowerBreakeven]);
 
   const handleOnMouseMove: CategoricalChartFunc = useCallback(
@@ -113,7 +120,11 @@ const PnlChart = (props: PnlChartProps) => {
             />
             <ReferenceLine y={0} stroke="#22E1FF" strokeWidth={2} />
             <XAxis type="number" dataKey={'price'} domain={['auto', 'auto']} />
-            <YAxis interval="preserveStartEnd" padding={{ bottom: 5 }} />
+            <YAxis
+              interval="preserveStartEnd"
+              padding={{ bottom: 5 }}
+              width={53}
+            />
           </LineChart>
         </ResponsiveContainer>
       ) : (
