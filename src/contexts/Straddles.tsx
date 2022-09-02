@@ -12,10 +12,10 @@ import {
   AtlanticStraddle__factory,
   Addresses,
   AtlanticStraddle,
+  SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
-
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 export interface StraddlesData {
@@ -44,7 +44,7 @@ export interface StraddlesEpochData {
   straddleFunding: BigNumber;
   aprPremium: string;
   aprFunding: string;
-  volatility: string;
+  volatility: BigNumber;
 }
 
 export interface WritePosition {
@@ -99,7 +99,7 @@ const initialStraddlesEpochData = {
   straddleFunding: BigNumber.from('0'),
   aprPremium: '',
   aprFunding: '',
-  volatility: '',
+  volatility: BigNumber.from('0'),
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -125,7 +125,16 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return AtlanticStraddle__factory.connect(
-        Addresses[42161].STRADDLES[selectedPoolName].Vault,
+        Addresses[42161].STRADDLES.Vault[selectedPoolName],
+        provider
+      );
+  }, [provider, selectedPoolName]);
+
+  const optionsPricingContract = useMemo(() => {
+    if (!selectedPoolName || !provider) return;
+    else
+      return SSOVOptionPricing__factory.connect(
+        Addresses[42161].STRADDLES.OPTION_PRICING,
         provider
       );
   }, [provider, selectedPoolName]);
@@ -137,23 +146,55 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         if (owner !== accountAddress) throw 'Invalid owner';
 
         const data = await straddlesContract!['straddlePositions'](id);
-        const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
-          id
-        );
+
+        const currentPrice = straddlesEpochData!.currentPrice;
+        const volatility = straddlesEpochData!.volatility;
+        const timeToExpiry = straddlesEpochData!.expiry;
+        const strike = data['apStrike'];
+        const amount = data['amount'];
+
+        let [callPnl, putPnl] = await Promise.all([
+          optionsPricingContract?.getOptionPrice(
+            false,
+            timeToExpiry,
+            strike,
+            currentPrice,
+            volatility
+          ),
+          optionsPricingContract?.getOptionPrice(
+            true,
+            timeToExpiry,
+            strike,
+            currentPrice,
+            volatility
+          ),
+        ]);
+
+        // live pnl = 0.5 * BS(call) + 0.5 * BS(put)
+        callPnl = callPnl ? callPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+        putPnl = putPnl ? putPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+        const pnl: BigNumber = callPnl.add(putPnl);
+
         return {
           id: id,
           epoch: data['epoch'],
-          amount: data['amount'],
-          apStrike: data['apStrike'],
-          pnl: pnl,
+          amount: amount,
+          apStrike: strike,
+          pnl: pnl.mul(amount).div(BigNumber.from(1e8)),
         };
-      } catch {
+      } catch (err) {
+        console.log(err);
         return {
           amount: BigNumber.from('0'),
         };
       }
     },
-    [straddlesContract, accountAddress]
+    [
+      straddlesContract,
+      accountAddress,
+      straddlesEpochData,
+      optionsPricingContract,
+    ]
   );
 
   const getWritePosition = useCallback(
@@ -242,7 +283,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     let straddlePrice;
     let aprFunding: BigNumber | string;
-    let volatility: string;
+    let volatility: BigNumber | string;
     let purchaseFee: BigNumber | string;
     let straddlePremium: BigNumber | string;
     let straddleFunding: BigNumber | string;
@@ -275,11 +316,9 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     }
 
     try {
-      volatility = (
-        await straddlesContract!['getVolatility'](currentPrice)
-      ).toString();
+      volatility = await straddlesContract!['getVolatility'](currentPrice);
     } catch (e) {
-      volatility = '...';
+      volatility = BigNumber.from('0');
     }
 
     const timeToExpiry =

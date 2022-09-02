@@ -229,7 +229,7 @@ export default function AppBar(props: AppBarProps) {
               />
             </a>
             <Box className="space-x-10 mr-10 hidden lg:flex">
-              {links.map(
+              {links?.map(
                 (link: { name: Key | null | undefined; to: string }) => {
                   if (link.name === active)
                     return (
@@ -329,14 +329,12 @@ export default function AppBar(props: AppBarProps) {
                 <Typography variant="h5" className="font-bold ml-4 my-2">
                   App
                 </Typography>
-                {/* TODO: FIX */}
-                {/* @ts-ignore */}
-                {links.map((link) => {
+                {links?.map((link: { name: string; to: string }) => {
                   return (
                     <MenuItem
                       onClick={handleCloseSmall}
                       className="ml-2 text-white"
-                      key={link.name}
+                      key={link?.name}
                     >
                       <AppLink to={link.to} name={link.name} />
                     </MenuItem>
