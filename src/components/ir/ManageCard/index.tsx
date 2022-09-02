@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ERC20__factory,
   ERC20SSOV1inchRouter__factory,
@@ -24,7 +18,6 @@ import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 
 import { useBoundStore } from 'store';
-import { RateVaultContext } from 'contexts/RateVault';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -79,11 +72,13 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     userAssetBalances,
     tokens,
     tokenPrices,
+    selectedEpoch,
+    selectedPoolName,
+    rateVaultData,
+    rateVaultEpochData,
+    updateRateVaultEpochData,
+    updateRateVaultUserData,
   } = useBoundStore();
-  const rateVaultContext = useContext(RateVaultContext);
-  const { updateRateVaultEpochData, updateRateVaultUserData } =
-    rateVaultContext;
-  const { selectedEpoch, selectedPoolName } = rateVaultContext;
 
   const sendTx = useSendTx();
 
@@ -120,8 +115,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     BigNumber.from('0')
   );
 
-  const { epochTimes, isVaultReady, epochStrikes } =
-    rateVaultContext.rateVaultEpochData!;
+  const { epochTimes, isVaultReady, epochStrikes } = rateVaultEpochData!;
 
   const [approved, setApproved] = useState<boolean>(false);
   const [quote, setQuote] = useState<{ [key: string]: any }>({});
@@ -142,14 +136,14 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   const allowedLeverageValues = useMemo(() => {
     const leverages: number[] = [];
 
-    if (!rateVaultContext.rateVaultEpochData) return leverages;
+    if (!rateVaultEpochData) return leverages;
 
-    rateVaultContext.rateVaultEpochData.callsLeverages.map((leverage) =>
+    rateVaultEpochData.callsLeverages.map((leverage) =>
       leverages.push(leverage.toNumber())
     );
 
     return leverages;
-  }, [rateVaultContext]);
+  }, [rateVaultEpochData]);
 
   const isLeverageOk: boolean = useMemo(() => {
     for (let i in selectedCallLeverages)
@@ -338,13 +332,13 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   const totalEpochDepositsAmount: number = useMemo(() => {
     return (
       getUserReadableAmount(
-        rateVaultContext.rateVaultEpochData!.totalCallsDeposits?.add(
-          rateVaultContext.rateVaultEpochData!.totalPutsDeposits
+        rateVaultEpochData!.totalCallsDeposits?.add(
+          rateVaultEpochData!.totalPutsDeposits
         ),
         18
       ) || 0
     );
-  }, [rateVaultContext]);
+  }, [rateVaultEpochData]);
 
   const handleSelectCallLeverages = useCallback(
     async (index: number, value: number) => {
@@ -439,8 +433,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     if (!updateRateVaultEpochData || !updateRateVaultUserData) return;
 
     if (depositTokenName === '2CRV') {
-      rateVaultContext
-        .rateVaultData!.rateVaultContract.connect(signer)
+      rateVaultData!.rateVaultContract
+        .connect(signer)
         .depositMultiple(
           selectedStrikeIndexes,
           selectedCallLeveragesIndexes || [],
@@ -462,11 +456,11 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     updateAssetBalances,
     selectedStrikeIndexes,
     accountAddress,
-    rateVaultContext,
     depositTokenName,
     contractReadableStrikeDepositAmounts,
     selectedCallLeveragesIndexes,
     selectedPutLeveragesIndexes,
+    rateVaultData,
     updateRateVaultUserData,
     updateRateVaultEpochData,
   ]);
@@ -925,7 +919,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
               </Box>
               {isVaultReady ? (
                 <Typography variant="h6" className="text-stieglitz">
-                  Deposits for Epoch {selectedEpoch + 1} will open on
+                  Deposits for Epoch {selectedEpoch ?? 0 + 1} will open on
                   <br />
                   <span className="text-white">
                     {epochTimes[1]

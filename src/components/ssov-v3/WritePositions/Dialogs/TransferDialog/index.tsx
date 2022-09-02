@@ -11,7 +11,7 @@ import CustomButton from 'components/UI/Button';
 import Stat from '../Stat';
 
 import { useBoundStore } from 'store';
-import { WritePositionInterface } from 'store/Ssov';
+import { WritePositionInterface } from 'store/Vault/ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 

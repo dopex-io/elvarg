@@ -18,7 +18,7 @@ import TransferDialog from './Dialogs/TransferDialog';
 import WithdrawDialog from './Dialogs/WithdrawDialog';
 
 import { useBoundStore } from 'store';
-import { SsovV3Data, WritePositionInterface } from 'store/Ssov';
+import { SsovV3Data, WritePositionInterface } from 'store/Vault/ssov';
 
 import styles from './styles.module.scss';
 

@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 import { DPXVotingEscrow__factory } from '@dopex-io/sdk';
@@ -9,7 +9,7 @@ import WalletButton from 'components/common/WalletButton';
 import LockDialog from './LockDialog';
 import Stat from './Stat';
 
-import { vedpxAddress, VeDPXContext } from 'contexts/VeDPX';
+import { vedpxAddress } from 'store/VeDPX';
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
@@ -17,8 +17,7 @@ import useSendTx from 'hooks/useSendTx';
 const UserVeDPX = () => {
   const [dialog, setDialog] = useState<{ open: boolean }>({ open: false });
 
-  const { userData } = useContext(VeDPXContext);
-  const { signer } = useBoundStore();
+  const { signer, userVedpxData: userData } = useBoundStore();
 
   const sendTx = useSendTx();
 

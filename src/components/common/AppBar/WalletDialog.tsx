@@ -1,5 +1,6 @@
-import { useState, useCallback /*, useContext */ } from 'react';
+import { useState, useCallback } from 'react';
 import {} from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import delay from 'lodash/delay';
@@ -18,9 +19,10 @@ import { DISPLAY_TOKENS } from 'constants/index';
 
 interface Props {
   open: boolean;
-  handleClose: Function;
-  // TODO: FIX
-  userBalances: any;
+  handleClose: () => void;
+  userBalances: {
+    [key: string]: string | number | BigNumber | BigNumber;
+  };
 }
 
 const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
@@ -46,7 +48,6 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
   }, [handleClose, disconnect]);
 
   return (
-    // @ts-ignore TODO: FIX
     <Dialog handleClose={handleClose} open={open} showCloseIcon>
       <Typography variant="h3" className="mb-4">
         Account
@@ -101,17 +102,15 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
           Disconnect
         </Typography>
       </Box>
-      {/* @ts-ignore TODO: FIX */}
-      {DISPLAY_TOKENS[chainId]?.length > 0 ? (
+      {(DISPLAY_TOKENS[chainId]?.length ?? []) > 0 ? (
         <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
           <Box className="flex flex-col space-y-4">
-            {/* @ts-ignore TODO: FIX */}
-            {DISPLAY_TOKENS[chainId]?.map((key: any, index) => {
+            {DISPLAY_TOKENS[chainId]?.map((key: string, index) => {
               return (
                 <BalanceItem
                   key={index}
                   balance={getUserReadableAmount(
-                    userBalances[key],
+                    userBalances[key] ?? '0',
                     chainId === 56 ? 8 : 18
                   ).toString()}
                   decimals={18}

@@ -73,20 +73,16 @@ export interface SsovV3Slice {
   ssovEpochData?: SsovV3EpochData;
   ssovV3UserData?: SsovV3UserData;
   ssovSigner: SsovV3Signer;
-  // selectedEpoch?: number | 0;
-  selectedSsovV3?: string;
   updateSsovV3EpochData: Function;
   updateSsovV3UserData: Function;
-  setSelectedSsovV3: Function;
   updateSsovV3Signer: Function;
-  // setSelectedEpoch: Function;
   totalEpochStrikeDepositsPending?: BigNumber[];
   totalEpochStrikeDepositsUsable?: BigNumber[];
   updateSsovV3: Function;
 }
 
 export const createSsovV3Slice: StateCreator<
-  SsovV3Slice & WalletSlice & CommonSlice,
+  CommonSlice & SsovV3Slice & WalletSlice,
   [['zustand/devtools', never]],
   [],
   SsovV3Slice
@@ -97,15 +93,15 @@ export const createSsovV3Slice: StateCreator<
   },
   ssovSigner: {},
   updateSsovV3Signer: async () => {
-    const { contractAddresses, signer, selectedSsovV3 } = get();
+    const { contractAddresses, signer, selectedPoolName } = get();
 
-    if (!contractAddresses || !signer || !selectedSsovV3) return;
+    if (!contractAddresses || !signer || !selectedPoolName) return;
 
     let _ssovSigner: SsovV3Signer;
 
     if (!contractAddresses['SSOV-V3']) return;
 
-    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
+    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
     const _ssovContractWithSigner = SsovV3__factory.connect(
       ssovAddress,
@@ -122,18 +118,18 @@ export const createSsovV3Slice: StateCreator<
     const {
       contractAddresses,
       selectedEpoch,
-      selectedSsovV3,
+      selectedPoolName,
       provider,
       totalEpochStrikeDepositsPending = [],
       totalEpochStrikeDepositsUsable = [],
     } = get();
 
-    if (!contractAddresses || !selectedEpoch || !selectedSsovV3 || !provider)
+    if (!contractAddresses || !selectedEpoch || !selectedPoolName || !provider)
       return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
-    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
+    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -171,7 +167,7 @@ export const createSsovV3Slice: StateCreator<
         selectedEpoch,
         ssovContract.address
       ),
-      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
+      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedPoolName}`),
     ]);
 
     const epochStrikeDataArray = await Promise.all(
@@ -264,20 +260,20 @@ export const createSsovV3Slice: StateCreator<
       accountAddress,
       provider,
       selectedEpoch,
-      selectedSsovV3,
+      selectedPoolName,
     } = get();
 
     if (
       !contractAddresses ||
       !accountAddress ||
       !selectedEpoch ||
-      !selectedSsovV3
+      !selectedPoolName
     )
       return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
-    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
+    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -324,14 +320,14 @@ export const createSsovV3Slice: StateCreator<
     const {
       chainId,
       contractAddresses,
-      selectedSsovV3 = '',
+      selectedPoolName = '',
       provider,
       setSelectedEpoch,
     } = get();
 
     let _ssovData: SsovV3Data;
 
-    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
+    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
     const _ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -383,10 +379,10 @@ export const createSsovV3Slice: StateCreator<
       console.log(err);
     }
   },
-  // selectedEpoch: 1,
-  // setSelectedEpoch: (epoch: number) => {
-  //   set((prevState) => ({ ...prevState, selectedEpoch: epoch }));
-  // },
+  selectedEpoch: 1,
+  setSelectedEpoch: (epoch: number) => {
+    set((prevState) => ({ ...prevState, selectedEpoch: epoch }));
+  },
   setSelectedSsovV3: (ssov: string) => {
     set((prevState) => ({ ...prevState, selectedSsovV3: ssov }));
   },

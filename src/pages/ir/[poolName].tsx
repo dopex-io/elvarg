@@ -33,8 +33,9 @@ const Manage = ({ poolName }: Props) => {
     chainId,
     setSelectedPoolName,
     rateVaultData,
-    rateVaultEpochData,
     updateRateVault,
+    rateVaultEpochData,
+    updateRateVaultEpochData,
   } = useBoundStore();
 
   const [activeVaultContextSide, setActiveVaultContextSide] =
@@ -54,6 +55,10 @@ const Manage = ({ poolName }: Props) => {
   useEffect(() => {
     updateRateVault();
   }, [updateRateVault]);
+
+  useEffect(() => {
+    updateRateVaultEpochData();
+  }, [updateRateVaultEpochData]);
 
   if (!rateVaultEpochData?.epochStartTimes)
     return (

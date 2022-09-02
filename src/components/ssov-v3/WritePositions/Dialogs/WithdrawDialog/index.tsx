@@ -10,7 +10,7 @@ import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from '../Stat';
 
 import { useBoundStore } from 'store';
-import { WritePositionInterface } from 'store/Ssov';
+import { WritePositionInterface } from 'store/Vault/ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 

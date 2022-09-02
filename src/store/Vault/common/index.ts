@@ -1,10 +1,12 @@
 import { StateCreator } from 'zustand';
 
 export interface CommonSlice {
-  selectedEpoch: number | null;
+  selectedEpoch: number | 1;
   setSelectedEpoch: Function;
   selectedPoolName: string;
   setSelectedPoolName: Function;
+  isLoading: boolean;
+  setIsLoading: Function;
 }
 
 export const createCommonSlice: StateCreator<
@@ -13,10 +15,16 @@ export const createCommonSlice: StateCreator<
   [],
   CommonSlice
 > = (set, _) => ({
-  selectedEpoch: 0,
+  selectedEpoch: 1,
   setSelectedEpoch: (epoch: number) =>
     set((prevState) => ({ ...prevState, selectedEpoch: epoch })),
   selectedPoolName: '',
   setSelectedPoolName: (selectedPoolName: string) =>
     set((prevState) => ({ ...prevState, selectedPoolName })),
+  isLoading: false,
+  setIsLoading: (condition: boolean) =>
+    set((prevState) => ({
+      ...prevState,
+      isLoading: condition,
+    })),
 });

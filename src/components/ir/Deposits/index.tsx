@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
@@ -17,7 +17,6 @@ import range from 'lodash/range';
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import { RateVaultContext } from 'contexts/RateVault';
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
@@ -225,28 +224,35 @@ const DepositsTableData = (
 const ROWS_PER_PAGE = 5;
 
 const Deposits = () => {
-  const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, ensName, updateAssetBalances } = useBoundStore();
+  const {
+    accountAddress,
+    ensName,
+    updateAssetBalances,
+    selectedEpoch,
+    rateVaultUserData,
+    isLoading,
+    rateVaultEpochData,
+    getRateVaultContract,
+    updateRateVaultEpochData,
+    updateRateVaultUserData,
+  } = useBoundStore();
 
-  const { selectedEpoch, rateVaultUserData, isLoading } = rateVaultContext;
-  const { rateVaultContract } = rateVaultContext.rateVaultData!;
+  const rateVaultContract = getRateVaultContract();
 
   const sendTx = useSendTx();
 
   const epochTime: number = useMemo(() => {
-    return rateVaultContext.rateVaultEpochData!.epochStartTimes &&
-      rateVaultContext.rateVaultEpochData!.epochEndTimes
-      ? (rateVaultContext.rateVaultEpochData!.epochStartTimes as BigNumber)
-          .sub(rateVaultContext.rateVaultEpochData!.epochEndTimes as BigNumber)
+    return rateVaultEpochData!.epochStartTimes &&
+      rateVaultEpochData!.epochEndTimes
+      ? (rateVaultEpochData!.epochStartTimes as BigNumber)
+          .sub(rateVaultEpochData!.epochEndTimes as BigNumber)
           .toNumber()
       : 0;
-  }, [rateVaultContext]);
+  }, [rateVaultEpochData]);
 
   const epochEndTime: Date = useMemo(() => {
-    return new Date(
-      rateVaultContext.rateVaultEpochData!.epochEndTimes.toNumber() * 1000
-    );
-  }, [rateVaultContext]);
+    return new Date(rateVaultEpochData!.epochEndTimes.toNumber() * 1000);
+  }, [rateVaultEpochData]);
 
   const [page, setPage] = useState(0);
   const handleChangePage = useCallback(
@@ -260,34 +266,32 @@ const Deposits = () => {
 
   const getStrikeIndex = useCallback(
     (strike: BigNumber) => {
-      for (let i in rateVaultContext.rateVaultEpochData!.epochStrikes) {
-        const epochStrike =
-          rateVaultContext.rateVaultEpochData!.epochStrikes[i];
+      for (let i in rateVaultEpochData!.epochStrikes) {
+        const epochStrike = rateVaultEpochData!.epochStrikes[i];
         if (epochStrike && strike.eq(epochStrike)) return parseInt(i);
       }
       return -1;
     },
-    [rateVaultContext]
+    [rateVaultEpochData]
   );
 
   const deposits = useMemo(() => {
     const _deposits: { [key: string]: any } = {};
 
-    rateVaultContext.rateVaultUserData?.userEpochStrikeDeposits.map((row) => {
+    rateVaultUserData?.userEpochStrikeDeposits.map((row) => {
       const strikePrice = getUserReadableAmount(row['strike'], 8);
 
       const totalUserDeposits = row['amount'];
 
       const strikeIndex = getStrikeIndex(row['strike']);
 
-      const totalDeposits =
-        rateVaultContext.rateVaultEpochData!.totalTokenDeposits;
+      const totalDeposits = rateVaultEpochData!.totalTokenDeposits;
 
       const callPremium =
-        rateVaultContext.rateVaultEpochData!.callsPremiumCosts[strikeIndex] ||
+        rateVaultEpochData!.callsPremiumCosts[strikeIndex] ||
         BigNumber.from('0');
       const putPremium =
-        rateVaultContext.rateVaultEpochData!.putsPremiumCosts[strikeIndex] ||
+        rateVaultEpochData!.putsPremiumCosts[strikeIndex] ||
         BigNumber.from('0');
 
       const totalPremiums = callPremium.add(putPremium);
@@ -321,7 +325,11 @@ const Deposits = () => {
     });
 
     return _deposits;
-  }, [rateVaultContext, getStrikeIndex]);
+  }, [
+    getStrikeIndex,
+    rateVaultEpochData,
+    rateVaultUserData?.userEpochStrikeDeposits,
+  ]);
 
   const withdrawData = useMemo(() => {
     const strikesIndexes: number[] = [];
@@ -356,8 +364,8 @@ const Deposits = () => {
     );
 
     updateAssetBalances();
-    rateVaultContext.updateRateVaultEpochData!();
-    rateVaultContext.updateRateVaultUserData!();
+    updateRateVaultEpochData();
+    updateRateVaultUserData();
   }, [
     rateVaultContract,
     selectedEpoch,
@@ -366,11 +374,12 @@ const Deposits = () => {
     withdrawData.putLeveragesIndexes,
     accountAddress,
     updateAssetBalances,
-    rateVaultContext,
+    updateRateVaultEpochData,
+    updateRateVaultUserData,
     sendTx,
   ]);
 
-  return rateVaultContext?.rateVaultEpochData!.epochStrikes ? (
+  return rateVaultEpochData!.epochStrikes ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Deposits
@@ -441,9 +450,7 @@ const Deposits = () => {
                         epochEndTime={epochEndTime}
                         imgSrc={'2crv.svg'}
                         tokenSymbol={'2CRV'}
-                        isBootstrapped={
-                          rateVaultContext.rateVaultEpochData!.isBootstrapped
-                        }
+                        isBootstrapped={rateVaultEpochData!.isBootstrapped}
                       />
                     );
                   })}
@@ -451,13 +458,12 @@ const Deposits = () => {
               </Table>
             )}
           </TableContainer>
-          {rateVaultContext.rateVaultEpochData?.epochStrikes.length >
-          ROWS_PER_PAGE ? (
+          {(rateVaultEpochData?.epochStrikes.length ?? 0) > ROWS_PER_PAGE ? (
             <TablePagination
               component="div"
               id="stats"
               rowsPerPageOptions={[ROWS_PER_PAGE]}
-              count={rateVaultContext.rateVaultEpochData?.epochStrikes.length}
+              count={rateVaultEpochData?.epochStrikes.length ?? 0}
               page={page}
               onPageChange={handleChangePage}
               rowsPerPage={ROWS_PER_PAGE}

@@ -221,7 +221,7 @@ export const S3_BUCKET_RESOURCES = {
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
 };
 
-export const DISPLAY_TOKENS = {
+export const DISPLAY_TOKENS: { [key: string | number]: string[] } = {
   42161: ['DPX', 'RDPX', 'ETH'],
   56: ['BNB', 'VBNB'],
   43114: ['AVAX'],

@@ -10,7 +10,7 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 
 import { useBoundStore } from 'store';
-import { SsovV3EpochData } from 'store/Ssov';
+import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';

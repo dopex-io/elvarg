@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
@@ -11,7 +11,6 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 
 import { useBoundStore } from 'store';
-import { RateVaultContext } from 'contexts/RateVault';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -26,9 +25,12 @@ const Transfer = ({
   setTokenAddressToTransfer,
   tokenAddressToTransfer,
 }: Props) => {
-  const { accountAddress, signer, updateAssetBalances } = useBoundStore();
-  const rateVaultContext = useContext(RateVaultContext);
-  const { updateRateVaultUserData } = rateVaultContext;
+  const {
+    accountAddress,
+    signer,
+    updateAssetBalances,
+    updateRateVaultUserData,
+  } = useBoundStore();
 
   const [transferAmount, setTransferAmount] = useState('0');
   const [recipient, setRecipient] = useState('');

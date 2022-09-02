@@ -28,7 +28,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 import useSendTx from 'hooks/useSendTx';
 
 import { useBoundStore } from 'store';
-import { SsovV3Data, SsovV3EpochData } from 'store/Ssov';
+import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
 import { MAX_VALUE } from 'constants/index';
 

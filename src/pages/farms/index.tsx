@@ -105,7 +105,7 @@ const Farms = () => {
         <title>Farms | Dopex</title>
       </Head>
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
-      <AppBar active="farms" />
+      <AppBar active="Farms" />
       <Box className="flex mt-32 justify-end lg:mx-6 lg:space-x-reverse mb-32 lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">
           <Typography variant="h5" className="mb-6">

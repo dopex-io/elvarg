@@ -22,12 +22,12 @@ const Manage = (props: { ssov: string }) => {
     ssovData,
     ssovEpochData,
     ssovV3UserData: ssovUserData,
-    setSelectedSsovV3,
+    setSelectedPoolName,
   } = useBoundStore();
 
   useEffect(() => {
-    setSelectedSsovV3(ssov);
-  }, [ssov, setSelectedSsovV3]);
+    setSelectedPoolName(ssov);
+  }, [ssov, setSelectedPoolName]);
 
   if (ssovData === undefined || ssovEpochData === undefined)
     return (

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { utils as ethersUtils } from 'ethers';
 import { VeDPXYieldDistributor__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
@@ -8,7 +8,7 @@ import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import InfoTooltip from 'components/UI/InfoTooltip';
 
-import { VeDPXContext, vedpxYieldDistributorAddress } from 'contexts/VeDPX';
+import { vedpxYieldDistributorAddress } from 'store/VeDPX';
 import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -16,9 +16,14 @@ import formatAmount from 'utils/general/formatAmount';
 import useSendTx from 'hooks/useSendTx';
 
 const VeDPXYield = () => {
-  const { accountAddress, signer } = useBoundStore();
-  const { userData, data, updateData, updateUserData } =
-    useContext(VeDPXContext);
+  const {
+    accountAddress,
+    signer,
+    userVedpxData: userData,
+    vedpxData: data,
+    updateVedpxData: updateData,
+    updateUserVedpxData: updateUserData,
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 
