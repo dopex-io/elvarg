@@ -46,6 +46,7 @@ const DepositPanel = () => {
     ssovData,
     ssovEpochData,
     ssovSigner,
+    selectedEpoch,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -251,7 +252,7 @@ const DepositPanel = () => {
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {ssovData?.currentEpoch}
+                  {selectedEpoch}
                 </Typography>
               </Box>
             </Box>

@@ -10,6 +10,7 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TablePagination from '@mui/material/TablePagination';
+import { styled } from '@mui/material/styles';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
@@ -17,10 +18,37 @@ import WritePositionTableData from './WritePositionData';
 import TransferDialog from './Dialogs/TransferDialog';
 import WithdrawDialog from './Dialogs/WithdrawDialog';
 
-import { useBoundStore } from 'store';
 import { SsovV3Data, WritePositionInterface } from 'store/Vault/ssov';
+import { useBoundStore } from 'store';
 
-import styles from './styles.module.scss';
+const StyledContainer = styled(TableContainer)`
+  td {
+    border: none !important;
+  }
+
+  table {
+    border-collapse: separate !important;
+    border-spacing: 0 0.5em !important;
+  }
+
+  td {
+    border: solid 1px #000;
+    border-style: solid none;
+    padding: 10px 16px;
+  }
+
+  td:first-child {
+    border-left-style: solid;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+
+  td:last-child {
+    border-right-style: solid;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+`;
 
 const ROWS_PER_PAGE = 5;
 const TableColumnHeader: React.FC<{ children: React.ReactNode }> = ({
@@ -115,7 +143,7 @@ const WritePositions = (props: { className?: string }) => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
+        <StyledContainer className="bg-cod-gray">
           {isEmpty(filteredWritePositions) ? (
             <Box className="text-stieglitz text-center">
               Your write positions will appear here.
@@ -163,7 +191,7 @@ const WritePositions = (props: { className?: string }) => {
               </TableBody>
             </Table>
           )}
-        </TableContainer>
+        </StyledContainer>
         {filteredWritePositions.length > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"

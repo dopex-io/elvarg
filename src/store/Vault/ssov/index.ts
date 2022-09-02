@@ -82,7 +82,7 @@ export interface SsovV3Slice {
 }
 
 export const createSsovV3Slice: StateCreator<
-  CommonSlice & SsovV3Slice & WalletSlice,
+  WalletSlice & CommonSlice & SsovV3Slice,
   [['zustand/devtools', never]],
   [],
   SsovV3Slice
@@ -299,21 +299,26 @@ export const createSsovV3Slice: StateCreator<
       })
     );
 
+    const _writePositions = data.map((o, i) => {
+      return {
+        tokenId: writePositions[i] as BigNumber,
+        collateralAmount: o.collateralAmount,
+        epoch: o.epoch.toNumber(),
+        strike: o.strike,
+        estimatedPnl: o.collateralAmount
+          .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
+          .add(moreData[i]?.premiumsAccrued || BigNumber.from(0)),
+        accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
+        accruedPremiums: moreData[i]?.premiumsAccrued || BigNumber.from(0),
+      };
+    });
+
     set((prevState) => ({
       ...prevState,
-      writePositions: data.map((o, i) => {
-        return {
-          tokenId: writePositions[i] as BigNumber,
-          collateralAmount: o.collateralAmount,
-          epoch: o.epoch.toNumber(),
-          strike: o.strike,
-          estimatedPnl: o.collateralAmount
-            .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
-            .add(moreData[i]?.premiumsAccrued || BigNumber.from(0)),
-          accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
-          accruedPremiums: moreData[i]?.premiumsAccrued || BigNumber.from(0),
-        };
-      }),
+      ssovV3UserData: {
+        ...prevState.ssovV3UserData,
+        writePositions: _writePositions,
+      },
     }));
   },
   updateSsovV3: async () => {

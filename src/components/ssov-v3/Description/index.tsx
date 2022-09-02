@@ -6,7 +6,7 @@ import format from 'date-fns/format';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
+import { SsovV3EpochData, SsovV3Data } from 'store/Vault/ssov';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
