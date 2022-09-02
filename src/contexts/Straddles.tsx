@@ -125,7 +125,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return AtlanticStraddle__factory.connect(
-        Addresses[42161].STRADDLES[selectedPoolName].Vault,
+        Addresses[42161].STRADDLES.Vault[selectedPoolName],
         provider
       );
   }, [provider, selectedPoolName]);
@@ -134,7 +134,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return SSOVOptionPricing__factory.connect(
-        Addresses[42161].STRADDLES[selectedPoolName].OptionPricing,
+        Addresses[42161].STRADDLES.OPTION_PRICING,
         provider
       );
   }, [provider, selectedPoolName]);
