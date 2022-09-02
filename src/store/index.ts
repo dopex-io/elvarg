@@ -2,32 +2,38 @@ import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import { WalletSlice, createWalletSlice } from './Wallet';
+import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
 import { AssetsSlice, createAssetsSlice } from './Assets';
 import { FarmingSlice, createFarmingSlice } from './Farming';
-import { VeDPXSlice, createVedpxSlice } from './VeDPX';
+import { NftsSlice, createNftsSlice } from './Nfts';
+import { CommonSlice, createCommonSlice } from './Vault/common';
 import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
 import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
+import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
-import { CommonSlice, createCommonSlice } from './Vault/common';
 
 type T = WalletSlice &
+  TokenSaleSlice &
   AssetsSlice &
   FarmingSlice &
-  VeDPXSlice &
+  NftsSlice &
+  CommonSlice &
   SsovV3Slice &
   RateVaultSlice &
-  StraddlesSlice &
-  CommonSlice;
+  VeDPXSlice &
+  StraddlesSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
     ...createWalletSlice(...a),
+    ...createTokenSaleSlice(...a),
     ...createAssetsSlice(...a),
     ...createFarmingSlice(...a),
-    ...createVedpxSlice(...a),
+    ...createNftsSlice(...a),
     ...createCommonSlice(...a),
     ...createSsovV3Slice(...a),
     ...createRateVaultSlice(...a),
+    ...createVedpxSlice(...a),
     ...createStraddlesSlice(...a),
   }))
 );

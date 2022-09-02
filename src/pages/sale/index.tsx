@@ -1,5 +1,4 @@
-// @ts-nocheck TODO: FIX
-import { useCallback, useContext } from 'react';
+import { useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import { TokenSale__factory } from '@dopex-io/sdk';
 import c from 'classnames';
@@ -15,7 +14,6 @@ import StatsSection from 'components/sale/StatsSection';
 import InfoSection from 'components/sale/InfoSection';
 
 import { useBoundStore } from 'store';
-import { TokenSaleContext, TokenSaleProvider } from 'contexts/TokenSale';
 
 import useEthPrice from 'hooks/useEthPrice';
 import useSendTx from 'hooks/useSendTx';
@@ -24,7 +22,13 @@ import formatAmount from 'utils/general/formatAmount';
 
 const TokenSale = () => {
   const {
+    // Wallet
+    accountAddress,
+    signer,
+    contractAddresses,
+    // TokenSale
     updateUserData,
+    updateSaleData,
     weiDeposited,
     saleStart,
     saleWhitelistStart,
@@ -33,9 +37,7 @@ const TokenSale = () => {
     claimAmount,
     deposits,
     blockTime,
-  } = useContext(TokenSaleContext);
-
-  const { accountAddress, signer, contractAddresses } = useBoundStore();
+  } = useBoundStore();
 
   const ethPrice = useEthPrice();
   const sendTx = useSendTx();
@@ -72,24 +74,19 @@ const TokenSale = () => {
   });
 
   const handleClaim = useCallback(async () => {
-    if (!signer || !accountAddress || !contractAddresses.TokenSale) return;
+    if (!signer || !accountAddress || !contractAddresses['TokenSale']) return;
     try {
       await sendTx(
-        TokenSale__factory.connect(contractAddresses.TokenSale, signer).claim(
-          accountAddress
-        )
+        TokenSale__factory.connect(
+          contractAddresses['TokenSale'],
+          signer
+        ).claim(accountAddress)
       );
       updateUserData();
     } catch (err) {
       console.log(err);
     }
-  }, [
-    contractAddresses.TokenSale,
-    updateUserData,
-    accountAddress,
-    signer,
-    sendTx,
-  ]);
+  }, [signer, accountAddress, contractAddresses, sendTx, updateUserData]);
 
   const depositShare = formik.values.amount
     ? (Number(deposits) / Number(weiDeposited)) * 100 || 0
@@ -102,6 +99,14 @@ const TokenSale = () => {
   const dpxPrice = dpxEthPrice * ethPrice;
 
   const saleClosed = blockTime > saleClose ? true : false;
+
+  useEffect(() => {
+    updateSaleData();
+  }, [updateSaleData]);
+
+  useEffect(() => {
+    updateUserData();
+  }, [updateUserData]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -149,7 +154,7 @@ const TokenSale = () => {
                 >
                   {claimAmount?.toString() === '0' || claimAmount === null
                     ? 'Nothing to Claim'
-                    : `Claim ${formatAmount(claimAmount)} DPX`}
+                    : `Claim ${formatAmount(claimAmount.toString())} DPX`}
                 </CustomButton>
               </Box>
             </Box>
@@ -161,9 +166,5 @@ const TokenSale = () => {
 };
 
 export default function TokenSalePage() {
-  return (
-    <TokenSaleProvider>
-      <TokenSale />
-    </TokenSaleProvider>
-  );
+  return <TokenSale />;
 }

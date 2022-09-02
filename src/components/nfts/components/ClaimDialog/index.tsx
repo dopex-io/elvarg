@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import cx from 'classnames';
 import { utils as ethersUtils } from 'ethers';
@@ -17,30 +17,35 @@ import BalanceTree from 'utils/merkle/balance-tree';
 import useSendTx from 'hooks/useSendTx';
 
 import { useBoundStore } from 'store';
-import { NftsContext } from 'contexts/Nfts';
 
 import dopexBridgoorAddresses from 'constants/json/dopexBridgoorAddresses.json';
 import dopexHalloweenAddresses from 'constants/json/dopexHalloweenAddresses.json';
 
-// @ts-ignore TODO: FIX
-const ClaimModal = ({ open, handleClose, index, name }) => {
-  const { accountAddress } = useBoundStore();
-  const { userNftsData } = useContext(NftsContext);
+interface ClaimDialogProps {
+  open: boolean;
+  handleClose: () => void;
+  index: number;
+  name: string;
+}
+
+const ClaimDialog = (props: ClaimDialogProps) => {
+  const { open, handleClose, index, name } = props;
+
+  const { accountAddress, userNftsData } = useBoundStore();
 
   const sendTx = useSendTx();
 
-  const [amount, setAmount] = useState(null);
+  const [amount, setAmount] = useState<string | number>(0);
   const [loading, setLoading] = useState(false);
   const addresses =
     name === 'Dopex Bridgoor NFT'
       ? dopexBridgoorAddresses
       : dopexHalloweenAddresses;
 
-  // @ts-ignore TODO: FIX
   const {
     nftContractSigner,
   }: {
-    nftContractSigner: BaseNFT;
+    nftContractSigner: BaseNFT | null | undefined;
   } = useMemo(() => {
     if (userNftsData.length === 0) {
       return {
@@ -48,8 +53,7 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
       };
     } else {
       return {
-        // @ts-ignore TODO: FIX
-        nftContractSigner: userNftsData[index].nftContractSigner,
+        nftContractSigner: userNftsData[index]?.nftContractSigner,
       };
     }
   }, [userNftsData, index]);
@@ -73,12 +77,13 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
   }, [formik.touched.address, formik.errors.address]);
 
   const handleClick = async () => {
+    if (!nftContractSigner) return;
+
     const index = addresses.findIndex(
       (item) =>
         item.account.toLowerCase() === formik.values.address.toLowerCase()
     );
-    // @ts-ignore TODO: FIX
-    const availableAmount = index !== -1 ? addresses[index].amount : '0';
+    const availableAmount = index !== -1 ? addresses[index]?.amount : '0';
 
     const tree = new BalanceTree(addresses);
 
@@ -89,15 +94,13 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
           await nftContractSigner.callStatic.claim(
             index,
             formik.values.address,
-            availableAmount,
+            availableAmount ?? '0',
             tree.getProof(index, formik.values.address, availableAmount)
           );
           setLoading(false);
-          // @ts-ignore TODO: FIX
-          setAmount(availableAmount);
+          setAmount(availableAmount ?? '0');
         } catch {
-          // @ts-ignore TODO: FIX
-          setAmount('0');
+          setAmount(0);
           setLoading(false);
         }
       } else {
@@ -107,7 +110,7 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
             nftContractSigner.claim(
               index,
               formik.values.address,
-              availableAmount,
+              availableAmount ?? '0',
               tree.getProof(index, formik.values.address, availableAmount)
             )
           );
@@ -115,11 +118,10 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
         } catch {
           setLoading(false);
         }
-        setAmount(null);
+        setAmount(0);
         handleClose();
       }
     } else {
-      // @ts-ignore TODO: FIX
       setAmount('0');
     }
   };
@@ -196,4 +198,4 @@ const ClaimModal = ({ open, handleClose, index, name }) => {
   );
 };
 
-export default ClaimModal;
+export default ClaimDialog;
