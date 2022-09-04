@@ -11,7 +11,7 @@ import {
   VeDPXYieldDistributor__factory,
   DPXVotingEscrow__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import noop from 'lodash/noop';
 
 import { WalletContext } from './Wallet';
@@ -25,6 +25,8 @@ interface vedpxData {
   vedpxTotalSupply: BigNumber;
   dpxLocked: BigNumber;
   totalVeDPXParticipating: BigNumber;
+  dailyDpxEmission: string;
+  apy: string;
 }
 
 interface userVedpxData {
@@ -47,6 +49,8 @@ const initialData = {
   vedpxTotalSupply: BigNumber.from(0),
   dpxLocked: BigNumber.from(0),
   totalVeDPXParticipating: BigNumber.from(0),
+  dailyDpxEmission: '0',
+  apy: '0',
 };
 
 const initialUserData = {
@@ -85,14 +89,28 @@ export const VeDPXProvider = (props: { children: ReactNode }) => {
       provider
     );
 
-    const [vedpxTotalSupply, dpxLocked, totalVeDPXParticipating] =
+    const [vedpxTotalSupply, dpxLocked, totalVeDPXParticipating, yieldRate] =
       await Promise.all([
         vedpx.totalSupply(),
         dpx.balanceOf(vedpx.address),
         vedpxYieldDistributor.totalVeDPXParticipating(),
+        vedpxYieldDistributor.yieldRate(),
       ]);
 
-    setData({ vedpxTotalSupply, dpxLocked, totalVeDPXParticipating });
+    const dailyDpxEmission = ethersUtils.formatEther(yieldRate.mul(86400));
+
+    const dpxEmittedInAYear = Number(dailyDpxEmission) * 365;
+    const totalDpx = Number(ethersUtils.formatEther(vedpxTotalSupply));
+
+    const apy = ((dpxEmittedInAYear / totalDpx) * 100).toString();
+
+    setData({
+      vedpxTotalSupply,
+      dpxLocked,
+      totalVeDPXParticipating,
+      dailyDpxEmission,
+      apy,
+    });
   }, [provider]);
 
   useEffect(() => {
