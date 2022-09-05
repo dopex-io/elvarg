@@ -64,7 +64,7 @@ export interface WritePositionInterface {
   strike: BigNumber;
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
-  estimatedPnl: BigNumber;
+  // estimatedPnl: BigNumber;
   epoch: number;
   tokenId: BigNumber;
 }
@@ -153,14 +153,15 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     setSsovV3UserData({
       writePositions: data.map((o, i) => {
+        console.log(moreData[i]?.estimatedCollateralUsage.toString());
         return {
           tokenId: writePositions[i] as BigNumber,
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
-          estimatedPnl: o.collateralAmount
-            .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
-            .add(moreData[i]?.accruedPremium || BigNumber.from(0)),
+          // estimatedPnl: o.collateralAmount
+          //   .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
+          //   .add(moreData[i]?.accruedPremium || BigNumber.from(0)),
           accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
           accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
         };
