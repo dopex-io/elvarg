@@ -51,7 +51,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const { isLoading, duelContract, nfts, updateDuels } =
     useContext(DuelContext);
   const sendTx = useSendTx();
-  const [tokenName, setTokenName] = useState<string>('USDC');
+  const [tokenName, setTokenName] = useState<string>('WETH');
   const [wager, setWager] = useState<number>(1);
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
@@ -200,7 +200,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             wager,
             getTokenDecimals(tokenName, chainId)
           ),
-          contractAddresses[tokenName],
           '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
           duelist,
           movesSig,
@@ -754,10 +753,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           </Box>
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
             <Box className="flex flex-row justify-between">
-              <Box
-                className="h-10 bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer"
-                onClick={() => setIsTokenSelectorVisible(true)}
-              >
+              <Box className="h-10 bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer">
                 <Box className="flex flex-row h-10 pr-14">
                   <img
                     src={`/images/tokens/${tokenName.toLowerCase()}.svg`}
@@ -770,11 +766,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                   >
                     {tokenName}
                   </Typography>
-                  <img
-                    src="/images/misc/arrow-down.svg"
-                    className="w-3 h-1 ml-3 mt-4"
-                    alt="Arrow down"
-                  />
                 </Box>
               </Box>
               <Input

@@ -17,8 +17,9 @@ import { DuelContext } from 'contexts/Duel';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 import displayAddress from 'utils/general/displayAddress';
+import formatAmount from 'utils/general/formatAmount';
+
 import Countdown from 'react-countdown';
-import formatAmount from '../../../../utils/general/formatAmount';
 
 export const Duels = ({ findDuel }: { findDuel: Function }) => {
   const { duels, isLoading } = useContext(DuelContext);
@@ -198,3 +199,5 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
     </Box>
   );
 };
+
+export default Duels;
