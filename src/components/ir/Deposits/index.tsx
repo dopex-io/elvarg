@@ -232,12 +232,10 @@ const Deposits = () => {
     rateVaultUserData,
     isLoading,
     rateVaultEpochData,
-    getRateVaultContract,
+    rateVaultContract,
     updateRateVaultEpochData,
     updateRateVaultUserData,
   } = useBoundStore();
-
-  const rateVaultContract = getRateVaultContract();
 
   const sendTx = useSendTx();
 
@@ -353,12 +351,12 @@ const Deposits = () => {
 
   const handleWithdraw = useCallback(async () => {
     await sendTx(
-      rateVaultContract.withdrawMultiple(
+      rateVaultContract!.withdrawMultiple(
         selectedEpoch,
         withdrawData.strikesIndexes,
         withdrawData.callLeveragesIndexes,
         withdrawData.putLeveragesIndexes,
-        accountAddress,
+        accountAddress ?? '',
         { gasLimit: 3000000 }
       )
     );

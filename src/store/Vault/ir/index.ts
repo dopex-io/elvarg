@@ -5,6 +5,7 @@ import {
   RateVault__factory,
   CurveGaugesOracle__factory,
   RateVault,
+  CurveGaugesOracle,
 } from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
 
@@ -86,8 +87,10 @@ export interface RateVaultSlice {
   updateRateVault: Function;
   getUserStrikePurchaseData: Function;
   getUserStrikeDeposits: Function;
-  getRateVaultContract: Function;
-  getGaugeOracle: Function;
+  rateVaultContract: RateVault | undefined;
+  updateRateVaultContract: Function;
+  gaugeOracle: CurveGaugesOracle | undefined;
+  updateGaugeOracle: Function;
   getTotalStrikeData?: Function;
   getCurrentRate: Function;
   calculatePremium: Function;
@@ -109,12 +112,12 @@ export const createRateVaultSlice: StateCreator<
     const {
       selectedPoolName,
       selectedEpoch,
-      getRateVaultContract,
+      rateVaultContract,
       getCurrentRate,
       calculatePremium,
     } = get();
 
-    const rateVaultContract: RateVault = getRateVaultContract();
+    if (!rateVaultContract) return;
 
     if (selectedEpoch === null || !selectedPoolName || !rateVaultContract)
       return;
@@ -428,15 +431,20 @@ export const createRateVaultSlice: StateCreator<
       isLoading: false,
     }));
   },
-  getRateVaultContract: () => {
-    const { contractAddresses, selectedPoolName, provider } = get();
+  rateVaultContract: undefined,
+  updateRateVaultContract: () => {
+    const { contractAddresses, selectedPoolName, signer, rateVaultContract } =
+      get();
 
-    if (!provider || !selectedPoolName) return;
+    if (!signer || !selectedPoolName || rateVaultContract) return;
 
-    return RateVault__factory.connect(
-      contractAddresses['RATE-VAULTS'][selectedPoolName],
-      provider
-    );
+    set((prevState) => ({
+      ...prevState,
+      rateVaultContract: RateVault__factory.connect(
+        contractAddresses['RATE-VAULTS'][selectedPoolName],
+        signer
+      ),
+    }));
   },
   getUserStrikePurchaseData: async (strike: BigNumber, strikeIndex: number) => {
     const { accountAddress, selectedEpoch, rateVaultData } = get();
@@ -455,9 +463,9 @@ export const createRateVaultSlice: StateCreator<
     };
   },
   updateRateVault: async () => {
-    const { getRateVaultContract } = get();
+    const { rateVaultContract } = get();
 
-    const rateVaultContract: RateVault = getRateVaultContract();
+    if (!rateVaultContract) return;
 
     let currentEpoch: number;
     let isCurrentEpochExpired: boolean;
@@ -509,10 +517,11 @@ export const createRateVaultSlice: StateCreator<
     };
   },
   getCurrentRate: async () => {
-    const { getRateVaultContract, getGaugeOracle } = get();
+    const { rateVaultContract, updateGaugeOracle, gaugeOracle } = get();
 
-    const rateVaultContract = getRateVaultContract();
-    const gaugeOracle = getGaugeOracle();
+    if (!rateVaultContract) return;
+
+    updateGaugeOracle();
 
     try {
       return await rateVaultContract!['getCurrentRate']();
@@ -530,18 +539,23 @@ export const createRateVaultSlice: StateCreator<
       }
     }
   },
-  getGaugeOracle: async () => {
-    const { provider, contractAddresses } = get();
-    if (!provider) return;
+  gaugeOracle: undefined,
+  updateGaugeOracle: async () => {
+    const { provider, contractAddresses, gaugeOracle } = get();
+    if (!provider || gaugeOracle) return;
     else
-      return CurveGaugesOracle__factory.connect(
-        contractAddresses['CurveGaugesOracle'],
-        provider
-      );
+      set((prevState) => ({
+        ...prevState,
+        gaugeOracle: CurveGaugesOracle__factory.connect(
+          contractAddresses['CurveGaugesOracle'],
+          provider
+        ),
+      }));
   },
   calculatePremium: async (strike: BigNumber, isPut: boolean) => {
-    const { getRateVaultContract } = get();
-    const rateVaultContract = getRateVaultContract();
+    const { rateVaultContract } = get();
+
+    if (!rateVaultContract) return BigNumber.from(0);
 
     try {
       return await rateVaultContract!['calculatePremium'](

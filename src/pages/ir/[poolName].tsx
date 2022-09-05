@@ -33,6 +33,7 @@ const Manage = ({ poolName }: Props) => {
     chainId,
     setSelectedPoolName,
     rateVaultData,
+    updateRateVaultContract,
     updateRateVault,
     rateVaultEpochData,
     updateRateVaultEpochData,
@@ -45,20 +46,23 @@ const Manage = ({ poolName }: Props) => {
   const showWithdrawalInformation: boolean = true;
 
   useEffect(() => {
-    if (!accountAddress) connect();
-  }, [accountAddress, connect]);
-
-  useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
-    updateRateVault();
-  }, [updateRateVault]);
-
-  useEffect(() => {
+    if (!accountAddress) {
+      connect();
+    }
+    updateRateVaultContract();
     updateRateVaultEpochData();
-  }, [updateRateVaultEpochData]);
+    updateRateVault();
+  }, [
+    accountAddress,
+    connect,
+    updateRateVaultContract,
+    updateRateVault,
+    updateRateVaultEpochData,
+  ]);
 
   if (!rateVaultEpochData?.epochStartTimes)
     return (
