@@ -10,7 +10,11 @@ import {
   useMemo,
 } from 'react';
 import { ethers } from 'ethers';
-import { DiamondPepeNFTs__factory, ERC20__factory } from '@dopex-io/sdk';
+import {
+  Addresses,
+  DiamondPepeNFTs__factory,
+  ERC20__factory,
+} from '@dopex-io/sdk';
 
 import { WalletContext } from 'contexts/Wallet';
 import getUserReadableAmount from '../utils/contracts/getUserReadableAmount';
@@ -818,12 +822,10 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     async (i) => {
       const duelData = await duelContract['getDuel'](i);
 
-      console.log(duelData);
-
-      const finishDate = new Date(duelData[10][1].toNumber() * 1000);
+      const finishDate = new Date(duelData[9][1].toNumber() * 1000);
 
       const maxRevealDate = addHoursToDate(finishDate, 12);
-      const revealDate = new Date(duelData[10][2].toNumber() * 1000);
+      const revealDate = new Date(duelData[9][2].toNumber() * 1000);
 
       const rawMoves = duelData[8];
       const duelistMoves: string[] = [];
@@ -843,7 +845,10 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         else challengerMoves.push('block');
       }
 
-      const token = ERC20__factory.connect(duelData[3], provider);
+      const token = ERC20__factory.connect(
+        Addresses[chainId]['WETH'],
+        provider
+      );
 
       const symbol = await token.symbol();
       const decimals = getTokenDecimals(symbol, chainId);
@@ -852,7 +857,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       if (challengerAddress.includes('0x00000000000000000000'))
         challengerAddress = '?';
 
-      const creationDate = new Date(duelData[10][0].toNumber() * 1000);
+      const creationDate = new Date(duelData[9][0].toNumber() * 1000);
 
       const challengedLimitDate = addHoursToDate(creationDate, 12);
 
@@ -862,7 +867,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
       const isRevealed = finishDate < new Date() && challengerAddress !== '?';
 
-      const isCreatorWinner = duelData[9];
+      const isCreatorWinner = duelData[8];
 
       if (finishDate.getTime() > 1000) {
         if (
@@ -902,7 +907,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         }
       });
 
-      let duelist = duelData[6][0].toNumber();
+      let duelist = duelData[5][0].toNumber();
       if (duelist === 2) duelist = 666;
 
       const duel = {
@@ -912,14 +917,14 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         challengerAddress: challengerAddress,
         wager: wager,
         tokenName: symbol,
-        tokenAddress: duelData[3],
-        fees: duelData[4],
+        tokenAddress: Addresses[chainId]['WETH'],
+        fees: duelData[3],
         duelist: duelist,
-        challenger: duelData[6][1].toNumber(),
+        challenger: duelData[5][1].toNumber(),
         isCreatorWinner: isCreatorWinner,
         creationDate: creationDate,
         challengedLimitDate: challengedLimitDate,
-        challengedDate: new Date(duelData[10][1].toNumber() * 1000),
+        challengedDate: new Date(duelData[9][1].toNumber() * 1000),
         finishDate: finishDate,
         isRevealed: isRevealed,
         duelistMoves: duelistMoves,
