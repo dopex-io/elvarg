@@ -80,12 +80,9 @@ const DuelPepes = () => {
         <title>Duel Pepes | Dopex</title>
       </Head>
 
-      {/* @ts-ignore TODO: FIX */}
-      <Box className={styles['background']}>
-        {/* @ts-ignore TODO: FIX */}
-        <Box className={styles['backgroundOverlay']} />
-        {/* @ts-ignore TODO: FIX */}
-        <Box className={styles['mobileBackgroundOverlay']} />
+      <Box className={styles['background'] ?? ''}>
+        <Box className={styles['backgroundOverlay'] ?? ''} />
+        <Box className={styles['mobileBackgroundOverlay'] ?? ''} />
         <AppBar />
 
         <CreateDuel
