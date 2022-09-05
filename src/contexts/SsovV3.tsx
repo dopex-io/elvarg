@@ -5,6 +5,7 @@ import {
   useState,
   useCallback,
   ReactNode,
+  useMemo,
 } from 'react';
 import {
   SsovV3__factory,
@@ -114,6 +115,12 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
   );
   const [ssovSigner, setSsovV3Signer] = useState<SsovV3Signer>({});
 
+  const ssovViewerAddress = useMemo(() => {
+    return selectedSsovV3 === 'ETH-CALLS-SSOV-V3'
+      ? '0x9F948e9A79186f076EA19f5DDCCDF30eDc6DbaA2'
+      : contractAddresses['SSOV-V3'].VIEWER;
+  }, [contractAddresses, selectedSsovV3]);
+
   const updateSsovV3UserData = useCallback(async () => {
     if (
       !contractAddresses ||
@@ -130,7 +137,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      contractAddresses['SSOV-V3'].VIEWER,
+      ssovViewerAddress,
       provider
     );
 
@@ -173,6 +180,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     provider,
     selectedEpoch,
     selectedSsovV3,
+    ssovViewerAddress,
   ]);
 
   const updateSsovV3EpochData = useCallback(async () => {
@@ -186,7 +194,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      contractAddresses['SSOV-V3'].VIEWER,
+      ssovViewerAddress,
       provider
     );
 
@@ -268,7 +276,13 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     };
 
     setSsovV3EpochData(_ssovEpochData);
-  }, [contractAddresses, selectedEpoch, provider, selectedSsovV3]);
+  }, [
+    contractAddresses,
+    selectedEpoch,
+    selectedSsovV3,
+    provider,
+    ssovViewerAddress,
+  ]);
 
   useEffect(() => {
     if (
