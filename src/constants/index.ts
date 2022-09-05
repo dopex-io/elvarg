@@ -267,8 +267,7 @@ export const TOKEN_DECIMALS = {
   },
 };
 
-export const DOPEX_API_BASE_URL =
-  'https://dopex-api-git-feat-new-ssovs-dopex-io.vercel.app/api';
+export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
