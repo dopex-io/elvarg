@@ -1,21 +1,10 @@
-import { useCallback, useContext, useState, useMemo } from 'react';
-import { BigNumber } from 'ethers';
+import { useContext, useState, useMemo } from 'react';
 import Link from 'next/link';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
-import useSendTx from 'hooks/useSendTx';
-import {
-  SsovV3Viewer__factory,
-  SsovV3__factory,
-  ERC20__factory,
-  ERC20,
-} from '@dopex-io/sdk';
-
-import { MAX_VALUE } from 'constants/index';
-import { WalletContext } from 'contexts/Wallet';
 import { PortfolioContext, UserPosition } from 'contexts/Portfolio';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
@@ -24,79 +13,12 @@ import Filter from '../Filter';
 const sides: string[] = ['CALL', 'PUT'];
 
 export default function Positions() {
-  const { contractAddresses, provider, signer, accountAddress } =
-    useContext(WalletContext);
-  const { portfolioData, updatePortfolioData, isLoading } =
-    useContext(PortfolioContext);
+  const { portfolioData, isLoading } = useContext(PortfolioContext);
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
   ]);
   const [searchText, setSearchText] = useState<string>('');
-  const sendTx = useSendTx();
-
-  // @ts-ignore TODO: FIX
-  const handleSettle = useCallback(
-    async (
-      vaultName: string,
-      strikeIndex: number,
-      userEpochStrikeTokenBalance: BigNumber,
-      selectedEpoch: number
-    ) => {
-      if (!updatePortfolioData || !accountAddress) return;
-
-      const vaults = contractAddresses['SSOV-V3']['VAULTS'];
-
-      const vaultAddress = vaults[vaultName];
-      const vault = SsovV3__factory.connect(vaultAddress, provider);
-
-      const ssovViewerContract = SsovV3Viewer__factory.connect(
-        contractAddresses['SSOV-V3'].VIEWER,
-        provider
-      );
-
-      const tokensAddresses = await ssovViewerContract.getEpochStrikeTokens(
-        selectedEpoch,
-        vaultAddress
-      );
-
-      if (signer) {
-        const token: ERC20 = ERC20__factory.connect(
-          String(tokensAddresses[strikeIndex]),
-          provider
-        );
-
-        const allowance = await token.allowance(
-          String(accountAddress),
-          vaultAddress
-        );
-
-        if (allowance.eq(0))
-          await sendTx(token.connect(signer).approve(vaultAddress, MAX_VALUE));
-
-        await sendTx(
-          vault
-            .connect(signer)
-            .settle(
-              strikeIndex,
-              userEpochStrikeTokenBalance,
-              selectedEpoch,
-              accountAddress
-            )
-        );
-      }
-
-      await updatePortfolioData();
-    },
-    [
-      accountAddress,
-      sendTx,
-      signer,
-      provider,
-      contractAddresses,
-      updatePortfolioData,
-    ]
-  );
 
   const filteredPositions = useMemo(() => {
     const _positions: UserPosition[] = [];
