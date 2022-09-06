@@ -6,6 +6,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
+import { SsovV3__factory } from '@dopex-io/sdk';
 import {
   GetUserDataDocument,
   GetUserDataQuery,
@@ -18,25 +19,26 @@ import { WalletContext } from './Wallet';
 export interface UserPosition {
   amount: string;
   epoch: string;
-  id: string;
   strike: string;
+  ssovAddress: string;
+  ssovName: string;
+  assetName: string;
+  isPut: boolean;
 }
 
-export interface userSSOVDeposit {
+export interface UserSSOVDeposit {
   amount: string;
   epoch: string;
-  id: string;
-  sender: string;
-  ssov: { id: string };
+  ssovAddress: string;
+  ssovName: string;
+  isPut: boolean;
+  assetName: string;
   strike: string;
-  token: { id: string };
-  transaction: { id: string };
-  user: { id: string };
 }
 
 export interface PortfolioData {
   userPositions: UserPosition[];
-  userSSOVDeposits: userSSOVDeposit[];
+  userSSOVDeposits: UserSSOVDeposit[];
 }
 
 interface PortfolioContextInterface {
@@ -57,12 +59,14 @@ export const PortfolioContext = createContext<PortfolioContextInterface>({
 });
 
 export const PortfolioProvider = (props: { children: ReactNode }) => {
-  const accountAddress = '0x6f8d0c0a2b28df39cf2a4727d3ecfb60e9ddad27';
-  const portfolioData = useState<PortfolioData>(initialPortfolioData);
+  const accountAddress = '0x022ca32d31da3ef85922aafd9ad29c5b2418172c';
+  const { provider } = useContext(WalletContext);
+  const [portfolioData, setPortfolioData] =
+    useState<PortfolioData>(initialPortfolioData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const updatePortfolioData = useCallback(async () => {
-    if (!accountAddress) return;
+    if (!accountAddress || !provider) return;
 
     const queryResult: ApolloQueryResult<GetUserDataQuery> =
       await portfolioGraphClient.query({
@@ -71,11 +75,62 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         fetchPolicy: 'no-cache',
       });
 
-    const { data }: any = queryResult;
+    const data: any = queryResult['data']['users'][0];
+
+    const deposits: UserSSOVDeposit[] = [];
+    const positions: UserPosition[] = [];
+
     console.log(data);
 
+    for (let i in data.userSSOVDeposit) {
+      const ssov = SsovV3__factory.connect(
+        data.userSSOVDeposit[i].ssov.id,
+        provider
+      );
+      const ssovName = await ssov.name();
+      const isPut = await ssov.isPut();
+      const assetName = await ssov.underlyingSymbol();
+
+      deposits.push({
+        epoch: data.userSSOVDeposit[i].epoch,
+        strike: data.userSSOVDeposit[i].strike,
+        amount: data.userSSOVDeposit[i].amount,
+        ssovAddress: data.userSSOVDeposit[i].ssov.id,
+        assetName: assetName,
+        isPut: isPut,
+        ssovName: ssovName,
+      });
+    }
+
+    for (let i in data.userPositions) {
+      const ssovAddress = data.userPositions[i].id.split('#')[0];
+
+      const ssov = SsovV3__factory.connect(ssovAddress, provider);
+      const ssovName = await ssov.name();
+
+      const isPut = await ssov.isPut();
+      const assetName = await ssov.underlyingSymbol();
+
+      positions.push({
+        epoch: data.userPositions[i].epoch,
+        strike: data.userPositions[i].strike,
+        amount: data.userPositions[i].amount,
+        ssovAddress: ssovAddress,
+        assetName: assetName,
+        isPut: isPut,
+        ssovName: ssovName,
+      });
+    }
+
+    console.log(positions);
+
+    setPortfolioData({
+      userSSOVDeposits: deposits,
+      userPositions: positions,
+    });
+
     setIsLoading(false);
-  }, [accountAddress, setIsLoading]);
+  }, [accountAddress, setIsLoading, provider]);
 
   useEffect(() => {
     updatePortfolioData();

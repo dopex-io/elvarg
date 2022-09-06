@@ -1,36 +1,19 @@
 import { useContext, useState, useMemo } from 'react';
-import { BigNumber } from 'ethers';
 import Link from 'next/link';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
-import format from 'date-fns/format';
 
-import { PortfolioContext } from 'contexts/Portfolio';
+import { PortfolioContext, UserSSOVDeposit } from 'contexts/Portfolio';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
 
 import Filter from '../Filter';
-import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
-
-interface Position {
-  collateralAmount: number;
-  settleableAmount: BigNumber;
-  strikePrice: number;
-  vaultName: string;
-  imgSrc: string;
-  isPut: boolean;
-  epochEndTime: Date;
-  currentEpoch: number;
-  assetName: string;
-  accruedRewards0: number;
-  accruedRewards1: number;
-  accruedPremiums: number;
-}
 
 export default function Deposits() {
   const { portfolioData, isLoading } = useContext(PortfolioContext);
@@ -40,26 +23,24 @@ export default function Deposits() {
   ]);
   const [searchText, setSearchText] = useState<string>('');
 
-  const positions = useMemo(() => {
-    const _positions: Position[] = [];
-    return _positions;
-  }, [portfolioData]);
+  const filteredDeposits = useMemo(() => {
+    const _deposits: UserSSOVDeposit[] = [];
 
-  const filteredPositions = useMemo(() => {
-    const _positions: Position[] = [];
-    positions.map((position) => {
+    console.log(portfolioData?.userSSOVDeposits);
+
+    portfolioData?.userSSOVDeposits?.map((deposit) => {
       let toAdd = true;
       if (
-        !position?.vaultName?.includes(searchText.toUpperCase()) &&
+        !deposit?.ssovName?.includes(searchText.toUpperCase()) &&
         searchText !== ''
       )
         toAdd = false;
-      if (!selectedSides.includes(position?.isPut ? 'PUT' : 'CALL'))
+      if (!selectedSides.includes(deposit?.isPut ? 'PUT' : 'CALL'))
         toAdd = false;
-      if (toAdd) _positions.push(position);
+      if (toAdd) _deposits.push(deposit);
     });
-    return _positions;
-  }, [positions, searchText, selectedSides]);
+    return _deposits;
+  }, [portfolioData, searchText, selectedSides]);
 
   return (
     <Box>
@@ -99,7 +80,7 @@ export default function Deposits() {
             <Box className="flex">
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>
-          ) : positions.length === 0 ? (
+          ) : filteredDeposits.length === 0 ? (
             <Box className="flex-col p-9">
               <Box className="mx-auto">You do not have any deposits</Box>
               <Link href="/ssov">
@@ -117,7 +98,27 @@ export default function Deposits() {
               <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
                 <Box className="col-span-1 text-left">
                   <Typography variant="h5">
+                    <span className="text-stieglitz">Asset</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-2 text-left">
+                  <Typography variant="h5">
                     <span className="text-stieglitz">Market</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Side</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Epoch</span>
+                  </Typography>
+                </Box>
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Amount</span>
                   </Typography>
                 </Box>
                 <Box className="col-span-1 text-left">
@@ -127,36 +128,11 @@ export default function Deposits() {
                 </Box>
                 <Box className="col-span-1 text-left">
                   <Typography variant="h5">
-                    <span className="text-stieglitz">Side</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Collateral Amount</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Accrued Rewards</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Accrued Premiums</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Epoch End</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
                     <span className="text-stieglitz">Action</span>
                   </Typography>
                 </Box>
               </Box>
-              {filteredPositions.map((position, i) => (
+              {filteredDeposits.map((deposit, i) => (
                 <Box
                   key={i}
                   className="grid grid-cols-12 px-4 pt-2 pb-4"
@@ -164,77 +140,63 @@ export default function Deposits() {
                 >
                   <Box className="col-span-1 text-left flex">
                     <img
-                      src={position.imgSrc}
+                      src={`/assets/${deposit.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"
-                      alt={position.vaultName}
+                      alt={deposit.ssovName}
                     />
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {position.assetName.toUpperCase()}
+                        {deposit.assetName.toUpperCase()}
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h6" className="mt-2">
-                      <span className="text-white bg-umbra rounded-md px-2 py-1">
-                        ${position.strikePrice}
-                      </span>
+
+                  <Box className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">{deposit.ssovName}</span>
                     </Typography>
                   </Box>
+
                   <Box className="col-span-1 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span
                         className={
-                          position.isPut ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
+                          deposit.isPut ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
                         }
                       >
-                        {position.isPut ? 'PUT' : 'CALL'}
+                        {deposit.isPut ? 'PUT' : 'CALL'}
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-2 text-left">
+
+                  <Box className="col-span-1 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">{deposit.epoch}</span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {position.collateralAmount}{' '}
-                        {position.isPut
-                          ? '2CRV'
-                          : position.assetName.toUpperCase()}
+                        {getUserReadableAmount(deposit.amount, 18)}
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-2 text-left">
+
+                  <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {formatAmount(position.accruedRewards0, 6)}{' '}
-                        {position.assetName.toUpperCase()} {' | '}
-                        {formatAmount(position.accruedRewards1, 6)}{' '}
-                        {position.assetName === 'dpx' ? 'RDPX' : 'DPX'}
+                        {getUserReadableAmount(deposit.strike, 8)}
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {formatAmount(position.accruedPremiums, 6)}{' '}
-                        {position.isPut
-                          ? '2CRV'
-                          : position.assetName.toUpperCase()}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {format(position.epochEndTime, 'dd/MM/yyyy')}
-                      </span>
-                    </Typography>
-                  </Box>
+
                   <Box className="col-span-1">
                     <Box className="flex">
                       <a
                         target="_blank"
                         rel="noreferrer"
-                        href={`/ssov-v3/${position.vaultName}`}
+                        href={`/ssov-v3/${deposit.ssovName}`}
                       >
                         <CustomButton
                           size="medium"

@@ -22,9 +22,6 @@ query getUserData($user: ID!) {
         ssov {
             id
         }
-        token {
-            id
-        }
     }
     userSSOVOptionBalance {
         id

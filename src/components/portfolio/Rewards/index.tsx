@@ -137,8 +137,8 @@ const Widget = () => {
                 />
               ) : null}
             </Box>
-          ) : (
-            <Box></Box>
+          ) : isLoading ? null : (
+            <Box>Nothing to claim</Box>
           )}
         </Box>
       </Box>

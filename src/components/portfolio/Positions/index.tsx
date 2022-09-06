@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
-import format from 'date-fns/format';
 import useSendTx from 'hooks/useSendTx';
 import {
   SsovV3Viewer__factory,
@@ -17,28 +16,12 @@ import {
 
 import { MAX_VALUE } from 'constants/index';
 import { WalletContext } from 'contexts/Wallet';
-import { PortfolioContext } from 'contexts/Portfolio';
+import { PortfolioContext, UserPosition } from 'contexts/Portfolio';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
-import formatAmount from 'utils/general/formatAmount';
 import Filter from '../Filter';
 
 const sides: string[] = ['CALL', 'PUT'];
-
-interface Position {
-  isSettleable: boolean;
-  pnlAmount: number;
-  purchasedAmount: number;
-  settleableAmount: BigNumber;
-  strikeIndex: number;
-  strikePrice: number;
-  vaultName: string;
-  imgSrc: string;
-  isPut: boolean;
-  epochEndTime: Date;
-  currentEpoch: number;
-  assetName: string;
-}
 
 export default function Positions() {
   const { contractAddresses, provider, signer, accountAddress } =
@@ -52,6 +35,7 @@ export default function Positions() {
   const [searchText, setSearchText] = useState<string>('');
   const sendTx = useSendTx();
 
+  // @ts-ignore TODO: FIX
   const handleSettle = useCallback(
     async (
       vaultName: string,
@@ -59,7 +43,7 @@ export default function Positions() {
       userEpochStrikeTokenBalance: BigNumber,
       selectedEpoch: number
     ) => {
-      if (!updatePortfolioData) return;
+      if (!updatePortfolioData || !accountAddress) return;
 
       const vaults = contractAddresses['SSOV-V3']['VAULTS'];
 
@@ -114,17 +98,12 @@ export default function Positions() {
     ]
   );
 
-  const positions = useMemo(() => {
-    const _positions: Position[] = [];
-    return _positions;
-  }, [portfolioData]);
-
   const filteredPositions = useMemo(() => {
-    const _positions: Position[] = [];
-    positions.map((position) => {
+    const _positions: UserPosition[] = [];
+    portfolioData?.userPositions?.map((position) => {
       let toAdd = true;
       if (
-        !position.vaultName.includes(searchText.toUpperCase()) &&
+        !position.ssovName.includes(searchText.toUpperCase()) &&
         searchText !== ''
       )
         toAdd = false;
@@ -133,7 +112,7 @@ export default function Positions() {
       if (toAdd) _positions.push(position);
     });
     return _positions;
-  }, [positions, searchText, selectedSides]);
+  }, [portfolioData, searchText, selectedSides]);
 
   return (
     <Box>
@@ -151,7 +130,6 @@ export default function Positions() {
                 showImages={false}
               />
             </Box>
-
             <Box className="ml-auto">
               <Input
                 value={searchText}
@@ -173,7 +151,7 @@ export default function Positions() {
             <Box className="flex">
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>
-          ) : positions.length === 0 ? (
+          ) : filteredPositions.length === 0 ? (
             <Box className="flex-col p-9">
               <Box className="mx-auto">You do not have any positions</Box>
               <Link href="/ssov">
@@ -189,36 +167,23 @@ export default function Positions() {
           ) : (
             <Box className="py-2">
               <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Asset</span>
+                  </Typography>
+                </Box>
                 <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Market</span>
                   </Typography>
                 </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Strike</span>
-                  </Typography>
-                </Box>
+
                 <Box className="col-span-1 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Side</span>
                   </Typography>
                 </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Amount</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Expiry</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">PNL</span>
-                  </Typography>
-                </Box>
+
                 <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Action</span>
@@ -231,11 +196,11 @@ export default function Positions() {
                   className="grid grid-cols-12 px-4 pt-2 pb-4"
                   gap={0}
                 >
-                  <Box className="col-span-2 text-left flex">
+                  <Box className="col-span-1 text-left flex">
                     <img
-                      src={position.imgSrc}
+                      src={`/assets/${position.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"
-                      alt={position.vaultName}
+                      alt={position.ssovName}
                     />
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
@@ -243,11 +208,10 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h6" className="mt-2">
-                      <span className="text-white bg-umbra rounded-md px-2 py-1">
-                        ${position.strikePrice}
-                      </span>
+
+                  <Box className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">{position.ssovName}</span>
                     </Typography>
                   </Box>
                   <Box className="col-span-1 text-left">
@@ -261,54 +225,22 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {position.purchasedAmount}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {format(position.epochEndTime, 'dd/MM/yyyy')}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5" className="mt-1">
-                      <span
-                        className={
-                          position.pnlAmount >= 0
-                            ? 'text-[#6DFFB9]'
-                            : 'text-[#FF617D]'
-                        }
-                      >
-                        {formatAmount(position.pnlAmount, 4)}{' '}
-                        {position.isPut
-                          ? '2CRV'
-                          : position.assetName.toUpperCase()}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2">
+
+                  <Box className="col-span-1">
                     <Box className="flex">
-                      <CustomButton
-                        size="medium"
-                        className="px-2"
-                        onClick={() =>
-                          handleSettle(
-                            position.vaultName,
-                            position.strikeIndex,
-                            position.settleableAmount,
-                            position.currentEpoch
-                          )
-                        }
-                        disabled={!position.isSettleable}
-                        color="primary"
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`/ssov-v3/${position.ssovName}`}
                       >
-                        Settle
-                      </CustomButton>
+                        <CustomButton
+                          size="medium"
+                          className="px-2"
+                          color="primary"
+                        >
+                          Open
+                        </CustomButton>
+                      </a>
                     </Box>
                   </Box>
                 </Box>
