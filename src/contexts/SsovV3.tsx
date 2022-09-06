@@ -15,6 +15,7 @@ import {
   SSOVOptionPricing__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
+import { SsovV3__factory as OldSsovV3__factory } from 'sdk-old';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 import noop from 'lodash/noop';
@@ -134,7 +135,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
-    const ssov = SsovV3__factory.connect(ssovAddress, provider);
+    const ssov =
+      selectedSsovV3 === 'ETH-CALLS-SSOV-V3'
+        ? OldSsovV3__factory.connect(ssovAddress, provider)
+        : SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       ssovViewerAddress,
@@ -191,7 +195,10 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedSsovV3];
 
-    const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
+    const ssovContract =
+      selectedSsovV3 === 'ETH-CALLS-SSOV-V3'
+        ? OldSsovV3__factory.connect(ssovAddress, provider)
+        : SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       ssovViewerAddress,
@@ -252,6 +259,8 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       ? getUserReadableAmount(totalEpochDeposits, 18) *
         getUserReadableAmount(underlyingPrice, 8)
       : getUserReadableAmount(totalEpochDeposits, 18);
+
+    console.log(epochStrikes.map((strikes) => strikes.toString()));
 
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
