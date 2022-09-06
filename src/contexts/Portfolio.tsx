@@ -79,9 +79,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
     const deposits: UserSSOVDeposit[] = [];
     const positions: UserPosition[] = [];
 
-    console.log(data);
-
-    for (let i in data.userSSOVDeposit) {
+    for (let i in data?.userSSOVDeposit) {
       const ssov = SsovV3__factory.connect(
         data.userSSOVDeposit[i].ssov.id,
         provider
@@ -101,7 +99,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
       });
     }
 
-    for (let i in data.userPositions) {
+    for (let i in data?.userPositions) {
       const ssovAddress = data.userPositions[i].id.split('#')[0];
 
       const ssov = SsovV3__factory.connect(ssovAddress, provider);
@@ -120,8 +118,6 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         ssovName: ssovName,
       });
     }
-
-    console.log(positions);
 
     setPortfolioData({
       userSSOVDeposits: deposits,
