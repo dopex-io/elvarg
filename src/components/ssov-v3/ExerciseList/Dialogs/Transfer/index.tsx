@@ -15,7 +15,7 @@ import { ERC20__factory } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovV3Context } from 'contexts/SsovV3';
@@ -178,7 +178,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={`/assets/${ssovData?.underlyingSymbol}.svg`}
+                  src={`/images/tokens/${ssovData?.underlyingSymbol}.svg`}
                   alt={ssovData?.underlyingSymbol}
                 />
               </Box>
@@ -244,7 +244,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
         <CustomButton
           className="w-full mb-4"
           onClick={handleTransfer}
-          size="xl"
+          size="large"
           disabled={recipient !== '' && error === undefined ? false : true}
         >
           Transfer

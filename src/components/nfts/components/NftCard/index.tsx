@@ -5,7 +5,7 @@ import cx from 'classnames';
 import Image from 'next/image';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import ClaimDialog from '../ClaimDialog';
 import TransferDialog from '../TransferDialog';
 import { NftsContext, NftData } from 'contexts/Nfts';

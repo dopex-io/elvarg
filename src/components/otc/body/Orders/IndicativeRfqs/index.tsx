@@ -18,7 +18,7 @@ import delay from 'lodash/delay';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import CustomMenu from 'components/otc/CustomMenu';
 import IndicativeRfqsSm from 'components/otc/body/Orders/IndicativeRfqs/IndicativeRfqsSm';
 
@@ -172,7 +172,7 @@ const IndicativeRfqs = (props: IndicativeRfqsProps) => {
                     <TableBodyCell align="left">
                       <img
                         // @ts-ignore TODO: FIX
-                        src={`/assets/${getAssetFromOptionSymbol(
+                        src={`/images/tokens/${getAssetFromOptionSymbol(
                           row.data.base
                         ).toLowerCase()}.svg`}
                         alt={getAssetFromOptionSymbol(row.data.base)}

@@ -10,7 +10,7 @@ import { BaseNFT } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import BalanceTree from 'utils/merkle/balance-tree';
 
@@ -19,8 +19,8 @@ import useSendTx from 'hooks/useSendTx';
 import { WalletContext } from 'contexts/Wallet';
 import { NftsContext } from 'contexts/Nfts';
 
-import dopexBridgoorAddresses from 'constants/dopexBridgoorAddresses.json';
-import dopexHalloweenAddresses from 'constants/dopexHalloweenAddresses.json';
+import dopexBridgoorAddresses from 'constants/json/dopexBridgoorAddresses.json';
+import dopexHalloweenAddresses from 'constants/json/dopexHalloweenAddresses.json';
 
 // @ts-ignore TODO: FIX
 const ClaimModal = ({ open, handleClose, index, name }) => {

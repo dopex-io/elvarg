@@ -7,6 +7,7 @@ import { WalletContext } from 'contexts/Wallet';
 
 const useSendTx = () => {
   const { wrongNetwork, chainId } = useContext(WalletContext);
+
   const sendTx = useCallback(
     async (
       transaction: Promise<ContractTransaction>,
@@ -20,8 +21,8 @@ const useSendTx = () => {
         toast.error('Wrong Network');
         return;
       }
+      toastId = toast.loading(waitingMessage);
       try {
-        toastId = toast.loading(waitingMessage);
         const tx = await transaction;
         toast.loading(
           TransactionToast({
@@ -55,15 +56,13 @@ const useSendTx = () => {
             }
           );
         }
-      } catch (err) {
-        // @ts-ignore TODO: FIX
+      } catch (err: any) {
         if (err?.data?.message !== undefined) {
-          // @ts-ignore TODO: FIX
-          toast.error(err.data.message);
+          toast.error(err.data.message, { id: toastId });
         } else {
-          // @ts-ignore TODO: FIX
-          toast.error(err.message);
+          toast.error(err.message, { id: toastId });
         }
+        throw Error(err);
       }
     },
     [wrongNetwork, chainId]

@@ -94,7 +94,7 @@ export default async function changeOrAddNetwork(chainId: number) {
     // Initialize Coinbase Wallet SDK
     const coinbaseWallet = new CoinbaseWalletSDK({
       appName: 'Dopex',
-      appLogoUrl: '/assets/dpx.svg',
+      appLogoUrl: '/images/tokens/dpx.svg',
     });
 
     let rpcUrl = CHAIN_ID_TO_RPC[chainId];

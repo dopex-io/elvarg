@@ -5,7 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from '../Stat';
 
@@ -23,17 +23,19 @@ export interface Props {
 }
 
 const WithdrawDialog = ({ open, handleClose, data }: Props) => {
-  const { ssovData, ssovSigner } = useContext(SsovV3Context);
+  const { ssovData, ssovSigner, updateSsovV3EpochData } =
+    useContext(SsovV3Context);
   const { accountAddress } = useContext(WalletContext);
 
   const sendTx = useSendTx();
 
   const handleWithdraw = useCallback(async () => {
+    if (!ssovSigner.ssovContractWithSigner || !accountAddress) return;
     await sendTx(
-      // @ts-ignore TODO: FIX
       ssovSigner.ssovContractWithSigner.withdraw(data.tokenId, accountAddress)
     );
-  }, [accountAddress, data, sendTx, ssovSigner]);
+    updateSsovV3EpochData();
+  }, [accountAddress, data, sendTx, ssovSigner, updateSsovV3EpochData]);
 
   return (
     <Dialog
@@ -82,11 +84,11 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
             name="Accrued Rewards"
             value={
               <>
-                <NumberDisplay
-                  // @ts-ignore TODO: FIX
-                  n={data.accruedRewards[0]}
-                  decimals={18}
-                />
+                {data.accruedRewards.map((rewards, index) => {
+                  return (
+                    <NumberDisplay key={index} n={rewards} decimals={18} />
+                  );
+                })}
               </>
             }
           />
@@ -95,7 +97,7 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
         <CustomButton
           className="w-full my-4"
           onClick={handleWithdraw}
-          size="xl"
+          size="large"
         >
           Withdraw
         </CustomButton>

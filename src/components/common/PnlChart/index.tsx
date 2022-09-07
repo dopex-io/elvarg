@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
+import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -7,6 +8,7 @@ import Typography from 'components/UI/Typography';
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import getValueSign from 'utils/general/getValueSign';
+import PnlInfoBox from 'components/common/PnlInfoBox';
 
 const CustomTooltip = () => {
   return null;
@@ -59,12 +61,14 @@ const PnlChart = (props: PnlChartProps) => {
       .sort((a, b) => a.price - b.price);
   }, [breakEven, price, isPut, optionPrice, amount]);
 
-  // @ts-ignore TODO: FIX
-  const handleOnMouseMove = useCallback(({ activePayload }) => {
-    if (!activePayload?.length) return;
-    const { payload } = activePayload[0];
-    setState({ price: payload.price, pnl: payload.value });
-  }, []);
+  const handleOnMouseMove: CategoricalChartFunc = useCallback(
+    ({ activePayload }) => {
+      if (!activePayload?.length) return;
+      const { payload } = activePayload[0];
+      setState({ price: payload.price, pnl: payload.value });
+    },
+    []
+  );
 
   const handleMouseLeave = useCallback(
     () => setState({ price, pnl }),
@@ -83,7 +87,6 @@ const PnlChart = (props: PnlChartProps) => {
           width={300}
           height={100}
           data={data}
-          // @ts-ignore TODO: FIX
           onMouseMove={handleOnMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -91,57 +94,25 @@ const PnlChart = (props: PnlChartProps) => {
           <Line type="monotone" dataKey="value" stroke="white" dot={false} />
         </LineChart>
       </ResponsiveContainer>
-      <Box className="flex justify-between mb-3.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          {symbol} Price
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-white text-xs"
-        >
-          ${formatAmount(state.price, 3)}
-        </Typography>
-      </Box>
-      <Box className="flex justify-between mb-3.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          Estimated PnL
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className={getValueColorClass(state.pnl)}
-        >
+      <PnlInfoBox
+        info={`${symbol} Price`}
+        value={`$${formatAmount(state.price, 3)}`}
+        className={'text-white text-xs'}
+      />
+      <PnlInfoBox
+        info={'Estimated PnL'}
+        value={
           <span className="text-xs">
             {getValueSign(state.pnl)}${formatAmount(Math.abs(state.pnl), 3)}
           </span>
-        </Typography>
-      </Box>
-
-      <Box className="flex justify-between mb-0.5">
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          Breakeven
-        </Typography>
-        <Typography
-          variant="caption"
-          component="div"
-          className="text-stieglitz text-xs"
-        >
-          ${formatAmount(breakEven, 3)}
-        </Typography>
-      </Box>
+        }
+        className={getValueColorClass(state.pnl)}
+      />
+      <PnlInfoBox
+        info={'Breakeven'}
+        value={`$${formatAmount(breakEven, 3)}`}
+        color={'stieglitz'}
+      />
     </Box>
   );
 };

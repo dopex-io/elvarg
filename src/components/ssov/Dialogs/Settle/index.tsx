@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovContext } from 'contexts/Ssov';
@@ -180,7 +180,7 @@ const Settle = ({
             <Box className="h-12 bg-cod-gray rounded-xl p-2 flex flex-row items-center">
               <Box className="flex flex-row h-8 w-8 mr-2">
                 <img
-                  src={`/assets/${token.toLowerCase()}.svg`}
+                  src={`/images/tokens/${token.toLowerCase()}.svg`}
                   alt={`${token}`}
                 />
               </Box>

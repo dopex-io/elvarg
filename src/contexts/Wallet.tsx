@@ -14,6 +14,7 @@ import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import { CHAIN_ID_TO_RPC } from 'constants/index';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -34,11 +35,6 @@ interface WalletContextInterface {
   changeNetwork?: 'user' | 'wrong-network' | 'close';
 }
 
-const DEFAULT_CHAIN_ID =
-  Number(process.env['NEXT_PUBLIC_DEFAULT_CHAIN_ID']) ?? 42161;
-
-const _Addresses = Addresses as unknown as { [key: string]: any };
-
 const defaultContext = {
   wrongNetwork: false,
   connect: () => {},
@@ -47,7 +43,7 @@ const defaultContext = {
   setChangeNetwork: () => {},
   chainId: DEFAULT_CHAIN_ID,
   supportedChainIds: [DEFAULT_CHAIN_ID],
-  contractAddresses: _Addresses[String(DEFAULT_CHAIN_ID)],
+  contractAddresses: Addresses[Number(DEFAULT_CHAIN_ID)],
   provider: new providers.MulticallProvider(
     new ethers.providers.StaticJsonRpcProvider(
       CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
@@ -62,8 +58,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   [key: string]: { default: number; all: number[] };
 } = {
   '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/governance/vedpx': { default: 42161, all: [42161] },
   '/farms': { default: 42161, all: [1, 42161] },
-  '/farms/manage': { default: 42161, all: [1, 42161] },
   '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
   '/ssov/call/BNB': { default: 56, all: [56] },
   '/ssov/call/AVAX': { default: 43114, all: [43114] },
@@ -73,6 +69,13 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
+  '/ir/MIM3CRV-1': { default: 42161, all: [42161] },
+  '/ir/MIM3CRV-2': { default: 42161, all: [42161] },
+  '/ir/PUSD3CRV': { default: 42161, all: [42161] },
+  '/ir': { default: 42161, all: [42161] },
+  '/straddles': { default: 42161, all: [42161] },
+  '/straddles/ETH': { default: 42161, all: [42161] },
+  '/straddles/RDPX': { default: 42161, all: [42161] },
 };
 
 let web3Modal: Web3Modal | undefined;
@@ -137,7 +140,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
     accountAddress: '',
     wrongNetwork: false,
     chainId: DEFAULT_CHAIN_ID,
-    contractAddresses: _Addresses[DEFAULT_CHAIN_ID],
+    contractAddresses: Addresses[DEFAULT_CHAIN_ID],
     provider: null,
     supportedChainIds: [DEFAULT_CHAIN_ID],
   });
@@ -173,7 +176,8 @@ export const WalletProvider = (props: { children: ReactNode }) => {
 
       if (
         PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
-        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId)
+        !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&
+        PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length !== 0
       ) {
         setState((prevState: any) => ({
           ...prevState,
@@ -207,7 +211,7 @@ export const WalletProvider = (props: { children: ReactNode }) => {
 
       let contractAddresses: any;
 
-      contractAddresses = _Addresses[chainId];
+      contractAddresses = Addresses[chainId];
 
       setState((prevState: any) => ({
         ...prevState,

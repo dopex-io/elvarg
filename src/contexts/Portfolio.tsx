@@ -21,7 +21,6 @@ import { WalletContext } from './Wallet';
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 
 export interface UserPosition {
-  pnl: string;
   amount: string;
   epoch: string;
   strike: string;
@@ -129,16 +128,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
 
       const tokenData: any = tokenQueryResult['data']['tokens'][0];
 
-      const epochData = await ssov.epochData(tokenData.epoch);
-
-      const pnl = await ssov.calculatePnl(
-        epochData.settlementPrice,
-        tokenData.strike,
-        tokenData.amount
-      );
-
       positions.push({
-        pnl: pnl.toString(),
         epoch: tokenData.epoch,
         strike: tokenData.strike,
         amount: tokenData.amount,

@@ -1,5 +1,6 @@
 import { useContext, useState, useMemo } from 'react';
 import Link from 'next/link';
+
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -7,11 +8,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 
 import { PortfolioContext, UserSSOVDeposit } from 'contexts/Portfolio';
+
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import Filter from '../Filter';
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
 
@@ -140,7 +143,7 @@ export default function Deposits() {
                 >
                   <Box className="col-span-1 text-left flex">
                     <img
-                      src={`/assets/${deposit.assetName.toLowerCase()}.svg`}
+                      src={`/images/tokens/${deposit.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"
                       alt={deposit.ssovName}
                     />

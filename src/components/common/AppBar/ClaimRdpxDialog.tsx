@@ -10,7 +10,7 @@ import { MerkleDistributor__factory } from '@dopex-io/sdk';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import BalanceTree from 'utils/merkle/balance-tree';
 import formatAmount from 'utils/general/formatAmount';
@@ -20,7 +20,7 @@ import useSendTx from 'hooks/useSendTx';
 
 import { WalletContext } from 'contexts/Wallet';
 
-import airdropAddresses from 'constants/airdropAddresses.json';
+import airdropAddresses from 'constants/json/airdropAddresses.json';
 
 interface Props {
   open: boolean;

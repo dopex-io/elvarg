@@ -1,10 +1,8 @@
-import Box from '@mui/material/Box';
-import cx from 'classnames';
 import { useMemo, useState } from 'react';
+import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 
 import PriceTag from 'components/common/AppBar/PriceTag';
-
-import styles from 'components/common/AppBar/styles.module.scss';
 
 interface IPriceCarouselProps {
   tokenPrices: {
@@ -14,19 +12,35 @@ interface IPriceCarouselProps {
   }[];
 }
 
+const EXCLUDE_TOKENS = ['2CRV', 'USDT', 'USDC', 'FRAX', 'MIM', 'DAI', 'WETH'];
+
 interface IPriceFeedProps extends IPriceCarouselProps {
-  stylesClassName: string;
-  style: any;
+  animationPlayState: 'paused' | 'running';
 }
 
-const PriceFeed = ({
-  tokenPrices,
-  stylesClassName,
-  style,
-}: IPriceFeedProps) => (
-  <Box
-    className={cx('space-x-2 hidden lg:flex ', stylesClassName)}
-    style={style}
+const StyledPriceFeedWrapper = styled('div')`
+  animation-play-state: ${(props: {
+    animationPlayState: 'paused' | 'running';
+  }) => props.animationPlayState} !important;
+
+  flex: 1;
+  animation: move 60s linear infinite;
+
+  @keyframes move {
+    from {
+      transform: translateX(0%);
+    }
+
+    to {
+      transform: translateX(-100%);
+    }
+  }
+`;
+
+const PriceFeed = ({ tokenPrices, animationPlayState }: IPriceFeedProps) => (
+  <StyledPriceFeedWrapper
+    className="space-x-2 hidden lg:flex"
+    animationPlayState={animationPlayState}
   >
     {tokenPrices.map((item, i) => (
       <PriceTag
@@ -37,19 +51,19 @@ const PriceFeed = ({
         showDivisor={i > 0}
       />
     ))}
-  </Box>
+  </StyledPriceFeedWrapper>
 );
 
 const PriceCarousel = ({ tokenPrices }: IPriceCarouselProps) => {
   const [paused, setPaused] = useState(false);
+
   const handleHover = () => {
     setPaused((prev) => !prev);
   };
-  const style = useMemo(() => {
-    return {
-      animationPlayState: paused ? 'paused' : 'running',
-    };
-  }, [paused]);
+
+  const _tokenPrices = useMemo(() => {
+    return tokenPrices.filter((token) => !EXCLUDE_TOKENS.includes(token.name));
+  }, [tokenPrices]);
 
   return (
     <Box
@@ -57,24 +71,15 @@ const PriceCarousel = ({ tokenPrices }: IPriceCarouselProps) => {
       onMouseLeave={handleHover}
       className={'flex bg-umbra z-50'}
     >
-      <PriceFeed
-        tokenPrices={tokenPrices}
-        // @ts-ignore TODO: FIX
-        stylesClassName={styles['priceFeed']}
-        style={style}
-      />
-      <PriceFeed
-        tokenPrices={tokenPrices}
-        // @ts-ignore TODO: FIX
-        stylesClassName={styles['priceFeed']}
-        style={style}
-      />
-      <PriceFeed
-        tokenPrices={tokenPrices}
-        // @ts-ignore TODO: FIX
-        stylesClassName={styles['priceFeed']}
-        style={style}
-      />
+      {[0, 1, 2].map((i) => {
+        return (
+          <PriceFeed
+            key={i}
+            tokenPrices={_tokenPrices}
+            animationPlayState={paused ? 'paused' : 'running'}
+          />
+        );
+      })}
     </Box>
   );
 };

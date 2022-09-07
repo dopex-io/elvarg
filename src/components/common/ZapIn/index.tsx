@@ -21,7 +21,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { AssetsContext } from 'contexts/Assets';
 
 import TokenSelector from '../TokenSelector';
-import CustomButton from '../../UI/CustomButton';
+import CustomButton from '../../UI/Button';
 import Typography from '../../UI/Typography';
 
 import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
@@ -209,7 +209,7 @@ const ZapIn = ({
                   {fromTokenSymbol !== '' ? (
                     <img
                       src={
-                        '/assets/' +
+                        '/images/tokens/' +
                         fromTokenSymbol.toLowerCase().split('.e')[0] +
                         '.svg'
                       }
@@ -406,7 +406,7 @@ const ZapIn = ({
                             {swapSymbols.map((symbol) => (
                               <SwapSymbol
                                 key={symbol}
-                                imgSrc={`/assets/${
+                                imgSrc={`/images/tokens/${
                                   symbol.toLowerCase().split('.e')[0]
                                 }.svg`}
                                 imgAlt={symbol}
@@ -416,9 +416,9 @@ const ZapIn = ({
                             ))}
                             {isPut ? (
                               <SwapSymbol
-                                imgSrc="/assets/2crv.svg"
-                                imgAlt={'2CRV'}
-                                symbol={'2CRV'}
+                                imgSrc="/images/tokens/2crv.png"
+                                imgAlt="2CRV"
+                                symbol="2CRV"
                                 isInDialog={isInDialog}
                               />
                             ) : null}

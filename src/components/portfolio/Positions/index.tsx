@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import { PortfolioContext, UserPosition } from 'contexts/Portfolio';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import Filter from '../Filter';
 
@@ -130,12 +130,6 @@ export default function Positions() {
                   </Typography>
                 </Box>
 
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">PnL</span>
-                  </Typography>
-                </Box>
-
                 <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Action</span>
@@ -150,7 +144,7 @@ export default function Positions() {
                 >
                   <Box className="col-span-1 text-left flex">
                     <img
-                      src={`/assets/${position.assetName.toLowerCase()}.svg`}
+                      src={`/images/tokens/${position.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"
                       alt={position.ssovName}
                     />
@@ -197,20 +191,6 @@ export default function Positions() {
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         {getUserReadableAmount(position.amount, 18)}
-                      </span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5" className="mt-1">
-                      <span
-                        className={
-                          Number(position.pnl) < 0
-                            ? 'text-[#FF617D]'
-                            : 'text-[#6DFFB9]'
-                        }
-                      >
-                        {position.pnl}
                       </span>
                     </Typography>
                   </Box>

@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 
@@ -15,18 +15,14 @@ export default function NetworkButton({ className }: { className?: string }) {
   );
 
   return (
-    // TODO: FIX
-    // @ts-ignore
     <CustomButton
       size="medium"
-      className={className}
+      className={className!}
       color="cod-gray"
       startIcon={
         <img
-          // @ts-ignore TODO: FIX
-          src={CHAIN_ID_TO_NETWORK_DATA[chainId].icon}
-          // @ts-ignore TODO: FIX
-          alt={CHAIN_ID_TO_NETWORK_DATA[chainId].name}
+          src={CHAIN_ID_TO_NETWORK_DATA[chainId]?.icon}
+          alt={CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
           style={{ width: 13, height: 'auto' }}
         />
       }

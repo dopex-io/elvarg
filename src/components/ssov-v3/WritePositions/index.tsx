@@ -17,7 +17,11 @@ import WritePositionTableData from './WritePositionData';
 import TransferDialog from './Dialogs/TransferDialog';
 import WithdrawDialog from './Dialogs/WithdrawDialog';
 
-import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
+import {
+  SsovV3Context,
+  SsovV3Data,
+  WritePositionInterface,
+} from 'contexts/SsovV3';
 
 import styles from './styles.module.scss';
 
@@ -38,42 +42,39 @@ const TableColumnHeader: React.FC<{ children: React.ReactNode }> = ({
 };
 
 const COLUMN_HEADERS = [
-  'Option',
   'Strike Price',
+  'Epoch',
   'Deposit Amount',
   'Accrued Premiums',
   'Accrued Rewards',
-  'Epoch',
+  // 'Estimated Return',
   'Actions',
 ];
 
 const WritePositions = (props: { className?: string }) => {
   const { className } = props;
 
-  const { selectedEpoch, ssovUserData, ssovData } = useContext(SsovV3Context);
+  const { selectedEpoch, ssovUserData, ssovData, ssovEpochData } =
+    useContext(SsovV3Context);
 
-  // @ts-ignore TODO: FIX
-  const { underlyingSymbol, collateralSymbol } = ssovData;
+  const { collateralSymbol } = ssovData as SsovV3Data;
 
   const [page, setPage] = useState(0);
 
   // Filtered out positions with zero collateral
   const filteredWritePositions = useMemo(() => {
-    // @ts-ignore TODO: FIX
-    return ssovUserData.writePositions.filter(
-      (position) => !position.collateralAmount.isZero()
+    return (
+      ssovUserData?.writePositions.filter(
+        (position) => !position.collateralAmount.isZero()
+      ) || []
     );
-    // @ts-ignore TODO: FIX
-  }, [ssovUserData.writePositions]);
+  }, [ssovUserData]);
 
-  const [dialog, setDialog] = useState<
-    | undefined
-    | {
-        open: boolean;
-        type: 'WITHDRAW' | 'TRANSFER';
-        data: WritePositionInterface;
-      }
-  >({
+  const [dialog, setDialog] = useState<null | {
+    open: boolean;
+    type: 'WITHDRAW' | 'TRANSFER';
+    data: WritePositionInterface;
+  }>({
     open: false,
     type: 'WITHDRAW',
     data: {
@@ -81,25 +82,14 @@ const WritePositions = (props: { className?: string }) => {
       strike: BigNumber.from(0),
       accruedRewards: [BigNumber.from(0)],
       accruedPremiums: BigNumber.from(0),
+      // estimatedPnl: BigNumber.from(0),
       epoch: 0,
       tokenId: BigNumber.from(0),
     },
   });
 
   const handleClose = useCallback(() => {
-    // @ts-ignore TODO: FIX
-    setDialog((prevState) => ({
-      ...prevState,
-      open: false,
-      data: {
-        collateralAmount: BigNumber.from(0),
-        strike: BigNumber.from(0),
-        accruedRewards: [BigNumber.from(0)],
-        accruedPremiums: BigNumber.from(0),
-        epoch: 0,
-        tokenId: BigNumber.from(0),
-      },
-    }));
+    setDialog(null);
   }, []);
 
   const handleChangePage = useCallback(
@@ -109,15 +99,15 @@ const WritePositions = (props: { className?: string }) => {
     [setPage]
   );
 
-  // @ts-ignore TODO: FIX
-  return selectedEpoch > 0 ? (
+  return Number(selectedEpoch) > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
-      {dialog?.type === 'WITHDRAW' ? (
-        <WithdrawDialog {...dialog} handleClose={handleClose} />
-      ) : (
-        // @ts-ignore TODO: FIX
-        <TransferDialog {...dialog} handleClose={handleClose} />
-      )}
+      {dialog ? (
+        dialog.type === 'WITHDRAW' ? (
+          <WithdrawDialog {...dialog} handleClose={handleClose} />
+        ) : (
+          <TransferDialog {...dialog} handleClose={handleClose} />
+        )
+      ) : null}
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Write Positions
@@ -148,23 +138,26 @@ const WritePositions = (props: { className?: string }) => {
                     page * ROWS_PER_PAGE,
                     page * ROWS_PER_PAGE + ROWS_PER_PAGE
                   )
-                  ?.map((o, i) => {
+                  ?.map((o: WritePositionInterface, i: number) => {
                     const openTransfer = () => {
                       setDialog({ open: true, type: 'TRANSFER', data: o });
                     };
                     const openWithdraw = () => {
                       setDialog({ open: true, type: 'WITHDRAW', data: o });
                     };
-                    return (
+
+                    // only display positions for selected epoch
+                    return o.epoch === selectedEpoch ? (
                       <WritePositionTableData
                         key={i}
                         {...o}
-                        collateralSymbol={collateralSymbol}
-                        underlyingSymbol={underlyingSymbol}
+                        collateralSymbol={collateralSymbol || ''}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
+                        rewardTokens={ssovEpochData?.rewardTokens || []}
+                        epochExpired={ssovEpochData?.isEpochExpired || false}
                       />
-                    );
+                    ) : null;
                   })}
               </TableBody>
             </Table>
@@ -175,7 +168,7 @@ const WritePositions = (props: { className?: string }) => {
             component="div"
             id="stats"
             rowsPerPageOptions={[ROWS_PER_PAGE]}
-            count={filteredWritePositions.length}
+            count={filteredWritePositions?.length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={ROWS_PER_PAGE}
