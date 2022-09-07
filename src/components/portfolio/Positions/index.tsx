@@ -12,7 +12,7 @@ import { PortfolioContext, UserPosition } from 'contexts/Portfolio';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 
-import Filter from '../Filter';
+import Filter from 'components/common/Filter';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
