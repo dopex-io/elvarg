@@ -336,11 +336,15 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       .toNumber();
     const aprPremium = normApr.toFixed(0);
 
-    straddleFunding = currentPrice
-      .mul(getContractReadableAmount(16, 18))
-      .mul(BigNumber.from(Math.round(timeToExpiry)))
-      .div(BigNumber.from(365 * 86400))
-      .div(1e2);
+    try {
+      straddleFunding = await straddlesContract!['calculateApFunding'](
+        currentPrice,
+        getContractReadableAmount(1, 18),
+        BigNumber.from(Math.round(timeToExpiry))
+      );
+    } catch (e) {
+      straddleFunding = BigNumber.from('0');
+    }
 
     straddlePrice = straddlePremium.add(straddleFunding).add(purchaseFee);
 
