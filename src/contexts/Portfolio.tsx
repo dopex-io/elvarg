@@ -10,13 +10,18 @@ import { SsovV3__factory } from '@dopex-io/sdk';
 import {
   GetUserDataDocument,
   GetUserDataQuery,
+  GetTokenDataDocument,
+  GetTokenDataQuery,
 } from 'graphql/generated/portfolio';
 import { portfolioGraphClient } from 'graphql/apollo';
 import { ApolloQueryResult } from '@apollo/client';
 
 import { WalletContext } from './Wallet';
 
+import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
+
 export interface UserPosition {
+  pnl: string;
   amount: string;
   epoch: string;
   strike: string;
@@ -24,6 +29,7 @@ export interface UserPosition {
   ssovName: string;
   assetName: string;
   isPut: boolean;
+  link: string;
 }
 
 export interface UserSSOVDeposit {
@@ -34,6 +40,7 @@ export interface UserSSOVDeposit {
   isPut: boolean;
   assetName: string;
   strike: string;
+  link: string | undefined;
 }
 
 export interface PortfolioData {
@@ -62,7 +69,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
   const { provider, accountAddress } = useContext(WalletContext);
   const [portfolioData, setPortfolioData] =
     useState<PortfolioData>(initialPortfolioData);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const updatePortfolioData = useCallback(async () => {
     if (!accountAddress || !provider) return;
@@ -80,6 +87,8 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
     const positions: UserPosition[] = [];
 
     for (let i in data?.userSSOVDeposit) {
+      console.log(data.userSSOVDeposit[i]);
+
       const ssov = SsovV3__factory.connect(
         data.userSSOVDeposit[i].ssov.id,
         provider
@@ -96,11 +105,13 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         assetName: assetName,
         isPut: isPut,
         ssovName: ssovName,
+        link: getLinkFromVaultName(ssovName),
       });
     }
 
     for (let i in data?.userPositions) {
       const ssovAddress = data.userPositions[i].id.split('#')[0];
+      const tokenId = data.userPositions[i].id.split('#')[1];
 
       const ssov = SsovV3__factory.connect(ssovAddress, provider);
       const ssovName = await ssov.name();
@@ -108,14 +119,33 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
       const isPut = await ssov.isPut();
       const assetName = await ssov.underlyingSymbol();
 
+      const tokenQueryResult: ApolloQueryResult<GetTokenDataQuery> =
+        await portfolioGraphClient.query({
+          query: GetTokenDataDocument,
+          variables: { tokenId: `${ssovAddress}#${tokenId}` },
+          fetchPolicy: 'no-cache',
+        });
+
+      const tokenData: any = tokenQueryResult['data']['tokens'][0];
+
+      const epochData = await ssov.epochData(tokenData.epoch);
+
+      const pnl = await ssov.calculatePnl(
+        epochData.settlementPrice,
+        tokenData.strike,
+        tokenData.amount
+      );
+
       positions.push({
-        epoch: data.userPositions[i].epoch,
-        strike: data.userPositions[i].strike,
-        amount: data.userPositions[i].amount,
+        pnl: pnl.toString(),
+        epoch: tokenData.epoch,
+        strike: tokenData.strike,
+        amount: tokenData.amount,
         ssovAddress: ssovAddress,
         assetName: assetName,
         isPut: isPut,
         ssovName: ssovName,
+        link: getLinkFromVaultName(ssovName),
       });
     }
 

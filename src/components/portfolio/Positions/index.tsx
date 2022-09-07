@@ -1,14 +1,20 @@
 import { useContext, useState, useMemo } from 'react';
 import Link from 'next/link';
+
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
+
 import { PortfolioContext, UserPosition } from 'contexts/Portfolio';
+
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/CustomButton';
+
 import Filter from '../Filter';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
 
@@ -106,6 +112,30 @@ export default function Positions() {
                   </Typography>
                 </Box>
 
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Epoch</span>
+                  </Typography>
+                </Box>
+
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Strike</span>
+                  </Typography>
+                </Box>
+
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Amount</span>
+                  </Typography>
+                </Box>
+
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">PnL</span>
+                  </Typography>
+                </Box>
+
                 <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Action</span>
@@ -136,6 +166,7 @@ export default function Positions() {
                       <span className="text-white">{position.ssovName}</span>
                     </Typography>
                   </Box>
+
                   <Box className="col-span-1 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span
@@ -148,17 +179,49 @@ export default function Positions() {
                     </Typography>
                   </Box>
 
+                  <Box className="col-span-1 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">{position.epoch}</span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {getUserReadableAmount(position.strike, 8)}
+                      </span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {getUserReadableAmount(position.amount, 18)}
+                      </span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1 text-left">
+                    <Typography variant="h5" className="mt-1">
+                      <span
+                        className={
+                          Number(position.pnl) < 0
+                            ? 'text-[#FF617D]'
+                            : 'text-[#6DFFB9]'
+                        }
+                      >
+                        {position.pnl}
+                      </span>
+                    </Typography>
+                  </Box>
+
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a
-                        target="_blank"
-                        rel="noreferrer"
-                        href={`/ssov-v3/${position.ssovName}`}
-                      >
+                      <a target="_blank" rel="noreferrer" href={position.link}>
                         <CustomButton
                           size="medium"
                           className="px-2"
-                          color="primary"
+                          color={position.link !== '#' ? 'primary' : 'umbra'}
                         >
                           Open
                         </CustomButton>

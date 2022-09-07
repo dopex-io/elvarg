@@ -193,15 +193,11 @@ export default function Deposits() {
 
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a
-                        target="_blank"
-                        rel="noreferrer"
-                        href={`/ssov-v3/${deposit.ssovName}`}
-                      >
+                      <a target="_blank" rel="noreferrer" href={deposit.link}>
                         <CustomButton
                           size="medium"
                           className="px-2"
-                          color="primary"
+                          color={deposit.link !== '#' ? 'primary' : 'umbra'}
                         >
                           Open
                         </CustomButton>
