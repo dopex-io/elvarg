@@ -163,7 +163,7 @@ export default function Positions() {
 
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
-                      <span className="text-white">{position.ssovName}</span>
+                      <span className="text-white">{position.vaultType}</span>
                     </Typography>
                   </Box>
 

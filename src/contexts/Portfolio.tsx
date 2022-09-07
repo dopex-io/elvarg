@@ -30,6 +30,7 @@ export interface UserPosition {
   assetName: string;
   isPut: boolean;
   link: string;
+  vaultType: string;
 }
 
 export interface UserSSOVDeposit {
@@ -40,7 +41,8 @@ export interface UserSSOVDeposit {
   isPut: boolean;
   assetName: string;
   strike: string;
-  link: string | undefined;
+  link: string;
+  vaultType: string;
 }
 
 export interface PortfolioData {
@@ -87,8 +89,6 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
     const positions: UserPosition[] = [];
 
     for (let i in data?.userSSOVDeposit) {
-      console.log(data.userSSOVDeposit[i]);
-
       const ssov = SsovV3__factory.connect(
         data.userSSOVDeposit[i].ssov.id,
         provider
@@ -106,6 +106,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         isPut: isPut,
         ssovName: ssovName,
         link: getLinkFromVaultName(ssovName),
+        vaultType: 'SSOV',
       });
     }
 
@@ -146,6 +147,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         isPut: isPut,
         ssovName: ssovName,
         link: getLinkFromVaultName(ssovName),
+        vaultType: 'SSOV',
       });
     }
 
