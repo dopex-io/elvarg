@@ -51,7 +51,7 @@ export interface WritePosition {
   epoch: number;
   usdDeposit: BigNumber;
   rollover: BigNumber;
-  pnl: BigNumber;
+  premiumFunding: BigNumber;
   id: number;
 }
 
@@ -204,13 +204,20 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         if (owner !== accountAddress) throw 'Invalid owner';
 
         const data = await straddlesContract!['writePositions'](id);
-        const pnl = await straddlesContract!['calculateWritePositionPnl'](id);
+
+        const totalPremiumFunding = straddlesEpochData!.usdPremiums.add(
+          straddlesEpochData!.usdFunding
+        );
+        const premiumFunding = data.usdDeposit
+          .mul(totalPremiumFunding)
+          .div(straddlesEpochData!.usdDeposits);
+
         return {
           id: id,
           epoch: data['epoch'],
           usdDeposit: data['usdDeposit'],
           rollover: data['rollover'],
-          pnl: pnl,
+          premiumFunding: premiumFunding,
         };
       } catch {
         return {
@@ -218,7 +225,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract, accountAddress]
+    [straddlesContract, straddlesEpochData, accountAddress]
   );
 
   const updateStraddlesUserData = useCallback(async () => {
