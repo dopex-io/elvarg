@@ -108,6 +108,11 @@ const Straddles = () => {
           <Typography variant="h2" className="z-1 mb-4">
             Straddles
           </Typography>
+          <Typography variant="h5" className="text-stieglitz">
+            Supply Option liquidity for our Atlantic Straddle Vaults. Collect
+            premiums as well as compounding funding fees that rollover
+            automatically for easier liquidity management
+          </Typography>
         </Box>
         <Box className="mb-12">
           <Box className="flex mb-4">
