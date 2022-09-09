@@ -13,7 +13,7 @@ import { utils as ethersUtils } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Stat from '../Stat';
 
 import { WalletContext } from 'contexts/Wallet';
@@ -159,7 +159,7 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
         <CustomButton
           className="w-full mb-4"
           onClick={handleTransfer}
-          size="xl"
+          size="large"
           disabled={recipient !== '' && error === undefined ? false : true}
         >
           Transfer

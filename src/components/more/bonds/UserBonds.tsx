@@ -3,7 +3,7 @@ import { useContext, useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import format from 'date-fns/format';
 import Button from '@mui/material/Button';

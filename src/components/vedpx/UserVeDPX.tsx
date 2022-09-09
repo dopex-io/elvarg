@@ -1,6 +1,7 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
+import { DPXVotingEscrow__factory } from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
@@ -8,18 +9,44 @@ import WalletButton from 'components/common/WalletButton';
 import LockDialog from './LockDialog';
 import Stat from './Stat';
 
-import { VeDPXContext } from 'contexts/VeDPX';
+import { vedpxAddress, VeDPXContext } from 'contexts/VeDPX';
+import { WalletContext } from 'contexts/Wallet';
+
+import useSendTx from 'hooks/useSendTx';
 
 const UserVeDPX = () => {
   const [dialog, setDialog] = useState<{ open: boolean }>({ open: false });
 
   const { userData } = useContext(VeDPXContext);
+  const { signer } = useContext(WalletContext);
+
+  const sendTx = useSendTx();
 
   const handleClose = () => {
     setDialog((prevState: any) => {
       return { ...prevState, open: false };
     });
   };
+
+  const handleWithdraw = async () => {
+    if (!signer) return;
+    const vedpx = DPXVotingEscrow__factory.connect(vedpxAddress, signer);
+
+    await sendTx(vedpx.withdraw());
+  };
+
+  const isWithdrawable = useMemo(() => {
+    const currentTime = Number((new Date().getTime() / 1000).toFixed());
+
+    if (
+      userData.lockEnd.toNumber() < currentTime &&
+      !userData.lockedDpxBalance.isZero()
+    ) {
+      return true;
+    }
+
+    return false;
+  }, [userData]);
 
   return (
     <Box>
@@ -64,6 +91,12 @@ const UserVeDPX = () => {
               Lock
             </WalletButton>
           </Box>
+          <Box />
+          {isWithdrawable ? (
+            <Box className="p-3">
+              <WalletButton onClick={handleWithdraw}>Withdraw</WalletButton>
+            </Box>
+          ) : null}
         </Box>
       </Box>
       <LockDialog {...dialog} handleClose={handleClose} />

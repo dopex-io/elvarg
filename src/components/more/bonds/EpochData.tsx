@@ -3,7 +3,7 @@ import { useContext, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import LaunchIcon from '@mui/icons-material/Launch';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import { DpxBondsContext } from 'contexts/Bonds';
 import format from 'date-fns/format';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';

@@ -140,7 +140,7 @@ const Oracles = () => {
               {TOKENS.map((token) => {
                 return (
                   <OracleCard
-                    key={token.tokenSymbol}
+                    key={token}
                     // @ts-ignore TODO: FIX
                     data={{ ...token, ...state[token.tokenSymbol] }}
                   />

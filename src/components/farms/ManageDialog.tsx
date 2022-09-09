@@ -13,7 +13,7 @@ import useSendTx from 'hooks/useSendTx';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Tab from 'components/UI/Tab';
 
 import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';

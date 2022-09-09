@@ -3,7 +3,7 @@ import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import { DpxBondsContext } from 'contexts/Bonds';
 import SearchIcon from '@mui/icons-material/Search';
 import { WalletContext } from 'contexts/Wallet';

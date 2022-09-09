@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
-import cx from 'classnames';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
@@ -18,7 +17,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
 import { AssetsContext } from 'contexts/Assets';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import LockerIcon from 'svgs/icons/LockerIcon';
@@ -30,8 +29,6 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
-
-import styles from './styles.module.scss';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -166,19 +163,14 @@ const DepositPanel = () => {
   }, [accountAddress, signer, ssovData]);
 
   return (
-    <Box
-      className={cx(
-        'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4',
-        styles['cardWidth']
-      )}
-    >
+    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
       <Box className="flex mb-3">
         <Typography variant="h3" className="text-stieglitz">
           Deposit
         </Typography>
         {ssovData?.isPut ? (
           <a
-            href="https://arbitrum.curve.fi/2pool"
+            href="https://arbitrum.curve.fi/2pool/deposit"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-auto mt-1"
@@ -191,7 +183,6 @@ const DepositPanel = () => {
           </a>
         ) : null}
       </Box>
-
       <Box>
         <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
           <Box className="flex">
@@ -302,7 +293,7 @@ const DepositPanel = () => {
                 {epochTimes[1]
                   ? format(
                       new Date(epochTimes[1].toNumber() * 1000),
-                      'd LLLL yyyy'
+                      'd MMM yyyy HH:mm'
                     )
                   : '-'}
                 )

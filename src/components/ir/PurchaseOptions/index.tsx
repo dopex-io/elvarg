@@ -43,7 +43,7 @@ const PurchaseOptions = ({
   const rateVaultContext = useContext(RateVaultContext);
   const [updated, setUpdated] = useState<boolean>(false);
 
-  const { epochStrikes } = rateVaultContext.rateVaultEpochData;
+  const { epochStrikes } = rateVaultContext.rateVaultEpochData!;
 
   const [purchaseOptions, setPurchaseOptions] = useState<{
     [key: string]: any[];
@@ -51,6 +51,8 @@ const PurchaseOptions = ({
 
   useEffect(() => {
     const getPurchaseOptions = async (i: number, ssovContextSide: string) => {
+      if (!rateVaultContext.rateVaultEpochData) return;
+
       let strike: BigNumber = BigNumber.from('0');
 
       const _strike = rateVaultContext.rateVaultEpochData.epochStrikes[i];
@@ -98,7 +100,7 @@ const PurchaseOptions = ({
 
       const strikeIndexes = [];
       for (let strikeIndex in rateVaultContext.rateVaultEpochData
-        .epochStrikes) {
+        ?.epochStrikes) {
         strikeIndexes.push(getPurchaseOptions(Number(strikeIndex), 'CALL'));
         strikeIndexes.push(getPurchaseOptions(Number(strikeIndex), 'PUT'));
       }
@@ -121,7 +123,7 @@ const PurchaseOptions = ({
     if (updated === false) updatePurchaseOptions();
   }, [rateVaultContext, updated]);
 
-  return rateVaultContext?.rateVaultEpochData.epochStrikes ? (
+  return rateVaultContext?.rateVaultEpochData?.epochStrikes ? (
     <Box>
       <Box className="flex">
         <Typography variant="h4" className="text-white mb-7">

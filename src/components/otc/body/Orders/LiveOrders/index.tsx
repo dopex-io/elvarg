@@ -8,7 +8,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Skeleton from '@mui/material/Skeleton';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
 import Settle from 'components/otc/Dialogs/Settle';

@@ -16,7 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { SsovContext } from 'contexts/Ssov';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import InfoPopover from 'components/UI/InfoPopover';
 import Transfer from '../Dialogs/Transfer';

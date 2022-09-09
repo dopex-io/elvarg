@@ -15,13 +15,12 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { BigNumber } from 'ethers';
 import format from 'date-fns/format';
-import axios from 'axios';
 import cx from 'classnames';
 import Tooltip from '@mui/material/Tooltip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ZapInButton from 'components/common/ZapInButton';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
@@ -46,6 +45,7 @@ export interface Props {
   activeVaultContextSide: string;
   strikeIndex: number;
   setStrikeIndex: Function;
+  poolName: string;
 }
 
 const now = new Date();
@@ -54,38 +54,35 @@ const PurchaseCard = ({
   activeVaultContextSide,
   strikeIndex,
   setStrikeIndex,
+  poolName,
 }: Props) => {
   const rateVaultContext = useContext(RateVaultContext);
-  const { rateVaultEpochData } = rateVaultContext;
+  const {
+    rateVaultEpochData,
+    updateRateVaultEpochData,
+    updateRateVaultUserData,
+  } = rateVaultContext;
 
   const { updateAssetBalances, tokenPrices } = useContext(AssetsContext);
   const { accountAddress, provider, chainId, signer, contractAddresses } =
     useContext(WalletContext);
 
-  const { epochTimes } = rateVaultContext.rateVaultEpochData;
+  const { epochTimes } = rateVaultContext!.rateVaultEpochData!;
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(epochTimes[1].toNumber() * 1000);
   }, [epochTimes]);
 
-  // @ts-ignore TODO: FIX
-  const [isZapInVisible, setIsZapInVisible] = useState<boolean>(false);
-
-  // @ts-ignore TODO: FIX
-  const [isZapInAvailable, setIsZapInAvailable] = useState<boolean>(false);
-
-  const { epochStrikes } = rateVaultEpochData;
+  const { epochStrikes } = rateVaultEpochData!;
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
 
-  // @ts-ignore TODO: FIX
-  const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
-    useState<Boolean>(false);
-
   const userEpochStrikePurchasableAmount: number = useMemo(() => {
+    if (!rateVaultContext.rateVaultEpochData) return 0;
+
     let available, deposits;
 
     if (activeVaultContextSide === 'CALL') {
@@ -114,8 +111,8 @@ const PurchaseCard = ({
   const optionPrice: BigNumber = useMemo(() => {
     const _price =
       activeVaultContextSide === 'CALL'
-        ? rateVaultEpochData.callsCosts[strikeIndex]
-        : rateVaultEpochData.putsCosts[strikeIndex];
+        ? rateVaultEpochData!.callsCosts[strikeIndex]
+        : rateVaultEpochData!.putsCosts[strikeIndex];
 
     return _price || BigNumber.from('0');
   }, [rateVaultEpochData, strikeIndex, activeVaultContextSide]);
@@ -130,8 +127,8 @@ const PurchaseCard = ({
   const fees: BigNumber = useMemo(() => {
     const _fees =
       activeVaultContextSide === 'CALL'
-        ? rateVaultEpochData.callsFees[strikeIndex]
-        : rateVaultEpochData.putsFees[strikeIndex];
+        ? rateVaultEpochData?.callsFees[strikeIndex]
+        : rateVaultEpochData?.putsFees[strikeIndex];
 
     return (
       _fees?.mul(BigNumber.from(Math.round(notionalSize))) ||
@@ -142,8 +139,8 @@ const PurchaseCard = ({
   const premium: BigNumber = useMemo(() => {
     const _premium =
       activeVaultContextSide === 'CALL'
-        ? rateVaultEpochData.callsPremiumCosts[strikeIndex]
-        : rateVaultEpochData.putsPremiumCosts[strikeIndex];
+        ? rateVaultEpochData?.callsPremiumCosts[strikeIndex]
+        : rateVaultEpochData?.putsPremiumCosts[strikeIndex];
 
     return (
       _premium?.mul(BigNumber.from(Math.round(notionalSize))) ||
@@ -152,7 +149,7 @@ const PurchaseCard = ({
   }, [rateVaultEpochData, strikeIndex, notionalSize, activeVaultContextSide]);
 
   const volatility: BigNumber = useMemo(() => {
-    return rateVaultEpochData.volatilities[strikeIndex] || BigNumber.from('0');
+    return rateVaultEpochData?.volatilities[strikeIndex] || BigNumber.from('0');
   }, [rateVaultEpochData, strikeIndex]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -168,8 +165,9 @@ const PurchaseCard = ({
   }, [purchaseTokenName, activeVaultContextSide]);
 
   const spender = useMemo(() => {
-    return '0xdb2825f2A6c141A86862cCd5D4A86B18a436dd41';
-  }, []);
+    if (!contractAddresses) return;
+    return contractAddresses['RATE-VAULTS'][poolName];
+  }, [contractAddresses, poolName]);
 
   const purchasePower: number = useMemo(() => {
     return parseFloat(
@@ -202,8 +200,6 @@ const PurchaseCard = ({
       ? purchasePower >= getUserReadableAmount(totalCost, 18)
       : true;
 
-  const openZapIn = () => setIsZapInVisible(true);
-
   const handleApprove = useCallback(async () => {
     try {
       if (signer)
@@ -220,6 +216,13 @@ const PurchaseCard = ({
   }, [sendTx, signer, spender, contractAddresses, purchaseTokenName]);
 
   const handlePurchase = useCallback(async () => {
+    if (
+      !rateVaultContext.rateVaultData ||
+      !updateRateVaultEpochData ||
+      !updateRateVaultUserData
+    )
+      return;
+
     await sendTx(
       rateVaultContext.rateVaultData.rateVaultContract
         .connect(signer)
@@ -232,8 +235,8 @@ const PurchaseCard = ({
     );
 
     updateAssetBalances();
-    rateVaultContext.updateRateVaultEpochData();
-    rateVaultContext.updateRateVaultUserData();
+    updateRateVaultEpochData();
+    updateRateVaultUserData();
   }, [
     accountAddress,
     rateVaultContext,
@@ -243,22 +246,9 @@ const PurchaseCard = ({
     strikeIndex,
     updateAssetBalances,
     signer,
+    updateRateVaultEpochData,
+    updateRateVaultUserData,
   ]);
-
-  const checkDEXAggregatorStatus = useCallback(async () => {
-    try {
-      const { status } = await axios.get(
-        `https://api.1inch.exchange/v4.0/${chainId}/healthcheck`
-      );
-      setIsZapInAvailable(!!(status === 200));
-    } catch (err) {
-      setIsZapInAvailable(false);
-    }
-  }, [chainId]);
-
-  useEffect(() => {
-    checkDEXAggregatorStatus();
-  }, [checkDEXAggregatorStatus]);
 
   // Updates approved state and user balance
   useEffect(() => {
@@ -297,7 +287,6 @@ const PurchaseCard = ({
     const disabled = Boolean(
       notionalSize < 1000 ||
         !isPurchasePowerEnough ||
-        isPurchaseStatsLoading ||
         getUserReadableAmount(totalCost, 18) > purchasePower ||
         !isLiquidityEnough
     );
@@ -317,9 +306,7 @@ const PurchaseCard = ({
     let children = 'Enter an amount';
 
     if (isLiquidityEnough) {
-      if (isPurchaseStatsLoading) {
-        children = 'Loading prices...';
-      } else if (notionalSize >= 1000) {
+      if (notionalSize >= 1000) {
         if (getUserReadableAmount(totalCost, 18) > purchasePower) {
           children = 'Insufficient Balance';
         } else if (approved) {
@@ -346,7 +333,6 @@ const PurchaseCard = ({
     handlePurchase,
     isLiquidityEnough,
     isPurchasePowerEnough,
-    isPurchaseStatsLoading,
     notionalSize,
     purchasePower,
     totalCost,
@@ -567,16 +553,6 @@ const PurchaseCard = ({
           </Box>
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Purchase Power
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(purchasePower, 5)} {purchaseTokenName}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               You will pay
             </Typography>
             <Box className={'text-right'}>
@@ -589,7 +565,7 @@ const PurchaseCard = ({
           <EstimatedGasCostButton gas={700000} chainId={chainId} />
         </Box>
         <ZapInButton
-          openZapIn={openZapIn}
+          openZapIn={() => {}}
           isZapActive={isZapActive}
           quote={{}}
           path={{}}

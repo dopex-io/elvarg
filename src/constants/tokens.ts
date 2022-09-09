@@ -16,53 +16,36 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
   },
 };
 
-export const TOKENS = [
-  {
-    tokenSymbol: 'DPX',
-    type: 'dopex',
-    contractUrl:
-      'https://arbiscan.io/address/0x252c07e0356d3b1a8ce273e39885b094053137b9',
-    imgSrc: '/images/tokens/dpx.svg',
-    imgAlt: 'DPX',
-  },
-  {
-    tokenSymbol: 'rDPX',
-    type: 'dopex',
-    contractUrl:
-      'https://arbiscan.io/address/0xC0cdD1176aA1624b89B7476142b41C04414afaa0',
-    imgSrc: '/images/tokens/rdpx.svg',
-    imgAlt: 'rDPX',
-  },
-  {
-    tokenSymbol: 'gOHM',
-    type: 'chainlink',
-    contractUrl:
-      'https://arbiscan.io/address/0x6cb7d5bd21664e0201347bd93d66ce18bc48a807',
-    imgSrc: '/images/tokens/gohm.svg',
-    imgAlt: 'gOHM',
-  },
-  {
-    tokenSymbol: 'GMX',
-    type: 'uniswapV3',
-    contractUrl:
-      'https://arbiscan.io/address/0x60E07B25Ba79bf8D40831cdbDA60CF49571c7Ee0',
-    imgSrc: '/images/tokens/gmx.svg',
-    imgAlt: 'GMX',
-  },
-  {
-    tokenSymbol: 'BNB',
-    type: 'chainlink',
-    contractUrl:
-      'https://bscscan.com/address/0x0567f2323251f0aab15c8dfb1967e4e8a7d42aee',
-    imgSrc: '/images/tokens/bnb.svg',
-    imgAlt: 'BNB',
-  },
-  {
-    tokenSymbol: 'AVAX',
-    type: 'chainlink',
-    contractUrl:
-      'https://snowtrace.io/address/0x0A77230d17318075983913bC2145DB16C7366156',
-    imgSrc: '/images/tokens/avax.svg',
-    imgAlt: 'AVAX',
-  },
-];
+export const TOKEN_DATA: {
+  [key: string]: {
+    cgId?: string;
+    name: string;
+  };
+} = {
+  ETH: { cgId: 'ethereum', name: 'Ethereum' },
+  WETH: { cgId: 'weth', name: 'Wrapped Ethereum' },
+  WBTC: { cgId: 'bitcoin', name: 'Wrapped Bitcoin' },
+  PLS: { cgId: 'plutusdao', name: 'Plutus DAO' },
+  BNB: { cgId: 'binancecoin', name: 'Binance Coin' },
+  USDT: { cgId: 'tether', name: 'Tether USD' },
+  USDC: { cgId: 'usd-coin', name: 'Circle USD' },
+  GMX: { cgId: 'gmx', name: 'GMX' },
+  CVX: { cgId: 'convex-finance', name: 'Convex' },
+  CRV: { cgId: 'curve-dao-token', name: 'Curve' },
+  DAI: { cgId: 'dai', name: 'DAI' },
+  LINK: { cgId: 'chainlink', name: 'Chainlink' },
+  SPELL: { cgId: 'spell-token', name: 'SPELL' },
+  JONES: { cgId: 'jones-dao', name: 'JONES' },
+  MIM: { cgId: 'magic-internet-money', name: 'Magic Internet Money' },
+  FRAX: { cgId: 'frax', name: 'Frax USD' },
+  DPX: { cgId: 'dopex', name: 'Dopex Governance' },
+  RDPX: { cgId: 'dopex-rebate-token', name: 'Dopex Rebate' },
+  GOHM: { cgId: 'governance-ohm', name: 'OHM Governance' },
+  AVAX: { cgId: 'avalanche-2', name: 'Avalanche' },
+  MAGIC: { cgId: 'magic', name: 'Magic' },
+  '2CRV': { name: 'Curve 2Pool Token' },
+  VBNB: { name: 'Venus BNB' },
+  METIS: { cgId: 'metis', name: 'Metis DAO' },
+};
+
+export const TOKENS = Object.keys(TOKEN_DATA);

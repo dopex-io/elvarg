@@ -10,9 +10,16 @@ interface Props {
   decimals: number | BigNumber;
   altText?: ReactNode;
   minNumber?: number;
+  decimalsToShow?: number;
 }
 
-const NumberDisplay = ({ n, decimals, altText, minNumber = 0.0001 }: Props) => {
+const NumberDisplay = ({
+  n,
+  decimals,
+  altText,
+  minNumber = 0.0001,
+  decimalsToShow = 2,
+}: Props) => {
   if (BigNumber.from(decimals).gt(18)) throw Error('Decimals cannot exceed 18');
 
   const _val = new BN(n.toString()).dividedBy(`1e${decimals.toString()}`);
@@ -27,7 +34,11 @@ const NumberDisplay = ({ n, decimals, altText, minNumber = 0.0001 }: Props) => {
     );
   }
 
-  return <span className="text-white">{formatAmount(_val.toString(), 2)}</span>;
+  return (
+    <span className="text-white">
+      {formatAmount(_val.toString(), decimalsToShow)}
+    </span>
+  );
 };
 
 export default NumberDisplay;

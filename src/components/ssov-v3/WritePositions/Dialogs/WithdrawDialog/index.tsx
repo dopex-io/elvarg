@@ -5,7 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from '../Stat';
 
@@ -97,7 +97,7 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
         <CustomButton
           className="w-full my-4"
           onClick={handleWithdraw}
-          size="xl"
+          size="large"
         >
           Withdraw
         </CustomButton>

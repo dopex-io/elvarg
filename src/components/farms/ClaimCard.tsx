@@ -8,7 +8,7 @@ import {
 } from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from './Stat';
 
@@ -89,6 +89,7 @@ const ClaimCard = (props: Props) => {
                 <NumberDisplay
                   n={userRewardsEarned[index] || BigNumber.from(0)}
                   decimals={18}
+                  decimalsToShow={4}
                 />
               }
             />

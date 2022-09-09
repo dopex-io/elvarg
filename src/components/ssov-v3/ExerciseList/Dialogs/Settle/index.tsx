@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 
 import { WalletContext } from 'contexts/Wallet';
 import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
@@ -82,7 +82,8 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
         ssovSigner.ssovContractWithSigner.settle(
           strikeIndex,
           userEpochStrikeTokenBalance,
-          selectedEpoch
+          selectedEpoch,
+          accountAddress
         )
       );
       updateSsovV3EpochData();
@@ -197,7 +198,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
         <CustomButton
           className="w-full my-4"
           onClick={approved ? handleSettle : handleApprove}
-          size="xl"
+          size="large"
         >
           {approved ? 'Settle' : 'Approve'}
         </CustomButton>
