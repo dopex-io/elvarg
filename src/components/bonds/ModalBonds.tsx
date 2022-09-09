@@ -167,9 +167,9 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   const handleDeposit = useCallback(async () => {
     if (!handleMint) return;
 
-    await handleMint();
+    await handleMint(amount);
     handleModal();
-  }, [handleMint, handleModal]);
+  }, [handleMint, handleModal, amount]);
 
   const submitButton = {
     DEPOSIT: {
