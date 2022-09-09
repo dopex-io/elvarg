@@ -94,12 +94,6 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   }, []);
 
   useEffect(() => {
-    if (getUserReadableAmount(usdcBalance, 6) < 5000)
-      setErr('Insufficient USDC balance');
-    else setErr('');
-  }, [usdcBalance]);
-
-  useEffect(() => {
     (async () => {
       if (
         !dpxBondsAddress ||
@@ -142,13 +136,15 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
       setErr('');
       setAmount(value);
-      if (isNaN(Number(value))) {
+      if (getUserReadableAmount(usdcBalance, 6) < 5000)
+        setErr('Insufficient USDC Balance');
+      else if (isNaN(Number(value))) {
         setErr('Please only enter numbers');
       } else if (value > usableNfts.length) {
         setErr('Cannot deposit more than wallet limit');
       }
     },
-    [usableNfts.length]
+    [usableNfts.length, usdcBalance]
   );
 
   const handleApprove = useCallback(async () => {
