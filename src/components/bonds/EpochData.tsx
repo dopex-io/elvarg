@@ -1,52 +1,32 @@
 /** @jsxImportSource @emotion/react */
-import { useContext, useCallback, useMemo } from 'react';
+import { useContext } from 'react';
 import { css } from '@emotion/react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import format from 'date-fns/format';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
+import WalletButton from 'components/common/WalletButton';
 
 import { DpxBondsContext } from 'contexts/Bonds';
-import { WalletContext } from 'contexts/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 type EpochData = {
-  accountAddress: string | undefined;
   handleModal: () => void;
   handleEligibilityModal: () => void;
 };
 
 export const EpochData = ({
-  accountAddress,
   handleModal,
   handleEligibilityModal,
 }: EpochData) => {
   const { dpxBondsData, dpxBondsEpochData } = useContext(DpxBondsContext);
-  const { connect } = useContext(WalletContext);
 
-  const {
-    epoch: epochNumber,
-    epochExpiry,
-    dpxPrice,
-    maxDepositsPerEpoch,
-  } = dpxBondsData;
-  const { bondsIssued, totalEpochDeposits, depositPerNft } = dpxBondsEpochData;
-
-  const handleWalletConnect = useCallback(() => {
-    connect && connect();
-  }, [connect]);
-
-  const availableDpx = useMemo(() => {
-    if (totalEpochDeposits.eq(0) || dpxPrice.eq(0)) return 0;
-
-    return Math.abs(
-      getUserReadableAmount(bondsIssued.sub(totalEpochDeposits.div(dpxPrice)))
-    );
-  }, [bondsIssued, dpxPrice, totalEpochDeposits]);
+  const { epoch: epochNumber, epochExpiry } = dpxBondsData;
+  const { depositPerNft } = dpxBondsEpochData;
 
   const isEpochExpired = epochExpiry < Date.now() / 1000;
 
@@ -74,17 +54,32 @@ export const EpochData = ({
           </Box>
         </Box>
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-umbra w-2/4">
-          <Box className="text-stieglitz mb-3">DPX Available</Box>
+          <Box className="text-stieglitz mb-3">Total DPX Available</Box>
           <Box>
-            {availableDpx.toFixed()} / {getUserReadableAmount(bondsIssued)}
+            {formatAmount(
+              getUserReadableAmount(
+                dpxBondsEpochData.maxEpochDeposits
+                  .mul(1e6)
+                  .div(
+                    dpxBondsEpochData.bondPrice.isZero()
+                      ? BigNumber.from(1)
+                      : dpxBondsEpochData.bondPrice
+                  ),
+                6
+              ),
+              2
+            )}
             <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
               DPX
             </span>
           </Box>
         </Box>
         <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-umbra w-2/4">
-          <Box className="text-stieglitz mb-3">Deposit Cap</Box>$
-          {getUserReadableAmount(totalEpochDeposits, 6)}
+          <Box className="text-stieglitz mb-3">Max USDC Deposit</Box>$
+          {formatAmount(
+            getUserReadableAmount(dpxBondsEpochData.maxEpochDeposits, 6),
+            2
+          )}
         </Box>
         <Box className="p-3 md:flex-1">
           <Box className="text-stieglitz mb-3">
@@ -113,24 +108,24 @@ export const EpochData = ({
                 </Typography>
                 <Typography variant="h6" color="stieglitz">
                   Deposit up to{' '}
-                  {formatAmount(
+                  {/* {formatAmount(
                     getUserReadableAmount(maxDepositsPerEpoch, 6) -
                       getUserReadableAmount(totalEpochDeposits, 6),
                     0,
                     true
-                  )}{' '}
+                  )}{' '} */}
                   USDC
                 </Typography>
               </Box>
             </Box>
-            <CustomButton
+            <WalletButton
               variant="text"
               size="small"
               className="text-white bg-primary hover:bg-primary"
-              onClick={accountAddress ? handleModal : handleWalletConnect}
+              onClick={handleModal}
             >
-              {accountAddress ? 'Bond' : 'Connect'}
-            </CustomButton>
+              Bond
+            </WalletButton>
           </Box>
         </Box>
         <Box className="flex justify-between bg-cod-gray rounded-2xl p-2 w-[352px]">

@@ -23,6 +23,7 @@ import useSendTx from 'hooks/useSendTx';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { DPXBonds } from 'constants/abi/DPXBonds.js';
+import { noop } from 'lodash';
 
 interface BondState {
   epoch: number;
@@ -34,7 +35,6 @@ interface BondState {
 interface DpxBondsData {
   epoch: number;
   epochExpiry: number;
-  maxDepositsPerEpoch: BigNumber;
   dpxPrice: BigNumber;
   dpxBondsAddress: string;
   bridgoorNftBalance: BigNumber;
@@ -45,7 +45,6 @@ interface DpxBondsData {
 const initialDpxBondsData = {
   epoch: 0,
   epochExpiry: 0,
-  maxDepositsPerEpoch: BigNumber.from(0),
   dpxPrice: BigNumber.from(0),
   dpxBondsAddress: '',
   bridgoorNftBalance: BigNumber.from(0),
@@ -71,6 +70,7 @@ interface DopexBondsEpochData {
   epoch: number;
   epochExpiry: number;
   dpxBalance: BigNumber;
+  maxEpochDeposits: BigNumber;
   totalEpochDeposits: BigNumber;
   bondPrice: BigNumber;
   bondsIssued: BigNumber;
@@ -80,6 +80,7 @@ interface DopexBondsEpochData {
 const initialBondsEpochData = {
   dpxBalance: BigNumber.from(0),
   totalEpochDeposits: BigNumber.from(0),
+  maxEpochDeposits: BigNumber.from(0),
   epoch: 0,
   epochExpiry: 0,
   bondPrice: BigNumber.from(0),
@@ -93,14 +94,16 @@ interface DpxBondsContextInterface {
   dpxBondsUserEpochData: DopexBondsUserEpochData;
   getDepositsPerNftId?: Function;
   updateEpochData?: Function;
-  handleMint?: Function;
-  handleRedeem?: Function;
+  handleMint: Function;
+  handleRedeem: () => void;
 }
 
 export const DpxBondsContext = createContext<DpxBondsContextInterface>({
   dpxBondsData: initialDpxBondsData,
   dpxBondsEpochData: initialBondsEpochData,
   dpxBondsUserEpochData: initialDopexBondsUserEpochData,
+  handleMint: noop,
+  handleRedeem: noop,
 });
 
 export const DpxBondsProvider = (props: { children: ReactNode }) => {
@@ -123,7 +126,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
     if (!signer || !contractAddresses) return;
 
     return new ethers.Contract(
-      '0xb8493A60A6BdF662fe7ddFF9695b3bD1C781A843',
+      '0x7C254276a4b141E580532c41CFBf5b024019A790',
       DPXBonds,
       signer
     );
@@ -228,10 +231,6 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
 
     const epochExpiry = await bondsContract.epochExpiry(currentEpoch);
 
-    const maxDepositsPerEpoch = await bondsContract.maxDepositsPerEpoch(
-      currentEpoch
-    );
-
     const bridgoorNftBalance = await dopexBridgoorNFTContract.balanceOf(
       accountAddress
     );
@@ -252,7 +251,6 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
       epoch: Number(currentEpoch),
       epochExpiry: Number(epochExpiry),
       dpxPrice,
-      maxDepositsPerEpoch,
       dpxBondsAddress,
       bridgoorNftBalance,
       usdcBalance,
@@ -290,11 +288,11 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
         selectedEpoch
       );
 
-      const maxDepositsPerEpoch = await bondsContract.maxDepositsPerEpoch(
+      const maxEpochDeposits = await bondsContract.maxDepositsPerEpoch(
         selectedEpoch
       );
 
-      if (bondPrice.eq(0) || maxDepositsPerEpoch.eq(0)) return;
+      if (bondPrice.eq(0) || maxEpochDeposits.eq(0)) return;
 
       let bonds = BigNumber.from(0);
 
@@ -307,6 +305,7 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
         epochExpiry: Number(expiry),
         dpxBalance: contractDpxBalance ?? BigNumber.from(0),
         totalEpochDeposits: totalUsdcLocked,
+        maxEpochDeposits,
         bondsIssued: bonds,
         bondPrice: bondPrice,
         depositPerNft: depositPerNft,
@@ -363,36 +362,40 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
     usdcContract,
   ]);
 
-  const handleMint = useCallback(async () => {
-    if (!bondsContract || !signer || userEpochData.usableNfts.length === 0)
-      return;
-
-    try {
-      await sendTx(
-        bondsContract?.connect(signer).mint(userEpochData.usableNfts)
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  }, [bondsContract, sendTx, signer, userEpochData]);
-
-  const handleRedeem = useCallback(
-    async (epoch: number) => {
-      if (
-        !bondsContract ||
-        !signer ||
-        userEpochData.userClaimableBonds.length < 1
-      )
+  const handleMint = useCallback(
+    async (amount: number) => {
+      if (!bondsContract || !signer || userEpochData.usableNfts.length === 0)
         return;
 
       try {
-        await sendTx(bondsContract.connect(signer).redeem(epoch));
+        await sendTx(
+          bondsContract
+            ?.connect(signer)
+            .mint(userEpochData.usableNfts.slice(0, amount))
+        );
       } catch (e) {
         console.log(e);
       }
     },
-    [bondsContract, sendTx, signer, userEpochData.userClaimableBonds.length]
+    [bondsContract, sendTx, signer, userEpochData]
   );
+
+  const handleRedeem = useCallback(async () => {
+    if (
+      !bondsContract ||
+      !signer ||
+      userEpochData.userClaimableBonds.length < 1
+    )
+      return;
+
+    try {
+      await sendTx(bondsContract.connect(signer).redeem(1));
+    } catch (e) {
+      console.log(e);
+    }
+
+    return;
+  }, [bondsContract, sendTx, signer, userEpochData]);
 
   useEffect(() => {
     updateBondsData();

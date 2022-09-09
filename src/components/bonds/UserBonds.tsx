@@ -8,6 +8,7 @@ import format from 'date-fns/format';
 import CustomButton from 'components/UI/Button';
 
 import displayAddress from 'utils/general/displayAddress';
+
 import { DpxBondsContext } from 'contexts/Bonds';
 import { WalletContext } from 'contexts/Wallet';
 
@@ -37,25 +38,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     );
   }, [userDpxBondsState]);
 
-  const availableBondsForWithdraw = useMemo(() => {
-    return (
-      (userDpxBondsState &&
-        userDpxBondsState.filter(
-          (bond: any) => new Date().valueOf() - bond.maturityTime * 1000 >= 0
-        )) ||
-      []
-    );
-  }, [userDpxBondsState]);
-
   let lockedUntil = notRedeemedBonds[0]?.maturityTime;
-
-  const availableForWithdraw = useMemo(() => {
-    return (
-      (lockedUntil &&
-        new Date().valueOf() - new Date(lockedUntil * 1000).valueOf()) ||
-      0
-    );
-  }, [lockedUntil]);
 
   return (
     <Box className="mt-5">
@@ -63,17 +46,18 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
       {accountAddress ? (
         notRedeemedBonds.length > 0 ? (
           <Box className="rounded-md bg-cod-gray max-w-[728px]">
-            <Box className="bg-cod-gray border-b border-umbra mt-3">
+            <Box className="bg-cod-gray border-b border-umbra mt-3 flex justify-between p-3">
               <CustomButton
                 variant="text"
                 color="mineshaft"
-                className="text-white border-cod-gray m-2 hover:border-wave-blue border border-solid"
+                className="text-white border-cod-gray hover:border-wave-blue border border-solid"
               >
                 {ensAvatar && (
                   <img src={ensAvatar} className="w-5 mr-2" alt="ens avatar" />
                 )}
                 {ensName ? ensName : displayAddress(accountAddress)}
               </CustomButton>
+              <CustomButton onClick={handleRedeem}>Redeem</CustomButton>
             </Box>
             {notRedeemedBonds.map((bond, index) => (
               <Box className="bg-cod-gray flex flex-wrap mb-5" key={index}>
@@ -81,8 +65,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                   <Box className="text-stieglitz mb-3">DPX Available</Box>
                   <Box>
                     {(
-                      (notRedeemedBonds.length *
-                        getUserReadableAmount(depositPerNft, 6)) /
+                      getUserReadableAmount(depositPerNft, 6) /
                       getUserReadableAmount(bondPrice, 6)
                     ).toFixed(2)}
                     <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
@@ -98,37 +81,10 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                     {format(new Date(bond.issued * 1000), 'EEE d LLL')}
                   </Typography>
                 </Box>
-                <Box className="p-3 lg:flex-1 border-t border-r lg:border-t-0 border-umbra w-2/4">
-                  <Box className="text-stieglitz mb-3">Unlocked</Box>
-                  <Box>
-                    {(availableBondsForWithdraw.length *
-                      getUserReadableAmount(depositPerNft, 6)) /
-                      getUserReadableAmount(bondPrice, 6)}
-                    <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
-                      DPX
-                    </span>
-                  </Box>
-                </Box>
                 <Box className="p-3 lg:flex-1 border-r lg:border-t-0 border-umbra w-2/4">
                   <Box className="text-stieglitz mb-3">Locked Until</Box>
                   {lockedUntil &&
                     format(new Date(lockedUntil * 1000), 'EEE d LLL')}
-                </Box>
-                <Box className="p-3 m-auto text-center lg:flex-1 lg:border-r border-b lg:border-b-0 border-umbra">
-                  <Box>
-                    <CustomButton
-                      className={`p-2 rounded-md w-4/5`}
-                      onClick={() => availableForWithdraw > 0 && handleRedeem}
-                      disabled={bond.maturityTime > new Date().getTime() / 1000}
-                      color={
-                        bond.maturityTime > new Date().getTime() / 1000
-                          ? 'mineshaft'
-                          : 'primary'
-                      }
-                    >
-                      Redeem
-                    </CustomButton>
-                  </Box>
                 </Box>
               </Box>
             ))}
