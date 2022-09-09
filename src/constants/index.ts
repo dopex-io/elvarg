@@ -285,6 +285,7 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
   1088: 'https://andromeda-explorer.metis.io/',
+  421611: 'https://testnet.arbiscan.io/',
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

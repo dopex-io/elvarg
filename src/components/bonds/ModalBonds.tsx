@@ -1,23 +1,31 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import axios from 'axios';
+import Tooltip from '@mui/material/Tooltip';
+import { ERC20__factory } from '@dopex-io/sdk';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import LaunchIcon from '@mui/icons-material/Launch';
-import LinearProgress from '@mui/material/LinearProgress';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
-import Input from 'components/UI/Input';
-import { DpxBondsContext } from 'contexts/Bonds';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import displayAddress from 'utils/general/displayAddress';
-import Link from 'next/link';
-import Tooltip from '@mui/material/Tooltip';
 
-import axios from 'axios';
+import useSendTx from 'hooks/useSendTx';
+
+import Input from 'components/UI/Input';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+
+import { DpxBondsContext } from 'contexts/Bonds';
+import { WalletContext } from 'contexts/Wallet';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 export interface ModalBondsProps {
   modalOpen: boolean;
@@ -49,22 +57,32 @@ const BondsInfo = ({
 };
 
 export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
+  const sendTx = useSendTx();
+
+  const { handleMint, dpxBondsData, dpxBondsUserEpochData, dpxBondsEpochData } =
+    useContext(DpxBondsContext);
+  const { signer, /*contractAddresses,*/ accountAddress, provider, chainId } =
+    useContext(WalletContext);
+
   const {
-    dopexBridgoorNFTBalance,
-    maxDepositsPerEpoch,
     usdcBalance,
-    usdcContractBalance,
-    dpxPrice,
+    bridgoorNftBalance,
     dpxBondsAddress,
-    epochDiscount,
-    depositUSDC,
-    usableNfts,
-    depositPerNft,
-  } = useContext(DpxBondsContext);
+    maxDepositsPerEpoch,
+  } = dpxBondsData;
+  const { bondPrice, depositPerNft } = dpxBondsEpochData;
+  const { usableNfts } = dpxBondsUserEpochData;
 
   const [err, setErr] = useState('');
   const [inputValue, setValue] = useState(0);
   const [dpxOraclePrice, setOraclePrice] = useState(0);
+  const [approved, setApproved] = useState(false);
+
+  const percentageDiscount = useMemo(() => {
+    const dpxPrice = getUserReadableAmount(dpxOraclePrice, 8);
+    const priceDiff = Math.abs(getUserReadableAmount(bondPrice, 6) - dpxPrice);
+    return (priceDiff / dpxPrice) * 100;
+  }, [bondPrice, dpxOraclePrice]);
 
   useEffect(() => {
     async function getData() {
@@ -84,36 +102,100 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     getData();
   }, []);
 
-  const walletLimit = 5 * usableNfts.length;
+  useEffect(() => {
+    (async () => {
+      if (
+        !dpxBondsAddress ||
+        !provider ||
+        !accountAddress
+        // || !contractAddresses
+      )
+        return;
+      const amount = getContractReadableAmount(inputValue, 6);
+      const _usdc = ERC20__factory.connect(
+        // contractAddresses['USDC'],
+        '0x96979F70aDe814fBc53B3cebC5d2fCf3FE8A7381', // Mock USDC
+        provider
+      );
+      const allowance = await _usdc.allowance(accountAddress, dpxBondsAddress);
 
-  const priceWithDiscount = getUserReadableAmount(
-    dpxPrice - dpxPrice * (epochDiscount / 100),
-    6
+      if (amount.lte(allowance)) {
+        setApproved(true);
+      } else {
+        setApproved(false);
+      }
+    })();
+  }, [
+    accountAddress,
+    // contractAddresses,
+    dpxBondsAddress,
+    inputValue,
+    provider,
+  ]);
+
+  const handleMax = useCallback(() => {
+    let maxValue = usableNfts.length * getUserReadableAmount(depositPerNft, 6);
+    setValue(maxValue);
+  }, [depositPerNft, usableNfts.length]);
+
+  const handleChange = useCallback(
+    (e: any) => {
+      let value = e.target.value;
+      const maxValue =
+        usableNfts.length * getUserReadableAmount(depositPerNft, 6);
+      setErr('');
+      setValue(value);
+      if (isNaN(Number(value))) {
+        setErr('Please only enter numbers');
+      } else if (value > maxValue) {
+        setErr('Cannot deposit more than wallet limit');
+      }
+    },
+    [depositPerNft, usableNfts.length]
   );
 
-  const handleMax = () => {
-    setValue(walletLimit);
-  };
+  const handleApprove = useCallback(async () => {
+    if (
+      inputValue === 0 ||
+      !signer // || !contractAddresses
+    )
+      return;
 
-  const handleChange = (e: any) => {
-    let value = e.target.value;
-    setErr('');
-    if (isNaN(Number(value))) {
-      setErr('Please only enter numbers');
-    } else if (value > walletLimit) {
-      setErr('Cannot deposit more than wallet limit');
-    } else {
-      setValue(value);
+    const usdc = ERC20__factory.connect(
+      '0x96979F70aDe814fBc53B3cebC5d2fCf3FE8A7381', // contractAddresses['USDC'],
+      signer
+    );
+
+    try {
+      await sendTx(
+        usdc.approve(dpxBondsAddress, getContractReadableAmount(inputValue, 6))
+      );
+    } catch (e) {
+      console.log(e);
     }
-  };
+  }, [dpxBondsAddress, inputValue, sendTx, signer /* contractAddresses */]);
 
-  const handleDeposit = async () => {
-    if (inputValue % depositPerNft == 0) {
-      await depositUSDC(inputValue);
+  const handleDeposit = useCallback(async () => {
+    if (depositPerNft.eq(0) || !handleMint) return;
+    let depositReq = getUserReadableAmount(depositPerNft, 6);
+    if (inputValue % depositReq == 0) {
+      await handleMint();
       handleModal();
     } else {
       setErr(`Deposit must be divisible by ${depositPerNft}`);
     }
+    return;
+  }, [depositPerNft, handleMint, handleModal, inputValue]);
+
+  const submitButton = {
+    DEPOSIT: {
+      text: 'Deposit',
+      handleClick: handleDeposit,
+    },
+    APPROVE: {
+      text: 'Approve',
+      handleClick: handleApprove,
+    },
   };
 
   return (
@@ -133,7 +215,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
               src="/images/nfts/DopexBridgoorNFT.gif"
               alt="DopexBridgoorNFT"
             ></img>
-            Bridgoor × {dopexBridgoorNFTBalance}
+            Bridgoor × {bridgoorNftBalance.toString()}
           </Box>
           <CloseIcon
             className="fill-current text-white mt-3"
@@ -165,14 +247,15 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
                 variant="caption"
                 color="stieglitz"
               >
-                Balance:
+                Balance
               </Typography>
               <Typography variant="caption" color="white">
                 {getUserReadableAmount(usdcBalance, 6)} USDC
               </Typography>
             </Box>
           }
-          placeholder={inputValue.toString()}
+          value={inputValue}
+          type="number"
           size="small"
           onChange={handleChange}
         />
@@ -183,30 +266,31 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         )}
 
         <Box className="flex mt-3">
-          <Box className="flex-1 bg-cod-gray  border border-umbra p-2">
-            {inputValue ? (
-              <Typography variant="h5" className="text-[#22E1FF] pt-3 h-[40px]">
+          <Box className="w-1/2 bg-cod-gray border border-umbra p-2">
+            <Typography variant="h5" className="text-[#22E1FF] pt-3 h-[40px]">
+              {inputValue ? (
                 <ArrowForwardIcon className="text-[#3E3E3E] w-[20px] mr-1 mb-1" />
-                {inputValue / priceWithDiscount}
-              </Typography>
-            ) : (
-              <Typography variant="h5" className="text-white">
-                -
-              </Typography>
-            )}
-            <Box className="text-stieglitz pb-3">To DPX</Box>
+              ) : null}
+              {inputValue
+                ? inputValue / getUserReadableAmount(bondPrice, 6)
+                : '-'}
+            </Typography>
+            <Typography variant="h5" className="p-2" color="stieglitz">
+              To DPX
+            </Typography>
           </Box>
-          <Box className="flex-1  bg-cod-gray  border border-umbra p-2">
+          <Box className="w-1/2 bg-cod-gray  border border-umbra p-2">
             <Typography variant="h5" className="text-white  pt-3 h-[40px]">
-              {epochDiscount} %
+              {formatAmount(percentageDiscount, 2)}
+              {} %
             </Typography>
             <Box className="text-stieglitz">Discount</Box>
           </Box>
         </Box>
-        <Box className="border border-umbra p-3">
+        <Box className="border border-umbra p-3 pt-6">
           <BondsInfo
             title="Bonding Price"
-            value={`${getUserReadableAmount(dpxPrice, 6)} USDC`}
+            value={`${getUserReadableAmount(bondPrice, 6)} USDC`}
           />
           <BondsInfo
             title="Oracle Price"
@@ -216,13 +300,9 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           <BondsInfo
             title="Total Bonding Limit"
             value={`${getUserReadableAmount(
-              usdcContractBalance,
+              usdcBalance,
               6
             )} / ${getUserReadableAmount(maxDepositsPerEpoch, 6)}`}
-          />
-          <LinearProgress
-            variant="determinate"
-            value={(usdcContractBalance / maxDepositsPerEpoch) * 100}
           />
         </Box>
         <Box className="bg-umbra p-4 rounded-xl mt-3">
@@ -233,9 +313,16 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
               className="text-stieglitz mr-auto flex"
             >
               Contract
-              <Link href={'https://arbiscan.io/address/' + dpxBondsAddress}>
+              <a
+                href={
+                  `${CHAIN_ID_TO_EXPLORER[chainId ?? 42161]}/address/` +
+                  dpxBondsAddress
+                }
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 <LaunchIcon className="w-3 ml-1 pb-2" />
-              </Link>
+              </a>
             </Typography>
             <Box className="text-xs text-white">
               {displayAddress(dpxBondsAddress)}
@@ -248,12 +335,15 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             >
               Wallet Limit
               <Tooltip
-                title={` Every Bridgoor NFT increases your cap by an additional ${depositPerNft} USDC for every epoch.`}
+                title={` Every Bridgoor NFT increases your cap by an additional ${getUserReadableAmount(
+                  depositPerNft,
+                  6
+                )} USDC for every epoch.`}
               >
                 <HelpOutlineIcon className="w-3 ml-1 pb-2" />
               </Tooltip>
             </Typography>
-            <Box className="text-[#22E1FF] text-xs">{walletLimit}</Box>
+            {/* <Box className="text-[#22E1FF] text-xs">{walletLimit}</Box> */}
           </Box>
         </Box>
         <CustomButton
@@ -262,9 +352,9 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           color={inputValue ? '' : 'umbra'}
           className="text-white bg-primary hover:bg-primary w-full mt-5  p-4"
           disabled={inputValue ? false : true}
-          onClick={handleDeposit}
+          onClick={submitButton[approved ? 'DEPOSIT' : 'APPROVE'].handleClick}
         >
-          {inputValue ? 'Bond' : 'Select Amount'}
+          {submitButton[approved ? 'DEPOSIT' : 'APPROVE'].text}
         </CustomButton>
       </Box>
     </Dialog>

@@ -30,22 +30,23 @@ const DiamondPepesNfts = () => {
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
     useState<string>('hidden');
-  const diamondPepeNfts = useMemo(
-    () =>
-      DiamondPepeNFTs__factory.connect(
-        Addresses[chainId]['NFTS']['DiamondPepesNFT'],
-        signer
-      ),
-    [signer, chainId]
-  );
-  const pledge = useMemo(
-    () =>
-      DiamondPepeNFTsPledge2__factory.connect(
-        '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
-        signer
-      ),
-    [signer]
-  );
+
+  const diamondPepeNfts = useMemo(() => {
+    if (!Addresses[chainId]['NFTS']?.DiamondPepesNFT || !signer) return;
+    return DiamondPepeNFTs__factory.connect(
+      Addresses[chainId]['NFTS']?.DiamondPepesNFT,
+      signer
+    );
+  }, [signer, chainId]);
+
+  const pledge = useMemo(() => {
+    if (!signer) return;
+    return DiamondPepeNFTsPledge2__factory.connect(
+      '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
+      signer
+    );
+  }, [signer]);
+
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
 

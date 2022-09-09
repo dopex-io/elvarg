@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Typography from 'components/UI/Typography';
 
 import { UserBonds } from './UserBonds';
@@ -12,7 +12,8 @@ import PageLoader from 'components/common/PageLoader';
 
 export const Bonds = () => {
   const { accountAddress } = useContext(WalletContext);
-  const { epochNumber } = useContext(DpxBondsContext);
+  const { dpxBondsData, updateEpochData } = useContext(DpxBondsContext);
+
   const [modalOpen, setModal] = useState(false);
   const [eligibilityModal, setEligibilityModal] = useState(false);
 
@@ -23,9 +24,13 @@ export const Bonds = () => {
     setEligibilityModal(!eligibilityModal);
   };
 
+  useEffect(() => {
+    updateEpochData!(dpxBondsData.epoch);
+  }, [updateEpochData, dpxBondsData.epoch]);
+
   return (
     <>
-      {epochNumber ? (
+      {dpxBondsData.epoch > 0 ? (
         <>
           <Typography variant="h5">Bonding</Typography>
           <EpochData

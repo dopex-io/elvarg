@@ -1,4 +1,4 @@
-import { useContext, useState, useCallback } from 'react';
+import { useMemo, useContext, useState, useCallback } from 'react';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
@@ -53,24 +53,34 @@ export const EligibilityCheck = ({
 
   const { accountAddress, connect } = useContext(WalletContext);
 
-  const {
-    usableNfts,
-    dopexBridgoorNFTBalance,
-    bridgoorNFTIds,
-    getDepositsPerNftId,
-  } = useContext(DpxBondsContext);
+  const { dpxBondsUserEpochData, dpxBondsData, getDepositsPerNftId } =
+    useContext(DpxBondsContext);
+
+  const { bridgoorNftBalance, bridgoorNftIds, epoch } = dpxBondsData;
+  const { usableNfts } = dpxBondsUserEpochData;
+
+  const usableNftsFormatted = useMemo(() => {
+    return usableNfts.map((nftId) => nftId.toNumber());
+  }, [usableNfts]);
 
   const handleWalletConnect = useCallback(() => {
     connect && connect();
   }, [connect]);
-  // console.log(bridgoorNFTIds, "bridgoorNFTIds")
-  const usedNfts =
-    (bridgoorNFTIds &&
-      bridgoorNFTIds.filter((id: number) => usableNfts.indexOf(id) == -1)) ||
-    [];
+
+  const usedNfts = useMemo(() => {
+    return (
+      (bridgoorNftIds &&
+        bridgoorNftIds.filter(
+          (id: number) => usableNftsFormatted.indexOf(Number(id)) == -1
+        )) ||
+      []
+    );
+  }, [bridgoorNftIds, usableNftsFormatted]);
 
   const handleCheckNft = async (id: number) => {
-    let result = await getDepositsPerNftId(id);
+    if (!getDepositsPerNftId) return;
+
+    let result = await getDepositsPerNftId(id, epoch);
     if (result > 0) {
       setEligible(false);
     } else {
@@ -107,7 +117,7 @@ export const EligibilityCheck = ({
               src="/images/nfts/DopexBridgoorNFT.gif"
               alt="DopexBridgoorNFT"
             ></img>
-            Bridgoor × {dopexBridgoorNFTBalance}
+            Bridgoor × {bridgoorNftBalance.toString()}
           </Box>
           <CloseIcon
             className="fill-current text-white mt-3"
@@ -143,6 +153,7 @@ export const EligibilityCheck = ({
           <Box className="h-[36px]">
             <Input
               leftElement={<SearchIcon className="text-[#8E8E8E]" />}
+              type="number"
               sx={{
                 fontSize: '14px !important',
                 height: '30px !important',
@@ -150,7 +161,7 @@ export const EligibilityCheck = ({
               inputProps={{
                 pattern: '[0-9]*',
               }}
-              placeholder="ex: 1"
+              placeholder="ex: 1, 2, 3..."
               className="my-0 py-1 border border-[#646464]"
               onChange={(e) =>
                 e.target.validity.valid ? handleChange(e) : setErr(true)
@@ -185,7 +196,7 @@ export const EligibilityCheck = ({
               </Box>
               <Typography variant="caption">{usableNfts.length}</Typography>
             </Box>
-            {nftList(usableNfts)}
+            {nftList(usableNftsFormatted)}
             <Box className="flex">
               <Box className=" flex-1 text-[#8E8E8E] text-xs pt-1 mb-4">
                 Ineligible NFTs

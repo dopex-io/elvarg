@@ -14,7 +14,9 @@ import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import { CHAIN_ID_TO_RPC } from 'constants/index';
-import { DEFAULT_CHAIN_ID } from 'constants/env';
+// import { DEFAULT_CHAIN_ID } from 'constants/env';
+
+const DEFAULT_CHAIN_ID = 421611;
 
 interface WalletContextInterface {
   accountAddress?: string;
@@ -76,6 +78,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/straddles': { default: 42161, all: [42161] },
   '/straddles/ETH': { default: 42161, all: [42161] },
   '/straddles/RDPX': { default: 42161, all: [42161] },
+  '/dopex-bonds': { default: 42161, all: [42161, 421611] },
 };
 
 let web3Modal: Web3Modal | undefined;

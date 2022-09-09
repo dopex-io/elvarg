@@ -1,14 +1,18 @@
 /** @jsxImportSource @emotion/react */
-import { useContext, useCallback } from 'react';
-import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
-import LaunchIcon from '@mui/icons-material/Launch';
-import CustomButton from 'components/UI/Button';
-import { DpxBondsContext } from 'contexts/Bonds';
-import format from 'date-fns/format';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { WalletContext } from 'contexts/Wallet';
+import { useContext, useCallback, useMemo } from 'react';
 import { css } from '@emotion/react';
+import Box from '@mui/material/Box';
+import LaunchIcon from '@mui/icons-material/Launch';
+import format from 'date-fns/format';
+
+import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/Button';
+
+import { DpxBondsContext } from 'contexts/Bonds';
+import { WalletContext } from 'contexts/Wallet';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 type EpochData = {
   accountAddress: string | undefined;
@@ -21,30 +25,30 @@ export const EpochData = ({
   handleModal,
   handleEligibilityModal,
 }: EpochData) => {
-  const {
-    epochNumber,
-    epochDiscount,
-    epochExpiry,
-    maxDepositsPerEpoch,
-    totalEpochDeposits,
-    dpxPrice,
-    bondsDpx,
-    depositPerNft,
-  } = useContext(DpxBondsContext);
-
+  const { dpxBondsData, dpxBondsEpochData } = useContext(DpxBondsContext);
   const { connect } = useContext(WalletContext);
+
+  const {
+    epoch: epochNumber,
+    epochExpiry,
+    dpxPrice,
+    maxDepositsPerEpoch,
+  } = dpxBondsData;
+  const { bondsIssued, totalEpochDeposits, depositPerNft } = dpxBondsEpochData;
 
   const handleWalletConnect = useCallback(() => {
     connect && connect();
   }, [connect]);
 
-  const availableDpx =
-    getUserReadableAmount(bondsDpx) -
-    totalEpochDeposits / (dpxPrice - dpxPrice * (epochDiscount / 100));
+  const availableDpx = useMemo(() => {
+    if (totalEpochDeposits.eq(0) || dpxPrice.eq(0)) return 0;
 
-  const epochExpired =
-    (epochExpiry && new Date().valueOf() - new Date(epochExpiry).valueOf()) ||
-    0;
+    return Math.abs(
+      getUserReadableAmount(bondsIssued.sub(totalEpochDeposits.div(dpxPrice)))
+    );
+  }, [bondsIssued, dpxPrice, totalEpochDeposits]);
+
+  const isEpochExpired = epochExpiry < Date.now() / 1000;
 
   return (
     <>
@@ -72,21 +76,21 @@ export const EpochData = ({
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-umbra w-2/4">
           <Box className="text-stieglitz mb-3">DPX Available</Box>
           <Box>
-            {availableDpx.toFixed(2)} / {getUserReadableAmount(bondsDpx)}
+            {availableDpx.toFixed()} / {getUserReadableAmount(bondsIssued)}
             <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
               DPX
             </span>
           </Box>
         </Box>
         <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-umbra w-2/4">
-          <Box className="text-stieglitz mb-3">TBV</Box>$
+          <Box className="text-stieglitz mb-3">Deposit Cap</Box>$
           {getUserReadableAmount(totalEpochDeposits, 6)}
         </Box>
         <Box className="p-3 md:flex-1">
           <Box className="text-stieglitz mb-3">
-            {epochExpired > 0 ? 'Expired' : 'Expiry'}
+            {isEpochExpired ? 'Expired' : 'Expiry'}
           </Box>
-          {epochExpiry && format(epochExpiry, 'MM/dd/yyyy')}
+          {epochExpiry && format(epochExpiry * 1000, 'd MMM yyyy')}
         </Box>
       </Box>
       <Typography variant="h5">Bond with Stablecoins</Typography>
@@ -96,40 +100,48 @@ export const EpochData = ({
       </Box>
       <Box className="lg:flex">
         <Box className="bg-cod-gray rounded-2xl p-2 w-[352px] mb-5 lg:mb-0 md:mr-5">
-          <Box className="flex pt-3 pb-3 items-center">
-            <img
-              src={'/images/tokens/usdc.svg'}
-              alt={'usdc'}
-              className="w-[40px] mr-3"
-            />
-            <Box className="flex-1">
-              USDC <br />
-              <Typography variant="h6" color="stieglitz" className="flex-1">
-                Deposit up to{' '}
-                {getUserReadableAmount(maxDepositsPerEpoch, 6) -
-                  getUserReadableAmount(totalEpochDeposits, 6)}{' '}
-                USDC
-              </Typography>
+          <Box className="flex pt-3 pb-3 items-center justify-between">
+            <Box className="flex">
+              <img
+                src={'/images/tokens/usdc.svg'}
+                alt={'usdc'}
+                className="w-[40px] mr-3"
+              />
+              <Box className="flex flex-col">
+                <Typography variant="h5" color="white">
+                  USDC
+                </Typography>
+                <Typography variant="h6" color="stieglitz">
+                  Deposit up to{' '}
+                  {formatAmount(
+                    getUserReadableAmount(maxDepositsPerEpoch, 6) -
+                      getUserReadableAmount(totalEpochDeposits, 6),
+                    0,
+                    true
+                  )}{' '}
+                  USDC
+                </Typography>
+              </Box>
             </Box>
             <CustomButton
               variant="text"
               size="small"
-              className="text-white bg-primary hover:bg-primary ml-10"
+              className="text-white bg-primary hover:bg-primary"
               onClick={accountAddress ? handleModal : handleWalletConnect}
             >
               {accountAddress ? 'Bond' : 'Connect'}
             </CustomButton>
           </Box>
         </Box>
-        <Box className="bg-cod-gray rounded-2xl p-2 w-[352px]">
-          <Box className="flex pt-3 flex items-center">
+        <Box className="flex justify-between bg-cod-gray rounded-2xl p-2 w-[352px]">
+          <Box className="flex items-center">
             <img
               src={'/images/tokens/stables-group.svg'}
               alt={'usdc'}
               className="w-[50px] mr-3 grayscale"
             />
-            <Box className="flex-1">
-              Looking for other stables? <br />
+            <Box>
+              Looking for other stables?
               <Typography variant="h6" color="stieglitz" className="flex-1">
                 Not yet but maybe soon anon.
               </Typography>
@@ -152,7 +164,7 @@ export const EpochData = ({
           <Typography variant="h5">Eligibility</Typography>
           <Box className="text-stieglitz md:h-24 mb-5">
             Every Bridgoor NFT increases your cap by an additional{' '}
-            {depositPerNft} USDC for every epoch.
+            {getUserReadableAmount(depositPerNft, 6)} USDC for every epoch.
           </Box>
           <Box className="flex">
             <Box
