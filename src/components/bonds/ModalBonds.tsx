@@ -60,7 +60,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   const { signer, /*contractAddresses,*/ accountAddress, provider, chainId } =
     useContext(WalletContext);
 
-  const { dpxBondsAddress } = dpxBondsData;
+  const { dpxBondsAddress, usdcBalance } = dpxBondsData;
   const { bondPrice, depositPerNft } = dpxBondsEpochData;
   const { usableNfts } = dpxBondsUserEpochData;
 
@@ -94,11 +94,18 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   }, []);
 
   useEffect(() => {
+    if (getUserReadableAmount(usdcBalance, 6) < 5000)
+      setErr('Insufficient USDC balance');
+    else setErr('');
+  }, [usdcBalance]);
+
+  useEffect(() => {
     (async () => {
       if (
         !dpxBondsAddress ||
         !provider ||
-        !accountAddress
+        !accountAddress ||
+        !amount
         // || !contractAddresses
       )
         return;
