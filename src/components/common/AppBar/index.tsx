@@ -38,13 +38,11 @@ const AppLink = ({
   to,
   active,
   className,
-  icon,
 }: {
-  name: Key | null | undefined | string;
+  name: string;
   to: string;
   active?: boolean;
   className?: string;
-  icon?: ReactNode;
 }) => {
   const linkClassName = cx(
     'hover:no-underline hover:text-white cursor-pointer',
@@ -65,9 +63,7 @@ const AppLink = ({
   } else {
     return (
       <Link href={to} passHref>
-        <Box className={linkClassName}>
-          {name} {icon}
-        </Box>
+        <Box className={linkClassName}>{name}</Box>
       </Link>
     );
   }
@@ -239,18 +235,22 @@ export default function AppBar(props: AppBarProps) {
               />
             </a>
             <Box className="space-x-10 mr-10 hidden lg:flex">
-              {links.map(
+              {links?.map(
                 (link: { name: Key | null | undefined; to: string }) => {
                   if (link.name === active)
                     return (
                       <AppLink
                         to={link.to}
+                        // TODO: FIX
+                        // @ts-ignore
                         name={link.name}
                         key={link.name}
                         active
                       />
                     );
                   return (
+                    // @TODO: FIX
+                    // @ts-ignore
                     <AppLink to={link.to} name={link.name} key={link.name} />
                   );
                 }

@@ -361,15 +361,13 @@ const Deposits = () => {
     rateVaultContext.updateRateVaultEpochData!();
     rateVaultContext.updateRateVaultUserData!();
   }, [
-    sendTx,
-    rateVaultContract,
+    withdrawData,
     selectedEpoch,
-    withdrawData.strikesIndexes,
-    withdrawData.callLeveragesIndexes,
-    withdrawData.putLeveragesIndexes,
-    accountAddress,
     updateAssetBalances,
+    accountAddress,
+    rateVaultContract,
     rateVaultContext,
+    sendTx,
   ]);
 
   return rateVaultContext?.rateVaultEpochData!.epochStrikes ? (
