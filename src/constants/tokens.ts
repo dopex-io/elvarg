@@ -14,6 +14,10 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
     symbol: 'CRV',
     imgSrc: '/images/tokens/crv.svg',
   },
+  '0x10393c20975cf177a3513071bc110f7962cd67da': {
+    symbol: 'JONES',
+    imgSrc: '/images/tokens/jones.svg',
+  },
 };
 
 export const TOKEN_DATA: {
