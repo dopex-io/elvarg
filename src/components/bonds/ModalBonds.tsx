@@ -1,21 +1,23 @@
 import { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import axios from 'axios';
+import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import LaunchIcon from '@mui/icons-material/Launch';
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import useSendTx from 'hooks/useSendTx';
-import { BigNumber } from 'ethers';
 
+import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
+import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
 
 import { DpxBondsContext } from 'contexts/Bonds';
 import { WalletContext } from 'contexts/Wallet';
+
+import useSendTx from 'hooks/useSendTx';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -61,7 +63,8 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     useContext(WalletContext);
 
   const { dpxBondsAddress, usdcBalance } = dpxBondsData;
-  const { bondPrice, depositPerNft } = dpxBondsEpochData;
+  const { bondPrice, depositPerNft, maxEpochDeposits, totalEpochDeposits } =
+    dpxBondsEpochData;
   const { usableNfts } = dpxBondsUserEpochData;
 
   const [err, setErr] = useState('');
@@ -74,6 +77,11 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     const priceDiff = Math.abs(getUserReadableAmount(bondPrice, 6) - dpxPrice);
     return (priceDiff / dpxPrice) * 100;
   }, [bondPrice, dpxOraclePrice]);
+
+  const isMintable = useMemo(() => {
+    if (!maxEpochDeposits || !totalEpochDeposits) return;
+    return totalEpochDeposits.lt(maxEpochDeposits);
+  }, [maxEpochDeposits, totalEpochDeposits]);
 
   useEffect(() => {
     async function getData() {
@@ -103,14 +111,19 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         !contractAddresses
       )
         return;
-      const _amount = BigNumber.from(amount).mul(depositPerNft);
-      const _usdc = ERC20__factory.connect(contractAddresses['USDC'], provider);
-      const allowance = await _usdc.allowance(accountAddress, dpxBondsAddress);
-
-      if (_amount.lte(allowance)) {
-        setApproved(true);
-      } else {
-        setApproved(false);
+      try {
+        const _amount = BigNumber.from(amount).mul(depositPerNft);
+        const _usdc = ERC20__factory.connect(
+          contractAddresses['USDC'],
+          provider
+        );
+        const allowance = await _usdc.allowance(
+          accountAddress,
+          dpxBondsAddress
+        );
+        setApproved(_amount.lte(allowance));
+      } catch (e) {
+        console.log(e);
       }
     })();
   }, [
@@ -122,6 +135,34 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     provider,
   ]);
 
+  useEffect(() => {
+    setErr(usdcBalance.lt(depositPerNft) ? 'Insufficient USDC Balance' : '');
+  }, [depositPerNft, usdcBalance]);
+
+  useEffect(() => {
+    (async () => {
+      if (amount === 0 || !signer || !contractAddresses || !accountAddress)
+        return;
+      try {
+        const usdc = ERC20__factory.connect(contractAddresses['USDC'], signer);
+        const allowance = await usdc.allowance(accountAddress, dpxBondsAddress);
+
+        setApproved(
+          allowance.gte(depositPerNft.mul(BigNumber.from(amount || '0')))
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+  }, [
+    accountAddress,
+    amount,
+    contractAddresses,
+    depositPerNft,
+    dpxBondsAddress,
+    signer,
+  ]);
+
   const handleMax = useCallback(() => {
     setAmount(usableNfts.length);
   }, [usableNfts.length]);
@@ -129,18 +170,16 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   const handleChange = useCallback(
     (e: any) => {
       let value = e.target.value;
-
       setErr('');
       setAmount(value);
-      if (getUserReadableAmount(usdcBalance, 6) < 5000)
-        setErr('Insufficient USDC Balance');
+      if (usdcBalance.lt(depositPerNft)) setErr('Insufficient USDC Balance');
       else if (isNaN(Number(value))) {
         setErr('Please only enter numbers');
       } else if (value > usableNfts.length) {
         setErr('Cannot deposit more than wallet limit');
       }
     },
-    [usableNfts.length, usdcBalance]
+    [depositPerNft, usableNfts.length, usdcBalance]
   );
 
   const handleApprove = useCallback(async () => {
@@ -180,7 +219,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
       open={modalOpen}
       onClose={handleModal}
     >
-      <Box className="bg-cod-gray rounded-2xl p-4  w-[343px] ">
+      <Box className="bg-cod-gray rounded-2xl p-4 w-[343px]">
         <Typography className="flex-1 pt-2 mb-4" variant="h5">
           Bond
         </Typography>
@@ -222,15 +261,15 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           onChange={handleChange}
         />
         <Typography variant="caption" color="wave-blue" className="mt-2">
-          USDC Required: {amount * 5000}
+          USDC Required: {amount * getUserReadableAmount(depositPerNft, 6)}
         </Typography>
         {err && (
-          <Box className="bg-[#FF617D] rounded-2xl mt-3 p-2">
+          <Box className="bg-down-bad rounded-xl mt-3 p-2 text-center">
             <AccessibleForwardIcon /> {err}
           </Box>
         )}
         <Box className="flex mt-3">
-          <Box className="w-1/2 bg-cod-gray border border-umbra p-2">
+          <Box className="w-1/2 bg-cod-gray border rounded-tl-xl border-umbra p-2">
             <Typography variant="h5" className="text-[#22E1FF] pt-3 h-[40px]">
               {amount ? (
                 <ArrowForwardIcon className="text-[#3E3E3E] w-[20px] mr-1 mb-1" />
@@ -247,7 +286,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
               To DPX
             </Typography>
           </Box>
-          <Box className="w-1/2 bg-cod-gray  border border-umbra p-2">
+          <Box className="w-1/2 bg-cod-gray border rounded-tr-xl border-umbra p-2">
             <Typography variant="h5" className="text-white  pt-3 h-[40px]">
               {formatAmount(percentageDiscount, 2)}
               {} %
@@ -255,7 +294,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             <Box className="text-stieglitz">Discount</Box>
           </Box>
         </Box>
-        <Box className="border border-umbra p-3 pt-6">
+        <Box className="border rounded-b-xl border-umbra p-3 pt-6">
           <BondsInfo
             title="Bonding Price"
             value={`${getUserReadableAmount(bondPrice, 6)} USDC`}
@@ -290,16 +329,25 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             </Box>
           </Box>
         </Box>
-        <CustomButton
-          variant="text"
-          size="small"
-          color={amount ? '' : 'umbra'}
-          className="text-white bg-primary hover:bg-primary w-full mt-5  p-4"
-          disabled={amount ? false : true}
-          onClick={submitButton[approved ? 'DEPOSIT' : 'APPROVE'].handleClick}
-        >
-          {submitButton[approved ? 'DEPOSIT' : 'APPROVE'].text}
-        </CustomButton>
+        {!isMintable ? (
+          <Box className="flex justify-center bg-umbra p-2 rounded-lg mt-3 mx-auto space-x-2 cursor-not-allowed">
+            <WhiteLockerIcon className="my-auto" color="#8E8E8E" />
+            <Typography variant="h5" color="stieglitz">
+              Sold out
+            </Typography>
+          </Box>
+        ) : (
+          <CustomButton
+            variant="text"
+            size="small"
+            color={amount ? '' : 'umbra'}
+            className="text-white bg-primary hover:bg-primary w-full mt-3 p-4"
+            disabled={amount ? false : true}
+            onClick={submitButton[approved ? 'DEPOSIT' : 'APPROVE'].handleClick}
+          >
+            {submitButton[approved ? 'DEPOSIT' : 'APPROVE'].text}
+          </CustomButton>
+        )}
       </Box>
     </Dialog>
   );
