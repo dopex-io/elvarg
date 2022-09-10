@@ -57,7 +57,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
   const { handleMint, dpxBondsData, dpxBondsUserEpochData, dpxBondsEpochData } =
     useContext(DpxBondsContext);
-  const { signer, /*contractAddresses,*/ accountAddress, provider, chainId } =
+  const { signer, contractAddresses, accountAddress, provider, chainId } =
     useContext(WalletContext);
 
   const { dpxBondsAddress, usdcBalance } = dpxBondsData;
@@ -99,16 +99,12 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         !dpxBondsAddress ||
         !provider ||
         !accountAddress ||
-        !amount
-        // || !contractAddresses
+        !amount ||
+        !contractAddresses
       )
         return;
       const _amount = BigNumber.from(amount).mul(depositPerNft);
-      const _usdc = ERC20__factory.connect(
-        // contractAddresses['USDC'],
-        '0x96979F70aDe814fBc53B3cebC5d2fCf3FE8A7381', // Mock USDC
-        provider
-      );
+      const _usdc = ERC20__factory.connect(contractAddresses['USDC'], provider);
       const allowance = await _usdc.allowance(accountAddress, dpxBondsAddress);
 
       if (_amount.lte(allowance)) {
@@ -119,7 +115,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     })();
   }, [
     accountAddress,
-    // contractAddresses,
+    contractAddresses,
     depositPerNft,
     dpxBondsAddress,
     amount,
@@ -148,16 +144,9 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   );
 
   const handleApprove = useCallback(async () => {
-    if (
-      amount === 0 ||
-      !signer // || !contractAddresses
-    )
-      return;
+    if (amount === 0 || !signer || !contractAddresses) return;
 
-    const usdc = ERC20__factory.connect(
-      '0x96979F70aDe814fBc53B3cebC5d2fCf3FE8A7381', // contractAddresses['USDC'],
-      signer
-    );
+    const usdc = ERC20__factory.connect(contractAddresses['USDC'], signer);
 
     try {
       await sendTx(usdc.approve(dpxBondsAddress, MAX_VALUE));
@@ -165,7 +154,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     } catch (e) {
       console.log(e);
     }
-  }, [dpxBondsAddress, amount, sendTx, signer /* contractAddresses */]);
+  }, [dpxBondsAddress, amount, sendTx, signer, contractAddresses]);
 
   const handleDeposit = useCallback(async () => {
     if (!handleMint) return;

@@ -7,23 +7,21 @@ import {
   ReactNode,
   useCallback,
 } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import {
   ERC20__factory,
   BaseNFT__factory,
-  // DPXBonds__factory,
-  // DPXBonds,
   BaseNFT,
+  DpxBonds__factory,
 } from '@dopex-io/sdk';
+import { noop } from 'lodash';
 
 import { WalletContext } from './Wallet';
 import { AssetsContext } from './Assets';
 
 import useSendTx from 'hooks/useSendTx';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-import { DPXBonds } from 'constants/abi/DPXBonds.js';
-import { noop } from 'lodash';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface BondState {
   epoch: number;
@@ -122,42 +120,28 @@ export const DpxBondsProvider = (props: { children: ReactNode }) => {
 
   const { tokenPrices } = useContext(AssetsContext);
 
-  const bondsContract: /*DPXBonds | undefined */ any = useMemo(() => {
+  const bondsContract = useMemo(() => {
     if (!signer || !contractAddresses) return;
 
-    return new ethers.Contract(
-      '0x7C254276a4b141E580532c41CFBf5b024019A790',
-      DPXBonds,
-      signer
-    );
-    // return DPXBonds__factory.connect(contractAddresses['DPXBonds'], signer);
+    return DpxBonds__factory.connect(contractAddresses['DpxBonds'], signer);
   }, [signer, contractAddresses]);
 
   const dopexBridgoorNFTContract: BaseNFT | undefined = useMemo(() => {
     if (!provider || !contractAddresses) return;
     return BaseNFT__factory.connect(
-      // contractAddresses['NFTS']['DopexBridgoorNFT'],
-      '0xc3e49F38fC5000aBD083C5311927e6915F400012', // Mock Bridgoor NFT
+      contractAddresses['NFTS']['DopexBridgoorNFT'],
       provider
     );
   }, [contractAddresses, provider]);
 
   const usdcContract = useMemo(() => {
     if (!provider || !contractAddresses) return;
-    return ERC20__factory.connect(
-      // contractAddresses['USDC'],
-      '0x96979F70aDe814fBc53B3cebC5d2fCf3FE8A7381', // Mock USDC
-      provider
-    );
+    return ERC20__factory.connect(contractAddresses['USDC'], provider);
   }, [contractAddresses, provider]);
 
   const dpxContract = useMemo(() => {
     if (!provider || !contractAddresses) return;
-    return ERC20__factory.connect(
-      // contractAddresses['DPX'],
-      '0x9deAB090eba517ef04842F1D6bB423151E3b7D19', // Mock DPX
-      provider
-    );
+    return ERC20__factory.connect(contractAddresses['DPX'], provider);
   }, [contractAddresses, provider]);
 
   const getBridgoorNftIds = useCallback(

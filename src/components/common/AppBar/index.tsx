@@ -89,10 +89,6 @@ const appLinks = {
     // { name: 'swap', to: '/swap' },
     // { name: 'SSOV', to: '/ssov' },
     { name: 'veDPX', to: '/governance/vedpx' },
-    {
-      name: 'DPX Bonds',
-      to: '/dpx-bonds',
-    },
   ],
   42161: [
     { name: 'Farms', to: '/farms' },
@@ -100,6 +96,7 @@ const appLinks = {
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
+    { name: 'DPX Bonds', to: '/dpx-bonds' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],

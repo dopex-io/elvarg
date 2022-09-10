@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import Typography from 'components/UI/Typography';
 
-import PageLoader from 'components/common/PageLoader';
 import { UserBonds } from './UserBonds';
 import { ModalBonds } from './ModalBonds';
 import { EligibilityCheck } from './EligibilityCheck';
@@ -29,18 +28,12 @@ export const Bonds = () => {
 
   return (
     <>
-      {dpxBondsData.epoch > 0 ? (
-        <>
-          <Typography variant="h5">Bonding</Typography>
-          <EpochData
-            handleModal={handleModal}
-            handleEligibilityModal={handleEligibilityModal}
-          />
-          <UserBonds handleModal={handleModal} />
-        </>
-      ) : (
-        <PageLoader />
-      )}
+      <Typography variant="h5">Bonding</Typography>
+      <EpochData
+        handleModal={handleModal}
+        handleEligibilityModal={handleEligibilityModal}
+      />
+      <UserBonds handleModal={handleModal} />
       <EligibilityCheck
         eligibilityModal={eligibilityModal}
         handleEligibilityModal={handleEligibilityModal}
