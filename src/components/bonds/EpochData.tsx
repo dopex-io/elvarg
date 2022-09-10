@@ -90,7 +90,7 @@ export const EpochData = ({
       </Box>
       <Typography variant="h5">Bond with Stablecoins</Typography>
       <Box className="text-stieglitz mb-5">
-        Swap your stables at a premium for vested DPX and support Dopexs
+        Swap your stables at a premium for vested DPX and support {"Dopex's"}
         operations.
       </Box>
       <Box className="lg:flex">
@@ -104,16 +104,6 @@ export const EpochData = ({
               />
               <Box className="flex flex-col">
                 <Typography variant="h5" color="white">
-                  USDC
-                </Typography>
-                <Typography variant="h6" color="stieglitz">
-                  Deposit up to{' '}
-                  {/* {formatAmount(
-                    getUserReadableAmount(maxDepositsPerEpoch, 6) -
-                      getUserReadableAmount(totalEpochDeposits, 6),
-                    0,
-                    true
-                  )}{' '} */}
                   USDC
                 </Typography>
               </Box>
@@ -158,7 +148,7 @@ export const EpochData = ({
         <Box className="p-3 w-[352px]">
           <Typography variant="h5">Eligibility</Typography>
           <Box className="text-stieglitz md:h-24 mb-5">
-            Every Bridgoor NFT increases your cap by an additional{' '}
+            Every Bridgoor NFT increases your deposit by an additional{' '}
             {getUserReadableAmount(depositPerNft, 6)} USDC for every epoch.
           </Box>
           <Box className="flex">
