@@ -141,9 +141,6 @@ export const EpochData = ({
             Commit stablecoins upfront and receive vested DPX from treasury at a
             lower market price. Proceeds supports Dopex operations.
           </Box>
-          <a className="text-[#22E1FF]" href="#">
-            Bonding Article <LaunchIcon className="w-4" />
-          </a>
         </Box>
         <Box className="p-3 w-[352px]">
           <Typography variant="h5">Eligibility</Typography>
