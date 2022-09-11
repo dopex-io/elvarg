@@ -1,40 +1,52 @@
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 
-import { emojisplosions } from 'emojisplosion';
 import cx from 'classnames';
 import { BigNumber, ethers } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
+import Countdown from 'react-countdown';
+import { emojisplosions } from 'emojisplosion';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
-import Switch from '@mui/material/Switch';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
+
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { WalletContext } from 'contexts/Wallet';
-import { MAX_VALUE } from 'constants/index';
-
-import useSendTx from 'hooks/useSendTx';
 
 import styles from './styles.module.scss';
-import Countdown from 'react-countdown';
 
 const ABI = [
   {
     inputs: [
-      { internalType: 'address', name: '_layerZeroEndpoint', type: 'address' },
-      { internalType: 'uint256', name: '_startMintId', type: 'uint256' },
-      { internalType: 'uint256', name: '_maxPublicMints', type: 'uint256' },
-      { internalType: 'uint256', name: '_mintPrice', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: '_whitelist',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_layerZeroEndpoint',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_endMintId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_mintPrice',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -79,7 +91,12 @@ const ABI = [
         name: 'operator',
         type: 'address',
       },
-      { indexed: false, internalType: 'bool', name: 'approved', type: 'bool' },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
     ],
     name: 'ApprovalForAll',
     type: 'event',
@@ -224,8 +241,18 @@ const ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'address', name: 'from', type: 'address' },
-      { indexed: true, internalType: 'address', name: 'to', type: 'address' },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
       {
         indexed: true,
         internalType: 'uint256',
@@ -237,21 +264,33 @@ const ABI = [
     type: 'event',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'number', type: 'uint256' }],
+    inputs: [],
     name: 'adminMint',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'time', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'time',
+        type: 'uint256',
+      },
+    ],
     name: 'adminSetEndTime',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'time', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'time',
+        type: 'uint256',
+      },
+    ],
     name: 'adminSetStartTime',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -265,16 +304,17 @@ const ABI = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'adminWithdrawAPE',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [
-      { internalType: 'address', name: 'to', type: 'address' },
-      { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
     ],
     name: 'approve',
     outputs: [],
@@ -282,50 +322,122 @@ const ABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
     name: 'balanceOf',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'endTime',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_dstChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_toAddress', type: 'bytes' },
-      { internalType: 'uint256', name: '_tokenId', type: 'uint256' },
-      { internalType: 'bool', name: '_useZro', type: 'bool' },
-      { internalType: 'bytes', name: '_adapterParams', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_dstChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_toAddress',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '_tokenId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: '_useZro',
+        type: 'bool',
+      },
+      {
+        internalType: 'bytes',
+        name: '_adapterParams',
+        type: 'bytes',
+      },
     ],
     name: 'estimateSendFee',
     outputs: [
-      { internalType: 'uint256', name: 'nativeFee', type: 'uint256' },
-      { internalType: 'uint256', name: 'zroFee', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'nativeFee',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'zroFee',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '', type: 'uint16' },
-      { internalType: 'bytes', name: '', type: 'bytes' },
-      { internalType: 'uint64', name: '', type: 'uint64' },
+      {
+        internalType: 'uint16',
+        name: '',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint64',
+        name: '',
+        type: 'uint64',
+      },
     ],
     name: 'failedMessages',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_srcChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_srcAddress', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_srcChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_srcAddress',
+        type: 'bytes',
+      },
     ],
     name: 'forceResumeReceive',
     outputs: [],
@@ -333,41 +445,103 @@ const ABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
     name: 'getApproved',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_version', type: 'uint16' },
-      { internalType: 'uint16', name: '_chainId', type: 'uint16' },
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'uint256', name: '_configType', type: 'uint256' },
+      {
+        internalType: 'uint16',
+        name: '_version',
+        type: 'uint16',
+      },
+      {
+        internalType: 'uint16',
+        name: '_chainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_configType',
+        type: 'uint256',
+      },
     ],
     name: 'getConfig',
-    outputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
+    outputs: [
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'owner', type: 'address' },
-      { internalType: 'address', name: 'operator', type: 'address' },
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
     ],
     name: 'isApprovedForAll',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_srcChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_srcAddress', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_srcChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_srcAddress',
+        type: 'bytes',
+      },
     ],
     name: 'isTrustedRemote',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -386,10 +560,26 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_srcChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_srcAddress', type: 'bytes' },
-      { internalType: 'uint64', name: '_nonce', type: 'uint64' },
-      { internalType: 'bytes', name: '_payload', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_srcChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_srcAddress',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint64',
+        name: '_nonce',
+        type: 'uint64',
+      },
+      {
+        internalType: 'bytes',
+        name: '_payload',
+        type: 'bytes',
+      },
     ],
     name: 'lzReceive',
     outputs: [],
@@ -399,12 +589,29 @@ const ABI = [
   {
     inputs: [],
     name: 'maxPublicMints',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'number', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'number',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
+      },
+    ],
     name: 'mint',
     outputs: [],
     stateMutability: 'payable',
@@ -413,44 +620,64 @@ const ABI = [
   {
     inputs: [],
     name: 'mintPrice',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'mintPriceInApe',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'number', type: 'uint256' }],
-    name: 'mintWithAPE',
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [],
     name: 'name',
-    outputs: [{ internalType: 'string', name: '', type: 'string' }],
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'nextMintId',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_srcChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_srcAddress', type: 'bytes' },
-      { internalType: 'uint64', name: '_nonce', type: 'uint64' },
-      { internalType: 'bytes', name: '_payload', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_srcChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_srcAddress',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint64',
+        name: '_nonce',
+        type: 'uint64',
+      },
+      {
+        internalType: 'bytes',
+        name: '_payload',
+        type: 'bytes',
+      },
     ],
     name: 'nonblockingLzReceive',
     outputs: [],
@@ -460,21 +687,45 @@ const ABI = [
   {
     inputs: [],
     name: 'owner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
     name: 'ownerOf',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'publicMints',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -487,10 +738,26 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_srcChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_srcAddress', type: 'bytes' },
-      { internalType: 'uint64', name: '_nonce', type: 'uint64' },
-      { internalType: 'bytes', name: '_payload', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_srcChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_srcAddress',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint64',
+        name: '_nonce',
+        type: 'uint64',
+      },
+      {
+        internalType: 'bytes',
+        name: '_payload',
+        type: 'bytes',
+      },
     ],
     name: 'retryMessage',
     outputs: [],
@@ -499,9 +766,21 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'from', type: 'address' },
-      { internalType: 'address', name: 'to', type: 'address' },
-      { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
     ],
     name: 'safeTransferFrom',
     outputs: [],
@@ -510,10 +789,26 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'from', type: 'address' },
-      { internalType: 'address', name: 'to', type: 'address' },
-      { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
-      { internalType: 'bytes', name: '_data', type: 'bytes' },
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: '_data',
+        type: 'bytes',
+      },
     ],
     name: 'safeTransferFrom',
     outputs: [],
@@ -522,16 +817,36 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_dstChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_toAddress', type: 'bytes' },
-      { internalType: 'uint256', name: '_tokenId', type: 'uint256' },
+      {
+        internalType: 'uint16',
+        name: '_dstChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_toAddress',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '_tokenId',
+        type: 'uint256',
+      },
       {
         internalType: 'address payable',
         name: '_refundAddress',
         type: 'address',
       },
-      { internalType: 'address', name: '_zroPaymentAddress', type: 'address' },
-      { internalType: 'bytes', name: '_adapterParams', type: 'bytes' },
+      {
+        internalType: 'address',
+        name: '_zroPaymentAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: '_adapterParams',
+        type: 'bytes',
+      },
     ],
     name: 'send',
     outputs: [],
@@ -540,17 +855,41 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'address', name: '_from', type: 'address' },
-      { internalType: 'uint16', name: '_dstChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_toAddress', type: 'bytes' },
-      { internalType: 'uint256', name: '_tokenId', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: '_from',
+        type: 'address',
+      },
+      {
+        internalType: 'uint16',
+        name: '_dstChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_toAddress',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '_tokenId',
+        type: 'uint256',
+      },
       {
         internalType: 'address payable',
         name: '_refundAddress',
         type: 'address',
       },
-      { internalType: 'address', name: '_zroPaymentAddress', type: 'address' },
-      { internalType: 'bytes', name: '_adapterParams', type: 'bytes' },
+      {
+        internalType: 'address',
+        name: '_zroPaymentAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: '_adapterParams',
+        type: 'bytes',
+      },
     ],
     name: 'sendFrom',
     outputs: [],
@@ -559,8 +898,16 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'operator', type: 'address' },
-      { internalType: 'bool', name: 'approved', type: 'bool' },
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
     ],
     name: 'setApprovalForAll',
     outputs: [],
@@ -569,10 +916,26 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_version', type: 'uint16' },
-      { internalType: 'uint16', name: '_chainId', type: 'uint16' },
-      { internalType: 'uint256', name: '_configType', type: 'uint256' },
-      { internalType: 'bytes', name: '_config', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_version',
+        type: 'uint16',
+      },
+      {
+        internalType: 'uint16',
+        name: '_chainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'uint256',
+        name: '_configType',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: '_config',
+        type: 'bytes',
+      },
     ],
     name: 'setConfig',
     outputs: [],
@@ -580,14 +943,26 @@ const ABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint16', name: '_version', type: 'uint16' }],
+    inputs: [
+      {
+        internalType: 'uint16',
+        name: '_version',
+        type: 'uint16',
+      },
+    ],
     name: 'setReceiveVersion',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint16', name: '_version', type: 'uint16' }],
+    inputs: [
+      {
+        internalType: 'uint16',
+        name: '_version',
+        type: 'uint16',
+      },
+    ],
     name: 'setSendVersion',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -595,8 +970,16 @@ const ABI = [
   },
   {
     inputs: [
-      { internalType: 'uint16', name: '_srcChainId', type: 'uint16' },
-      { internalType: 'bytes', name: '_srcAddress', type: 'bytes' },
+      {
+        internalType: 'uint16',
+        name: '_srcChainId',
+        type: 'uint16',
+      },
+      {
+        internalType: 'bytes',
+        name: '_srcAddress',
+        type: 'bytes',
+      },
     ],
     name: 'setTrustedRemote',
     outputs: [],
@@ -606,36 +989,84 @@ const ABI = [
   {
     inputs: [],
     name: 'startTime',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'bytes4', name: 'interfaceId', type: 'bytes4' }],
+    inputs: [
+      {
+        internalType: 'bytes4',
+        name: 'interfaceId',
+        type: 'bytes4',
+      },
+    ],
     name: 'supportsInterface',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'symbol',
-    outputs: [{ internalType: 'string', name: '', type: 'string' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
-    name: 'tokenURI',
-    outputs: [{ internalType: 'string', name: '', type: 'string' }],
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'from', type: 'address' },
-      { internalType: 'address', name: 'to', type: 'address' },
-      { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'tokenURI',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
     ],
     name: 'transferFrom',
     outputs: [],
@@ -643,16 +1074,47 @@ const ABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint16', name: '', type: 'uint16' }],
+    inputs: [
+      {
+        internalType: 'uint16',
+        name: '',
+        type: 'uint16',
+      },
+    ],
     name: 'trustedRemoteLookup',
-    outputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
+    outputs: [
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'whitelist',
+    outputs: [
+      {
+        internalType: 'contract IDuelPepesWhitelist',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -668,7 +1130,6 @@ export interface Props {
     nextMintId: BigNumber;
     maxPublicMints: BigNumber;
     mintPrice: BigNumber;
-    mintPriceInApe: BigNumber;
     endTime: BigNumber;
     startTime: BigNumber;
   };
@@ -749,10 +1210,7 @@ const quotes = [
 const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
   const { chainId, signer } = useContext(WalletContext);
   const [toMint, setToMint] = useState<number>(1);
-  const [mintWithAPE, setMintWithAPE] = useState<boolean>(false);
-  const [approved, setApproved] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
-  const sendTx = useSendTx();
 
   const decreaseToMintAmount = () => {
     if (toMint > 1) setToMint(toMint - 1);
@@ -796,41 +1254,16 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
     );
 
     try {
-      if (mintWithAPE) {
-        await publicSaleContract.connect(signer)['mintWithAPE'](toMint);
-      } else {
-        await publicSaleContract.connect(signer)['mint'](toMint, {
-          value: getContractReadableAmount(toMint * 0.88, 18),
-        });
-      }
+      await publicSaleContract.connect(signer)['mint'](toMint, {
+        value: getContractReadableAmount(toMint * 0.88, 18),
+      });
       setSubmitted(true);
       explodeEmojis();
       await updateData();
     } catch (err) {
       alert('Insufficient balance');
     }
-  }, [updateData, signer, mintWithAPE, toMint]);
-
-  const handleApprove = useCallback(async () => {
-    if (!signer) return;
-
-    const publicSaleContract = new ethers.Contract(
-      '0x12F0a58FD2cf60b929f6Ff4523A13B56585a2b4D',
-      ABI,
-      signer
-    );
-
-    const ape = ERC20__factory.connect(
-      '0x4d224452801ACEd8B2F0aebE155379bb5D594381',
-      signer
-    );
-
-    await sendTx(ape.approve(publicSaleContract.address, MAX_VALUE)).then(
-      () => {
-        setApproved(true);
-      }
-    );
-  }, [signer, sendTx]);
+  }, [updateData, signer, toMint]);
 
   const explodeEmojis = () => {
     const toExplode = document.getElementById('emojisplosion');
@@ -914,7 +1347,6 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
     [submitted, data, toMint]
   );
 
-  // @ts-ignore
   return (
     <Dialog
       open={open}
@@ -925,7 +1357,7 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
         paperScrollPaper: 'overflow-x-hidden',
       }}
     >
-      <Box className="flex flex-row items-center mb-4" id={'emojisplosion'}>
+      <Box className="flex flex-row items-center mb-4" id="emojisplosion">
         <img
           src={'/assets/mint-fighter-button.png'}
           className={'w-46 mr-1 ml-auto'}
@@ -973,20 +1405,7 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
       </Box>
       <Box className={!submitted ? 'mt-2' : ''}>
         {!submitted ? (
-          <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-            <Box className="flex flex-row justify-between mb-2 mt-1">
-              <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-                Mint with{' '}
-                <span className={cx("font-['Minecraft']", styles['pepeText'])}>
-                  $APE
-                </span>
-              </Typography>
-              <Switch
-                className="ml-auto cursor-pointer"
-                color="default"
-                onClick={() => setMintWithAPE(!mintWithAPE)}
-              />
-            </Box>
+          <Box className="bg-[#232935] rounded-xl flex flex-col p-3">
             <Box className="flex pl-2 pr-2">
               <button
                 className={styles['pepeButtonSquare']}
@@ -1030,13 +1449,7 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {mintWithAPE
-                      ? formatAmount(
-                          getUserReadableAmount(data.mintPriceInApe, 18) *
-                            toMint,
-                          2
-                        ) + ' APE'
-                      : formatAmount(0.88 * toMint, 3) + ' ETH'}
+                    {formatAmount(0.88 * toMint, 3) + ' ETH'}
                   </Typography>
                 </Box>
               </Box>
@@ -1069,23 +1482,13 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
                 </Typography>
               </Box>
             </Box>
-            {/* @ts-ignore TODO: FIX */}
             <CustomButton
               size="medium"
-              className={styles['pepeButton']}
+              className={styles['pepeButton']!}
               disabled={!canBuy}
-              onClick={
-                canBuy
-                  ? mintWithAPE
-                    ? approved
-                      ? handleMint
-                      : handleApprove
-                    : handleMint
-                  : () => {}
-              }
+              onClick={handleMint}
             >
-              {/* @ts-ignore TODO: FIX */}
-              <Typography variant="h5" className={styles['pepeButtonText']}>
+              <Typography variant="h5" className={styles['pepeButtonText']!}>
                 {canBuy ? 'Mint' : 'Not ready yet'}
               </Typography>
             </CustomButton>
@@ -1103,14 +1506,12 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
               </Typography>
             </Box>
 
-            {/* @ts-ignore TODO: FIX */}
             <CustomButton
               size="medium"
-              className={styles['pepeButton']}
+              className={styles['pepeButton']!}
               onClick={() => setSubmitted(false)}
             >
-              {/* @ts-ignore TODO: FIX */}
-              <Typography variant="h5" className={styles['pepeButtonText']}>
+              <Typography variant="h5" className={styles['pepeButtonText']!}>
                 Mint more
               </Typography>
             </CustomButton>

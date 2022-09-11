@@ -110,13 +110,15 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                             variant="h5"
                             className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
                           >
-                            <span>#{duel['duelist']}</span>
+                            <span>
+                              {displayAddress(duel['duelistAddress'])}
+                            </span>
                           </Typography>
                           <Typography
                             variant="h5"
-                            className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-center"
+                            className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left"
                           >
-                            <span>Diamond Pepe</span>
+                            <span>Address</span>
                           </Typography>
                         </Box>
                       </Box>

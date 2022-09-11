@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useState, useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -17,11 +17,20 @@ import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
 import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
 import RevealDuel from 'components/nfts/duel/Dialogs/RevealDuel';
 
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
 import styles from 'components/nfts/duel/styles.module.scss';
 
 const DuelPepes = () => {
-  const { isLoading, activeDuels, updateDuels, duelContract, setSelectedDuel } =
-    useContext(DuelContext);
+  const {
+    isLoading,
+    activeDuels,
+    updateDuels,
+    duelContract,
+    setSelectedDuel,
+    availableCredit,
+  } = useContext(DuelContext);
   const { signer } = useContext(WalletContext);
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
     useState<boolean>(false);
@@ -74,6 +83,23 @@ const DuelPepes = () => {
     setIsRevealDuelDialogOpen(false);
   };
 
+  const toMintForFree = useMemo(() => {
+    return Math.floor(getUserReadableAmount(availableCredit, 18) / 0.88);
+  }, [availableCredit]);
+
+  const toMintPayingDifference = useMemo(() => {
+    return toMintForFree + 1;
+  }, [toMintForFree]);
+
+  const remainingETHToPayToMint = useMemo(() => {
+    const remainingAmount =
+      getUserReadableAmount(availableCredit, 18) - toMintForFree * 0.88;
+
+    const toPay = 0.88 - remainingAmount;
+
+    return toPay;
+  }, [availableCredit, toMintForFree]);
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -100,7 +126,7 @@ const DuelPepes = () => {
           handleClose={closeRevealDuelDialog}
         />
 
-        <Box className="pt-28 md:pt-32 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
+        <Box className="pt-28 md:pt-32 pb-6lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
           <Box className="text-center mx-auto md:mb-12 lg:mt-24 flex">
             <img
               src={'/images/nfts/pepes/duel-pepe-logo.png'}
@@ -164,6 +190,52 @@ const DuelPepes = () => {
             >
               <span className={styles['pepeLink']}>CEO</span>
             </Typography>
+          </Box>
+
+          <Box className=" mt-6 text-center">
+            <Typography
+              variant="h5"
+              className="text-[#78859E] font-['Minecraft'] relative z-1 mt-1 text-center"
+            >
+              You accumulate ETH credit each time you lose a fight
+              <br />
+              You can use those ETH to mint new Duel Pepes at the cost of 0,88
+              ETH for each
+              <br />
+              You currently have{' '}
+              <span className="text-white">
+                {formatAmount(getUserReadableAmount(availableCredit, 18), 4)}{' '}
+                ETH credit
+              </span>
+            </Typography>
+
+            {toMintForFree > 0 ? (
+              <Box className=" mt-6 text-center">
+                {' '}
+                <Typography
+                  variant="h5"
+                  className="text-white font-['Minecraft'] relative z-1 mt-1 text-center mt-8 cursor-pointer hover:opacity-70"
+                >
+                  Click here to mint {toMintForFree} pepes using your credit at
+                  no additional cost
+                </Typography>
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mt-1 text-center"
+                >
+                  or
+                </Typography>
+                <Typography
+                  variant="h5"
+                  className="text-white font-['Minecraft'] relative z-1 mt-1 text-center cursor-pointer hover:opacity-70"
+                >
+                  Click here to mint {toMintPayingDifference} pepes using your
+                  credit and paying with{' '}
+                  {formatAmount(remainingETHToPayToMint, 4)} ETH for the
+                  remaining part
+                </Typography>
+              </Box>
+            ) : null}
           </Box>
 
           <Box className="flex mt-6">

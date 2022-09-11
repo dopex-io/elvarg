@@ -12,7 +12,7 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import CircularProgress from '@mui/material/CircularProgress';
+import Checkbox from '@mui/material/Checkbox';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -26,6 +26,7 @@ import { WalletContext } from 'contexts/Wallet';
 import { DuelContext } from 'contexts/Duel';
 
 import formatAmount from 'utils/general/formatAmount';
+import downloadTxt from 'utils/general/downloadTxt';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -36,28 +37,26 @@ import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
 
-import cx from 'classnames';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 export interface Props {
   open: boolean;
   handleClose: () => void;
 }
 
-const feesPercentage = 10;
+const feesPercentage = 80;
 
 const CreateDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress, provider } =
     useContext(WalletContext);
-  const { isLoading, duelContract, nfts, updateDuels } =
-    useContext(DuelContext);
+  const { duelContract, updateDuels } = useContext(DuelContext);
   const sendTx = useSendTx();
   const [tokenName, setTokenName] = useState<string>('WETH');
   const [wager, setWager] = useState<number>(1);
-  const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
-  const [duelist, setDuelist] = useState<number | null>(null);
+  const [hasConfirmedPolicy, setHasConfirmedPolicy] = useState<boolean>(false);
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
@@ -132,9 +131,13 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   );
 
   const saveMoves = useCallback(() => {
+    if (!hasConfirmedPolicy) return alert('Please tick the checkbox');
+
     if (moves.length <= 4) setMoves([]);
+    else downloadTxt('moves.txt', moves.toString());
+
     setIsSelectingMoves(false);
-  }, [moves]);
+  }, [moves, hasConfirmedPolicy]);
 
   const handleCreate = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
@@ -200,8 +203,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             wager,
             getTokenDecimals(tokenName, chainId)
           ),
-          '0xede855ced3e5a59aaa267abdddb0db21ccfe5072',
-          duelist,
           movesSig,
           {
             gasLimit: 3000000,
@@ -216,7 +217,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     await updateDuels();
   }, [
     duelContract,
-    duelist,
     handleClose,
     sendTx,
     signer,
@@ -232,28 +232,36 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   // Updates the approved and user balance state
   useEffect(() => {
     (async function () {
-      if (!provider || !contractAddresses || !tokenName) return;
-      const _token = ERC20__factory.connect(
-        contractAddresses[tokenName],
-        provider
-      );
+      if (!provider || !contractAddresses || !tokenName || !accountAddress)
+        return;
 
-      const userAmount = await _token.balanceOf(accountAddress!);
+      let userAmount: BigNumber;
+
+      if (tokenName === 'ETH') {
+        userAmount = await provider.getBalance(accountAddress);
+      } else {
+        const _token = ERC20__factory.connect(
+          contractAddresses[tokenName],
+          provider
+        );
+
+        userAmount = await _token.balanceOf(accountAddress!);
+      }
       setUserTokenBalance(userAmount);
     })();
   }, [accountAddress, provider, contractAddresses, tokenName]);
 
   const canCreate = useMemo(() => {
     if (moves.length < 5) return false;
-    else if (!duelist) return false;
+    if (getUserReadableAmount(userTokenBalance, 18) < wager) return false;
 
     return true;
-  }, [moves, duelist]);
+  }, [moves, userTokenBalance, wager]);
 
-  const updateDuelist = (nftId: number) => {
-    setDuelist(nftId);
-    setIsSelectingNfts(false);
-  };
+  const handleOpenTokenSelector = useCallback(
+    () => setIsTokenSelectorVisible(true),
+    []
+  );
 
   const Moves = useCallback(() => {
     return (
@@ -354,111 +362,21 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             setOpen={setIsTokenSelectorVisible}
             setFromTokenSymbol={setTokenName}
             isInDialog={true}
-            tokensToExclude={[]}
+            tokensToExclude={[
+              'USDC',
+              'RDPX',
+              'WBTC',
+              'USDT',
+              'GMX',
+              'DAI',
+              'JONES',
+              'MAGIC',
+              'GOHM',
+              'DPX',
+              'FRAX',
+              'MIM',
+            ]}
           />{' '}
-        </Box>
-      ) : isSelectingNfts ? (
-        <Box>
-          <Box className="flex flex-row items-center mb-4">
-            <IconButton
-              className="p-0 pb-1 mr-auto mt-0.5 ml-0"
-              onClick={() => setIsSelectingNfts(false)}
-              size="large"
-            >
-              <img
-                src="/images/misc/arrow-left-white.svg"
-                className="w-46 ml-auto"
-                alt="Go back"
-              />
-            </IconButton>
-            <img
-              src="/images/nfts/pepes/your-nfts.png"
-              className="w-46 mr-auto"
-              alt="Your nfts"
-            />
-          </Box>
-          {isLoading ? (
-            <Box className="h-[40rem] overflow-hidden mt-2">
-              <Box className={styles['darkBg']!}>
-                <Box className="absolute left-[20%] top-[40%] z-50 text-center">
-                  <Typography
-                    variant="h5"
-                    className="text-[#9CECFD] font-['Minecraft']"
-                  >
-                    Checking for whitelisted NFTs...
-                  </Typography>
-                  <CircularProgress
-                    color="inherit"
-                    size="17px"
-                    className="mr-auto ml-auto mt-0.5 text-[#9CECFD]"
-                  />
-                </Box>
-
-                {[...Array(8)].map((i) => {
-                  return (
-                    <Box className="flex lg:grid lg:grid-cols-12 mb-3" key={i}>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-3.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-1.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-2.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                      <Box className="col-span-3 pl-2 pr-2 relative">
-                        <img
-                          src="/images/nfts/pepes/pepe-frame-1.png"
-                          className="w-full"
-                          alt="Pepe"
-                        />
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Box>
-          ) : (
-            <Box className="h-[40rem] overflow-hidden mt-2 pt-2">
-              <Box className={styles['darkBg']!}>
-                <Box className="flex lg:grid lg:grid-cols-12 mb-3">
-                  {nfts.map((userNft, i) => (
-                    <Box
-                      className="col-span-3 pl-2 pr-2 relative cursor-pointer group"
-                      onClick={() => updateDuelist(userNft.id)}
-                      key={i}
-                    >
-                      <img
-                        src={userNft.src}
-                        className="w-full border-4 border-[#343C4D] group-hover:border-[#343C3A]"
-                        alt="Pepe"
-                      />
-                      <Box
-                        className={cx(
-                          styles['diamondTag'],
-                          "absolute ml-3 mt-[-1rem] text-sm font-['Minecraft'] text-center mx-auto my-auto"
-                        )}
-                      >
-                        {userNft.id}
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            </Box>
-          )}
         </Box>
       ) : isSelectingMoves ? (
         <Box>
@@ -710,6 +628,21 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             </Tooltip>
           </Box>
 
+          <Box
+            className="flex mt-8"
+            onClick={() => setHasConfirmedPolicy(!hasConfirmedPolicy)}
+          >
+            <Checkbox checked={hasConfirmedPolicy} />
+            <Typography
+              variant="h6"
+              className="text-white font-['Minecraft'] cursor-pointer"
+            >
+              {' '}
+              I confirm I have written down on paper the sequence of moves of
+              this duel and I understood if I forget it I will lose all my funds{' '}
+            </Typography>
+          </Box>
+
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
               <CustomButton
@@ -754,7 +687,10 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           </Box>
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
             <Box className="flex flex-row justify-between">
-              <Box className="h-10 bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer">
+              <Box
+                className="h-10 bg-[#181C24] rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center cursor-pointer"
+                onClick={handleOpenTokenSelector}
+              >
                 <Box className="flex flex-row h-10 pr-14">
                   <img
                     src={`/images/tokens/${tokenName.toLowerCase()}.svg`}
@@ -767,6 +703,12 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                   >
                     {tokenName}
                   </Typography>
+                  <IconButton
+                    className="opacity-40 p-0 group-hover:opacity-70"
+                    size="large"
+                  >
+                    <ArrowDropDownIcon className={'fill-gray-100'} />
+                  </IconButton>
                 </Box>
               </Box>
               <Input
@@ -800,55 +742,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </Typography>
               </Box>
             </Box>
-          </Box>
-
-          <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 p-3 pr-2">
-            <Box className="flex">
-              <img
-                src="/images/misc/person.svg"
-                className="w-3.5 h-3.5 mr-1.5 mt-1"
-                alt="Challenger"
-              />
-              <Typography variant="h6" className="text-[#78859E] text-sm">
-                Select Challenger
-              </Typography>
-            </Box>
-            {duelist ? (
-              <Box className="flex relative">
-                <img
-                  src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duelist}/1440/image.jpg`}
-                  className="w-10 h-10 mt-3 cursor-pointer"
-                  onClick={() => setIsSelectingNfts(true)}
-                  alt="Duelist"
-                />
-                <Box className="ml-3 mt-2">
-                  <Typography
-                    variant="h6"
-                    className="font-['Minecraft'] mt-1.5"
-                  >
-                    {duelist}
-                  </Typography>
-                  <Typography variant="h6">
-                    <span className="text-[#78859E]">Diamond Pepes</span>
-                  </Typography>
-                </Box>
-              </Box>
-            ) : (
-              <Box className="flex relative">
-                <img
-                  src="/images/misc/plus.png"
-                  className="w-10 h-10 mt-3 cursor-pointer"
-                  onClick={() => setIsSelectingNfts(true)}
-                  alt="Select"
-                />
-                <Box className="ml-3 mt-2">
-                  <Typography variant="h5">-</Typography>
-                  <Typography variant="h6">
-                    <span className="text-stieglitz">-</span>
-                  </Typography>
-                </Box>
-              </Box>
-            )}
           </Box>
 
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 px-3 py-3">
@@ -901,7 +794,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {maxPayout} {tokenName}
+                    {formatAmount(maxPayout, 4)} {tokenName}
                   </Typography>
                 </Box>
               </Box>

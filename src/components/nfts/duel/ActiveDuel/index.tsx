@@ -64,7 +64,7 @@ const ActiveDuel = ({
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
         >
-          <span>#{duel['duelist']}</span>
+          <span>Duel Mint</span>
         </Typography>
         <Typography
           variant="h4"
@@ -144,29 +144,43 @@ const ActiveDuel = ({
         </button>
       </Box>
 
-      <Box className="ml-auto mt-2">
-        <Box className="flex">
-          <img
-            src="/images/nfts/pepes/help-center.png"
-            className="w-4 h-4 mr-1"
-            alt="?"
-          />
-          <img
-            src="/images/nfts/pepes/help-center.png"
-            className="w-4 h-4 mr-1"
-            alt="?"
-          />
-          <img
-            src="/images/nfts/pepes/help-center.png"
-            className="w-4 h-4 mr-1"
-            alt="?"
-          />
-          <img
-            src="/images/nfts/pepes/help-center.png"
-            className="w-4 h-4"
-            alt="?"
-          />
-        </Box>
+      <Box className="ml-4 mt-2">
+        {duel['challengerMoves']?.length === 5 ? (
+          <Box className="flex">
+            {duel['challengerMoves'].map((move, i) => (
+              <img
+                key={i}
+                src={`/images/nfts/pepes/${move}.png`}
+                className="w-4 h-4 mr-1"
+                alt="?"
+              />
+            ))}
+          </Box>
+        ) : (
+          <Box className="flex">
+            <img
+              src="/images/nfts/pepes/help-center.png"
+              className="w-4 h-4 mr-1"
+              alt="?"
+            />
+            <img
+              src="/images/nfts/pepes/help-center.png"
+              className="w-4 h-4 mr-1"
+              alt="?"
+            />
+            <img
+              src="/images/nfts/pepes/help-center.png"
+              className="w-4 h-4 mr-1"
+              alt="?"
+            />
+            <img
+              src="/images/nfts/pepes/help-center.png"
+              className="w-4 h-4"
+              alt="?"
+            />
+          </Box>
+        )}
+
         <Typography
           variant="h4"
           className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-3 ml-1 text-right"
@@ -193,9 +207,7 @@ const ActiveDuel = ({
           variant="h4"
           className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-right text-white"
         >
-          <span>
-            #{duel['challengerAddress'] === '?' ? '?' : duel['challenger']}
-          </span>
+          <span>{duel['challengerAddress'] === '?' ? '?' : 'Duel Mint'}</span>
         </Typography>
         <Typography
           variant="h4"
