@@ -558,7 +558,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0x51a6ee8881b5a5B4F5578D2a47233d9188E3377c',
+      '0x36a1FD643Ee36568A6f21bFB8A9C7BbF69d9b04B',
       DuelPepesABI,
       signer
     );
@@ -602,27 +602,35 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       const maxRevealDate = addHoursToDate(finishDate, 12);
       const revealDate = new Date(duelData[7][2].toNumber() * 1000);
 
+      let challengerAddress = duelData[1][1];
+      if (challengerAddress.includes('0x00000000000000000000'))
+        challengerAddress = '?';
+
       const rawMoves = duelData[5];
       const duelistMoves: string[] = [];
       const challengerMoves: string[] = [];
 
-      for (let j in rawMoves[0]) {
-        if (rawMoves[0][j].eq(BigNumber.from('1'))) duelistMoves.push('kick');
-        else if (rawMoves[0][j].eq(BigNumber.from('0')))
-          duelistMoves.push('punch');
-        else if (rawMoves[0][j].eq(BigNumber.from('3')))
-          duelistMoves.push('special');
-        else duelistMoves.push('block');
-      }
+      const isRevealed = finishDate < new Date() && challengerAddress !== '?';
 
-      for (let j in rawMoves[1]) {
-        if (rawMoves[0][j].eq(BigNumber.from('1')))
-          challengerMoves.push('kick');
-        else if (rawMoves[0][j].eq(BigNumber.from('0')))
-          challengerMoves.push('punch');
-        else if (rawMoves[0][j].eq(BigNumber.from('3')))
-          challengerMoves.push('special');
-        else challengerMoves.push('block');
+      if (isRevealed) {
+        for (let j in rawMoves[0]) {
+          if (rawMoves[0][j].eq(BigNumber.from('1'))) duelistMoves.push('kick');
+          else if (rawMoves[0][j].eq(BigNumber.from('0')))
+            duelistMoves.push('punch');
+          else if (rawMoves[0][j].eq(BigNumber.from('3')))
+            duelistMoves.push('special');
+          else duelistMoves.push('block');
+        }
+
+        for (let j in rawMoves[1]) {
+          if (rawMoves[0][j].eq(BigNumber.from('1')))
+            challengerMoves.push('kick');
+          else if (rawMoves[0][j].eq(BigNumber.from('0')))
+            challengerMoves.push('punch');
+          else if (rawMoves[0][j].eq(BigNumber.from('3')))
+            challengerMoves.push('special');
+          else challengerMoves.push('block');
+        }
       }
 
       const token = ERC20__factory.connect(
@@ -633,10 +641,6 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       const symbol = await token.symbol();
       const decimals = getTokenDecimals(symbol, chainId);
 
-      let challengerAddress = duelData[1][1];
-      if (challengerAddress.includes('0x00000000000000000000'))
-        challengerAddress = '?';
-
       const creationDate = new Date(duelData[7][0].toNumber() * 1000);
 
       const challengedLimitDate = addHoursToDate(creationDate, 12);
@@ -644,8 +648,6 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       let status = 'waiting';
 
       const duelistAddress = duelData[1][0];
-
-      const isRevealed = finishDate < new Date() && challengerAddress !== '?';
 
       const isCreatorWinner = duelData[6];
 
