@@ -10,7 +10,7 @@ import delay from 'lodash/delay';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import ErrorBox from 'components/common/ErrorBox';
 import InfoPopover from 'components/UI/InfoPopover';

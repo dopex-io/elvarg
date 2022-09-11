@@ -7,7 +7,17 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/ssov',
+        destination: '/straddles',
+        permanent: false,
+      },
+      {
+        source: '/otc',
+        destination: '/straddles',
+        permanent: false,
+      },
+      {
+        source: '/otc/chat',
+        destination: '/straddles',
         permanent: false,
       },
     ];

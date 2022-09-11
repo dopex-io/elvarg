@@ -64,7 +64,7 @@ export interface WritePositionInterface {
   strike: BigNumber;
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
-  estimatedPnl: BigNumber;
+  // estimatedPnl: BigNumber;
   epoch: number;
   tokenId: BigNumber;
 }
@@ -134,8 +134,6 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       provider
     );
 
-    console.log(contractAddresses['SSOV-V3'].VIEWER);
-
     const writePositions = await ssovViewerContract.walletOfOwner(
       accountAddress,
       ssovAddress
@@ -155,16 +153,17 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     setSsovV3UserData({
       writePositions: data.map((o, i) => {
+        console.log(moreData[i]?.estimatedCollateralUsage.toString());
         return {
           tokenId: writePositions[i] as BigNumber,
           collateralAmount: o.collateralAmount,
           epoch: o.epoch.toNumber(),
           strike: o.strike,
-          estimatedPnl: o.collateralAmount
-            .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
-            .add(moreData[i]?.premiumsAccrued || BigNumber.from(0)),
+          // estimatedPnl: o.collateralAmount
+          //   .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
+          //   .add(moreData[i]?.accruedPremium || BigNumber.from(0)),
           accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
-          accruedPremiums: moreData[i]?.premiumsAccrued || BigNumber.from(0),
+          accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
         };
       }),
     });
@@ -193,7 +192,6 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
 
     const [
       epochTimes,
-      epochStrikes,
       totalEpochStrikeDeposits,
       totalEpochOptionsPurchased,
       totalEpochPremium,
@@ -202,7 +200,6 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
-      ssovContract.getEpochStrikes(selectedEpoch),
       ssovViewerContract.getTotalEpochStrikeDeposits(
         selectedEpoch,
         ssovContract.address
@@ -223,6 +220,8 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
       axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedSsovV3}`),
     ]);
 
+    const epochStrikes = epochData.strikes;
+
     const epochStrikeDataArray = await Promise.all(
       epochStrikes.map((strike) =>
         ssovContract.getEpochStrikeData(selectedEpoch, strike)
@@ -230,9 +229,7 @@ export const SsovV3Provider = (props: { children: ReactNode }) => {
     );
 
     const availableCollateralForStrikes = epochStrikeDataArray.map((item) => {
-      return item.lastVaultCheckpoint.totalCollateral.sub(
-        item.lastVaultCheckpoint.activeCollateral
-      );
+      return item.totalCollateral.sub(item.activeCollateral);
     });
 
     const totalEpochDeposits = totalEpochStrikeDeposits.reduce(

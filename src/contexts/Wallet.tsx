@@ -58,8 +58,8 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   [key: string]: { default: number; all: number[] };
 } = {
   '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/governance/vedpx': { default: 42161, all: [42161] },
   '/farms': { default: 42161, all: [1, 42161] },
-  '/farms/manage': { default: 42161, all: [1, 42161] },
   '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
   '/ssov/call/BNB': { default: 56, all: [56] },
   '/ssov/call/AVAX': { default: 43114, all: [43114] },
@@ -69,7 +69,13 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
-  '/vaults/ir/MIM3CRV': { default: 42161, all: [42161] },
+  '/ir/MIM3CRV-1': { default: 42161, all: [42161] },
+  '/ir/MIM3CRV-2': { default: 42161, all: [42161] },
+  '/ir/PUSD3CRV': { default: 42161, all: [42161] },
+  '/ir': { default: 42161, all: [42161] },
+  '/straddles': { default: 42161, all: [42161] },
+  '/straddles/ETH': { default: 42161, all: [42161] },
+  '/straddles/RDPX': { default: 42161, all: [42161] },
 };
 
 let web3Modal: Web3Modal | undefined;

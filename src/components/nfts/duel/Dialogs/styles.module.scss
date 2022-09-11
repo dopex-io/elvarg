@@ -1,0 +1,121 @@
+.darkBg {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.zapIn {
+  position: absolute;
+  background: #151515;
+  width: calc(100% - 31px);
+}
+
+.pepeButton:hover {
+  opacity: 0.9;
+  background: #43609a;
+  box-shadow: inset 2px 2px 0px #3b5280, inset -3px -3px 0px #19243c;
+}
+
+.pepeButton:disabled {
+  opacity: 0.9;
+  background: #343c4d;
+  cursor: not-allowed;
+}
+
+.pepeButton {
+  width: 100%;
+  padding: 4px 8px;
+  background: #43609a;
+  box-shadow: inset 2px 2px 0px #3b5280, inset -3px -3px 0px #19243c;
+  border: 0.6px solid black;
+  border-radius: 0px;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+  margin: 10px 0px;
+}
+
+.pepeButton:disabled .pepeButtonText {
+  opacity: 0.5;
+}
+
+.pepeButtonText {
+  font-family: Minecraft;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+  color: white;
+  flex: none;
+  order: 2;
+  flex-grow: 0;
+  margin: 0px 8px;
+  letter-spacing: 1px;
+}
+
+.pepeText {
+  background: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  background-image: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  text-transform: uppercase;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.pepeLink {
+  background: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  background-image: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.pepeButtonSquare {
+  cursor: pointer;
+  background: #43609a;
+  box-shadow: inset 2px 2px 0px #7193d6, inset -3px -3px 0px #213459;
+  width: 40px;
+  height: 40px;
+  color: white;
+  padding: 10px;
+  font-family: Minecraft, serif;
+  text-transform: uppercase;
+  z-index: 50;
+  position: relative;
+}
+
+.blueBackground {
+  background: #43609A;
+}
+
+.diamondBackground {
+  background: linear-gradient(180deg, #FFFFFF 0%, #9CECFD 64.06%);
+}
+
+.orangeBackground {
+  background: linear-gradient(180deg, #DB8140 0%, #7B5A43 100%);
+}
+
+.goldBackground {
+  background: radial-gradient(72.5% 72.5% at 50% 6.67%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, #FFD50B 0%, #FFAD14 100%);
+}
+
+.diamondTag {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 4px;
+
+  width: 50px;
+  height: 22px;
+
+  background: linear-gradient(180deg, #FFFFFF 0%, #9CECFD 64.06%);
+  border-radius: 10px;
+
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}

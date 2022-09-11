@@ -2,12 +2,15 @@
 import { useContext, useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
+import { styled } from '@mui/material/styles';
+import format from 'date-fns/format';
 
 import { BnbConversionContext } from 'contexts/BnbConversion';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import InfoBox from 'components/ssov-v3/InfoBox';
 
@@ -19,7 +22,22 @@ import formatAmount from 'utils/general/formatAmount';
 import { SSOV_MAP } from 'constants/index';
 import ssovInfo from 'constants/ssovInfo';
 
-import styles from './styles.module.scss';
+const nameToSsovStyle: { [key: string]: string } = {
+  ETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)',
+  DPX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #22e1ff 99.1%)',
+  RDPX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)',
+  GOHM: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #e6e6e6 99.1%)',
+  BNB: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #fffb00 99.1%)',
+  GMX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #04a7f0 99.1%)',
+  AVAX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f00404 99.1%)',
+  CRV: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #82f004 99.1%)',
+  BTC: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f06a04 99.1%)',
+};
+
+const CustomBox = styled(Box)(({ token }) => ({
+  background: nameToSsovStyle[token],
+  width: '350px',
+}));
 
 function SsovCard(props) {
   const { className, data } = props;
@@ -35,6 +53,7 @@ function SsovCard(props) {
     retired,
     symbol,
     version,
+    epochTimes,
   } = data;
   const info = useMemo(() => {
     return [
@@ -80,7 +99,7 @@ function SsovCard(props) {
   }, [apy, convertToBNB, name, totalEpochDeposits, tvl, type]);
 
   return (
-    <Box className={cx('p-[1px] rounded-xl', styles[name], styles.Box)}>
+    <CustomBox className="p-[1px] rounded-xl" token={name}>
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
@@ -98,7 +117,7 @@ function SsovCard(props) {
             </Box>
             <Box className="flex flex-grow items-center justify-between">
               <Typography variant="h4" className="mr-2 font-bold">
-                {name} {duration === 'weekly' ? 'weekly' : ''}{' '}
+                {name} {duration}{' '}
                 {retired ? (
                   <span className="bg-red-500 p-1 text-sm rounded-sm ml-1">
                     RETIRED
@@ -106,7 +125,7 @@ function SsovCard(props) {
                 ) : null}
               </Typography>
               <img
-                src={'/assets/' + type + 's.svg'}
+                src={'/images/misc/' + type + 's.svg'}
                 className="w-12 mt-1.5"
                 alt={type}
               />
@@ -131,13 +150,27 @@ function SsovCard(props) {
             <Typography variant="h6" className="text-stieglitz">
               Epoch {currentEpoch}
             </Typography>
+            {!retired ? (
+              <Tooltip
+                className="text-stieglitz"
+                arrow={true}
+                title="Epoch Start & Expiry Times"
+              >
+                <Box>
+                  <Typography variant="h6" color="stieglitz">
+                    {format(Number(epochTimes.startTime) * 1000, 'd LLL')} -{' '}
+                    {format(Number(epochTimes.expiry) * 1000, 'd LLL')}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            ) : null}
             <Typography variant="h6" className="text-stieglitz">
               Version {version}
             </Typography>
           </Box>
         </Box>
       </Box>
-    </Box>
+    </CustomBox>
   );
 }
 

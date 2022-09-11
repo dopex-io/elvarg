@@ -11,10 +11,10 @@
     "postinstall": "husky install"
   },
   "dependencies": {
-    "@0xsequence/multicall": "^0.39.0",
+    "@0xsequence/multicall": "^0.40.2",
     "@apollo/client": "^3.6.6",
     "@coinbase/wallet-sdk": "^3.2.0",
-    "@dopex-io/sdk": "1.0.0-beta.2",
+    "@dopex-io/sdk": "1.0.0-beta.25",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.8.2",
@@ -39,13 +39,15 @@
     "react-firebase-hooks": "^5.0.3",
     "react-hot-toast": "^2.0.0",
     "react-use": "^17.2.4",
-    "recharts": "^2.1.9",
+    "recharts": "2.1.12",
     "sass": "^1.49.8",
     "use-debounce": "^8.0.0",
     "web3modal": "^1.9.4",
     "yup": "^0.32.9"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript": "^2.4.5",
     "@graphql-codegen/typescript-operations": "^2.3.2",
@@ -71,6 +73,9 @@
   "lint-staged": {
     "*.+(js|jsx|ts|tsx|json|css|md)": [
       "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --max-warnings=0"
     ]
   },
   "browserslist": {

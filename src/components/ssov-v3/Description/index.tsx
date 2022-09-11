@@ -1,6 +1,7 @@
 import { useMemo, useState, useContext } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
+import format from 'date-fns/format';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -17,8 +18,6 @@ import Wrapper from '../Wrapper';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
-
-import styles from './styles.module.scss';
 
 const Description = ({
   ssovData,
@@ -38,6 +37,9 @@ const Description = ({
     return ssovData.isPut ? 'PUT' : 'CALL';
   }, [ssovData]);
 
+  const epochStartTime = Number(ssovEpochData.epochTimes[0]?.toNumber());
+  const epochEndTime = Number(ssovEpochData.epochTimes[1]?.toNumber());
+
   const info = [
     {
       heading: 'APY*',
@@ -52,8 +54,8 @@ const Description = ({
   ];
 
   return (
-    <Box className={cx('flex flex-col md:mr-5', styles['wrapperWidth'])}>
-      <Box className={'flex'}>
+    <Box className="flex flex-col md:mr-5 w-full md:w-[400px]">
+      <Box className="flex">
         <Typography variant="h1" className="mb-6 flex items-center space-x-3">
           <span>{ssovData.underlyingSymbol}</span>
           <span
@@ -84,6 +86,13 @@ const Description = ({
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
       <EpochSelector className="mb-6" />
+      <Box className="mb-3">
+        Epoch duration:
+        <span className="font-bold">
+          {format(epochStartTime * 1000, 'd MMM yyyy HH:mm')} -{' '}
+          {format(epochEndTime * 1000, 'd MMM yyyy HH:mm')}
+        </span>
+      </Box>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">
           <WalletButton

@@ -11,7 +11,7 @@ import Skeleton from '@mui/material/Skeleton';
 import TablePagination from '@mui/material/TablePagination';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 
-import CustomButton from 'components/UI/CustomButton';
+import CustomButton from 'components/UI/Button';
 import Withdraw from 'components/otc/Dialogs/Withdraw';
 
 import { OtcContext } from 'contexts/Otc';
