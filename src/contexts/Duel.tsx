@@ -699,6 +699,9 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         }
       });
 
+      const minimum = 1100;
+      const maximum = 1300;
+
       const duel: Duel = {
         id: i,
         identifier: duelData[0],
@@ -708,8 +711,9 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         tokenName: symbol,
         tokenAddress: Addresses[chainId]['WETH'],
         fees: duelData[3],
-        duelist: 666,
-        challenger: 666,
+        duelist: Math.floor(Math.random() * (maximum - minimum + 1)) + minimum,
+        challenger:
+          Math.floor(Math.random() * (maximum - minimum + 1)) + minimum,
         isCreatorWinner: isCreatorWinner,
         creationDate: creationDate,
         challengedLimitDate: challengedLimitDate,

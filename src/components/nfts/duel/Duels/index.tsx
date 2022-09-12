@@ -24,6 +24,13 @@ import Countdown from 'react-countdown';
 export const Duels = ({ findDuel }: { findDuel: Function }) => {
   const { duels, isLoading } = useContext(DuelContext);
 
+  const onImgSrcError = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    event.currentTarget.src =
+      'https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/666/280/static.jpg';
+  };
+
   return (
     <Box className={'bg-[#181C24] w-full p-4 pt-2 pb-4.5 pb-0 rounded-sm'}>
       <Box className="balances-table text-white">
@@ -104,6 +111,7 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                           src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
                           alt={'Duelist'}
                           className="rounded-md w-12 h-12 mt-1 mr-1"
+                          onError={onImgSrcError}
                         />
                         <Box>
                           <Typography

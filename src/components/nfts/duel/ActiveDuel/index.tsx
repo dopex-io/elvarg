@@ -52,12 +52,21 @@ const ActiveDuel = ({
     else return 'TIE';
   }, [duel, accountAddress]);
 
+  const onImgSrcError = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    event.currentTarget.src =
+      'https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/666/280/static.jpg';
+    event.currentTarget.className = 'error';
+  };
+
   return (
     <Box className="w-full flex p-5 bg-[#181C24] relative">
       <img
         src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
         className="rounded-md w-14 h-14 mt-1 mr-3"
         alt={'Duelist'}
+        onError={onImgSrcError}
       />
       <Box>
         <Typography
@@ -222,6 +231,7 @@ const ActiveDuel = ({
             ? '/images/nfts/pepes/pepe-frame-1.png'
             : `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['challenger']}/280/static.jpg`
         }
+        onError={onImgSrcError}
         className="rounded-md w-14 h-14 ml-6 mt-1"
         alt="?"
       />
