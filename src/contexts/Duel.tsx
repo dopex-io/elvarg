@@ -623,11 +623,11 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         }
 
         for (let j in rawMoves[1]) {
-          if (rawMoves[0][j].eq(BigNumber.from('1')))
+          if (rawMoves[1][j].eq(BigNumber.from('1')))
             challengerMoves.push('kick');
-          else if (rawMoves[0][j].eq(BigNumber.from('0')))
+          else if (rawMoves[1][j].eq(BigNumber.from('0')))
             challengerMoves.push('punch');
-          else if (rawMoves[0][j].eq(BigNumber.from('3')))
+          else if (rawMoves[1][j].eq(BigNumber.from('3')))
             challengerMoves.push('special');
           else challengerMoves.push('block');
         }
