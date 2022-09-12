@@ -4,6 +4,7 @@ import {
   AtlanticStraddle__factory,
   Addresses,
   AtlanticStraddle,
+  SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
@@ -27,7 +28,7 @@ export interface StraddlesEpochData {
   activeUsdDeposits: BigNumber | string;
   settlementPrice: BigNumber | string;
   underlyingPurchased: BigNumber | string;
-  usdPremiums: BigNumber | string;
+  usdPremiums: BigNumber;
   usdFunding: BigNumber | string;
   totalSold: BigNumber | string;
   currentPrice: BigNumber | string;
@@ -37,14 +38,14 @@ export interface StraddlesEpochData {
   straddleFunding: BigNumber | string;
   aprPremium: string;
   aprFunding: BigNumber | string;
-  volatility: string;
+  volatility: BigNumber;
 }
 
 export interface WritePosition {
   epoch: number;
   usdDeposit: BigNumber;
   rollover: BigNumber;
-  pnl: BigNumber;
+  premiumFunding: BigNumber;
   id: number;
 }
 
@@ -71,6 +72,7 @@ export interface StraddlesSlice {
   updateStraddles: Function;
   setSelectedPoolName?: Function;
   getStraddlesContract: Function;
+  getOptionPricingContract: Function;
   getStraddlesWritePosition: Function;
   getStraddlePosition: Function;
 }
@@ -98,7 +100,7 @@ export const createStraddlesSlice: StateCreator<
     straddleFunding: BigNumber.from('0'),
     aprPremium: '',
     aprFunding: '',
-    volatility: '',
+    volatility: BigNumber.from('0'),
   },
   straddlesUserData: {},
   updateStraddlesEpochData: async () => {
@@ -122,7 +124,7 @@ export const createStraddlesSlice: StateCreator<
 
     let straddlePrice: BigNumber | string;
     let aprFunding: BigNumber | string;
-    let volatility: string;
+    let volatility: BigNumber;
     let purchaseFee: BigNumber | string;
     let straddlePremium: BigNumber | string;
     let straddleFunding: BigNumber | string;
@@ -159,7 +161,7 @@ export const createStraddlesSlice: StateCreator<
         await straddlesContract!['getVolatility'](currentPrice)
       ).toString();
     } catch (e) {
-      volatility = '...';
+      volatility = BigNumber.from('0');
     }
 
     const timeToExpiry =
@@ -306,20 +308,28 @@ export const createStraddlesSlice: StateCreator<
       },
     }));
   },
-
   getStraddlesContract: () => {
     const { selectedPoolName, provider } = get();
 
     if (!selectedPoolName || !provider) return;
 
     return AtlanticStraddle__factory.connect(
-      Addresses[42161].STRADDLES[selectedPoolName].Vault,
+      Addresses[42161].STRADDLES.Vault[selectedPoolName],
+      provider
+    );
+  },
+  getOptionPricingContract: () => {
+    const { selectedPoolName, provider } = get();
+
+    if (!selectedPoolName || !provider) return;
+
+    return SSOVOptionPricing__factory.connect(
+      Addresses[42161].STRADDLES.OPTION_PRICING,
       provider
     );
   },
   getStraddlesWritePosition: async (id: BigNumber) => {
-    const { getStraddlesContract, accountAddress } = get();
-
+    const { getStraddlesContract, accountAddress, straddlesEpochData } = get();
     const straddlesContract = getStraddlesContract();
 
     try {
@@ -327,13 +337,20 @@ export const createStraddlesSlice: StateCreator<
       if (owner !== accountAddress) throw 'Invalid owner';
 
       const data = await straddlesContract!['writePositions'](id);
-      const pnl = await straddlesContract!['calculateWritePositionPnl'](id);
+
+      const totalPremiumFunding = straddlesEpochData!.usdPremiums.add(
+        straddlesEpochData!.usdFunding
+      );
+      const premiumFunding = data.usdDeposit
+        .mul(totalPremiumFunding)
+        .div(straddlesEpochData!.usdDeposits);
+
       return {
         id: id,
         epoch: data['epoch'],
         usdDeposit: data['usdDeposit'],
         rollover: data['rollover'],
-        pnl: pnl,
+        premiumFunding: premiumFunding,
       };
     } catch {
       return {
@@ -342,24 +359,58 @@ export const createStraddlesSlice: StateCreator<
     }
   },
   getStraddlePosition: async (id: BigNumber) => {
-    const { accountAddress, getStraddlesContract } = get();
+    const {
+      accountAddress,
+      getStraddlesContract,
+      getOptionPricingContract,
+      straddlesEpochData,
+    } = get();
 
     const straddlesContract = getStraddlesContract();
+    const optionsPricingContract = getOptionPricingContract();
 
     try {
       const owner = await straddlesContract!['ownerOf'](id);
       if (owner !== accountAddress) throw 'Invalid owner';
 
       const data = await straddlesContract!['straddlePositions'](id);
-      const pnl = await straddlesContract!['calculateStraddlePositionPnl'](id);
+      const currentPrice = straddlesEpochData!.currentPrice;
+      const volatility = straddlesEpochData!.volatility;
+      const timeToExpiry = straddlesEpochData!.expiry;
+      const strike = data['apStrike'];
+      const amount = data['amount'];
+
+      let [callPnl, putPnl] = await Promise.all([
+        optionsPricingContract?.getOptionPrice(
+          false,
+          timeToExpiry,
+          strike,
+          currentPrice,
+          volatility
+        ),
+        optionsPricingContract?.getOptionPrice(
+          true,
+          timeToExpiry,
+          strike,
+          currentPrice,
+          volatility
+        ),
+      ]);
+
+      // live pnl = 0.5 * BS(call) + 0.5 * BS(put)
+      callPnl = callPnl ? callPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+      putPnl = putPnl ? putPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+      const pnl: BigNumber = callPnl.add(putPnl);
+
       return {
         id: id,
         epoch: data['epoch'],
-        amount: data['amount'],
-        apStrike: data['apStrike'],
-        pnl: pnl,
+        amount: amount,
+        apStrike: strike,
+        pnl: pnl.mul(amount).div(BigNumber.from(1e8)),
       };
-    } catch {
+    } catch (err) {
+      console.log(err);
       return {
         amount: BigNumber.from('0'),
       };

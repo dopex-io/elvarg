@@ -76,6 +76,7 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/straddles': { default: 42161, all: [42161] },
   '/straddles/ETH': { default: 42161, all: [42161] },
   '/straddles/RDPX': { default: 42161, all: [42161] },
+  '/dpx-bonds': { default: 42161, all: [42161] },
 };
 
 let web3Modal: Web3Modal | undefined;

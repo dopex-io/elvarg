@@ -1,5 +1,4 @@
-import { useCallback, useMemo } from 'react';
-import { utils as ethersUtils } from 'ethers';
+import { useCallback } from 'react';
 import { VeDPXYieldDistributor__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 
@@ -49,13 +48,6 @@ const VeDPXYield = () => {
 
     await sendTx(vedpxYieldDistributor.getYield());
   }, [accountAddress, sendTx, signer]);
-
-  const apy = useMemo(() => {
-    const dpxEmittedInAYear = 41.5 * 365;
-    const totalDpx = Number(ethersUtils.formatEther(data.vedpxTotalSupply));
-
-    return (dpxEmittedInAYear / totalDpx) * 100;
-  }, [data.vedpxTotalSupply]);
 
   return (
     <Box>
@@ -123,7 +115,7 @@ const VeDPXYield = () => {
               Yield Rate
             </Typography>
             <Typography variant="h5" className="font-medium">
-              41.5 DPX/day
+              {formatAmount(data.dailyDpxEmission, 1, false, true)} DPX/day
             </Typography>
           </Box>
           <Box className="p-3 bg-umbra rounded-xl w-full">
@@ -139,7 +131,7 @@ const VeDPXYield = () => {
               />
             </Typography>
             <Typography variant="h5" className="font-medium">
-              {formatAmount(apy, 2)} %{' '}
+              {formatAmount(data.apy, 2, false, true)} %{' '}
             </Typography>
           </Box>
         </Box>

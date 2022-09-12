@@ -7,6 +7,7 @@ import {
   SSOVOptionPricing__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
+import { SsovV3__factory as OldSsovV3__factory } from 'sdk-old';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 
@@ -42,8 +43,6 @@ export interface SsovV3EpochData {
   isEpochExpired: boolean;
   epochStrikes: BigNumber[];
   totalEpochStrikeDeposits: BigNumber[];
-  totalEpochStrikeDepositsPending: BigNumber[];
-  totalEpochStrikeDepositsUsable: BigNumber[];
   totalEpochOptionsPurchased: BigNumber[];
   totalEpochPremium: BigNumber[];
   availableCollateralForStrikes: BigNumber[];
@@ -52,7 +51,6 @@ export interface SsovV3EpochData {
   epochStrikeTokens: string[];
   APY: string;
   TVL: number;
-  pendingDeposits: number;
 }
 
 export interface WritePositionInterface {
@@ -60,7 +58,6 @@ export interface WritePositionInterface {
   strike: BigNumber;
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
-  estimatedPnl: BigNumber;
   epoch: number;
   tokenId: BigNumber;
 }
@@ -79,6 +76,7 @@ export interface SsovV3Slice {
   totalEpochStrikeDepositsPending?: BigNumber[];
   totalEpochStrikeDepositsUsable?: BigNumber[];
   updateSsovV3: Function;
+  getSsovViewerAddress: Function;
 }
 
 export const createSsovV3Slice: StateCreator<
@@ -120,27 +118,35 @@ export const createSsovV3Slice: StateCreator<
       selectedEpoch,
       selectedPoolName,
       provider,
-      totalEpochStrikeDepositsPending = [],
-      totalEpochStrikeDepositsUsable = [],
+      getSsovViewerAddress,
     } = get();
+    const ssovViewerAddress = getSsovViewerAddress();
 
-    if (!contractAddresses || !selectedEpoch || !selectedPoolName || !provider)
+    if (
+      !contractAddresses ||
+      !selectedEpoch ||
+      !selectedPoolName ||
+      !provider ||
+      !ssovViewerAddress
+    )
       return;
 
     if (!contractAddresses['SSOV-V3']) return;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
-    const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
+    const ssovContract =
+      selectedPoolName === 'ETH-CALLS-SSOV-V3'
+        ? OldSsovV3__factory.connect(ssovAddress, provider)
+        : SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      contractAddresses['SSOV-V3'].VIEWER,
+      ssovViewerAddress,
       provider
     );
 
     const [
       epochTimes,
-      epochStrikes,
       totalEpochStrikeDeposits,
       totalEpochOptionsPurchased,
       totalEpochPremium,
@@ -149,7 +155,6 @@ export const createSsovV3Slice: StateCreator<
       apyPayload,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
-      ssovContract.getEpochStrikes(selectedEpoch),
       ssovViewerContract.getTotalEpochStrikeDeposits(
         selectedEpoch,
         ssovContract.address
@@ -170,33 +175,13 @@ export const createSsovV3Slice: StateCreator<
       axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedPoolName}`),
     ]);
 
+    const epochStrikes = epochData.strikes;
+
     const epochStrikeDataArray = await Promise.all(
       epochStrikes.map((strike) =>
         ssovContract.getEpochStrikeData(selectedEpoch, strike)
       )
     );
-
-    const epochStrikeDataCheckpoints = await Promise.all(
-      epochStrikes.map((strike) =>
-        ssovContract.getCheckpoints(selectedEpoch, strike)
-      )
-    );
-
-    epochStrikeDataCheckpoints.map((checkpoints, index) => {
-      const lastCheckpoint = checkpoints[checkpoints?.length - 1];
-
-      const checkpointStart = lastCheckpoint?.startTime || BigNumber.from(0);
-      const pendingCollateral =
-        lastCheckpoint?.totalCollateral || BigNumber.from(0);
-
-      const timeNow = BigNumber.from(Math.floor(Date.now() / 1000));
-
-      if (lastCheckpoint && checkpointStart.add(2 * 3600).gt(timeNow)) {
-        totalEpochStrikeDepositsPending[index] = pendingCollateral;
-      } else if (lastCheckpoint && checkpointStart.add(2 * 3600).lte(timeNow)) {
-        totalEpochStrikeDepositsUsable[index] = pendingCollateral;
-      }
-    });
 
     const availableCollateralForStrikes = epochStrikeDataArray.map((item) => {
       return item.totalCollateral.sub(item.activeCollateral);
@@ -215,26 +200,12 @@ export const createSsovV3Slice: StateCreator<
         getUserReadableAmount(underlyingPrice, 8)
       : getUserReadableAmount(totalEpochDeposits, 18);
 
-    const totalEpochDepositsPending = totalEpochStrikeDepositsPending?.reduce(
-      (acc, deposit) => {
-        return acc.add(deposit);
-      },
-      BigNumber.from(0)
-    );
-
-    const totalEpochDepositsPendingInUSD = !(await ssovContract.isPut())
-      ? getUserReadableAmount(totalEpochDepositsPending, 18) *
-        getUserReadableAmount(underlyingPrice, 8)
-      : getUserReadableAmount(totalEpochDepositsPending, 18);
-
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
       settlementPrice: epochData.settlementPrice,
       epochTimes,
       epochStrikes,
       totalEpochStrikeDeposits,
-      totalEpochStrikeDepositsPending,
-      totalEpochStrikeDepositsUsable,
       totalEpochOptionsPurchased,
       totalEpochPremium,
       availableCollateralForStrikes,
@@ -249,7 +220,6 @@ export const createSsovV3Slice: StateCreator<
       APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
-      pendingDeposits: totalEpochDepositsPendingInUSD,
     };
 
     set((prevState) => ({ ...prevState, ssovEpochData: _ssovEpochData }));
@@ -261,13 +231,17 @@ export const createSsovV3Slice: StateCreator<
       provider,
       selectedEpoch,
       selectedPoolName,
+      getSsovViewerAddress,
     } = get();
+
+    const ssovViewerAddress = getSsovViewerAddress();
 
     if (
       !contractAddresses ||
       !accountAddress ||
       !selectedEpoch ||
-      !selectedPoolName
+      !selectedPoolName ||
+      !ssovViewerAddress
     )
       return;
 
@@ -275,10 +249,13 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
-    const ssov = SsovV3__factory.connect(ssovAddress, provider);
+    const ssov =
+      selectedPoolName === 'ETH-CALLS-SSOV-V3'
+        ? OldSsovV3__factory.connect(ssovAddress, provider)
+        : SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
-      contractAddresses['SSOV-V3'].VIEWER,
+      ssovViewerAddress,
       provider
     );
 
@@ -305,11 +282,8 @@ export const createSsovV3Slice: StateCreator<
         collateralAmount: o.collateralAmount,
         epoch: o.epoch.toNumber(),
         strike: o.strike,
-        estimatedPnl: o.collateralAmount
-          .sub(moreData[i]?.estimatedCollateralUsage || BigNumber.from(0))
-          .add(moreData[i]?.premiumsAccrued || BigNumber.from(0)),
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
-        accruedPremiums: moreData[i]?.premiumsAccrued || BigNumber.from(0),
+        accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
       };
     });
 
@@ -329,7 +303,6 @@ export const createSsovV3Slice: StateCreator<
       provider,
       setSelectedEpoch,
     } = get();
-
     let _ssovData: SsovV3Data;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
@@ -385,10 +358,12 @@ export const createSsovV3Slice: StateCreator<
     }
   },
   selectedEpoch: 1,
-  setSelectedEpoch: (epoch: number) => {
-    set((prevState) => ({ ...prevState, selectedEpoch: epoch }));
-  },
-  setSelectedSsovV3: (ssov: string) => {
-    set((prevState) => ({ ...prevState, selectedSsovV3: ssov }));
+  getSsovViewerAddress: () => {
+    const { selectedPoolName, contractAddresses } = get();
+    if (!selectedPoolName || !contractAddresses) return;
+
+    return selectedPoolName === 'ETH-CALLS-SSOV-V3'
+      ? '0x9F948e9A79186f076EA19f5DDCCDF30eDc6DbaA2'
+      : contractAddresses['SSOV-V3'].VIEWER;
   },
 });

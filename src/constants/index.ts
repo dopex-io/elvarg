@@ -296,6 +296,7 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
   1088: 'https://andromeda-explorer.metis.io/',
+  421611: 'https://testnet.arbiscan.io/',
 };
 
 export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
@@ -320,6 +321,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/straddles': { default: 42161, all: [42161] },
   '/straddles/ETH': { default: 42161, all: [42161] },
   '/straddles/RDPX': { default: 42161, all: [42161] },
+  '/dpx-bonds': { default: 42161, all: [42161] },
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

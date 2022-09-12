@@ -55,6 +55,7 @@ const AppLink = ({
     'hover:no-underline hover:text-white cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
+
   if (to.startsWith('http')) {
     return (
       <a
@@ -102,6 +103,7 @@ const appLinks = {
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
+    { name: 'DPX Bonds', to: '/dpx-bonds' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -136,6 +138,7 @@ interface AppBarProps {
     | 'leaderboard'
     | 'swap'
     | 'OTC'
+    | 'DPX Bonds'
     | 'vaults';
 }
 
@@ -275,7 +278,7 @@ export default function AppBar(props: AppBarProps) {
               />
             </a>
             <Box className="space-x-10 mr-10 hidden lg:flex">
-              {links.map(
+              {links?.map(
                 (link: { name: Key | null | undefined; to: string }) => {
                   if (link.name === active)
                     return (
@@ -289,7 +292,7 @@ export default function AppBar(props: AppBarProps) {
                       />
                     );
                   return (
-                    // TODO: FIX
+                    // @TODO: FIX
                     // @ts-ignore
                     <AppLink to={link.to} name={link.name} key={link.name} />
                   );
@@ -375,14 +378,12 @@ export default function AppBar(props: AppBarProps) {
                 <Typography variant="h5" className="font-bold ml-4 my-2">
                   App
                 </Typography>
-                {/* TODO: FIX */}
-                {/* @ts-ignore */}
-                {links.map((link) => {
+                {links?.map((link: { name: string; to: string }) => {
                   return (
                     <MenuItem
                       onClick={handleCloseSmall}
                       className="ml-2 text-white"
-                      key={link.name}
+                      key={link?.name}
                     >
                       <AppLink to={link.to} name={link.name} />
                     </MenuItem>

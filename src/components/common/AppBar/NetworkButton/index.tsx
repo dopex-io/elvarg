@@ -1,22 +1,18 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useContext } from 'react';
 
 import CustomButton from 'components/UI/Button';
 
-import { useBoundStore } from 'store';
+import { WalletContext } from 'contexts/Wallet';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 export default function NetworkButton({ className }: { className?: string }) {
-  const { chainId, setChangeNetwork, wrongNetwork } = useBoundStore();
+  const { chainId, setChangeNetwork } = useContext(WalletContext);
 
   const handleOpen = useCallback(
     () => setChangeNetwork && setChangeNetwork('user'),
     [setChangeNetwork]
   );
-
-  useEffect(() => {
-    setChangeNetwork(wrongNetwork ? 'wrong-network' : 'close');
-  }, [wrongNetwork, setChangeNetwork]);
 
   return (
     <CustomButton

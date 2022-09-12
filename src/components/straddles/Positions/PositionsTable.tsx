@@ -63,7 +63,11 @@ const PositionsTable = () => {
                 </Typography>
               </TableCell>
               <TableCell className="border-0 pb-0">
-                <Typography variant="h6" className="text-gray-400">
+                <Typography
+                  variant="h6"
+                  color="stieglitz"
+                  className="text-left"
+                >
                   PnL
                 </Typography>
               </TableCell>
@@ -105,8 +109,8 @@ const PositionsTable = () => {
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">
-                  <Typography variant="h6" className="text-right">
-                    ${getUserReadableAmount(position.pnl, 8).toFixed(2)}
+                  <Typography variant="h6" color="white" className="text-left">
+                    ${getUserReadableAmount(position.pnl, 18).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1">

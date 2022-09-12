@@ -59,11 +59,7 @@ const PurchaseDialog = ({
   const { tokenPrice, ssovContract, isPut, underlyingSymbol } = ssovData;
   const { ssovContractWithSigner } = ssovSigner;
 
-  const {
-    epochStrikes,
-    availableCollateralForStrikes,
-    totalEpochStrikeDepositsUsable,
-  } = ssovEpochData;
+  const { epochStrikes, availableCollateralForStrikes } = ssovEpochData;
 
   const [state, setState] = useState({
     volatility: 0,
@@ -269,23 +265,17 @@ const PurchaseDialog = ({
     ssovData,
   ]);
 
-  const usableCollateral = useMemo(
-    () => totalEpochStrikeDepositsUsable[strikeIndex] || BigNumber.from(0),
-    [strikeIndex, totalEpochStrikeDepositsUsable]
-  );
-
   const purchaseButtonProps = useMemo(() => {
     const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
         (isPut
-          ? availableCollateralForStrikes[strikeIndex]!.add(usableCollateral)
-              .mul(oneEBigNumber(8))
+          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.add(
-              usableCollateral
-            ).lt(getContractReadableAmount(optionsAmount, 18))) ||
+          : availableCollateralForStrikes[strikeIndex]!.lt(
+              getContractReadableAmount(optionsAmount, 18)
+            )) ||
         (isPut
           ? state.totalCost.gt(userTokenBalance)
           : state.totalCost
@@ -311,13 +301,12 @@ const PurchaseDialog = ({
     } else if (optionsAmount > 0) {
       if (
         isPut
-          ? availableCollateralForStrikes[strikeIndex]!.add(usableCollateral)
-              .mul(oneEBigNumber(8))
+          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.add(
-              usableCollateral
-            ).lt(getContractReadableAmount(optionsAmount, 18))
+          : availableCollateralForStrikes[strikeIndex]!.lt(
+              getContractReadableAmount(optionsAmount, 18)
+            )
       ) {
         children = 'Collateral not available';
       } else if (
@@ -350,7 +339,6 @@ const PurchaseDialog = ({
     isPut,
     availableCollateralForStrikes,
     strikeIndex,
-    usableCollateral,
     strikes,
     state,
     userTokenBalance,
@@ -414,15 +402,11 @@ const PurchaseDialog = ({
                 {formatAmount(
                   isPut
                     ? getUserReadableAmount(
-                        availableCollateralForStrikes[strikeIndex]!.add(
-                          usableCollateral
-                        ),
+                        availableCollateralForStrikes[strikeIndex]!,
                         18
                       ) / Number(strikes[strikeIndex])
                     : getUserReadableAmount(
-                        availableCollateralForStrikes[strikeIndex]!.add(
-                          usableCollateral
-                        ),
+                        availableCollateralForStrikes[strikeIndex]!,
                         18
                       ),
                   5
