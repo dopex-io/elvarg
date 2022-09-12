@@ -1,5 +1,4 @@
 import { StateCreator } from 'zustand';
-// import { devtools, persist } from 'zustand/middleware';
 import {
   ERC20__factory,
   StakingRewardsV3__factory,
@@ -114,10 +113,10 @@ export const createFarmingSlice: StateCreator<
       dpxWethTotalSupply,
       rdpxWethTotalSupply,
     ] = await Promise.all([
-      await dpxWethPair.getReserves(),
-      await rdpxWethPair.getReserves(),
-      await dpxWethPair.totalSupply(),
-      await rdpxWethPair.totalSupply(),
+      dpxWethPair.getReserves(),
+      rdpxWethPair.getReserves(),
+      dpxWethPair.totalSupply(),
+      rdpxWethPair.totalSupply(),
     ]);
 
     let dpxPrice: number = new BN(dpxWethReserve[1].toString())
