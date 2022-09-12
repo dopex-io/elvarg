@@ -38,7 +38,7 @@ export interface Props {
   handleClose: () => void;
 }
 
-const feesPercentage = 10;
+const feesPercentage = 80;
 
 const FindDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress, provider } =

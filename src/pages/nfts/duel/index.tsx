@@ -209,9 +209,9 @@ const DuelPepes = () => {
               </span>
             </Typography>
 
-            {toMintForFree > 0 ? (
-              <Box className=" mt-6 text-center">
-                {' '}
+            <Box className=" mt-6 text-center">
+              {' '}
+              {toMintForFree > 0 ? (
                 <Typography
                   variant="h5"
                   className="text-white font-['Minecraft'] relative z-1 mt-1 text-center mt-8 cursor-pointer hover:opacity-70"
@@ -219,23 +219,25 @@ const DuelPepes = () => {
                   Click here to mint {toMintForFree} pepes using your credit at
                   no additional cost
                 </Typography>
+              ) : null}
+              {toMintForFree > 0 ? (
                 <Typography
                   variant="h5"
                   className="text-[#78859E] font-['Minecraft'] relative z-1 mt-1 text-center"
                 >
                   or
                 </Typography>
-                <Typography
-                  variant="h5"
-                  className="text-white font-['Minecraft'] relative z-1 mt-1 text-center cursor-pointer hover:opacity-70"
-                >
-                  Click here to mint {toMintPayingDifference} pepes using your
-                  credit and paying with{' '}
-                  {formatAmount(remainingETHToPayToMint, 4)} ETH for the
-                  remaining part
-                </Typography>
-              </Box>
-            ) : null}
+              ) : null}
+              <Typography
+                variant="h5"
+                className="text-white font-['Minecraft'] relative z-1 mt-1 text-center cursor-pointer hover:opacity-70"
+              >
+                Click here to mint {toMintPayingDifference} pepes using your
+                credit and paying with{' '}
+                {formatAmount(remainingETHToPayToMint, 4)} ETH for the remaining
+                part
+              </Typography>
+            </Box>
           </Box>
 
           <Box className="flex mt-6">

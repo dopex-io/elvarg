@@ -607,8 +607,8 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         challengerAddress = '?';
 
       const rawMoves = duelData[5];
-      const duelistMoves: string[] = [];
-      const challengerMoves: string[] = [];
+      let duelistMoves: string[] = [];
+      let challengerMoves: string[] = [];
 
       const isRevealed = finishDate < new Date() && challengerAddress !== '?';
 
@@ -631,6 +631,11 @@ export const DuelProvider = (props: { children: ReactNode }) => {
             challengerMoves.push('special');
           else challengerMoves.push('block');
         }
+      }
+
+      if (duelistMoves.every((item) => item === 'punch')) {
+        challengerMoves = [];
+        duelistMoves = [];
       }
 
       const token = ERC20__factory.connect(

@@ -29,7 +29,7 @@ export interface Props {
   handleClose: () => void;
 }
 
-const feesPercentage = 10;
+const feesPercentage = 80;
 
 const RevealDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer } = useContext(WalletContext);
@@ -626,20 +626,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
                 <span className="text-[#78859E]">
                   You will automatically lose if you do not reveal your moves
                   within 24 hours from the challenge
-                </span>
-              </Typography>
-            </Box>
-            <Box className="flex mb-1.5">
-              <Box className="flex text-center p-2 mr-2 mt-1">
-                <img
-                  src="/images/misc/fire.svg"
-                  alt=""
-                  className="w-7 h-5 mt-1"
-                />
-              </Box>
-              <Typography variant="h6" className="mt-1">
-                <span className="text-[#78859E]">
-                  The quicker you reveal more bonus fee you earn, run friend!
                 </span>
               </Typography>
             </Box>
