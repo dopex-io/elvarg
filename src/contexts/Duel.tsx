@@ -663,6 +663,11 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         ) {
           if (isCreatorWinner === true && duelistAddress === accountAddress)
             status = 'won';
+          else if (
+            isCreatorWinner === false &&
+            challengerAddress === accountAddress
+          )
+            status = 'won';
           else status = 'lost';
         } else {
           if (maxRevealDate.getTime() < new Date().getTime()) {
