@@ -302,6 +302,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         getContractReadableAmount(1, 18),
         epochData['expiry']
       );
+      straddlePremium = straddlePremium.mul(BigNumber.from(2));
     } catch (e) {
       straddlePremium = BigNumber.from('0');
     }
@@ -317,7 +318,10 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     try {
       purchaseFee = await straddlesContract!['purchaseFeePercent']();
-      purchaseFee = purchaseFee.mul(currentPrice).mul(1e10);
+      purchaseFee = purchaseFee
+        .mul(currentPrice)
+        .mul(BigNumber.from(2))
+        .mul(1e10);
     } catch (e) {
       purchaseFee = BigNumber.from('0');
     }
@@ -349,6 +353,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         getContractReadableAmount(1, 18),
         BigNumber.from(Math.round(timeToExpiry))
       );
+      straddleFunding = straddleFunding.mul(BigNumber.from(2));
     } catch (e) {
       straddleFunding = BigNumber.from('0');
     }
