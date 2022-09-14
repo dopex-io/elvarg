@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Countdown from 'react-countdown';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
@@ -53,6 +54,28 @@ const Stats = () => {
     },
     [setSelectedEpoch]
   );
+
+  const settlementPrice = useMemo(() => {
+    return !straddlesEpochData?.settlementPrice.eq(BigNumber.from(0))
+      ? formatAmount(
+          getUserReadableAmount(straddlesEpochData?.settlementPrice!, 8),
+          2
+        )
+      : 0;
+  }, [straddlesEpochData]);
+
+  function getSettlementDisplay() {
+    return settlementPrice != 0 ? (
+      <Box className="border flex justify-between border-neutral-800 p-2">
+        <Typography variant="h6" className="text-gray-400">
+          Epoch {selectedEpoch} settlement price
+        </Typography>
+        <Typography variant="h6" className="text-white">
+          ${settlementPrice}
+        </Typography>
+      </Box>
+    ) : null;
+  }
 
   return (
     <Box className="md:flex text-gray-400 ">
@@ -112,6 +135,7 @@ const Stats = () => {
             </Button>
           </Box>
         </Box>
+        {getSettlementDisplay()}
         <Box className="border flex justify-between border-neutral-800 p-2">
           <Typography variant="h6" className="text-gray-400">
             Funding %
