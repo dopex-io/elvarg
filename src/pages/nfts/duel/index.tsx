@@ -1,11 +1,12 @@
 import Head from 'next/head';
-import { useCallback, useContext, useState, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
+
+import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { DuelContext, Duel } from 'contexts/Duel';
-import { DuelProvider } from 'contexts/Duel';
+import { Duel, DuelContext, DuelProvider } from 'contexts/Duel';
 import { WalletContext } from 'contexts/Wallet';
 
 import AppBar from 'components/common/AppBar';
@@ -20,6 +21,8 @@ import RevealDuel from 'components/nfts/duel/Dialogs/RevealDuel';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
+import useSendTx from 'hooks/useSendTx';
+
 import styles from 'components/nfts/duel/styles.module.scss';
 
 const DuelPepes = () => {
@@ -30,6 +33,7 @@ const DuelPepes = () => {
     duelContract,
     setSelectedDuel,
     availableCredit,
+    updateCredit,
   } = useContext(DuelContext);
   const { signer } = useContext(WalletContext);
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
@@ -38,6 +42,7 @@ const DuelPepes = () => {
     useState<boolean>(false);
   const [isRevealDuelDialogOpen, setIsRevealDuelDialogOpen] =
     useState<boolean>(false);
+  const sendTx = useSendTx();
 
   const handleUndo = useCallback(
     async (id: number) => {
@@ -84,21 +89,31 @@ const DuelPepes = () => {
   };
 
   const toMintForFree = useMemo(() => {
-    return Math.floor(getUserReadableAmount(availableCredit, 18) / 0.88);
+    return Math.floor(getUserReadableAmount(availableCredit, 18) / 0.008);
   }, [availableCredit]);
-
-  const toMintPayingDifference = useMemo(() => {
-    return toMintForFree + 1;
-  }, [toMintForFree]);
 
   const remainingETHToPayToMint = useMemo(() => {
     const remainingAmount =
-      getUserReadableAmount(availableCredit, 18) - toMintForFree * 0.88;
+      getUserReadableAmount(availableCredit, 18) - toMintForFree * 0.0088;
 
-    const toPay = 0.88 - remainingAmount;
-
-    return toPay;
+    return 0.88 - remainingAmount;
   }, [availableCredit, toMintForFree]);
+
+  const mintForFree = useCallback(async () => {
+    if (!duelContract || !signer || !updateCredit || !sendTx) return;
+
+    await sendTx(duelContract['mint']());
+    await updateCredit();
+  }, [duelContract, signer, updateCredit, sendTx]);
+
+  const mintMixed = useCallback(async () => {
+    if (!duelContract || !signer || !updateCredit || !sendTx) return;
+
+    const missing = BigNumber.from('8800000000000000').sub(availableCredit);
+
+    await sendTx(duelContract['mintMixed']({ value: missing }));
+    await updateCredit();
+  }, [duelContract, signer, updateCredit, availableCredit, sendTx]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -199,8 +214,9 @@ const DuelPepes = () => {
             >
               You accumulate ETH credit each time you lose a fight
               <br />
-              You can use those ETH to mint new Duel Pepes at the cost of 0,88
-              ETH for each
+              You can use those ETH to mint new Duel Pepes at the cost of 0,008
+              ETH for each or to offset the remaining part of a normal mint at
+              the cost of 0,0088 ETH
               <br />
               You currently have{' '}
               <span className="text-white">
@@ -215,28 +231,23 @@ const DuelPepes = () => {
                 <Typography
                   variant="h5"
                   className="text-white font-['Minecraft'] relative z-1 mt-1 text-center mt-8 cursor-pointer hover:opacity-70"
+                  onClick={mintForFree}
                 >
                   Click here to mint {toMintForFree} pepes using your credit at
                   no additional cost
                 </Typography>
               ) : null}
-              {toMintForFree > 0 ? (
+              {remainingETHToPayToMint < 0.0088 ? (
                 <Typography
                   variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mt-1 text-center"
+                  className="text-white font-['Minecraft'] relative z-1 mt-1 text-center cursor-pointer hover:opacity-70"
+                  onClick={mintMixed}
                 >
-                  or
+                  Click here to mint 1 pepe using your credit and paying with{' '}
+                  {formatAmount(remainingETHToPayToMint, 4)} ETH for the
+                  remaining part
                 </Typography>
               ) : null}
-              <Typography
-                variant="h5"
-                className="text-white font-['Minecraft'] relative z-1 mt-1 text-center cursor-pointer hover:opacity-70"
-              >
-                Click here to mint {toMintPayingDifference} pepes using your
-                credit and paying with{' '}
-                {formatAmount(remainingETHToPayToMint, 4)} ETH for the remaining
-                part
-              </Typography>
             </Box>
           </Box>
 

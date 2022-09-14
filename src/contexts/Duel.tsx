@@ -61,6 +61,7 @@ interface DuelContextInterface {
   selectedDuel: Duel | null;
   setSelectedDuel?: Function;
   availableCredit: BigNumber;
+  updateCredit?: Function;
 }
 
 const initialData: DuelContextInterface = {
@@ -75,12 +76,36 @@ const initialData: DuelContextInterface = {
 const DuelPepesABI = [
   {
     inputs: [
-      { internalType: 'address', name: '_logic', type: 'address' },
-      { internalType: 'address', name: '_leaderboard', type: 'address' },
-      { internalType: 'address', name: '_whitelist', type: 'address' },
-      { internalType: 'address', name: '_feeCollector', type: 'address' },
-      { internalType: 'address', name: '_dp2', type: 'address' },
-      { internalType: 'address', name: '_weth', type: 'address' },
+      {
+        internalType: 'address',
+        name: '_logic',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_leaderboard',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_whitelist',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_feeCollector',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_dp2',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_weth',
+        type: 'address',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -88,7 +113,12 @@ const DuelPepesABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
       {
         indexed: true,
         internalType: 'address',
@@ -108,7 +138,12 @@ const DuelPepesABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
       {
         indexed: true,
         internalType: 'address',
@@ -134,7 +169,12 @@ const DuelPepesABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
       {
         indexed: true,
         internalType: 'address',
@@ -164,72 +204,218 @@ const DuelPepesABI = [
     name: 'OwnershipTransferred',
     type: 'event',
   },
-  { stateMutability: 'payable', type: 'fallback' },
+  {
+    stateMutability: 'payable',
+    type: 'fallback',
+  },
   {
     inputs: [
-      { internalType: 'uint256', name: 'id', type: 'uint256' },
-      { internalType: 'uint256[5]', name: 'moves', type: 'uint256[5]' },
+      {
+        internalType: 'address',
+        name: 'target',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
+      },
+    ],
+    name: 'adminExecute',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'adminWithdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'adminWithdrawToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256[5]',
+        name: 'moves',
+        type: 'uint256[5]',
+      },
     ],
     name: 'challenge',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'payable',
     type: 'function',
   },
   {
     inputs: [],
     name: 'challengeTimelimit',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'claimForfeit',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'identifier', type: 'bytes32' },
-      { internalType: 'uint256', name: 'wager', type: 'uint256' },
-      { internalType: 'bytes', name: 'movesSig', type: 'bytes' },
+      {
+        internalType: 'bytes32',
+        name: 'identifier',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'uint256',
+        name: 'wager',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: 'movesSig',
+        type: 'bytes',
+      },
     ],
     name: 'createDuel',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'payable',
     type: 'function',
   },
   {
     inputs: [],
     name: 'dp2',
-    outputs: [{ internalType: 'contract IDP2', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract IDP2Mint',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'duelCount',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
     name: 'duelIdentifiers',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     name: 'duels',
     outputs: [
-      { internalType: 'bytes32', name: 'identifier', type: 'bytes32' },
-      { internalType: 'uint256', name: 'wager', type: 'uint256' },
-      { internalType: 'uint256', name: 'fees', type: 'uint256' },
-      { internalType: 'bytes', name: 'initialMovesSignature', type: 'bytes' },
-      { internalType: 'bool', name: 'isCreatorWinner', type: 'bool' },
+      {
+        internalType: 'bytes32',
+        name: 'identifier',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'uint256',
+        name: 'wager',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'fees',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: 'initialMovesSignature',
+        type: 'bytes',
+      },
+      {
+        internalType: 'bool',
+        name: 'isCreatorWinner',
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -237,27 +423,61 @@ const DuelPepesABI = [
   {
     inputs: [],
     name: 'feeCollector',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'fees',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: '_id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_id',
+        type: 'uint256',
+      },
+    ],
     name: 'getDuel',
     outputs: [
       {
         components: [
-          { internalType: 'bytes32', name: 'identifier', type: 'bytes32' },
-          { internalType: 'address[2]', name: 'duellors', type: 'address[2]' },
-          { internalType: 'uint256', name: 'wager', type: 'uint256' },
-          { internalType: 'uint256', name: 'fees', type: 'uint256' },
+          {
+            internalType: 'bytes32',
+            name: 'identifier',
+            type: 'bytes32',
+          },
+          {
+            internalType: 'address[2]',
+            name: 'duellors',
+            type: 'address[2]',
+          },
+          {
+            internalType: 'uint256',
+            name: 'wager',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'fees',
+            type: 'uint256',
+          },
           {
             internalType: 'bytes',
             name: 'initialMovesSignature',
@@ -268,7 +488,11 @@ const DuelPepesABI = [
             name: 'moves',
             type: 'uint256[5][2]',
           },
-          { internalType: 'bool', name: 'isCreatorWinner', type: 'bool' },
+          {
+            internalType: 'bool',
+            name: 'isCreatorWinner',
+            type: 'bool',
+          },
           {
             internalType: 'uint256[3]',
             name: 'timestamps',
@@ -284,12 +508,30 @@ const DuelPepesABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'getDuelTimestamps',
     outputs: [
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -311,7 +553,11 @@ const DuelPepesABI = [
     inputs: [],
     name: 'logic',
     outputs: [
-      { internalType: 'contract IDuelPepesLogic', name: '', type: 'address' },
+      {
+        internalType: 'contract IDuelPepesLogic',
+        name: '',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -320,30 +566,63 @@ const DuelPepesABI = [
     inputs: [],
     name: 'mint',
     outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'mintMixed',
+    outputs: [],
     stateMutability: 'payable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
     ],
     name: 'moveAttributes',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'owner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'percentagePrecision',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -356,56 +635,126 @@ const DuelPepesABI = [
   },
   {
     inputs: [
-      { internalType: 'uint256', name: 'id', type: 'uint256' },
-      { internalType: 'uint256[5]', name: 'moves', type: 'uint256[5]' },
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256[5]',
+        name: 'moves',
+        type: 'uint256[5]',
+      },
     ],
     name: 'revealDuel',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [],
     name: 'revealTimeLimit',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'undoDuel',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
     ],
     name: 'userDuels',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256[5]', name: 'moves', type: 'uint256[5]' }],
+    inputs: [
+      {
+        internalType: 'uint256[5]',
+        name: 'moves',
+        type: 'uint256[5]',
+      },
+    ],
     name: 'validateMoves',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'weth',
-    outputs: [{ internalType: 'contract IWETH9', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract IWETH9',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -558,7 +907,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0x36a1FD643Ee36568A6f21bFB8A9C7BbF69d9b04B',
+      '0x4403386E7e31B60a4Ab11D665b40bD9dCf0F27f4',
       DuelPepesABI,
       signer
     );
@@ -594,8 +943,6 @@ export const DuelProvider = (props: { children: ReactNode }) => {
       if (!duelContract) return;
 
       const duelData = await duelContract['getDuel'](i);
-
-      console.log(duelData);
 
       const finishDate = new Date(duelData[7][1].toNumber() * 1000);
 
@@ -844,6 +1191,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     selectedDuel,
     setSelectedDuel,
     availableCredit,
+    updateCredit,
   };
 
   return (

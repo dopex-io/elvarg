@@ -57,7 +57,6 @@ const ActiveDuel = ({
   ) => {
     event.currentTarget.src =
       'https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/666/280/static.jpg';
-    event.currentTarget.className = 'error';
   };
 
   return (
