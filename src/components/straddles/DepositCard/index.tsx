@@ -32,6 +32,8 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 
 import { MAX_VALUE } from 'constants/index';
 
+const THREE_DAYS = 3 * 24 * 3600;
+
 const DepositCard = () => {
   const { chainId, accountAddress, signer, contractAddresses } =
     useContext(WalletContext);
@@ -40,7 +42,6 @@ const DepositCard = () => {
   );
   const {
     straddlesEpochData,
-    selectedEpoch,
     straddlesData,
     straddlesUserData,
     updateStraddlesEpochData,
@@ -71,6 +72,19 @@ const DepositCard = () => {
     return straddlesEpochData?.expiry.gt(0)
       ? format(
           new Date(straddlesEpochData.expiry.toNumber() * 1000),
+          'd LLL yyyy'
+        )
+      : '-';
+  }, [straddlesEpochData]);
+
+  const withdrawableNextEpoch = useMemo(() => {
+    return straddlesEpochData?.expiry.gt(0)
+      ? format(
+          new Date(
+            straddlesEpochData.expiry
+              .add(BigNumber.from(THREE_DAYS))
+              .toNumber() * 1000
+          ),
           'd LLL yyyy'
         )
       : '-';
@@ -233,7 +247,8 @@ const DepositCard = () => {
       </Box>
       <Box className="my-4 w-full rounded-lg border border-neutral-800 pt-2 pb-1">
         <Typography variant="h6" className="mx-2 pb-2">
-          Deposit for epoch {currentEpoch + 1}
+          Deposit now for epoch {currentEpoch + 1} that will be bootstrapped on{' '}
+          {readableExpiry}
         </Typography>
         <Typography variant="h6" className="mx-2 pb-2 text-gray-400">
           {straddlesData?.isEpochExpired
@@ -261,24 +276,6 @@ const DepositCard = () => {
           </Typography>
           <Typography variant="h6" className="mx-2 text-neutral-400">
             Vault Share
-          </Typography>
-        </Box>
-      </Box>
-      <Box className="py-2 w-full flex items-center justify-between rounded-b-lg border border-t-0 border-neutral-800">
-        <Box className="">
-          <Typography variant="h6" className="mx-2 text-neutral-400">
-            Next Epoch
-          </Typography>
-          <Typography variant="h6" className="mx-2 mt-2 text-neutral-400">
-            Withdrawable
-          </Typography>
-        </Box>
-        <Box className="">
-          <Typography variant="h6" className="mx-2  text-white">
-            {readableExpiry}
-          </Typography>
-          <Typography variant="h6" className="mx-2 mt-2 text-white">
-            {readableExpiry}
           </Typography>
         </Box>
       </Box>
@@ -311,13 +308,12 @@ const DepositCard = () => {
             <LockOutlinedIcon className="w-5 h-5 text-gray-400" />
             <Box>
               <Typography variant="h6" className="text-gray-400 mx-2">
-                Withdrawals are locked until end of Epoch{' '}
-                {Number(selectedEpoch!)}
+                Deposit now and withdraw after epoch {currentEpoch + 1} ends on
                 <Typography
                   variant="h6"
                   className="text-white inline-flex items-baseline ml-2"
                 >
-                  {readableExpiry}
+                  {withdrawableNextEpoch}
                 </Typography>
               </Typography>
             </Box>
