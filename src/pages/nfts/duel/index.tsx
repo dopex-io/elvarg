@@ -96,7 +96,7 @@ const DuelPepes = () => {
     const remainingAmount =
       getUserReadableAmount(availableCredit, 18) - toMintForFree * 0.0088;
 
-    return 0.88 - remainingAmount;
+    return 0.0088 - remainingAmount;
   }, [availableCredit, toMintForFree]);
 
   const mintForFree = useCallback(async () => {
