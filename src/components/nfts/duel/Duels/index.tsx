@@ -105,7 +105,6 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
               <TableBody className={cx('rounded-lg')}>
                 {duels.map((duel, i) => {
                   const isAvailable =
-                    duel['challengedLimitDate'] < new Date() &&
                     duel['challengerAddress'] === '?' &&
                     duel['status'] !== 'requireUndo';
 
