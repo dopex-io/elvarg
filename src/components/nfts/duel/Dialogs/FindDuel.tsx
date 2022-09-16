@@ -26,12 +26,12 @@ import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
 import { BigNumber } from 'ethers';
-import getUserReadableAmount from '../../../../utils/contracts/getUserReadableAmount';
 
 export interface Props {
   open: boolean;

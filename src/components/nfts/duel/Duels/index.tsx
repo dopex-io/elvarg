@@ -103,97 +103,107 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                 </TableRow>
               </TableHead>
               <TableBody className={cx('rounded-lg')}>
-                {duels.map((duel, i) => (
-                  <TableRow key={i} className="text-white mb-2 rounded-lg mt-2">
-                    <TableCell align="left" className="mx-0 pt-2">
-                      <Box className="flex">
-                        <img
-                          src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
-                          alt={'Duelist'}
-                          className="rounded-md w-12 h-12 mt-1 mr-1"
-                          onError={onImgSrcError}
-                        />
-                        <Box>
-                          <Typography
-                            variant="h5"
-                            className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
-                          >
-                            <span>
-                              {displayAddress(duel['duelistAddress'])}
-                            </span>
-                          </Typography>
-                          <Typography
-                            variant="h5"
-                            className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left"
-                          >
-                            <span>Address</span>
-                          </Typography>
+                {duels.map((duel, i) => {
+                  const isAvailable =
+                    duel['challengedLimitDate'] < new Date() &&
+                    duel['challengerAddress'] === '?' &&
+                    duel['status'] !== 'requireUndo';
+
+                  return (
+                    <TableRow
+                      key={i}
+                      className="text-white mb-2 rounded-lg mt-2"
+                    >
+                      <TableCell align="left" className="mx-0 pt-2">
+                        <Box className="flex">
+                          <img
+                            src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
+                            alt={'Duelist'}
+                            className="rounded-md w-12 h-12 mt-1 mr-1"
+                            onError={onImgSrcError}
+                          />
+                          <Box>
+                            <Typography
+                              variant="h5"
+                              className="font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left text-white"
+                            >
+                              <span>
+                                {displayAddress(duel['duelistAddress'])}
+                              </span>
+                            </Typography>
+                            <Typography
+                              variant="h5"
+                              className="text-[#78859E] font-['Minecraft'] relative z-1 mx-auto mt-1 ml-3 text-left"
+                            >
+                              <span>Address</span>
+                            </Typography>
+                          </Box>
                         </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell align="left" className="pt-2">
-                      <Typography variant="h5" className="font-['Minecraft']">
-                        {displayAddress(duel['challengerAddress'])}
-                      </Typography>
-                    </TableCell>
-
-                    <TableCell align="left" className="pt-2">
-                      <Typography variant="h5" className="font-['Minecraft']">
-                        <Countdown
-                          date={duel['challengedLimitDate']}
-                          renderer={({ days, hours, minutes, seconds }) => {
-                            if (days < 1 && hours < 1) {
-                              return (
-                                <span>
-                                  {minutes}m {seconds}s
-                                </span>
-                              );
-                            } else {
-                              return (
-                                <span>
-                                  {hours}h {minutes}m {seconds}s
-                                </span>
-                              );
-                            }
-                          }}
-                        />
-                      </Typography>
-                    </TableCell>
-
-                    <TableCell align="left" className="px-6 pt-2">
-                      <Typography variant="h5" className="font-['Minecraft']">
-                        #{duel['id']}
-                      </Typography>
-                    </TableCell>
-
-                    <TableCell align="left" className="px-6 pt-2">
-                      <Typography variant="h5" className="font-['Minecraft']">
-                        {duel['wager']} {duel['tokenName']}
-                      </Typography>
-                      <Typography variant="h6" className="font-['Minecraft']">
-                        <span className="text-stieglitz">
-                          ~${formatAmount(duel['wagerValueInUSD'], 2)}
-                        </span>
-                      </Typography>
-                    </TableCell>
-
-                    <TableCell align="left" className="px-6 pt-2">
-                      <CustomButton
-                        size="medium"
-                        className={styles['smallPepeButton']!}
-                        disabled={duel['challengedLimitDate'] < new Date()}
-                        onClick={() => findDuel(duel)}
-                      >
-                        <Typography
-                          variant="h5"
-                          className={styles['pepeButtonText']!}
-                        >
-                          DUEL
+                      </TableCell>
+                      <TableCell align="left" className="pt-2">
+                        <Typography variant="h5" className="font-['Minecraft']">
+                          {displayAddress(duel['challengerAddress'])}
                         </Typography>
-                      </CustomButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+
+                      <TableCell align="left" className="pt-2">
+                        <Typography variant="h5" className="font-['Minecraft']">
+                          <Countdown
+                            date={duel['challengedLimitDate']}
+                            renderer={({ days, hours, minutes, seconds }) => {
+                              if (days < 1 && hours < 1) {
+                                return (
+                                  <span>
+                                    {minutes}m {seconds}s
+                                  </span>
+                                );
+                              } else {
+                                return (
+                                  <span>
+                                    {hours}h {minutes}m {seconds}s
+                                  </span>
+                                );
+                              }
+                            }}
+                          />
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell align="left" className="px-6 pt-2">
+                        <Typography variant="h5" className="font-['Minecraft']">
+                          #{duel['id']}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell align="left" className="px-6 pt-2">
+                        <Typography variant="h5" className="font-['Minecraft']">
+                          {duel['wager']} {duel['tokenName']}
+                        </Typography>
+                        <Typography variant="h6" className="font-['Minecraft']">
+                          <span className="text-stieglitz">
+                            ~${formatAmount(duel['wagerValueInUSD'], 2)}
+                          </span>
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell align="left" className="px-6 pt-2">
+                        <CustomButton
+                          size="medium"
+                          className={styles['smallPepeButton']!}
+                          disabled={!isAvailable}
+                          onClick={() => findDuel(duel)}
+                        >
+                          <Typography
+                            variant="h5"
+                            className={styles['pepeButtonText']!}
+                          >
+                            DUEL
+                          </Typography>
+                        </CustomButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           ) : null}
