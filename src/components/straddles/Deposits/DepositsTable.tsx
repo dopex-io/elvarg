@@ -59,7 +59,7 @@ const DepositsTable = () => {
                   variant="h6"
                   className="text-gray-400 flex justify-end"
                 >
-                  PnL
+                  Premium & Funding
                 </Typography>
               </TableCell>
               <TableCell className=" border-0 pb-0">
@@ -102,7 +102,10 @@ const DepositsTable = () => {
                 </TableCell>
                 <TableCell className="pt-1">
                   <Typography variant="h6" className="text-right">
-                    ${getUserReadableAmount(position.pnl, 8).toFixed(2)}
+                    $
+                    {getUserReadableAmount(position.premiumFunding, 26).toFixed(
+                      2
+                    )}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end">

@@ -33,7 +33,7 @@ const WritePositionTableData = (props: Props) => {
     openTransfer,
     openWithdraw,
     rewardTokens,
-    estimatedPnl,
+    // estimatedPnl,
     epochExpired,
   } = props;
 
@@ -69,12 +69,12 @@ const WritePositionTableData = (props: Props) => {
           );
         })}
       </TableCell>
-      <TableCell>
+      {/* <TableCell>
         <Typography variant="h6">
           <NumberDisplay n={estimatedPnl} decimals={18} minNumber={0.01} />{' '}
           {collateralSymbol}
         </Typography>
-      </TableCell>
+      </TableCell> */}
       <TableCell align="left" className="pt-2 flex space-x-2">
         <SplitButton
           options={['Transfer', 'Withdraw']}

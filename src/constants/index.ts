@@ -106,10 +106,10 @@ export const VAULT_MAP: { [key: string]: { src: string } } = {
   'PUSD3CRV-BIWEEKLY-1': {
     src: '/images/tokens/pusd.svg',
   },
-  'ETH-ATLANTIC-STRADDLE-2': {
+  'ETH-ATLANTIC-STRADDLE-3': {
     src: '/images/tokens/eth.svg',
   },
-  'RDPX-ATLANTIC-STRADDLE-2': {
+  'RDPX-ATLANTIC-STRADDLE-3': {
     src: '/images/tokens/rdpx.svg',
   },
 };
@@ -299,6 +299,7 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
   1088: 'https://andromeda-explorer.metis.io/',
+  421611: 'https://testnet.arbiscan.io/',
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

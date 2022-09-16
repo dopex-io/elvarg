@@ -68,21 +68,20 @@ const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/sale': { default: 1, all: [1] },
   '/oracles': { default: 42161, all: [] },
   '/tzwap': { default: 42161, all: [1, 42161] },
-  '/atlantics': { default: 421611, all: [421611, 1337] },
+  '/atlantics': { default: 42161, all: [42161, 1337] },
   '/atlantics/manage/WETH-PUTS-WEEKLY': {
-    default: 421611,
-    all: [421611, 1337],
-  },
-  '/atlantics/manage/WETH-CALLS-WEEKLY': {
-    default: 421611,
-    all: [421611, 1337],
+    default: 42161,
+    all: [42161, 1337],
   },
   '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
-  '/vaults/ir/pool/MIM3CRV-1': { default: 42161, all: [42161] },
-  '/vaults/ir/pool/MIM3CRV-2': { default: 42161, all: [42161] },
-  '/vaults/ir/pool/PUSD3CRV': { default: 42161, all: [42161] },
-  '/vaults/ir': { default: 42161, all: [42161] },
-  '/vaults/straddles': { default: 42161, all: [] },
+  '/ir/MIM3CRV-1': { default: 42161, all: [42161] },
+  '/ir/MIM3CRV-2': { default: 42161, all: [42161] },
+  '/ir/PUSD3CRV': { default: 42161, all: [42161] },
+  '/ir': { default: 42161, all: [42161] },
+  '/straddles': { default: 42161, all: [42161] },
+  '/straddles/ETH': { default: 42161, all: [42161] },
+  '/straddles/RDPX': { default: 42161, all: [42161] },
+  '/dpx-bonds': { default: 42161, all: [42161] },
 };
 
 let web3Modal: Web3Modal | undefined;

@@ -37,10 +37,14 @@ const DiamondPepesNfts = () => {
     tab: 'mint',
   });
 
-  const yieldMint = YieldMint__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTMint'],
-    provider
-  );
+  const yieldMint = useMemo(() => {
+    if (!Addresses[chainId]['DiamondPepesNFTMint'] && !provider) return;
+    return YieldMint__factory.connect(
+      Addresses[chainId]['DiamondPepesNFTMint'],
+      provider
+    );
+  }, [chainId, provider]);
+
   const sendTx = useSendTx();
 
   const updateData = useCallback(async () => {

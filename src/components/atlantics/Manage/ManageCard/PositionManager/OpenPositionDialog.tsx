@@ -12,14 +12,13 @@ import React, {
 } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import {
-  AtlanticCallsPool__factory,
   AtlanticPutsPool,
   ERC20__factory,
   GmxVault__factory,
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
 import Button from '@mui/material/Button';
-import { SelectChangeEvent } from '@mui/material';
+import { Checkbox } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import { useDebounce } from 'use-debounce';
@@ -28,7 +27,6 @@ import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
-import CollateralSelector from 'components/atlantics/InsuredPerpsModal/CollateralSelector';
 import StrategyDetails from 'components/atlantics/InsuredPerpsModal/StrategyDetails/StrategyDetails';
 import Switch from 'components/UI/Switch';
 
@@ -72,14 +70,12 @@ const marks = [
 export interface IStrategyDetails {
   positionSize: BigNumber;
   putOptionsPremium: BigNumber;
-  callOptionsPremium: BigNumber;
   putOptionsfees: BigNumber;
-  callOptionsFees: BigNumber;
-  callsFundingFee: BigNumber;
   optionsAmount: BigNumber;
   liquidationPrice: BigNumber;
   putStrike: BigNumber;
   expiry: BigNumber;
+  depositUnderlying: boolean;
 }
 
 export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
@@ -98,15 +94,13 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   const [keepCollateral, setKeepCollateral] = useState<boolean>(false);
   const [selectedToken, setSelectedToken] = useState<string>('USDC');
   const [positionBalance, setPositionBalance] = useState<string>('');
-  const [selectedCollateral, setSelectedCollateral] = useState<string>('');
+  const [depositUnderlying, setDeposutUnderlying] = useState<boolean>(false);
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
     positionSize: BigNumber.from(0),
     putOptionsPremium: BigNumber.from(0),
-    callOptionsPremium: BigNumber.from(0),
     putOptionsfees: BigNumber.from(0),
-    callOptionsFees: BigNumber.from(0),
-    callsFundingFee: BigNumber.from(0),
     optionsAmount: BigNumber.from(0),
+    depositUnderlying: false,
     liquidationPrice: BigNumber.from(0),
     putStrike: BigNumber.from(0),
     expiry: BigNumber.from(0),
@@ -202,6 +196,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
         .mul(positionBalanceValue)
         .div(oneEBigNumber(30));
     }
+
     // position balance * leverage
     const positionSize = positionBalanceValue.mul(leverage * 10).div(10);
 
@@ -230,44 +225,18 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       .mul(oneEBigNumber(20))
       .div(putStrike);
 
-    const putsPool = (await selectedPool.contracts
-      .atlanticPool) as AtlanticPutsPool;
-    const callsPoolAddress =
-      contractAddresses['ATLANTIC-POOLS'][selectedPool.asset]['CALLS'][
-        selectedPool.duration
-      ];
+    const putsPool = selectedPool.contracts.atlanticPool as AtlanticPutsPool;
 
     const [putOptionsPremium, putOptionsfees] = await Promise.all([
       putsPool.calculatePremium(putStrike, optionsAmount),
       putsPool.calculatePurchaseFees(putStrike, optionsAmount),
     ]);
 
-    let callOptionsPremium: BigNumber = BigNumber.from(0),
-      callOptionsFees: BigNumber = BigNumber.from(0),
-      callsFundingFee: BigNumber = BigNumber.from(0),
-      callsPool;
-
-    if (selectedCollateral === 'AC-OPTIONS') {
-      callsPool = AtlanticCallsPool__factory.connect(
-        callsPoolAddress,
-        provider
-      );
-
-      [callOptionsPremium, callOptionsFees, callsFundingFee] =
-        await Promise.all([
-          callsPool.calculatePremium(optionsAmount),
-          callsPool.calculatePurchaseFees(optionsAmount),
-          callsPool.calculateFundingTillExpiry(optionsAmount),
-        ]);
-    }
-
     setStrategyDetails(() => ({
       positionSize,
       putOptionsPremium,
-      callOptionsPremium,
       putOptionsfees,
-      callOptionsFees,
-      callsFundingFee,
+      depositUnderlying,
       optionsAmount,
       liquidationPrice,
       putStrike,
@@ -275,19 +244,16 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     }));
   }, [
     selectedToken,
-    selectedCollateral,
     selectedPool,
     leverage,
+    depositUnderlying,
     contractAddresses,
     positionBalance,
     provider,
   ]);
 
-  const handleCollateralSelectChange = (
-    event: SelectChangeEvent<string | undefined>
-  ) => {
-    if (!event || !event.target || !event.target.value) return;
-    setSelectedCollateral(() => event.target.value ?? 'Select Collateral');
+  const handleDepositUnderlyingCheckboxChange = (event: any) => {
+    setDeposutUnderlying(event.target.checked);
   };
 
   function onChangeLeverage(event: Event, value: any, aciveThumb: any) {
@@ -347,9 +313,9 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       strategyAddress
     );
 
-    let baseTokenCost = debouncedStrategyDetails[0].callOptionsFees
-      .add(debouncedStrategyDetails[0].callOptionsPremium)
-      .add(debouncedStrategyDetails[0].callsFundingFee);
+    let baseTokenCost = depositUnderlying
+      ? debouncedStrategyDetails[0].optionsAmount
+      : BigNumber.from(0);
     let quoteTokenCost = debouncedStrategyDetails[0].putOptionsPremium.add(
       debouncedStrategyDetails[0].putOptionsfees
     );
@@ -376,6 +342,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     accountAddress,
     contractAddresses,
     debouncedStrategyDetails,
+    depositUnderlying,
     selectedToken,
     chainId,
     positionBalance,
@@ -466,7 +433,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       !selectedPool.state.expiryTime ||
       !selectedPool.asset ||
       !chainId ||
-      !selectedCollateral ||
       !positionBalance ||
       !selectedToken ||
       !chainId
@@ -560,7 +526,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           positionSize: positionSize,
           executionFee: MIN_EXECUTION_FEE,
           referralCode: DEFAULT_REFERRAL_CODE,
-          isCollateralOptionToken: selectedCollateral === 'AC-OPTIONS',
+          depositUnderlying: depositUnderlying,
         },
         keepCollateral,
         selectedPool.state.expiryTime,
@@ -577,8 +543,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     contractAddresses,
     signer,
     selectedPool,
+    depositUnderlying,
     chainId,
-    selectedCollateral,
     positionBalance,
     selectedToken,
     keepCollateral,
@@ -678,41 +644,39 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             marks={marks}
           />
         </Box>
-        <Box className="flex">
-          <CollateralSelector
-            collateral={selectedCollateral}
-            setCollateral={handleCollateralSelectChange}
-            options={[
-              {
-                title: 'WETH',
-                asset: 'WETH',
-              },
-              {
-                title: 'AC Option',
-                asset: 'AC-OPTIONS',
-              },
-            ]}
-          />
-        </Box>
-        {selectedCollateral !== 'AC-OPTIONS' && (
-          <Box className="px-1 mb-2 flex justify-between items-center">
+        <Box className="flex-col justify-center items-center">
+          <Box className="px-1 flex">
             <Typography variant="h6">
+              Deposit underlying
+              <Checkbox
+                className="text-white border"
+                checked={depositUnderlying}
+                onChange={handleDepositUnderlyingCheckboxChange}
+              />
+            </Typography>
+          </Box>
+          <Box className="px-1 mb-2 flex justify-between items-center">
+            <Typography
+              className={`${!depositUnderlying && 'text-gray-600'}`}
+              variant="h6"
+            >
               Keep Collateral on Expiry
               <Tooltip title="Choose whether to keep collateral incase puts are ITM and would like to keep the position post expiry. Note: Positions that have AC options as collateral cannot keep collateral beyond expiry of the pool and will be automatically closed on expiry.">
                 <InfoOutlined className="h-4 fill-current text-mineshaft" />
               </Tooltip>
             </Typography>
             <Switch
+              disabled={!depositUnderlying}
               className="mt-1"
               onChange={handleKeepCollateral}
               value={keepCollateral}
               color="primary"
             />
           </Box>
-        )}
+        </Box>
         <StrategyDetails
           data={debouncedStrategyDetails[0]}
-          selectedCollateral={selectedCollateral}
+          selectedCollateral={'selectedCollateral'}
           selectedToken={selectedToken}
           positionCollateral={getContractReadableAmount(
             positionBalance,

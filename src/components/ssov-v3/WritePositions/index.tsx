@@ -47,7 +47,7 @@ const COLUMN_HEADERS = [
   'Deposit Amount',
   'Accrued Premiums',
   'Accrued Rewards',
-  'Estimated Return',
+  // 'Estimated Return',
   'Actions',
 ];
 
@@ -82,7 +82,7 @@ const WritePositions = (props: { className?: string }) => {
       strike: BigNumber.from(0),
       accruedRewards: [BigNumber.from(0)],
       accruedPremiums: BigNumber.from(0),
-      estimatedPnl: BigNumber.from(0),
+      // estimatedPnl: BigNumber.from(0),
       epoch: 0,
       tokenId: BigNumber.from(0),
     },

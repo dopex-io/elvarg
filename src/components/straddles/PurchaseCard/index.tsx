@@ -24,8 +24,7 @@ import PnlChart from '../PnlChart';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
-
-import formatAmount from 'utils/general/formatAmount';
+import InfoBox from '../infoBox';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -83,7 +82,11 @@ const PurchaseCard = () => {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)
-          .purchase(getContractReadableAmount(amount, 18), 0, accountAddress)
+          .purchase(
+            getContractReadableAmount(2 * amount, 18),
+            0,
+            accountAddress
+          )
       );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
@@ -228,17 +231,37 @@ const PurchaseCard = () => {
       </Box>
       <Box className="mt-4 flex justify-center mb-4">
         <Box className="py-2 w-full rounded border border-neutral-800">
-          <Typography variant="h6" className="mx-2 text-white">
-            {"You'll spend "}
-            {formatAmount(totalCost, 6)} USDC
-          </Typography>
-          <Typography variant="h6" className="mx-2 text-neutral-400">
-            Current price is $
-            {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.straddlePrice!, 26),
-              2
-            )}
-          </Typography>
+          <InfoBox info={"You'll spend"} value={totalCost} precision={6} />
+          <Box className="flex-col">
+            <InfoBox
+              info={'Premium:'}
+              value={
+                getUserReadableAmount(
+                  straddlesEpochData?.straddlePremium!,
+                  26
+                ) * amount
+              }
+              precision={2}
+            />
+            <InfoBox
+              info={'Funding:'}
+              value={
+                getUserReadableAmount(
+                  straddlesEpochData?.straddleFunding!,
+                  26
+                ) * amount
+              }
+              precision={4}
+            />
+            <InfoBox
+              info={'Fees:'}
+              value={
+                getUserReadableAmount(straddlesEpochData?.purchaseFee!, 26) *
+                amount
+              }
+              precision={4}
+            />
+          </Box>
         </Box>
       </Box>
       <Box className="rounded-lg bg-neutral-800">

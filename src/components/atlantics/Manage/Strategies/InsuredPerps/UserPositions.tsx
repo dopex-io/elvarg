@@ -92,7 +92,7 @@ const UserPositions = () => {
       await LongPerpStrategyViewer__factory.connect(
         strategyViewerAddress,
         provider
-      ).getStrategyPositions();
+      ).getStrategyPositions(strategyContract.address);
 
     let userStrategyPositionsWithIndex: {
       position: any;
@@ -197,7 +197,7 @@ const UserPositions = () => {
           signer
         );
 
-        const tx = strategyContract.exitStrategy(index, {
+        const tx = strategyContract.exitStrategyAndKeepLongPosition(index, {
           value: MIN_EXECUTION_FEE,
         });
         await sendTx(tx);

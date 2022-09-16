@@ -12,10 +12,10 @@ import {
   AtlanticStraddle__factory,
   Addresses,
   AtlanticStraddle,
+  SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
 
 import { WalletContext } from './Wallet';
-
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 export interface StraddlesData {
@@ -39,16 +39,19 @@ export interface StraddlesEpochData {
   totalSold: BigNumber;
   currentPrice: BigNumber;
   straddlePrice: BigNumber;
+  purchaseFee: BigNumber;
+  straddlePremium: BigNumber;
+  straddleFunding: BigNumber;
   aprPremium: string;
   aprFunding: string;
-  volatility: string;
+  volatility: BigNumber;
 }
 
 export interface WritePosition {
   epoch: number;
   usdDeposit: BigNumber;
   rollover: BigNumber;
-  pnl: BigNumber;
+  premiumFunding: BigNumber;
   id: number;
 }
 
@@ -91,9 +94,12 @@ const initialStraddlesEpochData = {
   totalSold: BigNumber.from('0'),
   currentPrice: BigNumber.from('0'),
   straddlePrice: BigNumber.from('0'),
+  purchaseFee: BigNumber.from('0'),
+  straddlePremium: BigNumber.from('0'),
+  straddleFunding: BigNumber.from('0'),
   aprPremium: '',
   aprFunding: '',
-  volatility: '',
+  volatility: BigNumber.from('0'),
 };
 
 export const StraddlesContext = createContext<StraddlesContextInterface>({
@@ -119,7 +125,16 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     if (!selectedPoolName || !provider) return;
     else
       return AtlanticStraddle__factory.connect(
-        Addresses[42161].STRADDLES[selectedPoolName].Vault,
+        Addresses[42161].STRADDLES.Vault[selectedPoolName],
+        provider
+      );
+  }, [provider, selectedPoolName]);
+
+  const optionsPricingContract = useMemo(() => {
+    if (!selectedPoolName || !provider) return;
+    else
+      return SSOVOptionPricing__factory.connect(
+        Addresses[42161].STRADDLES.OPTION_PRICING,
         provider
       );
   }, [provider, selectedPoolName]);
@@ -131,23 +146,55 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         if (owner !== accountAddress) throw 'Invalid owner';
 
         const data = await straddlesContract!['straddlePositions'](id);
-        const pnl = await straddlesContract!['calculateStraddlePositionPnl'](
-          id
-        );
+
+        const currentPrice = straddlesEpochData!.currentPrice;
+        const volatility = straddlesEpochData!.volatility;
+        const timeToExpiry = straddlesEpochData!.expiry;
+        const strike = data['apStrike'];
+        const amount = data['amount'];
+
+        let [callPnl, putPnl] = await Promise.all([
+          optionsPricingContract?.getOptionPrice(
+            false,
+            timeToExpiry,
+            strike,
+            currentPrice,
+            volatility
+          ),
+          optionsPricingContract?.getOptionPrice(
+            true,
+            timeToExpiry,
+            strike,
+            currentPrice,
+            volatility
+          ),
+        ]);
+
+        // live pnl = 0.5 * BS(call) + 0.5 * BS(put)
+        callPnl = callPnl ? callPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+        putPnl = putPnl ? putPnl.div(BigNumber.from(2)) : BigNumber.from(0);
+        const pnl: BigNumber = callPnl.add(putPnl);
+
         return {
           id: id,
           epoch: data['epoch'],
-          amount: data['amount'],
-          apStrike: data['apStrike'],
-          pnl: pnl,
+          amount: amount,
+          apStrike: strike,
+          pnl: pnl.mul(amount).div(BigNumber.from(1e8)),
         };
-      } catch {
+      } catch (err) {
+        console.log(err);
         return {
           amount: BigNumber.from('0'),
         };
       }
     },
-    [straddlesContract, accountAddress]
+    [
+      straddlesContract,
+      accountAddress,
+      straddlesEpochData,
+      optionsPricingContract,
+    ]
   );
 
   const getWritePosition = useCallback(
@@ -157,13 +204,20 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         if (owner !== accountAddress) throw 'Invalid owner';
 
         const data = await straddlesContract!['writePositions'](id);
-        const pnl = await straddlesContract!['calculateWritePositionPnl'](id);
+
+        const totalPremiumFunding = straddlesEpochData!.usdPremiums.add(
+          straddlesEpochData!.usdFunding
+        );
+        const premiumFunding = data.usdDeposit
+          .mul(totalPremiumFunding)
+          .div(straddlesEpochData!.usdDeposits);
+
         return {
           id: id,
           epoch: data['epoch'],
           usdDeposit: data['usdDeposit'],
           rollover: data['rollover'],
-          pnl: pnl,
+          premiumFunding: premiumFunding,
         };
       } catch {
         return {
@@ -171,7 +225,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         };
       }
     },
-    [straddlesContract, accountAddress]
+    [straddlesContract, straddlesEpochData, accountAddress]
   );
 
   const updateStraddlesUserData = useCallback(async () => {
@@ -236,17 +290,21 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
 
     let straddlePrice;
     let aprFunding: BigNumber | string;
-    let volatility: string;
+    let volatility: BigNumber | string;
+    let purchaseFee: BigNumber | string;
+    let straddlePremium: BigNumber | string;
+    let straddleFunding: BigNumber | string;
 
     try {
-      straddlePrice = await straddlesContract!['calculatePremium'](
+      straddlePremium = await straddlesContract!['calculatePremium'](
         true,
         currentPrice,
         getContractReadableAmount(1, 18),
         epochData['expiry']
       );
+      straddlePremium = straddlePremium.mul(BigNumber.from(2));
     } catch (e) {
-      straddlePrice = BigNumber.from('0');
+      straddlePremium = BigNumber.from('0');
     }
 
     try {
@@ -259,11 +317,19 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
     aprFunding = aprFunding.toString();
 
     try {
-      volatility = (
-        await straddlesContract!['getVolatility'](currentPrice)
-      ).toString();
+      purchaseFee = await straddlesContract!['purchaseFeePercent']();
+      purchaseFee = purchaseFee
+        .mul(currentPrice)
+        .mul(BigNumber.from(2))
+        .mul(1e10);
     } catch (e) {
-      volatility = '...';
+      purchaseFee = BigNumber.from('0');
+    }
+
+    try {
+      volatility = await straddlesContract!['getVolatility'](currentPrice);
+    } catch (e) {
+      volatility = BigNumber.from('0');
     }
 
     const timeToExpiry =
@@ -281,13 +347,18 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       .toNumber();
     const aprPremium = normApr.toFixed(0);
 
-    const straddlePriceFunding = currentPrice
-      .mul(getContractReadableAmount(16, 18))
-      .mul(BigNumber.from(Math.round(timeToExpiry)))
-      .div(BigNumber.from(365 * 86400))
-      .div(1e8);
+    try {
+      straddleFunding = await straddlesContract!['calculateApFunding'](
+        currentPrice,
+        getContractReadableAmount(1, 18),
+        BigNumber.from(Math.round(timeToExpiry))
+      );
+      straddleFunding = straddleFunding.mul(BigNumber.from(2));
+    } catch (e) {
+      straddleFunding = BigNumber.from('0');
+    }
 
-    straddlePrice = straddlePrice.add(straddlePriceFunding);
+    straddlePrice = straddlePremium.add(straddleFunding).add(purchaseFee);
 
     if (straddlePrice.lt(0)) straddlePrice = BigNumber.from(0);
 
@@ -303,6 +374,9 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
       usdPremiums,
       currentPrice,
       straddlePrice,
+      purchaseFee,
+      straddlePremium,
+      straddleFunding,
       aprPremium,
       aprFunding,
       volatility,

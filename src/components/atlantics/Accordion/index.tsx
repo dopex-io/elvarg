@@ -30,32 +30,31 @@ interface FilteredPoolsInterface {
 
 const CustomAccordion = ({
   putPools,
-  callPools,
   header,
   className,
 }: CustomAccordionProps) => {
   const [expand, setExpand] = useState(true);
 
-  const callPoolFiltered = useMemo(() => {
-    if (!callPools) return;
-    let pools: FilteredPoolsInterface[] = [];
-    const keys: any = Object.keys(callPools);
-    keys
-      .map((key: 'daily' | 'weekly' | 'monthly') => callPools[key])
-      .filter((pool: IAtlanticPoolType, index: any) => {
-        if (pool) {
-          pools = [
-            ...pools,
-            {
-              duration: keys[index] ?? null,
-              pool: pool,
-            },
-          ];
-        }
-        return pool !== null;
-      });
-    return pools;
-  }, [callPools]);
+  // const callPoolFiltered = useMemo(() => {
+  //   if (!callPools) return;
+  //   let pools: FilteredPoolsInterface[] = [];
+  //   const keys: any = Object.keys(callPools);
+  //   keys
+  //     .map((key: 'daily' | 'weekly' | 'monthly') => callPools[key])
+  //     .filter((pool: IAtlanticPoolType, index: any) => {
+  //       if (pool) {
+  //         pools = [
+  //           ...pools,
+  //           {
+  //             duration: keys[index] ?? null,
+  //             pool: pool,
+  //           },
+  //         ];
+  //       }
+  //       return pool !== null;
+  //     });
+  //   return pools;
+  // }, [callPools]);
 
   const putsPoolFiltered = useMemo(() => {
     if (!putPools) return;
@@ -122,7 +121,7 @@ const CustomAccordion = ({
             }
           )}
         </Box>
-        <Box className="flex flex-col space-y-4">
+        {/* <Box className="flex flex-col space-y-4">
           {callPoolFiltered!.map(
             ({ duration, pool }: FilteredPoolsInterface, index) => {
               return (
@@ -137,8 +136,8 @@ const CustomAccordion = ({
                 />
               );
             }
-          )}
-        </Box>
+          )} */}
+        {/* </Box> */}
       </AccordionDetails>
     </CustomizedAccordion>
   );

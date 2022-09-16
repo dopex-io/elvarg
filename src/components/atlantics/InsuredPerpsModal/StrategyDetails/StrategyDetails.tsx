@@ -29,14 +29,11 @@ const StrategyDetails = (props: {
       expiry,
       liquidationPrice,
       positionSize,
-      callOptionsFees,
-      callOptionsPremium,
-      callsFundingFee,
       optionsAmount,
       putOptionsPremium,
       putOptionsfees,
+      depositUnderlying,
     },
-    selectedCollateral,
     selectedToken,
     positionCollateral,
     quoteToken,
@@ -77,13 +74,7 @@ const StrategyDetails = (props: {
     const basetokenDecimals = getTokenDecimals(baseToken, chainId);
     const quoteTokenDecimals = getTokenDecimals(quoteToken, chainId);
 
-    if (!callOptionsFees.isZero() || !callOptionsPremium.isZero) {
-      const total = callOptionsFees.add(callOptionsPremium);
-      const totalUsdValue =
-        (Number(total) / 10 ** basetokenDecimals) * baseTokenPrice;
-      totalBaseAsset.amount = totalBaseAsset.amount.add(total);
-      totalBaseAsset.usdValue = totalBaseAsset.usdValue + totalUsdValue;
-    } else {
+    if (depositUnderlying) {
       totalBaseAsset.amount = optionsAmount;
       totalBaseAsset.usdValue =
         (Number(optionsAmount) / 10 ** basetokenDecimals) * baseTokenPrice;
@@ -114,13 +105,12 @@ const StrategyDetails = (props: {
       totalBaseAsset,
     };
   }, [
-    callOptionsFees,
-    callOptionsPremium,
     chainId,
     putOptionsPremium,
     putOptionsfees,
     tokenPrices,
     tokens,
+    depositUnderlying,
     optionsAmount,
     positionCollateral,
     selectedToken,
@@ -128,6 +118,7 @@ const StrategyDetails = (props: {
     quoteToken,
   ]);
 
+  console.log('expiry', expiry);
   return (
     <Box className="w-full flex flex-col">
       <Box className="border border-neutral-800 rounded-xl w-full">
@@ -194,39 +185,6 @@ const StrategyDetails = (props: {
             title="Amount"
             content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
           />
-          {selectedCollateral === 'AC-OPTIONS' && (
-            <>
-              <Divider className="bg-mineshaft my-2" />
-              <Typography variant="h6" color="stieglitz" className="mt-2 mb-2">
-                Call Options Details
-              </Typography>
-              <ContentRow
-                title="Premium + Fees"
-                content={
-                  formatAmount(
-                    getUserReadableAmount(callOptionsPremium, 18),
-                    8
-                  ) +
-                  ' + ' +
-                  formatAmount(getUserReadableAmount(callOptionsFees, 18), 8)
-                }
-              />
-              <ContentRow
-                title="Funding"
-                content={formatAmount(
-                  getUserReadableAmount(callsFundingFee, 18),
-                  3
-                )}
-              />
-              <ContentRow
-                title="Amount"
-                content={formatAmount(
-                  getUserReadableAmount(optionsAmount, 18),
-                  3
-                )}
-              />
-            </>
-          )}
         </Box>
       </Box>
       <Box className="border border-mineshaft rounded-lg px-2 py-2 mt-2">

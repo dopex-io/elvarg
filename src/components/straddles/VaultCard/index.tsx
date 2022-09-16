@@ -13,16 +13,13 @@ import InfoBox from 'components/ir/InfoBox';
 import Coin from 'svgs/icons/Coin';
 
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { VAULT_MAP } from 'constants/index';
 
 interface Props {
   className?: string;
   data: {
-    currentEpoch: number;
-    totalDeposits: string;
-    tvl: number;
+    currentEpoch: string;
+    utilization: string;
+    tvl: string;
     underlyingSymbol: string;
     retired: boolean;
     symbol: string;
@@ -35,9 +32,9 @@ interface Props {
 
 const StyledWrapper = styled(Box)`
   ${(props: { symbol: string }) => {
-    if (props.symbol === 'ETH-ATLANTIC-STRADDLE-2')
+    if (props.symbol === 'ETH-ATLANTIC-STRADDLE-3')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)';
-    else if (props.symbol === 'RDPX-ATLANTIC-STRADDLE-2')
+    else if (props.symbol === 'RDPX-ATLANTIC-STRADDLE-3')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)';
     return '';
   }};
@@ -48,23 +45,30 @@ function VaultCard(props: Props) {
   const {
     currentEpoch,
     tvl,
-    underlyingSymbol: name,
+    underlyingSymbol,
     retired,
     symbol,
     epochTimes,
+    utilization,
   } = data;
+
   const info = useMemo(() => {
     return [
       {
         heading: 'Total Value Locked ($)',
+        value: Number(tvl) === 0 ? '...' : formatAmount(tvl, 0, true),
+        Icon: Coin,
+      },
+      {
+        heading: 'Utilization ($)',
         value:
-          tvl === 0
+          Number(utilization) === 0
             ? '...'
-            : formatAmount(getUserReadableAmount(tvl, 8), 0, true),
+            : formatAmount(utilization, 0, true),
         Icon: Coin,
       },
     ];
-  }, [tvl]);
+  }, [tvl, utilization]);
 
   return (
     <StyledWrapper symbol={symbol} className="p-[1px] rounded-xl w-[350px]">
@@ -79,8 +83,8 @@ function VaultCard(props: Props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                alt={symbol}
-                src={VAULT_MAP[symbol]?.src}
+                alt={underlyingSymbol}
+                src={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
               />
             </Box>
             <Box className="flex flex-grow items-center justify-between">
@@ -99,7 +103,7 @@ function VaultCard(props: Props) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/vaults/straddles/pool/${name}`} passHref>
+          <Link href={`/straddles/${underlyingSymbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>
