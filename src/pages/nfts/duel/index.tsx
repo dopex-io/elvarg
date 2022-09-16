@@ -93,11 +93,10 @@ const DuelPepes = () => {
   }, [availableCredit]);
 
   const remainingETHToPayToMint = useMemo(() => {
-    const remainingAmount =
-      getUserReadableAmount(availableCredit, 18) - toMintForFree * 0.0088;
+    const credit = getUserReadableAmount(availableCredit, 18);
 
-    return 0.0088 - remainingAmount;
-  }, [availableCredit, toMintForFree]);
+    return 0.0088 - credit;
+  }, [availableCredit]);
 
   const mintForFree = useCallback(async () => {
     if (!duelContract || !signer || !updateCredit || !sendTx) return;
@@ -237,7 +236,9 @@ const DuelPepes = () => {
                   no additional cost
                 </Typography>
               ) : null}
-              {remainingETHToPayToMint < 0.0088 ? (
+              {toMintForFree === 0 &&
+              remainingETHToPayToMint > 0 &&
+              availableCredit.gt(0) ? (
                 <Typography
                   variant="h5"
                   className="text-white font-['Minecraft'] relative z-1 mt-1 text-center cursor-pointer hover:opacity-70"
