@@ -759,20 +759,9 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-<<<<<<< HEAD
-"@dopex-io/sdk@../sdk":
+"@dopex-io/sdk@https://github.com/dopex-io/sdk#feat/atlantics":
   version "1.0.0-beta.27"
-
-"@dopex-io/sdk@1.0.0-beta.21":
-  version "1.0.0-beta.21"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.21.tgz#56a36f50a4fc6caec26294e56a49c537a40e18bd"
-  integrity sha512-OhpMcwntZ2URH2zqzSJJrvE0NkcBblWqSfBWS4p+vd/a0qIqfzLsJuod2V4VlZlcZ2T4/4stBW9qgmX9e5z7Bg==
-=======
-"@dopex-io/sdk@1.0.0-beta.27":
-  version "1.0.0-beta.27"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.27.tgz#0975d39f0a6b44c5298df837585ff8249eac53b9"
-  integrity sha512-NwMHrpkoXmlKMoKGdbM11Ein+qNzhQSm7hYUYAGAe51pVR0kWIQZspg0IKqGavpoNsHNXCbwawJoHpH5mqcI5g==
->>>>>>> 249b5bb07ab6281a325b8fb3202fb1a55fb8a8c8
+  resolved "https://github.com/dopex-io/sdk#87a7ecc0cc717c8b07552b0dc5f759564029434b"
 
 "@emotion/babel-plugin@^11.10.0":
   version "11.10.2"
@@ -3995,7 +3984,7 @@ cosmiconfig-typescript-loader@^4.0.0:
   resolved "https://registry.yarnpkg.com/cosmiconfig-typescript-loader/-/cosmiconfig-typescript-loader-4.0.0.tgz#4a6d856c1281135197346a6f64dfa73a9cd9fefa"
   integrity sha512-cVpucSc2Tf+VPwCCR7SZzmQTQkPbkk4O01yXsYqXBIbjE1bhwqSyAgYQkRK1un4i0OPziTleqFhdkmOc4RQ/9g==
 
-cosmiconfig@7.0.1, cosmiconfig@^7, cosmiconfig@^7.0.0:
+cosmiconfig@7.0.1, cosmiconfig@^7.0.0:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-7.0.1.tgz#714d756522cace867867ccb4474c5d01bbae5d6d"
   integrity sha512-a1YWNUV2HwGimB7dU2s1wUMurNKjpx60HxBB6xUM8Re+2s1g1IIfJvFR0/iCF+XHdE0GMTKTuLR32UQff4TEyQ==
