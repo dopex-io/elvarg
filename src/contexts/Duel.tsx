@@ -1008,7 +1008,11 @@ export const DuelProvider = (props: { children: ReactNode }) => {
           revealDate.getTime() < new Date().getTime() &&
           revealDate.getTime() > 1000
         ) {
-          if (isCreatorWinner === true && duelistAddress === accountAddress)
+          if (duelData[3].eq(0)) status = 'tie';
+          else if (
+            isCreatorWinner === true &&
+            duelistAddress === accountAddress
+          )
             status = 'won';
           else if (
             isCreatorWinner === false &&

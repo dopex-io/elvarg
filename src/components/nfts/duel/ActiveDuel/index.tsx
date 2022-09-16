@@ -235,8 +235,7 @@ const ActiveDuel = ({
         alt="?"
       />
 
-      {['won', 'lost', 'tie'].includes(duel['status']) &&
-      !duel['isCreatorWinner'] ? (
+      {['won', 'lost'].includes(duel['status']) && !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FFD50B]">
           <img
             src="/images/misc/crown.svg"
@@ -249,8 +248,7 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {['won', 'lost', 'tie'].includes(duel['status']) &&
-      duel['isCreatorWinner'] ? (
+      {['won', 'lost'].includes(duel['status']) && duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FF2727]">
           <img
             src="/images/misc/fire.svg"
@@ -328,8 +326,7 @@ const ActiveDuel = ({
         </Typography>
       </Box>
 
-      {['won', 'lost', 'tie'].includes(duel['status']) &&
-      duel['isCreatorWinner'] ? (
+      {['won', 'lost'].includes(duel['status']) && duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FFD50B]">
           <img
             src="/images/misc/crown.svg"
@@ -342,8 +339,7 @@ const ActiveDuel = ({
         </Box>
       ) : null}
 
-      {['won', 'lost', 'tie'].includes(duel['status']) &&
-      !duel['isCreatorWinner'] ? (
+      {['won', 'lost'].includes(duel['status']) && !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FF2727]">
           <img
             src="/images/misc/fire.svg"
