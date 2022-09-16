@@ -907,7 +907,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0x4403386E7e31B60a4Ab11D665b40bD9dCf0F27f4',
+      '0x51B483e1AaEcE04a7ef925a17bA77de678571dad',
       DuelPepesABI,
       signer
     );
@@ -924,7 +924,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelLeaderboardContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0xfAA9B6070E1CA9B4E094ae9a0D78E31ed3e7dCa3',
+      '0x94Cbc2CB052Cbe2Bb7B93dd074D5218327384737',
       DuelPepesLeaderboardABI,
       signer
     );
