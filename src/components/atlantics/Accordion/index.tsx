@@ -18,8 +18,8 @@ const CustomizedAccordion = styled(Accordion)`
 
 interface CustomAccordionProps {
   header: string;
-  putPools: DurationTypesOfPools;
-  callPools: DurationTypesOfPools;
+  putPools: DurationTypesOfPools | undefined;
+  callPools: DurationTypesOfPools | undefined;
   className: string;
 }
 
