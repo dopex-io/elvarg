@@ -92,13 +92,19 @@ export const VAULT_MAP: { [key: string]: { src: string } } = {
   'MIM3CRV-2': {
     src: '/images/tokens/mim.svg',
   },
-  'PUSD3CRV-1': {
+  'PUSD3CRV-3': {
     src: '/images/tokens/pusd.svg',
   },
   'PUSD3CRV-2': {
     src: '/images/tokens/pusd.svg',
   },
+  'PUSD3CRV-3': {
+    src: '/images/tokens/pusd.svg',
+  },
   'PUSD3CRV-BIWEEKLY-1': {
+    src: '/images/tokens/pusd.svg',
+  },
+  'PUSD3CRV-BIWEEKLY-2': {
     src: '/images/tokens/pusd.svg',
   },
   'ETH-ATLANTIC-STRADDLE-3': {

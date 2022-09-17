@@ -80,7 +80,11 @@ const PurchaseCard = () => {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)
-          .purchase(getContractReadableAmount(amount, 18), 0, accountAddress)
+          .purchase(
+            getContractReadableAmount(2 * amount, 18),
+            0,
+            accountAddress
+          )
       );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();

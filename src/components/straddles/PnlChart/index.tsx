@@ -35,13 +35,13 @@ const PnlChart = (props: PnlChartProps) => {
 
   const [state, setState] = useState({ price: 0, pnl: 0 });
 
-  const upperBreakeven = optionPrice ? optionPrice / amount / 0.5 + price : 0;
-  const lowerBreakeven = optionPrice ? price - optionPrice / amount / 0.5 : 0;
+  const upperBreakeven = optionPrice ? optionPrice / amount + price : 0;
+  const lowerBreakeven = optionPrice ? price - optionPrice / amount : 0;
 
   const pnl = useMemo(() => {
     let value;
-    if (price > upperBreakeven) value = 0.5 * (price - upperBreakeven);
-    else value = 0.5 * (lowerBreakeven - price);
+    if (price > upperBreakeven) value = price - upperBreakeven;
+    else value = lowerBreakeven - price;
 
     return value * amount;
   }, [price, upperBreakeven, lowerBreakeven, amount]);
@@ -51,7 +51,7 @@ const PnlChart = (props: PnlChartProps) => {
   }, [price, pnl]);
 
   const data = useMemo(() => {
-    const increment = (price - lowerBreakeven) / 4;
+    const increment = (price - lowerBreakeven) / 8;
 
     const _data = Array(60)
       .join()
@@ -62,8 +62,8 @@ const PnlChart = (props: PnlChartProps) => {
         else fPrice = price + index * increment;
         if (fPrice > 0) {
           let pnl;
-          if (fPrice < price) pnl = 0.5 * (price - fPrice);
-          else pnl = 0.5 * (fPrice - price);
+          if (fPrice < price) pnl = price - fPrice;
+          else pnl = fPrice - price;
           return {
             price: fPrice,
             value: pnl * amount - optionPrice,
