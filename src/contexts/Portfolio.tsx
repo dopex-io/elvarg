@@ -67,7 +67,7 @@ export const PortfolioContext = createContext<PortfolioContextInterface>({
 });
 
 export const PortfolioProvider = (props: { children: ReactNode }) => {
-  const { provider, accountAddress } = useContext(WalletContext);
+  const { accountAddress, provider } = useContext(WalletContext);
   const [portfolioData, setPortfolioData] =
     useState<PortfolioData>(initialPortfolioData);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -160,7 +160,6 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
   };
 
   return (
-    // @ts-ignore
     <PortfolioContext.Provider value={contextValue}>
       {props.children}
     </PortfolioContext.Provider>
