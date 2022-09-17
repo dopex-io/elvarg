@@ -1,5 +1,5 @@
 export default function getLinkFromVaultName(vaultName: string): string {
-  if (vaultName.includes('V3 2')) {
+  if (vaultName.includes('V3') && !vaultName.includes('V3 2')) {
     return `https://ssov-epoch-6.dopex.io/ssov/${vaultName.replaceAll(
       ' ',
       '-'
