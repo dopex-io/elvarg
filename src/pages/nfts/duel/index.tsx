@@ -211,19 +211,31 @@ const DuelPepes = () => {
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1 mt-1 text-center"
             >
-              You accumulate ETH credit each time you lose a fight
+              {
+                "During the Duel Mint, the winner will only receive 20% of the loser's wager with the remaining 80% going to the Treasury."
+              }
+            </Typography>{' '}
+            <Typography
+              variant="h5"
+              className="text-[#78859E] font-['Minecraft'] relative z-1 mt-1 text-center"
+            >
+              Losers will receive{' '}
+              <span className="text-white">Mint Credits</span> 1:1 for ETH that
+              goes to the treasury.
               <br />
-              You can use those ETH to mint new Duel Pepes at the cost of 0,008
-              ETH for each or to offset the remaining part of a normal mint at
-              the cost of 0,0088 ETH
+              <span className="text-white">Mint Credits</span> can be used to
+              mint Duel Pepes at a discounted cost of 0.8 Mint Credits each.
+              <br />
+              <span className="text-white">Mint Credits</span> can be also be
+              used to offset 1:1 the standard mint cost of 0.88 ETH.
+              <br />
               <br />
               You currently have{' '}
               <span className="text-white">
                 {formatAmount(getUserReadableAmount(availableCredit, 18), 4)}{' '}
-                ETH credit
+                Mint Credits
               </span>
             </Typography>
-
             <Box className=" mt-6 text-center">
               {' '}
               {toMintForFree > 0 ? (
