@@ -98,9 +98,6 @@ export const VAULT_MAP: { [key: string]: { src: string } } = {
   'PUSD3CRV-2': {
     src: '/images/tokens/pusd.svg',
   },
-  'PUSD3CRV-3': {
-    src: '/images/tokens/pusd.svg',
-  },
   'PUSD3CRV-BIWEEKLY-1': {
     src: '/images/tokens/pusd.svg',
   },
