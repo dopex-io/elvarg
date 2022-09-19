@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
@@ -14,8 +14,7 @@ import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
 
-import { DpxBondsContext } from 'contexts/Bonds';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -57,10 +56,17 @@ const BondsInfo = ({
 export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   const sendTx = useSendTx();
 
-  const { handleMint, dpxBondsData, dpxBondsUserEpochData, dpxBondsEpochData } =
-    useContext(DpxBondsContext);
-  const { signer, contractAddresses, accountAddress, provider, chainId } =
-    useContext(WalletContext);
+  const {
+    signer,
+    contractAddresses,
+    accountAddress,
+    provider,
+    chainId,
+    handleMint,
+    dpxBondsData,
+    dpxBondsUserEpochData,
+    dpxBondsEpochData,
+  } = useBoundStore();
 
   const { dpxBondsAddress, usdcBalance } = dpxBondsData;
   const { bondPrice, depositPerNft, maxEpochDeposits, totalEpochDeposits } =

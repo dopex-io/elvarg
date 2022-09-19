@@ -25,19 +25,19 @@ export interface StraddlesEpochData {
   startTime: BigNumber;
   expiry: BigNumber;
   usdDeposits: BigNumber;
-  activeUsdDeposits: BigNumber | string;
-  settlementPrice: BigNumber | string;
-  underlyingPurchased: BigNumber | string;
+  activeUsdDeposits: BigNumber;
+  settlementPrice: BigNumber;
+  underlyingPurchased: BigNumber;
   usdPremiums: BigNumber;
-  usdFunding: BigNumber | string;
-  totalSold: BigNumber | string;
-  currentPrice: BigNumber | string;
-  straddlePrice: BigNumber | string;
-  purchaseFee: BigNumber | string;
-  straddlePremium: BigNumber | string;
-  straddleFunding: BigNumber | string;
+  usdFunding: BigNumber;
+  totalSold: BigNumber;
+  currentPrice: BigNumber;
+  straddlePrice: BigNumber;
+  purchaseFee: BigNumber;
+  straddlePremium: BigNumber;
+  straddleFunding: BigNumber;
   aprPremium: string;
-  aprFunding: BigNumber | string;
+  aprFunding: BigNumber;
   volatility: BigNumber;
 }
 
@@ -65,8 +65,8 @@ export interface StraddlesUserData {
 
 export interface StraddlesSlice {
   straddlesData?: StraddlesData | undefined;
-  straddlesEpochData?: StraddlesEpochData | undefined;
-  straddlesUserData?: StraddlesUserData | undefined;
+  straddlesEpochData?: StraddlesEpochData;
+  straddlesUserData?: StraddlesUserData;
   updateStraddlesEpochData: Function;
   updateStraddlesUserData: Function;
   updateStraddles: Function;
@@ -99,7 +99,7 @@ export const createStraddlesSlice: StateCreator<
     straddlePremium: BigNumber.from('0'),
     straddleFunding: BigNumber.from('0'),
     aprPremium: '',
-    aprFunding: '',
+    aprFunding: BigNumber.from('0'),
     volatility: BigNumber.from('0'),
   },
   straddlesUserData: {},
@@ -122,12 +122,12 @@ export const createStraddlesSlice: StateCreator<
     const usdPremiums = epochCollectionsData['usdPremiums'];
     const totalSold = epochCollectionsData['totalSold'];
 
-    let straddlePrice: BigNumber | string;
-    let aprFunding: BigNumber | string;
+    let straddlePrice: BigNumber;
+    let aprFunding: BigNumber;
     let volatility: BigNumber;
-    let purchaseFee: BigNumber | string;
-    let straddlePremium: BigNumber | string;
-    let straddleFunding: BigNumber | string;
+    let purchaseFee: BigNumber;
+    let straddlePremium: BigNumber;
+    let straddleFunding: BigNumber;
 
     try {
       straddlePremium = await straddlesContract!['calculatePremium'](
@@ -136,30 +136,30 @@ export const createStraddlesSlice: StateCreator<
         getContractReadableAmount(1, 18),
         epochData['expiry']
       );
+      straddlePremium = straddlePremium.mul(BigNumber.from(2));
     } catch (e) {
       straddlePremium = BigNumber.from('0');
     }
 
     try {
       aprFunding = await straddlesContract!['apFundingPercent']();
-      aprFunding = BigNumber.from(aprFunding).div(1e6);
+      aprFunding = aprFunding.div(1e6);
     } catch (e) {
       aprFunding = BigNumber.from('0');
     }
 
-    aprFunding = aprFunding.toString();
-
     try {
       purchaseFee = await straddlesContract!['purchaseFeePercent']();
-      purchaseFee = BigNumber.from(purchaseFee).mul(currentPrice).mul(1e10);
+      purchaseFee = purchaseFee
+        .mul(currentPrice)
+        .mul(BigNumber.from(2))
+        .mul(1e10);
     } catch (e) {
       purchaseFee = BigNumber.from('0');
     }
 
     try {
-      volatility = (
-        await straddlesContract!['getVolatility'](currentPrice)
-      ).toString();
+      volatility = await straddlesContract!['getVolatility'](currentPrice);
     } catch (e) {
       volatility = BigNumber.from('0');
     }
@@ -179,15 +179,18 @@ export const createStraddlesSlice: StateCreator<
       .toNumber();
     const aprPremium = normApr.toFixed(0);
 
-    straddleFunding = currentPrice
-      .mul(getContractReadableAmount(16, 18))
-      .mul(BigNumber.from(Math.round(timeToExpiry)))
-      .div(BigNumber.from(365 * 86400))
-      .div(1e2);
+    try {
+      straddleFunding = await straddlesContract!['calculateApFunding'](
+        currentPrice,
+        getContractReadableAmount(1, 18),
+        BigNumber.from(Math.round(timeToExpiry))
+      );
+      straddleFunding = straddleFunding.mul(BigNumber.from(2));
+    } catch (e) {
+      straddleFunding = BigNumber.from('0');
+    }
 
-    straddlePrice = BigNumber.from(straddlePremium)
-      .add(straddleFunding)
-      .add(purchaseFee);
+    straddlePrice = straddlePremium.add(straddleFunding).add(purchaseFee);
 
     if (straddlePrice.lt(0)) straddlePrice = BigNumber.from(0);
 

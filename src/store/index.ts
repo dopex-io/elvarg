@@ -11,6 +11,7 @@ import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
 import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
 import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
+import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
 
 type T = WalletSlice &
   TokenSaleSlice &
@@ -21,7 +22,8 @@ type T = WalletSlice &
   SsovV3Slice &
   RateVaultSlice &
   VeDPXSlice &
-  StraddlesSlice;
+  StraddlesSlice &
+  DpxBondsSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -35,5 +37,6 @@ export const useBoundStore = create<T>()(
     ...createRateVaultSlice(...a),
     ...createVedpxSlice(...a),
     ...createStraddlesSlice(...a),
+    ...createDpxBondsSlice(...a),
   }))
 );

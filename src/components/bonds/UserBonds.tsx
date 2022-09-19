@@ -1,4 +1,4 @@
-import { useContext, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 import Tooltip from '@mui/material/Tooltip';
@@ -10,32 +10,41 @@ import InfoTooltip from 'components/UI/InfoTooltip';
 import CustomButton from 'components/UI/Button';
 
 import displayAddress from 'utils/general/displayAddress';
-
-import { DpxBondsContext } from 'contexts/Bonds';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 type UserBondsProps = {
   handleModal: () => void;
 };
 
 export const UserBonds = ({ handleModal }: UserBondsProps) => {
-  const { dpxBondsUserEpochData, dpxBondsEpochData, handleRedeem } =
-    useContext(DpxBondsContext);
+  const {
+    accountAddress,
+    ensAvatar,
+    ensName,
+    connect,
+    dpxBondsUserEpochData,
+    updateBondsUserEpochData,
+    dpxBondsEpochData,
+    handleRedeem,
+  } = useBoundStore();
 
   const { userDpxBondsState } = dpxBondsUserEpochData;
   const { depositPerNft, bondPrice } = dpxBondsEpochData;
-
-  const { accountAddress, ensAvatar, ensName, connect } =
-    useContext(WalletContext);
 
   const handleWalletConnect = useCallback(() => {
     connect && connect();
   }, [connect]);
 
+  useEffect(() => {
+    updateBondsUserEpochData();
+  }, [updateBondsUserEpochData]);
+
   const notRedeemedBonds = useMemo(() => {
     return (
       (userDpxBondsState &&
-        userDpxBondsState.filter((bond) => bond?.redeemed == false)) ||
+        userDpxBondsState.filter(
+          (bond: { redeemed: boolean }) => bond?.redeemed == false
+        )) ||
       []
     );
   }, [userDpxBondsState]);
