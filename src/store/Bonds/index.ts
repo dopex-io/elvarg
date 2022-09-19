@@ -88,8 +88,6 @@ export interface DpxBondsSlice {
   getBondsById: Function;
   getUserBondsNftsState: Function;
   getBridgoorNftIds: Function;
-  handleMint: Function;
-  handleRedeem: () => void;
   updateBondsContracts: Function;
   bondsContract?: DpxBonds;
   usdcContract?: ERC20;
@@ -264,8 +262,6 @@ export const createDpxBondsSlice: StateCreator<
       dpxBondsUserEpochData: _userEpochData,
     }));
   },
-  handleMint: async () => {},
-  handleRedeem: async () => {},
   getBondsById: async (dopexBondsNftBalance: BigNumber) => {
     const { bondsContract, accountAddress } = get();
     if (!bondsContract) return;

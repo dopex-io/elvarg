@@ -9,14 +9,18 @@ import format from 'date-fns/format';
 import InfoTooltip from 'components/UI/InfoTooltip';
 import CustomButton from 'components/UI/Button';
 
-import displayAddress from 'utils/general/displayAddress';
+import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
+
+import displayAddress from 'utils/general/displayAddress';
 
 type UserBondsProps = {
   handleModal: () => void;
 };
 
 export const UserBonds = ({ handleModal }: UserBondsProps) => {
+  const sendTx = useSendTx();
   const {
     accountAddress,
     ensAvatar,
@@ -25,7 +29,8 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     dpxBondsUserEpochData,
     updateBondsUserEpochData,
     dpxBondsEpochData,
-    handleRedeem,
+    signer,
+    bondsContract,
   } = useBoundStore();
 
   const { userDpxBondsState } = dpxBondsUserEpochData;
@@ -34,6 +39,28 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
   const handleWalletConnect = useCallback(() => {
     connect && connect();
   }, [connect]);
+
+  const handleRedeem = useCallback(async () => {
+    if (
+      !bondsContract ||
+      !signer ||
+      dpxBondsUserEpochData.userClaimableBonds.length < 1
+    )
+      return;
+
+    try {
+      await sendTx(bondsContract.connect(signer).redeem(1));
+    } catch (e) {
+      console.log(e);
+    }
+
+    return;
+  }, [
+    bondsContract,
+    dpxBondsUserEpochData.userClaimableBonds.length,
+    sendTx,
+    signer,
+  ]);
 
   useEffect(() => {
     updateBondsUserEpochData();

@@ -62,7 +62,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     accountAddress,
     provider,
     chainId,
-    handleMint,
+    bondsContract,
     dpxBondsData,
     dpxBondsUserEpochData,
     dpxBondsEpochData,
@@ -200,6 +200,28 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
       console.log(e);
     }
   }, [dpxBondsAddress, amount, sendTx, signer, contractAddresses]);
+
+  const handleMint = useCallback(
+    async (amount: number) => {
+      if (
+        !bondsContract ||
+        !signer ||
+        dpxBondsUserEpochData.usableNfts.length === 0
+      )
+        return;
+
+      try {
+        await sendTx(
+          bondsContract
+            .connect(signer)
+            .mint(dpxBondsUserEpochData.usableNfts.slice(0, amount))
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    [bondsContract, dpxBondsUserEpochData.usableNfts, sendTx, signer]
+  );
 
   const handleDeposit = useCallback(async () => {
     if (!handleMint) return;
