@@ -17,10 +17,9 @@ const WalletButton: FC<CustomButtonProps> = (props) => {
   const onConnectWallet = useCallback(() => connect(), [connect]);
 
   return (
-    // @ts-ignore TODO: FIX
     <CustomButton
       onClick={!isWalletConnected ? onConnectWallet : onClick}
-      disabled={!isWalletConnected ? false : disabled}
+      disabled={!isWalletConnected ? false : disabled!}
       {...otherProps}
     >
       {children}

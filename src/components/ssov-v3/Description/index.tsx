@@ -102,6 +102,7 @@ const Description = ({
             onClick={() => {
               accountAddress ? setPurchaseState(true) : connect();
             }}
+            disabled={ssovData?.isCurrentEpochExpired || false}
           >
             Buy {type} Options
           </WalletButton>
