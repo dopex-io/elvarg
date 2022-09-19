@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import {} from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
