@@ -178,7 +178,7 @@ export const StraddlesProvider = (props: { children: ReactNode }) => {
         return {
           id: id,
           epoch: data['epoch'],
-          amount: amount,
+          amount: amount.div(BigNumber.from(2)),
           apStrike: strike,
           pnl: pnl.mul(amount).div(BigNumber.from(1e8)),
         };
