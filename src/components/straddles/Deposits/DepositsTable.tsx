@@ -19,6 +19,27 @@ import { StraddlesContext } from 'contexts/Straddles';
 
 import WithdrawModal from '../Dialogs/Withdraw';
 
+interface TableHeaderProps {
+  label: string;
+  variant?: string;
+  showArrowIcon?: boolean;
+}
+
+export const TableHeader = ({
+  label,
+  variant = '',
+  showArrowIcon = false,
+}: TableHeaderProps) => {
+  return (
+    <TableCell className="border-0 pb-0">
+      <Typography variant="h6" color="stieglitz" className={`${variant}`}>
+        {label}
+        {showArrowIcon ? <ArrowDownwardIcon className="w-4 pb-2 ml-2" /> : null}
+      </Typography>
+    </TableCell>
+  );
+};
+
 const DepositsTable = () => {
   const { straddlesUserData } = useContext(StraddlesContext);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
@@ -42,65 +63,40 @@ const DepositsTable = () => {
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
             <TableRow>
-              <TableCell className="border-0 pb-0">
-                <Typography variant="h6" className="text-gray-400">
-                  Amount
-                  <ArrowDownwardIcon className="w-4 pb-2 ml-2" />
-                </Typography>
-              </TableCell>
-
-              <TableCell className="border-0 pb-0">
-                <Typography variant="h6" className="text-gray-400 flex">
-                  Epoch
-                </Typography>
-              </TableCell>
-              <TableCell className=" border-0 pb-0">
-                <Typography
-                  variant="h6"
-                  className="text-gray-400 flex justify-end"
-                >
-                  Premium & Funding
-                </Typography>
-              </TableCell>
-              <TableCell className=" border-0 pb-0">
-                <Typography
-                  variant="h6"
-                  className="text-gray-400 flex justify-end"
-                >
-                  Action
-                </Typography>
-              </TableCell>
+              <TableHeader label="Amount" showArrowIcon />
+              <TableHeader label="Epoch" />
+              <TableHeader label="Premium & Funding" variant="text-end" />
+              <TableHeader label="Action" variant="text-end" />
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
             {straddlesUserData?.writePositions?.map((position, i) => (
               <TableRow key={i}>
-                <TableCell className="pt-2">
-                  <Box>
-                    <Box className="rounded-md flex items-center px-2 py-2 w-fit">
-                      <Typography variant="h6" className="pr-7 pt-[2px]">
-                        {formatAmount(
-                          getUserReadableAmount(position.usdDeposit, 6),
-                          2
-                        )}
+                <TableCell className="pt-1 border-0">
+                  <Box className="rounded-md w-2/3 flex justify-between p-2">
+                    <Typography variant="h6" className="pt-[2px]">
+                      {formatAmount(
+                        getUserReadableAmount(position.usdDeposit, 6),
+                        2
+                      )}
+                    </Typography>
+                    <Box className="rounded-sm bg-mineshaft">
+                      <Typography
+                        variant="h6"
+                        className="px-1 py-[2px]"
+                        color="stieglitz"
+                      >
+                        USDC
                       </Typography>
-                      <Box className="rounded-sm w-fit bg-neutral-700 flex items-center">
-                        <Typography
-                          variant="h6"
-                          className="px-1 py-[2px] text-gray-400"
-                        >
-                          USDC
-                        </Typography>
-                      </Box>
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell className="pt-1">
-                  <Typography variant="h6" className="">
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6">
                     {Number(position.epoch!)}
                   </Typography>
                 </TableCell>
-                <TableCell className="pt-1">
+                <TableCell className="pt-1 border-0">
                   <Typography variant="h6" className="text-right">
                     $
                     {getUserReadableAmount(position.premiumFunding, 26).toFixed(
@@ -108,7 +104,7 @@ const DepositsTable = () => {
                     )}
                   </Typography>
                 </TableCell>
-                <TableCell className="flex justify-end">
+                <TableCell className="flex justify-end border-0">
                   <CustomButton
                     onClick={() => handleWithdraw(i)}
                     className={
