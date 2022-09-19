@@ -18,7 +18,6 @@ import Pledge2Dialog from 'components/nfts/diamondpepes/Pledge2Dialog';
 import { Data, UserData, initialData } from 'types/diamondpepes';
 
 import { useBoundStore } from 'store';
-import { NftsProvider } from 'contexts/Nfts';
 
 import styles from 'components/nfts/diamondpepes/Pledge2Dialog/styles.module.scss';
 
@@ -250,10 +249,6 @@ const DiamondPepesNfts = () => {
   );
 };
 
-const DiamondPepesNftsPage = () => (
-  <NftsProvider>
-    <DiamondPepesNfts />
-  </NftsProvider>
-);
+const DiamondPepesNftsPage = () => <DiamondPepesNfts />;
 
 export default DiamondPepesNftsPage;

@@ -1,5 +1,5 @@
 // @ts-nocheck TODO: FIX
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
   UniswapPair__factory,
@@ -21,7 +21,6 @@ import formatAmount from 'utils/general/formatAmount';
 import { Data, UserData, initialData } from 'types/diamondpepes';
 
 import { useBoundStore } from 'store';
-import { NftsProvider } from 'contexts/Nfts';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -353,10 +352,6 @@ const DiamondPepesNfts = () => {
   );
 };
 
-const DiamondPepesNftsPage = () => (
-  <NftsProvider>
-    <DiamondPepesNfts />
-  </NftsProvider>
-);
+const DiamondPepesNftsPage = () => <DiamondPepesNfts />;
 
 export default DiamondPepesNftsPage;
