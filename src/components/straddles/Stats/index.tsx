@@ -16,6 +16,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { WalletContext } from 'contexts/Wallet';
 import { StraddlesContext } from 'contexts/Straddles';
 
+import InfoBox from './InfoBox';
+
 const Stats = () => {
   const { chainId } = useContext(WalletContext);
   const { selectedEpoch, setSelectedEpoch, straddlesEpochData, straddlesData } =
@@ -190,12 +192,12 @@ const Stats = () => {
           </Button>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
-          <Typography
-            variant="h6"
-            className="flex justify-center items-center text-gray-400"
-          >
-            Annualized Premium
-          </Typography>
+          <InfoBox
+            heading={'Annualized Premium'}
+            tooltip={`The deposited principal is subject to a loss in case of a market downturn, 
+            as the writers are selling put options.
+            In such a case, the loss may be greater than the premiums received`}
+          />
           <Typography variant="h6" className="text-white">
             {straddlesEpochData?.aprPremium}%
           </Typography>
