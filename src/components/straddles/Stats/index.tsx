@@ -86,7 +86,7 @@ const Stats = () => {
   }
 
   return (
-    <Box className="md:flex text-gray-400 ">
+    <Box className="md:flex text-gray-400">
       <Box className="w-full">
         <Box className="border rounded-tl-lg border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
@@ -108,9 +108,12 @@ const Stats = () => {
                   },
                 },
               }}
+              classes={{
+                icon: 'text-white',
+              }}
               displayEmpty
               autoWidth
-              value={selectedEpoch! || 0}
+              value={selectedEpoch}
               onChange={handleSelectChange}
             >
               {epochs}

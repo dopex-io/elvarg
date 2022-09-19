@@ -111,7 +111,7 @@ export const createStraddlesSlice: StateCreator<
     if (selectedEpoch === null || !straddlesContract) return;
 
     const epochData = await straddlesContract!['epochData'](
-      Math.max(selectedEpoch || 1, 1)
+      Math.max(selectedEpoch, 1)
     );
 
     const epochCollectionsData = await straddlesContract![

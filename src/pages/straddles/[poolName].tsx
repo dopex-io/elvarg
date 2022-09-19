@@ -33,16 +33,12 @@ const Straddles = ({ poolName }: Props) => {
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
-    updateStraddlesUserData();
-  }, [updateStraddlesUserData]);
-
-  useEffect(() => {
-    updateStraddlesEpochData();
-  }, [updateStraddlesEpochData]);
-
-  useEffect(() => {
-    updateStraddles();
-  }, [updateStraddles]);
+    updateStraddles().then(() =>
+      updateStraddlesEpochData().then(() => {
+        updateStraddlesUserData();
+      })
+    );
+  }, [updateStraddles, updateStraddlesEpochData, updateStraddlesUserData]);
 
   return (
     <Box className="bg-black min-h-screen">
