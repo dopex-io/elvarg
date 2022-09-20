@@ -10,7 +10,8 @@ import VeDPXYield from 'components/vedpx/VeDPXYield';
 import { useBoundStore } from 'store';
 
 const VeDPX = () => {
-  const { updateVedpxData, updateUserVedpxData } = useBoundStore();
+  const { signer, provider, updateVedpxData, updateUserVedpxData } =
+    useBoundStore();
 
   useEffect(() => {
     updateVedpxData();
@@ -18,7 +19,7 @@ const VeDPX = () => {
 
   useEffect(() => {
     updateUserVedpxData();
-  }, [updateUserVedpxData]);
+  }, [updateUserVedpxData, , signer, provider]);
 
   return (
     <Box className="bg-black min-h-screen">

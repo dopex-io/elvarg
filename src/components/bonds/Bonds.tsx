@@ -9,7 +9,13 @@ import { EpochData } from './EpochData';
 import { useBoundStore } from 'store';
 
 export const Bonds = () => {
-  const { updateBondsData } = useBoundStore();
+  const {
+    signer,
+    provider,
+    contractAddresses,
+    updateBondsContracts,
+    updateBondsData,
+  } = useBoundStore();
 
   const [modalOpen, setModal] = useState(false);
   const [eligibilityModal, setEligibilityModal] = useState(false);
@@ -22,8 +28,15 @@ export const Bonds = () => {
   };
 
   useEffect(() => {
+    updateBondsContracts();
     updateBondsData();
-  }, [updateBondsData]);
+  }, [
+    contractAddresses,
+    provider,
+    signer,
+    updateBondsContracts,
+    updateBondsData,
+  ]);
 
   return (
     <>

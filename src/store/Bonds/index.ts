@@ -107,7 +107,6 @@ export const createDpxBondsSlice: StateCreator<
   updateBondsData: async () => {
     const {
       contractAddresses,
-      updateBondsContracts,
       bondsContract,
       usdcContract,
       dopexBridgoorNFTContract,
@@ -115,12 +114,6 @@ export const createDpxBondsSlice: StateCreator<
       tokenPrices,
       getBridgoorNftIds,
     } = get();
-
-    try {
-      updateBondsContracts();
-    } catch (e) {
-      return;
-    }
 
     if (
       !contractAddresses ||
@@ -162,10 +155,7 @@ export const createDpxBondsSlice: StateCreator<
       dopexBridgoorNFTContract,
       usdcContract,
       dpxContract,
-      updateBondsContracts,
     } = get();
-
-    updateBondsContracts();
 
     if (!bondsContract || !dopexBridgoorNFTContract || !usdcContract) return;
 
@@ -217,10 +207,7 @@ export const createDpxBondsSlice: StateCreator<
       usdcContract,
       getBondsById,
       getUserBondsNftsState,
-      updateBondsContracts,
     } = get();
-
-    updateBondsContracts();
 
     if (
       !bondsContract ||
