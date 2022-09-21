@@ -16,6 +16,8 @@ import Filter from 'components/common/Filter';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import formatAmount from 'utils/general/formatAmount';
+
 const sides: string[] = ['CALL', 'PUT'];
 
 export default function Positions() {
@@ -130,6 +132,18 @@ export default function Positions() {
                   </Typography>
                 </Box>
 
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Fee</span>
+                  </Typography>
+                </Box>
+
+                <Box className="col-span-1 text-left">
+                  <Typography variant="h5">
+                    <span className="text-stieglitz">Premium</span>
+                  </Typography>
+                </Box>
+
                 <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Action</span>
@@ -190,7 +204,32 @@ export default function Positions() {
                   <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {getUserReadableAmount(position.amount, 18)}
+                        {formatAmount(
+                          getUserReadableAmount(position.amount, 18),
+                          4
+                        )}
+                      </span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {formatAmount(
+                          getUserReadableAmount(position.fee, 18),
+                          4
+                        )}
+                      </span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {formatAmount(
+                          getUserReadableAmount(position.premium, 18),
+                          4
+                        )}
                       </span>
                     </Typography>
                   </Box>

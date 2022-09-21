@@ -10,8 +10,6 @@ import { SsovV3__factory } from '@dopex-io/sdk';
 import {
   GetUserDataDocument,
   GetUserDataQuery,
-  GetTokenDataDocument,
-  GetTokenDataQuery,
 } from 'graphql/generated/portfolio';
 import { portfolioGraphClient } from 'graphql/apollo';
 import { ApolloQueryResult } from '@apollo/client';
@@ -27,6 +25,8 @@ export interface UserPosition {
   ssovAddress: string;
   ssovName: string;
   assetName: string;
+  fee: string;
+  premium: string;
   isPut: boolean;
   link: string;
   vaultType: string;
@@ -109,9 +109,8 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
       });
     }
 
-    for (let i in data?.userPositions) {
-      const ssovAddress = data.userPositions[i].id.split('#')[0];
-      const tokenId = data.userPositions[i].id.split('#')[1];
+    for (let i in data?.userSSOVOptionBalance) {
+      const ssovAddress = data.userSSOVOptionBalance[i].id.split('#')[3];
 
       const ssov = SsovV3__factory.connect(ssovAddress, provider);
       const ssovName = await ssov.name();
@@ -119,19 +118,12 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
       const isPut = await ssov.isPut();
       const assetName = await ssov.underlyingSymbol();
 
-      const tokenQueryResult: ApolloQueryResult<GetTokenDataQuery> =
-        await portfolioGraphClient.query({
-          query: GetTokenDataDocument,
-          variables: { tokenId: `${ssovAddress}#${tokenId}` },
-          fetchPolicy: 'no-cache',
-        });
-
-      const tokenData: any = tokenQueryResult['data']['tokens'][0];
-
       positions.push({
-        epoch: tokenData.epoch,
-        strike: tokenData.strike,
-        amount: tokenData.amount,
+        epoch: data.userSSOVOptionBalance[i].epoch,
+        strike: data.userSSOVOptionBalance[i].strike,
+        amount: data.userSSOVOptionBalance[i].amount,
+        fee: data.userSSOVOptionBalance[i].fee,
+        premium: data.userSSOVOptionBalance[i].premium,
         ssovAddress: ssovAddress,
         assetName: assetName,
         isPut: isPut,
