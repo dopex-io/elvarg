@@ -9,7 +9,7 @@ export default function getLinkFromVaultName(vaultName: string): string {
       '-'
     )}`;
   } else if (vaultName.includes('V3'))
-    return `/${vaultName.replaceAll(' ', '-')}`;
+    return `/ssov-v3/${vaultName.replaceAll(' ', '-')}`;
 
   return `#`;
 }

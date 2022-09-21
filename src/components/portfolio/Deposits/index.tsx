@@ -29,8 +29,6 @@ export default function Deposits() {
   const filteredDeposits = useMemo(() => {
     const _deposits: UserSSOVDeposit[] = [];
 
-    console.log(portfolioData?.userSSOVDeposits);
-
     portfolioData?.userSSOVDeposits?.map((deposit) => {
       let toAdd = true;
       if (

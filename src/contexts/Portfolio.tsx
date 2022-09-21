@@ -17,6 +17,8 @@ import { ApolloQueryResult } from '@apollo/client';
 import { WalletContext } from './Wallet';
 
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
+import getUserReadableAmount from '../utils/contracts/getUserReadableAmount';
+import format from 'date-fns/format';
 
 export interface UserPosition {
   amount: string;
@@ -27,9 +29,12 @@ export interface UserPosition {
   assetName: string;
   fee: string;
   premium: string;
+  pnl: string;
   isPut: boolean;
   link: string;
   vaultType: string;
+  expiry: string;
+  owner: string;
 }
 
 export interface UserSSOVDeposit {
@@ -110,6 +115,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
     }
 
     for (let i in data?.userSSOVOptionBalance) {
+      const tokenId = data.userSSOVOptionBalance[i].id.split('#')[2];
       const ssovAddress = data.userSSOVOptionBalance[i].id.split('#')[3];
 
       const ssov = SsovV3__factory.connect(ssovAddress, provider);
@@ -118,19 +124,51 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
       const isPut = await ssov.isPut();
       const assetName = await ssov.underlyingSymbol();
 
-      positions.push({
-        epoch: data.userSSOVOptionBalance[i].epoch,
-        strike: data.userSSOVOptionBalance[i].strike,
-        amount: data.userSSOVOptionBalance[i].amount,
-        fee: data.userSSOVOptionBalance[i].fee,
-        premium: data.userSSOVOptionBalance[i].premium,
-        ssovAddress: ssovAddress,
-        assetName: assetName,
-        isPut: isPut,
-        ssovName: ssovName,
-        link: getLinkFromVaultName(ssovName),
-        vaultType: 'SSOV',
-      });
+      const epoch = data.userSSOVOptionBalance[i].epoch;
+
+      try {
+        // if not exists then it has been withdrawn
+        const owner = await ssov.ownerOf(tokenId);
+
+        const epochData = await ssov.getEpochData(epoch);
+
+        let settlementPrice = epochData['settlementPrice'];
+
+        if (settlementPrice.eq(0))
+          settlementPrice = epochData['collateralExchangeRate'];
+
+        const strike = data.userSSOVOptionBalance[i].strike;
+
+        const amount = data.userSSOVOptionBalance[i].amount;
+
+        const pnl =
+          Math.abs(
+            getUserReadableAmount(strike, 8) -
+              getUserReadableAmount(settlementPrice, 6)
+          ) * getUserReadableAmount(amount, 18);
+
+        positions.push({
+          epoch: data.userSSOVOptionBalance[i].epoch,
+          strike: strike,
+          amount: amount,
+          fee: data.userSSOVOptionBalance[i].fee,
+          premium: data.userSSOVOptionBalance[i].premium,
+          pnl: String(pnl),
+          ssovAddress: ssovAddress,
+          assetName: assetName,
+          isPut: isPut,
+          ssovName: ssovName,
+          link: getLinkFromVaultName(ssovName),
+          vaultType: 'SSOV',
+          expiry: format(
+            new Date(Number(epochData.expiry) * 1000),
+            'd LLL yyyy'
+          ).toLocaleUpperCase(),
+          owner: owner,
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     setPortfolioData({

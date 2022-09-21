@@ -15,6 +15,7 @@ import CustomButton from 'components/UI/Button';
 import Filter from 'components/common/Filter';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getValueColorClass from 'utils/general/getValueColorClass';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -134,13 +135,13 @@ export default function Positions() {
 
                 <Box className="col-span-1 text-left">
                   <Typography variant="h5">
-                    <span className="text-stieglitz">Fee</span>
+                    <span className="text-stieglitz">PnL</span>
                   </Typography>
                 </Box>
 
                 <Box className="col-span-1 text-left">
                   <Typography variant="h5">
-                    <span className="text-stieglitz">Premium</span>
+                    <span className="text-stieglitz">Expiry</span>
                   </Typography>
                 </Box>
 
@@ -215,22 +216,26 @@ export default function Positions() {
                   <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {formatAmount(
-                          getUserReadableAmount(position.fee, 18),
-                          4
-                        )}
+                        <Typography
+                          variant="h5"
+                          component="div"
+                          className={
+                            position.pnl
+                              ? getValueColorClass(Number(position.pnl))
+                              : ''
+                          }
+                        >
+                          {position.pnl
+                            ? '$' + formatAmount(position.pnl, 2)
+                            : '--'}
+                        </Typography>
                       </span>
                     </Typography>
                   </Box>
 
                   <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {formatAmount(
-                          getUserReadableAmount(position.premium, 18),
-                          4
-                        )}
-                      </span>
+                      <span className="text-white">{position.expiry}</span>
                     </Typography>
                   </Box>
 
