@@ -44,7 +44,8 @@
     "sass": "^1.49.8",
     "use-debounce": "^8.0.0",
     "web3modal": "^1.9.4",
-    "yup": "^0.32.9"
+    "yup": "^0.32.9",
+    "zustand": "^4.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",

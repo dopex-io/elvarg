@@ -10,7 +10,7 @@ interface InfoBoxProps {
 const InfoBox = ({ heading, tooltip }: InfoBoxProps) => {
   return (
     <Box>
-      <Box className="flex flex-row">
+      <Box className="flex">
         <Typography variant="h6" className="text-gray-400">
           {heading}
         </Typography>
@@ -21,7 +21,7 @@ const InfoBox = ({ heading, tooltip }: InfoBoxProps) => {
             title={tooltip}
             arrow={true}
           >
-            <InfoOutlinedIcon className="mb-3" />
+            <InfoOutlinedIcon className="my-auto" />
           </Tooltip>
         ) : null}
       </Box>

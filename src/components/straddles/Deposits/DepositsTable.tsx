@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { useState } from 'react';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
@@ -12,10 +11,10 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 
+import { useBoundStore } from 'store';
+
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { StraddlesContext } from 'contexts/Straddles';
 
 import WithdrawModal from '../Dialogs/Withdraw';
 
@@ -41,7 +40,8 @@ export const TableHeader = ({
 };
 
 const DepositsTable = () => {
-  const { straddlesUserData } = useContext(StraddlesContext);
+  const { straddlesUserData } = useBoundStore();
+
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
   const [selectedPositionNftIndex, setSelectedPositionNftIndex] = useState<
@@ -127,7 +127,7 @@ const DepositsTable = () => {
         </Table>
       </TableContainer>
       <Box className="flex">
-        {straddlesUserData?.writePositions!.length === 0 ? (
+        {straddlesUserData?.writePositions?.length === 0 ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
         ) : null}
       </Box>

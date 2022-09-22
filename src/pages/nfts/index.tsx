@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -6,10 +6,19 @@ import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import NftCard from 'components/nfts/components/NftCard';
 
-import { NftsContext, NftsProvider } from 'contexts/Nfts';
+import { useBoundStore } from 'store';
 
 const Nfts = () => {
-  const { nftsData } = useContext(NftsContext);
+  const { nftsData, updateUserNftsData, updateNftsData } = useBoundStore();
+
+  useEffect(() => {
+    updateUserNftsData();
+  }, [updateUserNftsData]);
+
+  useEffect(() => {
+    updateNftsData();
+  }, [updateNftsData]);
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -35,10 +44,6 @@ const Nfts = () => {
   );
 };
 
-const NftsPage = () => (
-  <NftsProvider>
-    <Nfts />
-  </NftsProvider>
-);
+const NftsPage = () => <Nfts />;
 
 export default NftsPage;

@@ -1,8 +1,6 @@
 import Head from 'next/head';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
-
-import { StraddlesProvider, StraddlesContext } from 'contexts/Straddles';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -14,6 +12,8 @@ import Deposits from 'components/straddles/Deposits';
 import Positions from 'components/straddles/Positions';
 import Manage from 'components/straddles/Manage';
 
+import { useBoundStore } from 'store';
+
 const SHOWCHARTS = false;
 
 interface Props {
@@ -21,11 +21,24 @@ interface Props {
 }
 
 const Straddles = ({ poolName }: Props) => {
-  const { setSelectedPoolName } = useContext(StraddlesContext);
+  const {
+    setSelectedPoolName,
+    updateStraddles,
+    updateStraddlesUserData,
+    updateStraddlesEpochData,
+  } = useBoundStore();
 
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
   }, [poolName, setSelectedPoolName]);
+
+  useEffect(() => {
+    updateStraddles().then(() =>
+      updateStraddlesEpochData().then(() => {
+        updateStraddlesUserData();
+      })
+    );
+  }, [updateStraddles, updateStraddlesEpochData, updateStraddlesUserData]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -102,11 +115,7 @@ export async function getServerSideProps(context: {
 }
 
 const ManagePage = ({ poolName }: Props) => {
-  return (
-    <StraddlesProvider>
-      <Straddles poolName={poolName} />
-    </StraddlesProvider>
-  );
+  return <Straddles poolName={poolName} />;
 };
 
 export default ManagePage;

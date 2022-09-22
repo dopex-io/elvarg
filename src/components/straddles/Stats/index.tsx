@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Countdown from 'react-countdown';
@@ -7,21 +7,27 @@ import Select from '@mui/material/Select';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
+import InfoBox from './InfoBox';
+
+import { useBoundStore } from 'store';
+
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { WalletContext } from 'contexts/Wallet';
-import { StraddlesContext } from 'contexts/Straddles';
-
-import InfoBox from './InfoBox';
-
 const Stats = () => {
-  const { chainId } = useContext(WalletContext);
-  const { selectedEpoch, setSelectedEpoch, straddlesEpochData, straddlesData } =
-    useContext(StraddlesContext);
+  const {
+    // Wallet
+    chainId,
+    // Straddles
+    selectedEpoch,
+    setSelectedEpoch,
+    straddlesEpochData,
+    updateStraddlesEpochData,
+    straddlesData,
+  } = useBoundStore();
 
   const currentEpoch = straddlesData?.currentEpoch || 0;
 
@@ -53,8 +59,9 @@ const Stats = () => {
   const handleSelectChange = useCallback(
     (e: { target: { value: any } }) => {
       if (setSelectedEpoch) setSelectedEpoch(Number(e.target.value));
+      updateStraddlesEpochData();
     },
-    [setSelectedEpoch]
+    [setSelectedEpoch, updateStraddlesEpochData]
   );
 
   const settlementPrice = useMemo(() => {
@@ -80,7 +87,7 @@ const Stats = () => {
   }
 
   return (
-    <Box className="md:flex text-gray-400 ">
+    <Box className="md:flex text-gray-400">
       <Box className="w-full">
         <Box className="border rounded-tl-lg border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
@@ -102,9 +109,12 @@ const Stats = () => {
                   },
                 },
               }}
+              classes={{
+                icon: 'text-white',
+              }}
               displayEmpty
               autoWidth
-              value={selectedEpoch! || 0}
+              value={selectedEpoch}
               onChange={handleSelectChange}
             >
               {epochs}
@@ -143,7 +153,7 @@ const Stats = () => {
             Funding %
           </Typography>
           <Typography variant="h6" className="text-white">
-            {straddlesEpochData?.aprFunding}%
+            {straddlesEpochData?.aprFunding.toString()}%
           </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">

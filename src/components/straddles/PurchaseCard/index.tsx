@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 
@@ -14,17 +8,15 @@ import Tooltip from '@mui/material/Tooltip';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { StraddlesContext } from 'contexts/Straddles';
-
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import PnlChart from '../PnlChart';
-
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 import InfoBox from '../infoBox';
+
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -32,15 +24,19 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import { MAX_VALUE } from 'constants/index';
 
 const PurchaseCard = () => {
-  const { chainId, accountAddress, signer, contractAddresses } =
-    useContext(WalletContext);
   const {
+    // Wallet
+    chainId,
+    accountAddress,
+    signer,
+    contractAddresses,
+    // Straddles
     selectedPoolName,
     straddlesEpochData,
     straddlesData,
     updateStraddlesEpochData,
     updateStraddlesUserData,
-  } = useContext(StraddlesContext);
+  } = useBoundStore();
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
@@ -48,7 +44,9 @@ const PurchaseCard = () => {
 
   const maxStraddlesCanBeBought = useMemo(() => {
     const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(
-      straddlesEpochData?.activeUsdDeposits.div('100000000000000000000')
+      BigNumber.from(straddlesEpochData?.activeUsdDeposits).div(
+        '100000000000000000000'
+      )
     );
 
     if (!availableUsdDeposits) return BigNumber.from(0);
@@ -225,7 +223,9 @@ const PurchaseCard = () => {
         <PnlChart
           optionPrice={totalCost}
           amount={amount}
-          price={straddlesEpochData?.currentPrice.div(1e8).toNumber()}
+          price={BigNumber.from(straddlesEpochData?.currentPrice)
+            .div(1e8)
+            .toNumber()}
           symbol={selectedPoolName}
         />
       </Box>

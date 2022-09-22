@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -16,14 +16,13 @@ import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { StraddlesContext } from 'contexts/Straddles';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 const PositionsTable = () => {
   const sendTx = useSendTx();
-  const { signer } = useContext(WalletContext);
-  const { straddlesUserData, straddlesData, updateStraddlesUserData } =
-    useContext(StraddlesContext);
+
+  const { signer, straddlesUserData, straddlesData, updateStraddlesUserData } =
+    useBoundStore();
 
   const handleExercise = useCallback(
     async (selectedPositionNftIndex: number) => {
@@ -112,7 +111,7 @@ const PositionsTable = () => {
         </Table>
       </TableContainer>
       <Box className="flex">
-        {straddlesUserData?.straddlePositions!.length === 0 ? (
+        {straddlesUserData?.straddlePositions?.length === 0 ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
         ) : null}
       </Box>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { BigNumber, utils } from 'ethers';
 import {
   ERC20__factory,
@@ -18,12 +18,8 @@ import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/Button';
 
-import { WalletContext } from 'contexts/Wallet';
-import {
-  VeDPXContext,
-  vedpxAddress,
-  vedpxYieldDistributorAddress,
-} from 'contexts/VeDPX';
+import { useBoundStore } from 'store';
+import { vedpxAddress, vedpxYieldDistributorAddress } from 'store/VeDPX';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -62,9 +58,13 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer } = useContext(WalletContext);
-  const { userData, data, updateData, updateUserData } =
-    useContext(VeDPXContext);
+  const { signer } = useBoundStore();
+  const {
+    userVedpxData: userData,
+    vedpxData: data,
+    updateVedpxData: updateData,
+    updateUserVedpxData: updateUserData,
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 

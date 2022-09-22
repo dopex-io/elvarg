@@ -9,8 +9,8 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
+import { useBoundStore } from 'store';
 import { OtcContext } from 'contexts/Otc';
-import { WalletContext } from 'contexts/Wallet';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -40,7 +40,7 @@ const Withdraw = ({ open, handleClose, data }: WithdrawProps) => {
   const sendTx = useSendTx();
 
   const { escrow } = useContext(OtcContext);
-  const { signer } = useContext(WalletContext);
+  const { signer } = useBoundStore();
 
   const handleWithdraw = useCallback(async () => {
     await sendTx(

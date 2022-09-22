@@ -24,7 +24,7 @@ import CustomButton from 'components/UI/Button';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
 import { OtcContext } from 'contexts/Otc';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -42,7 +42,7 @@ interface BidDialogProps {
 const Bid = ({ open, handleClose, data, id }: BidDialogProps) => {
   const sendTx = useSendTx();
   const { user, escrowData, loaded } = useContext(OtcContext);
-  const { accountAddress, provider, signer } = useContext(WalletContext);
+  const { accountAddress, provider, signer } = useBoundStore();
 
   const [ongoingBids, setOngoingBids] = useState<any[]>([]);
   const [disabled, setDisabled] = useState<boolean>(false);

@@ -1,20 +1,12 @@
-import {
-  createContext,
-  useState,
-  useContext,
-  useCallback,
-  useEffect,
-  ReactNode,
-} from 'react';
+import { StateCreator } from 'zustand';
 import {
   ERC20__factory,
   VeDPXYieldDistributor__factory,
   DPXVotingEscrow__factory,
 } from '@dopex-io/sdk';
 import { BigNumber, utils as ethersUtils } from 'ethers';
-import noop from 'lodash/noop';
 
-import { WalletContext } from './Wallet';
+import { WalletSlice } from 'store/Wallet';
 
 export const vedpxAddress = '0x80789D252A288E93b01D82373d767D71a75D9F16';
 
@@ -38,11 +30,11 @@ interface userVedpxData {
   userIsInitialized: boolean;
 }
 
-interface VeDPXContextInterface {
-  data: vedpxData;
-  userData: userVedpxData;
-  updateData: Function;
-  updateUserData: Function;
+export interface VeDPXSlice {
+  vedpxData: vedpxData;
+  userVedpxData: userVedpxData;
+  updateVedpxData: Function;
+  updateUserVedpxData: Function;
 }
 
 const initialData = {
@@ -62,20 +54,17 @@ const initialUserData = {
   userIsInitialized: true,
 };
 
-export const VeDPXContext = createContext<VeDPXContextInterface>({
-  data: initialData,
-  userData: initialUserData,
-  updateData: noop,
-  updateUserData: noop,
-});
+export const createVedpxSlice: StateCreator<
+  VeDPXSlice & WalletSlice,
+  [['zustand/devtools', never]],
+  [],
+  VeDPXSlice
+> = (set, get) => ({
+  vedpxData: initialData,
+  userVedpxData: initialUserData,
+  updateVedpxData: async () => {
+    const { provider } = get();
 
-export const VeDPXProvider = (props: { children: ReactNode }) => {
-  const { provider, accountAddress } = useContext(WalletContext);
-
-  const [data, setData] = useState<vedpxData>(initialData);
-  const [userData, setUserData] = useState<userVedpxData>(initialUserData);
-
-  const updateData = useCallback(async () => {
     if (!provider) return;
     const dpx = ERC20__factory.connect(
       '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
@@ -104,20 +93,21 @@ export const VeDPXProvider = (props: { children: ReactNode }) => {
 
     const apy = ((dpxEmittedInAYear / totalDpx) * 100).toString();
 
-    setData({
-      vedpxTotalSupply,
-      dpxLocked,
-      totalVeDPXParticipating,
-      dailyDpxEmission,
-      apy,
-    });
-  }, [provider]);
+    set((prevState) => ({
+      ...prevState,
+      vedpxData: {
+        ...prevState.vedpxData,
+        vedpxTotalSupply,
+        dpxLocked,
+        totalVeDPXParticipating,
+        dailyDpxEmission,
+        apy,
+      },
+    }));
+  },
+  updateUserVedpxData: async () => {
+    const { accountAddress, provider } = get();
 
-  useEffect(() => {
-    updateData();
-  }, [updateData]);
-
-  const updateUserData = useCallback(async () => {
     if (!accountAddress) return;
     const dpx = ERC20__factory.connect(
       '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
@@ -140,25 +130,17 @@ export const VeDPXProvider = (props: { children: ReactNode }) => {
         vedpxYieldDistributor.userIsInitialized(accountAddress),
       ]);
 
-    setUserData({
-      vedpxBalance,
-      dpxBalance,
-      dpxEarned,
-      userIsInitialized,
-      lockedDpxBalance: locked.amount,
-      lockEnd: locked.end,
-    });
-  }, [accountAddress, provider]);
-
-  useEffect(() => {
-    updateUserData();
-  }, [updateUserData]);
-
-  let contextValue = { userData, data, updateData, updateUserData };
-
-  return (
-    <VeDPXContext.Provider value={contextValue}>
-      {props.children}
-    </VeDPXContext.Provider>
-  );
-};
+    set((prevState) => ({
+      ...prevState,
+      userVedpxData: {
+        ...prevState.userVedpxData,
+        vedpxBalance,
+        dpxBalance,
+        dpxEarned,
+        userIsInitialized,
+        lockedDpxBalance: locked.amount,
+        lockEnd: locked.end,
+      },
+    }));
+  },
+});

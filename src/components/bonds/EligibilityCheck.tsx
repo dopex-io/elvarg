@@ -1,19 +1,21 @@
-import { useMemo, useContext, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { BigNumber } from 'ethers';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import { DpxBondsContext } from 'contexts/Bonds';
 import SearchIcon from '@mui/icons-material/Search';
-import { WalletContext } from 'contexts/Wallet';
 import Chip from '@mui/material/Chip';
-import Input from 'components/UI/Input';
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import Tooltip from '@mui/material/Tooltip';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+
+import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+
+import { useBoundStore } from 'store';
 
 export interface EligibilityCheckProps {
   eligibilityModal: boolean;
@@ -51,16 +53,19 @@ export const EligibilityCheck = ({
   const [eligible, setEligible] = useState(true);
   const [showIcon, setShowIcon] = useState(false);
 
-  const { accountAddress, connect } = useContext(WalletContext);
-
-  const { dpxBondsUserEpochData, dpxBondsData, getDepositsPerNftId } =
-    useContext(DpxBondsContext);
+  const {
+    accountAddress,
+    connect,
+    dpxBondsUserEpochData,
+    dpxBondsData,
+    getDepositsPerNftId,
+  } = useBoundStore();
 
   const { bridgoorNftBalance, bridgoorNftIds, epoch } = dpxBondsData;
   const { usableNfts } = dpxBondsUserEpochData;
 
   const usableNftsFormatted = useMemo(() => {
-    return usableNfts.map((nftId) => nftId.toNumber());
+    return usableNfts.map((nftId: BigNumber) => nftId.toNumber());
   }, [usableNfts]);
 
   const handleWalletConnect = useCallback(() => {

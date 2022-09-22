@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Typography from 'components/UI/Typography';
 
 import { UserBonds } from './UserBonds';
@@ -6,11 +6,16 @@ import { ModalBonds } from './ModalBonds';
 import { EligibilityCheck } from './EligibilityCheck';
 import { EpochData } from './EpochData';
 
-import { DpxBondsProvider } from 'contexts/Bonds';
-import { DpxBondsContext } from 'contexts/Bonds';
+import { useBoundStore } from 'store';
 
 export const Bonds = () => {
-  const { dpxBondsData, updateEpochData } = useContext(DpxBondsContext);
+  const {
+    signer,
+    provider,
+    contractAddresses,
+    updateBondsContracts,
+    updateBondsData,
+  } = useBoundStore();
 
   const [modalOpen, setModal] = useState(false);
   const [eligibilityModal, setEligibilityModal] = useState(false);
@@ -23,8 +28,15 @@ export const Bonds = () => {
   };
 
   useEffect(() => {
-    updateEpochData!(dpxBondsData.epoch);
-  }, [updateEpochData, dpxBondsData.epoch]);
+    updateBondsContracts();
+    updateBondsData();
+  }, [
+    contractAddresses,
+    provider,
+    signer,
+    updateBondsContracts,
+    updateBondsData,
+  ]);
 
   return (
     <>
@@ -44,9 +56,5 @@ export const Bonds = () => {
 };
 
 export default function BondsPage() {
-  return (
-    <DpxBondsProvider>
-      <Bonds />
-    </DpxBondsProvider>
-  );
+  return <Bonds />;
 }

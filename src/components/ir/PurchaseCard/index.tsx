@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-} from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -32,9 +26,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
-import { RateVaultContext } from 'contexts/RateVault';
+import { useBoundStore } from 'store';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -56,18 +48,21 @@ const PurchaseCard = ({
   setStrikeIndex,
   poolName,
 }: Props) => {
-  const rateVaultContext = useContext(RateVaultContext);
   const {
+    accountAddress,
+    provider,
+    chainId,
+    signer,
+    contractAddresses,
+    updateAssetBalances,
+    tokenPrices,
+    rateVaultData,
     rateVaultEpochData,
     updateRateVaultEpochData,
     updateRateVaultUserData,
-  } = rateVaultContext;
+  } = useBoundStore();
 
-  const { updateAssetBalances, tokenPrices } = useContext(AssetsContext);
-  const { accountAddress, provider, chainId, signer, contractAddresses } =
-    useContext(WalletContext);
-
-  const { epochTimes } = rateVaultContext!.rateVaultEpochData!;
+  const { epochTimes } = rateVaultEpochData!;
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(epochTimes[1].toNumber() * 1000);
@@ -81,26 +76,22 @@ const PurchaseCard = ({
   );
 
   const userEpochStrikePurchasableAmount: number = useMemo(() => {
-    if (!rateVaultContext.rateVaultEpochData) return 0;
+    if (!rateVaultEpochData) return 0;
 
     let available, deposits;
 
     if (activeVaultContextSide === 'CALL') {
-      deposits = rateVaultContext.rateVaultEpochData.callsDeposits[strikeIndex];
+      deposits = rateVaultEpochData.callsDeposits[strikeIndex];
       if (deposits)
-        available = deposits.sub(
-          rateVaultContext.rateVaultEpochData.totalCallsPurchased
-        );
+        available = deposits.sub(rateVaultEpochData.totalCallsPurchased);
     } else if (activeVaultContextSide === 'PUT') {
-      deposits = rateVaultContext.rateVaultEpochData.putsDeposits[strikeIndex];
+      deposits = rateVaultEpochData.putsDeposits[strikeIndex];
       if (deposits)
-        available = deposits.sub(
-          rateVaultContext.rateVaultEpochData.totalPutsPurchased
-        );
+        available = deposits.sub(rateVaultEpochData.totalPutsPurchased);
     }
 
     return getUserReadableAmount(available || BigNumber.from('0'), 18);
-  }, [strikeIndex, activeVaultContextSide, rateVaultContext]);
+  }, [strikeIndex, activeVaultContextSide, rateVaultEpochData]);
 
   const [rawNotionalSize, setRawNotionalSize] = useState<string>('1000');
 
@@ -216,15 +207,11 @@ const PurchaseCard = ({
   }, [sendTx, signer, spender, contractAddresses, purchaseTokenName]);
 
   const handlePurchase = useCallback(async () => {
-    if (
-      !rateVaultContext.rateVaultData ||
-      !updateRateVaultEpochData ||
-      !updateRateVaultUserData
-    )
+    if (!rateVaultData || !updateRateVaultEpochData || !updateRateVaultUserData)
       return;
 
     await sendTx(
-      rateVaultContext.rateVaultData.rateVaultContract
+      rateVaultData.rateVaultContract
         .connect(signer)
         .purchase(
           strikeIndex,
@@ -239,7 +226,7 @@ const PurchaseCard = ({
     updateRateVaultUserData();
   }, [
     accountAddress,
-    rateVaultContext,
+    rateVaultData,
     activeVaultContextSide,
     notionalSize,
     sendTx,

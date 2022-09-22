@@ -1,4 +1,4 @@
-import { useMemo, useState, useContext } from 'react';
+import { useMemo, useState } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
@@ -6,8 +6,8 @@ import format from 'date-fns/format';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { WalletContext } from 'contexts/Wallet';
-import { SsovV3EpochData, SsovV3Data } from 'contexts/SsovV3';
+import { SsovV3EpochData, SsovV3Data } from 'store/Vault/ssov';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
@@ -27,7 +27,7 @@ const Description = ({
   ssovEpochData: SsovV3EpochData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useContext(WalletContext);
+  const { accountAddress, connect } = useBoundStore();
 
   const { APY, TVL } = ssovEpochData;
 
