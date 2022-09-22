@@ -97,7 +97,7 @@ export default function Deposits() {
           ) : (
             <Box className="py-2">
               <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
-                <Box className="col-span-1 text-left">
+                <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Asset</span>
                   </Typography>
@@ -139,7 +139,7 @@ export default function Deposits() {
                   className="grid grid-cols-12 px-4 pt-2 pb-4"
                   gap={0}
                 >
-                  <Box className="col-span-1 text-left flex">
+                  <Box className="col-span-2 text-left flex">
                     <img
                       src={`/images/tokens/${deposit.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"

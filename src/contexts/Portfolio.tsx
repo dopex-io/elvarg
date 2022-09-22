@@ -47,6 +47,7 @@ export interface UserSSOVDeposit {
   strike: string;
   link: string;
   vaultType: string;
+  owner: string;
 }
 
 export interface PortfolioData {
@@ -72,7 +73,8 @@ export const PortfolioContext = createContext<PortfolioContextInterface>({
 });
 
 export const PortfolioProvider = (props: { children: ReactNode }) => {
-  const { accountAddress, provider } = useContext(WalletContext);
+  const { provider } = useContext(WalletContext);
+  const accountAddress = '0xb86737F3b14dE6eB7970e2D440B0ad91cb008133';
   const [portfolioData, setPortfolioData] =
     useState<PortfolioData>(initialPortfolioData);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -92,6 +94,8 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
     const deposits: UserSSOVDeposit[] = [];
     const positions: UserPosition[] = [];
 
+    console.log(data?.userSSOVDeposit);
+
     for (let i in data?.userSSOVDeposit) {
       const ssov = SsovV3__factory.connect(
         data.userSSOVDeposit[i].ssov.id,
@@ -101,17 +105,27 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
       const isPut = await ssov.isPut();
       const assetName = await ssov.underlyingSymbol();
 
-      deposits.push({
-        epoch: data.userSSOVDeposit[i].epoch,
-        strike: data.userSSOVDeposit[i].strike,
-        amount: data.userSSOVDeposit[i].amount,
-        ssovAddress: data.userSSOVDeposit[i].ssov.id,
-        assetName: assetName,
-        isPut: isPut,
-        ssovName: ssovName,
-        link: getLinkFromVaultName(ssovName),
-        vaultType: 'SSOV',
-      });
+      const tokenId = data.userSSOVOptionBalance[i].id.split('#')[1];
+
+      try {
+        // if not exists then it has been withdrawn
+        const owner = await ssov.ownerOf(tokenId);
+
+        deposits.push({
+          epoch: data.userSSOVDeposit[i].epoch,
+          strike: data.userSSOVDeposit[i].strike,
+          amount: data.userSSOVDeposit[i].amount,
+          ssovAddress: data.userSSOVDeposit[i].ssov.id,
+          assetName: assetName,
+          isPut: isPut,
+          ssovName: ssovName,
+          link: getLinkFromVaultName(ssovName),
+          vaultType: 'SSOV',
+          owner: owner,
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     for (let i in data?.userSSOVOptionBalance) {
@@ -135,7 +149,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         let settlementPrice = epochData['settlementPrice'];
 
         if (settlementPrice.eq(0))
-          settlementPrice = epochData['collateralExchangeRate'];
+          settlementPrice = await ssov.getUnderlyingPrice();
 
         const strike = data.userSSOVOptionBalance[i].strike;
 
@@ -144,7 +158,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         const pnl =
           Math.abs(
             getUserReadableAmount(strike, 8) -
-              getUserReadableAmount(settlementPrice, 6)
+              getUserReadableAmount(settlementPrice, 8)
           ) * getUserReadableAmount(amount, 18);
 
         positions.push({

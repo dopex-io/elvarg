@@ -19,11 +19,11 @@ const Portfolio = () => {
           className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 lg:grid lg:grid-cols-12"
           gap={0}
         >
-          <Box className="ml-10 mt-20 hidden lg:block lg:col-span-2">
+          <Box className="ml-10 mt-20 hidden lg:block md:col-span-3">
             <Sidebar />
           </Box>
 
-          <Box gridColumn="span 10" className="mt-10 lg:mb-20 lg:pl-5 lg:pr-5">
+          <Box gridColumn="span 9" className="mt-10 lg:mb-20 lg:pl-5 lg:pr-5">
             <Box>
               <Positions />
             </Box>

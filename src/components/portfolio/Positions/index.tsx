@@ -98,7 +98,7 @@ export default function Positions() {
           ) : (
             <Box className="py-2">
               <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
-                <Box className="col-span-1 text-left">
+                <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Asset</span>
                   </Typography>
@@ -139,13 +139,13 @@ export default function Positions() {
                   </Typography>
                 </Box>
 
-                <Box className="col-span-1 text-left">
+                <Box className="col-span-2 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Expiry</span>
                   </Typography>
                 </Box>
 
-                <Box className="col-span-2 text-left">
+                <Box className="col-span-1 text-left">
                   <Typography variant="h5">
                     <span className="text-stieglitz">Action</span>
                   </Typography>
@@ -157,7 +157,7 @@ export default function Positions() {
                   className="grid grid-cols-12 px-4 pt-2 pb-4"
                   gap={0}
                 >
-                  <Box className="col-span-1 text-left flex">
+                  <Box className="col-span-2 text-left flex">
                     <img
                       src={`/images/tokens/${position.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"
@@ -233,7 +233,7 @@ export default function Positions() {
                     </Typography>
                   </Box>
 
-                  <Box className="col-span-1 text-left flex">
+                  <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.expiry}</span>
                     </Typography>
