@@ -284,7 +284,6 @@ export const OlpProvider = (props: { children: ReactNode }) => {
   }, [updateOlpUserData, updateOlpEpochData]);
 
   const contextValue = {
-    olpContract,
     olpData,
     olpEpochData,
     olpUserData,

@@ -5,7 +5,7 @@ import DepositCard from 'components/straddles/DepositCard';
 import PurchaseCard from 'components/straddles/PurchaseCard';
 
 const Manage = () => {
-  const [activeTab, setActiveTab] = useStates<string>('Deposit');
+  const [activeTab, setActiveTab] = useState<string>('Deposit');
 
   return (
     <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">

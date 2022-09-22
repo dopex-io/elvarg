@@ -6,11 +6,7 @@ import { Typography, CustomButton } from 'components/UI';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import formatAmount from 'utils/general/formatAmount';
-import {
-  DEFAULT_TOKEN_DECIMALS,
-  DEFAULT_OPTION_TOKEN_DECIMALS,
-  DEFAULT_USD_DECIMALS,
-} from 'constants/index';
+import { DEFAULT_TOKEN_DECIMALS, DEFAULT_USD_DECIMALS } from 'constants/index';
 
 export default function FillPositionDialog(props: any) {
   function fillLpWord(handleClose: Function) {
@@ -28,7 +24,7 @@ export default function FillPositionDialog(props: any) {
     );
   }
 
-  function lpInfo(strike: number, strikeTokenName: string) {
+  function lpInfo(strikeTokenName: string) {
     return (
       <Box>
         <Typography variant="h6" className="text-sm">
@@ -163,7 +159,7 @@ export default function FillPositionDialog(props: any) {
   return (
     <Box className="bg-cod-gray rounded-2xl p-4 pr-3">
       {fillLpWord(props.handleClose)}
-      {lpInfo(props.strike, props.strikeTokenName)}
+      {lpInfo(props.strikeTokenName)}
       {getOptionTokenAmountBalance(
         props.userUsdBalance,
         props.numTokensProvided,
