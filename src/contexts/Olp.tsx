@@ -63,7 +63,7 @@ export interface OlpStrikeTokensInterface {
 }
 
 interface OlpContextInterface {
-  olpContract?: OptionLP;
+  olpContract?: OptionLP | null;
   olpData?: OlpDataInterface;
   olpEpochData?: OlpEpochDataInterface;
   olpUserData?: OlpUserDataInterface;
@@ -111,6 +111,7 @@ const initOlpUserData = {
 };
 
 export const OlpContext = createContext<OlpContextInterface>({
+  olpContract: null,
   olpData: initOlpData,
   olpEpochData: initOlpEpochData,
   olpUserData: initOlpUserData,
@@ -267,6 +268,7 @@ export const OlpProvider = (props: { children: ReactNode }) => {
   }, [updateOlpUserData, updateOlpEpochData]);
 
   const contextValue = {
+    olpContract,
     olpData,
     olpEpochData,
     olpUserData,
