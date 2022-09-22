@@ -16,19 +16,20 @@ const SsovV3Page = (props: { ssov: string }) => {
   const { ssov } = props;
 
   useEffect(() => {
-    updateSsovV3Signer().then(() => {
-      updateSsovV3().then(() => {
-        updateSsovV3EpochData();
-        updateSsovV3UserData();
-      });
-    });
-  }, [
-    signer,
-    updateSsovV3,
-    updateSsovV3EpochData,
-    updateSsovV3Signer,
-    updateSsovV3UserData,
-  ]);
+    updateSsovV3Signer();
+  }, [signer, updateSsovV3Signer]);
+
+  useEffect(() => {
+    updateSsovV3();
+  }, [updateSsovV3]);
+
+  useEffect(() => {
+    updateSsovV3EpochData();
+  }, [updateSsovV3EpochData]);
+
+  useEffect(() => {
+    updateSsovV3UserData();
+  }, [updateSsovV3UserData]);
 
   return <Manage ssov={ssov} />;
 };
