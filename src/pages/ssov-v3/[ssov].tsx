@@ -6,6 +6,7 @@ import { useBoundStore } from 'store';
 
 const SsovV3Page = (props: { ssov: string }) => {
   const {
+    signer,
     updateSsovV3,
     updateSsovV3Signer,
     updateSsovV3UserData,
@@ -16,7 +17,7 @@ const SsovV3Page = (props: { ssov: string }) => {
 
   useEffect(() => {
     updateSsovV3Signer();
-  }, [updateSsovV3Signer]);
+  }, [signer, updateSsovV3Signer]);
 
   useEffect(() => {
     updateSsovV3();
