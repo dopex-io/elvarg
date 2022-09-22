@@ -32,6 +32,7 @@ import formatAmount from 'utils/general/formatAmount';
 import isNativeSsov from 'utils/contracts/isNativeSsov';
 import getTotalEpochPremium from 'utils/contracts/ssov-p/getTotalEpochPremium';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
+import { useBoundStore } from 'store';
 
 export interface Ssov {
   token?: string;
@@ -108,7 +109,7 @@ export const SsovContext = createContext<SsovContextInterface>({
 
 export const SsovProvider = (props) => {
   const { accountAddress, contractAddresses, provider, signer } =
-    useContext(WalletContext);
+    useBoundStore();
 
   const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [selectedSsov, setSelectedSsov] = useState<{

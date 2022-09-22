@@ -10,77 +10,71 @@ export const CURRENCIES_MAP: { [key: string]: string } = {
   '1088': 'METIS',
 };
 
-export const SSOV_MAP = {
+export const SSOV_MAP: {
+  [key: string]: {
+    tokenSymbol: string;
+    imageSrc: string;
+    tokens: string[];
+  };
+} = {
   DPX: {
     tokenSymbol: 'DPX',
     imageSrc: '/images/tokens/dpx.svg',
-    coinGeckoId: 'dopex',
     tokens: ['DPX'],
   },
   RDPX: {
     tokenSymbol: 'RDPX',
     imageSrc: '/images/tokens/rdpx.svg',
-    coinGeckoId: 'dopex-rebate-token',
     tokens: ['RDPX'],
   },
   ETH: {
     tokenSymbol: 'ETH',
     imageSrc: '/images/tokens/eth.svg',
-    coinGeckoId: 'ethereum',
     tokens: ['WETH'],
   },
   PLS: {
     tokenSymbol: 'PLS',
     imageSrc: '/images/tokens/pls.svg',
-    coinGeckoId: 'plutusdao',
     tokens: ['PLS'],
   },
   BNB: {
     tokenSymbol: 'BNB',
     imageSrc: '/images/tokens/bnb.svg',
-    coinGeckoId: 'binancecoin',
     tokens: ['WBNB', 'VBNB'],
   },
   GOHM: {
     tokenSymbol: 'GOHM',
     imageSrc: '/images/tokens/gohm.svg',
-    coinGeckoId: 'governance-ohm',
     tokens: ['GOHM'],
   },
   GMX: {
     tokenSymbol: 'GMX',
     imageSrc: '/images/tokens/gmx.svg',
-    coinGeckoId: 'gmx',
     tokens: ['GMX'],
   },
   AVAX: {
     tokenSymbol: 'AVAX',
     imageSrc: '/images/tokens/avax.svg',
-    coiGeckoId: 'avalanche-2',
     tokens: ['AVAX'],
   },
   BTC: {
     tokenSymbol: 'BTC',
     imageSrc: '/images/tokens/btc.svg',
-    coiGeckoId: 'bitcoin',
     tokens: ['BTC'],
   },
   CRV: {
     tokenSymbol: 'CRV',
     imageSrc: '/images/tokens/crv.svg',
-    coiGeckoId: 'curve-dao-token',
     tokens: ['CRV'],
   },
   LUNA: {
     tokenSymbol: 'LUNA',
     imageSrc: '/images/tokens/luna.svg',
-    coiGeckoId: 'terra-luna',
     tokens: ['LUNA'],
   },
   METIS: {
     tokenSymbol: 'METIS',
     imageSrc: '/images/tokens/metis.svg',
-    coinGeckoId: 'metis',
     tokens: ['METIS'],
   },
 };
