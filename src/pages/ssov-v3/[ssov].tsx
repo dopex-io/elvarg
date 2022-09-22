@@ -7,6 +7,8 @@ import { useBoundStore } from 'store';
 const SsovV3Page = (props: { ssov: string }) => {
   const {
     signer,
+    ssovData,
+    ssovEpochData,
     updateSsovV3,
     updateSsovV3Signer,
     updateSsovV3UserData,
@@ -24,12 +26,14 @@ const SsovV3Page = (props: { ssov: string }) => {
   }, [updateSsovV3]);
 
   useEffect(() => {
+    if (!ssovData) return;
     updateSsovV3EpochData();
-  }, [updateSsovV3EpochData]);
+  }, [ssovData, updateSsovV3EpochData]);
 
   useEffect(() => {
+    if (!ssovEpochData) return;
     updateSsovV3UserData();
-  }, [updateSsovV3UserData]);
+  }, [ssovEpochData, updateSsovV3UserData]);
 
   return <Manage ssov={ssov} />;
 };
