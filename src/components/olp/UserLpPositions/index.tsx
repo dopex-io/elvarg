@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import {
   Table,
   Box,
@@ -9,24 +9,22 @@ import {
   TableCell,
 } from '@mui/material';
 import useSendTx from 'hooks/useSendTx';
-import { OlpContext } from 'contexts/Olp';
-import { WalletContext } from 'contexts/Wallet';
 import { Typography } from 'components/UI';
 import UserPositionsTable from './UserPositionsTable';
+import { useBoundStore } from 'store';
 
-// Displays current user's LpPosition info
-// Handles kill position functionality
-// Changes based on selected epoch and strike
 const UserLpPositions = () => {
   const sendTx = useSendTx();
-  const { signer } = useContext(WalletContext);
   const {
-    olpContract,
+    signer,
+    getOlpContract,
     olpData,
     olpUserData,
     selectedEpoch,
     updateOlpUserData,
-  } = useContext(OlpContext);
+  } = useBoundStore();
+
+  const olpContract = getOlpContract();
 
   const handleKill = useCallback(
     async (selectedIndex: number) => {

@@ -1,16 +1,8 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-} from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Modal } from '@mui/material';
 import { BigNumber } from 'ethers';
 import useSendTx from 'hooks/useSendTx';
-import { OlpContext } from 'contexts/Olp';
-import { WalletContext } from 'contexts/Wallet';
 import {
   getContractReadableAmount,
   getUserReadableAmount,
@@ -23,6 +15,8 @@ import {
 import FillPositionDialog from './FillPositionDialog';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
+import { useBoundStore } from 'store';
+
 const CHAIN_ID: number = 5;
 const PERCENT: number = 100;
 
@@ -33,16 +27,18 @@ export interface Props {
 
 const FillPosition = ({ open, handleClose }: Props) => {
   const sendTx = useSendTx();
-  const { accountAddress, signer } = useContext(WalletContext);
   const {
-    olpContract,
+    accountAddress,
+    signer,
+    getOlpContract,
     olpData,
     olpEpochData,
     updateOlpEpochData,
     updateOlpUserData,
     selectedPositionIdx,
-  } = useContext(OlpContext);
+  } = useBoundStore();
 
+  const olpContract = getOlpContract();
   const lpPositionSelected = useMemo(() => {
     return olpEpochData?.lpPositions[selectedPositionIdx!];
   }, [olpEpochData, selectedPositionIdx]);
@@ -231,7 +227,6 @@ const FillPosition = ({ open, handleClose }: Props) => {
         DEFAULT_USD_DECIMALS
       )
     )
-      // TODO: test this works
       return 'Insufficient liquidity';
     return 'Fill';
   }, [

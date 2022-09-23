@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Select, Box, Button, MenuItem } from '@mui/material';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
@@ -16,22 +16,24 @@ import {
   getExplorerUrl,
 } from 'utils/general';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { OptionTokenInfoInterface, OlpContext } from 'contexts/Olp';
+import { OptionTokenInfoInterface } from 'contexts/Olp';
+import { useBoundStore } from 'store';
 
 const CHAIN_ID = 5;
 
 const Stats = () => {
   const {
+    getOlpContract,
     olpData,
     olpEpochData,
-    olpContract,
-    selectedIsPut,
     selectedEpoch,
+    selectedIsPut,
+    updateOlpEpochData,
     setSelectedIsPut,
     setSelectedEpoch,
-    updateOlpEpochData,
-  } = useContext(OlpContext);
-  // const { chainId } = useContext(WalletContext);
+  } = useBoundStore();
+
+  const olpContract = getOlpContract();
 
   const expiries = useMemo(() => {
     if (!olpData?.expiries) return [];
@@ -45,10 +47,13 @@ const Stats = () => {
   }, [olpData?.expiries]);
 
   const handleSelectChange = useCallback(
-    (e: { target: { value: any } }) => {
-      if (setSelectedEpoch) setSelectedEpoch(Number(e.target.value));
+    async (e: { target: { value: any } }) => {
+      if (setSelectedEpoch) {
+        setSelectedEpoch(Number(e.target.value));
+        await updateOlpEpochData();
+      }
     },
-    [setSelectedEpoch]
+    [setSelectedEpoch, updateOlpEpochData]
   );
 
   function expiriesMenuBox(expiries: JSX.Element[]) {
@@ -92,50 +97,33 @@ const Stats = () => {
         <Typography variant="h6" className="text-gray-400 text-center">
           Total Liquidity Provided
         </Typography>
-        {zipWith(optionsInfo, strikes, function (info, strike) {
-          return (
-            <Box className="flex justify-between">
-              <Typography variant="h6" className="text-white text-right mt-3">
-                $
-                {formatAmount(
-                  getUserReadableAmount(strike, DEFAULT_STRIKE_DECIMALS),
-                  2
-                )}
-              </Typography>
-              <Typography variant="h6" className="text-white text-right mt-3">
-                $
-                {formatAmount(
-                  getUserReadableAmount(
-                    info.tokenLiquidity,
-                    DEFAULT_USD_DECIMALS
-                  )
-                )}
-              </Typography>
-            </Box>
-          );
-        })}
-        {/* {optionsInfo.map((info, idx) => {
-          return (
-            <Box key={idx} className="flex justify-between">
-              <Typography variant="h6" className="text-white text-right mt-3">
-                $
-                {formatAmount(
-                  getUserReadableAmount(info.strike, DEFAULT_STRIKE_DECIMALS),
-                  2
-                )}
-              </Typography>
-              <Typography variant="h6" className="text-white text-right mt-3">
-                $
-                {formatAmount(
-                  getUserReadableAmount(
-                    info.tokenLiquidity,
-                    DEFAULT_USD_DECIMALS
-                  )
-                )}
-              </Typography>
-            </Box>
-          );
-        })} */}
+        {zipWith(
+          optionsInfo,
+          strikes,
+          [...Array(strikes.length).keys()],
+          function (info, strike, idx) {
+            return (
+              <Box key={idx} className="flex justify-between">
+                <Typography variant="h6" className="text-white text-right mt-3">
+                  $
+                  {formatAmount(
+                    getUserReadableAmount(strike, DEFAULT_STRIKE_DECIMALS),
+                    2
+                  )}
+                </Typography>
+                <Typography variant="h6" className="text-white text-right mt-3">
+                  $
+                  {formatAmount(
+                    getUserReadableAmount(
+                      info.tokenLiquidity,
+                      DEFAULT_USD_DECIMALS
+                    )
+                  )}
+                </Typography>
+              </Box>
+            );
+          }
+        )}
       </Box>
     );
   }

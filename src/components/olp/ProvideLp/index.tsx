@@ -1,16 +1,8 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-} from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import { SelectChangeEvent } from '@mui/material/Select';
 import useSendTx from 'hooks/useSendTx';
-import { OlpContext } from 'contexts/Olp';
-import { WalletContext } from 'contexts/Wallet';
 import {
   getContractReadableAmount,
   getUserReadableAmount,
@@ -22,14 +14,18 @@ import {
 } from 'constants/index';
 import DepositPanel from './DepositPanel';
 
+import { useBoundStore } from 'store';
+
 // For Goerli test net
 const CHAIN_ID: number = 5;
 
 const ProvideLp = () => {
   const sendTx = useSendTx();
-  const { accountAddress, signer } = useContext(WalletContext);
+
   const {
-    olpContract,
+    accountAddress,
+    signer,
+    getOlpContract,
     olpData,
     olpEpochData,
     selectedIsPut,
@@ -37,7 +33,9 @@ const ProvideLp = () => {
     updateOlpUserData,
     setSelectedIsPut,
     setSelectedEpoch,
-  } = useContext(OlpContext);
+  } = useBoundStore();
+
+  const olpContract = getOlpContract();
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from(0)
   );
@@ -157,6 +155,7 @@ const ProvideLp = () => {
   // Message to display during deposit
   const depositButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
+    else if (olpEpochData?.isEpochExpired) return 'Expired';
     else if (depositAmount == 0) return 'Insert an amount';
     else if (
       depositAmount >
@@ -166,11 +165,10 @@ const ProvideLp = () => {
     else if (discountAmount < 0 || discountAmount >= 100)
       return 'Invalid discount amount';
     return 'Provide LP';
-  }, [approved, depositAmount, discountAmount, userTokenBalance]);
+  }, [approved, depositAmount, discountAmount, userTokenBalance, olpEpochData]);
 
   return (
     <DepositPanel
-      key={ProvideLp}
       strikeIdx={strikeIdx}
       handleSelectStrike={handleSelectStrike}
       strikes={getReadableStrikes}
@@ -179,7 +177,8 @@ const ProvideLp = () => {
       rawDepositAmount={rawDepositAmount}
       setRawDepositAmount={setRawDepositAmount}
       userTokenBalance={userTokenBalance}
-      expiry={olpData!.expiry}
+      expiry={olpEpochData?.expiry}
+      isEpochExpired={olpEpochData?.isEpochExpired}
       chainId={CHAIN_ID}
       approved={approved}
       depositAmount={depositAmount}

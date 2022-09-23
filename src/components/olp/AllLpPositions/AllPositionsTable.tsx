@@ -9,13 +9,13 @@ import FillPosition from '../FillPosition';
 interface Props {
   lpId: number;
   originalIdxBeforeSort: number;
-  option: string;
   strikePrice: BigNumber;
   liquidityProvided: BigNumber;
   liquidityUsed: BigNumber;
   discount: BigNumber;
   purchased: BigNumber;
   isFillModalOpen: boolean;
+  isEpochExpired: boolean;
   handleFill: Function;
   closeFillModal: Function;
 }
@@ -27,6 +27,7 @@ export default function AllPositionsTable(props: Props) {
     liquidityProvided,
     discount,
     isFillModalOpen,
+    isEpochExpired,
     handleFill,
     closeFillModal,
   } = props;
@@ -59,8 +60,9 @@ export default function AllPositionsTable(props: Props) {
       <TableCell align="center" className="pt-2">
         <CustomButton
           className="cursor-pointer text-white"
-          color="primary"
+          color={!isEpochExpired ? 'primary' : 'mineshaft'}
           onClick={() => handleFill(originalIdxBeforeSort)}
+          disabled={isEpochExpired}
         >
           Fill
         </CustomButton>

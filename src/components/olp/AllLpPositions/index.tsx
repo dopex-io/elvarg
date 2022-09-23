@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext, useMemo } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   Table,
   Box,
@@ -11,7 +11,7 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import { LpPositionInterface, OlpContext } from 'contexts/Olp';
+import { LpPositionInterface } from 'contexts/Olp';
 import { SelectChangeEvent } from '@mui/material/Select';
 import formatAmount from 'utils/general/formatAmount';
 import { DEFAULT_STRIKE_DECIMALS, ROWS_PER_PAGE } from 'constants/index';
@@ -19,16 +19,13 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { Typography, TablePaginationActions } from 'components/UI';
 import { BigNumber } from 'ethers';
 import AllPositionsTable from './AllPositionsTable';
+import { useBoundStore } from 'store';
 
 const AllLpPositions = () => {
-  const {
-    olpData,
-    olpEpochData,
-    selectedEpoch,
-    selectedStrikeIdx,
-    setSelectedStrikeIdx,
-    setSelectedPositionIdx,
-  } = useContext(OlpContext);
+  const { olpEpochData, selectedEpoch } = useBoundStore();
+
+  const [selectedStrikeIdx, setSelectedStrikeIdx] = useState(0);
+  const [_, setSelectedPositionIdx] = useState(0);
   const [isFillModalOpen, setIsFillModalOpen] = useState<boolean>(false);
   const [page, setPage] = useState(0);
 
@@ -208,13 +205,13 @@ const AllLpPositions = () => {
                       key={idx}
                       lpId={p.p.lpId.toNumber()}
                       originalIdxBeforeSort={p.idx}
-                      option={olpData!.tokenName}
                       strikePrice={p.p.strike}
                       liquidityProvided={p.p.liquidity}
                       liquidityUsed={p.p.liquidityUsed}
                       discount={p.p.discount}
                       purchased={p.p.purchased}
                       isFillModalOpen={isFillModalOpen}
+                      isEpochExpired={olpEpochData!.isEpochExpired!}
                       handleFill={() => handleFill(p.idx)}
                       closeFillModal={closeFillModal}
                     />

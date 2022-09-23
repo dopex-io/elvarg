@@ -133,26 +133,16 @@ export default function FillPositionDialog(props: any) {
   function approveDepositButton(
     approved: boolean,
     fillAmount: number,
-    userTokenBalance: number,
-    handleApprove: MouseEventHandler<HTMLButtonElement>,
-    handleFillPosition: MouseEventHandler<HTMLButtonElement>,
     fillButtonMessage: string,
-    usdToReceive: number,
-    liquidityAvailable: number
+    handleApprove: MouseEventHandler<HTMLButtonElement>,
+    handleFillPosition: MouseEventHandler<HTMLButtonElement>
   ) {
     return (
       <CustomButton
         size="medium"
         className="w-full !rounded-md"
         color={
-          !approved ||
-          (fillAmount > 0 &&
-            fillAmount <=
-              getUserReadableAmount(userTokenBalance, DEFAULT_TOKEN_DECIMALS) &&
-            usdToReceive <=
-              getUserReadableAmount(liquidityAvailable, DEFAULT_USD_DECIMALS))
-            ? 'primary'
-            : 'mineshaft'
+          !approved || fillButtonMessage === 'Fill' ? 'primary' : 'mineshaft'
         }
         disabled={fillAmount <= 0}
         onClick={approved ? handleFillPosition : handleApprove}
@@ -177,12 +167,9 @@ export default function FillPositionDialog(props: any) {
       {approveDepositButton(
         props.approved,
         props.fillAmount,
-        props.userTokenBalance,
-        props.handleApprove,
-        props.handleFillPosition,
         props.fillButtonMessage,
-        props.usdToReceive,
-        props.liquidity
+        props.handleApprove,
+        props.handleFillPosition
       )}
     </Box>
   );

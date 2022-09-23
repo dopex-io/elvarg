@@ -198,10 +198,10 @@ export default function DepositPanel(props: any) {
   function approveDepositButton(
     approved: boolean,
     amount: number,
-    userTokenBalance: number,
     handleApprove: MouseEventHandler<HTMLButtonElement>,
     handleDeposit: MouseEventHandler<HTMLButtonElement>,
-    depositButtonMessage: string
+    depositButtonMessage: string,
+    isEpochExpired: boolean
   ) {
     return (
       <Box className="mt-3">
@@ -210,13 +210,11 @@ export default function DepositPanel(props: any) {
           className="w-full !rounded-md"
           color={
             !approved ||
-            (amount > 0 &&
-              amount <=
-                getUserReadableAmount(userTokenBalance, DEFAULT_USD_DECIMALS))
+            (depositButtonMessage === 'Provide LP' && !isEpochExpired)
               ? 'primary'
               : 'mineshaft'
           }
-          disabled={amount <= 0}
+          disabled={amount <= 0 || isEpochExpired}
           onClick={approved ? handleDeposit : handleApprove}
         >
           {depositButtonMessage}
@@ -277,10 +275,10 @@ export default function DepositPanel(props: any) {
       {approveDepositButton(
         props.approved,
         props.depositAmount,
-        props.userTokenBalance,
         props.handleApprove,
         props.handleDeposit,
-        props.depositButtonMessage
+        props.depositButtonMessage,
+        props.isEpochExpired
       )}
     </Box>
   );

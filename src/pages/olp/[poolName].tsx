@@ -1,9 +1,6 @@
 import Head from 'next/head';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
-
-import { OlpProvider, OlpContext } from 'contexts/Olp';
-
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import AllLpPositions from 'components/olp/AllLpPositions';
@@ -12,16 +9,31 @@ import Stats from 'components/olp/Stats';
 import TopBar from 'components/olp/TopBar';
 import UserLpPositions from 'components/olp/UserLpPositions';
 
+import { useBoundStore } from 'store';
+
 interface Props {
   poolName: string;
 }
 
 const Olp = ({ poolName }: Props) => {
-  const { setSelectedPoolName } = useContext(OlpContext);
+  const {
+    setSelectedPoolName,
+    updateOlp,
+    updateOlpUserData,
+    updateOlpEpochData,
+  } = useBoundStore();
 
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
   }, [poolName, setSelectedPoolName]);
+
+  useEffect(() => {
+    updateOlp().then(() =>
+      updateOlpEpochData().then(() => {
+        updateOlpUserData();
+      })
+    );
+  }, [updateOlp, updateOlpEpochData, updateOlpUserData]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -73,11 +85,7 @@ export async function getServerSideProps(context: {
 }
 
 const ManagePage = ({ poolName }: Props) => {
-  return (
-    <OlpProvider>
-      <Olp poolName={poolName} />
-    </OlpProvider>
-  );
+  return <Olp poolName={poolName} />;
 };
 
 export default ManagePage;
