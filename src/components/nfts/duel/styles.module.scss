@@ -84,6 +84,25 @@
   cursor: not-allowed;
 }
 
+.pepeButtonFluid {
+  background: #43609a;
+  box-shadow: inset 2px 2px 0px #7193d6, inset -3px -3px 0px #213459;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+  width: 100%;
+  font-family: Minecraft, serif;
+  padding: 0.7rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  text-transform: uppercase;
+  z-index: 50;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @media (min-width: 700px) {
   .backgroundOverlay {
     position: absolute;
