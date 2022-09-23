@@ -1,4 +1,4 @@
-import { useMemo, useContext } from 'react';
+import React, { useMemo, useContext } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -149,6 +149,30 @@ const ActiveDuel = ({
           disabled={['forfeit', 'tie'].includes(duel['status'])}
         >
           {message}
+          {duel['status'] === 'requireReveal' ? (
+            <Countdown
+              date={
+                new Date(duel['challengedDate'].getTime() + 3600 * 12 * 1000)
+              }
+              renderer={({ days, hours, minutes }) => {
+                return (
+                  <Box className="flex">
+                    <img
+                      src="/assets/timer.svg"
+                      className="h-[0.9rem] mr-2 ml-1"
+                      alt="Timer"
+                    />
+                    <Typography
+                      variant="caption"
+                      className="ml-auto text-stieglitz mr-1"
+                    >
+                      {days}d {hours}h {minutes}m
+                    </Typography>
+                  </Box>
+                );
+              }}
+            />
+          ) : null}
         </button>
       </Box>
 

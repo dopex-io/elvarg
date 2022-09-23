@@ -9,8 +9,9 @@ import { BigNumber, ethers } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 
 import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
+import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
+import Select from '@mui/material/Select';
 import IconButton from '@mui/material/IconButton';
 import Checkbox from '@mui/material/Checkbox';
 
@@ -711,15 +712,20 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                   </IconButton>
                 </Box>
               </Box>
-              <Input
-                disableUnderline
-                placeholder="0"
-                type="number"
-                className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
+
+              <Select
+                className="h-8 text-md text-white ml-2 mr-3 mt-1 font-mono"
                 value={wager}
-                onChange={(e) => setWager(Number(e.target.value))}
-                classes={{ input: 'text-right' }}
-              />
+                label="Wager"
+                onChange={(event) => setWager(Number(event.target.value))}
+              >
+                <MenuItem value={'0.00001'}>0.00001 (to remove)</MenuItem>
+                <MenuItem value={'0.05'}>0.05</MenuItem>
+                <MenuItem value={'0.1'}>0.1</MenuItem>
+                <MenuItem value={'0.2'}>0.2</MenuItem>
+                <MenuItem value={'0.5'}>0.5</MenuItem>
+                <MenuItem value={'1'}>1</MenuItem>
+              </Select>
             </Box>
             <Box className="flex flex-row justify-between">
               <Box className="flex">
