@@ -107,10 +107,14 @@ const appLinks = {
     { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'Straddles', to: '/straddles/ETH' },
     { name: 'Options LP', to: '/olp' },
+    { name: 'Reverse Options LP', to: '/rolp' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
-  5: [{ name: 'OLP', to: '/olp/ETH' }],
+  5: [
+    { name: 'OLP', to: '/olp/ETH' },
+    { name: 'ROLP', to: '/rolp/ETH' },
+  ],
 };
 
 const menuLinks = [
@@ -139,6 +143,7 @@ interface AppBarProps {
     | 'Rate Vaults'
     | 'Straddles'
     | 'OLPs'
+    | 'ROLPs'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
