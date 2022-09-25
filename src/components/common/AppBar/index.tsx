@@ -70,7 +70,7 @@ const AppLink = ({
   } else {
     return (
       <Link href={to} passHref>
-        <Box className={linkClassName}>{name}</Box>
+        <a className={linkClassName}>{name}</a>
       </Link>
     );
   }
@@ -284,17 +284,17 @@ export default function AppBar(props: AppBarProps) {
                     return (
                       <AppLink
                         to={link.to}
-                        // TODO: FIX
-                        // @ts-ignore
-                        name={link.name}
+                        name={link.name!}
                         key={link.name}
                         active
                       />
                     );
                   return (
-                    // @TODO: FIX
-                    // @ts-ignore
-                    <AppLink to={link.to} name={link.name} key={link.name} />
+                    <AppLink
+                      to={link.to}
+                      name={String(link.name!)}
+                      key={link.name}
+                    />
                   );
                 }
               )}
