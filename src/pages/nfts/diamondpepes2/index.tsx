@@ -250,9 +250,9 @@ const DiamondPepesNfts = () => {
           <Box className="p-2 mt-7 md:flex">
             <Box className="md:w-1/3 p-4 text-center">
               <img
-                src={'/assets/pepe-header-1.png'}
+                src={'/assets/joypad-pepe.png'}
                 className="w-40 ml-auto mr-auto"
-                alt={'Pepe'}
+                alt={'Joypad'}
               />
               <img
                 src={'/assets/pledge-pepe-button.png'}
@@ -263,11 +263,9 @@ const DiamondPepesNfts = () => {
                 variant="h4"
                 className="text-[#78859E] font-['Minecraft'] relative z-1 mt-7"
               >
-                “A [redacted] always repays his debts.”
-                <br />
-                <br />
-                Everyone who participated in the pledge event will be getting a
-                free Gen 2 sent to their wallets.
+                {
+                  'To learn how to mint, read through the "How to mint" and "UI Walkthrough" Explainers'
+                }
               </Typography>
 
               <Box className={'flex mt-6'}>
@@ -277,7 +275,7 @@ const DiamondPepesNfts = () => {
                   alt={'Export'}
                   onClick={() =>
                     window.location.replace(
-                      'https://app.dopex.io/nfts/diamondpepes'
+                      'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint'
                     )
                   }
                 />
@@ -286,17 +284,85 @@ const DiamondPepesNfts = () => {
                   className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2 cursor-pointer"
                   onClick={() =>
                     window.location.replace(
-                      'https://app.dopex.io/nfts/diamondpepes'
+                      'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint'
                     )
                   }
                 >
-                  <span className={styles['pepeLink']!}>Pledge Event</span>
+                  <span className={styles['pepeLink']!}>How to Mint</span>
+                </Typography>
+
+                <img
+                  src="/assets/pepe-tweet.png"
+                  className="w-6 h-5 ml-auto cursor-pointer"
+                  alt="Pepe tweet"
+                  onClick={() =>
+                    window.location.replace(
+                      'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough'
+                    )
+                  }
+                />
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2 cursor-pointer"
+                  onClick={() =>
+                    window.location.replace(
+                      'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough'
+                    )
+                  }
+                >
+                  <span className={styles['pepeLink']!}>UI Walkthrough</span>
                 </Typography>
               </Box>
             </Box>
             <Box className="md:w-1/3 p-4 text-center">
               <img
                 src={'/assets/hand-pepe.png'}
+                className="w-36 ml-auto mr-auto mt-9 mb-14"
+                alt={'Pepe'}
+              />
+              <img
+                src={'/assets/lootbox-button.png'}
+                className="w-56 z-50 mt-12 ml-auto mr-auto cursor-pointer"
+                alt={'Duel Pepe'}
+                onClick={() =>
+                  window.location.replace(
+                    'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox'
+                  )
+                }
+              />
+              <Typography
+                variant="h4"
+                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-7"
+                onClick={() =>
+                  window.location.replace(
+                    'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox'
+                  )
+                }
+              >
+                There will be 333 lootboxes up for grabs for our quickest
+                minters.
+                <br />
+                <br />
+                Read here to learn how to claim!
+              </Typography>
+
+              <Box className={'flex mt-6'}>
+                <img
+                  src="/assets/export.svg"
+                  className="w-5 ml-auto cursor-pointer"
+                  alt="Export"
+                />
+                <Typography
+                  variant="h5"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2 cursor-pointer"
+                >
+                  <span className={styles['pepeLink']!}>How to claim</span>
+                </Typography>
+              </Box>
+            </Box>
+            <Box className="md:w-1/3 p-4 text-center">
+              <img
+                src={'/assets/pepe-header-1.png'}
                 className="w-32 ml-auto mr-auto"
                 alt={'Pepe'}
               />
@@ -351,40 +417,6 @@ const DiamondPepesNfts = () => {
                   }
                 >
                   <span className={styles['pepeLink']!}>DIAMOND PEPES</span>
-                </Typography>
-              </Box>
-            </Box>
-            <Box className="md:w-1/3 p-4 text-center">
-              <img
-                src={'/assets/joypad-pepe.png'}
-                className="w-36 ml-auto mr-auto mt-9 mb-14"
-                alt={'Joypad'}
-              />
-              <img
-                src={'/assets/duel-pepe-button.png'}
-                className="w-56 z-50 mt-12 ml-auto mr-auto cursor-pointer"
-                alt={'Duel Pepe'}
-              />
-              <Typography
-                variant="h4"
-                className="text-[#78859E] font-['Minecraft'] relative z-1 mt-7"
-              >
-                Get Early Access to Duel Pepes, a commit-reveal based async pvp
-                game with duels and wagers where winner takes all.
-                <br />
-              </Typography>
-
-              <Box className={'flex mt-6'}>
-                <img
-                  src="/assets/export.svg"
-                  className="w-5 ml-auto cursor-pointer"
-                  alt="Export"
-                />
-                <Typography
-                  variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2 cursor-pointer"
-                >
-                  <span className={styles['pepeLink']!}>How to play</span>
                 </Typography>
               </Box>
             </Box>

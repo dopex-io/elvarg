@@ -23,7 +23,6 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { WalletContext } from 'contexts/Wallet';
 import { DuelContext } from 'contexts/Duel';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -31,6 +30,8 @@ import downloadTxt from 'utils/general/downloadTxt';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -49,7 +50,7 @@ const feesPercentage = 80;
 
 const CreateDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress, provider } =
-    useContext(WalletContext);
+    useBoundStore();
   const { duelContract, updateDuels } = useContext(DuelContext);
   const sendTx = useSendTx();
   const [tokenName, setTokenName] = useState<string>('WETH');
@@ -58,10 +59,16 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
   const [hasConfirmedPolicy, setHasConfirmedPolicy] = useState<boolean>(false);
+  const [hasConfirmedRelayer, setHasConfirmedRelayer] =
+    useState<boolean>(false);
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
+  );
+  // this changes every time the dialog is opened
+  const [salt] = useState<string>(
+    [...Array(10)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
   );
 
   const fees = useMemo(() => {
@@ -135,10 +142,10 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     if (!hasConfirmedPolicy) return alert('Please tick the checkbox');
 
     if (moves.length <= 4) setMoves([]);
-    else downloadTxt('moves.txt', moves.toString());
+    else downloadTxt('moves.txt', moves.toString() + ',' + salt);
 
     setIsSelectingMoves(false);
-  }, [moves, hasConfirmedPolicy]);
+  }, [moves, hasConfirmedPolicy, salt]);
 
   const handleCreate = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
@@ -147,6 +154,8 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     const identifier = ethers.utils.formatBytes32String(
       [...Array(30)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
     );
+
+    const encodedSalt = ethers.utils.formatBytes32String(salt);
 
     const numericMoves: number[] = [];
     moves.map((move) => {
@@ -166,7 +175,15 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     localStorage.setItem('moves', JSON.stringify(_historicalMoves));
 
     let hash = ethers.utils.solidityKeccak256(
-      ['bytes32', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'],
+      [
+        'bytes32',
+        'uint256',
+        'uint256',
+        'uint256',
+        'uint256',
+        'uint256',
+        'bytes32',
+      ],
       [
         identifier,
         numericMoves[0],
@@ -174,6 +191,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
         numericMoves[2],
         numericMoves[3],
         numericMoves[4],
+        encodedSalt,
       ]
     );
 
@@ -223,6 +241,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     signer,
     accountAddress,
     updateDuels,
+    salt,
     contractAddresses,
     tokenName,
     chainId,
@@ -233,6 +252,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   // Updates the approved and user balance state
   useEffect(() => {
     (async function () {
+      console.log(provider, contractAddresses, tokenName, accountAddress);
       if (!provider || !contractAddresses || !tokenName || !accountAddress)
         return;
 
@@ -248,6 +268,8 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
         userAmount = await _token.balanceOf(accountAddress!);
       }
+
+      console.log(userAmount);
       setUserTokenBalance(userAmount);
     })();
   }, [accountAddress, provider, contractAddresses, tokenName]);
@@ -532,6 +554,19 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             />
           </Box>
 
+          <Box className="mt-8">
+            <Typography
+              variant="h6"
+              className="text-white font-['Minecraft'] ml-3"
+            >
+              Your secret code is
+            </Typography>
+
+            <Typography variant="h6" className="text-white ml-3">
+              <i>{salt}</i>
+            </Typography>
+          </Box>
+
           <Box className="flex">
             <Box className="ml-auto w-1/2 flex">
               <Tooltip title="Kick">
@@ -640,7 +675,23 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             >
               {' '}
               I confirm I have written down on paper the sequence of moves of
-              this duel and I understood if I forget it I will lose all my funds{' '}
+              this duel and the secret code and I understood if I forget it I
+              will lose all my funds{' '}
+            </Typography>
+          </Box>
+
+          <Box
+            className="flex mt-8"
+            onClick={() => setHasConfirmedRelayer(!hasConfirmedRelayer)}
+          >
+            <Checkbox checked={hasConfirmedRelayer} />
+            <Typography
+              variant="h6"
+              className="text-white font-['Minecraft'] cursor-pointer"
+            >
+              {' '}
+              I want to share my moves and secret code with an automated service
+              offered by the Dopex team to automatically reveal my moves{' '}
             </Typography>
           </Box>
 

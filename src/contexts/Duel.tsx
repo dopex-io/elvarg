@@ -121,6 +121,16 @@ const DuelPepesABI = [
         name: '_weth',
         type: 'address',
       },
+      {
+        internalType: 'uint256',
+        name: '_challengeTimelimit',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_revealTimeLimit',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -301,6 +311,35 @@ const DuelPepesABI = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256[5]',
+        name: 'moves',
+        type: 'uint256[5]',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'salt',
+        type: 'bytes32',
+      },
+    ],
+    name: 'checkMoves',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -660,6 +699,11 @@ const DuelPepesABI = [
         name: 'moves',
         type: 'uint256[5]',
       },
+      {
+        internalType: 'bytes32',
+        name: 'salt',
+        type: 'bytes32',
+      },
     ],
     name: 'revealDuel',
     outputs: [
@@ -787,6 +831,7 @@ const DuelPepesABI = [
     type: 'function',
   },
 ];
+
 const DuelPepesLeaderboardABI = [
   {
     anonymous: false,
@@ -910,6 +955,7 @@ const DuelPepesLeaderboardABI = [
     type: 'function',
   },
 ];
+
 const ABI = [
   {
     inputs: [
@@ -1928,6 +1974,7 @@ const ABI = [
     type: 'function',
   },
 ];
+
 const ABIMINT = [
   {
     inputs: [
@@ -2227,7 +2274,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0x51B483e1AaEcE04a7ef925a17bA77de678571dad',
+      '0x84352a13C9E35b3Ef43763EF44593B960074BC38',
       DuelPepesABI,
       signer
     );
@@ -2244,7 +2291,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelLeaderboardContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0x94Cbc2CB052Cbe2Bb7B93dd074D5218327384737',
+      '0xdF6aF0a9DAdF50e356BA9F158De37e943EfE311c',
       DuelPepesLeaderboardABI,
       signer
     );
@@ -2496,13 +2543,13 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     if (!provider || !signer) return;
 
     const nftContract = new ethers.Contract(
-      '0x9F9B501E59D9678188667B063a78D76846C6E4d6',
+      '0xBe6f1eDce63A2C6f0Ab112013ee6F251a88D96A9',
       ABI,
       signer
     );
 
     const publicSaleContract = new ethers.Contract(
-      '0xeF6d04290cc234d8e6A21e575d271673d408C55B',
+      '0x29549FEDec386d131c2A90Fd9e3ce594729d4Ae3',
       ABIMINT,
       signer
     );

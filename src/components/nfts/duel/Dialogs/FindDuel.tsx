@@ -19,7 +19,6 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { WalletContext } from 'contexts/Wallet';
 import { DuelContext } from 'contexts/Duel';
 
 import useSendTx from 'hooks/useSendTx';
@@ -32,6 +31,7 @@ import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
 import { BigNumber } from 'ethers';
+import { useBoundStore } from 'store';
 
 export interface Props {
   open: boolean;
@@ -42,7 +42,7 @@ const feesPercentage = 80;
 
 const FindDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, contractAddresses, accountAddress, provider } =
-    useContext(WalletContext);
+    useBoundStore();
   const { duelContract, updateDuels, selectedDuel } = useContext(DuelContext);
   const sendTx = useSendTx();
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);

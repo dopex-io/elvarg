@@ -17,12 +17,14 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { WalletContext } from 'contexts/Wallet';
 import { DuelContext } from 'contexts/Duel';
 
 import useSendTx from 'hooks/useSendTx';
 
+import { useBoundStore } from 'store';
+
 import styles from './styles.module.scss';
+import { ethers } from 'ethers';
 
 export interface Props {
   open: boolean;
@@ -32,7 +34,7 @@ export interface Props {
 const feesPercentage = 80;
 
 const RevealDuel = ({ open, handleClose }: Props) => {
-  const { chainId, signer } = useContext(WalletContext);
+  const { chainId, signer } = useBoundStore();
   const sendTx = useSendTx();
   const { duelContract, updateDuels, selectedDuel } = useContext(DuelContext);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
@@ -125,12 +127,19 @@ const RevealDuel = ({ open, handleClose }: Props) => {
       else numericMoves.push(2);
     });
 
+    const salt = window.prompt('Insert your salt');
+
     await sendTx(
       duelContract
         .connect(signer)
-        ['revealDuel'](selectedDuel!['id'], numericMoves, {
-          value: 0,
-        })
+        ['revealDuel'](
+          selectedDuel!['id'],
+          numericMoves,
+          ethers.utils.formatBytes32String(salt!),
+          {
+            value: 0,
+          }
+        )
     );
 
     setMoves([]);
