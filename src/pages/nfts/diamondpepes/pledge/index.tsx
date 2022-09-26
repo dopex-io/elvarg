@@ -1,5 +1,5 @@
 // @ts-nocheck TODO: FIX
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
   DiamondPepeNFTsPledge__factory,
@@ -21,30 +21,43 @@ import { Data, UserData, initialData } from 'types/diamondpepes';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { NftsProvider } from 'contexts/Nfts';
+import { useBoundStore } from 'store';
 
 import styles from 'components/nfts/diamondpepes/PledgeDialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, provider, signer, chainId } =
-    useContext(WalletContext);
+  const { accountAddress, provider, signer, chainId } = useBoundStore();
+
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
     useState<string>('hidden');
-  const yieldMint = YieldMint__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTMint'],
-    provider
-  );
-  const diamondPepeNfts = DiamondPepeNFTs__factory.connect(
-    Addresses[chainId]['NFTS']['DiamondPepesNFT'],
-    signer
-  );
-  const pledge = DiamondPepeNFTsPledge__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTPledge'],
-    provider
-  );
+
+  const yieldMint = useMemo(() => {
+    if (!Addresses[chainId]['DiamondPepesNFTMint'] || !provider) return;
+    return YieldMint__factory.connect(
+      Addresses[chainId]['DiamondPepesNFTMint'],
+      provider
+    );
+  }, [chainId, provider]);
+
+  const diamondPepeNfts = useMemo(() => {
+    if (!Addresses[chainId]['NFTS']?.['DiamondPepesNFT'] || !signer) return;
+    return DiamondPepeNFTs__factory.connect(
+      Addresses[chainId]['NFTS']['DiamondPepesNFT'],
+      signer
+    );
+  }, [chainId, signer]);
+
+  const pledge = useMemo(() => {
+    if (!Addresses[chainId]['NFTS']?.['DiamondPepesNFTPledge'] || !provider)
+      return;
+    return DiamondPepeNFTsPledge__factory.connect(
+      Addresses[chainId]['DiamondPepesNFTPledge'],
+      provider
+    );
+  }, [chainId, provider]);
+
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
   const winners = [
@@ -396,9 +409,5 @@ const DiamondPepesNfts = () => {
   );
 };
 
-const DiamondPepesNftsPage = () => (
-  <NftsProvider>
-    <DiamondPepesNfts />
-  </NftsProvider>
-);
+const DiamondPepesNftsPage = () => <DiamondPepesNfts />;
 export default DiamondPepesNftsPage;

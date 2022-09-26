@@ -1,4 +1,4 @@
-import { useContext, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -9,7 +9,7 @@ import styled from '@emotion/styled';
 import Typography from 'components/UI/Typography';
 import CircleIcon from 'svgs/icons/CircleIcon';
 
-import { RateVaultContext } from 'contexts/RateVault';
+import { useBoundStore } from 'store';
 
 import getFormattedDate from 'utils/date/getFormattedDate';
 
@@ -32,8 +32,8 @@ export interface Props {
 }
 
 const MobileMenu = ({ activeView, setActiveView }: Props) => {
-  const rateVaultContext = useContext(RateVaultContext);
-  const { selectedEpoch, setSelectedEpoch } = rateVaultContext;
+  const { selectedEpoch, setSelectedEpoch, rateVaultEpochData } =
+    useBoundStore();
 
   const handleSelectChange = useCallback(
     (event: SelectChangeEvent) => {
@@ -90,9 +90,9 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
           <EpochStatusBox>
             <EpochStatusButton>
               <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
-              {rateVaultContext?.rateVaultEpochData?.isEpochExpired
+              {rateVaultEpochData?.isEpochExpired
                 ? 'Vault purchases are closed'
-                : !rateVaultContext?.rateVaultEpochData?.isVaultReady
+                : !rateVaultEpochData?.isVaultReady
                 ? 'Vault open for deposits'
                 : 'Vault open for purchases'}
             </EpochStatusButton>
@@ -103,17 +103,14 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
             <Typography variant="h5" className="text-stieglitz">
               Time remaining
             </Typography>
-            {rateVaultContext.rateVaultEpochData!.epochEndTimes.eq(0) ? (
+            {rateVaultEpochData!.epochEndTimes.eq(0) ? (
               <Typography variant="h5" className="text-white ml-auto">
                 -
               </Typography>
             ) : (
               <Countdown
                 date={
-                  new Date(
-                    rateVaultContext.rateVaultEpochData!.epochEndTimes.toNumber() *
-                      1000
-                  )
+                  new Date(rateVaultEpochData!.epochEndTimes.toNumber() * 1000)
                 }
                 renderer={({ days, hours, minutes }) => {
                   return (
@@ -130,12 +127,11 @@ const MobileMenu = ({ activeView, setActiveView }: Props) => {
               Next epoch
             </Typography>
             <Typography variant="h5" className="text-white ml-auto">
-              {rateVaultContext.rateVaultEpochData!.epochEndTimes.eq(0)
+              {rateVaultEpochData!.epochEndTimes.eq(0)
                 ? '-'
                 : getFormattedDate(
                     new Date(
-                      rateVaultContext.rateVaultEpochData!.epochEndTimes.toNumber() *
-                        1000
+                      rateVaultEpochData!.epochEndTimes.toNumber() * 1000
                     )
                   )}
             </Typography>

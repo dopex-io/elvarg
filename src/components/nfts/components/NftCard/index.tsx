@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import cx from 'classnames';
@@ -8,7 +8,9 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import ClaimDialog from '../ClaimDialog';
 import TransferDialog from '../TransferDialog';
-import { NftsContext, NftData } from 'contexts/Nfts';
+
+import { useBoundStore } from 'store';
+import { NftData } from 'store/Nfts';
 
 interface NftCardProps {
   nftData: NftData;
@@ -19,7 +21,7 @@ interface NftCardProps {
 const NftCard = ({ nftData, className, index }: NftCardProps) => {
   const [claimDialog, setClaimDialog] = useState(false);
   const [transferDialog, setTransferDialog] = useState(false);
-  const { userNftsData } = useContext(NftsContext);
+  const { userNftsData } = useBoundStore();
 
   const {
     balance,
@@ -35,8 +37,7 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
       };
     } else {
       return {
-        // @ts-ignore TODO: FIX
-        balance: userNftsData[index].balance,
+        balance: userNftsData[index]?.balance ?? BigNumber.from(0),
         nftName: nftData.nftName,
       };
     }

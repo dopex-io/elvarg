@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
@@ -15,9 +15,7 @@ import { ERC20__factory } from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 
-import { RateVaultContext } from 'contexts/RateVault';
-import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -38,29 +36,27 @@ export interface PositionProps {
 }
 
 const Positions = () => {
-  const rateVaultContext = useContext(RateVaultContext);
-  const { accountAddress, signer } = useContext(WalletContext);
-  const { updateAssetBalances } = useContext(AssetsContext);
-  const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
-    string | null
-  >(null);
-
   const {
+    accountAddress,
+    signer,
+    updateAssetBalances,
     rateVaultUserData,
     rateVaultEpochData,
     rateVaultData,
     updateRateVaultUserData,
     selectedEpoch,
     isLoading,
-  } = rateVaultContext;
+  } = useBoundStore();
+  const [tokenAddressToTransfer, setTokenAddressToTransfer] = useState<
+    string | null
+  >(null);
 
   const { rateVaultContract } = rateVaultData!;
   const { userStrikePurchaseData } = rateVaultUserData!;
+  const { epochTimes } = rateVaultEpochData!;
 
   const [positions, setPositions] = useState<any[]>([]);
   const tokenPrice: number = 1;
-
-  const { epochTimes } = rateVaultContext.rateVaultEpochData!;
 
   const epochEndTime: Date = useMemo(() => {
     return new Date(epochTimes[1].toNumber() * 1000);

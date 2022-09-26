@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 
 import cx from 'classnames';
 import { BigNumber, ethers } from 'ethers';
@@ -20,7 +20,7 @@ import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import styles from './styles.module.scss';
 
@@ -302,7 +302,7 @@ export interface Props {
   open: boolean;
   tab: string;
   handleClose: () => void;
-  updateData: () => void;
+  updateData: Function;
   data: {
     publicMints: BigNumber;
     nextMintId: BigNumber;
@@ -385,8 +385,8 @@ const quotes = [
   },
 ];
 
-const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
-  const { chainId, signer, accountAddress } = useContext(WalletContext);
+const ActionsDialog = ({ open, data, updateData, handleClose }: Props) => {
+  const { chainId, signer, accountAddress } = useBoundStore();
   const [toMint, setToMint] = useState<number>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
 

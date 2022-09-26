@@ -9,7 +9,7 @@ import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
 import { SsovContext } from 'contexts/Ssov';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -42,7 +42,7 @@ const Withdraw = () => {
   } = ssovEpochData;
   const { userEpochStrikeDeposits, userEpochDeposits } = ssovUserData;
 
-  const { updateAssetBalances } = useContext(AssetsContext);
+  const { updateAssetBalances } = useBoundStore();
 
   const sendTx = useSendTx();
 

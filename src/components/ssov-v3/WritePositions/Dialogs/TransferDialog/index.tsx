@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useContext,
-  useState,
-  useMemo,
-  SetStateAction,
-} from 'react';
+import { useCallback, useState, useMemo, SetStateAction } from 'react';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
@@ -16,8 +10,8 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import Stat from '../Stat';
 
-import { WalletContext } from 'contexts/Wallet';
-import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
+import { useBoundStore } from 'store';
+import { WritePositionInterface } from 'store/Vault/ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -31,8 +25,7 @@ export interface Props {
 }
 
 const TransferDialog = ({ open, handleClose, data }: Props) => {
-  const { ssovData, ssovSigner } = useContext(SsovV3Context);
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress, ssovData, ssovSigner } = useBoundStore();
 
   const sendTx = useSendTx();
 

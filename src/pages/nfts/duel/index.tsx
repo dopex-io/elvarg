@@ -24,6 +24,7 @@ import formatAmount from 'utils/general/formatAmount';
 import useSendTx from 'hooks/useSendTx';
 
 import styles from 'components/nfts/duel/styles.module.scss';
+import Countdown from 'react-countdown';
 
 const DuelPepes = () => {
   const {
@@ -34,6 +35,7 @@ const DuelPepes = () => {
     setSelectedDuel,
     availableCredit,
     updateCredit,
+    data,
   } = useContext(DuelContext);
   const { signer } = useContext(WalletContext);
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
@@ -114,6 +116,43 @@ const DuelPepes = () => {
     await updateCredit();
   }, [duelContract, signer, updateCredit, availableCredit, sendTx]);
 
+  const boxes = useMemo(
+    () =>
+      data
+        ? [
+            {
+              title: data?.maxPublicMints.sub(data?.nextMintId)?.toNumber(),
+              subTitle: 'PEPES REMAINING',
+            },
+            { title: '5:55PM 5/12/2022', subTitle: 'START' },
+            {
+              title: (
+                <Countdown
+                  date={new Date(data?.endTime?.toNumber() * 1000)}
+                  renderer={({ days, hours, minutes, seconds, completed }) => {
+                    if (completed) {
+                      return (
+                        <span className="text-wave-blue">
+                          The sale has been closed
+                        </span>
+                      );
+                    } else {
+                      return (
+                        <span className="text-wave-blue">
+                          {days}d {hours}h {minutes}m {seconds}s
+                        </span>
+                      );
+                    }
+                  }}
+                />
+              ),
+              subTitle: 'TIME REMAINING',
+            },
+          ]
+        : [],
+    [data]
+  );
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -160,6 +199,30 @@ const DuelPepes = () => {
             </Typography>
           </Box>
 
+          <Box className="p-2 mt-7 md:flex">
+            {boxes.map((box, index) => (
+              <Box key={index} className="md:w-1/3 p-4 text-center">
+                <Typography
+                  variant="h3"
+                  className="text-white font-display font-['Minecraft'] relative z-1"
+                >
+                  <span className={styles['pepeText']!}>{box.title}</span>
+                </Typography>
+                <Typography
+                  variant="h4"
+                  className="text-[#78859E] font-['Minecraft'] relative z-1 mt-4"
+                >
+                  {box.subTitle}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+          <img
+            src={'/assets/pepe-line.png'}
+            className="ml-auto mr-auto mt-8 mb-8"
+            alt={''}
+          />
+
           <Box className={'flex mt-6'}>
             <img
               src={'/assets/export.svg'}
@@ -174,26 +237,88 @@ const DuelPepes = () => {
             <Typography
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1 ml-4 mt-1 cursor-pointer"
+              onClick={() =>
+                window.location.replace(
+                  'https://app.dopex.io/nfts/diamondpepes2'
+                )
+              }
             >
-              <span className={styles['pepeLink']}>Mint Gen2 Pepe</span>
+              <span className={styles['pepeLink']}>Main page</span>
             </Typography>
 
             <img
               src={'/assets/export.svg'}
               className={'w-5 h-5 ml-8 mt-1'}
-              alt={'How to play'}
+              alt={'How to mint'}
+              onClick={() =>
+                window.location.replace(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint'
+                )
+              }
             />
             <Typography
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
+              onClick={() =>
+                window.location.replace(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint'
+                )
+              }
             >
-              <span className={styles['pepeLink']}>How to play</span>
+              <span className={styles['pepeLink']}>How to mint</span>
+            </Typography>
+
+            <img
+              src={'/assets/export.svg'}
+              className={'w-5 h-5 ml-8 mt-1'}
+              alt={'UI Walkthrough'}
+              onClick={() =>
+                window.location.replace(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough'
+                )
+              }
+            />
+            <Typography
+              variant="h5"
+              className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
+              onClick={() =>
+                window.location.replace(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough'
+                )
+              }
+            >
+              <span className={styles['pepeLink']}>UI Walkthrough</span>
+            </Typography>
+
+            <img
+              src={'/assets/export.svg'}
+              className={'w-5 h-5 ml-8 mt-1'}
+              alt={'Claim Lootbox'}
+              onClick={() =>
+                window.location.replace(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox'
+                )
+              }
+            />
+            <Typography
+              variant="h5"
+              className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
+              onClick={() =>
+                window.location.replace(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox'
+                )
+              }
+            >
+              <span className={styles['pepeLink']}>How to claim lootbox</span>
             </Typography>
 
             <img
               src={'/assets/export.svg'}
               className={'w-5 h-5 ml-8 mt-1'}
               alt={'Pepe tweet'}
+              onClick={() =>
+                window.location.replace('https://twitter.com/chutoro_au')
+              }
             />
             <Typography
               variant="h5"

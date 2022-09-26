@@ -9,7 +9,7 @@ import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
 import DialogDataRow from 'components/otc/DialogDataRow';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 import { OtcContext } from 'contexts/Otc';
 
 import useSendTx from 'hooks/useSendTx';
@@ -41,7 +41,8 @@ const Settle = ({ open, handleClose, data }: TradeProps) => {
   const sendTx = useSendTx();
 
   const { escrow } = useContext(OtcContext);
-  const { signer, provider, accountAddress } = useContext(WalletContext);
+  const { signer, provider, accountAddress } = useBoundStore();
+
   const [approved, setApproved] = useState(false);
   const [decimals, setDecimals] = useState({
     quote: 18,

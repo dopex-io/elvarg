@@ -1,17 +1,10 @@
-import {
-  createContext,
-  useState,
-  useContext,
-  useCallback,
-  useEffect,
-  ReactNode,
-} from 'react';
+import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
-
 import { BaseNFT__factory, BaseNFT } from '@dopex-io/sdk';
 
-import { WalletContext } from './Wallet';
-import getTokenUri from '../utils/contracts/getTokenUri';
+import { WalletSlice } from 'store/Wallet';
+
+import getTokenUri from 'utils/contracts/getTokenUri';
 
 export interface NftData {
   nftName: string;
@@ -24,28 +17,24 @@ export interface UserNftData {
   nftContractSigner: BaseNFT;
 }
 
-interface NftsContextInterface {
+export interface NftsSlice {
   nftsData: NftData[];
   userNftsData: UserNftData[];
-  updateData?: Function;
-  updateUserData?: Function;
+  updateNftsData: Function;
+  updateUserNftsData: Function;
 }
 
-const initialData: NftsContextInterface = {
+export const createNftsSlice: StateCreator<
+  WalletSlice & NftsSlice,
+  [['zustand/devtools', never]],
+  [],
+  NftsSlice
+> = (set, get) => ({
   nftsData: [],
   userNftsData: [],
-};
+  updateNftsData: async () => {
+    const { provider, contractAddresses } = get();
 
-export const NftsContext = createContext<NftsContextInterface>(initialData);
-
-export const NftsProvider = (props: { children: ReactNode }) => {
-  const { accountAddress, contractAddresses, provider, signer } =
-    useContext(WalletContext);
-
-  const [nftsData, setNftsData] = useState<NftData[]>([]);
-  const [userNftsData, setUserNftsData] = useState<UserNftData[]>([]);
-
-  const updateData = useCallback(async () => {
     if (!provider || !contractAddresses) return;
     const nftsData: NftData[] = [];
     for (const nft in contractAddresses['NFTS']) {
@@ -61,14 +50,14 @@ export const NftsProvider = (props: { children: ReactNode }) => {
 
       nftsData.push({
         nftName: nftName,
-        // @ts-ignore TODO: FIX
-        nftUri: nftUri,
+        nftUri: nftUri ?? '',
       });
     }
-    setNftsData(nftsData);
-  }, [provider, contractAddresses]);
+    set((prevState) => ({ ...prevState, nftsData }));
+  },
+  updateUserNftsData: async () => {
+    const { signer, accountAddress, contractAddresses } = get();
 
-  const updateUserData = useCallback(async () => {
     if (!signer || !accountAddress || !contractAddresses) return;
     const userNftsData: UserNftData[] = [];
     for (const nft in contractAddresses['NFTS']) {
@@ -89,27 +78,7 @@ export const NftsProvider = (props: { children: ReactNode }) => {
         nftContractSigner: nftContract,
       });
     }
-    setUserNftsData(userNftsData);
-  }, [accountAddress, contractAddresses, signer]);
 
-  useEffect(() => {
-    updateData();
-  }, [updateData]);
-
-  useEffect(() => {
-    updateUserData();
-  }, [updateUserData]);
-
-  let contextValue = {
-    nftsData,
-    userNftsData,
-    updateData,
-    updateUserData,
-  };
-
-  return (
-    <NftsContext.Provider value={contextValue}>
-      {props.children}
-    </NftsContext.Provider>
-  );
-};
+    set((prevState) => ({ ...prevState, userNftsData }));
+  },
+});

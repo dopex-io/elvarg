@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { YieldMint } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -12,7 +12,7 @@ import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { Data, UserData } from 'types/diamondpepes';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -39,7 +39,7 @@ const ActionsDialog = ({
   updateData,
   updateUserData,
 }: Props) => {
-  const { chainId, signer } = useContext(WalletContext);
+  const { chainId, signer } = useBoundStore();
 
   const [activeTab, setActiveTab] = useState<string>('mint');
 

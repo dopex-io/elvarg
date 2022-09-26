@@ -1,21 +1,26 @@
-import { useContext } from 'react';
+import { useMemo } from 'react';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-import { AssetsContext } from 'contexts/Assets';
-import { StraddlesContext } from 'contexts/Straddles';
+import { useBoundStore } from 'store';
 
 const TopBar = () => {
-  const { tokenPrices } = useContext(AssetsContext);
-
-  const { selectedPoolName } = useContext(StraddlesContext);
+  const { tokenPrices, selectedPoolName, straddlesEpochData } = useBoundStore();
 
   const tokenPrice =
     tokenPrices.find((token) => token.name === selectedPoolName)?.price || 0;
 
+  const isEpochExpired = useMemo(() => {
+    if (!straddlesEpochData) return;
+    return straddlesEpochData?.expiry.lt(
+      BigNumber.from((new Date().getTime() / 1000).toFixed())
+    );
+  }, [straddlesEpochData]);
+
   return (
-    <Box>
+    <Box className="flex justify-between">
       <Box className="flex items-center">
         <Typography
           variant="h5"
@@ -45,6 +50,13 @@ const TopBar = () => {
           ${tokenPrice}
         </Typography>
       </Box>
+      {isEpochExpired ? (
+        <Box className="p-2 my-2 rounded-lg border border-down-bad border-opacity-30 bg-down-bad bg-opacity-10">
+          <Typography variant="h6" color="down-bad">
+            Expired
+          </Typography>
+        </Box>
+      ) : null}
     </Box>
   );
 };

@@ -1,12 +1,14 @@
 import {
   useCallback,
-  useContext,
   useMemo,
   useState,
   ReactNode,
   MouseEvent,
   Key,
+  useEffect,
 } from 'react';
+import Router from 'next/router';
+import { ethers } from 'ethers';
 import cx from 'classnames';
 import Link from 'next/link';
 import Button from '@mui/material/Button';
@@ -24,10 +26,15 @@ import WalletDialog from 'components/common/AppBar/WalletDialog';
 import CustomButton from 'components/UI/Button';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 
-import { AssetsContext } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
+import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
+import { useBoundStore } from 'store';
 
-import { CURRENCIES_MAP } from 'constants/index';
+import {
+  CHAIN_ID_TO_RPC,
+  CURRENCIES_MAP,
+  PAGE_TO_SUPPORTED_CHAIN_IDS,
+} from 'constants/index';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -48,6 +55,7 @@ const AppLink = ({
     'hover:no-underline hover:text-white cursor-pointer',
     active ? 'text-white' : 'text-stieglitz'
   );
+
   if (to.startsWith('http')) {
     return (
       <a
@@ -95,6 +103,7 @@ const appLinks = {
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
+    { name: 'DPX Bonds', to: '/dpx-bonds' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -106,7 +115,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
-  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
+  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes2' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
   { name: 'Tzwap', to: '/tzwap' },
@@ -117,7 +126,8 @@ interface AppBarProps {
     | 'options'
     | 'pools'
     | 'rewards'
-    | 'farms'
+    | 'Farms'
+    | 'veDPX'
     | 'volume pool'
     | 'portfolio'
     | 'token sale'
@@ -128,14 +138,25 @@ interface AppBarProps {
     | 'leaderboard'
     | 'swap'
     | 'OTC'
+    | 'DPX Bonds'
     | 'vaults';
 }
 
 export default function AppBar(props: AppBarProps) {
   const { active } = props;
-  const { accountAddress, connect, wrongNetwork, chainId, ensName, ensAvatar } =
-    useContext(WalletContext);
-  const { tokenPrices, userAssetBalances } = useContext(AssetsContext);
+  const {
+    accountAddress,
+    connect,
+    wrongNetwork,
+    chainId,
+    ensName,
+    ensAvatar,
+    updateState,
+    tokenPrices,
+    updateTokenPrices,
+    userAssetBalances,
+    updateAssetBalances,
+  } = useBoundStore();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
@@ -184,6 +205,10 @@ export default function AppBar(props: AppBarProps) {
     setClaimRdpxDialog(true);
   };
 
+  useEffect(() => {
+    updateAssetBalances();
+  }, [updateAssetBalances]);
+
   const menuItems = useMemo(() => {
     return [
       ...menuLinks,
@@ -202,6 +227,30 @@ export default function AppBar(props: AppBarProps) {
       },
     ].filter((i) => i);
   }, [chainId]);
+
+  useEffect(() => {
+    if (getWeb3Modal()?.cachedProvider) {
+      connect();
+    } else {
+      updateState({
+        provider: new ethers.providers.StaticJsonRpcProvider(
+          CHAIN_ID_TO_RPC[
+            PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
+              DEFAULT_CHAIN_ID
+          ]
+        ),
+      });
+    }
+  }, [connect, updateState]);
+
+  useEffect(() => {
+    updateTokenPrices();
+    const intervalId = setInterval(updateTokenPrices, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [updateTokenPrices]);
 
   return (
     <>
@@ -243,7 +292,7 @@ export default function AppBar(props: AppBarProps) {
                       />
                     );
                   return (
-                    // TODO: FIX
+                    // @TODO: FIX
                     // @ts-ignore
                     <AppLink to={link.to} name={link.name} key={link.name} />
                   );

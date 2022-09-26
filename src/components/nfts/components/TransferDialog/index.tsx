@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useFormik } from 'formik';
 import cx from 'classnames';
 import { utils as ethersUtils, BigNumber } from 'ethers';
@@ -13,21 +13,25 @@ import CustomButton from 'components/UI/Button';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { NftsContext } from 'contexts/Nfts';
+import { useBoundStore } from 'store';
 
-// @ts-ignore TODO: FIX
-const TransferModal = ({ open, handleClose, index }) => {
-  const { accountAddress } = useContext(WalletContext);
-  const { userNftsData } = useContext(NftsContext);
+interface TransferModalProps {
+  open: boolean;
+  handleClose: () => void;
+  index: number;
+}
 
-  // @ts-ignore TODO: FIX
+const TransferModal = (props: TransferModalProps) => {
+  const { open, handleClose, index } = props;
+
+  const { accountAddress, userNftsData } = useBoundStore();
+
   const {
     nftContractSigner,
     balance,
     tokenId,
   }: {
-    nftContractSigner: BaseNFT;
+    nftContractSigner: BaseNFT | null;
     balance: BigNumber;
     tokenId: BigNumber;
   } = useMemo(() => {
@@ -39,12 +43,9 @@ const TransferModal = ({ open, handleClose, index }) => {
       };
     } else {
       return {
-        // @ts-ignore TODO: FIX
-        nftContractSigner: userNftsData[index].nftContractSigner,
-        // @ts-ignore TODO: FIX
-        balance: userNftsData[index].balance,
-        // @ts-ignore TODO: FIX
-        tokenId: userNftsData[index].tokenId,
+        nftContractSigner: userNftsData[index]?.nftContractSigner ?? null,
+        balance: userNftsData[index]?.balance ?? BigNumber.from(0),
+        tokenId: userNftsData[index]?.tokenId ?? BigNumber.from(0),
       };
     }
   }, [userNftsData, index]);
@@ -70,9 +71,10 @@ const TransferModal = ({ open, handleClose, index }) => {
   }, [formik.touched.address, formik.errors.address]);
 
   const handleClick = async () => {
+    if (!nftContractSigner || !accountAddress) return;
+
     await sendTx(
       nftContractSigner.transferFrom(
-        // @ts-ignore TODO: FIX
         accountAddress,
         formik.values.address,
         tokenId

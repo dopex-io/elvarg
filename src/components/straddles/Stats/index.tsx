@@ -1,24 +1,33 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Countdown from 'react-countdown';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
+import InfoBox from './InfoBox';
+
+import { useBoundStore } from 'store';
+
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { WalletContext } from 'contexts/Wallet';
-import { StraddlesContext } from 'contexts/Straddles';
-
 const Stats = () => {
-  const { chainId } = useContext(WalletContext);
-  const { selectedEpoch, setSelectedEpoch, straddlesEpochData, straddlesData } =
-    useContext(StraddlesContext);
+  const {
+    // Wallet
+    chainId,
+    // Straddles
+    selectedEpoch,
+    setSelectedEpoch,
+    straddlesEpochData,
+    updateStraddlesEpochData,
+    straddlesData,
+  } = useBoundStore();
 
   const currentEpoch = straddlesData?.currentEpoch || 0;
 
@@ -50,12 +59,35 @@ const Stats = () => {
   const handleSelectChange = useCallback(
     (e: { target: { value: any } }) => {
       if (setSelectedEpoch) setSelectedEpoch(Number(e.target.value));
+      updateStraddlesEpochData();
     },
-    [setSelectedEpoch]
+    [setSelectedEpoch, updateStraddlesEpochData]
   );
 
+  const settlementPrice = useMemo(() => {
+    return !straddlesEpochData?.settlementPrice.eq(BigNumber.from(0))
+      ? formatAmount(
+          getUserReadableAmount(straddlesEpochData?.settlementPrice!, 8),
+          2
+        )
+      : 0;
+  }, [straddlesEpochData]);
+
+  function getSettlementDisplay() {
+    return settlementPrice != 0 ? (
+      <Box className="border flex justify-between border-neutral-800 p-2">
+        <Typography variant="h6" className="text-gray-400">
+          Epoch {selectedEpoch} settlement price
+        </Typography>
+        <Typography variant="h6" className="text-white">
+          ${settlementPrice}
+        </Typography>
+      </Box>
+    ) : null;
+  }
+
   return (
-    <Box className="md:flex text-gray-400 ">
+    <Box className="md:flex text-gray-400">
       <Box className="w-full">
         <Box className="border rounded-tl-lg border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
@@ -77,9 +109,12 @@ const Stats = () => {
                   },
                 },
               }}
+              classes={{
+                icon: 'text-white',
+              }}
               displayEmpty
               autoWidth
-              value={selectedEpoch! || 0}
+              value={selectedEpoch}
               onChange={handleSelectChange}
             >
               {epochs}
@@ -112,12 +147,13 @@ const Stats = () => {
             </Button>
           </Box>
         </Box>
+        {getSettlementDisplay()}
         <Box className="border flex justify-between border-neutral-800 p-2">
           <Typography variant="h6" className="text-gray-400">
             Funding %
           </Typography>
           <Typography variant="h6" className="text-white">
-            {straddlesEpochData?.aprFunding}%
+            {straddlesEpochData?.aprFunding.toString()}%
           </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
@@ -166,12 +202,12 @@ const Stats = () => {
           </Button>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
-          <Typography
-            variant="h6"
-            className="flex justify-center items-center text-gray-400"
-          >
-            Annualized Premium
-          </Typography>
+          <InfoBox
+            heading={'Annualized Premium'}
+            tooltip={`The deposited principal is subject to a loss in case of a market downturn, 
+            as the writers are selling put options.
+            In such a case, the loss may be greater than the premiums received`}
+          />
           <Typography variant="h6" className="text-white">
             {straddlesEpochData?.aprPremium}%
           </Typography>

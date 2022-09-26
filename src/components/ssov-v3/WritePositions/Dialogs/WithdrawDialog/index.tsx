@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -9,8 +9,8 @@ import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from '../Stat';
 
-import { WalletContext } from 'contexts/Wallet';
-import { SsovV3Context, WritePositionInterface } from 'contexts/SsovV3';
+import { useBoundStore } from 'store';
+import { WritePositionInterface } from 'store/Vault/ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -23,9 +23,8 @@ export interface Props {
 }
 
 const WithdrawDialog = ({ open, handleClose, data }: Props) => {
-  const { ssovData, ssovSigner, updateSsovV3EpochData } =
-    useContext(SsovV3Context);
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress, ssovData, ssovSigner, updateSsovV3EpochData } =
+    useBoundStore();
 
   const sendTx = useSendTx();
 

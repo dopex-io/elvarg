@@ -1,9 +1,6 @@
-import { useContext } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
-
-import { RateVaultContext } from 'contexts/RateVault';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -12,6 +9,7 @@ import Typography from 'components/UI/Typography';
 
 import ArrowUpIcon from 'svgs/icons/ArrowUpIcon';
 import FlagIcon from 'svgs/icons/FlagIcon';
+import { useBoundStore } from 'store';
 
 const STRIKE_INDEX_TO_COLOR: { [index: number]: string } = {
   0: '#F80196',
@@ -22,7 +20,7 @@ const STRIKE_INDEX_TO_COLOR: { [index: number]: string } = {
 };
 
 const Stats = () => {
-  const rateVaultContext = useContext(RateVaultContext);
+  const { rateVaultEpochData } = useBoundStore();
 
   const {
     totalCallsPurchased,
@@ -30,9 +28,9 @@ const Stats = () => {
     totalCallsDeposits,
     totalPutsDeposits,
     rate,
-  } = rateVaultContext.rateVaultEpochData!;
+  } = rateVaultEpochData!;
 
-  return rateVaultContext?.rateVaultEpochData?.epochStrikes ? (
+  return rateVaultEpochData?.epochStrikes ? (
     <Box>
       <Typography variant="h4" className="text-white mb-7">
         Stats
@@ -116,50 +114,46 @@ const Stats = () => {
               <ArrowUpIcon className="mr-1 ml-auto mt-1.5 rotate-180 cursor-not-allowed" />
             </Box>
 
-            {rateVaultContext.rateVaultEpochData.epochStrikes.map(
-              (strike, strikeIndex) => {
-                const deposits =
-                  rateVaultContext!.rateVaultEpochData!.callsDeposits[
-                    strikeIndex
-                  ]?.add(
-                    rateVaultContext!.rateVaultEpochData!.putsDeposits[
-                      strikeIndex
-                    ] || BigNumber.from('0')
-                  );
-                return (
-                  <Box className="flex" key={strikeIndex}>
-                    <Box
-                      className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
-                    >
-                      <FlagIcon
-                        className={'mt-[6px] mr-1.5'}
-                        fill={STRIKE_INDEX_TO_COLOR[Number(strikeIndex)]}
-                      />
-                      <Typography
-                        variant={'h6'}
-                        className={'text-sm text-stieglitz'}
-                      >
-                        {getUserReadableAmount(strike, 8)}%
-                      </Typography>
-                    </Box>
-
+            {rateVaultEpochData.epochStrikes.map((strike, strikeIndex) => {
+              const deposits = rateVaultEpochData!.callsDeposits[
+                strikeIndex
+              ]?.add(
+                rateVaultEpochData!.putsDeposits[strikeIndex] ||
+                  BigNumber.from('0')
+              );
+              return (
+                <Box className="flex" key={strikeIndex}>
+                  <Box
+                    className={`rounded-md flex mb-4 p-2 pt-1 pb-1 bg-cod-gray`}
+                  >
+                    <FlagIcon
+                      className={'mt-[6px] mr-1.5'}
+                      fill={STRIKE_INDEX_TO_COLOR[Number(strikeIndex)]}
+                    />
                     <Typography
                       variant={'h6'}
-                      className={'text-sm text-white mt-1  ml-auto mr-2'}
+                      className={'text-sm text-stieglitz'}
                     >
-                      $
-                      {formatAmount(
-                        getUserReadableAmount(
-                          deposits || BigNumber.from('0'),
-                          18
-                        ),
-                        2
-                      )}
+                      {getUserReadableAmount(strike, 8)}%
                     </Typography>
                   </Box>
-                );
-              }
-            )}
+
+                  <Typography
+                    variant={'h6'}
+                    className={'text-sm text-white mt-1  ml-auto mr-2'}
+                  >
+                    $
+                    {formatAmount(
+                      getUserReadableAmount(
+                        deposits || BigNumber.from('0'),
+                        18
+                      ),
+                      2
+                    )}
+                  </Typography>
+                </Box>
+              );
+            })}
           </Box>
           <Box className={'w-full flex'}>
             <Box

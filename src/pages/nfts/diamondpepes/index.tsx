@@ -1,5 +1,5 @@
 // @ts-nocheck TODO: FIX
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
   UniswapPair__factory,
@@ -20,8 +20,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { Data, UserData, initialData } from 'types/diamondpepes';
 
-import { WalletContext } from 'contexts/Wallet';
-import { NftsProvider } from 'contexts/Nfts';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -29,7 +28,7 @@ import styles from 'components/nfts/diamondpepes/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { accountAddress, contractAddresses, provider, signer, chainId } =
-    useContext(WalletContext);
+    useBoundStore();
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
@@ -37,10 +36,14 @@ const DiamondPepesNfts = () => {
     tab: 'mint',
   });
 
-  const yieldMint = YieldMint__factory.connect(
-    Addresses[chainId]['DiamondPepesNFTMint'],
-    provider
-  );
+  const yieldMint = useMemo(() => {
+    if (!Addresses[chainId]['DiamondPepesNFTMint'] && !provider) return;
+    return YieldMint__factory.connect(
+      Addresses[chainId]['DiamondPepesNFTMint'],
+      provider
+    );
+  }, [chainId, provider]);
+
   const sendTx = useSendTx();
 
   const updateData = useCallback(async () => {
@@ -349,10 +352,6 @@ const DiamondPepesNfts = () => {
   );
 };
 
-const DiamondPepesNftsPage = () => (
-  <NftsProvider>
-    <DiamondPepesNfts />
-  </NftsProvider>
-);
+const DiamondPepesNftsPage = () => <DiamondPepesNfts />;
 
 export default DiamondPepesNftsPage;

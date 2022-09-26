@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { utils as ethersUtils } from 'ethers';
 import axios from 'axios';
 import Box from '@mui/material/Box';
@@ -7,14 +7,14 @@ import Typography from 'components/UI/Typography';
 import Stat from './Stat';
 import SupplyChart from './SupplyChart';
 
-import { VeDPXContext } from 'contexts/VeDPX';
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import { DOPEX_API_BASE_URL } from 'constants/index';
 
 const Overview = () => {
-  const { data } = useContext(VeDPXContext);
+  const { vedpxData: data } = useBoundStore();
 
   const [dpxCirculatingSupply, setDpxCirculatingSupply] = useState(0);
 

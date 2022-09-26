@@ -1,13 +1,10 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
 import { styled } from '@mui/material/styles';
 import format from 'date-fns/format';
-
-import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -53,19 +50,18 @@ const StyledWrapper = styled(Box)`
 
 function VaultCard(props: Props) {
   const { className, data } = props;
-  const { convertToBNB } = useContext(BnbConversionContext);
   const {
     currentEpoch,
     totalEpochDeposits,
     rate,
     tvl,
-    underlyingSymbol: name,
     retired,
     symbol,
     version,
     duration,
     epochTimes,
   } = data;
+
   const info = useMemo(() => {
     return [
       {
@@ -85,19 +81,11 @@ function VaultCard(props: Props) {
       },
       {
         heading: 'DEPOSITS',
-        value: `${formatAmount(
-          name === 'BNB' && convertToBNB
-            ? convertToBNB(
-                ethersUtils.parseUnits(totalEpochDeposits, 8)
-              ).toString()
-            : totalEpochDeposits,
-          0,
-          true
-        )}`,
+        value: `${formatAmount(totalEpochDeposits, 0, true)}`,
         imgSrc: VAULT_MAP[symbol]?.src,
       },
     ];
-  }, [rate, convertToBNB, name, totalEpochDeposits, tvl, symbol]);
+  }, [rate, totalEpochDeposits, tvl, symbol]);
 
   return (
     <StyledWrapper symbol={symbol} className="p-[1px] rounded-xl w-[350px]">

@@ -1,10 +1,4 @@
-import {
-  useContext,
-  useState,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-} from 'react';
+import { useState, Dispatch, SetStateAction, useEffect } from 'react';
 import cx from 'classnames';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
@@ -24,7 +18,7 @@ import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
 
-import { RateVaultContext } from 'contexts/RateVault';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -38,12 +32,11 @@ const PurchaseOptions = ({
   setActiveVaultContextSide: Dispatch<SetStateAction<string>>;
   setStrikeIndex: Dispatch<SetStateAction<number>>;
 }) => {
+  const { rateVaultEpochData } = useBoundStore();
+
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] =
     useState<Boolean>(false);
-  const rateVaultContext = useContext(RateVaultContext);
   const [updated, setUpdated] = useState<boolean>(false);
-
-  const { epochStrikes } = rateVaultContext.rateVaultEpochData!;
 
   const [purchaseOptions, setPurchaseOptions] = useState<{
     [key: string]: any[];
@@ -51,36 +44,32 @@ const PurchaseOptions = ({
 
   useEffect(() => {
     const getPurchaseOptions = async (i: number, ssovContextSide: string) => {
-      if (!rateVaultContext.rateVaultEpochData) return;
+      if (!rateVaultEpochData) return;
 
       let strike: BigNumber = BigNumber.from('0');
 
-      const _strike = rateVaultContext.rateVaultEpochData.epochStrikes[i];
+      const _strike = rateVaultEpochData.epochStrikes[i];
       if (_strike) strike = _strike;
 
       let available: BigNumber | undefined = BigNumber.from('0');
 
       let price: BigNumber = BigNumber.from('0');
 
-      let callDeposits = rateVaultContext.rateVaultEpochData.callsDeposits[i];
-      let putDeposits = rateVaultContext.rateVaultEpochData.putsDeposits[i];
+      let callDeposits = rateVaultEpochData.callsDeposits[i];
+      let putDeposits = rateVaultEpochData.putsDeposits[i];
 
       let volatility: BigNumber = BigNumber.from('0');
 
-      const _volatility = rateVaultContext.rateVaultEpochData.volatilities[i];
+      const _volatility = rateVaultEpochData.volatilities[i];
       if (_volatility) volatility = _volatility;
 
       if (ssovContextSide === 'CALL' && callDeposits) {
-        available = callDeposits.sub(
-          rateVaultContext.rateVaultEpochData.totalCallsPurchased
-        );
-        const _price = rateVaultContext.rateVaultEpochData.callsCosts[i];
+        available = callDeposits.sub(rateVaultEpochData.totalCallsPurchased);
+        const _price = rateVaultEpochData.callsCosts[i];
         if (_price) price = _price;
       } else if (putDeposits) {
-        available = putDeposits.sub(
-          rateVaultContext.rateVaultEpochData.totalPutsPurchased
-        );
-        const _price = rateVaultContext.rateVaultEpochData.putsCosts[i];
+        available = putDeposits.sub(rateVaultEpochData.totalPutsPurchased);
+        const _price = rateVaultEpochData.putsCosts[i];
         if (_price) price = _price;
       }
 
@@ -99,8 +88,7 @@ const PurchaseOptions = ({
       } = { CALL: [], PUT: [] };
 
       const strikeIndexes = [];
-      for (let strikeIndex in rateVaultContext.rateVaultEpochData
-        ?.epochStrikes) {
+      for (let strikeIndex in rateVaultEpochData?.epochStrikes) {
         strikeIndexes.push(getPurchaseOptions(Number(strikeIndex), 'CALL'));
         strikeIndexes.push(getPurchaseOptions(Number(strikeIndex), 'PUT'));
       }
@@ -121,9 +109,9 @@ const PurchaseOptions = ({
     }
 
     if (updated === false) updatePurchaseOptions();
-  }, [rateVaultContext, updated]);
+  }, [rateVaultEpochData, updated]);
 
-  return rateVaultContext?.rateVaultEpochData?.epochStrikes ? (
+  return rateVaultEpochData?.epochStrikes ? (
     <Box>
       <Box className="flex">
         <Typography variant="h4" className="text-white mb-7">
@@ -136,7 +124,7 @@ const PurchaseOptions = ({
           />
         </Tooltip>
       </Box>
-      {!rateVaultContext.rateVaultEpochData.isVaultReady ? (
+      {!rateVaultEpochData?.isVaultReady ? (
         <Typography variant="h4" className="text-stieglitz mt-3">
           You will be able to purchase options once deposits phase ends
         </Typography>
@@ -146,7 +134,7 @@ const PurchaseOptions = ({
             <TableContainer
               className={cx(styles['optionsTable'], 'bg-cod-gray')}
             >
-              {isEmpty(epochStrikes) ? (
+              {isEmpty(rateVaultEpochData?.epochStrikes) ? (
                 <Box className="border-4 border-umbra rounded-lg p-3">
                   {range(3).map((_, index) => (
                     <Skeleton

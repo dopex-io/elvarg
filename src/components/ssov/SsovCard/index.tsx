@@ -1,14 +1,10 @@
-// @ts-nocheck
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import { utils as ethersUtils } from 'ethers';
 import Link from 'next/link';
 import { styled } from '@mui/material/styles';
 import format from 'date-fns/format';
-
-import { BnbConversionContext } from 'contexts/BnbConversion';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -20,7 +16,6 @@ import Action from 'svgs/icons/Action';
 import formatAmount from 'utils/general/formatAmount';
 
 import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
 
 const nameToSsovStyle: { [key: string]: string } = {
   ETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)',
@@ -34,20 +29,19 @@ const nameToSsovStyle: { [key: string]: string } = {
   BTC: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f06a04 99.1%)',
 };
 
-const CustomBox = styled(Box)(({ token }) => ({
+const CustomBox = styled(Box)(({ token }: { token: string }) => ({
   background: nameToSsovStyle[token],
   width: '350px',
 }));
 
-function SsovCard(props) {
+function SsovCard(props: any) {
   const { className, data } = props;
-  const { convertToBNB } = useContext(BnbConversionContext);
   const {
     currentEpoch,
     totalEpochDeposits,
     apy,
     tvl,
-    underlyingSymbol: name,
+    underlyingSymbol,
     type,
     duration,
     retired,
@@ -55,6 +49,9 @@ function SsovCard(props) {
     version,
     epochTimes,
   } = data;
+
+  const name = underlyingSymbol as string;
+
   const info = useMemo(() => {
     return [
       {
@@ -65,12 +62,6 @@ function SsovCard(props) {
             : '...'
         }`,
         Icon: Action,
-        tooltip:
-          type === 'put'
-            ? 'This is the base APY calculated from Curve 2Pool Fees and Rewards'
-            : ssovInfo[name]
-            ? ssovInfo[name].aprToolTipMessage
-            : undefined,
       },
       {
         heading: 'TVL',
@@ -79,24 +70,16 @@ function SsovCard(props) {
       },
       {
         heading: 'DEPOSITS',
-        value: `${formatAmount(
-          name === 'BNB' && convertToBNB
-            ? convertToBNB(
-                ethersUtils.parseUnits(totalEpochDeposits, 8)
-              ).toString()
-            : totalEpochDeposits,
-          0,
-          true
-        )}`,
+        value: `${formatAmount(totalEpochDeposits, 0, true)}`,
         imgSrc:
           type === 'put'
             ? '/images/tokens/2crv.png'
             : SSOV_MAP[name]
-            ? SSOV_MAP[name].imageSrc
+            ? SSOV_MAP[name]?.imageSrc
             : '',
       },
     ];
-  }, [apy, convertToBNB, name, totalEpochDeposits, tvl, type]);
+  }, [apy, totalEpochDeposits, tvl, type, name]);
 
   return (
     <CustomBox className="p-[1px] rounded-xl" token={name}>
@@ -111,7 +94,7 @@ function SsovCard(props) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                src={SSOV_MAP[name].imageSrc}
+                src={SSOV_MAP[name]?.imageSrc}
                 alt={name}
               />
             </Box>
@@ -132,7 +115,7 @@ function SsovCard(props) {
             </Box>
           </Box>
           <Box className="grid grid-cols-3 gap-2 mb-2">
-            {info.map((item) => {
+            {info.map((item: any) => {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
