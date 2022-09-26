@@ -386,7 +386,7 @@ const quotes = [
 ];
 
 const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
-  const { chainId, signer } = useContext(WalletContext);
+  const { chainId, signer, accountAddress } = useContext(WalletContext);
   const [toMint, setToMint] = useState<number>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
 
@@ -432,16 +432,17 @@ const ActionsDialog = ({ open, handleClose, data, updateData }: Props) => {
     );
 
     try {
-      await publicSaleContract.connect(signer)['mint'](toMint, {
+      await publicSaleContract.connect(signer)['mint'](toMint, accountAddress, {
         value: getContractReadableAmount(toMint * 0.88, 18),
       });
       setSubmitted(true);
       explodeEmojis();
       await updateData();
     } catch (err) {
+      console.log(err);
       alert('Insufficient balance');
     }
-  }, [updateData, signer, toMint]);
+  }, [updateData, signer, toMint, accountAddress]);
 
   const explodeEmojis = () => {
     const toExplode = document.getElementById('emojisplosion');
