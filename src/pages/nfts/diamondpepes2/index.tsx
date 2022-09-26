@@ -312,33 +312,11 @@ const DiamondPepesNfts = () => {
                 Please stay tuned for a reveal announcement from esteemed CEO.{' '}
                 <br />
                 <br />
-                Please follow his twitter or Dopex’s official Twitter account
-                for more information.
+                Please follow the Diamond Pepes Twitter or Dopex’s official
+                Twitter account for more information.
               </Typography>
 
               <Box className={'flex mt-6'}>
-                <img
-                  src={'/assets/export.svg'}
-                  className={'w-5 ml-auto cursor-pointer'}
-                  alt={'Export'}
-                  onClick={() =>
-                    window.location.replace(
-                      'https://tofunft.com/collection/diamond-pepes/items'
-                    )
-                  }
-                />
-                <Typography
-                  variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2 cursor-pointer"
-                  onClick={() =>
-                    window.location.replace(
-                      'https://tofunft.com/collection/diamond-pepes/items'
-                    )
-                  }
-                >
-                  <span className={styles['pepeLink']!}>Tofunft</span>
-                </Typography>
-
                 <img
                   src={'/assets/pepe-tweet.png'}
                   className={'w-6 h-5 ml-auto cursor-pointer'}
@@ -362,21 +340,17 @@ const DiamondPepesNfts = () => {
                   className="w-6 h-5 ml-auto cursor-pointer"
                   alt="Pepe tweet"
                   onClick={() =>
-                    window.location.replace(
-                      'https://mobile.twitter.com/chutoro_au'
-                    )
+                    window.location.replace('https://twitter.com/diamondpepes')
                   }
                 />
                 <Typography
                   variant="h5"
                   className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2 cursor-pointer"
                   onClick={() =>
-                    window.location.replace(
-                      'https://mobile.twitter.com/chutoro_au'
-                    )
+                    window.location.replace('https://twitter.com/diamondpepes')
                   }
                 >
-                  <span className={styles['pepeLink']!}>CEO</span>
+                  <span className={styles['pepeLink']!}>DIAMOND PEPES</span>
                 </Typography>
               </Box>
             </Box>
