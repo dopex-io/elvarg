@@ -137,7 +137,7 @@ export const EpochData = ({
           <Typography variant="h5">Program Goals</Typography>
           <Box className="text-stieglitz h-24  mb-7">
             Commit stablecoins upfront and receive vested DPX from treasury at a
-            lower market price. Proceeds supports Dopex operations.
+            lower market price. Proceeds support Dopex operations.
           </Box>
         </Box>
         <Box className="p-3 w-[352px]">
