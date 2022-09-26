@@ -17,8 +17,8 @@ import Accordion from 'components/UI/Accordion';
 import Switch from 'components/UI/Switch';
 import ConfirmRfqDialog from '../Dialogs/ConfirmRfqDialog';
 
-import { WalletContext } from 'contexts/Wallet';
 import { OtcContext } from 'contexts/Otc';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -35,7 +35,7 @@ const RfqForm = (props: RfqFormProps) => {
 
   const sendTx = useSendTx();
 
-  const { accountAddress, provider, signer } = useContext(WalletContext);
+  const { accountAddress, provider, signer } = useBoundStore();
   const { validateUser, user, escrowData, loaded } = useContext(OtcContext);
 
   const [selection, setSelection] = useState<{

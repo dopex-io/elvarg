@@ -1,9 +1,8 @@
-import { useContext } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import smartTrim from 'utils/general/smartTrim';
 
@@ -16,7 +15,7 @@ interface ArbiscanLinkProps {
 const ExplorerLink = (props: ArbiscanLinkProps) => {
   const { address } = props;
 
-  const { chainId = 42161 } = useContext(WalletContext);
+  const { chainId = 42161 } = useBoundStore();
 
   return (
     <Box className="flex">

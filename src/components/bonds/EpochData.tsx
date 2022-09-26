@@ -1,18 +1,27 @@
-/** @jsxImportSource @emotion/react */
-import { useContext } from 'react';
-import { css } from '@emotion/react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
+import styled from '@emotion/styled';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
 
-import { DpxBondsContext } from 'contexts/Bonds';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+const StyledBox = styled(Box)`
+  background: linear-gradient(318.43deg, #002eff -7.57%, #22e1ff 100%);
+  border-radius: 5px;
+  color: white;
+  width: 70px;
+  padding: 8px;
+  text-align: center;
+  cursor: not-allowed;
+`;
 
 type EpochData = {
   handleModal: () => void;
@@ -23,35 +32,24 @@ export const EpochData = ({
   handleModal,
   handleEligibilityModal,
 }: EpochData) => {
-  const { dpxBondsData, dpxBondsEpochData } = useContext(DpxBondsContext);
+  const { dpxBondsData, dpxBondsEpochData, updateBondsEpochData } =
+    useBoundStore();
 
   const { epoch: epochNumber, epochExpiry } = dpxBondsData;
   const { depositPerNft } = dpxBondsEpochData;
 
   const isEpochExpired = epochExpiry < Date.now() / 1000;
 
+  useEffect(() => {
+    updateBondsEpochData(dpxBondsData.epoch);
+  }, [updateBondsEpochData, dpxBondsData.epoch]);
+
   return (
     <>
       <Box className="bg-cod-gray rounded-lg flex flex-wrap max-w-[728px] mb-5 mt-5">
         <Box className="p-3 flex-2 md:flex-1 border-r border-umbra w-2/4">
           <Box className="text-stieglitz mb-3">Epoch</Box>
-          <Box
-            css={css`
-              background: linear-gradient(
-                318.43deg,
-                #002eff -7.57%,
-                #22e1ff 100%
-              );
-              border-radius: 5px;
-              color: white;
-              width: 70px;
-              padding: 8px;
-              text-align: center;
-              cursor: not-allowed;
-            `}
-          >
-            {epochNumber}
-          </Box>
+          <StyledBox>{epochNumber}</StyledBox>
         </Box>
         <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-umbra w-2/4">
           <Box className="text-stieglitz mb-3">Total DPX Available</Box>
@@ -90,7 +88,7 @@ export const EpochData = ({
       </Box>
       <Typography variant="h5">Bond with Stablecoins</Typography>
       <Box className="text-stieglitz mb-5">
-        Swap your stables at a premium for vested DPX and support {"Dopex's"}
+        Swap your stables at a premium for vested DPX and support {"Dopex's "}
         operations.
       </Box>
       <Box className="lg:flex">

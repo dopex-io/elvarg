@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
-import { WalletContext } from 'contexts/Wallet';
 import DepositsTable from './DepositsTable';
+
+import { useBoundStore } from 'store';
 
 const isShowPreviousEpochVisible = false;
 
 const Deposits = () => {
-  const { accountAddress, ensName } = useContext(WalletContext);
+  const { accountAddress, ensName } = useBoundStore();
 
   return (
     <Box className="text-gray-400 w-full rounded-lg">

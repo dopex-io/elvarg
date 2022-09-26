@@ -29,7 +29,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 import useSendTx from 'hooks/useSendTx';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 
@@ -56,7 +56,7 @@ type IGMXPositionArray = [
 
 const UserPositions = () => {
   const { signer, accountAddress, contractAddresses, provider } =
-    useContext(WalletContext);
+    useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [gmxPositions, setGmxPositions] = useState<IGMXPosition[]>([]);
 

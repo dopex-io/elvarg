@@ -35,7 +35,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 import useSendTx from 'hooks/useSendTx';
@@ -80,7 +80,7 @@ export interface IStrategyDetails {
 
 export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   const { signer, accountAddress, provider, contractAddresses, chainId } =
-    useContext(WalletContext);
+    useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [leverage, setLeverage] = useState<number>(2);
   const [isApproved, setIsApproved] = useState<{

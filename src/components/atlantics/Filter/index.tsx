@@ -3,9 +3,11 @@ import Box from '@mui/material/Box';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
+
 import Typography from 'components/UI/Typography';
-import { Pool } from 'contexts/Atlantics';
 import Input from 'components/UI/Input';
+
+import { Pool } from 'contexts/Atlantics';
 
 interface FilterProps {
   activeFilters: string | string[];

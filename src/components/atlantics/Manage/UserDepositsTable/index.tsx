@@ -19,7 +19,7 @@ import CustomButton from 'components/UI/Button';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import { AtlanticsContext } from 'contexts/Atlantics';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -72,7 +72,7 @@ export const TableBodyCell = ({
 };
 
 const UserDepositsTable = () => {
-  const { provider, signer } = useContext(WalletContext);
+  const { provider, signer } = useBoundStore();
   const { userPositions, selectedPool, selectedEpoch } =
     useContext(AtlanticsContext);
 

@@ -8,11 +8,10 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
-import { WalletContext } from 'contexts/Wallet';
 import { BnbConversionContext } from 'contexts/BnbConversion';
+import { useBoundStore } from 'store';
 
 import { SSOV_MAP } from 'constants/index';
-import ssovInfo from 'constants/ssovInfo';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
@@ -42,7 +41,7 @@ const Description = ({
   type: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useContext(WalletContext);
+  const { accountAddress, connect } = useBoundStore();
   const { convertToBNB } = useContext(BnbConversionContext);
 
   const { APY, isVaultReady } = ssovEpochData;
@@ -59,10 +58,8 @@ const Description = ({
     if (ssovData.tokenPrice && ssovEpochData) {
       if (isPut) {
         return (
-          // @ts-ignore TODO: FIX
           getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
-          // @ts-ignore TODO: FIX
-          getUserReadableAmount(ssovData.lpPrice, 18)
+          getUserReadableAmount(ssovData.lpPrice!, 18)
         );
       } else if (tokenSymbol === 'BNB') {
         return convertToBNB(ssovEpochData.totalEpochDeposits)
@@ -84,17 +81,12 @@ const Description = ({
     {
       heading: 'Asset',
       value: tokenSymbol,
-      // @ts-ignore TODO: FIX
-      imgSrc: SSOV_MAP[ssovData.tokenName].imageSrc,
+      imgSrc: SSOV_MAP[ssovData.tokenName!]?.imageSrc || '',
     },
     {
       heading: 'Farm APY',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
-      tooltip: isPut
-        ? 'Curve 2Pool Fee APY and Curve Rewards'
-        : // @ts-ignore TODO: FIX
-          ssovInfo[tokenSymbol].aprToolTipMessage,
     },
     {
       heading: 'TVL',
@@ -121,10 +113,6 @@ const Description = ({
           {tokenSymbol} Single Staking Option Vault (SSOV)
         </span>
         <br />
-        {isPut
-          ? 'Deposit 2CRV (or USDT, USDC) into strikes providing liquidity into option pools to earn Fee APY, Curve rewards and premiums in 2CRV from each option purchase.'
-          : // @ts-ignore TODO: FIX
-            ssovInfo[tokenSymbol].mainPageMessage}
       </Typography>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Tooltip

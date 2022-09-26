@@ -10,77 +10,71 @@ export const CURRENCIES_MAP: { [key: string]: string } = {
   '1088': 'METIS',
 };
 
-export const SSOV_MAP = {
+export const SSOV_MAP: {
+  [key: string]: {
+    tokenSymbol: string;
+    imageSrc: string;
+    tokens: string[];
+  };
+} = {
   DPX: {
     tokenSymbol: 'DPX',
     imageSrc: '/images/tokens/dpx.svg',
-    coinGeckoId: 'dopex',
     tokens: ['DPX'],
   },
   RDPX: {
     tokenSymbol: 'RDPX',
     imageSrc: '/images/tokens/rdpx.svg',
-    coinGeckoId: 'dopex-rebate-token',
     tokens: ['RDPX'],
   },
   ETH: {
     tokenSymbol: 'ETH',
     imageSrc: '/images/tokens/eth.svg',
-    coinGeckoId: 'ethereum',
     tokens: ['WETH'],
   },
   PLS: {
     tokenSymbol: 'PLS',
     imageSrc: '/images/tokens/pls.svg',
-    coinGeckoId: 'plutusdao',
     tokens: ['PLS'],
   },
   BNB: {
     tokenSymbol: 'BNB',
     imageSrc: '/images/tokens/bnb.svg',
-    coinGeckoId: 'binancecoin',
     tokens: ['WBNB', 'VBNB'],
   },
   GOHM: {
     tokenSymbol: 'GOHM',
     imageSrc: '/images/tokens/gohm.svg',
-    coinGeckoId: 'governance-ohm',
     tokens: ['GOHM'],
   },
   GMX: {
     tokenSymbol: 'GMX',
     imageSrc: '/images/tokens/gmx.svg',
-    coinGeckoId: 'gmx',
     tokens: ['GMX'],
   },
   AVAX: {
     tokenSymbol: 'AVAX',
     imageSrc: '/images/tokens/avax.svg',
-    coiGeckoId: 'avalanche-2',
     tokens: ['AVAX'],
   },
   BTC: {
     tokenSymbol: 'BTC',
     imageSrc: '/images/tokens/btc.svg',
-    coiGeckoId: 'bitcoin',
     tokens: ['BTC'],
   },
   CRV: {
     tokenSymbol: 'CRV',
     imageSrc: '/images/tokens/crv.svg',
-    coiGeckoId: 'curve-dao-token',
     tokens: ['CRV'],
   },
   LUNA: {
     tokenSymbol: 'LUNA',
     imageSrc: '/images/tokens/luna.svg',
-    coiGeckoId: 'terra-luna',
     tokens: ['LUNA'],
   },
   METIS: {
     tokenSymbol: 'METIS',
     imageSrc: '/images/tokens/metis.svg',
-    coinGeckoId: 'metis',
     tokens: ['METIS'],
   },
 };
@@ -97,13 +91,16 @@ export const VAULT_MAP: { [key: string]: { src: string } } = {
   'MIM3CRV-2': {
     src: '/images/tokens/mim.svg',
   },
-  'PUSD3CRV-1': {
+  'PUSD3CRV-3': {
     src: '/images/tokens/pusd.svg',
   },
   'PUSD3CRV-2': {
     src: '/images/tokens/pusd.svg',
   },
   'PUSD3CRV-BIWEEKLY-1': {
+    src: '/images/tokens/pusd.svg',
+  },
+  'PUSD3CRV-BIWEEKLY-2': {
     src: '/images/tokens/pusd.svg',
   },
   'ETH-ATLANTIC-STRADDLE-3': {
@@ -226,7 +223,7 @@ export const S3_BUCKET_RESOURCES = {
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
 };
 
-export const DISPLAY_TOKENS = {
+export const DISPLAY_TOKENS: { [key: string | number]: string[] } = {
   42161: ['DPX', 'RDPX', 'ETH'],
   56: ['BNB', 'VBNB'],
   43114: ['AVAX'],
@@ -281,6 +278,17 @@ export const TOKEN_DECIMALS: {
   },
 };
 
+export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
+  42161: 'ETH',
+  56: 'BNB',
+  43114: 'AVAX',
+  1: 'ETH',
+};
+
+export const IS_NATIVE = (asset: string) => {
+  return ['ETH', 'BNB', 'AVAX'].includes(asset);
+};
+
 export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
@@ -300,6 +308,31 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   43114: 'https://snowtrace.io/',
   1088: 'https://andromeda-explorer.metis.io/',
   421611: 'https://testnet.arbiscan.io/',
+};
+
+export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
+  [key: string]: { default: number; all: number[] };
+} = {
+  '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/governance/vedpx': { default: 42161, all: [42161] },
+  '/farms': { default: 42161, all: [1, 42161] },
+  '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
+  '/ssov/call/BNB': { default: 56, all: [56] },
+  '/ssov/call/AVAX': { default: 43114, all: [43114] },
+  '/nfts/community': { default: 42161, all: [] },
+  '/nfts/diamondpepes2': { default: 42161, all: [1, 42161] },
+  '/sale': { default: 1, all: [1] },
+  '/oracles': { default: 42161, all: [] },
+  '/tzwap': { default: 42161, all: [1, 42161] },
+  '/ssov-v3/Metis-MONTHLY-CALLS-SSOV-V3': { default: 1088, all: [1088] },
+  '/ir/MIM3CRV-1': { default: 42161, all: [42161] },
+  '/ir/MIM3CRV-2': { default: 42161, all: [42161] },
+  '/ir/PUSD3CRV': { default: 42161, all: [42161] },
+  '/ir': { default: 42161, all: [42161] },
+  '/straddles': { default: 42161, all: [42161] },
+  '/straddles/ETH': { default: 42161, all: [42161] },
+  '/straddles/RDPX': { default: 42161, all: [42161] },
+  '/dpx-bonds': { default: 42161, all: [42161] },
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

@@ -1,11 +1,5 @@
 // @ts-nocheck
-import React, {
-  useEffect,
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-} from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { DiamondPepeNFTs__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import cx from 'classnames';
@@ -23,7 +17,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { Data, UserData } from 'types/diamondpepes';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -62,7 +56,7 @@ const Pledge2Dialog = ({
   pledge,
 }: Props) => {
   const { accountAddress, chainId, signer, contractAddresses } =
-    useContext(WalletContext);
+    useBoundStore();
 
   const diamondPepeNfts = useMemo(
     () =>

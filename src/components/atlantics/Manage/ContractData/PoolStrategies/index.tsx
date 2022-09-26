@@ -1,9 +1,8 @@
-import { useContext } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 const PoolStrategies = () => {
   return (
@@ -14,7 +13,7 @@ const PoolStrategies = () => {
 };
 
 const StrategyInfo = () => {
-  const { contractAddresses } = useContext(WalletContext);
+  const { contractAddresses } = useBoundStore();
 
   return (
     <a

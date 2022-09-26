@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 import PoolStatsRow from 'components/atlantics/Manage/ManageCard/PoolStats/PoolStatsRow';
 import PoolStatsBox from 'components/atlantics/Manage/ManageCard/PoolStats/PoolStatsBox';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
@@ -18,7 +18,7 @@ interface PoolStatsProps {
 
 const PoolStats = ({ poolType }: PoolStatsProps) => {
   const { selectedPool, userPositions } = useContext(AtlanticsContext);
-  const { chainId } = useContext(WalletContext);
+  const { chainId } = useBoundStore();
 
   const poolShareStats = useMemo(() => {
     if (!selectedPool?.duration || !userPositions)

@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useContext,
-  useState,
-  useMemo,
-  SetStateAction,
-} from 'react';
+import { useCallback, useState, useMemo, SetStateAction } from 'react';
 import { BigNumber } from 'ethers';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -14,7 +8,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import { SsovV3Context } from 'contexts/SsovV3';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -49,7 +43,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     isSettleable,
   } = props;
 
-  const { ssovData, ssovEpochData } = useContext(SsovV3Context);
+  const { ssovData, ssovEpochData } = useBoundStore();
 
   const [dialogState, setDialogState] = useState({
     open: false,

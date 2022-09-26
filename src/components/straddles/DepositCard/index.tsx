@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import { format } from 'date-fns';
 import { ERC20__factory } from '@dopex-io/sdk';
@@ -15,15 +9,13 @@ import Tooltip from '@mui/material/Tooltip';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { StraddlesContext } from 'contexts/Straddles';
-
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
+
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -35,20 +27,23 @@ import { MAX_VALUE } from 'constants/index';
 const THREE_DAYS = 3 * 24 * 3600;
 
 const DepositCard = () => {
-  const { chainId, accountAddress, signer, contractAddresses } =
-    useContext(WalletContext);
-  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
-  );
   const {
+    chainId,
+    accountAddress,
+    signer,
+    contractAddresses,
     straddlesEpochData,
     straddlesData,
     straddlesUserData,
     updateStraddlesEpochData,
     updateStraddlesUserData,
-  } = useContext(StraddlesContext);
+  } = useBoundStore();
 
   const sendTx = useSendTx();
+
+  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
 
   const [approved, setApproved] = useState(false);
 

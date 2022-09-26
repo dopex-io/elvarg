@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 
 import { emojisplosions } from 'emojisplosion';
 
@@ -15,7 +15,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import styles from './styles.module.scss';
 import cx from 'classnames';
@@ -91,7 +91,7 @@ const quotes = [
 ];
 
 const ActionsDialog = ({ open, tab, handleClose }: Props) => {
-  const { chainId, signer } = useContext(WalletContext);
+  const { chainId, signer } = useBoundStore();
   const [toMint, setToMint] = useState<number>(1);
 
   const decreaseToMintAmount = () => {

@@ -1,7 +1,6 @@
 import {
   createContext,
   useEffect,
-  useContext,
   useState,
   useCallback,
   Dispatch,
@@ -18,7 +17,7 @@ import {
   AtlanticsViewer__factory,
 } from '@dopex-io/sdk';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
@@ -209,7 +208,7 @@ export interface Pool {
 
 export const AtlanticsProvider = (props: any) => {
   const { contractAddresses, signer, provider, accountAddress } =
-    useContext(WalletContext);
+    useBoundStore();
 
   const [pools, setPools] = useState<Pool[]>([]);
   const [stats, setStats] = useState<Stats>({

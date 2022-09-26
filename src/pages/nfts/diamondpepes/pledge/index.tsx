@@ -1,5 +1,5 @@
 // @ts-nocheck TODO: FIX
-import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   YieldMint__factory,
   DiamondPepeNFTsPledge__factory,
@@ -21,14 +21,13 @@ import { Data, UserData, initialData } from 'types/diamondpepes';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { NftsProvider } from 'contexts/Nfts';
+import { useBoundStore } from 'store';
 
 import styles from 'components/nfts/diamondpepes/PledgeDialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, provider, signer, chainId } =
-    useContext(WalletContext);
+  const { accountAddress, provider, signer, chainId } = useBoundStore();
+
   const [data, setData] = useState<Data>(initialData.data);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
@@ -410,9 +409,5 @@ const DiamondPepesNfts = () => {
   );
 };
 
-const DiamondPepesNftsPage = () => (
-  <NftsProvider>
-    <DiamondPepesNfts />
-  </NftsProvider>
-);
+const DiamondPepesNftsPage = () => <DiamondPepesNfts />;
 export default DiamondPepesNftsPage;

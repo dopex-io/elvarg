@@ -17,6 +17,7 @@ const SelectMenuProps = {
   classes: {
     paper: 'bg-mineshaft',
   },
+  disableScrollLock: true,
 };
 
 export interface Props {

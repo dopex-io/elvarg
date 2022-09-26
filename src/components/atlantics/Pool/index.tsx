@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BigNumber } from 'ethers';
 import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
@@ -10,7 +11,6 @@ import PutsIcon from 'svgs/icons/PutsIcon';
 import CallsIcon from 'svgs/icons/CallsIcon';
 
 import formatAmount from 'utils/general/formatAmount';
-import { BigNumber } from 'ethers';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 // import { TOKEN_DECIMALS } from 'constants/index';

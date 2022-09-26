@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
@@ -12,8 +12,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { AssetsContext } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 const StrategyDetails = (props: {
   data: IStrategyDetails;
@@ -40,8 +39,7 @@ const StrategyDetails = (props: {
     baseToken,
   } = props;
 
-  const { tokenPrices, tokens } = useContext(AssetsContext);
-  const { chainId } = useContext(WalletContext);
+  const { tokenPrices, tokens, chainId } = useBoundStore();
 
   const total = useMemo((): {
     totalQuoteAsset: {

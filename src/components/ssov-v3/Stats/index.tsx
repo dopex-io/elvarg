@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import TableHead from '@mui/material/TableHead';
@@ -13,7 +13,7 @@ import range from 'lodash/range';
 
 import Typography from 'components/UI/Typography';
 
-import { SsovV3Context } from 'contexts/SsovV3';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -100,7 +100,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
 const Stats = (props: { className?: string }) => {
   const { className } = props;
 
-  const { ssovData, selectedEpoch, ssovEpochData } = useContext(SsovV3Context);
+  const { ssovData, selectedEpoch, ssovEpochData } = useBoundStore();
 
   const price = useMemo(
     () => getUserReadableAmount(ssovData?.tokenPrice ?? 0, 8),

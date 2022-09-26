@@ -1,11 +1,10 @@
-import React, { useContext, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Slide from '@mui/material/Slide';
 
 import Typography from 'components/UI/Typography';
 
-import { AssetsContext } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -26,8 +25,7 @@ interface TokenSelectorProps {
 
 const TokenSelector = (props: TokenSelectorProps) => {
   const { open, setOpen, tokens, setSelection, containerRef } = props;
-  const { chainId } = useContext(WalletContext);
-  const { userAssetBalances, tokenPrices } = useContext(AssetsContext);
+  const { chainId, userAssetBalances, tokenPrices } = useBoundStore();
 
   const getValueInUsd = useCallback(
     (symbol: string) => {

@@ -1,10 +1,13 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '../../UI/Typography';
+
+import Typography from 'components/UI/Typography';
+
+import { useBoundStore } from 'store';
+
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+
 import { CURRENCIES_MAP } from 'constants/index';
 
 export interface Props {
@@ -13,8 +16,8 @@ export interface Props {
 }
 
 const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
-  const { tokenPrices } = useContext(AssetsContext);
-  const { provider } = useContext(WalletContext);
+  const { tokenPrices, provider } = useBoundStore();
+
   const [estimatedGasCost, setEstimatedGasCost] = useState<number>(0);
 
   const estimatedGasCostInUsd = useMemo(() => {

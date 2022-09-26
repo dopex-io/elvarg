@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -6,7 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 import Typography from 'components/UI/Typography';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
@@ -24,7 +24,7 @@ interface MaxStrikeInputProps {
 const MaxStrikeInput = (props: MaxStrikeInputProps) => {
   const { currentPrice, token, tickSize, setMaxStrike } = props;
 
-  const { chainId } = useContext(WalletContext);
+  const { chainId } = useBoundStore();
 
   const [error, setError] = useState('');
 

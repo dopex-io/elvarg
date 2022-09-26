@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useState,
-  useContext,
-  useMemo,
-  useCallback,
-  ReactNode,
-} from 'react';
+import { useEffect, useState, useMemo, useCallback, ReactNode } from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
 import {
@@ -46,10 +39,9 @@ import displayAddress from 'utils/general/displayAddress';
 
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
-import { AssetsContext, IS_NATIVE } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
-import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
+import { CURRENCIES_MAP, MAX_VALUE, IS_NATIVE } from 'constants/index';
 
 import { Order } from '../../types/tzwap';
 
@@ -89,11 +81,17 @@ const SelectMenuProps = {
 
 const Tzwap = () => {
   const sendTx = useSendTx();
-  const { chainId, signer, provider, contractAddresses, accountAddress } =
-    useContext(WalletContext);
+  const {
+    chainId,
+    signer,
+    accountAddress,
+    provider,
+    contractAddresses,
+    userAssetBalances,
+    tokenPrices,
+    updateAssetBalances,
+  } = useBoundStore();
 
-  const { userAssetBalances, tokenPrices, updateAssetBalances } =
-    useContext(AssetsContext);
   const [isFetchingOrders, setIsFetchingOrders] = useState<boolean>(false);
   const [openOrder, setOpenOrder] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);

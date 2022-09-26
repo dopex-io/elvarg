@@ -24,8 +24,7 @@ import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
-import { AssetsContext } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 import useSendTx from 'hooks/useSendTx';
@@ -57,9 +56,13 @@ const ManageCard = (props: ManageCardProps) => {
 
   const sendTx = useSendTx();
 
-  const { userAssetBalances } = useContext(AssetsContext);
-  const { chainId, signer, contractAddresses, accountAddress } =
-    useContext(WalletContext);
+  const {
+    userAssetBalances,
+    chainId,
+    signer,
+    contractAddresses,
+    accountAddress,
+  } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
 
   const depositToken = useMemo(() => {

@@ -1,4 +1,4 @@
-import { ReactNode, useContext, useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { BigNumber, utils } from 'ethers';
@@ -17,7 +17,7 @@ import Stat from './Stat';
 import Chip from './Chip';
 import LpRatios from './LpRatios';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store/index';
 
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
@@ -132,7 +132,7 @@ const FarmCard = (props: Props) => {
     version,
   } = props;
 
-  const { accountAddress, chainId, signer } = useContext(WalletContext);
+  const { accountAddress, chainId, signer } = useBoundStore();
 
   const sendTx = useSendTx();
 
