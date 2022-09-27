@@ -211,6 +211,23 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       }
     }
 
+    if (hasConfirmedRelayer) {
+      const duelId = await duelContract.duelCount();
+
+      await fetch('https://dp-relay.dopex.io/submit', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          duel_id: duelId,
+          moves: numericMoves,
+          salt: salt,
+        }),
+      });
+    }
+
     try {
       await sendTx(
         duelContract
@@ -230,23 +247,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       );
     } catch (err) {
       alert('You are not whitelisted');
-    }
-
-    if (hasConfirmedRelayer) {
-      const duelId = await duelContract.duelCount();
-
-      await fetch('https://dp-relay.dopex.io/submit', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          duel_id: duelId,
-          moves: numericMoves,
-          salt: salt,
-        }),
-      });
     }
 
     setMoves([]);
