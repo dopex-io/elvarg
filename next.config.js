@@ -7,17 +7,17 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/straddles',
+        destination: '/nfts/duel',
         permanent: false,
       },
       {
-        source: '/otc',
-        destination: '/straddles',
+        source: '/diamondpepes2',
+        destination: '/nfts/diamondpepes2',
         permanent: false,
       },
       {
-        source: '/otc/chat',
-        destination: '/straddles',
+        source: '/proof',
+        destination: '/nft/proof',
         permanent: false,
       },
     ];
