@@ -211,23 +211,26 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       }
     }
 
-    await sendTx(
-      duelContract
-        .connect(signer)
-        ['createDuel'](
-          identifier,
-          getContractReadableAmount(
-            wager,
-            getTokenDecimals(tokenName, chainId)
-          ),
-          movesSig,
-          {
-            gasLimit: 3000000,
-            value:
-              tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
-          }
-        )
-    );
+    try {
+      await sendTx(
+        duelContract
+          .connect(signer)
+          ['createDuel'](
+            identifier,
+            getContractReadableAmount(
+              wager,
+              getTokenDecimals(tokenName, chainId)
+            ),
+            movesSig,
+            {
+              value:
+                tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
+            }
+          )
+      );
+    } catch (err) {
+      alert('You are not whitelisted');
+    }
 
     if (hasConfirmedRelayer) {
       const duelId = await duelContract.duelCount();
