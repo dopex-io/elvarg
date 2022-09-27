@@ -126,7 +126,7 @@ const DuelPepes = () => {
                 data?.maxPublicMints.sub(data?.nextMintId)?.toNumber() - 889,
               subTitle: 'PEPES REMAINING',
             },
-            { title: '8:00PM 27/10/2022', subTitle: 'START' },
+            { title: '6:00pm UTC 09/27/2022', subTitle: 'START' },
             {
               title: (
                 <Countdown
