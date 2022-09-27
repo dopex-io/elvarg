@@ -480,7 +480,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           'function getAmountOut(address _vault, address _tokenIn, address _tokenOut, uint256 _amountIn) public view returns (uint256, uint256)',
         ];
         const reader = new ethers.Contract(
-          '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1',
+          '0x22199a49A999c351eF7927602CFB187ec3cae489',
           abi,
           signer
         );
