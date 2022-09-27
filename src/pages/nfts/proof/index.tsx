@@ -1,12 +1,12 @@
 import Head from 'next/head';
-import { useContext, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
@@ -15,7 +15,7 @@ import styles from 'components/nfts/duel/styles.module.scss';
 
 const Proof = () => {
   const [message, setMessage] = useState('');
-  const { accountAddress, signer } = useContext(WalletContext);
+  const { accountAddress, signer } = useBoundStore();
   const broadcast = useCallback(async () => {
     if (!signer || !accountAddress) return;
 
