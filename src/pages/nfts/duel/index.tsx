@@ -226,27 +226,7 @@ const DuelPepes = () => {
           />
 
           <Box className={'flex mt-6'}>
-            <img
-              src={'/assets/export.svg'}
-              className={'w-5 h-5 ml-auto mt-1'}
-              alt={'Mint Gen2 Pepe'}
-              onClick={() =>
-                window.location.replace(
-                  'https://app.dopex.io/nfts/diamondpepes2'
-                )
-              }
-            />
-            <Typography
-              variant="h5"
-              className="text-[#78859E] font-['Minecraft'] relative z-1 ml-4 mt-1 cursor-pointer"
-              onClick={() =>
-                window.location.replace(
-                  'https://app.dopex.io/nfts/diamondpepes2'
-                )
-              }
-            >
-              <span className={styles['pepeLink']}>Main page</span>
-            </Typography>
+
 
             <img
               src={'/assets/export.svg'}
