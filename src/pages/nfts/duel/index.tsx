@@ -230,7 +230,7 @@ const DuelPepes = () => {
           <Box className={'flex mt-6'}>
             <img
               src={'/assets/export.svg'}
-              className={'w-5 h-5 ml-8 mt-1'}
+              className={'w-5 h-5 ml-auto mt-1'}
               alt={'How to mint'}
               onClick={() =>
                 window.location.replace(
