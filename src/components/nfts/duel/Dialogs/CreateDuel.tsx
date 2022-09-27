@@ -788,7 +788,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 label="Wager"
                 onChange={(event) => setWager(Number(event.target.value))}
               >
-                <MenuItem value={'0.00001'}>0.00001 (to remove)</MenuItem>
                 <MenuItem value={'0.05'}>0.05</MenuItem>
                 <MenuItem value={'0.1'}>0.1</MenuItem>
                 <MenuItem value={'0.2'}>0.2</MenuItem>

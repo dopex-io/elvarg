@@ -92,13 +92,13 @@ const DuelPepes = () => {
   };
 
   const toMintForFree = useMemo(() => {
-    return Math.floor(getUserReadableAmount(availableCredit, 18) / 0.008);
+    return Math.floor(getUserReadableAmount(availableCredit, 18) / 0.8);
   }, [availableCredit]);
 
   const remainingETHToPayToMint = useMemo(() => {
     const credit = getUserReadableAmount(availableCredit, 18);
 
-    return 0.0088 - credit;
+    return 0.88 - credit;
   }, [availableCredit]);
 
   const mintForFree = useCallback(async () => {
@@ -126,16 +126,16 @@ const DuelPepes = () => {
                 data?.maxPublicMints.sub(data?.nextMintId)?.toNumber() - 889,
               subTitle: 'PEPES REMAINING',
             },
-            { title: '5:55PM 5/12/2022', subTitle: 'START' },
+            { title: '8:00PM 27/10/2022', subTitle: 'START' },
             {
               title: (
                 <Countdown
-                  date={new Date(data?.endTime?.toNumber() * 1000)}
+                  date={new Date(data?.startTime?.toNumber() * 1000)}
                   renderer={({ days, hours, minutes, seconds, completed }) => {
                     if (completed) {
                       return (
                         <span className="text-wave-blue">
-                          The sale has been closed
+                          The sale has been opened
                         </span>
                       );
                     } else {

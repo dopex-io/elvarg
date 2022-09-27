@@ -2470,8 +2470,6 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         return [];
       });
 
-    console.log(results);
-
     results.map((_duel) => {
       if (!_duel) return;
 

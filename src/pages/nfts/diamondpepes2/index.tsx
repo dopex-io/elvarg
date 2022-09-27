@@ -6,13 +6,14 @@ import Box from '@mui/material/Box';
 
 import Countdown from 'react-countdown';
 
+import { DuelContext, DuelProvider } from 'contexts/Duel';
+
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 
 import ActionsDialog from 'components/nfts/diamondpepes2/ActionsDialog';
-import styles from 'components/nfts/diamondpepes2/styles.module.scss';
 
-import { DuelContext } from 'contexts/Duel';
+import styles from 'components/nfts/diamondpepes2/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { data, updateData } = useContext(DuelContext);
@@ -31,16 +32,16 @@ const DiamondPepesNfts = () => {
                 data?.maxPublicMints.sub(data?.nextMintId)?.toNumber() - 889,
               subTitle: 'PEPES REMAINING',
             },
-            { title: '5:55PM 5/12/2022', subTitle: 'START' },
+            { title: '8:00PM 27/10/2022', subTitle: 'START' },
             {
               title: (
                 <Countdown
-                  date={new Date(data?.endTime?.toNumber() * 1000)}
+                  date={new Date(data?.startTime?.toNumber() * 1000)}
                   renderer={({ days, hours, minutes, seconds, completed }) => {
                     if (completed) {
                       return (
                         <span className="text-wave-blue">
-                          The sale has been closed
+                          The sale has been opened
                         </span>
                       );
                     } else {
@@ -448,4 +449,10 @@ const DiamondPepesNfts = () => {
   );
 };
 
-export default DiamondPepesNfts;
+const DiamondPepesNftsPage = () => (
+  <DuelProvider>
+    <DiamondPepesNfts />
+  </DuelProvider>
+);
+
+export default DiamondPepesNftsPage;
