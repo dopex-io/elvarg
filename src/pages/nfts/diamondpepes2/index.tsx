@@ -27,7 +27,8 @@ const DiamondPepesNfts = () => {
       data
         ? [
             {
-              title: data?.maxPublicMints.sub(data?.nextMintId)?.toNumber(),
+              title:
+                data?.maxPublicMints.sub(data?.nextMintId)?.toNumber() - 889,
               subTitle: 'PEPES REMAINING',
             },
             { title: '5:55PM 5/12/2022', subTitle: 'START' },
