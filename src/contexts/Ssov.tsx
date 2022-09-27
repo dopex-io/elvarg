@@ -24,8 +24,6 @@ import {
 import { BigNumber } from 'ethers';
 import axios from 'axios';
 
-import { WalletContext } from './Wallet';
-
 import { SSOV_MAP, DOPEX_API_BASE_URL } from 'constants/index';
 
 import formatAmount from 'utils/general/formatAmount';

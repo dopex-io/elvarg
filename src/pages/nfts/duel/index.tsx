@@ -7,7 +7,6 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { Duel, DuelContext, DuelProvider } from 'contexts/Duel';
-import { WalletContext } from 'contexts/Wallet';
 
 import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
@@ -23,6 +22,8 @@ import formatAmount from 'utils/general/formatAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
+import { useBoundStore } from 'store';
+
 import styles from 'components/nfts/duel/styles.module.scss';
 import Countdown from 'react-countdown';
 
@@ -37,7 +38,7 @@ const DuelPepes = () => {
     updateCredit,
     data,
   } = useContext(DuelContext);
-  const { signer } = useContext(WalletContext);
+  const { signer } = useBoundStore();
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
     useState<boolean>(false);
   const [isFindDuelDialogOpen, setIsFindDuelDialogOpen] =
