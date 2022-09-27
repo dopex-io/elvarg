@@ -231,6 +231,23 @@ const CreateDuel = ({ open, handleClose }: Props) => {
         )
     );
 
+    if (hasConfirmedRelayer) {
+      const duelId = await duelContract.duelCount();
+
+      await fetch('https://dp-relay.dopex.io/submit', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          duel_id: duelId,
+          moves: numericMoves,
+          salt: salt,
+        }),
+      });
+    }
+
     setMoves([]);
     handleClose();
     await updateDuels();
@@ -247,6 +264,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     chainId,
     moves,
     wager,
+    hasConfirmedRelayer,
   ]);
 
   // Updates the approved and user balance state
