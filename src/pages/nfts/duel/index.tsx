@@ -111,7 +111,7 @@ const DuelPepes = () => {
   const mintMixed = useCallback(async () => {
     if (!duelContract || !signer || !updateCredit || !sendTx) return;
 
-    const missing = BigNumber.from('8800000000000000').sub(availableCredit);
+    const missing = BigNumber.from('880000000000000000').sub(availableCredit);
 
     await sendTx(duelContract['mintMixed']({ value: missing }));
     await updateCredit();
