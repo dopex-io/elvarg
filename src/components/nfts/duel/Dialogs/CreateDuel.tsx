@@ -30,6 +30,7 @@ import downloadTxt from 'utils/general/downloadTxt';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { getRandomString } from 'utils/general/getRandomString';
 
 import { useBoundStore } from 'store';
 
@@ -67,9 +68,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     BigNumber.from('0')
   );
   // this changes every time the dialog is opened
-  const [salt] = useState<string>(
-    [...Array(10)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
-  );
+  const [salt] = useState<string>(getRandomString(10));
 
   const fees = useMemo(() => {
     return (wager * feesPercentage) / 100;
