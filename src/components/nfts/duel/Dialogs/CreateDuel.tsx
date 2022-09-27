@@ -60,8 +60,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
   const [hasConfirmedPolicy, setHasConfirmedPolicy] = useState<boolean>(false);
-  const [hasConfirmedRelayer, setHasConfirmedRelayer] =
-    useState<boolean>(false);
+  const [hasConfirmedRelayer, setHasConfirmedRelayer] = useState<boolean>(true);
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
