@@ -122,8 +122,10 @@ const DuelPepes = () => {
       data
         ? [
             {
-              title:
+              title: Math.max(
                 data?.maxPublicMints.sub(data?.nextMintId)?.toNumber() - 889,
+                0
+              ),
               subTitle: 'PEPES REMAINING',
             },
             { title: '6:00pm UTC 09/27/2022', subTitle: 'START' },
@@ -226,8 +228,6 @@ const DuelPepes = () => {
           />
 
           <Box className={'flex mt-6'}>
-
-
             <img
               src={'/assets/export.svg'}
               className={'w-5 h-5 ml-8 mt-1'}
