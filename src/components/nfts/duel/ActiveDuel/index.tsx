@@ -152,7 +152,7 @@ const ActiveDuel = ({
           {duel['status'] === 'requireReveal' ? (
             <Countdown
               date={
-                new Date(duel['challengedDate'].getTime() + 3600 * 12 * 1000)
+                new Date(duel['challengedDate'].getTime() + 3600 * 4 * 1000)
               }
               renderer={({ days, hours, minutes }) => {
                 return (
