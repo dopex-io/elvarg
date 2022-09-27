@@ -432,12 +432,12 @@ const DiamondPepesNfts = () => {
               <br />
               <a
                 href={
-                  'https://arbiscan.io/address/0xeF6d04290cc234d8e6A21e575d271673d408C55B'
+                  'https://arbiscan.io/address/0x1acf58D681883ee4beC36921bE9Aa3a4a09B95bd'
                 }
                 rel="noopener noreferrer"
                 target={'_blank'}
               >
-                0xeF6d04290cc234d8e6A21e575d271673d408C55B
+                0x1acf58D681883ee4beC36921bE9Aa3a4a09B95bd
               </a>
             </Typography>
           </Box>

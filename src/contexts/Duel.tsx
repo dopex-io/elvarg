@@ -2274,7 +2274,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0x84352a13C9E35b3Ef43763EF44593B960074BC38',
+      '0xD91D0d52D6e09f0b93db80E1A8935aA47CFFd075',
       DuelPepesABI,
       signer
     );
@@ -2291,7 +2291,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelLeaderboardContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0xdF6aF0a9DAdF50e356BA9F158De37e943EfE311c',
+      '0x4E31359828F279fa6d748971eE087a6f168c21a2',
       DuelPepesLeaderboardABI,
       signer
     );
@@ -2543,13 +2543,13 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     if (!provider || !signer) return;
 
     const nftContract = new ethers.Contract(
-      '0xBe6f1eDce63A2C6f0Ab112013ee6F251a88D96A9',
+      '0xe10EDa7E9B8A5AD4A1c7BF5A25278C8bDA2Cec99',
       ABI,
       signer
     );
 
     const publicSaleContract = new ethers.Contract(
-      '0x29549FEDec386d131c2A90Fd9e3ce594729d4Ae3',
+      '0x1acf58D681883ee4beC36921bE9Aa3a4a09B95bd',
       ABIMINT,
       signer
     );
