@@ -8,6 +8,8 @@ import Countdown from 'react-countdown';
 
 import { DuelContext, DuelProvider } from 'contexts/Duel';
 
+import { useBoundStore } from 'store';
+
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 
@@ -17,6 +19,7 @@ import styles from 'components/nfts/diamondpepes2/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { data, updateData } = useContext(DuelContext);
+  const { chainId } = useBoundStore();
 
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
     visible: false,
@@ -238,7 +241,12 @@ const DiamondPepesNfts = () => {
               <button
                 className={styles['pepeButton']!}
                 onClick={() =>
-                  setActionsDialogDisplayState({ visible: true, tab: 'mint' })
+                  chainId === 42161
+                    ? setActionsDialogDisplayState({
+                        visible: true,
+                        tab: 'mint',
+                      })
+                    : null
                 }
               >
                 MINT
