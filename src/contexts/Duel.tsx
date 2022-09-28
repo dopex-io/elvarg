@@ -2274,7 +2274,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0xD91D0d52D6e09f0b93db80E1A8935aA47CFFd075',
+      '0x2e04ee843e71D12d52309e78797200E11E9A4DCb',
       DuelPepesABI,
       signer
     );
@@ -2547,13 +2547,13 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     if (!provider || !signer) return;
 
     const nftContract = new ethers.Contract(
-      '0xe10EDa7E9B8A5AD4A1c7BF5A25278C8bDA2Cec99',
+      '0x37d5206DaF6BbEdEe5B9237b8472e8395746a2de',
       ABI,
       signer
     );
 
     const publicSaleContract = new ethers.Contract(
-      '0x1acf58D681883ee4beC36921bE9Aa3a4a09B95bd',
+      '0x044a7A6a9A68052f1C8f06354986137DBB388Dc9',
       ABIMINT,
       signer
     );
