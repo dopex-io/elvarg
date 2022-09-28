@@ -16,7 +16,6 @@ import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
 
-const ssovStates: string[] = ['Active', 'Retired'];
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
 
@@ -39,9 +38,6 @@ const Ssov = () => {
   const { chainId, provider, tokenPrices } = useBoundStore();
 
   const [ssovs, setSsovs] = useState<{ [key: string]: any }>({});
-  const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([
-    'Active',
-  ]);
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
@@ -130,14 +126,6 @@ const Ssov = () => {
         <LegacyEpochsDropDown />
         <Box className="mb-4 flex flex-wrap justify-center">
           <SsovFilter
-            activeFilters={selectedSsovStates}
-            setActiveFilters={setSelectedSsovStates}
-            text="State"
-            options={ssovStates}
-            multiple={true}
-            showImages={false}
-          />
-          <SsovFilter
             activeFilters={selectedSsovTokens}
             setActiveFilters={setSelectedSsovTokens}
             text="Tokens"
@@ -198,11 +186,7 @@ const Ssov = () => {
                                 (selectedTypes.length === 0 ||
                                   selectedTypes.includes(
                                     ssov.type.toUpperCase()
-                                  )) &&
-                                ((selectedSsovStates.includes('Active') &&
-                                  !ssov.retired) ||
-                                  (selectedSsovStates.includes('Retired') &&
-                                    ssov.retired))
+                                  ))
                               )
                                 visible = true;
                               return visible ? (
