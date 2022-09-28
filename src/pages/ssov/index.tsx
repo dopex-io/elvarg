@@ -10,7 +10,6 @@ import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import LegacyEpochsDropDown from 'components/ssov/LegacyEpochsDropDown/LegacyEpochsDropDown';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
@@ -123,7 +122,6 @@ const Ssov = () => {
             option purchases and earn rewards simultaneously.
           </Typography>
         </Box>
-        <LegacyEpochsDropDown />
         <Box className="mb-4 flex flex-wrap justify-center">
           <SsovFilter
             activeFilters={selectedSsovTokens}
