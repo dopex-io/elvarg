@@ -193,7 +193,16 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       ]
     );
 
-    const movesSig = await signer.signMessage(ethers.utils.arrayify(hash));
+    let movesSig = await signer.signMessage(ethers.utils.arrayify(hash));
+
+    const finalTwoCharacters = movesSig.slice(-2);
+    const initial = movesSig.slice(0, -2);
+
+    if (finalTwoCharacters === '00') {
+      movesSig = initial + '1b';
+    } else if (finalTwoCharacters === '01') {
+      movesSig = initial + '1c';
+    }
 
     if (tokenName !== 'ETH') {
       const token = ERC20__factory.connect(

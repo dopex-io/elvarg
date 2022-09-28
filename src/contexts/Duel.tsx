@@ -2252,8 +2252,8 @@ const ABIMINT = [
 export const DuelContext = createContext<DuelContextInterface>(initialData);
 
 export const DuelProvider = (props: { children: ReactNode }) => {
-  const { tokenPrices, provider, signer, chainId, accountAddress } =
-    useBoundStore();
+  const { tokenPrices, provider, signer, chainId } = useBoundStore();
+  const accountAddress = '0xAe2a6CE639C1Ec0951655da99E38182C2d81e2E1';
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [data, setData] = useState<{
     publicMints: BigNumber;
@@ -2390,6 +2390,12 @@ export const DuelProvider = (props: { children: ReactNode }) => {
         } else {
           if (maxRevealDate.getTime() < new Date().getTime()) {
             status = 'forfeit';
+
+            if (duelistMoves.length === 0) {
+              if (duelistAddress !== accountAddress)
+                status = 'requireClaimForfeit';
+              else status = 'waitClaimForfeit';
+            }
           } else {
             status = 'requireReveal';
           }
