@@ -6,7 +6,10 @@ import { useBoundStore } from 'store';
 
 import smartTrim from 'utils/general/smartTrim';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import {
+  CHAIN_ID_TO_NETWORK_DATA,
+  CHAIN_ID_TO_EXPLORER,
+} from 'constants/index';
 
 interface ArbiscanLinkProps {
   address: string;
@@ -20,7 +23,7 @@ const ExplorerLink = (props: ArbiscanLinkProps) => {
   return (
     <Box className="flex">
       <a
-        href={`https://testnet.arbiscan.io/address/${address}`}
+        href={`${CHAIN_ID_TO_EXPLORER[chainId]}address/${address}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex space-x-2 bg-arbitrum rounded-lg p-2"

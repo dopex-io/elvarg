@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import {
   GmxVault__factory,
   LongPerpStrategyViewer__factory,
@@ -13,7 +14,6 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
@@ -28,7 +28,6 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
 import { useBoundStore } from 'store';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
@@ -55,22 +54,21 @@ type IGMXPositionArray = [
 ];
 
 const UserPositions = () => {
-  const { signer, accountAddress, contractAddresses, provider } =
+  const { signer, accountAddress, contractAddresses, provider, atlanticPool } =
     useBoundStore();
-  const { selectedPool } = useContext(AtlanticsContext);
   const [gmxPositions, setGmxPositions] = useState<IGMXPosition[]>([]);
 
   const sendTx = useSendTx();
 
   const getUserPositions = useCallback(async () => {
-    if (!contractAddresses || !accountAddress || !provider || !selectedPool)
+    if (!contractAddresses || !accountAddress || !provider || !atlanticPool)
       return;
     const strategyContractAddress: string =
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
     const strategyViewerAddress =
       contractAddresses['STRATEGIES']['INSURED-PERPS']['VIEWER'];
     const gmxVaultAddress: string = contractAddresses['GMX-VAULT'];
-    const { underlying } = selectedPool.tokens;
+    const { underlying } = atlanticPool.tokens;
 
     if (!underlying) return;
 
@@ -182,11 +180,11 @@ const UserPositions = () => {
     });
 
     setGmxPositions(() => gmxPositions);
-  }, [contractAddresses, provider, accountAddress, selectedPool]);
+  }, [contractAddresses, provider, accountAddress, atlanticPool]);
 
   const closePosition = useCallback(
     async (index: number) => {
-      if (!contractAddresses || !accountAddress || !signer || !selectedPool)
+      if (!contractAddresses || !accountAddress || !signer || !atlanticPool)
         return;
       try {
         const strategyContractAddress: string =
@@ -205,12 +203,12 @@ const UserPositions = () => {
         console.log(err);
       }
     },
-    [accountAddress, contractAddresses, selectedPool, signer, sendTx]
+    [accountAddress, contractAddresses, atlanticPool, signer, sendTx]
   );
 
   const keepCollateral = useCallback(
     async (index: number) => {
-      if (!contractAddresses || !accountAddress || !signer || !selectedPool)
+      if (!contractAddresses || !accountAddress || !signer || !atlanticPool)
         return;
       try {
         const strategyContractAddress: string =
@@ -228,7 +226,7 @@ const UserPositions = () => {
         console.log(err);
       }
     },
-    [accountAddress, contractAddresses, selectedPool, signer, sendTx]
+    [accountAddress, contractAddresses, atlanticPool, signer, sendTx]
   );
 
   useEffect(() => {

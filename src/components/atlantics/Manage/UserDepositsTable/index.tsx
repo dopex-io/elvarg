@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { format, formatDistance } from 'date-fns';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
@@ -7,18 +7,12 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
-import {
-  AtlanticCallsPool__factory,
-  AtlanticPutsPool__factory,
-} from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
@@ -73,8 +67,13 @@ export const TableBodyCell = ({
 
 const UserDepositsTable = () => {
   const { provider, signer } = useBoundStore();
-  const { userPositions, selectedPool, selectedEpoch } =
-    useContext(AtlanticsContext);
+  const {
+    userPositions,
+    atlanticPool,
+    atlanticPoolEpochData,
+    selectedEpoch,
+    updateUserPositions,
+  } = useBoundStore();
 
   const [canWithdraw, setCanWithdraw] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('0');
@@ -82,19 +81,26 @@ const UserDepositsTable = () => {
   const sendTx = useSendTx();
 
   useEffect(() => {
+    if (!atlanticPoolEpochData) return;
     (async () => {
-      if (!selectedPool.state.expiryTime.gt(0) || !provider) return;
+      if (!atlanticPoolEpochData.expiry.gt(0) || !provider) return;
       const blockNumber = await provider.getBlockNumber();
       const timestamp = (await provider.getBlock(blockNumber)).timestamp;
-      setCanWithdraw(timestamp > selectedPool.state.expiryTime.toNumber());
+      setCanWithdraw(timestamp > atlanticPoolEpochData.expiry.toNumber());
     })();
-  }, [provider, selectedPool]);
+  }, [provider, atlanticPoolEpochData]);
 
   useEffect(() => {
+    if (!atlanticPool || !atlanticPoolEpochData) return;
+    updateUserPositions();
+  }, [atlanticPool, atlanticPoolEpochData, updateUserPositions]);
+
+  useEffect(() => {
+    if (!atlanticPoolEpochData) return;
     (async () => {
       const epochTimes = {
-        startTime: selectedPool?.state.startTime ?? BigNumber.from(0),
-        expiryTime: selectedPool?.state.expiryTime ?? BigNumber.from(0),
+        startTime: atlanticPoolEpochData.startTime,
+        expiryTime: atlanticPoolEpochData.expiry,
       };
 
       const duration = formatDistance(
@@ -104,10 +110,10 @@ const UserDepositsTable = () => {
 
       setEpochDuration(duration);
     })();
-  }, [selectedPool]);
+  }, [atlanticPoolEpochData]);
 
   const tokenDecimals = useMemo(() => {
-    if (!selectedPool)
+    if (!atlanticPoolEpochData)
       return {
         funding: 6,
         premium: 6,
@@ -115,44 +121,27 @@ const UserDepositsTable = () => {
       };
 
     return {
-      funding: selectedPool.isPut ? 6 : 18,
-      premium: selectedPool.isPut ? 6 : 18,
+      // funding: selectedPool.isPut ? 6 : 18,
+      funding: 6,
+      // premium: selectedPool.isPut ? 6 : 18,
+      premium: 6,
       underlying: 18,
     };
-  }, [selectedPool]);
+  }, [atlanticPoolEpochData]);
 
   const handleWithdraw = useCallback(
     async (depositId: number) => {
-      if (
-        !selectedPool?.contracts?.atlanticPool.address ||
-        !selectedPool ||
-        !selectedEpoch ||
-        !signer ||
-        !depositId
-      ) {
+      if (!atlanticPool || !selectedEpoch || !signer || !depositId) {
         return;
       }
-
-      const poolAddress = selectedPool.contracts.atlanticPool.address;
       try {
-        if (selectedPool.isPut) {
-          const apContract = AtlanticPutsPool__factory.connect(
-            poolAddress,
-            signer
-          );
-          await sendTx(apContract.withdraw(depositId));
-        } else {
-          const apContract = AtlanticCallsPool__factory.connect(
-            poolAddress,
-            signer
-          );
-          await sendTx(apContract.withdraw(selectedEpoch));
-        }
+        const apContract = atlanticPool.contracts.atlanticPool;
+        await sendTx(apContract.withdraw(depositId));
       } catch (err) {
         console.log(err);
       }
     },
-    [selectedEpoch, selectedPool, signer, sendTx]
+    [selectedEpoch, atlanticPool, signer, sendTx]
   );
 
   return userPositions?.length !== 0 ? (
@@ -160,27 +149,29 @@ const UserDepositsTable = () => {
       <Table>
         <TableHead>
           <TableRow>
-            {selectedPool?.isPut && <TableHeader>Max Strike</TableHeader>}
+            {/*selectedPool?.isPut && */ <TableHeader>Max Strike</TableHeader>}
             <TableHeader>Deposit Date</TableHeader>
             <TableHeader>Liquidity</TableHeader>
             <TableHeader>Premia Collected</TableHeader>
             <TableHeader>Funding Collected</TableHeader>
-            {selectedPool?.isPut && (
-              <TableHeader>Underlying Collected</TableHeader>
-            )}
+            {
+              /*selectedPool?.isPut && */ <TableHeader>
+                Underlying Collected
+              </TableHeader>
+            }
             <TableHeader>checkpoint</TableHeader>
             <TableHeader>APY</TableHeader>
             <TableHeader align="right">Settle</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {userPositions.map((position, index) => (
+          {userPositions?.map((position, index) => (
             <TableRow key={index}>
-              {selectedPool?.isPut && (
-                <TableBodyCell>
+              {
+                /*selectedPool?.isPut && */ <TableBodyCell>
                   ${getUserReadableAmount(position?.strike ?? 0, 8)}
                 </TableBodyCell>
-              )}
+              }
               <TableBodyCell>
                 <Typography variant="h6">
                   {format(
@@ -225,8 +216,8 @@ const UserDepositsTable = () => {
                   )}
                 </Typography>
               </TableBodyCell>
-              {selectedPool?.isPut && (
-                <TableBodyCell>
+              {
+                /*selectedPool?.isPut && */ <TableBodyCell>
                   <Typography variant="h6">
                     {formatAmount(
                       getUserReadableAmount(
@@ -238,7 +229,7 @@ const UserDepositsTable = () => {
                     )}
                   </Typography>
                 </TableBodyCell>
-              )}
+              }
               <TableBodyCell>
                 <Typography variant="h6">
                   {formatAmount(position.checkpoint.add(1).toString(), 3, true)}

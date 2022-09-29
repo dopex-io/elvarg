@@ -18,8 +18,8 @@ const CustomizedAccordion = styled(Accordion)`
 
 interface CustomAccordionProps {
   header: string;
-  putPools: DurationTypesOfPools | undefined;
-  callPools: DurationTypesOfPools | undefined;
+  putPools?: DurationTypesOfPools;
+  callPools?: DurationTypesOfPools;
   className: string;
 }
 
@@ -34,27 +34,6 @@ const CustomAccordion = ({
   className,
 }: CustomAccordionProps) => {
   const [expand, setExpand] = useState(true);
-
-  // const callPoolFiltered = useMemo(() => {
-  //   if (!callPools) return;
-  //   let pools: FilteredPoolsInterface[] = [];
-  //   const keys: any = Object.keys(callPools);
-  //   keys
-  //     .map((key: 'daily' | 'weekly' | 'monthly') => callPools[key])
-  //     .filter((pool: IAtlanticPoolType, index: any) => {
-  //       if (pool) {
-  //         pools = [
-  //           ...pools,
-  //           {
-  //             duration: keys[index] ?? null,
-  //             pool: pool,
-  //           },
-  //         ];
-  //       }
-  //       return pool !== null;
-  //     });
-  //   return pools;
-  // }, [callPools]);
 
   const putsPoolFiltered = useMemo(() => {
     if (!putPools) return;
@@ -121,23 +100,6 @@ const CustomAccordion = ({
             }
           )}
         </Box>
-        {/* <Box className="flex flex-col space-y-4">
-          {callPoolFiltered!.map(
-            ({ duration, pool }: FilteredPoolsInterface, index) => {
-              return (
-                <PoolCard
-                  key={index}
-                  underlying={pool.tokens['underlying'] ?? ''}
-                  depositToken={pool.tokens['underlying'] ?? ''}
-                  duration={duration.toUpperCase()}
-                  tvl={pool.tvl}
-                  apy={'0'}
-                  isPut={false}
-                />
-              );
-            }
-          )} */}
-        {/* </Box> */}
       </AccordionDetails>
     </CustomizedAccordion>
   );

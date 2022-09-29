@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -11,7 +11,8 @@ import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
-import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
+import { AtlanticsProvider } from 'contexts/Atlantics';
+import { useBoundStore } from 'store';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
 
@@ -67,32 +68,45 @@ const Manage = (props: ManageProps) => {
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
 
-  const { setSelectedPool, selectedPool, setSelectedEpoch, selectedEpoch } =
-    useContext(AtlanticsContext);
+  const {
+    signer,
+    provider,
+    atlanticPool,
+    updateAtlanticPool,
+    updateAtlanticPoolEpochData,
+    selectedEpoch,
+    selectedPoolName,
+    setSelectedPoolName,
+  } = useBoundStore();
 
   useEffect(() => {
-    if (!underlying || !type || !duration) return;
-    (async () => {
-      await setSelectedPool(underlying, type, selectedEpoch, duration);
-    })();
+    if (!underlying || !duration) return;
+    updateAtlanticPool(underlying, duration);
+  }, [underlying, duration, updateAtlanticPool, signer, provider]);
+
+  useEffect(() => {
+    setSelectedPoolName(`${underlying}-${type}-${duration}`);
+  }, [duration, setSelectedPoolName, type, underlying]);
+
+  useEffect(() => {
+    if (!selectedPoolName || !atlanticPool) return;
+    updateAtlanticPoolEpochData();
   }, [
-    setSelectedPool,
-    duration,
-    type,
-    underlying,
+    updateAtlanticPoolEpochData,
     selectedEpoch,
-    setSelectedEpoch,
+    selectedPoolName,
+    atlanticPool,
   ]);
 
   const depositToken = useMemo((): string => {
-    if (!selectedPool) return '';
-    const { deposit } = selectedPool.tokens;
+    if (!atlanticPool) return '';
+    const deposit = atlanticPool.tokens?.depositToken;
     if (deposit) {
       return deposit;
     } else {
-      return selectedPool.asset;
+      return atlanticPool.tokens.underlying;
     }
-  }, [selectedPool]);
+  }, [atlanticPool]);
 
   const changePositionTable = (positionTable: string) => {
     setSelectedPositionTable(() => positionTable);

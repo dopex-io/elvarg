@@ -333,6 +333,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/straddles/ETH': { default: 42161, all: [42161] },
   '/straddles/RDPX': { default: 42161, all: [42161] },
   '/dpx-bonds': { default: 42161, all: [42161] },
+  '/atlantics': { default: 42161, all: [42161] },
 };
 
 export const ADDRESS_TO_TOKEN: { [key: string]: string } = {};

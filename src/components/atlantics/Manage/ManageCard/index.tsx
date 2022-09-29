@@ -1,17 +1,7 @@
-import React, {
-  useState,
-  useCallback,
-  useContext,
-  useMemo,
-  useEffect,
-} from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import {
-  AtlanticPutsPool__factory,
-  AtlanticCallsPool__factory,
-  ERC20__factory,
-} from '@dopex-io/sdk';
+import { AtlanticPutsPool__factory, ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
@@ -20,12 +10,11 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
-import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
+// import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
 import { useBoundStore } from 'store';
-import { AtlanticsContext } from 'contexts/Atlantics';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -51,8 +40,8 @@ const ManageCard = (props: ManageCardProps) => {
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)
   );
-  const [openPositionManager, setOpenPositionManager] =
-    useState<boolean>(false);
+  // const [openPositionManager, setOpenPositionManager] =
+  //   useState<boolean>(false);
 
   const sendTx = useSendTx();
 
@@ -62,31 +51,34 @@ const ManageCard = (props: ManageCardProps) => {
     signer,
     contractAddresses,
     accountAddress,
+    atlanticPool,
+    atlanticPoolEpochData,
   } = useBoundStore();
-  const { selectedPool } = useContext(AtlanticsContext);
 
   const depositToken = useMemo(() => {
-    if (!selectedPool) {
+    if (!atlanticPool) {
       if (poolType == 'CALLS') {
         return 'WETH';
       } else {
         return 'USDC';
       }
     }
-    const { deposit } = selectedPool.tokens;
-    if (!deposit) return selectedPool.asset;
+    const deposit = atlanticPool.tokens.depositToken;
+    if (!deposit) return atlanticPool.tokens.underlying;
     return deposit;
-  }, [selectedPool, poolType]);
+  }, [atlanticPool, poolType]);
 
   const containerRef = React.useRef(null);
 
   const disableButton = useMemo(() => {
-    if (poolType === 'CALLS') {
-      return !selectedPool?.state.isVaultReady || !value;
-    } else {
-      return !selectedPool?.state.isVaultReady || !value || !maxStrike;
-    }
-  }, [poolType, , value, maxStrike, selectedPool?.state.isVaultReady]);
+    if (!atlanticPoolEpochData) return false;
+    // if (poolType === 'CALLS') {
+    //   return !atlanticPoolEpochData?.isVaultReady || !value;
+    // } else {
+    console.log(atlanticPoolEpochData.isVaultReady, value, maxStrike);
+    return !atlanticPoolEpochData.isVaultReady || !value || !maxStrike;
+    // }
+  }, [/*poolType, ,*/ value, maxStrike, atlanticPoolEpochData]);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -136,44 +128,44 @@ const ManageCard = (props: ManageCardProps) => {
 
     let apContract;
 
-    if (selectedPool?.isPut) {
-      try {
-        apContract = AtlanticPutsPool__factory.connect(
-          contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-          signer
-        );
-        await sendTx(
-          apContract
-            .connect(signer)
-            .deposit(
-              getContractReadableAmount(maxStrike, 8),
-              getContractReadableAmount(value, 6),
-              accountAddress
-            )
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    } else {
-      try {
-        apContract = AtlanticCallsPool__factory.connect(
-          contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-          signer
-        );
-        await sendTx(
-          apContract
-            .connect(signer)
-            .deposit(getContractReadableAmount(value, 18), accountAddress)
-        );
-      } catch (err) {
-        console.log(err);
-      }
+    // if (selectedPool?.isPut) {
+    try {
+      apContract = AtlanticPutsPool__factory.connect(
+        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+        signer
+      );
+      await sendTx(
+        apContract
+          .connect(signer)
+          .deposit(
+            getContractReadableAmount(maxStrike, 8),
+            getContractReadableAmount(value, 6),
+            accountAddress
+          )
+      );
+    } catch (err) {
+      console.log(err);
     }
+    // } else {
+    //   try {
+    //     apContract = AtlanticCallsPool__factory.connect(
+    //       contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+    //       signer
+    //     );
+    //     await sendTx(
+    //       apContract
+    //         .connect(signer)
+    //         .deposit(getContractReadableAmount(value, 18), accountAddress)
+    //     );
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // }
   }, [
     signer,
     contractAddresses,
     accountAddress,
-    selectedPool?.isPut,
+    // selectedPool?.isPut,
     underlying,
     poolType,
     duration,
@@ -183,15 +175,16 @@ const ManageCard = (props: ManageCardProps) => {
   ]);
 
   const handleMax = useCallback(() => {
-    const { deposit } = selectedPool.tokens;
-    if (!deposit) return;
+    if (!atlanticPool) return;
+    const { depositToken } = atlanticPool?.tokens;
+    if (!depositToken) return;
     setValue(
       getUserReadableAmount(
-        userAssetBalances[deposit || underlying] ?? '0',
-        getTokenDecimals(deposit, chainId)
+        userAssetBalances[depositToken || underlying] ?? '0',
+        getTokenDecimals(depositToken, chainId)
       )
     );
-  }, [chainId, selectedPool.tokens, underlying, userAssetBalances]);
+  }, [chainId, atlanticPool, underlying, userAssetBalances]);
 
   useEffect(() => {
     (async () => {
@@ -199,11 +192,11 @@ const ManageCard = (props: ManageCardProps) => {
         !signer ||
         !contractAddresses ||
         !accountAddress ||
-        !selectedPool.tokens ||
+        !atlanticPool?.tokens ||
         !contractAddresses['ATLANTIC-POOLS']
       )
         return;
-      const { deposit } = selectedPool.tokens;
+      const deposit = atlanticPool.tokens.depositToken;
       if (!deposit) return;
       if (!contractAddresses[deposit]) return;
 
@@ -232,30 +225,30 @@ const ManageCard = (props: ManageCardProps) => {
     signer,
     underlying,
     value,
-    selectedPool.tokens,
+    atlanticPool?.tokens,
   ]);
 
-  const openPositionManagerModal = useCallback(() => {
-    setOpenPositionManager(true);
-  }, []);
+  // const openPositionManagerModal = useCallback(() => {
+  //   setOpenPositionManager(true);
+  // }, []);
 
-  const closePositionManager = useCallback(() => {
-    setOpenPositionManager(false);
-  }, []);
+  // const closePositionManager = useCallback(() => {
+  //   setOpenPositionManager(false);
+  // }, []);
 
   useEffect(() => {
     (async () => {
       if (!signer || !contractAddresses['ATLANTIC-POOLS']) return;
 
-      let pool = selectedPool?.isPut
-        ? AtlanticPutsPool__factory.connect(
-            contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-            signer
-          )
-        : AtlanticCallsPool__factory.connect(
-            contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-            signer
-          );
+      let pool = AtlanticPutsPool__factory.connect(
+        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+        signer
+      );
+      // selectedPool?.isPut ?
+      // : AtlanticCallsPool__factory.connect(
+      //     contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+      //     signer
+      //   );
 
       setCurrentPrice(await pool.getUsdPrice());
     })();
@@ -263,7 +256,8 @@ const ManageCard = (props: ManageCardProps) => {
     contractAddresses,
     duration,
     poolType,
-    selectedPool?.isPut,
+    // selectedPool?.isPut,
+    atlanticPool,
     signer,
     underlying,
   ]);
@@ -279,7 +273,7 @@ const ManageCard = (props: ManageCardProps) => {
         </Typography>
         {poolType === 'PUTS' ? (
           <>
-            <Typography
+            {/* <Typography
               onClick={openPositionManagerModal}
               variant="h6"
               className="text-gray-300 underline cursor-pointer"
@@ -290,7 +284,7 @@ const ManageCard = (props: ManageCardProps) => {
             <OpenPositionDialog
               isOpen={openPositionManager}
               handleClose={closePositionManager}
-            />
+            /> */}
           </>
         ) : null}
       </Box>
@@ -328,15 +322,15 @@ const ManageCard = (props: ManageCardProps) => {
           }
         />
       </Box>
-      {selectedPool?.isPut && (
-        <MaxStrikeInput
-          token={depositToken}
-          currentPrice={currentPrice}
-          tickSize={selectedPool?.config.tickSize}
-          maxStrikes={selectedPool?.strikes}
-          setMaxStrike={setMaxStrike}
-        />
-      )}
+      {/* {selectedPool?.isPut && ( */}
+      <MaxStrikeInput
+        token={depositToken}
+        currentPrice={currentPrice}
+        tickSize={atlanticPoolEpochData?.tickSize}
+        maxStrikes={atlanticPoolEpochData?.maxStrikes}
+        setMaxStrike={setMaxStrike}
+      />
+      {/* )} */}
 
       <PoolStats poolType={poolType} />
       <Box className="rounded-xl bg-umbra p-3 space-y-3">
@@ -347,7 +341,7 @@ const ManageCard = (props: ManageCardProps) => {
           <LockerIcon className="my-auto m-2" />
           <Typography variant="h6" color="stieglitz">
             Withdrawals are locked until end of Epoch{' '}
-            <>{selectedPool?.state?.epoch.toString()}</>
+            <>{atlanticPoolEpochData?.epoch.toString()}</>
           </Typography>
         </Box>
         <CustomButton

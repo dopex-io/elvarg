@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import {
@@ -16,7 +16,8 @@ import Typography from 'components/UI/Typography';
 import CallsIcon from 'svgs/icons/CallsIcon';
 import PutsIcon from 'svgs/icons/PutsIcon';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
+import { useBoundStore } from 'store';
+
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -37,6 +38,8 @@ interface LiquidityBarGraphProps {
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const { data, height, header } = props;
 
+  const { atlanticPoolEpochData } = useBoundStore();
+
   const [focusBar, setFocusBar] = useState<any>(null);
 
   const formattedBarData = useMemo(() => {
@@ -49,8 +52,6 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       };
     });
   }, [data]);
-
-  const { selectedPool } = useContext(AtlanticsContext);
 
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
@@ -103,7 +104,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               type="category"
               dataKey="strike"
               orientation="right"
-              tickSize={[selectedPool?.strikes].length}
+              tickSize={[atlanticPoolEpochData?.maxStrikes].length}
               axisLine={false}
               tickLine={false}
               interval={0}

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import formatDistance from 'date-fns/formatDistance';
 import { BigNumber } from 'ethers';
@@ -10,7 +10,7 @@ import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrateg
 import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -18,42 +18,49 @@ const ContractData = () => {
   const [currentEpoch, setCurrentEpoch] = useState<number>(0);
   const [utilizationRate, setUtilizationRate] = useState(BigNumber.from(0));
 
-  const { selectedPool, selectedEpoch, setSelectedEpoch } =
-    useContext(AtlanticsContext);
+  const {
+    atlanticPool,
+    atlanticPoolEpochData,
+    selectedEpoch,
+    setSelectedEpoch,
+  } = useBoundStore();
 
   const epochDuration = useMemo(() => {
-    if (selectedPool.state.expiryTime.eq(BigNumber.from(0))) return '...';
+    if (!atlanticPoolEpochData) return;
 
-    if (!selectedPool.state.isVaultExpired)
+    if (atlanticPoolEpochData.expiry.eq(BigNumber.from(0))) return '...';
+
+    if (!atlanticPoolEpochData.isVaultExpired)
       return formatDistance(
-        Number(selectedPool.state.expiryTime) * 1000,
+        Number(atlanticPoolEpochData.expiry) * 1000,
         Number(new Date())
       );
     else return 'Expired';
-  }, [selectedPool]);
+  }, [atlanticPoolEpochData]);
 
   useEffect(() => {
     (async () => {
-      if (!selectedPool || !selectedPool.contracts) return;
-      const epoch = await selectedPool.contracts.atlanticPool.currentEpoch();
+      if (!atlanticPool) return;
+      const epoch = await atlanticPool.contracts.atlanticPool.currentEpoch();
       setCurrentEpoch(Number(epoch));
 
       const _utilRate =
-        await selectedPool.contracts?.atlanticPool.getUtilizationRate(
+        await atlanticPool.contracts.atlanticPool.getUtilizationRate(
           selectedEpoch
         );
 
       setUtilizationRate(_utilRate);
     })();
-  }, [selectedPool, selectedEpoch]);
+  }, [atlanticPool, selectedEpoch]);
 
   const vaultStatusMessage = useMemo(() => {
-    const expired = selectedPool.state.isVaultExpired;
-    const ongoing = selectedPool.state.isVaultReady;
+    if (!atlanticPoolEpochData) return;
+    const expired = atlanticPoolEpochData.isVaultExpired;
+    const ongoing = atlanticPoolEpochData.isVaultReady;
     if (expired) return 'Expired';
     if (ongoing) return 'In Progress';
     return 'In Progress';
-  }, [selectedPool.state.isVaultExpired, selectedPool.state.isVaultReady]);
+  }, [atlanticPoolEpochData]);
 
   return (
     <Box className="grid grid-cols-2 md:grid-cols-3 grid-row-4 divide-x divide-y divide-umbra border border-umbra rounded-md">
@@ -62,7 +69,7 @@ const ContractData = () => {
           <Typography variant="h6" color="stieglitz">
             Epoch
           </Typography>
-          {selectedEpoch === Number(selectedPool?.state.epoch) ? (
+          {selectedEpoch === Number(atlanticPoolEpochData?.epoch) ? (
             <Typography variant="h6" color="wave-blue">
               ({vaultStatusMessage})
             </Typography>
@@ -90,7 +97,7 @@ const ContractData = () => {
         description="Contract"
         value={
           <ExplorerLink
-            address={selectedPool?.contracts?.atlanticPool.address ?? '...'}
+            address={atlanticPool?.contracts.atlanticPool.address ?? '...'}
           />
         }
         variant="col"
@@ -104,9 +111,9 @@ const ContractData = () => {
         description="Funding Rate"
         value={
           <Typography variant="h6" className="font-semibold">
-            {!selectedPool?.config.baseFundingRate.isZero()
+            {!atlanticPool?.vaultConfig.baseFundingRate.isZero()
               ? `${getUserReadableAmount(
-                  selectedPool?.config.baseFundingRate.toNumber()! * 100,
+                  atlanticPool?.vaultConfig.baseFundingRate.toNumber()! * 100,
                   6
                 )}%`
               : '...'}
@@ -116,16 +123,16 @@ const ContractData = () => {
       />
       <ContractDataItem
         description="APR"
-        value={<Typography variant="h6">~{selectedPool.apy}%</Typography>}
+        value={<Typography variant="h6">~{/*selectedPool.apy */}%</Typography>}
         variant="row"
       />
       <ContractDataItem
         description="Epoch Length"
         value={
           <Typography variant="h6">
-            {selectedPool?.duration
-              ? selectedPool?.duration[0] +
-                selectedPool?.duration.substring(1).toLowerCase()
+            {atlanticPool?.durationType
+              ? atlanticPool?.durationType[0] +
+                atlanticPool?.durationType.substring(1).toLowerCase()
               : '...'}
           </Typography>
         }

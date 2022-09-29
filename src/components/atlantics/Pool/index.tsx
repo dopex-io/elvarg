@@ -36,7 +36,6 @@ const PoolCard = (props: PoolCardProps) => {
       <Box
         className="bg-umbra rounded-lg p-3 border border-umbra hover:border-primary transition ease-in-out hover:duration-250"
         role="button"
-        // onClick={handleMarketSelection}
       >
         <Box className="flex justify-between">
           <Box className="flex space-x-2">
@@ -49,7 +48,6 @@ const PoolCard = (props: PoolCardProps) => {
               {`${underlying}-${type}-${duration}`}
             </Typography>
             {!isPut ? (
-              // @TODO Fill is hard coded
               <CallsIcon fill="#8aff95" className="my-auto" />
             ) : (
               <PutsIcon className="my-auto" />

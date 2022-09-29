@@ -1,11 +1,12 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
-import { AtlanticsContext } from 'contexts/Atlantics';
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface ManageCardTitleProps {
   depositToken: string;
@@ -18,16 +19,19 @@ interface ManageCardTitleProps {
 const ManageTitle = (props: ManageCardTitleProps) => {
   const { depositToken, underlying, poolType, strategy, epochLength } = props;
 
-  const { selectedPool } = useContext(AtlanticsContext);
+  const { atlanticPool } = useBoundStore();
 
   const poolId = useMemo(() => {
-    const { underlying, deposit } = selectedPool.tokens;
-    if (!underlying || !deposit) return;
+    if (!atlanticPool) return;
 
-    return `${underlying}-${deposit}-${
-      selectedPool?.isPut ? 'PUTS' : 'CALLS'
-    }-${selectedPool?.duration.substring(0, 1)}`;
-  }, [selectedPool]);
+    const { underlying, depositToken } = atlanticPool.tokens;
+    if (!underlying || !depositToken) return;
+
+    return `${underlying}-${depositToken}-${
+      // selectedPool?.isPut ? 'PUTS' : 'CALLS'
+      'PUTS'
+    }-${atlanticPool.durationType.substring(0, 1)}`;
+  }, [atlanticPool]);
 
   return (
     <Box className="flex space-x-3 w-3/4">
@@ -67,7 +71,10 @@ const ManageTitle = (props: ManageCardTitleProps) => {
         variant="h6"
         className="my-auto border border-primary rounded-[0.4em] px-2 py-1"
       >
-        {`$${formatAmount(selectedPool?.underlyingPrice, 3)}`}
+        {`$${formatAmount(
+          getUserReadableAmount(atlanticPool?.underlyingPrice || '0', 8),
+          3
+        )}`}
       </Typography>
     </Box>
   );

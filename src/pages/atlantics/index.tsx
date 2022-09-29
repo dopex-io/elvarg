@@ -10,9 +10,12 @@ import Stats from 'components/atlantics/Stats';
 import Filter from 'components/atlantics/Filter';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
+// import { useBoundStore } from 'store';
 
 const Atlantics = () => {
   const { pools } = useContext(AtlanticsContext);
+  // const { updatePools } = useBoundStore();
+
   const [selectedAtlanticsAssets, setSelectedAtlanticsAssets] = useState<
     string | string[]
   >([]);
@@ -22,6 +25,10 @@ const Atlantics = () => {
       (pool) => !selectedAtlanticsAssets.includes(pool.asset)
     );
   }, [pools, selectedAtlanticsAssets]);
+
+  // useEffect(() => {
+  //   updatePools();
+  // }, [updatePools]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -58,7 +65,6 @@ const Atlantics = () => {
                       className="bg-cod-gray shadow-none"
                       header={pool.asset}
                       putPools={pool.put}
-                      callPools={pool.call}
                     />
                   </Box>
                 </Box>
