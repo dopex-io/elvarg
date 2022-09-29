@@ -284,7 +284,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   // Updates the approved and user balance state
   useEffect(() => {
     (async function () {
-      console.log(provider, contractAddresses, tokenName, accountAddress);
       if (!provider || !contractAddresses || !tokenName || !accountAddress)
         return;
 
@@ -301,7 +300,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
         userAmount = await _token.balanceOf(accountAddress!);
       }
 
-      console.log(userAmount);
       setUserTokenBalance(userAmount);
     })();
   }, [accountAddress, provider, contractAddresses, tokenName]);
