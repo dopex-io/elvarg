@@ -75,7 +75,6 @@ const ManageCard = (props: ManageCardProps) => {
     // if (poolType === 'CALLS') {
     //   return !atlanticPoolEpochData?.isVaultReady || !value;
     // } else {
-    console.log(atlanticPoolEpochData.isVaultReady, value, maxStrike);
     return !atlanticPoolEpochData.isVaultReady || !value || !maxStrike;
     // }
   }, [/*poolType, ,*/ value, maxStrike, atlanticPoolEpochData]);

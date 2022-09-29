@@ -159,7 +159,7 @@ const UserDepositsTable = () => {
                 Underlying Collected
               </TableHeader>
             }
-            <TableHeader>checkpoint</TableHeader>
+            <TableHeader>Checkpoint</TableHeader>
             <TableHeader>APY</TableHeader>
             <TableHeader align="right">Settle</TableHeader>
           </TableRow>
@@ -246,7 +246,6 @@ const UserDepositsTable = () => {
                     await handleWithdraw(position.depositId!);
                   }}
                   disabled={!canWithdraw}
-                  color={canWithdraw ? 'primary' : 'mineshaft'}
                   className="rounded-md"
                 >
                   {canWithdraw ? (

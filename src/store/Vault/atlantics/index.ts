@@ -283,8 +283,6 @@ export const createAtlanticsSlice: StateCreator<
       });
     }
 
-    console.log('fire: ', atlanticPoolEpochData);
-
     set((prevState) => ({
       ...prevState,
       atlanticPoolEpochData,
