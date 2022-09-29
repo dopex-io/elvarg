@@ -3,14 +3,21 @@ import { ethers, Signer } from 'ethers';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
-import { Addresses, SsovV3Viewer__factory } from '@dopex-io/sdk';
+import {
+  Addresses,
+  SsovV3Viewer__factory,
+  ERC20__factory,
+} from '@dopex-io/sdk';
 
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import WalletButton from 'components/common/WalletButton';
-import SsovCard from 'components/legacy-ssovs/SsovCard';
+import SsovDepositCard from 'components/legacy-ssovs/SsovDepositCard';
+
+import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
+import SsovOption from 'components/legacy-ssovs/SsovOption';
 
 const fetchDepositsForV2 = async (ssovs: any, signer: Signer) => {
   const v2Abi = [
@@ -70,8 +77,9 @@ const fetchDepositsForV3 = async (ssovs: any, signer: Signer) => {
 const baseAbi = ['function currentEpoch() view returns (uint256)'];
 
 const LegacySsovs = () => {
-  const { signer } = useBoundStore();
+  const { signer, accountAddress } = useBoundStore();
   const [ssovs, setSsovs] = useState<any>([]);
+  const [options, setOptions] = useState<any>([]);
 
   const handleCheckDeposits = useCallback(async () => {
     if (!signer) return;
@@ -108,38 +116,32 @@ const LegacySsovs = () => {
     setSsovs(ssovV2WithDeposits.concat(ssovV3WithDeposits));
   }, [signer]);
 
-  // const handleCheckOptions = useCallback(async () => {
-  //   if (!signer) return;
-  //   let data = await axios
-  //     .get(`http://localhost:5001/v2/ssov/retired`)
-  //     .then((payload) => payload.data);
+  const handleCheckOptions = useCallback(async () => {
+    if (!signer || !accountAddress) return;
 
-  //   const ssovCurrentEpochs = await Promise.all(
-  //     data.map((ssov: { address: string }) => {
-  //       const _contract = new ethers.Contract(ssov.address, baseAbi, signer);
+    const balanceCalls = retiredStrikeTokens.map(
+      (strikeToken: { token: string }) => {
+        const erc20 = ERC20__factory.connect(strikeToken.token, signer);
 
-  //       return _contract['currentEpoch']();
-  //     })
-  //   );
+        return erc20.balanceOf(accountAddress);
+      }
+    );
 
-  //   // Insert data to ssovs
-  //   const ssovs = data.map((ssov: any, i: number) => {
-  //     return { ...ssov, currentEpoch: ssovCurrentEpochs[i].toNumber() };
-  //   });
+    const balances = await Promise.all(balanceCalls);
 
-  //   const ssovV2 = ssovs.filter(
-  //     (ssov: { version: number }) => ssov.version === 2
-  //   );
-  //   const ssovV3 = ssovs.filter(
-  //     (ssov: { version: number }) => ssov.version === 3
-  //   );
+    const _options: any = [];
 
-  //   const ssovV2WithDeposits = await fetchDepositsForV2(ssovV2, signer);
+    balances.forEach((bal, index) => {
+      if (bal.isZero()) {
+        _options.push({
+          ...retiredStrikeTokens[index],
+          balance: bal,
+        });
+      }
+    });
 
-  //   const ssovV3WithDeposits = await fetchDepositsForV3(ssovV3, signer);
-
-  //   setSsovs(ssovV2WithDeposits.concat(ssovV3WithDeposits));
-  // }, [signer]);
+    setOptions(_options);
+  }, [signer, accountAddress]);
 
   return (
     <Box className="bg-left-top bg-contain bg-no-repeat min-h-screen">
@@ -159,12 +161,15 @@ const LegacySsovs = () => {
           <WalletButton onClick={handleCheckDeposits}>
             Check Deposits
           </WalletButton>
-          {/* <WalletButton onClick={handleCheckOptions}>
+          <WalletButton onClick={handleCheckOptions}>
             Check Options
-          </WalletButton> */}
+          </WalletButton>
         </Box>
         {ssovs.map((ssov: any) => {
-          return <SsovCard key={ssov.symbol} ssov={ssov} />;
+          return <SsovDepositCard key={ssov.symbol} ssov={ssov} />;
+        })}
+        {options.map((option: any) => {
+          return <SsovOption key={option.token} option={option} />;
         })}
       </Box>
     </Box>

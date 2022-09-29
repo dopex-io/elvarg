@@ -4,7 +4,7 @@ import { BigNumber } from 'ethers';
 import SsovV2Deposit from './SsovV2Deposit';
 import SsovV3Deposit from './SsovV3Deposit';
 
-const SsovCard = (props: any) => {
+const SsovDepositCard = (props: any) => {
   const { ssov } = props;
 
   if (ssov.version === 2) {
@@ -50,4 +50,4 @@ const SsovCard = (props: any) => {
   return <></>;
 };
 
-export default SsovCard;
+export default SsovDepositCard;
