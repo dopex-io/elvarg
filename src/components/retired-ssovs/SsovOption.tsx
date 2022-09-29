@@ -54,7 +54,9 @@ const SsovOption = (props: any) => {
       <Typography variant="h5">
         Strike: {getUserReadableAmount(option.strike, 8)}
       </Typography>
-      <Typography variant="h5">Type: {option.type}</Typography>
+      <Typography variant="h5" className="mb-2">
+        Type: {option.type}
+      </Typography>
       <WalletButton onClick={handleSettle}>Settle</WalletButton>
     </Box>
   );

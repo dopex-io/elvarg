@@ -12,7 +12,7 @@ const SsovDepositCard = (props: any) => {
 
     ssov.userDeposits.forEach((epochDeposits: BigNumber[], epoch: number) => {
       epochDeposits.forEach((deposit: BigNumber, strikeIndex: number) => {
-        if (deposit.isZero()) {
+        if (!deposit.isZero()) {
           _deposits.push({
             ssovAddress: ssov.address,
             epoch: epoch + 1,
@@ -37,7 +37,7 @@ const SsovDepositCard = (props: any) => {
     if (ssov.userWritePositions.length > 0) {
       return (
         <>
-          {[BigNumber.from(0)].map((id: BigNumber, index: number) => {
+          {ssov.userWritePositions.map((id: BigNumber, index: number) => {
             return (
               <SsovV3Deposit key={index} id={id} ssovAddress={ssov.address} />
             );
@@ -47,7 +47,7 @@ const SsovDepositCard = (props: any) => {
     }
   }
 
-  return <></>;
+  return <>Nothing Found</>;
 };
 
 export default SsovDepositCard;

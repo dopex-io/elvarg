@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ethers, Signer } from 'ethers';
+import { BigNumber, ethers, Signer } from 'ethers';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -14,12 +14,27 @@ import { useBoundStore } from 'store';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import WalletButton from 'components/common/WalletButton';
-import SsovDepositCard from 'components/legacy-ssovs/SsovDepositCard';
+import SsovDepositCard from 'components/retired-ssovs/SsovDepositCard';
+import SsovOption from 'components/retired-ssovs/SsovOption';
 
 import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
-import SsovOption from 'components/legacy-ssovs/SsovOption';
 
-const fetchDepositsForV2 = async (ssovs: any, signer: Signer) => {
+interface Ssov {
+  type: string;
+  underlyingSymbol: string;
+  symbol: string;
+  version: number;
+  chainId: number;
+  collateralDecimals: number;
+  duration: string;
+  retired: boolean;
+  address: string;
+  currentEpoch?: number;
+  userDeposits?: BigNumber[][];
+  userWritePositions?: BigNumber[];
+}
+
+const fetchDepositsForV2 = async (ssovs: Ssov[], signer: Signer) => {
   const v2Abi = [
     'function getUserEpochDeposits(uint256, address) view returns (uint256[])',
   ];
@@ -28,12 +43,12 @@ const fetchDepositsForV2 = async (ssovs: any, signer: Signer) => {
 
   const epochDepositCalls = await Promise.all(
     ssovs
-      .map((ssov: { address: string; currentEpoch: number }) => {
+      .map((ssov) => {
         const _calls = [];
 
         const _contract = new ethers.Contract(ssov.address, v2Abi, signer);
 
-        for (let i = 1; i <= ssov.currentEpoch; i++) {
+        for (let i = 1; i <= ssov.currentEpoch!; i++) {
           _calls.push(_contract['getUserEpochDeposits'](i, userAddress));
         }
 
@@ -43,8 +58,11 @@ const fetchDepositsForV2 = async (ssovs: any, signer: Signer) => {
   );
 
   // Rearrange epoch deposit calls
-  const finalSsovs = ssovs.map((ssov: { currentEpoch: number }, i: number) => {
-    const userDeposits = epochDepositCalls.slice(i, i + ssov.currentEpoch);
+  const finalSsovs = ssovs.map((ssov, i: number) => {
+    const userDeposits: BigNumber[][] = epochDepositCalls.slice(
+      i,
+      i + ssov.currentEpoch!
+    );
 
     return { ...ssov, userDeposits };
   });
@@ -52,7 +70,7 @@ const fetchDepositsForV2 = async (ssovs: any, signer: Signer) => {
   return finalSsovs;
 };
 
-const fetchDepositsForV3 = async (ssovs: any, signer: Signer) => {
+const fetchDepositsForV3 = async (ssovs: Ssov[], signer: Signer) => {
   const viewer = SsovV3Viewer__factory.connect(
     Addresses[42161]['SSOV-V3']['VIEWER'],
     signer
@@ -61,14 +79,14 @@ const fetchDepositsForV3 = async (ssovs: any, signer: Signer) => {
   const userAddress = await signer.getAddress();
 
   const userWritePositions = await Promise.all(
-    ssovs.map((ssov: { address: string; currentEpoch: number }) => {
+    ssovs.map((ssov) => {
       return viewer.walletOfOwner(userAddress, ssov.address);
     })
   );
 
   // Rearrange epoch deposit calls
-  const finalSsovs = ssovs.map((ssov: any) => {
-    return { ...ssov, userWritePositions };
+  const finalSsovs = ssovs.map((ssov, i) => {
+    return { ...ssov, userWritePositions: userWritePositions[i] || [] };
   });
 
   return finalSsovs;
@@ -76,21 +94,21 @@ const fetchDepositsForV3 = async (ssovs: any, signer: Signer) => {
 
 const baseAbi = ['function currentEpoch() view returns (uint256)'];
 
-const LegacySsovs = () => {
+const RetiredSsovs = () => {
   const { signer, accountAddress } = useBoundStore();
-  const [ssovs, setSsovs] = useState<any>([]);
+  const [ssovs, setSsovs] = useState<Ssov[]>([]);
   const [options, setOptions] = useState<any>([]);
 
   const handleCheckDeposits = useCallback(async () => {
     if (!signer) return;
-    let data = await axios
+    let data: Ssov[] = await axios
       .get(
         `https://dopex-api-git-feat-retired-ssovs-dopex-io.vercel.app/v2/ssov/retired`
       )
       .then((payload) => payload.data);
 
     const ssovCurrentEpochs = await Promise.all(
-      data.map((ssov: { address: string }) => {
+      data.map((ssov) => {
         const _contract = new ethers.Contract(ssov.address, baseAbi, signer);
 
         return _contract['currentEpoch']();
@@ -98,14 +116,14 @@ const LegacySsovs = () => {
     );
 
     // Insert data to ssovs
-    const ssovs = data.map((ssov: any, i: number) => {
+    const _ssovs = data.map((ssov: any, i: number) => {
       return { ...ssov, currentEpoch: ssovCurrentEpochs[i].toNumber() };
     });
 
-    const ssovV2 = ssovs.filter(
+    const ssovV2 = _ssovs.filter(
       (ssov: { version: number }) => ssov.version === 2
     );
-    const ssovV3 = ssovs.filter(
+    const ssovV3 = _ssovs.filter(
       (ssov: { version: number }) => ssov.version === 3
     );
 
@@ -113,6 +131,7 @@ const LegacySsovs = () => {
 
     const ssovV3WithDeposits = await fetchDepositsForV3(ssovV3, signer);
 
+    // @ts-ignore
     setSsovs(ssovV2WithDeposits.concat(ssovV3WithDeposits));
   }, [signer]);
 
@@ -132,7 +151,7 @@ const LegacySsovs = () => {
     const _options: any = [];
 
     balances.forEach((bal, index) => {
-      if (bal.isZero()) {
+      if (!bal.isZero()) {
         _options.push({
           ...retiredStrikeTokens[index],
           balance: bal,
@@ -146,28 +165,33 @@ const LegacySsovs = () => {
   return (
     <Box className="bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
-        <title>Legacy SSOVs | Dopex</title>
+        <title>Retired SSOVs | Dopex</title>
       </Head>
       <AppBar />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
           <Typography variant="h2" className="mb-2">
-            Legacy SSOVs
+            Retired SSOVs
           </Typography>
           <Typography variant="h5" className="text-stieglitz mb-2">
             Withdraw and settle your write positions and options respectively
-            from legacy ssov contracts which have been retired.
+            from ssov contracts which have been retired.
           </Typography>
-          <WalletButton onClick={handleCheckDeposits}>
+          <WalletButton onClick={handleCheckDeposits} className="mr-2">
             Check Deposits
           </WalletButton>
           <WalletButton onClick={handleCheckOptions}>
             Check Options
           </WalletButton>
         </Box>
-        {ssovs.map((ssov: any) => {
+        {ssovs.map((ssov) => {
           return <SsovDepositCard key={ssov.symbol} ssov={ssov} />;
         })}
+        {options.length > 0 ? (
+          <Typography variant="h3" className="mb-2">
+            Options
+          </Typography>
+        ) : null}
         {options.map((option: any) => {
           return <SsovOption key={option.token} option={option} />;
         })}
@@ -176,4 +200,4 @@ const LegacySsovs = () => {
   );
 };
 
-export default LegacySsovs;
+export default RetiredSsovs;
