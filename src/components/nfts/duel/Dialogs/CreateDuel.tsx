@@ -66,8 +66,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  // this changes every time the dialog is opened
-  const [salt] = useState<string>(getRandomString(10));
+  const [salt, setSalt] = useState<string>(getRandomString(10));
 
   const fees = useMemo(() => {
     return (wager * feesPercentage) / 100;
@@ -140,7 +139,11 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     if (!hasConfirmedPolicy) return alert('Please tick the checkbox');
 
     if (moves.length <= 4) setMoves([]);
-    else downloadTxt('moves.txt', moves.toString() + ',' + salt);
+    else
+      downloadTxt(
+        new Date().toLocaleString() + '.txt',
+        moves.toString() + ',' + salt
+      );
 
     setIsSelectingMoves(false);
   }, [moves, hasConfirmedPolicy, salt]);
@@ -260,6 +263,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
     setMoves([]);
     handleClose();
+    setSalt(getRandomString(10));
     await updateDuels();
   }, [
     duelContract,
