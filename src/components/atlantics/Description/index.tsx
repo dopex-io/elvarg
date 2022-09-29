@@ -7,7 +7,8 @@ const Description = () => {
     <Box className="space-y-1 py-4">
       <Typography variant="h4">Pools</Typography>
       <Typography variant="h6" color="stieglitz">
-        Deposit and Earn
+        Write options with mobile collateral to earn funding & premiums. Use our
+        in-house strategies to create hedged positions.
       </Typography>
     </Box>
   );
