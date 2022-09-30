@@ -128,12 +128,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
     ]
   );
 
-  const saveMoves = useCallback(() => {
-    if (moves.length <= 4) setMoves([]);
-
-    setIsSelectingMoves(false);
-  }, [moves]);
-
   const atLeastOneBlock = useMemo(() => {
     let flag = false;
 
@@ -143,6 +137,13 @@ const FindDuel = ({ open, handleClose }: Props) => {
 
     return flag;
   }, [moves]);
+
+  const saveMoves = useCallback(() => {
+    if (moves.length <= 4) setMoves([]);
+    if (!atLeastOneBlock) return alert('Your sequence must include a block');
+
+    setIsSelectingMoves(false);
+  }, [moves, atLeastOneBlock]);
 
   const handleMatch = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
@@ -668,6 +669,17 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Box>
             </Tooltip>
           </Box>
+
+          {moves.length > 0 && !atLeastOneBlock ? (
+            <Box className="flex mt-8 ml-4 mr-4">
+              <Typography
+                variant="h6"
+                className="text-red-500 font-['Minecraft'] cursor-pointer"
+              >
+                {'Your sequence must include a block'}
+              </Typography>
+            </Box>
+          ) : null}
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
