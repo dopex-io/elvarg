@@ -375,7 +375,9 @@ const DuelPepes = () => {
             <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[14rem]">
               <button
                 className={styles['pepeButton']}
-                onClick={() => setIsCreateDuelDialogOpen(true)}
+                onClick={() =>
+                  alert('Update in progress, please try again later')
+                }
               >
                 CREATE DUEL
               </button>
