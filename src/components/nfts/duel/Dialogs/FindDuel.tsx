@@ -134,9 +134,20 @@ const FindDuel = ({ open, handleClose }: Props) => {
     setIsSelectingMoves(false);
   }, [moves]);
 
+  const atLeastOneBlock = useMemo(() => {
+    let flag = false;
+
+    for (let i in moves) {
+      if (moves[i] === 'block') flag = true;
+    }
+
+    return flag;
+  }, [moves]);
+
   const handleMatch = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
     if (moves.length < 5) return;
+    if (!atLeastOneBlock) return alert('Your sequence must include a block');
 
     if (tokenName !== 'ETH') {
       const token = ERC20__factory.connect(
@@ -187,6 +198,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
     handleClose,
     updateDuels,
     sendTx,
+    atLeastOneBlock,
   ]);
 
   const sufficientBalance = useMemo(() => {
@@ -201,9 +213,10 @@ const FindDuel = ({ open, handleClose }: Props) => {
   const canCreate = useMemo(() => {
     if (moves.length < 5) return false;
     if (!sufficientBalance) return false;
+    if (!atLeastOneBlock) return false;
 
     return true;
-  }, [moves, sufficientBalance]);
+  }, [moves, sufficientBalance, atLeastOneBlock]);
 
   const Moves = useCallback(() => {
     return (

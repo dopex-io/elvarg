@@ -123,7 +123,7 @@ const DuelPepes = () => {
         ? [
             {
               title: Math.max(
-                data?.maxPublicMints.sub(data?.nextMintId)?.toNumber() - 889,
+                data?.maxPublicMints.sub(data?.nextMintId)?.toNumber(),
                 0
               ),
               subTitle: 'PEPES REMAINING',
@@ -150,7 +150,7 @@ const DuelPepes = () => {
                   }}
                 />
               ),
-              subTitle: 'TIME REMAINING',
+              subTitle: 'GOOD LUCK SER',
             },
           ]
         : [],
@@ -375,9 +375,7 @@ const DuelPepes = () => {
             <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[14rem]">
               <button
                 className={styles['pepeButton']}
-                onClick={() =>
-                  alert('Update in progress, please try again later')
-                }
+                onClick={() => setIsCreateDuelDialogOpen(true)}
               >
                 CREATE DUEL
               </button>

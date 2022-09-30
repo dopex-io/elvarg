@@ -426,7 +426,7 @@ const ActionsDialog = ({ open, data, updateData, handleClose }: Props) => {
     if (!signer) return;
 
     const publicSaleContract = new ethers.Contract(
-      '0x044a7A6a9A68052f1C8f06354986137DBB388Dc9',
+      '0x11DF7310313c29a51C48ab0b41F2Cb5775F4B6DB',
       ABI,
       signer
     );

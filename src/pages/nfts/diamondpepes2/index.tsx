@@ -32,7 +32,7 @@ const DiamondPepesNfts = () => {
         ? [
             {
               title: Math.max(
-                data?.maxPublicMints.sub(data?.nextMintId)?.toNumber() - 889,
+                data?.maxPublicMints.sub(data?.nextMintId)?.toNumber(),
                 0
               ),
               subTitle: 'PEPES REMAINING',
@@ -59,7 +59,7 @@ const DiamondPepesNfts = () => {
                   }}
                 />
               ),
-              subTitle: 'TIME REMAINING',
+              subTitle: 'GOOD LUCK SER',
             },
           ]
         : [],
@@ -444,12 +444,12 @@ const DiamondPepesNfts = () => {
               <br />
               <a
                 href={
-                  'https://arbiscan.io/address/0x044a7A6a9A68052f1C8f06354986137DBB388Dc9'
+                  'https://arbiscan.io/address/0x11DF7310313c29a51C48ab0b41F2Cb5775F4B6DB'
                 }
                 rel="noopener noreferrer"
                 target={'_blank'}
               >
-                0x044a7A6a9A68052f1C8f06354986137DBB388Dc9
+                0x11DF7310313c29a51C48ab0b41F2Cb5775F4B6DB
               </a>
             </Typography>
           </Box>

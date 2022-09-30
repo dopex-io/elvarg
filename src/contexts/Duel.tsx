@@ -1993,6 +1993,16 @@ const ABIMINT = [
         name: '_discountedMintPrice',
         type: 'uint256',
       },
+      {
+        internalType: 'address',
+        name: '_weth',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_maxMints',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -2051,6 +2061,32 @@ const ABIMINT = [
       },
     ],
     name: 'adminSetEndTime',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'adminSetMaxMints',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'adminSetMintCounter',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -2154,6 +2190,19 @@ const ABIMINT = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'maxMints',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'uint256',
@@ -2173,6 +2222,19 @@ const ABIMINT = [
   },
   {
     inputs: [],
+    name: 'mintCounter',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'mintPrice',
     outputs: [
       {
@@ -2182,6 +2244,24 @@ const ABIMINT = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'number',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
+      },
+    ],
+    name: 'mintUsingWETH',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -2232,6 +2312,19 @@ const ABIMINT = [
   },
   {
     inputs: [],
+    name: 'weth',
+    outputs: [
+      {
+        internalType: 'contract IWETH9',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'whitelist',
     outputs: [
       {
@@ -2274,7 +2367,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
   const duelContract = useMemo(() => {
     if (!signer) return;
     return new ethers.Contract(
-      '0x2e04ee843e71D12d52309e78797200E11E9A4DCb',
+      '0x360E68Dc597B75eBCF68b3b859513E8dF3412E55',
       DuelPepesABI,
       signer
     );
@@ -2547,33 +2640,34 @@ export const DuelProvider = (props: { children: ReactNode }) => {
     if (!provider || !signer) return;
 
     const nftContract = new ethers.Contract(
-      '0x37d5206DaF6BbEdEe5B9237b8472e8395746a2de',
+      '0x675CA5708c8dB099F3Db9Cdff06995c7653278FC',
       ABI,
       signer
     );
 
     const publicSaleContract = new ethers.Contract(
-      '0x044a7A6a9A68052f1C8f06354986137DBB388Dc9',
+      '0x11DF7310313c29a51C48ab0b41F2Cb5775F4B6DB',
       ABIMINT,
       signer
     );
 
-    const [publicMints, nextMintId, maxPublicMints] = await Promise.all([
+    const [publicMints, nextMintId] = await Promise.all([
       nftContract['publicMints'](),
       nftContract['nextMintId'](),
       nftContract['maxPublicMints'](),
     ]);
 
-    const [mintPrice, endTime, startTime] = await Promise.all([
+    const [mintPrice, endTime, startTime, maxMints] = await Promise.all([
       publicSaleContract['mintPrice'](),
       publicSaleContract['endTime'](),
       publicSaleContract['startTime'](),
+      publicSaleContract['maxMints'](),
     ]);
 
     setData({
       publicMints: publicMints,
       nextMintId: nextMintId,
-      maxPublicMints: maxPublicMints,
+      maxPublicMints: maxMints,
       mintPrice: mintPrice,
       endTime: endTime,
       startTime: startTime,

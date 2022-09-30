@@ -135,7 +135,18 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     ]
   );
 
+  const atLeastOneBlock = useMemo(() => {
+    let flag = false;
+
+    for (let i in moves) {
+      if (moves[i] === 'block') flag = true;
+    }
+
+    return flag;
+  }, [moves]);
+
   const saveMoves = useCallback(() => {
+    if (!atLeastOneBlock) return alert('Your sequence must include a block');
     if (!hasConfirmedPolicy) return alert('Please tick the checkbox');
 
     if (moves.length <= 4) setMoves([]);
@@ -146,7 +157,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       );
 
     setIsSelectingMoves(false);
-  }, [moves, hasConfirmedPolicy, salt]);
+  }, [moves, hasConfirmedPolicy, salt, atLeastOneBlock]);
 
   const handleCreate = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
@@ -306,10 +317,11 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
   const canCreate = useMemo(() => {
     if (moves.length < 5) return false;
+    if (!atLeastOneBlock) return false;
     if (getUserReadableAmount(userTokenBalance, 18) < wager) return false;
 
     return true;
-  }, [moves, userTokenBalance, wager]);
+  }, [moves, userTokenBalance, wager, atLeastOneBlock]);
 
   const handleOpenTokenSelector = useCallback(
     () => setIsTokenSelectorVisible(true),
@@ -724,6 +736,17 @@ const CreateDuel = ({ open, handleClose }: Props) => {
               offered by the Dopex team to automatically reveal my moves{' '}
             </Typography>
           </Box>
+
+          {moves.length > 0 && !atLeastOneBlock ? (
+            <Box className="flex mt-8 ml-4 mr-4">
+              <Typography
+                variant="h6"
+                className="text-red-500 font-['Minecraft'] cursor-pointer"
+              >
+                {'Your sequence must include a block'}
+              </Typography>
+            </Box>
+          ) : null}
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
