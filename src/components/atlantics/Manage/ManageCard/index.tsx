@@ -10,7 +10,7 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
-// import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
+import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -40,8 +40,8 @@ const ManageCard = (props: ManageCardProps) => {
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)
   );
-  // const [openPositionManager, setOpenPositionManager] =
-  //   useState<boolean>(false);
+  const [openPositionManager, setOpenPositionManager] =
+    useState<boolean>(false);
 
   const sendTx = useSendTx();
 
@@ -227,13 +227,13 @@ const ManageCard = (props: ManageCardProps) => {
     atlanticPool?.tokens,
   ]);
 
-  // const openPositionManagerModal = useCallback(() => {
-  //   setOpenPositionManager(true);
-  // }, []);
+  const openPositionManagerModal = useCallback(() => {
+    setOpenPositionManager(true);
+  }, []);
 
-  // const closePositionManager = useCallback(() => {
-  //   setOpenPositionManager(false);
-  // }, []);
+  const closePositionManager = useCallback(() => {
+    setOpenPositionManager(false);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -272,7 +272,7 @@ const ManageCard = (props: ManageCardProps) => {
         </Typography>
         {poolType === 'PUTS' ? (
           <>
-            {/* <Typography
+            <Typography
               onClick={openPositionManagerModal}
               variant="h6"
               className="text-gray-300 underline cursor-pointer"
@@ -283,7 +283,7 @@ const ManageCard = (props: ManageCardProps) => {
             <OpenPositionDialog
               isOpen={openPositionManager}
               handleClose={closePositionManager}
-            /> */}
+            />
           </>
         ) : null}
       </Box>

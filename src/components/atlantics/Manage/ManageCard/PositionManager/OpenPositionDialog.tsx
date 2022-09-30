@@ -12,7 +12,6 @@ import React, {
 } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import {
-  AtlanticPutsPool,
   ERC20__factory,
   GmxVault__factory,
   LongPerpStrategy__factory,
@@ -50,6 +49,10 @@ interface IProps {
 
 const marks = [
   {
+    value: 1.1,
+    label: '1.1x',
+  },
+  {
     value: 2,
     label: '2x',
   },
@@ -79,8 +82,15 @@ export interface IStrategyDetails {
 }
 
 export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
-  const { signer, accountAddress, provider, contractAddresses, chainId } =
-    useBoundStore();
+  const {
+    signer,
+    accountAddress,
+    provider,
+    contractAddresses,
+    chainId,
+    atlanticPool,
+    atlanticPoolEpochData,
+  } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [leverage, setLeverage] = useState<number>(2);
   const [isApproved, setIsApproved] = useState<{
@@ -153,29 +163,19 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   };
 
   const getPreStrategyCalculations = useCallback(async () => {
-    if (
-      !selectedPool ||
-      !selectedPool?.tokens ||
-      !contractAddresses ||
-      !selectedPool.contracts ||
-      !selectedPool.config.tickSize
-    )
-      return;
+    if (!atlanticPool || !contractAddresses || !atlanticPoolEpochData) return;
 
-    const { underlying, deposit } = selectedPool.tokens;
+    const { underlying, depositToken } = atlanticPool.tokens;
 
-    if (!underlying) return;
-
-    const putsContract = selectedPool.contracts.atlanticPool;
+    const putsContract = atlanticPool.contracts.atlanticPool;
 
     const insured_perps_address =
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
     const strategyContract = LongPerpStrategy__factory.connect(
       insured_perps_address,
       provider
     );
-
-    const pool = selectedPool.contracts.atlanticPool as AtlanticPutsPool;
 
     // Leverage in bigNumber 1e30 decimals
     const leverageBN = getContractReadableAmount(leverage * 10, 29);
@@ -191,7 +191,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     // in 1e30 decimals
     let positionBalanceValue = getContractReadableAmount(positionBalance, 30);
 
-    if (selectedToken !== deposit) {
+    if (selectedToken !== depositToken) {
       positionBalanceValue = indexTokenPrice
         .mul(positionBalanceValue)
         .div(oneEBigNumber(30));
@@ -205,7 +205,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
 
     // Put strike
     const putStrike = (
-      await pool.eligiblePutPurchaseStrike(
+      await putsContract.eligiblePutPurchaseStrike(
         liquidationPrice,
         (
           await strategyContract.tokenStrategyConfigs(
@@ -225,11 +225,9 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       .mul(oneEBigNumber(20))
       .div(putStrike);
 
-    const putsPool = selectedPool.contracts.atlanticPool as AtlanticPutsPool;
-
     const [putOptionsPremium, putOptionsfees] = await Promise.all([
-      putsPool.calculatePremium(putStrike, optionsAmount),
-      putsPool.calculatePurchaseFees(putStrike, optionsAmount),
+      putsContract.calculatePremium(putStrike, optionsAmount),
+      putsContract.calculatePurchaseFees(putStrike, optionsAmount),
     ]);
 
     setStrategyDetails(() => ({
@@ -240,16 +238,17 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       optionsAmount,
       liquidationPrice,
       putStrike,
-      expiry: selectedPool.state.expiryTime,
+      expiry: atlanticPoolEpochData.expiry,
     }));
   }, [
     selectedToken,
-    selectedPool,
+    atlanticPool,
     leverage,
     depositUnderlying,
     contractAddresses,
     positionBalance,
     provider,
+    atlanticPoolEpochData,
   ]);
 
   const handleDepositUnderlyingCheckboxChange = (event: any) => {
@@ -290,20 +289,26 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
 
   const checkIfApproved = useCallback(async () => {
     if (
-      !selectedPool ||
-      !selectedPool.contracts ||
+      !atlanticPool ||
       !accountAddress ||
-      !selectedPool.asset ||
       !contractAddresses ||
-      !selectToken
+      !selectToken ||
+      !provider
     )
       return;
-    const quoteToken = selectedPool.contracts.quoteToken;
-    const baseToken = selectedPool.contracts.baseToken;
-    const underlying = selectedPool.asset;
+    const quoteToken = ERC20__factory.connect(
+      contractAddresses[atlanticPool.tokens.depositToken],
+      provider
+    );
+    const baseToken = ERC20__factory.connect(
+      contractAddresses[atlanticPool.tokens.underlying],
+      provider
+    );
+    const underlying = atlanticPool.tokens.underlying;
 
     const strategyAddress =
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
     const quoteTokenAllowance = await quoteToken.allowance(
       accountAddress,
       strategyAddress
@@ -325,6 +330,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       positionBalance,
       decimals
     );
+
     if (selectedToken === underlying) {
       baseTokenCost = baseTokenCost.add(positionCollateral);
     }
@@ -338,7 +344,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       base: !baseTokenAllowance.isZero(),
     }));
   }, [
-    selectedPool,
+    atlanticPool,
+    provider,
     accountAddress,
     contractAddresses,
     debouncedStrategyDetails,
@@ -349,20 +356,15 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   ]);
 
   const handleApproveQuoteToken = useCallback(async () => {
-    if (
-      !signer ||
-      !selectedPool ||
-      !selectedPool.contracts ||
-      !selectedPool.tokens ||
-      !contractAddresses
-    )
-      return;
+    if (!signer || !contractAddresses || !atlanticPool) return;
     const strategyContractAddress =
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
-    const { deposit } = selectedPool.tokens;
-    if (!deposit) return;
+
+    const { depositToken } = atlanticPool.tokens;
+
+    if (!depositToken) return;
     const tokenContract = ERC20__factory.connect(
-      contractAddresses[deposit],
+      contractAddresses[depositToken],
       signer
     );
 
@@ -373,23 +375,15 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     }
 
     await checkIfApproved();
-  }, [signer, selectedPool, contractAddresses, checkIfApproved, sendTx]);
+  }, [signer, atlanticPool, contractAddresses, checkIfApproved, sendTx]);
 
   const handleApproveBaseToken = useCallback(async () => {
-    if (
-      !signer ||
-      !selectedPool ||
-      !selectedPool.contracts ||
-      !selectedPool.tokens ||
-      !contractAddresses
-    )
-      return;
+    if (!signer || !contractAddresses || !atlanticPool) return;
     try {
       const strategyContractAddress =
         contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
-      const { underlying } = selectedPool.tokens;
+      const { underlying } = atlanticPool.tokens;
       if (!underlying) return;
-
       const tokenContract = ERC20__factory.connect(
         contractAddresses[underlying],
         signer
@@ -399,7 +393,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       console.log(err);
     }
     await checkIfApproved();
-  }, [signer, contractAddresses, sendTx, checkIfApproved, selectedPool]);
+  }, [signer, atlanticPool, contractAddresses, sendTx, checkIfApproved]);
 
   useEffect(() => {
     checkIfApproved();
@@ -429,13 +423,12 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     if (
       !contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'] ||
       !signer ||
-      !selectedPool ||
-      !selectedPool.state.expiryTime ||
-      !selectedPool.asset ||
       !chainId ||
+      !atlanticPool ||
       !positionBalance ||
       !selectedToken ||
-      !chainId
+      !chainId ||
+      !atlanticPoolEpochData
     ) {
       return;
     }
@@ -444,8 +437,9 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
       signer
     );
+    // GMX_VAULT
     const gmxVault = GmxVault__factory.connect(
-      contractAddresses['GMX-VAULT'],
+      '0x489ee077994B6658eAfA855C308275EAd8097C4A',
       signer
     );
 
@@ -456,7 +450,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       }
       if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
 
-      const indexToken = selectedPool.asset;
+      const indexToken = atlanticPool.tokens.underlying;
 
       if (!path[0]) return;
 
@@ -475,7 +469,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       );
 
       if (path[0] !== contractAddresses[indexToken]) {
-        console.log('amount', await gmxVault.swapFeeBasisPoints().toString());
         const abi = [
           'function getAmountOut(address _vault, address _tokenIn, address _tokenOut, uint256 _amountIn) public view returns (uint256, uint256)',
         ];
@@ -518,6 +511,17 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           positionBalanceWithDecimals.add(feeInTokenDecimals);
         positionSize = strategyDetails.positionSize;
       }
+
+      console.log(
+        path,
+        contractAddresses[indexToken],
+        positionCollateral.toString(),
+        positionSize.toString(),
+        MIN_EXECUTION_FEE.toString(),
+        DEFAULT_REFERRAL_CODE,
+        depositUnderlying,
+        atlanticPoolEpochData.expiry.toString()
+      );
       const _tx = strategyContract.useStrategyAndOpenLongPosition(
         {
           path: path,
@@ -529,7 +533,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           depositUnderlying: depositUnderlying,
         },
         keepCollateral,
-        selectedPool.state.expiryTime,
+        atlanticPoolEpochData.expiry,
         {
           value: MIN_EXECUTION_FEE,
         }
@@ -540,9 +544,11 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       console.log(err);
     }
   }, [
+    // atlanticPoolEpochData.expiry,
+    atlanticPoolEpochData,
+    atlanticPool,
     contractAddresses,
     signer,
-    selectedPool,
     depositUnderlying,
     chainId,
     positionBalance,
@@ -635,10 +641,10 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             className="w-[20rem]"
             color="primary"
             aria-label="Small steps"
-            defaultValue={2}
+            defaultValue={1.1}
             onChange={onChangeLeverage}
             step={0.1}
-            min={2}
+            min={1.1}
             max={5}
             valueLabelDisplay="auto"
             marks={marks}
@@ -657,12 +663,12 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           </Box>
           <Box className="px-1 mb-2 flex justify-between items-center">
             <Typography
-              className={`${!depositUnderlying && 'text-gray-600'}`}
+              className={`${!depositUnderlying && 'text-stieglitz'}`}
               variant="h6"
             >
               Keep Collateral on Expiry
               <Tooltip title="Choose whether to keep collateral incase puts are ITM and would like to keep the position post expiry. Note: Positions that have AC options as collateral cannot keep collateral beyond expiry of the pool and will be automatically closed on expiry.">
-                <InfoOutlined className="h-4 fill-current text-mineshaft" />
+                <InfoOutlined className="h-4 fill-current text-stieglitz" />
               </Tooltip>
             </Typography>
             <Switch
@@ -687,17 +693,19 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
         />
         <Box className="flex flex-col w-full space-y-2">
           <Box className="flex flex-row w-full space-x-2">
-            <CustomButton
-              onClick={handleApproveBaseToken}
-              disabled={
-                positionBalance === '' || parseInt(positionBalance) === 0
-              }
-              className={`${isApproved.base && 'hidden'} flex-1 display ${
-                !isApproved.base && 'animate-pulse '
-              }`}
-            >
-              Approve {'WETH'}
-            </CustomButton>
+            {selectedToken === atlanticPool?.tokens.underlying! && (
+              <CustomButton
+                onClick={handleApproveBaseToken}
+                disabled={
+                  positionBalance === '' || parseInt(positionBalance) === 0
+                }
+                className={`${isApproved.base && 'hidden'} flex-1 display ${
+                  !isApproved.base && 'animate-pulse '
+                }`}
+              >
+                Approve {'WETH'}
+              </CustomButton>
+            )}
             <CustomButton
               onClick={handleApproveQuoteToken}
               disabled={
