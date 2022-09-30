@@ -200,13 +200,9 @@ const RevealDuel = ({ open, handleClose }: Props) => {
               {move === 'punch' ? (
                 <Box className="mt-1 text-center">
                   <Typography variant="h6" className="mt-1 text-[10px]">
-                    <span className="text-amber-600 mr-1.5">*</span>
                     <span className="text-emerald-400">*</span>
                   </Typography>
                   <Typography variant="h6" className="text-[10px]">
-                    <span className="text-white font-['Minecraft'] mr-2">
-                      1
-                    </span>
                     <span className="text-white font-['Minecraft']">1</span>
                   </Typography>
                 </Box>
