@@ -123,7 +123,7 @@ const DuelPepes = () => {
         ? [
             {
               title: Math.max(
-                data?.maxPublicMints.sub(data?.nextMintId)?.toNumber(),
+                BigNumber.from(1111).sub(data?.nextMintId)?.toNumber(),
                 0
               ),
               subTitle: 'PEPES REMAINING',

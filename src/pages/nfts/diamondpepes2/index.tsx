@@ -16,6 +16,7 @@ import AppBar from 'components/common/AppBar';
 import ActionsDialog from 'components/nfts/diamondpepes2/ActionsDialog';
 
 import styles from 'components/nfts/diamondpepes2/styles.module.scss';
+import { BigNumber } from 'ethers';
 
 const DiamondPepesNfts = () => {
   const { data, updateData } = useContext(DuelContext);
@@ -32,7 +33,7 @@ const DiamondPepesNfts = () => {
         ? [
             {
               title: Math.max(
-                data?.maxPublicMints.sub(data?.nextMintId)?.toNumber(),
+                BigNumber.from(1111).sub(data?.nextMintId)?.toNumber(),
                 0
               ),
               subTitle: 'PEPES REMAINING',
