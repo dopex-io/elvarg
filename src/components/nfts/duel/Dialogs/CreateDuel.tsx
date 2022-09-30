@@ -525,7 +525,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                   variant="h6"
                   className="mt-1.5 px-2 ml-auto mr-auto"
                 >
-                  Punch: <span className="text-amber-600">1</span>{' '}
+                  Punch: <span className="text-amber-600">0</span>{' '}
                   <span className="text-emerald-400">1</span>{' '}
                   <span className="text-stieglitz">0</span>
                 </Typography>
