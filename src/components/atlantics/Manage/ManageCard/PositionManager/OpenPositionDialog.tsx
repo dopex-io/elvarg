@@ -699,9 +699,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
                 disabled={
                   positionBalance === '' || parseInt(positionBalance) === 0
                 }
-                className={`${isApproved.base && 'hidden'} flex-1 display ${
-                  !isApproved.base && 'animate-pulse '
-                }`}
+                className={`${isApproved.base && 'hidden'} flex-1 display`}
               >
                 Approve {'WETH'}
               </CustomButton>
@@ -711,9 +709,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
               disabled={
                 positionBalance === '' || parseInt(positionBalance) === 0
               }
-              className={` ${isApproved.quote && 'hidden'} flex-1 ${
-                !isApproved.quote && 'animate-pulse '
-              }`}
+              className={` ${isApproved.quote && 'hidden'} flex-1`}
             >
               Approve {'USDC'}
             </CustomButton>
