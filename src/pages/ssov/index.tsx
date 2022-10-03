@@ -10,13 +10,11 @@ import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import LegacyEpochsDropDown from 'components/ssov/LegacyEpochsDropDown/LegacyEpochsDropDown';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
 
-const ssovStates: string[] = ['Active', 'Retired'];
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
 
@@ -39,9 +37,6 @@ const Ssov = () => {
   const { provider, tokenPrices } = useBoundStore();
 
   const [ssovs, setSsovs] = useState<{ [key: string]: any }>({});
-  const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([
-    'Active',
-  ]);
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
@@ -126,16 +121,7 @@ const Ssov = () => {
             option purchases and earn rewards simultaneously.
           </Typography>
         </Box>
-        <LegacyEpochsDropDown />
         <Box className="mb-4 flex flex-wrap justify-center">
-          <SsovFilter
-            activeFilters={selectedSsovStates}
-            setActiveFilters={setSelectedSsovStates}
-            text="State"
-            options={ssovStates}
-            multiple={true}
-            showImages={false}
-          />
           <SsovFilter
             activeFilters={selectedSsovTokens}
             setActiveFilters={setSelectedSsovTokens}
@@ -197,11 +183,7 @@ const Ssov = () => {
                                 (selectedTypes.length === 0 ||
                                   selectedTypes.includes(
                                     ssov.type.toUpperCase()
-                                  )) &&
-                                ((selectedSsovStates.includes('Active') &&
-                                  !ssov.retired) ||
-                                  (selectedSsovStates.includes('Retired') &&
-                                    ssov.retired))
+                                  ))
                               )
                                 visible = true;
                               return visible ? (
