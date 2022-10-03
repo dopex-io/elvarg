@@ -3,15 +3,15 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
-import Description from 'components/ssov-v3/Description';
-import DepositPanel from 'components/ssov-v3/DepositPanel';
-import ExerciseList from 'components/ssov-v3/ExerciseList';
-import Stats from 'components/ssov-v3/Stats';
+import Description from 'components/ssov/Description';
+import DepositPanel from 'components/ssov/DepositPanel';
+import ExerciseList from 'components/ssov/ExerciseList';
+import Stats from 'components/ssov/Stats';
 import PageLoader from 'components/common/PageLoader';
 import Typography from 'components/UI/Typography';
 
 import { useBoundStore } from 'store';
-import WritePositions from 'components/ssov-v3/WritePositions';
+import WritePositions from 'components/ssov/WritePositions';
 
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
