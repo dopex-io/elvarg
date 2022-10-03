@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import WalletButton from 'components/common/WalletButton';
 import Typography from 'components/UI/Typography';
@@ -10,7 +10,18 @@ import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-const SsovOption = (props: any) => {
+const SsovOption = (props: {
+  option: {
+    version: number;
+    ssovAddress: string;
+    strikeIndex: number;
+    balance: BigNumber;
+    epoch: number;
+    underlying: string;
+    type: string;
+    strike: BigNumber;
+  };
+}) => {
   const { option } = props;
 
   const { signer, accountAddress } = useBoundStore();
@@ -31,20 +42,24 @@ const SsovOption = (props: any) => {
         contract['settle'](option.strikeIndex, option.balance, option.epoch)
       );
     } else {
-      const contract = new ethers.Contract(
-        option.ssovAddress,
-        ['function settle(uint256, uint256, uint256, address)'],
-        signer
-      );
+      try {
+        const contract = new ethers.Contract(
+          option.ssovAddress,
+          ['function settle(uint256, uint256, uint256, address)'],
+          signer
+        );
 
-      await sendTx(
-        contract['settle'](
-          option.strikeIndex,
-          option.balance,
-          option.epoch,
-          accountAddress
-        )
-      );
+        await sendTx(
+          contract['settle'](
+            option.strikeIndex,
+            option.balance,
+            option.epoch,
+            accountAddress
+          )
+        );
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -56,6 +71,9 @@ const SsovOption = (props: any) => {
       </Typography>
       <Typography variant="h5" className="mb-2">
         Type: {option.type}
+      </Typography>
+      <Typography variant="h5" className="mb-2">
+        Amount: {getUserReadableAmount(option.balance, 18)}
       </Typography>
       <WalletButton onClick={handleSettle}>Settle</WalletButton>
     </Box>

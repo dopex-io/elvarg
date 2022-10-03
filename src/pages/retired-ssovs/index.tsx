@@ -57,12 +57,15 @@ const fetchDepositsForV2 = async (ssovs: Ssov[], signer: Signer) => {
       .flat()
   );
 
+  let count = 0;
   // Rearrange epoch deposit calls
-  const finalSsovs = ssovs.map((ssov, i: number) => {
+  const finalSsovs = ssovs.map((ssov) => {
     const userDeposits: BigNumber[][] = epochDepositCalls.slice(
-      i,
-      i + ssov.currentEpoch!
+      count,
+      count + ssov.currentEpoch!
     );
+
+    count = count + ssov.currentEpoch!;
 
     return { ...ssov, userDeposits };
   });
