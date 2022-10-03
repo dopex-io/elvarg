@@ -34,7 +34,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Ssov = () => {
-  const { chainId, provider, tokenPrices } = useBoundStore();
+  const { provider, tokenPrices } = useBoundStore();
 
   const [ssovs, setSsovs] = useState<{ [key: string]: any }>({});
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
@@ -61,11 +61,8 @@ const Ssov = () => {
 
   const keys = useMemo(() => {
     if (!ssovs) return [];
-    else if (chainId === 56) return [56, 42161, 43114];
-    else if (chainId === 43114) return [43114, 42161, 56];
-    // else if (chainId === 1088) return [1088, 42161, 56, 43114];
-    else return [42161, 56, 43114];
-  }, [ssovs, chainId]);
+    else return [42161];
+  }, [ssovs]);
 
   const ssovsTokens = useMemo(() => {
     if (!ssovs) return [];
@@ -91,6 +88,8 @@ const Ssov = () => {
       let data = await axios
         .get(`${DOPEX_API_BASE_URL}/v2/ssov`)
         .then((payload) => payload.data);
+
+      console.log(data);
 
       setSsovs(data);
     }

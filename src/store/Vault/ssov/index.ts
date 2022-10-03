@@ -7,7 +7,10 @@ import {
   SSOVOptionPricing__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
-import { SsovV3__factory as OldSsovV3__factory } from 'sdk-old';
+import {
+  SsovV3__factory as OldSsovV3__factory,
+  SsovV3 as OldSsovV3,
+} from 'sdk-old';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 
@@ -29,7 +32,7 @@ export interface SsovV3Data {
   collateralSymbol?: string;
   underlyingSymbol?: string;
   collateralAddress?: string;
-  ssovContract?: SsovV3;
+  ssovContract?: SsovV3 | OldSsovV3;
   currentEpoch?: number;
   tokenPrice?: BigNumber;
   lpPrice?: BigNumber;
@@ -307,7 +310,10 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
-    const _ssovContract = SsovV3__factory.connect(ssovAddress, provider);
+    const _ssovContract =
+      selectedPoolName === 'ETH-CALLS-SSOV-V3'
+        ? OldSsovV3__factory.connect(ssovAddress, provider)
+        : SsovV3__factory.connect(ssovAddress, provider);
 
     try {
       const [
