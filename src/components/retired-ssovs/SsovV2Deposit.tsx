@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 

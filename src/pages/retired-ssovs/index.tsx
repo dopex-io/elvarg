@@ -3,6 +3,7 @@ import { BigNumber, ethers, Signer } from 'ethers';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   Addresses,
   SsovV3Viewer__factory,
@@ -99,11 +100,14 @@ const baseAbi = ['function currentEpoch() view returns (uint256)'];
 
 const RetiredSsovs = () => {
   const { signer, accountAddress } = useBoundStore();
-  const [ssovs, setSsovs] = useState<Ssov[]>([]);
   const [options, setOptions] = useState<any>([]);
+  const [deposits, setDeposits] = useState<any>([]);
+  const [ssovsLoading, setSsovsLoading] = useState(false);
+  const [optionsLoading, setOptionsLoading] = useState(false);
 
   const handleCheckDeposits = useCallback(async () => {
     if (!signer) return;
+    setSsovsLoading(true);
     let data: Ssov[] = await axios
       .get(
         `https://dopex-api-git-feat-retired-ssovs-dopex-io.vercel.app/v2/ssov/retired`
@@ -134,12 +138,44 @@ const RetiredSsovs = () => {
 
     const ssovV3WithDeposits = await fetchDepositsForV3(ssovV3, signer);
 
-    // @ts-ignore
-    setSsovs(ssovV2WithDeposits.concat(ssovV3WithDeposits));
+    const _deposits: any[] = [];
+
+    ssovV2WithDeposits.forEach((ssov) => {
+      ssov.userDeposits.forEach((epochDeposits: BigNumber[], epoch: number) => {
+        epochDeposits.forEach((deposit: BigNumber, strikeIndex: number) => {
+          if (!deposit.isZero()) {
+            _deposits.push({
+              ssovSymbol: ssov.symbol,
+              ssovAddress: ssov.address,
+              epoch: epoch + 1,
+              strikeIndex,
+              amount: deposit,
+              version: 2,
+            });
+          }
+        });
+      });
+    });
+
+    ssovV3WithDeposits.forEach((ssov) => {
+      ssov.userWritePositions.forEach((id) => {
+        _deposits.push({
+          ssovSymbol: ssov.symbol,
+          ssovAddress: ssov.address,
+          version: 3,
+          id,
+        });
+      });
+    });
+
+    setDeposits(_deposits);
+    setSsovsLoading(false);
   }, [signer]);
 
   const handleCheckOptions = useCallback(async () => {
     if (!signer || !accountAddress) return;
+
+    setOptionsLoading(true);
 
     const balanceCalls = retiredStrikeTokens.map(
       (strikeToken: { token: string }) => {
@@ -163,6 +199,7 @@ const RetiredSsovs = () => {
     });
 
     setOptions(_options);
+    setOptionsLoading(false);
   }, [signer, accountAddress]);
 
   return (
@@ -172,11 +209,11 @@ const RetiredSsovs = () => {
       </Head>
       <AppBar />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
-        <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
+        <Box className="max-w-xl mb-8 mt-32">
           <Typography variant="h2" className="mb-2">
             Retired SSOVs
           </Typography>
-          <Typography variant="h5" className="text-stieglitz mb-2">
+          <Typography variant="h5" className="text-stieglitz mb-3">
             Withdraw and settle your write positions and options respectively
             from ssov contracts which have been retired.
           </Typography>
@@ -187,17 +224,34 @@ const RetiredSsovs = () => {
             Check Options
           </WalletButton>
         </Box>
-        {ssovs.map((ssov) => {
-          return <SsovDepositCard key={ssov.symbol} ssov={ssov} />;
-        })}
-        {options.length > 0 ? (
+        <Box className="mb-4">
+          <Typography variant="h3" className="mb-2">
+            Deposits
+          </Typography>
+          {ssovsLoading ? (
+            <CircularProgress />
+          ) : deposits.length > 0 ? (
+            deposits.map((deposit: any, index: any) => {
+              return <SsovDepositCard key={index} deposit={deposit} />;
+            })
+          ) : (
+            'Nothing to show here.'
+          )}
+        </Box>
+        <Box>
           <Typography variant="h3" className="mb-2">
             Options
           </Typography>
-        ) : null}
-        {options.map((option: any) => {
-          return <SsovOption key={option.token} option={option} />;
-        })}
+          {optionsLoading ? (
+            <CircularProgress />
+          ) : options.length > 0 ? (
+            options.map((option: any) => {
+              return <SsovOption key={option.token} option={option} />;
+            })
+          ) : (
+            'Nothing to show here.'
+          )}
+        </Box>
       </Box>
     </Box>
   );
