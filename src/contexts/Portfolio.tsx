@@ -238,21 +238,24 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
 
       const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
       const vaultName = await vault.symbol();
+      const epoch = straddlesData?.userOpenStraddles[i].epoch;
       const assetName = vaultName.split('-')[0]!;
+      const isEpochExpired = await vault.isEpochExpired(epoch);
 
       try {
-        straddlesPositions.push({
-          assetName: assetName,
-          vaultName: vaultName,
-          amount: straddlesData?.userOpenStraddles[i].amount,
-          epoch: straddlesData?.userOpenStraddles[i].epoch,
-          strikePrice: straddlesData?.userOpenStraddles[i].strikePrice,
-          underlyingPurchased:
-            straddlesData?.userOpenStraddles[i].underlyingPurchased,
-          link: '/straddles/' + assetName.toUpperCase(),
-          vaultType: 'straddles',
-          owner: accountAddress,
-        });
+        if (!isEpochExpired)
+          straddlesPositions.push({
+            assetName: assetName,
+            vaultName: vaultName,
+            amount: straddlesData?.userOpenStraddles[i].amount,
+            epoch: epoch,
+            strikePrice: straddlesData?.userOpenStraddles[i].strikePrice,
+            underlyingPurchased:
+              straddlesData?.userOpenStraddles[i].underlyingPurchased,
+            link: '/straddles/' + assetName.toUpperCase(),
+            vaultType: 'straddles',
+            owner: accountAddress,
+          });
       } catch (err) {
         console.log(err);
       }
