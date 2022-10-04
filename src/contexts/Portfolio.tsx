@@ -107,8 +107,7 @@ export const PortfolioContext = createContext<PortfolioContextInterface>({
 });
 
 export const PortfolioProvider = (props: { children: ReactNode }) => {
-  const { provider } = useContext(WalletContext);
-  const accountAddress = '0x052a695b596db62266b4e0a84aefb85ef97a60ef';
+  const { accountAddress, provider } = useContext(WalletContext);
 
   const [portfolioData, setPortfolioData] =
     useState<PortfolioData>(initialPortfolioData);
