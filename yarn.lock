@@ -762,7 +762,7 @@
 
 "@dopex-io/sdk@https://github.com/dopex-io/sdk#feat/atlantics":
   version "1.0.0-beta.27"
-  resolved "https://github.com/dopex-io/sdk#902ae40c9e1ac7e1b3461839430ea566fe5cb926"
+  resolved "https://github.com/dopex-io/sdk#a93ccc2506fcfd0c4f586a5a0acef4df396ff9b1"
 
 "@emotion/babel-plugin@^11.10.0":
   version "11.10.2"
