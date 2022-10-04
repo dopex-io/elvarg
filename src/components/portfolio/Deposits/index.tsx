@@ -7,7 +7,11 @@ import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 
-import { PortfolioContext, UserSSOVDeposit } from 'contexts/Portfolio';
+import {
+  PortfolioContext,
+  UserSSOVDeposit,
+  UserStraddlesDeposit,
+} from 'contexts/Portfolio';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
@@ -15,6 +19,8 @@ import CustomButton from 'components/UI/Button';
 import Filter from 'components/common/Filter';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import cx from 'classnames';
+import formatAmount from '../../../utils/general/formatAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
 
@@ -26,7 +32,7 @@ export default function Deposits() {
   ]);
   const [searchText, setSearchText] = useState<string>('');
 
-  const filteredDeposits = useMemo(() => {
+  const filteredSSOVDeposits = useMemo(() => {
     const _deposits: UserSSOVDeposit[] = [];
 
     portfolioData?.userSSOVDeposits?.map((deposit) => {
@@ -42,6 +48,21 @@ export default function Deposits() {
     });
     return _deposits;
   }, [portfolioData, searchText, selectedSides]);
+
+  const filteredStraddlesDeposits = useMemo(() => {
+    const _deposits: UserStraddlesDeposit[] = [];
+
+    portfolioData?.userStraddlesDeposits?.map((deposit) => {
+      let toAdd = true;
+      if (
+        !deposit?.vaultName?.includes(searchText.toUpperCase()) &&
+        searchText !== ''
+      )
+        toAdd = false;
+      if (toAdd) _deposits.push(deposit);
+    });
+    return _deposits;
+  }, [portfolioData, searchText]);
 
   return (
     <Box>
@@ -81,7 +102,8 @@ export default function Deposits() {
             <Box className="flex">
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>
-          ) : filteredDeposits.length === 0 ? (
+          ) : filteredSSOVDeposits.length === 0 &&
+            filteredStraddlesDeposits.length === 0 ? (
             <Box className="flex-col p-9">
               <Box className="mx-auto">You do not have any deposits</Box>
               <Link href="/ssov">
@@ -96,44 +118,46 @@ export default function Deposits() {
             </Box>
           ) : (
             <Box className="py-2">
-              <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Asset</span>
-                  </Typography>
+              {filteredSSOVDeposits.length > 0 ? (
+                <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Asset</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Market</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-1 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Side</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-1 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Epoch</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Amount</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Strike</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-1 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Action</span>
+                    </Typography>
+                  </Box>
                 </Box>
-                <Box className="col-span-2 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Market</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Side</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Epoch</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Amount</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Strike</span>
-                  </Typography>
-                </Box>
-                <Box className="col-span-1 text-left">
-                  <Typography variant="h5">
-                    <span className="text-stieglitz">Action</span>
-                  </Typography>
-                </Box>
-              </Box>
-              {filteredDeposits.map((deposit, i) => (
+              ) : null}
+              {filteredSSOVDeposits.map((deposit, i) => (
                 <Box
                   key={i}
                   className="grid grid-cols-12 px-4 pt-2 pb-4"
@@ -170,25 +194,128 @@ export default function Deposits() {
                     </Typography>
                   </Box>
 
-                  <Box className="col-span-1 text-left flex">
+                  <Box className="col-span-1 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{deposit.epoch}</span>
                     </Typography>
                   </Box>
 
-                  <Box className="col-span-1 text-left flex">
+                  <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {getUserReadableAmount(deposit.amount, 18)}
+                        {formatAmount(
+                          getUserReadableAmount(deposit.amount, 18),
+                          2
+                        )}
                       </span>
                     </Typography>
                   </Box>
 
-                  <Box className="col-span-1 text-left flex">
+                  <Box className="col-span-2 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         {getUserReadableAmount(deposit.strike, 8)}
                       </span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1">
+                    <Box className="flex">
+                      <a target="_blank" rel="noreferrer" href={deposit.link}>
+                        <CustomButton
+                          size="medium"
+                          className="px-2"
+                          color={deposit.link !== '#' ? 'primary' : 'umbra'}
+                        >
+                          Open
+                        </CustomButton>
+                      </a>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+
+              {filteredStraddlesDeposits.length > 0 ? (
+                <Box
+                  className={cx(
+                    'grid grid-cols-12 px-4 py-2',
+                    filteredSSOVDeposits.length > 0
+                      ? 'border-t-[1.5px] pt-6 border-umbra'
+                      : ''
+                  )}
+                  gap={0}
+                >
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Asset</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Market</span>
+                    </Typography>
+                  </Box>
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Amount</span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-2 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Epoch</span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-1 text-left">
+                    <Typography variant="h5">
+                      <span className="text-stieglitz">Action</span>
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : null}
+              {filteredStraddlesDeposits.map((deposit, i) => (
+                <Box
+                  key={i}
+                  className={cx(
+                    'grid grid-cols-12 px-4 pt-2 pb-4',
+                    filteredSSOVDeposits.length > 0 ? 'mt-2' : ''
+                  )}
+                  gap={0}
+                >
+                  <Box className="col-span-2 text-left flex">
+                    <img
+                      src={`/images/tokens/${deposit.assetName.toLowerCase()}.svg`}
+                      className="w-8 h-8 mr-2 object-cover"
+                      alt={deposit.vaultName}
+                    />
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {deposit.assetName.toUpperCase()}
+                      </span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">Straddle</span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {formatAmount(
+                          getUserReadableAmount(deposit.amount, 8),
+                          2
+                        )}
+                      </span>
+                    </Typography>
+                  </Box>
+
+                  <Box className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">{deposit.epoch}</span>
                     </Typography>
                   </Box>
 

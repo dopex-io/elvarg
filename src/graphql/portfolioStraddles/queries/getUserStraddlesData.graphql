@@ -1,0 +1,18 @@
+query getUserStraddlesData($user: ID!) {
+  users(where: { id: $user })  {
+    id
+    userOpenDeposits {
+        id
+        epoch
+        amount
+        rollOver
+    }
+    userOpenStraddles {
+        id
+        epoch
+        amount
+        strikePrice
+        underlyingPurchased
+    }
+  }
+}

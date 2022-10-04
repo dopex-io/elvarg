@@ -19,3 +19,13 @@ generates:
       withHooks: true
       defaultScalarType: string
     documents: 'src/graphql/portfolio/**/*.graphql'
+  ./src/graphql/generated/portfolioStraddles.ts:
+    schema: https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHooks: true
+      defaultScalarType: string
+    documents: 'src/graphql/portfolioStraddles/**/*.graphql'
