@@ -114,56 +114,43 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
     useState<PortfolioData>(initialPortfolioData);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const updatePortfolioData = useCallback(async () => {
-    if (!accountAddress || !provider) return;
-
-    const ssovQueryResult: ApolloQueryResult<GetUserDataQuery> =
-      await portfolioGraphClient.query({
-        query: GetUserDataDocument,
-        variables: { user: accountAddress.toLowerCase() },
-        fetchPolicy: 'no-cache',
-      });
-
-    const data: any = ssovQueryResult['data']['users'][0];
-
-    const deposits: UserSSOVDeposit[] = [];
-    const positions: UserSSOVPosition[] = [];
-
-    for (let i in data?.userSSOVDeposit) {
-      const ssov = SsovV3__factory.connect(
-        data.userSSOVDeposit[i].ssov.id,
-        provider
-      );
+  const getUserSSOVDeposit = useCallback(
+    async (userDeposit: any) => {
+      const ssov = SsovV3__factory.connect(userDeposit.ssov.id, provider);
       const ssovName = await ssov.name();
       const isPut = await ssov.isPut();
       const assetName = await ssov.underlyingSymbol();
 
-      const tokenId = data.userSSOVDeposit[i].id.split('#')[1];
+      const tokenId = userDeposit.id.split('#')[1];
 
       try {
         // if not exists then it has been withdrawn
         const owner = await ssov.ownerOf(tokenId);
 
-        deposits.push({
-          epoch: data.userSSOVDeposit[i].epoch,
-          strike: data.userSSOVDeposit[i].strike,
-          amount: data.userSSOVDeposit[i].amount,
-          ssovAddress: data.userSSOVDeposit[i].ssov.id,
+        return {
+          epoch: userDeposit.epoch,
+          strike: userDeposit.strike,
+          amount: userDeposit.amount,
+          ssovAddress: userDeposit.ssov.id,
           assetName: assetName,
           isPut: isPut,
           ssovName: ssovName,
           link: getLinkFromVaultName(ssovName),
           vaultType: 'SSOV',
           owner: owner,
-        });
+        };
       } catch (err) {
         console.log(err);
+        return;
       }
-    }
+    },
+    [provider]
+  );
 
-    for (let i in data?.userSSOVOptionBalance) {
-      const tokenId = data.userSSOVOptionBalance[i].id.split('#')[2];
-      const ssovAddress = data.userSSOVOptionBalance[i].id.split('#')[3];
+  const getUserSSOVPosition = useCallback(
+    async (userPosition: any) => {
+      const tokenId = userPosition.id.split('#')[2];
+      const ssovAddress = userPosition.id.split('#')[3];
 
       const ssov = SsovV3__factory.connect(ssovAddress, provider);
       const ssovName = await ssov.name();
@@ -171,7 +158,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
       const isPut = await ssov.isPut();
       const assetName = await ssov.underlyingSymbol();
 
-      const epoch = data.userSSOVOptionBalance[i].epoch;
+      const epoch = userPosition.epoch;
 
       try {
         // if not exists then it has been withdrawn
@@ -184,9 +171,9 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         if (settlementPrice.eq(0))
           settlementPrice = await ssov.getUnderlyingPrice();
 
-        const strike = data.userSSOVOptionBalance[i].strike;
+        const strike = userPosition.strike;
 
-        const amount = data.userSSOVOptionBalance[i].amount;
+        const amount = userPosition.amount;
 
         const pnl =
           Math.abs(
@@ -194,12 +181,12 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
               getUserReadableAmount(settlementPrice, 8)
           ) * getUserReadableAmount(amount, 18);
 
-        positions.push({
-          epoch: data.userSSOVOptionBalance[i].epoch,
+        return {
+          epoch: userPosition.epoch,
           strike: strike,
           amount: amount,
-          fee: data.userSSOVOptionBalance[i].fee,
-          premium: data.userSSOVOptionBalance[i].premium,
+          fee: userPosition.fee,
+          premium: userPosition.premium,
           pnl: String(pnl),
           ssovAddress: ssovAddress,
           assetName: assetName,
@@ -212,10 +199,117 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
             'd LLL yyyy'
           ).toLocaleUpperCase(),
           owner: owner,
-        });
+        };
       } catch (err) {
         console.log(err);
+        return;
       }
+    },
+    [provider]
+  );
+
+  const getUserStraddlesPosition = useCallback(
+    async (userPosition: any) => {
+      const id = userPosition.id;
+      const vaultAddress = id.split('#')[0];
+      // const tokenId = id.split('#')[1];
+
+      const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
+      const vaultName = await vault.symbol();
+      const epoch = userPosition.epoch;
+      const assetName = vaultName.split('-')[0]!;
+      const isEpochExpired = await vault.isEpochExpired(epoch);
+
+      try {
+        if (!isEpochExpired)
+          return {
+            assetName: assetName,
+            vaultName: vaultName,
+            amount: userPosition.amount,
+            epoch: epoch,
+            strikePrice: userPosition.strikePrice,
+            underlyingPurchased: userPosition.underlyingPurchased,
+            link: '/straddles/' + assetName.toUpperCase(),
+            vaultType: 'straddles',
+            owner: accountAddress!,
+          };
+        return;
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+    },
+    [accountAddress, provider]
+  );
+
+  const getUserStraddlesDeposit = useCallback(
+    async (userDeposit: any) => {
+      const id = userDeposit.id;
+      const vaultAddress = id.split('#')[0];
+      // const tokenId = id.split('#')[1];
+
+      const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
+      const vaultName = await vault.symbol();
+      const assetName = vaultName.split('-')[0]!;
+
+      try {
+        return {
+          assetName: assetName,
+          vaultName: vaultName,
+          amount: userDeposit.amount,
+          epoch: userDeposit.epoch,
+          rollOver: userDeposit.rollOver,
+          link: '/straddles/' + assetName.toUpperCase(),
+          vaultType: 'straddles',
+          owner: accountAddress!,
+        };
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+    },
+    [accountAddress, provider]
+  );
+
+  const updatePortfolioData = useCallback(async () => {
+    if (!accountAddress || !provider) return;
+
+    const ssovQueryResult: ApolloQueryResult<GetUserDataQuery> =
+      await portfolioGraphClient.query({
+        query: GetUserDataDocument,
+        variables: { user: accountAddress.toLowerCase() },
+        fetchPolicy: 'no-cache',
+      });
+
+    const data: any = ssovQueryResult['data']['users'][0];
+
+    const ssovDepositsPromises = [];
+    const ssovDeposits: UserSSOVDeposit[] = [];
+    const ssovPositionsPromises = [];
+    const ssovPositions: UserSSOVPosition[] = [];
+
+    for (let i in data?.userSSOVDeposit) {
+      ssovDepositsPromises.push(getUserSSOVDeposit(data?.userSSOVDeposit[i]));
+    }
+
+    const ssovDepositsResponses = await Promise.all(ssovDepositsPromises);
+
+    for (let i in ssovDepositsResponses) {
+      if (ssovDepositsResponses[i])
+        ssovDeposits.push(ssovDepositsResponses[i]!);
+    }
+
+    for (let i in data?.userSSOVOptionBalance) {
+      ssovPositionsPromises.push(
+        getUserSSOVPosition(data?.userSSOVOptionBalance[i])
+      );
+    }
+
+    const ssovPositionsResponses = await Promise.all(ssovPositionsPromises);
+
+    for (let i in ssovPositionsResponses) {
+      if (ssovPositionsResponses[i])
+        ssovPositions.push(ssovPositionsResponses[i]!);
     }
 
     // Straddles
@@ -229,73 +323,59 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
 
     const straddlesData: any = straddlesQueryResult['data']['users'][0];
 
+    const straddlesDepositsPromises = [];
+    const straddlesPositionsPromises = [];
+
     const straddlesDeposits: UserStraddlesDeposit[] = [];
     const straddlesPositions: UserStraddlesPosition[] = [];
 
     for (let i in straddlesData?.userOpenStraddles) {
-      const id = straddlesData?.userOpenStraddles[i].id;
-      const vaultAddress = id.split('#')[0];
-      // const tokenId = id.split('#')[1];
+      straddlesPositionsPromises.push(
+        getUserStraddlesPosition(straddlesData?.userOpenStraddles[i])
+      );
+    }
 
-      const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
-      const vaultName = await vault.symbol();
-      const epoch = straddlesData?.userOpenStraddles[i].epoch;
-      const assetName = vaultName.split('-')[0]!;
-      const isEpochExpired = await vault.isEpochExpired(epoch);
+    const straddlePositionsResponses = await Promise.all(
+      straddlesPositionsPromises
+    );
 
-      try {
-        if (!isEpochExpired)
-          straddlesPositions.push({
-            assetName: assetName,
-            vaultName: vaultName,
-            amount: straddlesData?.userOpenStraddles[i].amount,
-            epoch: epoch,
-            strikePrice: straddlesData?.userOpenStraddles[i].strikePrice,
-            underlyingPurchased:
-              straddlesData?.userOpenStraddles[i].underlyingPurchased,
-            link: '/straddles/' + assetName.toUpperCase(),
-            vaultType: 'straddles',
-            owner: accountAddress,
-          });
-      } catch (err) {
-        console.log(err);
-      }
+    for (let i in straddlePositionsResponses) {
+      if (straddlePositionsResponses[i])
+        straddlesPositions.push(straddlePositionsResponses[i]!);
     }
 
     for (let i in straddlesData?.userOpenDeposits) {
-      const id = straddlesData?.userOpenDeposits[i].id;
-      const vaultAddress = id.split('#')[0];
-      // const tokenId = id.split('#')[1];
+      straddlesDepositsPromises.push(
+        getUserStraddlesDeposit(straddlesData?.userOpenDeposits[i])
+      );
+    }
 
-      const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
-      const vaultName = await vault.symbol();
-      const assetName = vaultName.split('-')[0]!;
+    const straddleDepositsResponses = await Promise.all(
+      straddlesDepositsPromises
+    );
 
-      try {
-        straddlesDeposits.push({
-          assetName: assetName,
-          vaultName: vaultName,
-          amount: straddlesData?.userOpenDeposits[i].amount,
-          epoch: straddlesData?.userOpenDeposits[i].epoch,
-          rollOver: straddlesData?.userOpenDeposits[i].rollOver,
-          link: '/straddles/' + assetName.toUpperCase(),
-          vaultType: 'straddles',
-          owner: accountAddress,
-        });
-      } catch (err) {
-        console.log(err);
-      }
+    for (let i in straddleDepositsResponses) {
+      if (straddleDepositsResponses[i])
+        straddlesDeposits.push(straddleDepositsResponses[i]!);
     }
 
     setPortfolioData({
-      userSSOVDeposits: deposits,
-      userSSOVPositions: positions,
+      userSSOVDeposits: ssovDeposits,
+      userSSOVPositions: ssovPositions,
       userStraddlesDeposits: straddlesDeposits,
       userStraddlesPositions: straddlesPositions,
     });
 
     setIsLoading(false);
-  }, [accountAddress, setIsLoading, provider]);
+  }, [
+    accountAddress,
+    setIsLoading,
+    provider,
+    getUserStraddlesDeposit,
+    getUserStraddlesPosition,
+    getUserSSOVPosition,
+    getUserSSOVDeposit,
+  ]);
 
   useEffect(() => {
     updatePortfolioData();
