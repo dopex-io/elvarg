@@ -101,7 +101,7 @@ const appLinks = {
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
-    { name: 'Rate Vaults', to: '/ir' },
+    // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
   ],
