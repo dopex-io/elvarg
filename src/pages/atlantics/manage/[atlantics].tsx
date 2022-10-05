@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -63,8 +63,6 @@ interface Info {
 }
 
 const Manage = (props: ManageProps) => {
-  const [selectedPositionTable, setSelectedPositionTable] =
-    useState<string>('pool-deposits');
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
 
@@ -108,10 +106,6 @@ const Manage = (props: ManageProps) => {
     }
   }, [atlanticPool]);
 
-  const changePositionTable = (positionTable: string) => {
-    setSelectedPositionTable(() => positionTable);
-  };
-
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       <Head>
@@ -142,32 +136,14 @@ const Manage = (props: ManageProps) => {
               />
             </Box>
             <Box className="w-full space-y-4">
-              <Box className="flex space-x-3">
-                <Typography
-                  onClick={() => changePositionTable('pool-deposits')}
-                  color={`${
-                    selectedPositionTable !== 'pool-deposits' && 'stieglitz'
-                  }`}
-                  className="cursor-pointer"
-                  variant="h5"
-                >
-                  Deposits
-                </Typography>
-                <Typography
-                  onClick={() => changePositionTable('insured-perps')}
-                  color={`${
-                    selectedPositionTable !== 'insured-perps' && 'stieglitz'
-                  }`}
-                  className="cursor-pointer"
-                  variant="h5"
-                >
-                  Insured Perpetuals
-                </Typography>
-              </Box>
-              {selectedPositionTable === 'pool-deposits' && (
-                <UserDepositsTable />
-              )}
-              {selectedPositionTable === 'insured-perps' && <UserPositions />}
+              <Typography className="cursor-pointer" variant="h5">
+                GMX Insured Perpetuals Positions
+              </Typography>
+              <UserPositions />
+              <Typography className="cursor-pointer" variant="h5">
+                Pool Deposits Positions
+              </Typography>
+              <UserDepositsTable />
             </Box>
           </Box>
           <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
