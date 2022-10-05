@@ -14,8 +14,7 @@ import {
   Escrow,
   Escrow__factory,
 } from '@dopex-io/sdk';
-
-import { WalletContext } from 'contexts/Wallet';
+import { ApolloQueryResult } from '@apollo/client';
 
 import { db } from 'utils/firebase/initialize';
 import sanitizeOptionSymbol from 'utils/general/sanitizeOptionSymbol';
@@ -31,7 +30,7 @@ import {
   GetPendingOrdersAgainstUserQuery,
 } from 'graphql/generated/otc';
 
-import { ApolloQueryResult } from '@apollo/client';
+import { useBoundStore } from 'store';
 
 // contracts
 interface OtcContractsInterface {
@@ -130,7 +129,7 @@ export const OtcContext = createContext<OtcUserData & OtcContractsInterface>(
 
 export const OtcProvider = (props) => {
   const { provider, accountAddress, contractAddresses, chainId } =
-    useContext(WalletContext);
+    useBoundStore();
 
   const [state, setState] = useState<OtcUserData & OtcContractsInterface>(
     initialState

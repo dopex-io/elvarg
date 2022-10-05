@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import { format } from 'date-fns';
 import { ERC20__factory } from '@dopex-io/sdk';
@@ -15,15 +9,13 @@ import Tooltip from '@mui/material/Tooltip';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
-import { StraddlesContext } from 'contexts/Straddles';
-
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
 import CalculatorIcon from 'svgs/icons/CalculatorIcon';
+
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -32,22 +24,26 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 
 import { MAX_VALUE } from 'constants/index';
 
+const THREE_DAYS = 3 * 24 * 3600;
+
 const DepositCard = () => {
-  const { chainId, accountAddress, signer, contractAddresses } =
-    useContext(WalletContext);
-  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
-  );
   const {
+    chainId,
+    accountAddress,
+    signer,
+    contractAddresses,
     straddlesEpochData,
-    selectedEpoch,
     straddlesData,
     straddlesUserData,
     updateStraddlesEpochData,
     updateStraddlesUserData,
-  } = useContext(StraddlesContext);
+  } = useBoundStore();
 
   const sendTx = useSendTx();
+
+  const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
+    BigNumber.from('0')
+  );
 
   const [approved, setApproved] = useState(false);
 
@@ -71,6 +67,19 @@ const DepositCard = () => {
     return straddlesEpochData?.expiry.gt(0)
       ? format(
           new Date(straddlesEpochData.expiry.toNumber() * 1000),
+          'd LLL yyyy'
+        )
+      : '-';
+  }, [straddlesEpochData]);
+
+  const withdrawableNextEpoch = useMemo(() => {
+    return straddlesEpochData?.expiry.gt(0)
+      ? format(
+          new Date(
+            straddlesEpochData.expiry
+              .add(BigNumber.from(THREE_DAYS))
+              .toNumber() * 1000
+          ),
           'd LLL yyyy'
         )
       : '-';
@@ -233,7 +242,8 @@ const DepositCard = () => {
       </Box>
       <Box className="my-4 w-full rounded-lg border border-neutral-800 pt-2 pb-1">
         <Typography variant="h6" className="mx-2 pb-2">
-          Deposit for epoch {currentEpoch + 1}
+          Deposit now for epoch {currentEpoch + 1} that will be bootstrapped on{' '}
+          {readableExpiry}
         </Typography>
         <Typography variant="h6" className="mx-2 pb-2 text-gray-400">
           {straddlesData?.isEpochExpired
@@ -261,24 +271,6 @@ const DepositCard = () => {
           </Typography>
           <Typography variant="h6" className="mx-2 text-neutral-400">
             Vault Share
-          </Typography>
-        </Box>
-      </Box>
-      <Box className="py-2 w-full flex items-center justify-between rounded-b-lg border border-t-0 border-neutral-800">
-        <Box className="">
-          <Typography variant="h6" className="mx-2 text-neutral-400">
-            Next Epoch
-          </Typography>
-          <Typography variant="h6" className="mx-2 mt-2 text-neutral-400">
-            Withdrawable
-          </Typography>
-        </Box>
-        <Box className="">
-          <Typography variant="h6" className="mx-2  text-white">
-            {readableExpiry}
-          </Typography>
-          <Typography variant="h6" className="mx-2 mt-2 text-white">
-            {readableExpiry}
           </Typography>
         </Box>
       </Box>
@@ -311,13 +303,12 @@ const DepositCard = () => {
             <LockOutlinedIcon className="w-5 h-5 text-gray-400" />
             <Box>
               <Typography variant="h6" className="text-gray-400 mx-2">
-                Withdrawals are locked until end of Epoch{' '}
-                {Number(selectedEpoch!)}
+                Deposit now and withdraw after epoch {currentEpoch + 1} ends on
                 <Typography
                   variant="h6"
                   className="text-white inline-flex items-baseline ml-2"
                 >
-                  {readableExpiry}
+                  {withdrawableNextEpoch}
                 </Typography>
               </Typography>
             </Box>

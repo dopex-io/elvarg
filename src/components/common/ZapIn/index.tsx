@@ -17,8 +17,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { BigNumber } from 'ethers';
 import { LoaderIcon } from 'react-hot-toast';
 
-import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import TokenSelector from '../TokenSelector';
 import CustomButton from '../../UI/Button';
@@ -69,8 +68,7 @@ const ZapIn = ({
   tokensToExclude = [],
   lpPrice = 1,
 }: Props) => {
-  const { userAssetBalances } = useContext(AssetsContext);
-  const { chainId } = useContext(WalletContext);
+  const { userAssetBalances, chainId } = useBoundStore();
 
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);

@@ -1,23 +1,20 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import { isEmpty } from 'lodash';
 
-import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
 import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import LegacyEpochsDropDown from 'components/ssov/LegacyEpochsDropDown/LegacyEpochsDropDown';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
 
-const ssovStates: string[] = ['Active', 'Retired'];
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
 
@@ -37,13 +34,9 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Ssov = () => {
-  const { chainId, provider } = useContext(WalletContext);
-  const { tokenPrices } = useContext(AssetsContext);
+  const { provider, tokenPrices } = useBoundStore();
 
   const [ssovs, setSsovs] = useState<{ [key: string]: any }>({});
-  const [selectedSsovStates, setSelectedSsovStates] = useState<string[]>([
-    'Active',
-  ]);
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
@@ -68,11 +61,8 @@ const Ssov = () => {
 
   const keys = useMemo(() => {
     if (!ssovs) return [];
-    else if (chainId === 56) return [56, 42161, 43114];
-    else if (chainId === 43114) return [43114, 42161, 56];
-    // else if (chainId === 1088) return [1088, 42161, 56, 43114];
-    else return [42161, 56, 43114];
-  }, [ssovs, chainId]);
+    else return [42161];
+  }, [ssovs]);
 
   const ssovsTokens = useMemo(() => {
     if (!ssovs) return [];
@@ -98,6 +88,8 @@ const Ssov = () => {
       let data = await axios
         .get(`${DOPEX_API_BASE_URL}/v2/ssov`)
         .then((payload) => payload.data);
+
+      console.log(data);
 
       setSsovs(data);
     }
@@ -129,16 +121,7 @@ const Ssov = () => {
             option purchases and earn rewards simultaneously.
           </Typography>
         </Box>
-        <LegacyEpochsDropDown />
         <Box className="mb-4 flex flex-wrap justify-center">
-          <SsovFilter
-            activeFilters={selectedSsovStates}
-            setActiveFilters={setSelectedSsovStates}
-            text="State"
-            options={ssovStates}
-            multiple={true}
-            showImages={false}
-          />
           <SsovFilter
             activeFilters={selectedSsovTokens}
             setActiveFilters={setSelectedSsovTokens}
@@ -200,11 +183,7 @@ const Ssov = () => {
                                 (selectedTypes.length === 0 ||
                                   selectedTypes.includes(
                                     ssov.type.toUpperCase()
-                                  )) &&
-                                ((selectedSsovStates.includes('Active') &&
-                                  !ssov.retired) ||
-                                  (selectedSsovStates.includes('Retired') &&
-                                    ssov.retired))
+                                  ))
                               )
                                 visible = true;
                               return visible ? (

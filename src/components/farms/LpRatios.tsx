@@ -1,8 +1,7 @@
 import Box from '@mui/material/Box';
 import { BigNumber, utils } from 'ethers';
-import { useContext } from 'react';
 
-import { FarmingContext } from 'contexts/Farming';
+import { useBoundStore } from 'store';
 
 import Chip from './Chip';
 
@@ -15,7 +14,7 @@ const LpRatios = ({
   stakingTokenSymbol: string;
   userStakingRewardsBalance: BigNumber;
 }) => {
-  const { lpData } = useContext(FarmingContext);
+  const { lpData } = useBoundStore();
 
   if (!lpData) return <></>;
 

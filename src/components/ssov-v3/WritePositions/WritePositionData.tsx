@@ -4,7 +4,7 @@ import TableCell from '@mui/material/TableCell';
 
 import Typography from 'components/UI/Typography';
 
-import { WritePositionInterface } from 'contexts/SsovV3';
+import { WritePositionInterface } from 'store/Vault/ssov';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';

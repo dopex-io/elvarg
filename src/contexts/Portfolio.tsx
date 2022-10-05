@@ -1,12 +1,14 @@
 import {
   createContext,
   useEffect,
-  useContext,
   useState,
   useCallback,
   ReactNode,
 } from 'react';
+
 import { SsovV3__factory, AtlanticStraddle__factory } from '@dopex-io/sdk';
+import format from 'date-fns/format';
+
 import {
   GetUserDataDocument,
   GetUserDataQuery,
@@ -21,11 +23,10 @@ import {
 } from 'graphql/apollo';
 import { ApolloQueryResult } from '@apollo/client';
 
-import { WalletContext } from './Wallet';
-
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import format from 'date-fns/format';
+
+import { useBoundStore } from 'store';
 
 export interface UserSSOVPosition {
   amount: string;
@@ -107,8 +108,8 @@ export const PortfolioContext = createContext<PortfolioContextInterface>({
 });
 
 export const PortfolioProvider = (props: { children: ReactNode }) => {
-  const { accountAddress, provider } = useContext(WalletContext);
-
+  const { provider } = useBoundStore();
+  const accountAddress = '0xb86737F3b14dE6eB7970e2D440B0ad91cb008133';
   const [portfolioData, setPortfolioData] =
     useState<PortfolioData>(initialPortfolioData);
   const [isLoading, setIsLoading] = useState<boolean>(true);

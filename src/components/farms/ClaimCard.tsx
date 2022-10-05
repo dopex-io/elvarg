@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
 
@@ -12,9 +12,9 @@ import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Stat from './Stat';
 
-import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
-import { WalletContext } from 'contexts/Wallet';
+import useSendTx from 'hooks/useSendTx';
 
 interface Props {
   stakingTokenSymbol: string;
@@ -35,7 +35,7 @@ const ClaimCard = (props: Props) => {
 
   const sendTx = useSendTx();
 
-  const { signer } = useContext(WalletContext);
+  const { signer } = useBoundStore();
 
   const handleClaim = useCallback(async () => {
     if (!signer) return;

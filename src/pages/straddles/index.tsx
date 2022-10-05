@@ -1,17 +1,16 @@
-import { useEffect, useState, useContext, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import { WalletContext } from 'contexts/Wallet';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
 
-import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
-
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
+import Typography from 'components/UI/Typography';
 import VaultCard from 'components/straddles/VaultCard';
+
+import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
 const states: string[] = ['Active', 'Retired'];
 
@@ -31,8 +30,8 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Straddles = () => {
-  const { provider } = useContext(WalletContext);
-  const { tokenPrices } = useContext(AssetsContext);
+  const { provider, tokenPrices } = useBoundStore();
+
   const [selectedStates, setSelectedStates] = useState<string[] | string>([
     'Active',
   ]);
@@ -107,6 +106,11 @@ const Straddles = () => {
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
           <Typography variant="h2" className="z-1 mb-4">
             Straddles
+          </Typography>
+          <Typography variant="h5" className="text-stieglitz">
+            Supply Option liquidity for our Atlantic Straddle Vaults. Collect
+            premiums as well as compounding funding fees that rollover
+            automatically for easier liquidity management
           </Typography>
         </Box>
         <Box className="mb-12">

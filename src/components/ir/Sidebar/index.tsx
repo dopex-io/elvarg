@@ -1,4 +1,4 @@
-import { useContext, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -9,8 +9,7 @@ import { styled } from '@mui/material/styles';
 import Typography from 'components/UI/Typography';
 import CircleIcon from 'svgs/icons/CircleIcon';
 
-import { RateVaultContext } from 'contexts/RateVault';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import displayAddress from 'utils/general/displayAddress';
 import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
@@ -19,8 +18,9 @@ import getFormattedDate from 'utils/date/getFormattedDate';
 
 const EpochStatusButton = styled(Button)`
   color: white;
-  padding-right: 15px;
-  padding-left: 15px;
+  padding: 15px;
+  width: 100%;
+  margin: 0 auto;
   cursor: not-allowed;
 `;
 
@@ -35,38 +35,47 @@ export interface Props {
 }
 
 const Sidebar = ({ activeView, setActiveView }: Props) => {
-  const rateVaultContext = useContext(RateVaultContext);
-  const { selectedEpoch, setSelectedEpoch, rateVaultData } = rateVaultContext;
-  const { currentEpoch } = rateVaultData!;
-  const { chainId } = useContext(WalletContext);
+  const {
+    selectedEpoch,
+    setSelectedEpoch,
+    rateVaultData,
+    rateVaultEpochData,
+    updateRateVaultEpochData,
+    updateRateVaultUserData,
+    chainId,
+  } = useBoundStore();
+  const currentEpoch = rateVaultData!.currentEpoch;
 
   const handleSelectChange = useCallback(
     (e: { target: { value: string } }) => {
       if (!setSelectedEpoch) return;
 
       setSelectedEpoch(Number(e.target.value));
+      updateRateVaultEpochData();
+      updateRateVaultUserData();
     },
-    [setSelectedEpoch]
+    [setSelectedEpoch, updateRateVaultEpochData, updateRateVaultUserData]
   );
 
   const epochs = useMemo(() => {
-    let _epoch = currentEpoch + 1;
+    let _epoch = currentEpoch;
 
-    return Array(_epoch - 1)
+    if (rateVaultData?.isCurrentEpochExpired) {
+      _epoch = currentEpoch + 1;
+    }
+
+    return Array(_epoch)
       .join()
       .split(',')
       .map((_i, index) => {
         return (
-          <MenuItem
-            value={index + 1}
-            key={index + 1}
-            className="text-stieglitz"
-          >
+          <MenuItem value={index + 1} key={index} className="text-stieglitz">
             {index + 1}
+            {currentEpoch === index + 1 ? '*' : ''}
           </MenuItem>
         );
       });
-  }, [currentEpoch]);
+  }, [currentEpoch, rateVaultData]);
 
   return (
     <Box className={'absolute w-[20rem]'}>
@@ -93,14 +102,14 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
               {epochs}
             </Select>
           </Box>
-          <EpochStatusBox>
+          <EpochStatusBox className="my-auto w-full">
             <EpochStatusButton>
               <img src="/assets/lock.svg" className="mr-3" alt="Lock" />{' '}
-              {rateVaultContext?.rateVaultEpochData?.isEpochExpired
-                ? 'Vault purchases are closed'
-                : !rateVaultContext?.rateVaultEpochData?.isVaultReady
-                ? 'Vault open for deposits'
-                : 'Vault open for purchases'}
+              {rateVaultEpochData?.isEpochExpired
+                ? 'Purchases are closed'
+                : !rateVaultEpochData?.isVaultReady
+                ? 'Open for deposits'
+                : 'Open for purchases'}
             </EpochStatusButton>
           </EpochStatusBox>
           {/*<Box className={'bg-[#2D2D2D] p-2 pr-4 pl-4 rounded-md ml-auto'}>
@@ -112,7 +121,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
             <Typography variant="h5" className="text-stieglitz">
               Time remaining
             </Typography>
-            {rateVaultContext?.rateVaultEpochData?.epochEndTimes.eq(0) ? (
+            {rateVaultEpochData?.epochEndTimes.eq(0) ? (
               <Typography variant="h5" className="text-white ml-auto">
                 -
               </Typography>
@@ -120,8 +129,7 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
               <Countdown
                 date={
                   new Date(
-                    rateVaultContext?.rateVaultEpochData?.epochEndTimes!.toNumber()! *
-                      1000
+                    rateVaultEpochData?.epochEndTimes!.toNumber()! * 1000
                   )
                 }
                 renderer={({ days, hours, minutes }) => {
@@ -139,12 +147,11 @@ const Sidebar = ({ activeView, setActiveView }: Props) => {
               Next epoch
             </Typography>
             <Typography variant="h5" className="text-white ml-auto">
-              {rateVaultContext.rateVaultEpochData?.epochEndTimes.eq(0)
+              {rateVaultEpochData?.epochEndTimes.eq(0)
                 ? '-'
                 : getFormattedDate(
                     new Date(
-                      rateVaultContext?.rateVaultEpochData?.epochEndTimes.toNumber()! *
-                        1000
+                      rateVaultEpochData?.epochEndTimes.toNumber()! * 1000
                     )
                   )}
             </Typography>

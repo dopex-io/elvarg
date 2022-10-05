@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import cx from 'classnames';
 import { utils as ethersUtils } from 'ethers';
@@ -18,7 +18,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import airdropAddresses from 'constants/json/airdropAddresses.json';
 
@@ -28,8 +28,7 @@ interface Props {
 }
 
 const ClaimRdpxModal = ({ open, handleClose }: Props) => {
-  const { accountAddress, signer, contractAddresses } =
-    useContext(WalletContext);
+  const { accountAddress, signer, contractAddresses } = useBoundStore();
 
   const [rdpx, setRdpx] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);

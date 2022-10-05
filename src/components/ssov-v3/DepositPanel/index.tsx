@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
@@ -13,9 +7,8 @@ import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
-import { WalletContext } from 'contexts/Wallet';
-import { SsovV3Context, SsovV3EpochData } from 'contexts/SsovV3';
-import { AssetsContext } from 'contexts/Assets';
+import { useBoundStore } from 'store';
+import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -43,15 +36,18 @@ const SelectMenuProps = {
 };
 
 const DepositPanel = () => {
-  const { accountAddress, chainId, signer } = useContext(WalletContext);
-  const { updateAssetBalances } = useContext(AssetsContext);
   const {
+    accountAddress,
+    chainId,
+    signer,
+    updateAssetBalances,
     updateSsovV3EpochData: updateSsovEpochData,
     updateSsovV3UserData: updateSsovUserData,
     ssovData,
     ssovEpochData,
     ssovSigner,
-  } = useContext(SsovV3Context);
+    selectedEpoch,
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 
@@ -256,7 +252,7 @@ const DepositPanel = () => {
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {ssovData?.currentEpoch}
+                  {selectedEpoch}
                 </Typography>
               </Box>
             </Box>

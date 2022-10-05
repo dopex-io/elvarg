@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 import { DPXVotingEscrow__factory } from '@dopex-io/sdk';
@@ -9,16 +9,15 @@ import WalletButton from 'components/common/WalletButton';
 import LockDialog from './LockDialog';
 import Stat from './Stat';
 
-import { vedpxAddress, VeDPXContext } from 'contexts/VeDPX';
-import { WalletContext } from 'contexts/Wallet';
+import { vedpxAddress } from 'store/VeDPX';
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
 const UserVeDPX = () => {
   const [dialog, setDialog] = useState<{ open: boolean }>({ open: false });
 
-  const { userData } = useContext(VeDPXContext);
-  const { signer } = useContext(WalletContext);
+  const { signer, userVedpxData: userData } = useBoundStore();
 
   const sendTx = useSendTx();
 
@@ -55,8 +54,8 @@ const UserVeDPX = () => {
           Your veDPX
         </Typography>
         <Typography variant="h6" component="p" color="stieglitz">
-          DPX can be locked for upto 4 years, locking 1 DPX for 4 years will get
-          you 1 veDPX.
+          DPX can be locked for upto four years. Locking 1 DPX for four years
+          will get you one veDPX.
         </Typography>
       </Box>
       <Box className="bg-cod-gray rounded-xl mb-6 max-w-md">

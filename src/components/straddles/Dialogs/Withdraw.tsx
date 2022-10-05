@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cx from 'classnames';
 import Countdown from 'react-countdown';
 
@@ -8,8 +8,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 
-import { StraddlesContext } from 'contexts/Straddles';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 
@@ -27,12 +26,12 @@ const WithdrawModal = ({
   selectedPositionNftIndex,
 }: Props) => {
   const {
+    signer,
     straddlesUserData,
     straddlesData,
     straddlesEpochData,
     updateStraddlesUserData,
-  } = useContext(StraddlesContext);
-  const { signer } = useContext(WalletContext);
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 

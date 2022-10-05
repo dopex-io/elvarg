@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -6,24 +6,23 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 import useSendTx from 'hooks/useSendTx';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
+import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { StraddlesContext } from 'contexts/Straddles';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 const PositionsTable = () => {
   const sendTx = useSendTx();
-  const { signer } = useContext(WalletContext);
-  const { straddlesUserData, straddlesData, updateStraddlesUserData } =
-    useContext(StraddlesContext);
+
+  const { signer, straddlesUserData, straddlesData, updateStraddlesUserData } =
+    useBoundStore();
 
   const handleExercise = useCallback(
     async (selectedPositionNftIndex: number) => {
@@ -52,45 +51,17 @@ const PositionsTable = () => {
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
             <TableRow>
-              <TableCell className="border-0 pb-0">
-                <Typography variant="h6" className="text-gray-400">
-                  Amount
-                  <ArrowDownwardIcon className="w-4 pb-2 ml-2" />
-                </Typography>
-              </TableCell>
-              <TableCell className="border-0 pb-0">
-                <Typography variant="h6" className="text-gray-400">
-                  AP Strike
-                </Typography>
-              </TableCell>
-              <TableCell className="border-0 pb-0">
-                <Typography
-                  variant="h6"
-                  color="stieglitz"
-                  className="text-left"
-                >
-                  PnL
-                </Typography>
-              </TableCell>
-              <TableCell className=" border-0 pb-0">
-                <Typography variant="h6" className="text-gray-400 flex">
-                  Epoch
-                </Typography>
-              </TableCell>
-              <TableCell className=" border-0 pb-0">
-                <Typography
-                  variant="h6"
-                  className="text-gray-400 flex justify-end"
-                >
-                  Action
-                </Typography>
-              </TableCell>
+              <TableHeader label="Amount" showArrowIcon />
+              <TableHeader label="AP Strike" />
+              <TableHeader label="PnL" />
+              <TableHeader label="Epoch" />
+              <TableHeader label="Action" variant="text-end" />
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
             {straddlesUserData?.straddlePositions?.map((position, i) => (
-              <TableRow key={i} className="">
-                <TableCell className="pt-2">
+              <TableRow key={i}>
+                <TableCell className="pt-2 border-0">
                   <Box>
                     <Box
                       className={`rounded-md flex items-center px-2 py-2 w-fit`}
@@ -104,22 +75,22 @@ const PositionsTable = () => {
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell className="pt-1">
+                <TableCell className="pt-1 border-0">
                   <Typography variant="h6" className="text-[#6DFFB9]">
                     ${getUserReadableAmount(position.apStrike, 8).toFixed(2)}
                   </Typography>
                 </TableCell>
-                <TableCell className="pt-1">
+                <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
                     ${getUserReadableAmount(position.pnl, 18).toFixed(2)}
                   </Typography>
                 </TableCell>
-                <TableCell className="pt-1">
+                <TableCell className="pt-1 border-0">
                   <Typography variant="h6">
                     {Number(position.epoch!)}
                   </Typography>
                 </TableCell>
-                <TableCell className="flex justify-end">
+                <TableCell className="flex justify-end border-0">
                   <CustomButton
                     className="cursor-pointer text-white"
                     color={
@@ -140,7 +111,7 @@ const PositionsTable = () => {
         </Table>
       </TableContainer>
       <Box className="flex">
-        {straddlesUserData?.straddlePositions!.length === 0 ? (
+        {straddlesUserData?.straddlePositions?.length === 0 ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
         ) : null}
       </Box>

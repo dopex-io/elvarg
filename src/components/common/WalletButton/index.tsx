@@ -1,13 +1,13 @@
-import { FC, useContext, useMemo, useCallback } from 'react';
+import { FC, useMemo, useCallback } from 'react';
 
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 
 import CustomButton, { CustomButtonProps } from '../../UI/Button';
 
 const WalletButton: FC<CustomButtonProps> = (props) => {
   const { children, onClick, disabled, ...otherProps } = props;
 
-  const { accountAddress, connect } = useContext(WalletContext);
+  const { accountAddress, connect } = useBoundStore();
 
   const isWalletConnected = useMemo(
     () => Boolean(accountAddress),
@@ -17,10 +17,9 @@ const WalletButton: FC<CustomButtonProps> = (props) => {
   const onConnectWallet = useCallback(() => connect(), [connect]);
 
   return (
-    // @ts-ignore TODO: FIX
     <CustomButton
       onClick={!isWalletConnected ? onConnectWallet : onClick}
-      disabled={!isWalletConnected ? false : disabled}
+      disabled={!isWalletConnected ? false : disabled!}
       {...otherProps}
     >
       {children}

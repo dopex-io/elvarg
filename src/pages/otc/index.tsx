@@ -21,7 +21,7 @@ import TradeHistory from 'components/otc/body/TradeHistory';
 import content from 'components/otc/OtcBanner/content.json';
 
 import { OtcContext, OtcProvider } from 'contexts/Otc';
-import { WalletContext } from 'contexts/Wallet';
+import { useBoundStore } from 'store';
 import { otcGraphClient } from 'graphql/apollo';
 import { ApolloProvider } from '@apollo/client';
 
@@ -35,7 +35,8 @@ const MARKETS_PLACEHOLDER = [
 
 const OTC = () => {
   const { user, escrowData, setSelectedQuote } = useContext(OtcContext);
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress } = useBoundStore();
+
   const { width } = useWindowSize();
 
   const [state, setState] = useState({

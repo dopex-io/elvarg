@@ -17,35 +17,34 @@ import Pledge2Dialog from 'components/nfts/diamondpepes/Pledge2Dialog';
 
 import { Data, UserData, initialData } from 'types/diamondpepes';
 
-import { WalletContext } from 'contexts/Wallet';
-import { NftsProvider } from 'contexts/Nfts';
+import { useBoundStore } from 'store';
 
 import styles from 'components/nfts/diamondpepes/Pledge2Dialog/styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { accountAddress, provider, signer, chainId } =
-    useContext(WalletContext);
+  const { accountAddress, provider, signer, chainId } = useBoundStore();
   const [data, setData] = useState<Data>(initialData.data);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userData, setUserData] = useState<UserData>(initialData.userData);
   const [pledgeDialogVisibleTab, setPledgeDialogVisibleTab] =
     useState<string>('hidden');
-  const diamondPepeNfts = useMemo(
-    () =>
-      DiamondPepeNFTs__factory.connect(
-        Addresses[chainId]['NFTS']['DiamondPepesNFT'],
-        signer
-      ),
-    [signer, chainId]
-  );
-  const pledge = useMemo(
-    () =>
-      DiamondPepeNFTsPledge2__factory.connect(
-        '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
-        signer
-      ),
-    [signer]
-  );
+
+  const diamondPepeNfts = useMemo(() => {
+    if (!Addresses[chainId]['NFTS']?.DiamondPepesNFT || !signer) return;
+    return DiamondPepeNFTs__factory.connect(
+      Addresses[chainId]['NFTS']?.DiamondPepesNFT,
+      signer
+    );
+  }, [signer, chainId]);
+
+  const pledge = useMemo(() => {
+    if (!signer) return;
+    return DiamondPepeNFTsPledge2__factory.connect(
+      '0x353e731EaA33fC1cc7f50E74EA390e95b192277F',
+      signer
+    );
+  }, [signer]);
+
   const [totalUserPledged, setTotalUserPledged] = useState<number>(0);
   const [totalPledged, setTotalPledged] = useState<number>(0);
 
@@ -250,10 +249,6 @@ const DiamondPepesNfts = () => {
   );
 };
 
-const DiamondPepesNftsPage = () => (
-  <NftsProvider>
-    <DiamondPepesNfts />
-  </NftsProvider>
-);
+const DiamondPepesNftsPage = () => <DiamondPepesNfts />;
 
 export default DiamondPepesNftsPage;

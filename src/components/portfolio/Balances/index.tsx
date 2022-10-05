@@ -1,17 +1,29 @@
-import { useContext } from 'react';
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { AssetsContext } from 'contexts/Assets';
-import { WalletContext } from 'contexts/Wallet';
 import Typography from 'components/UI/Typography';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import { useBoundStore } from 'store';
+
 export default function Balances() {
-  const { userAssetBalances, isLoadingBalances } = useContext(AssetsContext);
-  const { chainId } = useContext(WalletContext);
+  const { userAssetBalances, chainId } = useBoundStore();
+
+  const isLoadingBalances = useMemo(() => {
+    let allWalletsAreZero = true;
+
+    for (let i in userAssetBalances) {
+      if (userAssetBalances[i] !== '0') {
+        allWalletsAreZero = false;
+        break;
+      }
+    }
+
+    return allWalletsAreZero;
+  }, [userAssetBalances]);
 
   return (
     <Box className="mb-4">

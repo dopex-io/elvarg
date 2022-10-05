@@ -6,6 +6,7 @@ export interface CustomButtonProps
   extends Omit<MuiButtonProps, 'color' | 'size'> {
   size?: 'small' | 'medium' | 'large';
   color?: string;
+  disabled?: boolean;
 }
 
 const CLASSES = {
