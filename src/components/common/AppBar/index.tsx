@@ -98,9 +98,9 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
+    { name: 'Portfolio', to: '/portfolio' },
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
-    { name: 'Portfolio', to: '/portfolio' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
