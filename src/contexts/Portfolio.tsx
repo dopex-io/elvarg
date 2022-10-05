@@ -108,8 +108,7 @@ export const PortfolioContext = createContext<PortfolioContextInterface>({
 });
 
 export const PortfolioProvider = (props: { children: ReactNode }) => {
-  const { provider } = useBoundStore();
-  const accountAddress = '0xb86737F3b14dE6eB7970e2D440B0ad91cb008133';
+  const { accountAddress, provider } = useBoundStore();
   const [portfolioData, setPortfolioData] =
     useState<PortfolioData>(initialPortfolioData);
   const [isLoading, setIsLoading] = useState<boolean>(true);
