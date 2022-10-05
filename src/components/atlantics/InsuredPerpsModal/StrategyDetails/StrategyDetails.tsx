@@ -39,7 +39,74 @@ const StrategyDetails = (props: {
     baseToken,
   } = props;
 
-  const { tokenPrices, tokens, chainId } = useBoundStore();
+  const {
+    tokenPrices,
+    tokens,
+    chainId,
+    // contractAddresses,
+    // provider,
+    // atlanticPool,
+  } = useBoundStore();
+
+  // const updateStrategyTotalCosts = useCallback(async () => {
+  //   let totalBaseAsset = { amount: BigNumber.from(0), usdValue: 0 };
+  //   let totalQuoteAsset = { amount: BigNumber.from(0), usdValue: 0 };
+  //   let _total = {
+  //     totalBaseAsset,
+  //     totalQuoteAsset,
+  //   };
+
+  //   if (!contractAddresses || !atlanticPool) return _total;
+  //   if (!tokenPrices || !tokens) return _total;
+
+  //   const baseTokenIndex = tokens.indexOf(baseToken);
+  //   const quoteTokenIndex = tokens.indexOf(quoteToken);
+
+  //   const baseTokenPrice = tokenPrices[baseTokenIndex]?.price;
+  //   const quoteTokenPrice = tokenPrices[quoteTokenIndex]?.price;
+
+  //   if (!baseTokenPrice || !quoteTokenPrice) return _total;
+
+  //   const gmxVault = GmxVault__factory.connect(
+  //     contractAddresses['GMX-VAULT'],
+  //     provider
+  //   );
+
+  //   const gmxGov = new ethers.Contract(await gmxVault.gov(), ['function marginFeeBasisPoints() external view returns (uint256)'], provider)
+  //   const marginFeeBasisPoints = await gmxGov['marginFeeBasisPoints()']();
+  //   const divisor = 10000;
+
+  //   const basetokenDecimals = getUserReadableAmount(await gmxVault.getMaxPrice(baseToken), 30)
+  //   const quoteTokenDecimals = getUserReadableAmount(await gmxVault.getMaxPrice(quoteToken), 30)
+
+  //   if (depositUnderlying ) {
+  //     if (!baseTokenPrice) return;
+  //     const unwindFee = await atlanticPool.contracts.atlanticPool.calculateUnwindFees(optionsAmount)
+  //     totalBaseAsset.amount = optionsAmount;
+  //     totalBaseAsset.usdValue =
+  //       (Number(optionsAmount.add(unwindFee)) / 10 ** basetokenDecimals) * baseTokenPrice;
+  //   }
+
+  //   totalQuoteAsset.amount = totalQuoteAsset.amount.add(
+  //     putOptionsPremium.add(putOptionsfees)
+  //   );
+  //   totalQuoteAsset.usdValue = getUserReadableAmount(totalQuoteAsset.amount, 6);
+
+  //   if (selectedToken === 'WETH') {
+  //     const afterfeeUsd = positionSize
+  //     .mul(divisor - marginFeeBasisPoints)
+  //       .div(divisor);
+
+  //     totalBaseAsset.amount = totalBaseAsset.amount.add(positionCollateral);
+  //     totalBaseAsset.usdValue =
+  //       totalBaseAsset.usdValue +
+  //       getUserReadableAmount(positionCollateral, basetokenDecimals) *
+  //         baseTokenPrice;
+  //   }
+
+  //   if (selectedToken === 'USDC') {
+  //   }
+  // },[]);
 
   const total = useMemo((): {
     totalQuoteAsset: {
@@ -58,7 +125,6 @@ const StrategyDetails = (props: {
       totalBaseAsset,
       totalQuoteAsset,
     };
-
     if (!tokenPrices || !tokens) return _total;
 
     const baseTokenIndex = tokens.indexOf(baseToken);
@@ -90,6 +156,7 @@ const StrategyDetails = (props: {
         getUserReadableAmount(positionCollateral, basetokenDecimals) *
           baseTokenPrice;
     }
+
     if (selectedToken === 'USDC') {
       totalQuoteAsset.amount = totalQuoteAsset.amount.add(positionCollateral);
       totalQuoteAsset.usdValue =
@@ -116,7 +183,6 @@ const StrategyDetails = (props: {
     quoteToken,
   ]);
 
-  console.log('expiry', expiry);
   return (
     <Box className="w-full flex flex-col">
       <Box className="border border-neutral-800 rounded-xl w-full">

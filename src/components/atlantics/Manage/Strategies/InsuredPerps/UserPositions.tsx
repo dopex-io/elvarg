@@ -38,12 +38,13 @@ interface IGMXPosition {
   entryPrice: string;
   leverage: string;
   status: string;
-  pnl: string;
+  pnl: number;
   index: number;
   isCollateralOptionToken: boolean;
 }
 
 type IGMXPositionArray = [
+  BigNumber,
   BigNumber,
   BigNumber,
   BigNumber,
@@ -82,9 +83,9 @@ const UserPositions = () => {
       provider
     );
 
-    let markPrice: BigNumber = await gmxVaultContract.getMaxPrice(
-      contractAddresses[underlying]
-    );
+    // let markPrice: BigNumber = await gmxVaultContract.getMaxPrice(
+    //   contractAddresses[underlying]
+    // );
 
     let userStrategyPositions: any =
       await LongPerpStrategyViewer__factory.connect(
@@ -112,6 +113,7 @@ const UserPositions = () => {
     });
 
     let userGmxPositionsCalls: any = [];
+
     userStrategyPositionsWithIndex.forEach((_position) => {
       if (_position) {
         userGmxPositionsCalls.push(
@@ -136,27 +138,51 @@ const UserPositions = () => {
     );
 
     const statuses = await Promise.all(strategyPositionsStatusCalls);
+    const gmxPositions: IGMXPosition[] = [];
 
-    const gmxPositions: IGMXPosition[] = positions.map((position, index) => {
-      const initialValue = getUserReadableAmount(
-        position[0]
-          .mul(oneEBigNumber(30))
-          .div(position[2])
-          .mul(position[2])
-          .div(oneEBigNumber(30)),
-        30
+    for (const index in positions) {
+      const position = positions[index];
+      if (!position) return;
+      if (!position[7] || !position[2] || !position[0]) return;
+
+      console.log(
+        'position logging',
+        position,
+        position[7],
+        position[2].toString(),
+        position[0].toString()
       );
+      // last increase, average price, size
 
-      const currentValue = getUserReadableAmount(
-        position[0]
-          .mul(oneEBigNumber(30))
-          .div(position[2])
-          .mul(markPrice)
-          .div(oneEBigNumber(30)),
-        30
-      );
+      // const initialValue = getUserReadableAmount(
+      //   position[0]
+      //     .mul(oneEBigNumber(30))
+      //     .div(position[2])
+      //     .mul(position[2])
+      //     .div(oneEBigNumber(30)),
+      //   30
+      // );
 
-      return {
+      // const currentValue = getUserReadableAmount(
+      //   position[0]
+      //     .mul(oneEBigNumber(30))
+      //     .div(position[2])
+      //     .mul(markPrice)
+      //     .div(oneEBigNumber(30)),
+      //   30
+      // );
+
+      const _pnl = (
+        await gmxVaultContract.getDelta(
+          contractAddresses[underlying],
+          position[0],
+          position[2],
+          true,
+          position[7]
+        )
+      )[1];
+
+      const _position = {
         positionSize: formatAmount(getUserReadableAmount(position[0], 30), 2),
         positionBalance: formatAmount(
           getUserReadableAmount(position[1], 30),
@@ -171,13 +197,15 @@ const UserPositions = () => {
           1
         ),
         status: statuses[index] ? 'Released' : 'Active',
-        pnl: formatAmount(currentValue - initialValue, 3),
+        pnl: getUserReadableAmount(_pnl, 30),
         index: Number(userStrategyPositionsWithIndex[index]?.index),
         isCollateralOptionToken:
           userStrategyPositionsWithIndex[index]?.position.insurance
             .isCollateralOptionToken ?? false,
       };
-    });
+
+      gmxPositions[index] = _position;
+    }
 
     setGmxPositions(() => gmxPositions);
   }, [contractAddresses, provider, accountAddress, atlanticPool]);
@@ -195,7 +223,7 @@ const UserPositions = () => {
           signer
         );
 
-        const tx = strategyContract.exitStrategyAndKeepLongPosition(index, {
+        const tx = strategyContract.exitStrategyAndLongPosition(index, {
           value: MIN_EXECUTION_FEE,
         });
         await sendTx(tx);
@@ -276,7 +304,7 @@ const UserPositions = () => {
                       }`}
                       variant="h6"
                     >
-                      {position.pnl}
+                      {formatAmount(position.pnl, 3)}
                     </Typography>
                   </TableBodyCell>
                   <TableBodyCell>

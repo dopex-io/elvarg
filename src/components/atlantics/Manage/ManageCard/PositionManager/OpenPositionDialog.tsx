@@ -115,7 +115,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     putStrike: BigNumber.from(0),
     expiry: BigNumber.from(0),
   });
-  const [loading, setLoading] = useState<boolean>(true);
+  const [, setLoading] = useState<boolean>(true);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -439,7 +439,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     );
     // GMX_VAULT
     const gmxVault = GmxVault__factory.connect(
-      '0x489ee077994B6658eAfA855C308275EAd8097C4A',
+      contractAddresses['GMX-VAULT'],
       signer
     );
 
@@ -454,7 +454,12 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
 
       if (!path[0]) return;
 
-      const marginFeeBasisPoints = 10;
+      const gmxGov = new ethers.Contract(
+        await gmxVault.gov(),
+        ['function marginFeeBasisPoints() external view returns (uint256)'],
+        provider
+      );
+      const marginFeeBasisPoints = await gmxGov['marginFeeBasisPoints()']();
       const divisor = 10000;
 
       let positionBalanceWithDecimals = getContractReadableAmount(
@@ -464,17 +469,17 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
 
       let positionCollateral;
       let positionSize;
+
       let indexTokenMaxPrice = await gmxVault.getMaxPrice(
         contractAddresses[indexToken]
       );
 
       if (path[0] !== contractAddresses[indexToken]) {
-        const abi = [
-          'function getAmountOut(address _vault, address _tokenIn, address _tokenOut, uint256 _amountIn) public view returns (uint256, uint256)',
-        ];
         const reader = new ethers.Contract(
-          '0x22199a49A999c351eF7927602CFB187ec3cae489',
-          abi,
+          contractAddresses['GMX-READER'],
+          [
+            'function getAmountOut(address _vault, address _tokenIn, address _tokenOut, uint256 _amountIn) public view returns (uint256, uint256)',
+          ],
           signer
         );
 
@@ -544,7 +549,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       console.log(err);
     }
   }, [
-    // atlanticPoolEpochData.expiry,
+    provider,
     atlanticPoolEpochData,
     atlanticPool,
     contractAddresses,
@@ -715,7 +720,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             </CustomButton>
           </Box>
           <CustomButton
-            disabled={loading}
+            // disabled={loading}
             // {
             //   !isApproved.base ||
             //   !isApproved.quote ||
