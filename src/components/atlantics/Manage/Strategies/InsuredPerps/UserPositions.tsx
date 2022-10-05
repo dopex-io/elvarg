@@ -172,15 +172,17 @@ const UserPositions = () => {
       //   30
       // );
 
-      const _pnl = (
-        await gmxVaultContract.getDelta(
-          contractAddresses[underlying],
-          position[0],
-          position[2],
-          true,
-          position[7]
-        )
-      )[1];
+      const _pnlDetails = await gmxVaultContract.getDelta(
+        contractAddresses[underlying],
+        position[0],
+        position[2],
+        true,
+        position[7]
+      );
+
+      const _pnl: any = _pnlDetails[0]
+        ? _pnlDetails[1]
+        : Number(_pnlDetails[1]) * -1;
 
       const _position = {
         positionSize: formatAmount(getUserReadableAmount(position[0], 30), 2),
@@ -300,7 +302,7 @@ const UserPositions = () => {
                       className={`${
                         Number(position.pnl) > 0
                           ? 'text-green-500'
-                          : 'text-white'
+                          : 'text-red-400'
                       }`}
                       variant="h6"
                     >
