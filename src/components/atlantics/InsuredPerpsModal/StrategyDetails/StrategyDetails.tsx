@@ -254,8 +254,7 @@ const StrategyDetails = (props: {
       <Box className="border border-mineshaft rounded-lg px-2 py-2 mt-2">
         <Box className="flex justify-between px-4">
           <Typography variant="h6" className="mr-2">
-            {' '}
-            Σ{' '}
+            Total
           </Typography>
           <Box className="flex justify-center items-center">
             <Box className="flex justify-center items-center">

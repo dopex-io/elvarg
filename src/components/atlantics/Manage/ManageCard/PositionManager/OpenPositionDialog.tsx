@@ -115,7 +115,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     putStrike: BigNumber.from(0),
     expiry: BigNumber.from(0),
   });
-  const [, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -408,7 +408,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       debouncedStrategyDetails[0].expiry.eq('0') ||
         positionBalance.length === 0 ||
         selectedToken === '' ||
-        !isApproved.base ||
         !isApproved.quote
     );
   }, [
@@ -517,16 +516,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
         positionSize = strategyDetails.positionSize;
       }
 
-      console.log(
-        path,
-        contractAddresses[indexToken],
-        positionCollateral.toString(),
-        positionSize.toString(),
-        MIN_EXECUTION_FEE.toString(),
-        DEFAULT_REFERRAL_CODE,
-        depositUnderlying,
-        atlanticPoolEpochData.expiry.toString()
-      );
       const _tx = strategyContract.useStrategyAndOpenLongPosition(
         {
           path: path,
@@ -545,6 +534,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       );
 
       await sendTx(_tx);
+      handleClose()
     } catch (err) {
       console.log(err);
     }
@@ -553,6 +543,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     atlanticPoolEpochData,
     atlanticPool,
     contractAddresses,
+    handleClose,
     signer,
     depositUnderlying,
     chainId,
@@ -720,12 +711,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             </CustomButton>
           </Box>
           <CustomButton
-            // disabled={loading}
-            // {
-            //   !isApproved.base ||
-            //   !isApproved.quote ||
-            //   positionBalance === '' ||
-            // }
+            disabled={loading}
             onClick={useStrategy}
           >
             Long
