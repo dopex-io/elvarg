@@ -7,6 +7,8 @@ import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 
+import cx from 'classnames';
+
 import {
   PortfolioContext,
   UserSSOVDeposit,
@@ -19,8 +21,7 @@ import CustomButton from 'components/UI/Button';
 import Filter from 'components/common/Filter';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import cx from 'classnames';
-import formatAmount from '../../../utils/general/formatAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
 

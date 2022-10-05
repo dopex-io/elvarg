@@ -1,11 +1,14 @@
+import React from 'react';
 import Head from 'next/head';
+
 import Box from '@mui/material/Box';
+
 import AppBar from 'components/common/AppBar';
 import Sidebar from 'components/portfolio/Sidebar';
 import Positions from 'components/portfolio/Positions';
 import Deposits from 'components/portfolio/Deposits';
+
 import { PortfolioProvider } from 'contexts/Portfolio';
-import React from 'react';
 
 const Portfolio = () => {
   return (

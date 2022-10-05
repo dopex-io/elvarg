@@ -6,8 +6,12 @@ import {
   ReactNode,
 } from 'react';
 
-import { SsovV3__factory, AtlanticStraddle__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
+import { ApolloQueryResult } from '@apollo/client';
+
+import { useBoundStore } from 'store';
+
+import { SsovV3__factory, AtlanticStraddle__factory } from '@dopex-io/sdk';
 
 import {
   GetUserDataDocument,
@@ -21,12 +25,9 @@ import {
   portfolioGraphClient,
   portfolioStraddlesGraphClient,
 } from 'graphql/apollo';
-import { ApolloQueryResult } from '@apollo/client';
 
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { useBoundStore } from 'store';
 
 export interface UserSSOVPosition {
   amount: string;
