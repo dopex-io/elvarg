@@ -35,12 +35,15 @@ import { MIN_EXECUTION_FEE } from 'constants/gmx';
 interface IGMXPosition {
   positionSize: string;
   positionBalance: string;
-  entryPrice: string;
-  leverage: string;
+  entryPrice: number;
+  leverage: number;
   status: string;
   pnl: number;
   index: number;
   isCollateralOptionToken: boolean;
+  liquidationPrice: number;
+  putStrike: number;
+  hasBorrowed: boolean;
 }
 
 type IGMXPositionArray = [
@@ -83,11 +86,7 @@ const UserPositions = () => {
       provider
     );
 
-    // let markPrice: BigNumber = await gmxVaultContract.getMaxPrice(
-    //   contractAddresses[underlying]
-    // );
-
-    let userStrategyPositions: any =
+    let userStrategyPositions: any[] =
       await LongPerpStrategyViewer__factory.connect(
         strategyViewerAddress,
         provider
@@ -145,33 +144,6 @@ const UserPositions = () => {
       if (!position) return;
       if (!position[7] || !position[2] || !position[0]) return;
 
-      console.log(
-        'position logging',
-        position,
-        position[7],
-        position[2].toString(),
-        position[0].toString()
-      );
-      // last increase, average price, size
-
-      // const initialValue = getUserReadableAmount(
-      //   position[0]
-      //     .mul(oneEBigNumber(30))
-      //     .div(position[2])
-      //     .mul(position[2])
-      //     .div(oneEBigNumber(30)),
-      //   30
-      // );
-
-      // const currentValue = getUserReadableAmount(
-      //   position[0]
-      //     .mul(oneEBigNumber(30))
-      //     .div(position[2])
-      //     .mul(markPrice)
-      //     .div(oneEBigNumber(30)),
-      //   30
-      // );
-
       const _pnlDetails = await gmxVaultContract.getDelta(
         contractAddresses[underlying],
         position[0],
@@ -184,26 +156,34 @@ const UserPositions = () => {
         ? _pnlDetails[1]
         : Number(_pnlDetails[1]) * -1;
 
+      const _entryPrice = getUserReadableAmount(position[2], 30);
+      const _leverage = getUserReadableAmount(
+        position[0].mul(oneEBigNumber(30)).div(position[1]),
+        30
+      );
+      const _liqudationPrice = _entryPrice - _entryPrice / _leverage;
+
       const _position = {
         positionSize: formatAmount(getUserReadableAmount(position[0], 30), 2),
         positionBalance: formatAmount(
           getUserReadableAmount(position[1], 30),
           3
         ),
-        entryPrice: formatAmount(getUserReadableAmount(position[2], 30), 3),
-        leverage: formatAmount(
-          getUserReadableAmount(
-            position[0].mul(oneEBigNumber(30)).div(position[1]),
-            30
-          ),
-          1
-        ),
+        entryPrice: _entryPrice,
+        leverage: _leverage,
         status: statuses[index] ? 'Released' : 'Active',
         pnl: getUserReadableAmount(_pnl, 30),
         index: Number(userStrategyPositionsWithIndex[index]?.index),
         isCollateralOptionToken:
           userStrategyPositionsWithIndex[index]?.position.insurance
             .isCollateralOptionToken ?? false,
+        liquidationPrice: _liqudationPrice,
+        putStrike: getUserReadableAmount(
+          userStrategyPositionsWithIndex[index]?.position.insurance.putStrike,
+          8
+        ),
+        hasBorrowed:
+          userStrategyPositionsWithIndex[index]?.position.insurance.hasBorrowed,
       };
 
       gmxPositions[index] = _position;
@@ -275,6 +255,8 @@ const UserPositions = () => {
                 <TableHeader>Leverage</TableHeader>
                 <TableHeader>PnL</TableHeader>
                 <TableHeader>Status</TableHeader>
+                <TableHeader>Liqudation Price</TableHeader>
+                <TableHeader>Put Strike</TableHeader>
                 <TableHeader align="right">Action</TableHeader>
               </TableRow>
             </TableHead>
@@ -295,7 +277,9 @@ const UserPositions = () => {
                     </Typography>
                   </TableBodyCell>
                   <TableBodyCell>
-                    <Typography variant="h6">{position.leverage}x</Typography>
+                    <Typography variant="h6">
+                      {formatAmount(position.leverage, 1)}x
+                    </Typography>
                   </TableBodyCell>
                   <TableBodyCell>
                     <Typography
@@ -312,12 +296,21 @@ const UserPositions = () => {
                   <TableBodyCell>
                     <Typography variant="h6">{position.status}</Typography>
                   </TableBodyCell>
+                  <TableBodyCell>
+                    <Typography variant="h6">
+                      {formatAmount(position.liquidationPrice, 2)}
+                    </Typography>
+                  </TableBodyCell>
+                  <TableBodyCell>
+                    <Typography variant="h6">{position.putStrike}</Typography>
+                  </TableBodyCell>
                   <TableBodyCell align="right">
                     <ActionButton
                       closePosition={closePosition}
                       keepCollateral={keepCollateral}
                       isCollateralOptionToken={position.isCollateralOptionToken}
                       index={position.index}
+                      hasBorrowed={position.hasBorrowed}
                     />
                   </TableBodyCell>
                 </TableRow>
@@ -339,6 +332,7 @@ interface IActionButtonProps {
   keepCollateral: (index: number) => Promise<void>;
   index: number;
   isCollateralOptionToken: boolean;
+  hasBorrowed: boolean;
 }
 
 const ActionButton = ({
@@ -346,6 +340,7 @@ const ActionButton = ({
   keepCollateral,
   isCollateralOptionToken,
   index,
+  hasBorrowed,
 }: IActionButtonProps) => {
   const handleClosePosition = useCallback(async () => {
     await closePosition(index);
@@ -389,7 +384,7 @@ const ActionButton = ({
           </Typography>
         </MenuItem>
         {!isCollateralOptionToken && (
-          <MenuItem onClick={handleKeepCollateral}>
+          <MenuItem onClick={handleKeepCollateral} disabled={!hasBorrowed}>
             <Typography
               variant="h6"
               role="button"
