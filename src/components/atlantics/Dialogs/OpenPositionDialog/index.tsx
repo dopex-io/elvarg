@@ -688,29 +688,33 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           baseToken={selectedPoolTokens.underlying}
         />
         <Box className="flex flex-col w-full space-y-2">
-          <Box className="flex flex-row w-full space-x-2">
-            {selectedToken === atlanticPool?.tokens.underlying! && (
-              <CustomButton
-                onClick={handleApproveBaseToken}
-                disabled={
-                  positionBalance === '' || parseInt(positionBalance) === 0
-                }
-                className={`${isApproved.base && 'hidden'} flex-1 display`}
-              >
-                Approve {'WETH'}
-              </CustomButton>
-            )}
+          <Box className={`flex flex-row w-full justify-around`}>
+            <CustomButton
+              onClick={handleApproveBaseToken}
+              disabled={
+                positionBalance === '' || parseInt(positionBalance) === 0
+              }
+              className={`${isApproved.base && 'hidden'} ${
+                !depositUnderlying && 'hidden'
+              }  w-full m-1`}
+            >
+              Approve {'WETH'}
+            </CustomButton>
             <CustomButton
               onClick={handleApproveQuoteToken}
               disabled={
                 positionBalance === '' || parseInt(positionBalance) === 0
               }
-              className={` ${isApproved.quote && 'hidden'} flex-1`}
+              className={` ${isApproved.quote && 'hidden'} w-full m-1 `}
             >
               Approve {'USDC'}
             </CustomButton>
           </Box>
-          <CustomButton disabled={loading} onClick={useStrategy}>
+          <CustomButton
+            disabled={loading}
+            onClick={useStrategy}
+            className="m-1"
+          >
             Long
           </CustomButton>
         </Box>
