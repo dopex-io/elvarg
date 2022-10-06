@@ -17,9 +17,9 @@ import {
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
 import Button from '@mui/material/Button';
-import { Checkbox } from '@mui/material';
-import Tooltip from '@mui/material/Tooltip';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
+// import { Checkbox } from '@mui/material';
+// import Tooltip from '@mui/material/Tooltip';
+// import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import { useDebounce } from 'use-debounce';
 
 import Typography from 'components/UI/Typography';
@@ -27,7 +27,7 @@ import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import StrategyDetails from 'components/atlantics/Dialogs/OpenPositionDialog/StrategyDetails';
-import Switch from 'components/UI/Switch';
+// import Switch from 'components/UI/Switch';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -101,10 +101,10 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     base: false,
   });
   const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
-  const [keepCollateral, setKeepCollateral] = useState<boolean>(false);
+  const [keepCollateral] = useState<boolean>(false);
   const [selectedToken, setSelectedToken] = useState<string>('USDC');
   const [positionBalance, setPositionBalance] = useState<string>('');
-  const [depositUnderlying, setDeposutUnderlying] = useState<boolean>(false);
+  const [depositUnderlying] = useState<boolean>(false);
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
     positionSize: BigNumber.from(0),
     putOptionsPremium: BigNumber.from(0),
@@ -251,9 +251,9 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     atlanticPoolEpochData,
   ]);
 
-  const handleDepositUnderlyingCheckboxChange = (event: any) => {
-    setDeposutUnderlying(event.target.checked);
-  };
+  // const handleDepositUnderlyingCheckboxChange = (event: any) => {
+  //   setDeposutUnderlying(event.target.checked);
+  // };
 
   function onChangeLeverage(event: Event, value: any, aciveThumb: any) {
     event;
@@ -555,10 +555,10 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     sendTx,
   ]);
 
-  const handleKeepCollateral = (event: any, checked: boolean) => {
-    event;
-    setKeepCollateral(() => checked);
-  };
+  // const handleKeepCollateral = (event: any, checked: boolean) => {
+  //   event;
+  //   setKeepCollateral(() => checked);
+  // };
 
   return (
     <Dialog
@@ -646,7 +646,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             marks={marks}
           />
         </Box>
-        <Box className="flex-col justify-center items-center">
+        {/* <Box className="flex-col justify-center items-center">
           <Box className="px-1 flex">
             <Typography variant="h6">
               Deposit underlying
@@ -675,7 +675,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
               color="primary"
             />
           </Box>
-        </Box>
+        </Box> */}
         <StrategyDetails
           data={debouncedStrategyDetails[0]}
           selectedCollateral={'selectedCollateral'}
