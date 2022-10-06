@@ -26,7 +26,7 @@ import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
-import StrategyDetails from 'components/atlantics/InsuredPerpsModal/StrategyDetails/StrategyDetails';
+import StrategyDetails from 'components/atlantics/Dialogs/OpenPositionDialog/StrategyDetails';
 import Switch from 'components/UI/Switch';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -534,7 +534,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       );
 
       await sendTx(_tx);
-      handleClose()
+      handleClose();
     } catch (err) {
       console.log(err);
     }
@@ -710,10 +710,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
               Approve {'USDC'}
             </CustomButton>
           </Box>
-          <CustomButton
-            disabled={loading}
-            onClick={useStrategy}
-          >
+          <CustomButton disabled={loading} onClick={useStrategy}>
             Long
           </CustomButton>
         </Box>

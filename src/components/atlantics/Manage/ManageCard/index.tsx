@@ -10,7 +10,7 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
-import { OpenPositionDialog } from './PositionManager/OpenPositionDialog';
+import { OpenPositionDialog } from 'components/atlantics/Dialogs/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 

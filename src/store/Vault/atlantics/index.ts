@@ -402,7 +402,6 @@ export const createAtlanticsSlice: StateCreator<
         monthly: contractAddresses['ATLANTIC-POOLS'][asset]['PUTS']['MONTHLY'],
       });
     });
-    console.log(allPools);
     set((prevState) => ({ ...prevState, pools: allPools }));
   },
 });

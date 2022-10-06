@@ -3,6 +3,7 @@ import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
 
@@ -11,7 +12,6 @@ import { useBoundStore } from 'store';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { TOKEN_DECIMALS } from 'constants/index';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 interface MaxStrikeInputProps {
   token: string;

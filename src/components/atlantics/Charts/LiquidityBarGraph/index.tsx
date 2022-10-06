@@ -11,6 +11,7 @@ import {
   LabelList,
   Cell,
 } from 'recharts';
+import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
 import Typography from 'components/UI/Typography';
 import CallsIcon from 'svgs/icons/CallsIcon';
@@ -54,7 +55,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   }, [data]);
 
   return (
-    <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
+    <Box className="flex flex-col bg-cod-gray rounded-lg">
       <Box className="flex justify-between p-3">
         <Box className="flex space-x-2 justify-start">
           {header['type'] === 'CALLS' ? (
@@ -66,10 +67,14 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             Available ({header['collateral']})
           </Typography>
         </Box>
-        <Box className="inline-block">
-          <Typography variant="h6">Max Strike</Typography>
+        <Box className="flex">
+          <ArrowDownwardRoundedIcon className="fill-current text-stieglitz h-5 my-auto" />
+          <Typography variant="h6" color="stieglitz">
+            Max Strike
+          </Typography>
         </Box>
       </Box>
+      <hr className="mx-3 border-umbra" />
       <Box className="flex justify-around">
         <ResponsiveContainer width="100%" height={height}>
           <BarChart

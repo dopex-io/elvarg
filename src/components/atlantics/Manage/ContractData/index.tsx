@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
 import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
-import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies';
+import PoolStrategy from 'components/atlantics/Manage/ContractData/PoolStrategy';
 import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
@@ -20,6 +20,7 @@ const ContractData = () => {
 
   const {
     atlanticPool,
+    updateAtlanticPoolEpochData,
     atlanticPoolEpochData,
     selectedEpoch,
     setSelectedEpoch,
@@ -37,6 +38,10 @@ const ContractData = () => {
       );
     else return 'Expired';
   }, [atlanticPoolEpochData]);
+
+  useEffect(() => {
+    updateAtlanticPoolEpochData();
+  }, [updateAtlanticPoolEpochData, selectedEpoch]);
 
   useEffect(() => {
     (async () => {
@@ -103,8 +108,8 @@ const ContractData = () => {
         variant="col"
       />
       <ContractDataItem
-        description="Strategies (1)"
-        value={<PoolStrategies />}
+        description="Strategy"
+        value={<PoolStrategy strategyLabel={'Insured Long Perps'} />}
         variant="col"
       />
       <ContractDataItem
