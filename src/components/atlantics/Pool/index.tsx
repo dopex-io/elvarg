@@ -34,7 +34,7 @@ const PoolCard = (props: PoolCardProps) => {
   return (
     <Link href={`/atlantics/manage/${underlying}-${type}-${duration}`} passHref>
       <Box
-        className="bg-umbra rounded-lg p-3 border border-umbra hover:border-primary transition ease-in-out hover:duration-250"
+        className="bg-umbra rounded-lg p-3 border border-umbra hover:border-primary transition ease-in-out hover:duration-250 flex-1"
         role="button"
       >
         <Box className="flex justify-between">
