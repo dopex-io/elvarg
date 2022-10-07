@@ -47,6 +47,21 @@ interface IProps {
   handleClose: () => void;
 }
 
+const steps_testing = 1;
+const minMarks_testing = 1.1;
+const maxMarks_testing = 25;
+const marks_testing = [
+  { value: 1.1, label: '1.1x' },
+  { value: 5, label: '5x' },
+  { value: 10, label: '10x' },
+  { value: 15, label: '15x' },
+  { value: 20, label: '20x' },
+  { value: 25, label: '25x' },
+];
+
+const steps = 0.1;
+const minMarks = 1.1;
+const maxMarks = 5;
 const marks = [
   {
     value: 1.1,
@@ -93,6 +108,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [leverage, setLeverage] = useState<number>(2);
+  // ** TEMP *** //
+  const [testing, setTesting] = useState<boolean>(false);
   const [isApproved, setIsApproved] = useState<{
     quote: boolean;
     base: boolean;
@@ -418,6 +435,16 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     selectedToken,
   ]);
 
+  // **** TEMP *** //
+
+  const updateTestingMode = useCallback(async () => {
+    if (!atlanticPoolEpochData || !atlanticPoolEpochData.tickSize) return;
+    setTesting(Number(atlanticPoolEpochData.tickSize) == 10e8);
+  }, [atlanticPoolEpochData]);
+  useEffect(() => {
+    updateTestingMode();
+  }, [updateTestingMode]);
+
   const useStrategy = useCallback(async () => {
     if (
       !contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'] ||
@@ -639,11 +666,11 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             aria-label="Small steps"
             defaultValue={1.1}
             onChange={onChangeLeverage}
-            step={0.1}
-            min={1.1}
-            max={5}
+            step={testing ? steps_testing : steps}
+            min={testing ? minMarks_testing : minMarks}
+            max={testing ? maxMarks_testing : maxMarks}
             valueLabelDisplay="auto"
-            marks={marks}
+            marks={testing ? marks_testing : marks}
           />
         </Box>
         {/* <Box className="flex-col justify-center items-center">
