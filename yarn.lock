@@ -761,9 +761,6 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@dopex-io/sdk@../sdk":
-  version "1.0.0-beta.33"
-
 "@dopex-io/sdk@https://github.com/dopex-io/sdk#feat/atlantics":
   version "1.0.0-beta.33"
   resolved "https://github.com/dopex-io/sdk#516a9c14369a20bee3779a3b2bfa0db08fcc307d"
