@@ -2406,7 +2406,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
       const finishDate = new Date(duelData[7][1].toNumber() * 1000);
 
-      const maxRevealDate = addHoursToDate(finishDate, 12);
+      const maxRevealDate = addHoursToDate(finishDate, 4);
       const revealDate = new Date(duelData[7][2].toNumber() * 1000);
 
       let challengerAddress = duelData[1][1];
@@ -2455,7 +2455,7 @@ export const DuelProvider = (props: { children: ReactNode }) => {
 
       const creationDate = new Date(duelData[7][0].toNumber() * 1000);
 
-      const challengedLimitDate = addHoursToDate(creationDate, 12);
+      const challengedLimitDate = addHoursToDate(creationDate, 4);
 
       let status = 'waiting';
 
