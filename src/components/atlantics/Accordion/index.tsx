@@ -83,7 +83,7 @@ const CustomAccordion = ({
         </Box>
       </AccordionSummary>
       <AccordionDetails className="rounded-2xl space-y-4">
-        <Box className="flex flex-col space-x-3">
+        <Box className="flex flex-col w-full space-y-2">
           {putsPoolFiltered!.map(
             ({ duration, pool }: FilteredPoolsInterface, index) => {
               return (
