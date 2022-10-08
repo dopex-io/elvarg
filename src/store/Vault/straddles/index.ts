@@ -42,7 +42,7 @@ export interface StraddlesEpochData {
 }
 
 export interface WritePosition {
-  epoch: number;
+  epoch: BigNumber;
   usdDeposit: BigNumber;
   rollover: BigNumber;
   premiumFunding: BigNumber;
@@ -104,7 +104,9 @@ export const createStraddlesSlice: StateCreator<
   },
   straddlesUserData: {},
   updateStraddlesEpochData: async () => {
-    const { selectedEpoch, getStraddlesContract } = get();
+    const { selectedEpoch, getStraddlesContract, provider } = get();
+
+    console.log('straddles', provider);
 
     const straddlesContract = getStraddlesContract();
 
@@ -332,7 +334,12 @@ export const createStraddlesSlice: StateCreator<
     );
   },
   getStraddlesWritePosition: async (id: BigNumber) => {
-    const { getStraddlesContract, accountAddress, straddlesEpochData } = get();
+    const {
+      getStraddlesContract,
+      accountAddress,
+      straddlesEpochData,
+      straddlesData,
+    } = get();
     const straddlesContract = getStraddlesContract();
 
     try {
@@ -344,9 +351,12 @@ export const createStraddlesSlice: StateCreator<
       const totalPremiumFunding = straddlesEpochData!.usdPremiums.add(
         straddlesEpochData!.usdFunding
       );
-      const premiumFunding = data.usdDeposit
-        .mul(totalPremiumFunding)
-        .div(straddlesEpochData!.usdDeposits);
+      const premiumFunding =
+        data['epoch'].toNumber() === straddlesData?.currentEpoch
+          ? data.usdDeposit
+              .mul(totalPremiumFunding)
+              .div(straddlesEpochData!.usdDeposits)
+          : BigNumber.from(0);
 
       return {
         id: id,
