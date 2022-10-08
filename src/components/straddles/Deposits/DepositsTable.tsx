@@ -39,8 +39,24 @@ export const TableHeader = ({
   );
 };
 
+const Label = (props: { posEpoch: number; curEpoch: number }) => {
+  return props.posEpoch === props.curEpoch ? (
+    <Box className="ml-2 -mt-1 p-1 rounded-lg border border-emerald-500 border-opacity-30 bg-emerald-500 bg-opacity-10">
+      <Typography variant="h6" className="-mt-1" color="emerald-500">
+        Active
+      </Typography>
+    </Box>
+  ) : (
+    <Box className="ml-2 -mt-1 p-1 rounded-lg border border-stieglitz border-opacity-30 bg-stieglitz bg-opacity-10">
+      <Typography variant="h6" className="-mt-1" color="stieglitz">
+        Inactive
+      </Typography>
+    </Box>
+  );
+};
+
 const DepositsTable = () => {
-  const { straddlesUserData } = useBoundStore();
+  const { straddlesUserData, straddlesData } = useBoundStore();
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
@@ -91,10 +107,14 @@ const DepositsTable = () => {
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell className="pt-1 border-0">
+                <TableCell className="pt-1 border-0 flex">
                   <Typography variant="h6">
-                    {Number(position.epoch!)}
+                    {position.epoch.toNumber()}
                   </Typography>
+                  <Label
+                    posEpoch={position.epoch.toNumber()}
+                    curEpoch={straddlesData?.currentEpoch!}
+                  />
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" className="text-right">
