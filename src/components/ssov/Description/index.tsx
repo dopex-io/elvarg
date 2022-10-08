@@ -86,6 +86,17 @@ const Description = ({
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
       <EpochSelector className="mb-6" />
+      {ssovEpochData.isEpochExpired ? (
+        <Box className="mb-3">
+          <Typography variant="h5">
+            Settlement price was{' $'}
+            {formatAmount(
+              getUserReadableAmount(ssovEpochData.settlementPrice, 8),
+              2
+            )}
+          </Typography>
+        </Box>
+      ) : null}
       <Box className="mb-3">
         Epoch duration:
         <span className="font-bold">
