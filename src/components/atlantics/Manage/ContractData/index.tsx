@@ -13,10 +13,10 @@ import AlarmIcon from 'svgs/icons/AlarmIcon';
 import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const ContractData = () => {
   const [currentEpoch, setCurrentEpoch] = useState<number>(0);
-  const [utilizationRate, setUtilizationRate] = useState(BigNumber.from(0));
 
   const {
     atlanticPool,
@@ -48,13 +48,6 @@ const ContractData = () => {
       if (!atlanticPool) return;
       const epoch = await atlanticPool.contracts.atlanticPool.currentEpoch();
       setCurrentEpoch(Number(epoch));
-
-      const _utilRate =
-        await atlanticPool.contracts.atlanticPool.getUtilizationRate(
-          selectedEpoch
-        );
-
-      setUtilizationRate(_utilRate);
     })();
   }, [atlanticPool, selectedEpoch]);
 
@@ -128,7 +121,11 @@ const ContractData = () => {
       />
       <ContractDataItem
         description="APR"
-        value={<Typography variant="h6">~{/*selectedPool.apy */}%</Typography>}
+        value={
+          <Typography variant="h6">
+            ~{formatAmount(atlanticPoolEpochData?.apr, 3)}%
+          </Typography>
+        }
         variant="row"
       />
       <ContractDataItem
@@ -147,7 +144,7 @@ const ContractData = () => {
         description="Utilization"
         value={
           <Typography variant="h6">
-            {getUserReadableAmount(utilizationRate, 4)}%
+            {formatAmount(atlanticPoolEpochData?.utilizationRate, 3)}%
           </Typography>
         }
         variant="row"
@@ -159,7 +156,19 @@ const ContractData = () => {
       />
       <ContractDataItem
         description="Premiums"
-        value={<Typography variant="h6">{'...'}</Typography>}
+        value={
+          <Typography variant="h6">
+            {formatAmount(
+              getUserReadableAmount(
+                atlanticPoolEpochData?.premiaAccrued ?? '0',
+                6
+              ),
+              3,
+              true
+            )}{' '}
+            {atlanticPool?.tokens.depositToken}
+          </Typography>
+        }
         variant="row"
       />
     </Box>

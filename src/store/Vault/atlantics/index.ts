@@ -6,12 +6,14 @@ import {
   AtlanticPutsPool,
   AtlanticPutsPool__factory,
   AtlanticsViewer__factory,
+  AtlanticsViewer,
 } from '@dopex-io/sdk';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface IVaultConfiguration {
   collateralUtilizationWeight: BigNumber;
@@ -25,6 +27,7 @@ export interface ApContracts {
   atlanticPool: AtlanticPutsPool;
   quoteToken: ERC20;
   baseToken: ERC20;
+  atlanticPoolViewer: AtlanticsViewer;
 }
 
 interface IAtlanticPoolData {
@@ -44,6 +47,9 @@ interface IAtlanticPoolEpochData {
   tickSize?: BigNumber;
   maxStrikes: BigNumber[];
   settlementPrice: BigNumber;
+  premiaAccrued: BigNumber;
+  utilizationRate: number | string;
+  apr: number | string;
   startTime: BigNumber;
   expiry: BigNumber;
   isVaultReady: boolean;
@@ -155,20 +161,16 @@ export const createAtlanticsSlice: StateCreator<
       atlanticPool,
       baseToken: ERC20__factory.connect(baseToken, provider),
       quoteToken: ERC20__factory.connect(quoteToken, provider),
+      atlanticPoolViewer: AtlanticsViewer__factory.connect(
+        contractAddresses['ATLANTICS-VIEWER'],
+        provider
+      ),
     };
 
     const [underlying, depositToken] = await Promise.all([
       contracts.baseToken.symbol(),
       contracts.quoteToken.symbol(),
     ]);
-
-    console.log({
-      currentEpoch,
-      vaultConfig: { ...config, tickSize, unwindFee: unwindFeePercentage },
-      contracts,
-      underlyingPrice,
-      durationType: duration,
-    });
 
     set((prevState) => ({
       ...prevState,
@@ -229,11 +231,69 @@ export const createAtlanticsSlice: StateCreator<
       isVaultExpired,
     ] = vaultState;
 
+    const totalEpochDeposits = (
+      await atlanticPool.contracts.atlanticPool.totalEpochCummulativeLiquidity(
+        selectedEpoch
+      )
+    )
+      .add(
+        await atlanticPool.contracts.atlanticPool.totalEpochActiveCollateral(
+          selectedEpoch
+        )
+      )
+      .div(getContractReadableAmount(1, 6))
+      .toNumber();
+
+    const underlyingPriceInUsd =
+      await atlanticPool.contracts.atlanticPool.getUsdPrice();
+
+    const premiaAccrued = checkpoints
+      .map((checkpoint) => checkpoint)
+      .flat()
+      .map((cpObject) => cpObject.premiumAccrued)
+      .reduce((prev, next) => prev.add(next), BigNumber.from(0));
+
+    const premiaInUsd = premiaAccrued
+      .div(getContractReadableAmount(1, 6))
+      .toNumber();
+
+    const fundingAccrued = checkpoints
+      .map((checkpoint) => checkpoint)
+      .flat()
+      .map((cpObject) => cpObject.fundingAccrued)
+      .reduce((prev, next) => prev.add(next), BigNumber.from(0));
+
+    const fundingAccruedInUsd = fundingAccrued // 1e6
+      .mul(underlyingPriceInUsd) // 1e8
+      .div(getContractReadableAmount(1, 14))
+      .toNumber();
+
+    const epochLength = expiryTime.sub(startTime);
+
+    const epochDurationInDays = epochLength.div('84600').toNumber();
+
+    const apr =
+      (((premiaInUsd + fundingAccruedInUsd) / totalEpochDeposits) *
+        (365 * 100)) /
+      epochDurationInDays;
+
+    const utilizationRate =
+      (
+        await atlanticPool.contracts.atlanticPool.getUtilizationRate(
+          selectedEpoch
+        )
+      )
+        .div(getContractReadableAmount(1, 6))
+        .toNumber() * 100;
+
     let atlanticPoolEpochData: IAtlanticPoolEpochData = {
       epoch: selectedEpoch,
       tickSize,
       maxStrikes,
       settlementPrice,
+      premiaAccrued,
+      apr,
+      utilizationRate,
       startTime: startTime,
       expiry: expiryTime,
       isVaultReady,
