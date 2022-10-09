@@ -38,19 +38,25 @@ const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
 };
 
 const ChangeNetworkDialog = () => {
-  const { wrongNetwork, supportedChainIds, changeNetwork, setChangeNetwork } =
-    useBoundStore();
+  const {
+    wrongNetwork,
+    supportedChainIds,
+    changeNetwork,
+    setChangeNetwork,
+    updateState,
+  } = useBoundStore();
 
   useEffect(() => {
     setChangeNetwork(wrongNetwork ? 'wrong-network' : 'close');
-  }, [wrongNetwork, setChangeNetwork]);
+  }, [wrongNetwork, setChangeNetwork, updateState]);
 
   const handleClose = useCallback(
-    (_: any, reason: string) => {
+    async (_: any, reason: string) => {
       if (reason === 'backdropClick') return;
       setChangeNetwork('close');
+      await updateState();
     },
-    [setChangeNetwork]
+    [setChangeNetwork, updateState]
   );
 
   return (

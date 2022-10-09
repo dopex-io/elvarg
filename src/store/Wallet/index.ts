@@ -12,6 +12,8 @@ import { CHAIN_ID_TO_RPC, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/index';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { FarmingSlice } from 'store/Farming';
 
+// const DEFAULT_CHAIN_ID: number = 5;
+
 export interface WalletSlice {
   updateState: Function;
   accountAddress?: string;

@@ -5,6 +5,7 @@ import { ContractTransaction } from 'ethers';
 import TransactionToast from 'components/UI/TransactionToast';
 
 import { useBoundStore } from 'store';
+import errorParser from './errorParser';
 
 const useSendTx = () => {
   const { wrongNetwork, chainId } = useBoundStore();
@@ -61,7 +62,9 @@ const useSendTx = () => {
         if (err?.data?.message !== undefined) {
           toast.error(err.data.message, { id: toastId });
         } else {
-          toast.error(err.message, { id: toastId });
+          if (err.message.includes('user rejected transaction'))
+            toast('You rejected the transaction', { id: toastId, icon: '🤑' });
+          else toast.error(errorParser(err.message), { id: toastId });
         }
         throw Error(err);
       }
