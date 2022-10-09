@@ -75,7 +75,7 @@ export interface UserStraddlesDeposit {
   vaultName: string;
   assetName: string;
   amount: string;
-  rollOver: boolean;
+  rollover: boolean;
   epoch: string;
   link: string;
   vaultType: string;
@@ -258,7 +258,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
           vaultName: vaultName,
           amount: userDeposit.amount,
           epoch: userDeposit.epoch,
-          rollOver: userDeposit.rollOver,
+          rollover: userDeposit.rollover,
           link: '/straddles/' + assetName.toUpperCase(),
           vaultType: 'straddles',
           owner: accountAddress!,

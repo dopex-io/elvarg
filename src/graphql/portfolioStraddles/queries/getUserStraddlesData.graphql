@@ -5,7 +5,7 @@ query getUserStraddlesData($user: ID!) {
         id
         epoch
         amount
-        rollOver
+        rollover
     }
     userOpenStraddles {
         id
