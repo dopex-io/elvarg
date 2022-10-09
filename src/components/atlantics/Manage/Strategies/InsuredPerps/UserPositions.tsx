@@ -245,7 +245,7 @@ const UserPositions = () => {
   return (
     <>
       {gmxPositions.length !== 0 ? (
-        <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto">
+        <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto pb-4">
           <Table>
             <TableHead>
               <TableRow>
