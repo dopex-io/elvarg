@@ -245,7 +245,7 @@ const DepositPanel = () => {
           </Box>
         </Box>
         <Box className="mt-3.5">
-          <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
+          <Box className="rounded-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
             <Box className={'flex mb-1'}>
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
                 Epoch
