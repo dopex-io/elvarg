@@ -307,8 +307,8 @@ export default function Deposits() {
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         {formatAmount(
-                          getUserReadableAmount(deposit.amount, 8),
-                          2
+                          getUserReadableAmount(deposit.amount, 6),
+                          4
                         )}
                       </span>
                     </Typography>

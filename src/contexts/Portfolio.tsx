@@ -186,11 +186,19 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
 
         const amount = userPosition.amount;
 
-        const pnl =
-          Math.abs(
-            getUserReadableAmount(strike, 8) -
-              getUserReadableAmount(settlementPrice, 8)
-          ) * getUserReadableAmount(amount, 18);
+        const pnl = !isPut
+          ? Math.max(
+              getUserReadableAmount(settlementPrice, 8) -
+                getUserReadableAmount(strike, 8),
+              0
+            ) * getUserReadableAmount(amount, 18)
+          : Math.max(
+              getUserReadableAmount(strike, 8) -
+                getUserReadableAmount(settlementPrice, 8),
+              0
+            ) * getUserReadableAmount(amount, 18);
+
+        if (pnl <= 0) return;
 
         return {
           epoch: userPosition.epoch,
@@ -265,7 +273,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
 
       try {
         return {
-          assetName: assetName,
+          assetName: 'USDC',
           vaultName: vaultName,
           amount: userDeposit.amount,
           epoch: userDeposit.epoch,
