@@ -139,7 +139,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
           assetName: assetName,
           isPut: isPut,
           ssovName: ssovName,
-          link: getLinkFromVaultName(ssovName),
+          link: getLinkFromVaultName(ssovName) + '?epoch=' + userDeposit.epoch,
           vaultType: 'SSOV',
           owner: owner,
         };
@@ -211,7 +211,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
           assetName: assetName,
           isPut: isPut,
           ssovName: ssovName,
-          link: getLinkFromVaultName(ssovName),
+          link: getLinkFromVaultName(ssovName) + '?epoch=' + userPosition.epoch,
           vaultType: 'SSOV',
           expiry: format(
             new Date(Number(epochData.expiry) * 1000),
@@ -248,7 +248,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
             epoch: epoch,
             strikePrice: userPosition.strikePrice,
             underlyingPurchased: userPosition.underlyingPurchased,
-            link: '/straddles/' + assetName.toUpperCase(),
+            link: '/straddles/' + assetName.toUpperCase() + '?epoch=' + epoch,
             vaultType: 'straddles',
             owner: accountAddress!,
           };
@@ -278,7 +278,11 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
           amount: userDeposit.amount,
           epoch: userDeposit.epoch,
           rollover: userDeposit.rollover,
-          link: '/straddles/' + assetName.toUpperCase(),
+          link:
+            '/straddles/' +
+            assetName.toUpperCase() +
+            '?epoch=' +
+            userDeposit.epoch,
           vaultType: 'straddles',
           owner: accountAddress!,
         };

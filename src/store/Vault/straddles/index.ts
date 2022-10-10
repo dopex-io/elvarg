@@ -289,6 +289,10 @@ export const createStraddlesSlice: StateCreator<
       return;
     }
 
+    const params = window.location.search.split('?epoch=');
+
+    if (params.length === 2) currentEpoch = Number(params[1]!);
+
     const addresses = await straddlesContract!['addresses']();
 
     const underlying = addresses['underlying'];

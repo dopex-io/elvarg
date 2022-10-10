@@ -330,8 +330,11 @@ export const createSsovV3Slice: StateCreator<
         _ssovContract.isPut(),
       ]);
 
-      const _currentEpoch =
-        Number(currentEpoch) === 0 ? 1 : Number(currentEpoch);
+      let _currentEpoch = Number(currentEpoch) === 0 ? 1 : Number(currentEpoch);
+
+      const params = window.location.search.split('?epoch=');
+
+      if (params.length === 2) _currentEpoch = Number(params[1]!);
 
       const [epochData, collateralSymbol] = await Promise.all([
         _ssovContract.getEpochData(_currentEpoch),
