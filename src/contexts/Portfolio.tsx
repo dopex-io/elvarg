@@ -11,7 +11,11 @@ import { ApolloQueryResult } from '@apollo/client';
 
 import { useBoundStore } from 'store';
 
-import { SsovV3__factory, AtlanticStraddle__factory } from '@dopex-io/sdk';
+import {
+  ERC20__factory,
+  SsovV3__factory,
+  AtlanticStraddle__factory,
+} from '@dopex-io/sdk';
 
 import {
   GetUserDataDocument,
@@ -149,20 +153,27 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
 
   const getUserSSOVPosition = useCallback(
     async (userPosition: any) => {
-      const tokenId = userPosition.id.split('#')[2];
-      const ssovAddress = userPosition.id.split('#')[3];
-
-      const ssov = SsovV3__factory.connect(ssovAddress, provider);
-      const ssovName = await ssov.name();
-
-      const isPut = await ssov.isPut();
-      const assetName = await ssov.underlyingSymbol();
-
-      const epoch = userPosition.epoch;
+      const ssovAddress = userPosition.ssov.id;
 
       try {
-        // if not exists then it has been withdrawn
-        const owner = await ssov.ownerOf(tokenId);
+        const ssov = SsovV3__factory.connect(ssovAddress, provider);
+        const ssovName = await ssov.name();
+
+        const epochStrikeData = await ssov.getEpochStrikeData(
+          userPosition.epoch,
+          userPosition.strike
+        );
+
+        const token = ERC20__factory.connect(epochStrikeData[0], provider);
+
+        const balance = await token.balanceOf(accountAddress!);
+
+        if (balance.eq(0)) return;
+
+        const isPut = await ssov.isPut();
+        const assetName = await ssov.underlyingSymbol();
+
+        const epoch = userPosition.epoch;
 
         const epochData = await ssov.getEpochData(epoch);
 
@@ -198,14 +209,14 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
             new Date(Number(epochData.expiry) * 1000),
             'd LLL yyyy'
           ).toLocaleUpperCase(),
-          owner: owner,
+          owner: accountAddress!,
         };
       } catch (err) {
         console.log(err);
         return;
       }
     },
-    [provider]
+    [provider, accountAddress]
   );
 
   const getUserStraddlesPosition = useCallback(
