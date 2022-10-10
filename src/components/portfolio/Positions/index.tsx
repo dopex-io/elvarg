@@ -249,7 +249,8 @@ export default function Positions() {
                           }
                         >
                           {position.pnl
-                            ? '$' + formatAmount(position.pnl, 2)
+                            ? (Number(position.pnl) >= 0 ? '$' : '-$') +
+                              formatAmount(Math.abs(Number(position.pnl)), 2)
                             : '--'}
                         </Typography>
                       </span>
