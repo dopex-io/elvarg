@@ -173,6 +173,8 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         const isPut = await ssov.isPut();
         const assetName = await ssov.underlyingSymbol();
 
+        const currentEpoch = String(await ssov.currentEpoch());
+
         const epoch = userPosition.epoch;
 
         const epochData = await ssov.getEpochData(epoch);
@@ -187,18 +189,14 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         const amount = userPosition.amount;
 
         const pnl = !isPut
-          ? Math.max(
-              getUserReadableAmount(settlementPrice, 8) -
-                getUserReadableAmount(strike, 8),
-              0
-            ) * getUserReadableAmount(amount, 18)
-          : Math.max(
-              getUserReadableAmount(strike, 8) -
-                getUserReadableAmount(settlementPrice, 8),
-              0
-            ) * getUserReadableAmount(amount, 18);
+          ? (getUserReadableAmount(settlementPrice, 8) -
+              getUserReadableAmount(strike, 8)) *
+            getUserReadableAmount(amount, 18)
+          : (getUserReadableAmount(strike, 8) -
+              getUserReadableAmount(settlementPrice, 8)) *
+            getUserReadableAmount(amount, 18);
 
-        if (pnl <= 0) return;
+        if (pnl <= 0 && currentEpoch != epoch) return;
 
         return {
           epoch: userPosition.epoch,
