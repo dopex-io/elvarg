@@ -1,90 +1,48 @@
-import { useMemo, useState, useContext } from 'react';
+import { useMemo, useState } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
+import format from 'date-fns/format';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { SsovData, SsovEpochData, SsovUserData } from 'contexts/Ssov';
-import { BnbConversionContext } from 'contexts/BnbConversion';
+import { SsovV3EpochData, SsovV3Data } from 'store/Vault/ssov';
 import { useBoundStore } from 'store';
-
-import { SSOV_MAP } from 'constants/index';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
+import Wrapper from '../Wrapper';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
 
-const Wrapper = styled(Box)`
-  width: 100%;
-  @media (min-width: 768px) {
-    width: 400px;
-  }
-`;
-
 const Description = ({
   ssovData,
   ssovEpochData,
-  ssovUserData,
-  type,
 }: {
-  ssovData: SsovData;
-  ssovEpochData: SsovEpochData;
-  ssovUserData: SsovUserData;
-  type: string;
+  ssovData: SsovV3Data;
+  ssovEpochData: SsovV3EpochData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useBoundStore();
-  const { convertToBNB } = useContext(BnbConversionContext);
 
-  const { APY, isVaultReady } = ssovEpochData;
+  const { APY, TVL } = ssovEpochData;
 
-  const tokenSymbol = useMemo(
-    // @ts-ignore TODO: FIX
-    () => SSOV_MAP[ssovData.tokenName].tokenSymbol,
-    [ssovData]
-  );
+  const [wrapOpen, setWrapOpen] = useState(false);
 
-  const isPut = useMemo(() => type === 'PUT', [type]);
+  const type = useMemo(() => {
+    return ssovData.isPut ? 'PUT' : 'CALL';
+  }, [ssovData]);
 
-  const TVL: number = useMemo(() => {
-    if (ssovData.tokenPrice && ssovEpochData) {
-      if (isPut) {
-        return (
-          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
-          getUserReadableAmount(ssovData.lpPrice!, 18)
-        );
-      } else if (tokenSymbol === 'BNB') {
-        return convertToBNB(ssovEpochData.totalEpochDeposits)
-          .mul(ssovData.tokenPrice)
-          .div(1e8)
-          .toNumber();
-      } else {
-        return (
-          getUserReadableAmount(ssovEpochData.totalEpochDeposits, 18) *
-          getUserReadableAmount(ssovData.tokenPrice, 8)
-        );
-      }
-    } else {
-      return 0;
-    }
-  }, [ssovEpochData, convertToBNB, ssovData, tokenSymbol, isPut]);
+  const epochStartTime = Number(ssovEpochData.epochTimes[0]?.toNumber());
+  const epochEndTime = Number(ssovEpochData.epochTimes[1]?.toNumber());
 
   const info = [
     {
-      heading: 'Asset',
-      value: tokenSymbol,
-      imgSrc: SSOV_MAP[ssovData.tokenName!]?.imageSrc || '',
-    },
-    {
-      heading: 'Farm APY',
+      heading: 'APY*',
       value: `${!APY ? '...' : APY.toString() + '%'}`,
       Icon: Action,
     },
@@ -96,59 +54,94 @@ const Description = ({
   ];
 
   return (
-    <Wrapper className="flex flex-col md:mr-5">
-      <Typography variant="h1" className="mb-6 flex items-center space-x-3">
-        <span>{tokenSymbol} SSOV</span>
-        <span
-          className={cx(
-            'text-lg text-black p-1.5 rounded-md',
-            isPut ? 'bg-down-bad' : 'bg-emerald-500'
-          )}
+    <Box className="flex flex-col md:mr-5 w-full md:w-[400px]">
+      <Box className="flex">
+        <Typography variant="h1" className="mb-6 flex items-center space-x-3">
+          <span>{ssovData.underlyingSymbol}</span>
+          <span
+            className={cx(
+              'text-lg text-black p-1.5 rounded-md',
+              ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500'
+            )}
+          >
+            {type + 'S'}
+          </span>
+        </Typography>
+        <Typography
+          variant="h4"
+          className="mb-6 ml-3 flex text-lg items-center space-x-3 border border-primary py-1 px-2 rounded-md"
         >
-          {type + 'S'}
-        </span>
-      </Typography>
+          $
+          {formatAmount(
+            getUserReadableAmount(ssovData.tokenPrice || '0', 8),
+            2
+          )}
+        </Typography>
+      </Box>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
-          {tokenSymbol} Single Staking Option Vault (SSOV)
+          {ssovData.underlyingSymbol} Single Staking Option Vault V3
         </span>
         <br />
+        {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
+      <EpochSelector className="mb-6" />
+      {ssovEpochData.isEpochExpired ? (
+        <Box className="mb-3">
+          <Typography variant="h5">
+            Settlement price was{' $'}
+            {formatAmount(
+              getUserReadableAmount(ssovEpochData.settlementPrice, 8),
+              2
+            )}
+          </Typography>
+        </Box>
+      ) : null}
+      <Box className="mb-3">
+        Epoch duration:
+        <span className="font-bold">
+          {format(epochStartTime * 1000, 'd MMM yyyy HH:mm')} -{' '}
+          {format(epochEndTime * 1000, 'd MMM yyyy HH:mm')}
+        </span>
+      </Box>
       <Box className="flex justify-center items-center flex-row mb-6">
-        <Tooltip
-          className="text-stieglitz"
-          title={
-            !isVaultReady
-              ? 'Options can not be bought during the deposit period'
-              : ''
-          }
-          arrow={true}
-        >
-          <Box className="w-full mr-2">
-            <WalletButton
-              size="medium"
-              fullWidth
-              className="rounded-lg"
-              onClick={() => {
-                accountAddress ? setPurchaseState(true) : connect();
-              }}
-              disabled={!isVaultReady || ssovEpochData.isEpochExpired}
-            >
-              Buy {type} Options
-            </WalletButton>
-          </Box>
-        </Tooltip>
-        <EpochSelector />
+        <Box className="w-full mr-2">
+          <WalletButton
+            size="medium"
+            fullWidth
+            className="rounded-lg"
+            onClick={() => {
+              accountAddress ? setPurchaseState(true) : connect();
+            }}
+            disabled={ssovData?.isCurrentEpochExpired || false}
+          >
+            Buy {type} Options
+          </WalletButton>
+        </Box>
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {
           return <InfoBox key={item.heading} {...item} />;
         })}
       </Box>
+      <Box>
+        <Typography variant={'h6'} className={'text-stieglitz'}>
+          *Effective APY if you deposit now
+        </Typography>
+      </Box>
+      {ssovData.isPut ? null : (
+        <Box
+          role="button"
+          className="underline mt-3"
+          onClick={() => setWrapOpen(true)}
+        >
+          Wrap ETH
+        </Box>
+      )}
+      <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
-          ssovUserData={ssovUserData}
           ssovData={ssovData}
           ssovEpochData={ssovEpochData}
           handleClose={
@@ -158,7 +151,7 @@ const Description = ({
           }
         />
       )}
-    </Wrapper>
+    </Box>
   );
 };
 

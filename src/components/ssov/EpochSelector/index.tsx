@@ -8,17 +8,23 @@ import cx from 'classnames';
 import { useBoundStore } from 'store';
 
 export default function EpochSelector({ className }: { className?: string }) {
-  const { selectedEpoch, setSelectedEpoch, updateSsovV3EpochData, ssovData } =
-    useBoundStore();
+  const {
+    ssovData,
+    selectedEpoch,
+    setSelectedEpoch,
+    updateSsovV3UserData,
+    updateSsovV3EpochData,
+  } = useBoundStore();
 
-  const currentEpoch = ssovData?.currentEpoch ?? 0;
+  const currentEpoch = ssovData?.currentEpoch ?? 1;
 
   const handleSelectChange = useCallback(
-    (e: { target: { value: string | number } }) => {
+    (e: { target: { value: any } }) => {
       setSelectedEpoch(Number(e.target.value));
+      updateSsovV3UserData();
       updateSsovV3EpochData();
     },
-    [setSelectedEpoch, updateSsovV3EpochData]
+    [setSelectedEpoch, updateSsovV3UserData, updateSsovV3EpochData]
   );
 
   const epochs = useMemo(() => {
