@@ -21,6 +21,7 @@ import useSendTx from 'hooks/useSendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { TOKEN_DECIMALS } from 'constants/index';
 
@@ -320,6 +321,22 @@ const ManageCard = (props: ManageCardProps) => {
             </Box>
           }
         />
+        <Box className="flex justify-between px-3 pb-3">
+          <Typography variant="h6" color="stieglitz">
+            Balance
+          </Typography>
+          <Typography variant="h6">
+            {formatAmount(
+              getUserReadableAmount(
+                userAssetBalances[depositToken] ?? '0',
+                TOKEN_DECIMALS[chainId]?.[depositToken]
+              ),
+              3,
+              true
+            )}{' '}
+            {depositToken}
+          </Typography>
+        </Box>
       </Box>
       {/* {selectedPool?.isPut && ( */}
       <MaxStrikeInput

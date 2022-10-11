@@ -39,8 +39,10 @@ import { AtlanticsContext } from 'contexts/Atlantics';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { MAX_VALUE } from 'constants/index';
+import formatAmount from 'utils/general/formatAmount';
+
 import { DEFAULT_REFERRAL_CODE, MIN_EXECUTION_FEE } from 'constants/gmx';
+import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 
 interface IProps {
   isOpen: boolean;
@@ -105,6 +107,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     chainId,
     atlanticPool,
     atlanticPoolEpochData,
+    userAssetBalances,
   } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [leverage, setLeverage] = useState<number>(2);
@@ -597,7 +600,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       <Typography className="w-full mb-4" variant="h5">
         Open Long Position
       </Typography>
-      <Box>
+      <Box className="bg-umbra rounded-xl mb-2">
         <CustomInput
           size="small"
           variant="outlined"
@@ -636,6 +639,22 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             </Box>
           }
         />
+        <Box className="flex justify-between px-3 pb-3">
+          <Typography variant="h6" color="stieglitz">
+            Balance
+          </Typography>
+          <Typography variant="h6">
+            {formatAmount(
+              getUserReadableAmount(
+                userAssetBalances[selectedToken] ?? '0',
+                TOKEN_DECIMALS[chainId]?.[selectedToken]
+              ),
+              3,
+              true
+            )}{' '}
+            {selectedToken}
+          </Typography>
+        </Box>
         <Box ref={containerRef}>
           <TokenSelector
             setSelection={selectToken}
