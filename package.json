@@ -41,7 +41,6 @@
     "react-use": "^17.2.4",
     "recharts": "2.1.12",
     "sass": "^1.49.8",
-    "sdk-old": "npm:@dopex-io/sdk@1.0.0-beta.23",
     "use-debounce": "^8.0.0",
     "web3modal": "^1.9.4",
     "yup": "^0.32.9",
