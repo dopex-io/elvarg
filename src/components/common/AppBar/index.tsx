@@ -147,6 +147,7 @@ export default function AppBar(props: AppBarProps) {
   const {
     accountAddress,
     connect,
+    provider,
     wrongNetwork,
     chainId,
     ensName,
@@ -207,7 +208,7 @@ export default function AppBar(props: AppBarProps) {
 
   useEffect(() => {
     updateAssetBalances();
-  }, [updateAssetBalances]);
+  }, [updateAssetBalances, provider]);
 
   const menuItems = useMemo(() => {
     return [
