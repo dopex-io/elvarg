@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -10,20 +10,17 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { useBoundStore } from 'store';
 
 export default function Balances() {
-  const { userAssetBalances, chainId } = useBoundStore();
+  const {
+    userAssetBalances,
+    isLoadingBalances,
+    chainId,
+    provider,
+    updateAssetBalances,
+  } = useBoundStore();
 
-  const isLoadingBalances = useMemo(() => {
-    let allWalletsAreZero = true;
-
-    for (let i in userAssetBalances) {
-      if (userAssetBalances[i] !== '0') {
-        allWalletsAreZero = false;
-        break;
-      }
-    }
-
-    return allWalletsAreZero;
-  }, [userAssetBalances]);
+  useEffect(() => {
+    updateAssetBalances();
+  }, [provider, updateAssetBalances]);
 
   return (
     <Box className="mb-4">

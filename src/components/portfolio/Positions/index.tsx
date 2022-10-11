@@ -1,19 +1,15 @@
-import { useContext, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 
 import cx from 'classnames';
+
+import { useBoundStore } from 'store';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
-
-import {
-  PortfolioContext,
-  UserSSOVPosition,
-  UserStraddlesPosition,
-} from 'contexts/Portfolio';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
@@ -28,7 +24,7 @@ import formatAmount from 'utils/general/formatAmount';
 const sides: string[] = ['CALL', 'PUT'];
 
 export default function Positions() {
-  const { portfolioData, isLoading } = useContext(PortfolioContext);
+  const { portfolioData } = useBoundStore();
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
@@ -36,32 +32,36 @@ export default function Positions() {
   const [searchText, setSearchText] = useState<string>('');
 
   const filteredSSOVPositions = useMemo(() => {
-    const _positions: UserSSOVPosition[] = [];
-    portfolioData?.userSSOVPositions?.map((position) => {
-      let toAdd = true;
-      if (
-        !position.ssovName.includes(searchText.toUpperCase()) &&
-        searchText !== ''
-      )
-        toAdd = false;
-      if (!selectedSides.includes(position.isPut ? 'PUT' : 'CALL'))
-        toAdd = false;
-      if (toAdd) _positions.push(position);
-    });
+    const _positions: any[] = [];
+    portfolioData?.userSSOVPositions?.map(
+      (position: { ssovName: string | string[]; isPut: any }) => {
+        let toAdd = true;
+        if (
+          !position.ssovName.includes(searchText.toUpperCase()) &&
+          searchText !== ''
+        )
+          toAdd = false;
+        if (!selectedSides.includes(position.isPut ? 'PUT' : 'CALL'))
+          toAdd = false;
+        if (toAdd) _positions.push(position);
+      }
+    );
     return _positions;
   }, [portfolioData, searchText, selectedSides]);
 
   const filteredStraddlesPositions = useMemo(() => {
-    const _positions: UserStraddlesPosition[] = [];
-    portfolioData?.userStraddlesPositions?.map((position) => {
-      let toAdd = true;
-      if (
-        !position.vaultName.includes(searchText.toUpperCase()) &&
-        searchText !== ''
-      )
-        toAdd = false;
-      if (toAdd) _positions.push(position);
-    });
+    const _positions: any[] = [];
+    portfolioData?.userStraddlesPositions?.map(
+      (position: { vaultName: string | string[] }) => {
+        let toAdd = true;
+        if (
+          !position.vaultName.includes(searchText.toUpperCase()) &&
+          searchText !== ''
+        )
+          toAdd = false;
+        if (toAdd) _positions.push(position);
+      }
+    );
     return _positions;
   }, [portfolioData, searchText]);
 
@@ -98,7 +98,7 @@ export default function Positions() {
               />
             </Box>
           </Box>
-          {isLoading ? (
+          {portfolioData?.isLoading ? (
             <Box className="flex">
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>

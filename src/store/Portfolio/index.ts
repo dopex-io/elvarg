@@ -1,21 +1,14 @@
-import {
-  createContext,
-  useEffect,
-  useState,
-  useCallback,
-  ReactNode,
-} from 'react';
-
+import { StateCreator } from 'zustand';
 import format from 'date-fns/format';
 import { ApolloQueryResult } from '@apollo/client';
-
-import { useBoundStore } from 'store';
-
 import {
   ERC20__factory,
   SsovV3__factory,
   AtlanticStraddle__factory,
 } from '@dopex-io/sdk';
+
+import { AssetsSlice } from 'store/Assets';
+import { WalletSlice } from 'store/Wallet';
 
 import {
   GetUserDataDocument,
@@ -91,13 +84,12 @@ export interface PortfolioData {
   userSSOVDeposits: UserSSOVDeposit[];
   userStraddlesPositions: UserStraddlesPosition[];
   userStraddlesDeposits: UserStraddlesDeposit[];
+  isLoading: boolean;
 }
 
-interface PortfolioContextInterface {
+export interface PortfolioSlice {
   portfolioData?: PortfolioData;
   updatePortfolioData?: Function;
-  isLoading?: boolean;
-  setIsLoading?: Function;
 }
 
 const initialPortfolioData = {
@@ -108,18 +100,19 @@ const initialPortfolioData = {
   isLoading: true,
 };
 
-export const PortfolioContext = createContext<PortfolioContextInterface>({
+export const createPortfolioSlice: StateCreator<
+  PortfolioSlice & AssetsSlice & WalletSlice,
+  [['zustand/devtools', never]],
+  [],
+  PortfolioSlice
+> = (set, get) => ({
   portfolioData: initialPortfolioData,
-});
+  updatePortfolioData: async () => {
+    const { accountAddress, provider } = get();
 
-export const PortfolioProvider = (props: { children: ReactNode }) => {
-  const { accountAddress, provider } = useBoundStore();
-  const [portfolioData, setPortfolioData] =
-    useState<PortfolioData>(initialPortfolioData);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+    if (!accountAddress || !provider) return;
 
-  const getUserSSOVDeposit = useCallback(
-    async (userDeposit: any) => {
+    const getUserSSOVDeposit = async (userDeposit: any) => {
       const ssov = SsovV3__factory.connect(userDeposit.ssov.id, provider);
       const ssovName = await ssov.name();
       const isPut = await ssov.isPut();
@@ -147,12 +140,9 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         console.log(err);
         return;
       }
-    },
-    [provider]
-  );
+    };
 
-  const getUserSSOVPosition = useCallback(
-    async (userPosition: any) => {
+    const getUserSSOVPosition = async (userPosition: any) => {
       const ssovAddress = userPosition.ssov.id;
 
       try {
@@ -221,12 +211,9 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         console.log(err);
         return;
       }
-    },
-    [provider, accountAddress]
-  );
+    };
 
-  const getUserStraddlesPosition = useCallback(
-    async (userPosition: any) => {
+    const getUserStraddlesPosition = async (userPosition: any) => {
       const id = userPosition.id;
       const vaultAddress = id.split('#')[0];
       // const tokenId = id.split('#')[1];
@@ -255,12 +242,9 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         console.log(err);
         return;
       }
-    },
-    [accountAddress, provider]
-  );
+    };
 
-  const getUserStraddlesDeposit = useCallback(
-    async (userDeposit: any) => {
+    const getUserStraddlesDeposit = async (userDeposit: any) => {
       const id = userDeposit.id;
       const vaultAddress = id.split('#')[0];
       // const tokenId = id.split('#')[1];
@@ -288,12 +272,7 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         console.log(err);
         return;
       }
-    },
-    [accountAddress, provider]
-  );
-
-  const updatePortfolioData = useCallback(async () => {
-    if (!accountAddress || !provider) return;
+    };
 
     const ssovQueryResult: ApolloQueryResult<GetUserDataQuery> =
       await portfolioGraphClient.query({
@@ -380,37 +359,15 @@ export const PortfolioProvider = (props: { children: ReactNode }) => {
         straddlesDeposits.push(straddleDepositsResponses[i]!);
     }
 
-    setPortfolioData({
-      userSSOVDeposits: ssovDeposits,
-      userSSOVPositions: ssovPositions,
-      userStraddlesDeposits: straddlesDeposits,
-      userStraddlesPositions: straddlesPositions,
-    });
-
-    setIsLoading(false);
-  }, [
-    accountAddress,
-    setIsLoading,
-    provider,
-    getUserStraddlesDeposit,
-    getUserStraddlesPosition,
-    getUserSSOVPosition,
-    getUserSSOVDeposit,
-  ]);
-
-  useEffect(() => {
-    updatePortfolioData();
-  }, [updatePortfolioData]);
-
-  const contextValue = {
-    portfolioData,
-    updatePortfolioData,
-    isLoading,
-  };
-
-  return (
-    <PortfolioContext.Provider value={contextValue}>
-      {props.children}
-    </PortfolioContext.Provider>
-  );
-};
+    set((prevState) => ({
+      ...prevState,
+      portfolioData: {
+        userSSOVDeposits: ssovDeposits,
+        userSSOVPositions: ssovPositions,
+        userStraddlesDeposits: straddlesDeposits,
+        userStraddlesPositions: straddlesPositions,
+        isLoading: false,
+      },
+    }));
+  },
+});

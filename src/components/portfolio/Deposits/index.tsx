@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 
 import CircularProgress from '@mui/material/CircularProgress';
@@ -9,11 +9,7 @@ import Button from '@mui/material/Button';
 
 import cx from 'classnames';
 
-import {
-  PortfolioContext,
-  UserSSOVDeposit,
-  UserStraddlesDeposit,
-} from 'contexts/Portfolio';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
@@ -26,7 +22,8 @@ import formatAmount from 'utils/general/formatAmount';
 const sides: string[] = ['CALL', 'PUT'];
 
 export default function Deposits() {
-  const { portfolioData, isLoading } = useContext(PortfolioContext);
+  const { portfolioData } = useBoundStore();
+
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
@@ -34,34 +31,38 @@ export default function Deposits() {
   const [searchText, setSearchText] = useState<string>('');
 
   const filteredSSOVDeposits = useMemo(() => {
-    const _deposits: UserSSOVDeposit[] = [];
+    const _deposits: any[] = [];
 
-    portfolioData?.userSSOVDeposits?.map((deposit) => {
-      let toAdd = true;
-      if (
-        !deposit?.ssovName?.includes(searchText.toUpperCase()) &&
-        searchText !== ''
-      )
-        toAdd = false;
-      if (!selectedSides.includes(deposit?.isPut ? 'PUT' : 'CALL'))
-        toAdd = false;
-      if (toAdd) _deposits.push(deposit);
-    });
+    portfolioData?.userSSOVDeposits?.map(
+      (deposit: { ssovName: string | string[]; isPut: any }) => {
+        let toAdd = true;
+        if (
+          !deposit?.ssovName?.includes(searchText.toUpperCase()) &&
+          searchText !== ''
+        )
+          toAdd = false;
+        if (!selectedSides.includes(deposit?.isPut ? 'PUT' : 'CALL'))
+          toAdd = false;
+        if (toAdd) _deposits.push(deposit);
+      }
+    );
     return _deposits;
   }, [portfolioData, searchText, selectedSides]);
 
   const filteredStraddlesDeposits = useMemo(() => {
-    const _deposits: UserStraddlesDeposit[] = [];
+    const _deposits: any[] = [];
 
-    portfolioData?.userStraddlesDeposits?.map((deposit) => {
-      let toAdd = true;
-      if (
-        !deposit?.vaultName?.includes(searchText.toUpperCase()) &&
-        searchText !== ''
-      )
-        toAdd = false;
-      if (toAdd) _deposits.push(deposit);
-    });
+    portfolioData?.userStraddlesDeposits?.map(
+      (deposit: { vaultName: string | string[] }) => {
+        let toAdd = true;
+        if (
+          !deposit?.vaultName?.includes(searchText.toUpperCase()) &&
+          searchText !== ''
+        )
+          toAdd = false;
+        if (toAdd) _deposits.push(deposit);
+      }
+    );
     return _deposits;
   }, [portfolioData, searchText]);
 
@@ -99,7 +100,7 @@ export default function Deposits() {
               />
             </Box>
           </Box>
-          {isLoading ? (
+          {portfolioData?.isLoading ? (
             <Box className="flex">
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>
