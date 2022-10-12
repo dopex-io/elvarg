@@ -213,7 +213,7 @@ const PurchaseCard = () => {
               <NumberDisplay
                 n={maxStraddlesCanBeBought || BigNumber.from(0)}
                 decimals={18}
-                decimalsToShow={2}
+                decimalsToShow={4}
               />
             </div>
           </Typography>
