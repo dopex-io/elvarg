@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Head from 'next/head';
 
 import { useBoundStore } from 'store';
@@ -11,11 +11,16 @@ import Positions from 'components/portfolio/Positions';
 import Deposits from 'components/portfolio/Deposits';
 
 const Portfolio = () => {
-  const { updatePortfolioData, accountAddress } = useBoundStore();
+  const { updatePortfolioData, accountAddress, connect } = useBoundStore();
+
+  const handleWalletConnect = useCallback(() => {
+    connect && connect();
+  }, [connect]);
 
   useEffect(() => {
     if (updatePortfolioData && accountAddress) updatePortfolioData();
-  }, [updatePortfolioData, accountAddress]);
+    if (!accountAddress) handleWalletConnect();
+  }, [updatePortfolioData, accountAddress, handleWalletConnect]);
 
   return (
     <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
