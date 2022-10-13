@@ -354,10 +354,10 @@ const ManageCard = (props: ManageCardProps) => {
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </Box>
         <Box className="flex">
-          <LockerIcon className="my-auto m-2" />
-          <Typography variant="h6" color="stieglitz">
+          <LockerIcon className="my-auto m-2 w-auto xl:w-5" />
+          <Typography variant="h6" color="stieglitz" className="mr-2">
             Withdrawals are locked until end of Epoch{' '}
-            <>{atlanticPoolEpochData?.epoch.toString()}</>
+            {atlanticPoolEpochData?.epoch.toString()}
           </Typography>
         </Box>
         <CustomButton

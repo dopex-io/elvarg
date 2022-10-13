@@ -38,8 +38,12 @@ const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
 };
 
 const ChangeNetworkDialog = () => {
-  const { wrongNetwork, supportedChainIds, changeNetwork, setChangeNetwork } =
-    useBoundStore();
+  const {
+    wrongNetwork,
+    supportedChainIds,
+    changeNetwork = 'close',
+    setChangeNetwork,
+  } = useBoundStore();
 
   useEffect(() => {
     setChangeNetwork(wrongNetwork ? 'wrong-network' : 'close');

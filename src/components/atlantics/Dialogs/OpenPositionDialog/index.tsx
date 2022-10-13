@@ -17,6 +17,7 @@ import {
   LongPerpStrategy__factory,
 } from '@dopex-io/sdk';
 import Button from '@mui/material/Button';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 // import { Checkbox } from '@mui/material';
 // import Tooltip from '@mui/material/Tooltip';
 // import InfoOutlined from '@mui/icons-material/InfoOutlined';
@@ -600,7 +601,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       <Typography className="w-full mb-4" variant="h5">
         Open Long Position
       </Typography>
-      <Box className="bg-umbra rounded-xl mb-2">
+      <Box className="bg-umbra rounded-xl mb-2" ref={containerRef}>
         <CustomInput
           size="small"
           variant="outlined"
@@ -610,7 +611,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           leftElement={
             <Box className="flex my-auto">
               <Box
-                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-3"
+                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-1"
                 role="button"
                 onClick={() => setOpenTokenSelector(() => true)}
               >
@@ -622,6 +623,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
                 <Typography variant="h6" className="my-auto">
                   {selectedToken}
                 </Typography>
+                <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" />
               </Box>
               <Button
                 size="small"
@@ -639,7 +641,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             </Box>
           }
         />
-        <Box className="flex justify-between px-3 pb-3">
+        <Box className="flex bg-umbra rounded-b-xl justify-between px-3 pb-3">
           <Typography variant="h6" color="stieglitz">
             Balance
           </Typography>
@@ -655,15 +657,13 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             {selectedToken}
           </Typography>
         </Box>
-        <Box ref={containerRef}>
-          <TokenSelector
-            setSelection={selectToken}
-            open={openTokenSelector}
-            setOpen={setOpenTokenSelector}
-            tokens={allowedTokens}
-            containerRef={containerRef}
-          />
-        </Box>
+        <TokenSelector
+          setSelection={selectToken}
+          open={openTokenSelector}
+          setOpen={setOpenTokenSelector}
+          tokens={allowedTokens}
+          containerRef={containerRef}
+        />
       </Box>
       <Box className="flex p-1 flex-col space-y-2">
         <Box className="flex flex-col items-center">

@@ -50,12 +50,12 @@ const TokenSelector = (props: TokenSelectorProps) => {
       unmountOnExit
       container={containerRef.current}
     >
-      <Box className="overflow-y-auto w-full bg-cod-gray z-20">
+      <Box className="overflow-y-auto w-full bg-umbra z-20 rounded-b-xl">
         {tokens?.map((token, index) => {
           return (
             <Box
               key={index}
-              className={`flex justify-between px-2 hover:bg-mineshaft p-3 rounded-md`}
+              className={`flex justify-between px-2 hover:bg-mineshaft p-3`}
               role="button"
               onClick={() => {
                 setSelection(token.symbol);

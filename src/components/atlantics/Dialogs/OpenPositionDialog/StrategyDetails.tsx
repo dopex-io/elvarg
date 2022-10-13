@@ -199,7 +199,7 @@ const StrategyDetails = (props: {
               </Box>
             </Box>
           </Tooltip>
-          <Tooltip title="Expiry of the pool, After which users' long position will be unwinded to closed">
+          <Tooltip title="Expiry of the pool, after which users' long position will be unwinded to closed">
             <Box className="flex-1 p-4">
               <Box className="flex space-y-1 flex-col">
                 <Typography variant="h6">
