@@ -43,7 +43,7 @@
 }
 
 body {
-  overflow-y: auto !important;
+  overflow-y: auto;
   overflow-x: hidden;
   margin: 0;
   -webkit-font-smoothing: antialiased;
