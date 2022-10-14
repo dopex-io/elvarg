@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
+import { isEmpty } from 'lodash';
+import { Alert, Box, CircularProgress } from '@mui/material';
 import {
   useQuery,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { isEmpty } from 'lodash';
 
 import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
@@ -16,7 +16,6 @@ import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
-import { Alert, CircularProgress } from '@mui/material';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];

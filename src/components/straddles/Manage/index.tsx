@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import Typography from 'components/UI/Typography';
 import DepositCard from 'components/straddles/DepositCard';
 import PurchaseCard from 'components/straddles/PurchaseCard';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 

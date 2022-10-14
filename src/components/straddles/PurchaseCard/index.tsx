@@ -2,10 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
-
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import Tooltip from '@mui/material/Tooltip';
+import { Alert, Box, CircularProgress, Input, Tooltip } from '@mui/material';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -23,7 +20,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
-import { Alert, CircularProgress } from '@mui/material';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 const PurchaseCard = () => {
