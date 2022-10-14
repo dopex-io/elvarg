@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
+import { useQuery } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -22,6 +23,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
+import { Alert, CircularProgress } from '@mui/material';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 const PurchaseCard = () => {
   const {
@@ -38,11 +41,19 @@ const PurchaseCard = () => {
     updateStraddlesUserData,
   } = useBoundStore();
 
+  const { isLoading, error, data } = useQuery(
+    ['currentPrice'],
+    () => straddlesData?.straddlesContract?.getUnderlyingPrice(),
+    { initialData: oneEBigNumber(8) }
+  );
+
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
 
   const maxStraddlesCanBeBought = useMemo(() => {
+    if (isLoading || error || !data) return BigNumber.from(0);
+
     const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(
       BigNumber.from(straddlesEpochData?.activeUsdDeposits).div(
         '100000000000000000000'
@@ -50,10 +61,11 @@ const PurchaseCard = () => {
     );
 
     if (!availableUsdDeposits) return BigNumber.from(0);
+
     return availableUsdDeposits!
       .mul(BigNumber.from('100000000000000000000'))
-      .div(straddlesEpochData?.currentPrice!);
-  }, [straddlesEpochData]);
+      .div(data);
+  }, [straddlesEpochData, isLoading, data, error]);
 
   const sendTx = useSendTx();
 
@@ -172,6 +184,16 @@ const PurchaseCard = () => {
     chainId,
     straddlesData,
   ]);
+
+  if (isLoading) return <CircularProgress />;
+  else if (error === undefined || error)
+    return (
+      <Box className="mt-4">
+        <Alert severity="error">
+          Error fetching price. Refresh and try again.
+        </Alert>
+      </Box>
+    );
 
   return (
     <Box>
