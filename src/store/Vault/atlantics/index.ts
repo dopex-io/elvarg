@@ -12,7 +12,6 @@ import {
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface IVaultConfiguration {
@@ -359,6 +358,7 @@ export const createAtlanticsSlice: StateCreator<
       contractAddresses,
       accountAddress,
       atlanticPool,
+      atlanticPoolEpochData,
       selectedEpoch,
     } = get();
     if (
@@ -366,7 +366,8 @@ export const createAtlanticsSlice: StateCreator<
       !provider ||
       !contractAddresses ||
       !accountAddress ||
-      !atlanticPool?.durationType
+      !atlanticPool?.durationType ||
+      !atlanticPoolEpochData
     )
       return;
 
@@ -401,6 +402,12 @@ export const createAtlanticsSlice: StateCreator<
       );
     });
 
+    const epochLength = atlanticPoolEpochData.expiry.sub(
+      atlanticPoolEpochData.startTime
+    );
+
+    const epochDurationInDays = epochLength.div('84600').toNumber();
+
     let depositCheckpoints = await Promise.all(depositCheckpointCalls);
     const _userDeposits = userDeposits.map(
       (
@@ -418,16 +425,19 @@ export const createAtlanticsSlice: StateCreator<
           .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
 
         // In 1e6 decimals
-        const totalRevenue = Number(
-          fundingEarned
-            .add(premiumsEarned)
-            .add(
-              underlyingEarned
-                .mul(atlanticPool.underlyingPrice)
-                .div(oneEBigNumber(12))
-            )
-        );
-        const apy = (totalRevenue / Number(liquidity)) * 100;
+        const totalRevenue = fundingEarned // 1e6
+          .add(premiumsEarned) // 1e6
+          .add(
+            underlyingEarned // 1e18
+              .mul(atlanticPool.underlyingPrice) // 1e8
+              .div(getContractReadableAmount(1, 18 + 8 - 6))
+          );
+
+        const apy =
+          ((parseFloat(totalRevenue.toString()) /
+            parseFloat(liquidity.toString())) *
+            365) /
+          epochDurationInDays;
 
         return {
           depositId: depositIds[index],
