@@ -131,11 +131,11 @@ const UserDepositsTable = () => {
 
   const handleWithdraw = useCallback(
     async (depositId: number) => {
-      if (!atlanticPool || !selectedEpoch || !signer || !depositId) {
+      if (!atlanticPool || !selectedEpoch || !signer) {
         return;
       }
       try {
-        const apContract = atlanticPool.contracts.atlanticPool;
+        const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
         await sendTx(apContract.withdraw(depositId));
       } catch (err) {
         console.log(err);
