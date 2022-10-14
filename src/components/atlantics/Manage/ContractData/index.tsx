@@ -31,12 +31,18 @@ const ContractData = () => {
 
     if (atlanticPoolEpochData.expiry.eq(BigNumber.from(0))) return '...';
 
+    const settlementPrice = atlanticPoolEpochData.settlementPrice;
+
     if (!atlanticPoolEpochData.isVaultExpired)
       return formatDistance(
         Number(atlanticPoolEpochData.expiry) * 1000,
         Number(new Date())
       );
-    else return 'Expired';
+    else
+      return `Expired at $${formatAmount(
+        getUserReadableAmount(settlementPrice, 8),
+        3
+      )}`;
   }, [atlanticPoolEpochData]);
 
   useEffect(() => {
