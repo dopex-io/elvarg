@@ -1,10 +1,12 @@
-import { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
+import { useState, useMemo } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import {
+  useQuery,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { isEmpty } from 'lodash';
-
-import { useBoundStore } from 'store';
 
 import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
 
@@ -14,6 +16,7 @@ import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
+import { Alert, CircularProgress } from '@mui/material';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -33,10 +36,18 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
   );
 };
 
-const Ssov = () => {
-  const { provider, tokenPrices } = useBoundStore();
+const queryClient = new QueryClient();
 
-  const [ssovs, setSsovs] = useState<{ [key: string]: any }>({});
+const SsovData = () => {
+  const { isLoading, error, data } = useQuery(['ssovData'], () =>
+    fetch(`${DOPEX_API_BASE_URL}/v2/ssov`).then((res) => res.json())
+  );
+
+  let ssovs: any;
+  if (!isLoading || !error) {
+    ssovs = data;
+  }
+
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
@@ -80,21 +91,14 @@ const Ssov = () => {
     return tokens.sort((a, b) => (a > b ? 1 : -1));
   }, [ssovs]);
 
-  useEffect(() => {
-    if (tokenPrices.length < 0 || !provider) {
-      return;
-    }
-    async function getData() {
-      let data = await axios
-        .get(`${DOPEX_API_BASE_URL}/v2/ssov`)
-        .then((payload) => payload.data);
-
-      console.log(data);
-
-      setSsovs(data);
-    }
-    getData();
-  }, [provider, tokenPrices]);
+  if (isLoading) {
+    return <CircularProgress />;
+  } else if (error === undefined || error)
+    return (
+      <Box className="mt-4">
+        <Alert severity="error">Error. Refresh and try again.</Alert>
+      </Box>
+    );
 
   return (
     <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
@@ -147,6 +151,7 @@ const Ssov = () => {
             showImages={false}
           />
         </Box>
+
         {!isEmpty(ssovs)
           ? keys.map((key) => {
               return (
@@ -202,4 +207,10 @@ const Ssov = () => {
   );
 };
 
-export default Ssov;
+export default function Ssov() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SsovData />
+    </QueryClientProvider>
+  );
+}
