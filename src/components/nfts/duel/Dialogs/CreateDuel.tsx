@@ -269,7 +269,8 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           )
       );
     } catch (err) {
-      alert('You are not whitelisted');
+      console.log(err);
+      alert('Create duel tx fails');
     }
 
     setMoves([]);
