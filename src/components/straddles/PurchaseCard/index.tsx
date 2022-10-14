@@ -147,6 +147,14 @@ const PurchaseCard = () => {
     maxStraddlesCanBeBought,
   ]);
 
+  const isBlackout: boolean = useMemo(() => {
+    if (!straddlesEpochData || !straddlesData) return false;
+    const expiry = straddlesEpochData.expiry;
+    const blackout = straddlesData.blackoutPeriodBeforeExpiry;
+    const currentTime = Date.now() / 1000;
+    return currentTime + blackout.toNumber() >= expiry.toNumber();
+  }, [straddlesEpochData, straddlesData]);
+
   // Updates approved state and user balance
   useEffect(() => {
     (async () => {
@@ -277,27 +285,42 @@ const PurchaseCard = () => {
               </Typography>
             </Box>
           </Tooltip>
-          <CustomButton
-            size="medium"
-            className="w-full !rounded-md mt-3"
-            color={
-              !approved ||
-              (amount > 0 &&
-                amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18))
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={
-              !(
-                straddlesData?.isVaultReady! &&
-                !straddlesData?.isEpochExpired! &&
-                amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18)
-              )
-            }
-            onClick={approved ? handlePurchase : handleApprove}
-          >
-            {purchaseButtonMessage}
-          </CustomButton>
+          {isBlackout && (
+            <Tooltip title="There is a 4-hour blackout window before expiry when purchasing cannot occur">
+              <Box className="bg-mineshaft rounded-md flex justify-center pr-2 pl-3.5 py-3 cursor-pointer mt-3">
+                <Typography
+                  variant="h6"
+                  className="mx-2 pl-1"
+                  color="stieglitz"
+                >
+                  Blackout period
+                </Typography>
+              </Box>
+            </Tooltip>
+          )}
+          {!isBlackout && (
+            <CustomButton
+              size="medium"
+              className="w-full !rounded-md mt-3"
+              color={
+                !approved ||
+                (amount > 0 &&
+                  amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18))
+                  ? 'primary'
+                  : 'mineshaft'
+              }
+              disabled={
+                !(
+                  straddlesData?.isVaultReady! &&
+                  !straddlesData?.isEpochExpired! &&
+                  amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18)
+                )
+              }
+              onClick={approved ? handlePurchase : handleApprove}
+            >
+              {purchaseButtonMessage}
+            </CustomButton>
+          )}
         </Box>
       </Box>
     </Box>
