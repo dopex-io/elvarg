@@ -25,15 +25,14 @@ export const TableHeader = ({
   children,
   align = 'left',
   textColor = 'stieglitz',
-  width = 100,
+  width = 'w-auto',
 }) => {
   return (
     // @ts-ignore TODO: FIX
     <TableCell
       align={align as TableCellProps['align']}
       component="th"
-      className="bg-cod-gray border-1 border-umbra py-3"
-      sx={{ width }}
+      className={`bg-cod-gray border-1 border-umbra py-3 ${width}`}
     >
       <Typography variant="h6" color={textColor}>
         {children}
@@ -150,16 +149,15 @@ const UserDepositsTable = () => {
         <TableHead>
           <TableRow>
             {/*selectedPool?.isPut && */ <TableHeader>Max Strike</TableHeader>}
-            <TableHeader>Deposit Date</TableHeader>
+            <TableHeader>Deposit</TableHeader>
             <TableHeader>Liquidity</TableHeader>
-            <TableHeader>Premia Collected</TableHeader>
-            <TableHeader>Funding Collected</TableHeader>
+            <TableHeader width="w-1/6">Premia Earned</TableHeader>
+            <TableHeader width="w-1/6">Funding Earned</TableHeader>
             {
-              /*selectedPool?.isPut && */ <TableHeader>
+              /*selectedPool?.isPut && */ <TableHeader width="w-1/6">
                 Underlying Collected
               </TableHeader>
             }
-            <TableHeader>Checkpoint</TableHeader>
             <TableHeader>APY</TableHeader>
             <TableHeader align="right">Settle</TableHeader>
           </TableRow>
@@ -176,12 +174,13 @@ const UserDepositsTable = () => {
                 <Typography variant="h6">
                   {format(
                     new Date(position.timestamp.toNumber() * 1000),
-                    'd LLLL yyyy'
+                    'd LLL yyyy'
                   )}
                 </Typography>
               </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
+                  $
                   {formatAmount(
                     getUserReadableAmount(
                       position.liquidity,
@@ -194,6 +193,7 @@ const UserDepositsTable = () => {
               </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
+                  $
                   {formatAmount(
                     getUserReadableAmount(
                       position.premiumsEarned,
@@ -206,6 +206,7 @@ const UserDepositsTable = () => {
               </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
+                  $
                   {formatAmount(
                     getUserReadableAmount(
                       position.fundingEarned,
@@ -226,15 +227,11 @@ const UserDepositsTable = () => {
                       ),
                       3,
                       true
-                    )}
+                    )}{' '}
+                    {atlanticPool?.tokens.underlying}
                   </Typography>
                 </TableBodyCell>
               }
-              <TableBodyCell>
-                <Typography variant="h6">
-                  {formatAmount(position.checkpoint.add(1).toString(), 3, true)}
-                </Typography>
-              </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
                   {formatAmount(position.apy, 8, true) + '%'}
