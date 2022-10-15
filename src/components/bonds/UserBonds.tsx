@@ -63,8 +63,9 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
   ]);
 
   useEffect(() => {
+    if (!accountAddress) return;
     updateBondsUserEpochData();
-  }, [updateBondsUserEpochData]);
+  }, [updateBondsUserEpochData, accountAddress]);
 
   const notRedeemedBonds = useMemo(() => {
     return (
