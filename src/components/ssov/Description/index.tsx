@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import cx from 'classnames';
-import Box from '@mui/material/Box';
+import { Alert, Box, CircularProgress } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import format from 'date-fns/format';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -18,13 +19,21 @@ import Wrapper from '../Wrapper';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
+import { DOPEX_API_BASE_URL } from 'constants/index';
+
+interface Reward {
+  rewardToken: string;
+  amount: any;
+}
 
 const Description = ({
   ssovData,
   ssovEpochData,
+  selectedPoolName,
 }: {
   ssovData: SsovV3Data;
   ssovEpochData: SsovV3EpochData;
+  selectedPoolName: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useBoundStore();
@@ -39,6 +48,50 @@ const Description = ({
 
   const epochStartTime = Number(ssovEpochData.epochTimes[0]?.toNumber());
   const epochEndTime = Number(ssovEpochData.epochTimes[1]?.toNumber());
+
+  const { isLoading, error, data } = useQuery(['ssovRewards'], () =>
+    fetch(
+      `${DOPEX_API_BASE_URL}/v2/ssov/rewards?symbol=${selectedPoolName}`
+    ).then((res) => res.json())
+  );
+
+  const Incentives = () => {
+    if (isLoading) {
+      return (
+        <Box className="p-2">
+          <CircularProgress />
+        </Box>
+      );
+    } else if (error === undefined || error) {
+      return (
+        <Box className="mb-5 mt-2">
+          <Alert severity="error">Error fetching rewards</Alert>
+        </Box>
+      );
+    } else if (data.rewards?.length === 0) {
+      return (
+        <Typography variant="h5" className="text-stieglitz mb-5">
+          -
+        </Typography>
+      );
+    }
+
+    return (
+      <Box className="mb-5">
+        {data.rewards?.map((rewardInfo: Reward, idx: number) => {
+          return (
+            <Typography key={idx} variant="h5" className="text-stieglitz">
+              {formatAmount(
+                getUserReadableAmount(rewardInfo.amount.hex, 18),
+                2
+              )}{' '}
+              {rewardInfo.rewardToken}
+            </Typography>
+          );
+        })}
+      </Box>
+    );
+  };
 
   const info = [
     {
@@ -85,6 +138,10 @@ const Description = ({
         <br />
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
+      <Typography variant="h5" className="text-stieglitz">
+        <span className="text-white">Current incentives</span>
+      </Typography>
+      <Incentives />
       <EpochSelector className="mb-6" />
       {ssovEpochData.isEpochExpired ? (
         <Box className="mb-3">
