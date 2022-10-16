@@ -62,7 +62,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     accountAddress,
     provider,
     chainId,
-    bondsContract,
+    bondsContracts,
     dpxBondsData,
     dpxBondsUserEpochData,
     dpxBondsEpochData,
@@ -195,7 +195,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   const handleMint = useCallback(
     async (amount: number) => {
       if (
-        !bondsContract ||
+        !bondsContracts ||
         !signer ||
         dpxBondsUserEpochData.usableNfts.length === 0
       )
@@ -203,7 +203,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
       try {
         await sendTx(
-          bondsContract
+          bondsContracts.bondsContract
             .connect(signer)
             .mint(dpxBondsUserEpochData.usableNfts.slice(0, amount))
         );
@@ -211,7 +211,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         console.log(e);
       }
     },
-    [bondsContract, dpxBondsUserEpochData.usableNfts, sendTx, signer]
+    [bondsContracts, dpxBondsUserEpochData.usableNfts, sendTx, signer]
   );
 
   const handleDeposit = useCallback(async () => {

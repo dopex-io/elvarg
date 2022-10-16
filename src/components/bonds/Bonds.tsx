@@ -10,10 +10,9 @@ import { useBoundStore } from 'store';
 
 export const Bonds = () => {
   const {
-    signer,
     provider,
-    contractAddresses,
     updateBondsContracts,
+    bondsContracts,
     updateBondsData,
     updateBondsUserEpochData,
   } = useBoundStore();
@@ -22,23 +21,26 @@ export const Bonds = () => {
   const [eligibilityModal, setEligibilityModal] = useState(false);
 
   const handleModal = () => {
-    updateBondsUserEpochData();
     setModal(!modalOpen);
   };
+
   const handleEligibilityModal = () => {
     setEligibilityModal(!eligibilityModal);
   };
 
   useEffect(() => {
     updateBondsContracts();
+  }, [updateBondsContracts, provider]);
+
+  useEffect(() => {
+    if (!bondsContracts) return;
     updateBondsData();
-  }, [
-    contractAddresses,
-    provider,
-    signer,
-    updateBondsContracts,
-    updateBondsData,
-  ]);
+  }, [bondsContracts, updateBondsData, provider]);
+
+  useEffect(() => {
+    if (!bondsContracts) return;
+    updateBondsUserEpochData();
+  }, [bondsContracts, updateBondsUserEpochData, provider]);
 
   return (
     <>
