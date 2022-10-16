@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react';
 import cx from 'classnames';
-import { Alert, Box, CircularProgress } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { SsovV3EpochData, SsovV3Data } from 'store/Vault/ssov';
+import { SsovV3EpochData, SsovV3Data, Reward } from 'store/Vault/ssov';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -19,26 +18,18 @@ import Wrapper from '../Wrapper';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
-import { DOPEX_API_BASE_URL } from 'constants/index';
-
-interface Reward {
-  rewardToken: string;
-  amount: any;
-}
 
 const Description = ({
   ssovData,
   ssovEpochData,
-  selectedPoolName,
 }: {
   ssovData: SsovV3Data;
   ssovEpochData: SsovV3EpochData;
-  selectedPoolName: string;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useBoundStore();
 
-  const { APY, TVL } = ssovEpochData;
+  const { APY, TVL, rewards } = ssovEpochData;
 
   const [wrapOpen, setWrapOpen] = useState(false);
 
@@ -49,26 +40,8 @@ const Description = ({
   const epochStartTime = Number(ssovEpochData.epochTimes[0]?.toNumber());
   const epochEndTime = Number(ssovEpochData.epochTimes[1]?.toNumber());
 
-  const { isLoading, error, data } = useQuery(['ssovRewards'], () =>
-    fetch(
-      `${DOPEX_API_BASE_URL}/v2/ssov/rewards?symbol=${selectedPoolName}`
-    ).then((res) => res.json())
-  );
-
   const Incentives = () => {
-    if (isLoading) {
-      return (
-        <Box className="p-2">
-          <CircularProgress />
-        </Box>
-      );
-    } else if (error === undefined || error) {
-      return (
-        <Box className="mb-5 mt-2">
-          <Alert severity="error">Error fetching rewards</Alert>
-        </Box>
-      );
-    } else if (data.rewards?.length === 0) {
+    if (rewards?.length === 0) {
       return (
         <Typography variant="h5" className="text-stieglitz mb-5">
           -
@@ -78,7 +51,7 @@ const Description = ({
 
     return (
       <Box className="mb-5">
-        {data.rewards?.map((rewardInfo: Reward, idx: number) => {
+        {rewards?.map((rewardInfo: Reward, idx: number) => {
           return (
             <Typography key={idx} variant="h5" className="text-stieglitz">
               {formatAmount(

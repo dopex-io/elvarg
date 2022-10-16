@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import Head from 'next/head';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
@@ -15,8 +14,6 @@ import { useBoundStore } from 'store';
 import WritePositions from 'components/ssov/WritePositions';
 
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
-
-const queryClient = new QueryClient();
 
 const Manage = (props: { ssov: string }) => {
   const { ssov } = props;
@@ -48,13 +45,7 @@ const Manage = (props: { ssov: string }) => {
       <Box className="py-12 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="flex flex-col mt-20">
           <Box className="flex md:flex-row flex-col mb-4 md:justify-between items-center md:items-start">
-            <QueryClientProvider client={queryClient}>
-              <Description
-                ssovData={ssovData}
-                ssovEpochData={ssovEpochData}
-                selectedPoolName={ssov}
-              />
-            </QueryClientProvider>
+            <Description ssovData={ssovData} ssovEpochData={ssovEpochData} />
             <DepositPanel />
           </Box>
           <Stats className="mb-4" />
