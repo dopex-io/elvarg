@@ -46,7 +46,7 @@ interface Props extends BasicManageDialogProps {
 const ManageDialog = (props: Props) => {
   const { data, open, handleClose } = props;
 
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState(0);
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
   const [allowance, setAllowance] = useState(BigNumber.from(0));

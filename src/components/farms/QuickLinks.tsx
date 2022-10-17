@@ -14,27 +14,20 @@ const QuickLink = ({ text, href }: { text: string; href: string }) => {
 
 const QuickLinks = () => {
   return (
-    <>
+    <Box className="fixed lg:w-80 bottom-6 mx-4">
       <Box className="mb-4 text-stieglitz">Quick Links</Box>
       <Box className="flex flex-col space-y-2">
+        <QuickLink text="Buy DPX or rDPX" href="https://www.sushi.com/swap" />
         <QuickLink
-          text="Buy DPX"
-          href="https://app.sushi.com/swap?chainId=42161&inputCurrency=ETH&outputCurrency=0x6C2C06790b3E3E3c38e12Ee22F8183b37a13EE55"
+          text="Add DPX/ETH Liquidity"
+          href="https://www.sushi.com/earn/arb1:0x0c1cf6883efa1b496b01f654e247b9b419873054/add"
         />
         <QuickLink
-          text="Buy RDPX"
-          href="https://app.sushi.com/swap?chainId=42161&inputCurrency=ETH&outputCurrency=0x32Eb7902D4134bf98A28b963D26de779AF92A212"
-        />
-        <QuickLink
-          text="Add DPX-WETH Liquidity"
-          href="https://app.sushi.com/add/ETH/0x6C2C06790b3E3E3c38e12Ee22F8183b37a13EE55?tokens=ETH&tokens=0x6C2C06790b3E3E3c38e12Ee22F8183b37a13EE55&chainId=42161"
-        />
-        <QuickLink
-          text="Buy RDPX-WETH Liquidity"
-          href="https://app.sushi.com/add/ETH/0x32Eb7902D4134bf98A28b963D26de779AF92A212?tokens=ETH&tokens=0x32Eb7902D4134bf98A28b963D26de779AF92A212&chainId=42161"
+          text="Buy rDPX/ETH Liquidity"
+          href="https://www.sushi.com/earn/arb1:0x7418f5a2621e13c05d1efbd71ec922070794b90a/add"
         />
       </Box>
-    </>
+    </Box>
   );
 };
 

@@ -68,7 +68,7 @@ const Farms = () => {
 
   useEffect(() => {
     updateLpData();
-  }, [updateLpData]);
+  }, [updateLpData, chainId]);
 
   useEffect(() => {
     async function getAllFarmData() {
@@ -106,7 +106,7 @@ const Farms = () => {
       </Head>
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar active="Farms" />
-      <Box className="flex mt-32 justify-end lg:mx-6 lg:space-x-reverse mb-32 lg:flex-row-reverse flex-col">
+      <Box className="flex my-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">
           <Typography variant="h5" className="mb-6">
             Farms
@@ -155,60 +155,62 @@ const Farms = () => {
             })}
           </CustomBox>
         </Box>
-        <Box className="lg:w-80 flex flex-col mx-4 space-y-4">
-          <Typography variant="h5" className="mb-2">
-            Claimable
-          </Typography>
-          {userData.filter((item, index) => {
-            if (!item) {
+        <Box className="lg:w-80 flex flex-col mx-4 space-y-4 justify-between">
+          <Box>
+            <Typography variant="h5" className="mb-2">
+              Claimable
+            </Typography>
+            {userData.filter((item, index) => {
+              if (!item) {
+                return false;
+              } else if (checkBNZero(item.userRewardsEarned)) {
+                let _farms = FARMS[chainId];
+
+                if (!_farms) return false;
+
+                let _farm = _farms[index];
+
+                if (!_farm) return false;
+
+                if (_farm.status === 'CLOSED') return false;
+
+                return true;
+              }
               return false;
-            } else if (checkBNZero(item.userRewardsEarned)) {
-              let _farms = FARMS[chainId];
+            }).length === 0
+              ? 'Nothing to show here. '
+              : null}
+            {accountAddress
+              ? userData.map((item, index) => {
+                  if (!item) return null;
+                  if (checkBNZero(item.userRewardsEarned)) {
+                    let _farms = FARMS[chainId];
 
-              if (!_farms) return false;
+                    if (!_farms) return null;
 
-              let _farm = _farms[index];
+                    let _farm = _farms[index];
 
-              if (!_farm) return false;
+                    if (!_farm) return null;
 
-              if (_farm.status === 'CLOSED') return false;
+                    if (_farm.status === 'CLOSED') return null;
 
-              return true;
-            }
-            return false;
-          }).length === 0
-            ? 'Nothing to show here. '
-            : null}
-          {accountAddress
-            ? userData.map((item, index) => {
-                if (!item) return null;
-                if (checkBNZero(item.userRewardsEarned)) {
-                  let _farms = FARMS[chainId];
-
-                  if (!_farms) return null;
-
-                  let _farm = _farms[index];
-
-                  if (!_farm) return null;
-
-                  if (_farm.status === 'CLOSED') return null;
-
-                  return (
-                    <ClaimCard
-                      key={index}
-                      stakingTokenSymbol={_farm.stakingTokenSymbol}
-                      stakingRewardsAddress={_farm.stakingRewardsAddress}
-                      userRewardsEarned={item.userRewardsEarned}
-                      rewardTokens={_farm.rewardTokens}
-                      version={_farm.version}
-                    />
-                  );
-                }
-                return null;
-              })
-            : 'Please connect your wallet'}
-          <QuickLinks />
+                    return (
+                      <ClaimCard
+                        key={index}
+                        stakingTokenSymbol={_farm.stakingTokenSymbol}
+                        stakingRewardsAddress={_farm.stakingRewardsAddress}
+                        userRewardsEarned={item.userRewardsEarned}
+                        rewardTokens={_farm.rewardTokens}
+                        version={_farm.version}
+                      />
+                    );
+                  }
+                  return null;
+                })
+              : 'Please connect your wallet'}
+          </Box>
         </Box>
+        <QuickLinks />
       </Box>
       <ManageDialog {...dialog} handleClose={handleClose} />
     </Box>
