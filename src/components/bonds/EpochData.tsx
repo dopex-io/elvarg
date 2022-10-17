@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import format from 'date-fns/format';
@@ -39,6 +39,20 @@ export const EpochData = ({
   const { depositPerNft } = dpxBondsEpochData;
 
   const isEpochExpired = epochExpiry < Date.now() / 1000;
+
+  const bondsAvailable = useMemo(() => {
+    if (!dpxBondsEpochData || dpxBondsEpochData.depositPerNft.eq('0')) return;
+
+    const bondsIssued = Math.floor(
+      getUserReadableAmount(dpxBondsEpochData.bondsIssued, 18)
+    );
+
+    const totalBonds = dpxBondsEpochData.maxEpochDeposits
+      .div(dpxBondsEpochData.bondPrice)
+      .toNumber();
+
+    return totalBonds - bondsIssued;
+  }, [dpxBondsEpochData]);
 
   useEffect(() => {
     updateBondsEpochData(dpxBondsData.epoch);
@@ -103,6 +117,9 @@ export const EpochData = ({
               <Box className="flex flex-col">
                 <Typography variant="h5" color="white">
                   USDC
+                </Typography>
+                <Typography variant="h6" color="stieglitz">
+                  {bondsAvailable} bonds available to redeem
                 </Typography>
               </Box>
             </Box>

@@ -30,7 +30,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     updateBondsUserEpochData,
     dpxBondsEpochData,
     signer,
-    bondsContract,
+    bondsContracts,
   } = useBoundStore();
 
   const { userDpxBondsState } = dpxBondsUserEpochData;
@@ -42,30 +42,30 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
 
   const handleRedeem = useCallback(async () => {
     if (
-      !bondsContract ||
+      !bondsContracts ||
       !signer ||
       dpxBondsUserEpochData.userClaimableBonds.length < 1
     )
       return;
 
     try {
-      await sendTx(bondsContract.connect(signer).redeem(1));
+      await sendTx(bondsContracts.bondsContract.connect(signer).redeem(1));
     } catch (e) {
       console.log(e);
     }
 
     return;
   }, [
-    bondsContract,
+    bondsContracts,
     dpxBondsUserEpochData.userClaimableBonds.length,
     sendTx,
     signer,
   ]);
 
   useEffect(() => {
-    if (!accountAddress) return;
+    if (!accountAddress || !bondsContracts) return;
     updateBondsUserEpochData();
-  }, [updateBondsUserEpochData, accountAddress]);
+  }, [updateBondsUserEpochData, accountAddress, bondsContracts]);
 
   const notRedeemedBonds = useMemo(() => {
     return (
