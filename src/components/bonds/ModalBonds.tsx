@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import Dialog from '@mui/material/Dialog';
@@ -91,16 +91,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
   useEffect(() => {
     async function getData() {
-      const payload = await Promise.all([
-        axios.get(
-          'https://8iiu5p3f28.execute-api.us-east-2.amazonaws.com/default/fetchPriceUpdates?tokenSymbol=DPX'
-        ),
-      ]);
-      const _dopexOraclesData = payload.map((item) => {
-        return item.data.data;
-      });
-      const dpxPrice =
-        _dopexOraclesData[0][_dopexOraclesData[0].length - 1].twap || 0;
+      const dpxPrice = 22803000000;
 
       setOraclePrice(dpxPrice);
     }

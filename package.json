@@ -20,6 +20,7 @@
     "@mui/icons-material": "^5.8.2",
     "@mui/material": "^5.8.2",
     "@mui/styles": "^5.4.4",
+    "@tanstack/react-query": "4.10.3",
     "@walletconnect/web3-provider": "^1.6.5",
     "axios": "^1.1.2",
     "bignumber.js": "^9.0.1",

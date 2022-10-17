@@ -15,12 +15,14 @@ export const Bonds = () => {
     contractAddresses,
     updateBondsContracts,
     updateBondsData,
+    updateBondsUserEpochData,
   } = useBoundStore();
 
   const [modalOpen, setModal] = useState(false);
   const [eligibilityModal, setEligibilityModal] = useState(false);
 
   const handleModal = () => {
+    updateBondsUserEpochData();
     setModal(!modalOpen);
   };
   const handleEligibilityModal = () => {
