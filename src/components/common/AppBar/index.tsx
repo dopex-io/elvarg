@@ -157,7 +157,6 @@ export default function AppBar(props: AppBarProps) {
     tokenPrices,
     updateTokenPrices,
     userAssetBalances,
-    provider,
     updateAssetBalances,
   } = useBoundStore();
 
