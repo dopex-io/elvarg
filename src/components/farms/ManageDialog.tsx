@@ -7,6 +7,7 @@ import {
 } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -50,6 +51,7 @@ const ManageDialog = (props: Props) => {
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
   const [allowance, setAllowance] = useState(BigNumber.from(0));
+  const [loading, setLoading] = useState(false);
 
   const [amount] = useDebounce(value, 1000);
 
@@ -106,6 +108,7 @@ const ManageDialog = (props: Props) => {
   const handleDeposit = useCallback(async () => {
     if (!signer) return;
     try {
+      setLoading(true);
       await sendTx(
         StakingRewards__factory.connect(
           data.stakingRewardsAddress,
@@ -113,8 +116,10 @@ const ManageDialog = (props: Props) => {
         ).stake(utils.parseEther(amount))
       );
       await getUserData();
+      setLoading(false);
       handleClose();
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
   }, [signer, sendTx, amount, data, getUserData, handleClose]);
@@ -122,6 +127,7 @@ const ManageDialog = (props: Props) => {
   const handleApprove = useCallback(async () => {
     if (!signer) return;
     try {
+      setLoading(true);
       await sendTx(
         ERC20__factory.connect(data.stakingTokenAddress, signer).approve(
           data.stakingRewardsAddress,
@@ -129,7 +135,9 @@ const ManageDialog = (props: Props) => {
         )
       );
       setAllowance(BigNumber.from(MAX_VALUE));
+      setLoading(false);
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
   }, [signer, sendTx, data]);
@@ -137,6 +145,7 @@ const ManageDialog = (props: Props) => {
   const handleWithdraw = useCallback(async () => {
     if (!signer || !accountAddress) return;
     try {
+      setLoading(true);
       if (data.version === 3) {
         await StakingRewardsV3__factory.connect(
           data.stakingRewardsAddress,
@@ -152,7 +161,9 @@ const ManageDialog = (props: Props) => {
           ).withdraw(utils.parseEther(amount))
         );
       }
+      setLoading(false);
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
   }, [signer, accountAddress, data, amount, getUserData, handleClose, sendTx]);
@@ -247,7 +258,7 @@ const ManageDialog = (props: Props) => {
         <CustomButton
           size="medium"
           fullWidth
-          disabled={!!error || !value}
+          disabled={!!error || !value || loading}
           onClick={
             activeTab === 0
               ? approved
@@ -256,6 +267,19 @@ const ManageDialog = (props: Props) => {
               : handleWithdraw
           }
         >
+          {loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                color: 'black',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                marginTop: '-12px',
+                marginLeft: '-12px',
+              }}
+            />
+          )}
           {activeTab === 0 ? (approved ? 'Deposit' : 'Approve') : 'Withdraw'}
         </CustomButton>
       </Box>
