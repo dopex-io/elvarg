@@ -23,7 +23,7 @@ const QuickLinks = () => {
           href="https://www.sushi.com/earn/arb1:0x0c1cf6883efa1b496b01f654e247b9b419873054/add"
         />
         <QuickLink
-          text="Buy rDPX/ETH Liquidity"
+          text="Add rDPX/ETH Liquidity"
           href="https://www.sushi.com/earn/arb1:0x7418f5a2621e13c05d1efbd71ec922070794b90a/add"
         />
       </Box>
