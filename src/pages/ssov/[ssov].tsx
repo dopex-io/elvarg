@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import Manage from 'components/ssov-v3/Manage';
+import Manage from 'components/ssov/Manage';
 
 import { useBoundStore } from 'store';
 

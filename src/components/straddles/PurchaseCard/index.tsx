@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
-
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import Tooltip from '@mui/material/Tooltip';
+import { useQuery } from '@tanstack/react-query';
+import { Alert, Box, CircularProgress, Input, Tooltip } from '@mui/material';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -22,6 +20,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 const PurchaseCard = () => {
   const {
@@ -38,11 +37,19 @@ const PurchaseCard = () => {
     updateStraddlesUserData,
   } = useBoundStore();
 
+  const { isLoading, error, data } = useQuery(
+    ['currentPrice'],
+    () => straddlesData?.straddlesContract?.getUnderlyingPrice(),
+    { initialData: oneEBigNumber(8) }
+  );
+
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
 
   const maxStraddlesCanBeBought = useMemo(() => {
+    if (isLoading || error || !data) return BigNumber.from(0);
+
     const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(
       BigNumber.from(straddlesEpochData?.activeUsdDeposits).div(
         '100000000000000000000'
@@ -50,10 +57,11 @@ const PurchaseCard = () => {
     );
 
     if (!availableUsdDeposits) return BigNumber.from(0);
+
     return availableUsdDeposits!
       .mul(BigNumber.from('100000000000000000000'))
-      .div(straddlesEpochData?.currentPrice!);
-  }, [straddlesEpochData]);
+      .div(data);
+  }, [straddlesEpochData, isLoading, data, error]);
 
   const sendTx = useSendTx();
 
@@ -147,6 +155,14 @@ const PurchaseCard = () => {
     maxStraddlesCanBeBought,
   ]);
 
+  const isBlackout: boolean = useMemo(() => {
+    if (!straddlesEpochData || !straddlesData) return false;
+    const expiry = straddlesEpochData.expiry;
+    const blackout = straddlesData.blackoutPeriodBeforeExpiry;
+    const currentTime = Date.now() / 1000;
+    return currentTime + blackout.toNumber() >= expiry.toNumber();
+  }, [straddlesEpochData, straddlesData]);
+
   // Updates approved state and user balance
   useEffect(() => {
     (async () => {
@@ -172,6 +188,16 @@ const PurchaseCard = () => {
     chainId,
     straddlesData,
   ]);
+
+  if (isLoading) return <CircularProgress />;
+  else if (error === undefined || error)
+    return (
+      <Box className="mt-4">
+        <Alert severity="error">
+          Error fetching price. Refresh and try again.
+        </Alert>
+      </Box>
+    );
 
   return (
     <Box>
@@ -213,7 +239,7 @@ const PurchaseCard = () => {
               <NumberDisplay
                 n={maxStraddlesCanBeBought || BigNumber.from(0)}
                 decimals={18}
-                decimalsToShow={2}
+                decimalsToShow={4}
               />
             </div>
           </Typography>
@@ -277,27 +303,42 @@ const PurchaseCard = () => {
               </Typography>
             </Box>
           </Tooltip>
-          <CustomButton
-            size="medium"
-            className="w-full !rounded-md mt-3"
-            color={
-              !approved ||
-              (amount > 0 &&
-                amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18))
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={
-              !(
-                straddlesData?.isVaultReady! &&
-                !straddlesData?.isEpochExpired! &&
-                amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18)
-              )
-            }
-            onClick={approved ? handlePurchase : handleApprove}
-          >
-            {purchaseButtonMessage}
-          </CustomButton>
+          {isBlackout && (
+            <Tooltip title="There is a 4-hour blackout window before expiry when purchasing cannot occur">
+              <Box className="bg-mineshaft rounded-md flex justify-center pr-2 pl-3.5 py-3 cursor-pointer mt-3">
+                <Typography
+                  variant="h6"
+                  className="mx-2 pl-1"
+                  color="stieglitz"
+                >
+                  Blackout period
+                </Typography>
+              </Box>
+            </Tooltip>
+          )}
+          {!isBlackout && (
+            <CustomButton
+              size="medium"
+              className="w-full !rounded-md mt-3"
+              color={
+                !approved ||
+                (amount > 0 &&
+                  amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18))
+                  ? 'primary'
+                  : 'mineshaft'
+              }
+              disabled={
+                !(
+                  straddlesData?.isVaultReady! &&
+                  !straddlesData?.isEpochExpired! &&
+                  amount <= getUserReadableAmount(maxStraddlesCanBeBought, 18)
+                )
+              }
+              onClick={approved ? handlePurchase : handleApprove}
+            >
+              {purchaseButtonMessage}
+            </CustomButton>
+          )}
         </Box>
       </Box>
     </Box>

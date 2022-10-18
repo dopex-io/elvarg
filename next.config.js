@@ -11,6 +11,21 @@ module.exports = {
         permanent: false,
       },
       {
+        source: '/ir',
+        destination: '/straddles',
+        permanent: false,
+      },
+      {
+        source: '/ir/:path*',
+        destination: '/straddles',
+        permanent: false,
+      },
+      {
+        source: '/ssov-v3/:path*',
+        destination: '/ssov/:path*',
+        permanent: false,
+      },
+      {
         source: '/otc',
         destination: '/straddles',
         permanent: false,

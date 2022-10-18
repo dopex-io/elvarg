@@ -8,7 +8,7 @@ import format from 'date-fns/format';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import InfoBox from 'components/ssov-v3/InfoBox';
+import InfoBox from 'components/ssov/InfoBox';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
@@ -118,7 +118,7 @@ function SsovCard(props: any) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/ssov-v3/${symbol}`} passHref>
+          <Link href={`/ssov/${symbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>

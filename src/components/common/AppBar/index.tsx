@@ -102,7 +102,7 @@ const appLinks = {
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
-    { name: 'Rate Vaults', to: '/ir' },
+    // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
   ],
@@ -148,6 +148,7 @@ export default function AppBar(props: AppBarProps) {
   const {
     accountAddress,
     connect,
+    provider,
     wrongNetwork,
     chainId,
     ensName,
@@ -213,7 +214,7 @@ export default function AppBar(props: AppBarProps) {
 
   useEffect(() => {
     updateAssetBalances();
-  }, [updateAssetBalances]);
+  }, [updateAssetBalances, provider]);
 
   const menuItems = useMemo(() => {
     return [
