@@ -107,6 +107,7 @@ const Stats = () => {
                     background:
                       'linear-gradient(to right bottom, #06b6d4, #1d4ed8)',
                   },
+                  height: 150,
                 },
               }}
               classes={{
