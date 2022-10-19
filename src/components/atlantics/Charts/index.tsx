@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import { CircularProgress } from '@mui/material';
 import { BigNumber } from 'ethers';
 
 // import CallPoolStats from 'components/atlantics/Charts/CallPoolStats';
+import CustomButton from 'components/UI/Button';
 
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
 import { useBoundStore } from 'store';
@@ -39,7 +40,11 @@ interface IPoolData {
 
 const Charts = (props: ChartsProps) => {
   const { line_data, underlying, collateral, title, type } = props;
-  const { atlanticPoolEpochData } = useBoundStore();
+  const { accountAddress, atlanticPoolEpochData, connect } = useBoundStore();
+
+  const handleWalletConnect = useCallback(() => {
+    connect && connect();
+  }, [connect]);
 
   const poolData:
     | {
@@ -58,6 +63,8 @@ const Charts = (props: ChartsProps) => {
         },
       ],
     };
+
+    if (!accountAddress) return { ...defaultData, type: 'connect' };
 
     if (!atlanticPoolEpochData) return defaultData;
 
@@ -84,25 +91,34 @@ const Charts = (props: ChartsProps) => {
       type: 'barData',
       data: barData,
     };
-  }, [atlanticPoolEpochData]);
+  }, [accountAddress, atlanticPoolEpochData]);
 
-  // const renderComponent: React.ReactNode = useMemo(() => {
-  // const isPut = selectedPool.isPut;
-  // const renderCondition = isPut && poolData.type === 'barData';
-
-  // renderCondition ? (
-  // return (
-  //   <ClientRenderedBarGraph
-  //     data={poolData.data as IPoolData[]}
-  //     width={1000}
-  //     height={240}
-  //     header={{ underlying, collateral, title, type }}
-  //   />
-  // );
-  // ) : (
-  //   <CallPoolStats data={poolData} underlyingSymbol={underlying} />
-  // );
-  // }, [collateral, poolData, title, type, underlying]);
+  const renderComponent = useMemo(() => {
+    if (!poolData) return;
+    if (poolData.type === 'connect')
+      return (
+        <Box className="p-3 items-center text-center h-[15.7rem] py-[8.65rem]">
+          <CustomButton size="medium" onClick={handleWalletConnect}>
+            Connect Wallet
+          </CustomButton>
+        </Box>
+      );
+    else if (poolData.type === 'loading')
+      return (
+        <Box className="p-3 items-center text-center h-[15.7rem] py-[8.65rem]">
+          <CircularProgress size="30px" />
+        </Box>
+      );
+    else
+      return (
+        <ClientRenderedBarGraph
+          data={poolData.data as IPoolData[]}
+          width={1000}
+          height={240}
+          header={{ underlying, collateral, title, type }}
+        />
+      );
+  }, [collateral, handleWalletConnect, poolData, title, type, underlying]);
 
   // const lineData: ILineData = useMemo(() => {
   //   if (!selectedPool || selectedPool.checkpoints.length <= 1)
@@ -143,19 +159,7 @@ const Charts = (props: ChartsProps) => {
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">
       <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-2/3 sm:w-full">
-        {poolData.type !== 'loading' ? (
-          // renderComponent
-          <ClientRenderedBarGraph
-            data={poolData.data as IPoolData[]}
-            width={1000}
-            height={240}
-            header={{ underlying, collateral, title, type }}
-          />
-        ) : (
-          <Box className="p-3 items-center text-center h-[15.7rem] py-[8.65rem]">
-            <CircularProgress size="30px" />
-          </Box>
-        )}
+        {renderComponent}
       </Box>
       <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">
         <ClientRenderedLineChart data={line_data} width={340} height={220} />

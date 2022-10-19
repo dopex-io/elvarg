@@ -100,7 +100,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               cursor={{
                 fill: '#151515',
               }}
-              formatter={(value: number) => '$' + formatAmount(value, 3)}
+              formatter={(value: number) => value}
+              contentStyle={{
+                borderColor: '#2D2D2D',
+                backgroundColor: '#2D2D2D',
+                color: '#2D2D2D',
+              }}
             />
             <XAxis type="number" dataKey="availableCollateral" hide />
             <XAxis type="number" dataKey="unlocked" hide />
@@ -112,13 +117,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               tickSize={[atlanticPoolEpochData?.maxStrikes].length}
               axisLine={false}
               tickLine={false}
-              interval={0}
             />
             <Bar
-              name="Available Collateral"
+              name={`Available Collateral`}
               dataKey="availableCollateral"
               stackId="a"
-              fill="#1E1E1E"
+              fill="#FFF"
               label="availableCollateral"
               radius={[5, 0, 0, 5]}
             >
@@ -136,10 +140,10 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               ))}
             </Bar>
             <Bar
-              name="Active Collateral"
+              name={`Active Collateral`}
               dataKey="activeCollateral"
               stackId="a"
-              fill="#2D2D2D"
+              fill="#FFF"
               label="activeCollateral"
             >
               {data.map((_, index) => (
@@ -150,11 +154,11 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               ))}
             </Bar>
             <Bar
-              name="Unlocked Collateral"
+              name={`Unlocked Collateral`}
               dataKey="unlocked"
               stackId="a"
-              fill="#1E1E1E"
-              label="unlockedCollateral"
+              fill="#FFF"
+              label="unlocked"
             >
               {data.map((_, index) => (
                 <Cell
