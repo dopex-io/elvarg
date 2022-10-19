@@ -14,7 +14,7 @@ const QuickLink = ({ text, href }: { text: string; href: string }) => {
 
 const QuickLinks = () => {
   return (
-    <Box className="fixed lg:w-80 bottom-6 mx-4">
+    <Box className="lg:fixed lg:bottom-6 mx-4 w-80">
       <Box className="mb-4 text-stieglitz">Quick Links</Box>
       <Box className="flex flex-col space-y-2">
         <QuickLink text="Buy DPX or rDPX" href="https://www.sushi.com/swap" />
