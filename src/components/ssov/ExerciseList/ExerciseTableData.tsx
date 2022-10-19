@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useContext,
-  useState,
-  useMemo,
-  SetStateAction,
-} from 'react';
+import { useCallback, useState, useMemo, SetStateAction } from 'react';
 import { BigNumber } from 'ethers';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -14,27 +8,22 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import { SsovContext } from 'contexts/Ssov';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import InfoPopover from 'components/UI/InfoPopover';
-import Transfer from '../Dialogs/Transfer';
-import Settle from '../Dialogs/Settle';
+import Settle from './Dialogs/Settle';
+import Transfer from './Dialogs/Transfer';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { SSOV_MAP } from 'constants/index';
-
 interface ExerciseTableDataProps {
   strikeIndex: number;
   strikePrice: number;
-  depositedAmount: number;
   purchasedAmount: number;
   settleableAmount: BigNumber;
   pnlAmount: BigNumber;
-  totalPremiumsEarned: BigNumber;
   isSettleable: boolean;
   isPastEpoch: boolean;
 }
@@ -48,29 +37,13 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   const {
     strikeIndex,
     strikePrice,
-    depositedAmount,
-    totalPremiumsEarned,
     purchasedAmount,
     settleableAmount,
     pnlAmount,
     isSettleable,
   } = props;
 
-  const { ssovData, ssovEpochData, selectedSsov } = useContext(SsovContext);
-
-  // @ts-ignore TODO: FIX
-  const isPut = useMemo(() => selectedSsov.type === 'PUT', [selectedSsov]);
-
-  const tokenSymbol = isPut
-    ? '2CRV'
-    : // @ts-ignore TODO: FIX
-    SSOV_MAP[ssovData.tokenName].tokenSymbol === 'BNB'
-    ? 'vBNB'
-    : // @ts-ignore TODO: FIX
-      SSOV_MAP[ssovData.tokenName].tokenSymbol;
-
-  // @ts-ignore TODO: FIX
-  const { isEpochExpired } = ssovEpochData;
+  const { ssovData, ssovEpochData } = useBoundStore();
 
   const [dialogState, setDialogState] = useState({
     open: false,
@@ -113,7 +86,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
   const settleableBooleans = useMemo(() => {
-    if (isEpochExpired) {
+    // @ts-ignore TODO: FIX
+    if (ssovEpochData.isEpochExpired) {
       if (isSettleable) {
         return {
           settleButtonDisable: false,
@@ -130,7 +104,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         settleButtonDisable: true,
         settleButtonPrimaryColor: false,
       };
-  }, [isEpochExpired, isSettleable]);
+  }, [ssovEpochData, isSettleable]);
 
   // @ts-ignore TODO: FIX
   const Dialog = DIALOGS[dialogState.type];
@@ -141,38 +115,24 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         open={dialogState.open}
         handleClose={handleClose}
         strikeIndex={strikeIndex}
-        ssovData={ssovData}
-        token={tokenSymbol}
-        settleableAmount={settleableAmount}
-        className="rounded-xl"
       />
       <TableCell align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
-              // @ts-ignore TODO: FIX
-              src={SSOV_MAP[ssovData.tokenName].imageSrc}
-              alt={tokenSymbol}
+              src={`/images/tokens/${
+                ssovData?.underlyingSymbol?.toLowerCase() || 'unknown'
+              }.svg`}
+              alt={ssovData?.underlyingSymbol || 'token'}
             />
           </Box>
           <Typography variant="h5" className="text-white">
-            {
-              // @ts-ignore TODO: FIX
-              SSOV_MAP[ssovData.tokenName].tokenSymbol === 'vBNB'
-                ? 'BNB'
-                : // @ts-ignore TODO: FIX
-                  SSOV_MAP[ssovData.tokenName].tokenSymbol
-            }
+            {ssovData?.underlyingSymbol}
           </Typography>
         </Box>
       </TableCell>
       <TableCell align="left" className="mx-0 pt-2">
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
-      </TableCell>
-      <TableCell align="left" className="pt-2">
-        <Typography variant="h6">
-          {formatAmount(depositedAmount, 5)} {isPut ? '2CRV' : tokenSymbol}
-        </Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">{formatAmount(purchasedAmount, 5)}</Typography>
@@ -185,36 +145,14 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="left" className="px-6 pt-2">
         <Typography variant="h6">
           {pnlAmount.gte(0)
-            ? `${formatAmount(
-                tokenSymbol === 'vBNB'
-                  ? getUserReadableAmount(pnlAmount, 8)
-                  : getUserReadableAmount(pnlAmount, 18),
-                5
-              )} ${tokenSymbol}`
-            : `0 ${tokenSymbol}`}
-        </Typography>
-      </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
-        <Typography variant="h6">
-          {!totalPremiumsEarned.isZero()
-            ? `${formatAmount(
-                tokenSymbol === 'vBNB'
-                  ? getUserReadableAmount(totalPremiumsEarned, 8)
-                  : getUserReadableAmount(totalPremiumsEarned, 18),
-                5
-              )} ${tokenSymbol}`
-            : `0 ${tokenSymbol}`}
+            ? `${formatAmount(getUserReadableAmount(pnlAmount, 18), 5)} ${
+                ssovData?.collateralSymbol
+              }`
+            : `0 ${ssovData?.collateralSymbol}`}
         </Typography>
       </TableCell>
       <TableCell align="right">
         <Box className="flex justify-end">
-          {!isEpochExpired && (
-            <InfoPopover
-              className="my-auto"
-              id="settle-info"
-              infoText="Settle is available only after expiry of this epoch."
-            />
-          )}
           <CustomButton
             size="medium"
             className="px-2"

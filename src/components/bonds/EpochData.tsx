@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import format from 'date-fns/format';
@@ -39,6 +39,20 @@ export const EpochData = ({
   const { depositPerNft } = dpxBondsEpochData;
 
   const isEpochExpired = epochExpiry < Date.now() / 1000;
+
+  const bondsAvailable = useMemo(() => {
+    if (!dpxBondsEpochData || dpxBondsEpochData.depositPerNft.eq('0')) return;
+
+    const bondsIssued = Math.floor(
+      getUserReadableAmount(dpxBondsEpochData.bondsIssued, 18)
+    );
+
+    const totalBonds = dpxBondsEpochData.maxEpochDeposits
+      .div(dpxBondsEpochData.bondPrice)
+      .toNumber();
+
+    return totalBonds - bondsIssued;
+  }, [dpxBondsEpochData]);
 
   useEffect(() => {
     updateBondsEpochData(dpxBondsData.epoch);
@@ -104,6 +118,9 @@ export const EpochData = ({
                 <Typography variant="h5" color="white">
                   USDC
                 </Typography>
+                <Typography variant="h6" color="stieglitz">
+                  {bondsAvailable} bonds available to redeem
+                </Typography>
               </Box>
             </Box>
             <WalletButton
@@ -137,7 +154,7 @@ export const EpochData = ({
           <Typography variant="h5">Program Goals</Typography>
           <Box className="text-stieglitz h-24  mb-7">
             Commit stablecoins upfront and receive vested DPX from treasury at a
-            lower market price. Proceeds supports Dopex operations.
+            lower market price. Proceeds support Dopex operations.
           </Box>
         </Box>
         <Box className="p-3 w-[352px]">

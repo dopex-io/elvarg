@@ -1,11 +1,12 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo } from 'react';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
 
+import { useBoundStore } from 'store';
+
 import { Duel } from 'contexts/Duel';
-import { WalletContext } from 'contexts/Wallet';
 
 import styles from '../styles.module.scss';
 import Countdown from 'react-countdown';
@@ -21,7 +22,7 @@ const ActiveDuel = ({
   handleReveal: Function;
   handleClaimForfeit: Function;
 }) => {
-  const { accountAddress } = useContext(WalletContext);
+  const { accountAddress } = useBoundStore();
 
   const handleClick = () => {
     if (duel['status'] === 'requireUndo') handleUndo(duel['id']);

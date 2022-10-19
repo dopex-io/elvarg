@@ -7,7 +7,6 @@ import {
   SSOVOptionPricing__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
-import { SsovV3__factory as OldSsovV3__factory } from 'sdk-old';
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 
@@ -38,6 +37,11 @@ export interface SsovV3Data {
   isPut?: boolean;
 }
 
+export interface Reward {
+  rewardToken: string;
+  amount: any;
+}
+
 export interface SsovV3EpochData {
   epochTimes: BigNumber[];
   isEpochExpired: boolean;
@@ -51,6 +55,7 @@ export interface SsovV3EpochData {
   epochStrikeTokens: string[];
   APY: string;
   TVL: number;
+  rewards: Reward[];
 }
 
 export interface WritePositionInterface {
@@ -135,10 +140,7 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
-    const ssovContract =
-      selectedPoolName === 'ETH-CALLS-SSOV-V3'
-        ? OldSsovV3__factory.connect(ssovAddress, provider)
-        : SsovV3__factory.connect(ssovAddress, provider);
+    const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       ssovViewerAddress,
@@ -153,6 +155,7 @@ export const createSsovV3Slice: StateCreator<
       epochData,
       epochStrikeTokens,
       apyPayload,
+      rewardsPayLoad,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovViewerContract.getTotalEpochStrikeDeposits(
@@ -173,6 +176,9 @@ export const createSsovV3Slice: StateCreator<
         ssovContract.address
       ),
       axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedPoolName}`),
+      axios.get(
+        `${DOPEX_API_BASE_URL}/v2/ssov/rewards?symbol=${selectedPoolName}`
+      ),
     ]);
 
     const epochStrikes = epochData.strikes;
@@ -220,6 +226,7 @@ export const createSsovV3Slice: StateCreator<
       APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
+      rewards: rewardsPayLoad.data.rewards,
     };
 
     set((prevState) => ({ ...prevState, ssovEpochData: _ssovEpochData }));
@@ -249,10 +256,7 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
-    const ssov =
-      selectedPoolName === 'ETH-CALLS-SSOV-V3'
-        ? OldSsovV3__factory.connect(ssovAddress, provider)
-        : SsovV3__factory.connect(ssovAddress, provider);
+    const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       ssovViewerAddress,

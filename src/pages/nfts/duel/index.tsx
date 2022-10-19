@@ -197,9 +197,8 @@ const DuelPepes = () => {
               className="text-[#78859E] text-center md:leading-10 z-1 relative font-['Minecraft']"
             >
               Duel other Diamond Pepes in a commit-reveal based async game where
-              any whitelisted NFT holder, starting with Gen 2 Diamond Pepes can
-              create duels by submitting a token, wager amount and signature of
-              their initial selected moves.
+              a player can create duels by submitting a token, wager amount and
+              signature of their initial selected moves.
             </Typography>
           </Box>
 
@@ -233,8 +232,9 @@ const DuelPepes = () => {
               className={'w-5 h-5 ml-auto mt-1'}
               alt={'How to mint'}
               onClick={() =>
-                window.location.replace(
-                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint'
+                window.open(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint',
+                  '_blank'
                 )
               }
             />
@@ -242,8 +242,9 @@ const DuelPepes = () => {
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
               onClick={() =>
-                window.location.replace(
-                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint'
+                window.open(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint',
+                  '_blank'
                 )
               }
             >
@@ -255,8 +256,9 @@ const DuelPepes = () => {
               className={'w-5 h-5 ml-8 mt-1'}
               alt={'UI Walkthrough'}
               onClick={() =>
-                window.location.replace(
-                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough'
+                window.open(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough',
+                  '_blank'
                 )
               }
             />
@@ -264,8 +266,9 @@ const DuelPepes = () => {
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
               onClick={() =>
-                window.location.replace(
-                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough'
+                window.open(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough',
+                  '_blank'
                 )
               }
             >
@@ -277,8 +280,9 @@ const DuelPepes = () => {
               className={'w-5 h-5 ml-8 mt-1'}
               alt={'Claim Lootbox'}
               onClick={() =>
-                window.location.replace(
-                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox'
+                window.open(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox',
+                  '_blank'
                 )
               }
             />
@@ -286,8 +290,9 @@ const DuelPepes = () => {
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
               onClick={() =>
-                window.location.replace(
-                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox'
+                window.open(
+                  'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox',
+                  '_blank'
                 )
               }
             >
@@ -299,14 +304,14 @@ const DuelPepes = () => {
               className={'w-5 h-5 ml-8 mt-1'}
               alt={'Pepe tweet'}
               onClick={() =>
-                window.location.replace('https://twitter.com/chutoro_au')
+                window.open('https://twitter.com/chutoro_au', '_blank')
               }
             />
             <Typography
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-4 mt-1 cursor-pointer"
               onClick={() =>
-                window.location.replace('https://twitter.com/chutoro_au')
+                window.open('https://twitter.com/chutoro_au', '_blank')
               }
             >
               <span className={styles['pepeLink']}>CEO</span>

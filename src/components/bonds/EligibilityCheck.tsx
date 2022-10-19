@@ -216,8 +216,8 @@ export const EligibilityCheck = ({
             About Eligibility
           </Typography>
           <Typography variant="caption" color="stieglitz">
-            Every eligible Bridgoor NFT can only be used once. Always check here
-            if IDs from Secondary Markets have already been used.
+            Every eligible Bridgoor NFT can only be used once per epoch. Always
+            check here if IDs from Secondary Markets have already been used.
           </Typography>
         </Box>
       </Box>

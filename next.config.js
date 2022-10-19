@@ -7,17 +7,32 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/nfts/duel',
+        destination: '/straddles',
         permanent: false,
       },
       {
-        source: '/diamondpepes2',
-        destination: '/nfts/diamondpepes2',
+        source: '/ir',
+        destination: '/straddles',
         permanent: false,
       },
       {
-        source: '/proof',
-        destination: '/nft/proof',
+        source: '/ir/:path*',
+        destination: '/straddles',
+        permanent: false,
+      },
+      {
+        source: '/ssov-v3/:path*',
+        destination: '/ssov/:path*',
+        permanent: false,
+      },
+      {
+        source: '/otc',
+        destination: '/straddles',
+        permanent: false,
+      },
+      {
+        source: '/otc/chat',
+        destination: '/straddles',
         permanent: false,
       },
     ];

@@ -209,7 +209,12 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
   }, [action, error, lockPeriod, value]);
 
   return (
-    <Dialog open={open} showCloseIcon handleClose={handleClose}>
+    <Dialog
+      open={open}
+      showCloseIcon
+      handleClose={handleClose}
+      disableScrollLock={true}
+    >
       <Box className="flex flex-col space-y-3">
         <Typography variant="h5">Lock DPX</Typography>
         <Input

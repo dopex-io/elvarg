@@ -70,7 +70,7 @@ const AppLink = ({
   } else {
     return (
       <Link href={to} passHref>
-        <Box className={linkClassName}>{name}</Box>
+        <a className={linkClassName}>{name}</a>
       </Link>
     );
   }
@@ -101,7 +101,7 @@ const appLinks = {
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
-    { name: 'Rate Vaults', to: '/ir' },
+    // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
   ],
@@ -115,7 +115,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
-  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes2' },
+  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
   { name: 'Tzwap', to: '/tzwap' },
@@ -147,6 +147,7 @@ export default function AppBar(props: AppBarProps) {
   const {
     accountAddress,
     connect,
+    provider,
     wrongNetwork,
     chainId,
     ensName,
@@ -207,7 +208,7 @@ export default function AppBar(props: AppBarProps) {
 
   useEffect(() => {
     updateAssetBalances();
-  }, [updateAssetBalances]);
+  }, [updateAssetBalances, provider]);
 
   const menuItems = useMemo(() => {
     return [
@@ -284,17 +285,17 @@ export default function AppBar(props: AppBarProps) {
                     return (
                       <AppLink
                         to={link.to}
-                        // TODO: FIX
-                        // @ts-ignore
-                        name={link.name}
+                        name={link.name!}
                         key={link.name}
                         active
                       />
                     );
                   return (
-                    // @TODO: FIX
-                    // @ts-ignore
-                    <AppLink to={link.to} name={link.name} key={link.name} />
+                    <AppLink
+                      to={link.to}
+                      name={String(link.name!)}
+                      key={link.name}
+                    />
                   );
                 }
               )}

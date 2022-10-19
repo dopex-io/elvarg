@@ -15,10 +15,12 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
   currentEpoch: number;
+  currentExpiry: BigNumber;
   underlying: string;
   usd: string;
   isVaultReady: boolean;
   isEpochExpired: boolean;
+  blackoutPeriodBeforeExpiry: BigNumber;
 }
 
 export interface StraddlesEpochData {
@@ -42,7 +44,7 @@ export interface StraddlesEpochData {
 }
 
 export interface WritePosition {
-  epoch: number;
+  epoch: BigNumber;
   usdDeposit: BigNumber;
   rollover: BigNumber;
   premiumFunding: BigNumber;
@@ -297,6 +299,10 @@ export const createStraddlesSlice: StateCreator<
 
     const isVaultReady = await straddlesContract!['isVaultReady'](currentEpoch);
 
+    const blackOut = await straddlesContract!['blackoutPeriodBeforeExpiry']();
+
+    const epochData = await straddlesContract!['epochData'](currentEpoch);
+
     setSelectedEpoch(currentEpoch);
 
     set((prevState) => ({
@@ -305,9 +311,11 @@ export const createStraddlesSlice: StateCreator<
         usd: usd,
         underlying: underlying,
         currentEpoch: Number(currentEpoch),
+        currentExpiry: epochData.expiry,
         straddlesContract: straddlesContract,
         isVaultReady: isVaultReady,
         isEpochExpired: isEpochExpired,
+        blackoutPeriodBeforeExpiry: blackOut,
       },
     }));
   },
@@ -332,7 +340,12 @@ export const createStraddlesSlice: StateCreator<
     );
   },
   getStraddlesWritePosition: async (id: BigNumber) => {
-    const { getStraddlesContract, accountAddress, straddlesEpochData } = get();
+    const {
+      getStraddlesContract,
+      accountAddress,
+      straddlesEpochData,
+      straddlesData,
+    } = get();
     const straddlesContract = getStraddlesContract();
 
     try {
@@ -344,9 +357,12 @@ export const createStraddlesSlice: StateCreator<
       const totalPremiumFunding = straddlesEpochData!.usdPremiums.add(
         straddlesEpochData!.usdFunding
       );
-      const premiumFunding = data.usdDeposit
-        .mul(totalPremiumFunding)
-        .div(straddlesEpochData!.usdDeposits);
+      const premiumFunding =
+        data['epoch'].toNumber() === straddlesData?.currentEpoch
+          ? data.usdDeposit
+              .mul(totalPremiumFunding)
+              .div(straddlesEpochData!.usdDeposits)
+          : BigNumber.from(0);
 
       return {
         id: id,
