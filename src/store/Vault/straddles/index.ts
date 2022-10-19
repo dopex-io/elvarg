@@ -15,6 +15,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 export interface StraddlesData {
   straddlesContract: AtlanticStraddle | undefined;
   currentEpoch: number;
+  currentExpiry: BigNumber;
   underlying: string;
   usd: string;
   isVaultReady: boolean;
@@ -300,6 +301,8 @@ export const createStraddlesSlice: StateCreator<
 
     const blackOut = await straddlesContract!['blackoutPeriodBeforeExpiry']();
 
+    const epochData = await straddlesContract!['epochData'](currentEpoch);
+
     setSelectedEpoch(currentEpoch);
 
     set((prevState) => ({
@@ -308,6 +311,7 @@ export const createStraddlesSlice: StateCreator<
         usd: usd,
         underlying: underlying,
         currentEpoch: Number(currentEpoch),
+        currentExpiry: epochData.expiry,
         straddlesContract: straddlesContract,
         isVaultReady: isVaultReady,
         isEpochExpired: isEpochExpired,
