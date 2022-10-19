@@ -20,6 +20,7 @@ const SsovOption = (props: {
     underlying: string;
     type: string;
     strike: BigNumber;
+    token: string;
   };
 }) => {
   const { option } = props;
@@ -43,6 +44,16 @@ const SsovOption = (props: {
       );
     } else {
       try {
+        const optionTokenContract = new ethers.Contract(
+          option.token,
+          ['function approve(address, uint256)'],
+          signer
+        );
+
+        await sendTx(
+          optionTokenContract['approve'](option.ssovAddress, option.balance)
+        );
+
         const contract = new ethers.Contract(
           option.ssovAddress,
           [
