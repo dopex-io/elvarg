@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { BigNumber } from 'ethers';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -68,7 +69,10 @@ const PositionsTable = () => {
                     >
                       <Typography variant="h6" className="pr-7 pt-[2px]">
                         {formatAmount(
-                          getUserReadableAmount(position.amount, 18),
+                          getUserReadableAmount(
+                            position.amount.div(BigNumber.from(2)),
+                            18
+                          ),
                           8
                         )}
                       </Typography>

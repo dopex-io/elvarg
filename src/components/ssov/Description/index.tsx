@@ -6,7 +6,7 @@ import format from 'date-fns/format';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { SsovV3EpochData, SsovV3Data } from 'store/Vault/ssov';
+import { SsovV3EpochData, SsovV3Data, Reward } from 'store/Vault/ssov';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -29,7 +29,7 @@ const Description = ({
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
   const { accountAddress, connect } = useBoundStore();
 
-  const { APY, TVL } = ssovEpochData;
+  const { APY, TVL, rewards } = ssovEpochData;
 
   const [wrapOpen, setWrapOpen] = useState(false);
 
@@ -39,6 +39,32 @@ const Description = ({
 
   const epochStartTime = Number(ssovEpochData.epochTimes[0]?.toNumber());
   const epochEndTime = Number(ssovEpochData.epochTimes[1]?.toNumber());
+
+  const Incentives = () => {
+    if (rewards?.length === 0) {
+      return (
+        <Typography variant="h5" className="text-stieglitz mb-5">
+          -
+        </Typography>
+      );
+    }
+
+    return (
+      <Box className="mb-5">
+        {rewards?.map((rewardInfo: Reward, idx: number) => {
+          return (
+            <Typography key={idx} variant="h5" className="text-stieglitz">
+              {formatAmount(
+                getUserReadableAmount(rewardInfo.amount.hex, 18),
+                2
+              )}{' '}
+              {rewardInfo.rewardToken}
+            </Typography>
+          );
+        })}
+      </Box>
+    );
+  };
 
   const info = [
     {
@@ -85,6 +111,10 @@ const Description = ({
         <br />
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
+      <Typography variant="h5" className="text-stieglitz">
+        <span className="text-white">Current incentives</span>
+      </Typography>
+      <Incentives />
       <EpochSelector className="mb-6" />
       {ssovEpochData.isEpochExpired ? (
         <Box className="mb-3">

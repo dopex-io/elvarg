@@ -19,6 +19,7 @@ export interface StraddlesData {
   usd: string;
   isVaultReady: boolean;
   isEpochExpired: boolean;
+  blackoutPeriodBeforeExpiry: BigNumber;
 }
 
 export interface StraddlesEpochData {
@@ -104,9 +105,7 @@ export const createStraddlesSlice: StateCreator<
   },
   straddlesUserData: {},
   updateStraddlesEpochData: async () => {
-    const { selectedEpoch, getStraddlesContract, provider } = get();
-
-    console.log('straddles', provider);
+    const { selectedEpoch, getStraddlesContract } = get();
 
     const straddlesContract = getStraddlesContract();
 
@@ -299,6 +298,8 @@ export const createStraddlesSlice: StateCreator<
 
     const isVaultReady = await straddlesContract!['isVaultReady'](currentEpoch);
 
+    const blackOut = await straddlesContract!['blackoutPeriodBeforeExpiry']();
+
     setSelectedEpoch(currentEpoch);
 
     set((prevState) => ({
@@ -310,6 +311,7 @@ export const createStraddlesSlice: StateCreator<
         straddlesContract: straddlesContract,
         isVaultReady: isVaultReady,
         isEpochExpired: isEpochExpired,
+        blackoutPeriodBeforeExpiry: blackOut,
       },
     }));
   },
