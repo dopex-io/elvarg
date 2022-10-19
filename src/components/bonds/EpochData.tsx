@@ -173,6 +173,8 @@ export const EpochData = ({
             <a
               className="text-[#22E1FF] mt-2 "
               href="https://tofunft.com/collection/dopex-bridgoor/items"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               TofuNFT <LaunchIcon className="w-4" />
             </a>
