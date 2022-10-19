@@ -197,11 +197,8 @@ const Farms = () => {
                     return (
                       <ClaimCard
                         key={index}
-                        stakingTokenSymbol={_farm.stakingTokenSymbol}
-                        stakingRewardsAddress={_farm.stakingRewardsAddress}
+                        farm={_farm}
                         userRewardsEarned={item.userRewardsEarned}
-                        rewardTokens={_farm.rewardTokens}
-                        version={_farm.version}
                       />
                     );
                   }

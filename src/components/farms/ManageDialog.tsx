@@ -55,7 +55,7 @@ const ManageDialog = (props: Props) => {
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer, accountAddress, getUserData } = useBoundStore();
+  const { signer, accountAddress } = useBoundStore();
 
   const sendTx = useSendTx();
 
@@ -115,14 +115,13 @@ const ManageDialog = (props: Props) => {
           signer
         ).stake(utils.parseEther(amount))
       );
-      await getUserData();
       setLoading(false);
       handleClose();
     } catch (err) {
       setLoading(false);
       console.log(err);
     }
-  }, [signer, sendTx, amount, data, getUserData, handleClose]);
+  }, [signer, sendTx, amount, data, handleClose]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
@@ -151,7 +150,6 @@ const ManageDialog = (props: Props) => {
           data.stakingRewardsAddress,
           signer
         ).unstake(utils.parseEther(amount));
-        await getUserData();
         handleClose();
       } else {
         await sendTx(
@@ -166,7 +164,7 @@ const ManageDialog = (props: Props) => {
       setLoading(false);
       console.log(err);
     }
-  }, [signer, accountAddress, data, amount, getUserData, handleClose, sendTx]);
+  }, [signer, accountAddress, data, amount, handleClose, sendTx]);
 
   const approved = useMemo(() => {
     return allowance.gte(utils.parseEther(value || '0'));

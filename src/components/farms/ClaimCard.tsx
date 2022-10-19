@@ -15,27 +15,22 @@ import Stat from './Stat';
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
+import { Farm } from 'types/farms';
 
 interface Props {
-  stakingTokenSymbol: string;
-  stakingRewardsAddress: string;
   userRewardsEarned: BigNumber[];
-  rewardTokens: { symbol: string; address: string }[];
-  version: number;
+  farm: Farm;
 }
 
 const ClaimCard = (props: Props) => {
-  const {
-    stakingTokenSymbol,
-    stakingRewardsAddress,
-    userRewardsEarned,
-    rewardTokens,
-    version,
-  } = props;
+  const { userRewardsEarned, farm } = props;
+
+  const { stakingRewardsAddress, stakingTokenSymbol, version, rewardTokens } =
+    farm;
 
   const sendTx = useSendTx();
 
-  const { signer } = useBoundStore();
+  const { signer, getUserData } = useBoundStore();
 
   const handleClaim = useCallback(async () => {
     if (!signer) return;
@@ -55,10 +50,11 @@ const ClaimCard = (props: Props) => {
 
         await sendTx(stakingRewardsContract.getReward(2));
       }
+      getUserData(farm);
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, stakingRewardsAddress, version]);
+  }, [signer, sendTx, stakingRewardsAddress, version, getUserData, farm]);
 
   return (
     <Box className="bg-cod-gray rounded-2xl p-3 flex flex-col space-y-3 w-80">
