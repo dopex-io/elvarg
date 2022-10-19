@@ -172,8 +172,17 @@ const ManageDialog = (props: Props) => {
     return allowance.gte(utils.parseEther(value || '0'));
   }, [allowance, value]);
 
+  const _handleClose = () => {
+    setActiveTab(0);
+    setError('');
+    setValue('');
+    setAllowance(BigNumber.from(0));
+    setLoading(false);
+    handleClose();
+  };
+
   return (
-    <Dialog open={open} showCloseIcon handleClose={handleClose}>
+    <Dialog open={open} showCloseIcon handleClose={_handleClose}>
       <Box className="flex flex-col space-y-3">
         <Typography variant="h5">Manage</Typography>
         <Box className="flex flex-row justify-between p-1 border-[1px] border-umbra rounded-md">
