@@ -5,7 +5,6 @@ import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Input from '@mui/material/Input';
-import Tooltip from '@mui/material/Tooltip';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -13,7 +12,6 @@ import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
-import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 
 import { useBoundStore } from 'store';
 
@@ -280,14 +278,6 @@ const DepositCard = () => {
           <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
             <EstimatedGasCostButton gas={5000000} chainId={chainId} />
           </Box>
-          <Tooltip title="Not available yet">
-            <Box className="bg-mineshaft rounded-md flex items-center pr-2 pl-3.5 py-3 cursor-pointer">
-              <CalculatorIcon className="w-3 h-3" />
-              <Typography variant="h6" className="mx-2 pl-1">
-                Payout Calculator
-              </Typography>
-            </Box>
-          </Tooltip>
           <Box className="flex items-center mt-5 mb-5">
             <LockOutlinedIcon className="w-5 h-5 text-gray-400" />
             <Box>
