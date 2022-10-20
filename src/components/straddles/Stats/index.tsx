@@ -87,7 +87,7 @@ const Stats = () => {
   }
 
   return (
-    <Box className="md:flex text-gray-400">
+    <Box className="md:flex grid grid-cols-3 text-gray-400">
       <Box className="w-full">
         <Box className="border rounded-tl-lg border-neutral-800 p-2">
           <Typography variant="h6" className="mb-1 text-gray-400">
@@ -107,6 +107,12 @@ const Stats = () => {
                     background:
                       'linear-gradient(to right bottom, #06b6d4, #1d4ed8)',
                   },
+                  height: 150,
+                },
+                PaperProps: {
+                  style: {
+                    width: 70,
+                  },
                 },
               }}
               classes={{
@@ -122,21 +128,21 @@ const Stats = () => {
             <Button
               size="small"
               color="secondary"
-              className="mx-2 text-gray-500 text-md h-8 py-3 px-2 hover:text-gray-200 hover:bg-mineshaft bg-neutral-800"
+              className="ml-4 text-gray-500 text-md h-8 py-3 hover:text-gray-200 hover:bg-mineshaft bg-neutral-800"
             >
               <Countdown
                 date={epochEndTime}
                 renderer={({ days, hours, minutes }) => {
                   return (
-                    <Box className={'flex'}>
+                    <Box className="flex">
                       <img
                         src="/assets/timer.svg"
-                        className="h-[1rem] mt-1 mr-2 ml-1"
+                        className="h-[1rem] mt-1 mr-2"
                         alt="Timer"
                       />
                       <Typography
-                        variant="h5"
-                        className="ml-auto text-stieglitz mr-1 text-sm"
+                        variant="h6"
+                        className="ml-auto text-stieglitz mr-1 text-[12px]"
                       >
                         {days}d {hours}h {minutes}m
                       </Typography>

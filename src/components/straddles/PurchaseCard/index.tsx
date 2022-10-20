@@ -11,7 +11,6 @@ import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import PnlChart from '../PnlChart';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 import InfoBox from '../infoBox';
 
 import { useBoundStore } from 'store';
@@ -295,14 +294,6 @@ const PurchaseCard = () => {
           <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
             <EstimatedGasCostButton gas={5000000} chainId={chainId} />
           </Box>
-          <Tooltip title="Not available yet">
-            <Box className="bg-mineshaft rounded-md flex items-center pr-2 pl-3.5 py-3 cursor-pointer">
-              <CalculatorIcon className="w-3 h-3" />
-              <Typography variant="h6" className="mx-2 pl-1">
-                Payout Calculator
-              </Typography>
-            </Box>
-          </Tooltip>
           {isBlackout && (
             <Tooltip title="There is a 4-hour blackout window before expiry when purchasing cannot occur">
               <Box className="bg-mineshaft rounded-md flex justify-center pr-2 pl-3.5 py-3 cursor-pointer mt-3">
