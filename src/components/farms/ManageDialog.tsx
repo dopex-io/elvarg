@@ -146,10 +146,12 @@ const ManageDialog = (props: Props) => {
     try {
       setLoading(true);
       if (data.version === 3) {
-        await StakingRewardsV3__factory.connect(
-          data.stakingRewardsAddress,
-          signer
-        ).unstake(utils.parseEther(amount));
+        await sendTx(
+          StakingRewardsV3__factory.connect(
+            data.stakingRewardsAddress,
+            signer
+          ).unstake(utils.parseEther(amount))
+        );
         handleClose();
       } else {
         await sendTx(
