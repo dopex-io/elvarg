@@ -11,6 +11,7 @@ import { BaseNFT } from '@dopex-io/sdk';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
+import MarketplaceLink from 'components/nfts/components/MarketplaceLink';
 
 import BalanceTree from 'utils/merkle/balance-tree';
 
@@ -26,10 +27,11 @@ interface ClaimDialogProps {
   handleClose: () => void;
   index: number;
   name: string;
+  symbol: string;
 }
 
 const ClaimDialog = (props: ClaimDialogProps) => {
-  const { open, handleClose, index, name } = props;
+  const { open, handleClose, index, name, symbol } = props;
 
   const { accountAddress, userNftsData } = useBoundStore();
 
@@ -185,6 +187,18 @@ const ClaimDialog = (props: ClaimDialogProps) => {
             </Typography>
           )
         ) : null}
+        <Box>
+          <MarketplaceLink
+            label="Buy on Opensea"
+            id={symbol}
+            marketId="opensea"
+          />
+          <MarketplaceLink
+            label="Buy on TofuNFT"
+            id={symbol}
+            marketId="tofunft"
+          />
+        </Box>
         <CustomButton
           size="large"
           fullWidth

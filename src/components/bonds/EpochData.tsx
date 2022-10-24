@@ -166,16 +166,32 @@ export const EpochData = ({
           <Box className="flex">
             <Box
               onClick={handleEligibilityModal}
-              className="bg-mineshaft text-white test-xs p-2 rounded-md mr-5 cursor-pointer"
+              className="bg-mineshaft text-white test-xs p-2 rounded-md mr-5 cursor-pointer my-auto"
             >
               Check Eligibility
             </Box>
-            <a
-              className="text-[#22E1FF] mt-2 "
-              href="https://tofunft.com/collection/dopex-bridgoor/items"
-            >
-              TofuNFT <LaunchIcon className="w-4" />
-            </a>
+            <Box className="flex flex-col">
+              <Typography variant="h6" className="my-auto">
+                <a
+                  className="text-wave-blue hover:underline underline-offset-1"
+                  href="https://tofunft.com/collection/dopex-bridgoor/items"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  TofuNFT <LaunchIcon className="w-3" />
+                </a>
+              </Typography>
+              <Typography variant="h6" className="my-auto mr-2">
+                <a
+                  className="text-wave-blue hover:underline underline-offset-1"
+                  href="https://opensea.io/collection/dopex-bridgoor-nft"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Opensea <LaunchIcon className="w-3" />
+                </a>
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Box>
