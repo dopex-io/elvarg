@@ -1,13 +1,11 @@
 import Head from 'next/head';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 
 import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-
-import { Duel, DuelContext, DuelProvider } from 'contexts/Duel';
-
 import AppBar from 'components/common/AppBar';
 import Typography from 'components/UI/Typography';
 
@@ -23,9 +21,9 @@ import formatAmount from 'utils/general/formatAmount';
 import useSendTx from 'hooks/useSendTx';
 
 import { useBoundStore } from 'store';
+import { Duel } from 'store/Duel';
 
 import styles from 'components/nfts/duel/styles.module.scss';
-import Countdown from 'react-countdown';
 
 const DuelPepes = () => {
   const {
@@ -37,7 +35,7 @@ const DuelPepes = () => {
     availableCredit,
     updateCredit,
     data,
-  } = useContext(DuelContext);
+  } = useBoundStore();
   const { signer } = useBoundStore();
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
     useState<boolean>(false);
@@ -156,6 +154,14 @@ const DuelPepes = () => {
         : [],
     [data]
   );
+
+  useEffect(() => {
+    if (updateDuels) updateDuels();
+  }, [updateDuels]);
+
+  useEffect(() => {
+    if (updateCredit) updateCredit();
+  }, [updateCredit]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -526,10 +532,4 @@ const DuelPepes = () => {
   );
 };
 
-const DuelPepesPage = () => (
-  <DuelProvider>
-    <DuelPepes />
-  </DuelProvider>
-);
-
-export default DuelPepesPage;
+export default DuelPepes;

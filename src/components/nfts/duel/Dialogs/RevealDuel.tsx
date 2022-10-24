@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-} from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -16,8 +10,6 @@ import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
-
-import { DuelContext } from 'contexts/Duel';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -34,9 +26,9 @@ export interface Props {
 const feesPercentage = 80;
 
 const RevealDuel = ({ open, handleClose }: Props) => {
-  const { chainId, signer } = useBoundStore();
+  const { chainId, signer, duelContract, updateDuels, selectedDuel } =
+    useBoundStore();
   const sendTx = useSendTx();
-  const { duelContract, updateDuels, selectedDuel } = useContext(DuelContext);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);

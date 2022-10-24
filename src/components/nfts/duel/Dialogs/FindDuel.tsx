@@ -1,11 +1,7 @@
-import React, {
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-} from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
+
+import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -19,8 +15,6 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { DuelContext } from 'contexts/Duel';
-
 import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -29,9 +23,9 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
-import styles from './styles.module.scss';
-import { BigNumber } from 'ethers';
 import { useBoundStore } from 'store';
+
+import styles from './styles.module.scss';
 
 export interface Props {
   open: boolean;
@@ -41,9 +35,16 @@ export interface Props {
 const feesPercentage = 80;
 
 const FindDuel = ({ open, handleClose }: Props) => {
-  const { chainId, signer, contractAddresses, accountAddress, provider } =
-    useBoundStore();
-  const { duelContract, updateDuels, selectedDuel } = useContext(DuelContext);
+  const {
+    chainId,
+    signer,
+    contractAddresses,
+    accountAddress,
+    provider,
+    duelContract,
+    updateDuels,
+    selectedDuel,
+  } = useBoundStore();
   const sendTx = useSendTx();
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);

@@ -1,15 +1,14 @@
 import React, { useMemo } from 'react';
 import Box from '@mui/material/Box';
+import Countdown from 'react-countdown';
 
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
 
 import { useBoundStore } from 'store';
-
-import { Duel } from 'contexts/Duel';
+import { Duel } from 'store/Duel';
 
 import styles from '../styles.module.scss';
-import Countdown from 'react-countdown';
 
 const ActiveDuel = ({
   duel,

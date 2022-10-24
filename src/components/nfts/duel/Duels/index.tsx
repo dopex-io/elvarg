@@ -1,7 +1,6 @@
-import { useContext } from 'react';
 import cx from 'classnames';
 
-import styles from '../styles.module.scss';
+import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -12,17 +11,17 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 
-import { DuelContext } from 'contexts/Duel';
-
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
-import Countdown from 'react-countdown';
+import { useBoundStore } from 'store';
+
+import styles from '../styles.module.scss';
 
 export const Duels = ({ findDuel }: { findDuel: Function }) => {
-  const { duels, isLoading } = useContext(DuelContext);
+  const { duels } = useBoundStore();
 
   const onImgSrcError = (
     event: React.SyntheticEvent<HTMLImageElement, Event>
@@ -35,7 +34,7 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
     <Box className={'bg-[#181C24] w-full p-4 pt-2 pb-4.5 pb-0 rounded-sm'}>
       <Box className="balances-table text-white">
         <TableContainer className={cx(styles['optionsTable'], 'bg-[#181C24]')}>
-          {isLoading ? (
+          {duels.length === 0 ? (
             <Box>
               <Box className={cx('rounded-lg text-center mt-1')}>
                 <CircularProgress size={25} className={'mt-10'} />
@@ -207,13 +206,6 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
             </Table>
           ) : null}
         </TableContainer>
-        {duels.length == 0 && !isLoading ? (
-          <Box className="text-stieglitz text-center pt-8 pb-9">
-            <Typography variant="h6" className="text-white font-['Minecraft']">
-              No active duels to show
-            </Typography>
-          </Box>
-        ) : null}
       </Box>
     </Box>
   );

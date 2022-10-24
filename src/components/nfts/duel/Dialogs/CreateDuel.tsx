@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-} from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 
@@ -22,8 +16,6 @@ import TokenSelector from 'components/common/TokenSelector';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
-
-import { DuelContext } from 'contexts/Duel';
 
 import formatAmount from 'utils/general/formatAmount';
 import downloadTxt from 'utils/general/downloadTxt';
@@ -50,9 +42,15 @@ export interface Props {
 const feesPercentage = 80;
 
 const CreateDuel = ({ open, handleClose }: Props) => {
-  const { chainId, signer, contractAddresses, accountAddress, provider } =
-    useBoundStore();
-  const { duelContract, updateDuels } = useContext(DuelContext);
+  const {
+    chainId,
+    signer,
+    contractAddresses,
+    accountAddress,
+    provider,
+    updateDuels,
+    duelContract,
+  } = useBoundStore();
   const sendTx = useSendTx();
   const [tokenName, setTokenName] = useState<string>('WETH');
   const [wager, setWager] = useState<number>(1);
