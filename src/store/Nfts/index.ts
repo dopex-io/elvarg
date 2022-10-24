@@ -8,6 +8,7 @@ import getTokenUri from 'utils/contracts/getTokenUri';
 
 export interface NftData {
   nftName: string;
+  nftSymbol: string;
   nftUri: string;
 }
 
@@ -43,13 +44,15 @@ export const createNftsSlice: StateCreator<
         provider
       );
 
-      const [nftName, nftUri] = await Promise.all([
+      const [nftName, nftSymbol, nftUri] = await Promise.all([
         nftContract.name(),
+        nftContract.symbol(),
         getTokenUri(nftContract),
       ]);
 
       nftsData.push({
         nftName: nftName,
+        nftSymbol: nftSymbol ?? '',
         nftUri: nftUri ?? '',
       });
     }
