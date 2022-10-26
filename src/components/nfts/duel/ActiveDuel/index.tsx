@@ -63,9 +63,12 @@ const ActiveDuel = ({
     <Box className="w-full flex p-5 bg-[#181C24] relative">
       <img
         src={`https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['duelist']}/280/static.jpg`}
-        className="rounded-md w-14 h-14 mt-1 mr-3"
+        className="rounded-md w-14 h-14 mt-1 mr-3 cursor-pointer"
         alt={'Duelist'}
         onError={onImgSrcError}
+        onClick={() =>
+          window.open('https://arbiscan.io/address/' + duel['duelistAddress'])
+        }
       />
       <Box>
         <Typography
@@ -255,8 +258,15 @@ const ActiveDuel = ({
             : `https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/${duel['challenger']}/280/static.jpg`
         }
         onError={onImgSrcError}
+        alt={duel['challengerAddress']}
         className="rounded-md w-14 h-14 ml-6 mt-1"
-        alt="?"
+        onClick={() =>
+          window.open(
+            duel['challengerAddress'] === '?'
+              ? '#'
+              : 'https://arbiscan.io/address/' + duel['challengerAddress']
+          )
+        }
       />
 
       {['won', 'lost'].includes(duel['status']) && !duel['isCreatorWinner'] ? (
