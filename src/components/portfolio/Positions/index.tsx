@@ -23,6 +23,69 @@ import formatAmount from 'utils/general/formatAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
 
+const headerCells: { [key: string]: { span: number; title: string }[] } = {
+  ssov: [
+    {
+      span: 2,
+      title: 'Asset',
+    },
+    {
+      span: 1,
+      title: 'Market',
+    },
+    {
+      span: 1,
+      title: 'Side',
+    },
+    {
+      span: 1,
+      title: 'Epoch',
+    },
+    {
+      span: 1,
+      title: 'Strike',
+    },
+    {
+      span: 1,
+      title: 'Amount',
+    },
+    {
+      span: 1,
+      title: 'Pnl',
+    },
+    {
+      span: 1,
+      title: 'Action',
+    },
+  ],
+  straddle: [
+    {
+      span: 2,
+      title: 'Asset',
+    },
+    {
+      span: 2,
+      title: 'Market',
+    },
+    {
+      span: 2,
+      title: 'Amount',
+    },
+    {
+      span: 2,
+      title: 'AP Strike',
+    },
+    {
+      span: 2,
+      title: 'Epoch',
+    },
+    {
+      span: 1,
+      title: 'Action',
+    },
+  ],
+};
+
 export default function Positions() {
   const { portfolioData } = useBoundStore();
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
@@ -120,58 +183,16 @@ export default function Positions() {
             <Box className="py-2">
               {filteredSSOVPositions.length > 0 ? (
                 <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Asset</span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Market</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Side</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Epoch</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Strike</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Amount</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">PnL</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Expiry</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Action</span>
-                    </Typography>
-                  </Box>
+                  {headerCells['ssov']!.map((cell, i) => (
+                    <Box
+                      key={i}
+                      className={`col-span-${cell['span']} text-left`}
+                    >
+                      <Typography variant="h5">
+                        <span className="text-stieglitz">{cell['title']}</span>
+                      </Typography>
+                    </Box>
+                  ))}
                 </Box>
               ) : null}
               {filteredSSOVPositions.map((position, i) => (
@@ -289,38 +310,16 @@ export default function Positions() {
                   )}
                   gap={0}
                 >
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Asset</span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Market</span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Amount</span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">AP Strike</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-2 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Epoch</span>
-                    </Typography>
-                  </Box>
-
-                  <Box className="col-span-1 text-left">
-                    <Typography variant="h5">
-                      <span className="text-stieglitz">Action</span>
-                    </Typography>
-                  </Box>
+                  {headerCells['straddle']!.map((cell, i) => (
+                    <Box
+                      key={i}
+                      className={`col-span-${cell['span']} text-left`}
+                    >
+                      <Typography variant="h5">
+                        <span className="text-stieglitz">{cell['title']}</span>
+                      </Typography>
+                    </Box>
+                  ))}
                 </Box>
               ) : null}
               {filteredStraddlesPositions.map((position, i) => (
