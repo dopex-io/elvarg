@@ -146,6 +146,12 @@ const FindDuel = ({ open, handleClose }: Props) => {
     setIsSelectingMoves(false);
   }, [moves, atLeastOneBlock]);
 
+  const goBack = () => {
+    setMoves([]);
+
+    setIsSelectingMoves(false);
+  };
+
   const handleMatch = useCallback(async () => {
     if (!signer || !accountAddress || !duelContract || !updateDuels) return;
     if (moves.length < 5) return;
@@ -422,7 +428,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
           <Box className="flex flex-row items-center mb-4">
             <IconButton
               className="p-0 pb-1 mr-auto mt-0.5 ml-0"
-              onClick={saveMoves}
+              onClick={goBack}
               size="large"
             >
               <img
