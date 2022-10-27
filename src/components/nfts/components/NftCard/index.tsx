@@ -26,25 +26,33 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
   const {
     balance,
     nftName,
+    nftSymbol,
   }: {
     balance: BigNumber;
     nftName: string;
+    nftSymbol: string;
   } = useMemo(() => {
     if (userNftsData.length === 0) {
       return {
         balance: BigNumber.from(0),
         nftName: '',
+        nftSymbol: '',
       };
     } else {
       return {
         balance: userNftsData[index]?.balance ?? BigNumber.from(0),
         nftName: nftData.nftName,
+        nftSymbol: nftData.nftSymbol,
       };
     }
   }, [userNftsData, index, nftData]);
 
   const nft =
-    nftName === 'Dopex Bridgoor NFT' ? 'DopexBridgoorNFT' : 'DopexHalloweenNFT';
+    nftName === 'Dopex Bridgoor NFT'
+      ? 'DopexBridgoorNFT'
+      : nftName === 'Dopex Halloween NFT'
+      ? 'DopexHalloweenNFT'
+      : 'DiamondPepes';
 
   const handleClaimDialogClose = () => setClaimDialog(false);
   const handleTransferDialogClose = () => setTransferDialog(false);
@@ -69,6 +77,7 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
         handleClose={handleClaimDialogClose}
         index={index}
         name={nftName}
+        symbol={nftSymbol}
       />
       <TransferDialog
         open={transferDialog}

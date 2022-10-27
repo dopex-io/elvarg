@@ -5,7 +5,6 @@ import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Input from '@mui/material/Input';
-import Tooltip from '@mui/material/Tooltip';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -13,7 +12,6 @@ import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import RollIcon from 'svgs/icons/RollIcon';
-import CalculatorIcon from 'svgs/icons/CalculatorIcon';
 
 import { useBoundStore } from 'store';
 
@@ -64,26 +62,26 @@ const DepositCard = () => {
   }, [rawAmount]);
 
   const readableExpiry = useMemo(() => {
-    return straddlesEpochData?.expiry.gt(0)
+    return straddlesData?.currentExpiry?.gt(0)
       ? format(
-          new Date(straddlesEpochData.expiry.toNumber() * 1000),
+          new Date(straddlesData.currentExpiry?.toNumber() * 1000),
           'd LLL yyyy'
         )
       : '-';
-  }, [straddlesEpochData]);
+  }, [straddlesData]);
 
   const withdrawableNextEpoch = useMemo(() => {
-    return straddlesEpochData?.expiry.gt(0)
+    return straddlesData?.currentExpiry?.gt(0)
       ? format(
           new Date(
-            straddlesEpochData.expiry
+            straddlesData.currentExpiry
               .add(BigNumber.from(THREE_DAYS))
               .toNumber() * 1000
           ),
           'd LLL yyyy'
         )
       : '-';
-  }, [straddlesEpochData]);
+  }, [straddlesData]);
 
   const vaultShare = useMemo(() => {
     if (!straddlesEpochData) return 0;
@@ -240,17 +238,6 @@ const DepositCard = () => {
           </Box>
         </Box>
       </Box>
-      <Box className="my-4 w-full rounded-lg border border-neutral-800 pt-2 pb-1">
-        <Typography variant="h6" className="mx-2 pb-2">
-          Deposit now for epoch {currentEpoch + 1} that will be bootstrapped on{' '}
-          {readableExpiry}
-        </Typography>
-        <Typography variant="h6" className="mx-2 pb-2 text-gray-400">
-          {straddlesData?.isEpochExpired
-            ? `Current epoch ${currentEpoch} has expired`
-            : `Current epoch ${currentEpoch} ends on ${readableExpiry}`}
-        </Typography>
-      </Box>
       <Box className="mt-4 flex justify-center">
         <Box className="py-2 w-full rounded-tl-lg border border-neutral-800">
           <Typography variant="h6" className="mx-2 text-white">
@@ -291,19 +278,18 @@ const DepositCard = () => {
           <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
             <EstimatedGasCostButton gas={5000000} chainId={chainId} />
           </Box>
-          <Tooltip title="Not available yet">
-            <Box className="bg-mineshaft rounded-md flex items-center pr-2 pl-3.5 py-3 cursor-pointer">
-              <CalculatorIcon className="w-3 h-3" />
-              <Typography variant="h6" className="mx-2 pl-1">
-                Payout Calculator
-              </Typography>
-            </Box>
-          </Tooltip>
           <Box className="flex items-center mt-5 mb-5">
             <LockOutlinedIcon className="w-5 h-5 text-gray-400" />
             <Box>
               <Typography variant="h6" className="text-gray-400 mx-2">
-                Deposit now and withdraw after epoch {currentEpoch + 1} ends on
+                Deposit now for epoch {currentEpoch + 1} that will start on
+                <Typography
+                  variant="h6"
+                  className="text-white inline-flex items-baseline ml-2"
+                >
+                  {readableExpiry}
+                </Typography>{' '}
+                and withdraw after
                 <Typography
                   variant="h6"
                   className="text-white inline-flex items-baseline ml-2"

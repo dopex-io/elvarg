@@ -44,12 +44,17 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     if (
       !bondsContracts ||
       !signer ||
+      !dpxBondsEpochData.epoch ||
       dpxBondsUserEpochData.userClaimableBonds.length < 1
     )
       return;
 
     try {
-      await sendTx(bondsContracts.bondsContract.connect(signer).redeem(1));
+      await sendTx(
+        bondsContracts.bondsContract
+          .connect(signer)
+          .redeem(dpxBondsEpochData.epoch)
+      );
     } catch (e) {
       console.log(e);
     }
@@ -57,7 +62,8 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     return;
   }, [
     bondsContracts,
-    dpxBondsUserEpochData.userClaimableBonds.length,
+    dpxBondsUserEpochData,
+    dpxBondsEpochData,
     sendTx,
     signer,
   ]);

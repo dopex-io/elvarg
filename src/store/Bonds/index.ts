@@ -321,4 +321,13 @@ export const createDpxBondsSlice: StateCreator<
       },
     }));
   },
+  getDepositsPerNftId: async (id: number, epoch: number) => {
+    const { bondsContracts, accountAddress } = get();
+
+    if (!accountAddress || !bondsContracts) return;
+
+    return Number(
+      (await bondsContracts.bondsContract.depositsPerNftId(epoch, id)) || 0
+    );
+  },
 });
