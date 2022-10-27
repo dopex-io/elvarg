@@ -6,6 +6,22 @@ const NETWORKS = {
   1: {
     chainId: '0x1',
   },
+  5: {
+    chainId: '0x5',
+    params: [
+      {
+        chainId: '0x5',
+        chainName: 'Goerli Testnet',
+        nativeCurrency: {
+          name: 'Goerli Testnet',
+          symbol: 'ETH',
+          decimals: 18,
+        },
+        rpcUrls: ['https://eth-goerli.g.alchemy.com/'],
+        blockExplorerUrls: ['https://goerli.etherscan.io/'],
+      },
+    ],
+  },
   56: {
     chainId: '0x38',
     params: [

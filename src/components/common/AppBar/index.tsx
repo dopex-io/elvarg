@@ -109,9 +109,16 @@ const appLinks = {
     // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
+    { name: 'Rate Vaults', to: '/vaults/ir' },
+    { name: 'Straddles', to: '/straddles/ETH' },
+    { name: 'Options LP', to: '/olp' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
+  5: [
+    { name: 'faucet', to: '/faucet' },
+    { name: 'OLP', to: '/olp' },
+  ],
 };
 
 const menuLinks = [
@@ -139,6 +146,7 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
+    | 'OLPs'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
