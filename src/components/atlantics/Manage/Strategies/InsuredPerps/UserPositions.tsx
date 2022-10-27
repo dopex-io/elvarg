@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, SetStateAction } from 'react';
 import {
   GmxVault__factory,
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
-import {
-  Box,
-  Table,
-  TableBody,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
-import CustomButton from 'components/UI/Button';
+import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
+import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import {
   TableHeader,
@@ -63,6 +63,7 @@ const UserPositions = () => {
   const [openManageModal, setOpenManageModal] = useState<boolean>(false);
   const [onOpenSection, setOnOpenSection] = useState<string>('MANAGE_STRATEGY');
   const [, setIsPositionReleased] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpenManageModal = useCallback((section: string) => {
     setOnOpenSection(() => section);
@@ -193,6 +194,29 @@ const UserPositions = () => {
     }
   }, [handleOpenManageModal, setOpenManageModal, userPositionData.state]);
 
+  const handleUseStrategy = useCallback(() => {
+    setOnOpenSection(() => 'USE_STRATEGY');
+    setOpenManageModal(true);
+  }, []);
+  const handleManageStrategy = useCallback(() => {
+    setOnOpenSection(() => 'MANAGE_STRATEGY');
+    setOpenManageModal(true);
+  }, []);
+  const handleManagePosition = useCallback(() => {
+    setOnOpenSection(() => 'MANAGE_POSITION');
+    setOpenManageModal(true);
+  }, []);
+
+  const handleClickMenu = useCallback(
+    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
+      setAnchorEl(event.currentTarget),
+    []
+  );
+
+  const handleCloseMenu = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
+
   useEffect(() => {
     getUserPositions();
   }, [getUserPositions]);
@@ -203,6 +227,35 @@ const UserPositions = () => {
         open={openManageModal}
         setOpen={setOpenManageModal}
       />
+      <CustomButton onClick={handleClickMenu}>Test Modals</CustomButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+        classes={{ paper: 'bg-umbra' }}
+      >
+        <MenuItem
+          key="transfer-options"
+          onClick={handleUseStrategy}
+          className="text-white"
+        >
+          Use Strategy
+        </MenuItem>
+        <MenuItem
+          key="transfer-options"
+          onClick={handleManagePosition}
+          className="text-white"
+        >
+          Manage Position
+        </MenuItem>
+        <MenuItem
+          key="transfer-options"
+          onClick={handleManageStrategy}
+          className="text-white"
+        >
+          Manage Strategy
+        </MenuItem>
+      </Menu>
       {userPositionData.state === 'None' ? (
         <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
           <CustomButton onClick={() => handleOpenManageModal('USE_STRATEGY')}>
