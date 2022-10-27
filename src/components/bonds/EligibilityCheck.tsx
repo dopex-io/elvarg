@@ -96,7 +96,7 @@ export const EligibilityCheck = ({
   };
 
   const handleChange = (e: any) => {
-    let value = e.target.value;
+    let value = Number(e.target.value);
     if (value) {
       handleCheckNft(value);
     } else {
