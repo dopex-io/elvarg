@@ -1,20 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   GmxVault__factory,
-  LongPerpStrategyViewer__factory,
-  LongPerpStrategy__factory,
+  InsuredLongsStrategy__factory,
+  InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
 import {
   Box,
-  MenuItem,
-  Select,
   Table,
   TableBody,
   TableContainer,
   TableHead,
   TableRow,
 } from '@mui/material';
-import { BigNumber } from 'ethers';
+import CustomButton from 'components/UI/Button';
 
 import Typography from 'components/UI/Typography';
 import {
@@ -22,236 +20,202 @@ import {
   TableBodyCell,
 } from 'components/atlantics/Manage/UserDepositsTable';
 
+import ManageModal from './ManageModal';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
-
-import useSendTx from 'hooks/useSendTx';
-
 import { useBoundStore } from 'store';
 
-import { MIN_EXECUTION_FEE } from 'constants/gmx';
-
-interface IGMXPosition {
-  positionSize: string;
-  positionBalance: string;
-  entryPrice: number;
-  leverage: number;
-  status: string;
-  pnl: number;
-  index: number;
-  isCollateralOptionToken: boolean;
-  liquidationPrice: number;
-  putStrike: number;
-  hasBorrowed: boolean;
+interface IUserPositionData {
+  underlying: string;
+  delta: string | number;
+  markPrice: string;
+  entryPrice: string;
+  liquidationPrice: string;
+  leverage: string;
+  putStrike: string;
+  state: string | undefined;
+  collateral: string;
+  depositUnderlying: boolean;
 }
 
-type IGMXPositionArray = [
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  boolean,
-  BigNumber
-];
+export const ActionState: { [key: string]: string } = {
+  '0': 'None', // 0
+  '1': 'Settled', // 1
+  '2': 'Active', // 2
+  '3': 'Increase Pending', // 3
+  '4': 'Decrease Pending', // 4
+  '5': 'Increased', // 5
+  '6': 'Decreased', // 6
+  '7': 'Enable Pending', // 7
+  '8': 'Complete Exit Pending', // 8
+  '9': 'Complete Exit With IncreasePending', // 9
+  '10': 'Exit Strategy Keep Position Pending', // 10
+};
 
 const UserPositions = () => {
-  const { signer, accountAddress, contractAddresses, provider, atlanticPool } =
+  const { signer, accountAddress, contractAddresses, atlanticPool } =
     useBoundStore();
-  const [gmxPositions, setGmxPositions] = useState<IGMXPosition[]>([]);
 
-  const sendTx = useSendTx();
+  // const [openPositionManager, setOpenPositionManager] =
+  //   useState<boolean>(false);
+
+  const [openManageModal, setOpenManageModal] = useState<boolean>(false);
+  const [onOpenSection, setOnOpenSection] = useState<string>('MANAGE_STRATEGY');
+  const [, setIsPositionReleased] = useState(false);
+
+  const handleOpenManageModal = useCallback((section: string) => {
+    setOnOpenSection(() => section);
+    setOpenManageModal(() => true);
+  }, []);
+
+  // const closePositionManager = useCallback(() => {
+  //   setOpenPositionManager(false);
+  // }, []);
+
+  const [userPositionData, setUserPositionData] = useState<IUserPositionData>({
+    underlying: '',
+    delta: '0',
+    markPrice: '0',
+    entryPrice: '0',
+    liquidationPrice: '0',
+    leverage: '0',
+    putStrike: '0',
+    state: 'None',
+    collateral: '0',
+    depositUnderlying: false,
+  });
 
   const getUserPositions = useCallback(async () => {
-    if (!contractAddresses || !accountAddress || !provider || !atlanticPool)
+    if (!contractAddresses || !accountAddress || !atlanticPool || !signer)
       return;
+
     const strategyContractAddress: string =
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
-    const strategyViewerAddress =
-      contractAddresses['STRATEGIES']['INSURED-PERPS']['VIEWER'];
+
+    const strategyUtilsAddress: string =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['UTILS'];
     const gmxVaultAddress: string = contractAddresses['GMX-VAULT'];
     const { underlying } = atlanticPool.tokens;
 
     if (!underlying) return;
 
-    const strategyContract = LongPerpStrategy__factory.connect(
+    const underlyingAddress = contractAddresses[underlying];
+    const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      provider
+      signer
+    );
+    const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
+    const strategyUtils = InsuredLongsUtils__factory.connect(
+      strategyUtilsAddress,
+      signer
     );
 
-    const gmxVaultContract = GmxVault__factory.connect(
-      gmxVaultAddress,
-      provider
+    const signerAddress = await signer.getAddress();
+    const [positionId, positionManager] = await Promise.all([
+      strategyContract.userPositionIds(signerAddress),
+      strategyContract.userPositionManagers(signerAddress),
+    ]);
+
+    const gmxPosition = await gmxVault.getPosition(
+      positionManager,
+      underlyingAddress,
+      underlyingAddress,
+      true
     );
 
-    let userStrategyPositions: any[] =
-      await LongPerpStrategyViewer__factory.connect(
-        strategyViewerAddress,
-        provider
-      ).getStrategyPositions(strategyContract.address);
+    if (gmxPosition[0].isZero()) return;
 
-    let userStrategyPositionsWithIndex: {
-      position: any;
-      index: number;
-    }[] = [];
+    const [
+      atlanticsPosition,
+      strategyPosition,
+      leverage,
+      positionDelta,
+      liquidationPrice,
+      markPrice,
+    ] = await Promise.all([
+      atlanticPool.contracts.atlanticPool.getOptionsPurchase(positionId),
+      strategyContract.strategyPositions(positionId),
+      gmxVault.getPositionLeverage(
+        positionManager,
+        underlyingAddress,
+        underlyingAddress,
+        true
+      ),
+      gmxVault.getPositionDelta(
+        positionManager,
+        underlyingAddress,
+        underlyingAddress,
+        true
+      ),
+      strategyUtils['getLiquidationPrice(address,address)'](
+        positionManager,
+        underlyingAddress
+      ),
+      strategyUtils.getPrice(underlyingAddress),
+    ]);
 
-    userStrategyPositions.map((position: any, index: any) => {
-      if (
-        !position.insurance.expiry.isZero() &&
-        position.user === accountAddress
-      ) {
-        userStrategyPositionsWithIndex.push({
-          position,
-          index,
-        });
-      } else {
-        return;
-      }
-    });
+    const hasProfit = positionDelta[0];
+    const position: IUserPositionData = {
+      underlying,
+      entryPrice: formatAmount(getUserReadableAmount(gmxPosition[2], 30), 3),
+      markPrice: formatAmount(getUserReadableAmount(markPrice, 8), 3),
+      leverage: formatAmount(getUserReadableAmount(leverage, 4), 1),
+      putStrike: formatAmount(
+        getUserReadableAmount(atlanticsPosition.optionStrike, 8),
+        3
+      ),
+      delta: hasProfit
+        ? getUserReadableAmount(positionDelta[1], 30)
+        : getUserReadableAmount(positionDelta[1], 30) * -1,
+      liquidationPrice: formatAmount(
+        getUserReadableAmount(liquidationPrice, 30),
+        3
+      ),
+      state: ActionState[String(strategyPosition.state)],
+      collateral: formatAmount(getUserReadableAmount(gmxPosition[1], 30), 3),
+      depositUnderlying: strategyPosition.keepCollateral,
+    };
 
-    let userGmxPositionsCalls: any = [];
+    console.log('delta', Number(position.delta));
 
-    userStrategyPositionsWithIndex.forEach((_position) => {
-      if (_position) {
-        userGmxPositionsCalls.push(
-          gmxVaultContract.getPosition(
-            _position.position.dopexPositionManager,
-            contractAddresses[underlying],
-            contractAddresses[underlying],
-            true
-          )
-        );
-      } else return;
-    });
+    setUserPositionData(() => position);
+    setIsPositionReleased(() => strategyPosition.state === 1);
+  }, [contractAddresses, signer, accountAddress, atlanticPool]);
 
-    let strategyPositionsStatusCalls = userStrategyPositionsWithIndex.map(
-      (position) => {
-        return strategyContract.isPositionSettled(position.index);
-      }
-    );
-
-    const positions: IGMXPositionArray[] = await Promise.all(
-      userGmxPositionsCalls
-    );
-
-    const statuses = await Promise.all(strategyPositionsStatusCalls);
-    const gmxPositions: IGMXPosition[] = [];
-
-    for (const index in positions) {
-      const position = positions[index];
-      if (!position) return;
-      if (!position[7] || !position[2] || !position[0]) return;
-
-      const _pnlDetails = await gmxVaultContract.getDelta(
-        contractAddresses[underlying],
-        position[0],
-        position[2],
-        true,
-        position[7]
-      );
-
-      const _pnl: any = _pnlDetails[0]
-        ? _pnlDetails[1]
-        : Number(_pnlDetails[1]) * -1;
-
-      const _entryPrice = getUserReadableAmount(position[2], 30);
-      const _leverage = getUserReadableAmount(
-        position[0].mul(oneEBigNumber(30)).div(position[1]),
-        30
-      );
-      const _liqudationPrice = _entryPrice - _entryPrice / _leverage;
-
-      const _position = {
-        positionSize: formatAmount(getUserReadableAmount(position[0], 30), 2),
-        positionBalance: formatAmount(
-          getUserReadableAmount(position[1], 30),
-          3
-        ),
-        entryPrice: _entryPrice,
-        leverage: _leverage,
-        status: statuses[index] ? 'Released' : 'Active',
-        pnl: getUserReadableAmount(_pnl, 30),
-        index: Number(userStrategyPositionsWithIndex[index]?.index),
-        isCollateralOptionToken:
-          userStrategyPositionsWithIndex[index]?.position.insurance
-            .isCollateralOptionToken ?? false,
-        liquidationPrice: _liqudationPrice,
-        putStrike: getUserReadableAmount(
-          userStrategyPositionsWithIndex[index]?.position.insurance.putStrike,
-          8
-        ),
-        hasBorrowed:
-          userStrategyPositionsWithIndex[index]?.position.insurance.hasBorrowed,
-      };
-
-      gmxPositions[index] = _position;
+  const handleManageButtonClick = useCallback(() => {
+    if (userPositionData.state === 'Settled') {
+      handleOpenManageModal('MANAGE_POSITION');
+      setOpenManageModal(true);
+    } else {
+      handleOpenManageModal('MANAGE_STRATEGY');
+      setOpenManageModal(true);
     }
-
-    setGmxPositions(() => gmxPositions);
-  }, [contractAddresses, provider, accountAddress, atlanticPool]);
-
-  const closePosition = useCallback(
-    async (index: number) => {
-      if (!contractAddresses || !accountAddress || !signer || !atlanticPool)
-        return;
-      try {
-        const strategyContractAddress: string =
-          contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
-
-        const strategyContract = LongPerpStrategy__factory.connect(
-          strategyContractAddress,
-          signer
-        );
-
-        const tx = strategyContract.exitStrategyAndLongPosition(index, {
-          value: MIN_EXECUTION_FEE,
-        });
-        await sendTx(tx);
-      } catch (err) {
-        console.log(err);
-      }
-    },
-    [accountAddress, contractAddresses, atlanticPool, signer, sendTx]
-  );
-
-  const keepCollateral = useCallback(
-    async (index: number) => {
-      if (!contractAddresses || !accountAddress || !signer || !atlanticPool)
-        return;
-      try {
-        const strategyContractAddress: string =
-          contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
-        const strategyContract = LongPerpStrategy__factory.connect(
-          strategyContractAddress,
-          signer
-        );
-
-        const tx = strategyContract.keepCollateral(index, {
-          value: MIN_EXECUTION_FEE,
-        });
-        await sendTx(tx);
-      } catch (err) {
-        console.log(err);
-      }
-    },
-    [accountAddress, contractAddresses, atlanticPool, signer, sendTx]
-  );
+  }, [handleOpenManageModal, setOpenManageModal, userPositionData.state]);
 
   useEffect(() => {
     getUserPositions();
   }, [getUserPositions]);
   return (
     <>
-      {gmxPositions.length !== 0 ? (
+      <ManageModal
+        onOpenSection={onOpenSection}
+        open={openManageModal}
+        setOpen={setOpenManageModal}
+      />
+      {userPositionData.state === 'None' ? (
+        <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
+          <CustomButton onClick={() => handleOpenManageModal('USE_STRATEGY')}>
+            <Typography variant="h6">Open Position</Typography>
+          </CustomButton>
+        </Box>
+      ) : (
         <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto pb-4">
           <Table>
             <TableHead>
               <TableRow>
                 <TableHeader>Entry</TableHeader>
                 <TableHeader>Balance</TableHeader>
-                <TableHeader>Size</TableHeader>
                 <TableHeader>Leverage</TableHeader>
                 <TableHeader>PnL</TableHeader>
                 <TableHeader>Status</TableHeader>
@@ -261,141 +225,58 @@ const UserPositions = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {gmxPositions.map((position, index) => (
-                <TableRow key={index}>
-                  <TableBodyCell>
-                    <Typography variant="h6">${position.entryPrice}</Typography>
-                  </TableBodyCell>
-                  <TableBodyCell>
-                    <Typography variant="h6">
-                      ${position.positionBalance}
-                    </Typography>
-                  </TableBodyCell>
-                  <TableBodyCell>
-                    <Typography variant="h6">
-                      ${position.positionSize}
-                    </Typography>
-                  </TableBodyCell>
-                  <TableBodyCell>
-                    <Typography variant="h6">
-                      {formatAmount(position.leverage, 1)}x
-                    </Typography>
-                  </TableBodyCell>
-                  <TableBodyCell>
-                    <Typography
-                      className={`${
-                        Number(position.pnl) > 0
-                          ? 'text-green-500'
-                          : 'text-red-400'
-                      }`}
-                      variant="h6"
-                    >
-                      {formatAmount(position.pnl, 3)}
-                    </Typography>
-                  </TableBodyCell>
-                  <TableBodyCell>
-                    <Typography variant="h6">{position.status}</Typography>
-                  </TableBodyCell>
-                  <TableBodyCell>
-                    <Typography variant="h6">
-                      {formatAmount(position.liquidationPrice, 2)}
-                    </Typography>
-                  </TableBodyCell>
-                  <TableBodyCell>
-                    <Typography variant="h6">{position.putStrike}</Typography>
-                  </TableBodyCell>
-                  <TableBodyCell align="right">
-                    <ActionButton
-                      closePosition={closePosition}
-                      keepCollateral={keepCollateral}
-                      isCollateralOptionToken={position.isCollateralOptionToken}
-                      index={position.index}
-                      hasBorrowed={position.hasBorrowed}
-                    />
-                  </TableBodyCell>
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    ${userPositionData.entryPrice}
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    ${userPositionData.collateral}
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    {userPositionData.leverage}x
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography
+                    className={`${
+                      Number(userPositionData.delta) > 0
+                        ? 'text-green-500'
+                        : 'text-red-400'
+                    }`}
+                    variant="h6"
+                  >
+                    {userPositionData.delta}
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">{userPositionData.state}</Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    {userPositionData.liquidationPrice}
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell>
+                  <Typography variant="h6">
+                    {userPositionData.putStrike}
+                  </Typography>
+                </TableBodyCell>
+                <TableBodyCell align="right">
+                  <CustomButton onClick={handleManageButtonClick}>
+                    Manage
+                  </CustomButton>
+                </TableBodyCell>
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
-      ) : (
-        <Box className="w-full text-center bg-cod-gray rounded-xl p-4">
-          <Typography variant="h6">No Positions Found</Typography>
-        </Box>
       )}
     </>
-  );
-};
-
-interface IActionButtonProps {
-  closePosition: (index: number) => Promise<void>;
-  keepCollateral: (index: number) => Promise<void>;
-  index: number;
-  isCollateralOptionToken: boolean;
-  hasBorrowed: boolean;
-}
-
-const ActionButton = ({
-  closePosition,
-  keepCollateral,
-  isCollateralOptionToken,
-  index,
-  hasBorrowed,
-}: IActionButtonProps) => {
-  const handleClosePosition = useCallback(async () => {
-    await closePosition(index);
-  }, [closePosition, index]);
-
-  const handleKeepCollateral = useCallback(async () => {
-    await keepCollateral(index);
-  }, [keepCollateral, index]);
-
-  return (
-    <Box className="flex justify-end">
-      <Select
-        className="bg-primary rounded-md h-[2rem] text-white w-[8rem]"
-        displayEmpty
-        renderValue={() => {
-          return (
-            <Typography
-              variant="h6"
-              className="text-white text-center w-full relative"
-            >
-              {'Settle'}
-            </Typography>
-          );
-        }}
-        MenuProps={{
-          classes: {
-            paper: 'bg-umbra',
-          },
-        }}
-        classes={{
-          icon: 'text-white',
-        }}
-      >
-        <MenuItem onClick={handleClosePosition}>
-          <Typography
-            variant="h6"
-            role="button"
-            className="flex-1 font-xs w-full"
-          >
-            Close Position
-          </Typography>
-        </MenuItem>
-        {!isCollateralOptionToken && (
-          <MenuItem onClick={handleKeepCollateral} disabled={!hasBorrowed}>
-            <Typography
-              variant="h6"
-              role="button"
-              className="flex-1 font-xs w-full"
-            >
-              Keep Collateral
-            </Typography>
-          </MenuItem>
-        )}
-      </Select>
-    </Box>
   );
 };
 

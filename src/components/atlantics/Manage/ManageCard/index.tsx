@@ -10,7 +10,6 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
-import { OpenPositionDialog } from 'components/atlantics/Dialogs/OpenPositionDialog';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -41,8 +40,6 @@ const ManageCard = (props: ManageCardProps) => {
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)
   );
-  const [openPositionManager, setOpenPositionManager] =
-    useState<boolean>(false);
 
   const sendTx = useSendTx();
 
@@ -188,33 +185,30 @@ const ManageCard = (props: ManageCardProps) => {
 
   useEffect(() => {
     (async () => {
-      if (
-        !signer ||
-        !contractAddresses ||
-        !accountAddress ||
-        !atlanticPool?.tokens ||
-        !contractAddresses['ATLANTIC-POOLS']
-      )
-        return;
-      const deposit = atlanticPool.tokens.depositToken;
-      if (!deposit) return;
-      if (!contractAddresses[deposit]) return;
-
-      const token = ERC20__factory.connect(contractAddresses[deposit], signer);
-
-      const allowance = await token.allowance(
-        accountAddress,
-        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
-      );
-
-      setApproved(
-        allowance.gte(
-          getContractReadableAmount(
-            value,
-            TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
-          )
-        )
-      );
+      // if (
+      //   !signer ||
+      //   !contractAddresses ||
+      //   !accountAddress ||
+      //   !atlanticPool?.tokens ||
+      //   !contractAddresses['ATLANTIC-POOLS']
+      // )
+      //   return;
+      // const deposit = atlanticPool.tokens.depositToken;
+      // if (!deposit) return;
+      // if (!contractAddresses[deposit]) return;
+      // const token = ERC20__factory.connect(contractAddresses[deposit], signer);
+      // const allowance = await token.allowance(
+      //   accountAddress,
+      //   contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
+      // );
+      // setApproved(
+      //   allowance.gte(
+      //     getContractReadableAmount(
+      //       value,
+      //       TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
+      //     )
+      //   )
+      // );
     })();
   }, [
     accountAddress,
@@ -227,14 +221,6 @@ const ManageCard = (props: ManageCardProps) => {
     value,
     atlanticPool?.tokens,
   ]);
-
-  const openPositionManagerModal = useCallback(() => {
-    setOpenPositionManager(true);
-  }, []);
-
-  const closePositionManager = useCallback(() => {
-    setOpenPositionManager(false);
-  }, []);
 
   useEffect(() => {
     (async () => {
@@ -271,22 +257,6 @@ const ManageCard = (props: ManageCardProps) => {
         <Typography variant="h5" className="my-auto">
           Deposit
         </Typography>
-        {poolType === 'PUTS' ? (
-          <>
-            <Typography
-              onClick={openPositionManagerModal}
-              variant="h6"
-              className="text-gray-300 underline cursor-pointer"
-            >
-              Open a long position
-            </Typography>
-
-            <OpenPositionDialog
-              isOpen={openPositionManager}
-              handleClose={closePositionManager}
-            />
-          </>
-        ) : null}
       </Box>
       <Box className="bg-umbra rounded-xl w-full">
         <CustomInput

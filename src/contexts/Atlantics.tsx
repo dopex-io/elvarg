@@ -24,10 +24,11 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 interface IVaultConfiguration {
   collateralUtilizationWeight: BigNumber;
   baseFundingRate: BigNumber;
-  tickSize?: BigNumber;
-  unwindFee?: BigNumber;
+  fundingInterval: BigNumber;
+  fundingRateIncrement: BigNumber;
   expireDelayTolerance: BigNumber;
-  strikeOffset?: BigNumber;
+  tickSize: BigNumber;
+  unwindFee: BigNumber;
 }
 
 interface IVaultState {
@@ -154,10 +155,11 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   config: {
     collateralUtilizationWeight: BigNumber.from(0),
     baseFundingRate: BigNumber.from(0),
+    fundingInterval: BigNumber.from(0),
+    fundingRateIncrement: BigNumber.from(0),
     tickSize: BigNumber.from(0),
     unwindFee: BigNumber.from(0),
     expireDelayTolerance: BigNumber.from(0),
-    strikeOffset: BigNumber.from(0),
   },
 
   tokens: {
@@ -462,23 +464,6 @@ export const AtlanticsProvider = (props: any) => {
               'MONTHLY'
             ),
           },
-          // call: {
-          //   daily: await getCallPool(
-          //     contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].DAILY,
-          //     selectedEpoch,
-          //     'DAILY'
-          //   ),
-          //   weekly: await getCallPool(
-          //     contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].WEEKLY,
-          //     selectedEpoch,
-          //     'WEEKLY'
-          //   ),
-          //   monthly: await getCallPool(
-          //     contractAddresses['ATLANTIC-POOLS'][asset]['CALLS'].MONTHLY,
-          //     selectedEpoch,
-          //     'MONTHLY'
-          //   ),
-          // },
         };
 
         setPools([pool]);

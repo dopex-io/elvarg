@@ -34,7 +34,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
     const _currentPrice = Number(currentPrice) / 1e8;
     const excess = _currentPrice % _tickSize;
     const validStrike = _currentPrice - excess;
-
+    console.log(tickSize.toString(), currentPrice.toString());
     return `i.e. ${validStrike}, ${validStrike - _tickSize}, ${
       validStrike - _tickSize * 2
     } ...`;

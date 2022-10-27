@@ -32,6 +32,9 @@ const StrategyDetails = (props: {
       putOptionsPremium,
       putOptionsfees,
       depositUnderlying,
+      positionFee,
+      swapFees,
+      strategyFee,
     },
     selectedToken,
     positionCollateral,
@@ -39,75 +42,7 @@ const StrategyDetails = (props: {
     baseToken,
   } = props;
 
-  const {
-    tokenPrices,
-    tokens,
-    chainId,
-    // contractAddresses,
-    // provider,
-    // atlanticPool,
-  } = useBoundStore();
-
-  // const updateStrategyTotalCosts = useCallback(async () => {
-  //   let totalBaseAsset = { amount: BigNumber.from(0), usdValue: 0 };
-  //   let totalQuoteAsset = { amount: BigNumber.from(0), usdValue: 0 };
-  //   let _total = {
-  //     totalBaseAsset,
-  //     totalQuoteAsset,
-  //   };
-
-  //   if (!contractAddresses || !atlanticPool) return _total;
-  //   if (!tokenPrices || !tokens) return _total;
-
-  //   const baseTokenIndex = tokens.indexOf(baseToken);
-  //   const quoteTokenIndex = tokens.indexOf(quoteToken);
-
-  //   const baseTokenPrice = tokenPrices[baseTokenIndex]?.price;
-  //   const quoteTokenPrice = tokenPrices[quoteTokenIndex]?.price;
-
-  //   if (!baseTokenPrice || !quoteTokenPrice) return _total;
-
-  //   const gmxVault = GmxVault__factory.connect(
-  //     contractAddresses['GMX-VAULT'],
-  //     provider
-  //   );
-
-  //   const gmxGov = new ethers.Contract(await gmxVault.gov(), ['function marginFeeBasisPoints() external view returns (uint256)'], provider)
-  //   const marginFeeBasisPoints = await gmxGov['marginFeeBasisPoints()']();
-  //   const divisor = 10000;
-
-  //   const basetokenDecimals = getUserReadableAmount(await gmxVault.getMaxPrice(baseToken), 30)
-  //   const quoteTokenDecimals = getUserReadableAmount(await gmxVault.getMaxPrice(quoteToken), 30)
-
-  //   if (depositUnderlying ) {
-  //     if (!baseTokenPrice) return;
-  //     const unwindFee = await atlanticPool.contracts.atlanticPool.calculateUnwindFees(optionsAmount)
-  //     totalBaseAsset.amount = optionsAmount;
-  //     totalBaseAsset.usdValue =
-  //       (Number(optionsAmount.add(unwindFee)) / 10 ** basetokenDecimals) * baseTokenPrice;
-  //   }
-
-  //   totalQuoteAsset.amount = totalQuoteAsset.amount.add(
-  //     putOptionsPremium.add(putOptionsfees)
-  //   );
-  //   totalQuoteAsset.usdValue = getUserReadableAmount(totalQuoteAsset.amount, 6);
-
-  //   if (selectedToken === 'WETH') {
-  //     const afterfeeUsd = positionSize
-  //     .mul(divisor - marginFeeBasisPoints)
-  //       .div(divisor);
-
-  //     totalBaseAsset.amount = totalBaseAsset.amount.add(positionCollateral);
-  //     totalBaseAsset.usdValue =
-  //       totalBaseAsset.usdValue +
-  //       getUserReadableAmount(positionCollateral, basetokenDecimals) *
-  //         baseTokenPrice;
-  //   }
-
-  //   if (selectedToken === 'USDC') {
-  //   }
-  // },[]);
-
+  const { tokenPrices, tokens, chainId, atlanticPool } = useBoundStore();
   const total = useMemo((): {
     totalQuoteAsset: {
       amount: BigNumber;
@@ -125,7 +60,8 @@ const StrategyDetails = (props: {
       totalBaseAsset,
       totalQuoteAsset,
     };
-    if (!tokenPrices || !tokens) return _total;
+    if (!tokenPrices || !tokens || !atlanticPool) return _total;
+    const { underlying, depositToken } = atlanticPool.tokens;
 
     const baseTokenIndex = tokens.indexOf(baseToken);
     const quoteTokenIndex = tokens.indexOf(quoteToken);
@@ -148,17 +84,23 @@ const StrategyDetails = (props: {
       putOptionsPremium.add(putOptionsfees)
     );
     totalQuoteAsset.usdValue = getUserReadableAmount(totalQuoteAsset.amount, 6);
-
-    if (selectedToken === 'WETH') {
-      totalBaseAsset.amount = totalBaseAsset.amount.add(positionCollateral);
+    if (selectedToken === underlying) {
+      totalBaseAsset.amount = totalBaseAsset.amount
+        .add(positionCollateral)
+        .add(positionFee)
+        .add(strategyFee);
       totalBaseAsset.usdValue =
         totalBaseAsset.usdValue +
         getUserReadableAmount(positionCollateral, basetokenDecimals) *
           baseTokenPrice;
     }
 
-    if (selectedToken === 'USDC') {
-      totalQuoteAsset.amount = totalQuoteAsset.amount.add(positionCollateral);
+    if (selectedToken === depositToken) {
+      totalQuoteAsset.amount = totalQuoteAsset.amount
+        .add(positionCollateral)
+        .add(positionFee)
+        .add(swapFees)
+        .add(strategyFee);
       totalQuoteAsset.usdValue =
         totalQuoteAsset.usdValue +
         getUserReadableAmount(positionCollateral, quoteTokenDecimals) *
@@ -171,7 +113,11 @@ const StrategyDetails = (props: {
     };
   }, [
     chainId,
+    strategyFee,
+    swapFees,
+    positionFee,
     putOptionsPremium,
+    atlanticPool,
     putOptionsfees,
     tokenPrices,
     tokens,
@@ -231,23 +177,57 @@ const StrategyDetails = (props: {
               '$' + formatAmount(getUserReadableAmount(positionSize, 30), 3)
             }
           />
+          <ContentRow
+            title="Position Fee"
+            content={formatAmount(
+              getUserReadableAmount(
+                positionFee,
+                getTokenDecimals(selectedToken, chainId)
+              ),
+              3
+            )}
+          />
+          {!swapFees.isZero() && (
+            <ContentRow
+              title="Swap Fee"
+              content={formatAmount(
+                getUserReadableAmount(
+                  swapFees,
+                  getTokenDecimals(selectedToken, chainId)
+                ),
+                3
+              )}
+            />
+          )}
           <Divider className="bg-mineshaft my-2" />
           <Typography variant="h6" className="mt-2 mb-2">
             Put Options Details
           </Typography>
           <ContentRow
-            title="Premium + Fees"
+            title="Premium"
             content={
-              '$' +
-              formatAmount(getUserReadableAmount(putOptionsPremium, 6), 3) +
-              ' + ' +
-              '$' +
-              formatAmount(getUserReadableAmount(putOptionsfees, 6), 3)
+              '$' + formatAmount(getUserReadableAmount(putOptionsPremium, 6), 3)
+            }
+          />
+          <ContentRow
+            title="Fees"
+            content={
+              '$' + formatAmount(getUserReadableAmount(putOptionsfees, 6), 3)
             }
           />
           <ContentRow
             title="Amount"
             content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
+          />
+          <ContentRow
+            title="Strategy Fee"
+            content={formatAmount(
+              getUserReadableAmount(
+                strategyFee,
+                getTokenDecimals(selectedToken, chainId)
+              ),
+              3
+            )}
           />
         </Box>
       </Box>
@@ -284,14 +264,6 @@ const StrategyDetails = (props: {
                 className="h-[1rem]  ml-1"
               />
             </Box>
-            <Typography className="text-xs ml-2" variant="caption">
-              $(
-              {formatAmount(
-                total.totalBaseAsset.usdValue + total.totalQuoteAsset.usdValue,
-                3
-              )}
-              )
-            </Typography>
           </Box>
         </Box>
       </Box>
@@ -304,7 +276,7 @@ interface IContentRowProps {
   content: string | number;
 }
 
-const ContentRow = ({ title, content }: IContentRowProps) => {
+export const ContentRow = ({ title, content }: IContentRowProps) => {
   return (
     <Box className="flex space-y-2 flex-row w-full justify-between items-center">
       <Typography variant="h6" color="stieglitz">

@@ -15,11 +15,11 @@ import { WalletSlice } from 'store/Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface IVaultConfiguration {
-  collateralUtilizationWeight: BigNumber;
   baseFundingRate: BigNumber;
   expireDelayTolerance: BigNumber;
-  unwindFee?: BigNumber;
-  strikeOffset?: BigNumber;
+  fundingInterval: BigNumber;
+  fundingIncrement: BigNumber;
+  collateralUtilizationWeight: BigNumber;
 }
 
 export interface ApContracts {
@@ -170,7 +170,7 @@ export const createAtlanticsSlice: StateCreator<
       contracts.baseToken.symbol(),
       contracts.quoteToken.symbol(),
     ]);
-
+    // @ts-ignore
     set((prevState) => ({
       ...prevState,
       atlanticPool: {

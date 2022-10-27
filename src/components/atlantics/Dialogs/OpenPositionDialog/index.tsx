@@ -1,9 +1,7 @@
-import Dialog from 'components/UI/Dialog';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
 import React, {
   ChangeEvent,
-  KeyboardEvent,
   useCallback,
   useContext,
   useEffect,
@@ -14,13 +12,14 @@ import { BigNumber, ethers } from 'ethers';
 import {
   ERC20__factory,
   GmxVault__factory,
-  LongPerpStrategy__factory,
+  InsuredLongsStrategy__factory,
+  InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
 import Button from '@mui/material/Button';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-// import { Checkbox } from '@mui/material';
-// import Tooltip from '@mui/material/Tooltip';
-// import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import { Checkbox } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import { useDebounce } from 'use-debounce';
 
 import Typography from 'components/UI/Typography';
@@ -28,12 +27,10 @@ import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import StrategyDetails from 'components/atlantics/Dialogs/OpenPositionDialog/StrategyDetails';
-// import Switch from 'components/UI/Switch';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { useBoundStore } from 'store';
 import { AtlanticsContext } from 'contexts/Atlantics';
@@ -42,13 +39,8 @@ import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { DEFAULT_REFERRAL_CODE, MIN_EXECUTION_FEE } from 'constants/gmx';
+import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
-
-interface IProps {
-  isOpen: boolean;
-  handleClose: () => void;
-}
 
 const steps_testing = 1;
 const minMarks_testing = 1.1;
@@ -88,18 +80,31 @@ const marks = [
   },
 ];
 
+const INITIAL_LEVERAGE = getContractReadableAmount(1.1, 30);
+
 export interface IStrategyDetails {
   positionSize: BigNumber;
   putOptionsPremium: BigNumber;
   putOptionsfees: BigNumber;
+  positionFee: BigNumber;
   optionsAmount: BigNumber;
   liquidationPrice: BigNumber;
   putStrike: BigNumber;
   expiry: BigNumber;
   depositUnderlying: boolean;
+  swapFees: BigNumber;
+  strategyFee: BigNumber;
 }
 
-export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
+interface IncreaseOrderParams {
+  path: string[];
+  indexToken: string;
+  collateralDelta: BigNumber;
+  positionSizeDelta: BigNumber;
+  isLong: boolean;
+}
+
+export const OpenPositionDialog = () => {
   const {
     signer,
     accountAddress,
@@ -111,7 +116,15 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     userAssetBalances,
   } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
-  const [leverage, setLeverage] = useState<number>(2);
+  const [leverage, setLeverage] = useState<BigNumber>(INITIAL_LEVERAGE);
+  const [increaseOrderParams, setIncreaseOrderParams] =
+    useState<IncreaseOrderParams>({
+      path: [],
+      indexToken: '',
+      collateralDelta: BigNumber.from(0),
+      positionSizeDelta: BigNumber.from(0),
+      isLong: true,
+    });
   // ** TEMP *** //
   const [testing, setTesting] = useState<boolean>(false);
   const [isApproved, setIsApproved] = useState<{
@@ -122,21 +135,23 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     base: false,
   });
   const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
-  const [keepCollateral] = useState<boolean>(false);
   const [selectedToken, setSelectedToken] = useState<string>('USDC');
   const [positionBalance, setPositionBalance] = useState<string>('');
-  const [depositUnderlying] = useState<boolean>(false);
+  const [depositUnderlying, setDeposutUnderlying] = useState<boolean>(false);
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
     positionSize: BigNumber.from(0),
     putOptionsPremium: BigNumber.from(0),
     putOptionsfees: BigNumber.from(0),
     optionsAmount: BigNumber.from(0),
     depositUnderlying: false,
+    positionFee: BigNumber.from(0),
     liquidationPrice: BigNumber.from(0),
     putStrike: BigNumber.from(0),
     expiry: BigNumber.from(0),
+    swapFees: BigNumber.from(0),
+    strategyFee: BigNumber.from(0),
   });
-  const [loading, setLoading] = useState<boolean>(true);
+  const [, setLoading] = useState<boolean>(true);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -184,66 +199,84 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
   };
 
   const getPreStrategyCalculations = useCallback(async () => {
-    if (!atlanticPool || !contractAddresses || !atlanticPoolEpochData) return;
+    if (
+      !atlanticPool ||
+      !contractAddresses ||
+      !atlanticPoolEpochData ||
+      !signer ||
+      !accountAddress
+    )
+      return;
 
     const { underlying, depositToken } = atlanticPool.tokens;
-
     const putsContract = atlanticPool.contracts.atlanticPool;
 
-    const insured_perps_address =
-      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+    const utilsAddress =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['UTILS'];
+    const gmxVaultAddress = contractAddresses['GMX-VAULT'];
+    const depositTokenAddress = contractAddresses[depositToken];
+    const underlyingTokenAddress = contractAddresses[underlying];
+    const selectedTokenAddress = contractAddresses[selectedToken];
 
-    const strategyContract = LongPerpStrategy__factory.connect(
-      insured_perps_address,
-      provider
+    const utils = InsuredLongsUtils__factory.connect(utilsAddress, signer);
+    const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
+    const strategy = InsuredLongsStrategy__factory.connect(
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
+      signer
     );
 
-    // Leverage in bigNumber 1e30 decimals
-    const leverageBN = getContractReadableAmount(leverage * 10, 29);
+    const usdMultiplier = getContractReadableAmount(1, 30);
 
-    // index token price in 1e30 decimals
-    const indexTokenPrice = (await putsContract.getUsdPrice()).mul(
-      oneEBigNumber(22)
-    );
+    let path: string[] = [depositTokenAddress, underlyingTokenAddress];
 
-    // spot price / leverage
-    const difference = indexTokenPrice.mul(oneEBigNumber(30)).div(leverageBN);
+    if (positionBalance === '') return;
+    let collateralUsd = getContractReadableAmount(positionBalance, 30);
 
-    // in 1e30 decimals
-    let positionBalanceValue = getContractReadableAmount(positionBalance, 30);
-
-    if (selectedToken !== depositToken) {
-      positionBalanceValue = indexTokenPrice
-        .mul(positionBalanceValue)
-        .div(oneEBigNumber(30));
+    if (selectedToken === underlying) {
+      const maxPrice = await gmxVault.getMaxPrice(underlyingTokenAddress);
+      collateralUsd = maxPrice.mul(positionBalance);
     }
 
-    // position balance * leverage
-    const positionSize = positionBalanceValue.mul(leverage * 10).div(10);
-
-    // spot price - difference
-    const liquidationPrice = indexTokenPrice.sub(difference);
-
-    // Put strike
-    const putStrike = (
-      await putsContract.eligiblePutPurchaseStrike(
-        liquidationPrice,
-        (
-          await strategyContract.tokenStrategyConfigs(
-            contractAddresses[underlying]
-          )
-        ).optionStrikeOffsetPercentage
-      )
-    ).div(oneEBigNumber(22));
-
-    // Collateral accessible
-    const collateralAccess = await strategyContract.getRequiredCollateralAccess(
-      positionBalanceValue,
-      leverageBN
+    let size = collateralUsd.mul(leverage).div(usdMultiplier);
+    let leveragedCollateralUsd = size.sub(collateralUsd);
+    let indexTokenFromCollateralUsd = await gmxVault.usdToTokenMin(
+      underlyingTokenAddress,
+      collateralUsd
     );
 
-    const optionsAmount = collateralAccess
-      .mul(oneEBigNumber(20))
+    let amountIn: BigNumber;
+    if (selectedToken === depositToken) {
+      path = [depositTokenAddress, underlyingTokenAddress];
+      amountIn = await utils.getAmountIn(
+        indexTokenFromCollateralUsd,
+        underlyingTokenAddress,
+        depositTokenAddress
+      );
+    } else {
+      path = [underlyingTokenAddress];
+      amountIn = indexTokenFromCollateralUsd;
+    }
+
+    let [positionFee, markPrice] = await Promise.all([
+      utils.getPositionFee(size),
+      gmxVault.getMaxPrice(underlyingTokenAddress),
+    ]);
+
+    let liquidationPrice = markPrice
+      .sub(markPrice.mul(usdMultiplier).div(leverage))
+      .div(getContractReadableAmount(1, 22));
+
+    let levergedAmountToToken, putStrike: BigNumber, strategyFee: BigNumber;
+    [levergedAmountToToken, putStrike, positionFee, strategyFee] =
+      await Promise.all([
+        gmxVault.usdToTokenMin(depositTokenAddress, leveragedCollateralUsd),
+        utils.getEligblePutStrike(putsContract.address, liquidationPrice),
+        gmxVault.usdToTokenMin(selectedTokenAddress, positionFee),
+        strategy.getPositionfee(size, contractAddresses[selectedToken]),
+      ]);
+
+    let optionsAmount = levergedAmountToToken
+      .mul(getContractReadableAmount(1, 20))
       .div(putStrike);
 
     const [putOptionsPremium, putOptionsfees] = await Promise.all([
@@ -251,42 +284,59 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
       putsContract.calculatePurchaseFees(putStrike, optionsAmount),
     ]);
 
+    let swapFees = BigNumber.from(0);
+    if (path.length > 1) {
+      swapFees = amountIn.sub(
+        getContractReadableAmount(
+          positionBalance,
+          getTokenDecimals(selectedToken, chainId)
+        )
+      );
+    }
+
     setStrategyDetails(() => ({
-      positionSize,
+      positionSize: size,
       putOptionsPremium,
       putOptionsfees,
       depositUnderlying,
+      positionFee,
       optionsAmount,
       liquidationPrice,
       putStrike,
       expiry: atlanticPoolEpochData.expiry,
+      swapFees,
+      strategyFee,
+    }));
+
+    setIncreaseOrderParams(() => ({
+      path,
+      indexToken: underlyingTokenAddress,
+      collateralDelta: amountIn.add(swapFees).add(positionFee),
+      positionSizeDelta: size,
+      isLong: true,
     }));
   }, [
     selectedToken,
+    signer,
+    chainId,
     atlanticPool,
+    accountAddress,
     leverage,
     depositUnderlying,
     contractAddresses,
     positionBalance,
-    provider,
     atlanticPoolEpochData,
   ]);
 
-  // const handleDepositUnderlyingCheckboxChange = (event: any) => {
-  //   setDeposutUnderlying(event.target.checked);
-  // };
+  const handleDepositUnderlyingCheckboxChange = (event: any) => {
+    setDeposutUnderlying(event.target.checked);
+  };
 
   function onChangeLeverage(event: Event, value: any, aciveThumb: any) {
     event;
     aciveThumb;
-    setLeverage(() => value);
+    setLeverage(() => getContractReadableAmount(value, 30));
   }
-
-  const onEscapePressed = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Escape') {
-      handleClose();
-    }
-  };
 
   const handlePositionBalanceChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -361,8 +411,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     }
 
     setIsApproved(() => ({
-      quote: !quoteTokenAllowance.isZero(),
-      base: !baseTokenAllowance.isZero(),
+      quote: quoteTokenAllowance.eq(ethers.constants.MaxUint256),
+      base: baseTokenAllowance.eq(ethers.constants.MaxUint256),
     }));
   }, [
     atlanticPool,
@@ -462,145 +512,46 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
     ) {
       return;
     }
-
-    const strategyContract = LongPerpStrategy__factory.connect(
+    const strategyContract = InsuredLongsStrategy__factory.connect(
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
       signer
     );
-    // GMX_VAULT
-    const gmxVault = GmxVault__factory.connect(
-      contractAddresses['GMX-VAULT'],
-      signer
-    );
 
+    //  console.log("Debuggin",  (await utils.calculateLeverage(increaseOrderParams.positionSizeDelta, increaseOrderParams.collateralDelta,increaseOrderParams.path[0])).toString());
+
+    const { depositToken } = atlanticPool.tokens;
+
+    const depositTokenAddress = contractAddresses[depositToken];
+    const overrides = {
+      value: MIN_EXECUTION_FEE,
+    };
     try {
-      let path: string[] = [];
-      if (selectedToken === 'USDC') {
-        path = [contractAddresses['USDC'], contractAddresses['WETH']];
-      }
-      if (selectedToken === 'WETH') path = [contractAddresses['WETH']];
-
-      const indexToken = atlanticPool.tokens.underlying;
-
-      if (!path[0]) return;
-
-      const gmxGov = new ethers.Contract(
-        await gmxVault.gov(),
-        ['function marginFeeBasisPoints() external view returns (uint256)'],
-        provider
-      );
-      const marginFeeBasisPoints = await gmxGov['marginFeeBasisPoints()']();
-      const divisor = 10000;
-
-      let positionBalanceWithDecimals = getContractReadableAmount(
-        positionBalance,
-        getTokenDecimals(selectedToken, chainId)
-      );
-
-      let positionCollateral;
-      let positionSize;
-
-      let indexTokenMaxPrice = await gmxVault.getMaxPrice(
-        contractAddresses[indexToken]
-      );
-
-      if (path[0] !== contractAddresses[indexToken]) {
-        const reader = new ethers.Contract(
-          contractAddresses['GMX-READER'],
-          [
-            'function getAmountOut(address _vault, address _tokenIn, address _tokenOut, uint256 _amountIn) public view returns (uint256, uint256)',
-          ],
-          signer
-        );
-
-        const amountOut = (
-          await reader['getAmountOut'](
-            gmxVault.address,
-            path[0],
-            path[1],
-            positionBalanceWithDecimals
-          )
-        )[0];
-
-        const newePositionSize = amountOut
-          .mul(indexTokenMaxPrice)
-          .div(oneEBigNumber(18))
-          .mul(leverage * 10)
-          .div(10);
-        const positionSizeSubFee = newePositionSize
-          .mul(divisor - marginFeeBasisPoints)
-          .div(divisor);
-
-        positionCollateral = positionBalanceWithDecimals;
-        positionSize = positionSizeSubFee;
-      } else {
-        // const positionSizein30Usd = await gmxVault.tokenToUsdMin(contractAddresses['WETH'], strategyDetails.positionSize)
-        const afterfeeUsd = strategyDetails.positionSize
-          .mul(divisor - marginFeeBasisPoints)
-          .div(divisor);
-        const feeInTokenDecimals = await gmxVault.usdToTokenMin(
-          contractAddresses[indexToken],
-          strategyDetails.positionSize.sub(afterfeeUsd)
-        );
-        positionCollateral =
-          positionBalanceWithDecimals.add(feeInTokenDecimals);
-        positionSize = strategyDetails.positionSize;
-      }
-
-      const _tx = strategyContract.useStrategyAndOpenLongPosition(
-        {
-          path: path,
-          indexToken: contractAddresses[indexToken],
-          positionCollateralSize: positionCollateral,
-          positionSize: positionSize,
-          executionFee: MIN_EXECUTION_FEE,
-          referralCode: DEFAULT_REFERRAL_CODE,
-          depositUnderlying: depositUnderlying,
-        },
-        keepCollateral,
+      const tx = strategyContract.useStrategyAndOpenLongPosition(
+        increaseOrderParams,
+        depositTokenAddress,
         atlanticPoolEpochData.expiry,
-        {
-          value: MIN_EXECUTION_FEE,
-        }
+        depositUnderlying,
+        overrides
       );
-
-      await sendTx(_tx);
-      handleClose();
+      await sendTx(tx);
     } catch (err) {
       console.log(err);
     }
   }, [
-    provider,
     atlanticPoolEpochData,
     atlanticPool,
     contractAddresses,
-    handleClose,
     signer,
     depositUnderlying,
     chainId,
     positionBalance,
     selectedToken,
-    keepCollateral,
-    strategyDetails.positionSize,
-    leverage,
+    increaseOrderParams,
     sendTx,
   ]);
 
-  // const handleKeepCollateral = (event: any, checked: boolean) => {
-  //   event;
-  //   setKeepCollateral(() => checked);
-  // };
-
   return (
-    <Dialog
-      open={isOpen}
-      onKeyPress={onEscapePressed}
-      handleClose={handleClose}
-      showCloseIcon
-    >
-      <Typography className="w-full mb-4" variant="h5">
-        Open Long Position
-      </Typography>
+    <>
       <Box className="bg-umbra rounded-xl mb-2" ref={containerRef}>
         <CustomInput
           size="small"
@@ -665,8 +616,8 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           containerRef={containerRef}
         />
       </Box>
-      <Box className="flex p-1 flex-col space-y-2">
-        <Box className="flex flex-col items-center">
+      <Box className="w-full flex p-1 flex-col space-y-2">
+        <Box className="flex flex-col items-center p-3">
           <Typography
             variant="h6"
             className="text-left w-full"
@@ -680,7 +631,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
                 color: 'gray',
               },
             }}
-            className="w-[20rem]"
+            className="w-full"
             color="primary"
             aria-label="Small steps"
             defaultValue={1.1}
@@ -692,7 +643,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             marks={testing ? marks_testing : marks}
           />
         </Box>
-        {/* <Box className="flex-col justify-center items-center">
+        <Box className="flex-col justify-center items-center">
           <Box className="px-1 flex">
             <Typography variant="h6">
               Deposit underlying
@@ -701,27 +652,12 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
                 checked={depositUnderlying}
                 onChange={handleDepositUnderlyingCheckboxChange}
               />
-            </Typography>
-          </Box>
-          <Box className="px-1 mb-2 flex justify-between items-center">
-            <Typography
-              className={`${!depositUnderlying && 'text-stieglitz'}`}
-              variant="h6"
-            >
-              Keep Collateral on Expiry
-              <Tooltip title="Choose whether to keep collateral incase puts are ITM and would like to keep the position post expiry. Note: Positions that have AC options as collateral cannot keep collateral beyond expiry of the pool and will be automatically closed on expiry.">
+              <Tooltip title="Choose whether to deposit underlying and keep borrowed collateral incase your long position has collateral that was added when trigger price was crossed and would like to keep the position post expiry.">
                 <InfoOutlined className="h-4 fill-current text-stieglitz" />
               </Tooltip>
             </Typography>
-            <Switch
-              disabled={!depositUnderlying}
-              className="mt-1"
-              onChange={handleKeepCollateral}
-              value={keepCollateral}
-              color="primary"
-            />
           </Box>
-        </Box> */}
+        </Box>
         <StrategyDetails
           data={debouncedStrategyDetails[0]}
           selectedCollateral={'selectedCollateral'}
@@ -740,9 +676,11 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
               disabled={
                 positionBalance === '' || parseInt(positionBalance) === 0
               }
-              className={`${isApproved.base && 'hidden'} ${
-                !depositUnderlying && 'hidden'
-              }  w-full m-1`}
+              className={`${
+                !depositUnderlying &&
+                increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
+                'hidden'
+              }  w-full m-1 ${isApproved.base && 'hidden'}`}
             >
               Approve {'WETH'}
             </CustomButton>
@@ -757,7 +695,7 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
             </CustomButton>
           </Box>
           <CustomButton
-            disabled={loading}
+            // disabled={loading}
             onClick={useStrategy}
             className="m-1"
           >
@@ -765,6 +703,6 @@ export const OpenPositionDialog = ({ isOpen, handleClose }: IProps) => {
           </CustomButton>
         </Box>
       </Box>
-    </Dialog>
+    </>
   );
 };
