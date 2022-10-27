@@ -12,7 +12,10 @@ import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
+
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import InputHelpers from 'components/common/InputHelpers';
+
 import LockerIcon from 'svgs/icons/LockerIcon';
 
 import useSendTx from 'hooks/useSendTx';
@@ -124,6 +127,10 @@ const DepositPanel = () => {
     updateSsovUserData,
   ]);
 
+  const handleMax = useCallback(() => {
+    setStrikeDepositAmount(getUserReadableAmount(userTokenBalance, 18));
+  }, [userTokenBalance]);
+
   // Updates approved state
   useEffect(() => {
     (async () => {
@@ -232,15 +239,18 @@ const DepositPanel = () => {
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
                 Amount
               </Typography>
-              <Input
-                disableUnderline={true}
-                type="number"
-                className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
-                classes={{ input: 'text-white text-xs text-right' }}
-                value={strikeDepositAmount}
-                placeholder="0"
-                onChange={handleDepositAmount}
-              />
+              <Box className="relative">
+                <InputHelpers handleMax={handleMax} />
+                <Input
+                  disableUnderline={true}
+                  type="number"
+                  className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
+                  classes={{ input: 'text-white text-xs text-right' }}
+                  value={strikeDepositAmount}
+                  placeholder="0"
+                  onChange={handleDepositAmount}
+                />
+              </Box>
             </Box>
           </Box>
         </Box>
