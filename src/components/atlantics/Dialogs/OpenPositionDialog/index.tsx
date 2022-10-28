@@ -159,6 +159,40 @@ export const OpenPositionDialog = () => {
 
   const sendTx = useSendTx();
 
+  const error = useMemo(() => {
+    let errorMessage = '';
+    if (!atlanticPoolEpochData) return errorMessage;
+    const { putStrike, optionsAmount } = strategyDetails;
+    const collateralRequired = putStrike
+      .mul(optionsAmount)
+      .div(getContractReadableAmount(1, 18 + 8 - 6));
+
+    if (putStrike.isZero()) return errorMessage;
+
+    const availableStrikesData = atlanticPoolEpochData.epochStrikeData.filter(
+      (data: any) => {
+        return data.strike.gte(putStrike);
+      }
+    );
+    let availableLiquidity = BigNumber.from(0);
+    for (const i in availableStrikesData) {
+      const { totalEpochMaxStrikeLiquidity, activeCollateral } =
+        availableStrikesData[i] ?? {
+          totalEpochMaxStrikeLiquidity: BigNumber.from(0),
+          activeCollateral: BigNumber.from(0),
+        };
+      availableLiquidity = availableLiquidity.add(
+        totalEpochMaxStrikeLiquidity.sub(activeCollateral)
+      );
+    }
+
+    if (collateralRequired.gt(availableLiquidity)) {
+      errorMessage = 'Insufficient liquidity for options';
+    }
+
+    return errorMessage;
+  }, [atlanticPoolEpochData, strategyDetails]);
+
   const selectedPoolTokens = useMemo((): {
     deposit: string;
     underlying: string;
@@ -517,8 +551,6 @@ export const OpenPositionDialog = () => {
       signer
     );
 
-    //  console.log("Debuggin",  (await utils.calculateLeverage(increaseOrderParams.positionSizeDelta, increaseOrderParams.collateralDelta,increaseOrderParams.path[0])).toString());
-
     const { depositToken } = atlanticPool.tokens;
 
     const depositTokenAddress = contractAddresses[depositToken];
@@ -643,6 +675,16 @@ export const OpenPositionDialog = () => {
             marks={testing ? marks_testing : marks}
           />
         </Box>
+        {error !== '' && (
+          <Box>
+            <Typography
+              variant="h6"
+              className="text-red-400 border border-red-400 p-5 text-center rounded-xl"
+            >
+              {error}
+            </Typography>
+          </Box>
+        )}
         <Box className="flex-col justify-center items-center">
           <Box className="px-1 flex">
             <Typography variant="h6">
@@ -674,7 +716,9 @@ export const OpenPositionDialog = () => {
             <CustomButton
               onClick={handleApproveBaseToken}
               disabled={
-                positionBalance === '' || parseInt(positionBalance) === 0
+                positionBalance === '' ||
+                parseInt(positionBalance) === 0 ||
+                error !== ''
               }
               className={`${
                 !depositUnderlying &&
@@ -687,7 +731,9 @@ export const OpenPositionDialog = () => {
             <CustomButton
               onClick={handleApproveQuoteToken}
               disabled={
-                positionBalance === '' || parseInt(positionBalance) === 0
+                positionBalance === '' ||
+                parseInt(positionBalance) === 0 ||
+                error !== ''
               }
               className={` ${isApproved.quote && 'hidden'} w-full m-1 `}
             >
@@ -695,7 +741,7 @@ export const OpenPositionDialog = () => {
             </CustomButton>
           </Box>
           <CustomButton
-            // disabled={loading}
+            disabled={error !== ''}
             onClick={useStrategy}
             className="m-1"
           >
