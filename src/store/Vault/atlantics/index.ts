@@ -142,19 +142,13 @@ export const createAtlanticsSlice: StateCreator<
 
     const currentEpoch = await atlanticPool.currentEpoch();
 
-    let [
-      { baseToken, quoteToken },
-      config,
-      underlyingPrice,
-      tickSize,
-      unwindFeePercentage,
-    ] = await Promise.all([
-      atlanticPool.addresses(),
-      atlanticPool.vaultConfiguration(),
-      atlanticPool.getUsdPrice(),
-      atlanticPool.epochTickSize(currentEpoch),
-      atlanticPool.unwindFeePercentage(),
-    ]);
+    let [{ baseToken, quoteToken }, config, underlyingPrice, tickSize] =
+      await Promise.all([
+        atlanticPool.addresses(),
+        atlanticPool.vaultConfiguration(),
+        atlanticPool.getUsdPrice(),
+        atlanticPool.epochTickSize(currentEpoch),
+      ]);
 
     const contracts: ApContracts = {
       atlanticPool,
@@ -175,7 +169,7 @@ export const createAtlanticsSlice: StateCreator<
       ...prevState,
       atlanticPool: {
         currentEpoch,
-        vaultConfig: { ...config, tickSize, unwindFee: unwindFeePercentage },
+        vaultConfig: { ...config, tickSize, unwindFee: BigNumber.from(0) },
         contracts,
         tokens: {
           underlying,

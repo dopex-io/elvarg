@@ -35,6 +35,16 @@ const options: any[] = [
     description:
       "If underlying was deposited before using the strategy, you can use choose to keep borrowed collateral incase the put options bought for your long position's insurance are in the money.",
   },
+  {
+    option: 'Emergency Exit Strategy',
+    description:
+      'Immidiately exit strategy if position does not have borrowed collateral and exit options positions as well (Cannot be settled)',
+  },
+  {
+    option: 'Insure Position',
+    description:
+      'Purchase options for your long position if you feel like it has been in a `Enable pending` state for too long.',
+  },
 ];
 
 const ManageStrategyPosition = () => {
@@ -152,6 +162,7 @@ const ManageStrategyPosition = () => {
     );
 
     const userPositionId = await strategy.userPositionIds(accountAddress);
+    const strategyPosition = await strategy.strategyPositions(userPositionId);
 
     let tx;
     const overrides = {
@@ -169,6 +180,17 @@ const ManageStrategyPosition = () => {
     }
     if (selectedOptionItem === 2) {
       tx = strategy.createKeepCollateralOrder(userPositionId);
+    }
+    if (selectedOptionItem === 3) {
+      tx = strategy.emergencyStrategyExit(userPositionId);
+    }
+
+    if (selectedOptionItem === 4) {
+      tx = strategy.reuseStrategy(
+        userPositionId,
+        strategyPosition.expiry,
+        strategyPosition.keepCollateral
+      );
     }
     if (tx) {
       await sendTx(tx);

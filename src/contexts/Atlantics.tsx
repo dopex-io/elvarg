@@ -253,14 +253,12 @@ export const AtlanticsProvider = (props: any) => {
         config,
         underlyingPrice,
         tickSize,
-        unwindFeePercentage,
       ] = await Promise.all([
         atlanticPool.addresses(),
         atlanticPool.epochVaultStates(epoch),
         atlanticPool.vaultConfiguration(),
         atlanticPool.getUsdPrice(),
         atlanticPool.epochTickSize(epoch),
-        atlanticPool.unwindFeePercentage(),
       ]);
 
       let data: IEpochData;
@@ -348,7 +346,7 @@ export const AtlanticsProvider = (props: any) => {
         config: {
           ...config,
           tickSize,
-          unwindFee: unwindFeePercentage,
+          unwindFee: BigNumber.from(0),
         },
         contracts,
         tokens: {
