@@ -128,7 +128,9 @@ const DepositPanel = () => {
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(getUserReadableAmount(userTokenBalance, 18));
+    setStrikeDepositAmount(
+      (getUserReadableAmount(userTokenBalance, 18) ** 0.99999).toFixed(4)
+    );
   }, [userTokenBalance]);
 
   // Updates approved state
