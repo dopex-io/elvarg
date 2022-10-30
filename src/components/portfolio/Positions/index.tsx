@@ -30,7 +30,7 @@ const headerCells: { [key: string]: { span: number; title: string }[] } = {
       title: 'Asset',
     },
     {
-      span: 1,
+      span: 2,
       title: 'Market',
     },
     {
@@ -52,6 +52,10 @@ const headerCells: { [key: string]: { span: number; title: string }[] } = {
     {
       span: 1,
       title: 'Pnl',
+    },
+    {
+      span: 2,
+      title: 'Expiry',
     },
     {
       span: 1,
@@ -132,7 +136,7 @@ export default function Positions() {
     <Box>
       <Box className="mt-9 ml-5 mr-5">
         <Typography variant="h4">Open Positions</Typography>
-        <Box className="bg-cod-gray mt-3 rounded-md text-center px-2">
+        <Box className="bg-cod-gray mt-3 rounded-md text-center px-2 overflow-auto">
           <Box className="flex py-3 px-3 border-b-[1.5px] border-umbra">
             <Box className="mr-3 mt-0.5">
               <Filter
@@ -167,7 +171,7 @@ export default function Positions() {
             </Box>
           ) : filteredSSOVPositions.length === 0 &&
             filteredStraddlesPositions.length === 0 ? (
-            <Box className="flex-col p-9">
+            <Box className="flex-col p-9 min-w-[1500px]">
               <Box className="mx-auto">You do not have any positions</Box>
               <Link href="/ssov">
                 <Button
@@ -180,7 +184,7 @@ export default function Positions() {
               </Link>
             </Box>
           ) : (
-            <Box className="py-2">
+            <Box className="py-2 min-w-[1500px]">
               {filteredSSOVPositions.length > 0 ? (
                 <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
                   {headerCells['ssov']!.map((cell, i) => (

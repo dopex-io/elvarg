@@ -125,7 +125,7 @@ export default function Deposits() {
     <Box>
       <Box className="mt-9 ml-5 mr-5">
         <Typography variant="h4">Your Deposits</Typography>
-        <Box className="bg-cod-gray mt-3 rounded-md text-center px-2">
+        <Box className="bg-cod-gray mt-3 rounded-md text-center px-2 overflow-auto">
           <Box className="flex py-3 px-3 border-b-[1.5px] border-umbra">
             <Box className="mr-3 mt-0.5">
               <Filter
@@ -161,7 +161,7 @@ export default function Deposits() {
             </Box>
           ) : filteredSSOVDeposits.length === 0 &&
             filteredStraddlesDeposits.length === 0 ? (
-            <Box className="flex-col p-9">
+            <Box className="flex-col p-9  min-w-[1500px]">
               <Box className="mx-auto">You do not have any deposits</Box>
               <Link href="/ssov">
                 <Button
@@ -174,7 +174,7 @@ export default function Deposits() {
               </Link>
             </Box>
           ) : (
-            <Box className="py-2">
+            <Box className="py-2  min-w-[1500px]">
               {filteredSSOVDeposits.length > 0 ? (
                 <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
                   {headerCells['ssov']!.map((cell, i) => (
