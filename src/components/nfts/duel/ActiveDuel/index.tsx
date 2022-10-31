@@ -149,7 +149,9 @@ const ActiveDuel = ({
         <button
           className={styles['pepeButton']}
           onClick={handleClick}
-          disabled={['forfeit', 'tie'].includes(duel['status'])}
+          disabled={['forfeit', 'tie', 'won', 'lost', 'waiting'].includes(
+            duel['status']
+          )}
         >
           {message}
           {duel['status'] === 'requireReveal' ? (
