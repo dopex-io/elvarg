@@ -282,8 +282,8 @@ export const OpenPositionDialog = () => {
     if (selectedToken === depositToken) {
       path = [depositTokenAddress, underlyingTokenAddress];
       amountIn = await utils.getAmountIn(
-        0,
         indexTokenFromCollateralUsd,
+        0,
         underlyingTokenAddress,
         depositTokenAddress
       );
