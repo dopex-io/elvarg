@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
@@ -128,9 +128,7 @@ const DepositPanel = () => {
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(
-      (getUserReadableAmount(userTokenBalance, 18) ** 0.99999).toFixed(4)
-    );
+    setStrikeDepositAmount(utils.formatEther(userTokenBalance));
   }, [userTokenBalance]);
 
   // Updates approved state
