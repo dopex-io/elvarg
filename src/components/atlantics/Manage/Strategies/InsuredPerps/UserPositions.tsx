@@ -127,16 +127,20 @@ const UserPositions = () => {
 
     if (gmxPosition[0].isZero()) return;
 
+    const strategyPosition = await strategyContract.strategyPositions(
+      positionId
+    );
+
     const [
       atlanticsPosition,
-      strategyPosition,
       leverage,
       positionDelta,
       liquidationPrice,
       markPrice,
     ] = await Promise.all([
-      atlanticPool.contracts.atlanticPool.getOptionsPurchase(positionId),
-      strategyContract.strategyPositions(positionId),
+      atlanticPool.contracts.atlanticPool.getOptionsPurchase(
+        strategyPosition.atlanticsPurchaseId
+      ),
       gmxVault.getPositionLeverage(
         positionManager,
         underlyingAddress,
