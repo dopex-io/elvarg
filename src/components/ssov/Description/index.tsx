@@ -128,11 +128,11 @@ const Description = ({
         </Box>
       ) : null}
       <Box className="mb-3">
-        Epoch duration:
-        <span className="font-bold">
+        Epoch duration
+        <p className="font-bold">
           {format(epochStartTime * 1000, 'd MMM yyyy HH:mm')} -{' '}
           {format(epochEndTime * 1000, 'd MMM yyyy HH:mm')}
-        </span>
+        </p>
       </Box>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">
