@@ -96,7 +96,7 @@ export const EligibilityCheck = ({
   };
 
   const handleChange = (e: any) => {
-    let value = e.target.value;
+    let value = Number(e.target.value);
     if (value) {
       handleCheckNft(value);
     } else {
@@ -139,14 +139,14 @@ export const EligibilityCheck = ({
             </Box>
             {showIcon &&
               (!eligible ? (
-                <Tooltip title="This NFT is ineligible because it has been used before in the bonds program.">
+                <Tooltip title="This NFT has already been used for this epoch.">
                   <Box className="text-white text-xs mt-1 ">
                     Used
                     <ErrorIcon className="text-[#FF617D] mb-0.5 h-[15px]  " />
                   </Box>
                 </Tooltip>
               ) : (
-                <Tooltip title="This NFT is eligible and has not been used in the bonds program.">
+                <Tooltip title="This NFT has not yet been used for this epoch.">
                   <Box className="text-white text-xs mt-1 ">
                     Eligible
                     <CheckCircleIcon className="text-[#6DFFB9] mb-0.5 h-[15px] " />

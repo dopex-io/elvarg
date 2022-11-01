@@ -7,9 +7,9 @@ import ActionsDialog from 'components/nfts/diamondpepes/ActionsDialog';
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 
-import styles from 'components/nfts/diamondpepes/styles.module.scss';
-
 import { useBoundStore } from 'store';
+
+import styles from 'components/nfts/diamondpepes/styles.module.scss';
 
 const DiamondPepesNfts = () => {
   const { contractAddresses } = useBoundStore();
@@ -239,11 +239,14 @@ const DiamondPepesNfts = () => {
               Mint contract
               <br />
               <a
-                href={`https://arbiscan.io/address/${contractAddresses['DuelDiamondPepesNFTsMint']}`}
+                href={
+                  'https://arbiscan.io/address/' +
+                  contractAddresses['NFTS']['DuelDiamondPepesNFT']
+                }
                 rel="noopener noreferrer"
                 target={'_blank'}
               >
-                {contractAddresses['DuelDiamondPepesNFTsMint']}
+                {contractAddresses['NFTS']['DuelDiamondPepesNFT']!}
               </a>
             </Typography>
           </Box>
