@@ -58,8 +58,8 @@ export interface DuelSlice {
   setSelectedDuel?: Function;
   availableCredit: BigNumber;
   updateCredit?: Function;
-  updateData?: Function;
-  data: {
+  updatePepesData?: Function;
+  pepesData: {
     publicMints: BigNumber;
     nextMintId: BigNumber;
     maxPublicMints: BigNumber;
@@ -81,7 +81,7 @@ export const createDuelSlice: StateCreator<
   isLoading: true,
   selectedDuel: null,
   availableCredit: BigNumber.from('0'),
-  data: {
+  pepesData: {
     publicMints: BigNumber.from('0'),
     nextMintId: BigNumber.from('0'),
     maxPublicMints: BigNumber.from('0'),
@@ -89,7 +89,7 @@ export const createDuelSlice: StateCreator<
     endTime: BigNumber.from('0'),
     startTime: BigNumber.from('0'),
   },
-  updateData: async () => {
+  updatePepesData: async () => {
     const { provider, signer, contractAddresses } = get();
     if (!provider || !signer) return;
 
@@ -116,16 +116,18 @@ export const createDuelSlice: StateCreator<
       publicSaleContract['maxMints'](),
     ]);
 
+    const data = {
+      publicMints: publicMints,
+      nextMintId: nextMintId,
+      maxPublicMints: maxMints,
+      mintPrice: mintPrice,
+      endTime: endTime,
+      startTime: startTime,
+    };
+
     set((prevState) => ({
       ...prevState,
-      data: {
-        publicMints: publicMints,
-        nextMintId: nextMintId,
-        maxPublicMints: maxMints,
-        mintPrice: mintPrice,
-        endTime: endTime,
-        startTime: startTime,
-      },
+      pepesData: data,
     }));
   },
   updateCredit: async () => {
@@ -161,7 +163,7 @@ export const createDuelSlice: StateCreator<
     if (!signer || !accountAddress || !provider) return;
 
     const duelContract = DuelDiamondPepesNFTsDuel__factory.connect(
-      contractAddresses['DuelDiamondPepesNFT'],
+      contractAddresses['DuelDiamondPepesNFTsDuel'],
       provider
     );
 
@@ -285,6 +287,8 @@ export const createDuelSlice: StateCreator<
 
       const minimum = 1100;
       const maximum = 1300;
+      const fees = parseInt(duelData[3].toString());
+      const challengedDate = new Date(duelData[7][1].toNumber() * 1000);
 
       const duel: Duel = {
         id: i,
@@ -294,14 +298,14 @@ export const createDuelSlice: StateCreator<
         wager: wager,
         tokenName: symbol,
         tokenAddress: Addresses[chainId]['WETH'],
-        fees: duelData[3].toNumber(),
+        fees: fees,
         duelist: Math.floor(Math.random() * (maximum - minimum + 1)) + minimum,
         challenger:
           Math.floor(Math.random() * (maximum - minimum + 1)) + minimum,
         isCreatorWinner: isCreatorWinner,
         creationDate: creationDate,
         challengedLimitDate: challengedLimitDate,
-        challengedDate: new Date(duelData[7][1].toNumber() * 1000),
+        challengedDate: challengedDate,
         finishDate: finishDate,
         isRevealed: isRevealed,
         duelistMoves: duelistMoves,
@@ -348,6 +352,7 @@ export const createDuelSlice: StateCreator<
       duels: _duels,
       activeDuels: _activeDuels,
       isLoading: false,
+      duelContract: duelContract,
     }));
   },
   updateNfts: async () => {

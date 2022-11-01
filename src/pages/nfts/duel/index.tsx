@@ -30,11 +30,12 @@ const DuelPepes = () => {
     isLoading,
     activeDuels,
     updateDuels,
+    updatePepesData,
     duelContract,
     setSelectedDuel,
     availableCredit,
     updateCredit,
-    data,
+    pepesData,
   } = useBoundStore();
   const { signer } = useBoundStore();
   const [isCreateDuelDialogOpen, setIsCreateDuelDialogOpen] =
@@ -117,11 +118,11 @@ const DuelPepes = () => {
 
   const boxes = useMemo(
     () =>
-      data
+      pepesData
         ? [
             {
               title: Math.max(
-                BigNumber.from(1111).sub(data?.nextMintId)?.toNumber(),
+                BigNumber.from(1111).sub(pepesData?.nextMintId)?.toNumber(),
                 0
               ),
               subTitle: 'PEPES REMAINING',
@@ -130,7 +131,7 @@ const DuelPepes = () => {
             {
               title: (
                 <Countdown
-                  date={new Date(data?.startTime?.toNumber() * 1000)}
+                  date={new Date(pepesData?.startTime?.toNumber() * 1000)}
                   renderer={({ days, hours, minutes, seconds, completed }) => {
                     if (completed) {
                       return (
@@ -152,16 +153,20 @@ const DuelPepes = () => {
             },
           ]
         : [],
-    [data]
+    [pepesData]
   );
 
   useEffect(() => {
-    if (updateDuels) updateDuels();
-  }, [updateDuels]);
+    if (updateCredit && signer) updateCredit();
+  }, [updateCredit, signer]);
 
   useEffect(() => {
-    if (updateCredit) updateCredit();
-  }, [updateCredit]);
+    if (updateDuels && signer) updateDuels();
+  }, [updateDuels, signer]);
+
+  useEffect(() => {
+    if (updatePepesData && signer) updatePepesData();
+  }, [updatePepesData, signer]);
 
   return (
     <Box className="bg-black min-h-screen">
