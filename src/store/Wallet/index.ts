@@ -9,10 +9,8 @@ import { AssetsSlice } from 'store/Assets';
 import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 
 import { CHAIN_ID_TO_RPC, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/index';
-// import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { FarmingSlice } from 'store/Farming';
-
-const DEFAULT_CHAIN_ID: number = 5;
 
 export interface WalletSlice {
   updateState: Function;
