@@ -13,6 +13,7 @@ import { SsovV3EpochData } from 'store/Vault/ssov';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import Wrapper from 'components/ssov/Wrapper';
 import LockerIcon from 'svgs/icons/LockerIcon';
 
 import useSendTx from 'hooks/useSendTx';
@@ -48,6 +49,8 @@ const DepositPanel = () => {
     ssovSigner,
     selectedEpoch,
   } = useBoundStore();
+
+  const [wrapOpen, setWrapOpen] = useState(false);
 
   const sendTx = useSendTx();
 
@@ -177,7 +180,16 @@ const DepositPanel = () => {
               </Typography>
             </Box>
           </a>
-        ) : null}
+        ) : (
+          <Box
+            role="button"
+            className="underline ml-auto mt-1 text-sm"
+            onClick={() => setWrapOpen(true)}
+          >
+            Wrap ETH
+          </Box>
+        )}
+        <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       </Box>
       <Box>
         <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
