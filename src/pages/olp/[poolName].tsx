@@ -21,6 +21,7 @@ const Olp = ({ poolName }: Props) => {
     updateOlp,
     updateOlpUserData,
     updateOlpEpochData,
+    chainId,
   } = useBoundStore();
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const Olp = ({ poolName }: Props) => {
         updateOlpUserData();
       })
     );
-  }, [updateOlp, updateOlpEpochData, updateOlpUserData]);
+  }, [updateOlp, updateOlpEpochData, updateOlpUserData, chainId]);
 
   return (
     <Box className="bg-black min-h-screen">
