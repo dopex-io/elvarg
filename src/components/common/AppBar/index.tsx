@@ -115,7 +115,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
-  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
+  { name: 'Diamond Pepe NFTs', to: 'https://dp2.dopex.io' },
   { name: 'Dopex NFTs', to: '/nfts' },
   { name: 'Community NFTs', to: '/nfts/community' },
   { name: 'Tzwap', to: '/tzwap' },

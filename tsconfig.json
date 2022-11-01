@@ -27,6 +27,6 @@
     "noFallthroughCasesInSwitch": true,
     "incremental": true
   },
-  "include": ["src", "legacy/nfts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
