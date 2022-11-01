@@ -305,6 +305,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
   '/ssov/call/BNB': { default: 56, all: [56] },
   '/ssov/call/AVAX': { default: 43114, all: [43114] },
+  '/nfts/dopex': { default: 42161, all: [42161] },
   '/nfts/community': { default: 42161, all: [] },
   '/sale': { default: 1, all: [1] },
   '/oracles': { default: 42161, all: [] },

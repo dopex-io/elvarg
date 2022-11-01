@@ -116,7 +116,7 @@ const menuLinks = [
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
   { name: 'Diamond Pepe NFTs', to: 'https://dp2.dopex.io' },
-  { name: 'Dopex NFTs', to: '/nfts' },
+  { name: 'Dopex NFTs', to: '/nfts/dopex' },
   { name: 'Community NFTs', to: '/nfts/community' },
   { name: 'Tzwap', to: '/tzwap' },
 ];
