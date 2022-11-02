@@ -229,7 +229,7 @@ export const createPortfolioSlice: StateCreator<
           return {
             assetName: assetName,
             vaultName: vaultName,
-            amount: userPosition.amount,
+            amount: String(userPosition.amount / 2),
             epoch: epoch,
             strikePrice: userPosition.strikePrice,
             underlyingPurchased: userPosition.underlyingPurchased,
