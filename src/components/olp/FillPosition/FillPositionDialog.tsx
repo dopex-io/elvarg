@@ -1,11 +1,12 @@
 import { MouseEventHandler } from 'react';
-import { Box, Input, Switch, Tooltip } from '@mui/material';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import Switch from '@mui/material/Switch';
+import Tooltip from '@mui/material/Tooltip';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { BigNumber } from 'ethers';
-
-import { LpPosition } from 'store/Vault/olp';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
@@ -15,6 +16,9 @@ import {
   NumberLiquidityDialogRow,
 } from 'components/common/LpCommon/Table';
 import { Typography } from 'components/UI';
+
+import { LpPosition } from 'store/Vault/olp';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -177,7 +181,7 @@ export default function FillPositionDialog(props: Props) {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 text-2xl text-white ml-2 mr-3 font-mono w-36"
+            className="h-12 text-2xl text-white font-mono w-36 ml-10"
             value={rawFillAmount}
             onChange={(e) => setRawFillAmount(e.target.value)}
             classes={{ input: 'text-right' }}

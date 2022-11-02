@@ -1,4 +1,5 @@
-import { TableRow, TableCell } from '@mui/material';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
 import { BigNumber } from 'ethers';
 
 import {
@@ -19,7 +20,7 @@ interface Props {
   isFillModalOpen: boolean;
   isEpochExpired: boolean;
   handleFill: Function;
-  closeFillModal: Function;
+  closeFillModal: (e: any, reason: any) => void;
   underlyingSymbol: string;
 }
 

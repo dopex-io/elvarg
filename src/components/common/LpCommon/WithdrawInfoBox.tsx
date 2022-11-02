@@ -1,14 +1,11 @@
-import React from 'react';
 import { Box } from '@mui/material';
 import { BigNumber } from 'ethers';
+
 import { Typography } from 'components/UI';
+
 import { getReadableTime } from 'utils/contracts';
 
-interface Props {
-  expiry: BigNumber;
-}
-
-const WithdrawInfoBox = ({ expiry }: Props) => {
+const WithdrawInfoBox = ({ expiry }: { expiry: BigNumber }) => {
   return (
     <Box className="rounded-xl flex flex-col p-2 border border-none w-full">
       <Box className="flex">

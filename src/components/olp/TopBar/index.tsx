@@ -1,6 +1,6 @@
-import { useBoundStore } from 'store';
-
 import LpTopBar from 'components/common/LpTopBar';
+
+import { useBoundStore } from 'store';
 
 const TopBar = () => {
   const { tokenPrices, olpData, olpEpochData } = useBoundStore();

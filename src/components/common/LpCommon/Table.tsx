@@ -1,10 +1,16 @@
-import { Box, TableContainer, TableCell } from '@mui/material';
-import { Typography } from 'components/UI';
-import styled from '@emotion/styled';
+import Box from '@mui/material/Box';
+import TableContainer from '@mui/material/TableContainer';
+import TableCell from '@mui/material/TableCell';
+import { styled } from '@mui/material/styles';
 import { BigNumber } from 'ethers';
+
+import { Typography } from 'components/UI';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+
 import { LpPosition } from 'store/Vault/olp';
 
 export const StyleTable = styled(TableContainer)`
@@ -97,7 +103,7 @@ export const DialogRow = ({ data, value }: { data: string; value: string }) => {
           color="text-stieglitz"
           className="text-sm pl-1 pt-2 pr-3"
         >
-          {value}
+          <span className="text-stieglitz">{value}</span>
         </Typography>
       </Box>
     </Box>
