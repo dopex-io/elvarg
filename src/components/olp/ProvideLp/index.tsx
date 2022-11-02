@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import { SelectChangeEvent } from '@mui/material/Select';

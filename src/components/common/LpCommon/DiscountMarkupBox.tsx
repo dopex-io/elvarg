@@ -1,10 +1,7 @@
-import Box from '@mui/material/Box';
-import FormHelperText from '@mui/material/FormHelperText';
-import Input from '@mui/material/Input';
-
+import React from 'react';
+import { Box, FormHelperText, Input } from '@mui/material';
 import { Typography } from 'components/UI';
-
-import InfoBox from 'components/common/LpCommon/InfoBox';
+import InfoBox from './InfoBox';
 
 interface Props {
   data: string;

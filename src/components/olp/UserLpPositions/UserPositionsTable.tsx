@@ -1,5 +1,4 @@
-import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
+import { TableRow, TableCell } from '@mui/material';
 import { BigNumber } from 'ethers';
 
 import { LpPosition } from 'store/Vault/olp';
@@ -9,7 +8,6 @@ import {
   getLiquidityBodyCell,
 } from 'components/common/LpCommon/Table';
 import { CustomButton } from 'components/UI';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 

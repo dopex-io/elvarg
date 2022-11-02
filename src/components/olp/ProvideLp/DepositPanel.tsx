@@ -1,7 +1,6 @@
+import React from 'react';
 import { MouseEventHandler } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Input from '@mui/material/Input';
+import { Box, Button, Input } from '@mui/material';
 import { BigNumber } from 'ethers';
 
 import { Typography } from 'components/UI';
@@ -25,7 +24,7 @@ interface Props {
   rawDepositAmount: string;
   discountAmount: number;
   setRawDepositAmount: Function;
-  handleSelectAsset: Function;
+  handleSelectAsset: any;
   usdBalance: BigNumber;
   underlyingBalance: BigNumber;
   expiry: BigNumber;
@@ -33,7 +32,7 @@ interface Props {
   chainId: number;
   approved: boolean;
   underlyingApproved: boolean;
-  handleIsPut: Function;
+  handleIsPut: any;
   hasPut: boolean;
   hasCall: boolean;
   handleApprove: MouseEventHandler<HTMLButtonElement>;
@@ -100,7 +99,7 @@ export default function DepositPanel(props: Props) {
     assetIdx: number,
     underlyingSymbol: string,
     assets: string[],
-    handleSelectAsset: Function
+    handleSelectAsset: any
   ) {
     return (
       <Box className="mt-2 rounded-xl flex flex-col mb-0 p-3 w-full">
@@ -141,7 +140,7 @@ export default function DepositPanel(props: Props) {
     return (
       <Box className="flex h-11 flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
         <Box
-          className={`text-center w-full cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
+          className={`text-center w-full pb-1 cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
             !isPut ? 'bg-[#2D2D2D]' : ''
           }`}
         >
@@ -152,7 +151,7 @@ export default function DepositPanel(props: Props) {
           </Button>
         </Box>
         <Box
-          className={`text-center w-full cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
+          className={`text-center w-full pb-1 cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
             isPut ? 'bg-[#2D2D2D]' : ''
           }`}
         >

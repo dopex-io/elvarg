@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
+import { Modal } from '@mui/material';
 import { BigNumber } from 'ethers';
-
-import { Dialog } from 'components/UI';
-// import { Modal } from '@mui/material';
 
 import { useBoundStore } from 'store';
 
@@ -22,7 +20,7 @@ const CHAIN_ID: number = 5;
 
 export interface Props {
   open: boolean;
-  handleClose: (e: any, reason: any) => void;
+  handleClose: Function;
 }
 
 const FillPosition = ({ open, handleClose }: Props) => {
@@ -223,12 +221,11 @@ const FillPosition = ({ open, handleClose }: Props) => {
   ]);
 
   return (
-    <Dialog
+    <Modal
+      className="flex items-center justify-center"
       open={open}
-      handleClose={handleClose}
-      showCloseIcon
+      onClose={() => handleClose}
       disableScrollLock={true}
-      PaperProps={{ style: { backgroundColor: 'transparent' } }}
     >
       <FillPositionDialog
         handleClose={handleClose}
@@ -248,7 +245,7 @@ const FillPosition = ({ open, handleClose }: Props) => {
         fillButtonMessage={fillButtonMessage}
         underlyingSymbol={olpData?.underlyingSymbol!}
       />
-    </Dialog>
+    </Modal>
   );
 };
 

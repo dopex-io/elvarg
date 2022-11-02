@@ -1,4 +1,4 @@
-import DiscountMarkupBox from 'components/common/LpCommon/DiscountMarkupBox';
+import DiscountMarkupBox from './DiscountMarkupBox';
 
 interface Props {
   rawAmount: string;
