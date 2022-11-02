@@ -1,6 +1,8 @@
 import Box from '@mui/material/Box';
-import formatAmount from 'utils/general/formatAmount';
+
 import { Typography } from 'components/UI';
+
+import formatAmount from 'utils/general/formatAmount';
 
 interface Props {
   data: string;

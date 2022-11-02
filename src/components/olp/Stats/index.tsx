@@ -1,5 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
-import { Box, Button, MenuItem } from '@mui/material';
+import { useCallback, useMemo } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
 import { BigNumber } from 'ethers';
 import { zipWith } from 'lodash';
 

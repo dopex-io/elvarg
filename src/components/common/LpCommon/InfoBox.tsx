@@ -1,5 +1,7 @@
-import { Box, Tooltip } from '@mui/material';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import { Typography } from 'components/UI';
 
 interface InfoBoxProps {

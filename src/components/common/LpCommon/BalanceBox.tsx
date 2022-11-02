@@ -1,9 +1,11 @@
-import React from 'react';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
+
 import { Typography } from 'components/UI';
+
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
+
 import { DECIMALS_USD, DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
@@ -27,15 +29,14 @@ const BalanceBox = ({
         </Typography>
       </Box>
       <Box className="ml-auto mr-0">
-        {assetIdx === 0 && (
+        {assetIdx === 0 ? (
           <Typography variant="h6" className="text-sm pl-1 pt-2">
             {`${formatAmount(
               getUserReadableAmount(usdBalance, DECIMALS_USD),
               2
             )} USDC`}
           </Typography>
-        )}
-        {assetIdx === 1 && (
+        ) : (
           <Typography variant="h6" className="text-sm pl-1 pt-2">
             {`${formatAmount(
               getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN),
