@@ -1,7 +1,5 @@
 import { MouseEventHandler } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Input from '@mui/material/Input';
+import { Box, Button, Input } from '@mui/material';
 import { BigNumber } from 'ethers';
 
 import { Typography } from 'components/UI';

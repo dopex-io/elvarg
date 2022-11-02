@@ -1,8 +1,5 @@
 import { MouseEventHandler } from 'react';
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import Switch from '@mui/material/Switch';
-import Tooltip from '@mui/material/Tooltip';
+import { Box, Input, Switch, Tooltip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';

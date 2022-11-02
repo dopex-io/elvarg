@@ -1,5 +1,4 @@
-import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
+import { TableCell, TableRow } from '@mui/material';
 import { BigNumber } from 'ethers';
 
 import { LpPosition } from 'store/Vault/olp';

@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import Table from '@mui/material/Table';
-import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-import TablePagination from '@mui/material/TablePagination';
+import {
+  Table,
+  Box,
+  TableHead,
+  TableRow,
+  TableBody,
+  TablePagination,
+} from '@mui/material';
 
 import { useBoundStore } from 'store';
 

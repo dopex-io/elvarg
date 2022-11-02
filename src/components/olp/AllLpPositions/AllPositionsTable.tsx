@@ -1,5 +1,4 @@
-import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
+import { TableRow, TableCell } from '@mui/material';
 import { BigNumber } from 'ethers';
 
 import {
