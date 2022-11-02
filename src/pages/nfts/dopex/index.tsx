@@ -9,15 +9,18 @@ import NftCard from 'components/nfts/components/NftCard';
 import { useBoundStore } from 'store';
 
 const Nfts = () => {
-  const { nftsData, updateUserNftsData, updateNftsData } = useBoundStore();
+  const { provider, nftsData, updateUserNftsData, updateNftsData } =
+    useBoundStore();
 
   useEffect(() => {
+    if (!provider) return;
     updateUserNftsData();
-  }, [updateUserNftsData]);
+  }, [updateUserNftsData, provider]);
 
   useEffect(() => {
+    if (!provider) return;
     updateNftsData();
-  }, [updateNftsData]);
+  }, [updateNftsData, provider]);
 
   return (
     <Box className="bg-black min-h-screen">

@@ -41,13 +41,18 @@ const VeDPXYield = () => {
 
   const handleClaim = useCallback(async () => {
     if (!signer || !accountAddress) return;
-    const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
-      vedpxYieldDistributorAddress,
-      signer
-    );
+    try {
+      const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
+        vedpxYieldDistributorAddress,
+        signer
+      );
 
-    await sendTx(vedpxYieldDistributor.getYield());
-  }, [accountAddress, sendTx, signer]);
+      await sendTx(vedpxYieldDistributor.getYield());
+      await updateUserData();
+    } catch (err) {
+      console.log(err);
+    }
+  }, [accountAddress, sendTx, signer, updateUserData]);
 
   return (
     <Box>
