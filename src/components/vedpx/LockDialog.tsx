@@ -274,7 +274,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
               </Typography>
             </Box>
             <Typography variant="caption" color="stieglitz">
-              Locked DPX
+              {userData.lockEnd.isZero() ? '' : 'Extent'} Locked DPX
             </Typography>
           </Box>
           <Box className="p-3 w-full">

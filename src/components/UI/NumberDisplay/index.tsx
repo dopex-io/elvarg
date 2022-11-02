@@ -18,7 +18,7 @@ const NumberDisplay = ({
   decimals,
   altText,
   minNumber = 0.0001,
-  decimalsToShow = 2,
+  decimalsToShow = 4,
 }: Props) => {
   if (BigNumber.from(decimals).gt(18)) throw Error('Decimals cannot exceed 18');
 

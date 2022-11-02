@@ -7,6 +7,7 @@ import {
 } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -46,14 +47,15 @@ interface Props extends BasicManageDialogProps {
 const ManageDialog = (props: Props) => {
   const { data, open, handleClose } = props;
 
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState(0);
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
   const [allowance, setAllowance] = useState(BigNumber.from(0));
+  const [loading, setLoading] = useState(false);
 
   const [amount] = useDebounce(value, 1000);
 
-  const { signer, accountAddress, getUserData } = useBoundStore();
+  const { signer, accountAddress } = useBoundStore();
 
   const sendTx = useSendTx();
 
@@ -106,22 +108,25 @@ const ManageDialog = (props: Props) => {
   const handleDeposit = useCallback(async () => {
     if (!signer) return;
     try {
+      setLoading(true);
       await sendTx(
         StakingRewards__factory.connect(
           data.stakingRewardsAddress,
           signer
         ).stake(utils.parseEther(amount))
       );
-      await getUserData();
+      setLoading(false);
       handleClose();
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
-  }, [signer, sendTx, amount, data, getUserData, handleClose]);
+  }, [signer, sendTx, amount, data, handleClose]);
 
   const handleApprove = useCallback(async () => {
     if (!signer) return;
     try {
+      setLoading(true);
       await sendTx(
         ERC20__factory.connect(data.stakingTokenAddress, signer).approve(
           data.stakingRewardsAddress,
@@ -129,7 +134,9 @@ const ManageDialog = (props: Props) => {
         )
       );
       setAllowance(BigNumber.from(MAX_VALUE));
+      setLoading(false);
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
   }, [signer, sendTx, data]);
@@ -137,12 +144,14 @@ const ManageDialog = (props: Props) => {
   const handleWithdraw = useCallback(async () => {
     if (!signer || !accountAddress) return;
     try {
+      setLoading(true);
       if (data.version === 3) {
-        await StakingRewardsV3__factory.connect(
-          data.stakingRewardsAddress,
-          signer
-        ).unstake(utils.parseEther(amount));
-        await getUserData();
+        await sendTx(
+          StakingRewardsV3__factory.connect(
+            data.stakingRewardsAddress,
+            signer
+          ).unstake(utils.parseEther(amount))
+        );
         handleClose();
       } else {
         await sendTx(
@@ -152,17 +161,28 @@ const ManageDialog = (props: Props) => {
           ).withdraw(utils.parseEther(amount))
         );
       }
+      setLoading(false);
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
-  }, [signer, accountAddress, data, amount, getUserData, handleClose, sendTx]);
+  }, [signer, accountAddress, data, amount, handleClose, sendTx]);
 
   const approved = useMemo(() => {
     return allowance.gte(utils.parseEther(value || '0'));
   }, [allowance, value]);
 
+  const _handleClose = () => {
+    setActiveTab(0);
+    setError('');
+    setValue('');
+    setAllowance(BigNumber.from(0));
+    setLoading(false);
+    handleClose();
+  };
+
   return (
-    <Dialog open={open} showCloseIcon handleClose={handleClose}>
+    <Dialog open={open} showCloseIcon handleClose={_handleClose}>
       <Box className="flex flex-col space-y-3">
         <Typography variant="h5">Manage</Typography>
         <Box className="flex flex-row justify-between p-1 border-[1px] border-umbra rounded-md">
@@ -247,7 +267,7 @@ const ManageDialog = (props: Props) => {
         <CustomButton
           size="medium"
           fullWidth
-          disabled={!!error || !value}
+          disabled={!!error || !value || loading}
           onClick={
             activeTab === 0
               ? approved
@@ -256,6 +276,19 @@ const ManageDialog = (props: Props) => {
               : handleWithdraw
           }
         >
+          {loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                color: 'black',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                marginTop: '-12px',
+                marginLeft: '-12px',
+              }}
+            />
+          )}
           {activeTab === 0 ? (approved ? 'Deposit' : 'Approve') : 'Withdraw'}
         </CustomButton>
       </Box>

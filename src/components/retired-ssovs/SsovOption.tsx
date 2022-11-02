@@ -20,6 +20,7 @@ const SsovOption = (props: {
     underlying: string;
     type: string;
     strike: BigNumber;
+    token: string;
   };
 }) => {
   const { option } = props;
@@ -43,20 +44,50 @@ const SsovOption = (props: {
       );
     } else {
       try {
-        const contract = new ethers.Contract(
-          option.ssovAddress,
-          ['function settle(uint256, uint256, uint256, address)'],
+        const optionTokenContract = new ethers.Contract(
+          option.token,
+          ['function approve(address, uint256)'],
           signer
         );
 
         await sendTx(
-          contract['settle'](
-            option.strikeIndex,
-            option.balance,
-            option.epoch,
-            accountAddress
-          )
+          optionTokenContract['approve'](option.ssovAddress, option.balance)
         );
+
+        const contract = new ethers.Contract(
+          option.ssovAddress,
+          [
+            'function settle(uint256, uint256, uint256, address)',
+            'function settle(uint256, uint256, uint256)',
+          ],
+          signer
+        );
+
+        // @ts-ignore
+        const success = await contract.callStatic[
+          'settle(uint256,uint256,uint256,address)'
+        ](option.strikeIndex, option.balance, option.epoch, accountAddress)
+          .then(() => true)
+          .catch(() => false);
+
+        if (success) {
+          await sendTx(
+            contract['settle(uint256,uint256,uint256,address)'](
+              option.strikeIndex,
+              option.balance,
+              option.epoch,
+              accountAddress
+            )
+          );
+        } else {
+          await sendTx(
+            contract['settle(uint256,uint256,uint256)'](
+              option.strikeIndex,
+              option.balance,
+              option.epoch
+            )
+          );
+        }
       } catch (error) {
         console.log(error);
       }
@@ -69,10 +100,8 @@ const SsovOption = (props: {
       <Typography variant="h5">
         Strike: {getUserReadableAmount(option.strike, 8)}
       </Typography>
-      <Typography variant="h5" className="mb-2">
-        Type: {option.type}
-      </Typography>
-      <Typography variant="h5" className="mb-2">
+      <Typography variant="h5">Type: {option.type}</Typography>
+      <Typography variant="h5" className="mb-3">
         Amount: {getUserReadableAmount(option.balance, 18)}
       </Typography>
       <WalletButton onClick={handleSettle}>Settle</WalletButton>

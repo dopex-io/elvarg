@@ -8,6 +8,7 @@ import getTokenUri from 'utils/contracts/getTokenUri';
 
 export interface NftData {
   nftName: string;
+  nftSymbol: string;
   nftUri: string;
 }
 
@@ -37,19 +38,25 @@ export const createNftsSlice: StateCreator<
 
     if (!provider || !contractAddresses) return;
     const nftsData: NftData[] = [];
-    for (const nft in contractAddresses['NFTS']) {
+    const nftAddresses = {
+      DopexBridgoorNFT: contractAddresses['NFTS']['DopexBridgoorNFT'],
+      DopexHalloweenNFT: contractAddresses['NFTS']['DopexHalloweenNFT'],
+    };
+    for (const nft in nftAddresses) {
       const nftContract = BaseNFT__factory.connect(
         contractAddresses['NFTS'][nft],
         provider
       );
 
-      const [nftName, nftUri] = await Promise.all([
+      const [nftName, nftSymbol, nftUri] = await Promise.all([
         nftContract.name(),
+        nftContract.symbol(),
         getTokenUri(nftContract),
       ]);
 
       nftsData.push({
         nftName: nftName,
+        nftSymbol: nftSymbol ?? '',
         nftUri: nftUri ?? '',
       });
     }
