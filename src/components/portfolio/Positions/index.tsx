@@ -136,7 +136,7 @@ export default function Positions() {
     <Box>
       <Box className="mt-9 ml-5 mr-5">
         <Typography variant="h4">Open Positions</Typography>
-        <Box className="bg-cod-gray mt-3 rounded-md text-center px-2 overflow-auto">
+        <Box className="bg-cod-gray mt-3 rounded-md text-center px-2 overflow-auto md:overflow-hidden">
           <Box className="flex py-3 px-3 border-b-[1.5px] border-umbra">
             <Box className="mr-3 mt-0.5">
               <Filter
