@@ -22,7 +22,6 @@ const SelectMenuProps = {
 
 const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
   return (
-    // {/* <Box className="flex flex-row h-10 w-[100px] p-1">
     <Box className="w-full -ml-3 -mt-1.5 h-10 p-1">
       <Select
         className="bg-mineshaft opacity-80 rounded-md text-center"
