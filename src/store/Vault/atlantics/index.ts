@@ -13,6 +13,7 @@ import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface IVaultConfiguration {
   baseFundingRate: BigNumber;
@@ -209,6 +210,57 @@ export const createAtlanticsSlice: StateCreator<
 
     if (!checkpoints) return;
 
+    let totalEpochActiveCollateral = BigNumber.from(0);
+    let totalEpochUnlockedCollateral = BigNumber.from(0);
+    let totalEpochLiquidity = BigNumber.from(0);
+    let totalEpochMaxStrikesData = [];
+
+    for (const i in maxStrikes) {
+      let totalActiveCollateral: BigNumber = BigNumber.from(0);
+      let totalUnlockedCollateral: BigNumber = BigNumber.from(0);
+      let totalLiquidity: BigNumber = BigNumber.from(0);
+      for (const j in checkpoints[i]) {
+        const _checkpoints = checkpoints[i];
+        if (!_checkpoints) return;
+        if (!_checkpoints[Number(j)]) return;
+
+        const [, liquidity, , activeCollateral, unlockedCollateral] =
+          _checkpoints[Number(j)] ?? [];
+        if (!liquidity || !activeCollateral || !unlockedCollateral) return;
+        totalActiveCollateral = totalActiveCollateral.add(activeCollateral);
+        totalUnlockedCollateral =
+          totalUnlockedCollateral.add(unlockedCollateral);
+        totalLiquidity = totalLiquidity.add(liquidity);
+      }
+
+      totalEpochMaxStrikesData.push({
+        totalActiveCollateral,
+        totalUnlockedCollateral,
+        totalLiquidity,
+      });
+    }
+
+    for (const i in totalEpochMaxStrikesData) {
+      const { totalActiveCollateral, totalUnlockedCollateral, totalLiquidity } =
+        totalEpochMaxStrikesData[i] ?? {};
+      if (!totalActiveCollateral || !totalUnlockedCollateral || !totalLiquidity)
+        return;
+      totalEpochActiveCollateral = totalEpochActiveCollateral.add(
+        totalActiveCollateral
+      );
+      totalEpochUnlockedCollateral = totalEpochUnlockedCollateral.add(
+        totalUnlockedCollateral
+      );
+      totalEpochLiquidity = totalEpochLiquidity.add(totalLiquidity);
+    }
+
+    const utilizationRate = getUserReadableAmount(
+      totalEpochUnlockedCollateral
+        .mul(getContractReadableAmount(1, 6))
+        .div(totalEpochLiquidity),
+      6
+    );
+
     const vaultState =
       await atlanticPool.contracts.atlanticPool.epochVaultStates(selectedEpoch);
 
@@ -229,11 +281,7 @@ export const createAtlanticsSlice: StateCreator<
         selectedEpoch
       )
     )
-      .add(
-        await atlanticPool.contracts.atlanticPool.totalEpochActiveCollateral(
-          selectedEpoch
-        )
-      )
+      .add(totalEpochActiveCollateral)
       .div(getContractReadableAmount(1, 6))
       .toNumber();
 
@@ -270,15 +318,6 @@ export const createAtlanticsSlice: StateCreator<
         (365 * 100)) /
       epochDurationInDays;
 
-    const utilizationRate =
-      (
-        await atlanticPool.contracts.atlanticPool.getUtilizationRate(
-          selectedEpoch
-        )
-      )
-        .div(getContractReadableAmount(1, 6))
-        .toNumber() * 100;
-
     let atlanticPoolEpochData: IAtlanticPoolEpochData = {
       epoch: selectedEpoch,
       tickSize,
@@ -299,40 +338,25 @@ export const createAtlanticsSlice: StateCreator<
     };
 
     for (let i = 0; i < maxStrikes.length; i++) {
-      let [
-        totalEpochMaxStrikeLiquidity,
-        totalEpochMaxStrikeUnlockedCollateral,
-        totalEpochMaxStrikeActiveCollateral,
-      ] = await Promise.all([
-        atlanticPool.contracts.atlanticPool.totalEpochMaxStrikeLiquidity(
-          selectedEpoch,
-          maxStrikes[i] ?? BigNumber.from(0)
-        ),
-        atlanticPool.contracts.atlanticPool.totalEpochMaxStrikeUnlockedCollateral(
-          selectedEpoch,
-          maxStrikes[i] ?? BigNumber.from(0)
-        ),
-        atlanticPool.contracts.atlanticPool.totalEpochMaxStrikeActiveCollateral(
-          selectedEpoch,
-          maxStrikes[i] ?? BigNumber.from(0)
-        ),
-      ]);
+      const { totalActiveCollateral, totalUnlockedCollateral, totalLiquidity } =
+        totalEpochMaxStrikesData[i] ?? {};
+
+      if (!totalActiveCollateral || !totalUnlockedCollateral || !totalLiquidity)
+        return;
 
       atlanticPoolEpochData.totalEpochLiquidity =
-        atlanticPoolEpochData.totalEpochLiquidity.add(
-          totalEpochMaxStrikeLiquidity
-        );
+        atlanticPoolEpochData.totalEpochLiquidity.add(totalLiquidity);
 
       atlanticPoolEpochData.totalEpochUnlockedCollateral =
         atlanticPoolEpochData.totalEpochUnlockedCollateral.add(
-          totalEpochMaxStrikeUnlockedCollateral
+          totalUnlockedCollateral
         );
 
       atlanticPoolEpochData.epochStrikeData.push({
         strike: maxStrikes[i] ?? BigNumber.from(0),
-        totalEpochMaxStrikeLiquidity: totalEpochMaxStrikeLiquidity,
-        unlocked: totalEpochMaxStrikeUnlockedCollateral,
-        activeCollateral: totalEpochMaxStrikeActiveCollateral,
+        totalEpochMaxStrikeLiquidity: totalLiquidity,
+        unlocked: totalUnlockedCollateral,
+        activeCollateral: totalActiveCollateral,
       });
     }
 

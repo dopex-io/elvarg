@@ -265,56 +265,64 @@ export const AtlanticsProvider = (props: any) => {
 
       if (!checkpoints) return;
 
-      const [totalEpochActiveCollateral, totalEpochCumulativeLiquidity] =
-        await Promise.all([
-          atlanticPool.totalEpochActiveCollateral(epoch),
-          atlanticPool.totalEpochCummulativeLiquidity(epoch),
-        ]);
-
       let accumulator: IEpochData = {
         totalEpochActiveCollateral: BigNumber.from(0),
         totalEpochLiquidity: BigNumber.from(0),
         totalEpochUnlockedCollateral: BigNumber.from(0),
       };
 
-      let epochStrikeData: IEpochStrikeData[] = [];
+      let totalEpochActiveCollateral = BigNumber.from(0);
+      let totalEpochUnlockedCollateral = BigNumber.from(0);
+      let totalEpochLiquidity = BigNumber.from(0);
+      let totalEpochMaxStrikesData = [];
 
-      for (let i = 0; i < maxStrikes.length; i++) {
-        let [
-          totalEpochMaxStrikeLiquidity,
-          totalEpochMaxStrikeUnlockedCollateral,
-          totalEpochMaxStrikeActiveCollateral,
-        ] = await Promise.all([
-          atlanticPool.totalEpochMaxStrikeLiquidity(
-            epoch,
-            maxStrikes[i] ?? BigNumber.from(0)
-          ),
-          atlanticPool.totalEpochMaxStrikeUnlockedCollateral(
-            epoch,
-            maxStrikes[i] ?? BigNumber.from(0)
-          ),
-          atlanticPool.totalEpochMaxStrikeActiveCollateral(
-            epoch,
-            maxStrikes[i] ?? BigNumber.from(0)
-          ),
-        ]);
+      for (const i in maxStrikes) {
+        let totalActiveCollateral: BigNumber = BigNumber.from(0);
+        let totalUnlockedCollateral: BigNumber = BigNumber.from(0);
+        let totalLiquidity: BigNumber = BigNumber.from(0);
+        for (const j in checkpoints[i]) {
+          const _checkpoints = checkpoints[i];
+          if (!_checkpoints) return;
+          if (!_checkpoints[Number(j)]) return;
 
-        accumulator.totalEpochLiquidity = accumulator.totalEpochLiquidity.add(
-          totalEpochMaxStrikeLiquidity
-        );
+          const [, liquidity, , activeCollateral, unlockedCollateral] =
+            _checkpoints[Number(j)] ?? [];
+          if (!liquidity || !activeCollateral || !unlockedCollateral) return;
+          totalActiveCollateral = totalActiveCollateral.add(activeCollateral);
+          totalUnlockedCollateral =
+            totalUnlockedCollateral.add(unlockedCollateral);
+          totalLiquidity = totalLiquidity.add(liquidity);
+        }
 
-        accumulator.totalEpochUnlockedCollateral =
-          accumulator.totalEpochUnlockedCollateral.add(
-            totalEpochMaxStrikeUnlockedCollateral
-          );
-
-        epochStrikeData.push({
-          strike: maxStrikes[i] ?? BigNumber.from(0),
-          totalEpochMaxStrikeLiquidity: totalEpochMaxStrikeLiquidity,
-          unlocked: totalEpochMaxStrikeUnlockedCollateral,
-          activeCollateral: totalEpochMaxStrikeActiveCollateral,
+        totalEpochMaxStrikesData.push({
+          totalActiveCollateral,
+          totalUnlockedCollateral,
+          totalLiquidity,
         });
       }
+
+      for (const i in totalEpochMaxStrikesData) {
+        const {
+          totalActiveCollateral,
+          totalUnlockedCollateral,
+          totalLiquidity,
+        } = totalEpochMaxStrikesData[i] ?? {};
+        if (
+          !totalActiveCollateral ||
+          !totalUnlockedCollateral ||
+          !totalLiquidity
+        )
+          return;
+        totalEpochActiveCollateral = totalEpochActiveCollateral.add(
+          totalActiveCollateral
+        );
+        totalEpochUnlockedCollateral = totalEpochUnlockedCollateral.add(
+          totalUnlockedCollateral
+        );
+        totalEpochLiquidity = totalEpochLiquidity.add(totalLiquidity);
+      }
+
+      let epochStrikeData: IEpochStrikeData[] = [];
 
       data = accumulator; // *note: shallow copy
 
@@ -329,9 +337,7 @@ export const AtlanticsProvider = (props: any) => {
       const depositToken = await contracts.quoteToken.symbol();
 
       setStats(({ tvl, volume, poolsCount }) => ({
-        tvl: tvl.add(
-          totalEpochCumulativeLiquidity.add(totalEpochActiveCollateral)
-        ),
+        tvl: tvl.add(totalEpochLiquidity),
         volume: volume.add(totalEpochActiveCollateral),
         poolsCount: poolsCount.add(1),
       }));
@@ -353,7 +359,7 @@ export const AtlanticsProvider = (props: any) => {
           deposit: depositToken,
           underlying: underlying,
         },
-        tvl: totalEpochActiveCollateral.add(totalEpochCumulativeLiquidity),
+        tvl: totalEpochLiquidity,
         volume: totalEpochActiveCollateral,
         apy: ['0'],
         duration,
