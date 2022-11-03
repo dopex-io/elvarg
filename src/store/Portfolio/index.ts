@@ -178,7 +178,7 @@ export const createPortfolioSlice: StateCreator<
 
         const amount = userPosition.amount;
 
-        const pnl = !isPut
+        let pnl = !isPut
           ? (getUserReadableAmount(settlementPrice, 8) -
               getUserReadableAmount(strike, 8)) *
             getUserReadableAmount(amount, 18)
@@ -187,6 +187,8 @@ export const createPortfolioSlice: StateCreator<
             getUserReadableAmount(amount, 18);
 
         if (pnl <= 0 && currentEpoch != epoch) return;
+
+        if (pnl < 0) pnl = 0;
 
         return {
           epoch: userPosition.epoch,
