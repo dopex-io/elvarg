@@ -6,11 +6,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
-import {
-  allowanceApproval,
-  getContractReadableAmount,
-  getDepositMessage,
-} from 'utils/contracts';
+import { allowanceApproval, getContractReadableAmount } from 'utils/contracts';
 
 import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
 
@@ -195,30 +191,6 @@ const ProvideLp = () => {
     rawDepositAmount,
   ]);
 
-  const depositButtonMessage: string = useMemo(() => {
-    return getDepositMessage(
-      olpEpochData!.isEpochExpired,
-      depositAmount,
-      assetIdx,
-      approved,
-      underlyingApproved,
-      usdBalance,
-      underlyingBalance,
-      discountAmount,
-      rawDiscountAmount
-    );
-  }, [
-    approved,
-    underlyingApproved,
-    assetIdx,
-    depositAmount,
-    discountAmount,
-    usdBalance,
-    underlyingBalance,
-    rawDiscountAmount,
-    olpEpochData,
-  ]);
-
   const handleIsPut = useCallback(
     async (isPut: boolean) => {
       if (!setSelectedIsPut) return;
@@ -235,7 +207,8 @@ const ProvideLp = () => {
       strikeIdx={strikeIdx}
       assetIdx={assetIdx}
       handleSelectStrike={handleSelectStrike}
-      strikes={olpEpochData!.strikes}
+      olpEpochData={olpEpochData!}
+      olpData={olpData!}
       rawDiscountAmount={rawDiscountAmount}
       setRawDiscountAmount={setRawDiscountAmount}
       discountAmount={discountAmount}
@@ -244,21 +217,14 @@ const ProvideLp = () => {
       handleSelectAsset={handleSelectAsset}
       usdBalance={usdBalance}
       underlyingBalance={underlyingBalance}
-      expiry={olpEpochData?.expiry!}
-      isEpochExpired={olpEpochData?.isEpochExpired!}
       chainId={CHAIN_ID}
       approved={approved}
       underlyingApproved={underlyingApproved}
       handleIsPut={handleIsPut}
-      hasPut={olpData?.hasPut!}
-      hasCall={olpData?.hasCall!}
       handleApprove={handleApprove}
       handleUnderlyingApprove={handleUnderlyingApprove}
       handleDeposit={handleDeposit}
-      depositButtonMessage={depositButtonMessage}
-      isPut={olpData?.isPut!}
-      assets={['usdc', olpData?.underlyingSymbol!.toLowerCase()!]}
-      underlyingSymbol={olpData?.underlyingSymbol!}
+      depositAmount={depositAmount}
     />
   );
 };

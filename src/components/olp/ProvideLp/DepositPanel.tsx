@@ -13,66 +13,70 @@ import {
 } from 'components/common/LpCommon';
 import StrikeMenuBox from 'components/common/StrikeMenuBox';
 
+import { OlpDataInterface, OlpEpochDataInterface } from 'store/Vault/olp';
+
+import { getDepositMessage } from 'utils/contracts';
+
 interface Props {
+  olpData: OlpDataInterface;
+  olpEpochData: OlpEpochDataInterface;
   strikeIdx: number;
   assetIdx: number;
   handleSelectStrike: Function;
-  strikes: BigNumber[];
   rawDiscountAmount: string;
   setRawDiscountAmount: Function;
   rawDepositAmount: string;
   discountAmount: number;
+  depositAmount: number;
   setRawDepositAmount: Function;
   handleSelectAsset: Function;
   usdBalance: BigNumber;
   underlyingBalance: BigNumber;
-  expiry: BigNumber;
-  isEpochExpired: boolean;
   chainId: number;
   approved: boolean;
   underlyingApproved: boolean;
   handleIsPut: Function;
-  hasPut: boolean;
-  hasCall: boolean;
   handleApprove: MouseEventHandler<HTMLButtonElement>;
   handleUnderlyingApprove: MouseEventHandler<HTMLButtonElement>;
   handleDeposit: MouseEventHandler<HTMLButtonElement>;
-  depositButtonMessage: string;
-  isPut: boolean;
-  assets: string[];
-  underlyingSymbol: string;
 }
 
 export default function DepositPanel(props: Props) {
   const {
+    olpData,
+    olpEpochData,
     strikeIdx,
     assetIdx,
     handleSelectStrike,
-    strikes,
     rawDiscountAmount,
     setRawDiscountAmount,
+    discountAmount,
     rawDepositAmount,
     setRawDepositAmount,
-    discountAmount,
+    depositAmount,
     handleSelectAsset,
     usdBalance,
     underlyingBalance,
-    expiry,
-    isEpochExpired,
     chainId,
     approved,
     underlyingApproved,
     handleIsPut,
-    hasPut,
-    hasCall,
     handleApprove,
     handleUnderlyingApprove,
     handleDeposit,
-    depositButtonMessage,
-    isPut,
-    assets,
-    underlyingSymbol,
   } = props;
+
+  const depositButtonMessage = getDepositMessage(
+    olpEpochData!.isEpochExpired,
+    depositAmount,
+    assetIdx,
+    approved,
+    underlyingApproved,
+    usdBalance,
+    underlyingBalance,
+    discountAmount,
+    rawDiscountAmount
+  );
 
   function discountBox(
     rawDiscountAmount: string,
@@ -137,7 +141,9 @@ export default function DepositPanel(props: Props) {
     hasCall: boolean
   ) {
     return (
-      <Box className="flex h-11 flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
+      <Box
+        className={`flex h-11 flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md`}
+      >
         <Box
           className={`text-center w-full cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
             !isPut ? 'bg-[#2D2D2D]' : ''
@@ -172,7 +178,7 @@ export default function DepositPanel(props: Props) {
         handleFillPosition={handleDeposit}
         handleApprove={handleApprove}
         showPrimary={
-          !isEpochExpired &&
+          !olpEpochData?.isEpochExpired &&
           (!approved || depositButtonMessage === 'Provide LP')
         }
       />
@@ -187,7 +193,7 @@ export default function DepositPanel(props: Props) {
         handleFillPosition={handleDeposit}
         handleApprove={handleUnderlyingApprove}
         showPrimary={
-          !isEpochExpired &&
+          !olpEpochData?.isEpochExpired &&
           (!approved || depositButtonMessage === 'Provide LP')
         }
       />
@@ -201,11 +207,11 @@ export default function DepositPanel(props: Props) {
           Provide LP
         </Typography>
       </Box>
-      {isPutBox(isPut, handleIsPut, hasPut, hasCall)}
+      {isPutBox(olpData?.isPut, handleIsPut, olpData?.hasPut, olpData?.hasCall)}
       <StrikeMenuBox
         strikeIdx={strikeIdx}
         handleSelectStrike={handleSelectStrike}
-        strikes={strikes}
+        strikes={olpEpochData?.strikes}
       />
       {discountBox(rawDiscountAmount, setRawDiscountAmount, discountAmount)}
       {depositBalanceBox(
@@ -214,11 +220,11 @@ export default function DepositPanel(props: Props) {
         usdBalance,
         underlyingBalance,
         assetIdx,
-        underlyingSymbol,
-        assets,
+        olpData?.underlyingSymbol,
+        ['usdc', olpData?.underlyingSymbol!.toLowerCase()!],
         handleSelectAsset
       )}
-      <WithdrawInfoBox expiry={expiry} />
+      <WithdrawInfoBox expiry={olpEpochData?.expiry} />
       <Box className="rounded-xl p-4 border border-none w-full bg-umbra mt-3">
         <EstimatedGasCostButton gas={500000} chainId={chainId} />
       </Box>
