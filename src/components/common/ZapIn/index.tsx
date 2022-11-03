@@ -414,7 +414,7 @@ const ZapIn = ({
                             ))}
                             {isPut ? (
                               <SwapSymbol
-                                imgSrc="/images/tokens/2crv.png"
+                                imgSrc="/images/tokens/2crv.svg"
                                 imgAlt="2CRV"
                                 symbol="2CRV"
                                 isInDialog={isInDialog}

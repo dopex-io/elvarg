@@ -72,7 +72,7 @@ function SsovCard(props: any) {
         value: `${formatAmount(totalEpochDeposits, 0, true)}`,
         imgSrc:
           type === 'put'
-            ? '/images/tokens/2crv.png'
+            ? '/images/tokens/2crv.svg'
             : SSOV_MAP[name]
             ? SSOV_MAP[name]?.imageSrc
             : '',

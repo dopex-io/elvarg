@@ -98,6 +98,7 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
+    { name: 'Portfolio', to: '/portfolio' },
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
@@ -158,6 +159,10 @@ export default function AppBar(props: AppBarProps) {
     userAssetBalances,
     updateAssetBalances,
   } = useBoundStore();
+
+  useEffect(() => {
+    updateAssetBalances();
+  }, [updateAssetBalances, provider]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
