@@ -7,7 +7,7 @@ import {
 } from '@dopex-io/sdk';
 import CustomButton from 'components/UI/Button';
 
-import { ContentRow } from 'components/atlantics/Dialogs/OpenPositionDialog/StrategyDetails';
+import { ContentRow } from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails';
 
 import { useBoundStore } from 'store';
 
@@ -17,7 +17,7 @@ import { MIN_EXECUTION_FEE } from 'constants/gmx';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { ActionState } from '../UserPositions';
+import { ActionState } from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
 const options: any[] = [
   {
@@ -47,7 +47,7 @@ const options: any[] = [
   },
 ];
 
-const ManageStrategyPosition = () => {
+const ManageStrategyPositionDialog = () => {
   const { signer, accountAddress, contractAddresses, atlanticPool } =
     useBoundStore();
 
@@ -198,34 +198,29 @@ const ManageStrategyPosition = () => {
   }, [accountAddress, contractAddresses, sendTx, signer, selectedOptionItem]);
 
   return (
-    <Box className="w-full">
-      <Typography variant="h6" className="text-left p-2">
-        Manage Strategy
-      </Typography>
-      <Box className="border border-neutral-800 mt-2 bg-umbra w-full p-4 rounded-xl">
-        <Box className="flex flex-col w-full bg-neutral-800 rounded-md p-4">
-          <ContentRow title="PnL" content={strategyDetails.pnl} />
-          <ContentRow title="Collateral" content={strategyDetails.collateral} />
-          <ContentRow title="Put Strike" content={strategyDetails.putStrike} />
-          <ContentRow
-            title="Options Amount"
-            content={strategyDetails.optionsAmount}
-          />
-          <ContentRow
-            title="Underlying Deposited"
-            content={strategyDetails.UnderlyingDeposited}
-          />
-          <ContentRow title="Status" content={strategyDetails.status} />
-        </Box>
+    <Box className="w-full space-y-3">
+      <Box className="border border-mineshaft bg-umbra w-full rounded-xl p-3">
+        <ContentRow title="PnL" content={strategyDetails.pnl} />
+        <ContentRow title="Collateral" content={strategyDetails.collateral} />
+        <ContentRow title="Put Strike" content={strategyDetails.putStrike} />
+        <ContentRow
+          title="Options Amount"
+          content={strategyDetails.optionsAmount}
+        />
+        <ContentRow
+          title="Underlying Deposited"
+          content={strategyDetails.UnderlyingDeposited}
+        />
+        <ContentRow title="Status" content={strategyDetails.status} />
       </Box>
-      <Box className="flex flex-col items-center w-full p-2">
-        <Box className="text-sm p-2 border border-mineshaft my-3 text-center rounded-xl">
+      <Box className="flex flex-col items-center w-full space-y-3">
+        <Box className="text-sm p-2 border border-mineshaft text-center rounded-xl">
           {optionDescription}
         </Box>
         <Select
           value={selectedOption}
           onChange={handleOptionSelectChange}
-          className="bg-umbra rounded-lg text-center font-semibold w-[fit-content] text-white"
+          className="bg-umbra rounded-lg text-center font-semibold text-white"
           MenuProps={{
             classes: { paper: 'bg-umbra' },
           }}
@@ -246,9 +241,7 @@ const ManageStrategyPosition = () => {
             </MenuItem>
           ))}
         </Select>
-      </Box>
-      <Box className="w-full flex justify-center items-center my-2">
-        <CustomButton onClick={handleSubmit} className="w-[8rem]">
+        <CustomButton onClick={handleSubmit} className="w-full">
           Submit
         </CustomButton>
       </Box>
@@ -256,4 +249,4 @@ const ManageStrategyPosition = () => {
   );
 };
 
-export default ManageStrategyPosition;
+export default ManageStrategyPositionDialog;

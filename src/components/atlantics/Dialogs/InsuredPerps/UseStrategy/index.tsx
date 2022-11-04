@@ -26,7 +26,7 @@ import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
-import StrategyDetails from 'components/atlantics/Dialogs/OpenPositionDialog/StrategyDetails';
+import StrategyDetails from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -104,7 +104,7 @@ interface IncreaseOrderParams {
   isLong: boolean;
 }
 
-export const OpenPositionDialog = () => {
+const UseStrategyDialog = () => {
   const {
     signer,
     accountAddress,
@@ -585,7 +585,7 @@ export const OpenPositionDialog = () => {
 
   return (
     <>
-      <Box className="bg-umbra rounded-xl mb-2" ref={containerRef}>
+      <Box className="bg-umbra rounded-xl" ref={containerRef}>
         <CustomInput
           size="small"
           variant="outlined"
@@ -649,7 +649,7 @@ export const OpenPositionDialog = () => {
           containerRef={containerRef}
         />
       </Box>
-      <Box className="w-full flex p-1 flex-col space-y-2">
+      <Box className="w-full flex flex-col space-y-2">
         <Box className="flex flex-col items-center p-3">
           <Typography
             variant="h6"
@@ -712,8 +712,8 @@ export const OpenPositionDialog = () => {
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}
         />
-        <Box className="flex flex-col w-full space-y-2">
-          <Box className={`flex flex-row w-full justify-around`}>
+        <Box className="flex flex-col w-full space-y-3">
+          <Box className="flex flex-row w-full justify-around mt-4 space-x-2">
             <CustomButton
               onClick={handleApproveBaseToken}
               disabled={
@@ -725,7 +725,7 @@ export const OpenPositionDialog = () => {
                 !depositUnderlying &&
                 increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
                 'hidden'
-              }  w-full m-1 ${isApproved.base && 'hidden'}`}
+              }  w-full ${isApproved.base && 'hidden'}`}
             >
               Approve {'WETH'}
             </CustomButton>
@@ -736,16 +736,12 @@ export const OpenPositionDialog = () => {
                 parseInt(positionBalance) === 0 ||
                 error !== ''
               }
-              className={` ${isApproved.quote && 'hidden'} w-full m-1 `}
+              className={` ${isApproved.quote && 'hidden'} w-full`}
             >
               Approve {'USDC'}
             </CustomButton>
           </Box>
-          <CustomButton
-            disabled={error !== ''}
-            onClick={useStrategy}
-            className="m-1"
-          >
+          <CustomButton disabled={error !== ''} onClick={useStrategy}>
             Long
           </CustomButton>
         </Box>
@@ -753,3 +749,5 @@ export const OpenPositionDialog = () => {
     </>
   );
 };
+
+export default UseStrategyDialog;

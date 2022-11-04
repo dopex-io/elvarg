@@ -5,7 +5,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
-import { IStrategyDetails } from 'components/atlantics/Dialogs/OpenPositionDialog';
+import { IStrategyDetails } from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';

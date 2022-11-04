@@ -1,5 +1,4 @@
-import { Box } from '@mui/system';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import { useCallback, useRef, useMemo, useState, useEffect } from 'react';
 import {
   DopexPositionManager__factory,
   ERC20__factory,
@@ -7,28 +6,30 @@ import {
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
+import Box from '@mui/material/Box';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import { BigNumber } from 'ethers';
 
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
-import { MenuItem, Select } from '@mui/material';
-
-import { useCallback, useRef, useMemo, useState, useEffect } from 'react';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
+import { ContentRow } from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails';
 
 import { useBoundStore } from 'store';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { TOKEN_DECIMALS } from 'constants/index';
 
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { ContentRow } from 'components/atlantics/Dialogs/OpenPositionDialog/StrategyDetails';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-import useSendTx from 'hooks/useSendTx';
+import { TOKEN_DECIMALS } from 'constants/index';
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
+
+import useSendTx from 'hooks/useSendTx';
 
 const ManagePosition = () => {
   const {
@@ -455,124 +456,105 @@ const ManagePosition = () => {
   }, [checkTokenApprove, action]);
 
   return (
-    <>
+    <Box className="space-y-4">
       <Box className="bg-umbra rounded-xl mb-2" ref={containerRef}>
-        <Box>
-          <CustomInput
-            size="medium"
-            variant="outlined"
-            outline="umbra"
-            value={positionBalance}
-            onChange={handlePositionBalanceChange}
-            leftElement={
-              <Box className="flex my-auto">
-                {action == 'Increase' && (
-                  <Box
-                    className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-1"
-                    role="button"
-                    onClick={() => setOpenTokenSelector(() => true)}
-                  >
-                    <img
-                      src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
-                      alt={selectedToken}
-                      className="w-[2rem]"
-                    />
-                    <Typography variant="h6" className="my-auto">
-                      {selectedToken}
-                    </Typography>
-                    <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" />
-                  </Box>
-                )}
-
-                <Button
-                  size="small"
-                  className="rounded-lg bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto"
-                  onClick={handleMax}
+        <CustomInput
+          size="medium"
+          variant="outlined"
+          outline="umbra"
+          value={positionBalance}
+          onChange={handlePositionBalanceChange}
+          leftElement={
+            <Box className="flex my-auto">
+              {action == 'Increase' && (
+                <Box
+                  className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-1"
+                  role="button"
+                  onClick={() => setOpenTokenSelector(() => true)}
                 >
-                  <Typography
-                    variant="caption"
-                    className="text-xs"
-                    color="stieglitz"
-                  >
-                    MAX
+                  <img
+                    src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
+                    alt={selectedToken}
+                    className="w-[2rem]"
+                  />
+                  <Typography variant="h6" className="my-auto">
+                    {selectedToken}
                   </Typography>
-                </Button>
-              </Box>
-            }
-          />
-          {action === 'Increase' && (
-            <TokenSelector
-              setSelection={selectToken}
-              open={openTokenSelector}
-              setOpen={setOpenTokenSelector}
-              tokens={allowedTokens}
-              containerRef={containerRef}
-            />
-          )}
-          <Box className="flex bg-umbra rounded-b-xl justify-between px-3 pb-3">
-            <Typography variant="h6" color="stieglitz">
-              Balance
-            </Typography>
-            <Typography variant="h6">
-              {action === 'Increase'
-                ? formatAmount(
-                    getUserReadableAmount(
-                      userAssetBalances[selectedToken] ?? '0',
-                      TOKEN_DECIMALS[chainId]?.[selectedToken]
-                    ),
-                    3,
-                    true
-                  )
-                : positionData.collateral}{' '}
-              {selectedToken}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-      <Box className="p-4 w-full">
-        <Box className="border border-neutral-800 mt-2 bg-umbra w-full p-4 rounded-xl">
-          <Box className="flex flex-col w-full bg-neutral-800 rounded-md p-4">
-            <Typography variant="h6" className="mb-2">
-              Futures Position Details
-            </Typography>
-            <ContentRow title="Index token" content={positionData.indexToken} />
-            <ContentRow title="Collateral" content={positionData.collateral} />
-            <ContentRow
-              title="Leverage"
-              content={`${positionData.leverage}x`}
-            />
-            <ContentRow
-              title="Liq. Price"
-              content={positionData.liquidationPrice}
-            />
-            <ContentRow
-              title="Insurance Status"
-              content={positionData.insuranceStatus}
-            />
-            <ContentRow
-              title="Funding"
-              content={`${[positionData.funding.fee]} / ${
-                positionData.funding.interval
-              }`}
-            />
-          </Box>
-        </Box>
-      </Box>
+                  <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" />
+                </Box>
+              )}
 
-      <Box className="space-x-5 flex justify-center items-center mt-2 px-3">
-        {increaseApproved ? (
-          <CustomButton onClick={handleSubmit} className="w-[8rem]">
-            Submit
-          </CustomButton>
-        ) : (
-          <CustomButton onClick={handleApprove} className="w-[8rem]">
-            Approve {selectedToken}
-          </CustomButton>
+              <Button
+                size="small"
+                className="rounded-lg bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto"
+                onClick={handleMax}
+              >
+                <Typography
+                  variant="caption"
+                  className="text-xs"
+                  color="stieglitz"
+                >
+                  MAX
+                </Typography>
+              </Button>
+            </Box>
+          }
+        />
+        {action === 'Increase' && (
+          <TokenSelector
+            setSelection={selectToken}
+            open={openTokenSelector}
+            setOpen={setOpenTokenSelector}
+            tokens={allowedTokens}
+            containerRef={containerRef}
+          />
         )}
+        <Box className="flex bg-umbra rounded-b-xl justify-between px-3 pb-3">
+          <Typography variant="h6" color="stieglitz">
+            Balance
+          </Typography>
+          <Typography variant="h6">
+            {action === 'Increase'
+              ? formatAmount(
+                  getUserReadableAmount(
+                    userAssetBalances[selectedToken] ?? '0',
+                    TOKEN_DECIMALS[chainId]?.[selectedToken]
+                  ),
+                  3,
+                  true
+                )
+              : positionData.collateral}{' '}
+            {selectedToken}
+          </Typography>
+        </Box>
+      </Box>
+      <Box className="border border-neutral-800 mt-2 bg-umbra w-full p-4 rounded-xl">
+        <Typography variant="h6" className="mb-2">
+          Futures Position Details
+        </Typography>
+        <ContentRow title="Index token" content={positionData.indexToken} />
+        <ContentRow title="Collateral" content={positionData.collateral} />
+        <ContentRow title="Leverage" content={`${positionData.leverage}x`} />
+        <ContentRow
+          title="Liq. Price"
+          content={positionData.liquidationPrice}
+        />
+        <ContentRow
+          title="Insurance Status"
+          content={positionData.insuranceStatus}
+        />
+        <ContentRow
+          title="Funding"
+          content={`${[positionData.funding.fee]} / ${
+            positionData.funding.interval
+          }`}
+        />
+      </Box>
+      <Box className="flex justify-between items-center space-x-2">
         <Select
           value={action}
           onChange={handleActionChange}
-          className="bg-umbra rounded-lg w-[6rem] text-center font-semibold text-white"
+          className="bg-umbra rounded-md w-full text-center font-semibold text-white"
           MenuProps={{
             classes: { paper: 'bg-umbra' },
           }}
@@ -582,45 +564,45 @@ const ManagePosition = () => {
           disableUnderline
         >
           <MenuItem value={'Increase'}>
-            <Typography variant="h6" className="my-auto">
-              {'Increase'}
-            </Typography>
+            <Typography variant="h6">{'Increase'}</Typography>
           </MenuItem>
           <MenuItem value={'Decrease'}>
-            <Typography variant="h6" className="my-auto">
-              {'Decrease'}
-            </Typography>
+            <Typography variant="h6">{'Decrease'}</Typography>
           </MenuItem>
         </Select>
         {action === 'Decrease' && (
-          <Box className="flex justify-center items-center">
-            <Typography className="mr-2" variant="h6">
-              Receive:
-            </Typography>
-            <Select
-              value={outputToken}
-              onChange={handleOutputTokenSelection}
-              className="bg-umbra rounded-lg text-center font-semibold w-[5rem] text-white"
-              MenuProps={{
-                classes: { paper: 'bg-umbra' },
-              }}
-              classes={{ icon: 'text-white', select: 'px-3' }}
-              placeholder={'Select output token'}
-              variant="standard"
-              disableUnderline
-            >
-              {allowedTokens.map(({ symbol }, index) => (
-                <MenuItem key={index} value={symbol}>
-                  <Typography variant="h6" className="my-auto">
-                    {symbol}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Select>
-          </Box>
+          <Select
+            value={outputToken}
+            onChange={handleOutputTokenSelection}
+            className="bg-umbra rounded-md text-center font-semibold w-1/2 text-white"
+            MenuProps={{
+              classes: { paper: 'bg-umbra' },
+            }}
+            classes={{ icon: 'text-white', select: 'px-3' }}
+            placeholder={'Select output token'}
+            variant="standard"
+            disableUnderline
+          >
+            {allowedTokens.map(({ symbol }, index) => (
+              <MenuItem key={index} value={symbol}>
+                <Typography variant="h6" className="my-auto">
+                  Receive {symbol}
+                </Typography>
+              </MenuItem>
+            ))}
+          </Select>
         )}
       </Box>
-    </>
+      {increaseApproved ? (
+        <CustomButton onClick={handleSubmit} className="w-full">
+          Submit
+        </CustomButton>
+      ) : (
+        <CustomButton onClick={handleApprove} className="w-full">
+          Approve {selectedToken}
+        </CustomButton>
+      )}
+    </Box>
   );
 };
 

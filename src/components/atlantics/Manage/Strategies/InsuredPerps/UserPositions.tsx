@@ -20,7 +20,7 @@ import {
   TableBodyCell,
 } from 'components/atlantics/Manage/UserDepositsTable';
 
-import ManageModal from './ManageModal';
+import ManageModal from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -221,15 +221,20 @@ const UserPositions = () => {
     setAnchorEl(null);
   }, []);
 
+  const handleClose = useCallback(() => {
+    setOpenManageModal(false);
+  }, []);
+
   useEffect(() => {
     getUserPositions();
   }, [getUserPositions]);
   return (
     <>
       <ManageModal
-        onOpenSection={onOpenSection}
+        section={onOpenSection}
         open={openManageModal}
-        setOpen={setOpenManageModal}
+        // setOpen={setOpenManageModal}
+        handleClose={handleClose}
       />
       <CustomButton onClick={handleClickMenu}>Test Modals</CustomButton>
       <Menu
