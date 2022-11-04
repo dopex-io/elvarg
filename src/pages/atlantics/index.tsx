@@ -11,16 +11,16 @@ import Filter from 'components/atlantics/Filter';
 
 import { AtlanticsContext, AtlanticsProvider } from 'contexts/Atlantics';
 
+const ATLANTIC_POOLS: string[] = ['WETH'];
+
 const Atlantics = () => {
   const { pools } = useContext(AtlanticsContext);
   const [selectedAtlanticsAssets, setSelectedAtlanticsAssets] = useState<
     string | string[]
-  >([]);
+  >(ATLANTIC_POOLS);
 
   const filteredPools = useMemo(() => {
-    return pools.filter(
-      (pool) => !selectedAtlanticsAssets.includes(pool.asset)
-    );
+    return pools.filter((pool) => selectedAtlanticsAssets.includes(pool.asset));
   }, [pools, selectedAtlanticsAssets]);
 
   return (

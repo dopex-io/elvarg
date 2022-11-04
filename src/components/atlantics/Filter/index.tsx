@@ -59,7 +59,7 @@ const Filter = (props: FilterProps) => {
         {options.map((token: Pool, index: number) => (
           <MenuItem key={index} value={token.asset} className="text-white">
             <Checkbox
-              checked={!activeFilters.includes(token.asset)}
+              checked={activeFilters.includes(token.asset)}
               className="text-white border"
             />
             <Box className="flex">
