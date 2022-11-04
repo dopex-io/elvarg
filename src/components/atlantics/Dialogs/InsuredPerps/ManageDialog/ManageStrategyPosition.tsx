@@ -5,8 +5,9 @@ import {
   GmxVault__factory,
   InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
-import CustomButton from 'components/UI/Button';
+import Tooltip from '@mui/material/Tooltip';
 
+import CustomButton from 'components/UI/Button';
 import { ContentRow } from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails';
 
 import { useBoundStore } from 'store';
@@ -19,19 +20,19 @@ import useSendTx from 'hooks/useSendTx';
 
 import { ActionState } from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
-const options: any[] = [
+const options: { [key: string]: string }[] = [
   {
-    option: 'Exit Strategy and Long Position',
+    option: 'Exit Strategy & Long Position',
     description:
       'Exit long position and strategy, withdrawing remaining collateral from the position along with PnL. Note that strategy positions with ITM put options and no deposited underlying can only choose to close.',
   },
   {
-    option: 'Exit Strategy and Keep Position',
+    option: 'Exit Strategy & Keep Position',
     description:
       'Exit strategy but keep long position under your designated position manager contract, the same position can be re-insured in the future.',
   },
   {
-    option: 'Unwind Underlying and Keep Long Position',
+    option: 'Unwind Underlying & Keep Long Position',
     description:
       "If underlying was deposited before using the strategy, you can use choose to keep borrowed collateral incase the put options bought for your long position's insurance are in the money.",
   },
@@ -54,10 +55,10 @@ const ManageStrategyPositionDialog = () => {
   const sendTx = useSendTx();
 
   const [selectedOption, setSelectedOption] = useState<string>(
-    'Exit Strategy and Long Position'
+    'Exit Strategy & Long Position'
   );
   const [optionDescription, setOptionDescription] = useState(
-    options[0].description
+    options[0]?.['description']
   );
   const [selectedOptionItem, setSelectedOptionItem] = useState<number>(0);
   const [strategyDetails, setStrategyDetails] = useState({
@@ -77,7 +78,7 @@ const ManageStrategyPositionDialog = () => {
   );
 
   const handleOptioItemSelected = useCallback((index: number) => {
-    setOptionDescription(options[index].description);
+    setOptionDescription(options[index]?.['description']);
     setSelectedOptionItem(index);
   }, []);
   const updateStrategyPosition = useCallback(async () => {
@@ -199,7 +200,7 @@ const ManageStrategyPositionDialog = () => {
 
   return (
     <Box className="w-full space-y-3">
-      <Box className="border border-mineshaft bg-umbra w-full rounded-xl p-3">
+      <Box className="bg-umbra w-full rounded-xl p-3">
         <ContentRow title="PnL" content={strategyDetails.pnl} />
         <ContentRow title="Collateral" content={strategyDetails.collateral} />
         <ContentRow title="Put Strike" content={strategyDetails.putStrike} />
@@ -214,13 +215,10 @@ const ManageStrategyPositionDialog = () => {
         <ContentRow title="Status" content={strategyDetails.status} />
       </Box>
       <Box className="flex flex-col items-center w-full space-y-3">
-        <Box className="text-sm p-2 border border-mineshaft text-center rounded-xl">
-          {optionDescription}
-        </Box>
         <Select
           value={selectedOption}
           onChange={handleOptionSelectChange}
-          className="bg-umbra rounded-lg text-center font-semibold text-white"
+          className="bg-umbra rounded-md text-center font-semibold text-white w-full"
           MenuProps={{
             classes: { paper: 'bg-umbra' },
           }}
@@ -241,9 +239,11 @@ const ManageStrategyPositionDialog = () => {
             </MenuItem>
           ))}
         </Select>
-        <CustomButton onClick={handleSubmit} className="w-full">
-          Submit
-        </CustomButton>
+        <Tooltip title={optionDescription} placement="bottom" arrow>
+          <CustomButton onClick={handleSubmit} className="w-full">
+            Submit
+          </CustomButton>
+        </Tooltip>
       </Box>
     </Box>
   );
