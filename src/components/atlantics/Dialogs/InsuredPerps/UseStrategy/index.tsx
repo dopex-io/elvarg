@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import {
   ERC20__factory,
   GmxVault__factory,
@@ -398,7 +398,7 @@ const UseStrategyDialog = () => {
       !atlanticPool ||
       !accountAddress ||
       !contractAddresses ||
-      !selectToken ||
+      !selectedToken ||
       !provider
     )
       return;
@@ -446,8 +446,8 @@ const UseStrategyDialog = () => {
     }
 
     setIsApproved(() => ({
-      quote: quoteTokenAllowance.eq(ethers.constants.MaxUint256),
-      base: baseTokenAllowance.eq(ethers.constants.MaxUint256),
+      quote: !quoteTokenAllowance.isZero(),
+      base: !baseTokenAllowance.isZero(),
     }));
   }, [
     atlanticPool,
