@@ -15,15 +15,14 @@ import {
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
-import Button from '@mui/material/Button';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import { Checkbox } from '@mui/material';
-import Tooltip from '@mui/material/Tooltip';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Tooltip from '@mui/material/Tooltip';
 import { useDebounce } from 'use-debounce';
 
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
+import Switch from 'components/UI/Switch';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import StrategyDetails from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails';
@@ -363,7 +362,7 @@ const UseStrategyDialog = () => {
     atlanticPoolEpochData,
   ]);
 
-  const handleDepositUnderlyingCheckboxChange = (event: any) => {
+  const handleToggle = (event: any) => {
     setDeposutUnderlying(event.target.checked);
   };
 
@@ -585,7 +584,7 @@ const UseStrategyDialog = () => {
 
   return (
     <>
-      <Box className="bg-umbra rounded-xl" ref={containerRef}>
+      <Box className="bg-umbra rounded-xl space-y-2" ref={containerRef}>
         <CustomInput
           size="small"
           variant="outlined"
@@ -609,9 +608,9 @@ const UseStrategyDialog = () => {
                 </Typography>
                 <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" />
               </Box>
-              <Button
-                size="small"
-                className="rounded-lg bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto"
+              <Box
+                role="button"
+                className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
                 onClick={handleMax}
               >
                 <Typography
@@ -621,11 +620,11 @@ const UseStrategyDialog = () => {
                 >
                   MAX
                 </Typography>
-              </Button>
+              </Box>
             </Box>
           }
         />
-        <Box className="flex bg-umbra rounded-b-xl justify-between px-3 pb-3">
+        <Box className="flex bg-umbra justify-between px-3 pb-3">
           <Typography variant="h6" color="stieglitz">
             Balance
           </Typography>
@@ -649,8 +648,8 @@ const UseStrategyDialog = () => {
           containerRef={containerRef}
         />
       </Box>
-      <Box className="w-full flex flex-col space-y-2">
-        <Box className="flex flex-col items-center p-3">
+      <Box className="w-full flex flex-col border-t-2 border-cod-gray">
+        <Box className="flex flex-col items-center p-3 bg-umbra">
           <Typography
             variant="h6"
             className="text-left w-full"
@@ -658,23 +657,47 @@ const UseStrategyDialog = () => {
           >
             Leverage
           </Typography>
-          <Slider
-            sx={{
-              '.MuiSlider-markLabel': {
-                color: 'gray',
-              },
-            }}
-            className="w-full"
-            color="primary"
-            aria-label="Small steps"
-            defaultValue={1.1}
-            onChange={onChangeLeverage}
-            step={testing ? steps_testing : steps}
-            min={testing ? minMarks_testing : minMarks}
-            max={testing ? maxMarks_testing : maxMarks}
-            valueLabelDisplay="auto"
-            marks={testing ? marks_testing : marks}
-          />
+          <Box className="w-full px-5 pt-2">
+            <Slider
+              sx={{
+                '.MuiSlider-markLabel': {
+                  color: 'white',
+                },
+                '.MuiSlider-rail': {
+                  color: '#3E3E3E',
+                },
+                '.MuiSlider-mark': {
+                  color: 'white',
+                },
+                '.MuiSlider-thumb': {
+                  color: 'white',
+                },
+                '.MuiSlider-track': {
+                  color: '#22E1FF',
+                },
+              }}
+              className="w-full"
+              aria-label="Small steps"
+              defaultValue={1.1}
+              onChange={onChangeLeverage}
+              step={testing ? steps_testing : steps}
+              min={testing ? minMarks_testing : minMarks}
+              max={testing ? maxMarks_testing : maxMarks}
+              valueLabelDisplay="auto"
+              marks={testing ? marks_testing : marks}
+            />
+          </Box>
+        </Box>
+        <Box className="flex w-full bg-umbra justify-between border-t-2 border-cod-gray p-3 mb-2 rounded-b-xl">
+          <Box className="flex">
+            <Typography variant="h6" className="my-auto" color="stieglitz">
+              Deposit underlying
+            </Typography>
+            <Tooltip title="Choose whether to deposit underlying and keep borrowed collateral incase your long position has collateral that was added when trigger price was crossed and would like to keep the position post expiry.">
+              <InfoOutlined className="fill-current text-stieglitz p-1 my-auto" />
+            </Tooltip>
+          </Box>
+          <Switch value={depositUnderlying} onChange={handleToggle} />
         </Box>
         {error !== '' && (
           <Box>
@@ -686,21 +709,6 @@ const UseStrategyDialog = () => {
             </Typography>
           </Box>
         )}
-        <Box className="flex-col justify-center items-center">
-          <Box className="px-1 flex">
-            <Typography variant="h6">
-              Deposit underlying
-              <Checkbox
-                className="text-white border"
-                checked={depositUnderlying}
-                onChange={handleDepositUnderlyingCheckboxChange}
-              />
-              <Tooltip title="Choose whether to deposit underlying and keep borrowed collateral incase your long position has collateral that was added when trigger price was crossed and would like to keep the position post expiry.">
-                <InfoOutlined className="h-4 fill-current text-stieglitz" />
-              </Tooltip>
-            </Typography>
-          </Box>
-        </Box>
         <StrategyDetails
           data={debouncedStrategyDetails[0]}
           selectedCollateral={'selectedCollateral'}

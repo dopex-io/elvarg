@@ -268,13 +268,13 @@ const ManageCard = (props: ManageCardProps) => {
           leftElement={
             <Box className="flex h-full my-auto">
               <Box
-                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-3"
+                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-1 p-1 pr-3"
                 role="button"
               >
                 <img
                   src={`/images/tokens/${depositToken?.toLowerCase()}.svg`}
                   alt={(depositToken || underlying).toLowerCase()}
-                  className="w-[2.4rem]"
+                  className="w-[2.2rem]"
                 />
                 <Typography variant="h5" className="my-auto">
                   {depositToken}
@@ -319,7 +319,7 @@ const ManageCard = (props: ManageCardProps) => {
       {/* )} */}
 
       <PoolStats poolType={poolType} />
-      <Box className="rounded-xl bg-umbra p-3 space-y-3">
+      <Box className="rounded-xl bg-umbra p-3 space-y-2">
         <Box className="rounded-md bg-carbon p-3">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </Box>

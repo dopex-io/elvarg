@@ -72,7 +72,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
           description="Pool Share"
         />
       </Box>
-      <Box className="flex flex-col space-y-3 p-3">
+      <Box className="flex flex-col space-y-2 p-3">
         {/* {!selectedPool?.isPut ? ( */}
         {/* <>
           <PoolStatsRow description="Pool Strike" value={callStrike} />

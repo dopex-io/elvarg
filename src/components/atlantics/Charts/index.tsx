@@ -97,7 +97,7 @@ const Charts = (props: ChartsProps) => {
     if (!poolData) return;
     if (poolData.type === 'connect')
       return (
-        <Box className="p-3 items-center text-center h-[15.7rem] py-[8.65rem]">
+        <Box className="p-3 items-center text-center my-auto">
           <CustomButton size="medium" onClick={handleWalletConnect}>
             Connect Wallet
           </CustomButton>
@@ -105,7 +105,7 @@ const Charts = (props: ChartsProps) => {
       );
     else if (poolData.type === 'loading')
       return (
-        <Box className="p-3 items-center text-center h-[15.7rem] py-[8.65rem]">
+        <Box className="p-3 items-center text-center my-auto">
           <CircularProgress size="30px" />
         </Box>
       );
@@ -113,8 +113,8 @@ const Charts = (props: ChartsProps) => {
       return (
         <ClientRenderedBarGraph
           data={poolData.data as IPoolData[]}
-          width={1000}
-          height={240}
+          width={900}
+          height={180}
           header={{ underlying, collateral, title, type }}
         />
       );
@@ -161,8 +161,8 @@ const Charts = (props: ChartsProps) => {
       <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra w-full md:w-2/3 sm:w-full">
         {renderComponent}
       </Box>
-      <Box className="flex flex-col bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">
-        <ClientRenderedLineChart data={line_data} width={340} height={220} />
+      <Box className="flex flex-col h-fit bg-cod-gray p-3 rounded-lg divide-y divide-umbra w-full md:w-1/3 sm:w-full">
+        <ClientRenderedLineChart data={line_data} width={255} height={167.5} />
       </Box>
     </Box>
   );

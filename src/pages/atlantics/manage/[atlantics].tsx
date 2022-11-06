@@ -108,13 +108,13 @@ const Manage = (props: ManageProps) => {
   }, [atlanticPool]);
 
   return (
-    <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
+    <Box className="bg-black bg-contain bg-no-repeat h-screen">
       <Head>
         <title>Atlantics | Dopex</title>
       </Head>
       <AppBar active="Atlantics" />
-      <Box className="container my-32 mx-auto px-4 lg:px-0 h-screen">
-        <Box className="flex space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
+      <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
           <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
             <ManageTitle
               depositToken={depositToken}

@@ -18,7 +18,7 @@ const SECTIONS: { [key: string]: { [key: string]: string | JSX.Element } } = {
     component: <ManageStrategyPosition />,
   },
   MANAGE_POSITION: { title: 'Manage Position', component: <ManagePosition /> },
-  USE_STRATEGY: { title: 'Use Strategy', component: <UseStrategy /> },
+  USE_STRATEGY: { title: 'Open Position', component: <UseStrategy /> },
 };
 
 const ManageModal = (props: IManageModalProps) => {
@@ -28,7 +28,7 @@ const ManageModal = (props: IManageModalProps) => {
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <Box className="space-y-4">
         <Typography variant="h5">{SECTIONS[section]?.['title']}</Typography>
-        <Box className="position-absolute p-2 bg-cod-gray  text-white rounded-xl flex flex-col items-center">
+        <Box className="position-absolute p-0 bg-cod-gray  text-white rounded-xl flex flex-col items-center">
           {SECTIONS[section]?.['component'] && SECTIONS[section]?.['component']}
         </Box>
       </Box>
