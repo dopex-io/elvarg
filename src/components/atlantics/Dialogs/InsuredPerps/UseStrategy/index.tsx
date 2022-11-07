@@ -81,6 +81,24 @@ const marks = [
 
 const INITIAL_LEVERAGE = getContractReadableAmount(1.1, 30);
 
+const customSliderStyle = {
+  '.MuiSlider-markLabel': {
+    color: 'white',
+  },
+  '.MuiSlider-rail': {
+    color: '#3E3E3E',
+  },
+  '.MuiSlider-mark': {
+    color: 'white',
+  },
+  '.MuiSlider-thumb': {
+    color: 'white',
+  },
+  '.MuiSlider-track': {
+    color: '#22E1FF',
+  },
+};
+
 export interface IStrategyDetails {
   positionSize: BigNumber;
   putOptionsPremium: BigNumber;
@@ -659,23 +677,7 @@ const UseStrategyDialog = () => {
           </Typography>
           <Box className="w-full px-5 pt-2">
             <Slider
-              sx={{
-                '.MuiSlider-markLabel': {
-                  color: 'white',
-                },
-                '.MuiSlider-rail': {
-                  color: '#3E3E3E',
-                },
-                '.MuiSlider-mark': {
-                  color: 'white',
-                },
-                '.MuiSlider-thumb': {
-                  color: 'white',
-                },
-                '.MuiSlider-track': {
-                  color: '#22E1FF',
-                },
-              }}
+              sx={customSliderStyle}
               className="w-full"
               aria-label="Small steps"
               defaultValue={1.1}
@@ -700,7 +702,7 @@ const UseStrategyDialog = () => {
           <Switch value={depositUnderlying} onChange={handleToggle} />
         </Box>
         {error !== '' && (
-          <Box>
+          <Box className="mb-2">
             <Typography
               variant="h6"
               className="text-red-400 border border-red-400 p-5 text-center rounded-xl"

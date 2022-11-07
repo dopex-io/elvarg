@@ -1,18 +1,20 @@
 import { useMemo } from 'react';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import SouthEastRoundedIcon from '@mui/icons-material/SouthEastRounded';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import { IStrategyDetails } from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy';
+import ContentRow from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails/ContentRow';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-
-import { useBoundStore } from 'store';
 
 const StrategyDetails = (props: {
   data: IStrategyDetails;
@@ -131,10 +133,10 @@ const StrategyDetails = (props: {
 
   return (
     <Box className="w-full flex flex-col">
-      <Box className="border border-neutral-800 rounded-xl w-full">
+      <Box className="border border-umbra rounded-xl w-full divide-y divide-umbra">
         <Box className="flex flex-row">
           <Tooltip title="Put strike that will be purchased for insurance">
-            <Box className="flex-1 p-4 border-r-2 border-neutral-800">
+            <Box className="flex-1 p-4 border-r border-umbra">
               <Box className="flex space-y-1 flex-col">
                 <Typography variant="h6">
                   {getUserReadableAmount(putStrike, 8)}
@@ -158,12 +160,13 @@ const StrategyDetails = (props: {
             </Box>
           </Tooltip>
         </Box>
-      </Box>
-      <Box className="border border-neutral-800 mt-2 bg-umbra w-full p-4 rounded-xl">
-        <Box className="flex flex-col w-full bg-neutral-800 rounded-md p-4">
-          <Typography variant="h6" className="mb-2">
-            Futures Position Details
-          </Typography>
+        <Box className="flex flex-col p-3">
+          <Box className="flex space-x-1">
+            <ReceiptIcon className="fill-current text-stieglitz p-1" />
+            <Typography variant="h6" color="stieglitz">
+              Futures Position
+            </Typography>
+          </Box>
           <ContentRow title="Index Token" content="WETH" />
           <ContentRow
             title="Liquidation Price"
@@ -177,16 +180,6 @@ const StrategyDetails = (props: {
               '$' + formatAmount(getUserReadableAmount(positionSize, 30), 3)
             }
           />
-          <ContentRow
-            title="Position Fee"
-            content={formatAmount(
-              getUserReadableAmount(
-                positionFee,
-                getTokenDecimals(selectedToken, chainId)
-              ),
-              3
-            )}
-          />
           {!swapFees.isZero() && (
             <ContentRow
               title="Swap Fee"
@@ -199,10 +192,14 @@ const StrategyDetails = (props: {
               )}
             />
           )}
-          <Divider className="bg-mineshaft my-2" />
-          <Typography variant="h6" className="mt-2 mb-2">
-            Put Options Details
-          </Typography>
+        </Box>
+        <Box className="flex flex-col p-3">
+          <Box className="flex space-x-1">
+            <SouthEastRoundedIcon className="fill-current text-down-bad p-1" />
+            <Typography variant="h6" color="stieglitz">
+              Put Option
+            </Typography>
+          </Box>
           <ContentRow
             title="Premium"
             content={
@@ -210,79 +207,82 @@ const StrategyDetails = (props: {
             }
           />
           <ContentRow
-            title="Fees"
+            title="Options Fee"
             content={
               '$' + formatAmount(getUserReadableAmount(putOptionsfees, 6), 3)
             }
           />
           <ContentRow
-            title="Amount"
+            title="Options"
             content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
           />
+        </Box>
+      </Box>
+      <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">
+        <Box className="bg-carbon rounded-lg p-3">
+          <EstimatedGasCostButton gas={500000} chainId={chainId} />
           <ContentRow
             title="Strategy Fee"
-            content={formatAmount(
-              getUserReadableAmount(
-                strategyFee,
-                getTokenDecimals(selectedToken, chainId)
-              ),
-              3
-            )}
+            content={
+              '$' +
+              formatAmount(
+                getUserReadableAmount(
+                  strategyFee,
+                  getTokenDecimals(selectedToken, chainId)
+                ),
+                3
+              )
+            }
+          />
+          <ContentRow
+            title="Position Fee"
+            content={
+              '$' +
+              formatAmount(
+                getUserReadableAmount(
+                  positionFee,
+                  getTokenDecimals(selectedToken, chainId)
+                ),
+                3
+              )
+            }
+          />
+          <ContentRow
+            title="Total"
+            content={
+              <Box className="flex justify-center items-center">
+                <Box className="flex justify-center items-center">
+                  <Typography variant="h6">
+                    {formatAmount(
+                      getUserReadableAmount(total.totalBaseAsset.amount, 18),
+                      5
+                    )}
+                  </Typography>
+                  <img
+                    src={`/images/tokens/${baseToken.toLowerCase()}.svg`}
+                    alt={baseToken.toLowerCase()}
+                    className="h-[1rem] mx-1"
+                  />
+                </Box>
+                <Typography variant="h6">{' + '}</Typography>
+                <Box className="ml-2 flex justify-center items-center">
+                  <Typography variant="h6">
+                    {formatAmount(
+                      getUserReadableAmount(total.totalQuoteAsset.amount, 6),
+                      5
+                    )}
+                  </Typography>
+                  <img
+                    src={`/images/tokens/${quoteToken.toLowerCase()}.svg`}
+                    alt={quoteToken.toLowerCase()}
+                    className="h-[1rem] ml-1"
+                  />
+                </Box>
+              </Box>
+            }
           />
         </Box>
       </Box>
-      <Box className="border border-mineshaft rounded-lg px-2 py-2 mt-2">
-        <Box className="flex justify-between px-4">
-          <Typography variant="h6" className="mr-2">
-            Total
-          </Typography>
-          <Box className="flex justify-center items-center">
-            <Box className="flex justify-center items-center">
-              <Typography variant="h6">
-                {formatAmount(
-                  getUserReadableAmount(total.totalBaseAsset.amount, 18),
-                  5
-                )}
-              </Typography>
-              <img
-                src={`/images/tokens/${baseToken.toLowerCase()}.svg`}
-                alt={baseToken.toLowerCase()}
-                className="h-[1rem] mx-1"
-              />
-            </Box>
-            <Typography variant="h6">{' + '}</Typography>
-            <Box className="ml-2 flex justify-center items-center">
-              <Typography variant="h6">
-                {formatAmount(
-                  getUserReadableAmount(total.totalQuoteAsset.amount, 6),
-                  5
-                )}
-              </Typography>
-              <img
-                src={`/images/tokens/${quoteToken.toLowerCase()}.svg`}
-                alt={quoteToken.toLowerCase()}
-                className="h-[1rem]  ml-1"
-              />
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
-  );
-};
-
-interface IContentRowProps {
-  title: string;
-  content: string | number;
-}
-
-export const ContentRow = ({ title, content }: IContentRowProps) => {
-  return (
-    <Box className="flex space-y-2 flex-row w-full justify-between items-center">
-      <Typography variant="h6" color="stieglitz">
-        {title}
-      </Typography>
-      <Typography variant="h6">{content}</Typography>
     </Box>
   );
 };

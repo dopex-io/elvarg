@@ -46,15 +46,6 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     };
   }, [atlanticPool, atlanticPoolEpochData, userPositions, chainId]);
 
-  // const callStrike = useMemo(() => {
-  //   if (!atlanticPoolEpochData) return '0';
-  //   const strike = Number(atlanticPoolEpochData.maxStrikes as BigNumber[]);
-  //   if (strike !== undefined) {
-  //     return String(strike / 1e8);
-  //   }
-  //   return '...';
-  // }, [atlanticPoolEpochData]);
-
   const epochExpiry = useMemo(() => {
     if (!atlanticPoolEpochData) return 0;
     return (atlanticPoolEpochData?.expiry.toNumber() ?? 0) * 1000;
@@ -73,22 +64,10 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
         />
       </Box>
       <Box className="flex flex-col space-y-2 p-3">
-        {/* {!selectedPool?.isPut ? ( */}
-        {/* <>
-          <PoolStatsRow description="Pool Strike" value={callStrike} />
-          <PoolStatsRow
-            description="Strike OTM Offset"
-            value={
-              atlanticPool?.vaultConfig.strikeOffset?.div(1e6).toString() + '%'
-            }
-          />
-        </> */}
         <PoolStatsRow
           description="Tick size"
           value={atlanticPoolEpochData?.tickSize?.div(1e8).toString()!}
         />
-        {/*} ) : (
-        // )} */}
         <PoolStatsRow
           description="Epoch Type"
           value={atlanticPool?.durationType.toLocaleUpperCase()!}

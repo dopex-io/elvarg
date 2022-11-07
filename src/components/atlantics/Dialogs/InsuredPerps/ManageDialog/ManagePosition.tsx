@@ -17,7 +17,7 @@ import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
-import { ContentRow } from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails';
+import ContentRow from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails/ContentRow';
 
 import { useBoundStore } from 'store';
 
