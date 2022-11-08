@@ -93,7 +93,11 @@ const SsovData = () => {
   }, [ssovs]);
 
   if (isLoading) {
-    return <CircularProgress />;
+    return (
+      <Box className="absolute left-[49%] top-[49%]">
+        <CircularProgress />
+      </Box>
+    );
   } else if (error === undefined || error)
     return (
       <Box className="mt-4">

@@ -1,28 +1,13 @@
 import Box from '@mui/material/Box';
 
-// @ts-ignore TODO: FIX
-const InputHelpers = ({ handleMax, handleHalf, handleThird }) => {
+const InputHelpers = ({ handleMax }: { handleMax: () => void }) => {
   return (
-    <>
-      <Box
-        className="absolute left-[10.2rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
-        onClick={handleMax}
-      >
-        <img src="/assets/max.svg" alt="MAX" className="cursor-pointer" />
-      </Box>
-      <Box
-        className="absolute left-[12.4rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
-        onClick={handleHalf}
-      >
-        <img src="/assets/half.svg" alt="half" className="cursor-pointer" />
-      </Box>
-      <Box
-        className="absolute left-[13.8rem] mt-[-1.45rem] hidden hover:opacity-90 group-hover:block"
-        onClick={handleThird}
-      >
-        <img src="/assets/third.svg" alt="third" className="cursor-pointer" />
-      </Box>
-    </>
+    <Box
+      className="absolute left-2 mt-1.5 right-auto hidden hover:opacity-90 group-hover:block cursor-pointer z-50"
+      onClick={handleMax!}
+    >
+      <img src="/assets/max.svg" alt="MAX" />
+    </Box>
   );
 };
 
