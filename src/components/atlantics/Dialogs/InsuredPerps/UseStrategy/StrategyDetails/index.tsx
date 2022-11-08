@@ -171,7 +171,7 @@ const StrategyDetails = (props: {
           <ContentRow
             title="Liquidation Price"
             content={
-              '$' + formatAmount(getUserReadableAmount(liquidationPrice, 30), 3)
+              '$' + formatAmount(getUserReadableAmount(liquidationPrice, 8), 3)
             }
           />
           <ContentRow
