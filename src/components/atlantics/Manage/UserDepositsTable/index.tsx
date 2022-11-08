@@ -148,16 +148,12 @@ const UserDepositsTable = () => {
       <Table>
         <TableHead>
           <TableRow>
-            {/*selectedPool?.isPut && */ <TableHeader>Max Strike</TableHeader>}
+            <TableHeader>Max Strike</TableHeader>
             <TableHeader>Deposit</TableHeader>
             <TableHeader>Liquidity</TableHeader>
             <TableHeader width="w-1/6">Premia Earned</TableHeader>
             <TableHeader width="w-1/6">Funding Earned</TableHeader>
-            {
-              /*selectedPool?.isPut && */ <TableHeader width="w-1/6">
-                Underlying Collected
-              </TableHeader>
-            }
+            <TableHeader width="w-1/6">Underlying Collected</TableHeader>
             <TableHeader>APY</TableHeader>
             <TableHeader align="right">Settle</TableHeader>
           </TableRow>
@@ -166,7 +162,7 @@ const UserDepositsTable = () => {
           {userPositions?.map((position, index) => (
             <TableRow key={index}>
               {
-                /*selectedPool?.isPut && */ <TableBodyCell>
+                <TableBodyCell>
                   ${getUserReadableAmount(position?.strike ?? 0, 8)}
                 </TableBodyCell>
               }
@@ -217,21 +213,19 @@ const UserDepositsTable = () => {
                   )}
                 </Typography>
               </TableBodyCell>
-              {
-                /*selectedPool?.isPut && */ <TableBodyCell>
-                  <Typography variant="h6">
-                    {formatAmount(
-                      getUserReadableAmount(
-                        position?.underlyingEarned ?? 0,
-                        tokenDecimals.underlying
-                      ),
-                      3,
-                      true
-                    )}{' '}
-                    {atlanticPool?.tokens.underlying}
-                  </Typography>
-                </TableBodyCell>
-              }
+              <TableBodyCell>
+                <Typography variant="h6">
+                  {formatAmount(
+                    getUserReadableAmount(
+                      position?.underlyingEarned ?? 0,
+                      tokenDecimals.underlying
+                    ),
+                    3,
+                    true
+                  )}{' '}
+                  {atlanticPool?.tokens.underlying}
+                </Typography>
+              </TableBodyCell>
               <TableBodyCell>
                 <Typography variant="h6">
                   {formatAmount(position.apy, 8, true) + '%'}

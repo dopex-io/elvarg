@@ -69,13 +69,9 @@ const ManageCard = (props: ManageCardProps) => {
   const containerRef = React.useRef(null);
 
   const disableButton = useMemo(() => {
-    if (!atlanticPoolEpochData) return false;
-    // if (poolType === 'CALLS') {
-    //   return !atlanticPoolEpochData?.isVaultReady || !value;
-    // } else {
+    if (!atlanticPoolEpochData) return true;
     return !atlanticPoolEpochData.isVaultReady || !value || !maxStrike;
-    // }
-  }, [/*poolType, ,*/ value, maxStrike, atlanticPoolEpochData]);
+  }, [value, maxStrike, atlanticPoolEpochData]);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
