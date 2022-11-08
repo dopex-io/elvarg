@@ -254,12 +254,18 @@ export const createAtlanticsSlice: StateCreator<
       totalEpochLiquidity = totalEpochLiquidity.add(totalLiquidity);
     }
 
-    const utilizationRate = getUserReadableAmount(
-      totalEpochUnlockedCollateral
-        .mul(getContractReadableAmount(1, 6))
-        .div(totalEpochLiquidity),
-      6
-    );
+    let utilizationRate: number;
+
+    try {
+      utilizationRate = getUserReadableAmount(
+        totalEpochUnlockedCollateral
+          .mul(getContractReadableAmount(1, 6))
+          .div(totalEpochLiquidity),
+        6
+      );
+    } catch (e) {
+      utilizationRate = 0;
+    }
 
     const vaultState =
       await atlanticPool.contracts.atlanticPool.epochVaultStates(selectedEpoch);
@@ -324,7 +330,7 @@ export const createAtlanticsSlice: StateCreator<
       maxStrikes,
       settlementPrice,
       premiaAccrued,
-      apr,
+      apr: isNaN(apr) ? 0 : apr,
       utilizationRate,
       startTime: startTime,
       expiry: expiryTime,

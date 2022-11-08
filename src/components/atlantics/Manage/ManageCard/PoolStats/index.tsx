@@ -41,7 +41,7 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
       Number(atlanticPoolEpochData?.totalEpochLiquidity) / 10 ** decimals;
     _userShare = (_userDeposits / _totalDeposits) * 100;
     return {
-      userShare: _userShare,
+      userShare: isNaN(_userShare) ? 0 : _userShare,
       totalDeposits: _totalDeposits,
     };
   }, [atlanticPool, atlanticPoolEpochData, userPositions, chainId]);
