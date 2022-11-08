@@ -50,6 +50,10 @@ const ContractData = () => {
   }, [updateAtlanticPoolEpochData, selectedEpoch]);
 
   useEffect(() => {
+    setSelectedEpoch(currentEpoch);
+  }, [currentEpoch, setSelectedEpoch]);
+
+  useEffect(() => {
     (async () => {
       if (!atlanticPool) return;
       const epoch = await atlanticPool.contracts.atlanticPool.currentEpoch();
