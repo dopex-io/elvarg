@@ -55,7 +55,7 @@ const marks_testing = [
 
 const steps = 0.1;
 const minMarks = 1.1;
-const maxMarks = 5;
+const maxMarks = 10;
 const marks = [
   {
     value: 1.1,
@@ -76,6 +76,26 @@ const marks = [
   {
     value: 5,
     label: '5x',
+  },
+  {
+    value: 6,
+    label: '6x',
+  },
+  {
+    value: 7,
+    label: '7x',
+  },
+  {
+    value: 8,
+    label: '8x',
+  },
+  {
+    value: 9,
+    label: '9x',
+  },
+  {
+    value: 10,
+    label: '10x',
   },
 ];
 
@@ -724,21 +744,23 @@ const UseStrategyDialog = () => {
         />
         <Box className="flex flex-col w-full space-y-3">
           <Box className="flex flex-row w-full justify-around mt-4 space-x-2">
-            <CustomButton
-              onClick={handleApproveBaseToken}
-              disabled={
-                positionBalance === '' ||
-                parseInt(positionBalance) === 0 ||
-                error !== ''
-              }
-              className={`${
-                !depositUnderlying &&
-                increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
-                'hidden'
-              }  w-full ${isApproved.base && 'hidden'}`}
-            >
-              Approve {'WETH'}
-            </CustomButton>
+            {depositUnderlying && (
+              <CustomButton
+                onClick={handleApproveBaseToken}
+                disabled={
+                  positionBalance === '' ||
+                  parseInt(positionBalance) === 0 ||
+                  error !== ''
+                }
+                className={`${
+                  !depositUnderlying &&
+                  increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
+                  'hidden'
+                }  w-full ${isApproved.base && 'hidden'}`}
+              >
+                Approve {'WETH'}
+              </CustomButton>
+            )}
             <CustomButton
               onClick={handleApproveQuoteToken}
               disabled={
