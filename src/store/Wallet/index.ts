@@ -55,8 +55,9 @@ export const createWalletSlice: StateCreator<
         });
         await updateState({ provider, isUser: true });
       })
-      .catch(() => {
-        if (window.location.pathname !== '/ssov') window.location.replace('/');
+      .catch(async (e) => {
+        console.error(e);
+        // if (window.location.pathname !== '/ssov') window.location.replace('/');
       });
   },
   disconnect: () =>

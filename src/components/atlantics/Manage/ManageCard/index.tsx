@@ -121,7 +121,6 @@ const ManageCard = (props: ManageCardProps) => {
 
     let apContract;
 
-    // if (selectedPool?.isPut) {
     try {
       apContract = AtlanticPutsPool__factory.connect(
         contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
@@ -139,26 +138,10 @@ const ManageCard = (props: ManageCardProps) => {
     } catch (err) {
       console.log(err);
     }
-    // } else {
-    //   try {
-    //     apContract = AtlanticCallsPool__factory.connect(
-    //       contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-    //       signer
-    //     );
-    //     await sendTx(
-    //       apContract
-    //         .connect(signer)
-    //         .deposit(getContractReadableAmount(value, 18), accountAddress)
-    //     );
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // }
   }, [
     signer,
     contractAddresses,
     accountAddress,
-    // selectedPool?.isPut,
     underlying,
     poolType,
     duration,
@@ -181,30 +164,30 @@ const ManageCard = (props: ManageCardProps) => {
 
   useEffect(() => {
     (async () => {
-      // if (
-      //   !signer ||
-      //   !contractAddresses ||
-      //   !accountAddress ||
-      //   !atlanticPool?.tokens ||
-      //   !contractAddresses['ATLANTIC-POOLS']
-      // )
-      //   return;
-      // const deposit = atlanticPool.tokens.depositToken;
-      // if (!deposit) return;
-      // if (!contractAddresses[deposit]) return;
-      // const token = ERC20__factory.connect(contractAddresses[deposit], signer);
-      // const allowance = await token.allowance(
-      //   accountAddress,
-      //   contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
-      // );
-      // setApproved(
-      //   allowance.gte(
-      //     getContractReadableAmount(
-      //       value,
-      //       TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
-      //     )
-      //   )
-      // );
+      if (
+        !signer ||
+        !contractAddresses ||
+        !accountAddress ||
+        !atlanticPool?.tokens ||
+        !contractAddresses['ATLANTIC-POOLS']
+      )
+        return;
+      const deposit = atlanticPool.tokens.depositToken;
+      if (!deposit) return;
+      if (!contractAddresses[deposit]) return;
+      const token = ERC20__factory.connect(contractAddresses[deposit], signer);
+      const allowance = await token.allowance(
+        accountAddress,
+        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
+      );
+      setApproved(
+        allowance.gte(
+          getContractReadableAmount(
+            value,
+            TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
+          )
+        )
+      );
     })();
   }, [
     accountAddress,
