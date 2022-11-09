@@ -542,11 +542,7 @@ const UseStrategyDialog = () => {
                 className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
                 onClick={handleMax}
               >
-                <Typography
-                  variant="caption"
-                  className="text-xs"
-                  color="stieglitz"
-                >
+                <Typography variant="caption" color="stieglitz">
                   MAX
                 </Typography>
               </Box>
