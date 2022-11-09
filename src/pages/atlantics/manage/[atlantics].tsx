@@ -63,7 +63,7 @@ interface Info {
   title: string;
 }
 
-const Manage = (props: ManageProps) => {
+export const Manage = (props: ManageProps) => {
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
 
