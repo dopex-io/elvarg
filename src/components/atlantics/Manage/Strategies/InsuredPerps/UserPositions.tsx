@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, SetStateAction } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   GmxVault__factory,
   InsuredLongsStrategy__factory,
@@ -211,12 +211,6 @@ const UserPositions = () => {
     setOpenManageModal(true);
   }, []);
 
-  const handleClickMenu = useCallback(
-    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
-      setAnchorEl(event.currentTarget),
-    []
-  );
-
   const handleCloseMenu = useCallback(() => {
     setAnchorEl(null);
   }, []);
@@ -236,7 +230,7 @@ const UserPositions = () => {
         // setOpen={setOpenManageModal}
         handleClose={handleClose}
       />
-      <CustomButton onClick={handleClickMenu}>Test Modals</CustomButton>
+      {/* <CustomButton onClick={handleClickMenu}>Test Modals</CustomButton> */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
