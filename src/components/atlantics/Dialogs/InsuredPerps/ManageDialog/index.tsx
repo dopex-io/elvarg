@@ -25,7 +25,12 @@ const ManageModal = (props: IManageModalProps) => {
   const { open, handleClose, section } = props;
 
   return (
-    <Dialog open={open} handleClose={handleClose} showCloseIcon>
+    <Dialog
+      open={open}
+      handleClose={handleClose}
+      keepMounted={false}
+      showCloseIcon
+    >
       <Box className="space-y-4">
         <Typography variant="h5">{SECTIONS[section]?.['title']}</Typography>
         <Box className="position-absolute p-0 bg-cod-gray  text-white rounded-xl flex flex-col items-center">
