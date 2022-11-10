@@ -50,6 +50,7 @@ const ContractData = () => {
   }, [updateAtlanticPoolEpochData, selectedEpoch]);
 
   useEffect(() => {
+    if (currentEpoch == 0) return;
     setSelectedEpoch(currentEpoch);
   }, [currentEpoch, setSelectedEpoch]);
 

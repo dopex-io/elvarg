@@ -41,63 +41,9 @@ import formatAmount from 'utils/general/formatAmount';
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 
-const steps_testing = 1;
-const minMarks_testing = 1.1;
-const maxMarks_testing = 25;
-const marks_testing = [
-  { value: 1.1, label: '1.1x' },
-  { value: 5, label: '5x' },
-  { value: 10, label: '10x' },
-  { value: 15, label: '15x' },
-  { value: 20, label: '20x' },
-  { value: 25, label: '25x' },
-];
-
 const steps = 0.1;
 const minMarks = 1.1;
 const maxMarks = 10;
-const marks = [
-  {
-    value: 1.1,
-    label: '1.1x',
-  },
-  {
-    value: 2,
-    label: '2x',
-  },
-  {
-    value: 3,
-    label: '3x',
-  },
-  {
-    value: 4,
-    label: '4x',
-  },
-  {
-    value: 5,
-    label: '5x',
-  },
-  {
-    value: 6,
-    label: '6x',
-  },
-  {
-    value: 7,
-    label: '7x',
-  },
-  {
-    value: 8,
-    label: '8x',
-  },
-  {
-    value: 9,
-    label: '9x',
-  },
-  {
-    value: 10,
-    label: '10x',
-  },
-];
 
 const INITIAL_LEVERAGE = getContractReadableAmount(1.1, 30);
 
@@ -162,9 +108,7 @@ const UseStrategyDialog = () => {
       positionSizeDelta: BigNumber.from(0),
       isLong: true,
     });
-  // ** TEMP *** //
-  const [testing, setTesting] = useState<boolean>(false);
-  const [isApproved, setIsApproved] = useState<{
+  const [approved, setApproved] = useState<{
     quote: boolean;
     base: boolean;
   }>({
@@ -269,7 +213,7 @@ const UseStrategyDialog = () => {
     setSelectedToken(() => token);
   };
 
-  const getPreStrategyCalculations = useCallback(async () => {
+  const handleStrategyCalculations = useCallback(async () => {
     if (
       !atlanticPool ||
       !contractAddresses ||
@@ -300,11 +244,17 @@ const UseStrategyDialog = () => {
 
     let path: string[] = [depositTokenAddress, underlyingTokenAddress];
 
-    let collateralUsd = getContractReadableAmount(positionBalance, 30);
+    let inputAmount = positionBalance;
+
+    if (inputAmount === '') {
+      inputAmount = '0';
+    }
+
+    let collateralUsd = getContractReadableAmount(inputAmount, 30);
 
     if (selectedToken === underlying) {
       const maxPrice = await gmxVault.getMaxPrice(underlyingTokenAddress);
-      collateralUsd = maxPrice.mul(positionBalance);
+      collateralUsd = maxPrice.mul(inputAmount);
     }
 
     let size = collateralUsd.mul(leverage).div(usdMultiplier);
@@ -359,7 +309,7 @@ const UseStrategyDialog = () => {
     if (path.length > 1) {
       swapFees = amountIn.sub(
         getContractReadableAmount(
-          positionBalance,
+          inputAmount,
           getTokenDecimals(selectedToken, chainId)
         )
       );
@@ -414,6 +364,7 @@ const UseStrategyDialog = () => {
   ) => {
     const { value } = event.target;
     setPositionBalance(value);
+    handleStrategyCalculations();
   };
 
   const handleMax = useCallback(async () => {
@@ -428,74 +379,6 @@ const UseStrategyDialog = () => {
       String(getUserReadableAmount(balance, tokenDecimals))
     );
   }, [accountAddress, chainId, contractAddresses, provider, selectedToken]);
-
-  const checkIfApproved = useCallback(async () => {
-    if (
-      !atlanticPool ||
-      !accountAddress ||
-      !contractAddresses ||
-      !selectedToken ||
-      !provider
-    )
-      return;
-    const quoteToken = ERC20__factory.connect(
-      contractAddresses[atlanticPool.tokens.depositToken],
-      provider
-    );
-    const baseToken = ERC20__factory.connect(
-      contractAddresses[atlanticPool.tokens.underlying],
-      provider
-    );
-    const underlying = atlanticPool.tokens.underlying;
-
-    const strategyAddress =
-      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
-
-    const quoteTokenAllowance = await quoteToken.allowance(
-      accountAddress,
-      strategyAddress
-    );
-    const baseTokenAllowance = await baseToken.allowance(
-      accountAddress,
-      strategyAddress
-    );
-
-    let baseTokenCost = depositUnderlying
-      ? debouncedStrategyDetails[0].optionsAmount
-      : BigNumber.from(0);
-    let quoteTokenCost = debouncedStrategyDetails[0].putOptionsPremium.add(
-      debouncedStrategyDetails[0].putOptionsfees
-    );
-
-    const decimals = getTokenDecimals(selectedToken, chainId);
-    const positionCollateral = getContractReadableAmount(
-      positionBalance,
-      decimals
-    );
-
-    if (selectedToken === underlying) {
-      baseTokenCost = baseTokenCost.add(positionCollateral);
-    }
-
-    if (selectedToken !== underlying) {
-      quoteTokenCost = quoteTokenCost.add(positionCollateral);
-    }
-
-    setIsApproved(() => ({
-      quote: !quoteTokenAllowance.isZero(),
-      base: !baseTokenAllowance.isZero(),
-    }));
-  }, [
-    atlanticPool,
-    provider,
-    accountAddress,
-    contractAddresses,
-    debouncedStrategyDetails,
-    depositUnderlying,
-    selectedToken,
-    chainId,
-    positionBalance,
-  ]);
 
   const handleApproveQuoteToken = useCallback(async () => {
     if (!signer || !contractAddresses || !atlanticPool) return;
@@ -515,9 +398,7 @@ const UseStrategyDialog = () => {
     } catch (err) {
       console.log(err);
     }
-
-    await checkIfApproved();
-  }, [signer, atlanticPool, contractAddresses, checkIfApproved, sendTx]);
+  }, [signer, atlanticPool, contractAddresses, sendTx]);
 
   const handleApproveBaseToken = useCallback(async () => {
     if (!signer || !contractAddresses || !atlanticPool) return;
@@ -534,41 +415,52 @@ const UseStrategyDialog = () => {
     } catch (err) {
       console.log(err);
     }
-    await checkIfApproved();
-  }, [signer, atlanticPool, contractAddresses, sendTx, checkIfApproved]);
+  }, [signer, atlanticPool, contractAddresses, sendTx]);
+
+  // check approved
+  useEffect(() => {
+    (async () => {
+      if (!atlanticPool || !accountAddress) return;
+      const quoteToken = ERC20__factory.connect(
+        contractAddresses[atlanticPool.tokens.depositToken],
+        provider
+      );
+      const baseToken = ERC20__factory.connect(
+        contractAddresses[atlanticPool.tokens.underlying],
+        provider
+      );
+
+      const strategyAddress =
+        contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
+      const quoteTokenAllowance = await quoteToken.allowance(
+        accountAddress,
+        strategyAddress
+      );
+      const baseTokenAllowance = await baseToken.allowance(
+        accountAddress,
+        strategyAddress
+      );
+
+      setApproved(() => ({
+        quote: !quoteTokenAllowance.isZero(),
+        base: !baseTokenAllowance.isZero(),
+      }));
+    })();
+  }, [accountAddress, atlanticPool, contractAddresses, provider]);
 
   useEffect(() => {
-    checkIfApproved();
-  }, [checkIfApproved]);
-
-  useEffect(() => {
-    getPreStrategyCalculations();
-  }, [getPreStrategyCalculations]);
+    handleStrategyCalculations();
+  }, [handleStrategyCalculations]);
 
   useEffect(() => {
     setLoading(
       debouncedStrategyDetails[0].expiry.eq('0') ||
         positionBalance.length === 0 ||
         selectedToken === '' ||
-        !isApproved.quote
+        !approved.quote
     );
-  }, [
-    debouncedStrategyDetails,
-    isApproved.base,
-    isApproved.quote,
-    positionBalance,
-    selectedToken,
-  ]);
-
-  // **** TEMP *** //
-
-  const updateTestingMode = useCallback(async () => {
-    if (!atlanticPoolEpochData || !atlanticPoolEpochData.tickSize) return;
-    setTesting(Number(atlanticPoolEpochData.tickSize) == 10e8);
-  }, [atlanticPoolEpochData]);
-  useEffect(() => {
-    updateTestingMode();
-  }, [updateTestingMode]);
+  }, [debouncedStrategyDetails, approved, positionBalance, selectedToken]);
 
   const useStrategy = useCallback(async () => {
     if (
@@ -650,11 +542,7 @@ const UseStrategyDialog = () => {
                 className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
                 onClick={handleMax}
               >
-                <Typography
-                  variant="caption"
-                  className="text-xs"
-                  color="stieglitz"
-                >
+                <Typography variant="caption" color="stieglitz">
                   MAX
                 </Typography>
               </Box>
@@ -701,11 +589,10 @@ const UseStrategyDialog = () => {
               aria-label="Small steps"
               defaultValue={1.1}
               onChange={onChangeLeverage}
-              step={testing ? steps_testing : steps}
-              min={testing ? minMarks_testing : minMarks}
-              max={testing ? maxMarks_testing : maxMarks}
+              step={steps}
+              min={minMarks}
+              max={maxMarks}
               valueLabelDisplay="auto"
-              marks={testing ? marks_testing : marks}
             />
           </Box>
         </Box>
@@ -755,7 +642,7 @@ const UseStrategyDialog = () => {
                   !depositUnderlying &&
                   increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
                   'hidden'
-                }  w-full ${isApproved.base && 'hidden'}`}
+                }  w-full ${approved.base && 'hidden'}`}
               >
                 Approve {'WETH'}
               </CustomButton>
@@ -767,7 +654,7 @@ const UseStrategyDialog = () => {
                 parseInt(positionBalance) === 0 ||
                 error !== ''
               }
-              className={` ${isApproved.quote && 'hidden'} w-full`}
+              className={` ${approved.quote && 'hidden'} w-full`}
             >
               Approve {'USDC'}
             </CustomButton>

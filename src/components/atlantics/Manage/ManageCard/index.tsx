@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import { AtlanticPutsPool__factory, ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
@@ -209,23 +208,10 @@ const ManageCard = (props: ManageCardProps) => {
         contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
         signer
       );
-      // selectedPool?.isPut ?
-      // : AtlanticCallsPool__factory.connect(
-      //     contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-      //     signer
-      //   );
 
       setCurrentPrice(await pool.getUsdPrice());
     })();
-  }, [
-    contractAddresses,
-    duration,
-    poolType,
-    // selectedPool?.isPut,
-    atlanticPool,
-    signer,
-    underlying,
-  ]);
+  }, [contractAddresses, duration, poolType, atlanticPool, signer, underlying]);
 
   return (
     <Box
@@ -259,14 +245,15 @@ const ManageCard = (props: ManageCardProps) => {
                   {depositToken}
                 </Typography>
               </Box>
-              <Button
-                className="rounded-lg bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto"
+              <Box
+                className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
+                role="button"
                 onClick={handleMax}
               >
-                <Typography variant="h6" className="text-xs" color="stieglitz">
+                <Typography variant="caption" color="stieglitz">
                   MAX
                 </Typography>
-              </Button>
+              </Box>
             </Box>
           }
         />

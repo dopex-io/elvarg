@@ -227,7 +227,6 @@ const UserPositions = () => {
       <ManageModal
         section={onOpenSection}
         open={openManageModal}
-        // setOpen={setOpenManageModal}
         handleClose={handleClose}
       />
       {/* <CustomButton onClick={handleClickMenu}>Test Modals</CustomButton> */}
