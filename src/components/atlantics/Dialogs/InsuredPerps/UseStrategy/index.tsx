@@ -300,7 +300,6 @@ const UseStrategyDialog = () => {
 
     let path: string[] = [depositTokenAddress, underlyingTokenAddress];
 
-    if (positionBalance === '') return;
     let collateralUsd = getContractReadableAmount(positionBalance, 30);
 
     if (selectedToken === underlying) {
@@ -393,10 +392,10 @@ const UseStrategyDialog = () => {
     chainId,
     atlanticPool,
     accountAddress,
+    positionBalance,
     leverage,
     depositUnderlying,
     contractAddresses,
-    positionBalance,
     atlanticPoolEpochData,
   ]);
 
