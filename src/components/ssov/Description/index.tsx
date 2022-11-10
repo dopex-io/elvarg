@@ -14,7 +14,6 @@ import WalletButton from 'components/common/WalletButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
-import Wrapper from '../Wrapper';
 
 import Coin from 'svgs/icons/Coin';
 import Action from 'svgs/icons/Action';
@@ -30,8 +29,6 @@ const Description = ({
   const { accountAddress, connect } = useBoundStore();
 
   const { APY, TVL, rewards } = ssovEpochData;
-
-  const [wrapOpen, setWrapOpen] = useState(false);
 
   const type = useMemo(() => {
     return ssovData.isPut ? 'PUT' : 'CALL';
@@ -159,16 +156,6 @@ const Description = ({
           *Effective APY if you deposit now
         </Typography>
       </Box>
-      {ssovData.isPut ? null : (
-        <Box
-          role="button"
-          className="underline mt-3"
-          onClick={() => setWrapOpen(true)}
-        >
-          Wrap ETH
-        </Box>
-      )}
-      <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}

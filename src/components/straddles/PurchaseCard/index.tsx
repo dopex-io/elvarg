@@ -59,7 +59,8 @@ const PurchaseCard = () => {
 
     return availableUsdDeposits!
       .mul(BigNumber.from('100000000000000000000'))
-      .div(data);
+      .div(data)
+      .div(2);
   }, [straddlesEpochData, isLoading, data, error]);
 
   const sendTx = useSendTx();

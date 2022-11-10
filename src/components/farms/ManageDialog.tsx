@@ -226,6 +226,7 @@ const ManageDialog = (props: Props) => {
           }
           onChange={handleChange}
           value={value}
+          type="number"
           placeholder="0.0"
         />
         <Box className="border-umbra border rounded-lg p-3">

@@ -3,6 +3,7 @@ import { devtools } from 'zustand/middleware';
 
 import { WalletSlice, createWalletSlice } from './Wallet';
 import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
+import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
 import { AssetsSlice, createAssetsSlice } from './Assets';
 import { FarmingSlice, createFarmingSlice } from './Farming';
 import { NftsSlice, createNftsSlice } from './Nfts';
@@ -16,6 +17,7 @@ import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
 
 type T = WalletSlice &
   TokenSaleSlice &
+  PortfolioSlice &
   AssetsSlice &
   FarmingSlice &
   NftsSlice &
@@ -31,6 +33,7 @@ export const useBoundStore = create<T>()(
   devtools((...a) => ({
     ...createWalletSlice(...a),
     ...createTokenSaleSlice(...a),
+    ...createPortfolioSlice(...a),
     ...createAssetsSlice(...a),
     ...createFarmingSlice(...a),
     ...createNftsSlice(...a),

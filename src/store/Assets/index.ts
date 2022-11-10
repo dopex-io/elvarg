@@ -21,6 +21,7 @@ export interface AssetsSlice {
     change24h: number;
   }[];
   userAssetBalances: { [key: string]: string };
+  isLoadingBalances: boolean;
   updateAssetBalances: Function;
   updateTokenPrices: Function;
 }
@@ -34,6 +35,7 @@ export const createAssetsSlice: StateCreator<
   tokens: TOKENS.filter((item) => item !== '2CRV'),
   tokenPrices: [],
   userAssetBalances: initKeysToVal(TOKENS, '0'),
+  isLoadingBalances: true,
   updateTokenPrices: async () => {
     const { tokens } = get();
 
@@ -136,6 +138,10 @@ export const createAssetsSlice: StateCreator<
       ).toString();
     }
 
-    set((prevState) => ({ ...prevState, userAssetBalances }));
+    set((prevState) => ({
+      ...prevState,
+      userAssetBalances,
+      isLoadingBalances: false,
+    }));
   },
 });
