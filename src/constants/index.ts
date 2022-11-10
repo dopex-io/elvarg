@@ -237,7 +237,7 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
 };
 
-export const TOKEN_DECIMALS = {
+export const TOKEN_DECIMALS: { [key: string]: { [key: string]: number } } = {
   '56': {
     BNB: 18,
     VBNB: 8,
