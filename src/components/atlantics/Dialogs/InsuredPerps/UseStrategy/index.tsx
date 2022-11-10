@@ -143,7 +143,15 @@ const UseStrategyDialog = () => {
   const error = useMemo(() => {
     let errorMessage = '';
     if (!atlanticPoolEpochData) return errorMessage;
-    const { putStrike, optionsAmount } = strategyDetails;
+    const {
+      putStrike,
+      optionsAmount,
+      putOptionsPremium,
+      putOptionsfees,
+      positionFee,
+      swapFees,
+      strategyFee,
+    } = strategyDetails;
     const collateralRequired = putStrike
       .mul(optionsAmount)
       .div(getContractReadableAmount(1, 18 + 8 - 6));
@@ -167,12 +175,33 @@ const UseStrategyDialog = () => {
       );
     }
 
+    const userBalance = userAssetBalances[selectedToken];
+
+    const totalCost = putOptionsPremium.add(putOptionsfees).add(
+      getContractReadableAmount(
+        positionBalance,
+        TOKEN_DECIMALS[chainId]?.[selectedToken] ?? '0'
+      )
+        .add(positionFee)
+        .add(strategyFee)
+        .add(swapFees)
+    );
+
     if (collateralRequired.gt(availableLiquidity)) {
       errorMessage = 'Insufficient liquidity for options';
+    } else if (totalCost.gt(userBalance ?? '0')) {
+      errorMessage = 'Insufficient balance to pay premium & fees';
     }
 
     return errorMessage;
-  }, [atlanticPoolEpochData, strategyDetails]);
+  }, [
+    atlanticPoolEpochData,
+    chainId,
+    positionBalance,
+    selectedToken,
+    strategyDetails,
+    userAssetBalances,
+  ]);
 
   const selectedPoolTokens = useMemo((): {
     deposit: string;
@@ -376,7 +405,7 @@ const UseStrategyDialog = () => {
     const balance = await tokenContract.balanceOf(accountAddress);
     const tokenDecimals = getTokenDecimals(selectedToken, chainId);
     setPositionBalance(() =>
-      String(getUserReadableAmount(balance, tokenDecimals))
+      getUserReadableAmount(balance, tokenDecimals).toString()
     );
   }, [accountAddress, chainId, contractAddresses, provider, selectedToken]);
 
