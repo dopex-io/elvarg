@@ -269,7 +269,7 @@ const UseStrategyDialog = () => {
       path = [depositTokenAddress, underlyingTokenAddress];
       amountIn = await utils.getAmountIn(
         indexTokenFromCollateralUsd,
-        0,
+        10,
         underlyingTokenAddress,
         depositTokenAddress
       );

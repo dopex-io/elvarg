@@ -165,7 +165,7 @@ const UserPositions = () => {
       underlying,
       entryPrice: formatAmount(getUserReadableAmount(gmxPosition[2], 30), 3),
       markPrice: formatAmount(getUserReadableAmount(markPrice, 8), 3),
-      leverage: formatAmount(getUserReadableAmount(leverage, 4), 1),
+      leverage: formatAmount(getUserReadableAmount(leverage, 4) + 0.1, 1),
       putStrike: formatAmount(
         getUserReadableAmount(atlanticsPosition.optionStrike, 8),
         3
@@ -181,8 +181,6 @@ const UserPositions = () => {
       collateral: formatAmount(getUserReadableAmount(gmxPosition[1], 30), 3),
       depositUnderlying: strategyPosition.keepCollateral,
     };
-
-    console.log('delta', Number(position.delta));
 
     setUserPositionData(() => position);
     setIsPositionReleased(() => strategyPosition.state === 1);
@@ -308,7 +306,7 @@ const UserPositions = () => {
                     }`}
                     variant="h6"
                   >
-                    {userPositionData.delta}
+                    {formatAmount(userPositionData.delta, 5)}
                   </Typography>
                 </TableBodyCell>
                 <TableBodyCell>
