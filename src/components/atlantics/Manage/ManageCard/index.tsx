@@ -2,6 +2,8 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { AtlanticPutsPool__factory, ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+import Tooltip from '@mui/material/Tooltip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
 import CustomInput from 'components/UI/CustomInput';
@@ -9,6 +11,7 @@ import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInpu
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
+import Switch from 'components/UI/Switch';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -21,7 +24,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { TOKEN_DECIMALS } from 'constants/index';
+import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 
 interface ManageCardProps {
   tokenId: string;
@@ -35,6 +38,7 @@ const ManageCard = (props: ManageCardProps) => {
 
   const [value, setValue] = useState<number | string>('');
   const [maxStrike, setMaxStrike] = useState<number | string>('');
+  const [maxApprove, setMaxApprove] = useState<boolean>(false);
   const [approved, setApproved] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)
@@ -91,10 +95,12 @@ const ManageCard = (props: ManageCardProps) => {
       await sendTx(
         token.approve(
           contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-          getContractReadableAmount(
-            value,
-            TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
-          )
+          maxApprove
+            ? MAX_VALUE.toString()
+            : getContractReadableAmount(
+                value,
+                TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
+              )
         )
       );
       setApproved(true);
@@ -111,6 +117,7 @@ const ManageCard = (props: ManageCardProps) => {
     underlying,
     value,
     depositToken,
+    maxApprove,
     sendTx,
   ]);
 
@@ -160,6 +167,10 @@ const ManageCard = (props: ManageCardProps) => {
       )
     );
   }, [chainId, atlanticPool, underlying, userAssetBalances]);
+
+  const handleMaxApprove = useCallback(() => {
+    setMaxApprove(!maxApprove);
+  }, [maxApprove]);
 
   useEffect(() => {
     (async () => {
@@ -274,7 +285,6 @@ const ManageCard = (props: ManageCardProps) => {
           </Typography>
         </Box>
       </Box>
-      {/* {selectedPool?.isPut && ( */}
       <MaxStrikeInput
         token={depositToken}
         currentPrice={currentPrice}
@@ -282,9 +292,20 @@ const ManageCard = (props: ManageCardProps) => {
         maxStrikes={atlanticPoolEpochData?.maxStrikes}
         setMaxStrike={setMaxStrike}
       />
-      {/* )} */}
-
       <PoolStats poolType={poolType} />
+      {!approved ? (
+        <Box className="flex justify-between px-4">
+          <Box className="flex space-x-1 my-auto">
+            <Typography variant="h6" className="my-auto" color="stieglitz">
+              Max Approve
+            </Typography>
+            <Tooltip title="You will not be prompted to approve your tokens again as you are providing full allowance to the contract. Use with caution!">
+              <InfoOutlinedIcon className="fill-current text-stieglitz p-0 w-4 h-4 my-auto" />
+            </Tooltip>
+          </Box>
+          <Switch value={maxApprove} onChange={handleMaxApprove} />
+        </Box>
+      ) : null}
       <Box className="rounded-xl bg-umbra p-3 space-y-2">
         <Box className="rounded-md bg-carbon p-3">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
