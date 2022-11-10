@@ -395,6 +395,7 @@ const UseStrategyDialog = () => {
 
     try {
       await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+      setApproved((prevState) => ({ ...prevState, quote: true }));
     } catch (err) {
       console.log(err);
     }
@@ -412,6 +413,7 @@ const UseStrategyDialog = () => {
         signer
       );
       await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+      setApproved((prevState) => ({ ...prevState, base: true }));
     } catch (err) {
       console.log(err);
     }
@@ -628,40 +630,43 @@ const UseStrategyDialog = () => {
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}
         />
-        <Box className="flex flex-col w-full space-y-3">
-          <Box className="flex flex-row w-full justify-around mt-4 space-x-2">
-            {depositUnderlying && (
+        <Box className="flex flex-col w-full space-y-3 mt-2">
+          {!approved.quote ? (
+            <Box className="flex flex-row w-full justify-around space-x-2">
+              {depositUnderlying && !approved.base ? (
+                <CustomButton
+                  onClick={handleApproveBaseToken}
+                  disabled={
+                    positionBalance === '' ||
+                    parseInt(positionBalance) === 0 ||
+                    error !== ''
+                  }
+                  className={`${
+                    !depositUnderlying &&
+                    increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
+                    'hidden'
+                  }  w-full ${approved.base && 'hidden'}`}
+                >
+                  Approve {selectedPoolTokens.underlying}
+                </CustomButton>
+              ) : null}
               <CustomButton
-                onClick={handleApproveBaseToken}
+                onClick={handleApproveQuoteToken}
                 disabled={
                   positionBalance === '' ||
                   parseInt(positionBalance) === 0 ||
                   error !== ''
                 }
-                className={`${
-                  !depositUnderlying &&
-                  increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
-                  'hidden'
-                }  w-full ${approved.base && 'hidden'}`}
+                className={` ${approved.quote && 'hidden'} w-full`}
               >
-                Approve {'WETH'}
+                Approve {selectedPoolTokens.deposit}
               </CustomButton>
-            )}
-            <CustomButton
-              onClick={handleApproveQuoteToken}
-              disabled={
-                positionBalance === '' ||
-                parseInt(positionBalance) === 0 ||
-                error !== ''
-              }
-              className={` ${approved.quote && 'hidden'} w-full`}
-            >
-              Approve {'USDC'}
+            </Box>
+          ) : (
+            <CustomButton disabled={error !== ''} onClick={useStrategy}>
+              Long
             </CustomButton>
-          </Box>
-          <CustomButton disabled={error !== ''} onClick={useStrategy}>
-            Long
-          </CustomButton>
+          )}
         </Box>
       </Box>
     </>
