@@ -27,55 +27,55 @@ const ManageTitle = (props: ManageCardTitleProps) => {
     const { underlying, depositToken } = atlanticPool.tokens;
     if (!underlying || !depositToken) return;
 
-    return `${underlying}-${depositToken}-${
-      // selectedPool?.isPut ? 'PUTS' : 'CALLS'
-      'PUTS'
-    }-${atlanticPool.durationType.substring(0, 1)}`;
+    return `${underlying}-${depositToken}-${'PUTS'}-${atlanticPool.durationType.substring(
+      0,
+      1
+    )}`;
   }, [atlanticPool]);
 
   return (
-    <Box className="flex space-x-3 w-3/4">
-      <Box className="relative w-[4.6rem]">
-        {poolType === 'PUTS' && (
-          <img
-            src={`/images/tokens/${depositToken.toLowerCase()}.svg`}
-            alt={depositToken}
-            className="w-[2.625rem] border rounded-full border-umbra absolute left-[1.6rem]"
-          />
-        )}
+    <Box className="flex space-x-4 flex-wrap px-2">
+      <Box className="flex -space-x-4 h-fit min-w-fit">
+        <img
+          src={`/images/tokens/${depositToken.toLowerCase()}.svg`}
+          alt={depositToken}
+          className="border rounded-full border-umbra w-12 h-12 z-10"
+        />
         <img
           src={`/images/tokens/${underlying.toLowerCase()}.svg`}
           alt={underlying}
-          className="w-[2.625rem] border rounded-full border-umbra"
+          className="border rounded-full border-umbra w-12 h-12"
         />
       </Box>
-      <Box className="my-auto">
+      <Box className="min-w-fit">
         <Typography variant="h5">{strategy.toUpperCase()}</Typography>
         <Typography variant="h6" color="stieglitz">
           {poolId}
         </Typography>
       </Box>
-      <Typography
-        variant="h6"
-        className="my-auto bg-umbra rounded-[0.4em] px-2 py-1"
-      >
-        {epochLength.toUpperCase()}
-      </Typography>
-      <Typography
-        variant="h6"
-        className="my-auto bg-umbra rounded-[0.4em] px-2 py-1"
-      >
-        {poolType.toUpperCase()}
-      </Typography>
-      <Typography
-        variant="h6"
-        className="my-auto border border-primary rounded-[0.4em] px-2 py-1"
-      >
-        {`$${formatAmount(
-          getUserReadableAmount(atlanticPool?.underlyingPrice || '0', 8),
-          3
-        )}`}
-      </Typography>
+      <Box className="hidden sm:flex my-auto space-x-3 flex-col sm:flex-row">
+        <Typography
+          variant="h6"
+          className="my-auto bg-umbra rounded-md px-2 py-1"
+        >
+          {epochLength.toUpperCase()}
+        </Typography>
+        <Typography
+          variant="h6"
+          className="my-auto bg-umbra rounded-md px-2 py-1"
+        >
+          {poolType.toUpperCase()}
+        </Typography>
+        <Typography
+          variant="h6"
+          className="my-auto border border-primary rounded-md px-2 py-1"
+        >
+          {`$${formatAmount(
+            getUserReadableAmount(atlanticPool?.underlyingPrice || '0', 8),
+            3
+          )}`}
+        </Typography>
+      </Box>
     </Box>
   );
 };

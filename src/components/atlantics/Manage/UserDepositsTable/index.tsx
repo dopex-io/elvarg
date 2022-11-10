@@ -7,6 +7,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
@@ -143,7 +144,19 @@ const UserDepositsTable = () => {
     [selectedEpoch, atlanticPool, signer, sendTx]
   );
 
-  return userPositions?.length !== 0 ? (
+  const userPositionsRenderState = useMemo(() => {
+    if (!userPositions) {
+      return <CircularProgress />;
+    } else if (userPositions.length === 0)
+      return (
+        <Typography variant="h6" className="my-2">
+          No Deposits
+        </Typography>
+      );
+    else return 'renderTable';
+  }, [userPositions]);
+
+  return userPositionsRenderState === 'renderTable' ? (
     <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto">
       <Table>
         <TableHead>
@@ -155,7 +168,9 @@ const UserDepositsTable = () => {
             <TableHeader width="w-1/6">Funding Earned</TableHeader>
             <TableHeader width="w-1/6">Underlying Collected</TableHeader>
             <TableHeader>APY</TableHeader>
-            <TableHeader align="right">Settle</TableHeader>
+            <TableHeader align="right" width="w-1/6">
+              Settle
+            </TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -237,6 +252,7 @@ const UserDepositsTable = () => {
                     await handleWithdraw(position.depositId!);
                   }}
                   disabled={!canWithdraw}
+                  color={!canWithdraw ? 'mineshaft' : 'primary'}
                   className="rounded-md"
                 >
                   {canWithdraw ? (
@@ -259,8 +275,8 @@ const UserDepositsTable = () => {
       </Table>
     </TableContainer>
   ) : (
-    <Box className="w-full text-center bg-cod-gray rounded-xl p-4">
-      <Typography variant="h6">No Deposits</Typography>
+    <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
+      {userPositionsRenderState}
     </Box>
   );
 };
