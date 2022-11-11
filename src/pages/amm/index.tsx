@@ -1,12 +1,17 @@
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 
 import AppBar from 'components/common/AppBar';
-import Swap from 'components/amm/Swap';
+import Swap from 'components/amm/SwapPanel';
+
+const StyledContainer = styled(Box)`
+  background: radial-gradient(100% 100% at 50% 0%, #062125 0%, #000000 100%);
+`;
 
 const AMM = () => {
   return (
-    <Box className="bg-gradient-to-b from-[#062125] to-transparent bg-no-repeat min-h-screen">
+    <StyledContainer classes="min-h-screen">
       <Head>
         <title>AMM</title>
       </Head>
@@ -16,7 +21,7 @@ const AMM = () => {
           <Swap />
         </Box>
       </Box>
-    </Box>
+    </StyledContainer>
   );
 };
 

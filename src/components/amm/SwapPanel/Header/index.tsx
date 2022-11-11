@@ -5,11 +5,11 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 
 import Typography from 'components/UI/Typography';
 
-const SwapHeader = () => {
+const Header = () => {
   const handleClick = useCallback(() => {}, []);
 
   return (
-    <Box className="flex justify-between">
+    <Box className="flex justify-between my-2">
       <Typography variant="h5" className="my-auto pl-2">
         Swap
       </Typography>
@@ -20,4 +20,4 @@ const SwapHeader = () => {
   );
 };
 
-export default SwapHeader;
+export default Header;

@@ -1,13 +1,13 @@
 import Box from '@mui/material/Box';
 
-import SwapHeader from 'components/amm/Swap/SwapHeader';
-import SwapBody from 'components/amm/Swap/SwapBody';
+import Header from 'components/amm/SwapPanel/Header';
+import Body from 'components/amm/SwapPanel/Body';
 
 const Swap = () => {
   return (
     <Box className="my-auto rounded-xl bg-cod-gray space-y-2 p-2">
-      <SwapHeader />
-      <SwapBody />
+      <Header />
+      <Body />
     </Box>
   );
 };
