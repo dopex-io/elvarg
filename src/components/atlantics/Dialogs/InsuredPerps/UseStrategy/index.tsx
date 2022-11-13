@@ -307,9 +307,10 @@ const UseStrategyDialog = () => {
       amountIn = indexTokenFromCollateralUsd;
     }
 
-    let [positionFee, markPrice] = await Promise.all([
+    let [positionFee, markPrice, tickSizeMultiplier] = await Promise.all([
       utils.getPositionFee(size),
       gmxVault.getMaxPrice(underlyingTokenAddress),
+      strategy.tickSizeMultiplierBps(underlyingTokenAddress),
     ]);
 
     let liquidationPrice = markPrice
@@ -320,7 +321,11 @@ const UseStrategyDialog = () => {
     [levergedAmountToToken, putStrike, positionFee, strategyFee] =
       await Promise.all([
         gmxVault.usdToTokenMin(depositTokenAddress, leveragedCollateralUsd),
-        utils.getEligblePutStrike(putsContract.address, liquidationPrice),
+        utils['getEligiblePutStrike(address,uint256,uint256)'](
+          putsContract.address,
+          tickSizeMultiplier,
+          liquidationPrice
+        ),
         gmxVault.usdToTokenMin(selectedTokenAddress, positionFee),
         strategy.getPositionfee(size, contractAddresses[selectedToken]),
       ]);
@@ -517,6 +522,7 @@ const UseStrategyDialog = () => {
     const overrides = {
       value: MIN_EXECUTION_FEE,
     };
+
     try {
       const tx = strategyContract.useStrategyAndOpenLongPosition(
         increaseOrderParams,

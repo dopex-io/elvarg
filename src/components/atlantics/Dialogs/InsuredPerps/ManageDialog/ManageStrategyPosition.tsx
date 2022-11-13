@@ -32,6 +32,11 @@ const options: { [key: string]: string }[] = [
       'Exit strategy but keep long position under your designated position manager contract, the same position can be re-insured in the future.',
   },
   {
+    option: 'Enable unwind',
+    description:
+      'Deposit underlying to enable unwind to mitigate pre-liquidation price when your long position has unlocked collateral.',
+  },
+  {
     option: 'Unwind Underlying & Keep Long Position',
     description:
       "If underlying was deposited before using the strategy, you can use choose to keep borrowed collateral incase the put options bought for your long position's insurance are in the money.",
@@ -180,13 +185,16 @@ const ManageStrategyPositionDialog = () => {
       );
     }
     if (selectedOptionItem === 2) {
-      tx = strategy.createKeepCollateralOrder(userPositionId);
+      tx = strategy.enableKeepCollateral(userPositionId);
     }
     if (selectedOptionItem === 3) {
+      tx = strategy.createKeepCollateralOrder(userPositionId);
+    }
+    if (selectedOptionItem === 4) {
       tx = strategy.emergencyStrategyExit(userPositionId);
     }
 
-    if (selectedOptionItem === 4) {
+    if (selectedOptionItem === 5) {
       tx = strategy.reuseStrategy(
         userPositionId,
         strategyPosition.expiry,
