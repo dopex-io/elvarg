@@ -135,7 +135,11 @@ const StrategyDetails = (props: {
     <Box className="w-full flex flex-col">
       <Box className="border border-umbra rounded-xl w-full divide-y divide-umbra">
         <Box className="flex flex-row">
-          <Tooltip title="Put strike that will be purchased for insurance">
+          <Tooltip
+            title="Put strike that will be purchased for insurance"
+            enterTouchDelay={0}
+            leaveTouchDelay={1000}
+          >
             <Box className="flex-1 p-4 border-r border-umbra">
               <Box className="flex space-y-1 flex-col">
                 <Typography variant="h6">
@@ -147,7 +151,10 @@ const StrategyDetails = (props: {
               </Box>
             </Box>
           </Tooltip>
-          <Tooltip title="Expiry of the pool, after which users' long position will be unwinded to closed">
+          <Tooltip
+            title="Expiry of the pool, after which users' long position will be unwinded to closed"
+            enterTouchDelay={0}
+          >
             <Box className="flex-1 p-4">
               <Box className="flex space-y-1 flex-col">
                 <Typography variant="h6">

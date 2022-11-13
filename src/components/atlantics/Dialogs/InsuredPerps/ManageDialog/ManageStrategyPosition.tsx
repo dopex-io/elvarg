@@ -247,7 +247,13 @@ const ManageStrategyPositionDialog = () => {
             </MenuItem>
           ))}
         </Select>
-        <Tooltip title={optionDescription} placement="bottom" arrow>
+        <Tooltip
+          title={optionDescription}
+          placement="bottom"
+          arrow
+          enterTouchDelay={0}
+          leaveTouchDelay={1000}
+        >
           <CustomButton onClick={handleSubmit} className="w-full">
             Submit
           </CustomButton>

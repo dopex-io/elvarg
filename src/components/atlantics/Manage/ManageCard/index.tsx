@@ -299,7 +299,11 @@ const ManageCard = (props: ManageCardProps) => {
             <Typography variant="h6" className="my-auto" color="stieglitz">
               Max Approve
             </Typography>
-            <Tooltip title="You will not be prompted to approve your tokens again as you are providing full allowance to the contract. Use with caution!">
+            <Tooltip
+              title="You will not be prompted to approve your tokens again as you are providing full allowance to the contract. Use with caution!"
+              enterTouchDelay={0}
+              leaveTouchDelay={1000}
+            >
               <InfoOutlinedIcon className="fill-current text-stieglitz p-0 w-4 h-4 my-auto" />
             </Tooltip>
           </Box>

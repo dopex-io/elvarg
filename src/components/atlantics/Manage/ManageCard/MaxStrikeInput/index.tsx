@@ -64,7 +64,11 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
     <Box className="flex flex-col bg-umbra p-3 w-full rounded-xl space-y-3">
       <Typography variant="h6" className="text-right" color="stieglitz">
         Enter Max Strike{' '}
-        <Tooltip title="Choice of strike must be below spot price and modulo of strike by tick size should be 0.">
+        <Tooltip
+          title="Choice of strike must be below spot price and modulo of strike by tick size should be 0."
+          enterTouchDelay={0}
+          leaveTouchDelay={1000}
+        >
           <InfoOutlined className="h-4" />
         </Tooltip>
       </Typography>

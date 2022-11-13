@@ -638,7 +638,11 @@ const UseStrategyDialog = () => {
             <Typography variant="h6" className="my-auto" color="stieglitz">
               Deposit underlying
             </Typography>
-            <Tooltip title="Choose whether to deposit underlying and keep borrowed collateral incase your long position has collateral that was added when trigger price was crossed and would like to keep the position post expiry.">
+            <Tooltip
+              title="Choose whether to deposit underlying and keep borrowed collateral incase your long position has collateral that was added when trigger price was crossed and would like to keep the position post expiry."
+              enterTouchDelay={0}
+              leaveTouchDelay={1000}
+            >
               <InfoOutlined className="fill-current text-stieglitz p-1 my-auto" />
             </Tooltip>
           </Box>
