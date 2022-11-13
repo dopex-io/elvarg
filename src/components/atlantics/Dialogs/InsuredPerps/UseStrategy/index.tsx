@@ -2,6 +2,7 @@ import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
 import React, {
   ChangeEvent,
+  SyntheticEvent,
   useCallback,
   useContext,
   useEffect,
@@ -390,10 +391,22 @@ const UseStrategyDialog = () => {
     setDeposutUnderlying(event.target.checked);
   };
 
-  function onChangeLeverage(event: Event, value: any, aciveThumb: any) {
-    event;
-    aciveThumb;
-    setLeverage(() => getContractReadableAmount(value, 30));
+  // function onChangeLeverage(event: Event, value: any, activeThumb: any) {
+  //   event;
+  //   activeThumb;
+  //   setLeverage(() => getContractReadableAmount(value, 30));
+  // }
+
+  function handleChangeLeverage(
+    _: Event | SyntheticEvent<Element, Event>,
+    value: number | number[]
+  ) {
+    setLeverage(() =>
+      getContractReadableAmount(
+        typeof value == 'number' ? value : value.pop() ?? 0,
+        30
+      )
+    );
   }
 
   const handlePositionBalanceChange = (
@@ -628,7 +641,8 @@ const UseStrategyDialog = () => {
               className="w-full"
               aria-label="Small steps"
               defaultValue={1.1}
-              onChange={onChangeLeverage}
+              // onChange={onChangeLeverage}
+              onChangeCommitted={handleChangeLeverage}
               step={steps}
               min={minMarks}
               max={maxMarks}
