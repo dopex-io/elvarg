@@ -71,6 +71,7 @@ export interface IStrategyDetails {
   putOptionsfees: BigNumber;
   positionFee: BigNumber;
   optionsAmount: BigNumber;
+  markPrice: BigNumber;
   liquidationPrice: BigNumber;
   putStrike: BigNumber;
   expiry: BigNumber;
@@ -126,6 +127,7 @@ const UseStrategyDialog = () => {
     optionsAmount: BigNumber.from(0),
     depositUnderlying: false,
     positionFee: BigNumber.from(0),
+    markPrice: BigNumber.from(0),
     liquidationPrice: BigNumber.from(0),
     putStrike: BigNumber.from(0),
     expiry: BigNumber.from(0),
@@ -357,6 +359,7 @@ const UseStrategyDialog = () => {
       positionFee,
       optionsAmount,
       liquidationPrice,
+      markPrice,
       putStrike,
       expiry: atlanticPoolEpochData.expiry,
       swapFees,

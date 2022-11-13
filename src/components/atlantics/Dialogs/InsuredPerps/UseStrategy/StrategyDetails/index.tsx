@@ -28,6 +28,7 @@ const StrategyDetails = (props: {
     data: {
       putStrike,
       expiry,
+      markPrice,
       liquidationPrice,
       positionSize,
       optionsAmount,
@@ -175,6 +176,12 @@ const StrategyDetails = (props: {
             </Typography>
           </Box>
           <ContentRow title="Index Token" content="WETH" />
+          <ContentRow
+            title="Mark Price"
+            content={
+              '$' + formatAmount(getUserReadableAmount(markPrice, 30), 3)
+            }
+          />
           <ContentRow
             title="Liquidation Price"
             content={
