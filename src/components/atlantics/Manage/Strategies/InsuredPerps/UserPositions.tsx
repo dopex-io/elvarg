@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   GmxVault__factory,
   InsuredLongsStrategy__factory,
@@ -86,6 +86,15 @@ const UserPositions = () => {
     collateral: '0',
     depositUnderlying: false,
   });
+
+  const pnlPercentage = useMemo(() => {
+    return formatAmount(
+      (Math.abs(Number(userPositionData.delta)) /
+        Number(userPositionData.collateral)) *
+        100,
+      2
+    );
+  }, [userPositionData]);
 
   const getUserPositions = useCallback(async () => {
     if (!contractAddresses || !accountAddress || !atlanticPool || !signer)
@@ -306,7 +315,8 @@ const UserPositions = () => {
                     }`}
                     variant="h6"
                   >
-                    {formatAmount(userPositionData.delta, 5)}
+                    {formatAmount(userPositionData.delta, 5)}{' '}
+                    {`(${pnlPercentage}%)`}
                   </Typography>
                 </TableBodyCell>
                 <TableBodyCell>
