@@ -137,8 +137,6 @@ const UseStrategyDialog = () => {
     strategyFee: BigNumber.from(0),
   });
   const [, setLoading] = useState<boolean>(true);
-  const [strategyDetailsFirstLoad, setstrategyDetailsFirstLoad] =
-    useState(false);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
@@ -409,9 +407,8 @@ const UseStrategyDialog = () => {
           30
         )
       );
-      handleStrategyCalculations();
     },
-    [handleStrategyCalculations]
+    []
   );
 
   const handlePositionBalanceChange = (
@@ -419,7 +416,6 @@ const UseStrategyDialog = () => {
   ) => {
     const { value } = event.target;
     setPositionBalance(value);
-    handleStrategyCalculations();
   };
 
   const handleMax = useCallback(async () => {
@@ -507,16 +503,11 @@ const UseStrategyDialog = () => {
   }, [accountAddress, atlanticPool, contractAddresses, provider]);
 
   useEffect(() => {
-    if (!strategyDetailsFirstLoad) {
-      handleStrategyCalculations();
-      setstrategyDetailsFirstLoad(true);
-    }
-
-    const interval = setInterval(() => {
-      handleStrategyCalculations();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [strategyDetailsFirstLoad, handleStrategyCalculations]);
+    handleStrategyCalculations();
+    // const interval = setInterval(() => {
+    // }, 3000);
+    // return () => clearInterval(interval);
+  }, [handleStrategyCalculations]);
 
   useEffect(() => {
     setLoading(
@@ -737,7 +728,7 @@ const UseStrategyDialog = () => {
               onClick={useStrategy}
             >
               {strategyDetailsLoading ? (
-                <CircularProgress className="text-white p-3" />
+                <CircularProgress className="text-white p-2" />
               ) : (
                 'Long'
               )}
