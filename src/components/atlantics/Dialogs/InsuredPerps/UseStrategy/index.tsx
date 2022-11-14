@@ -41,6 +41,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { CircularProgress } from '@mui/material';
 
 const steps = 0.1;
 const minMarks = 1.1;
@@ -136,6 +137,9 @@ const UseStrategyDialog = () => {
     strategyFee: BigNumber.from(0),
   });
   const [, setLoading] = useState<boolean>(true);
+  const [strategyDetailsFirstLoad, setstrategyDetailsFirstLoad] =
+    useState(false);
+  const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -180,15 +184,14 @@ const UseStrategyDialog = () => {
 
     const userBalance = userAssetBalances[selectedToken];
 
-    const totalCost = putOptionsPremium.add(putOptionsfees).add(
-      getContractReadableAmount(
-        positionBalance,
-        TOKEN_DECIMALS[chainId]?.[selectedToken] ?? '0'
-      )
-        .add(positionFee)
-        .add(strategyFee)
-        .add(swapFees)
-    );
+    const totalCost = putOptionsPremium
+      .add(putOptionsfees)
+      .add(
+        increaseOrderParams.collateralDelta
+          .add(positionFee)
+          .add(strategyFee)
+          .add(swapFees)
+      );
 
     if (collateralRequired.gt(availableLiquidity)) {
       errorMessage = 'Insufficient liquidity for options';
@@ -198,9 +201,8 @@ const UseStrategyDialog = () => {
 
     return errorMessage;
   }, [
+    increaseOrderParams.collateralDelta,
     atlanticPoolEpochData,
-    chainId,
-    positionBalance,
     selectedToken,
     strategyDetails,
     userAssetBalances,
@@ -255,6 +257,7 @@ const UseStrategyDialog = () => {
     )
       return;
 
+    setStrategyDetailsLoading(true);
     const { underlying, depositToken } = atlanticPool.tokens;
     const putsContract = atlanticPool.contracts.atlanticPool;
 
@@ -374,6 +377,7 @@ const UseStrategyDialog = () => {
       positionSizeDelta: size,
       isLong: true,
     }));
+    setStrategyDetailsLoading(false);
   }, [
     selectedToken,
     signer,
@@ -397,17 +401,18 @@ const UseStrategyDialog = () => {
   //   setLeverage(() => getContractReadableAmount(value, 30));
   // }
 
-  function handleChangeLeverage(
-    _: Event | SyntheticEvent<Element, Event>,
-    value: number | number[]
-  ) {
-    setLeverage(() =>
-      getContractReadableAmount(
-        typeof value == 'number' ? value : value.pop() ?? 0,
-        30
-      )
-    );
-  }
+  const handleChangeLeverage = useCallback(
+    (_: Event | SyntheticEvent<Element, Event>, value: number | number[]) => {
+      setLeverage(() =>
+        getContractReadableAmount(
+          typeof value == 'number' ? value : value.pop() ?? 0,
+          30
+        )
+      );
+      handleStrategyCalculations();
+    },
+    [handleStrategyCalculations]
+  );
 
   const handlePositionBalanceChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -502,8 +507,16 @@ const UseStrategyDialog = () => {
   }, [accountAddress, atlanticPool, contractAddresses, provider]);
 
   useEffect(() => {
-    handleStrategyCalculations();
-  }, [handleStrategyCalculations]);
+    if (!strategyDetailsFirstLoad) {
+      handleStrategyCalculations();
+      setstrategyDetailsFirstLoad(true);
+    }
+
+    const interval = setInterval(() => {
+      handleStrategyCalculations();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [strategyDetailsFirstLoad, handleStrategyCalculations]);
 
   useEffect(() => {
     setLoading(
@@ -719,8 +732,15 @@ const UseStrategyDialog = () => {
               </CustomButton>
             </Box>
           ) : (
-            <CustomButton disabled={error !== ''} onClick={useStrategy}>
-              Long
+            <CustomButton
+              disabled={error !== '' || strategyDetailsLoading}
+              onClick={useStrategy}
+            >
+              {strategyDetailsLoading ? (
+                <CircularProgress className="text-white p-3" />
+              ) : (
+                'Long'
+              )}
             </CustomButton>
           )}
         </Box>

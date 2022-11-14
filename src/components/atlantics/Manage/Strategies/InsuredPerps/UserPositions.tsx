@@ -220,7 +220,7 @@ const UserPositions = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       getUserPositions();
-    }, 10000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [getUserPositions]);
   return (
