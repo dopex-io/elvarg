@@ -285,8 +285,8 @@ const UseStrategyDialog = () => {
 
     let collateralUsd = getContractReadableAmount(inputAmount, 30);
 
+    const maxPrice = await gmxVault.getMaxPrice(underlyingTokenAddress);
     if (selectedToken === underlying) {
-      const maxPrice = await gmxVault.getMaxPrice(underlyingTokenAddress);
       collateralUsd = maxPrice.mul(inputAmount);
     }
 
@@ -311,15 +311,47 @@ const UseStrategyDialog = () => {
       amountIn = indexTokenFromCollateralUsd;
     }
 
-    let [positionFee, markPrice, tickSizeMultiplier] = await Promise.all([
+    let [
+      positionFee,
+      markPrice,
+      tickSizeMultiplier,
+      liquidationFee,
+      nextFunding,
+    ] = await Promise.all([
       utils.getPositionFee(size),
       gmxVault.getMaxPrice(underlyingTokenAddress),
       strategy.tickSizeMultiplierBps(underlyingTokenAddress),
+      gmxVault.liquidationFeeUsd(),
+      gmxVault.getNextFundingRate(underlyingTokenAddress),
     ]);
 
-    let liquidationPrice = markPrice
-      .sub(markPrice.mul(usdMultiplier).div(leverage))
-      .div(getContractReadableAmount(1, 22));
+    let liquidationPrice = BigNumber.from(0);
+    const fundingUsd = size.mul(nextFunding).div(1000000);
+
+    let swapFees = BigNumber.from(0);
+    if (path.length > 1) {
+      swapFees = amountIn.sub(
+        getContractReadableAmount(
+          inputAmount,
+          getTokenDecimals(selectedToken, chainId)
+        )
+      );
+    }
+
+    if (!size.isZero() || !collateralUsd.isZero()) {
+      let swapFeesUsd = await gmxVault.tokenToUsdMin(
+        depositTokenAddress,
+        swapFees
+      );
+      const liquidationDelta = collateralUsd.sub(
+        liquidationFee.add(positionFee).add(fundingUsd).add(swapFeesUsd)
+      );
+
+      const priceDelta = liquidationDelta.mul(maxPrice).div(size);
+      liquidationPrice = maxPrice
+        .sub(priceDelta)
+        .div(getContractReadableAmount(1, 22));
+    }
 
     let levergedAmountToToken, putStrike: BigNumber, strategyFee: BigNumber;
     [levergedAmountToToken, putStrike, positionFee, strategyFee] =
@@ -342,16 +374,6 @@ const UseStrategyDialog = () => {
       putsContract.calculatePremium(putStrike, optionsAmount),
       putsContract.calculatePurchaseFees(putStrike, optionsAmount),
     ]);
-
-    let swapFees = BigNumber.from(0);
-    if (path.length > 1) {
-      swapFees = amountIn.sub(
-        getContractReadableAmount(
-          inputAmount,
-          getTokenDecimals(selectedToken, chainId)
-        )
-      );
-    }
 
     setStrategyDetails(() => ({
       positionSize: size,
