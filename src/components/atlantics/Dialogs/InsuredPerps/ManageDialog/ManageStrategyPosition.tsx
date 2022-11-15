@@ -6,6 +6,7 @@ import {
   InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
 import Tooltip from '@mui/material/Tooltip';
+import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/Button';
 import ContentRow from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails/ContentRow';
@@ -19,6 +20,7 @@ import formatAmount from 'utils/general/formatAmount';
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 
 import useSendTx from 'hooks/useSendTx';
+import { MAX_VALUE } from 'constants/index';
 
 const options: { [key: string]: string }[] = [
   {
@@ -65,6 +67,7 @@ const ManageStrategyPositionDialog = () => {
   const [optionDescription, setOptionDescription] = useState(
     options[0]?.['description']
   );
+  const [unwindApproved, setUnwindApproved] = useState(false);
   const [selectedOptionItem, setSelectedOptionItem] = useState<number>(0);
   const [strategyDetails, setStrategyDetails] = useState({
     pnl: '0',
@@ -73,6 +76,8 @@ const ManageStrategyPositionDialog = () => {
     UnderlyingDeposited: 'No',
     status: 'None',
     collateral: '0',
+    positionId: BigNumber.from(0),
+    atlanticsPurchaseId: BigNumber.from(0),
   });
 
   const handleOptionSelectChange = useCallback(
@@ -153,12 +158,91 @@ const ManageStrategyPositionDialog = () => {
       UnderlyingDeposited: strategyPosition.keepCollateral ? 'Yes' : 'No',
       status: state,
       collateral: formatAmount(getUserReadableAmount(collateral, 6), 3),
+      positionId: userStrategyId,
+      atlanticsPurchaseId: strategyPosition.atlanticsPurchaseId,
     });
   }, [accountAddress, atlanticPool, contractAddresses, signer]);
 
-  useEffect(() => {
-    updateStrategyPosition();
-  }, [updateStrategyPosition]);
+  const checkApproved = useCallback(async () => {
+    if (
+      strategyDetails.positionId.isZero() ||
+      !atlanticPool ||
+      !accountAddress ||
+      !contractAddresses
+    )
+      return;
+    const allowance = await atlanticPool.contracts.baseToken.allowance(
+      accountAddress,
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY']
+    );
+    let approvalAmount = BigNumber.from(0);
+    if (strategyDetails.atlanticsPurchaseId.isZero()) {
+      approvalAmount = BigNumber.from(MAX_VALUE);
+    } else {
+      const atlanticPoolContract = atlanticPool.contracts.atlanticPool;
+      const { optionsAmount } = await atlanticPoolContract.getOptionsPurchase(
+        strategyDetails.atlanticsPurchaseId
+      );
+      approvalAmount = await atlanticPoolContract.calculateUnwindFees(
+        optionsAmount
+      );
+      approvalAmount = approvalAmount.add(optionsAmount);
+    }
+    setUnwindApproved(() => approvalAmount.lte(allowance));
+  }, [
+    accountAddress,
+    atlanticPool,
+    contractAddresses,
+    strategyDetails.atlanticsPurchaseId,
+    strategyDetails.positionId,
+  ]);
+
+  const handleApprove = useCallback(async () => {
+    if (
+      strategyDetails.positionId.isZero() ||
+      !atlanticPool ||
+      !accountAddress ||
+      !contractAddresses ||
+      !signer
+    )
+      return;
+    let approvalAmount = BigNumber.from(0);
+    if (strategyDetails.atlanticsPurchaseId.isZero()) {
+      approvalAmount = BigNumber.from(MAX_VALUE);
+    } else {
+      const atlanticPoolContract = atlanticPool.contracts.atlanticPool;
+      const { optionsAmount } = await atlanticPoolContract.getOptionsPurchase(
+        strategyDetails.atlanticsPurchaseId
+      );
+      approvalAmount = await atlanticPoolContract.calculateUnwindFees(
+        optionsAmount
+      );
+      approvalAmount = approvalAmount.add(optionsAmount);
+    }
+
+    const tx = atlanticPool.contracts.baseToken
+      .connect(signer)
+      .approve(
+        contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
+        approvalAmount
+      );
+
+    try {
+      await sendTx(tx);
+      await checkApproved();
+    } catch (err) {
+      throw err;
+    }
+  }, [
+    checkApproved,
+    signer,
+    sendTx,
+    accountAddress,
+    atlanticPool,
+    contractAddresses,
+    strategyDetails.atlanticsPurchaseId,
+    strategyDetails.positionId,
+  ]);
 
   const handleSubmit = useCallback(async () => {
     if (!accountAddress || !contractAddresses || !signer) return;
@@ -205,6 +289,14 @@ const ManageStrategyPositionDialog = () => {
       await sendTx(tx);
     }
   }, [accountAddress, contractAddresses, sendTx, signer, selectedOptionItem]);
+
+  useEffect(() => {
+    updateStrategyPosition();
+  }, [updateStrategyPosition]);
+
+  useEffect(() => {
+    checkApproved();
+  }, [checkApproved]);
 
   return (
     <Box className="w-full space-y-3">
@@ -254,9 +346,16 @@ const ManageStrategyPositionDialog = () => {
           enterTouchDelay={0}
           leaveTouchDelay={1000}
         >
-          <CustomButton onClick={handleSubmit} className="w-full">
-            Submit
-          </CustomButton>
+          {selectedOptionItem === 2 && !unwindApproved ? (
+            <CustomButton onClick={handleApprove} className="w-full">
+              {' '}
+              Approve WETH{' '}
+            </CustomButton>
+          ) : (
+            <CustomButton onClick={handleSubmit} className="w-full">
+              Submit
+            </CustomButton>
+          )}
         </Tooltip>
       </Box>
     </Box>
