@@ -139,6 +139,9 @@ const UseStrategyDialog = () => {
   });
   const [, setLoading] = useState<boolean>(true);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
+  const allowToOpenPosition = useMemo(() => {
+    return approved.base && approved.quote;
+  }, [approved.quote, approved.base]);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -276,8 +279,6 @@ const UseStrategyDialog = () => {
 
     const usdMultiplier = getContractReadableAmount(1, 30);
 
-    // let path: string[] = [depositTokenAddress, underlyingTokenAddress];
-
     let inputAmount: string | BigNumber = positionBalance;
 
     if (inputAmount === '') {
@@ -328,7 +329,7 @@ const UseStrategyDialog = () => {
     }
 
     let liquidationPrice = BigNumber.from(0);
-    if (!sizeUsd.isZero() && !inputAmount.isZero()) {
+    if (!sizeUsd.isZero() && !inputAmount.gte(1)) {
       liquidationPrice = await utils[
         'getLiquidationPrice(address,address,uint256,uint256)'
       ](selectedTokenAddress, underlyingTokenAddress, inputAmount, sizeUsd);
@@ -393,15 +394,9 @@ const UseStrategyDialog = () => {
     atlanticPoolEpochData,
   ]);
 
-  const handleToggle = (event: any) => {
+  const handleToggle = useCallback((event: any) => {
     setDeposutUnderlying(event.target.checked);
-  };
-
-  // function onChangeLeverage(event: Event, value: any, activeThumb: any) {
-  //   event;
-  //   activeThumb;
-  //   setLeverage(() => getContractReadableAmount(value, 30));
-  // }
+  }, []);
 
   const handleChangeLeverage = useCallback(
     (_: Event | SyntheticEvent<Element, Event>, value: number | number[]) => {
@@ -501,17 +496,42 @@ const UseStrategyDialog = () => {
 
       setApproved(() => ({
         quote: !quoteTokenAllowance.isZero(),
-        base: !baseTokenAllowance.isZero(),
+        base: depositUnderlying ? !baseTokenAllowance.isZero() : true,
       }));
     })();
-  }, [accountAddress, atlanticPool, contractAddresses, provider]);
+  }, [
+    depositUnderlying,
+    accountAddress,
+    atlanticPool,
+    contractAddresses,
+    provider,
+  ]);
+
+  const updatePrice = useCallback(async () => {
+    if (!contractAddresses || !signer || !atlanticPool) return;
+
+    const gmxVault = GmxVault__factory.connect(
+      contractAddresses['GMX-VAULT'],
+      signer
+    );
+    const price = await gmxVault.getMaxPrice(atlanticPool.tokens.underlying);
+
+    setStrategyDetails((prev) => ({
+      ...prev,
+      markPrice: price,
+    }));
+  }, [signer, contractAddresses, atlanticPool]);
 
   useEffect(() => {
     handleStrategyCalculations();
-    // const interval = setInterval(() => {
-    // }, 3000);
-    // return () => clearInterval(interval);
   }, [handleStrategyCalculations]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updatePrice();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [updatePrice]);
 
   useEffect(() => {
     setLoading(
@@ -695,23 +715,21 @@ const UseStrategyDialog = () => {
           baseToken={selectedPoolTokens.underlying}
         />
         <Box className="flex flex-col w-full space-y-3 mt-2">
-          {!approved.quote ? (
+          {!allowToOpenPosition ? (
             <Box className="flex flex-row w-full justify-around space-x-2">
-              {depositUnderlying && !approved.base ? (
-                <CustomButton
-                  onClick={handleApproveBaseToken}
-                  disabled={
-                    positionBalance === '' ||
-                    parseInt(positionBalance) === 0 ||
-                    error !== ''
-                  }
-                  className={`${!depositUnderlying && 'hidden'}  w-full ${
-                    approved.base && 'hidden'
-                  }`}
-                >
-                  Approve {selectedPoolTokens.underlying}
-                </CustomButton>
-              ) : null}
+              <CustomButton
+                onClick={handleApproveBaseToken}
+                disabled={
+                  positionBalance === '' ||
+                  parseInt(positionBalance) === 0 ||
+                  error !== ''
+                }
+                className={`${!depositUnderlying && 'hidden'}  w-full ${
+                  approved.base && 'hidden'
+                }`}
+              >
+                Approve {selectedPoolTokens.underlying}
+              </CustomButton>
               <CustomButton
                 onClick={handleApproveQuoteToken}
                 disabled={
