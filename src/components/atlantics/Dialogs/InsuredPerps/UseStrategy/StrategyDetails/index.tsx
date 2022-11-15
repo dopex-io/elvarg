@@ -39,6 +39,7 @@ const StrategyDetails = (props: {
       positionFee,
       swapFees,
       strategyFee,
+      unwindFee,
     },
     selectedToken,
     positionCollateral,
@@ -94,7 +95,8 @@ const StrategyDetails = (props: {
       totalBaseAsset.amount = totalBaseAsset.amount
         .add(positionCollateral)
         .add(positionFee)
-        .add(strategyFee);
+        .add(strategyFee)
+        .add(unwindFee);
       totalBaseAsset.usdValue =
         totalBaseAsset.usdValue +
         getUserReadableAmount(positionCollateral, basetokenDecimals) *
@@ -118,6 +120,7 @@ const StrategyDetails = (props: {
       totalBaseAsset,
     };
   }, [
+    unwindFee,
     chainId,
     strategyFee,
     swapFees,
@@ -234,6 +237,12 @@ const StrategyDetails = (props: {
             title="Options"
             content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
           />
+          {depositUnderlying && (
+            <ContentRow
+              title="Unwind Fee"
+              content={formatAmount(getUserReadableAmount(unwindFee, 18), 5)}
+            />
+          )}
         </Box>
       </Box>
       <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">

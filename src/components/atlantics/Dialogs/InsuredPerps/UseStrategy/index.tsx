@@ -81,6 +81,7 @@ export interface IStrategyDetails {
   depositUnderlying: boolean;
   swapFees: BigNumber;
   strategyFee: BigNumber;
+  unwindFee: BigNumber;
 }
 
 interface IncreaseOrderParams {
@@ -136,18 +137,10 @@ const UseStrategyDialog = () => {
     expiry: BigNumber.from(0),
     swapFees: BigNumber.from(0),
     strategyFee: BigNumber.from(0),
+    unwindFee: BigNumber.from(0),
   });
   const [, setLoading] = useState<boolean>(true);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
-  const longButtonDisabled = useMemo(() => {
-    if (increaseOrderParams.positionSizeDelta.isZero()) {
-      return true;
-    }
-    if (strategyDetailsLoading) {
-      return true;
-    }
-    return false;
-  }, [strategyDetailsLoading, increaseOrderParams.positionSizeDelta]);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -157,7 +150,7 @@ const UseStrategyDialog = () => {
 
   const error = useMemo(() => {
     let errorMessage = '';
-    if (!atlanticPoolEpochData) return errorMessage;
+    if (!atlanticPoolEpochData || !atlanticPool) return errorMessage;
     const {
       putStrike,
       optionsAmount,
@@ -190,7 +183,8 @@ const UseStrategyDialog = () => {
       );
     }
 
-    const userBalance = userAssetBalances[selectedToken];
+    const collateralTokenBalanace = userAssetBalances[selectedToken];
+    const indexTokenBalance = userAssetBalances[atlanticPool.tokens.underlying];
 
     const totalCost = putOptionsPremium
       .add(putOptionsfees)
@@ -201,10 +195,20 @@ const UseStrategyDialog = () => {
           .add(swapFees)
       );
 
+    const unwindCost = strategyDetails.optionsAmount
+      .mul(5e7)
+      .div(getContractReadableAmount(1, 18));
+
     if (collateralRequired.gt(availableLiquidity)) {
       errorMessage = 'Insufficient liquidity for options';
-    } else if (totalCost.gt(userBalance ?? '0')) {
+    }
+
+    if (totalCost.gt(collateralTokenBalanace ?? '0')) {
       errorMessage = 'Insufficient balance to pay premium & fees';
+    }
+
+    if (unwindCost.gt(indexTokenBalance ?? '0') && depositUnderlying) {
+      errorMessage = 'Insuffucient underlying to deposit';
     }
 
     return errorMessage;
@@ -214,7 +218,22 @@ const UseStrategyDialog = () => {
     selectedToken,
     strategyDetails,
     userAssetBalances,
+    atlanticPool,
+    depositUnderlying,
   ]);
+
+  const longButtonDisabled = useMemo(() => {
+    if (increaseOrderParams.positionSizeDelta.isZero()) {
+      return true;
+    }
+    if (strategyDetailsLoading) {
+      return true;
+    }
+    if (error !== '') {
+      return true;
+    }
+    return false;
+  }, [strategyDetailsLoading, error, increaseOrderParams.positionSizeDelta]);
 
   const allowToOpenPosition = useMemo(() => {
     return approved.base && approved.quote;
@@ -280,8 +299,6 @@ const UseStrategyDialog = () => {
     const underlyingTokenAddress = contractAddresses[underlying];
     const selectedTokenAddress = contractAddresses[selectedToken];
 
-    // if (!underlyingTokenAddress || !selectedToken || !depositTokenAddress) return;
-
     const utils = InsuredLongsUtils__factory.connect(utilsAddress, signer);
     const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
     const strategy = InsuredLongsStrategy__factory.connect(
@@ -319,7 +336,8 @@ const UseStrategyDialog = () => {
       tickSizeMultiplier = BigNumber.from(0),
       optionsAmount = BigNumber.from(0),
       putStrike = BigNumber.from(0),
-      positionFee = BigNumber.from(0);
+      positionFee = BigNumber.from(0),
+      unwindFee = BigNumber.from(0);
 
     positionFee = await utils.getPositionFee(sizeUsd);
     positionFee = await gmxVault.usdToTokenMax(
@@ -377,6 +395,10 @@ const UseStrategyDialog = () => {
         putsContract.calculatePurchaseFees(putStrike, optionsAmount),
         gmxVault.getMaxPrice(underlyingTokenAddress),
       ]);
+
+      if (depositUnderlying) {
+        unwindFee = await putsContract.calculateUnwindFees(optionsAmount);
+      }
     }
     setStrategyDetails(() => ({
       positionSize: sizeUsd,
@@ -391,6 +413,7 @@ const UseStrategyDialog = () => {
       expiry: atlanticPoolEpochData.expiry,
       swapFees,
       strategyFee,
+      unwindFee,
     }));
 
     setIncreaseOrderParams(() => ({
