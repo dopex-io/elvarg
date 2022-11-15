@@ -253,11 +253,17 @@ export default function Deposits() {
 
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a target="_blank" rel="noreferrer" href={deposit.link}>
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={deposit.link.includes('#') ? '#' : deposit.link}
+                      >
                         <CustomButton
                           size="medium"
                           className="px-2"
-                          color={deposit.link !== '#' ? 'primary' : 'umbra'}
+                          color={
+                            deposit.link.includes('#') ? 'umbra' : 'primary'
+                          }
                         >
                           Open
                         </CustomButton>

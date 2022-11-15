@@ -290,11 +290,17 @@ export default function Positions() {
 
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a target="_blank" rel="noreferrer" href={position.link}>
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={position.link.includes('#') ? '#' : position.link}
+                      >
                         <CustomButton
                           size="medium"
                           className="px-2"
-                          color={position.link !== '#' ? 'primary' : 'umbra'}
+                          color={
+                            position.link.includes('#') ? 'umbra' : 'primary'
+                          }
                         >
                           Open
                         </CustomButton>
