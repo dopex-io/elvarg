@@ -23,6 +23,7 @@ const StrategyDetails = (props: {
   positionCollateral: BigNumber;
   quoteToken: string;
   baseToken: string;
+  strategyDetailsLoading: boolean;
 }) => {
   const {
     data: {
@@ -43,6 +44,7 @@ const StrategyDetails = (props: {
     positionCollateral,
     quoteToken,
     baseToken,
+    strategyDetailsLoading,
   } = props;
 
   const { tokenPrices, tokens, chainId, atlanticPool } = useBoundStore();
@@ -63,7 +65,8 @@ const StrategyDetails = (props: {
       totalBaseAsset,
       totalQuoteAsset,
     };
-    if (!tokenPrices || !tokens || !atlanticPool) return _total;
+    if (!tokenPrices || !tokens || !atlanticPool || strategyDetailsLoading)
+      return _total;
     const { underlying, depositToken } = atlanticPool.tokens;
 
     const baseTokenIndex = tokens.indexOf(baseToken);
@@ -130,6 +133,7 @@ const StrategyDetails = (props: {
     selectedToken,
     baseToken,
     quoteToken,
+    strategyDetailsLoading,
   ]);
 
   return (

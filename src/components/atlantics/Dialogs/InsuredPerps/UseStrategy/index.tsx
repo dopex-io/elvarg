@@ -139,9 +139,15 @@ const UseStrategyDialog = () => {
   });
   const [, setLoading] = useState<boolean>(true);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
-  const allowToOpenPosition = useMemo(() => {
-    return approved.base && approved.quote;
-  }, [approved.quote, approved.base]);
+  const longButtonDisabled = useMemo(() => {
+    if (increaseOrderParams.positionSizeDelta.isZero()) {
+      return true;
+    }
+    if (strategyDetailsLoading) {
+      return true;
+    }
+    return false;
+  }, [strategyDetailsLoading, increaseOrderParams.positionSizeDelta]);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -210,6 +216,10 @@ const UseStrategyDialog = () => {
     userAssetBalances,
   ]);
 
+  const allowToOpenPosition = useMemo(() => {
+    return approved.base && approved.quote;
+  }, [approved.quote, approved.base]);
+
   const selectedPoolTokens = useMemo((): {
     deposit: string;
     underlying: string;
@@ -270,6 +280,8 @@ const UseStrategyDialog = () => {
     const underlyingTokenAddress = contractAddresses[underlying];
     const selectedTokenAddress = contractAddresses[selectedToken];
 
+    // if (!underlyingTokenAddress || !selectedToken || !depositTokenAddress) return;
+
     const utils = InsuredLongsUtils__factory.connect(utilsAddress, signer);
     const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
     const strategy = InsuredLongsStrategy__factory.connect(
@@ -282,7 +294,7 @@ const UseStrategyDialog = () => {
     let inputAmount: string | BigNumber = positionBalance;
 
     if (inputAmount === '') {
-      inputAmount = '1';
+      inputAmount = '0';
     }
 
     inputAmount = getContractReadableAmount(
@@ -297,7 +309,19 @@ const UseStrategyDialog = () => {
 
     let sizeUsd = collateralUsd.mul(leverage).div(usdMultiplier);
 
-    let positionFee = await utils.getPositionFee(sizeUsd);
+    let swapFees = BigNumber.from(0);
+    let path = [underlyingTokenAddress];
+    let liquidationPrice = BigNumber.from(0);
+    let putOptionsPremium = BigNumber.from(0),
+      putOptionsfees = BigNumber.from(0),
+      markPrice = BigNumber.from(0),
+      strategyFee = BigNumber.from(0),
+      tickSizeMultiplier = BigNumber.from(0),
+      optionsAmount = BigNumber.from(0),
+      putStrike = BigNumber.from(0),
+      positionFee = BigNumber.from(0);
+
+    positionFee = await utils.getPositionFee(sizeUsd);
     positionFee = await gmxVault.usdToTokenMax(
       selectedTokenAddress,
       positionFee
@@ -307,55 +331,53 @@ const UseStrategyDialog = () => {
       sizeUsd.sub(collateralUsd)
     );
 
-    let swapFees = BigNumber.from(0);
-    let path = [underlyingTokenAddress];
-
     if (selectedToken !== underlying) {
-      path = [selectedTokenAddress, underlyingTokenAddress];
-      let [, fees] = await GmxReader__factory.connect(
-        contractAddresses['GMX-READER'],
-        signer
-      ).getAmountOut(
-        gmxVault.address,
-        selectedTokenAddress,
-        underlyingTokenAddress,
-        inputAmount
-      );
+      if (!collateralUsd.isZero()) {
+        path = [selectedTokenAddress, underlyingTokenAddress];
+        let [, fees] = await GmxReader__factory.connect(
+          contractAddresses['GMX-READER'],
+          signer
+        ).getAmountOut(
+          gmxVault.address,
+          selectedTokenAddress,
+          underlyingTokenAddress,
+          inputAmount
+        );
 
-      swapFees = await gmxVault.tokenToUsdMin(underlyingTokenAddress, fees);
-      swapFees = swapFees.mul(usdMultiplier).div(collateralUsd);
-      swapFees = collateralUsd.mul(swapFees).div(usdMultiplier);
-      swapFees = await gmxVault.usdToTokenMax(selectedTokenAddress, swapFees);
+        swapFees = await gmxVault.tokenToUsdMin(underlyingTokenAddress, fees);
+        swapFees = swapFees.mul(usdMultiplier).div(collateralUsd);
+        swapFees = collateralUsd.mul(swapFees).div(usdMultiplier);
+        swapFees = await gmxVault.usdToTokenMax(selectedTokenAddress, swapFees);
+      }
     }
-
-    let liquidationPrice = BigNumber.from(0);
-    if (!sizeUsd.isZero() && !inputAmount.gte(1)) {
+    if (!inputAmount.isZero()) {
       liquidationPrice = await utils[
         'getLiquidationPrice(address,address,uint256,uint256)'
       ](selectedTokenAddress, underlyingTokenAddress, inputAmount, sizeUsd);
 
       liquidationPrice = liquidationPrice.div(getContractReadableAmount(1, 22));
+
+      [tickSizeMultiplier, strategyFee] = await Promise.all([
+        strategy.tickSizeMultiplierBps(underlyingTokenAddress),
+        strategy.getPositionfee(sizeUsd, selectedTokenAddress),
+      ]);
+
+      putStrike = await utils['getEligiblePutStrike(address,uint256,uint256)'](
+        putsContract.address,
+        tickSizeMultiplier,
+        liquidationPrice
+      );
+
+      optionsAmount = leveragedCollateral
+        .mul(getContractReadableAmount(1, 20))
+        .div(putStrike);
+
+      [putOptionsPremium, putOptionsfees, markPrice] = await Promise.all([
+        putsContract.calculatePremium(putStrike, optionsAmount),
+        putsContract.calculatePurchaseFees(putStrike, optionsAmount),
+        gmxVault.getMaxPrice(underlyingTokenAddress),
+      ]);
     }
-
-    const [tickSizeMultiplier, strategyFee] = await Promise.all([
-      strategy.tickSizeMultiplierBps(underlyingTokenAddress),
-      strategy.getPositionfee(sizeUsd, selectedTokenAddress),
-    ]);
-
-    const putStrike = await utils[
-      'getEligiblePutStrike(address,uint256,uint256)'
-    ](putsContract.address, tickSizeMultiplier, liquidationPrice);
-
-    const optionsAmount = leveragedCollateral
-      .mul(getContractReadableAmount(1, 20))
-      .div(putStrike);
-
-    const [putOptionsPremium, putOptionsfees, markPrice] = await Promise.all([
-      putsContract.calculatePremium(putStrike, optionsAmount),
-      putsContract.calculatePurchaseFees(putStrike, optionsAmount),
-      gmxVault.getMaxPrice(underlyingTokenAddress),
-    ]);
-
     setStrategyDetails(() => ({
       positionSize: sizeUsd,
       putOptionsPremium,
@@ -472,7 +494,7 @@ const UseStrategyDialog = () => {
   // check approved
   useEffect(() => {
     (async () => {
-      if (!atlanticPool || !accountAddress) return;
+      if (!atlanticPool || !accountAddress || !provider) return;
       const quoteToken = ERC20__factory.connect(
         contractAddresses[atlanticPool.tokens.depositToken],
         provider
@@ -713,6 +735,7 @@ const UseStrategyDialog = () => {
           )}
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}
+          strategyDetailsLoading={strategyDetailsLoading}
         />
         <Box className="flex flex-col w-full space-y-3 mt-2">
           {!allowToOpenPosition ? (
@@ -743,10 +766,7 @@ const UseStrategyDialog = () => {
               </CustomButton>
             </Box>
           ) : (
-            <CustomButton
-              disabled={error !== '' || strategyDetailsLoading}
-              onClick={useStrategy}
-            >
+            <CustomButton disabled={longButtonDisabled} onClick={useStrategy}>
               {strategyDetailsLoading ? (
                 <CircularProgress className="text-white p-2" />
               ) : (

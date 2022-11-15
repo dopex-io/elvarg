@@ -25,6 +25,8 @@ import ManageModal from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog'
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import { useBoundStore } from 'store';
+import { CircularProgress } from '@mui/material';
+import { BigNumber } from 'ethers';
 
 interface IUserPositionData {
   underlying: string;
@@ -64,7 +66,6 @@ const UserPositions = () => {
   const [onOpenSection, setOnOpenSection] = useState<string>('MANAGE_STRATEGY');
   const [, setIsPositionReleased] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const handleOpenManageModal = useCallback((section: string) => {
     setOnOpenSection(() => section);
     setOpenManageModal(() => true);
@@ -82,10 +83,18 @@ const UserPositions = () => {
     liquidationPrice: '0',
     leverage: '0',
     putStrike: '0',
-    state: 'None',
+    state: 'Loading',
     collateral: '0',
     depositUnderlying: false,
   });
+
+  // const loading = useMemo(() => {
+  //   if (userPositionData.state === 'Loading') {
+  //     return true;
+  //   }
+
+  //   return false;
+  // },[userPositionData.state])
 
   const pnlPercentage = useMemo(() => {
     return formatAmount(
@@ -126,6 +135,9 @@ const UserPositions = () => {
       strategyContract.userPositionIds(signerAddress),
       strategyContract.userPositionManagers(signerAddress),
     ]);
+    const strategyPosition = await strategyContract.strategyPositions(
+      positionId
+    );
 
     const gmxPosition = await gmxVault.getPosition(
       positionManager,
@@ -134,62 +146,79 @@ const UserPositions = () => {
       true
     );
 
-    if (gmxPosition[0].isZero()) return;
+    let atlanticsPosition: any,
+      leverage = BigNumber.from(0),
+      positionDelta: [boolean, BigNumber] = [false, BigNumber.from(0)],
+      liquidationPrice = BigNumber.from(0),
+      markPrice = BigNumber.from(0),
+      hasProfit = false,
+      position: IUserPositionData = {
+        underlying,
+        entryPrice: '0',
+        markPrice: '0',
+        leverage: '0',
+        putStrike: '0',
+        delta: '0',
+        liquidationPrice: '0',
+        state: 'Loading',
+        collateral: '0',
+        depositUnderlying: false,
+      };
 
-    const strategyPosition = await strategyContract.strategyPositions(
-      positionId
-    );
+    if (!gmxPosition[0].isZero()) {
+      [
+        atlanticsPosition,
+        leverage,
+        positionDelta,
+        liquidationPrice,
+        markPrice,
+      ] = await Promise.all([
+        atlanticPool.contracts.atlanticPool.getOptionsPurchase(
+          strategyPosition.atlanticsPurchaseId
+        ),
+        gmxVault.getPositionLeverage(
+          positionManager,
+          underlyingAddress,
+          underlyingAddress,
+          true
+        ),
+        gmxVault.getPositionDelta(
+          positionManager,
+          underlyingAddress,
+          underlyingAddress,
+          true
+        ),
+        strategyUtils['getLiquidationPrice(address,address)'](
+          positionManager,
+          underlyingAddress
+        ),
+        strategyUtils.getPrice(underlyingAddress),
+      ]);
 
-    const [
-      atlanticsPosition,
-      leverage,
-      positionDelta,
-      liquidationPrice,
-      markPrice,
-    ] = await Promise.all([
-      atlanticPool.contracts.atlanticPool.getOptionsPurchase(
-        strategyPosition.atlanticsPurchaseId
-      ),
-      gmxVault.getPositionLeverage(
-        positionManager,
-        underlyingAddress,
-        underlyingAddress,
-        true
-      ),
-      gmxVault.getPositionDelta(
-        positionManager,
-        underlyingAddress,
-        underlyingAddress,
-        true
-      ),
-      strategyUtils['getLiquidationPrice(address,address)'](
-        positionManager,
-        underlyingAddress
-      ),
-      strategyUtils.getPrice(underlyingAddress),
-    ]);
-
-    const hasProfit = positionDelta[0];
-    const position: IUserPositionData = {
-      underlying,
-      entryPrice: formatAmount(getUserReadableAmount(gmxPosition[2], 30), 3),
-      markPrice: formatAmount(getUserReadableAmount(markPrice, 8), 3),
-      leverage: formatAmount(getUserReadableAmount(leverage, 4), 1),
-      putStrike: formatAmount(
-        getUserReadableAmount(atlanticsPosition.optionStrike, 8),
-        3
-      ),
-      delta: hasProfit
-        ? getUserReadableAmount(positionDelta[1], 30)
-        : getUserReadableAmount(positionDelta[1], 30) * -1,
-      liquidationPrice: formatAmount(
-        getUserReadableAmount(liquidationPrice, 30),
-        3
-      ),
-      state: ActionState[String(strategyPosition.state)],
-      collateral: formatAmount(getUserReadableAmount(gmxPosition[1], 30), 3),
-      depositUnderlying: strategyPosition.keepCollateral,
-    };
+      hasProfit = positionDelta[0];
+      position = {
+        underlying,
+        entryPrice: formatAmount(getUserReadableAmount(gmxPosition[2], 30), 3),
+        markPrice: formatAmount(getUserReadableAmount(markPrice, 8), 3),
+        leverage: formatAmount(getUserReadableAmount(leverage, 4), 1),
+        putStrike: formatAmount(
+          getUserReadableAmount(atlanticsPosition.optionStrike, 8),
+          3
+        ),
+        delta: hasProfit
+          ? getUserReadableAmount(positionDelta[1], 30)
+          : getUserReadableAmount(positionDelta[1], 30) * -1,
+        liquidationPrice: formatAmount(
+          getUserReadableAmount(liquidationPrice, 30),
+          3
+        ),
+        state: ActionState[String(strategyPosition.state)],
+        collateral: formatAmount(getUserReadableAmount(gmxPosition[1], 30), 3),
+        depositUnderlying: strategyPosition.keepCollateral,
+      };
+    } else {
+      position.state = 'None';
+    }
 
     setUserPositionData(() => position);
     setIsPositionReleased(() => strategyPosition.state === 1);
@@ -268,79 +297,91 @@ const UserPositions = () => {
           Manage Strategy
         </MenuItem>
       </Menu>
-      {userPositionData.state === 'None' ? (
+      {userPositionData.state === 'Loading' ? (
         <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
-          <CustomButton onClick={() => handleOpenManageModal('USE_STRATEGY')}>
-            <Typography variant="h6">Open Position</Typography>
-          </CustomButton>
+          <CircularProgress className="p-2 text-white" />
         </Box>
       ) : (
-        <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto pb-4">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Entry</TableHeader>
-                <TableHeader>Balance</TableHeader>
-                <TableHeader>Leverage</TableHeader>
-                <TableHeader>PnL</TableHeader>
-                <TableHeader>Status</TableHeader>
-                <TableHeader>Liqudation Price</TableHeader>
-                <TableHeader>Put Strike</TableHeader>
-                <TableHeader align="right">Action</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    ${userPositionData.entryPrice}
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    ${userPositionData.collateral}
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    {userPositionData.leverage}x
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography
-                    className={`${
-                      Number(userPositionData.delta) > 0
-                        ? 'text-green-500'
-                        : 'text-red-400'
-                    }`}
-                    variant="h6"
-                  >
-                    {formatAmount(userPositionData.delta, 5)}{' '}
-                    {`(${pnlPercentage}%)`}
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">{userPositionData.state}</Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    {userPositionData.liquidationPrice}
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell>
-                  <Typography variant="h6">
-                    {userPositionData.putStrike}
-                  </Typography>
-                </TableBodyCell>
-                <TableBodyCell align="right">
-                  <CustomButton onClick={handleManageButtonClick}>
-                    Manage
-                  </CustomButton>
-                </TableBodyCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <>
+          {userPositionData.state === 'None' ? (
+            <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
+              <CustomButton
+                onClick={() => handleOpenManageModal('USE_STRATEGY')}
+              >
+                <Typography variant="h6">Open Position</Typography>
+              </CustomButton>
+            </Box>
+          ) : (
+            <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto pb-4">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader>Entry</TableHeader>
+                    <TableHeader>Balance</TableHeader>
+                    <TableHeader>Leverage</TableHeader>
+                    <TableHeader>PnL</TableHeader>
+                    <TableHeader>Status</TableHeader>
+                    <TableHeader>Liqudation Price</TableHeader>
+                    <TableHeader>Put Strike</TableHeader>
+                    <TableHeader align="right">Action</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        ${userPositionData.entryPrice}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        ${userPositionData.collateral}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        {userPositionData.leverage}x
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography
+                        className={`${
+                          Number(userPositionData.delta) > 0
+                            ? 'text-green-500'
+                            : 'text-red-400'
+                        }`}
+                        variant="h6"
+                      >
+                        {formatAmount(userPositionData.delta, 5)}{' '}
+                        {`(${pnlPercentage}%)`}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        {userPositionData.state}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        {userPositionData.liquidationPrice}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        {userPositionData.putStrike}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell align="right">
+                      <CustomButton onClick={handleManageButtonClick}>
+                        Manage
+                      </CustomButton>
+                    </TableBodyCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </>
       )}
     </>
   );
