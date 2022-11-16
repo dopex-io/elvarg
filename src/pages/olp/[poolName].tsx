@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
-import AppBar from 'components/common/AppBar';
+// import AppBar from 'components/common/AppBar';
 import AllLpPositions from 'components/olp/AllLpPositions';
 import ProvideLp from 'components/olp/ProvideLp';
 import Stats from 'components/olp/Stats';
@@ -41,7 +41,7 @@ const Olp = ({ poolName }: Props) => {
       <Head>
         <title>Olp | Dopex</title>
       </Head>
-      <AppBar active="OLPs" />
+      {/* <AppBar active="OLPs" /> */}
       <Box className="md:flex pt-5">
         <Box className="ml-auto lg:w-[45%]">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">
