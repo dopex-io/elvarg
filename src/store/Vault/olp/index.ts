@@ -3,8 +3,7 @@ import { BigNumber } from 'ethers';
 import { orderBy } from 'lodash';
 
 // import { Addresses } from '@dopex-io/sdk';
-import { SsovLp } from 'mocks/SsovLp';
-import { SsovLp__factory } from 'mocks/factories/SsovLp__factory';
+import { SsovLp, SsovLp__factory } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
