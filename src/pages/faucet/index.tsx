@@ -24,15 +24,19 @@ function getUrl(address: string): string {
 const Faucet = () => {
   const sendTx = useSendTx();
 
-  const { getFaucetContract, updateBalances, balances, signer, connect } =
-    useBoundStore();
-
-  console.log(signer);
+  const {
+    getFaucetContract,
+    updateBalances,
+    balances,
+    signer,
+    connect,
+    chainId,
+  } = useBoundStore();
 
   useEffect(() => {
     connect();
     updateBalances();
-  }, [connect, updateBalances]);
+  }, [connect, updateBalances, chainId]);
 
   const faucet = getFaucetContract();
 
