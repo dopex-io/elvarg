@@ -197,7 +197,7 @@ const UseStrategyDialog = () => {
 
     const unwindCost = strategyDetails.optionsAmount
       .mul(5e7)
-      .div(getContractReadableAmount(1, 18));
+      .div(getContractReadableAmount(1, 10));
 
     if (collateralRequired.gt(availableLiquidity)) {
       errorMessage = 'Insufficient liquidity for options';
@@ -299,12 +299,17 @@ const UseStrategyDialog = () => {
     const underlyingTokenAddress = contractAddresses[underlying];
     const selectedTokenAddress = contractAddresses[selectedToken];
 
-    const utils = InsuredLongsUtils__factory.connect(utilsAddress, signer);
+    const utilsContract = InsuredLongsUtils__factory.connect(
+      utilsAddress,
+      signer
+    );
     const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
     const strategy = InsuredLongsStrategy__factory.connect(
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
       signer
     );
+
+    if (!utilsContract || !gmxVault || !strategy) return;
 
     const usdMultiplier = getContractReadableAmount(1, 30);
 
@@ -339,7 +344,7 @@ const UseStrategyDialog = () => {
       positionFee = BigNumber.from(0),
       unwindFee = BigNumber.from(0);
 
-    positionFee = await utils.getPositionFee(sizeUsd);
+    positionFee = await utilsContract.getPositionFee(sizeUsd);
     positionFee = await gmxVault.usdToTokenMax(
       selectedTokenAddress,
       positionFee
@@ -368,8 +373,13 @@ const UseStrategyDialog = () => {
         swapFees = await gmxVault.usdToTokenMax(selectedTokenAddress, swapFees);
       }
     }
-    if (!inputAmount.isZero()) {
-      liquidationPrice = await utils[
+
+    if (
+      !inputAmount.isZero() ||
+      !utilsContract['getLiquidationPrice(address,address,uint256,uint256)'] ||
+      !utilsContract['getEligiblePutStrike(address,uint256,uint256)']
+    ) {
+      liquidationPrice = await utilsContract[
         'getLiquidationPrice(address,address,uint256,uint256)'
       ](selectedTokenAddress, underlyingTokenAddress, inputAmount, sizeUsd);
 
@@ -380,11 +390,9 @@ const UseStrategyDialog = () => {
         strategy.getPositionfee(sizeUsd, selectedTokenAddress),
       ]);
 
-      putStrike = await utils['getEligiblePutStrike(address,uint256,uint256)'](
-        putsContract.address,
-        tickSizeMultiplier,
-        liquidationPrice
-      );
+      putStrike = await utilsContract[
+        'getEligiblePutStrike(address,uint256,uint256)'
+      ](putsContract.address, tickSizeMultiplier, liquidationPrice);
 
       optionsAmount = leveragedCollateral
         .mul(getContractReadableAmount(1, 20))
@@ -553,13 +561,16 @@ const UseStrategyDialog = () => {
   ]);
 
   const updatePrice = useCallback(async () => {
-    if (!contractAddresses || !signer || !atlanticPool) return;
+    if (!contractAddresses['GMX-VAULT'] || !signer || !atlanticPool) return;
 
     const gmxVault = GmxVault__factory.connect(
       contractAddresses['GMX-VAULT'],
       signer
     );
-    const price = await gmxVault.getMaxPrice(atlanticPool.tokens.underlying);
+
+    const price = await gmxVault.getMaxPrice(
+      contractAddresses[atlanticPool.tokens.underlying]
+    );
 
     setStrategyDetails((prev) => ({
       ...prev,
@@ -714,7 +725,7 @@ const UseStrategyDialog = () => {
               className="w-full"
               aria-label="Small steps"
               defaultValue={1.1}
-              // onChange={onChangeLeverage}
+              // onChange={handleChangeLeverage}
               onChangeCommitted={handleChangeLeverage}
               step={steps}
               min={minMarks}
