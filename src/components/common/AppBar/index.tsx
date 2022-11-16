@@ -146,7 +146,7 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
-    // | 'OLPs'
+    | 'OLPs'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
