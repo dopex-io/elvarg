@@ -379,9 +379,13 @@ const UseStrategyDialog = () => {
       !utilsContract['getLiquidationPrice(address,address,uint256,uint256)'] ||
       !utilsContract['getEligiblePutStrike(address,uint256,uint256)']
     ) {
-      liquidationPrice = await utilsContract[
-        'getLiquidationPrice(address,address,uint256,uint256)'
-      ](selectedTokenAddress, underlyingTokenAddress, inputAmount, sizeUsd);
+      try {
+        liquidationPrice = await utilsContract[
+          'getLiquidationPrice(address,address,uint256,uint256)'
+        ](selectedTokenAddress, underlyingTokenAddress, inputAmount, sizeUsd);
+      } catch (err) {
+        liquidationPrice = BigNumber.from(0);
+      }
 
       liquidationPrice = liquidationPrice.div(getContractReadableAmount(1, 22));
 
