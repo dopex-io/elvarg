@@ -71,10 +71,6 @@ const UserPositions = () => {
     setOpenManageModal(() => true);
   }, []);
 
-  // const closePositionManager = useCallback(() => {
-  //   setOpenPositionManager(false);
-  // }, []);
-
   const [userPositionData, setUserPositionData] = useState<IUserPositionData>({
     underlying: '',
     delta: '0',
@@ -88,18 +84,9 @@ const UserPositions = () => {
     depositUnderlying: false,
   });
 
-  // const loading = useMemo(() => {
-  //   if (userPositionData.state === 'Loading') {
-  //     return true;
-  //   }
-
-  //   return false;
-  // },[userPositionData.state])
-
   const pnlPercentage = useMemo(() => {
     return formatAmount(
-      (Math.abs(Number(userPositionData.delta)) /
-        Number(userPositionData.collateral)) *
+      (Number(userPositionData.delta) / Number(userPositionData.collateral)) *
         100,
       2
     );
@@ -320,6 +307,7 @@ const UserPositions = () => {
                     <TableHeader>Balance</TableHeader>
                     <TableHeader>Leverage</TableHeader>
                     <TableHeader>PnL</TableHeader>
+                    <TableHeader>Mark Price</TableHeader>
                     <TableHeader>Status</TableHeader>
                     <TableHeader>Liqudation Price</TableHeader>
                     <TableHeader>Put Strike</TableHeader>
@@ -354,6 +342,11 @@ const UserPositions = () => {
                       >
                         {formatAmount(userPositionData.delta, 5)}{' '}
                         {`(${pnlPercentage}%)`}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        {formatAmount(userPositionData.markPrice, 5)}{' '}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell>
