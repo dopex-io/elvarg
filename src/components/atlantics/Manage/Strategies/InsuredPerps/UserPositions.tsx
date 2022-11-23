@@ -346,7 +346,7 @@ const UserPositions = () => {
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
-                        {formatAmount(userPositionData.markPrice, 5)}{' '}
+                        {userPositionData.markPrice}{' '}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell>
