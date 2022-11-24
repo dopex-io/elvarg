@@ -42,8 +42,6 @@ const PurchaseCard = () => {
     updateStraddlesUserData,
   } = useBoundStore();
 
-  console.log(selectedPoolName);
-
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
     () => straddlesData?.straddlesContract?.getUnderlyingPrice(),
