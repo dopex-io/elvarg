@@ -21,6 +21,12 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import { MAX_VALUE } from 'constants/index';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
+const POOL_TO_SWAPPER_ID: { [key: string]: number } = {
+  ETH: 2,
+  DPX: 3,
+  RDPX: 3,
+};
+
 const PurchaseCard = () => {
   const {
     // Wallet
@@ -35,6 +41,8 @@ const PurchaseCard = () => {
     updateStraddlesEpochData,
     updateStraddlesUserData,
   } = useBoundStore();
+
+  console.log(selectedPoolName);
 
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
@@ -91,6 +99,7 @@ const PurchaseCard = () => {
           .purchase(
             getContractReadableAmount(2 * amount, 18),
             0,
+            POOL_TO_SWAPPER_ID[selectedPoolName] || 0,
             accountAddress
           )
       );
@@ -101,12 +110,13 @@ const PurchaseCard = () => {
     }
   }, [
     accountAddress,
-    straddlesData,
     signer,
+    updateStraddlesEpochData,
+    updateStraddlesUserData,
+    straddlesData,
     sendTx,
     amount,
-    updateStraddlesUserData,
-    updateStraddlesEpochData,
+    selectedPoolName,
   ]);
 
   const handleApprove = useCallback(async () => {
