@@ -23,8 +23,8 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 const POOL_TO_SWAPPER_ID: { [key: string]: number } = {
   ETH: 2,
-  DPX: 3,
-  RDPX: 3,
+  DPX: 5,
+  RDPX: 5,
 };
 
 const PurchaseCard = () => {
