@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Box, CircularProgress, Input, Tooltip } from '@mui/material';
@@ -11,7 +11,6 @@ import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import PnlChart from '../PnlChart';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import InfoBox from '../infoBox';
 
 import { useBoundStore } from 'store';
 
@@ -19,13 +18,36 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
+
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import formatAmount from 'utils/general/formatAmount';
 
 const POOL_TO_SWAPPER_ID: { [key: string]: number } = {
   ETH: 2,
   DPX: 5,
   RDPX: 5,
 };
+
+function InfoBox({
+  info,
+  value,
+  precision,
+}: {
+  info: string;
+  value: any;
+  precision: number;
+}) {
+  return (
+    <Box className="flex justify-between mb-2">
+      <Typography variant="caption" color="stieglitz">
+        {info}
+      </Typography>
+      <Typography variant="caption">
+        ~{`${formatAmount(value, precision)} USDC`}
+      </Typography>
+    </Box>
+  );
+}
 
 const PurchaseCard = () => {
   const {
@@ -47,6 +69,8 @@ const PurchaseCard = () => {
     () => straddlesData?.straddlesContract?.getUnderlyingPrice(),
     { initialData: oneEBigNumber(8) }
   );
+
+  const [finalCost, setFinalCost] = useState(BigNumber.from(0));
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
@@ -78,6 +102,30 @@ const PurchaseCard = () => {
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
+
+  useEffect(() => {
+    async function updateFinalCost() {
+      if (!accountAddress || !signer || !straddlesData?.straddlesContract)
+        return;
+
+      try {
+        const { protocolFee, straddleCost } =
+          await straddlesData.straddlesContract
+            .connect(signer)
+            .callStatic.purchase(
+              getContractReadableAmount(2 * amount, 18),
+              0,
+              POOL_TO_SWAPPER_ID[selectedPoolName] || 0,
+              accountAddress
+            );
+
+        setFinalCost(protocolFee.add(straddleCost));
+      } catch (err) {
+        setFinalCost(BigNumber.from(0));
+      }
+    }
+    updateFinalCost();
+  }, [accountAddress, amount, selectedPoolName, signer, straddlesData]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -242,14 +290,14 @@ const PurchaseCard = () => {
             variant="h6"
             className="flex justify-between mx-2 pb-2 text-gray-400"
           >
-            <div>Max amount of straddles available:</div>
-            <div>
+            <Box>Max amount of straddles available:</Box>
+            <Box>
               <NumberDisplay
                 n={maxStraddlesCanBeBought || BigNumber.from(0)}
                 decimals={18}
                 decimalsToShow={4}
               />
-            </div>
+            </Box>
           </Typography>
         </Box>
       </Box>
@@ -263,40 +311,55 @@ const PurchaseCard = () => {
           symbol={selectedPoolName}
         />
       </Box>
-      <Box className="mt-4 flex justify-center mb-4">
-        <Box className="py-2 w-full rounded border border-neutral-800">
-          <InfoBox info={"You'll spend"} value={totalCost} precision={6} />
-          <Box className="flex-col">
-            <InfoBox
-              info={'Premium:'}
-              value={
-                getUserReadableAmount(
-                  straddlesEpochData?.straddlePremium!,
-                  26
-                ) * amount
-              }
-              precision={2}
-            />
-            <InfoBox
-              info={'Funding:'}
-              value={
-                getUserReadableAmount(
-                  straddlesEpochData?.straddleFunding!,
-                  26
-                ) * amount
-              }
-              precision={4}
-            />
-            <InfoBox
-              info={'Fees:'}
-              value={
-                getUserReadableAmount(straddlesEpochData?.purchaseFee!, 26) *
-                amount
-              }
-              precision={4}
-            />
-          </Box>
-        </Box>
+      <Box className="mt-4 flex flex-col mb-4 p-2 w-full rounded border border-neutral-800">
+        <InfoBox
+          info={'Premium:'}
+          value={
+            getUserReadableAmount(straddlesEpochData?.straddlePremium!, 26) *
+            amount
+          }
+          precision={2}
+        />
+        <InfoBox
+          info={'Funding:'}
+          value={
+            getUserReadableAmount(straddlesEpochData?.straddleFunding!, 26) *
+            amount
+          }
+          precision={4}
+        />
+        <InfoBox
+          info={'Fees:'}
+          value={
+            getUserReadableAmount(straddlesEpochData?.purchaseFee!, 26) * amount
+          }
+          precision={4}
+        />
+        <Typography variant="caption" color="down-bad">
+          Note that the above cost breakdown is an approximation.
+        </Typography>
+      </Box>
+      <Box className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
+        {finalCost.isZero() ? (
+          approved ? (
+            <Typography variant="caption" color="down-bad">
+              Error calculating final cost
+            </Typography>
+          ) : (
+            <Typography variant="caption" color="wave-blue">
+              Please approve to see final cost
+            </Typography>
+          )
+        ) : (
+          <>
+            <Typography variant="caption" color="stieglitz">
+              You will spend{' '}
+            </Typography>
+            <Typography variant="caption">
+              {ethersUtils.formatUnits(finalCost, 6)} USDC
+            </Typography>
+          </>
+        )}
       </Box>
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">

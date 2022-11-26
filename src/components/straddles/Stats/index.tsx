@@ -252,7 +252,7 @@ const Stats = () => {
             Epoch Length
           </Typography>
           <Typography variant="h6" className="text-white">
-            3 Days
+            2 Days
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
