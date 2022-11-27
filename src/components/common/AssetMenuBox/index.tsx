@@ -22,9 +22,9 @@ const SelectMenuProps = {
 
 const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
   return (
-    <Box className="w-full -ml-3 -mt-1.5 h-10 p-1">
+    <Box className="w-32 -ml-6 -mt-1.5 h-10 p-1">
       <Select
-        className="bg-mineshaft opacity-80 rounded-md text-center"
+        className="opacity-80 rounded-md text-center"
         fullWidth
         value={assetIdx}
         onChange={handleSelectAsset}
@@ -33,7 +33,7 @@ const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
         placeholder="Select asset"
         MenuProps={SelectMenuProps}
         classes={{
-          icon: 'absolute right-1 text-white',
+          icon: 'absolute right-1 text-mineshaft',
         }}
         disableUnderline
         autoWidth

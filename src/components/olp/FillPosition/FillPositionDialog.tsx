@@ -22,7 +22,6 @@ import formatAmount from 'utils/general/formatAmount';
 import { DECIMALS_TOKEN, DECIMALS_STRIKE, DECIMALS_USD } from 'constants/index';
 
 interface Props {
-  handleClose: Function;
   lpPositionSelected: LpPosition;
   usdToReceive: number;
   underlyingToReceive: number;
@@ -93,7 +92,6 @@ const MaterialUISwitch = styled(Switch)(
 
 export default function FillPositionDialog(props: Props) {
   const {
-    handleClose,
     lpPositionSelected,
     usdToReceive,
     underlyingToReceive,
@@ -111,17 +109,12 @@ export default function FillPositionDialog(props: Props) {
     underlyingSymbol,
   } = props;
 
-  function fillLpWord(handleClose: Function) {
+  function fillLpWord() {
     return (
       <Box className="flex justify-between items-center mb-6 p-1">
         <Typography variant="h6" className="text-lg">
           Fill LP
         </Typography>
-        <CloseIcon
-          role="button"
-          className="h-6 w-6"
-          onClick={() => handleClose()}
-        />
       </Box>
     );
   }
@@ -250,7 +243,7 @@ export default function FillPositionDialog(props: Props) {
 
   return (
     <Box className="bg-cod-gray rounded-2xl p-4 pr-3">
-      {fillLpWord(handleClose)}
+      {fillLpWord()}
       {lpInfo(lpPositionSelected.strike)}
       {getOptionTokenAmountBalance(
         isPut,

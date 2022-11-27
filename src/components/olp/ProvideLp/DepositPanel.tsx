@@ -1,11 +1,13 @@
-import { MouseEventHandler } from 'react';
+import React, { MouseEventHandler } from 'react';
 import { Box, Button, Input } from '@mui/material';
+import NorthEastIcon from '@mui/icons-material/NorthEast';
+import SouthEastIcon from '@mui/icons-material/SouthEast';
 import { BigNumber } from 'ethers';
 
 import { Typography } from 'components/UI';
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import AssetMenuBox from 'components/common/AssetMenuBox';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import {
   BalanceBox,
   DiscountBox,
@@ -16,6 +18,8 @@ import StrikeMenuBox from 'components/common/StrikeMenuBox';
 import { OlpDataInterface, OlpEpochDataInterface } from 'store/Vault/olp';
 
 import { getDepositMessage } from 'utils/contracts';
+
+import { DECIMALS_USD, DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
   olpData: OlpDataInterface;
@@ -84,7 +88,7 @@ export default function DepositPanel(props: Props) {
     discountAmount: number
   ) {
     return (
-      <Box className="mt-3 rounded-xl border-[1px] border-none">
+      <Box className="bg-umbra p-1 pb-2 border-radius rounded-lg mt-1">
         <DiscountBox
           rawAmount={rawDiscountAmount}
           setRawAmount={setRawDiscountAmount}
@@ -92,6 +96,16 @@ export default function DepositPanel(props: Props) {
         />
       </Box>
     );
+  }
+
+  function addDecimals(input: BigNumber, decimals: number) {
+    const strInput = input.toString();
+    const beforeDecimals = strInput.substring(0, strInput.length - decimals);
+    const afterDecimals = strInput.substring(
+      strInput.length - decimals,
+      strInput.length
+    );
+    return (beforeDecimals ? beforeDecimals : '0') + ('.' + afterDecimals);
   }
 
   function depositBalanceBox(
@@ -105,13 +119,28 @@ export default function DepositPanel(props: Props) {
     handleSelectAsset: Function
   ) {
     return (
-      <Box className="mt-2 rounded-xl flex flex-col mb-0 p-3 w-full">
-        <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+      <Box className="rounded-xl flex flex-col mb-0 p-3 w-full bg-umbra">
+        <Box className="h-12 rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
           <AssetMenuBox
             assetIdx={assetIdx}
             handleSelectAsset={handleSelectAsset}
             assets={assets}
           />
+          <Box className="bg-mineshaft border-radius rounded-lg mt-2.5">
+            <Button
+              onClick={() => {
+                setRawDepositAmount(
+                  assetIdx === 0
+                    ? addDecimals(usdBalance, DECIMALS_USD)
+                    : addDecimals(underlyingBalance, DECIMALS_TOKEN)
+                );
+              }}
+            >
+              <Typography variant="h6" color="stieglitz">
+                MAX
+              </Typography>
+            </Button>
+          </Box>
           <Input
             disableUnderline
             id="notionalSize"
@@ -141,30 +170,55 @@ export default function DepositPanel(props: Props) {
     hasCall: boolean
   ) {
     return (
-      <Box
-        className={`flex h-11 flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md`}
-      >
+      <Box className="w-32 ml-2">
+        <Typography variant="h6" color="stieglitz" className="mb-1">
+          Side
+        </Typography>
         <Box
-          className={`text-center w-full cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
-            !isPut ? 'bg-[#2D2D2D]' : ''
-          }`}
+          className={`flex flex-row h-[34px] w-[135px] justify-between bg-mineshaft rounded-md mt-2`}
         >
-          <Button disabled={!hasCall} onClick={() => handleIsPut(false)}>
-            <Typography variant="h6" className="text-xs -mt-1 font-normal">
-              Call
-            </Typography>
-          </Button>
-        </Box>
-        <Box
-          className={`text-center w-full cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
-            isPut ? 'bg-[#2D2D2D]' : ''
-          }`}
-        >
-          <Button disabled={!hasPut} onClick={() => handleIsPut(true)}>
-            <Typography variant="h6" className="text-xs -mt-1 font-normal">
-              Put
-            </Typography>
-          </Button>
+          <Box
+            className={`ml-1 my-1 h-6.5 text-center cursor-pointer group rounded hover:bg-umbra hover:opacity-80 ${
+              !isPut ? 'bg-umbra' : ''
+            }`}
+          >
+            <Button disabled={!hasCall} onClick={() => handleIsPut(false)}>
+              <Box className="flex flex-row">
+                <NorthEastIcon
+                  fontSize="small"
+                  sx={{
+                    color: '#10b981',
+                    marginTop: '-0.25rem',
+                    marginLeft: '-0.25rem',
+                  }}
+                />
+                <Typography variant="h6" className="-mt-1.5">
+                  Call
+                </Typography>
+              </Box>
+            </Button>
+          </Box>
+          <Box
+            className={`mr-2 my-1 h-6.5 text-center cursor-pointer group rounded hover:bg-umbra hover:opacity-80 ${
+              isPut ? 'bg-umbra' : ''
+            }`}
+          >
+            <Button disabled={!hasPut} onClick={() => handleIsPut(true)}>
+              <Box className="flex flex-row">
+                <SouthEastIcon
+                  fontSize="small"
+                  sx={{
+                    color: '#FF617D',
+                    marginTop: '-0.25rem',
+                    marginLeft: '-0.5rem',
+                  }}
+                />
+                <Typography variant="h6" className="-mt-1.5">
+                  Put
+                </Typography>
+              </Box>
+            </Button>
+          </Box>
         </Box>
       </Box>
     );
@@ -200,20 +254,26 @@ export default function DepositPanel(props: Props) {
     ) : null;
   }
 
+  function strikeBox() {
+    return (
+      <Box className="w-32">
+        <Typography variant="h6" color="stieglitz" className="mb-1">
+          Strike
+        </Typography>
+        <StrikeMenuBox
+          strikeIdx={strikeIdx}
+          handleSelectStrike={handleSelectStrike}
+          strikes={olpEpochData?.strikes}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
       <Box className="flex mb-3">
-        <Typography variant="h3" className="text-stieglitz">
-          Provide LP
-        </Typography>
+        <Typography variant="h5">Provide LP</Typography>
       </Box>
-      {isPutBox(olpData?.isPut, handleIsPut, olpData?.hasPut, olpData?.hasCall)}
-      <StrikeMenuBox
-        strikeIdx={strikeIdx}
-        handleSelectStrike={handleSelectStrike}
-        strikes={olpEpochData?.strikes}
-      />
-      {discountBox(rawDiscountAmount, setRawDiscountAmount, discountAmount)}
       {depositBalanceBox(
         rawDepositAmount,
         setRawDepositAmount,
@@ -224,12 +284,26 @@ export default function DepositPanel(props: Props) {
         ['usdc', olpData?.underlyingSymbol!.toLowerCase()!],
         handleSelectAsset
       )}
-      <WithdrawInfoBox expiry={olpEpochData?.expiry} />
-      <Box className="rounded-xl p-4 border border-none w-full bg-umbra mt-3">
-        <EstimatedGasCostButton gas={500000} chainId={chainId} />
+
+      <Box className="flex flex-row justify-between bg-umbra p-1 pb-2 border-radius rounded-lg mt-1">
+        {isPutBox(
+          olpData?.isPut,
+          handleIsPut,
+          olpData?.hasPut,
+          olpData?.hasCall
+        )}
+        {strikeBox()}
       </Box>
-      {usdApproval()}
-      {underlyingApproval()}
+      {discountBox(rawDiscountAmount, setRawDiscountAmount, discountAmount)}
+
+      <Box className="bg-umbra p-2 border-radius rounded-lg mt-4">
+        <Box className="bg-carbon p-2 border-radius rounded-lg my-2 space-y-1">
+          <EstimatedGasCostButton gas={500000} chainId={chainId} />
+          <WithdrawInfoBox expiry={olpEpochData?.expiry} />
+        </Box>
+        {usdApproval()}
+        {underlyingApproval()}
+      </Box>
     </Box>
   );
 }

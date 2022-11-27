@@ -22,7 +22,7 @@ const BalanceBox = ({
   underlyingSymbol,
 }: Props) => {
   return (
-    <Box className="flex flex-row justify-between mt-3 -ml-1 -mr-1 -mb-1">
+    <Box className="flex flex-row justify-between -ml-1 -mr-1 -mb-1">
       <Box className="flex">
         <Typography variant="h6" className="text-sm pt-2">
           <span className="text-stieglitz">Balance</span>
@@ -34,14 +34,18 @@ const BalanceBox = ({
             {`${formatAmount(
               getUserReadableAmount(usdBalance, DECIMALS_USD),
               2
-            )} USDC`}
+            )}`}
+            <span className="text-stieglitz ml-1">USDC</span>
           </Typography>
         ) : (
           <Typography variant="h6" className="text-sm pl-1 pt-2">
             {`${formatAmount(
               getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN),
               2
-            )} ${underlyingSymbol?.toUpperCase()}`}
+            )}`}
+            <span className="text-stieglitz ml-1">
+              {underlyingSymbol?.toUpperCase()}
+            </span>
           </Typography>
         )}
       </Box>

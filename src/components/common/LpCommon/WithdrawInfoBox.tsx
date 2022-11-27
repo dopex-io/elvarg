@@ -7,7 +7,7 @@ import { getReadableTime } from 'utils/contracts';
 
 const WithdrawInfoBox = ({ expiry }: { expiry: BigNumber }) => {
   return (
-    <Box className="rounded-xl flex flex-col p-2 border border-none w-full">
+    <Box className="rounded-xl flex flex-col border border-none w-full">
       <Box className="flex">
         <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
           Withdrawable

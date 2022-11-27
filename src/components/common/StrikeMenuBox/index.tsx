@@ -38,7 +38,7 @@ const StrikeMenuBox = ({ strikeIdx, handleSelectStrike, strikes }: Props) => {
           placeholder="Select Strike Prices"
           MenuProps={SelectMenuProps}
           classes={{
-            icon: 'absolute right-7 text-white',
+            icon: 'right-5 text-white text-md',
             select: 'overflow-hidden',
           }}
           disableUnderline
@@ -48,7 +48,7 @@ const StrikeMenuBox = ({ strikeIdx, handleSelectStrike, strikes }: Props) => {
             <MenuItem key={index} value={index} className="pb-2 pt-2">
               <Typography
                 variant="h5"
-                className="text-white text-left w-full relative ml-3"
+                className="text-white text-center w-full relative ml-3"
               >
                 $
                 {formatAmount(

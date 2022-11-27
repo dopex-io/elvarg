@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 import { Typography } from 'components/UI';
 
@@ -13,7 +13,7 @@ const InfoBox = ({ heading, tooltip }: InfoBoxProps) => {
   return (
     <Box>
       <Box className="flex flex-row">
-        <Typography variant="h5" className="mt-2">
+        <Typography variant="h6" color="stieglitz">
           {heading}
         </Typography>
         {tooltip ? (
@@ -23,7 +23,7 @@ const InfoBox = ({ heading, tooltip }: InfoBoxProps) => {
             title={tooltip}
             arrow={true}
           >
-            <InfoOutlinedIcon className="mt-2" />
+            <HelpOutlineIcon fontSize="small" />
           </Tooltip>
         ) : null}
       </Box>

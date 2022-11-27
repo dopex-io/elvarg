@@ -21,11 +21,11 @@ import FillPositionDialog from './FillPositionDialog';
 const CHAIN_ID: number = 5;
 
 export interface Props {
-  open: boolean;
-  handleClose: (e: any, reason: any) => void;
+  anchorEl: null | HTMLElement;
+  setAnchorEl: Function;
 }
 
-const FillPosition = ({ open, handleClose }: Props) => {
+const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
   const sendTx = useSendTx();
   const {
     accountAddress,
@@ -224,14 +224,12 @@ const FillPosition = ({ open, handleClose }: Props) => {
 
   return (
     <Dialog
-      open={open}
-      handleClose={handleClose}
-      showCloseIcon
+      open={anchorEl != null}
+      handleClose={() => setAnchorEl(null)}
       disableScrollLock={true}
       PaperProps={{ style: { backgroundColor: 'transparent' } }}
     >
       <FillPositionDialog
-        handleClose={handleClose}
         isPut={olpData?.isPut!}
         lpPositionSelected={lpPositionSelected!}
         usdToReceive={usdToReceive!}

@@ -19,7 +19,7 @@ const ApproveDepositButton = ({
   return (
     <CustomButton
       size="medium"
-      className="w-full !rounded-md mt-3"
+      className="w-full !rounded-md mt-1"
       color={showPrimary ? 'primary' : 'mineshaft'}
       disabled={!showPrimary}
       onClick={approved ? handleFillPosition : handleApprove}

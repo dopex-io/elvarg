@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import { TableRow, TableCell } from '@mui/material';
 import { BigNumber } from 'ethers';
 
@@ -16,10 +17,10 @@ interface Props {
   usdLiquidity: BigNumber;
   underlyingLiquidity: BigNumber;
   discount: BigNumber;
-  isFillModalOpen: boolean;
   isEpochExpired: boolean;
   handleFill: Function;
-  closeFillModal: (e: any, reason: any) => void;
+  anchorEl: HTMLElement;
+  setAnchorEl: Dispatch<SetStateAction<HTMLElement | null>>;
   underlyingSymbol: string;
 }
 
@@ -30,10 +31,10 @@ export default function AllPositionsTable(props: Props) {
     usdLiquidity,
     underlyingLiquidity,
     discount,
-    isFillModalOpen,
     isEpochExpired,
     handleFill,
-    closeFillModal,
+    anchorEl,
+    setAnchorEl,
     underlyingSymbol,
   } = props;
 
@@ -56,11 +57,11 @@ export default function AllPositionsTable(props: Props) {
         >
           Fill
         </CustomButton>
-        {isFillModalOpen && (
+        {anchorEl && (
           <FillPosition
             key={positionIdx}
-            open={isFillModalOpen}
-            handleClose={closeFillModal}
+            anchorEl={anchorEl}
+            setAnchorEl={setAnchorEl}
           />
         )}
       </TableCell>

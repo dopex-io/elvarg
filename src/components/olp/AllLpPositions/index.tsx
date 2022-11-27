@@ -28,7 +28,7 @@ const AllLpPositions = () => {
   const { olpData, olpEpochData, setSelectedPositionIdx } = useBoundStore();
 
   const [selectedStrikeIdx, setSelectedStrikeIdx] = useState<number>(0);
-  const [isFillModalOpen, setIsFillModalOpen] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [page, setPage] = useState<number>(0);
 
   const handleFill = (positionIdx: number) => {
@@ -36,11 +36,6 @@ const AllLpPositions = () => {
       return;
     }
     setSelectedPositionIdx(positionIdx);
-    setIsFillModalOpen(true);
-  };
-
-  const closeFillModal = () => {
-    setIsFillModalOpen(false);
   };
 
   const getStrikes = useMemo(() => {
@@ -167,10 +162,8 @@ const AllLpPositions = () => {
                       usdLiquidity={p.usdLiquidity}
                       underlyingLiquidity={p.underlyingLiquidity}
                       discount={p.discount}
-                      isFillModalOpen={isFillModalOpen}
                       isEpochExpired={olpEpochData!.isEpochExpired!}
                       handleFill={() => handleFill(p.idx)}
-                      closeFillModal={closeFillModal}
                       underlyingSymbol={olpData?.underlyingSymbol!}
                     />
                   );
