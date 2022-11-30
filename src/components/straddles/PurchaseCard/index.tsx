@@ -28,6 +28,16 @@ const POOL_TO_SWAPPER_IDS: { [key: string]: number[] } = {
   RDPX: [5, 6],
 };
 
+const SWAPPER_ID_TO_ROUTE: { [key: string]: string } = {
+  0: 'Sushiswap',
+  1: 'Uniswap V3',
+  2: 'GMX',
+  3: 'Sushiswap and GMX',
+  4: 'Uniswap V3 and GMX',
+  5: 'GMX and Sushiswap',
+  6: 'Uniswap V3 and Sushiswap',
+};
+
 function InfoBox({
   info,
   value,
@@ -370,6 +380,26 @@ const PurchaseCard = () => {
             </Typography>
             <Typography variant="caption">
               {ethersUtils.formatUnits(finalCost, 6)} USDC
+            </Typography>
+          </>
+        )}
+      </Box>
+      <Box className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
+        {bestSwapperId === 0 ? (
+          <Box className="flex">
+            <CircularProgress className="text-stieglitz mr-2" size={13} />
+            <Typography variant="caption" color="stieglitz">
+              Calculating best route...
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <Typography variant="caption" color="stieglitz">
+              You will swap using
+            </Typography>
+
+            <Typography variant="caption">
+              {SWAPPER_ID_TO_ROUTE[bestSwapperId]}
             </Typography>
           </>
         )}
