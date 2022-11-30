@@ -22,10 +22,10 @@ import { MAX_VALUE } from 'constants/index';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 import formatAmount from 'utils/general/formatAmount';
 
-const POOL_TO_SWAPPER_ID: { [key: string]: number } = {
-  ETH: 2,
-  DPX: 5,
-  RDPX: 5,
+const POOL_TO_SWAPPER_IDS: { [key: string]: number[] } = {
+  ETH: [2, 3],
+  DPX: [5, 6],
+  RDPX: [5, 6],
 };
 
 function InfoBox({
@@ -63,6 +63,8 @@ const PurchaseCard = () => {
     updateStraddlesEpochData,
     updateStraddlesUserData,
   } = useBoundStore();
+
+  const [bestSwapperId, setBestSwapperId] = useState<number>(0);
 
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
@@ -108,21 +110,32 @@ const PurchaseCard = () => {
       if (!accountAddress || !signer || !straddlesData?.straddlesContract)
         return;
 
-      try {
+      let bestProtocolFee: BigNumber = BigNumber.from('0');
+      let bestStraddleCost: BigNumber = BigNumber.from('0');
+      let _bestSwapperId: number = 0;
+
+      for (let i in POOL_TO_SWAPPER_IDS[selectedPoolName]) {
+        const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
+
         const { protocolFee, straddleCost } =
           await straddlesData.straddlesContract
             .connect(signer)
             .callStatic.purchase(
               getContractReadableAmount(2 * amount, 18),
               0,
-              POOL_TO_SWAPPER_ID[selectedPoolName] || 0,
+              swapperId,
               accountAddress
             );
 
-        setFinalCost(protocolFee.add(straddleCost));
-      } catch (err) {
-        setFinalCost(BigNumber.from(0));
+        if (bestStraddleCost.eq(0) || straddleCost.lt(bestStraddleCost)) {
+          bestProtocolFee = protocolFee;
+          bestStraddleCost = straddleCost;
+          _bestSwapperId = swapperId;
+        }
       }
+
+      setFinalCost(bestProtocolFee.add(bestStraddleCost));
+      setBestSwapperId(_bestSwapperId);
     }
     updateFinalCost();
   }, [accountAddress, amount, selectedPoolName, signer, straddlesData]);
@@ -145,7 +158,7 @@ const PurchaseCard = () => {
           .purchase(
             getContractReadableAmount(2 * amount, 18),
             0,
-            POOL_TO_SWAPPER_ID[selectedPoolName] || 0,
+            bestSwapperId,
             accountAddress
           )
       );
@@ -162,7 +175,7 @@ const PurchaseCard = () => {
     straddlesData,
     sendTx,
     amount,
-    selectedPoolName,
+    bestSwapperId,
   ]);
 
   const handleApprove = useCallback(async () => {
