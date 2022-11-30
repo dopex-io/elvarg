@@ -120,13 +120,13 @@ export default function DepositPanel(props: Props) {
   ) {
     return (
       <Box className="rounded-xl flex flex-col mb-0 p-3 w-full bg-umbra">
-        <Box className="h-12 rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+        <Box className="h-12 rounded-full pl-2 pr-1 pt-0 pb-0 flex flex-row items-center">
           <AssetMenuBox
             assetIdx={assetIdx}
             handleSelectAsset={handleSelectAsset}
             assets={assets}
           />
-          <Box className="bg-mineshaft border-radius rounded-lg mt-2.5">
+          <Box className="bg-mineshaft border-radius rounded-lg mt-3 h-8">
             <Button
               onClick={() => {
                 setRawDepositAmount(
@@ -136,7 +136,7 @@ export default function DepositPanel(props: Props) {
                 );
               }}
             >
-              <Typography variant="h6" color="stieglitz">
+              <Typography variant="h6" color="stieglitz" className="-mt-1.5">
                 MAX
               </Typography>
             </Button>

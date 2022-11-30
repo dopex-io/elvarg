@@ -1,18 +1,22 @@
+import Box from '@mui/material/Box';
 import { TableCell, TableRow } from '@mui/material';
 import { BigNumber } from 'ethers';
+import { styled } from '@mui/material/styles';
 
 import { LpPosition } from 'store/Vault/olp';
 
-import {
-  BodyCell,
-  getLiquidityBodyCell,
-} from 'components/common/LpCommon/Table';
-import { CustomButton } from 'components/UI';
+import { CustomButton, NumberDisplay, Typography } from 'components/UI';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+import {
+  StyleLeftCell,
+  getLiquidityBodyCell,
+  BodyCell,
+  StyleRightCell,
+} from 'components/common/LpCommon/Table';
 
 interface Props {
   lpPosition: LpPosition;
@@ -24,13 +28,14 @@ export default function UserPositionsTable(props: Props) {
   const { lpPosition, actions, underlyingSymbol } = props;
 
   return (
-    <TableRow className="text-white bg-umbra mb-2 rounded-lg">
-      <BodyCell
-        data={`$${formatAmount(
-          getUserReadableAmount(lpPosition.strike, DECIMALS_STRIKE),
-          2
-        )}`}
-      />
+    <TableRow className="text-white bg-cod-gray mb-2 rounded-lg">
+      <StyleLeftCell align="left">
+        <Typography variant="caption" color="white">
+          <Box className="bg-umbra w-14 p-2 border-radius rounded-lg flex justify-around">
+            $<NumberDisplay n={lpPosition.strike} decimals={DECIMALS_STRIKE} />
+          </Box>
+        </Typography>
+      </StyleLeftCell>
       {getLiquidityBodyCell(
         underlyingSymbol,
         lpPosition.usdLiquidity,
@@ -49,7 +54,7 @@ export default function UserPositionsTable(props: Props) {
       <BodyCell
         data={`${getUserReadableAmount(lpPosition.purchased, DECIMALS_TOKEN)}`}
       />
-      <TableCell align="center" className="pt-2">
+      <StyleRightCell align="right" className="pt-2">
         <CustomButton
           className="cursor-pointer text-white"
           color="primary"
@@ -57,7 +62,7 @@ export default function UserPositionsTable(props: Props) {
         >
           Kill
         </CustomButton>
-      </TableCell>
+      </StyleRightCell>
     </TableRow>
   );
 }

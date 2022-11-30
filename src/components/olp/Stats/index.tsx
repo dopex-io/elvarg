@@ -1,5 +1,18 @@
 import { useCallback, useMemo } from 'react';
-import { Box, Button, MenuItem } from '@mui/material';
+import {
+  Box,
+  Button,
+  MenuItem,
+  TableHead,
+  TableContainer,
+  TableRow,
+  Table,
+  TableBody,
+  TableCell,
+} from '@mui/material';
+import LaunchIcon from '@mui/icons-material/Launch';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { styled } from '@mui/material/styles';
 import { BigNumber } from 'ethers';
 import { zipWith } from 'lodash';
 
@@ -8,10 +21,62 @@ import { useBoundStore } from 'store';
 import CustomMenuBox from 'components/common/CustomMenuBox';
 import ContractBox from 'components/common/ContractBox';
 import Typography from 'components/UI/Typography';
-import { formatAmount } from 'utils/general';
+import {
+  formatAmount,
+  getExtendedLogoFromChainId,
+  displayAddress,
+  getExplorerUrl,
+} from 'utils/general';
 import { getUserReadableAmount, getReadableTime } from 'utils/contracts';
 
 import { DECIMALS_STRIKE, DECIMALS_USD } from 'constants/index';
+import { LiquidityTable } from './LiquidityTable';
+
+const StyleTable = styled(TableContainer)`
+  table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+    border-radius: 0.5rem;
+  }
+  th:first-of-type {
+    border-radius: 10px 0 0 0;
+  }
+  th:last-of-type {
+    border-radius: 0 10px 0 0;
+  }
+  tr:last-of-type td:first-of-type {
+    border-radius: 0 0 0 10px;
+  }
+  tr:last-of-type td:last-of-type {
+    border-radius: 0 0 10px 0;
+  }
+`;
+
+const StyleCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+const StyleLeftCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-left: 1px solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+const StyleRightCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-right: 1px solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
 
 const Stats = () => {
   const {
@@ -60,32 +125,76 @@ const Stats = () => {
     strikes: BigNumber[]
   ) {
     return (
-      <Box className="border rounded border-transparent p-2 ml-3">
-        <Typography variant="h6" className="text-gray-400 text-center">
-          Total Liquidity Provided
+      <>
+        <Typography variant="h5" color="white">
+          Liquidity
         </Typography>
-        {zipWith(
-          totalLiquidityPerStrike,
-          strikes,
-          [...Array(strikes.length).keys()],
-          function (liq, strike, idx) {
-            return (
-              <Box key={idx} className="flex justify-between">
-                <Typography variant="h6" className="text-white text-right mt-3">
-                  $
-                  {formatAmount(
-                    getUserReadableAmount(strike, DECIMALS_STRIKE),
-                    2
-                  )}
-                </Typography>
-                <Typography variant="h6" className="text-white text-right mt-3">
-                  ${formatAmount(getUserReadableAmount(liq, DECIMALS_USD))}
-                </Typography>
-              </Box>
-            );
-          }
-        )}
-      </Box>
+        {/* <Box className="border rounded border-transparent p-2 ml-3">*/}
+
+        <Box className="mt-3">
+          <StyleTable>
+            <Table className="border-collapse" size="medium">
+              <TableHead
+                sx={{
+                  borderRight: '1px solid #ffffff',
+                }}
+              >
+                <TableRow
+                  sx={{
+                    borderRight: '1px solid #ffffff',
+                    height: '5px',
+                  }}
+                >
+                  <StyleLeftCell align="left" className="flex flex-row">
+                    <ArrowDownwardIcon
+                      sx={{
+                        width: '1.25rem',
+                        marginTop: '0.125rem',
+                        marginLeft: '-8px',
+                        color: '#8E8E8E',
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      color="stieglitz"
+                      className="mt-1.5"
+                    >
+                      Strike
+                    </Typography>
+                  </StyleLeftCell>
+                  <StyleCell align="center">
+                    <Typography variant="caption" color="stieglitz">
+                      Liquidity
+                    </Typography>
+                  </StyleCell>
+                  <StyleRightCell align="right">
+                    <Typography variant="caption" color="stieglitz">
+                      Utilization
+                    </Typography>
+                  </StyleRightCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {zipWith(
+                  totalLiquidityPerStrike,
+                  strikes,
+                  [...Array(strikes.length).keys()],
+                  function (liquidity, strike, idx) {
+                    return (
+                      <LiquidityTable
+                        key={idx}
+                        liquidity={liquidity}
+                        strike={strike}
+                        utilization={BigNumber.from(0)}
+                      />
+                    );
+                  }
+                )}
+              </TableBody>
+            </Table>
+          </StyleTable>
+        </Box>
+      </>
     );
   }
 
@@ -141,30 +250,65 @@ const Stats = () => {
   }
 
   return (
-    <Box className="flex">
-      <Box className="flex flex-col">
-        <ContractBox chainId={chainId} contractAddress={olpContract?.address} />
-        {isPutBox(
-          olpData?.isPut!,
-          handleIsPut,
-          olpData?.hasPut!,
-          olpData?.hasCall!
-        )}
-      </Box>
-      <Box className="flex">
-        <Box className="border rounded border-transparent p-2 ml-3">
-          <CustomMenuBox
-            data={'SSOV Expiry'}
-            values={expiries}
-            selectedValue={selectedEpoch}
-            handleOnChange={handleSelectChange}
-          />
+    <Box>
+      <Typography variant="h6" color="stieglitz">
+        About OLP
+      </Typography>
+      <Typography variant="h6">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+      </Typography>
+      <Box className="flex flex-row justify-between mt-1">
+        {/* tvl */}
+        <Box className="flex flex-row w-1/2 justify-between p-2 pb-0 h-10">
+          <Typography variant="h6" color="stieglitz">
+            TVL
+          </Typography>
+          <Typography variant="h6">
+            <span>$518</span>
+          </Typography>
         </Box>
-        {getTotalLiquidityProvidedBox(
-          olpEpochData?.totalLiquidityPerStrike!,
-          olpEpochData?.strikes!
-        )}
+
+        {/* contract */}
+        <Box className="flex flex-row w-1/2 justify-between p-2 pb-0 h-10">
+          <Typography variant="h6" color="stieglitz">
+            Contract
+          </Typography>
+          <Box>
+            <Button>
+              <a
+                className={'cursor-pointer'}
+                href={`${getExplorerUrl(chainId)}/address/${
+                  olpContract?.address
+                }`}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <Box className="flex flex-row -mt-3">
+                  <Typography variant="h6" color="white" className="mr-1">
+                    {displayAddress(olpContract?.address, undefined)}
+                  </Typography>
+                  <LaunchIcon
+                    sx={{
+                      height: '18px',
+                      width: '18px',
+                      color: '#8E8E8E',
+                      marginTop: '2px',
+                    }}
+                  />
+                </Box>
+              </a>
+            </Button>
+          </Box>
+        </Box>
       </Box>
+
+      {getTotalLiquidityProvidedBox(
+        olpEpochData?.totalLiquidityPerStrike!,
+        olpEpochData?.strikes!
+      )}
     </Box>
   );
 };

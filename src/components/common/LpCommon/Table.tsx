@@ -16,51 +16,54 @@ import { LpPosition } from 'store/Vault/olp';
 export const StyleTable = styled(TableContainer)`
   table {
     border-collapse: separate !important;
-    border-spacing: 0 0.5em !important;
+    border-spacing: 0;
+    border-radius: 0.5rem;
   }
-  td {
-    border: solid 1px #000;
-    border-style: solid none;
-    padding: 10px 16px;
+  th:first-of-type {
+    border-radius: 10px 0 0 0;
+  }
+  th:last-of-type {
+    border-radius: 0 10px 0 0;
+  }
+  tr:last-of-type td:first-of-type {
+    border-radius: 0 0 0 10px;
+  }
+  tr:last-of-type td:last-of-type {
+    border-radius: 0 0 10px 0;
   }
 `;
 
-export const HeaderCell = ({ title }: { title: string }) => {
-  return (
-    <TableCell
-      align="right"
-      className="text-stieglitz bg-cod-gray border-0 pb-3"
-    >
-      <Typography variant="h6" color="text-stieglitz" className="text-center">
-        {title}
-      </Typography>
-    </TableCell>
-  );
-};
+export const StyleLeftCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-left: 1px solid #151515;
+    border-bottom: solid 1px #151515;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+export const StyleRightCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-right: solid #151515;
+    border-bottom: solid 1px #151515;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+export const StyleCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-bottom: solid 1px #151515;
+    padding: 0.5rem 1rem;
+  }
+`;
 
 export const BodyCell = ({ data }: { data: string }) => {
   return (
-    <TableCell className="pt-1">
+    <StyleCell className="pt-1">
       <Typography variant="h6" className="text-center">
         {data}
       </Typography>
-    </TableCell>
+    </StyleCell>
   );
-};
-
-export const getStrikeBodyCell = (strike: BigNumber) => {
-  return (
-    <BodyCell
-      data={`$${formatAmount(
-        getUserReadableAmount(strike, DECIMALS_STRIKE),
-        2
-      )}`}
-    />
-  );
-};
-
-export const getUntransformedBodyCell = (num: BigNumber) => {
-  return <BodyCell data={`${formatAmount(getUserReadableAmount(num, 0))}%`} />;
 };
 
 export const getLiquidityBodyCell = (
@@ -87,6 +90,34 @@ export const getLiquidityBodyCell = (
       )} ${underlying.toUpperCase()}`}
     />
   );
+};
+
+export const HeaderCell = ({ title }: { title: string }) => {
+  return (
+    <TableCell
+      align="right"
+      className="text-stieglitz bg-cod-gray border-0 pb-3"
+    >
+      <Typography variant="h6" color="text-stieglitz" className="text-center">
+        {title}
+      </Typography>
+    </TableCell>
+  );
+};
+
+export const getStrikeBodyCell = (strike: BigNumber) => {
+  return (
+    <BodyCell
+      data={`$${formatAmount(
+        getUserReadableAmount(strike, DECIMALS_STRIKE),
+        2
+      )}`}
+    />
+  );
+};
+
+export const getUntransformedBodyCell = (num: BigNumber) => {
+  return <BodyCell data={`${formatAmount(getUserReadableAmount(num, 0))}%`} />;
 };
 
 export const DialogRow = ({ data, value }: { data: string; value: string }) => {

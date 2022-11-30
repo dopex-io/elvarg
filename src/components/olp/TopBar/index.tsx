@@ -12,7 +12,7 @@ const TopBar = () => {
 
   return (
     <LpTopBar
-      data={'OPTIONS LP'}
+      data={'Options LP'}
       isBeta={true}
       underlyingSymbol={underlyingSymbol ?? '...'}
       tokenPrice={tokenPrice}

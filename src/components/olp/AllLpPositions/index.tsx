@@ -1,19 +1,23 @@
 import { useCallback, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import {
-  Table,
   Box,
   TableHead,
+  TableContainer,
   TableRow,
+  Table,
   TableBody,
+  TableCell,
   TablePagination,
   MenuItem,
-  Typography,
+  Input,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 import { HeaderCell, StyleTable } from 'components/common/LpCommon/Table';
-import { TablePaginationActions } from 'components/UI';
+import { TablePaginationActions, Typography } from 'components/UI';
 
 import { useBoundStore } from 'store';
 
@@ -23,6 +27,32 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { DECIMALS_STRIKE, ROWS_PER_PAGE } from 'constants/index';
 
 import AllPositionsTable from './AllPositionsTable';
+
+const StyleCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+const StyleLeftCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-left: 1px solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+const StyleRightCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-right: 1px solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
 
 const AllLpPositions = () => {
   const { olpData, olpEpochData, setSelectedPositionIdx } = useBoundStore();
@@ -40,7 +70,7 @@ const AllLpPositions = () => {
 
   const getStrikes = useMemo(() => {
     if (!olpEpochData) return [];
-    let filterStrikes: string[] = ['-'];
+    let filterStrikes: string[] = ['Filter strikes'];
     olpEpochData.strikes.map((strike) => {
       filterStrikes.push(
         `$${formatAmount(getUserReadableAmount(strike, DECIMALS_STRIKE), 2)}`
@@ -51,7 +81,7 @@ const AllLpPositions = () => {
         <MenuItem
           value={idx}
           key={idx}
-          className="flex justify-center text-white text-center"
+          className="flex justify-around text-white text-center"
         >
           {strike}
         </MenuItem>
@@ -94,57 +124,75 @@ const AllLpPositions = () => {
     });
   }, [olpEpochData, selectedStrikeIdx]);
 
-  const strikesFilter = () => {
-    return (
-      <Box className="flex flex-col mb-3 w-32">
-        <Typography
-          variant="h6"
-          className="mb-1 text-center text-md text-stieglitz"
-        >
-          <span className="text-sm">Filter Strikes</span>
-        </Typography>
-        <Select
-          className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-1 text-white text-center text-md h-8 bg-gradient-to-r from-cyan-500 to-blue-700"
-          MenuProps={{
-            PaperProps: {
-              style: {
-                maxHeight: 224,
-                width: 130,
-              },
-            },
-            sx: {
-              '.Mui-selected': {
-                background:
-                  'linear-gradient(to right bottom, #06b6d4, #1d4ed8)',
-              },
-            },
-            classes: {
-              paper: 'bg-mineshaft',
-            },
-            disableScrollLock: true,
-          }}
-          autoWidth
-          value={getStrikes.length ? selectedStrikeIdx : ''}
-          onChange={handleSelectStrike}
-        >
-          {getStrikes}
-        </Select>
-      </Box>
-    );
-  };
-
   return (
     <Box>
-      {strikesFilter()}
-      <Box className="balances-table text-white pb-4">
+      <Typography variant="h5">All LP Positions</Typography>
+      <Box className="bg-cod-gray p-2 mt-2 border-radius rounded-lg">
+        <Box className="flex flex-col w-[140px] mb-3">
+          <Select
+            className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-1 text-white text-center text-sm h-8"
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 224,
+                  width: 130,
+                },
+              },
+              classes: {
+                paper: 'bg-mineshaft',
+              },
+            }}
+            classes={{
+              icon: 'text-white text-md',
+              select: 'overflow-hidden',
+            }}
+            autoWidth
+            fullWidth
+            input={<Input />}
+            variant="outlined"
+            disableUnderline
+            value={getStrikes.length ? selectedStrikeIdx : ''}
+            onChange={handleSelectStrike}
+          >
+            {getStrikes}
+          </Select>
+        </Box>
         <StyleTable>
           <Table>
-            <TableHead className="bg-umbra">
-              <TableRow className="bg-umbra">
-                <HeaderCell title={'Strike Price'} />
-                <HeaderCell title={'Liquidity Available'} />
-                <HeaderCell title={'Discount'} />
-                <HeaderCell title={'Actions'} />
+            <TableHead className="bg-cod-gray">
+              <TableRow>
+                <StyleLeftCell align="left" className="flex flex-row">
+                  <ArrowDownwardIcon
+                    sx={{
+                      width: '1.25rem',
+                      marginTop: '0.125rem',
+                      marginLeft: '-8px',
+                      color: '#8E8E8E',
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    color="stieglitz"
+                    className="mt-1.5"
+                  >
+                    Strike
+                  </Typography>
+                </StyleLeftCell>
+                <StyleCell align="center">
+                  <Typography variant="caption" color="stieglitz">
+                    Liquidity Available
+                  </Typography>
+                </StyleCell>
+                <StyleCell align="center">
+                  <Typography variant="caption" color="stieglitz">
+                    Discount
+                  </Typography>
+                </StyleCell>
+                <StyleRightCell align="right">
+                  <Typography variant="caption" color="stieglitz">
+                    Action
+                  </Typography>
+                </StyleRightCell>
               </TableRow>
             </TableHead>
             <TableBody className="rounded-lg">
@@ -157,6 +205,8 @@ const AllLpPositions = () => {
                   return (
                     <AllPositionsTable
                       key={idx}
+                      anchorEl={anchorEl}
+                      setAnchorEl={setAnchorEl}
                       positionIdx={p.idx}
                       strikePrice={p.strike}
                       usdLiquidity={p.usdLiquidity}
