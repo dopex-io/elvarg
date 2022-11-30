@@ -33,7 +33,7 @@ const SWAPPER_ID_TO_ROUTE: { [key: string]: string } = {
   1: 'Uniswap V3',
   2: 'GMX',
   3: 'Sushiswap and GMX',
-  4: 'Uniswap V3 and GMX',
+  4: 'Sushiswap and Uniswap V3',
   5: 'GMX and Sushiswap',
   6: 'Uniswap V3 and Sushiswap',
 };
