@@ -318,10 +318,6 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
             title="Bonding Price"
             value={`${getUserReadableAmount(bondPrice, 6)} USDC`}
           />
-          <BondsInfo
-            title="Oracle Price"
-            value={getUserReadableAmount(dpxOraclePrice, 8).toFixed(2)}
-          />
           <BondsInfo title="Vesting Term" value="1 Week" />
         </Box>
         <Box className="bg-umbra p-4 rounded-xl mt-3">
