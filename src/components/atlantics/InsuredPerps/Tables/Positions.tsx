@@ -13,7 +13,6 @@ import TableRow from '@mui/material/TableRow';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import {
   TableHeader,
@@ -332,8 +331,8 @@ const Positions = ({ active }: { active: string }) => {
                       <Typography
                         className={`${
                           Number(userPositionData.delta) > 0
-                            ? 'text-green-500'
-                            : 'text-red-400'
+                            ? 'text-up-only'
+                            : 'text-down-bad'
                         }`}
                         variant="h6"
                       >
@@ -361,11 +360,11 @@ const Positions = ({ active }: { active: string }) => {
                         {userPositionData.putStrike}
                       </Typography>
                     </TableBodyCell>
-                    <TableBodyCell align="right">
+                    {/* <TableBodyCell align="right">
                       <CustomButton onClick={handleManageButtonClick}>
                         Manage
                       </CustomButton>
-                    </TableBodyCell>
+                    </TableBodyCell> */}
                     <TableBodyCell align="right">
                       <SplitButton
                         options={['Manage Position', 'Manage Strategy']}
