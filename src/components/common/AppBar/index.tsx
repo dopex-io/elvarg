@@ -39,6 +39,8 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import DisclaimerDialog from '../DisclaimerDialog/DisclaimerDialog';
+import axios from 'axios';
 
 const AppLink = ({
   name,
@@ -158,6 +160,9 @@ export default function AppBar(props: AppBarProps) {
     updateTokenPrices,
     userAssetBalances,
     updateAssetBalances,
+    setOpenComplianceDialog,
+    openComplianceDialog,
+    setUserCompliant,
   } = useBoundStore();
 
   useEffect(() => {
@@ -211,6 +216,24 @@ export default function AppBar(props: AppBarProps) {
     setClaimRdpxDialog(true);
   };
 
+  const userComplianceCheck = useCallback(async () => {
+    if (!accountAddress) return;
+    const res = await axios.get(
+      `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${accountAddress}`
+    );
+    if (!res.data) return;
+    const { signature } = res.data;
+    if (!signature) {
+      setUserCompliant(false);
+    } else {
+      setUserCompliant(true);
+    }
+  }, [accountAddress, setUserCompliant]);
+
+  useEffect(() => {
+    userComplianceCheck();
+  }, [userComplianceCheck]);
+
   useEffect(() => {
     updateAssetBalances();
   }, [updateAssetBalances, provider]);
@@ -263,6 +286,10 @@ export default function AppBar(props: AppBarProps) {
       <ClaimRdpxDialog
         open={claimRdpxDialog}
         handleClose={handleRdpxDialogClose}
+      />
+      <DisclaimerDialog
+        open={openComplianceDialog}
+        handleClose={setOpenComplianceDialog}
       />
       <WalletDialog
         open={walletDialog}
