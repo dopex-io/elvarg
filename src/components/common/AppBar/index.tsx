@@ -18,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import axios from 'axios';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
@@ -25,6 +26,7 @@ import Typography from 'components/UI/Typography';
 import WalletDialog from 'components/common/AppBar/WalletDialog';
 import CustomButton from 'components/UI/Button';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
+import DisclaimerDialog from 'components/common/DisclaimerDialog';
 
 import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 import { useBoundStore } from 'store';
@@ -41,8 +43,6 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import DisclaimerDialog from '../DisclaimerDialog/DisclaimerDialog';
-import axios from 'axios';
 
 const AppLink = ({
   name,
