@@ -23,9 +23,13 @@ const DisclaimerDialog = (props: any) => {
     const signature = await signer.signMessage(DISCLAIMER_MESSAGE['english']);
     setOpenComplianceDialog(false);
 
-    await axios.get(
-      `https://soa242vijmzlx3iaazdzwd5wxi0mdlif.lambda-url.us-east-1.on.aws/?address=${accountAddress}&signature=${signature}`
-    );
+    try {
+      await axios.get(
+        `https://soa242vijmzlx3iaazdzwd5wxi0mdlif.lambda-url.us-east-1.on.aws/?address=${accountAddress}&signature=${signature}`
+      );
+    } catch (err) {
+      console.log(err);
+    }
 
     let toStore: { [key: string]: any } = {};
     toStore[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY] = signature;
