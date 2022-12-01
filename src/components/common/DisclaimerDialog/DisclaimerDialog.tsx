@@ -3,7 +3,10 @@ import { useCallback } from 'react';
 import { useBoundStore } from 'store';
 import axios from 'axios';
 
-import { DISCLAIMER_MESSAGE } from 'constants/index';
+import {
+  DISCLAIMER_MESSAGE,
+  OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
+} from 'constants/index';
 
 import Dialog from 'components/UI/Dialog';
 import CustomButton from 'components/UI/Button';
@@ -23,6 +26,11 @@ const DisclaimerDialog = (props: any) => {
     await axios.get(
       `https://soa242vijmzlx3iaazdzwd5wxi0mdlif.lambda-url.us-east-1.on.aws/?address=${accountAddress}&signature=${signature}`
     );
+
+    let toStore: { [key: string]: any } = {};
+    toStore[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY] = signature;
+
+    localStorage.setItem(accountAddress, JSON.stringify(toStore));
   }, [signer, accountAddress, setOpenComplianceDialog, userCompliant]);
 
   return (

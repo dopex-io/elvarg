@@ -7,8 +7,7 @@ import TransactionToast from 'components/UI/TransactionToast';
 import { useBoundStore } from 'store';
 
 const useSendTx = () => {
-  const { wrongNetwork, chainId, userCompliant, setOpenComplianceDialog } =
-    useBoundStore();
+  const { wrongNetwork, chainId, userCompliant } = useBoundStore();
 
   const sendTx = useCallback(
     async (
@@ -18,13 +17,13 @@ const useSendTx = () => {
       successMessage: string = 'Transaction confirmed',
       revertMessage: string = 'Transaction rejected'
     ) => {
+      if (!userCompliant) {
+        return;
+      }
       let toastId: string;
       if (wrongNetwork) {
         toast.error('Wrong Network');
         return;
-      }
-      if (!userCompliant) {
-        setOpenComplianceDialog(true);
       }
       toastId = toast.loading(waitingMessage);
       try {
@@ -70,7 +69,7 @@ const useSendTx = () => {
         throw Error(err);
       }
     },
-    [wrongNetwork, chainId, setOpenComplianceDialog, userCompliant]
+    [wrongNetwork, chainId, userCompliant]
   );
   return sendTx;
 };

@@ -32,6 +32,8 @@ import { useBoundStore } from 'store';
 import {
   CHAIN_ID_TO_RPC,
   CURRENCIES_MAP,
+  DISCLAIMER_MESSAGE,
+  OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
   PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -218,17 +220,38 @@ export default function AppBar(props: AppBarProps) {
 
   const userComplianceCheck = useCallback(async () => {
     if (!accountAddress) return;
-    const res = await axios.get(
-      `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${accountAddress}`
-    );
-    if (!res.data) return;
-    const { signature } = res.data;
+
+    let data = localStorage.getItem(accountAddress) as any;
+    let signature: string | null = null;
+    // If signature does not exit in local storage
+    if (!data) {
+      // Get signature from api
+      const res = await axios.get(
+        `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${accountAddress}`
+      );
+      signature = res.data.signature;
+    } else {
+      let objectified = JSON.parse(data) as any;
+      signature = objectified[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY];
+    }
+
     if (!signature) {
+      setOpenComplianceDialog(true);
       setUserCompliant(false);
+      return;
+    }
+
+    const signatureSigner = ethers.utils.verifyMessage(
+      DISCLAIMER_MESSAGE['english'],
+      signature
+    );
+
+    if (signatureSigner !== accountAddress) {
+      setOpenComplianceDialog(true);
     } else {
       setUserCompliant(true);
     }
-  }, [accountAddress, setUserCompliant]);
+  }, [accountAddress, setUserCompliant, setOpenComplianceDialog]);
 
   useEffect(() => {
     userComplianceCheck();
