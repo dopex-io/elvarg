@@ -1,7 +1,8 @@
 import { Box, Typography } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useBoundStore } from 'store';
 import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import {
   DISCLAIMER_MESSAGE,
@@ -13,6 +14,7 @@ import CustomButton from 'components/UI/Button';
 
 const DisclaimerDialog = (props: any) => {
   const { open, handleClose } = props;
+  const [loading, setLoading] = useState<boolean>(false);
   const {
     signer,
     accountAddress,
@@ -25,6 +27,7 @@ const DisclaimerDialog = (props: any) => {
     if (!signer || !accountAddress || userCompliant) {
       return;
     }
+    setLoading(true);
     const signature = await signer.signMessage(DISCLAIMER_MESSAGE['english']);
 
     if (signature) setUserCompliant(true);
@@ -41,6 +44,7 @@ const DisclaimerDialog = (props: any) => {
     toStore[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY] = signature;
 
     setOpenComplianceDialog(false);
+    setLoading(false);
 
     localStorage.setItem(accountAddress, JSON.stringify(toStore));
   }, [
@@ -77,9 +81,13 @@ const DisclaimerDialog = (props: any) => {
               &#x2022; {message}
             </Typography>
           ))}
-          <Box className="pt-4 pb-1 flex items-center justify-center">
-            <CustomButton onClick={handleSign} className="px-5">
-              Sign and proceed
+          <Box className="pt-4 pb-1 w-full flex items-center justify-center">
+            <CustomButton onClick={handleSign} className="w-full px-5">
+              {loading ? (
+                <CircularProgress className="text-white p-1" size={25} />
+              ) : (
+                'Sign and proceed'
+              )}
             </CustomButton>
           </Box>
         </Box>
