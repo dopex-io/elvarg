@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
-import styled from '@emotion/styled';
 
 import Typography from 'components/UI/Typography';
 import WalletButton from 'components/common/WalletButton';
@@ -12,16 +11,6 @@ import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-const StyledBox = styled(Box)`
-  background: linear-gradient(318.43deg, #002eff -7.57%, #22e1ff 100%);
-  border-radius: 5px;
-  color: white;
-  width: 70px;
-  padding: 8px;
-  text-align: center;
-  cursor: not-allowed;
-`;
 
 type EpochData = {
   handleModal: () => void;
@@ -60,13 +49,13 @@ export const EpochData = ({
 
   return (
     <>
-      <Box className="bg-cod-gray rounded-lg flex flex-wrap max-w-[728px] mb-5 mt-5">
-        <Box className="p-3 flex-2 md:flex-1 border-r border-umbra w-2/4">
-          <Box className="text-stieglitz mb-3">Epoch</Box>
-          <StyledBox>{epochNumber}</StyledBox>
+      <Box className="bg-cod-gray rounded-lg grid md:grid-cols-4 grid-cols-2 max-w-[728px] mb-5 mt-5">
+        <Box className="p-3 flex-2 md:flex-1 border-r border-umbra">
+          <Box className="text-stieglitz mb-1">Current Epoch</Box>
+          <Box>{epochNumber}</Box>
         </Box>
-        <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-umbra w-2/4">
-          <Box className="text-stieglitz mb-3">Total DPX Available</Box>
+        <Box className="p-3 md:flex-1 md:border-r border-b md:border-b-0 border-umbra">
+          <Box className="text-stieglitz mb-1">Total DPX</Box>
           <Box>
             {formatAmount(
               getUserReadableAmount(
@@ -81,20 +70,20 @@ export const EpochData = ({
               ),
               2
             )}
-            <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold  p-0.5 ml-1">
+            <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
               DPX
             </span>
           </Box>
         </Box>
-        <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-umbra w-2/4">
-          <Box className="text-stieglitz mb-3">Max USDC Deposit</Box>$
+        <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-umbra">
+          <Box className="text-stieglitz mb-1">Max USDC Deposit</Box>$
           {formatAmount(
             getUserReadableAmount(dpxBondsEpochData.maxEpochDeposits, 6),
             2
           )}
         </Box>
         <Box className="p-3 md:flex-1">
-          <Box className="text-stieglitz mb-3">
+          <Box className="text-stieglitz mb-1">
             {isEpochExpired ? 'Expired' : 'Expiry'}
           </Box>
           {epochExpiry && format(epochExpiry * 1000, 'd MMM yyyy')}
@@ -116,10 +105,10 @@ export const EpochData = ({
               />
               <Box className="flex flex-col">
                 <Typography variant="h5" color="white">
-                  USDC
+                  {getUserReadableAmount(depositPerNft, 6)} USDC per Bond
                 </Typography>
-                <Typography variant="h6" color="stieglitz">
-                  {bondsAvailable} bonds available to redeem
+                <Typography variant="h6" color="wave-blue">
+                  {bondsAvailable} bonds available
                 </Typography>
               </Box>
             </Box>
@@ -153,8 +142,8 @@ export const EpochData = ({
         <Box className="p-3 w-[352px] mr-5">
           <Typography variant="h5">Program Goals</Typography>
           <Box className="text-stieglitz h-24  mb-7">
-            Commit stablecoins upfront and receive vested DPX from treasury at a
-            lower market price. Proceeds support Dopex operations.
+            Commit USDC upfront and receive vested DPX from treasury at a lower
+            market price. Proceeds support Dopex operations.
           </Box>
         </Box>
         <Box className="p-3 w-[352px]">
