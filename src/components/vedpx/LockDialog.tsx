@@ -128,16 +128,16 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
           );
 
       if (action === 'create_lock') {
-        await sendTx(vedpx.create_lock(_amount, unlockTime + 86400 * 7));
+        await sendTx(vedpx, 'create_lock', [_amount, unlockTime + 86400 * 7]);
       } else if (action === 'increase_amount_and_time') {
-        await sendTx(vedpx.increase_amount_and_time(_amount, unlockTime));
+        await sendTx(vedpx, 'increase_amount_and_time', [_amount, unlockTime]);
       } else if (action === 'increase_unlock_time') {
-        await sendTx(vedpx.increase_unlock_time(unlockTime));
+        await sendTx(vedpx, 'increase_unlock_time', [unlockTime]);
       } else if (action === 'increase_amount') {
-        await sendTx(vedpx.increase_amount(_amount));
+        await sendTx(vedpx, 'increase_amount', [_amount]);
       }
 
-      await sendTx(vedpxYieldDistributor.checkpoint());
+      await sendTx(vedpxYieldDistributor, 'checkpoint', []);
 
       await updateData();
       await updateUserData();
@@ -165,7 +165,7 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
 
       const _amount = utils.parseEther(amount);
 
-      await sendTx(dpx.approve(vedpxAddress, _amount));
+      await sendTx(dpx, 'approve', [vedpxAddress, _amount]);
       setApproved(true);
     } catch (err) {
       console.log(err);

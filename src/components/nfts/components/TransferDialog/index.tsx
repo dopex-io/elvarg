@@ -73,13 +73,11 @@ const TransferModal = (props: TransferModalProps) => {
   const handleClick = async () => {
     if (!nftContractSigner || !accountAddress) return;
 
-    await sendTx(
-      nftContractSigner.transferFrom(
-        accountAddress,
-        formik.values.address,
-        tokenId
-      )
-    );
+    await sendTx(nftContractSigner, 'transferFrom', [
+      accountAddress,
+      formik.values.address,
+      tokenId,
+    ]);
   };
 
   return (

@@ -45,7 +45,7 @@ const SsovV2Deposit = ({ deposit }: any) => {
 
     const _contract = new ethers.Contract(deposit.ssovAddress, v2Abi, signer);
 
-    await sendTx(_contract['withdraw'](deposit.epoch, deposit.strikeIndex));
+    await sendTx(_contract, 'withdraw', [deposit.epoch, deposit.strikeIndex]);
   };
 
   return (

@@ -32,13 +32,13 @@ const PositionsTable = () => {
 
       if (straddlesData && straddlesUserData && signer) {
         await sendTx(
-          straddlesData?.straddlesContract
-            .connect(signer)
-            .settle(
-              straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
-                'id'
-              ]
-            )
+          straddlesData?.straddlesContract.connect(signer),
+          'settle',
+          [
+            straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
+              'id'
+            ],
+          ]
         );
         await updateStraddlesUserData!();
       }

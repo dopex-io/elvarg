@@ -13,15 +13,21 @@ import CustomButton from 'components/UI/Button';
 
 const DisclaimerDialog = (props: any) => {
   const { open, handleClose } = props;
-  const { signer, accountAddress, setOpenComplianceDialog, userCompliant } =
-    useBoundStore();
+  const {
+    signer,
+    accountAddress,
+    setOpenComplianceDialog,
+    userCompliant,
+    setUserCompliant,
+  } = useBoundStore();
 
   const handleSign = useCallback(async () => {
     if (!signer || !accountAddress || userCompliant) {
       return;
     }
     const signature = await signer.signMessage(DISCLAIMER_MESSAGE['english']);
-    setOpenComplianceDialog(false);
+
+    if (signature) setUserCompliant(true);
 
     try {
       await axios.get(
@@ -34,8 +40,16 @@ const DisclaimerDialog = (props: any) => {
     let toStore: { [key: string]: any } = {};
     toStore[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY] = signature;
 
+    setOpenComplianceDialog(false);
+
     localStorage.setItem(accountAddress, JSON.stringify(toStore));
-  }, [signer, accountAddress, setOpenComplianceDialog, userCompliant]);
+  }, [
+    signer,
+    accountAddress,
+    setOpenComplianceDialog,
+    userCompliant,
+    setUserCompliant,
+  ]);
 
   return (
     <Dialog

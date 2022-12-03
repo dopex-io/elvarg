@@ -93,10 +93,9 @@ const DepositPanel = () => {
     if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
       await sendTx(
-        ERC20__factory.connect(ssovData.collateralAddress, signer).approve(
-          spender,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(ssovData.collateralAddress, signer),
+        'approve',
+        [spender, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {

@@ -110,10 +110,9 @@ const ManageDialog = (props: Props) => {
     try {
       setLoading(true);
       await sendTx(
-        StakingRewards__factory.connect(
-          data.stakingRewardsAddress,
-          signer
-        ).stake(utils.parseEther(amount))
+        StakingRewards__factory.connect(data.stakingRewardsAddress, signer),
+        'stake',
+        [utils.parseEther(amount)]
       );
       setLoading(false);
       handleClose();
@@ -128,10 +127,9 @@ const ManageDialog = (props: Props) => {
     try {
       setLoading(true);
       await sendTx(
-        ERC20__factory.connect(data.stakingTokenAddress, signer).approve(
-          data.stakingRewardsAddress,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(data.stakingTokenAddress, signer),
+        'approve',
+        [data.stakingRewardsAddress, MAX_VALUE]
       );
       setAllowance(BigNumber.from(MAX_VALUE));
       setLoading(false);
@@ -147,18 +145,16 @@ const ManageDialog = (props: Props) => {
       setLoading(true);
       if (data.version === 3) {
         await sendTx(
-          StakingRewardsV3__factory.connect(
-            data.stakingRewardsAddress,
-            signer
-          ).unstake(utils.parseEther(amount))
+          StakingRewardsV3__factory.connect(data.stakingRewardsAddress, signer),
+          'unstake',
+          [utils.parseEther(amount)]
         );
         handleClose();
       } else {
         await sendTx(
-          StakingRewards__factory.connect(
-            data.stakingRewardsAddress,
-            signer
-          ).withdraw(utils.parseEther(amount))
+          StakingRewards__factory.connect(data.stakingRewardsAddress, signer),
+          'withdraw',
+          [utils.parseEther(amount)]
         );
       }
       setLoading(false);

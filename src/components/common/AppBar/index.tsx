@@ -241,7 +241,6 @@ export default function AppBar(props: AppBarProps) {
     }
 
     if (!signature) {
-      setOpenComplianceDialog(true);
       setUserCompliant(false);
       return;
     }
@@ -251,12 +250,8 @@ export default function AppBar(props: AppBarProps) {
       signature
     );
 
-    if (signatureSigner !== accountAddress) {
-      setOpenComplianceDialog(true);
-    } else {
-      setUserCompliant(true);
-    }
-  }, [accountAddress, setUserCompliant, setOpenComplianceDialog]);
+    if (signatureSigner === accountAddress) setUserCompliant(true);
+  }, [accountAddress, setUserCompliant]);
 
   useEffect(() => {
     userComplianceCheck();

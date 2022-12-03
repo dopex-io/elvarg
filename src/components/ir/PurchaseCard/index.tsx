@@ -195,10 +195,9 @@ const PurchaseCard = ({
     try {
       if (signer)
         await sendTx(
-          ERC20__factory.connect(
-            contractAddresses[purchaseTokenName],
-            signer
-          ).approve(spender, MAX_VALUE)
+          ERC20__factory.connect(contractAddresses[purchaseTokenName], signer),
+          'approve',
+          [spender, MAX_VALUE]
         );
       setApproved(true);
     } catch (err) {
@@ -210,16 +209,12 @@ const PurchaseCard = ({
     if (!rateVaultData || !updateRateVaultEpochData || !updateRateVaultUserData)
       return;
 
-    await sendTx(
-      rateVaultData.rateVaultContract
-        .connect(signer)
-        .purchase(
-          strikeIndex,
-          activeVaultContextSide === 'PUT',
-          getContractReadableAmount(notionalSize, 18),
-          accountAddress
-        )
-    );
+    await sendTx(rateVaultData.rateVaultContract.connect(signer), 'purchase', [
+      strikeIndex,
+      activeVaultContextSide === 'PUT',
+      getContractReadableAmount(notionalSize, 18),
+      accountAddress,
+    ]);
 
     updateAssetBalances();
     updateRateVaultEpochData();

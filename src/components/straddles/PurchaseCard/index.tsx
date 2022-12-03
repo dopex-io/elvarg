@@ -140,14 +140,14 @@ const PurchaseCard = () => {
 
     try {
       await sendTx(
-        straddlesData.straddlesContract
-          .connect(signer)
-          .purchase(
-            getContractReadableAmount(2 * amount, 18),
-            0,
-            POOL_TO_SWAPPER_ID[selectedPoolName] || 0,
-            accountAddress
-          )
+        straddlesData.straddlesContract.connect(signer),
+        'purchase',
+        [
+          getContractReadableAmount(2 * amount, 18),
+          0,
+          POOL_TO_SWAPPER_ID[selectedPoolName] || 0,
+          accountAddress,
+        ]
       );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
@@ -170,10 +170,9 @@ const PurchaseCard = () => {
       return;
     try {
       await sendTx(
-        ERC20__factory.connect(straddlesData.usd, signer).approve(
-          straddlesData.straddlesContract.address,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(straddlesData.usd, signer),
+        'approve',
+        [straddlesData.straddlesContract.address, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {
