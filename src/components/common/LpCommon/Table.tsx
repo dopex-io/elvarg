@@ -124,17 +124,13 @@ export const DialogRow = ({ data, value }: { data: string; value: string }) => {
   return (
     <Box className="flex flex-row justify-between">
       <Box className="flex">
-        <Typography variant="h6" className="text-sm pl-1 pt-2">
+        <Typography variant="h6" className="text-sm">
           <span className="text-stieglitz">{data}</span>
         </Typography>
       </Box>
       <Box className="ml-auto mr-0">
-        <Typography
-          variant="h6"
-          color="text-stieglitz"
-          className="text-sm pl-1 pt-2 pr-3"
-        >
-          <span className="text-stieglitz">{value}</span>
+        <Typography variant="h6" color="text-stieglitz" className="text-sm">
+          <span className="text-white">{value}</span>
         </Typography>
       </Box>
     </Box>

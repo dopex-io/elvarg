@@ -65,6 +65,7 @@ const AllLpPositions = () => {
     if (!setSelectedPositionIdx) {
       return;
     }
+    setAnchorEl(true);
     setSelectedPositionIdx(positionIdx);
   };
 

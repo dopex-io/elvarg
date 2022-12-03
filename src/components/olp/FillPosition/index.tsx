@@ -228,6 +228,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
       handleClose={() => setAnchorEl(null)}
       disableScrollLock={true}
       PaperProps={{ style: { backgroundColor: 'transparent' } }}
+      width={368}
     >
       <FillPositionDialog
         isPut={olpData?.isPut!}

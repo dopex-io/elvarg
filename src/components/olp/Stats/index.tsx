@@ -198,57 +198,6 @@ const Stats = () => {
     );
   }
 
-  const handleIsPut = useCallback(
-    async (isPut: boolean) => {
-      if (!setSelectedIsPut) return;
-      setSelectedIsPut(isPut);
-      await updateOlp();
-      await updateOlpEpochData();
-      await updateOlpUserData();
-    },
-    [setSelectedIsPut, updateOlp, updateOlpEpochData, updateOlpUserData]
-  );
-
-  function isPutBox(
-    isPut: boolean,
-    handleIsPut: Function,
-    hasPut: boolean,
-    hasCall: boolean
-  ) {
-    return (
-      <Box className="flex flex-row border rounded border-transparent p-3">
-        <Box>
-          <Button
-            size="medium"
-            className={`text-center mt-1 p-1 cursor-pointer group rounded hover:bg-emerald-500 hover:opacity-80 ${
-              !isPut ? 'bg-emerald-500' : ''
-            }`}
-            disabled={!hasCall}
-            onClick={() => handleIsPut(false)}
-          >
-            <Typography variant="h6" className="rounded-lg">
-              Call
-            </Typography>
-          </Button>
-        </Box>
-        <Box>
-          <Button
-            size="medium"
-            className={`text-center mt-1 p-1 cursor-pointer group rounded hover:bg-down-bad hover:opacity-80 ${
-              isPut ? ' bg-down-bad' : ''
-            }`}
-            disabled={!hasPut}
-            onClick={() => handleIsPut(true)}
-          >
-            <Typography variant="h6" className="rounded-lg">
-              Put
-            </Typography>
-          </Button>
-        </Box>
-      </Box>
-    );
-  }
-
   return (
     <Box>
       <Typography variant="h6" color="stieglitz">

@@ -64,6 +64,7 @@ export default function AllPositionsTable(props: Props) {
     underlyingSymbol,
   } = props;
 
+  console.log('anchorEl: ', anchorEl);
   return (
     <TableRow
       key={positionIdx}
