@@ -127,16 +127,11 @@ export default function FillPositionDialog(props: Props) {
   }
 
   function getOptionTokenAmountBalance(
-    isPut: boolean,
     lpPositionSelected: LpPosition,
     userTokenBalance: BigNumber,
     rawFillAmount: string,
     setRawFillAmount: Function,
-    usdToReceive: number,
-    underlyingToReceive: number,
-    underlyingSymbol: string,
-    outUsd: boolean,
-    handleReceive: any
+    underlyingSymbol: string
   ) {
     return (
       <Box>
@@ -229,7 +224,7 @@ export default function FillPositionDialog(props: Props) {
     );
   }
 
-  function receiveAmount() {
+  function receiveAmount(handleOutUsd: any) {
     return lpPositionSelected.underlyingLiquidity.gt(BigNumber.from(0)) ? (
       <Box className="flex flex-row justify-between mr-2">
         <Box className="flex flex-row">
@@ -266,23 +261,17 @@ export default function FillPositionDialog(props: Props) {
         </Typography>
       </Box>
       {getOptionTokenAmountBalance(
-        isPut,
         lpPositionSelected,
         userTokenBalance,
         rawFillAmount,
         setRawFillAmount,
-        usdToReceive,
-        underlyingToReceive,
-        underlyingSymbol,
-        outUsd,
-        handleOutUsd
+        underlyingSymbol
       )}
 
       <Box className="border border-umbra rounded-xl pb-2 px-2">
         <Box className="rounded-xl p-3 border border-umbra w-full bg-umbra mt-4 mb-3">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
-          {/* <Box className="flex flex-row justify-between"></Box> */}
-          {receiveAmount()}
+          {receiveAmount(handleOutUsd)}
 
           <NumberLiquidityDialogRow
             data={'I will receive'}

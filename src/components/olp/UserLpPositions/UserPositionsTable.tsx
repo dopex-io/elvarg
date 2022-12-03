@@ -1,7 +1,6 @@
 import Box from '@mui/material/Box';
-import { TableCell, TableRow } from '@mui/material';
+import { TableRow } from '@mui/material';
 import { BigNumber } from 'ethers';
-import { styled } from '@mui/material/styles';
 
 import { LpPosition } from 'store/Vault/olp';
 
@@ -9,14 +8,14 @@ import { CustomButton, NumberDisplay, Typography } from 'components/UI';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 import {
   StyleLeftCell,
   getLiquidityBodyCell,
   BodyCell,
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
+
+import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
   lpPosition: LpPosition;

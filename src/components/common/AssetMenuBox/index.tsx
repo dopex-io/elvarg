@@ -22,7 +22,7 @@ const SelectMenuProps = {
 
 const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
   return (
-    <Box className="w-32 -ml-6 -mt-1.5 h-10 p-1">
+    <Box className="-mt-2 h-10 p-1 w-[125px]">
       <Select
         className="opacity-80 rounded-md text-center"
         fullWidth
@@ -33,14 +33,14 @@ const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
         placeholder="Select asset"
         MenuProps={SelectMenuProps}
         classes={{
-          icon: 'absolute right-1 text-mineshaft',
+          icon: '-right-1 text-mineshaft text-3xl',
         }}
         disableUnderline
         autoWidth
       >
         {assets.map((asset: string, index: number) => (
           <MenuItem key={index} value={index} className="text-center">
-            <Box className="flex flex-row h-10 w-[105px] p-1 ml-1">
+            <Box className="flex flex-row h-10 p-1 pl-0 ml-1">
               <img
                 src={`/images/tokens/${asset}.svg`}
                 alt={`${asset?.toUpperCase()}`}

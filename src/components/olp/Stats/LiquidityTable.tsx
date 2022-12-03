@@ -1,35 +1,15 @@
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
 import { BigNumber } from 'ethers';
-import { styled } from '@mui/material/styles';
 
 import { NumberDisplay, Typography } from 'components/UI';
+import {
+  StyleCell,
+  StyleLeftCell,
+  StyleRightCell,
+} from 'components/common/LpCommon/Table';
 
 import { DECIMALS_STRIKE, DECIMALS_USD } from 'constants/index';
-
-const StyleCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const StyleLeftCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-left: 1px solid #1e1e1e;
-    border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const StyleRightCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-right: solid #1e1e1e;
-    border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
 
 interface LiquidityTableProps {
   strike: BigNumber;

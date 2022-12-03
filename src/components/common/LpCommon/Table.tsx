@@ -35,23 +35,49 @@ export const StyleTable = styled(TableContainer)`
 
 export const StyleLeftCell = styled(TableCell)`
   &.MuiTableCell-root {
-    border-left: 1px solid #151515;
-    border-bottom: solid 1px #151515;
+    border-left: 1px solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
     padding: 0.5rem 1rem;
   }
 `;
 
 export const StyleRightCell = styled(TableCell)`
   &.MuiTableCell-root {
-    border-right: solid #151515;
-    border-bottom: solid 1px #151515;
+    border-right: solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
     padding: 0.5rem 1rem;
   }
 `;
 
 export const StyleCell = styled(TableCell)`
   &.MuiTableCell-root {
-    border-bottom: solid 1px #151515;
+    border-bottom: solid 1px #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+export const StyleTableCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+export const StyleLeftTableCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-left: 1px solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+export const StyleRightTableCell = styled(TableCell)`
+  &.MuiTableCell-root {
+    border-top: 1px solid #1e1e1e;
+    border-right: 1px solid #1e1e1e;
+    border-bottom: solid 1px #1e1e1e;
     padding: 0.5rem 1rem;
   }
 `;

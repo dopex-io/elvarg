@@ -3,7 +3,6 @@ import { ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
 import { Dialog } from 'components/UI';
-// import { Modal } from '@mui/material';
 
 import { useBoundStore } from 'store';
 

@@ -24,7 +24,7 @@ const BalanceBox = ({
   return (
     <Box className="flex flex-row justify-between -ml-1 -mr-1 -mb-1">
       <Box className="flex">
-        <Typography variant="h6" className="text-sm pt-2">
+        <Typography variant="h6" className="text-sm pt-2 pl-1">
           <span className="text-stieglitz">Balance</span>
         </Typography>
       </Box>

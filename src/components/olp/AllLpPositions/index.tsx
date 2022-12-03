@@ -3,20 +3,22 @@ import { BigNumber } from 'ethers';
 import {
   Box,
   TableHead,
-  TableContainer,
   TableRow,
   Table,
   TableBody,
-  TableCell,
   TablePagination,
   MenuItem,
   Input,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
-import { HeaderCell, StyleTable } from 'components/common/LpCommon/Table';
+import {
+  StyleTable,
+  StyleTableCell,
+  StyleLeftTableCell,
+  StyleRightTableCell,
+} from 'components/common/LpCommon/Table';
 import { TablePaginationActions, Typography } from 'components/UI';
 
 import { useBoundStore } from 'store';
@@ -27,32 +29,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { DECIMALS_STRIKE, ROWS_PER_PAGE } from 'constants/index';
 
 import AllPositionsTable from './AllPositionsTable';
-
-const StyleCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-top: 1px solid #1e1e1e;
-    border-bottom: 1px solid #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const StyleLeftCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-top: 1px solid #1e1e1e;
-    border-left: 1px solid #1e1e1e;
-    border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const StyleRightCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-top: 1px solid #1e1e1e;
-    border-right: 1px solid #1e1e1e;
-    border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
 
 const AllLpPositions = () => {
   const { olpData, olpEpochData, setSelectedPositionIdx } = useBoundStore();
@@ -65,7 +41,6 @@ const AllLpPositions = () => {
     if (!setSelectedPositionIdx) {
       return;
     }
-    setAnchorEl(true);
     setSelectedPositionIdx(positionIdx);
   };
 
@@ -162,7 +137,7 @@ const AllLpPositions = () => {
           <Table>
             <TableHead className="bg-cod-gray">
               <TableRow>
-                <StyleLeftCell align="left" className="flex flex-row">
+                <StyleLeftTableCell align="left" className="flex flex-row">
                   <ArrowDownwardIcon
                     sx={{
                       width: '1.25rem',
@@ -178,22 +153,22 @@ const AllLpPositions = () => {
                   >
                     Strike
                   </Typography>
-                </StyleLeftCell>
-                <StyleCell align="center">
+                </StyleLeftTableCell>
+                <StyleTableCell align="center">
                   <Typography variant="caption" color="stieglitz">
                     Liquidity Available
                   </Typography>
-                </StyleCell>
-                <StyleCell align="center">
+                </StyleTableCell>
+                <StyleTableCell align="center">
                   <Typography variant="caption" color="stieglitz">
                     Discount
                   </Typography>
-                </StyleCell>
-                <StyleRightCell align="right">
+                </StyleTableCell>
+                <StyleRightTableCell align="right">
                   <Typography variant="caption" color="stieglitz">
                     Action
                   </Typography>
-                </StyleRightCell>
+                </StyleRightTableCell>
               </TableRow>
             </TableHead>
             <TableBody className="rounded-lg">

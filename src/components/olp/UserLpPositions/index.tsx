@@ -3,51 +3,27 @@ import {
   Box,
   Button,
   TableHead,
-  TableContainer,
   TableRow,
   Table,
   TableBody,
-  TableCell,
   TablePagination,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
-import { HeaderCell, StyleTable } from 'components/common/LpCommon/Table';
+import {
+  StyleTable,
+  StyleTableCell,
+  StyleLeftTableCell,
+  StyleRightTableCell,
+} from 'components/common/LpCommon/Table';
 import { TablePaginationActions, Typography } from 'components/UI';
 
 import { ROWS_PER_PAGE } from 'constants/index';
 
 import UserPositionsTable from './UserPositionsTable';
-
-const StyleCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-top: 1px solid #1e1e1e;
-    border-bottom: 1px solid #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const StyleLeftCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-top: 1px solid #1e1e1e;
-    border-left: 1px solid #1e1e1e;
-    border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const StyleRightCell = styled(TableCell)`
-  &.MuiTableCell-root {
-    border-top: 1px solid #1e1e1e;
-    border-right: 1px solid #1e1e1e;
-    border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
-  }
-`;
 
 const UserLpPositions = () => {
   const sendTx = useSendTx();
@@ -176,7 +152,7 @@ const UserLpPositions = () => {
           <Table>
             <TableHead className="bg-cod-gray">
               <TableRow>
-                <StyleLeftCell align="left" className="flex flex-row">
+                <StyleLeftTableCell align="left" className="flex flex-row">
                   <ArrowDownwardIcon
                     sx={{
                       width: '1.25rem',
@@ -192,32 +168,32 @@ const UserLpPositions = () => {
                   >
                     Strike
                   </Typography>
-                </StyleLeftCell>
-                <StyleCell align="center">
+                </StyleLeftTableCell>
+                <StyleTableCell align="center">
                   <Typography variant="caption" color="stieglitz">
                     Liquidity
                   </Typography>
-                </StyleCell>
-                <StyleCell align="center">
+                </StyleTableCell>
+                <StyleTableCell align="center">
                   <Typography variant="caption" color="stieglitz">
                     Utilization
                   </Typography>
-                </StyleCell>
-                <StyleCell align="center">
+                </StyleTableCell>
+                <StyleTableCell align="center">
                   <Typography variant="caption" color="stieglitz">
                     Discount
                   </Typography>
-                </StyleCell>
-                <StyleCell align="center">
+                </StyleTableCell>
+                <StyleTableCell align="center">
                   <Typography variant="caption" color="stieglitz">
                     Tokens Purchased
                   </Typography>
-                </StyleCell>
-                <StyleRightCell align="right">
+                </StyleTableCell>
+                <StyleRightTableCell align="right">
                   <Typography variant="caption" color="stieglitz">
                     Action
                   </Typography>
-                </StyleRightCell>
+                </StyleRightTableCell>
               </TableRow>
             </TableHead>
             <TableBody className="rounded-lg">

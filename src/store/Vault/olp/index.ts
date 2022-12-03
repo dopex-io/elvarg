@@ -148,7 +148,7 @@ export const createOlpSlice: StateCreator<
 
       const underlyingSymbol = 'DPX';
 
-      setSelectedEpoch(expiries.length > 0 ? expiries.length : 0);
+      setSelectedEpoch(expiries.length > 0 ? expiries.length - 1 : 0);
 
       set((prevState) => ({
         ...prevState,
@@ -188,14 +188,8 @@ export const createOlpSlice: StateCreator<
       const ssov = olpData?.ssov;
 
       const [strikes, strikeTokens] = await Promise.all([
-        olpContract.getSsovEpochStrikes(
-          ssov,
-          olpData?.epochs[selectedEpoch - 1]
-        ),
-        olpContract.getSsovOptionTokens(
-          ssov,
-          olpData?.epochs[selectedEpoch - 1]
-        ),
+        olpContract.getSsovEpochStrikes(ssov, olpData?.epochs[selectedEpoch]),
+        olpContract.getSsovOptionTokens(ssov, olpData?.epochs[selectedEpoch]),
       ]);
 
       const strikeTokensInfoPromise: Promise<OptionTokenInfoInterface>[] = [];
@@ -221,7 +215,7 @@ export const createOlpSlice: StateCreator<
         totalLiquidityPerStrike.push(usdLiq.add(underLiqToUsd));
       });
 
-      const expiry = olpData?.expiries[selectedEpoch - 1] || BigNumber.from(0);
+      const expiry = olpData?.expiries[selectedEpoch] || BigNumber.from(0);
 
       const allLpPositions: LpPosition[] = await Promise.all(
         strikeTokenLpPositions

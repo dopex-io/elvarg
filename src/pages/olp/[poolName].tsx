@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { useEffect } from 'react';
 import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import AllLpPositions from 'components/olp/AllLpPositions';
 import ProvideLp from 'components/olp/ProvideLp';

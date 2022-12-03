@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 import { Box, Button, Input } from '@mui/material';
 import { BigNumber } from 'ethers';
 
