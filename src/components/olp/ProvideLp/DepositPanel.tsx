@@ -121,7 +121,7 @@ export default function DepositPanel(props: Props) {
     return (
       <Box className="rounded-xl flex flex-col mb-0 p-3 w-full bg-umbra">
         <Box className="h-12 rounded-full pl-2 pr-1 pt-0 pb-0 flex flex-row items-center">
-          <Box className="bg-black h-12 mt-2 p-1 -ml-3 rounded-lg mr-1">
+          <Box className="bg-black h-10 mt-2 p-1 -ml-3 rounded-3xl mr-1">
             <AssetMenuBox
               assetIdx={assetIdx}
               handleSelectAsset={handleSelectAsset}

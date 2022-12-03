@@ -22,7 +22,7 @@ const SelectMenuProps = {
 
 const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
   return (
-    <Box className="-mt-2 h-10 p-1 w-[125px]">
+    <Box className="-mt-2 h-10 p-1 w-[120px]">
       <Select
         className="opacity-80 rounded-md text-center"
         fullWidth
@@ -40,7 +40,7 @@ const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
       >
         {assets.map((asset: string, index: number) => (
           <MenuItem key={index} value={index} className="text-center">
-            <Box className="flex flex-row h-10 p-1 pl-0 ml-1">
+            <Box className="flex flex-row h-10 p-1 -mt-1 pl-0">
               <img
                 src={`/images/tokens/${asset}.svg`}
                 alt={`${asset?.toUpperCase()}`}
