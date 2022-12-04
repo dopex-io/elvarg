@@ -25,6 +25,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import Link from 'next/link';
 
 interface ManageCardProps {
   tokenId: string;
@@ -233,6 +234,17 @@ const ManageCard = (props: ManageCardProps) => {
         <Typography variant="h5" className="my-auto">
           Deposit
         </Typography>
+        <Link
+          href={`/atlantics/manage/insured-perps/${atlanticPool?.tokens.underlying.concat(
+            '-',
+            atlanticPool?.tokens.depositToken
+          )}`}
+          target="_blank"
+          passHref
+          className="text-underline"
+        >
+          Trade
+        </Link>
       </Box>
       <Box className="bg-umbra rounded-xl w-full">
         <CustomInput

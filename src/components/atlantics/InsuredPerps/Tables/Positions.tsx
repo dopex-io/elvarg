@@ -55,7 +55,13 @@ export const ActionState: { [key: string]: string } = {
   '10': 'Exit Strategy Keep Position Pending', // 10
 };
 
-const Positions = ({ active }: { active: string }) => {
+const Positions = ({
+  active,
+  setTriggerMarker,
+}: {
+  active: string;
+  setTriggerMarker: Function;
+}) => {
   const { signer, accountAddress, contractAddresses, atlanticPool } =
     useBoundStore();
 
@@ -182,6 +188,10 @@ const Positions = ({ active }: { active: string }) => {
         strategyUtils.getPrice(underlyingAddress),
       ]);
 
+      setTriggerMarker(
+        formatAmount(getUserReadableAmount(liquidationPrice, 30), 3)
+      );
+
       hasProfit = positionDelta[0];
       position = {
         underlying,
@@ -209,7 +219,13 @@ const Positions = ({ active }: { active: string }) => {
 
     setUserPositionData(() => position);
     setIsPositionReleased(() => strategyPosition.state === 1);
-  }, [contractAddresses, signer, accountAddress, atlanticPool]);
+  }, [
+    contractAddresses,
+    accountAddress,
+    atlanticPool,
+    signer,
+    setTriggerMarker,
+  ]);
 
   const handleManageButtonClick = useCallback(() => {
     if (userPositionData.state === 'Settled') {

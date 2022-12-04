@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import Positions from 'components/atlantics/InsuredPerps/Tables/Positions';
 import Orders from 'components/atlantics/InsuredPerps/Tables/Orders';
 
-const Tables = () => {
+const Tables = ({ setTriggerMarker }: { setTriggerMarker: Function }) => {
   const [active, setActive] = useState<string>('Positions');
 
   const handleClick = useCallback((e: any) => {
@@ -14,10 +14,11 @@ const Tables = () => {
   }, []);
 
   const renderComponent = useMemo(() => {
-    if (active === 'Positions') return <Positions active={active} />;
+    if (active === 'Positions')
+      return <Positions active={active} setTriggerMarker={setTriggerMarker} />;
     else return <Orders active={active} />;
     // else return <Trades />;
-  }, [active]);
+  }, [active, setTriggerMarker]);
 
   return (
     <Box>

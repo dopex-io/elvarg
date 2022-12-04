@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -8,158 +9,19 @@ import Typography from 'components/UI/Typography';
 import Title from 'components/atlantics/InsuredPerps/Title';
 import Tables from 'components/atlantics/InsuredPerps/Tables';
 import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
-import ChartComponent from 'components/atlantics/InsuredPerps/ChartComponent';
 
 import { useBoundStore } from 'store';
 
-// const initialData = [
-//   { time: '2018-12-31', value: 22.67 },
-//   { time: '2018-12-22', value: 32.51 },
-//   { time: '2018-12-23', value: 31.11 },
-//   { time: '2018-12-24', value: 27.02 },
-//   { time: '2018-12-25', value: 27.32 },
-//   { time: '2018-12-26', value: 25.17 },
-//   { time: '2018-12-27', value: 28.89 },
-//   { time: '2018-12-28', value: 25.46 },
-//   { time: '2018-12-29', value: 23.92 },
-//   { time: '2018-12-30', value: 22.68 },
-// ];
-const initialData = [
+import { GMX_STATS_API } from 'constants/env';
+
+import { GmxCandleStick } from 'types';
+
+const ChartComponent = dynamic(
+  () => import('components/atlantics/InsuredPerps/ChartComponent'),
   {
-    time: '2022-11-12',
-    open: 1175.16,
-    high: 1182.84,
-    low: 1136.16,
-    close: 1145.72,
-  },
-  {
-    time: '2022-11-13',
-    open: 1145.12,
-    high: 1153.9,
-    low: 1145.12,
-    close: 1148.09,
-  },
-  {
-    time: '2022-11-14',
-    open: 1160.71,
-    high: 1160.71,
-    low: 1153.39,
-    close: 1159.29,
-  },
-  {
-    time: '2022-11-15',
-    open: 1168.26,
-    high: 1168.26,
-    low: 1159.04,
-    close: 1160.5,
-  },
-  {
-    time: '2022-11-16',
-    open: 1167.71,
-    high: 1205.85,
-    low: 1166.67,
-    close: 1191.04,
-  },
-  {
-    time: '2022-11-17',
-    open: 1191.04,
-    high: 1221.4,
-    low: 1182.7,
-    close: 1111.4,
-  },
-  {
-    time: '2022-11-18',
-    open: 1111.51,
-    high: 1242.83,
-    low: 1103.34,
-    close: 1231.25,
-  },
-  {
-    time: '2022-11-19',
-    open: 1231.33,
-    high: 1251.17,
-    low: 1177.68,
-    close: 1196.43,
-  },
-  {
-    time: '2022-11-20',
-    open: 1206.33,
-    high: 1210.2,
-    low: 1190.39,
-    close: 1198.1,
-  },
-  // { time: '2022-11-31', open: 109.87, high: 114.69, low: 85.66, close: 111.26 },
-  {
-    time: '2022-11-21',
-    open: 1212.16,
-    high: 1182.84,
-    low: 1136.16,
-    close: 1145.72,
-  },
-  {
-    time: '2022-11-22',
-    open: 1221.12,
-    high: 1231.9,
-    low: 1145.12,
-    close: 1230.09,
-  },
-  {
-    time: '2022-11-23',
-    open: 1223.71,
-    high: 1225.71,
-    low: 1200.39,
-    close: 1220.29,
-  },
-  {
-    time: '2022-11-24',
-    open: 1220.26,
-    high: 1280.26,
-    low: 1200.04,
-    close: 1250.5,
-  },
-  {
-    time: '2022-11-25',
-    open: 1322.71,
-    high: 1300.85,
-    low: 1166.67,
-    close: 1200.04,
-  },
-  {
-    time: '2022-11-26',
-    open: 1200.04,
-    high: 1270.4,
-    low: 1200.7,
-    close: 1235.4,
-  },
-  {
-    time: '2022-11-27',
-    open: 1211.51,
-    high: 1242.83,
-    low: 1203.34,
-    close: 1231.25,
-  },
-  {
-    time: '2022-11-28',
-    open: 1231.33,
-    high: 1251.17,
-    low: 1177.68,
-    close: 1196.43,
-  },
-  {
-    time: '2022-11-29',
-    open: 1206.33,
-    high: 1210.2,
-    low: 1190.39,
-    close: 1198.1,
-  },
-  {
-    time: '2022-11-30',
-    open: 1209.87,
-    high: 1214.69,
-    low: 1185.66,
-    close: 1211.26,
-  },
-];
+    ssr: false,
+  }
+);
 
 interface TickerProps {
   underlying: string | undefined;
@@ -175,9 +37,12 @@ export const Main = (props: TickerProps) => {
     low_24h: 0,
     change_24h: 0,
   });
+  const [gmxChartData, setGmxChartData] = useState<GmxCandleStick[]>([]);
+  const [triggerMarker, setTriggerMarker] = useState<string>();
 
   const {
     provider,
+    chainId,
     setSelectedPoolName,
     updateAtlanticPool,
     updateAtlanticPoolEpochData,
@@ -234,6 +99,57 @@ export const Main = (props: TickerProps) => {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      if (!chainId || !underlying) return;
+      const res: Response = await new Promise(async (resolve, reject) => {
+        let done = false;
+        setTimeout(() => {
+          done = true;
+          reject(new Error(`Request timeout`));
+        }, 10000);
+
+        let lastEx;
+        for (let i = 0; i < 3; i++) {
+          if (done) return;
+          try {
+            const res = await fetch(
+              `${GMX_STATS_API}/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${'1D'}&from=${Math.ceil(
+                Number(new Date()) / 1000
+              )}&preferableSource=fast`
+            );
+            resolve(res);
+            return;
+          } catch (ex) {
+            lastEx = ex;
+          }
+        }
+        reject(lastEx);
+      });
+      if (!res.ok) throw new Error('request failed');
+      const json = await res.json();
+      let prices: GmxCandleStick[] = json?.prices.map(
+        (candleStickData: {
+          h: number;
+          l: number;
+          o: number;
+          c: number;
+          t: number;
+        }) => ({
+          high: candleStickData.h,
+          low: candleStickData.l,
+          open: candleStickData.o,
+          close: candleStickData.c,
+          time: candleStickData.t,
+        })
+      );
+
+      setGmxChartData(prices);
+    })();
+  }, [chainId, underlying]);
+
+  console.log('Here: ', triggerMarker);
+
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       <Head>
@@ -250,7 +166,8 @@ export const Main = (props: TickerProps) => {
             />
             <Box className="h-[60vh] w-full space-y-4 flex flex-col bg-umbra rounded-xl text-center">
               <ChartComponent
-                data={initialData}
+                data={gmxChartData}
+                triggerMarker={triggerMarker ?? '0'}
                 colors={{
                   backgroundColor: '#1E1E1E',
                   lineColor: '#2962FF',
@@ -262,7 +179,7 @@ export const Main = (props: TickerProps) => {
               />
             </Box>
             <Box className="w-full space-y-4">
-              <Tables />
+              <Tables setTriggerMarker={setTriggerMarker} />
             </Box>
           </Box>
           <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
