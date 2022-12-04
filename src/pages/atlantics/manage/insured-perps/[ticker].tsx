@@ -148,8 +148,6 @@ export const Main = (props: TickerProps) => {
     })();
   }, [chainId, underlying]);
 
-  console.log('Here: ', triggerMarker);
-
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       <Head>
