@@ -23,8 +23,6 @@ import { vedpxAddress, vedpxYieldDistributorAddress } from 'store/VeDPX';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
-
 const ACTION_COPY = {
   create_lock: {
     cta: 'Lock',
@@ -165,12 +163,14 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
         signer
       );
 
-      await sendTx(dpx.approve(vedpxAddress, MAX_VALUE));
+      const _amount = utils.parseEther(amount);
+
+      await sendTx(dpx.approve(vedpxAddress, _amount));
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx]);
+  }, [signer, sendTx, amount]);
 
   useEffect(() => {
     (async function () {

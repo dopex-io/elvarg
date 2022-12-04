@@ -161,7 +161,7 @@ export default function Deposits() {
             </Box>
           ) : filteredSSOVDeposits.length === 0 &&
             filteredStraddlesDeposits.length === 0 ? (
-            <Box className="flex-col p-9  min-w-[1500px]">
+            <Box className="flex-col p-9 md:min-w-full min-w-[1500px]">
               <Box className="mx-auto">You do not have any deposits</Box>
               <Link href="/ssov">
                 <Button
@@ -174,7 +174,7 @@ export default function Deposits() {
               </Link>
             </Box>
           ) : (
-            <Box className="py-2  min-w-[1500px]">
+            <Box className="py-2 md:min-w-full min-w-[1500px]">
               {filteredSSOVDeposits.length > 0 ? (
                 <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
                   {headerCells['ssov']!.map((cell, i) => (
@@ -253,11 +253,17 @@ export default function Deposits() {
 
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a target="_blank" rel="noreferrer" href={deposit.link}>
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={deposit.link.includes('#') ? '#' : deposit.link}
+                      >
                         <CustomButton
                           size="medium"
                           className="px-2"
-                          color={deposit.link !== '#' ? 'primary' : 'umbra'}
+                          color={
+                            deposit.link.includes('#') ? 'umbra' : 'primary'
+                          }
                         >
                           Open
                         </CustomButton>

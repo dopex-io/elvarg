@@ -11,7 +11,7 @@
     "postinstall": "husky install"
   },
   "dependencies": {
-    "@0xsequence/multicall": "^0.42.2",
+    "@0xsequence/multicall": "^0.43.3",
     "@apollo/client": "^3.6.6",
     "@coinbase/wallet-sdk": "^3.2.0",
     "@dopex-io/sdk": "https://github.com/dopex-io/sdk#feat/atlantics",
@@ -34,7 +34,7 @@
     "git": "^0.1.5",
     "graphql": "^16.0.1",
     "lightweight-charts": "^3.8.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.20",
     "next": "^13.0.1",
     "react": "^18.0.0",
     "react-countdown": "^2.3.2",

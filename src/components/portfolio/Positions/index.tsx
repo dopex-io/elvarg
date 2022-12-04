@@ -171,7 +171,7 @@ export default function Positions() {
             </Box>
           ) : filteredSSOVPositions.length === 0 &&
             filteredStraddlesPositions.length === 0 ? (
-            <Box className="flex-col p-9 min-w-[1500px]">
+            <Box className="flex-col p-9 md:min-w-full min-w-[1500px]">
               <Box className="mx-auto">You do not have any positions</Box>
               <Link href="/ssov">
                 <Button
@@ -184,7 +184,7 @@ export default function Positions() {
               </Link>
             </Box>
           ) : (
-            <Box className="py-2 min-w-[1500px]">
+            <Box className="py-2 md:min-w-full min-w-[1500px]">
               {filteredSSOVPositions.length > 0 ? (
                 <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
                   {headerCells['ssov']!.map((cell, i) => (
@@ -290,11 +290,17 @@ export default function Positions() {
 
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a target="_blank" rel="noreferrer" href={position.link}>
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={position.link.includes('#') ? '#' : position.link}
+                      >
                         <CustomButton
                           size="medium"
                           className="px-2"
-                          color={position.link !== '#' ? 'primary' : 'umbra'}
+                          color={
+                            position.link.includes('#') ? 'umbra' : 'primary'
+                          }
                         >
                           Open
                         </CustomButton>

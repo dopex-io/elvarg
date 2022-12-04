@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-// import axios from 'axios';
+import axios from 'axios';
 import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import Dialog from '@mui/material/Dialog';
@@ -79,9 +79,10 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   const [approved, setApproved] = useState(false);
 
   const percentageDiscount = useMemo(() => {
-    const dpxPrice = getUserReadableAmount(dpxOraclePrice, 8);
-    const priceDiff = Math.abs(getUserReadableAmount(bondPrice, 6) - dpxPrice);
-    return (priceDiff / dpxPrice) * 100;
+    const priceDiff = Math.abs(
+      getUserReadableAmount(bondPrice, 6) - dpxOraclePrice
+    );
+    return (priceDiff / dpxOraclePrice) * 100;
   }, [bondPrice, dpxOraclePrice]);
 
   const isMintable = useMemo(() => {
@@ -91,9 +92,9 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
   useEffect(() => {
     async function getData() {
-      const dpxPrice = 22803000000;
+      const response = await axios.get(`https://api.dopex.io/v2/price/dpx`);
 
-      setOraclePrice(dpxPrice);
+      setOraclePrice(Number(response.data.oraclePrice));
     }
     getData();
   }, []);
@@ -320,7 +321,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           />
           <BondsInfo
             title="Oracle Price"
-            value={getUserReadableAmount(dpxOraclePrice, 8).toFixed(2)}
+            value={`${dpxOraclePrice.toFixed(2)} USDC`}
           />
           <BondsInfo title="Vesting Term" value="1 Week" />
         </Box>

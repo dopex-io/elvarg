@@ -108,7 +108,7 @@ export const createStraddlesSlice: StateCreator<
   updateStraddlesEpochData: async () => {
     const { selectedEpoch, getStraddlesContract } = get();
 
-    const straddlesContract = getStraddlesContract();
+    const straddlesContract: AtlanticStraddle = getStraddlesContract();
 
     if (selectedEpoch === null || !straddlesContract) return;
 
@@ -134,6 +134,7 @@ export const createStraddlesSlice: StateCreator<
     try {
       straddlePremium = await straddlesContract!['calculatePremium'](
         true,
+        currentPrice,
         currentPrice,
         getContractReadableAmount(1, 18),
         epochData['expiry']

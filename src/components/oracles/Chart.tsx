@@ -14,8 +14,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-// @ts-ignore TODO: FIX
-const Chart = ({ data }) => {
+const Chart = ({ data }: any) => {
   return (
     <ResponsiveContainer>
       <AreaChart
