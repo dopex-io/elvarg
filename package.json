@@ -34,7 +34,7 @@
     "git": "^0.1.5",
     "graphql": "^16.0.1",
     "lightweight-charts": "^3.8.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "next": "^13.0.1",
     "react": "^18.0.0",
     "react-countdown": "^2.3.2",
