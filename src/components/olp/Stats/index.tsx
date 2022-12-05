@@ -40,19 +40,21 @@ const Stats = () => {
   return (
     <Box>
       <Box className=" border border-umbra rounded-lg p-1 mb-2">
-        <Typography variant="h6" color="stieglitz">
-          About OLP
-        </Typography>
-        <Typography variant="h6">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
-        </Typography>
+        <Box className="p-2">
+          <Typography variant="h6" color="stieglitz">
+            About OLP
+          </Typography>
+          <Typography variant="h6">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </Typography>
+        </Box>
 
         <Box className="flex flex-row justify-between mt-2 border border-umbra border-x-0 border-b-0">
           {/* tvl */}
-          <Box className="flex flex-row w-1/2 justify-between p-2 pb-0 h-10 border-y-0 border-l-0 border border-umbra">
+          <Box className="flex flex-grow flex-row w-1/2 justify-between p-2 mt-1 pb-0 h-10 border-y-0 border-l-0 border border-umbra">
             <Typography variant="h6" color="stieglitz">
               TVL
             </Typography>
@@ -62,7 +64,7 @@ const Stats = () => {
           </Box>
 
           {/* contract */}
-          <Box className="flex flex-row w-1/2 justify-between p-2 pb-0 h-10">
+          <Box className="flex flex-grow flex-row w-1/2 justify-between p-2 pb-0 h-10 mt-1 pr-0">
             <Typography variant="h6" color="stieglitz">
               Contract
             </Typography>

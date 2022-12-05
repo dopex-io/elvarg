@@ -42,7 +42,7 @@ const Olp = ({ poolName }: Props) => {
       </Head>
       <AppBar active="OLPs" />
       <Box className="md:flex pt-5">
-        <Box className="ml-auto lg:w-[55%]">
+        <Box className="ml-auto lg:w-[65%] p-1">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">
             <TopBar />
           </Box>

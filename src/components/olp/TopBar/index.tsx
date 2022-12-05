@@ -13,6 +13,7 @@ import { useBoundStore } from 'store';
 
 import { Typography } from 'components/UI';
 import { getReadableTime } from 'utils/contracts';
+import { useWindowSize } from 'react-use';
 
 const IS_BETA: boolean = true;
 
@@ -25,6 +26,8 @@ const TopBar = () => {
     selectedEpoch,
     tokenPrices,
   } = useBoundStore();
+
+  const { width } = useWindowSize();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -62,8 +65,12 @@ const TopBar = () => {
   }, [olpData?.expiries, handleSelectChange]);
 
   return (
-    <Box className="flex flex-row border border-umbra bg-cod-gray border-radius rounded-lg">
-      <Box className="w-1/2 flex justify-between py-1 px-2 pl-0">
+    <Box className="flex flex-wrap flex-row border border-umbra bg-cod-gray border-radius rounded-lg">
+      <Box
+        className={`${
+          width > 500 ? 'w-[350px]' : 'w-full'
+        } flex-grow-1 flex justify-between py-1 px-2 pl-0`}
+      >
         <Box className="flex items-center">
           <Box sx={{ p: 1 }} className="flex -space-x-4">
             <img
@@ -94,7 +101,11 @@ const TopBar = () => {
         )}
       </Box>
 
-      <Box className="w-1/2 px-2 border border-umbra">
+      <Box
+        className={`${
+          width > 500 ? 'w-[350px]' : 'w-full'
+        } flex-grow-1 px-2 border border-umbra`}
+      >
         <Box className="flex flex-row justify-between p-2">
           <Box>
             <Typography variant="h6">
@@ -142,7 +153,7 @@ const TopBar = () => {
             sx={{
               '& .MuiPaper-root': {
                 backgroundColor: '#1E1E1E',
-                minWidth: '16rem',
+                minWidth: '19.5rem',
                 marginTop: '1rem',
               },
               '& .MuiMenuItem-root': {
@@ -163,8 +174,8 @@ const TopBar = () => {
         </Box>
       </Box>
 
-      <Box className="w-1/4 flex flex-row justify-between p-2">
-        <Box className="flex flex-row">
+      <Box className="w-[150px] flex-grow-0 flex flex-row justify-between p-2">
+        <Box className="flex flex-row ml-2">
           <Box>
             <Typography variant="h6">{`$${tokenPrice}`}</Typography>
             <Typography color="stieglitz" variant="h6">
