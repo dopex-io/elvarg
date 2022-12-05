@@ -106,7 +106,7 @@ const UserLpPositions = () => {
   );
 
   return (
-    <Box className="balances-table text-white pb-4">
+    <Box className="balances-table text-white pb-1">
       <Typography variant="h5" className="ml-1">
         User LP Positions
       </Typography>

@@ -68,7 +68,7 @@ const TopBar = () => {
     <Box className="flex flex-wrap flex-row border border-umbra bg-cod-gray border-radius rounded-lg">
       <Box
         className={`${
-          width > 500 ? 'w-[350px]' : 'w-full'
+          width > 500 ? 'w-[17rem]' : 'w-full'
         } flex-grow-1 flex justify-between py-1 px-2 pl-0`}
       >
         <Box className="flex items-center">
@@ -94,7 +94,7 @@ const TopBar = () => {
         {IS_BETA && (
           <Typography
             variant="h6"
-            className="mt-1.5 bg-primary rounded-lg p-2 font-bold h-[fit-content] mr-3"
+            className="mt-1.5 bg-primary rounded-lg p-2 font-bold h-[fit-content] mr-1"
           >
             BETA
           </Typography>
@@ -103,7 +103,7 @@ const TopBar = () => {
 
       <Box
         className={`${
-          width > 500 ? 'w-[350px]' : 'w-full'
+          width > 500 ? 'w-[17rem]' : 'w-full'
         } flex-grow-1 px-2 border border-umbra`}
       >
         <Box className="flex flex-row justify-between p-2">
@@ -174,7 +174,7 @@ const TopBar = () => {
         </Box>
       </Box>
 
-      <Box className="w-[150px] flex-grow-0 flex flex-row justify-between p-2">
+      <Box className="w-[7rem] flex flex-grow-0 p-2">
         <Box className="flex flex-row ml-2">
           <Box>
             <Typography variant="h6">{`$${tokenPrice}`}</Typography>
