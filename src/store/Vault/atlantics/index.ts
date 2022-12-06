@@ -7,6 +7,7 @@ import {
   AtlanticPutsPool__factory,
   AtlanticsViewer__factory,
   AtlanticsViewer,
+  DopexFeeStrategy__factory,
 } from '@dopex-io/sdk';
 
 import { CommonSlice } from 'store/Vault/common';
@@ -16,11 +17,10 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface IVaultConfiguration {
-  baseFundingRate: BigNumber;
   expireDelayTolerance: BigNumber;
   fundingInterval: BigNumber;
-  fundingIncrement: BigNumber;
-  collateralUtilizationWeight: BigNumber;
+  tickSize: BigNumber;
+  fundingFee: BigNumber;
 }
 
 export interface ApContracts {
@@ -143,13 +143,24 @@ export const createAtlanticsSlice: StateCreator<
 
     const currentEpoch = await atlanticPool.currentEpoch();
 
-    let [{ baseToken, quoteToken }, config, underlyingPrice, tickSize] =
-      await Promise.all([
-        atlanticPool.addresses(),
-        atlanticPool.vaultConfiguration(),
-        atlanticPool.getUsdPrice(),
-        atlanticPool.epochTickSize(currentEpoch),
-      ]);
+    let [
+      { baseToken, quoteToken },
+      underlyingPrice,
+      tickSize,
+      fundingInterval,
+      expireDelayTolerance,
+      { feeBps },
+    ] = await Promise.all([
+      atlanticPool.addresses(),
+      atlanticPool.getUsdPrice(),
+      atlanticPool.epochTickSize(currentEpoch),
+      atlanticPool.fundingInterval(),
+      atlanticPool.expireDelayTolerance(),
+      DopexFeeStrategy__factory.connect(
+        contractAddresses['FEE-STRATEGY'],
+        provider
+      )['getFeeBps(uint256)'](1),
+    ]);
 
     const contracts: ApContracts = {
       atlanticPool,
@@ -170,7 +181,12 @@ export const createAtlanticsSlice: StateCreator<
       ...prevState,
       atlanticPool: {
         currentEpoch,
-        vaultConfig: { ...config, tickSize, unwindFee: BigNumber.from(0) },
+        vaultConfig: {
+          fundingInterval,
+          expireDelayTolerance,
+          tickSize,
+          fundingFee: feeBps,
+        },
         contracts,
         tokens: {
           underlying,
@@ -307,7 +323,7 @@ export const createAtlanticsSlice: StateCreator<
     const fundingAccrued = checkpoints
       .map((checkpoint) => checkpoint)
       .flat()
-      .map((cpObject) => cpObject.fundingAccrued)
+      .map((cpObject) => cpObject.fundingFeesAccrued)
       .reduce((prev, next) => prev.add(next), BigNumber.from(0));
 
     const fundingAccruedInUsd = fundingAccrued // 1e6
@@ -439,7 +455,7 @@ export const createAtlanticsSlice: StateCreator<
         index: number
       ) => {
         const fundingEarned: BigNumber = liquidity
-          .mul(depositCheckpoints[index]?.fundingAccrued ?? 0)
+          .mul(depositCheckpoints[index]?.fundingFeesAccrued ?? 0)
           .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
         const underlyingEarned = liquidity
           .mul(depositCheckpoints[index]?.underlyingAccrued ?? 0)

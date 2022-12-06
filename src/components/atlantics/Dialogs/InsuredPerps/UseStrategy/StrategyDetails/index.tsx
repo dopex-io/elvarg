@@ -39,7 +39,8 @@ const StrategyDetails = (props: {
       positionFee,
       swapFees,
       strategyFee,
-      unwindFee,
+      fundingFees,
+      feesWithoutDiscount,
     },
     selectedToken,
     positionCollateral,
@@ -88,15 +89,14 @@ const StrategyDetails = (props: {
     }
 
     totalQuoteAsset.amount = totalQuoteAsset.amount.add(
-      putOptionsPremium.add(putOptionsfees)
+      putOptionsPremium.add(putOptionsfees).add(fundingFees)
     );
     totalQuoteAsset.usdValue = getUserReadableAmount(totalQuoteAsset.amount, 6);
     if (selectedToken === underlying) {
       totalBaseAsset.amount = totalBaseAsset.amount
         .add(positionCollateral)
         .add(positionFee)
-        .add(strategyFee)
-        .add(unwindFee);
+        .add(strategyFee);
       totalBaseAsset.usdValue =
         totalBaseAsset.usdValue +
         getUserReadableAmount(positionCollateral, basetokenDecimals) *
@@ -120,7 +120,6 @@ const StrategyDetails = (props: {
       totalBaseAsset,
     };
   }, [
-    unwindFee,
     chainId,
     strategyFee,
     swapFees,
@@ -137,6 +136,7 @@ const StrategyDetails = (props: {
     baseToken,
     quoteToken,
     strategyDetailsLoading,
+    fundingFees,
   ]);
 
   return (
@@ -230,19 +230,28 @@ const StrategyDetails = (props: {
           <ContentRow
             title="Options Fee"
             content={
-              '$' + formatAmount(getUserReadableAmount(putOptionsfees, 6), 3)
+              putOptionsfees.lt(feesWithoutDiscount.purchaseFees)
+                ? `$${getUserReadableAmount(
+                    feesWithoutDiscount.purchaseFees,
+                    6
+                  )} → $${getUserReadableAmount(putOptionsfees, 6)}`
+                : '$' + getUserReadableAmount(putOptionsfees, 6)
+            }
+          />
+          <ContentRow
+            title="Borrow Fees"
+            content={
+              fundingFees.lt(feesWithoutDiscount.fundingFees)
+                ? `$${formatAmount(
+                    getUserReadableAmount(feesWithoutDiscount.fundingFees, 6)
+                  )} → $${formatAmount(getUserReadableAmount(fundingFees, 6))}`
+                : '$' + getUserReadableAmount(fundingFees, 6)
             }
           />
           <ContentRow
             title="Options"
             content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
           />
-          {depositUnderlying && (
-            <ContentRow
-              title="Unwind Fee"
-              content={formatAmount(getUserReadableAmount(unwindFee, 18), 5)}
-            />
-          )}
         </Box>
       </Box>
       <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">
@@ -251,14 +260,12 @@ const StrategyDetails = (props: {
           <ContentRow
             title="Strategy Fee"
             content={
-              '$' +
-              formatAmount(
-                getUserReadableAmount(
-                  strategyFee,
-                  getTokenDecimals(selectedToken, chainId)
-                ),
-                3
-              )
+              strategyFee.lt(feesWithoutDiscount.strategyFee)
+                ? `$${getUserReadableAmount(
+                    feesWithoutDiscount.strategyFee,
+                    6
+                  )} → $${getUserReadableAmount(strategyFee, 6)}`
+                : '$' + getUserReadableAmount(strategyFee, 6)
             }
           />
           <ContentRow

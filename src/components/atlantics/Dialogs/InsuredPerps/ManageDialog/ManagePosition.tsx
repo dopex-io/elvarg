@@ -45,7 +45,7 @@ const ManagePosition = () => {
 
   const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
   const [positionBalance, setPositionBalance] = useState<string>('0');
-  const [action, setAction] = useState('Increase');
+  const [action, setAction] = useState<string | number>('Increase');
 
   const [selectedToken, setSelectedToken] = useState('USDC');
   const [outputToken, setOutputToken] = useState('USDC');
@@ -262,6 +262,11 @@ const ManagePosition = () => {
       signer
     );
 
+    const gmxVault = GmxVault__factory.connect(
+      contractAddresses['GMX-VAULT'],
+      signer
+    );
+
     let increaseOrderParams;
 
     let collateralDelta;
@@ -280,11 +285,23 @@ const ManagePosition = () => {
         getTokenDecimals(selectedToken, chainId)
       );
 
+      let [minPrice, maxPrice] = await Promise.all([
+        gmxVault.getMinPrice(strategyPosition.indexToken),
+        gmxVault.getMaxPrice(strategyPosition.indexToken),
+      ]);
+
+      const precision = 100000;
+      const slippage = 300;
+      minPrice = minPrice.mul(precision - slippage).div(precision);
+      maxPrice = maxPrice.mul(precision + slippage).div(precision);
+
       increaseOrderParams = {
         path,
         indexToken: strategyPosition.indexToken,
         collateralDelta,
         positionSizeDelta: 0,
+        // @ts-ignore
+        acceptablePrice: action === 'Decrease' ? minPrice : maxPrice,
         isLong: true,
       };
 
@@ -304,11 +321,6 @@ const ManagePosition = () => {
 
       const positionBalanceFiltered = String(
         parseFloat(positionData.collateral.replace(/,/g, ''))
-      );
-
-      const gmxVault = GmxVault__factory.connect(
-        contractAddresses['GMX-VAULT'],
-        signer
       );
 
       let collateralDeltaUsd = await gmxVault.tokenToUsdMin(
@@ -339,13 +351,17 @@ const ManagePosition = () => {
 
       if (size.isZero()) return;
 
-      increaseOrderParams = {
-        path,
-        indexToken: strategyPosition.indexToken,
-        collateralDelta: collateralDeltaUsd,
-        positionSizeDelta: size,
-        isLong: true,
-      };
+      // increaseOrderParams = {
+      //   path,
+      //   indexToken: strategyPosition.indexToken,
+      //   collateralDelta: collateralDeltaUsd,
+      //   positionSizeDelta: size,
+      //   acceptablePrice = increaseOrderParams?.acceptablePrice
+      //   isLong: true,
+      // };
+
+      if (!increaseOrderParams) return;
+
       const decreaseOrderParams = {
         orderParams: increaseOrderParams,
         receiver: accountAddress,

@@ -81,7 +81,12 @@ export interface IStrategyDetails {
   depositUnderlying: boolean;
   swapFees: BigNumber;
   strategyFee: BigNumber;
-  unwindFee: BigNumber;
+  fundingFees: BigNumber;
+  feesWithoutDiscount: {
+    fundingFees: BigNumber;
+    purchaseFees: BigNumber;
+    strategyFee: BigNumber;
+  };
 }
 
 interface IncreaseOrderParams {
@@ -89,6 +94,7 @@ interface IncreaseOrderParams {
   indexToken: string;
   collateralDelta: BigNumber;
   positionSizeDelta: BigNumber;
+  acceptablePrice: BigNumber;
   isLong: boolean;
 }
 
@@ -111,6 +117,7 @@ const UseStrategyDialog = () => {
       indexToken: '',
       collateralDelta: BigNumber.from(0),
       positionSizeDelta: BigNumber.from(0),
+      acceptablePrice: BigNumber.from(0),
       isLong: true,
     });
   const [approved, setApproved] = useState<{
@@ -137,7 +144,12 @@ const UseStrategyDialog = () => {
     expiry: BigNumber.from(0),
     swapFees: BigNumber.from(0),
     strategyFee: BigNumber.from(0),
-    unwindFee: BigNumber.from(0),
+    fundingFees: BigNumber.from(0),
+    feesWithoutDiscount: {
+      fundingFees: BigNumber.from(0),
+      purchaseFees: BigNumber.from(0),
+      strategyFee: BigNumber.from(0),
+    },
   });
   const [, setLoading] = useState<boolean>(true);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
@@ -342,7 +354,12 @@ const UseStrategyDialog = () => {
       optionsAmount = BigNumber.from(0),
       putStrike = BigNumber.from(0),
       positionFee = BigNumber.from(0),
-      unwindFee = BigNumber.from(0);
+      acceptablePrice = BigNumber.from(0),
+      collateralAccess = BigNumber.from(0),
+      purchaseFeesWithoutDiscount = BigNumber.from(0),
+      strategyFeeWithoutDiscount = BigNumber.from(0),
+      fundingFeesWithoutDiscount = BigNumber.from(0),
+      fundingFees = BigNumber.from(0);
 
     positionFee = await utilsContract.getPositionFee(sizeUsd);
     positionFee = await gmxVault.usdToTokenMax(
@@ -389,10 +406,20 @@ const UseStrategyDialog = () => {
 
       liquidationPrice = liquidationPrice.div(getContractReadableAmount(1, 22));
 
-      [tickSizeMultiplier, strategyFee] = await Promise.all([
-        strategy.tickSizeMultiplierBps(underlyingTokenAddress),
-        strategy.getPositionfee(sizeUsd, selectedTokenAddress),
-      ]);
+      [tickSizeMultiplier, strategyFee, strategyFeeWithoutDiscount] =
+        await Promise.all([
+          strategy.tickSizeMultiplierBps(underlyingTokenAddress),
+          strategy.getPositionfee(
+            sizeUsd,
+            selectedTokenAddress,
+            accountAddress
+          ),
+          strategy.getPositionfee(
+            sizeUsd,
+            selectedTokenAddress,
+            putsContract.address
+          ),
+        ]);
 
       putStrike = await utilsContract[
         'getEligiblePutStrike(address,uint256,uint256)'
@@ -402,17 +429,42 @@ const UseStrategyDialog = () => {
         .mul(getContractReadableAmount(1, 20))
         .div(putStrike);
 
-      [putOptionsPremium, putOptionsfees, markPrice] = await Promise.all([
+      [
+        putOptionsPremium,
+        putOptionsfees,
+        markPrice,
+        collateralAccess,
+        purchaseFeesWithoutDiscount,
+      ] = await Promise.all([
         putsContract.calculatePremium(putStrike, optionsAmount),
-        putsContract.calculatePurchaseFees(putStrike, optionsAmount),
+        putsContract.calculatePurchaseFees(
+          accountAddress,
+          putStrike,
+          optionsAmount
+        ),
         gmxVault.getMaxPrice(underlyingTokenAddress),
+        putsContract.strikeMulAmount(putStrike, optionsAmount),
+        putsContract.calculatePurchaseFees(
+          putsContract.address,
+          putStrike,
+          optionsAmount
+        ),
       ]);
 
-      if (depositUnderlying) {
-        unwindFee = await putsContract.calculateUnwindFees(optionsAmount);
-      }
+      [fundingFees, fundingFeesWithoutDiscount] = await Promise.all([
+        putsContract.calculateFundingFees(accountAddress, collateralAccess),
+        putsContract.calculateFundingFees(
+          putsContract.address,
+          collateralAccess
+        ),
+      ]);
+      const precision = 100000;
+      const slippage = 300;
+      acceptablePrice = markPrice.mul(precision + slippage).div(precision);
     }
+
     setStrategyDetails(() => ({
+      fundingFees,
       positionSize: sizeUsd,
       putOptionsPremium,
       putOptionsfees,
@@ -425,8 +477,25 @@ const UseStrategyDialog = () => {
       expiry: atlanticPoolEpochData.expiry,
       swapFees,
       strategyFee,
-      unwindFee,
+      feesWithoutDiscount: {
+        fundingFees: fundingFeesWithoutDiscount,
+        purchaseFees: purchaseFeesWithoutDiscount,
+        strategyFee: strategyFeeWithoutDiscount,
+      },
     }));
+
+    console.log(
+      'WITH DISCOUNT',
+      fundingFees.toString(),
+      putOptionsfees.toString(),
+      strategyFee.toString()
+    );
+    console.log(
+      'WIUTHOUT DISCOUNT',
+      fundingFeesWithoutDiscount.toString(),
+      purchaseFeesWithoutDiscount.toString(),
+      strategyFeeWithoutDiscount.toString()
+    );
 
     setIncreaseOrderParams(() => ({
       path,
@@ -435,6 +504,7 @@ const UseStrategyDialog = () => {
         .add(swapFees)
         .add(positionFee),
       positionSizeDelta: sizeUsd,
+      acceptablePrice,
       isLong: true,
     }));
     setStrategyDetailsLoading(false);

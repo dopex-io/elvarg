@@ -39,11 +39,6 @@ const options: { [key: string]: string }[] = [
       'Deposit underlying to enable unwind to mitigate pre-liquidation price when your long position has unlocked collateral.',
   },
   {
-    option: 'Unwind Underlying & Keep Long Position',
-    description:
-      "If underlying was deposited before using the strategy, you can use choose to keep borrowed collateral incase the put options bought for your long position's insurance are in the money.",
-  },
-  {
     option: 'Emergency Exit Strategy',
     description:
       'Immidiately exit strategy if position does not have borrowed collateral and exit options positions as well (Cannot be settled)',
@@ -183,9 +178,6 @@ const ManageStrategyPositionDialog = () => {
       const { optionsAmount } = await atlanticPoolContract.getOptionsPurchase(
         strategyDetails.atlanticsPurchaseId
       );
-      approvalAmount = await atlanticPoolContract.calculateUnwindFees(
-        optionsAmount
-      );
       approvalAmount = approvalAmount.add(optionsAmount);
     }
     setUnwindApproved(() => approvalAmount.lte(allowance));
@@ -214,7 +206,8 @@ const ManageStrategyPositionDialog = () => {
       const { optionsAmount } = await atlanticPoolContract.getOptionsPurchase(
         strategyDetails.atlanticsPurchaseId
       );
-      approvalAmount = await atlanticPoolContract.calculateUnwindFees(
+      approvalAmount = await atlanticPoolContract.calculateFundingFees(
+        atlanticPoolContract.address,
         optionsAmount
       );
       approvalAmount = approvalAmount.add(optionsAmount);
@@ -260,25 +253,20 @@ const ManageStrategyPositionDialog = () => {
     };
 
     if (selectedOptionItem === 0) {
-      tx = strategy.createExitStrategyOrder(userPositionId, overrides);
+      tx = strategy.createExitStrategyOrder(userPositionId, true, overrides);
     }
+
     if (selectedOptionItem === 1) {
-      tx = strategy.createExitStrategyKeepLongPosition(
-        userPositionId,
-        overrides
-      );
+      tx = strategy.createExitStrategyOrder(userPositionId, false, overrides);
     }
     if (selectedOptionItem === 2) {
       tx = strategy.enableKeepCollateral(userPositionId);
     }
     if (selectedOptionItem === 3) {
-      tx = strategy.createKeepCollateralOrder(userPositionId);
-    }
-    if (selectedOptionItem === 4) {
       tx = strategy.emergencyStrategyExit(userPositionId);
     }
 
-    if (selectedOptionItem === 5) {
+    if (selectedOptionItem === 4) {
       tx = strategy.reuseStrategy(
         userPositionId,
         strategyPosition.expiry,

@@ -70,7 +70,6 @@ const ContractData = () => {
     if (ongoing) return 'In Progress';
     return 'In Progress';
   }, [atlanticPoolEpochData]);
-
   return (
     <Box className="grid grid-cols-2 md:grid-cols-3 grid-row-4 divide-x divide-y divide-umbra border border-umbra rounded-md">
       <Box className="p-3 space-y-3">
@@ -120,12 +119,8 @@ const ContractData = () => {
         description="Funding Rate"
         value={
           <Typography variant="h6" className="font-semibold">
-            {!atlanticPool?.vaultConfig.baseFundingRate.isZero()
-              ? `${getUserReadableAmount(
-                  atlanticPool?.vaultConfig.baseFundingRate.toNumber()! * 100,
-                  6
-                )}%`
-              : '...'}
+            {Number(atlanticPool?.vaultConfig.fundingFee) / 100000 ?? 0.05}% /
+            Day
           </Typography>
         }
         variant="row"

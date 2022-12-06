@@ -22,13 +22,9 @@ import { useBoundStore } from 'store';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 interface IVaultConfiguration {
-  collateralUtilizationWeight: BigNumber;
-  baseFundingRate: BigNumber;
   fundingInterval: BigNumber;
-  fundingRateIncrement: BigNumber;
   expireDelayTolerance: BigNumber;
   tickSize: BigNumber;
-  unwindFee: BigNumber;
 }
 
 interface IVaultState {
@@ -153,15 +149,10 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
     isVaultExpired: false,
   },
   config: {
-    collateralUtilizationWeight: BigNumber.from(0),
-    baseFundingRate: BigNumber.from(0),
-    fundingInterval: BigNumber.from(0),
-    fundingRateIncrement: BigNumber.from(0),
     tickSize: BigNumber.from(0),
-    unwindFee: BigNumber.from(0),
     expireDelayTolerance: BigNumber.from(0),
+    fundingInterval: BigNumber.from(0),
   },
-
   tokens: {
     deposit: 'USDC',
     underlying: 'WETH',
@@ -250,15 +241,17 @@ export const AtlanticsProvider = (props: any) => {
       let [
         { baseToken, quoteToken },
         state,
-        config,
         underlyingPrice,
         tickSize,
+        fundingInterval,
+        expireDelayTolerance,
       ] = await Promise.all([
         atlanticPool.addresses(),
         atlanticPool.epochVaultStates(epoch),
-        atlanticPool.vaultConfiguration(),
         atlanticPool.getUsdPrice(),
         atlanticPool.epochTickSize(epoch),
+        atlanticPool.fundingInterval(),
+        atlanticPool.expireDelayTolerance(),
       ]);
 
       let data: IEpochData;
@@ -350,9 +343,9 @@ export const AtlanticsProvider = (props: any) => {
         epochStrikeData,
         state: { ...state, epoch },
         config: {
-          ...config,
+          fundingInterval,
           tickSize,
-          unwindFee: BigNumber.from(0),
+          expireDelayTolerance,
         },
         contracts,
         tokens: {
@@ -562,7 +555,7 @@ export const AtlanticsProvider = (props: any) => {
           index: number
         ) => {
           const fundingEarned: BigNumber = liquidity
-            .mul(depositCheckpoints[index]?.fundingAccrued ?? 0)
+            .mul(depositCheckpoints[index]?.fundingFeesAccrued ?? 0)
             .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
           const underlyingEarned = liquidity
             .mul(depositCheckpoints[index]?.underlyingAccrued ?? 0)
