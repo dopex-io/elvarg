@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
+import WalletButton from 'components/common/WalletButton';
 import Title from 'components/atlantics/InsuredPerps/Title';
 import Tables from 'components/atlantics/InsuredPerps/Tables';
 import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
@@ -45,6 +46,7 @@ export const Main = (props: TickerProps) => {
 
   const {
     provider,
+    accountAddress,
     chainId,
     setSelectedPoolName,
     updateAtlanticPool,
@@ -158,39 +160,47 @@ export const Main = (props: TickerProps) => {
       </Head>
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
-        <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
-          <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
-            <Title
-              underlying={underlying}
-              deposit={depositToken}
-              stats={marketData}
-            />
-            <Box className="h-[60vh] w-full space-y-4 flex flex-col bg-umbra rounded-xl text-center">
-              <ChartComponent
-                data={gmxChartData}
-                triggerMarker={triggerMarker ?? '0'}
-                period={period}
-                setPeriod={setPeriod}
-                colors={{
-                  backgroundColor: '#1E1E1E',
-                  lineColor: '#2962FF',
-                  textColor: 'white',
-                  areaTopColor: 'rgba(109, 255, 185, 0.2)',
-                  areaBottomColor: 'rgba(41, 98, 255, 0.1)',
-                }}
+        {accountAddress ? (
+          <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
+            <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
+              <Title
+                underlying={underlying}
+                deposit={depositToken}
+                stats={marketData}
+              />
+              <Box className="h-[60vh] w-full space-y-4 flex flex-col bg-umbra rounded-xl text-center">
+                <ChartComponent
+                  data={gmxChartData}
+                  triggerMarker={triggerMarker ?? '0'}
+                  period={period}
+                  setPeriod={setPeriod}
+                  colors={{
+                    backgroundColor: '#1E1E1E',
+                    lineColor: '#2962FF',
+                    textColor: 'white',
+                    areaTopColor: 'rgba(109, 255, 185, 0.2)',
+                    areaBottomColor: 'rgba(41, 98, 255, 0.1)',
+                  }}
+                />
+              </Box>
+              <Box className="w-full space-y-4">
+                <Tables setTriggerMarker={setTriggerMarker} />
+              </Box>
+            </Box>
+            <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
+              <ManageCard
+                underlying={underlying ?? ''}
+                stable={depositToken ?? ''}
               />
             </Box>
-            <Box className="w-full space-y-4">
-              <Tables setTriggerMarker={setTriggerMarker} />
+          </Box>
+        ) : (
+          <Box className="flex flex-col justify-center h-screen">
+            <Box className="flex justify-center">
+              <WalletButton>Connect</WalletButton>
             </Box>
           </Box>
-          <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
-            <ManageCard
-              underlying={underlying ?? ''}
-              stable={depositToken ?? ''}
-            />
-          </Box>
-        </Box>
+        )}
       </Box>
     </Box>
   );

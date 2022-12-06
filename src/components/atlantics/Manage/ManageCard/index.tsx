@@ -234,17 +234,19 @@ const ManageCard = (props: ManageCardProps) => {
         <Typography variant="h5" className="my-auto">
           Deposit
         </Typography>
-        <Link
-          href={`/atlantics/manage/insured-perps/${atlanticPool?.tokens.underlying.concat(
-            '-',
-            atlanticPool?.tokens.depositToken
-          )}`}
-          target="_blank"
-          passHref
-          className="text-underline"
-        >
-          Trade
-        </Link>
+        {atlanticPool ? (
+          <Link
+            href={`/atlantics/manage/insured-perps/${atlanticPool?.tokens.underlying.concat(
+              '-',
+              atlanticPool?.tokens.depositToken
+            )}`}
+            target="_blank"
+            passHref
+            className="underline"
+          >
+            Trade
+          </Link>
+        ) : null}
       </Box>
       <Box className="bg-umbra rounded-xl w-full">
         <CustomInput
