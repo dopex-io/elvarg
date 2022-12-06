@@ -17,17 +17,20 @@ import {
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
+import { useDebounce } from 'use-debounce';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
-import { useDebounce } from 'use-debounce';
+import CircularProgress from '@mui/material/CircularProgress';
+// import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+// import ToggleButton from '@mui/material/ToggleButton';
 
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
 import Switch from 'components/UI/Switch';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
-import StrategyDetails from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails';
+import StrategyDetails from 'components/atlantics/InsuredPerps/ManagePosition/StrategyDetails';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -42,7 +45,6 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
-import { CircularProgress } from '@mui/material';
 
 const steps = 0.1;
 const minMarks = 1.1;
@@ -98,7 +100,7 @@ interface IncreaseOrderParams {
   isLong: boolean;
 }
 
-const UseStrategyDialog = () => {
+const ManagePosition = () => {
   const {
     signer,
     accountAddress,
@@ -106,8 +108,12 @@ const UseStrategyDialog = () => {
     contractAddresses,
     chainId,
     atlanticPool,
+    updateAtlanticPool,
+    setSelectedEpoch,
+    updateAtlanticPoolEpochData,
     atlanticPoolEpochData,
     userAssetBalances,
+    // selectedPoolName,
   } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [leverage, setLeverage] = useState<BigNumber>(INITIAL_LEVERAGE);
@@ -152,7 +158,12 @@ const UseStrategyDialog = () => {
     },
   });
   const [, setLoading] = useState<boolean>(true);
+  const [strategyDetailsFirstLoad, setstrategyDetailsFirstLoad] =
+    useState(false);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
+  // const [managePositionSelection, setManagePositionSelection] = useState<
+  //   string | null
+  // >('open');
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -162,7 +173,7 @@ const UseStrategyDialog = () => {
 
   const error = useMemo(() => {
     let errorMessage = '';
-    if (!atlanticPoolEpochData || !atlanticPool) return errorMessage;
+    if (!atlanticPoolEpochData) return errorMessage;
     const {
       putStrike,
       optionsAmount,
@@ -195,8 +206,7 @@ const UseStrategyDialog = () => {
       );
     }
 
-    const collateralTokenBalanace = userAssetBalances[selectedToken];
-    const indexTokenBalance = userAssetBalances[atlanticPool.tokens.underlying];
+    const userBalance = userAssetBalances[selectedToken];
 
     const totalCost = putOptionsPremium
       .add(putOptionsfees)
@@ -207,20 +217,10 @@ const UseStrategyDialog = () => {
           .add(swapFees)
       );
 
-    const unwindCost = strategyDetails.optionsAmount
-      .mul(5e7)
-      .div(getContractReadableAmount(1, 10));
-
     if (collateralRequired.gt(availableLiquidity)) {
       errorMessage = 'Insufficient liquidity for options';
-    }
-
-    if (totalCost.gt(collateralTokenBalanace ?? '0')) {
+    } else if (totalCost.gt(userBalance ?? '0')) {
       errorMessage = 'Insufficient balance to pay premium & fees';
-    }
-
-    if (unwindCost.gt(indexTokenBalance ?? '0') && depositUnderlying) {
-      errorMessage = 'Insuffucient underlying to deposit';
     }
 
     return errorMessage;
@@ -230,26 +230,7 @@ const UseStrategyDialog = () => {
     selectedToken,
     strategyDetails,
     userAssetBalances,
-    atlanticPool,
-    depositUnderlying,
   ]);
-
-  const longButtonDisabled = useMemo(() => {
-    if (increaseOrderParams.positionSizeDelta.isZero()) {
-      return true;
-    }
-    if (strategyDetailsLoading) {
-      return true;
-    }
-    if (error !== '') {
-      return true;
-    }
-    return false;
-  }, [strategyDetailsLoading, error, increaseOrderParams.positionSizeDelta]);
-
-  const allowToOpenPosition = useMemo(() => {
-    return approved.base && approved.quote;
-  }, [approved.quote, approved.base]);
 
   const selectedPoolTokens = useMemo((): {
     deposit: string;
@@ -521,9 +502,53 @@ const UseStrategyDialog = () => {
     atlanticPoolEpochData,
   ]);
 
-  const handleToggle = useCallback((event: any) => {
+  const handleToggle = (event: any) => {
     setDeposutUnderlying(event.target.checked);
-  }, []);
+  };
+
+  useEffect(() => {
+    updateAtlanticPool(
+      selectedPoolTokens.underlying,
+      atlanticPool?.durationType
+    ).then(() => {
+      setSelectedEpoch(atlanticPool?.currentEpoch);
+      updateAtlanticPoolEpochData();
+    });
+  }, [
+    updateAtlanticPool,
+    updateAtlanticPoolEpochData,
+    provider,
+    selectedPoolTokens.underlying,
+    atlanticPool?.durationType,
+    atlanticPool?.currentEpoch,
+    setSelectedEpoch,
+  ]);
+
+  // const handleManage = (
+  //   _: React.MouseEvent<HTMLElement>,
+  //   newManagePositionSelection: string | null
+  // ) => {
+  //   console.log(newManagePositionSelection);
+  //   setManagePositionSelection(newManagePositionSelection);
+  // };
+
+  const updatePrice = useCallback(async () => {
+    if (!contractAddresses['GMX-VAULT'] || !signer || !atlanticPool) return;
+
+    const gmxVault = GmxVault__factory.connect(
+      contractAddresses['GMX-VAULT'],
+      signer
+    );
+
+    const price = await gmxVault.getMaxPrice(
+      contractAddresses[atlanticPool.tokens.underlying]
+    );
+
+    setStrategyDetails((prev) => ({
+      ...prev,
+      markPrice: price,
+    }));
+  }, [signer, contractAddresses, atlanticPool]);
 
   const handleChangeLeverage = useCallback(
     (_: Event | SyntheticEvent<Element, Event>, value: number | number[]) => {
@@ -533,8 +558,9 @@ const UseStrategyDialog = () => {
           30
         )
       );
+      handleStrategyCalculations();
     },
-    []
+    [handleStrategyCalculations]
   );
 
   const handlePositionBalanceChange = (
@@ -542,6 +568,7 @@ const UseStrategyDialog = () => {
   ) => {
     const { value } = event.target;
     setPositionBalance(value);
+    handleStrategyCalculations();
   };
 
   const handleMax = useCallback(async () => {
@@ -599,7 +626,7 @@ const UseStrategyDialog = () => {
   // check approved
   useEffect(() => {
     (async () => {
-      if (!atlanticPool || !accountAddress || !provider) return;
+      if (!atlanticPool || !accountAddress) return;
       const quoteToken = ERC20__factory.connect(
         contractAddresses[atlanticPool.tokens.depositToken],
         provider
@@ -623,38 +650,22 @@ const UseStrategyDialog = () => {
 
       setApproved(() => ({
         quote: !quoteTokenAllowance.isZero(),
-        base: depositUnderlying ? !baseTokenAllowance.isZero() : true,
+        base: !baseTokenAllowance.isZero(),
       }));
     })();
-  }, [
-    depositUnderlying,
-    accountAddress,
-    atlanticPool,
-    contractAddresses,
-    provider,
-  ]);
-
-  const updatePrice = useCallback(async () => {
-    if (!contractAddresses['GMX-VAULT'] || !signer || !atlanticPool) return;
-
-    const gmxVault = GmxVault__factory.connect(
-      contractAddresses['GMX-VAULT'],
-      signer
-    );
-
-    const price = await gmxVault.getMaxPrice(
-      contractAddresses[atlanticPool.tokens.underlying]
-    );
-
-    setStrategyDetails((prev) => ({
-      ...prev,
-      markPrice: price,
-    }));
-  }, [signer, contractAddresses, atlanticPool]);
+  }, [accountAddress, atlanticPool, contractAddresses, provider]);
 
   useEffect(() => {
-    handleStrategyCalculations();
-  }, [handleStrategyCalculations]);
+    if (!strategyDetailsFirstLoad) {
+      handleStrategyCalculations();
+      setstrategyDetailsFirstLoad(true);
+    }
+
+    const interval = setInterval(() => {
+      handleStrategyCalculations();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [strategyDetailsFirstLoad, handleStrategyCalculations]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -723,7 +734,7 @@ const UseStrategyDialog = () => {
   ]);
 
   return (
-    <>
+    <Box className="">
       <Box className="bg-umbra rounded-xl space-y-2" ref={containerRef}>
         <CustomInput
           size="small"
@@ -799,7 +810,6 @@ const UseStrategyDialog = () => {
               className="w-full"
               aria-label="Small steps"
               defaultValue={1.1}
-              // onChange={handleChangeLeverage}
               onChangeCommitted={handleChangeLeverage}
               step={steps}
               min={minMarks}
@@ -843,24 +853,27 @@ const UseStrategyDialog = () => {
           )}
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}
-          strategyDetailsLoading={strategyDetailsLoading}
         />
         <Box className="flex flex-col w-full space-y-3 mt-2">
-          {!allowToOpenPosition ? (
+          {!approved.quote ? (
             <Box className="flex flex-row w-full justify-around space-x-2">
-              <CustomButton
-                onClick={handleApproveBaseToken}
-                disabled={
-                  positionBalance === '' ||
-                  parseInt(positionBalance) === 0 ||
-                  error !== ''
-                }
-                className={`${!depositUnderlying && 'hidden'}  w-full ${
-                  approved.base && 'hidden'
-                }`}
-              >
-                Approve {selectedPoolTokens.underlying}
-              </CustomButton>
+              {depositUnderlying && !approved.base ? (
+                <CustomButton
+                  onClick={handleApproveBaseToken}
+                  disabled={
+                    positionBalance === '' ||
+                    parseInt(positionBalance) === 0 ||
+                    error !== ''
+                  }
+                  className={`${
+                    !depositUnderlying &&
+                    increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
+                    'hidden'
+                  }  w-full ${approved.base && 'hidden'}`}
+                >
+                  Approve {selectedPoolTokens.underlying}
+                </CustomButton>
+              ) : null}
               <CustomButton
                 onClick={handleApproveQuoteToken}
                 disabled={
@@ -874,9 +887,12 @@ const UseStrategyDialog = () => {
               </CustomButton>
             </Box>
           ) : (
-            <CustomButton disabled={longButtonDisabled} onClick={useStrategy}>
+            <CustomButton
+              disabled={error !== '' || strategyDetailsLoading}
+              onClick={useStrategy}
+            >
               {strategyDetailsLoading ? (
-                <CircularProgress className="text-white p-2" />
+                <CircularProgress className="text-white p-3" />
               ) : (
                 'Long'
               )}
@@ -884,8 +900,8 @@ const UseStrategyDialog = () => {
           )}
         </Box>
       </Box>
-    </>
+    </Box>
   );
 };
 
-export default UseStrategyDialog;
+export default ManagePosition;
