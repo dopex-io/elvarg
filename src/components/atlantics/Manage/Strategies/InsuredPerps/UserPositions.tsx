@@ -46,13 +46,9 @@ export const ActionState: { [key: string]: string } = {
   '1': 'Settled', // 1
   '2': 'Active', // 2
   '3': 'Increase Pending', // 3
-  '4': 'Decrease Pending', // 4
-  '5': 'Increased', // 5
-  '6': 'Decreased', // 6
-  '7': 'Enable Pending', // 7
-  '8': 'Complete Exit Pending', // 8
-  '9': 'Complete Exit With IncreasePending', // 9
-  '10': 'Exit Strategy Keep Position Pending', // 10
+  '4': 'Increased', // 5
+  '5': 'Enable Pending', // 7
+  '6': 'Exit Pending', // 8
 };
 
 const UserPositions = () => {
