@@ -46,6 +46,7 @@ const ManagePosition = () => {
   const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
   const [positionBalance, setPositionBalance] = useState<string>('0');
   const [action, setAction] = useState<string | number>('Increase');
+  const [max, setMax] = useState<boolean>(false);
 
   const [selectedToken, setSelectedToken] = useState('USDC');
   const [outputToken, setOutputToken] = useState('USDC');
@@ -81,6 +82,7 @@ const ManagePosition = () => {
     );
     if (action === 'Decrease') {
       setPositionBalance(() => positionBalanceFiltered);
+      setMax(true);
     } else {
       if (!accountAddress || !selectedToken || !chainId) return;
       setPositionBalance(() =>
@@ -267,10 +269,28 @@ const ManagePosition = () => {
       signer
     );
 
-    let increaseOrderParams;
+    let path: any[];
 
-    let collateralDelta;
-    let path;
+    let [minPrice, maxPrice] = await Promise.all([
+      gmxVault.getMinPrice(strategyPosition.indexToken),
+      gmxVault.getMaxPrice(strategyPosition.indexToken),
+    ]);
+
+    const precision = 100000;
+    const slippage = 300;
+    minPrice = minPrice.mul(precision - slippage).div(precision);
+    maxPrice = maxPrice.mul(precision + slippage).div(precision);
+
+    console.log('minPrice 2', minPrice.toString());
+    const increaseOrderParams = {
+      path: [strategyPosition.indexToken],
+      indexToken: strategyPosition.indexToken,
+      collateralDelta: BigNumber.from(0),
+      positionSizeDelta: '0',
+      // @ts-ignore
+      acceptablePrice: action === 'Decrease' ? minPrice : maxPrice,
+      isLong: true,
+    };
 
     const selectedTokenAddress = contractAddresses[selectedToken];
     if (action === 'Increase') {
@@ -280,30 +300,12 @@ const ManagePosition = () => {
         path = [strategyPosition.indexToken];
       }
 
-      collateralDelta = getContractReadableAmount(
+      increaseOrderParams.path = path;
+
+      increaseOrderParams.collateralDelta = getContractReadableAmount(
         positionBalance,
         getTokenDecimals(selectedToken, chainId)
       );
-
-      let [minPrice, maxPrice] = await Promise.all([
-        gmxVault.getMinPrice(strategyPosition.indexToken),
-        gmxVault.getMaxPrice(strategyPosition.indexToken),
-      ]);
-
-      const precision = 100000;
-      const slippage = 300;
-      minPrice = minPrice.mul(precision - slippage).div(precision);
-      maxPrice = maxPrice.mul(precision + slippage).div(precision);
-
-      increaseOrderParams = {
-        path,
-        indexToken: strategyPosition.indexToken,
-        collateralDelta,
-        positionSizeDelta: 0,
-        // @ts-ignore
-        acceptablePrice: action === 'Decrease' ? minPrice : maxPrice,
-        isLong: true,
-      };
 
       const tx = positionManagerContract.increaseOrder(increaseOrderParams, {
         value: MIN_EXECUTION_FEE,
@@ -319,10 +321,6 @@ const ManagePosition = () => {
         path = [strategyPosition.indexToken, outputTokenAddress];
       }
 
-      const positionBalanceFiltered = String(
-        parseFloat(positionData.collateral.replace(/,/g, ''))
-      );
-
       let collateralDeltaUsd = await gmxVault.tokenToUsdMin(
         outputTokenAddress,
         getContractReadableAmount(
@@ -331,36 +329,10 @@ const ManagePosition = () => {
         )
       );
 
-      const leverage = await gmxVault.getPositionLeverage(
-        positionManager,
-        strategyPosition.indexToken,
-        strategyPosition.indexToken,
-        true
-      );
-
-      let size = leverage.mul(collateralDeltaUsd).div(10000);
-
-      if (collateralDeltaUsd.gte(positionData.size)) {
-        size = positionData.size;
+      if (max) {
+        increaseOrderParams.collateralDelta = BigNumber.from(0);
+        increaseOrderParams.positionSizeDelta = positionData.size.toString();
       }
-
-      if (positionBalance === positionBalanceFiltered) {
-        size = positionData.size;
-        collateralDeltaUsd = BigNumber.from(0);
-      }
-
-      if (size.isZero()) return;
-
-      // increaseOrderParams = {
-      //   path,
-      //   indexToken: strategyPosition.indexToken,
-      //   collateralDelta: collateralDeltaUsd,
-      //   positionSizeDelta: size,
-      //   acceptablePrice = increaseOrderParams?.acceptablePrice
-      //   isLong: true,
-      // };
-
-      if (!increaseOrderParams) return;
 
       const decreaseOrderParams = {
         orderParams: increaseOrderParams,
@@ -382,9 +354,9 @@ const ManagePosition = () => {
     outputToken,
     contractAddresses,
     positionData.size,
-    positionData.collateral,
     signer,
     selectedToken,
+    max,
     sendTx,
   ]);
 

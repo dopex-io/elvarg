@@ -273,6 +273,7 @@ const ManageStrategyPositionDialog = () => {
         strategyPosition.keepCollateral
       );
     }
+
     if (tx) {
       await sendTx(tx);
     }
