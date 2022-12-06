@@ -504,7 +504,7 @@ const UseStrategyDialog = () => {
       await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
       setApproved((prevState) => ({ ...prevState, quote: true }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [signer, atlanticPool, contractAddresses, sendTx]);
 
@@ -522,7 +522,7 @@ const UseStrategyDialog = () => {
       await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
       setApproved((prevState) => ({ ...prevState, base: true }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [signer, atlanticPool, contractAddresses, sendTx]);
 
@@ -637,7 +637,7 @@ const UseStrategyDialog = () => {
       );
       await sendTx(tx);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [
     atlanticPoolEpochData,

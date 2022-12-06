@@ -5,7 +5,6 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
-import Typography from 'components/UI/Typography';
 import Title from 'components/atlantics/InsuredPerps/Title';
 import Tables from 'components/atlantics/InsuredPerps/Tables';
 import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
@@ -15,6 +14,9 @@ import { useBoundStore } from 'store';
 import { GMX_STATS_API } from 'constants/env';
 
 import { GmxCandleStick } from 'types';
+
+export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
+export type Period = typeof periods[number];
 
 const ChartComponent = dynamic(
   () => import('components/atlantics/InsuredPerps/ChartComponent'),
@@ -38,6 +40,7 @@ export const Main = (props: TickerProps) => {
     change_24h: 0,
   });
   const [gmxChartData, setGmxChartData] = useState<GmxCandleStick[]>([]);
+  const [period, setPeriod] = useState<Period>('1D');
   const [triggerMarker, setTriggerMarker] = useState<string>();
 
   const {
@@ -114,9 +117,9 @@ export const Main = (props: TickerProps) => {
           if (done) return;
           try {
             const res = await fetch(
-              `${GMX_STATS_API}/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${'1D'}&from=${Math.ceil(
-                Number(new Date()) / 1000
-              )}&preferableSource=fast`
+              `${GMX_STATS_API}/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${period}&from=${
+                Math.ceil(Number(new Date()) / 1000) - 86400 * 100
+              }&preferableSource=fast`
             );
             resolve(res);
             return;
@@ -146,7 +149,7 @@ export const Main = (props: TickerProps) => {
 
       setGmxChartData(prices);
     })();
-  }, [chainId, underlying]);
+  }, [chainId, period, underlying]);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -166,14 +169,15 @@ export const Main = (props: TickerProps) => {
               <ChartComponent
                 data={gmxChartData}
                 triggerMarker={triggerMarker ?? '0'}
+                period={period}
+                setPeriod={setPeriod}
                 colors={{
                   backgroundColor: '#1E1E1E',
                   lineColor: '#2962FF',
                   textColor: 'white',
-                  areaTopColor: '#2962FF',
-                  areaBottomColor: 'rgba(41, 98, 255, 0.28)',
+                  areaTopColor: 'rgba(109, 255, 185, 0.2)',
+                  areaBottomColor: 'rgba(41, 98, 255, 0.1)',
                 }}
-                containerSize={{ height: 600, width: 200 }}
               />
             </Box>
             <Box className="w-full space-y-4">
@@ -181,12 +185,10 @@ export const Main = (props: TickerProps) => {
             </Box>
           </Box>
           <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
-            <Typography variant="h6">
-              <ManageCard
-                underlying={underlying ?? ''}
-                stable={depositToken ?? ''}
-              />
-            </Typography>
+            <ManageCard
+              underlying={underlying ?? ''}
+              stable={depositToken ?? ''}
+            />
           </Box>
         </Box>
       </Box>

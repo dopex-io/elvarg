@@ -102,6 +102,7 @@ const ManagePosition = () => {
     chainId,
     atlanticPool,
     updateAtlanticPool,
+    setSelectedEpoch,
     updateAtlanticPoolEpochData,
     atlanticPoolEpochData,
     userAssetBalances,
@@ -361,7 +362,7 @@ const ManagePosition = () => {
         putsContract.calculatePurchaseFees(putStrike, optionsAmount),
       ]);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
 
     let swapFees = BigNumber.from(0);
@@ -419,13 +420,18 @@ const ManagePosition = () => {
     updateAtlanticPool(
       selectedPoolTokens.underlying,
       atlanticPool?.durationType
-    ).then(() => updateAtlanticPoolEpochData());
+    ).then(() => {
+      setSelectedEpoch(atlanticPool?.currentEpoch);
+      updateAtlanticPoolEpochData();
+    });
   }, [
     updateAtlanticPool,
     updateAtlanticPoolEpochData,
     provider,
     selectedPoolTokens.underlying,
     atlanticPool?.durationType,
+    atlanticPool?.currentEpoch,
+    setSelectedEpoch,
   ]);
 
   // const handleManage = (
@@ -487,7 +493,7 @@ const ManagePosition = () => {
       await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
       setApproved((prevState) => ({ ...prevState, quote: true }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [signer, atlanticPool, contractAddresses, sendTx]);
 
@@ -505,7 +511,7 @@ const ManagePosition = () => {
       await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
       setApproved((prevState) => ({ ...prevState, base: true }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [signer, atlanticPool, contractAddresses, sendTx]);
 
@@ -549,7 +555,7 @@ const ManagePosition = () => {
 
     const interval = setInterval(() => {
       handleStrategyCalculations();
-    }, 10000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [strategyDetailsFirstLoad, handleStrategyCalculations]);
 
@@ -597,7 +603,7 @@ const ManagePosition = () => {
       );
       await sendTx(tx);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [
     atlanticPoolEpochData,
