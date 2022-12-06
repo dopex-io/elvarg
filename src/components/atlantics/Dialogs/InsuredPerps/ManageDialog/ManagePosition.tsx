@@ -320,8 +320,7 @@ const ManagePosition = () => {
       if (outputTokenAddress != strategyPosition.indexToken) {
         path = [strategyPosition.indexToken, outputTokenAddress];
       }
-
-      let collateralDeltaUsd = await gmxVault.tokenToUsdMin(
+      increaseOrderParams.collateralDelta = await gmxVault.tokenToUsdMin(
         outputTokenAddress,
         getContractReadableAmount(
           positionBalance,
