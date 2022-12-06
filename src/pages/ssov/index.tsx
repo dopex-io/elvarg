@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import Head from 'next/head';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
