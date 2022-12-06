@@ -39,7 +39,7 @@ const ChartComponent = (props: Props) => {
         textColor,
       },
       width: chartContainerRef.current?.clientWidth,
-      height: 400,
+      height: containerSize.height,
       grid: {
         vertLines: {
           color: '#2D2D2D',
