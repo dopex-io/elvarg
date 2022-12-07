@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import cx from 'classnames';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -7,14 +8,12 @@ import Input from '@mui/material/Input';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 
-import cx from 'classnames';
-
-import { useBoundStore } from 'store';
-
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
-
+import WalletButton from 'components/common/WalletButton';
 import Filter from 'components/common/Filter';
+
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -77,7 +76,7 @@ const headerCells: { [key: string]: { span: number; title: string }[] } = {
 };
 
 export default function Deposits() {
-  const { portfolioData } = useBoundStore();
+  const { accountAddress, portfolioData } = useBoundStore();
 
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
@@ -103,6 +102,12 @@ export default function Deposits() {
     );
     return _deposits;
   }, [portfolioData, searchText, selectedSides]);
+
+  const loadingState = useMemo(() => {
+    if (!accountAddress) return 2;
+    else if (accountAddress && portfolioData?.isLoading) return 1;
+    else return 0;
+  }, [accountAddress, portfolioData?.isLoading]);
 
   const filteredStraddlesDeposits = useMemo(() => {
     const _deposits: any[] = [];
@@ -155,10 +160,14 @@ export default function Deposits() {
               />
             </Box>
           </Box>
-          {portfolioData?.isLoading ? (
-            <Box className="flex">
-              <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
-            </Box>
+          {loadingState > 0 ? (
+            loadingState === 1 ? (
+              <Box className="flex">
+                <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
+              </Box>
+            ) : (
+              <WalletButton className="my-4">Connect Wallet</WalletButton>
+            )
           ) : filteredSSOVDeposits.length === 0 &&
             filteredStraddlesDeposits.length === 0 ? (
             <Box className="flex-col p-9 md:min-w-full min-w-[1500px]">
