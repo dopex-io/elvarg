@@ -105,7 +105,7 @@ export default function Deposits() {
 
   const loadingState = useMemo(() => {
     if (!accountAddress) return 2;
-    else if (accountAddress && portfolioData?.isLoading) return 1;
+    else if (portfolioData?.isLoading) return 1;
     else return 0;
   }, [accountAddress, portfolioData?.isLoading]);
 

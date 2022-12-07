@@ -23,7 +23,7 @@ export default function Balances() {
 
   const loadingState = useMemo(() => {
     if (!accountAddress) return 2;
-    else if (accountAddress && isLoadingBalances) return 1;
+    else if (isLoadingBalances) return 1;
     else return 0;
   }, [accountAddress, isLoadingBalances]);
 
