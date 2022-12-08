@@ -45,23 +45,30 @@ export const Main = (props: TickerProps) => {
   const [triggerMarker, setTriggerMarker] = useState<string>();
 
   const {
+    signer,
     provider,
     accountAddress,
     chainId,
+    selectedPoolName,
+    atlanticPool,
     setSelectedPoolName,
     updateAtlanticPool,
     updateAtlanticPoolEpochData,
   } = useBoundStore();
 
   useEffect(() => {
-    setSelectedPoolName(`${underlying}-PUTS-WEEKLY`);
+    if (!underlying || !signer) return;
+    updateAtlanticPool(underlying, 'WEEKLY');
+  }, [underlying, updateAtlanticPool, signer]);
+
+  useEffect(() => {
+    setSelectedPoolName(`${underlying}-${'PUTS'}-${'WEEKLY'}`);
   }, [setSelectedPoolName, underlying]);
 
   useEffect(() => {
-    updateAtlanticPool('WETH', 'WEEKLY').then(() => {
-      updateAtlanticPoolEpochData();
-    });
-  }, [updateAtlanticPool, updateAtlanticPoolEpochData, provider]);
+    if (!selectedPoolName || !atlanticPool || !provider) return;
+    updateAtlanticPoolEpochData();
+  }, [updateAtlanticPoolEpochData, selectedPoolName, atlanticPool, provider]);
 
   useEffect(() => {
     (async function () {

@@ -114,10 +114,11 @@ const UserPositions = () => {
       signer
     );
 
-    const signerAddress = await signer.getAddress();
+    if (!gmxVault || !strategyContract || !strategyUtils) return;
+
     const [positionId, positionManager] = await Promise.all([
-      strategyContract.userPositionIds(signerAddress),
-      strategyContract.userPositionManagers(signerAddress),
+      strategyContract.userPositionIds(accountAddress),
+      strategyContract.userPositionManagers(accountAddress),
     ]);
     const strategyPosition = await strategyContract.strategyPositions(
       positionId

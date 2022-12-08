@@ -653,13 +653,14 @@ const UseStrategyDialog = () => {
   }, [signer, contractAddresses, atlanticPool]);
 
   useEffect(() => {
+    if (!atlanticPoolEpochData) return;
     handleStrategyCalculations();
-  }, [handleStrategyCalculations]);
+  }, [handleStrategyCalculations, atlanticPoolEpochData]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       updatePrice();
-    }, 5000);
+    }, 0);
     return () => clearInterval(interval);
   }, [updatePrice]);
 

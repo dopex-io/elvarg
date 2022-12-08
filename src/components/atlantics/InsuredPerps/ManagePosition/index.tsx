@@ -22,8 +22,6 @@ import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownR
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import CircularProgress from '@mui/material/CircularProgress';
-// import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-// import ToggleButton from '@mui/material/ToggleButton';
 
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
@@ -108,12 +106,8 @@ const ManagePosition = () => {
     contractAddresses,
     chainId,
     atlanticPool,
-    updateAtlanticPool,
-    setSelectedEpoch,
-    updateAtlanticPoolEpochData,
     atlanticPoolEpochData,
     userAssetBalances,
-    // selectedPoolName,
   } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [leverage, setLeverage] = useState<BigNumber>(INITIAL_LEVERAGE);
@@ -158,8 +152,6 @@ const ManagePosition = () => {
     },
   });
   const [, setLoading] = useState<boolean>(true);
-  const [strategyDetailsFirstLoad, setstrategyDetailsFirstLoad] =
-    useState(false);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
   // const [managePositionSelection, setManagePositionSelection] = useState<
   //   string | null
@@ -372,11 +364,7 @@ const ManagePosition = () => {
       }
     }
 
-    if (
-      !inputAmount.isZero() ||
-      !utilsContract['getLiquidationPrice(address,address,uint256,uint256)'] ||
-      !utilsContract['getEligiblePutStrike(address,uint256,uint256)']
-    ) {
+    if (!inputAmount.isZero()) {
       try {
         liquidationPrice = await utilsContract[
           'getLiquidationPrice(address,address,uint256,uint256)'
@@ -465,19 +453,6 @@ const ManagePosition = () => {
       },
     }));
 
-    console.log(
-      'WITH DISCOUNT',
-      fundingFees.toString(),
-      putOptionsfees.toString(),
-      strategyFee.toString()
-    );
-    console.log(
-      'WIUTHOUT DISCOUNT',
-      fundingFeesWithoutDiscount.toString(),
-      purchaseFeesWithoutDiscount.toString(),
-      strategyFeeWithoutDiscount.toString()
-    );
-
     setIncreaseOrderParams(() => ({
       path,
       indexToken: underlyingTokenAddress,
@@ -505,32 +480,6 @@ const ManagePosition = () => {
   const handleToggle = (event: any) => {
     setDeposutUnderlying(event.target.checked);
   };
-
-  useEffect(() => {
-    updateAtlanticPool(
-      selectedPoolTokens.underlying,
-      atlanticPool?.durationType
-    ).then(() => {
-      setSelectedEpoch(atlanticPool?.currentEpoch);
-      updateAtlanticPoolEpochData();
-    });
-  }, [
-    updateAtlanticPool,
-    updateAtlanticPoolEpochData,
-    provider,
-    selectedPoolTokens.underlying,
-    atlanticPool?.durationType,
-    atlanticPool?.currentEpoch,
-    setSelectedEpoch,
-  ]);
-
-  // const handleManage = (
-  //   _: React.MouseEvent<HTMLElement>,
-  //   newManagePositionSelection: string | null
-  // ) => {
-  //   console.log(newManagePositionSelection);
-  //   setManagePositionSelection(newManagePositionSelection);
-  // };
 
   const updatePrice = useCallback(async () => {
     if (!contractAddresses['GMX-VAULT'] || !signer || !atlanticPool) return;
@@ -656,16 +605,8 @@ const ManagePosition = () => {
   }, [accountAddress, atlanticPool, contractAddresses, provider]);
 
   useEffect(() => {
-    if (!strategyDetailsFirstLoad) {
-      handleStrategyCalculations();
-      setstrategyDetailsFirstLoad(true);
-    }
-
-    const interval = setInterval(() => {
-      handleStrategyCalculations();
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [strategyDetailsFirstLoad, handleStrategyCalculations]);
+    handleStrategyCalculations();
+  }, [handleStrategyCalculations]);
 
   useEffect(() => {
     const interval = setInterval(() => {
