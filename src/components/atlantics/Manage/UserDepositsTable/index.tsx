@@ -169,12 +169,14 @@ const UserDepositsTable = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableHeader>Max Strike</TableHeader>
+            <TableHeader width="w-1/6">Max Strike</TableHeader>
             <TableHeader>Deposit</TableHeader>
             <TableHeader>Liquidity</TableHeader>
             <TableHeader width="w-1/6">Premia Earned</TableHeader>
             <TableHeader width="w-1/6">Funding Earned</TableHeader>
-            <TableHeader width="w-1/6">Underlying Collected</TableHeader>
+            <TableHeader width="w-1/6">
+              {atlanticPool?.tokens.underlying} Collected
+            </TableHeader>
             <TableHeader>APY</TableHeader>
             <TableHeader align="right" width="w-1/6">
               Settle

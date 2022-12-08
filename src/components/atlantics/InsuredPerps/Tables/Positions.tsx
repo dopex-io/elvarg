@@ -6,10 +6,8 @@ const Positions = ({
   active: string;
   setTriggerMarker: Function;
 }) => {
-  return active === 'Positions' || active === 'Orders' ? (
-    <>
-      <UserPositions />
-    </>
+  return active === 'Insured Positions' || active === 'Orders' ? (
+    <UserPositions />
   ) : null;
 };
 

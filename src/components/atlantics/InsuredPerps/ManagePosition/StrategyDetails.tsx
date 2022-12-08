@@ -6,7 +6,7 @@ import SouthEastRoundedIcon from '@mui/icons-material/SouthEastRounded';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
-import { IStrategyDetails } from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy';
+import { IStrategyDetails } from 'components/atlantics/InsuredPerps/ManagePosition';
 import ContentRow from 'components/atlantics/InsuredPerps/ManagePosition/ContentRow';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
@@ -38,6 +38,8 @@ const StrategyDetails = (props: {
       positionFee,
       swapFees,
       strategyFee,
+      fundingFees,
+      feesWithoutDiscount,
     },
     selectedToken,
     positionCollateral,
@@ -46,6 +48,7 @@ const StrategyDetails = (props: {
   } = props;
 
   const { tokenPrices, tokens, chainId, atlanticPool } = useBoundStore();
+
   const total = useMemo((): {
     totalQuoteAsset: {
       amount: BigNumber;
@@ -84,7 +87,7 @@ const StrategyDetails = (props: {
     }
 
     totalQuoteAsset.amount = totalQuoteAsset.amount.add(
-      putOptionsPremium.add(putOptionsfees)
+      putOptionsPremium.add(putOptionsfees).add(fundingFees)
     );
     totalQuoteAsset.usdValue = getUserReadableAmount(totalQuoteAsset.amount, 6);
     if (selectedToken === underlying) {
@@ -130,6 +133,7 @@ const StrategyDetails = (props: {
     selectedToken,
     baseToken,
     quoteToken,
+    fundingFees,
   ]);
 
   return (
@@ -223,7 +227,22 @@ const StrategyDetails = (props: {
           <ContentRow
             title="Options Fee"
             content={
-              '$' + formatAmount(getUserReadableAmount(putOptionsfees, 6), 3)
+              putOptionsfees.lt(feesWithoutDiscount.purchaseFees)
+                ? `$${getUserReadableAmount(
+                    feesWithoutDiscount.purchaseFees,
+                    6
+                  )} → $${getUserReadableAmount(putOptionsfees, 6)}`
+                : '$' + getUserReadableAmount(putOptionsfees, 6)
+            }
+          />
+          <ContentRow
+            title="Borrow Fees"
+            content={
+              fundingFees.lt(feesWithoutDiscount.fundingFees)
+                ? `$${formatAmount(
+                    getUserReadableAmount(feesWithoutDiscount.fundingFees, 6)
+                  )} → $${formatAmount(getUserReadableAmount(fundingFees, 6))}`
+                : '$' + getUserReadableAmount(fundingFees, 6)
             }
           />
           <ContentRow
@@ -238,14 +257,12 @@ const StrategyDetails = (props: {
           <ContentRow
             title="Strategy Fee"
             content={
-              '$' +
-              formatAmount(
-                getUserReadableAmount(
-                  strategyFee,
-                  getTokenDecimals(selectedToken, chainId)
-                ),
-                3
-              )
+              strategyFee.lt(feesWithoutDiscount.strategyFee)
+                ? `$${getUserReadableAmount(
+                    feesWithoutDiscount.strategyFee,
+                    6
+                  )} → $${getUserReadableAmount(strategyFee, 6)}`
+                : '$' + getUserReadableAmount(strategyFee, 6)
             }
           />
           <ContentRow

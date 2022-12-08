@@ -9,7 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/Button';
-import ContentRow from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy/StrategyDetails/ContentRow';
+import ContentRow from 'components/atlantics/InsuredPerps/ManagePosition/ContentRow';
 import { ActionState } from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 
 import { useBoundStore } from 'store';

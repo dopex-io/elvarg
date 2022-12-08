@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import Link from 'next/link';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
@@ -33,55 +34,55 @@ const Title = (props: TitleProps) => {
   }, [deposit, underlying]);
 
   return (
-    <Box className="flex justify-between rounded-2xl bg-umbra px-4 py-3">
-      <Typography variant="h5" className="my-auto content-center text-center">
-        {ticker}
-        <Typography variant="h5" color="stieglitz">
-          ${formatAmount(stats?.['latest'], 2)}
+    <>
+      <Link
+        passHref
+        href={'/atlantics/manage/WETH-PUTS-WEEKLY'}
+        className="p-3"
+      >
+        <Typography variant="h6" className="hover:underline self-center">
+          &larr; Return to Pools
         </Typography>
-      </Typography>
-      <img
-        src="/assets/threedots-black.svg"
-        className={'py-3'}
-        alt={'Divisor'}
-      />
-      <Box className="flex flex-col text-center my-auto">
-        <Typography variant="h6">{'24H High'}</Typography>
-        <Typography variant="h6" color="up-only">
-          ${formatAmount(stats?.['high_24h'], 2)}
-        </Typography>
-      </Box>
-      <img
-        src="/assets/threedots-black.svg"
-        className={'py-3'}
-        alt={'Divisor'}
-      />
-      <Box className="flex flex-col text-center my-auto">
-        <Typography variant="h6">{'24H Low'}</Typography>
-        <Typography variant="h6" color="down-bad">
-          ${formatAmount(stats?.['low_24h'], 2)}
-        </Typography>
-      </Box>
-      <img
-        src="/assets/threedots-black.svg"
-        className={'py-3'}
-        alt={'Divisor'}
-      />
-      <Box className="flex flex-col text-center my-auto">
-        <Typography variant="h6">{'24H Change'}</Typography>
+      </Link>
+      <Box className="flex justify-between rounded-2xl border border-umbra divide-x divide-umbra">
         <Typography
-          variant="h6"
-          color={(stats?.['change_24h'] ?? 0) >= 0 ? `up-only` : 'down-bad'}
+          variant="h5"
+          className="my-auto content-center text-center p-3 w-1/4"
         >
-          {(stats?.['change_24h'] ?? 0) >= 0 ? (
-            <KeyboardArrowUpRoundedIcon className="fill-current text-up-only my-auto" />
-          ) : (
-            <KeyboardArrowDownRoundedIcon className="fill-current text-down-bad my-auto" />
-          )}
-          {formatAmount(stats?.['change_24h'], 2)}%
+          {ticker}
+          <Typography variant="h5" color="stieglitz">
+            ${formatAmount(stats?.['latest'], 2)}
+          </Typography>
         </Typography>
+
+        <Box className="flex flex-col text-center my-auto p-3 w-1/4">
+          <Typography variant="h6">24H High</Typography>
+          <Typography variant="h6" color="up-only">
+            ${formatAmount(stats?.['high_24h'], 2)}
+          </Typography>
+        </Box>
+        <Box className="flex flex-col text-center my-auto p-3 w-1/4">
+          <Typography variant="h6">24H Low</Typography>
+          <Typography variant="h6" color="down-bad">
+            ${formatAmount(stats?.['low_24h'], 2)}
+          </Typography>
+        </Box>
+        <Box className="flex flex-col text-center my-auto p-3 w-1/4">
+          <Typography variant="h6">24H Change</Typography>
+          <Typography
+            variant="h6"
+            color={(stats?.['change_24h'] ?? 0) >= 0 ? `up-only` : 'down-bad'}
+          >
+            {(stats?.['change_24h'] ?? 0) >= 0 ? (
+              <KeyboardArrowUpRoundedIcon className="fill-current text-up-only my-auto" />
+            ) : (
+              <KeyboardArrowDownRoundedIcon className="fill-current text-down-bad my-auto" />
+            )}
+            {formatAmount(stats?.['change_24h'], 2)}%
+          </Typography>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 

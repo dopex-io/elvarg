@@ -34,8 +34,10 @@ const ManageCard = (props: ManageCardProps) => {
         {buttonLabels.map((label, index) => (
           <Button
             key={index}
-            className={`border-0 hover:border-0 w-1/2 transition ease-in-out duration-1000 bg-transparent ${
-              active === label ? 'text-white border' : 'text-stieglitz'
+            className={`border-0 hover:border-0 w-1/2 transition ease-in-out duration-500 ${
+              active === label
+                ? 'text-white bg-carbon hover:bg-carbon'
+                : 'text-stieglitz bg-transparent hover:bg-transparent'
             } hover:text-white`}
             disableRipple
             onClick={handleClick}

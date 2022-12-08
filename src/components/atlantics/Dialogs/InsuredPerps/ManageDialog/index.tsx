@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 
 import Dialog from 'components/UI/Dialog';
-import UseStrategy from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy';
+// import UseStrategy from 'components/atlantics/Dialogs/InsuredPerps/UseStrategy';
 import ManagePosition from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog/ManagePosition';
 import ManageStrategyPosition from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog/ManageStrategyPosition';
 import Typography from 'components/UI/Typography';
@@ -18,7 +18,7 @@ const SECTIONS: { [key: string]: { [key: string]: string | JSX.Element } } = {
     component: <ManageStrategyPosition />,
   },
   MANAGE_POSITION: { title: 'Manage Position', component: <ManagePosition /> },
-  USE_STRATEGY: { title: 'Open Position', component: <UseStrategy /> },
+  // USE_STRATEGY: { title: 'Open Position', component: <UseStrategy /> },
 };
 
 const ManageModal = (props: IManageModalProps) => {

@@ -4,26 +4,26 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 
 import Positions from 'components/atlantics/InsuredPerps/Tables/Positions';
-import Orders from 'components/atlantics/InsuredPerps/Tables/Orders';
+// import Orders from 'components/atlantics/InsuredPerps/Tables/Orders';
 
 const Tables = ({ setTriggerMarker }: { setTriggerMarker: Function }) => {
-  const [active, setActive] = useState<string>('Positions');
+  const [active, setActive] = useState<string>('Insured Positions');
 
   const handleClick = useCallback((e: any) => {
     setActive(e.target.textContent);
   }, []);
 
   const renderComponent = useMemo(() => {
-    if (active === 'Positions')
-      return <Positions active={active} setTriggerMarker={setTriggerMarker} />;
-    else return <Orders active={active} />;
+    // if (active === 'Positions')
+    return <Positions active={active} setTriggerMarker={setTriggerMarker} />;
+    // else return <Orders active={active} />;
     // else return <Trades />;
   }, [active, setTriggerMarker]);
 
   return (
     <Box>
       <ButtonGroup size="small">
-        {['Positions', 'Orders', 'Trades'].map((item, index) => (
+        {['Insured Positions'].map((item, index) => (
           <Button
             key={index}
             className={`border-0 hover:border-0 transition ease-in-out duration-1000 bg-transparent ${
@@ -31,7 +31,6 @@ const Tables = ({ setTriggerMarker }: { setTriggerMarker: Function }) => {
             } hover:text-white`}
             disableRipple
             onClick={handleClick}
-            disabled={item === 'Trades'}
           >
             {item}
           </Button>

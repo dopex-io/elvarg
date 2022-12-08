@@ -9,8 +9,8 @@ import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
 import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
-import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
-import InfoTooltip from 'components/UI/InfoTooltip';
+// import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
+// import InfoTooltip from 'components/UI/InfoTooltip';
 
 import { useBoundStore } from 'store';
 
@@ -137,19 +137,9 @@ export const Manage = (props: ManageProps) => {
             </Box>
             <Box className="w-full space-y-4">
               <Box className="flex space-x-2">
-                <Typography variant="h5">Strategy Positions</Typography>
-                <InfoTooltip
-                  title="Your GMX Insured Perpetual Positions"
-                  color="stieglitz"
-                />
-              </Box>
-              <UserPositions />
-              <Box className="flex space-x-2">
-                <Typography variant="h5">Deposits</Typography>
-                <InfoTooltip
-                  title="Your Atlantic Pool Deposits"
-                  color="stieglitz"
-                />
+                <Typography variant="h5" className="my-auto">
+                  Deposits
+                </Typography>
               </Box>
               <UserDepositsTable />
             </Box>

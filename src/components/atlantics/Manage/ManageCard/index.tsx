@@ -240,7 +240,6 @@ const ManageCard = (props: ManageCardProps) => {
               '-',
               atlanticPool?.tokens.depositToken
             )}`}
-            target="_blank"
             passHref
             className="underline"
           >
