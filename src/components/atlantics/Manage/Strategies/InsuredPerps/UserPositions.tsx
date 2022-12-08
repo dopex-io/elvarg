@@ -4,6 +4,7 @@ import {
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -12,6 +13,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -19,14 +21,13 @@ import {
   TableHeader,
   TableBodyCell,
 } from 'components/atlantics/Manage/UserDepositsTable';
-
 import ManageModal from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog';
+import WalletButton from 'components/common/WalletButton';
+
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { useBoundStore } from 'store';
-import { CircularProgress } from '@mui/material';
-import { BigNumber } from 'ethers';
 
 interface IUserPositionData {
   underlying: string;
@@ -282,7 +283,11 @@ const UserPositions = () => {
       </Menu>
       {userPositionData.state === 'Loading' ? (
         <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
-          <CircularProgress className="p-2 text-white" />
+          {accountAddress ? (
+            <CircularProgress />
+          ) : (
+            <WalletButton>Connect</WalletButton>
+          )}
         </Box>
       ) : (
         <>
@@ -295,7 +300,7 @@ const UserPositions = () => {
               </CustomButton>
             </Box>
           ) : (
-            <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto pb-4">
+            <TableContainer className="rounded-xl bg-cod-gray max-h-80 w-full overflow-x-auto">
               <Table>
                 <TableHead>
                   <TableRow>

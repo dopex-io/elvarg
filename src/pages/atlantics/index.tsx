@@ -1,28 +1,69 @@
-// import { useContext, useMemo, useState } from 'react';
+// import { useEffect, useMemo, useState } from 'react';
 // import Head from 'next/head';
 // import Box from '@mui/material/Box';
-// import { CircularProgress } from '@mui/material';
+// import axios from 'axios';
+// import CircularProgress from '@mui/material/CircularProgress';
 
 // import AppBar from 'components/common/AppBar';
 // import Accordion from 'components/atlantics/Accordion';
 // import Description from 'components/atlantics/Description';
 // import Stats from 'components/atlantics/Stats';
 // import Filter from 'components/atlantics/Filter';
+
 import { Manage } from './manage/[atlantics]';
 
-import { /*AtlanticsContext,*/ AtlanticsProvider } from 'contexts/Atlantics';
+import { AtlanticsProvider } from 'contexts/Atlantics';
 
-// const ATLANTIC_POOLS: string[] = ['WETH'];
+export const ATLANTIC_POOLS: string[] | string = ['WETH'];
+
+export interface Pool {
+  strategy: string;
+  base: string;
+  underlying: string;
+  symbol: string;
+  chainId: number;
+  vaultAddress: string;
+  duration: string;
+  currentEpoch: string | number;
+  strikes: string[];
+  epochData: Record<symbol, string>;
+  tvl: string;
+  volume: string;
+  apy: number;
+}
+
+export interface Pools {
+  [key: string | symbol]: Pool[];
+}
 
 // const Atlantics = () => {
-//   const { pools } = useContext(AtlanticsContext);
+//   const [pools, setPools] = useState<Pools | undefined>();
 //   const [selectedAtlanticsAssets, setSelectedAtlanticsAssets] = useState<
 //     string | string[]
 //   >(ATLANTIC_POOLS);
 
-//   const filteredPools = useMemo(() => {
-//     return pools.filter((pool) => selectedAtlanticsAssets.includes(pool.asset));
+//   const filteredData = useMemo(() => {
+//     if (!pools) return {};
+//     const filteredKeys = Object.keys(pools).filter((poolName) =>
+//       selectedAtlanticsAssets.includes(poolName)
+//     );
+
+//     return filteredKeys.reduce((_pools: Pools, key) => {
+//       if (!pools[key] || !pools) return {};
+//       _pools[key] = pools[key]!;
+//       return _pools;
+//     }, {});
 //   }, [pools, selectedAtlanticsAssets]);
+
+//   useEffect(() => {
+//     (async () => {
+//       const data = await axios
+//         .get('http://localhost:5001/api/v2/atlantics')
+//         .then((res) => res.data)
+//         .catch(() => null);
+//       setPools(data);
+//     })();
+//   }, [setPools]);
 
 //   return (
 //     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -37,33 +78,37 @@ import { /*AtlanticsContext,*/ AtlanticsProvider } from 'contexts/Atlantics';
 //               <Description />
 //               <Stats />
 //             </Box>
-//             <Box className="flex w-full justify-between">
-//               <Filter
-//                 activeFilters={selectedAtlanticsAssets}
-//                 setActiveFilters={setSelectedAtlanticsAssets}
-//                 text={'Filter by Asset'}
-//                 multiple={true}
-//                 options={pools}
-//               />
-//             </Box>
+//             {pools && (
+//               <Box className="flex w-full justify-between">
+//                 <Filter
+//                   activeFilters={selectedAtlanticsAssets}
+//                   setActiveFilters={setSelectedAtlanticsAssets}
+//                   text={'Filter by Asset'}
+//                   multiple={true}
+//                   options={pools}
+//                 />
+//               </Box>
+//             )}
 //           </Box>
-//           {pools && pools.length !== 0 ? (
-//             filteredPools.map((pool, index) => {
-//               return (
-//                 <Box
-//                   key={index}
-//                   className="sm:flex sm:flex-col lg:grid lg:grid-cols-4 pt-6"
-//                 >
-//                   <Box className="flex flex-col col-span-1 space-y-4 ">
-//                     <Accordion
-//                       className="bg-cod-gray shadow-none"
-//                       header={pool.asset}
-//                       putPools={pool.put}
-//                     />
+//           {filteredData && Object.keys(filteredData).length !== 0 ? (
+//             [selectedAtlanticsAssets]
+//               .flat()
+//               .map((asset: string, index: number) => {
+//                 return (
+//                   <Box
+//                     key={index}
+//                     className="sm:flex sm:flex-col lg:grid lg:grid-cols-4 pt-6"
+//                   >
+//                     <Box className="flex flex-col col-span-1 space-y-4 ">
+//                       <Accordion
+//                         className="bg-cod-gray shadow-none"
+//                         header={asset ?? ''}
+//                         putPools={filteredData[asset]}
+//                       />
+//                     </Box>
 //                   </Box>
-//                 </Box>
-//               );
-//             })
+//                 );
+//               })
 //           ) : (
 //             <Box className="flex justify-center items-center h-screen">
 //               <CircularProgress
@@ -81,6 +126,7 @@ import { /*AtlanticsContext,*/ AtlanticsProvider } from 'contexts/Atlantics';
 
 const AtlanticsPage = () => {
   return (
+    // <Atlantics />
     <AtlanticsProvider>
       <Manage
         tokenId="WETH-PUTS-WEEKLY"

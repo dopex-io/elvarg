@@ -71,112 +71,118 @@ const ContractData = () => {
     return 'In Progress';
   }, [atlanticPoolEpochData]);
   return (
-    <Box className="grid grid-cols-2 md:grid-cols-3 grid-row-4 divide-x divide-y divide-umbra border border-umbra rounded-md">
-      <Box className="p-3 space-y-3">
-        <Box className="flex space-x-2">
-          <Typography variant="h6" color="stieglitz">
-            Epoch
-          </Typography>
-          {selectedEpoch === Number(atlanticPoolEpochData?.epoch) ? (
-            <Typography variant="h6" color="wave-blue">
-              ({vaultStatusMessage})
+    <Box className="grid grid-cols-1 divide-umbra border border-umbra rounded-md">
+      <Box className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-umbra">
+        <Box className="p-3 space-y-3">
+          <Box className="flex space-x-2">
+            <Typography variant="h6" color="stieglitz">
+              Epoch
             </Typography>
-          ) : null}
-        </Box>
-        <Box className="flex space-x-2">
-          <EpochSelector
-            currentEpoch={currentEpoch}
-            selectedEpoch={selectedEpoch}
-            setSelectedEpoch={setSelectedEpoch}
-          />
-          <Box className="flex space-x-3 p-2 rounded-lg bg-umbra">
-            <AlarmIcon fill="#8E8E8E" />
-            <Typography
-              variant="h6"
-              className="my-auto font-semibold"
-              color="stieglitz"
-            >
-              {epochDuration === 'less than a minute' ? '...' : epochDuration}
-            </Typography>
+            {selectedEpoch === Number(atlanticPoolEpochData?.epoch) ? (
+              <Typography variant="h6" color="wave-blue">
+                ({vaultStatusMessage})
+              </Typography>
+            ) : null}
+          </Box>
+          <Box className="flex space-x-2">
+            <EpochSelector
+              currentEpoch={currentEpoch}
+              selectedEpoch={selectedEpoch}
+              setSelectedEpoch={setSelectedEpoch}
+            />
+            <Box className="flex space-x-3 p-2 rounded-lg bg-umbra">
+              <AlarmIcon fill="#8E8E8E" />
+              <Typography
+                variant="h6"
+                className="my-auto font-semibold"
+                color="stieglitz"
+              >
+                {epochDuration === 'less than a minute' ? '...' : epochDuration}
+              </Typography>
+            </Box>
           </Box>
         </Box>
+        <ContractDataItem
+          description="Contract"
+          value={
+            <ExplorerLink
+              address={atlanticPool?.contracts.atlanticPool.address ?? '...'}
+            />
+          }
+          variant="col"
+        />
+        <ContractDataItem
+          description="Strategy"
+          value={<PoolStrategy strategyLabel={'Insured Long Perps'} />}
+          variant="col"
+        />
       </Box>
-      <ContractDataItem
-        description="Contract"
-        value={
-          <ExplorerLink
-            address={atlanticPool?.contracts.atlanticPool.address ?? '...'}
-          />
-        }
-        variant="col"
-      />
-      <ContractDataItem
-        description="Strategy"
-        value={<PoolStrategy strategyLabel={'Insured Long Perps'} />}
-        variant="col"
-      />
-      <ContractDataItem
-        description="Funding Rate"
-        value={
-          <Typography variant="h6" className="font-semibold">
-            {Number(atlanticPool?.vaultConfig.fundingFee) / 100000 ?? 0.05}% /
-            Day
-          </Typography>
-        }
-        variant="row"
-      />
-      <ContractDataItem
-        description="APR"
-        value={
-          <Typography variant="h6">
-            ~{formatAmount(atlanticPoolEpochData?.apr, 3)}%
-          </Typography>
-        }
-        variant="row"
-      />
-      <ContractDataItem
-        description="Epoch Length"
-        value={
-          <Typography variant="h6">
-            {atlanticPool?.durationType
-              ? atlanticPool?.durationType[0] +
-                atlanticPool?.durationType.substring(1).toLowerCase()
-              : '...'}
-          </Typography>
-        }
-        variant="row"
-      />
-      <ContractDataItem
-        description="Utilization"
-        value={
-          <Typography variant="h6">
-            {formatAmount(atlanticPoolEpochData?.utilizationRate, 3)}%
-          </Typography>
-        }
-        variant="row"
-      />
-      <ContractDataItem
-        description="Options Sold"
-        value={<Typography variant="h6">{'...'}</Typography>}
-        variant="row"
-      />
-      <ContractDataItem
-        description="Premiums"
-        value={
-          <Typography variant="h6">
-            {formatAmount(
-              getUserReadableAmount(
-                atlanticPoolEpochData?.premiaAccrued ?? '0',
-                6
-              ),
-              3,
-              true
-            )}{' '}
-            {atlanticPool?.tokens.depositToken}
-          </Typography>
-        }
-        variant="row"
-      />
+      <Box className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-umbra border-t border-umbra">
+        <ContractDataItem
+          description="Funding Rate"
+          value={
+            <Typography variant="h6" className="font-semibold">
+              {Number(atlanticPool?.vaultConfig.fundingFee) / 100000 ?? 0.05}% /
+              Day
+            </Typography>
+          }
+          variant="row"
+        />
+        <ContractDataItem
+          description="APR"
+          value={
+            <Typography variant="h6">
+              ~{formatAmount(atlanticPoolEpochData?.apr, 3)}%
+            </Typography>
+          }
+          variant="row"
+        />
+        <ContractDataItem
+          description="Epoch Length"
+          value={
+            <Typography variant="h6">
+              {atlanticPool?.durationType
+                ? atlanticPool?.durationType[0] +
+                  atlanticPool?.durationType.substring(1).toLowerCase()
+                : '...'}
+            </Typography>
+          }
+          variant="row"
+        />
+      </Box>
+      <Box className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-umbra border-t border-umbra">
+        <ContractDataItem
+          description="Utilization"
+          value={
+            <Typography variant="h6">
+              {formatAmount(atlanticPoolEpochData?.utilizationRate, 3)}%
+            </Typography>
+          }
+          variant="row"
+        />
+        <ContractDataItem
+          description="Options Sold"
+          value={<Typography variant="h6">{'...'}</Typography>}
+          variant="row"
+        />
+        <ContractDataItem
+          description="Premiums"
+          value={
+            <Typography variant="h6">
+              {formatAmount(
+                getUserReadableAmount(
+                  atlanticPoolEpochData?.premiaAccrued ?? '0',
+                  6
+                ),
+                3,
+                true
+              )}{' '}
+              {atlanticPool?.tokens.depositToken}
+            </Typography>
+          }
+          variant="row"
+        />
+      </Box>
     </Box>
   );
 };

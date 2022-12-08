@@ -220,7 +220,7 @@ const UseStrategyDialog = () => {
     }
 
     if (unwindCost.gt(indexTokenBalance ?? '0') && depositUnderlying) {
-      errorMessage = 'Insuffucient underlying to deposit';
+      errorMessage = 'Insufficient underlying to deposit';
     }
 
     return errorMessage;

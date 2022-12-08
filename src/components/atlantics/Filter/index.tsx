@@ -7,13 +7,13 @@ import Checkbox from '@mui/material/Checkbox';
 import Typography from 'components/UI/Typography';
 import Input from 'components/UI/Input';
 
-import { Pool } from 'contexts/Atlantics';
+import { ATLANTIC_POOLS, Pools } from 'pages/atlantics';
 
 interface FilterProps {
   activeFilters: string | string[];
   setActiveFilters: Dispatch<SetStateAction<string | string[]>>;
   text: string;
-  options: Pool[];
+  options: Pools;
   multiple: boolean;
 }
 
@@ -27,12 +27,23 @@ const Filter = (props: FilterProps) => {
     [setActiveFilters]
   );
 
+  const handleChange = useCallback(
+    (e: { target: { value: string } }) => {
+      if (e.target.value === '') {
+        setActiveFilters(ATLANTIC_POOLS);
+      } else {
+        setActiveFilters(e.target.value.toUpperCase());
+      }
+    },
+    [setActiveFilters]
+  );
+
   return (
     <Box className="flex space-x-3 my-auto">
       <Select
         id="tokenFilter"
         name="tokenFilter"
-        value={activeFilters}
+        value={[activeFilters].flat()}
         onChange={handleSelect}
         multiple={multiple}
         displayEmpty
@@ -56,10 +67,10 @@ const Filter = (props: FilterProps) => {
         }}
         notched
       >
-        {options.map((token: Pool, index: number) => (
-          <MenuItem key={index} value={token.asset} className="text-white">
+        {Object.keys(options).map((token: string, index: number) => (
+          <MenuItem key={index} value={token} className="text-white">
             <Checkbox
-              checked={activeFilters.includes(token.asset)}
+              checked={activeFilters.includes(token)}
               className="text-white border"
             />
             <Box className="flex">
@@ -67,7 +78,7 @@ const Filter = (props: FilterProps) => {
                 variant="h5"
                 className="text-white text-left w-full relative ml-2"
               >
-                {token.asset}
+                {token}
               </Typography>
             </Box>
           </MenuItem>
@@ -77,7 +88,7 @@ const Filter = (props: FilterProps) => {
         leftElement={null}
         variant="variant1"
         placeholder="Search by symbol"
-        onChange={(e) => setActiveFilters([e.target.value])}
+        onChange={handleChange}
       />
     </Box>
   );

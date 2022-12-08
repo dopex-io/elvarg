@@ -12,7 +12,6 @@ import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
 import InfoTooltip from 'components/UI/InfoTooltip';
 
-import { AtlanticsProvider } from 'contexts/Atlantics';
 import { useBoundStore } from 'store';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
@@ -183,14 +182,12 @@ const ManagePage = (props: { query: string }) => {
   const split: string[] = props.query.split('-');
   return (
     props.query && (
-      <AtlanticsProvider>
-        <Manage
-          tokenId={props.query}
-          underlying={split[0]!}
-          type={split[1]!}
-          duration={split[2]!}
-        />
-      </AtlanticsProvider>
+      <Manage
+        tokenId={props.query}
+        underlying={split[0]!}
+        type={split[1]!}
+        duration={split[2]!}
+      />
     )
   );
 };

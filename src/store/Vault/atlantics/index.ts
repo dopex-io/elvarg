@@ -104,24 +104,12 @@ export interface Pool {
 }
 
 export interface AtlanticPoolsSlice {
-  pools?: Pool[];
-  updatePools: Function;
-  stats?: Stats;
   atlanticPool?: IAtlanticPoolData;
   updateAtlanticPool: Function;
   atlanticPoolEpochData?: IAtlanticPoolEpochData;
   updateAtlanticPoolEpochData: Function;
-  atlanticPoolUserEpochData?: IAtlanticPoolUserEpochData;
-  updateAtlanticPoolUserEpochData: Function;
   userPositions?: IUserPosition[];
   updateUserPositions: Function;
-}
-
-interface Stats {
-  // IMPORTANT: All in 1e6 decimals
-  tvl: BigNumber;
-  volume: BigNumber;
-  poolsCount: BigNumber;
 }
 
 export const createAtlanticsSlice: StateCreator<
@@ -387,10 +375,6 @@ export const createAtlanticsSlice: StateCreator<
       atlanticPoolEpochData,
     }));
   },
-  updateAtlanticPoolUserEpochData: async () => {
-    // todo: merge with updateUserPositions / update perps positions here
-    return;
-  },
   updateUserPositions: async () => {
     const {
       signer,
@@ -495,23 +479,5 @@ export const createAtlanticsSlice: StateCreator<
     );
 
     set((prevState) => ({ ...prevState, userPositions: _userDeposits }));
-  },
-  updatePools: () => {
-    // todo: fetch from API
-    const { contractAddresses, provider, pools } = get();
-
-    if (!contractAddresses['ATLANTIC-POOLS'] || !provider || pools) return;
-
-    let allPools: Pool[] = [];
-
-    Object.keys(contractAddresses['ATLANTIC-POOLS']).map((asset: string) => {
-      allPools.push({
-        asset,
-        daily: contractAddresses['ATLANTIC-POOLS'][asset]['PUTS']['DAILY'],
-        weekly: contractAddresses['ATLANTIC-POOLS'][asset]['PUTS']['WEEKLY'],
-        monthly: contractAddresses['ATLANTIC-POOLS'][asset]['PUTS']['MONTHLY'],
-      });
-    });
-    set((prevState) => ({ ...prevState, pools: allPools }));
   },
 });

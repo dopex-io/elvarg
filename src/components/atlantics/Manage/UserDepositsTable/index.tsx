@@ -11,6 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
+import WalletButton from 'components/common/WalletButton';
 
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
@@ -68,6 +69,7 @@ export const TableBodyCell = ({
 const UserDepositsTable = () => {
   const { provider, signer } = useBoundStore();
   const {
+    accountAddress,
     userPositions,
     atlanticPool,
     atlanticPoolEpochData,
@@ -145,7 +147,13 @@ const UserDepositsTable = () => {
   );
 
   const userPositionsRenderState = useMemo(() => {
-    if (!userPositions) {
+    if (!accountAddress)
+      return (
+        <Box className="w-full text-center bg-cod-gray rounded-xl">
+          <WalletButton>Connect</WalletButton>
+        </Box>
+      );
+    else if (!userPositions) {
       return <CircularProgress />;
     } else if (userPositions.length === 0)
       return (
@@ -154,7 +162,7 @@ const UserDepositsTable = () => {
         </Typography>
       );
     else return 'renderTable';
-  }, [userPositions]);
+  }, [accountAddress, userPositions]);
 
   return userPositionsRenderState === 'renderTable' ? (
     <TableContainer className="rounded-xl max-h-80 w-full overflow-x-auto">

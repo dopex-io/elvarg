@@ -9,7 +9,7 @@ import { styled } from '@mui/material/styles';
 import Typography from 'components/UI/Typography';
 import PoolCard from 'components/atlantics/Pool';
 
-import { DurationTypesOfPools, IAtlanticPoolType } from 'contexts/Atlantics';
+import { Pool } from 'pages/atlantics';
 
 const CustomizedAccordion = styled(Accordion)`
   color: 'darkslategray';
@@ -18,14 +18,14 @@ const CustomizedAccordion = styled(Accordion)`
 
 interface CustomAccordionProps {
   header: string;
-  putPools?: DurationTypesOfPools;
-  callPools?: DurationTypesOfPools;
+  putPools: Pool[] | undefined;
+  // callPools?: DurationTypesOfPools;
   className: string;
 }
 
 interface FilteredPoolsInterface {
   duration: string;
-  pool: IAtlanticPoolType;
+  pool: Pool;
 }
 
 const CustomAccordion = ({
@@ -38,33 +38,30 @@ const CustomAccordion = ({
   const putsPoolFiltered = useMemo(() => {
     if (!putPools) return;
     let pools: FilteredPoolsInterface[] = [];
-    const keys: any = Object.keys(putPools);
-    keys
-      .map((key: 'daily' | 'weekly' | 'monthly') => putPools[key])
-      .filter((pool: IAtlanticPoolType, index: any) => {
-        if (pool) {
-          pools = [
-            ...pools,
-            {
-              duration: keys[index] ?? null,
-              pool: pool,
-            },
-          ];
-        }
-        return pool !== null;
-      });
+    putPools.filter((pool: Pool) => {
+      if (pool) {
+        pools = [
+          ...pools,
+          {
+            duration: pool.duration ?? null,
+            pool: pool,
+          },
+        ];
+      }
+      return pool !== null;
+    });
     return pools;
   }, [putPools]);
 
   const handleExpand = () => {
-    setExpand((_) => expand);
+    setExpand((expand) => !expand);
   };
 
   return (
     <CustomizedAccordion
       TransitionProps={{ unmountOnExit: true }}
       className={className}
-      expanded={true}
+      expanded={expand}
       onClick={handleExpand}
     >
       <AccordionSummary
@@ -84,21 +81,22 @@ const CustomAccordion = ({
       </AccordionSummary>
       <AccordionDetails className="rounded-2xl space-y-4">
         <Box className="flex flex-col w-full space-y-2">
-          {putsPoolFiltered!.map(
-            ({ duration, pool }: FilteredPoolsInterface, index) => {
-              return (
-                <PoolCard
-                  key={index}
-                  underlying={pool.tokens['underlying'] ?? ''}
-                  depositToken={pool.tokens['deposit'] ?? ''}
-                  duration={duration.toUpperCase()}
-                  tvl={pool.tvl}
-                  apy={'0'}
-                  isPut={true}
-                />
-              );
-            }
-          )}
+          {putsPoolFiltered &&
+            putsPoolFiltered.map(
+              ({ duration, pool }: FilteredPoolsInterface, index) => {
+                return (
+                  <PoolCard
+                    key={index}
+                    underlying={pool['underlying'] ?? ''}
+                    depositToken={pool['base'] ?? ''}
+                    duration={duration.toUpperCase()}
+                    tvl={pool['tvl']}
+                    apy={'0'}
+                    isPut={true}
+                  />
+                );
+              }
+            )}
         </Box>
       </AccordionDetails>
     </CustomizedAccordion>

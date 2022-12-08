@@ -20,7 +20,7 @@ interface PoolCardProps {
   underlying: string;
   duration: string | null;
   isPut: boolean;
-  tvl: BigNumber;
+  tvl: string | BigNumber;
   apy: BigNumber | BigNumber[] | string;
 }
 
