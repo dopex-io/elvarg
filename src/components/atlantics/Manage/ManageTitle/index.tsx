@@ -43,13 +43,13 @@ const ManageTitle = (props: ManageCardTitleProps) => {
     <Box className="flex space-x-4 flex-wrap px-2">
       <Box className="flex -space-x-4 h-fit min-w-fit">
         <img
-          src={`/images/tokens/${depositToken.toLowerCase() || 'usdc'}.svg`}
-          alt={depositToken}
+          src={`/images/tokens/${underlying?.toLowerCase()}.svg`}
+          alt={underlying}
           className="border rounded-full border-umbra w-12 h-12 z-10"
         />
         <img
-          src={`/images/tokens/${underlying.toLowerCase()}.svg`}
-          alt={underlying}
+          src={`/images/tokens/${depositToken?.toLowerCase() || 'usdc'}.svg`}
+          alt={depositToken}
           className="border rounded-full border-umbra w-12 h-12"
         />
       </Box>

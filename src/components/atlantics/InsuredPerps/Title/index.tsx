@@ -45,16 +45,29 @@ const Title = (props: TitleProps) => {
         </Typography>
       </Link>
       <Box className="flex justify-between rounded-2xl border border-umbra divide-x divide-umbra">
-        <Typography
-          variant="h5"
-          className="my-auto content-center text-center p-3 w-1/4"
-        >
-          {ticker}
-          <Typography variant="h5" color="stieglitz">
-            ${formatAmount(stats?.['latest'], 2)}
+        <Box className="flex">
+          <Box className="flex -space-x-4 h-fit min-w-fit p-2 my-auto">
+            <img
+              src={`/images/tokens/${underlying?.toLowerCase()}.svg`}
+              alt={underlying}
+              className="border rounded-full border-umbra w-10 h-10 z-10"
+            />
+            <img
+              src={`/images/tokens/${deposit?.toLowerCase() || 'usdc'}.svg`}
+              alt={deposit}
+              className="border rounded-full border-umbra w-10 h-10"
+            />
+          </Box>
+          <Typography
+            variant="h5"
+            className="my-auto content-center text-center p-3 w-1/4"
+          >
+            {ticker}
+            <Typography variant="h5" color="stieglitz">
+              ${formatAmount(stats?.['latest'], 2)}
+            </Typography>
           </Typography>
-        </Typography>
-
+        </Box>
         <Box className="flex flex-col text-center my-auto p-3 w-1/4">
           <Typography variant="h6">24H High</Typography>
           <Typography variant="h6" color="up-only">
