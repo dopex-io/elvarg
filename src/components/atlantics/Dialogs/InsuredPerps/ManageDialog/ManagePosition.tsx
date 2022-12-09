@@ -277,7 +277,7 @@ const ManagePosition = () => {
     ]);
 
     const precision = 100000;
-    const slippage = 300;
+    const slippage = 400;
     minPrice = minPrice.mul(precision - slippage).div(precision);
     maxPrice = maxPrice.mul(precision + slippage).div(precision);
 

@@ -428,7 +428,7 @@ const ManagePosition = () => {
         ),
       ]);
       const precision = 100000;
-      const slippage = 300;
+      const slippage = 400;
       acceptablePrice = markPrice.mul(precision + slippage).div(precision);
     }
 
