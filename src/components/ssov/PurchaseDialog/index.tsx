@@ -107,10 +107,9 @@ const PurchaseDialog = ({
 
     try {
       await sendTx(
-        ERC20__factory.connect(ssovData?.collateralAddress!, signer).approve(
-          spender,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(ssovData?.collateralAddress!, signer),
+        'approve',
+        [spender, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {
@@ -124,9 +123,11 @@ const PurchaseDialog = ({
     const _amount = getContractReadableAmount(optionsAmount, 18);
 
     try {
-      await sendTx(
-        ssovContractWithSigner.purchase(strikeIndex, _amount, accountAddress)
-      );
+      await sendTx(ssovContractWithSigner, 'purchase', [
+        strikeIndex,
+        _amount,
+        accountAddress,
+      ]);
       setRawOptionsAmount('0');
 
       updateAssetBalances();

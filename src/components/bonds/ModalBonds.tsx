@@ -186,7 +186,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
     const usdc = ERC20__factory.connect(contractAddresses['USDC'], signer);
 
     try {
-      await sendTx(usdc.approve(dpxBondsAddress, MAX_VALUE));
+      await sendTx(usdc, 'approve', [dpxBondsAddress, MAX_VALUE]);
       setApproved(true);
     } catch (e) {
       console.log(e);
@@ -203,11 +203,9 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         return;
 
       try {
-        await sendTx(
-          bondsContracts.bondsContract
-            .connect(signer)
-            .mint(dpxBondsUserEpochData.usableNfts.slice(0, amount))
-        );
+        await sendTx(bondsContracts.bondsContract, 'mint', [
+          dpxBondsUserEpochData.usableNfts.slice(0, amount),
+        ]);
       } catch (e) {
         console.log(e);
       }

@@ -14,7 +14,6 @@ import { useBoundStore } from 'store';
 import useSendTx from 'hooks/useSendTx';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-
 export interface Props {
   open: boolean;
   handleClose: any;
@@ -33,9 +32,8 @@ const Wrapper = ({ open, handleClose }: Props) => {
       ['function deposit() payable external'],
       signer
     );
-    await sendTx(
-      weth['deposit']({ value: getContractReadableAmount(value, 18) })
-    );
+
+    await sendTx(weth, 'deposit', [], getContractReadableAmount(value, 18));
   }, [signer, sendTx, value]);
 
   return (

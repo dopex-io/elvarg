@@ -28,7 +28,7 @@ const SsovV3Deposit = ({
 
     const _contract = new ethers.Contract(ssovAddress, v2Abi, signer);
 
-    await sendTx(_contract['withdraw'](id, accountAddress));
+    await sendTx(_contract, 'withdraw', [id, accountAddress]);
   };
 
   return (

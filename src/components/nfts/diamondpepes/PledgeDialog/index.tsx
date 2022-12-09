@@ -134,7 +134,7 @@ const PledgeDialog = ({
       selectedNfts.map((i) =>
         tokenIds.push(BigNumber.from(userNfts[i.toFixed(0)].id))
       );
-      await sendTx(pledge.connect(signer).pledge(tokenIds));
+      await sendTx(pledge.connect(signer), 'pledge', [tokenIds]);
       await updateData();
       await updateUserData();
       await getNfts();
@@ -155,9 +155,10 @@ const PledgeDialog = ({
 
   const handleApprove = useCallback(async () => {
     try {
-      await sendTx(
-        diamondPepeNfts.connect(signer).setApprovalForAll(pledge.address, true)
-      );
+      await sendTx(diamondPepeNfts.connect(signer), 'setApprovalForAll', [
+        pledge.address,
+        true,
+      ]);
       setApproved(true);
     } catch (err) {
       console.log(err);

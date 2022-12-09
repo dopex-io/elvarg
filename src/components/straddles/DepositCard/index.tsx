@@ -121,11 +121,11 @@ const DepositCard = () => {
     )
       return;
     try {
-      await sendTx(
-        straddlesData.straddlesContract
-          .connect(signer)
-          .deposit(getContractReadableAmount(amount, 6), true, accountAddress)
-      );
+      await sendTx(straddlesData.straddlesContract.connect(signer), 'deposit', [
+        getContractReadableAmount(amount, 6),
+        true,
+        accountAddress,
+      ]);
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
     } catch (err) {
@@ -146,10 +146,9 @@ const DepositCard = () => {
       return;
     try {
       await sendTx(
-        ERC20__factory.connect(straddlesData.usd, signer).approve(
-          straddlesData?.straddlesContract?.address,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(straddlesData.usd, signer),
+        'approve',
+        [straddlesData?.straddlesContract?.address, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {

@@ -30,9 +30,10 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
 
   const handleWithdraw = useCallback(async () => {
     if (!ssovSigner.ssovContractWithSigner || !accountAddress) return;
-    await sendTx(
-      ssovSigner.ssovContractWithSigner.withdraw(data.tokenId, accountAddress)
-    );
+    await sendTx(ssovSigner.ssovContractWithSigner, 'withdraw', [
+      data.tokenId,
+      accountAddress,
+    ]);
     updateSsovV3EpochData();
   }, [accountAddress, data, sendTx, ssovSigner, updateSsovV3EpochData]);
 

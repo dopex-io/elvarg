@@ -41,14 +41,14 @@ const ClaimCard = (props: Props) => {
           signer
         );
 
-        await sendTx(stakingRewardsContract.claim());
+        await sendTx(stakingRewardsContract, 'claim', []);
       } else {
         const stakingRewardsContract = StakingRewards__factory.connect(
           stakingRewardsAddress,
           signer
         );
 
-        await sendTx(stakingRewardsContract.getReward(2));
+        await sendTx(stakingRewardsContract, 'getReward', [2]);
       }
       getUserData(farm);
     } catch (err) {

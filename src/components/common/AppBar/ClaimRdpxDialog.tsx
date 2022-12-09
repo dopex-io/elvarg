@@ -90,14 +90,12 @@ const ClaimRdpxModal = ({ open, handleClose }: Props) => {
       } else {
         setLoading(true);
         try {
-          await sendTx(
-            merkleDistributorContract.claim(
-              index,
-              formik.values.address,
-              amount,
-              tree.getProof(index, formik.values.address, amount)
-            )
-          );
+          await sendTx(merkleDistributorContract, 'claim', [
+            index,
+            formik.values.address,
+            amount,
+            tree.getProof(index, formik.values.address, amount),
+          ]);
           setLoading(false);
         } catch {
           setLoading(false);
