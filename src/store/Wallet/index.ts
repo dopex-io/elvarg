@@ -70,8 +70,8 @@ export const createWalletSlice: StateCreator<
         });
         await updateState({ provider, isUser: true });
       })
-      .catch(() => {
-        if (window.location.pathname !== '/ssov') window.location.replace('/');
+      .catch((errorMsg) => {
+        console.log(errorMsg);
       });
   },
   disconnect: () =>
