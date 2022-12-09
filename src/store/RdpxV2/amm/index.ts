@@ -12,28 +12,28 @@ import { AssetsSlice } from 'store/Assets';
 */
 
 const pools_temp = {
-  DPXETH: {
+  RDPXDSC: {
     address: '0xabcdefabcdefabcdefabcdef',
     pair: [
       {
-        symbol: 'ETH',
-        address: '0x0',
+        symbol: 'RDPX',
+        address: '0x1',
       },
       {
-        symbol: 'DPX',
-        address: '0x1',
+        symbol: 'DSC',
+        address: '0x0',
       },
     ],
   },
-  RDPXETH: {
+  DPXDSC: {
     address: '0xabcdefabcdefabcdefabcdef',
     pair: [
       {
-        symbol: 'ETH',
+        symbol: 'DPX',
         address: '0x0',
       },
       {
-        symbol: 'DPX',
+        symbol: 'DSC',
         address: '0x1',
       },
     ],

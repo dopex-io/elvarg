@@ -32,7 +32,7 @@ const Body = () => {
 
   const [amountIn, setAmountIn] = useState<BigNumber | string>('0');
   const [reversed, setReversed] = useState<boolean>(false);
-  const [selectedPair, _] = useState<string>('DPXETH');
+  const [selectedPair, _] = useState<string>('RDPXDSC');
   const [buttonState, setButtonState] = useState<[boolean, string]>([
     false,
     '',
