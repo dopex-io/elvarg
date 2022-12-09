@@ -294,11 +294,7 @@ const UserPositions = () => {
         <>
           {userPositionData.state === 'None' ? (
             <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
-              <CustomButton
-                onClick={() => handleOpenManageModal('USE_STRATEGY')}
-              >
-                <Typography variant="h6">Open Position</Typography>
-              </CustomButton>
+              <Typography variant="h6">No Active Positions</Typography>
             </Box>
           ) : (
             <TableContainer className="rounded-xl bg-cod-gray max-h-80 w-full overflow-x-auto">
