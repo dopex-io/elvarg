@@ -72,48 +72,42 @@ const Swap = (props: SwapProps) => {
     return [underlyingBalance, stableBalance];
   }, [chainId, stable, underlying, userAssetBalances]);
 
-  const updateAmountOut = useCallback(
-    (param: number) => {
-      if (!tokenPrices || !prices) return;
-      setAmountOut(((prices[1] ?? 0) * Number(param)).toString());
-    },
-    [prices, tokenPrices]
-  );
-
   const handleChange = useCallback(
     (e: any) => {
       if (!setAmountIn || !prices) return;
       setAmountIn(e.target.value);
-      updateAmountOut(Number(prices[0]) * Number(e.target.value || 0));
+      setAmountOut(
+        (!inverted
+          ? Number(e.target.value) * Number(prices[0])
+          : Number(e.target.value) / Number(prices[1])
+        ).toString()
+      );
     },
-    [prices, updateAmountOut]
+    [inverted, prices]
   );
 
   const handleMax = useCallback(() => {
-    if (
-      !userAssetBalances ||
-      !underlying ||
-      !chainId ||
-      !setAmountIn ||
-      !prices
-    )
+    if (!userAssetBalances || !underlying || !chainId || !prices || !stable)
       return;
 
+    const inputTokenSymbol = (
+      inverted ? stable : underlying ?? ''
+    ).toUpperCase();
+
     const maxValue = getUserReadableAmount(
-      userAssetBalances[underlying.toUpperCase()] ?? '0',
-      TOKEN_DECIMALS[chainId.toString()]?.[underlying.toUpperCase()]
+      userAssetBalances[inputTokenSymbol] ?? '0',
+      TOKEN_DECIMALS[chainId.toString()]?.[inputTokenSymbol]
     ).toString();
 
     setAmountIn(maxValue);
-    updateAmountOut(Number(prices[0]) * Number(amountIn));
-  }, [
-    userAssetBalances,
-    underlying,
-    chainId,
-    prices,
-    updateAmountOut,
-    amountIn,
-  ]);
+
+    setAmountOut(
+      (inverted
+        ? Number(maxValue) / Number(prices[1])
+        : Number(maxValue) * Number(prices[0])
+      ).toString()
+    );
+  }, [userAssetBalances, underlying, chainId, prices, stable, inverted]);
 
   const handleSubmit = useCallback(async () => {
     if (
@@ -123,7 +117,9 @@ const Swap = (props: SwapProps) => {
       !contractAddresses ||
       !accountAddress ||
       !path ||
-      !path[0]
+      !path[0] ||
+      !chainId ||
+      !TOKEN_DECIMALS
     )
       return;
 
@@ -135,7 +131,9 @@ const Swap = (props: SwapProps) => {
 
     const amountInContractReadable = getContractReadableAmount(
       Number(amountIn),
-      inverted ? 6 : 18
+      TOKEN_DECIMALS[chainId.toString() ?? '']?.[
+        (inverted ? stable : underlying).toUpperCase() ?? ''
+      ] || 18
     );
     const _minOut = getContractReadableAmount(1, 6);
 
@@ -158,11 +156,14 @@ const Swap = (props: SwapProps) => {
     amountIn,
     amountOut,
     approved,
+    chainId,
     contractAddresses,
     inverted,
     path,
     sendTx,
     signer,
+    stable,
+    underlying,
   ]);
 
   const handleInvert = useCallback(() => {
@@ -171,9 +172,9 @@ const Swap = (props: SwapProps) => {
     if (!tokenA || !tokenB || !prices || !prices[0] || !prices[1]) return;
 
     // swap amountIn/amountOut
-    const _amountOut = amountIn;
+    const _newAmountOut = amountIn;
     setAmountIn(amountOut);
-    setAmountOut(_amountOut);
+    setAmountOut(_newAmountOut);
     setPath([tokenB, tokenA]);
 
     // swap prices
@@ -267,14 +268,6 @@ const Swap = (props: SwapProps) => {
               Balance:{' '}
               {formatAmount(userTokenBalances?.[inverted ? 1 : 0] ?? 0, 3)}
             </Typography>
-            <Box className="flex space-x-1">
-              <Typography variant="h6" color="stieglitz">
-                &#x2248;
-              </Typography>
-              <Typography variant="h6">
-                ${formatAmount((prices?.[0] ?? 0) * Number(amountIn ?? 0), 3)}
-              </Typography>
-            </Box>
           </Box>
         </Box>
         <Box className="relative bg-cod-gray text-center">
@@ -290,7 +283,7 @@ const Swap = (props: SwapProps) => {
             size="small"
             variant="outlined"
             outline="umbra"
-            value={amountOut || 0}
+            value={amountOut}
             disabled
             sx={{
               '& input.MuiInputBase-input': {
@@ -320,14 +313,6 @@ const Swap = (props: SwapProps) => {
               Balance:{' '}
               {formatAmount(userTokenBalances?.[inverted ? 0 : 1] ?? 0, 3)}
             </Typography>
-            <Box className="flex space-x-1">
-              <Typography variant="h6" color="stieglitz">
-                &#x2248;
-              </Typography>
-              <Typography variant="h6">
-                ${formatAmount((prices?.[1] ?? 0) * Number(amountOut ?? 0), 3)}
-              </Typography>
-            </Box>
           </Box>
         </Box>
       </Box>
