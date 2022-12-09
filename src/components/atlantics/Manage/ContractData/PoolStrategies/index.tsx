@@ -2,17 +2,15 @@ import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import LaunchIcon from '@mui/icons-material/Launch';
+import Tooltip from '@mui/material/Tooltip';
 
 import Typography from 'components/UI/Typography';
 
-const STRATS: Record<string | symbol, string>[] = [
-  {
-    title: 'Insured Long Perps',
-    path: '/atlantics/manage/insured-perps/',
-    chainId: '42161',
-    contractAddress: '0xb54f8134f8a52C92f11E0b47D6C77CEE9C7F5dDE',
-  },
-];
+import { useBoundStore } from 'store';
+
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { AP_STRATEGIES } from 'constants/atlanticPoolsInfo';
 
 const PoolStrategies = ({
   pair,
@@ -20,14 +18,23 @@ const PoolStrategies = ({
   pair: [string | undefined, string | undefined];
 }) => {
   const [underlying, base] = pair;
-  const [selection, setSelection] = useState<string>('Insured Long Perps');
+
+  const { chainId, contractAddresses } = useBoundStore();
+
+  const [_, setSelection] = useState<string>('Insured Long Perps');
 
   const handleClick = useCallback((event: any) => {
     setSelection(event.target.textContent);
   }, []);
 
   const menu = useMemo(() => {
-    if (!base || !underlying || !STRATS)
+    if (
+      !base ||
+      !underlying ||
+      !AP_STRATEGIES ||
+      !contractAddresses ||
+      !chainId
+    )
       return (
         <Typography variant="h6" className="font-mono">
           Loading...
@@ -36,32 +43,52 @@ const PoolStrategies = ({
 
     return (
       <Select
-        value={selection}
+        value={''}
         onChange={handleClick}
-        className="bg-umbra rounded-md text-center w-3/4 text-white"
+        className="bg-umbra rounded-md text-center text-white"
         MenuProps={{
           classes: { paper: 'bg-umbra' },
         }}
+        displayEmpty
+        renderValue={() => (
+          <Typography variant="h6" className="text-white text-center relative">
+            Select Strategy
+          </Typography>
+        )}
         classes={{ icon: 'text-white', select: 'px-3' }}
         variant="standard"
         disableUnderline
       >
-        {STRATS.map((strategyItem, index) => (
-          <MenuItem key={index} value={strategyItem['title']}>
+        {AP_STRATEGIES.map((strategyItem, index) => (
+          <MenuItem key={index} value={strategyItem['title']} className="flex">
             <Link
               href={
                 strategyItem['path']?.concat(`${underlying + '-' + base}`) ?? ''
               }
               passHref
-              className="text-white font-mono"
+              className="font-mono text-white"
             >
-              {selection}
+              {strategyItem['title']}
             </Link>
+            <Tooltip
+              title={'Visit Explorer'}
+              placement="bottom"
+              arrow
+              enterTouchDelay={0}
+              leaveTouchDelay={1000}
+            >
+              <Link
+                target="_blank"
+                href={`${CHAIN_ID_TO_EXPLORER[chainId]}address/${contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY']}`}
+              >
+                <LaunchIcon className="fill-current text-stieglitz p-1" />
+              </Link>
+            </Tooltip>
           </MenuItem>
         ))}
       </Select>
     );
-  }, [base, handleClick, selection, underlying]);
+  }, [base, chainId, contractAddresses, handleClick, underlying]);
 
   return menu;
 };

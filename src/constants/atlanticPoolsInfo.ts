@@ -5,6 +5,14 @@ interface IAtlanticPoolsInfo {
   };
 }
 
+export const AP_STRATEGIES: Record<string | symbol, string>[] = [
+  {
+    title: 'Insured Long Perps',
+    symbol: 'INSURED-PERPS',
+    path: '/atlantics/manage/insured-perps/',
+  },
+];
+
 export const ATLANTIC_POOL_INFO: IAtlanticPoolsInfo = {
   CALLS: {
     title: 'ETH CALLS',
