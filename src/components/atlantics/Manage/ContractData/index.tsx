@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
 import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
-import PoolStrategy from 'components/atlantics/Manage/ContractData/PoolStrategy';
+import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies';
 import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
@@ -113,7 +113,14 @@ const ContractData = () => {
         />
         <ContractDataItem
           description="Strategy"
-          value={<PoolStrategy strategyLabel={'Insured Long Perps'} />}
+          value={
+            <PoolStrategies
+              pair={[
+                atlanticPool?.tokens.underlying,
+                atlanticPool?.tokens.depositToken,
+              ]}
+            />
+          }
           variant="col"
         />
       </Box>
