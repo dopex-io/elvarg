@@ -65,10 +65,11 @@ const DisclaimerDialog = (props: any) => {
       <Box>
         <Box className="p-3">
           <Typography variant="body1" className="text-white font-semibold pb-2">
-            US/OFAC Complaince agreement
+            US/OFAC compliance agreement
           </Typography>
           <Typography className="text-stieglitz" variant="body2">
-            By using Dopex dApp, I agree to the following terms and conditions:
+            By using the Dopex DApp, I agree to the following terms and
+            conditions:
           </Typography>
         </Box>
         <Box className="p-3 bg-umbra rounded-lg">
