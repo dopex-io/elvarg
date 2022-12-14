@@ -1,22 +1,31 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
+import WalletButton from 'components/common/WalletButton';
+
+import { useBoundStore } from 'store';
+
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { useBoundStore } from 'store';
-
 export default function Balances() {
   const {
+    accountAddress,
     userAssetBalances,
     isLoadingBalances,
     chainId,
     provider,
     updateAssetBalances,
   } = useBoundStore();
+
+  const loadingState = useMemo(() => {
+    if (!accountAddress) return 2;
+    else if (isLoadingBalances) return 1;
+    else return 0;
+  }, [accountAddress, isLoadingBalances]);
 
   useEffect(() => {
     updateAssetBalances();
@@ -28,10 +37,14 @@ export default function Balances() {
         <span className="text-stieglitz">Balances</span>
       </Typography>
       <Box className="bg-cod-gray py-0.5 px-3.5 mt-3 rounded-md text-center">
-        {isLoadingBalances ? (
-          <Box>
-            <CircularProgress className="text-stieglitz p-2 my-8" />
-          </Box>
+        {loadingState > 0 ? (
+          loadingState === 1 ? (
+            <Box className="flex">
+              <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
+            </Box>
+          ) : (
+            <WalletButton className="my-4">Connect Wallet</WalletButton>
+          )
         ) : (
           Object.keys(userAssetBalances)
             .filter(function (asset) {

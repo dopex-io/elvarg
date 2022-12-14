@@ -13,12 +13,11 @@ import Button from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
-
 import Filter from 'components/common/Filter';
+import WalletButton from 'components/common/WalletButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
-
 import formatAmount from 'utils/general/formatAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
@@ -91,7 +90,7 @@ const headerCells: { [key: string]: { span: number; title: string }[] } = {
 };
 
 export default function Positions() {
-  const { portfolioData } = useBoundStore();
+  const { portfolioData, accountAddress } = useBoundStore();
   const [selectedSides, setSelectedSides] = useState<string[] | string>([
     'CALL',
     'PUT',
@@ -115,6 +114,12 @@ export default function Positions() {
     );
     return _positions;
   }, [portfolioData, searchText, selectedSides]);
+
+  const loadingState = useMemo(() => {
+    if (!accountAddress) return 2;
+    else if (portfolioData?.isLoading) return 1;
+    else return 0;
+  }, [accountAddress, portfolioData?.isLoading]);
 
   const filteredStraddlesPositions = useMemo(() => {
     const _positions: any[] = [];
@@ -165,10 +170,14 @@ export default function Positions() {
               />
             </Box>
           </Box>
-          {portfolioData?.isLoading ? (
-            <Box className="flex">
-              <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
-            </Box>
+          {loadingState > 0 ? (
+            loadingState === 1 ? (
+              <Box className="flex">
+                <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
+              </Box>
+            ) : (
+              <WalletButton className="my-4">Connect Wallet</WalletButton>
+            )
           ) : filteredSSOVPositions.length === 0 &&
             filteredStraddlesPositions.length === 0 ? (
             <Box className="flex-col p-9 md:min-w-full min-w-[1500px]">
@@ -217,13 +226,11 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.vaultType}</span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-1 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span
@@ -235,13 +242,11 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.epoch}</span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
@@ -249,7 +254,6 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
@@ -260,7 +264,6 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
@@ -281,13 +284,11 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.expiry}</span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-1">
                     <Box className="flex">
                       <a
@@ -309,7 +310,6 @@ export default function Positions() {
                   </Box>
                 </Box>
               ))}
-
               {filteredStraddlesPositions.length > 0 ? (
                 <Box
                   className={cx(
@@ -350,13 +350,11 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">Straddle</span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
@@ -367,7 +365,6 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
@@ -378,13 +375,11 @@ export default function Positions() {
                       </span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.epoch}</span>
                     </Typography>
                   </Box>
-
                   <Box className="col-span-1">
                     <Box className="flex">
                       <a target="_blank" rel="noreferrer" href={position.link}>
@@ -402,8 +397,6 @@ export default function Positions() {
               ))}
             </Box>
           )}
-
-          <Box></Box>
         </Box>
       </Box>
     </Box>

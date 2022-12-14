@@ -33,7 +33,7 @@ const VeDPXYield = () => {
       signer
     );
 
-    await sendTx(vedpxYieldDistributor.checkpoint());
+    await sendTx(vedpxYieldDistributor, 'checkpoint', []);
 
     await updateData();
     await updateUserData();
@@ -47,7 +47,7 @@ const VeDPXYield = () => {
         signer
       );
 
-      await sendTx(vedpxYieldDistributor.getYield());
+      await sendTx(vedpxYieldDistributor, 'getYield', []);
       await updateUserData();
     } catch (err) {
       console.log(err);

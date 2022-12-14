@@ -58,9 +58,9 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
   const handleTransfer = useCallback(async () => {
     if (!ssovSigner.ssovContractWithSigner || !accountAddress) return;
     await sendTx(
-      ssovSigner.ssovContractWithSigner[
-        'safeTransferFrom(address,address,uint256)'
-      ](accountAddress, recipient, data.tokenId)
+      ssovSigner.ssovContractWithSigner,
+      'safeTransferFrom(address,address,uint256)',
+      [accountAddress, recipient, data.tokenId]
     );
   }, [accountAddress, data, recipient, sendTx, ssovSigner]);
 

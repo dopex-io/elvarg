@@ -80,14 +80,12 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     )
       return;
     try {
-      await sendTx(
-        ssovSigner.ssovContractWithSigner.settle(
-          strikeIndex,
-          userEpochStrikeTokenBalance,
-          selectedEpoch,
-          accountAddress
-        )
-      );
+      await sendTx(ssovSigner.ssovContractWithSigner, 'settle', [
+        strikeIndex,
+        userEpochStrikeTokenBalance,
+        selectedEpoch,
+        accountAddress,
+      ]);
       updateSsovV3EpochData();
       updateSsovV3UserData();
       updateUserEpochStrikeTokenBalance();
@@ -118,12 +116,10 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     try {
       const optionsToken = ERC20__factory.connect(epochStrikeToken, signer);
 
-      await sendTx(
-        optionsToken.approve(
-          ssovSigner.ssovContractWithSigner.address,
-          userEpochStrikeTokenBalance
-        )
-      );
+      await sendTx(optionsToken, 'approve', [
+        ssovSigner.ssovContractWithSigner.address,
+        userEpochStrikeTokenBalance,
+      ]);
     } catch (err) {
       console.log(err);
     }

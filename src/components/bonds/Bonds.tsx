@@ -44,7 +44,10 @@ export const Bonds = () => {
 
   return (
     <>
-      <Typography variant="h5">Bonding</Typography>
+      <Typography variant="h2">DPX Bonds</Typography>
+      <Typography variant="h5" color="stieglitz">
+        Bonding powered by Dopex
+      </Typography>
       <EpochData
         handleModal={handleModal}
         handleEligibilityModal={handleEligibilityModal}

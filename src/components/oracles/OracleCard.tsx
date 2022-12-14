@@ -7,8 +7,7 @@ import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
 import Chart from './Chart';
 
-// @ts-ignore TODO: FIX
-const PreviousUpdatesDialog = ({ data, open, handleClose }) => {
+const PreviousUpdatesDialog = ({ data, open, handleClose }: any) => {
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <Typography variant="h3" className="mb-3">
@@ -18,8 +17,7 @@ const PreviousUpdatesDialog = ({ data, open, handleClose }) => {
         {data
           .slice()
           .reverse()
-          // @ts-ignore TODO: FIX
-          .map((item) => {
+          .map((item: any) => {
             return (
               <Box key={item.timestamp} className="mb-4">
                 <Typography variant="h5">
@@ -83,13 +81,6 @@ const OracleCard = ({ data }: { data: any }) => {
           </Box>
         </>
       ) : null}
-      <Typography
-        variant="h5"
-        className="text-stieglitz flex justify-end"
-        component="div"
-      >
-        Powered by <span className="capitalize ml-1">{data.type}</span>
-      </Typography>
     </Box>
   );
 };

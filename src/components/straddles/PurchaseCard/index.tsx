@@ -176,13 +176,12 @@ const PurchaseCard = () => {
       await sendTx(
         straddlesData.straddlesContract
           .connect(signer)
-          .purchase(
+          'purchase',[
             getContractReadableAmount(2 * amount, 18),
             0,
             bestSwapperId,
             accountAddress
-          )
-      );
+          ];
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
     } catch (err) {
@@ -204,10 +203,9 @@ const PurchaseCard = () => {
       return;
     try {
       await sendTx(
-        ERC20__factory.connect(straddlesData.usd, signer).approve(
-          straddlesData.straddlesContract.address,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(straddlesData.usd, signer),
+        'approve',
+        [straddlesData.straddlesContract.address, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {

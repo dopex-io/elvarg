@@ -39,9 +39,11 @@ const SsovOption = (props: {
         signer
       );
 
-      await sendTx(
-        contract['settle'](option.strikeIndex, option.balance, option.epoch)
-      );
+      await sendTx(contract, 'settle', [
+        option.strikeIndex,
+        option.balance,
+        option.epoch,
+      ]);
     } else {
       try {
         const optionTokenContract = new ethers.Contract(
@@ -50,9 +52,10 @@ const SsovOption = (props: {
           signer
         );
 
-        await sendTx(
-          optionTokenContract['approve'](option.ssovAddress, option.balance)
-        );
+        await sendTx(optionTokenContract, 'approve', [
+          option.ssovAddress,
+          option.balance,
+        ]);
 
         const contract = new ethers.Contract(
           option.ssovAddress,
@@ -71,22 +74,18 @@ const SsovOption = (props: {
           .catch(() => false);
 
         if (success) {
-          await sendTx(
-            contract['settle(uint256,uint256,uint256,address)'](
-              option.strikeIndex,
-              option.balance,
-              option.epoch,
-              accountAddress
-            )
-          );
+          await sendTx(contract, 'settle(uint256,uint256,uint256,address)', [
+            option.strikeIndex,
+            option.balance,
+            option.epoch,
+            accountAddress,
+          ]);
         } else {
-          await sendTx(
-            contract['settle(uint256,uint256,uint256)'](
-              option.strikeIndex,
-              option.balance,
-              option.epoch
-            )
-          );
+          await sendTx(contract, 'settle(uint256,uint256,uint256)', [
+            option.strikeIndex,
+            option.balance,
+            option.epoch,
+          ]);
         }
       } catch (error) {
         console.log(error);

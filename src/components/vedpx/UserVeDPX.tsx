@@ -31,7 +31,7 @@ const UserVeDPX = () => {
     if (!signer) return;
     const vedpx = DPXVotingEscrow__factory.connect(vedpxAddress, signer);
 
-    await sendTx(vedpx.withdraw());
+    await sendTx(vedpx, 'withdraw', []);
   };
 
   const isWithdrawable = useMemo(() => {

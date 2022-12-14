@@ -77,10 +77,9 @@ const TokenSale = () => {
     if (!signer || !accountAddress || !contractAddresses['TokenSale']) return;
     try {
       await sendTx(
-        TokenSale__factory.connect(
-          contractAddresses['TokenSale'],
-          signer
-        ).claim(accountAddress)
+        TokenSale__factory.connect(contractAddresses['TokenSale'], signer),
+        'claim',
+        [accountAddress]
       );
       updateUserData();
     } catch (err) {

@@ -108,14 +108,12 @@ const ClaimDialog = (props: ClaimDialogProps) => {
       } else {
         setLoading(true);
         try {
-          await sendTx(
-            nftContractSigner.claim(
-              index,
-              formik.values.address,
-              availableAmount ?? '0',
-              tree.getProof(index, formik.values.address, availableAmount)
-            )
-          );
+          await sendTx(nftContractSigner, 'claim', [
+            index,
+            formik.values.address,
+            availableAmount ?? '0',
+            tree.getProof(index, formik.values.address, availableAmount),
+          ]);
           setLoading(false);
         } catch {
           setLoading(false);
