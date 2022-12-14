@@ -131,44 +131,43 @@ export const createStraddlesSlice: StateCreator<
     let straddlePremium: BigNumber;
     let straddleFunding: BigNumber;
 
-    try {
-      straddlePremium = await straddlesContract!['calculatePremium'](
-        true,
-        currentPrice,
-        currentPrice,
-        getContractReadableAmount(1, 18),
-        epochData['expiry']
-      );
-      straddlePremium = straddlePremium.mul(BigNumber.from(2));
-    } catch (e) {
-      straddlePremium = BigNumber.from('0');
-    }
+    const timeToExpiry =
+      epochData['expiry'].toNumber() - new Date().getTime() / 1000;
 
     try {
-      aprFunding = await straddlesContract!['apFundingPercent']();
-      aprFunding = aprFunding.div(1e6);
-    } catch (e) {
-      aprFunding = BigNumber.from('0');
-    }
+      const newData = await Promise.all([
+        straddlesContract!['calculatePremium'](
+          true,
+          currentPrice,
+          currentPrice,
+          getContractReadableAmount(1, 18),
+          epochData['expiry']
+        ),
+        straddlesContract!['apFundingPercent'](),
+        straddlesContract!['purchaseFeePercent'](),
+        straddlesContract!['getVolatility'](currentPrice),
+        straddlesContract!['calculateApFunding'](
+          currentPrice,
+          getContractReadableAmount(1, 18),
+          BigNumber.from(Math.round(timeToExpiry))
+        ),
+      ]);
 
-    try {
-      purchaseFee = await straddlesContract!['purchaseFeePercent']();
-      purchaseFee = purchaseFee
+      straddlePremium = newData[0].mul(BigNumber.from(2));
+      aprFunding = newData[1].div(1e6);
+      purchaseFee = newData[2]
         .mul(currentPrice)
         .mul(BigNumber.from(2))
         .mul(1e10);
+      volatility = newData[3];
+      straddleFunding = newData[4].mul(BigNumber.from(2));
     } catch (e) {
+      straddlePremium = BigNumber.from('0');
+      aprFunding = BigNumber.from('0');
       purchaseFee = BigNumber.from('0');
-    }
-
-    try {
-      volatility = await straddlesContract!['getVolatility'](currentPrice);
-    } catch (e) {
       volatility = BigNumber.from('0');
+      straddleFunding = BigNumber.from('0');
     }
-
-    const timeToExpiry =
-      epochData['expiry'].toNumber() - new Date().getTime() / 1000;
 
     const normApr = usdPremiums
       .mul(BigNumber.from(365))
@@ -181,17 +180,6 @@ export const createStraddlesSlice: StateCreator<
       .div(BigNumber.from(3))
       .toNumber();
     const aprPremium = normApr.toFixed(0);
-
-    try {
-      straddleFunding = await straddlesContract!['calculateApFunding'](
-        currentPrice,
-        getContractReadableAmount(1, 18),
-        BigNumber.from(Math.round(timeToExpiry))
-      );
-      straddleFunding = straddleFunding.mul(BigNumber.from(2));
-    } catch (e) {
-      straddleFunding = BigNumber.from('0');
-    }
 
     straddlePrice = straddlePremium.add(straddleFunding).add(purchaseFee);
 
@@ -235,24 +223,26 @@ export const createStraddlesSlice: StateCreator<
 
     const straddlePositionsPromises: any[] = [];
     const writePositionsPromises: any[] = [];
+    try {
+      const [straddlePositionsIndexes, writePositionsIndexes] =
+        await Promise.all([
+          straddlesContract['straddlePositionsOfOwner'](accountAddress),
+          straddlesContract['writePositionsOfOwner'](accountAddress),
+        ]);
 
-    const straddlePositionsIndexes: BigNumber[] = await straddlesContract[
-      'straddlePositionsOfOwner'
-    ](accountAddress);
-    const writePositionsIndexes: BigNumber[] = await straddlesContract[
-      'writePositionsOfOwner'
-    ](accountAddress);
-
-    straddlePositionsIndexes.map((straddlePositionsIndex) =>
-      straddlePositionsPromises.push(
-        getStraddlePosition(straddlePositionsIndex)
-      )
-    );
-    writePositionsIndexes.map((writePositionsIndex) =>
-      writePositionsPromises.push(
-        getStraddlesWritePosition(writePositionsIndex)
-      )
-    );
+      straddlePositionsIndexes.map((straddlePositionsIndex: BigNumber) =>
+        straddlePositionsPromises.push(
+          getStraddlePosition(straddlePositionsIndex)
+        )
+      );
+      writePositionsIndexes.map((writePositionsIndex: BigNumber) =>
+        writePositionsPromises.push(
+          getStraddlesWritePosition(writePositionsIndex)
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
 
     const straddlePositions: StraddlePosition[] = await Promise.all(
       straddlePositionsPromises
