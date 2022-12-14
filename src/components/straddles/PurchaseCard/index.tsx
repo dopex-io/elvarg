@@ -74,7 +74,9 @@ const PurchaseCard = () => {
     updateStraddlesUserData,
   } = useBoundStore();
 
-  const [bestSwapperId, setBestSwapperId] = useState<number>(0);
+  const [bestSwapperId, setBestSwapperId] = useState<number>(
+    POOL_TO_SWAPPER_IDS[selectedPoolName]![0]!
+  );
 
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
@@ -158,7 +160,12 @@ const PurchaseCard = () => {
       setFinalCost(bestProtocolFee.add(bestStraddleCost));
       setBestSwapperId(_bestSwapperId);
     }
-    updateFinalCost();
+
+    try {
+      updateFinalCost();
+    } catch (e) {
+      console.log(e);
+    }
   }, [accountAddress, amount, selectedPoolName, signer, straddlesData]);
 
   // Handle Purchase
