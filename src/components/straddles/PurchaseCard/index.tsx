@@ -120,6 +120,25 @@ const PurchaseCard = () => {
       if (!accountAddress || !signer || !straddlesData?.straddlesContract)
         return;
 
+      const promises = [];
+
+      for (let i in POOL_TO_SWAPPER_IDS[selectedPoolName]) {
+        const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
+
+        promises.push(
+          straddlesData.straddlesContract
+            .connect(signer)
+            .callStatic.purchase(
+              getContractReadableAmount(2 * amount, 18),
+              0,
+              swapperId,
+              accountAddress
+            )
+        );
+      }
+
+      const responses = await Promise.all(promises);
+
       let bestProtocolFee: BigNumber = BigNumber.from('0');
       let bestStraddleCost: BigNumber = BigNumber.from('0');
       let _bestSwapperId: number = 0;
@@ -127,15 +146,7 @@ const PurchaseCard = () => {
       for (let i in POOL_TO_SWAPPER_IDS[selectedPoolName]) {
         const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
 
-        const { protocolFee, straddleCost } =
-          await straddlesData.straddlesContract
-            .connect(signer)
-            .callStatic.purchase(
-              getContractReadableAmount(2 * amount, 18),
-              0,
-              swapperId,
-              accountAddress
-            );
+        const { protocolFee, straddleCost } = responses[Number(i)]!;
 
         if (bestStraddleCost.eq(0) || straddleCost.lt(bestStraddleCost)) {
           bestProtocolFee = protocolFee;
