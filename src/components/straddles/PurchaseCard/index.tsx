@@ -174,14 +174,15 @@ const PurchaseCard = () => {
 
     try {
       await sendTx(
-        straddlesData.straddlesContract
-          .connect(signer)
-          'purchase',[
-            getContractReadableAmount(2 * amount, 18),
-            0,
-            bestSwapperId,
-            accountAddress
-          ];
+        straddlesData.straddlesContract.connect(signer),
+        'purchase',
+        [
+          getContractReadableAmount(2 * amount, 18),
+          0,
+          bestSwapperId,
+          accountAddress,
+        ]
+      );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
     } catch (err) {
