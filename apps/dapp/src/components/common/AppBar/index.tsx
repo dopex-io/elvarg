@@ -258,8 +258,8 @@ interface AppBarProps {
     | 'leaderboard'
     | 'swap'
     | 'DPX Bonds'
-    | 'vaults'
-    | 'Atlantics';
+    | 'OLP'
+    | 'Lending';
 }
 
 export default function AppBar(props: AppBarProps) {
