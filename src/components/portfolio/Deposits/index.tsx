@@ -263,7 +263,7 @@ export default function Deposits() {
                   <Box className="col-span-1">
                     <Box className="flex">
                       <a
-                        target="_blank"
+                        target={deposit.link.includes('#') ? '_self' : '_blank'}
                         rel="noreferrer"
                         href={deposit.link.includes('#') ? '#' : deposit.link}
                       >
@@ -274,7 +274,9 @@ export default function Deposits() {
                             deposit.link.includes('#') ? 'umbra' : 'primary'
                           }
                         >
-                          Open
+                          {deposit.link.includes('#')
+                            ? 'Not available'
+                            : 'Open'}
                         </CustomButton>
                       </a>
                     </Box>
@@ -351,13 +353,19 @@ export default function Deposits() {
 
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a target="_blank" rel="noreferrer" href={deposit.link}>
+                      <a
+                        target={deposit.link.includes('#') ? '_self' : '_blank'}
+                        rel="noreferrer"
+                        href={deposit.link.includes('#') ? '#' : deposit.link}
+                      >
                         <CustomButton
                           size="medium"
                           className="px-2"
                           color={deposit.link !== '#' ? 'primary' : 'umbra'}
                         >
-                          Open
+                          {deposit.link.includes('#')
+                            ? 'Not available'
+                            : 'Open'}
                         </CustomButton>
                       </a>
                     </Box>
