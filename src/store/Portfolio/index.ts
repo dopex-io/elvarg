@@ -226,12 +226,6 @@ export const createPortfolioSlice: StateCreator<
       const assetName = vaultName.split('-')[0]!;
       const isEpochExpired = await vault.isEpochExpired(epoch);
 
-      const paused = await vault.paused();
-
-      const link = paused
-        ? '#'
-        : '/straddles/' + assetName.toUpperCase() + '?epoch=' + epoch;
-
       try {
         if (!isEpochExpired)
           return {
@@ -241,7 +235,7 @@ export const createPortfolioSlice: StateCreator<
             epoch: epoch,
             strikePrice: userPosition.strikePrice,
             underlyingPurchased: userPosition.underlyingPurchased,
-            link: link,
+            link: '/straddles/' + assetName.toUpperCase() + '?epoch=' + epoch,
             vaultType: 'straddles',
             owner: accountAddress!,
           };
@@ -261,15 +255,6 @@ export const createPortfolioSlice: StateCreator<
       const vaultName = await vault.symbol();
       const assetName = vaultName.split('-')[0]!;
 
-      const paused = await vault.paused();
-
-      const link = paused
-        ? '#'
-        : '/straddles/' +
-          assetName.toUpperCase() +
-          '?epoch=' +
-          userDeposit.epoch;
-
       try {
         return {
           assetName: 'USDC',
@@ -277,7 +262,11 @@ export const createPortfolioSlice: StateCreator<
           amount: userDeposit.amount,
           epoch: userDeposit.epoch,
           rollover: userDeposit.rollover,
-          link: link,
+          link:
+            '/straddles/' +
+            assetName.toUpperCase() +
+            '?epoch=' +
+            userDeposit.epoch,
           vaultType: 'straddles',
           owner: accountAddress!,
         };

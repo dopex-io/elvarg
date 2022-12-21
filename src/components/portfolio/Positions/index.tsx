@@ -292,23 +292,18 @@ export default function Positions() {
                   <Box className="col-span-1">
                     <Box className="flex">
                       <a
-                        target={
-                          position.link.includes('#') ? '_self' : '_blank'
-                        }
+                        target="_blank"
                         rel="noreferrer"
                         href={position.link.includes('#') ? '#' : position.link}
                       >
                         <CustomButton
                           size="medium"
                           className="px-2"
-                          disabled={position.link.includes('#')}
                           color={
                             position.link.includes('#') ? 'umbra' : 'primary'
                           }
                         >
-                          {position.link.includes('#')
-                            ? 'Not available'
-                            : 'Open'}
+                          Open
                         </CustomButton>
                       </a>
                     </Box>
@@ -387,21 +382,13 @@ export default function Positions() {
                   </Box>
                   <Box className="col-span-1">
                     <Box className="flex">
-                      <a
-                        target={
-                          position.link.includes('#') ? '_self' : '_blank'
-                        }
-                        rel="noreferrer"
-                        href={position.link}
-                      >
+                      <a target="_blank" rel="noreferrer" href={position.link}>
                         <CustomButton
                           size="medium"
                           className="px-2"
                           color={position.link !== '#' ? 'primary' : 'umbra'}
                         >
-                          {position.link.includes('#')
-                            ? 'Not available'
-                            : 'Open'}
+                          Open
                         </CustomButton>
                       </a>
                     </Box>
