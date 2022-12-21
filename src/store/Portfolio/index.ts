@@ -226,6 +226,10 @@ export const createPortfolioSlice: StateCreator<
       const assetName = vaultName.split('-')[0]!;
       const isEpochExpired = await vault.isEpochExpired(epoch);
 
+      const paused = await vault.paused();
+
+      if (paused) return; // ignore positions of deprecated contracts
+
       try {
         if (!isEpochExpired)
           return {
@@ -254,6 +258,10 @@ export const createPortfolioSlice: StateCreator<
       const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
       const vaultName = await vault.symbol();
       const assetName = vaultName.split('-')[0]!;
+
+      const paused = await vault.paused();
+
+      if (paused) return;
 
       try {
         return {
