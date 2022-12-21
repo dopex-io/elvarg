@@ -108,13 +108,25 @@ export const createPortfolioSlice: StateCreator<
 > = (set, get) => ({
   portfolioData: initialPortfolioData,
   updatePortfolioData: async () => {
-    const { accountAddress, provider } = get();
+    const { accountAddress, provider, contractAddresses } = get();
 
     if (!accountAddress || !provider) return;
 
+    const getSsovNameFromAddress = (address: string) => {
+      for (let ssovName in contractAddresses['SSOV-V3']['VAULTS']) {
+        if (
+          contractAddresses['SSOV-V3']['VAULTS'][ssovName].toLowerCase() ===
+          address
+        )
+          return ssovName;
+      }
+
+      return;
+    };
+
     const getUserSSOVDeposit = async (userDeposit: any) => {
       const ssov = SsovV3__factory.connect(userDeposit.ssov.id, provider);
-      const ssovName = await ssov.name();
+      const ssovName = getSsovNameFromAddress(userDeposit.ssov.id)!;
       const isPut = await ssov.isPut();
       const assetName = await ssov.underlyingSymbol();
 
@@ -147,7 +159,7 @@ export const createPortfolioSlice: StateCreator<
 
       try {
         const ssov = SsovV3__factory.connect(ssovAddress, provider);
-        const ssovName = await ssov.name();
+        const ssovName = getSsovNameFromAddress(userPosition.ssov.id)!;
 
         const epochStrikeData = await ssov.getEpochStrikeData(
           userPosition.epoch,
