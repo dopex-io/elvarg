@@ -221,12 +221,19 @@ export const createPortfolioSlice: StateCreator<
       // const tokenId = id.split('#')[1];
 
       const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
-      const vaultName = await vault.symbol();
       const epoch = userPosition.epoch;
-      const assetName = vaultName.split('-')[0]!;
-      const isEpochExpired = await vault.isEpochExpired(epoch);
 
-      const paused = await vault.paused();
+      const responses = await Promise.all([
+        vault.symbol(),
+        vault.isEpochExpired(epoch),
+        vault.paused(),
+      ]);
+
+      const vaultName = responses[0];
+      const isEpochExpired = responses[1];
+      const paused = responses[2];
+
+      const assetName = vaultName.split('-')[0]!;
 
       if (paused) return; // ignore positions of deprecated contracts
 
@@ -256,10 +263,13 @@ export const createPortfolioSlice: StateCreator<
       // const tokenId = id.split('#')[1];
 
       const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
-      const vaultName = await vault.symbol();
-      const assetName = vaultName.split('-')[0]!;
 
-      const paused = await vault.paused();
+      const responses = await Promise.all([vault.symbol(), vault.paused()]);
+
+      const vaultName = responses[0];
+      const paused = responses[1];
+
+      const assetName = vaultName.split('-')[0]!;
 
       if (paused) return;
 
