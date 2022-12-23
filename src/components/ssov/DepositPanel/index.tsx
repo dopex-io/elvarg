@@ -89,6 +89,12 @@ const DepositPanel = () => {
     []
   );
 
+  const hasExpiryElapsed = useMemo(() => {
+    const expiry = epochTimes[1]?.toNumber();
+    if (!expiry) return true;
+    return expiry < Math.ceil(Number(new Date()) / 1000);
+  }, [epochTimes]);
+
   const handleApprove = useCallback(async () => {
     if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
@@ -328,7 +334,7 @@ const DepositPanel = () => {
                 ? 'primary'
                 : 'mineshaft'
             }
-            disabled={strikeDepositAmount <= 0}
+            disabled={strikeDepositAmount <= 0 || hasExpiryElapsed}
             onClick={approved ? handleDeposit : handleApprove}
           >
             {approved
