@@ -304,7 +304,7 @@ const DepositPanel = () => {
             </Box>
             <Typography variant="h6" className="text-stieglitz">
               Withdrawals are locked until end of Epoch{' '}
-              {(ssovData?.currentEpoch || 0) + 1}{' '}
+              {ssovData?.currentEpoch || 0}{' '}
               <span className="text-white">
                 ({' '}
                 {epochTimes[1]
