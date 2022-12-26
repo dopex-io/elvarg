@@ -107,6 +107,7 @@ const appLinks = {
     { name: 'DPX Bonds', to: '/dpx-bonds' },
     { name: 'AMM', to: '/amm' },
     { name: 'APP', to: '/perpetual-pools' },
+    { name: 'Mint', to: '/mint' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -144,7 +145,8 @@ interface AppBarProps {
     | 'DPX Bonds'
     | 'vaults'
     | 'AMM'
-    | 'APP';
+    | 'APP'
+    | 'Mint';
 }
 
 export default function AppBar(props: AppBarProps) {

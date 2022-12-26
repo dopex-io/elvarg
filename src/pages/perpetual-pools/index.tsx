@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
 import Title from 'components/perpetual-pools/Title';
-import Stats from 'components/perpetual-pools/Stats/index.';
+import Stats from 'components/perpetual-pools/Stats';
 import Description from 'components/perpetual-pools/Description';
 import DepositPanel from 'components/perpetual-pools/DepositPanel';
 import DepositTable from 'components/perpetual-pools/DepositTable';

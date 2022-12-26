@@ -14,6 +14,11 @@ import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
 import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
 import { AmmSlice, createAmmSlice } from './RdpxV2/amm';
+import { APPSlice, createAppSlice } from './RdpxV2/perpetual-pools';
+import {
+  DpxusdBondingSlice,
+  createDpxusdBondingSlice,
+} from './RdpxV2/dpxusd-bonding';
 
 type T = WalletSlice &
   TokenSaleSlice &
@@ -27,7 +32,9 @@ type T = WalletSlice &
   VeDPXSlice &
   StraddlesSlice &
   DpxBondsSlice &
-  AmmSlice;
+  AmmSlice &
+  APPSlice &
+  DpxusdBondingSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -44,5 +51,7 @@ export const useBoundStore = create<T>()(
     ...createStraddlesSlice(...a),
     ...createDpxBondsSlice(...a),
     ...createAmmSlice(...a),
+    ...createAppSlice(...a),
+    ...createDpxusdBondingSlice(...a),
   }))
 );
