@@ -52,6 +52,8 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
       ? 'DopexBridgoorNFT'
       : nftName === 'Dopex Halloween NFT'
       ? 'DopexHalloweenNFT'
+      : nftName === 'Dopex Santas NFT'
+      ? 'DopexSantasNFT'
       : 'DiamondPepes';
 
   const handleClaimDialogClose = () => setClaimDialog(false);

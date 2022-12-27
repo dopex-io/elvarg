@@ -21,6 +21,7 @@ import { useBoundStore } from 'store';
 
 import dopexBridgoorAddresses from 'constants/json/dopexBridgoorAddresses.json';
 import dopexHalloweenAddresses from 'constants/json/dopexHalloweenAddresses.json';
+import dopexSantasAddresses from 'constants/json/dopexSantasAddresses.json';
 
 interface ClaimDialogProps {
   open: boolean;
@@ -42,7 +43,9 @@ const ClaimDialog = (props: ClaimDialogProps) => {
   const addresses =
     name === 'Dopex Bridgoor NFT'
       ? dopexBridgoorAddresses
-      : dopexHalloweenAddresses;
+      : name === 'Dopex Halloween NFT'
+      ? dopexHalloweenAddresses
+      : dopexSantasAddresses;
 
   const {
     nftContractSigner,
