@@ -105,9 +105,9 @@ const appLinks = {
     // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
-    { name: 'AMM', to: '/amm' },
-    { name: 'APP', to: '/perpetual-pools' },
-    { name: 'Mint', to: '/mint' },
+    { name: 'AMM', to: '/rdpx-v2/amm' },
+    { name: 'APP', to: '/rdpx-v2/perpetual-pools' },
+    { name: 'Mint', to: '/rdpx-v2/mint' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -292,20 +292,12 @@ export default function AppBar(props: AppBarProps) {
             <Box className="space-x-10 mr-10 hidden lg:flex">
               {links?.map(
                 (link: { name: Key | null | undefined; to: string }) => {
-                  if (link.name === active)
-                    return (
-                      <AppLink
-                        to={link.to}
-                        name={link.name!}
-                        key={link.name}
-                        active
-                      />
-                    );
                   return (
                     <AppLink
                       to={link.to}
                       name={String(link.name!)}
                       key={link.name}
+                      active={link.name === active}
                     />
                   );
                 }
