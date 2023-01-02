@@ -3,17 +3,35 @@ import Box from '@mui/material/Box';
 import Title from 'components/rdpx-v2/Title';
 import Stats from 'components/rdpx-v2/Stats';
 import BondPanel from 'components/rdpx-v2/BondPanel';
+import Charts from 'components/rdpx-v2/Charts';
+import QuickLink from 'components/rdpx-v2/QuickLink';
 
 const statsKeys = [
   'Supply',
   'Market Cap',
   'Collateral Ratio',
   'Bonded',
-  '  ',
+  '',
   ' ',
 ];
 
 const statsValues = ['-', '-', '-', '-', '', ''];
+
+const quickLink1Props = {
+  text: 'Dune Analytics',
+  iconSymbol: '/assets/dune-dashboard.svg',
+  url: 'https://app.dopex.io/ssov',
+};
+const quickLink2Props = {
+  text: 'RDPX Whitepaper',
+  iconSymbol: '/images/tokens/rdpx.svg',
+  url: 'https://app.dopex.io/ssov',
+};
+const quickLink3Props = {
+  text: 'What is DSC?',
+  iconSymbol: '/images/tokens/dsc.svg',
+  url: 'https://app.dopex.io/ssov',
+};
 
 const RdpxV2Main = () => {
   return (
@@ -30,8 +48,12 @@ const RdpxV2Main = () => {
               statsKeys.map((_, i) => [statsKeys[i], statsValues[i]])
             )}
           />
-          <Box>Graphs</Box>
-          <Box>Redirect URLs</Box>
+          <Charts />
+          <Box className="flex space-x-2 w-full">
+            <QuickLink {...quickLink1Props} />
+            <QuickLink {...quickLink2Props} />
+            <QuickLink {...quickLink3Props} />
+          </Box>
           {/* <DepositTable /> */}
         </Box>
         <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">

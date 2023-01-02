@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
+import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Mint/CollateralInputPanel';
+import MintDisabledPanel from 'components/rdpx-v2/BondPanel/Mint/MintDisabledPanel';
 
 import { useBoundStore } from 'store';
 
@@ -18,6 +21,8 @@ const Mint = () => {
   const { chainId, userAssetBalances } = useBoundStore();
 
   const [value, setValue] = useState<number | string>('');
+  const [mintDisabled, setMintDisabled] = useState<boolean>(true);
+  console.log(setMintDisabled);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -39,16 +44,16 @@ const Mint = () => {
   }, [chainId, userAssetBalances]);
 
   return (
-    <Box className="space-y-3">
-      <Box className="bg-umbra rounded-xl w-full">
+    <Box className="space-y-3 relative">
+      {mintDisabled ? <MintDisabledPanel /> : null}
+      <Box className="bg-umbra rounded-xl w-full h-fit">
         <Input
           size="small"
           value={value}
           onChange={handleChange}
           placeholder="0.0"
-          className="flex w-full"
           leftElement={
-            <Box className="flex my-auto space-x-2">
+            <Box className="flex my-auto space-x-2 w-2/3">
               <img
                 src={`/images/tokens/${'DSC'?.toLowerCase()}.svg`}
                 alt={'USDC'.toLowerCase()}
@@ -83,6 +88,7 @@ const Mint = () => {
           </Typography>
         </Box>
       </Box>
+      <CollateralInputPanel setAmounts={() => {}} />
       <Box className="rounded-xl p-4 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
@@ -102,15 +108,35 @@ const Mint = () => {
             </Box>
           </Box>
         </Box>
-        <CustomButton
-          size="medium"
-          className="w-full mt-4 !rounded-md"
-          color={'mineshaft'}
-          disabled={true}
-          onClick={() => {}}
-        >
-          Deposit
-        </CustomButton>
+        {!mintDisabled ? (
+          <CustomButton
+            size="medium"
+            className="w-full mt-4 rounded-md"
+            color={'mineshaft'}
+            disabled={!mintDisabled}
+            onClick={() => {}}
+          >
+            Deposit
+          </CustomButton>
+        ) : (
+          <a
+            className="flex space-x-2 w-full mt-4 rounded-md bg-[#3966A0] justify-between p-2"
+            role="link"
+            href="https://arbitrum.curve.fi/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="flex space-x-2">
+              <img
+                src={'/images/tokens/crv.svg'}
+                alt="crv"
+                className="w-4 my-auto"
+              />
+              <Typography variant="h6">Buy DSC</Typography>
+            </span>
+            <LaunchOutlinedIcon className="fill-current text-white w-[1.2rem]" />
+          </a>
+        )}
       </Box>
     </Box>
   );
