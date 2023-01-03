@@ -11,9 +11,11 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import useSendTx from 'hooks/useSendTx';
 
 const SsovV3Deposit = ({
+  ssovSymbol,
   ssovAddress,
   id,
 }: {
+  ssovSymbol: string;
   ssovAddress: string;
   id: BigNumber;
 }) => {
@@ -33,6 +35,7 @@ const SsovV3Deposit = ({
 
   return (
     <Box className="bg-carbon mb-3 rounded-lg max-w-max p-3">
+      <Typography variant="h5">{ssovSymbol}</Typography>
       <Typography variant="h5">Id: {getUserReadableAmount(id, 18)}</Typography>
       <Box className="mt-2">
         <WalletButton onClick={handleWithdraw}>Withdraw</WalletButton>

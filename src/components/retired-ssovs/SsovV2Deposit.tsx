@@ -50,10 +50,9 @@ const SsovV2Deposit = ({ deposit }: any) => {
 
   return (
     <Box className="bg-carbon mb-3 rounded-lg max-w-max p-3">
-      <Typography variant="h5">
-        Epoch: {getUserReadableAmount(deposit.amount, 18)}
-      </Typography>
-      <Box>Deposit: {deposit.epoch}</Box>
+      <Typography variant="h5">{deposit.ssovSymbol}</Typography>
+      <Typography variant="h5">Epoch: {deposit.epoch}</Typography>
+      <Box>Deposit: {getUserReadableAmount(deposit.amount, 18)}</Box>
       <Box>Strike: {strike}</Box>
       <Box className="mt-2">
         <WalletButton onClick={handleWithdraw}>Withdraw</WalletButton>
