@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
+import { Box } from '@mui/material';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import { SelectChangeEvent } from '@mui/material/Select';
@@ -6,11 +7,18 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
+import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import { allowanceApproval, getContractReadableAmount } from 'utils/contracts';
 
 import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
 
-import DepositPanel from './DepositPanel';
+import { DiscountBox, WithdrawInfoBox } from 'components/common/LpCommon';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
+
+import { DepositBalanceBox, StrikeBox, PutBox } from './DepositPanel';
+
+import { getDepositMessage } from 'utils/contracts';
+import { Typography } from 'components/UI';
 
 // For Goerli test net
 const CHAIN_ID: number = 5;
@@ -198,30 +206,83 @@ const ProvideLp = () => {
     [setSelectedIsPut, updateOlp, updateOlpEpochData, updateOlpUserData]
   );
 
+  const depositButtonMessage = getDepositMessage(
+    olpEpochData!.isEpochExpired,
+    depositAmount,
+    assetIdx,
+    approved,
+    underlyingApproved,
+    usdBalance,
+    underlyingBalance,
+    discountAmount,
+    rawDiscountAmount
+  );
+
   return (
-    <DepositPanel
-      strikeIdx={strikeIdx}
-      assetIdx={assetIdx}
-      handleSelectStrike={handleSelectStrike}
-      olpEpochData={olpEpochData!}
-      olpData={olpData!}
-      rawDiscountAmount={rawDiscountAmount}
-      setRawDiscountAmount={setRawDiscountAmount}
-      discountAmount={discountAmount}
-      rawDepositAmount={rawDepositAmount}
-      setRawDepositAmount={setRawDepositAmount}
-      handleSelectAsset={handleSelectAsset}
-      usdBalance={usdBalance}
-      underlyingBalance={underlyingBalance}
-      chainId={CHAIN_ID}
-      approved={approved}
-      underlyingApproved={underlyingApproved}
-      handleIsPut={handleIsPut}
-      handleApprove={handleApprove}
-      handleUnderlyingApprove={handleUnderlyingApprove}
-      handleDeposit={handleDeposit}
-      depositAmount={depositAmount}
-    />
+    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
+      <Box className="flex mb-3">
+        <Typography variant="h5">Provide LP</Typography>
+      </Box>
+      <DepositBalanceBox
+        rawDepositAmount={rawDepositAmount}
+        setRawDepositAmount={setRawDepositAmount}
+        usdBalance={usdBalance}
+        underlyingBalance={underlyingBalance}
+        assetIdx={assetIdx}
+        underlyingSymbol={olpData?.underlyingSymbol!}
+        assets={['usdc', olpData?.underlyingSymbol!.toLowerCase()!]}
+        handleSelectAsset={handleSelectAsset}
+      />
+      <Box className="flex flex-row justify-between bg-umbra p-1 pb-2 border-radius rounded-lg mt-1">
+        <PutBox
+          isPut={olpData?.isPut!}
+          handleIsPut={handleIsPut}
+          hasPut={olpData?.hasPut!}
+          hasCall={olpData?.hasCall!}
+        />
+        <StrikeBox
+          strikeIdx={strikeIdx}
+          handleSelectStrike={handleSelectStrike}
+          olpEpochData={olpEpochData}
+        />
+      </Box>
+      <Box className="bg-umbra p-1 pb-2 border-radius rounded-lg mt-1">
+        <DiscountBox
+          rawAmount={rawDiscountAmount}
+          setRawAmount={setRawDiscountAmount}
+          amount={discountAmount}
+        />
+      </Box>
+      <Box className="bg-umbra p-2 border-radius rounded-lg mt-4">
+        <Box className="bg-carbon p-2 border-radius rounded-lg my-2 space-y-1">
+          <EstimatedGasCostButton gas={500000} chainId={CHAIN_ID} />
+          <WithdrawInfoBox expiry={olpEpochData?.expiry!} />
+        </Box>
+        {assetIdx === 0 ? (
+          <ApproveDepositButton
+            approved={approved}
+            fillButtonMessage={depositButtonMessage}
+            handleFillPosition={handleDeposit}
+            handleApprove={handleApprove}
+            showPrimary={
+              !olpEpochData?.isEpochExpired &&
+              (!approved || depositButtonMessage === 'Provide LP')
+            }
+          />
+        ) : (
+          <ApproveDepositButton
+            approved={underlyingApproved}
+            fillButtonMessage={depositButtonMessage}
+            handleFillPosition={handleDeposit}
+            handleApprove={handleUnderlyingApprove}
+            showPrimary={
+              !olpEpochData?.isEpochExpired &&
+              (!approved || depositButtonMessage === 'Provide LP')
+            }
+          />
+        )}
+      </Box>
+    </Box>
   );
 };
 
