@@ -47,14 +47,12 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
     }
   }, [userNftsData, index, nftData]);
 
-  const nft =
-    nftName === 'Dopex Bridgoor NFT'
-      ? 'DopexBridgoorNFT'
-      : nftName === 'Dopex Halloween NFT'
-      ? 'DopexHalloweenNFT'
-      : nftName === 'Dopex Santas NFT'
-      ? 'DopexSantasNFT'
-      : 'DiamondPepes';
+  const NAME_TO_CONTRACT_NAME: { [key: string]: string } = {
+    'Dopex Bridgoor NFT': 'DopexBridgoorNFT',
+    'Dopex Halloween NFT': 'DopexHalloweenNFT',
+    'Dopex Santas NFT': 'DopexSantasNFT',
+  };
+  const nft = NAME_TO_CONTRACT_NAME[nftName];
 
   const handleClaimDialogClose = () => setClaimDialog(false);
   const handleTransferDialogClose = () => setTransferDialog(false);
