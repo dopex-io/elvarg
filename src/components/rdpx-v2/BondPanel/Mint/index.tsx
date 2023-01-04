@@ -7,7 +7,7 @@ import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Mint/CollateralInputPanel';
-import MintDisabledPanel from 'components/rdpx-v2/BondPanel/Mint/MintDisabledPanel';
+import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
 
 import { useBoundStore } from 'store';
 
@@ -45,7 +45,7 @@ const Mint = () => {
 
   return (
     <Box className="space-y-3 relative">
-      {mintDisabled ? <MintDisabledPanel /> : null}
+      {mintDisabled ? <DisabledPanel isMint={true} /> : null}
       <Box className="bg-umbra rounded-xl w-full h-fit">
         <Input
           size="small"

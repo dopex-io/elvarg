@@ -21,13 +21,6 @@ import Typography from 'components/UI/Typography';
 // import formatAmount from 'utils/general/formatAmount';
 // import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-// interface IBarData {
-//   availableCollateral: BigNumber;
-//   unlocked: BigNumber;
-//   activeCollateral: BigNumber;
-//   strike: BigNumber;
-// }
-
 const areaData = [
   {
     name: '22/01',
@@ -93,12 +86,21 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               bottom: 10,
             }}
           >
-            {/* <CartesianGrid strokeDasharray="3 3" /> */}
             <XAxis dataKey="name" hide />
             <YAxis hide />
-            <RechartsTooltip />
+            <RechartsTooltip
+              contentStyle={{
+                borderColor: '#2D2D2D',
+                backgroundColor: '#2D2D2D',
+                color: '#2D2D2D',
+              }}
+              wrapperClassName="rounded-xl flex text-right h-auto"
+              cursor={{
+                fill: '#151515',
+              }}
+            />
             <Area
-              type="monotone"
+              type="linear"
               dataKey="amt"
               stroke="#C3F8FF"
               fill="url(#colorUv1)"

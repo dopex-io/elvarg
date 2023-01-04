@@ -96,7 +96,17 @@ const PriceChart = (props: LiquidityLineChartProps) => {
             {/* <CartesianGrid strokeDasharray="3 3" /> */}
             <XAxis dataKey="name" hide />
             <YAxis hide />
-            <Tooltip />
+            <Tooltip
+              contentStyle={{
+                borderColor: '#2D2D2D',
+                backgroundColor: '#2D2D2D',
+                color: '#2D2D2D',
+              }}
+              wrapperClassName="rounded-xl flex text-right h-auto"
+              cursor={{
+                fill: '#151515',
+              }}
+            />
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0.5%" stopColor="#22e1ff" stopOpacity={0.3} />
@@ -104,7 +114,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               </linearGradient>
             </defs>
             <Area
-              type="monotone"
+              type="linear"
               dataKey="uv"
               stackId="1"
               stroke="#22e1ff"
@@ -117,7 +127,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               </linearGradient>
             </defs>
             <Area
-              type="monotone"
+              type="linear"
               dataKey="amt"
               stackId="1"
               stroke="#C3F8FF"
@@ -130,7 +140,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               </linearGradient>
             </defs>
             <Area
-              type="monotone"
+              type="linear"
               dataKey="pv"
               stackId="1"
               stroke="#7B61FF"
