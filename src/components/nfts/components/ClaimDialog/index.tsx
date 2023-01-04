@@ -21,6 +21,7 @@ import { useBoundStore } from 'store';
 
 import dopexBridgoorAddresses from 'constants/json/dopexBridgoorAddresses.json';
 import dopexHalloweenAddresses from 'constants/json/dopexHalloweenAddresses.json';
+import dopexSantasAddresses from 'constants/json/dopexSantasAddresses.json';
 
 interface ClaimDialogProps {
   open: boolean;
@@ -39,10 +40,15 @@ const ClaimDialog = (props: ClaimDialogProps) => {
 
   const [amount, setAmount] = useState<string | number>(0);
   const [loading, setLoading] = useState(false);
-  const addresses =
-    name === 'Dopex Bridgoor NFT'
-      ? dopexBridgoorAddresses
-      : dopexHalloweenAddresses;
+
+  const NAME_TO_ADDRESSES_ARRAY: {
+    [key: string]: { account: string; amount: string }[];
+  } = {
+    'Dopex Bridgoor NFT': dopexBridgoorAddresses,
+    'Dopex Halloween NFT': dopexHalloweenAddresses,
+    'Dopex Santas NFT': dopexSantasAddresses,
+  };
+  const addresses = NAME_TO_ADDRESSES_ARRAY[name];
 
   const {
     nftContractSigner,
@@ -79,7 +85,7 @@ const ClaimDialog = (props: ClaimDialogProps) => {
   }, [formik.touched.address, formik.errors.address]);
 
   const handleClick = async () => {
-    if (!nftContractSigner) return;
+    if (!nftContractSigner || !addresses) return;
 
     const index = addresses.findIndex(
       (item) =>

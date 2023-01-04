@@ -41,8 +41,9 @@ export const createNftsSlice: StateCreator<
     const nftAddresses = {
       DopexBridgoorNFT: contractAddresses['NFTS']['DopexBridgoorNFT'],
       DopexHalloweenNFT: contractAddresses['NFTS']['DopexHalloweenNFT'],
+      DopexSantasNFT: contractAddresses['NFTS']['DopexSantasNFT'],
     };
-    for (const nft in nftAddresses) {
+    for (let nft in nftAddresses) {
       const nftContract = BaseNFT__factory.connect(
         contractAddresses['NFTS'][nft],
         provider
