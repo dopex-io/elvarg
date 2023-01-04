@@ -63,12 +63,10 @@ const ProvideLp = () => {
     )
       return;
     try {
-      await sendTx(
-        ERC20__factory.connect(olpData.usd, signer).approve(
-          olpContract.address,
-          MAX_VALUE
-        )
-      );
+      await sendTx(ERC20__factory.connect(olpData.usd, signer), 'approve', [
+        olpContract.address,
+        MAX_VALUE,
+      ]);
       setApproved(true);
     } catch (err) {
       console.log(err);
@@ -85,10 +83,9 @@ const ProvideLp = () => {
       return;
     try {
       await sendTx(
-        ERC20__factory.connect(olpData.underlying, signer).approve(
-          olpContract.address,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(olpData.underlying, signer),
+        'approve',
+        [olpContract.address, MAX_VALUE]
       );
       setUnderlyingApproved(true);
     } catch (err) {
@@ -108,20 +105,19 @@ const ProvideLp = () => {
       return;
 
     try {
-      await sendTx(
-        olpContract.connect(signer).addToLp(
-          olpData.underlying,
-          assetIdx === 0, // isUsd
-          olpData?.isPut,
-          olpEpochData.strikes[strikeIdx]!,
-          getContractReadableAmount(
-            depositAmount,
-            assetIdx === 0 ? DECIMALS_USD : DECIMALS_TOKEN
-          ),
-          discountAmount,
-          accountAddress
-        )
-      );
+      await sendTx(olpContract.connect(signer), 'addToLp', [
+        olpData.underlying,
+        assetIdx === 0, // isUsd
+        olpData?.isPut,
+        olpEpochData.strikes[strikeIdx]!,
+        getContractReadableAmount(
+          depositAmount,
+          assetIdx === 0 ? DECIMALS_USD : DECIMALS_TOKEN
+        ),
+        discountAmount,
+        MAX_VALUE,
+        accountAddress,
+      ]);
 
       setRawDepositAmount('1');
       setRawDiscountAmount('1');

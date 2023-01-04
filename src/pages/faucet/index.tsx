@@ -45,9 +45,9 @@ const Faucet = () => {
       if (!signer || !faucet) return;
       try {
         if (token === OLP_TOKENS['USD']) {
-          await sendTx(faucet.connect(signer).claimUsd(token));
+          await sendTx(faucet.connect(signer), 'claimUsd', [token]);
         } else {
-          await sendTx(faucet.connect(signer).claimToken(token));
+          await sendTx(faucet.connect(signer), 'claimToken', [token]);
         }
         await updateBalances();
       } catch (err) {

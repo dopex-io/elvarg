@@ -72,11 +72,10 @@ const UserLpPositions = () => {
       );
 
       try {
-        await sendTx(
-          olpContract
-            .connect(signer)
-            .killLpPosition(selectedStrikeToken, selectedPosition.lpId)
-        );
+        await sendTx(olpContract.connect(signer), 'killLpPosition', [
+          selectedStrikeToken,
+          selectedPosition.lpId,
+        ]);
         await updateOlpEpochData!();
         await updateOlpUserData!();
       } catch (err) {

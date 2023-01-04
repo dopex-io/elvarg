@@ -94,7 +94,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
         strikeTokenAddress,
         signer
       );
-      await sendTx(strikeToken.approve(olpContract.address, MAX_VALUE));
+      await sendTx(strikeToken, 'approve', [olpContract.address, MAX_VALUE]);
       setApproved(true);
     } catch (err) {
       console.log(err);
@@ -117,17 +117,14 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
         olpData?.currentEpoch,
         lpPositionSelected?.strike
       );
-      await sendTx(
-        olpContract
-          .connect(signer)
-          .fillLpPosition(
-            olpData?.isPut,
-            outUsd,
-            strikeTokenAddress,
-            BigNumber.from(lpPositionSelected?.lpId),
-            getContractReadableAmount(rawFillAmount, DECIMALS_TOKEN)
-          )
-      );
+
+      await sendTx(olpContract.connect(signer), 'fillLpPosition', [
+        olpData?.isPut,
+        outUsd,
+        strikeTokenAddress,
+        BigNumber.from(lpPositionSelected?.lpId),
+        getContractReadableAmount(rawFillAmount, DECIMALS_TOKEN),
+      ]);
 
       setRawFillAmount('1');
 
