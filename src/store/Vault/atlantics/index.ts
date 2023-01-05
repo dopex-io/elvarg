@@ -16,6 +16,39 @@ import { WalletSlice } from 'store/Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+export enum OptionsState {
+  Settled,
+  Active,
+  Unlocked,
+}
+
+export enum EpochState {
+  InActive,
+  BootStrapped,
+  Expired,
+  Paused,
+}
+
+export enum Contracts {
+  QuoteToken,
+  BaseToken,
+  FeeDistributor,
+  FeeStrategy,
+  OptionPricing,
+  PriceOracle,
+  VolatilityOracle,
+  Gov,
+}
+
+export enum VaultConfig {
+  IvBoost,
+  ExpiryWindow,
+  FundingInterval,
+  BaseFundingRate,
+  UseDiscount,
+  ExpireDelayTolerance,
+}
+
 interface IVaultConfiguration {
   expireDelayTolerance: BigNumber;
   fundingInterval: BigNumber;
@@ -64,7 +97,6 @@ interface IAtlanticPoolEpochData {
 export interface IUserPosition {
   depositId: number | undefined;
   strike?: BigNumber;
-  timestamp: BigNumber;
   liquidity: BigNumber;
   checkpoint: BigNumber;
   depositor: string;
@@ -130,20 +162,21 @@ export const createAtlanticsSlice: StateCreator<
     );
 
     const currentEpoch = await atlanticPool.currentEpoch();
-
     let [
-      { baseToken, quoteToken },
+      baseToken,
+      quoteToken,
       underlyingPrice,
-      tickSize,
+      { tickSize },
       fundingInterval,
       expireDelayTolerance,
       { feeBps },
     ] = await Promise.all([
-      atlanticPool.addresses(),
+      atlanticPool.addresses(Contracts.BaseToken),
+      atlanticPool.addresses(Contracts.QuoteToken),
       atlanticPool.getUsdPrice(),
-      atlanticPool.epochTickSize(currentEpoch),
-      atlanticPool.fundingInterval(),
-      atlanticPool.expireDelayTolerance(),
+      atlanticPool.getEpochData(currentEpoch),
+      atlanticPool.vaultConfig(VaultConfig.FundingInterval),
+      atlanticPool.vaultConfig(VaultConfig.ExpireDelayTolerance),
       DopexFeeStrategy__factory.connect(
         contractAddresses['FEE-STRATEGY'],
         provider
@@ -271,26 +304,19 @@ export const createAtlanticsSlice: StateCreator<
       utilizationRate = 0;
     }
 
-    const vaultState =
-      await atlanticPool.contracts.atlanticPool.epochVaultStates(selectedEpoch);
-
-    const tickSize = await atlanticPool.contracts.atlanticPool.epochTickSize(
-      selectedEpoch
-    );
-
-    const [
-      settlementPrice,
-      expiryTime,
+    const {
+      state,
       startTime,
-      isVaultReady,
-      isVaultExpired,
-    ] = vaultState;
+      expiryTime,
+      settlementPrice,
+      tickSize,
+      totalLiquidity,
+    } = await atlanticPool.contracts.atlanticPool.getEpochData(selectedEpoch);
 
-    const totalEpochDeposits = (
-      await atlanticPool.contracts.atlanticPool.totalEpochCummulativeLiquidity(
-        selectedEpoch
-      )
-    )
+    const isVaultReady = state == EpochState.BootStrapped;
+    const isVaultExpired = state == EpochState.Expired;
+
+    const totalEpochDeposits = totalLiquidity
       .add(totalEpochActiveCollateral)
       .div(getContractReadableAmount(1, 6))
       .toNumber();
@@ -311,7 +337,7 @@ export const createAtlanticsSlice: StateCreator<
     const fundingAccrued = checkpoints
       .map((checkpoint) => checkpoint)
       .flat()
-      .map((cpObject) => cpObject.fundingFeesAccrued)
+      .map((cpObject) => cpObject.borrowFeesAccrued)
       .reduce((prev, next) => prev.add(next), BigNumber.from(0));
 
     const fundingAccruedInUsd = fundingAccrued // 1e6
@@ -322,6 +348,12 @@ export const createAtlanticsSlice: StateCreator<
     const epochLength = expiryTime.sub(startTime);
 
     const epochDurationInDays = epochLength.div('84600').toNumber();
+    console.log(
+      'Epoch',
+      epochDurationInDays,
+      expiryTime.toString(),
+      startTime.toString()
+    );
 
     const apr =
       (((premiaInUsd + fundingAccruedInUsd) / totalEpochDeposits) *
@@ -407,10 +439,11 @@ export const createAtlanticsSlice: StateCreator<
     let depositIds: number[] = [];
 
     userDeposits = await atlanticsViewer.getUserDeposits(
-      selectedEpoch,
       poolAddress,
+      selectedEpoch,
       accountAddress
     );
+
     userDeposits = userDeposits.filter((deposit, index) => {
       if (deposit.depositor === accountAddress) {
         depositIds.push(index);
@@ -419,7 +452,7 @@ export const createAtlanticsSlice: StateCreator<
     });
 
     const depositCheckpointCalls = userDeposits.map((deposit) => {
-      return atlanticPool.contracts.atlanticPool.epochMaxStrikeCheckpoints(
+      return atlanticPool.contracts.atlanticPool.getEpochMaxStrikeCheckpoint(
         selectedEpoch,
         deposit.strike,
         deposit.checkpoint
@@ -434,12 +467,9 @@ export const createAtlanticsSlice: StateCreator<
 
     let depositCheckpoints = await Promise.all(depositCheckpointCalls);
     const _userDeposits = userDeposits.map(
-      (
-        { strike, timestamp, liquidity, checkpoint, depositor },
-        index: number
-      ) => {
+      ({ strike, liquidity, checkpoint, depositor }, index: number) => {
         const fundingEarned: BigNumber = liquidity
-          .mul(depositCheckpoints[index]?.fundingFeesAccrued ?? 0)
+          .mul(depositCheckpoints[index]?.borrowFeesAccrued ?? 0)
           .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
         const underlyingEarned = liquidity
           .mul(depositCheckpoints[index]?.underlyingAccrued ?? 0)
@@ -466,7 +496,6 @@ export const createAtlanticsSlice: StateCreator<
         return {
           depositId: depositIds[index],
           strike,
-          timestamp,
           liquidity,
           checkpoint,
           fundingEarned,
