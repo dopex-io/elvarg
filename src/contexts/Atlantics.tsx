@@ -20,6 +20,7 @@ import {
 import { useBoundStore } from 'store';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import { Contracts, VaultConfig } from 'store/Vault/atlantics';
 
 interface IVaultConfiguration {
   fundingInterval: BigNumber;
@@ -64,7 +65,6 @@ interface IContracts {
 export interface IUserPosition {
   depositId: number | undefined;
   strike?: BigNumber;
-  timestamp: BigNumber;
   liquidity: BigNumber;
   checkpoint: BigNumber;
   depositor: string;
@@ -239,21 +239,20 @@ export const AtlanticsProvider = (props: any) => {
       const checkpoints = await Promise.all(latestCheckpointsCalls);
 
       let [
-        { baseToken, quoteToken },
-        state,
+        baseToken,
+        quoteToken,
         underlyingPrice,
-        tickSize,
+        { tickSize },
         fundingInterval,
         expireDelayTolerance,
       ] = await Promise.all([
-        atlanticPool.addresses(),
-        atlanticPool.epochVaultStates(epoch),
+        atlanticPool.addresses(Contracts.BaseToken),
+        atlanticPool.addresses(Contracts.QuoteToken),
         atlanticPool.getUsdPrice(),
-        atlanticPool.epochTickSize(epoch),
-        atlanticPool.fundingInterval(),
-        atlanticPool.expireDelayTolerance(),
+        atlanticPool.getEpochData(epoch),
+        atlanticPool.vaultConfig(VaultConfig.FundingInterval),
+        atlanticPool.vaultConfig(VaultConfig.ExpireDelayTolerance),
       ]);
-
       let data: IEpochData;
 
       if (!checkpoints) return;
@@ -334,6 +333,8 @@ export const AtlanticsProvider = (props: any) => {
         volume: volume.add(totalEpochActiveCollateral),
         poolsCount: poolsCount.add(1),
       }));
+
+      const state: any = {};
 
       return {
         asset: underlying,
@@ -529,8 +530,8 @@ export const AtlanticsProvider = (props: any) => {
     if (poolType === 'PUTS') {
       atlanticPool = selectedPool.contracts?.atlanticPool;
       userDeposits = await atlanticsViewer.getUserDeposits(
-        selectedEpoch,
         poolAddress,
+        selectedEpoch,
         accountAddress
       );
       userDeposits = userDeposits.filter((deposit, index) => {
@@ -541,7 +542,7 @@ export const AtlanticsProvider = (props: any) => {
       });
 
       const depositCheckpointCalls = userDeposits.map((deposit) => {
-        return (atlanticPool as AtlanticPutsPool).epochMaxStrikeCheckpoints(
+        return (atlanticPool as AtlanticPutsPool).getEpochMaxStrikeCheckpoint(
           selectedEpoch,
           deposit.strike,
           deposit.checkpoint
@@ -550,12 +551,9 @@ export const AtlanticsProvider = (props: any) => {
 
       let depositCheckpoints = await Promise.all(depositCheckpointCalls);
       const _userDeposits = userDeposits.map(
-        (
-          { strike, timestamp, liquidity, checkpoint, depositor },
-          index: number
-        ) => {
+        ({ strike, liquidity, checkpoint, depositor }, index: number) => {
           const fundingEarned: BigNumber = liquidity
-            .mul(depositCheckpoints[index]?.fundingFeesAccrued ?? 0)
+            .mul(depositCheckpoints[index]?.borrowFeesAccrued ?? 0)
             .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
           const underlyingEarned = liquidity
             .mul(depositCheckpoints[index]?.underlyingAccrued ?? 0)
@@ -579,7 +577,6 @@ export const AtlanticsProvider = (props: any) => {
           return {
             depositId: depositIds[index],
             strike,
-            timestamp,
             liquidity,
             checkpoint,
             fundingEarned,

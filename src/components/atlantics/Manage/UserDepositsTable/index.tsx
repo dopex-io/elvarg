@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { format, formatDistance } from 'date-fns';
+import { formatDistance } from 'date-fns';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
@@ -138,7 +138,9 @@ const UserDepositsTable = () => {
       }
       try {
         const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
-        await sendTx(apContract.withdraw(depositId));
+        await sendTx(
+          apContract.withdraw([depositId], await signer.getAddress())
+        );
       } catch (err) {
         console.log(err);
       }
@@ -191,14 +193,14 @@ const UserDepositsTable = () => {
                   ${getUserReadableAmount(position?.strike ?? 0, 8)}
                 </TableBodyCell>
               }
-              <TableBodyCell>
+              {/* <TableBodyCell>
                 <Typography variant="h6">
                   {format(
                     new Date(position.timestamp.toNumber() * 1000),
                     'd LLL yyyy'
                   )}
                 </Typography>
-              </TableBodyCell>
+              </TableBodyCell> */}
               <TableBodyCell>
                 <Typography variant="h6">
                   $
