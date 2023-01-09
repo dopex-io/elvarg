@@ -192,6 +192,7 @@ const appLinks = {
           to: '/straddles',
           description: 'Buy/write straddles for crypto assets',
         },
+        { name: 'Lending', to: '/lending', description: 'Lending' },
       ],
     },
     {
@@ -227,6 +228,7 @@ const appLinks = {
     { name: 'OLP', to: '/olp' },
   ],
   137: [{ name: 'Straddles', to: '/straddles' }],
+  421613: [{ name: 'Lending', to: '/lending' }],
 };
 
 const menuLinks = [
