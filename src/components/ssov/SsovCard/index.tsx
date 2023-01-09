@@ -93,7 +93,7 @@ function SsovCard(props: any) {
             <Box className="mr-4 h-8 max-w-14 flex flex-row">
               <img
                 className="w-9 h-9"
-                src={SSOV_MAP[name]?.imageSrc}
+                src={`/images/tokens/${name.toLowerCase()}.svg`}
                 alt={name}
               />
             </Box>
@@ -127,7 +127,7 @@ function SsovCard(props: any) {
             <Typography variant="h6" className="text-stieglitz">
               Epoch {currentEpoch}
             </Typography>
-            {!retired ? (
+            {!retired && epochTimes ? (
               <Tooltip
                 className="text-stieglitz"
                 arrow={true}

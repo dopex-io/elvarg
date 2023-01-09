@@ -77,6 +77,11 @@ export const SSOV_MAP: {
     imageSrc: '/images/tokens/metis.svg',
     tokens: ['METIS'],
   },
+  stETH: {
+    tokenSymbol: 'stETH',
+    imageSrc: '/images/tokens/wsteth.svg',
+    tokens: ['wstETH'],
+  },
 };
 
 export const VAULT_MAP: { [key: string]: { src: string } } = {
@@ -275,7 +280,8 @@ export const IS_NATIVE = (asset: string) => {
   return ['ETH', 'BNB', 'AVAX'].includes(asset);
 };
 
-export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
+export const DOPEX_API_BASE_URL =
+  'https://dopex-api-git-feat-steth-dopex-io.vercel.app';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
