@@ -173,34 +173,58 @@ const DepositPanel = () => {
     })();
   }, [accountAddress, signer, ssovData]);
 
+  const collateralCTA = useMemo(() => {
+    if (ssovData?.isPut) {
+      return (
+        <a
+          href="https://curve.fi/#/arbitrum/pools/2pool/deposit"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto mt-1"
+        >
+          <Box role="button" className="underline">
+            <Typography variant="h6" className="text-stieglitz">
+              Get 2CRV
+            </Typography>
+          </Box>
+        </a>
+      );
+    } else if (ssovData?.collateralSymbol === 'WETH') {
+      return (
+        <Box
+          role="button"
+          className="underline ml-auto mt-1 text-sm"
+          onClick={() => setWrapOpen(true)}
+        >
+          Wrap ETH
+        </Box>
+      );
+    } else if (ssovData?.collateralSymbol === 'wstETH') {
+      return (
+        <a
+          href="https://app.1inch.io/#/42161/unified/swap/ETH/wstETH"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto mt-1"
+        >
+          <Box role="button" className="underline">
+            <Typography variant="h6" className="text-stieglitz">
+              Get wstETH
+            </Typography>
+          </Box>
+        </a>
+      );
+    }
+    return <React.Fragment />;
+  }, [ssovData]);
+
   return (
     <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
       <Box className="flex mb-3">
         <Typography variant="h3" className="text-stieglitz">
           Deposit
         </Typography>
-        {ssovData?.isPut ? (
-          <a
-            href="https://arbitrum.curve.fi/2pool/deposit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-auto mt-1"
-          >
-            <Box role="button" className="underline">
-              <Typography variant="h6" className="text-stieglitz">
-                Get 2CRV
-              </Typography>
-            </Box>
-          </a>
-        ) : (
-          <Box
-            role="button"
-            className="underline ml-auto mt-1 text-sm"
-            onClick={() => setWrapOpen(true)}
-          >
-            Wrap ETH
-          </Box>
-        )}
+        {collateralCTA}
         <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       </Box>
       <Box>
