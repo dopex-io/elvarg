@@ -56,6 +56,7 @@ export interface SsovV3EpochData {
   APY: string;
   TVL: number;
   rewards: Reward[];
+  collateralExchangeRate: BigNumber;
 }
 
 export interface WritePositionInterface {
@@ -181,6 +182,8 @@ export const createSsovV3Slice: StateCreator<
       ),
     ]);
 
+    console.log('Asdas', epochData);
+
     const epochStrikes = epochData.strikes;
 
     const epochStrikeDataArray = await Promise.all(
@@ -227,6 +230,7 @@ export const createSsovV3Slice: StateCreator<
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
       rewards: rewardsPayLoad.data.rewards,
+      collateralExchangeRate: epochData.collateralExchangeRate,
     };
 
     set((prevState) => ({ ...prevState, ssovEpochData: _ssovEpochData }));

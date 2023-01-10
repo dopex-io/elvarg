@@ -10,6 +10,7 @@ import TableCell from '@mui/material/TableCell';
 import Skeleton from '@mui/material/Skeleton';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
+import { ethers } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 
@@ -23,7 +24,7 @@ import styles from './styles.module.scss';
 interface StatsTableDataProps {
   strikeIndex: number;
   strikePrice: number;
-  totalDeposits: number;
+  totalAvailable: number;
   totalPurchased: number;
   totalPremiums: number;
   underlyingSymbol: string;
@@ -34,7 +35,7 @@ interface StatsTableDataProps {
 const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
   const {
     strikePrice,
-    totalDeposits,
+    totalAvailable,
     totalPurchased,
     totalPremiums,
     price,
@@ -62,22 +63,20 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">
-        <Typography variant="h6">
-          {formatAmount(totalDeposits, 5)} {collateralSymbol}
-        </Typography>
+        <Typography variant="h6">{formatAmount(totalAvailable, 5)}</Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
-          {formatAmount(isPut ? totalDeposits : totalDeposits * price, 2)}
+          {formatAmount(isPut ? totalAvailable : totalAvailable * price, 2)}
         </Box>
       </TableCell>
       <TableCell align="left" className="pt-2">
         <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {formatAmount(
-            totalDeposits > 0
+            totalAvailable > 0
               ? 100 *
                   (totalPurchased /
-                    (isPut ? totalDeposits / strikePrice : totalDeposits))
+                    (isPut ? totalAvailable / strikePrice : totalAvailable))
               : 0,
             5
           )}
@@ -111,10 +110,15 @@ const Stats = (props: { className?: string }) => {
     () =>
       ssovEpochData?.epochStrikes.map((strike, strikeIndex) => {
         const strikePrice = getUserReadableAmount(strike, 8);
-        const totalDeposits = getUserReadableAmount(
-          ssovEpochData?.totalEpochStrikeDeposits[strikeIndex] ?? 0,
-          18
+
+        const totalAvailable = getUserReadableAmount(
+          (
+            ssovEpochData?.totalEpochStrikeDeposits[strikeIndex] ??
+            ethers.BigNumber.from(0)
+          )?.div(ssovEpochData.collateralExchangeRate),
+          10
         );
+
         const totalPurchased = getUserReadableAmount(
           ssovEpochData?.totalEpochOptionsPurchased[strikeIndex] ?? 0,
           18
@@ -128,7 +132,7 @@ const Stats = (props: { className?: string }) => {
         return {
           strikeIndex,
           strikePrice,
-          totalDeposits,
+          totalAvailable,
           totalPurchased,
           totalPremiums,
         };
@@ -183,7 +187,7 @@ const Stats = (props: { className?: string }) => {
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
                     <Typography variant="h6" className="text-stieglitz">
-                      Total Deposits
+                      Total Available
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -209,7 +213,7 @@ const Stats = (props: { className?: string }) => {
                   ({
                     strikeIndex,
                     strikePrice,
-                    totalDeposits,
+                    totalAvailable,
                     totalPurchased,
                     totalPremiums,
                   }) => {
@@ -218,7 +222,7 @@ const Stats = (props: { className?: string }) => {
                         key={strikeIndex}
                         strikeIndex={strikeIndex}
                         strikePrice={strikePrice}
-                        totalDeposits={totalDeposits}
+                        totalAvailable={totalAvailable}
                         totalPurchased={totalPurchased}
                         totalPremiums={totalPremiums}
                         price={price}
