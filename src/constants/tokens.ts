@@ -18,9 +18,13 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
     symbol: 'JONES',
     imgSrc: '/images/tokens/jones.svg',
   },
-  '0x51318B7D00db7ACc4026C88c3952B66278B6A67F': {
+  '0x51318b7d00db7acc4026c88c3952b66278b6a67f': {
     symbol: 'PLS',
     imgSrc: '/images/tokens/pls.svg',
+  },
+  '0x13ad51ed4f1b7e9dc168d8a00cb3f4ddd85efa60': {
+    symbol: 'LDO',
+    imgSrc: '',
   },
 };
 
