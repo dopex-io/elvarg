@@ -6,16 +6,9 @@ import BondPanel from 'components/rdpx-v2/BondPanel';
 import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 
-const statsKeys = [
-  'Supply',
-  'Market Cap',
-  'Collateral Ratio',
-  'Bonded',
-  '',
-  ' ',
-];
+const statsKeys = ['Supply', 'Market Cap', 'Collateral Ratio', 'Bonded'];
 
-const statsValues = ['-', '-', '-', '-', '', ''];
+const statsValues = ['-', '-', '-', '-'];
 
 const quickLink1Props = {
   text: 'Dune Analytics',

@@ -1,5 +1,25 @@
 import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
+import { ERC721__factory, ERC721 } from '@dopex-io/sdk';
+
+type RdpxV2Treasury = any;
+// class RdpxV2Treasury__factory {
+//   bondContract() {}
+//   addresses() {}
+//   rdpxReserve() {}
+//   lpReserve() {}
+//   dscReserve() {}
+//   UPPER_PEG() {}
+//   DSC_FIRST_LOWER_PEG() {}
+//   DSC_SECOND_LOWER_PEG() {}
+//   alphaTokenRatio() {}
+//   rdpxRatio() {}
+//   bondMaturity() {}
+//   totalSupply() {}
+// }
+
+interface RdpxV2Bonds extends ERC721 {}
+// class RdpxV2Bonds__factory {}
 
 import { WalletSlice } from 'store/Wallet';
 import { AssetsSlice } from 'store/Assets';
@@ -12,6 +32,8 @@ interface Bond {
 }
 
 interface RdpxV2TreasuryData {
+  bondsContract?: RdpxV2Bonds | any;
+  treasuryContract?: RdpxV2Treasury;
   addresses: string[];
   rdpxReserve: BigNumber;
   lpReserve: BigNumber;
@@ -46,6 +68,8 @@ interface UserDscBondData {
 }
 
 const initialTreasuryContractData: RdpxV2TreasuryData = {
+  bondsContract: {},
+  treasuryContract: {},
   addresses: [],
   rdpxReserve: BigNumber.from(0),
   lpReserve: BigNumber.from(0),
@@ -79,32 +103,123 @@ const initialUserDscBondData: UserDscBondData = {
 };
 
 export const createDpxusdBondingSlice: StateCreator<
-  WalletSlice & AssetsSlice,
+  WalletSlice & AssetsSlice & DpxusdBondingSlice,
   [],
   [['zustand/devtools', never]],
   DpxusdBondingSlice
-> = (_, get) => ({
+> = (set, get) => ({
   treasuryContractData: initialTreasuryContractData,
-  updateContractData: async () => {},
+  updateContractData: async () => {
+    const { contractAddresses, provider } = get();
+
+    if (!contractAddresses || !provider) return;
+
+    const treasuryAddress = contractAddresses['RDPX-V2']['Treasury'];
+    let rdpxV2Treasury: RdpxV2Treasury;
+
+    rdpxV2Treasury = ERC721__factory.connect(treasuryAddress, provider);
+
+    const [
+      bondContract,
+      treasuryContract,
+      addresses,
+      rdpxReserve,
+      lpReserve,
+      dscReserve,
+      upperPeg,
+      firstLowerPeg,
+      secondLowerPeg,
+      alphaTokenRatio,
+      rdpxRatio,
+      bondMaturity,
+      totalSupply,
+    ] = await Promise.all([
+      rdpxV2Treasury.bondContract(),
+      rdpxV2Treasury,
+      rdpxV2Treasury.addresses(),
+      rdpxV2Treasury.rdpxReserve(),
+      rdpxV2Treasury.lpReserve(),
+      rdpxV2Treasury.dscReserve(),
+      rdpxV2Treasury.UPPER_PEG(),
+      rdpxV2Treasury.DSC_FIRST_LOWER_PEG(),
+      rdpxV2Treasury.DSC_SECOND_LOWER_PEG(),
+      rdpxV2Treasury.alphaTokenRatio(),
+      rdpxV2Treasury.rdpxRatio(),
+      rdpxV2Treasury.bondMaturity(),
+      rdpxV2Treasury.totalSupply(),
+    ]);
+
+    set((prevState) => ({
+      ...prevState,
+      treasuryContractData: {
+        bondContract,
+        treasuryContract,
+        addresses,
+        rdpxReserve,
+        lpReserve,
+        dscReserve,
+        upperPeg,
+        firstLowerPeg,
+        secondLowerPeg,
+        alphaTokenRatio,
+        rdpxRatio,
+        bondMaturity,
+        totalSupply,
+      },
+    }));
+  },
   userDscBondData: initialUserDscBondData,
   updateUserData: async () => {},
   bondDsc: async (amount: number, to: string) => {
     const { signer, accountAddress } = get();
     if (!signer || !accountAddress) return;
     console.log(amount, to);
-    // return Factory.connect(signer).bond(amount, accountAddress);
+    // return Treasury__factory.connect(signer).bond(amount, accountAddress);
   },
   redeem: async (bondId: number, to: string) => {
     const { signer, accountAddress } = get();
     if (!signer || !accountAddress) return;
     console.log(bondId, to);
-    // return Factory.connect(signer).redeem(bondId, accountAddress);
+    // return Treasury__factory.connect(signer).redeem(bondId, accountAddress);
   },
   getBondMaturity: async (bondId: number) => {
     console.log(bondId);
-    // return Factory.connect(contractAddress, provider).getBondMaturity(bondId);
+    // return Treasury__factory.connect(contractAddress, provider).getBondMaturity(bondId);
   },
-  updateUserDscBondsData: () => {},
+  updateUserDscBondsData: async () => {
+    const { accountAddress, provider, treasuryContractData } = get();
+
+    if (
+      !provider ||
+      treasuryContractData.addresses.length === 0 ||
+      !accountAddress
+    )
+      return;
+
+    const { bondsContract } = treasuryContractData;
+
+    if (!bondsContract) return;
+
+    const userBalance = (
+      await bondsContract.balanceOf(accountAddress)
+    ).toNumber();
+
+    const bonds: Bond[] = [];
+
+    for (let i = 0; i < userBalance; i++) {
+      const index = await bondsContract.tokenOfOwnerByIndex(accountAddress, i); // push token IDs
+      const bondData = await treasuryContractData.treasuryContract.bonds(index);
+      bonds.push(bondData);
+    }
+
+    set((prevState) => ({
+      ...prevState,
+      userDscBondData: {
+        bonds: bonds,
+        address: accountAddress,
+      },
+    }));
+  },
   mintUpperDepeg: (amount: number, to: string) => {
     console.log(amount, to);
   },

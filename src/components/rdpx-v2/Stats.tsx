@@ -23,7 +23,7 @@ const Stats = (props: Props) => {
         } else if (index === 1) {
           border = 'border-t border-b';
         } else if (index === len - 1) {
-          cornerCurve = 'br';
+          cornerCurve = 'bl';
           border = 'border-b border-r border-l';
         } else if (index === 2) {
           cornerCurve = 'tr';
@@ -37,7 +37,7 @@ const Stats = (props: Props) => {
 
         return (
           <Box
-            className={`flex justify-between ${border} border-umbra rounded-${cornerCurve}-xl px-3 py-4`}
+            className={`flex justify-between ${border} border-umbra rounded-${cornerCurve}-lg px-2 py-3`}
             key={index}
           >
             <Typography variant="h6" color="stieglitz">
@@ -47,6 +47,21 @@ const Stats = (props: Props) => {
           </Box>
         );
       })}
+      {/*
+        Two trailing empty boxes inside a 2x3 grid (as per design)
+      */}
+      <Box
+        className={`flex justify-between border-r border-b border-umbra px-2 py-3`}
+      >
+        <></>
+        <></>
+      </Box>
+      <Box
+        className={`flex justify-between border-r border-b rounded-br-lg border-umbra px-3 py-4`}
+      >
+        <></>
+        <></>
+      </Box>
     </Box>
   );
 };

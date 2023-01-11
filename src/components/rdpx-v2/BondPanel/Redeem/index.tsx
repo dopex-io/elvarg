@@ -62,7 +62,7 @@ const Mint = () => {
               />
               <Typography variant="h6">Sell DSC</Typography>
             </span>
-            <LaunchOutlinedIcon className="fill-current text-white w-[1.2rem]" />
+            <LaunchOutlinedIcon className="fill-current text-white w-[1.1rem]" />
           </a>
         )}
       </Box>
