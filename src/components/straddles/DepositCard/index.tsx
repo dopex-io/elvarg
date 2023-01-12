@@ -5,13 +5,13 @@ import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Input from '@mui/material/Input';
+import Switch from '@mui/material/Switch';
 
 import useSendTx from 'hooks/useSendTx';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import RollIcon from 'svgs/icons/RollIcon';
 
 import { useBoundStore } from 'store';
 
@@ -45,7 +45,13 @@ const DepositCard = () => {
 
   const [approved, setApproved] = useState(false);
 
+  const [checked, setChecked] = useState(true);
+
   const [rawAmount, setRawAmount] = useState<string>('1');
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
 
   const totalUSDDeposit = useMemo(() => {
     let total = BigNumber.from('0');
@@ -123,7 +129,7 @@ const DepositCard = () => {
     try {
       await sendTx(straddlesData.straddlesContract.connect(signer), 'deposit', [
         getContractReadableAmount(amount, 6),
-        true,
+        checked,
         accountAddress,
       ]);
       await updateStraddlesUserData();
@@ -139,6 +145,7 @@ const DepositCard = () => {
     updateStraddlesUserData,
     updateStraddlesEpochData,
     sendTx,
+    checked,
   ]);
 
   const handleApprove = useCallback(async () => {
@@ -261,15 +268,19 @@ const DepositCard = () => {
         </Box>
       </Box>
       <Box className="my-4 w-full rounded-lg border border-neutral-800">
-        <Box className="flex justify-start items-center mx-2">
-          <RollIcon className="w-4 h-4" />
+        <Box className="flex justify-between m-2">
+          <Switch
+            checked={checked}
+            onChange={handleChange}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
           <Typography variant="h6" className="mx-2 py-2">
-            Auto Rollover Configured
+            Rollover
           </Typography>
         </Box>
         <Typography variant="h6" className="mx-2 pb-2 text-gray-400">
-          This vault roll deposits over between epochs. This can be cancelled
-          after depositing.
+          This vault roll deposits over between epochs by default. You can
+          unselect this option above.
         </Typography>
       </Box>
       <Box className="rounded-lg bg-neutral-800">
