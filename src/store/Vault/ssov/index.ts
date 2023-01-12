@@ -31,6 +31,8 @@ export interface SsovV3Data {
   ssovContract?: SsovV3;
   currentEpoch?: number;
   tokenPrice?: BigNumber;
+  underlyingPrice?: BigNumber;
+  collateralPrice?: BigNumber;
   lpPrice?: BigNumber;
   ssovOptionPricingContract?: SSOVOptionPricing;
   isCurrentEpochExpired?: boolean;
@@ -182,8 +184,6 @@ export const createSsovV3Slice: StateCreator<
       ),
     ]);
 
-    console.log('Asdas', epochData);
-
     const epochStrikes = epochData.strikes;
 
     const epochStrikeDataArray = await Promise.all(
@@ -321,12 +321,14 @@ export const createSsovV3Slice: StateCreator<
       const [
         currentEpoch,
         tokenPrice,
+        collateralPrice,
         underlyingSymbol,
         collateralToken,
         isPut,
       ] = await Promise.all([
         _ssovContract.currentEpoch(),
         _ssovContract.getUnderlyingPrice(),
+        _ssovContract.getCollateralPrice(),
         _ssovContract.underlyingSymbol(),
         _ssovContract.collateralToken(),
         _ssovContract.isPut(),
@@ -354,6 +356,8 @@ export const createSsovV3Slice: StateCreator<
         currentEpoch: Number(currentEpoch),
         isCurrentEpochExpired: epochData.expired,
         tokenPrice,
+        underlyingPrice: tokenPrice,
+        collateralPrice,
         lpPrice: ethers.utils.parseEther('1'),
         ssovOptionPricingContract: SSOVOptionPricing__factory.connect(
           chainId === 1088
