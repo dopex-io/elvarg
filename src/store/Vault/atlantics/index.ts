@@ -244,65 +244,9 @@ export const createAtlanticsSlice: StateCreator<
     );
 
     const checkpoints = await Promise.all(latestCheckpointsCalls);
+    console.log('Checkpoints', typeof checkpoints, checkpoints);
 
     if (!checkpoints) return;
-
-    let totalEpochActiveCollateral = BigNumber.from(0);
-    let totalEpochUnlockedCollateral = BigNumber.from(0);
-    let totalEpochLiquidity = BigNumber.from(0);
-    let totalEpochMaxStrikesData = [];
-
-    for (const i in maxStrikes) {
-      let totalActiveCollateral: BigNumber = BigNumber.from(0);
-      let totalUnlockedCollateral: BigNumber = BigNumber.from(0);
-      let totalLiquidity: BigNumber = BigNumber.from(0);
-      for (const j in checkpoints[i]) {
-        const _checkpoints = checkpoints[i];
-        if (!_checkpoints) return;
-        if (!_checkpoints[Number(j)]) return;
-
-        const [, liquidity, , activeCollateral, unlockedCollateral] =
-          _checkpoints[Number(j)] ?? [];
-        if (!liquidity || !activeCollateral || !unlockedCollateral) return;
-        totalActiveCollateral = totalActiveCollateral.add(activeCollateral);
-        totalUnlockedCollateral =
-          totalUnlockedCollateral.add(unlockedCollateral);
-        totalLiquidity = totalLiquidity.add(liquidity);
-      }
-
-      totalEpochMaxStrikesData.push({
-        totalActiveCollateral,
-        totalUnlockedCollateral,
-        totalLiquidity,
-      });
-    }
-
-    for (const i in totalEpochMaxStrikesData) {
-      const { totalActiveCollateral, totalUnlockedCollateral, totalLiquidity } =
-        totalEpochMaxStrikesData[i] ?? {};
-      if (!totalActiveCollateral || !totalUnlockedCollateral || !totalLiquidity)
-        return;
-      totalEpochActiveCollateral = totalEpochActiveCollateral.add(
-        totalActiveCollateral
-      );
-      totalEpochUnlockedCollateral = totalEpochUnlockedCollateral.add(
-        totalUnlockedCollateral
-      );
-      totalEpochLiquidity = totalEpochLiquidity.add(totalLiquidity);
-    }
-
-    let utilizationRate: number;
-
-    try {
-      utilizationRate = getUserReadableAmount(
-        totalEpochUnlockedCollateral
-          .mul(getContractReadableAmount(1, 6))
-          .div(totalEpochLiquidity),
-        6
-      );
-    } catch (e) {
-      utilizationRate = 0;
-    }
 
     const {
       state,
@@ -311,52 +255,86 @@ export const createAtlanticsSlice: StateCreator<
       settlementPrice,
       tickSize,
       totalLiquidity,
+      totalActiveCollateral,
     } = await atlanticPool.contracts.atlanticPool.getEpochData(selectedEpoch);
+
+    let totalPremium = BigNumber.from(0);
+    let totalFunding = BigNumber.from(0);
+    let maxStrikeData: IAtlanticPoolEpochStrikeData[] = [];
+    let totalEpochUnlockedCollateral = BigNumber.from(0);
+
+    for (const i in maxStrikes) {
+      const strike = maxStrikes[i];
+
+      if (!strike) return;
+
+      const maxStrikeCheckpoints = checkpoints[i];
+
+      if (!maxStrikeCheckpoints) return;
+      let totalActiveCollateral = BigNumber.from(0);
+      let totalUnlockedCollateral = BigNumber.from(0);
+      let liquidity = BigNumber.from(0);
+
+      for (const j in maxStrikeCheckpoints) {
+        const checkpoint = maxStrikeCheckpoints[j];
+        if (!checkpoint) return;
+
+        const {
+          activeCollateral,
+          unlockedCollateral,
+          totalLiquidity,
+          premiumAccrued,
+          borrowFeesAccrued,
+        } = checkpoint;
+
+        totalActiveCollateral = totalActiveCollateral.add(activeCollateral);
+
+        totalUnlockedCollateral =
+          totalUnlockedCollateral.add(unlockedCollateral);
+
+        liquidity = liquidity.add(totalLiquidity);
+        totalPremium = totalPremium.add(premiumAccrued);
+        totalFunding = totalFunding.add(borrowFeesAccrued);
+      }
+
+      totalEpochUnlockedCollateral = totalEpochUnlockedCollateral.add(
+        totalUnlockedCollateral
+      );
+
+      maxStrikeData.push({
+        strike: strike,
+        activeCollateral: totalActiveCollateral,
+        totalEpochMaxStrikeLiquidity: liquidity,
+        unlocked: totalUnlockedCollateral,
+      });
+    }
+
+    // TODO
+    let utilizationRate: number;
+
+    try {
+      utilizationRate = getUserReadableAmount(
+        totalEpochUnlockedCollateral
+          .mul(getContractReadableAmount(1, 6))
+          .div(totalLiquidity),
+        6
+      );
+    } catch (e) {
+      utilizationRate = 0;
+    }
 
     const isVaultReady = state == EpochState.BootStrapped;
     const isVaultExpired = state == EpochState.Expired;
 
-    const totalEpochDeposits = totalLiquidity
-      .add(totalEpochActiveCollateral)
-      .div(getContractReadableAmount(1, 6))
-      .toNumber();
-
-    const underlyingPriceInUsd =
-      await atlanticPool.contracts.atlanticPool.getUsdPrice();
-
-    const premiaAccrued = checkpoints
-      .map((checkpoint) => checkpoint)
-      .flat()
-      .map((cpObject) => cpObject.premiumAccrued)
-      .reduce((prev, next) => prev.add(next), BigNumber.from(0));
-
-    const premiaInUsd = premiaAccrued
-      .div(getContractReadableAmount(1, 6))
-      .toNumber();
-
-    const fundingAccrued = checkpoints
-      .map((checkpoint) => checkpoint)
-      .flat()
-      .map((cpObject) => cpObject.borrowFeesAccrued)
-      .reduce((prev, next) => prev.add(next), BigNumber.from(0));
-
-    const fundingAccruedInUsd = fundingAccrued // 1e6
-      .mul(underlyingPriceInUsd) // 1e8
-      .div(getContractReadableAmount(1, 14))
-      .toNumber();
+    const totalEpochDeposits = totalLiquidity.add(totalActiveCollateral);
 
     const epochLength = expiryTime.sub(startTime);
 
     const epochDurationInDays = epochLength.div('84600').toNumber();
-    console.log(
-      'Epoch',
-      epochDurationInDays,
-      expiryTime.toString(),
-      startTime.toString()
-    );
 
     const apr =
-      (((premiaInUsd + fundingAccruedInUsd) / totalEpochDeposits) *
+      ((totalPremium.add(totalFunding).div(1e6).toNumber() /
+        totalEpochDeposits.div(getContractReadableAmount(1, 6)).toNumber()) *
         (365 * 100)) /
       epochDurationInDays;
 
@@ -365,42 +343,22 @@ export const createAtlanticsSlice: StateCreator<
       tickSize,
       maxStrikes,
       settlementPrice,
-      premiaAccrued,
+      premiaAccrued: totalPremium,
       apr: isNaN(apr) ? 0 : apr,
       utilizationRate,
       startTime: startTime,
       expiry: expiryTime,
       isVaultReady,
       isVaultExpired,
-      epochMaxStrikeRange: [],
-      epochStrikeData: [],
-      totalEpochActiveCollateral: BigNumber.from(0),
-      totalEpochLiquidity: BigNumber.from(0),
-      totalEpochUnlockedCollateral: BigNumber.from(0),
+      epochMaxStrikeRange: [
+        maxStrikes[0] ?? BigNumber.from(0),
+        maxStrikes[maxStrikes.length - 1] ?? BigNumber.from(0),
+      ],
+      epochStrikeData: maxStrikeData,
+      totalEpochActiveCollateral: totalActiveCollateral,
+      totalEpochLiquidity: totalEpochDeposits,
+      totalEpochUnlockedCollateral: totalEpochUnlockedCollateral,
     };
-
-    for (let i = 0; i < maxStrikes.length; i++) {
-      const { totalActiveCollateral, totalUnlockedCollateral, totalLiquidity } =
-        totalEpochMaxStrikesData[i] ?? {};
-
-      if (!totalActiveCollateral || !totalUnlockedCollateral || !totalLiquidity)
-        return;
-
-      atlanticPoolEpochData.totalEpochLiquidity =
-        atlanticPoolEpochData.totalEpochLiquidity.add(totalLiquidity);
-
-      atlanticPoolEpochData.totalEpochUnlockedCollateral =
-        atlanticPoolEpochData.totalEpochUnlockedCollateral.add(
-          totalUnlockedCollateral
-        );
-
-      atlanticPoolEpochData.epochStrikeData.push({
-        strike: maxStrikes[i] ?? BigNumber.from(0),
-        totalEpochMaxStrikeLiquidity: totalLiquidity,
-        unlocked: totalUnlockedCollateral,
-        activeCollateral: totalActiveCollateral,
-      });
-    }
 
     set((prevState) => ({
       ...prevState,

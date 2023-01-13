@@ -252,12 +252,23 @@ const ManageStrategyPositionDialog = () => {
       value: MIN_EXECUTION_FEE,
     };
 
+    // @TODO To add token selector for this
     if (selectedOptionItem === 0) {
-      tx = strategy.createExitStrategyOrder(userPositionId, true, overrides);
+      tx = strategy.createExitStrategyOrder(
+        userPositionId,
+        '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+        true,
+        overrides
+      );
     }
 
     if (selectedOptionItem === 1) {
-      tx = strategy.createExitStrategyOrder(userPositionId, false, overrides);
+      tx = strategy.createExitStrategyOrder(
+        userPositionId,
+        '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        false,
+        overrides
+      );
     }
     if (selectedOptionItem === 2) {
       tx = strategy.enableKeepCollateral(userPositionId);

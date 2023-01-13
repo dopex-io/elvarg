@@ -43,6 +43,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { getBlockTime } from 'utils/general/getBlocktime';
 
 const steps = 0.1;
 const minMarks = 1.1;
@@ -83,7 +84,6 @@ export interface IStrategyDetails {
   strategyFee: BigNumber;
   fundingFees: BigNumber;
   feesWithoutDiscount: {
-    fundingFees: BigNumber;
     purchaseFees: BigNumber;
     strategyFee: BigNumber;
   };
@@ -146,16 +146,12 @@ const ManagePosition = () => {
     strategyFee: BigNumber.from(0),
     fundingFees: BigNumber.from(0),
     feesWithoutDiscount: {
-      fundingFees: BigNumber.from(0),
       purchaseFees: BigNumber.from(0),
       strategyFee: BigNumber.from(0),
     },
   });
   const [, setLoading] = useState<boolean>(true);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
-  // const [managePositionSelection, setManagePositionSelection] = useState<
-  //   string | null
-  // >('open');
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -331,7 +327,6 @@ const ManagePosition = () => {
       collateralAccess = BigNumber.from(0),
       purchaseFeesWithoutDiscount = BigNumber.from(0),
       strategyFeeWithoutDiscount = BigNumber.from(0),
-      fundingFeesWithoutDiscount = BigNumber.from(0),
       fundingFees = BigNumber.from(0);
 
     positionFee = await utilsContract.getPositionFee(sizeUsd);
@@ -420,13 +415,10 @@ const ManagePosition = () => {
         ),
       ]);
 
-      [fundingFees, fundingFeesWithoutDiscount] = await Promise.all([
-        putsContract.calculateFundingFees(accountAddress, collateralAccess),
-        putsContract.calculateFundingFees(
-          putsContract.address,
-          collateralAccess
-        ),
-      ]);
+      fundingFees = await putsContract.calculateFundingFees(
+        collateralAccess,
+        await getBlockTime(provider)
+      );
       const precision = 100000;
       const slippage = 400;
       acceptablePrice = markPrice.mul(precision + slippage).div(precision);
@@ -447,7 +439,6 @@ const ManagePosition = () => {
       swapFees,
       strategyFee,
       feesWithoutDiscount: {
-        fundingFees: fundingFeesWithoutDiscount,
         purchaseFees: purchaseFeesWithoutDiscount,
         strategyFee: strategyFeeWithoutDiscount,
       },
@@ -475,6 +466,7 @@ const ManagePosition = () => {
     depositUnderlying,
     contractAddresses,
     atlanticPoolEpochData,
+    provider,
   ]);
 
   const handleToggle = (event: any) => {

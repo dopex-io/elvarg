@@ -172,7 +172,6 @@ const UserDepositsTable = () => {
         <TableHead>
           <TableRow>
             <TableHeader width="w-1/6">Max Strike</TableHeader>
-            <TableHeader>Deposit</TableHeader>
             <TableHeader>Liquidity</TableHeader>
             <TableHeader width="w-1/6">Premia Earned</TableHeader>
             <TableHeader width="w-1/6">Funding Earned</TableHeader>

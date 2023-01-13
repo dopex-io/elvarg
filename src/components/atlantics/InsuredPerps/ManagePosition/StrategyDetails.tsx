@@ -237,13 +237,7 @@ const StrategyDetails = (props: {
           />
           <ContentRow
             title="Borrow Fees"
-            content={
-              fundingFees.lt(feesWithoutDiscount.fundingFees)
-                ? `$${formatAmount(
-                    getUserReadableAmount(feesWithoutDiscount.fundingFees, 6)
-                  )} → $${formatAmount(getUserReadableAmount(fundingFees, 6))}`
-                : '$' + getUserReadableAmount(fundingFees, 6)
-            }
+            content={'$' + getUserReadableAmount(fundingFees, 6)}
           />
           <ContentRow
             title="Options"
