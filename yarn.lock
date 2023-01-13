@@ -766,8 +766,9 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@dopex-io/sdk@../sdk":
-  version "1.0.0-beta.45"
+"@dopex-io/sdk@https://github.com/dopex-io/sdk#feat/atlantics":
+  version "1.0.0-beta.38"
+  resolved "https://github.com/dopex-io/sdk#fac187c42c38400e3be759749dbaefefc03959ff"
 
 "@emotion/babel-plugin@^11.10.5":
   version "11.10.5"
