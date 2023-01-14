@@ -281,7 +281,6 @@ const ManagePosition = () => {
     minPrice = minPrice.mul(precision - slippage).div(precision);
     maxPrice = maxPrice.mul(precision + slippage).div(precision);
 
-    console.log('minPrice 2', minPrice.toString());
     const increaseOrderParams = {
       path: [strategyPosition.indexToken],
       indexToken: strategyPosition.indexToken,

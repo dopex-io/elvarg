@@ -53,6 +53,7 @@ const ManageCard = (props: ManageCardProps) => {
     contractAddresses,
     accountAddress,
     atlanticPool,
+    updateAtlanticPoolEpochData,
     atlanticPoolEpochData,
   } = useBoundStore();
 
@@ -140,20 +141,23 @@ const ManageCard = (props: ManageCardProps) => {
             getContractReadableAmount(value, 6),
             accountAddress
           )
-      );
+      ).then(() => {
+        updateAtlanticPoolEpochData();
+      });
     } catch (err) {
       console.log(err);
     }
   }, [
     signer,
-    contractAddresses,
     accountAddress,
+    contractAddresses,
     underlying,
     poolType,
     duration,
     sendTx,
     maxStrike,
     value,
+    updateAtlanticPoolEpochData,
   ]);
 
   const handleMax = useCallback(() => {

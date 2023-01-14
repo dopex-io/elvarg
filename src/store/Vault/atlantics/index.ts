@@ -197,7 +197,6 @@ export const createAtlanticsSlice: StateCreator<
       contracts.baseToken.symbol(),
       contracts.quoteToken.symbol(),
     ]);
-    // @ts-ignore
     set((prevState) => ({
       ...prevState,
       atlanticPool: {
