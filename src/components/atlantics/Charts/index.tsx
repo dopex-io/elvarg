@@ -77,8 +77,7 @@ const Charts = (props: ChartsProps) => {
       const activeCollateral = data.activeCollateral ?? BigNumber.from(0);
       const strike = data.strike ?? BigNumber.from(0);
       const availableCollateral =
-        data.totalEpochMaxStrikeLiquidity.sub(activeCollateral) ??
-        BigNumber.from(0);
+        data.totalEpochMaxStrikeLiquidity ?? BigNumber.from(0);
 
       return {
         availableCollateral,
