@@ -170,6 +170,7 @@ const ManageStrategyPositionDialog = () => {
       accountAddress,
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY']
     );
+
     let approvalAmount = BigNumber.from(0);
     if (strategyDetails.atlanticsPurchaseId.isZero()) {
       approvalAmount = BigNumber.from(MAX_VALUE);
@@ -189,7 +190,7 @@ const ManageStrategyPositionDialog = () => {
     strategyDetails.positionId,
   ]);
 
-  const handleApprove = useCallback(async () => {
+  const handleKeepCollateralApprove = useCallback(async () => {
     if (
       strategyDetails.positionId.isZero() ||
       !atlanticPool ||
@@ -198,43 +199,30 @@ const ManageStrategyPositionDialog = () => {
       !signer
     )
       return;
-    let approvalAmount = BigNumber.from(0);
-    if (strategyDetails.atlanticsPurchaseId.isZero()) {
-      approvalAmount = BigNumber.from(MAX_VALUE);
-    } else {
-      const atlanticPoolContract = atlanticPool.contracts.atlanticPool;
-      const { optionsAmount } = await atlanticPoolContract.getOptionsPurchase(
-        strategyDetails.atlanticsPurchaseId
-      );
-      approvalAmount = await atlanticPoolContract.calculateFundingFees(
-        atlanticPoolContract.address,
-        optionsAmount
-      );
-      approvalAmount = approvalAmount.add(optionsAmount);
-    }
 
+    // const approvalAmount =
+    const options = await (
+      await atlanticPool.contracts.atlanticPool.getOptionsPurchase(
+        strategyDetails.atlanticsPurchaseId
+      )
+    ).optionsAmount;
     const tx = atlanticPool.contracts.baseToken
       .connect(signer)
       .approve(
         contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
-        approvalAmount
+        options
       );
-
-    try {
-      await sendTx(tx);
-      await checkApproved();
-    } catch (err) {
-      throw err;
-    }
+    await sendTx(tx);
+    checkApproved();
   }, [
-    checkApproved,
-    signer,
-    sendTx,
     accountAddress,
     atlanticPool,
     contractAddresses,
+    sendTx,
+    signer,
     strategyDetails.atlanticsPurchaseId,
     strategyDetails.positionId,
+    checkApproved,
   ]);
 
   const handleSubmit = useCallback(async () => {
@@ -347,7 +335,10 @@ const ManageStrategyPositionDialog = () => {
           leaveTouchDelay={1000}
         >
           {selectedOptionItem === 2 && !unwindApproved ? (
-            <CustomButton onClick={handleApprove} className="w-full">
+            <CustomButton
+              onClick={handleKeepCollateralApprove}
+              className="w-full"
+            >
               {' '}
               Approve WETH{' '}
             </CustomButton>
