@@ -21,15 +21,10 @@ export const LiquidityTable = (props: LiquidityTableProps) => {
   const { strike, liquidity, utilization } = props;
 
   return (
-    <TableRow
-      sx={{
-        marginBottom: '0.5rem',
-        borderRadius: '0.5rem',
-      }}
-    >
+    <TableRow>
       <StyleLeftCell align="left">
         <Typography variant="caption" color="white">
-          <Box className="bg-umbra w-14 p-2 border-radius rounded-lg flex justify-around">
+          <Box className="bg-umbra w-14 p-2 rounded-md flex justify-around">
             $<NumberDisplay n={strike} decimals={DECIMALS_STRIKE} />
           </Box>
         </Typography>

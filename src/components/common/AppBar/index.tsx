@@ -111,7 +111,7 @@ const appLinks = {
     { name: 'DPX Bonds', to: '/dpx-bonds' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'Straddles', to: '/straddles/ETH' },
-    // { name: 'Options LP', to: '/olp' },
+    { name: 'Options LP', to: '/olp' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -152,7 +152,8 @@ interface AppBarProps {
     | 'swap'
     | 'OTC'
     | 'DPX Bonds'
-    | 'vaults';
+    | 'vaults'
+    | 'OLP';
 }
 
 export default function AppBar(props: AppBarProps) {

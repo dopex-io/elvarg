@@ -1,10 +1,10 @@
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
 import TableCell from '@mui/material/TableCell';
 import { styled } from '@mui/material/styles';
-import { BigNumber } from 'ethers';
 
-import { Typography } from 'components/UI';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -37,13 +37,13 @@ export const StyleLeftCell = styled(TableCell)`
   &.MuiTableCell-root {
     border-left: 1px solid #1e1e1e;
     border-bottom: solid 1px #1e1e1e;
-    padding: 0.5rem 1rem;
+    padding: 1rem 1rem;
   }
 `;
 
 export const StyleRightCell = styled(TableCell)`
   &.MuiTableCell-root {
-    border-right: solid #1e1e1e;
+    border-right: 1px solid #1e1e1e;
     border-bottom: solid 1px #1e1e1e;
     padding: 0.5rem 1rem;
   }

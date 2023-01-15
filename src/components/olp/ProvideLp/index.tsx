@@ -219,9 +219,9 @@ const ProvideLp = () => {
   );
 
   return (
-    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
+    <Box className="bg-cod-gray p-3 rounded-xl w-full md:w-[350px]">
       <Box className="flex mb-3">
-        <Typography variant="h5">Provide LP</Typography>
+        <Typography variant="h6">Provide LP</Typography>
       </Box>
       <DepositBalanceBox
         rawDepositAmount={rawDepositAmount}
@@ -233,7 +233,7 @@ const ProvideLp = () => {
         assets={['usdc', olpData?.underlyingSymbol!.toLowerCase()!]}
         handleSelectAsset={handleSelectAsset}
       />
-      <Box className="flex flex-row justify-between bg-umbra p-1 pb-2 border-radius rounded-lg mt-1">
+      <Box className="flex flex-row justify-between bg-umbra pb-2 border-radius rounded-lg mt-1">
         <PutBox
           isPut={olpData?.isPut!}
           handleIsPut={handleIsPut}

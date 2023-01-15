@@ -1,5 +1,9 @@
-import { Typography } from 'components/UI';
-import { Box, Input, Select, MenuItem } from '@mui/material';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+
+import Typography from 'components/UI/Typography';
 
 interface Props {
   assetIdx: number;
@@ -22,9 +26,9 @@ const SelectMenuProps = {
 
 const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
   return (
-    <Box className="-mt-2 h-10 p-1 w-[120px]">
+    <Box className="h-[2rem] p-1 w-[7.5rem]">
       <Select
-        className="opacity-80 rounded-md text-center"
+        className="opacity-80 rounded-md text-center bottom-3 -left-2"
         fullWidth
         value={assetIdx}
         onChange={handleSelectAsset}
@@ -40,15 +44,16 @@ const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
       >
         {assets.map((asset: string, index: number) => (
           <MenuItem key={index} value={index} className="text-center">
-            <Box className="flex flex-row h-10 p-1 -mt-1 pl-0">
+            <Box className="flex p-1">
               <img
                 src={`/images/tokens/${asset}.svg`}
                 alt={`${asset?.toUpperCase()}`}
+                className="h-8"
               />
               <Typography
                 variant="h5"
                 color="text-white"
-                className="text-left w-full relative ml-2 mt-1"
+                className="text-left w-full ml-2 my-auto"
               >
                 <span className="text-white">{asset?.toUpperCase()}</span>
               </Typography>

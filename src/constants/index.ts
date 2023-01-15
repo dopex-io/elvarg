@@ -299,7 +299,7 @@ export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  5: `https://eth-goerli.g.alchemy.com/v2/${GOERLI_KEY}`,
+  5: `https://goerli.infura.io/v3/${GOERLI_KEY}`,
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,

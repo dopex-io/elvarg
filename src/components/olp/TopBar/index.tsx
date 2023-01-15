@@ -65,7 +65,7 @@ const TopBar = () => {
   }, [olpData?.expiries, handleSelectChange]);
 
   return (
-    <Box className="flex flex-wrap flex-row border border-umbra bg-cod-gray border-radius rounded-lg">
+    <Box className="flex flex-wrap flex-row bg-cod-gray border-radius rounded-lg">
       <Box
         className={`${
           width > 500 ? 'w-[17rem]' : 'w-full'
@@ -116,21 +116,12 @@ const TopBar = () => {
             </Typography>
           </Box>
           <IconButton
-            sx={{
-              padding: '0px',
-            }}
+            className="p-0"
             onClick={(e) => {
               setAnchorEl(e.currentTarget);
             }}
           >
-            <Avatar
-              sx={{
-                backgroundColor: 'mineshaft',
-                padding: '0px',
-                width: '20px',
-                height: '20px',
-              }}
-            >
+            <Avatar className="fill-current bg-mineshaft p-0 w-[20px] h-[20px]">
               {anchorEl ? (
                 <ArrowDropUpIcon
                   sx={{

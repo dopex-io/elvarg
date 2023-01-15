@@ -1,29 +1,27 @@
-import React, { useCallback, useState } from 'react';
-import {
-  Box,
-  Button,
-  TableHead,
-  TableRow,
-  Table,
-  TableBody,
-  TablePagination,
-} from '@mui/material';
+import { useCallback, useState } from 'react';
+import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TablePagination from '@mui/material/TablePagination';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
 import {
   StyleTable,
   StyleTableCell,
   StyleLeftTableCell,
   StyleRightTableCell,
 } from 'components/common/LpCommon/Table';
-import { TablePaginationActions, Typography } from 'components/UI';
+import Typography from 'components/UI/Typography';
+import TablePaginationActions from 'components/UI/TablePaginationActions';
+import UserPositionsTable from 'components/olp/UserLpPositions/UserPositionsTable';
+
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { ROWS_PER_PAGE } from 'constants/index';
-
-import UserPositionsTable from './UserPositionsTable';
 
 const UserLpPositions = () => {
   const sendTx = useSendTx();
@@ -32,10 +30,8 @@ const UserLpPositions = () => {
     olpData,
     signer,
     olpUserData,
-    updateOlp,
     updateOlpEpochData,
     updateOlpUserData,
-    setSelectedIsPut,
   } = useBoundStore();
 
   const olpContract = getOlpContract();
@@ -93,128 +89,78 @@ const UserLpPositions = () => {
     ]
   );
 
-  const handleIsPut = useCallback(
-    async (isPut: boolean) => {
-      if (!setSelectedIsPut) return;
-      setSelectedIsPut(isPut);
-      await updateOlp();
-      await updateOlpEpochData();
-      await updateOlpUserData();
-    },
-    [setSelectedIsPut, updateOlp, updateOlpEpochData, updateOlpUserData]
-  );
-
   return (
-    <Box className="balances-table text-white pb-1">
+    <Box className="balances-table text-white space-y-2">
       <Typography variant="h5" className="ml-1">
         User LP Positions
       </Typography>
-      <Box className="bg-cod-gray p-1 mt-2 border-radius rounded-lg">
-        <Box
-          className={`flex flex-row h-[34px] w-[135px] justify-between bg-mineshaft rounded-md mt-1 mb-3`}
-        >
-          <Box
-            className={`ml-1 my-1 h-6.5 text-center cursor-pointer group rounded hover:bg-umbra hover:opacity-80 ${
-              !olpData?.isPut ? 'bg-umbra' : ''
-            }`}
-          >
-            <Button
-              disabled={!olpData?.hasCall}
-              onClick={() => handleIsPut(false)}
-            >
-              <Box className="flex flex-row">
-                <Typography variant="h6" className="-mt-1.5">
-                  Call
+      <StyleTable className="bg-cod-gray rounded-t-lg p-2 rounded-md">
+        <Table>
+          <TableHead className="bg-cod-gray">
+            <TableRow>
+              <StyleLeftTableCell align="left" className="flex flex-row">
+                <ArrowDownwardIcon
+                  sx={{
+                    width: '1.25rem',
+                    marginTop: '0.125rem',
+                    marginLeft: '-8px',
+                    color: '#8E8E8E',
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  color="stieglitz"
+                  className="mt-1.5"
+                >
+                  Strike
                 </Typography>
-              </Box>
-            </Button>
-          </Box>
-          <Box
-            className={`mr-2 my-1 h-6.5 text-center cursor-pointer group rounded hover:bg-umbra hover:opacity-80 ${
-              olpData?.isPut ? 'bg-umbra' : ''
-            }`}
-          >
-            <Button
-              disabled={!olpData?.hasPut}
-              onClick={() => handleIsPut(true)}
-            >
-              <Box className="flex flex-row">
-                <Typography variant="h6" className="-mt-1.5">
-                  Put
+              </StyleLeftTableCell>
+              <StyleTableCell align="center">
+                <Typography variant="caption" color="stieglitz">
+                  Liquidity
                 </Typography>
-              </Box>
-            </Button>
-          </Box>
-        </Box>
-
-        <StyleTable>
-          <Table>
-            <TableHead className="bg-cod-gray">
-              <TableRow>
-                <StyleLeftTableCell align="left" className="flex flex-row">
-                  <ArrowDownwardIcon
-                    sx={{
-                      width: '1.25rem',
-                      marginTop: '0.125rem',
-                      marginLeft: '-8px',
-                      color: '#8E8E8E',
-                    }}
+              </StyleTableCell>
+              <StyleTableCell align="center">
+                <Typography variant="caption" color="stieglitz">
+                  Utilization
+                </Typography>
+              </StyleTableCell>
+              <StyleTableCell align="center">
+                <Typography variant="caption" color="stieglitz">
+                  Discount
+                </Typography>
+              </StyleTableCell>
+              <StyleTableCell align="center">
+                <Typography variant="caption" color="stieglitz">
+                  Tokens Purchased
+                </Typography>
+              </StyleTableCell>
+              <StyleRightTableCell align="right">
+                <Typography variant="caption" color="stieglitz">
+                  Action
+                </Typography>
+              </StyleRightTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody className="rounded-lg">
+            {olpUserData
+              ?.userPositions!.slice(
+                page * ROWS_PER_PAGE,
+                page * ROWS_PER_PAGE + ROWS_PER_PAGE
+              )
+              .map((p, idx) => {
+                return (
+                  <UserPositionsTable
+                    key={idx}
+                    lpPosition={p}
+                    actions={() => handleKill(idx)}
+                    underlyingSymbol={olpData?.underlyingSymbol!}
                   />
-                  <Typography
-                    variant="caption"
-                    color="stieglitz"
-                    className="mt-1.5"
-                  >
-                    Strike
-                  </Typography>
-                </StyleLeftTableCell>
-                <StyleTableCell align="center">
-                  <Typography variant="caption" color="stieglitz">
-                    Liquidity
-                  </Typography>
-                </StyleTableCell>
-                <StyleTableCell align="center">
-                  <Typography variant="caption" color="stieglitz">
-                    Utilization
-                  </Typography>
-                </StyleTableCell>
-                <StyleTableCell align="center">
-                  <Typography variant="caption" color="stieglitz">
-                    Discount
-                  </Typography>
-                </StyleTableCell>
-                <StyleTableCell align="center">
-                  <Typography variant="caption" color="stieglitz">
-                    Tokens Purchased
-                  </Typography>
-                </StyleTableCell>
-                <StyleRightTableCell align="right">
-                  <Typography variant="caption" color="stieglitz">
-                    Action
-                  </Typography>
-                </StyleRightTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody className="rounded-lg">
-              {olpUserData
-                ?.userPositions!.slice(
-                  page * ROWS_PER_PAGE,
-                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
-                )
-                .map((p, idx) => {
-                  return (
-                    <UserPositionsTable
-                      key={idx}
-                      lpPosition={p}
-                      actions={() => handleKill(idx)}
-                      underlyingSymbol={olpData?.underlyingSymbol!}
-                    />
-                  );
-                })}
-            </TableBody>
-          </Table>
-        </StyleTable>
-      </Box>
+                );
+              })}
+          </TableBody>
+        </Table>
+      </StyleTable>
       {olpUserData!.userPositions!.length > ROWS_PER_PAGE ? (
         <TablePagination
           component="div"
