@@ -19,13 +19,10 @@ import {
 } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import Tooltip from '@mui/material/Tooltip';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/atlantics/TokenSelector';
-import Switch from 'components/UI/Switch';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import StrategyDetails from 'components/atlantics/InsuredPerps/ManagePosition/StrategyDetails';
@@ -79,7 +76,6 @@ export interface IStrategyDetails {
   liquidationPrice: BigNumber;
   putStrike: BigNumber;
   expiry: BigNumber;
-  depositUnderlying: boolean;
   swapFees: BigNumber;
   strategyFee: BigNumber;
   fundingFees: BigNumber;
@@ -130,13 +126,11 @@ const ManagePosition = () => {
   const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
   const [selectedToken, setSelectedToken] = useState<string>('USDC');
   const [positionBalance, setPositionBalance] = useState<string>('');
-  const [depositUnderlying, setDeposutUnderlying] = useState<boolean>(false);
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
     positionSize: BigNumber.from(0),
     putOptionsPremium: BigNumber.from(0),
     putOptionsfees: BigNumber.from(0),
     optionsAmount: BigNumber.from(0),
-    depositUnderlying: false,
     positionFee: BigNumber.from(0),
     markPrice: BigNumber.from(0),
     liquidationPrice: BigNumber.from(0),
@@ -429,7 +423,6 @@ const ManagePosition = () => {
       positionSize: sizeUsd,
       putOptionsPremium,
       putOptionsfees,
-      depositUnderlying,
       positionFee,
       optionsAmount,
       liquidationPrice,
@@ -463,15 +456,10 @@ const ManagePosition = () => {
     accountAddress,
     positionBalance,
     leverage,
-    depositUnderlying,
     contractAddresses,
     atlanticPoolEpochData,
     provider,
   ]);
-
-  const handleToggle = (event: any) => {
-    setDeposutUnderlying(event.target.checked);
-  };
 
   const updatePrice = useCallback(async () => {
     if (!contractAddresses['GMX-VAULT'] || !signer || !atlanticPool) return;
@@ -646,7 +634,7 @@ const ManagePosition = () => {
         increaseOrderParams,
         depositTokenAddress,
         atlanticPoolEpochData.expiry,
-        depositUnderlying,
+        false,
         overrides
       );
       await sendTx(tx);
@@ -658,7 +646,6 @@ const ManagePosition = () => {
     atlanticPool,
     contractAddresses,
     signer,
-    depositUnderlying,
     chainId,
     positionBalance,
     selectedToken,
@@ -751,8 +738,8 @@ const ManagePosition = () => {
             />
           </Box>
         </Box>
-        <Box className="flex w-full bg-umbra justify-between border-t-2 border-cod-gray p-3 mb-2 rounded-b-xl">
-          <Box className="flex">
+        {/* <Box className="flex w-full bg-umbra justify-between border-t-2 border-cod-gray p-3 mb-2 rounded-b-xl"> */}
+        {/* <Box className="flex">
             <Typography variant="h6" className="my-auto" color="stieglitz">
               Deposit underlying
             </Typography>
@@ -763,9 +750,9 @@ const ManagePosition = () => {
             >
               <InfoOutlined className="fill-current text-stieglitz p-1 my-auto" />
             </Tooltip>
-          </Box>
-          <Switch value={depositUnderlying} onChange={handleToggle} />
-        </Box>
+          </Box> */}
+        {/* <Switch value={depositUnderlying} onChange={handleToggle} /> */}
+        {/* </Box> */}
         {error !== '' && (
           <Box className="mb-2">
             <Typography
@@ -790,7 +777,7 @@ const ManagePosition = () => {
         <Box className="flex flex-col w-full space-y-3 mt-2">
           {!approved.quote ? (
             <Box className="flex flex-row w-full justify-around space-x-2">
-              {depositUnderlying && !approved.base ? (
+              {false && !approved.base ? (
                 <CustomButton
                   onClick={handleApproveBaseToken}
                   disabled={
@@ -799,7 +786,7 @@ const ManagePosition = () => {
                     error !== ''
                   }
                   className={`${
-                    !depositUnderlying &&
+                    !false &&
                     increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
                     'hidden'
                   }  w-full ${approved.base && 'hidden'}`}

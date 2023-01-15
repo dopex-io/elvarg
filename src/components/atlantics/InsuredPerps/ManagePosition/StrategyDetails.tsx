@@ -34,7 +34,6 @@ const StrategyDetails = (props: {
       optionsAmount,
       putOptionsPremium,
       putOptionsfees,
-      depositUnderlying,
       positionFee,
       swapFees,
       strategyFee,
@@ -80,12 +79,6 @@ const StrategyDetails = (props: {
     const basetokenDecimals = getTokenDecimals(baseToken, chainId);
     const quoteTokenDecimals = getTokenDecimals(quoteToken, chainId);
 
-    if (depositUnderlying) {
-      totalBaseAsset.amount = optionsAmount;
-      totalBaseAsset.usdValue =
-        (Number(optionsAmount) / 10 ** basetokenDecimals) * baseTokenPrice;
-    }
-
     totalQuoteAsset.amount = totalQuoteAsset.amount.add(
       putOptionsPremium.add(putOptionsfees).add(fundingFees)
     );
@@ -127,8 +120,6 @@ const StrategyDetails = (props: {
     putOptionsfees,
     tokenPrices,
     tokens,
-    depositUnderlying,
-    optionsAmount,
     positionCollateral,
     selectedToken,
     baseToken,
