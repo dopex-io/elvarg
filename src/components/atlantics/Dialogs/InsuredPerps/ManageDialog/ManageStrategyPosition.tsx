@@ -34,11 +34,6 @@ const options: { [key: string]: string }[] = [
       'Exit strategy but keep long position under your designated position manager contract, the same position can be re-insured in the future.',
   },
   {
-    option: 'Enable unwind',
-    description:
-      'Deposit underlying to enable unwind to mitigate pre-liquidation price when your long position has unlocked collateral.',
-  },
-  {
     option: 'Emergency Exit Strategy',
     description:
       'Immidiately exit strategy if position does not have borrowed collateral and exit options positions as well (Cannot be settled)',
