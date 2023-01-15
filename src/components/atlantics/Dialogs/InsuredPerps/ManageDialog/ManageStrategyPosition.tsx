@@ -43,11 +43,6 @@ const options: { [key: string]: string }[] = [
     description:
       'Immidiately exit strategy if position does not have borrowed collateral and exit options positions as well (Cannot be settled)',
   },
-  {
-    option: 'Insure Position',
-    description:
-      'Purchase options for your long position if you feel like it has been in a `Enable pending` state for too long.',
-  },
 ];
 
 const ManageStrategyPositionDialog = () => {
