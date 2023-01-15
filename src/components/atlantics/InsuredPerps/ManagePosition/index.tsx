@@ -585,7 +585,10 @@ const ManagePosition = () => {
   }, [accountAddress, atlanticPool, contractAddresses, provider]);
 
   useEffect(() => {
-    handleStrategyCalculations();
+    const interval = setInterval(() => {
+      handleStrategyCalculations();
+    }, 3000);
+    return () => clearInterval(interval);
   }, [handleStrategyCalculations]);
 
   useEffect(() => {
