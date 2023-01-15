@@ -420,7 +420,7 @@ const ManagePosition = () => {
         await getBlockTime(provider)
       );
       const precision = 100000;
-      const slippage = 400;
+      const slippage = 600;
       acceptablePrice = markPrice.mul(precision + slippage).div(precision);
     }
 

@@ -26,6 +26,8 @@ import WalletButton from 'components/common/WalletButton';
 
 import { useBoundStore } from 'store';
 
+import useSendTx from 'hooks/useSendTx';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -53,11 +55,15 @@ export const ActionState: { [key: string]: string } = {
 };
 
 const UserPositions = () => {
-  const { signer, accountAddress, contractAddresses, atlanticPool } =
-    useBoundStore();
+  const {
+    signer,
+    accountAddress,
+    contractAddresses,
+    atlanticPool,
+    atlanticPoolEpochData,
+  } = useBoundStore();
 
-  // const [openPositionManager, setOpenPositionManager] =
-  //   useState<boolean>(false);
+  const sendTx = useSendTx();
 
   const [openManageModal, setOpenManageModal] = useState<boolean>(false);
   const [onOpenSection, setOnOpenSection] = useState<string>('MANAGE_STRATEGY');
@@ -240,6 +246,46 @@ const UserPositions = () => {
     setOpenManageModal(false);
   }, []);
 
+  const handleReuseStrategy = useCallback(async () => {
+    if (
+      !contractAddresses ||
+      !accountAddress ||
+      !atlanticPool ||
+      !signer ||
+      !atlanticPoolEpochData
+    )
+      return;
+
+    const strategyContractAddress: string =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
+    const strategyContract = InsuredLongsStrategy__factory.connect(
+      strategyContractAddress,
+      signer
+    );
+
+    const expiry = atlanticPoolEpochData.expiry;
+
+    const [positionId] = await Promise.all([
+      strategyContract.userPositionIds(accountAddress),
+      strategyContract.userPositionManagers(accountAddress),
+    ]);
+
+    await sendTx(
+      strategyContract.reuseStrategy(positionId, expiry, false)
+    ).then(() => {
+      getUserPositions();
+    });
+  }, [
+    accountAddress,
+    atlanticPool,
+    atlanticPoolEpochData,
+    signer,
+    getUserPositions,
+    contractAddresses,
+    sendTx,
+  ]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       getUserPositions();
@@ -363,9 +409,18 @@ const UserPositions = () => {
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell align="right">
-                      <CustomButton onClick={handleManageButtonClick}>
-                        Manage
-                      </CustomButton>
+                      {userPositionData.state === ActionState['5'] ? (
+                        <CustomButton
+                          className="animate-pulse"
+                          onClick={handleReuseStrategy}
+                        >
+                          Enable
+                        </CustomButton>
+                      ) : (
+                        <CustomButton onClick={handleManageButtonClick}>
+                          Manage
+                        </CustomButton>
+                      )}
                     </TableBodyCell>
                   </TableRow>
                 </TableBody>
