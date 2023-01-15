@@ -54,6 +54,7 @@ const ManageCard = (props: ManageCardProps) => {
     accountAddress,
     atlanticPool,
     updateAtlanticPoolEpochData,
+    updateUserPositions,
     atlanticPoolEpochData,
   } = useBoundStore();
 
@@ -143,6 +144,7 @@ const ManageCard = (props: ManageCardProps) => {
           )
       ).then(() => {
         updateAtlanticPoolEpochData();
+        updateUserPositions();
       });
     } catch (err) {
       console.log(err);
@@ -158,6 +160,7 @@ const ManageCard = (props: ManageCardProps) => {
     maxStrike,
     value,
     updateAtlanticPoolEpochData,
+    updateUserPositions,
   ]);
 
   const handleMax = useCallback(() => {
