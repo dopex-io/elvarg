@@ -7,7 +7,7 @@ import CustomButton from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
 import AssetMenuBox from 'components/common/AssetMenuBox';
-import { BalanceBox } from 'components/common/LpCommon';
+import BalanceBox from 'components/common/LpCommon/BalanceBox';
 import StrikeMenuBox from 'components/common/StrikeMenuBox';
 
 import { DECIMALS_USD, DECIMALS_TOKEN } from 'constants/index';

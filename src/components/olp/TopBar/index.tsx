@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useWindowSize } from 'react-use';
 import {
   Avatar,
   Box,
@@ -9,11 +10,11 @@ import {
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
+import Typography from 'components/UI/Typography';
+
 import { useBoundStore } from 'store';
 
-import { Typography } from 'components/UI';
 import { getReadableTime } from 'utils/contracts';
-import { useWindowSize } from 'react-use';
 
 const IS_BETA: boolean = true;
 

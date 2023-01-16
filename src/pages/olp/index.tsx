@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import Head from 'next/head';
+import axios from 'axios';
 import Box from '@mui/material/Box';
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import VaultCard from 'components/olp/VaultCard';
 
 import { useBoundStore } from 'store';
+
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 const CHAIN_ID = 5;
 

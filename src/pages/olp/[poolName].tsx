@@ -1,6 +1,7 @@
-import Head from 'next/head';
 import { useEffect } from 'react';
+import Head from 'next/head';
 import Box from '@mui/material/Box';
+
 import AppBar from 'components/common/AppBar';
 import AllLpPositions from 'components/olp/AllLpPositions';
 import ProvideLp from 'components/olp/ProvideLp';

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
-import Box from '@mui/material/Box';
-import { TableRow } from '@mui/material';
 import { BigNumber } from 'ethers';
+import Box from '@mui/material/Box';
+import TableRow from '@mui/material/TableRow';
 
 import {
   getLiquidityBodyCell,
@@ -9,9 +9,10 @@ import {
   StyleLeftCell,
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
-import { CustomButton, NumberDisplay, Typography } from 'components/UI';
-
-import FillPosition from '../FillPosition';
+import CustomButton from 'components/UI/Button';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Typography from 'components/UI/Typography';
+import FillPosition from 'components/olp/FillPosition';
 
 import { DECIMALS_STRIKE } from 'constants/index';
 

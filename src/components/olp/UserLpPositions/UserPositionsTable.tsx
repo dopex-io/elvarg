@@ -1,19 +1,21 @@
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import { TableRow } from '@mui/material';
-import { BigNumber } from 'ethers';
 
-import { LpPosition } from 'store/Vault/olp';
-
-import { CustomButton, NumberDisplay, Typography } from 'components/UI';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
+import CustomButton from 'components/UI/Button';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Typography from 'components/UI/Typography';
 import {
   StyleLeftCell,
   getLiquidityBodyCell,
   BodyCell,
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
+
+import { LpPosition } from 'store/Vault/olp';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 

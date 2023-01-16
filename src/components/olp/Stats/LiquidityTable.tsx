@@ -1,8 +1,9 @@
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
-import { BigNumber } from 'ethers';
 
-import { NumberDisplay, Typography } from 'components/UI';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Typography from 'components/UI/Typography';
 import {
   StyleCell,
   StyleLeftCell,

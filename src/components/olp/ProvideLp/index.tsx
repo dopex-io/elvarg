@@ -1,24 +1,29 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { Box } from '@mui/material';
-import { ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+import { ERC20__factory } from '@dopex-io/sdk';
+import Box from '@mui/material/Box';
 import { SelectChangeEvent } from '@mui/material/Select';
 
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
-import { allowanceApproval, getContractReadableAmount } from 'utils/contracts';
+import Typography from 'components/UI/Typography';
+import DiscountBox from 'components/common/LpCommon/DiscountBox';
+import WithdrawInfoBox from 'components/common/LpCommon/WithdrawInfoBox';
+import {
+  DepositBalanceBox,
+  StrikeBox,
+  PutBox,
+} from 'components/olp/ProvideLp/DepositPanel';
+
+import useSendTx from 'hooks/useSendTx';
+
+import allowanceApproval from 'utils/contracts/allowanceApproval';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getDepositMessage from 'utils/contracts/getDepositMessage';
 
 import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
-
-import { DiscountBox, WithdrawInfoBox } from 'components/common/LpCommon';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
-
-import { DepositBalanceBox, StrikeBox, PutBox } from './DepositPanel';
-
-import { getDepositMessage } from 'utils/contracts';
-import { Typography } from 'components/UI';
 
 // For Goerli test net
 const CHAIN_ID: number = 5;

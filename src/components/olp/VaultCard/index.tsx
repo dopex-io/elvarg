@@ -1,10 +1,13 @@
+import Link from 'next/link';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
-import Link from 'next/link';
+
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import { SSOV_MAP } from 'constants/index';
+
 import formatAmount from 'utils/general/formatAmount';
+
+import { SSOV_MAP } from 'constants/index';
 
 interface Props {
   underlyingSymbol: string;

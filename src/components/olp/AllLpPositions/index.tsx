@@ -20,6 +20,7 @@ import {
   StyleRightTableCell,
 } from 'components/common/LpCommon/Table';
 import { TablePaginationActions, Typography } from 'components/UI';
+import AllPositionsTable from 'components/olp/AllLpPositions/AllPositionsTable';
 
 import { useBoundStore } from 'store';
 
@@ -27,8 +28,6 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DECIMALS_STRIKE, ROWS_PER_PAGE } from 'constants/index';
-
-import AllPositionsTable from './AllPositionsTable';
 
 const AllLpPositions = () => {
   const { olpData, olpEpochData, setSelectedPositionIdx } = useBoundStore();
