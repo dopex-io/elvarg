@@ -71,7 +71,7 @@ const Olp = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`http://localhost:5001/api/v2/ssovlp`)
+        .get(`https://api.dopex.io/v2/olp`)
         .then((payload) => payload.data);
       setVaults(data);
     }

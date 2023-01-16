@@ -1,12 +1,11 @@
 import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
 import { orderBy } from 'lodash';
-
-// import { Addresses } from '@dopex-io/sdk';
 import { SsovLp, SsovLp__factory } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
+
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 import { getCurrentTime } from 'utils/contracts';
 import {
@@ -19,9 +18,8 @@ import {
   PERCENT,
 } from '../../../constants';
 
-// For Goerli test net
-const OLP: string = '0x8126d975c935f0d22132deae034b310d6bb2dda5';
-const TOKEN: string = '0xF54fcf65adA818b878eB9119D7aB38c708AF8fa5';
+const OLP: string = '0x3D0354322D4Ef15CBF4498581976F0dd40DedD07';
+const TOKEN: string = '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55';
 
 export interface OlpDataInterface {
   olpContract: SsovLp | undefined;
@@ -117,6 +115,7 @@ export const createOlpSlice: StateCreator<
     try {
       return SsovLp__factory.connect(OLP, provider);
     } catch (err) {
+      console.log(err);
       throw Error('unable to create address');
     }
   },
