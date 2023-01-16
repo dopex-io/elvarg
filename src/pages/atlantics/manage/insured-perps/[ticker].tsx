@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 import Head from 'next/head';
@@ -56,6 +56,53 @@ export const Main = (props: TickerProps) => {
     updateAtlanticPoolEpochData,
   } = useBoundStore();
 
+  const updatePriceData = useCallback(async () => {
+    if (!chainId || !underlying) return;
+    const res: Response = await new Promise(async (resolve, reject) => {
+      let done = false;
+      setTimeout(() => {
+        done = true;
+        reject(new Error(`Request timeout`));
+      }, 10000);
+
+      let lastEx;
+      for (let i = 0; i < 3; i++) {
+        if (done) return;
+        try {
+          const res = await fetch(
+            `${GMX_STATS_API}/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${period}&from=${
+              Math.ceil(Number(new Date()) / 1000) - 86400 * 100
+            }&preferableSource=fast`
+          );
+          resolve(res);
+          return;
+        } catch (ex) {
+          lastEx = ex;
+        }
+      }
+      reject(lastEx);
+    });
+    if (!res.ok) throw new Error('request failed');
+    const json = await res.json();
+    let prices: GmxCandleStick[] = json?.prices.map(
+      (candleStickData: {
+        h: number;
+        l: number;
+        o: number;
+        c: number;
+        t: number;
+      }) => ({
+        high: candleStickData.h,
+        low: candleStickData.l,
+        open: candleStickData.o,
+        close: candleStickData.c,
+        time: candleStickData.t,
+      })
+    );
+
+    setGmxChartData(prices);
+  }, [chainId, period, underlying]);
+
   useEffect(() => {
     if (!underlying || !signer) return;
     updateAtlanticPool(underlying, 'WEEKLY');
@@ -69,6 +116,10 @@ export const Main = (props: TickerProps) => {
     if (!selectedPoolName || !atlanticPool || !provider) return;
     updateAtlanticPoolEpochData();
   }, [updateAtlanticPoolEpochData, selectedPoolName, atlanticPool, provider]);
+
+  useEffect(() => {
+    setInterval(async () => await updatePriceData(), 10000);
+  }, [updatePriceData]);
 
   useEffect(() => {
     (async function () {
@@ -111,55 +162,6 @@ export const Main = (props: TickerProps) => {
     })();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      if (!chainId || !underlying) return;
-      const res: Response = await new Promise(async (resolve, reject) => {
-        let done = false;
-        setTimeout(() => {
-          done = true;
-          reject(new Error(`Request timeout`));
-        }, 10000);
-
-        let lastEx;
-        for (let i = 0; i < 3; i++) {
-          if (done) return;
-          try {
-            const res = await fetch(
-              `${GMX_STATS_API}/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${period}&from=${
-                Math.ceil(Number(new Date()) / 1000) - 86400 * 100
-              }&preferableSource=fast`
-            );
-            resolve(res);
-            return;
-          } catch (ex) {
-            lastEx = ex;
-          }
-        }
-        reject(lastEx);
-      });
-      if (!res.ok) throw new Error('request failed');
-      const json = await res.json();
-      let prices: GmxCandleStick[] = json?.prices.map(
-        (candleStickData: {
-          h: number;
-          l: number;
-          o: number;
-          c: number;
-          t: number;
-        }) => ({
-          high: candleStickData.h,
-          low: candleStickData.l,
-          open: candleStickData.o,
-          close: candleStickData.c,
-          time: candleStickData.t,
-        })
-      );
-
-      setGmxChartData(prices);
-    })();
-  }, [chainId, period, underlying]);
-
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
       <Head>
@@ -175,7 +177,7 @@ export const Main = (props: TickerProps) => {
                 deposit={depositToken}
                 stats={marketData}
               />
-              <Box className="h-[60vh] w-full space-y-4 flex flex-col bg-cod-gray rounded-xl text-center">
+              <Box className="h-[546px] w-full space-y-4 flex flex-col bg-cod-gray rounded-xl text-center">
                 <ChartComponent
                   data={gmxChartData}
                   triggerMarker={triggerMarker ?? '0'}
