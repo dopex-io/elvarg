@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import { createChart, ColorType, IChartApi } from 'lightweight-charts';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import CandleStickData from './CandleStickData';
 
@@ -145,23 +146,31 @@ const ChartComponent = (props: Props) => {
 
   return (
     <Box className="relative flex flex-col h-full">
-      <CandleStickData data={candleStickData} />
-      <ButtonGroup className="absolute right-[4rem] z-10 border border-mineshaft m-3">
-        {periods.map((_period, index) => {
-          return (
-            <Button
-              key={index}
-              onClick={handleChangePeriod}
-              className={`my-auto border-0 text-stieglitz hover:text-stieglitz hover:border-none ${
-                period === _period ? 'bg-carbon' : 'bg-none'
-              }`}
-            >
-              {_period}
-            </Button>
-          );
-        })}
-      </ButtonGroup>
-      <Box ref={chartContainerRef} className="m-3 rounded-xl h-full" />
+      {data.length === 0 ? (
+        <Box className="my-auto content-center">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <CandleStickData data={candleStickData} />
+          <ButtonGroup className="absolute right-[4rem] z-10 border border-mineshaft m-3">
+            {periods.map((_period, index) => {
+              return (
+                <Button
+                  key={index}
+                  onClick={handleChangePeriod}
+                  className={`my-auto border-0 text-stieglitz hover:text-stieglitz hover:border-none ${
+                    period === _period ? 'bg-carbon' : 'bg-none'
+                  }`}
+                >
+                  {_period}
+                </Button>
+              );
+            })}
+          </ButtonGroup>
+          <Box ref={chartContainerRef} className="m-3 rounded-xl h-full" />
+        </>
+      )}
     </Box>
   );
 };
