@@ -28,16 +28,6 @@ const options: { [key: string]: string }[] = [
     description:
       'Exit long position and strategy, withdrawing remaining collateral from the position along with PnL. Note that strategy positions with ITM put options and no deposited underlying can only choose to close.',
   },
-  {
-    option: 'Exit Strategy & Keep Position',
-    description:
-      'Exit strategy but keep long position under your designated position manager contract, the same position can be re-insured in the future.',
-  },
-  {
-    option: 'Emergency Exit Strategy',
-    description:
-      'Immidiately exit strategy if position does not have borrowed collateral and exit options positions as well (Cannot be settled)',
-  },
 ];
 
 const ManageStrategyPositionDialog = () => {
@@ -223,7 +213,6 @@ const ManageStrategyPositionDialog = () => {
     );
 
     const userPositionId = await strategy.userPositionIds(accountAddress);
-    const strategyPosition = await strategy.strategyPositions(userPositionId);
 
     let tx;
     const overrides = {
@@ -237,29 +226,6 @@ const ManageStrategyPositionDialog = () => {
         '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         true,
         overrides
-      );
-    }
-
-    if (selectedOptionItem === 1) {
-      tx = strategy.createExitStrategyOrder(
-        userPositionId,
-        '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
-        false,
-        overrides
-      );
-    }
-    if (selectedOptionItem === 2) {
-      tx = strategy.enableKeepCollateral(userPositionId);
-    }
-    if (selectedOptionItem === 3) {
-      tx = strategy.emergencyStrategyExit(userPositionId);
-    }
-
-    if (selectedOptionItem === 4) {
-      tx = strategy.reuseStrategy(
-        userPositionId,
-        strategyPosition.expiry,
-        strategyPosition.keepCollateral
       );
     }
 
