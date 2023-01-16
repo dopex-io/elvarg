@@ -124,6 +124,8 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
         strikeTokenAddress,
         BigNumber.from(lpPositionSelected?.lpId),
         getContractReadableAmount(rawFillAmount, DECIMALS_TOKEN),
+        0,
+        3,
       ]);
 
       setRawFillAmount('1');
