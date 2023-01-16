@@ -1,32 +1,32 @@
 import { useCallback, useRef, useMemo, useState, useEffect } from 'react';
 import {
   DopexPositionManager__factory,
-  ERC20__factory,
+  // ERC20__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import Button from '@mui/material/Button';
+// import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+// import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { BigNumber } from 'ethers';
 
-import CustomInput from 'components/UI/CustomInput';
+// import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import TokenSelector from 'components/atlantics/TokenSelector';
+// import TokenSelector from 'components/atlantics/TokenSelector';
 import ContentRow from 'components/atlantics/InsuredPerps/ManagePosition/ContentRow';
 
 import { useBoundStore } from 'store';
 
-import getTokenDecimals from 'utils/general/getTokenDecimals';
+// import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+// import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-import { TOKEN_DECIMALS } from 'constants/index';
+// import { TOKEN_DECIMALS } from 'constants/index';
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 
 import useSendTx from 'hooks/useSendTx';
@@ -36,22 +36,22 @@ const ManagePosition = () => {
     signer,
     accountAddress,
     contractAddresses,
-    chainId,
+    // chainId,
     atlanticPool,
-    userAssetBalances,
+    // userAssetBalances,
   } = useBoundStore();
 
   const sendTx = useSendTx();
 
-  const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
-  const [positionBalance, setPositionBalance] = useState<string>('0');
-  const [action, setAction] = useState<string | number>('Increase');
-  const [max, setMax] = useState<boolean>(false);
+  // const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
+  // const [positionBalance, setPositionBalance] = useState<string>('0');
+  // const [action, setAction] = useState<string | number>('Decrease');
+  // const [max, setMax] = useState<boolean>(false);
 
-  const [selectedToken, setSelectedToken] = useState('USDC');
+  // const [selectedToken, setSelectedToken] = useState('USDC');
   const [outputToken, setOutputToken] = useState('USDC');
 
-  const [increaseApproved, setIncreaseApproved] = useState(false);
+  // const [increaseApproved, setIncreaseApproved] = useState(false);
 
   const [positionData, setPositionData] = useState({
     maxIncreasable: BigNumber.from(0),
@@ -71,37 +71,37 @@ const ManagePosition = () => {
 
   const containerRef = useRef(null);
 
-  const handlePositionBalanceChange = (event: any) => {
-    const { value } = event.target;
-    setPositionBalance(value);
-  };
+  // const handlePositionBalanceChange = (event: any) => {
+  //   const { value } = event.target;
+  //   setPositionBalance(value);
+  // };
 
-  const handleMax = useCallback(async () => {
-    const positionBalanceFiltered = String(
-      parseFloat(positionData.collateral.replace(/,/g, ''))
-    );
-    if (action === 'Decrease') {
-      setPositionBalance(() => positionBalanceFiltered);
-      setMax(true);
-    } else {
-      if (!accountAddress || !selectedToken || !chainId) return;
-      setPositionBalance(() =>
-        String(
-          getUserReadableAmount(
-            positionData.maxIncreasable,
-            getTokenDecimals(selectedToken, chainId)
-          )
-        )
-      );
-    }
-  }, [
-    accountAddress,
-    action,
-    chainId,
-    positionData.maxIncreasable,
-    selectedToken,
-    positionData.collateral,
-  ]);
+  // const handleMax = useCallback(async () => {
+  //   const positionBalanceFiltered = String(
+  //     parseFloat(positionData.collateral.replace(/,/g, ''))
+  //   );
+  //   if (action === 'Decrease') {
+  //     setPositionBalance(() => positionBalanceFiltered);
+  //     setMax(true);
+  //   } else {
+  //     if (!accountAddress || !selectedToken || !chainId) return;
+  //     setPositionBalance(() =>
+  //       String(
+  //         getUserReadableAmount(
+  //           positionData.maxIncreasable,
+  //           getTokenDecimals(selectedToken, chainId)
+  //         )
+  //       )
+  //     );
+  //   }
+  // }, [
+  //   accountAddress,
+  //   action,
+  //   chainId,
+  //   positionData.maxIncreasable,
+  //   selectedToken,
+  //   positionData.collateral,
+  // ]);
 
   const allowedTokens = useMemo(() => {
     if (
@@ -126,9 +126,9 @@ const ManagePosition = () => {
     ];
   }, [atlanticPool, contractAddresses]);
 
-  const selectToken = (token: string) => {
-    setSelectedToken(() => token);
-  };
+  // const selectToken = (token: string) => {
+  //   setSelectedToken(() => token);
+  // };
 
   const updateGmxPosition = useCallback(async () => {
     if (
@@ -212,10 +212,11 @@ const ManagePosition = () => {
       3
     );
 
-    const maxIncreasable = await gmxVault.usdToTokenMin(
-      contractAddresses[selectedToken],
-      gmxPosition[0].sub(gmxPosition[1])
-    );
+    const maxIncreasable = BigNumber.from(0);
+    // const maxIncreasable = await gmxVault.usdToTokenMin(
+    //   contractAddresses[selectedToken],
+    //   gmxPosition[0].sub(gmxPosition[1])
+    // );
 
     const interval = Number(fundingInterval) / 3600;
 
@@ -237,14 +238,14 @@ const ManagePosition = () => {
     });
 
     // setPositionBalance(formatAmount(getUserReadableAmount(collateral, 6), 3));
-  }, [accountAddress, atlanticPool, contractAddresses, signer, selectedToken]);
+  }, [accountAddress, atlanticPool, contractAddresses, signer]);
 
   const handleSubmit = useCallback(async () => {
     if (
       !contractAddresses ||
       !accountAddress ||
       !signer ||
-      !selectedToken ||
+      // !selectedToken ||
       !outputToken
     )
       return;
@@ -287,51 +288,49 @@ const ManagePosition = () => {
       collateralDelta: BigNumber.from(0),
       positionSizeDelta: '0',
       // @ts-ignore
-      acceptablePrice: action === 'Decrease' ? minPrice : maxPrice,
+      acceptablePrice: minPrice,
       isLong: true,
     };
 
-    const selectedTokenAddress = contractAddresses[selectedToken];
-    if (action === 'Increase') {
-      path = [selectedTokenAddress, strategyPosition.indexToken];
+    // const selectedTokenAddress = contractAddresses[selectedToken];
+    // if (action === 'Increase') {
+    //   path = [selectedTokenAddress, strategyPosition.indexToken];
 
-      if (selectedTokenAddress == strategyPosition.indexToken) {
-        path = [strategyPosition.indexToken];
-      }
+    //   if (selectedTokenAddress == strategyPosition.indexToken) {
+    //     path = [strategyPosition.indexToken];
+    //   }
 
+    //   increaseOrderParams.path = path;
+
+    //   // increaseOrderParams.collateralDelta = getContractReadableAmount(
+    //   //   positionBalance,
+    //   //   getTokenDecimals(selectedToken, chainId)
+    //   // );
+
+    //   const tx = positionManagerContract.increaseOrder(increaseOrderParams, {
+    //     value: MIN_EXECUTION_FEE,
+    //   });
+
+    //   await sendTx(tx);
+    // }
+
+    // if (action === 'Decrease') {
+    const outputTokenAddress = contractAddresses[outputToken];
+    path = [strategyPosition.indexToken];
+    if (outputTokenAddress != strategyPosition.indexToken) {
+      path = [strategyPosition.indexToken, outputTokenAddress];
+      // }
       increaseOrderParams.path = path;
+      // increaseOrderParams.collateralDelta = await gmxVault.tokenToUsdMin(
+      //   outputTokenAddress,
+      //   getContractReadableAmount(
+      //     positionBalance,
+      //     getTokenDecimals(outputToken, chainId)
+      //   )
+      // );
 
-      increaseOrderParams.collateralDelta = getContractReadableAmount(
-        positionBalance,
-        getTokenDecimals(selectedToken, chainId)
-      );
-
-      const tx = positionManagerContract.increaseOrder(increaseOrderParams, {
-        value: MIN_EXECUTION_FEE,
-      });
-
-      await sendTx(tx);
-    }
-
-    if (action === 'Decrease') {
-      const outputTokenAddress = contractAddresses[outputToken];
-      path = [strategyPosition.indexToken];
-      if (outputTokenAddress != strategyPosition.indexToken) {
-        path = [strategyPosition.indexToken, outputTokenAddress];
-      }
-      increaseOrderParams.path = path;
-      increaseOrderParams.collateralDelta = await gmxVault.tokenToUsdMin(
-        outputTokenAddress,
-        getContractReadableAmount(
-          positionBalance,
-          getTokenDecimals(outputToken, chainId)
-        )
-      );
-
-      if (max) {
-        increaseOrderParams.collateralDelta = BigNumber.from(0);
-        increaseOrderParams.positionSizeDelta = positionData.size.toString();
-      }
+      increaseOrderParams.collateralDelta = BigNumber.from(0);
+      increaseOrderParams.positionSizeDelta = positionData.size.toString();
 
       const decreaseOrderParams = {
         orderParams: increaseOrderParams,
@@ -347,15 +346,15 @@ const ManagePosition = () => {
     }
   }, [
     accountAddress,
-    action,
-    chainId,
-    positionBalance,
+    // action,
+    // chainId,
+    // positionBalance,
     outputToken,
     contractAddresses,
     positionData.size,
     signer,
-    selectedToken,
-    max,
+    // selectedToken,
+    // max,
     sendTx,
   ]);
 
@@ -363,17 +362,17 @@ const ManagePosition = () => {
     updateGmxPosition();
   }, [updateGmxPosition]);
 
-  const handleActionChange = useCallback(
-    (e: { target: { value: string | number } }) => {
-      const selectedAction = String(e.target.value);
-      setAction(String(e.target.value));
-      if (selectedAction === 'Decrease') {
-        setSelectedToken(outputToken);
-        setIncreaseApproved(() => true);
-      }
-    },
-    [outputToken]
-  );
+  // const handleActionChange = useCallback(
+  //   (e: { target: { value: string | number } }) => {
+  //     const selectedAction = String(e.target.value);
+  //     setAction(String(e.target.value));
+  //     if (selectedAction === 'Decrease') {
+  //       setSelectedToken(outputToken);
+  //       setIncreaseApproved(() => true);
+  //     }
+  //   },
+  //   [outputToken]
+  // );
 
   const handleOutputTokenSelection = useCallback(
     (e: { target: { value: string | number } }) => {
@@ -382,70 +381,70 @@ const ManagePosition = () => {
     []
   );
 
-  const handleApprove = useCallback(async () => {
-    if (!selectedToken || !contractAddresses || !signer) return;
-    const token = ERC20__factory.connect(
-      contractAddresses[selectedToken],
-      signer
-    );
-    const tx = token.approve(
-      positionData.positionManager,
-      getContractReadableAmount(
-        positionBalance,
-        getTokenDecimals(selectedToken, chainId)
-      )
-    );
+  // const handleApprove = useCallback(async () => {
+  //   if (!selectedToken || !contractAddresses || !signer) return;
+  //   const token = ERC20__factory.connect(
+  //     contractAddresses[selectedToken],
+  //     signer
+  //   );
+  //   const tx = token.approve(
+  //     positionData.positionManager,
+  //     getContractReadableAmount(
+  //       positionBalance,
+  //       getTokenDecimals(selectedToken, chainId)
+  //     )
+  //   );
 
-    await sendTx(tx);
-  }, [
-    chainId,
-    contractAddresses,
-    selectedToken,
-    sendTx,
-    signer,
-    positionBalance,
-    positionData.positionManager,
-  ]);
+  //   await sendTx(tx);
+  // }, [
+  //   chainId,
+  //   contractAddresses,
+  //   selectedToken,
+  //   sendTx,
+  //   signer,
+  //   // positionBalance,
+  //   positionData.positionManager,
+  // ]);
 
-  const checkTokenApprove = useCallback(async () => {
-    if (!selectedToken || !contractAddresses || !signer || !accountAddress)
-      return;
-    if (action === 'Increase') {
-      const token = ERC20__factory.connect(
-        contractAddresses[selectedToken],
-        signer
-      );
-      const allowance = await token.allowance(
-        accountAddress,
-        positionData.positionManager
-      );
-      const positioBalanceBigNumber = getContractReadableAmount(
-        positionBalance,
-        getTokenDecimals(selectedToken, chainId)
-      );
-      setIncreaseApproved(() => allowance.gte(positioBalanceBigNumber));
-    } else {
-      setIncreaseApproved(() => true);
-    }
-  }, [
-    accountAddress,
-    selectedToken,
-    contractAddresses,
-    signer,
-    chainId,
-    positionBalance,
-    action,
-    positionData.positionManager,
-  ]);
+  // const checkTokenApprove = useCallback(async () => {
+  //   if (!selectedToken || !contractAddresses || !signer || !accountAddress)
+  //     return;
+  //   if (action === 'Increase') {
+  //     const token = ERC20__factory.connect(
+  //       contractAddresses[selectedToken],
+  //       signer
+  //     );
+  //     const allowance = await token.allowance(
+  //       accountAddress,
+  //       positionData.positionManager
+  //     );
+  //     const positioBalanceBigNumber = getContractReadableAmount(
+  //       positionBalance,
+  //       getTokenDecimals(selectedToken, chainId)
+  //     );
+  //     setIncreaseApproved(() => allowance.gte(positioBalanceBigNumber));
+  //   } else {
+  //     setIncreaseApproved(() => true);
+  //   }
+  // }, [
+  //   accountAddress,
+  //   selectedToken,
+  //   contractAddresses,
+  //   signer,
+  //   chainId,
+  //   // positionBalance,
+  //   action,
+  //   positionData.positionManager,
+  // ]);
 
-  useEffect(() => {
-    checkTokenApprove();
-  }, [checkTokenApprove, action]);
+  // useEffect(() => {
+  //   checkTokenApprove();
+  // }, [checkTokenApprove, action]);
 
   return (
-    <Box className="space-y-4">
-      <Box className="bg-umbra rounded-xl mb-2" ref={containerRef}>
-        <CustomInput
+    <Box className="space-y-4 w-full">
+      <Box className="bg-umbra rounded-xl mb-2 w-full" ref={containerRef}>
+        {/* <CustomInput
           size="medium"
           variant="outlined"
           outline="umbra"
@@ -486,8 +485,8 @@ const ManagePosition = () => {
               </Button>
             </Box>
           }
-        />
-        {action === 'Increase' && (
+        /> */}
+        {/* {action === 'Increase' && (
           <TokenSelector
             setSelection={selectToken}
             open={openTokenSelector}
@@ -495,13 +494,13 @@ const ManagePosition = () => {
             tokens={allowedTokens}
             containerRef={containerRef}
           />
-        )}
-        <Box className="flex bg-umbra rounded-b-xl justify-between px-3 pb-3">
+        )} */}
+        <Box className="flex bg-umbra rounded-b-xl justify-between px-3 py-3">
           <Typography variant="h6" color="stieglitz">
             Balance
           </Typography>
           <Typography variant="h6">
-            {action === 'Increase'
+            {/* {action === 'Increase'
               ? formatAmount(
                   getUserReadableAmount(
                     userAssetBalances[selectedToken] ?? '0',
@@ -510,8 +509,9 @@ const ManagePosition = () => {
                   3,
                   true
                 )
-              : positionData.collateral}{' '}
-            {selectedToken}
+              : */}
+            {positionData.collateral}
+            {'$ '}
           </Typography>
         </Box>
       </Box>
@@ -537,10 +537,10 @@ const ManagePosition = () => {
           }`}
         />
       </Box>
-      <Box className="flex justify-between items-center space-x-2">
-        <Select
-          value={action}
-          onChange={handleActionChange}
+      <Box className="flex justify-center items-center space-x-2">
+        {/* <Select
+          value={'decrease'}
+          // onChange={null}
           className="bg-umbra rounded-md w-full text-center font-semibold text-white"
           MenuProps={{
             classes: { paper: 'bg-umbra' },
@@ -550,45 +550,40 @@ const ManagePosition = () => {
           variant="standard"
           disableUnderline
         >
-          <MenuItem value={'Increase'}>
-            <Typography variant="h6">{'Increase'}</Typography>
-          </MenuItem>
           <MenuItem value={'Decrease'}>
             <Typography variant="h6">{'Decrease'}</Typography>
           </MenuItem>
+        </Select> */}
+        <Select
+          value={outputToken}
+          onChange={handleOutputTokenSelection}
+          className="bg-umbra rounded-md text-center font-semibold w-1/2 text-white"
+          MenuProps={{
+            classes: { paper: 'bg-umbra' },
+          }}
+          classes={{ icon: 'text-white', select: 'px-3' }}
+          placeholder={'Select output token'}
+          variant="standard"
+          disableUnderline
+        >
+          {allowedTokens.map(({ symbol }, index) => (
+            <MenuItem key={index} value={symbol}>
+              <Typography variant="h6" className="my-auto">
+                Receive {symbol}
+              </Typography>
+            </MenuItem>
+          ))}
         </Select>
-        {action === 'Decrease' && (
-          <Select
-            value={outputToken}
-            onChange={handleOutputTokenSelection}
-            className="bg-umbra rounded-md text-center font-semibold w-1/2 text-white"
-            MenuProps={{
-              classes: { paper: 'bg-umbra' },
-            }}
-            classes={{ icon: 'text-white', select: 'px-3' }}
-            placeholder={'Select output token'}
-            variant="standard"
-            disableUnderline
-          >
-            {allowedTokens.map(({ symbol }, index) => (
-              <MenuItem key={index} value={symbol}>
-                <Typography variant="h6" className="my-auto">
-                  Receive {symbol}
-                </Typography>
-              </MenuItem>
-            ))}
-          </Select>
-        )}
       </Box>
-      {increaseApproved ? (
-        <CustomButton onClick={handleSubmit} className="w-full">
-          Submit
-        </CustomButton>
-      ) : (
+      {/* {increaseApproved ? ( */}
+      <CustomButton onClick={handleSubmit} className="w-full">
+        Submit
+      </CustomButton>
+      {/*) : (
         <CustomButton onClick={handleApprove} className="w-full">
           Approve {selectedToken}
         </CustomButton>
-      )}
+      )}*/}
     </Box>
   );
 };
