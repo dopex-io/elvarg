@@ -11,8 +11,8 @@ import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+// import Menu from '@mui/material/Menu';
+// import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import CustomButton from 'components/UI/Button';
@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableBodyCell,
 } from 'components/atlantics/Manage/UserDepositsTable';
-import ManageModal from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog';
+// import ManageModal from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog';
 import WalletButton from 'components/common/WalletButton';
 
 import { useBoundStore } from 'store';
@@ -30,6 +30,8 @@ import useSendTx from 'hooks/useSendTx';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import { MIN_EXECUTION_FEE } from 'constants/gmx';
 
 interface IUserPositionData {
   underlying: string;
@@ -65,14 +67,20 @@ const UserPositions = () => {
 
   const sendTx = useSendTx();
 
-  const [openManageModal, setOpenManageModal] = useState<boolean>(false);
-  const [onOpenSection, setOnOpenSection] = useState<string>('MANAGE_STRATEGY');
+  // const [openManageModal, setOpenManageModal] = useState<boolean>(false);
+  // const [onOpenSection, setOnOpenSection] = useState<string>('MANAGE_STRATEGY');
+
+  const [buttonLoaders, setButtonLoaders] = useState({
+    enableButton: false,
+  });
+
   const [, setIsPositionReleased] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const handleOpenManageModal = useCallback((section: string) => {
-    setOnOpenSection(() => section);
-    setOpenManageModal(() => true);
-  }, []);
+
+  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // const handleOpenManageModal = useCallback((section: string) => {
+  //   setOnOpenSection(() => section);
+  //   setOpenManageModal(() => true);
+  // }, []);
 
   const [userPositionData, setUserPositionData] = useState<IUserPositionData>({
     underlying: '',
@@ -187,6 +195,7 @@ const UserPositions = () => {
       ]);
 
       hasProfit = positionDelta[0];
+
       position = {
         underlying,
         entryPrice: formatAmount(getUserReadableAmount(gmxPosition[2], 30), 3),
@@ -215,36 +224,81 @@ const UserPositions = () => {
     setIsPositionReleased(() => strategyPosition.state === 1);
   }, [contractAddresses, signer, accountAddress, atlanticPool]);
 
-  const handleManageButtonClick = useCallback(() => {
-    if (userPositionData.state === 'Settled') {
-      handleOpenManageModal('MANAGE_POSITION');
-      setOpenManageModal(true);
-    } else {
-      handleOpenManageModal('MANAGE_STRATEGY');
-      setOpenManageModal(true);
-    }
-  }, [handleOpenManageModal, setOpenManageModal, userPositionData.state]);
+  // const handleManageButtonClick = useCallback(() => {
+  //   if (userPositionData.state === 'Settled') {
+  //     handleOpenManageModal('MANAGE_POSITION');
+  //     setOpenManageModal(true);
+  //   } else {
+  //     handleOpenManageModal('MANAGE_STRATEGY');
+  //     setOpenManageModal(true);
+  //   }
+  // }, [handleOpenManageModal, setOpenManageModal, userPositionData.state]);
 
-  const handleUseStrategy = useCallback(() => {
-    setOnOpenSection(() => 'USE_STRATEGY');
-    setOpenManageModal(true);
-  }, []);
-  const handleManageStrategy = useCallback(() => {
-    setOnOpenSection(() => 'MANAGE_STRATEGY');
-    setOpenManageModal(true);
-  }, []);
-  const handleManagePosition = useCallback(() => {
-    setOnOpenSection(() => 'MANAGE_POSITION');
-    setOpenManageModal(true);
-  }, []);
+  // const handleUseStrategy = useCallback(() => {
+  //   setOnOpenSection(() => 'USE_STRATEGY');
+  //   setOpenManageModal(true);
+  // }, []);
+  // const handleManageStrategy = useCallback(() => {
+  //   setOnOpenSection(() => 'MANAGE_STRATEGY');
+  //   setOpenManageModal(true);
+  // }, []);
+  // const handleManagePosition = useCallback(() => {
+  //   setOnOpenSection(() => 'MANAGE_POSITION');
+  //   setOpenManageModal(true);
+  // }, []);
 
-  const handleCloseMenu = useCallback(() => {
-    setAnchorEl(null);
-  }, []);
+  // const handleCloseMenu = useCallback(() => {
+  //   setAnchorEl(null);
+  // }, []);
 
-  const handleClose = useCallback(() => {
-    setOpenManageModal(false);
-  }, []);
+  // const handleClose = useCallback(() => {
+  //   setOpenManageModal(false);
+  // }, []);
+
+  const handleClosePosition = useCallback(async () => {
+    if (
+      !contractAddresses ||
+      !accountAddress ||
+      !atlanticPool ||
+      !signer ||
+      !atlanticPoolEpochData
+    )
+      return;
+
+    const strategyContractAddress: string =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
+    const strategyContract = InsuredLongsStrategy__factory.connect(
+      strategyContractAddress,
+      signer
+    );
+
+    let { depositToken } = atlanticPool.tokens;
+    depositToken = contractAddresses[depositToken];
+
+    if (!depositToken) return;
+
+    const [positionId] = await Promise.all([
+      strategyContract.userPositionIds(accountAddress),
+      strategyContract.userPositionManagers(accountAddress),
+    ]);
+
+    await sendTx(
+      strategyContract.createExitStrategyOrder(positionId, depositToken, true, {
+        value: MIN_EXECUTION_FEE,
+      })
+    ).then(() => {
+      getUserPositions();
+    });
+  }, [
+    accountAddress,
+    atlanticPool,
+    atlanticPoolEpochData,
+    signer,
+    getUserPositions,
+    contractAddresses,
+    sendTx,
+  ]);
 
   const handleReuseStrategy = useCallback(async () => {
     if (
@@ -271,11 +325,21 @@ const UserPositions = () => {
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
+    setButtonLoaders((prev) => ({
+      ...prev,
+      enableButton: true,
+    }));
+
     await sendTx(
       strategyContract.reuseStrategy(positionId, expiry, false)
     ).then(() => {
       getUserPositions();
     });
+
+    setButtonLoaders((prev) => ({
+      ...prev,
+      enableButton: false,
+    }));
   }, [
     accountAddress,
     atlanticPool,
@@ -292,15 +356,16 @@ const UserPositions = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, [getUserPositions]);
+
   return (
     <>
-      <ManageModal
+      {/* <ManageModal
         section={onOpenSection}
         open={openManageModal}
         handleClose={handleClose}
-      />
+      /> */}
       {/* <CustomButton onClick={handleClickMenu}>Test Modals</CustomButton> */}
-      <Menu
+      {/* <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleCloseMenu}
@@ -326,8 +391,8 @@ const UserPositions = () => {
           className="text-white"
         >
           Manage Strategy
-        </MenuItem>
-      </Menu>
+        </MenuItem> */}
+      {/* </Menu> */}
       {userPositionData.state === 'Loading' ? (
         <Box className="w-full text-center bg-cod-gray rounded-xl py-8">
           {accountAddress ? (
@@ -411,14 +476,30 @@ const UserPositions = () => {
                     <TableBodyCell align="right">
                       {userPositionData.state === ActionState['5'] ? (
                         <CustomButton
-                          className="animate-pulse"
+                          className={`${
+                            !buttonLoaders.enableButton && 'animate-pulse'
+                          }`}
                           onClick={handleReuseStrategy}
                         >
-                          Enable
+                          {buttonLoaders.enableButton ? (
+                            <CircularProgress
+                              size={20}
+                              className="text-white"
+                            />
+                          ) : (
+                            'Enable'
+                          )}
                         </CustomButton>
                       ) : (
-                        <CustomButton onClick={handleManageButtonClick}>
-                          Manage
+                        <CustomButton onClick={handleClosePosition}>
+                          {userPositionData.state === ActionState['6'] ? (
+                            <CircularProgress
+                              size={20}
+                              className="text-white"
+                            />
+                          ) : (
+                            'Close'
+                          )}
                         </CustomButton>
                       )}
                     </TableBodyCell>

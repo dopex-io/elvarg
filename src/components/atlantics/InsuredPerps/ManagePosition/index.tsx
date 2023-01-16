@@ -274,6 +274,8 @@ const ManagePosition = () => {
     const underlyingTokenAddress = contractAddresses[underlying];
     const selectedTokenAddress = contractAddresses[selectedToken];
 
+    if (!selectedTokenAddress) return;
+
     const utilsContract = InsuredLongsUtils__factory.connect(
       utilsAddress,
       signer
@@ -311,7 +313,6 @@ const ManagePosition = () => {
     let liquidationPrice = BigNumber.from(0);
     let putOptionsPremium = BigNumber.from(0),
       putOptionsfees = BigNumber.from(0),
-      markPrice = BigNumber.from(0),
       strategyFee = BigNumber.from(0),
       tickSizeMultiplier = BigNumber.from(0),
       optionsAmount = BigNumber.from(0),
@@ -323,15 +324,16 @@ const ManagePosition = () => {
       strategyFeeWithoutDiscount = BigNumber.from(0),
       fundingFees = BigNumber.from(0);
 
-    positionFee = await utilsContract.getPositionFee(sizeUsd);
-    positionFee = await gmxVault.usdToTokenMax(
-      selectedTokenAddress,
-      positionFee
-    );
-    const leveragedCollateral = await gmxVault.usdToTokenMax(
-      depositTokenAddress,
-      sizeUsd.sub(collateralUsd)
-    );
+    let [positionFeeUsd, markPrice] = await Promise.all([
+      utilsContract.getPositionFee(sizeUsd),
+      gmxVault.getMaxPrice(underlyingTokenAddress),
+    ]);
+
+    let leveragedCollateral;
+    [positionFee, leveragedCollateral] = await Promise.all([
+      gmxVault.usdToTokenMax(selectedTokenAddress, positionFeeUsd),
+      gmxVault.usdToTokenMax(depositTokenAddress, sizeUsd.sub(collateralUsd)),
+    ]);
 
     if (selectedToken !== underlying) {
       if (!collateralUsd.isZero()) {
@@ -354,15 +356,13 @@ const ManagePosition = () => {
     }
 
     if (!inputAmount.isZero()) {
-      try {
-        liquidationPrice = await utilsContract[
-          'getLiquidationPrice(address,address,uint256,uint256)'
-        ](selectedTokenAddress, underlyingTokenAddress, inputAmount, sizeUsd);
-      } catch (err) {
-        liquidationPrice = BigNumber.from(0);
-      }
+      const totalFees = positionFeeUsd.add(positionFeeUsd);
+      const priceDelta = markPrice
+        .mul(collateralUsd.sub(totalFees))
+        .div(sizeUsd);
+      const liquidationUsd = markPrice.sub(priceDelta);
 
-      liquidationPrice = liquidationPrice.div(getContractReadableAmount(1, 22));
+      liquidationPrice = liquidationUsd.div(getContractReadableAmount(1, 22));
 
       [tickSizeMultiplier, strategyFee, strategyFeeWithoutDiscount] =
         await Promise.all([
@@ -390,7 +390,6 @@ const ManagePosition = () => {
       [
         putOptionsPremium,
         putOptionsfees,
-        markPrice,
         collateralAccess,
         purchaseFeesWithoutDiscount,
       ] = await Promise.all([
@@ -400,7 +399,6 @@ const ManagePosition = () => {
           putStrike,
           optionsAmount
         ),
-        gmxVault.getMaxPrice(underlyingTokenAddress),
         putsContract.strikeMulAmount(putStrike, optionsAmount),
         putsContract.calculatePurchaseFees(
           putsContract.address,
@@ -414,7 +412,7 @@ const ManagePosition = () => {
         await getBlockTime(provider)
       );
       const precision = 100000;
-      const slippage = 600;
+      const slippage = 1000;
       acceptablePrice = markPrice.mul(precision + slippage).div(precision);
     }
 
@@ -585,10 +583,7 @@ const ManagePosition = () => {
   }, [accountAddress, atlanticPool, contractAddresses, provider]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      handleStrategyCalculations();
-    }, 3000);
-    return () => clearInterval(interval);
+    handleStrategyCalculations();
   }, [handleStrategyCalculations]);
 
   useEffect(() => {
@@ -768,6 +763,7 @@ const ManagePosition = () => {
         )}
         <StrategyDetails
           data={debouncedStrategyDetails[0]}
+          loading={strategyDetailsLoading}
           selectedCollateral={'selectedCollateral'}
           selectedToken={selectedToken}
           positionCollateral={getContractReadableAmount(

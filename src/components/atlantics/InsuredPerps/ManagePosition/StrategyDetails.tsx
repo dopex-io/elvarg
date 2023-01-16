@@ -15,6 +15,7 @@ import { useBoundStore } from 'store';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
+import { CircularProgress } from '@mui/material';
 
 const StrategyDetails = (props: {
   data: IStrategyDetails;
@@ -23,6 +24,7 @@ const StrategyDetails = (props: {
   positionCollateral: BigNumber;
   quoteToken: string;
   baseToken: string;
+  loading: boolean;
 }) => {
   const {
     data: {
@@ -44,6 +46,7 @@ const StrategyDetails = (props: {
     positionCollateral,
     quoteToken,
     baseToken,
+    loading,
   } = props;
 
   const { tokenPrices, tokens, chainId, atlanticPool } = useBoundStore();
@@ -164,11 +167,14 @@ const StrategyDetails = (props: {
           </Tooltip>
         </Box>
         <Box className="flex flex-col p-3">
-          <Box className="flex space-x-1">
+          <Box className="flex space-x-1 x">
             <ReceiptIcon className="fill-current text-stieglitz p-1" />
-            <Typography variant="h6" color="stieglitz">
+            <Typography variant="h6" color="stieglitz" className="w-full">
               Futures Position
             </Typography>
+            {loading && (
+              <CircularProgress size={20} className="ml-full text-stieglitz" />
+            )}
           </Box>
           <ContentRow title="Index Token" content="WETH" />
           <ContentRow

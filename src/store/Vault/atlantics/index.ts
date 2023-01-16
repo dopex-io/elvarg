@@ -244,9 +244,8 @@ export const createAtlanticsSlice: StateCreator<
     );
 
     const checkpoints = await Promise.all(latestCheckpointsCalls);
-    console.log('Checkpoints', checkpoints);
 
-    const temp = checkpoints.map((maxStrikeData, i) => {
+    checkpoints.map((maxStrikeData, i) => {
       const strikeData = maxStrikeData.map(
         (checkpoint: CheckpointStructOutput) => {
           return {
@@ -258,8 +257,6 @@ export const createAtlanticsSlice: StateCreator<
       );
       return { ...strikeData, strike: maxStrikes[i]?.div(1e8).toNumber() };
     });
-
-    console.log(temp);
 
     if (!checkpoints) return;
 
