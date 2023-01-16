@@ -140,8 +140,8 @@ export default function FillPositionDialog(props: Props) {
       <Box>
         <Box className="border border-umbra p-2 bg-umbra border-radius rounded-lg">
           <Box className="flex flex-row">
-            <Box className="flex flex-row w-56">
-              <Box className="flex flex-row h-10 p-1 w-48 mt-1">
+            <Box className="flex flex-row w-56 space-x-1">
+              <Box className="flex flex-row h-10 p-1 w-auto mt-1">
                 <img
                   src={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
                   alt={`${underlyingSymbol.toUpperCase()}`}
@@ -149,26 +149,23 @@ export default function FillPositionDialog(props: Props) {
                 <Typography
                   variant="h6"
                   color="text-white"
-                  className="text-left w-full relative ml-2 mt-1"
+                  className="ml-2 mt-1"
                 >
                   <span className="text-white">{name}</span>
                 </Typography>
               </Box>
-              <Box className="border-radius rounded-lg mt-2 h-6 mr-6">
-                <Button
-                  color="mineshaft"
-                  onClick={() => {
-                    setRawFillAmount(
-                      addDecimals(userTokenBalance, DECIMALS_TOKEN)
-                    );
-                  }}
-                  className="mb-2"
-                >
-                  <Typography variant="h6" color="stieglitz">
-                    MAX
-                  </Typography>
-                </Button>
-              </Box>
+              <Button
+                color="mineshaft"
+                onClick={() => {
+                  setRawFillAmount(
+                    addDecimals(userTokenBalance, DECIMALS_TOKEN)
+                  );
+                }}
+                className="rounded-md my-auto text-stieglitz h-2/3"
+                sx={{ minWidth: 'min-content' }}
+              >
+                MAX
+              </Button>
             </Box>
             <Input
               disableUnderline
@@ -236,7 +233,6 @@ export default function FillPositionDialog(props: Props) {
               {`Receive ${outUsd ? 'USDC' : underlyingSymbol}`}
             </span>
           </Typography>
-
           <Tooltip
             placement="top"
             className="h-4 text-stieglitz"
@@ -257,11 +253,9 @@ export default function FillPositionDialog(props: Props) {
   }
 
   return (
-    <Box className="bg-cod-gray rounded-lg w-84">
-      <Box className="flex justify-between items-center mb-2 p-1">
-        <Typography variant="h6" className="text-lg">
-          Fill LP
-        </Typography>
+    <Box className="bg-cod-gray rounded-lg">
+      <Box className="flex justify-between items-center mb-2">
+        <Typography variant="h5">Fill LP</Typography>
       </Box>
       {getOptionTokenAmountBalance(
         lpPositionSelected,
@@ -271,11 +265,10 @@ export default function FillPositionDialog(props: Props) {
         underlyingSymbol
       )}
 
-      <Box className="border border-umbra rounded-xl pb-2 px-2">
-        <Box className="rounded-xl p-3 border border-umbra w-full bg-umbra mt-4 mb-3">
+      <Box className="bg-umbra rounded-xl p-3">
+        <Box className="bg-carbon rounded-lg p-3 w-full space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
           {receiveAmount(handleOutUsd)}
-
           <NumberLiquidityDialogRow
             data={'I will receive'}
             underlying={underlyingSymbol}
@@ -286,15 +279,16 @@ export default function FillPositionDialog(props: Props) {
             }
           />
         </Box>
-
-        <Typography
-          variant="h6"
-          className="text-sm flex justify-around mb-1"
-          color="stieglitz"
-        >
-          This will sell your {name} option token
-        </Typography>
-
+        <Box className="flex space-x-2">
+          <InfoOutlinedIcon className="fill-current text-stieglitz my-auto" />
+          <Typography
+            variant="h6"
+            className="flex justify-around my-2"
+            color="stieglitz"
+          >
+            This will sell your {name} option token.
+          </Typography>
+        </Box>
         <ApproveDepositButton
           approved={approved}
           fillButtonMessage={fillButtonMessage}

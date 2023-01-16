@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState, useMemo } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 
-import { Dialog } from 'components/UI';
+import Dialog from 'components/UI/Dialog';
+import FillPositionDialog from 'components/olp/FillPosition/FillPositionDialog';
 
 import { useBoundStore } from 'store';
 
@@ -14,8 +15,6 @@ import {
 } from 'utils/contracts';
 
 import { MAX_VALUE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
-
-import FillPositionDialog from './FillPositionDialog';
 
 const CHAIN_ID: number = 5;
 
@@ -223,7 +222,11 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
       open={anchorEl != null}
       handleClose={() => setAnchorEl(null)}
       disableScrollLock={true}
-      PaperProps={{ style: { backgroundColor: 'transparent' } }}
+      sx={{
+        '.MuiPaper-root': {
+          padding: '12px',
+        },
+      }}
       width={368}
     >
       <FillPositionDialog
