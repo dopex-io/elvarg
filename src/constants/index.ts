@@ -1,9 +1,23 @@
 import { BigNumber } from 'ethers';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
+import { INFURA_PROJECT_ID, ANKR_KEY, GOERLI_KEY } from './env';
+
+export const DATE_FORMAT: string = 'd LLL yy';
+
+export const DECIMALS_TOKEN: number = 18;
+export const DECIMALS_STRIKE: number = 8;
+export const DECIMALS_USD: number = 6;
+
+export const ROWS_PER_PAGE: number = 5;
+
+export const ASC = 'asc';
+export const DESC = 'desc';
+export const NULL: string = '0x0000000000000000000000000000000000000000';
+export const PERCENT: BigNumber = BigNumber.from(100);
 
 export const CURRENCIES_MAP: { [key: string]: string } = {
   '1': 'ETH',
+  '5': 'ETH',
   '42161': 'ETH',
   '56': 'BNB',
   '43114': 'AVAX',
@@ -234,6 +248,7 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   [key: number]: { name: string; icon: string };
 } = {
   1: { name: 'Mainnet', icon: '/images/tokens/eth.svg' },
+  5: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
   42: { name: 'Kovan', icon: '/images/tokens/eth.svg' },
   56: { name: 'BSC', icon: '/images/tokens/bnb.svg' },
   42161: { name: 'Arbitrum', icon: '/images/networks/arbitrum.svg' },
@@ -248,6 +263,10 @@ export const TOKEN_DECIMALS = {
     VBNB: 8,
   },
   '1': {
+    USDT: 6,
+    USDC: 6,
+  },
+  '5': {
     USDT: 6,
     USDC: 6,
   },
@@ -274,6 +293,7 @@ export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
   56: 'BNB',
   43114: 'AVAX',
   1: 'ETH',
+  5: 'ETH',
 };
 
 export const IS_NATIVE = (asset: string) => {
@@ -284,6 +304,7 @@ export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
+  5: `https://goerli.infura.io/v3/${GOERLI_KEY}`,
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
@@ -294,6 +315,7 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
 
 export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   1: 'https://etherscan.io/',
+  5: 'https://goerli.etherscan.io/',
   56: 'https://bscscan.com/',
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
@@ -324,6 +346,9 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/straddles/ETH': { default: 42161, all: [42161] },
   '/straddles/RDPX': { default: 42161, all: [42161] },
   '/dpx-bonds': { default: 42161, all: [42161] },
+  '/faucet': { default: 5, all: [5] },
+  '/olp': { default: 5, all: [5, 42161] },
+  '/olp/DPX': { default: 5, all: [5, 42161] },
 };
 
 export const DISCLAIMER_MESSAGE = {

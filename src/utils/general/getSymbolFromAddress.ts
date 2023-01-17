@@ -13,7 +13,12 @@ export default function getSymbolFromAddress(address: string, chainId: number) {
     }
   });
   if (!output) {
-    if (chainId === 1 || chainId === 42161 || chainId === 421611)
+    if (
+      chainId === 1 ||
+      chainId === 42161 ||
+      chainId === 421611 ||
+      chainId === 5
+    )
       output = 'ETH';
     else output = 'BNB';
   }

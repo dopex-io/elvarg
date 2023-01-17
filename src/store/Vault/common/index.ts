@@ -7,6 +7,8 @@ export interface CommonSlice {
   setSelectedPoolName: Function;
   isLoading: boolean;
   setIsLoading: Function;
+  selectedIsPut: boolean | false;
+  setSelectedIsPut: Function;
 }
 
 export const createCommonSlice: StateCreator<
@@ -26,5 +28,11 @@ export const createCommonSlice: StateCreator<
     set((prevState) => ({
       ...prevState,
       isLoading: condition,
+    })),
+  selectedIsPut: false,
+  setSelectedIsPut: (isPut: boolean) =>
+    set((prevState) => ({
+      ...prevState,
+      selectedIsPut: isPut,
     })),
 });

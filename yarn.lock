@@ -769,10 +769,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@dopex-io/sdk@^1.0.0-beta.36":
-  version "1.0.0-beta.36"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.36.tgz#92313a4cfd03c192275349deb6ce4294f35336f9"
-  integrity sha512-N4FgPcZVBV6VSt2l3lFN40k9zUFW7q8wxHvibGanwabyQTAe/nu9gvE4IHq+8Hb2BCodqm8f+RCS64h4V+Y31g==
+"@dopex-io/sdk@1.0.0-beta.37":
+  version "1.0.0-beta.37"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.37.tgz#93c1224dedda9c6476b9ba42f89395650e2f440f"
+  integrity sha512-ISHgx8LTT/p+2VK8ynKWO7zeRjxcbzmFJ7manNHZ+nVDjUoF+VL2ClbMzsf613sJnZeBg08L2Ka0qYVHdheGww==
 
 "@emotion/babel-plugin@^11.10.5":
   version "11.10.5"
