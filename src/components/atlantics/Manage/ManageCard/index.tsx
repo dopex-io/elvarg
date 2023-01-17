@@ -134,6 +134,7 @@ const ManageCard = (props: ManageCardProps) => {
         contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
         signer
       );
+
       await sendTx(
         apContract
           .connect(signer)

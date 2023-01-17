@@ -30,7 +30,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
     currentPrice,
     // token,
     tickSize,
-    // setMaxStrike
+    setMaxStrike,
   } = props;
 
   // const { chainId } = useBoundStore();
@@ -60,14 +60,18 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
       // let _mod = _input.mod(tickSize ?? BigNumber.from(0));
 
       // if (_mod.eq('0') && currentPrice.gte(_input) && _input.gt('0')) {
-      //   setMaxStrike(e.target.value);
+      setMaxStrike(e.target.value);
       //   setError('');
       // } else {
       //   setError('Invalid Strike Price');
       // }
     },
     [
-      // tickSize, chainId, token, currentPrice, setMaxStrike
+      // tickSize,
+      // chainId,
+      // token,
+      // currentPrice,
+      setMaxStrike,
     ]
   );
 
