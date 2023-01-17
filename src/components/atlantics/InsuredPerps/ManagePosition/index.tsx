@@ -43,7 +43,7 @@ import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 import { getBlockTime } from 'utils/general/getBlocktime';
 
 const steps = 0.1;
-const minMarks = 1.1;
+const minMarks = 2;
 const maxMarks = 10;
 
 const INITIAL_LEVERAGE = getContractReadableAmount(1.1, 30);
@@ -79,6 +79,8 @@ export interface IStrategyDetails {
   swapFees: BigNumber;
   strategyFee: BigNumber;
   fundingFees: BigNumber;
+  totalFeesUsd: BigNumber;
+  collateralDeltaUsd: BigNumber;
   feesWithoutDiscount: {
     purchaseFees: BigNumber;
     strategyFee: BigNumber;
@@ -139,6 +141,8 @@ const ManagePosition = () => {
     swapFees: BigNumber.from(0),
     strategyFee: BigNumber.from(0),
     fundingFees: BigNumber.from(0),
+    totalFeesUsd: BigNumber.from(0),
+    collateralDeltaUsd: BigNumber.from(0),
     feesWithoutDiscount: {
       purchaseFees: BigNumber.from(0),
       strategyFee: BigNumber.from(0),
@@ -164,7 +168,10 @@ const ManagePosition = () => {
       positionFee,
       swapFees,
       strategyFee,
+      totalFeesUsd,
+      collateralDeltaUsd,
     } = strategyDetails;
+
     const collateralRequired = putStrike
       .mul(optionsAmount)
       .div(getContractReadableAmount(1, 18 + 8 - 6));
@@ -199,6 +206,9 @@ const ManagePosition = () => {
           .add(swapFees)
       );
 
+    if (collateralDeltaUsd.lt(totalFeesUsd)) {
+      errorMessage = 'Insufficent collateral for fees.';
+    }
     if (collateralRequired.gt(availableLiquidity)) {
       errorMessage = 'Insufficient liquidity for options';
     } else if (totalCost.gt(userBalance ?? '0')) {
@@ -207,11 +217,11 @@ const ManagePosition = () => {
 
     return errorMessage;
   }, [
-    increaseOrderParams.collateralDelta,
     atlanticPoolEpochData,
     selectedToken,
     strategyDetails,
     userAssetBalances,
+    increaseOrderParams,
   ]);
 
   const selectedPoolTokens = useMemo((): {
@@ -286,7 +296,9 @@ const ManagePosition = () => {
       signer
     );
 
-    if (!utilsContract || !gmxVault || !strategy) return;
+    if (!utilsContract || !gmxVault || !strategy) {
+      return;
+    }
 
     const usdMultiplier = getContractReadableAmount(1, 30);
 
@@ -322,7 +334,8 @@ const ManagePosition = () => {
       collateralAccess = BigNumber.from(0),
       purchaseFeesWithoutDiscount = BigNumber.from(0),
       strategyFeeWithoutDiscount = BigNumber.from(0),
-      fundingFees = BigNumber.from(0);
+      fundingFees = BigNumber.from(0),
+      totalFeesUsd = BigNumber.from(0);
 
     let [positionFeeUsd, markPrice] = await Promise.all([
       utilsContract.getPositionFee(sizeUsd),
@@ -356,9 +369,13 @@ const ManagePosition = () => {
     }
 
     if (!inputAmount.isZero()) {
-      const totalFees = positionFeeUsd.add(positionFeeUsd);
+      totalFeesUsd = positionFeeUsd.add(getContractReadableAmount(5, 30));
+
+      if (collateralUsd.lt(totalFeesUsd)) {
+      }
+
       const priceDelta = markPrice
-        .mul(collateralUsd.sub(totalFees))
+        .mul(collateralUsd.sub(totalFeesUsd))
         .div(sizeUsd);
       const liquidationUsd = markPrice.sub(priceDelta);
 
@@ -387,33 +404,38 @@ const ManagePosition = () => {
         .mul(getContractReadableAmount(1, 20))
         .div(putStrike);
 
-      [
-        putOptionsPremium,
-        putOptionsfees,
-        collateralAccess,
-        purchaseFeesWithoutDiscount,
-      ] = await Promise.all([
-        putsContract.calculatePremium(putStrike, optionsAmount),
-        putsContract.calculatePurchaseFees(
-          accountAddress,
-          putStrike,
-          optionsAmount
-        ),
-        putsContract.strikeMulAmount(putStrike, optionsAmount),
-        putsContract.calculatePurchaseFees(
-          putsContract.address,
-          putStrike,
-          optionsAmount
-        ),
-      ]);
+      if (!totalFeesUsd.gt(collateralUsd)) {
+        [
+          putOptionsPremium,
+          putOptionsfees,
+          collateralAccess,
+          purchaseFeesWithoutDiscount,
+        ] = await Promise.all([
+          putsContract.calculatePremium(putStrike, optionsAmount),
+          putsContract.calculatePurchaseFees(
+            accountAddress,
+            putStrike,
+            optionsAmount
+          ),
+          putsContract.strikeMulAmount(putStrike, optionsAmount),
+          putsContract.calculatePurchaseFees(
+            putsContract.address,
+            putStrike,
+            optionsAmount
+          ),
+        ]);
 
-      fundingFees = await putsContract.calculateFundingFees(
-        collateralAccess,
-        await getBlockTime(provider)
-      );
-      const precision = 100000;
-      const slippage = 1000;
-      acceptablePrice = markPrice.mul(precision + slippage).div(precision);
+        fundingFees = await putsContract.calculateFundingFees(
+          collateralAccess,
+          await getBlockTime(provider)
+        );
+        const precision = 100000;
+        const slippage = 1000;
+        acceptablePrice = markPrice.mul(precision + slippage).div(precision);
+      } else {
+        setStrategyDetailsLoading(false);
+        return;
+      }
     }
 
     setStrategyDetails(() => ({
@@ -429,6 +451,8 @@ const ManagePosition = () => {
       expiry: atlanticPoolEpochData.expiry,
       swapFees,
       strategyFee,
+      totalFeesUsd,
+      collateralDeltaUsd: collateralUsd,
       feesWithoutDiscount: {
         purchaseFees: purchaseFeesWithoutDiscount,
         strategyFee: strategyFeeWithoutDiscount,

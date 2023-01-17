@@ -217,9 +217,7 @@ const StrategyDetails = (props: {
           </Box>
           <ContentRow
             title="Premium"
-            content={
-              '$' + formatAmount(getUserReadableAmount(putOptionsPremium, 6), 3)
-            }
+            content={'$' + getUserReadableAmount(putOptionsPremium, 6)}
           />
           <ContentRow
             title="Options Fee"
