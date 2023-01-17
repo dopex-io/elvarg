@@ -91,6 +91,11 @@ export const SSOV_MAP: {
     imageSrc: '/images/tokens/metis.svg',
     tokens: ['METIS'],
   },
+  stETH: {
+    tokenSymbol: 'stETH',
+    imageSrc: '/images/tokens/wsteth.svg',
+    tokens: ['wstETH'],
+  },
 };
 
 export const VAULT_MAP: { [key: string]: { src: string } } = {

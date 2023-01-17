@@ -37,7 +37,7 @@ const Nfts = () => {
             Users that are eligible can mint the NFTs here
           </Typography>
         </Box>
-        <Box className="flex flex-col lg:flex-row lg:space-x-16 justify-center items-center">
+        <Box className="flex flex-col lg:flex-row lg:space-x-16 justify-center items-stretch">
           {nftsData.map((nftData, index) => (
             <NftCard key={index} nftData={nftData} index={index} />
           ))}
