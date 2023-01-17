@@ -7,6 +7,7 @@ export interface OptionPerpData {
   optionPerpContract: any | undefined;
   epoch: number;
   expiry: BigNumber;
+  fundingRate: BigNumber;
   minFundingRate: BigNumber;
   maxFundingRate: BigNumber;
   feeOpenPosition: BigNumber;
@@ -139,19 +140,29 @@ export const createOptionPerpSlice: StateCreator<
 
     const optionPerpContract = getOptionPerpContract();
 
-    const epoch = await optionPerpContract!['epoch']();
-    const expiry = await optionPerpContract!['expiry']();
-    const minFundingRate = await optionPerpContract!['minFundingRate']();
-    const maxFundingRate = await optionPerpContract!['maxFundingRate']();
-    const feeOpenPosition = await optionPerpContract!['feeOpenPosition']();
-    const feeClosePosition = await optionPerpContract!['feeClosePosition']();
-    const feeLiquidation = await optionPerpContract!['feeLiquidation']();
-    const feePriorityWithheld = await optionPerpContract![
-      'feePriorityWithheld'
-    ]();
-    const liquidationThreshold = await optionPerpContract![
-      'liquidationThreshold'
-    ]();
+    const [
+      epoch,
+      expiry,
+      fundingRate,
+      minFundingRate,
+      maxFundingRate,
+      feeOpenPosition,
+      feeClosePosition,
+      feeLiquidation,
+      feePriorityWithheld,
+      liquidationThreshold,
+    ] = await Promise.all([
+      optionPerpContract!['epoch'](),
+      optionPerpContract!['expiry'](),
+      optionPerpContract!['getFundingRate'](true),
+      optionPerpContract!['minFundingRate'](),
+      optionPerpContract!['maxFundingRate'](),
+      optionPerpContract!['feeOpenPosition'](),
+      optionPerpContract!['feeClosePosition'](),
+      optionPerpContract!['feeLiquidation'](),
+      optionPerpContract!['feePriorityWithheld'](),
+      optionPerpContract!['liquidationThreshold'](),
+    ]);
 
     set((prevState) => ({
       ...prevState,
@@ -159,6 +170,7 @@ export const createOptionPerpSlice: StateCreator<
         optionPerpContract: optionPerpContract,
         epoch: epoch,
         expiry: expiry,
+        fundingRate: fundingRate,
         minFundingRate: minFundingRate,
         maxFundingRate: maxFundingRate,
         feeOpenPosition: feeOpenPosition,
