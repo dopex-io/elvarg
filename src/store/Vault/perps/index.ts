@@ -68,8 +68,8 @@ export interface OptionPerpUserData {
 export interface OptionPerpSlice {
   optionPerpData?: OptionPerpData | undefined;
   optionPerpEpochData?: {
-    true: OptionPerpEpochData;
-    false: OptionPerpEpochData;
+    quote: OptionPerpEpochData;
+    base: OptionPerpEpochData;
   };
   optionPerpUserData?: OptionPerpUserData;
   updateOptionPerpEpochData: Function;
@@ -92,7 +92,7 @@ export const createOptionPerpSlice: StateCreator<
   OptionPerpSlice
 > = (set, get) => ({
   optionPerpEpochData: {
-    true: {
+    quote: {
       totalDeposits: BigNumber.from('0'),
       activeDeposits: BigNumber.from('0'),
       averageOpenPrice: BigNumber.from('0'),
@@ -103,7 +103,7 @@ export const createOptionPerpSlice: StateCreator<
       closingFees: BigNumber.from('0'),
       oi: BigNumber.from('0'),
     },
-    false: {
+    base: {
       totalDeposits: BigNumber.from('0'),
       activeDeposits: BigNumber.from('0'),
       averageOpenPrice: BigNumber.from('0'),
@@ -130,8 +130,8 @@ export const createOptionPerpSlice: StateCreator<
     set((prevState) => ({
       ...prevState,
       optionPerpEpochData: {
-        true: quoteEpochData,
-        false: baseEpochData,
+        quote: quoteEpochData,
+        base: baseEpochData,
       },
     }));
   },

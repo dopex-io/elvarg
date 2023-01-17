@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
+import Countdown from 'react-countdown';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Countdown from 'react-countdown';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
 import InfoBox from './InfoBox';
@@ -18,94 +18,45 @@ import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const Stats = () => {
-  const {
-    // Wallet
-    chainId,
-    // Straddles
-    selectedEpoch,
-    setSelectedEpoch,
-    straddlesEpochData,
-    updateStraddlesEpochData,
-    straddlesData,
-  } = useBoundStore();
-
-  const currentEpoch = straddlesData?.currentEpoch || 0;
-
-  const epochEndTime: Date = useMemo(() => {
-    return straddlesEpochData
-      ? new Date(straddlesEpochData?.expiry?.toNumber() * 1000)
-      : new Date(0);
-  }, [straddlesEpochData]);
-
-  const epochs = useMemo(() => {
-    let _epoch = Number(currentEpoch);
-
-    return Array(_epoch)
-      .join()
-      .split(',')
-      .map((_i, index) => {
-        return (
-          <MenuItem
-            value={index + 1}
-            key={index + 1}
-            className="text-stieglitz"
-          >
-            {index + 1}
-          </MenuItem>
-        );
-      });
-  }, [currentEpoch]);
-
-  const handleSelectChange = useCallback(
-    (e: { target: { value: any } }) => {
-      if (setSelectedEpoch) setSelectedEpoch(Number(e.target.value));
-      updateStraddlesEpochData();
-    },
-    [setSelectedEpoch, updateStraddlesEpochData]
-  );
-
-  const settlementPrice = useMemo(() => {
-    return !straddlesEpochData?.settlementPrice.eq(BigNumber.from(0))
-      ? formatAmount(
-          getUserReadableAmount(straddlesEpochData?.settlementPrice!, 8),
-          2
-        )
-      : 0;
-  }, [straddlesEpochData]);
-
-  function getSettlementDisplay() {
-    return settlementPrice != 0 ? (
-      <Box className="border flex justify-between border-neutral-800 p-2">
-        <Typography variant="h6" className="text-gray-400">
-          Epoch {selectedEpoch} settlement price
-        </Typography>
-        <Typography variant="h6" className="text-white">
-          ${settlementPrice}
-        </Typography>
-      </Box>
-    ) : null;
-  }
+  const { chainId, optionPerpData, optionPerpEpochData } = useBoundStore();
 
   return (
     <Box className="md:flex grid grid-cols-3 text-gray-400">
       <Box className="w-full">
-        {getSettlementDisplay()}
         <Box className="border flex justify-between border-neutral-800 p-2">
           <Typography variant="h6" className="text-gray-400">
-            Funding %
+            Funding (1 day) %
           </Typography>
           <Typography variant="h6" className="text-white">
-            {straddlesEpochData?.aprFunding.toString()}%
+            {optionPerpData?.fundingRate.toString()}%
+          </Typography>
+        </Box>
+        <Box className="border border-neutral-800 flex justify-between p-2">
+          <Typography variant="h6" className="text-gray-400">
+            Total deposits (ETH)
+          </Typography>
+          <Typography variant="h6" className="text-white ml-auto mr-1">
+            {formatAmount(
+              getUserReadableAmount(
+                optionPerpEpochData!['base']?.totalDeposits!,
+                18
+              ),
+              0
+            )}{' '}
+            <span className="text-gray-400"> USDC</span>
           </Typography>
         </Box>
         <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
-            Total Liquidity
+            Total deposits (USDC)
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.usdDeposits!, 6),
-              6
+              getUserReadableAmount(
+                optionPerpEpochData!['quote']?.totalDeposits!,
+                6
+              ),
+              0
             )}{' '}
             <span className="text-gray-400"> USDC</span>
           </Typography>
@@ -129,14 +80,14 @@ const Stats = () => {
             <a
               className={'cursor-pointer'}
               href={`${getExplorerUrl(chainId)}/address/${
-                straddlesData?.straddlesContract?.address
+                optionPerpData?.optionPerpContract?.address
               }`}
               target="_blank"
               rel="noreferrer noopener"
             >
               <Typography variant="h5" className="text-white text-[11px]">
                 {displayAddress(
-                  straddlesData?.straddlesContract?.address,
+                  optionPerpData?.optionPerpContract?.address,
                   undefined
                 )}
               </Typography>
@@ -151,7 +102,7 @@ const Stats = () => {
             In such a case, the loss may be greater than the premiums received`}
           />
           <Typography variant="h6" className="text-white">
-            {straddlesEpochData?.aprPremium}%
+            {0}%
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
@@ -162,10 +113,7 @@ const Stats = () => {
             Utilization
           </Typography>
           <Typography variant="h6" className="text-white">
-            {formatAmount(
-              getUserReadableAmount(straddlesEpochData?.activeUsdDeposits!, 26),
-              2
-            )}
+            {0}
             <span className="text-gray-400"> USDC</span>
           </Typography>
         </Box>
@@ -196,7 +144,7 @@ const Stats = () => {
             Implied Volatility
           </Typography>
           <Typography variant="h6" color="white">
-            {straddlesEpochData?.volatility.toString()}
+            0
           </Typography>
         </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
@@ -204,13 +152,7 @@ const Stats = () => {
             Premiums
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
-            {formatAmount(
-              getUserReadableAmount(
-                straddlesEpochData?.usdPremiums!,
-                18 + 6 + 2
-              ),
-              4
-            )}
+            0
           </Typography>
           <Typography variant="h6" className="text-gray-400">
             USDC
