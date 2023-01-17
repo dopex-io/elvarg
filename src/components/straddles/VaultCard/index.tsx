@@ -8,7 +8,7 @@ import format from 'date-fns/format';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import InfoBox from 'components/ir/InfoBox';
+import InfoBox from 'components/straddles/InfoBox';
 
 import Coin from 'svgs/icons/Coin';
 
