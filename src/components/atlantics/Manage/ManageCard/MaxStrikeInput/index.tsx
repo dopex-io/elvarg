@@ -89,7 +89,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
         onChange={handleChange}
         type="number"
         className={`border ${
-          !true ? 'border-mineshaft' : 'border-down-bad'
+          true ? 'border-mineshaft' : 'border-down-bad'
         } rounded-md px-2 bg-umbra w-full`}
         classes={{ input: 'text-white text-xs text-right py-2' }}
       />
