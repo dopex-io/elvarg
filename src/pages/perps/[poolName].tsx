@@ -21,31 +21,23 @@ interface Props {
 }
 
 const Perps = ({ poolName }: Props) => {
-  const {
-    setSelectedPoolName,
-    updateStraddles,
-    updateStraddlesUserData,
-    updateStraddlesEpochData,
-  } = useBoundStore();
+  const { setSelectedPoolName, updateOptionPerp, updateOptionPerpUserData } =
+    useBoundStore();
 
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
-    updateStraddles().then(() =>
-      updateStraddlesEpochData().then(() => {
-        updateStraddlesUserData();
-      })
-    );
-  }, [updateStraddles, updateStraddlesEpochData, updateStraddlesUserData]);
+    updateOptionPerp().then(() => updateOptionPerpUserData());
+  }, [updateOptionPerp, updateOptionPerpUserData]);
 
   return (
     <Box className="bg-black min-h-screen">
       <Head>
         <title>Perps | Dopex</title>
       </Head>
-      <AppBar active="Straddles" />
+      <AppBar active="Perps" />
       <Box className="md:flex pt-5">
         <Box className="ml-auto lg:w-[45%]">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">

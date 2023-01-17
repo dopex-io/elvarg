@@ -3597,18 +3597,53 @@ export const createOptionPerpSlice: StateCreator<
     }
   },
   updateOptionPerpUserData: async () => {
-    // TODO: get positions
+    const {
+      accountAddress,
+      getOptionPositionMinterContract,
+      getPerpPositionMinterContract,
+      getOptionPosition,
+      getPerpPosition,
+    } = get();
+
+    const optionPositionMinterContract =
+      await getOptionPositionMinterContract();
+    const optionPerpPositionMinterContract =
+      await getPerpPositionMinterContract();
+
+    const perpPositionsPromises: any[] = [];
+    const optionPositionsPromises: any[] = [];
+
+    try {
+      const [perpPositionsIndexes, optionPositionsIndexes] = await Promise.all([
+        optionPerpPositionMinterContract['positionsOfOwner'](accountAddress),
+        optionPositionMinterContract['positionsOfOwner'](accountAddress),
+      ]);
+
+      perpPositionsIndexes.map((perpPositionsIndex: BigNumber) =>
+        perpPositionsPromises.push(getPerpPosition(perpPositionsIndex))
+      );
+
+      optionPositionsIndexes.map((optionPositionsIndex: BigNumber) =>
+        optionPositionsPromises.push(getOptionPosition(optionPositionsIndex))
+      );
+    } catch (e) {
+      console.log(e);
+    }
+
+    const perpPositions: PerpPosition[] = await Promise.all(
+      perpPositionsPromises
+    );
+
+    const optionPositions: OptionPosition[] = await Promise.all(
+      optionPositionsPromises
+    );
 
     set((prevState) => ({
       ...prevState,
       optionPerpUserData: {
         ...prevState.optionPerpUserData,
-        perpPositions: [].filter(function (el) {
-          return el;
-        }),
-        optionPositions: [].filter(function (el) {
-          return el;
-        }),
+        perpPositions: perpPositions,
+        optionPositions: optionPositions,
       },
     }));
   },

@@ -106,11 +106,10 @@ const appLinks = {
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
-    // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
     { name: 'Rate Vaults', to: '/vaults/ir' },
-    { name: 'Straddles', to: '/straddles/ETH' },
+    { name: 'Perps', to: '/perps' },
     { name: 'Options LP', to: '/olp/DPX-MONTHLY' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
@@ -146,6 +145,7 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
+    | 'Perps'
     | 'OLPs'
     | 'SSOV'
     | 'leaderboard'
