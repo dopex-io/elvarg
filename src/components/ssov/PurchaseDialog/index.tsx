@@ -24,6 +24,8 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
+import { getDelta } from 'utils/math/blackScholes/greeks';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -68,6 +70,9 @@ const PurchaseDialog = ({
     premium: BigNumber.from(0),
     expiry: 0,
     totalCost: BigNumber.from(0),
+    greeks: {
+      delta: 0,
+    },
   });
   const [strikeIndex, setStrikeIndex] = useState<number>(0);
   const [approved, setApproved] = useState<boolean>(false);
@@ -169,41 +174,59 @@ const PurchaseDialog = ({
     }
 
     async function updateOptionPrice() {
-      if (!ssovContract || !ssovEpochData || !ssovData || !tokenPrice) return;
+      if (!ssovContract || !ssovEpochData || !ssovData) return;
 
       const strike = epochStrikes[strikeIndex];
 
+      const expiry = ssovEpochData.epochTimes[1]!.toNumber();
+
+      const timeToExpirationInYears = getTimeToExpirationInYears(expiry);
+
       try {
-        const volatility = (
-          await ssovContract.getVolatility(strike!)
-        ).toNumber();
-
-        const expiry = ssovEpochData.epochTimes[1]!.toNumber();
-
-        const optionPrice =
-          await ssovData.ssovOptionPricingContract!.getOptionPrice(
-            isPut!,
-            expiry,
+        const [_volatility, _premium, _fees] = await Promise.all([
+          ssovContract.getVolatility(strike!),
+          ssovContract.calculatePremium(
             strike!,
-            tokenPrice,
-            volatility
-          );
+            getContractReadableAmount(1, 18),
+            expiry
+          ),
+          ssovContract.calculatePurchaseFees(
+            strike!,
+            getContractReadableAmount(String(optionsAmount), 18)
+          ),
+        ]);
+
+        const volatility = _volatility.toNumber();
+
+        const optionPrice = _premium
+          .mul(ssovData.collateralPrice!)
+          .div(oneEBigNumber(18));
 
         let premium = optionPrice
           .mul(getContractReadableAmount(optionsAmount, 18))
           .div(oneEBigNumber(18)); // avoid crashing when users buy <1 options
 
-        let fees = await ssovContract.calculatePurchaseFees(
-          strike!,
-          getContractReadableAmount(String(optionsAmount), 18)
-        );
+        let fees = _fees;
 
         let _totalCost;
         if (isPut) {
           _totalCost = premium.mul(oneEBigNumber(10)).add(fees);
         } else {
-          _totalCost = premium.mul(oneEBigNumber(18)).add(fees.mul(tokenPrice));
+          _totalCost = premium
+            .mul(oneEBigNumber(18))
+            .add(fees.mul(ssovData.collateralPrice!));
         }
+
+        const _greeks = {
+          delta: getDelta(
+            getUserReadableAmount(ssovData.underlyingPrice!, 8),
+            getUserReadableAmount(strike!, 8),
+            timeToExpirationInYears,
+            volatility / 100,
+            0,
+            isPut ? 'put' : 'call'
+          ),
+        };
 
         setState({
           volatility,
@@ -211,7 +234,10 @@ const PurchaseDialog = ({
           premium,
           fees,
           expiry,
-          totalCost: isPut ? _totalCost : _totalCost.div(tokenPrice),
+          totalCost: isPut
+            ? _totalCost
+            : _totalCost.div(ssovData.collateralPrice!),
+          greeks: _greeks,
         });
 
         setIsPurchaseStatsLoading(false);
@@ -226,7 +252,6 @@ const PurchaseDialog = ({
     epochStrikes,
     optionsAmount,
     ssovContract,
-    tokenPrice,
     provider,
     isPut,
     ssovData,
@@ -281,7 +306,7 @@ const PurchaseDialog = ({
           ? state.totalCost.gt(userTokenBalance)
           : state.totalCost
               .mul(1e8)
-              .div(ssovData.tokenPrice!)
+              .div(ssovData.collateralPrice!)
               .gt(userTokenBalance))
     );
 
@@ -315,7 +340,7 @@ const PurchaseDialog = ({
           ? state.totalCost.gt(userTokenBalance)
           : state.totalCost
               .mul(1e8)
-              .div(ssovData.tokenPrice!)
+              .div(ssovData.collateralPrice!)
               .gt(userTokenBalance)
       ) {
         children = 'Insufficient Balance';
@@ -572,7 +597,7 @@ const PurchaseDialog = ({
                     </Typography>
                   </Box>
                 </Box>
-                <Box className={'flex'}>
+                <Box className={'flex mb-2'}>
                   <Typography
                     variant="h6"
                     className="text-stieglitz ml-0 mr-auto"
@@ -585,6 +610,22 @@ const PurchaseDialog = ({
                       className="text-white mr-auto ml-0"
                     >
                       {state.volatility}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box className={'flex'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    Delta
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {state.greeks.delta.toFixed(2)}
                     </Typography>
                   </Box>
                 </Box>
@@ -646,7 +687,10 @@ const PurchaseDialog = ({
                         state.fees.mul(ssovData.lpPrice!),
                         36
                       )
-                    : getUserReadableAmount(state.fees.mul(tokenPrice!), 26),
+                    : getUserReadableAmount(
+                        state.fees.mul(ssovData.collateralPrice!),
+                        26
+                      ),
                   5
                 )}
               </Typography>

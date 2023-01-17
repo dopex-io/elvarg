@@ -126,7 +126,7 @@ const Tzwap = () => {
         decimals: number;
       };
     } = {};
-    Object.keys(contractAddresses).map((tokenName) => {
+    Object.keys(contractAddresses ? contractAddresses : {}).map((tokenName) => {
       if (typeof contractAddresses[tokenName] === 'string') {
         try {
           const decimals = getTokenDecimals(tokenName, chainId);
