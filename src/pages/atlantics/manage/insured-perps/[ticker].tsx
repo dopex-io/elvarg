@@ -118,7 +118,8 @@ export const Main = (props: TickerProps) => {
   }, [updateAtlanticPoolEpochData, selectedPoolName, atlanticPool, provider]);
 
   useEffect(() => {
-    setInterval(async () => await updatePriceData(), 10000);
+    // setInterval(async () => await updatePriceData(), 10000);
+    updatePriceData();
   }, [updatePriceData]);
 
   useEffect(() => {
