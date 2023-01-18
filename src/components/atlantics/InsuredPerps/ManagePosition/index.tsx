@@ -9,7 +9,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   ERC20__factory,
   GmxReader__factory,
@@ -150,6 +150,7 @@ const ManagePosition = () => {
   });
   const [, setLoading] = useState<boolean>(true);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
+  const [longLimitExceeded, setLongLimitExceeded] = useState(false);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -213,10 +214,13 @@ const ManagePosition = () => {
       errorMessage = 'Insufficient liquidity for options';
     } else if (totalCost.gt(userBalance ?? '0')) {
       errorMessage = 'Insufficient balance to pay premium & fees';
+    } else if (longLimitExceeded) {
+      errorMessage = 'Max longs exceeded';
     }
 
     return errorMessage;
   }, [
+    longLimitExceeded,
     atlanticPoolEpochData,
     selectedToken,
     strategyDetails,
@@ -337,10 +341,19 @@ const ManagePosition = () => {
       fundingFees = BigNumber.from(0),
       totalFeesUsd = BigNumber.from(0);
 
-    let [positionFeeUsd, markPrice] = await Promise.all([
-      utilsContract.getPositionFee(sizeUsd),
-      gmxVault.getMaxPrice(underlyingTokenAddress),
-    ]);
+    const positionRouter = new ethers.Contract(
+      '0xb87a436B93fFE9D75c5cFA7bAcFff96430b09868',
+      ['function maxGlobalLongSizes(address) external view returns (uint256)'],
+      provider
+    );
+
+    let [positionFeeUsd, markPrice, maxLongsUsd, currentLongsUsd] =
+      await Promise.all([
+        utilsContract.getPositionFee(sizeUsd),
+        gmxVault.getMaxPrice(underlyingTokenAddress),
+        positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
+        gmxVault.guaranteedUsd(underlyingTokenAddress),
+      ]);
 
     let leveragedCollateral;
     [positionFee, leveragedCollateral] = await Promise.all([
@@ -436,6 +449,12 @@ const ManagePosition = () => {
         setStrategyDetailsLoading(false);
         return;
       }
+    }
+
+    if (sizeUsd.add(currentLongsUsd).gte(maxLongsUsd)) {
+      setLongLimitExceeded(true);
+    } else {
+      setLongLimitExceeded(false);
     }
 
     setStrategyDetails(() => ({
