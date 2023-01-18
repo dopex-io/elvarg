@@ -106,10 +106,8 @@ const appLinks = {
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
     { name: 'SSOV', to: '/ssov' },
-    // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
-    // { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'Options LP', to: '/olp/DPX-MONTHLY' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
@@ -331,7 +329,7 @@ export default function AppBar(props: AppBarProps) {
         <PriceCarousel tokenPrices={tokenPrices} />
         <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
-            <a
+            <Link
               className="flex items-center mr-10 cursor-pointer hover:no-underline"
               href="/"
             >
@@ -340,7 +338,7 @@ export default function AppBar(props: AppBarProps) {
                 className="w-9 text-left"
                 alt="logo"
               />
-            </a>
+            </Link>
             <Box className="space-x-10 mr-10 hidden lg:flex">
               {links?.map(
                 (link: { name: Key | null | undefined; to: string }) => {
