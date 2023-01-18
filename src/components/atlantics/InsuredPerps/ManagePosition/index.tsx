@@ -46,7 +46,7 @@ const steps = 0.1;
 const minMarks = 2;
 const maxMarks = 10;
 
-const INITIAL_LEVERAGE = getContractReadableAmount(1.1, 30);
+const INITIAL_LEVERAGE = getContractReadableAmount(2, 30);
 
 const customSliderStyle = {
   '.MuiSlider-markLabel': {

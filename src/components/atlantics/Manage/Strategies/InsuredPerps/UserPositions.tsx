@@ -32,6 +32,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { Select } from '@mui/material';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface IUserPositionData {
   underlying: string;
@@ -43,6 +44,8 @@ interface IUserPositionData {
   putStrike: string;
   state: string | undefined;
   collateral: string;
+  initialCollateral: string;
+  size: string;
   depositUnderlying: boolean;
 }
 
@@ -89,6 +92,8 @@ const UserPositions = () => {
     putStrike: '0',
     state: 'Loading',
     collateral: '0',
+    initialCollateral: '0',
+    size: '0',
     depositUnderlying: false,
   });
 
@@ -143,7 +148,6 @@ const UserPositions = () => {
     );
 
     let atlanticsPosition: any,
-      leverage = BigNumber.from(0),
       positionDelta: [boolean, BigNumber] = [false, BigNumber.from(0)],
       liquidationPrice = BigNumber.from(0),
       markPrice = BigNumber.from(0),
@@ -158,38 +162,38 @@ const UserPositions = () => {
         liquidationPrice: '0',
         state: 'Loading',
         collateral: '0',
+        initialCollateral: '0',
+        size: '0',
         depositUnderlying: false,
       };
 
     if (!gmxPosition[0].isZero()) {
-      [
-        atlanticsPosition,
-        leverage,
-        positionDelta,
-        liquidationPrice,
-        markPrice,
-      ] = await Promise.all([
-        atlanticPool.contracts.atlanticPool.getOptionsPurchase(
-          strategyPosition.atlanticsPurchaseId
-        ),
-        gmxVault.getPositionLeverage(
-          positionManager,
-          underlyingAddress,
-          underlyingAddress,
-          true
-        ),
-        gmxVault.getPositionDelta(
-          positionManager,
-          underlyingAddress,
-          underlyingAddress,
-          true
-        ),
-        strategyUtils['getLiquidationPrice(address,address)'](
-          positionManager,
-          underlyingAddress
-        ),
-        strategyUtils.getPrice(underlyingAddress),
-      ]);
+      [atlanticsPosition, positionDelta, liquidationPrice, markPrice] =
+        await Promise.all([
+          atlanticPool.contracts.atlanticPool.getOptionsPurchase(
+            strategyPosition.atlanticsPurchaseId
+          ),
+          gmxVault.getPositionDelta(
+            positionManager,
+            underlyingAddress,
+            underlyingAddress,
+            true
+          ),
+          strategyUtils['getLiquidationPrice(address,address)'](
+            positionManager,
+            underlyingAddress
+          ),
+          strategyUtils.getPrice(underlyingAddress),
+        ]);
+
+      const positionSize = getUserReadableAmount(gmxPosition[0], 30);
+      const collateral = getUserReadableAmount(gmxPosition[1], 30);
+      const collateralAccess = getUserReadableAmount(
+        atlanticsPosition.optionStrike
+          .mul(atlanticsPosition.optionsAmount)
+          .div(getContractReadableAmount(1, 18)),
+        8
+      );
 
       hasProfit = positionDelta[0];
 
@@ -197,7 +201,10 @@ const UserPositions = () => {
         underlying,
         entryPrice: formatAmount(getUserReadableAmount(gmxPosition[2], 30), 3),
         markPrice: formatAmount(getUserReadableAmount(markPrice, 8), 3),
-        leverage: formatAmount(getUserReadableAmount(leverage, 4), 1),
+        leverage: formatAmount(
+          positionSize / (collateral - collateralAccess),
+          1
+        ),
         putStrike: formatAmount(
           getUserReadableAmount(atlanticsPosition.optionStrike, 8),
           3
@@ -210,7 +217,9 @@ const UserPositions = () => {
           3
         ),
         state: ActionState[String(strategyPosition.state)],
-        collateral: formatAmount(getUserReadableAmount(gmxPosition[1], 30), 3),
+        collateral: formatAmount(collateral, 3),
+        size: formatAmount(positionSize, 3),
+        initialCollateral: formatAmount(collateral - collateralAccess, 3),
         depositUnderlying: strategyPosition.keepCollateral,
       };
     } else {
@@ -402,6 +411,7 @@ const UserPositions = () => {
                   <TableRow>
                     <TableHeader>Entry</TableHeader>
                     <TableHeader>Balance</TableHeader>
+                    <TableHeader>Initial Balance</TableHeader>
                     <TableHeader>Leverage</TableHeader>
                     <TableHeader>PnL</TableHeader>
                     <TableHeader>Mark Price</TableHeader>
@@ -421,6 +431,11 @@ const UserPositions = () => {
                     <TableBodyCell>
                       <Typography variant="h6">
                         ${userPositionData.collateral}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        ${userPositionData.initialCollateral}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell>
