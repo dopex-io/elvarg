@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ethers } from 'ethers';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 
@@ -51,7 +50,7 @@ const OracleCard = ({ data }: { data: any }) => {
       </Typography>
       <Typography variant="h5">
         <span className="text-stieglitz">Current Price: </span>$
-        {ethers.utils.formatUnits(data.currentPrice, 8)}
+        {data.currentPrice}
       </Typography>
       {data?.lastUpdated ? (
         <Typography variant="h5">

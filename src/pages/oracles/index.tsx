@@ -30,17 +30,18 @@ const Oracles = () => {
 
       const _dopexOraclesData = payload.data.data;
 
+      const formattedData = _dopexOraclesData.map(
+        (item: { twap: ethers.BigNumberish; timestamp: any }) => ({
+          price: Number(ethers.utils.formatUnits(item.twap, 8)),
+          timestamp: item.timestamp,
+        })
+      );
+
       const _state = {
         rDPX: {
-          currentPrice: _dopexOraclesData[_dopexOraclesData.length - 1].twap,
-          lastUpdated:
-            _dopexOraclesData[_dopexOraclesData.length - 1].timestamp,
-          allData: _dopexOraclesData.map(
-            (item: { twap: ethers.BigNumberish; timestamp: any }) => ({
-              price: Number(ethers.utils.formatUnits(item.twap, 8)),
-              timestamp: item.timestamp,
-            })
-          ),
+          currentPrice: formattedData[0].price,
+          lastUpdated: formattedData[0].timestamp,
+          allData: formattedData,
         },
       };
 
