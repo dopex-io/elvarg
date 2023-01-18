@@ -109,7 +109,7 @@ const appLinks = {
     // { name: 'Rate Vaults', to: '/ir' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
-    { name: 'Rate Vaults', to: '/vaults/ir' },
+    // { name: 'Rate Vaults', to: '/vaults/ir' },
     { name: 'Options LP', to: '/olp/DPX-MONTHLY' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
