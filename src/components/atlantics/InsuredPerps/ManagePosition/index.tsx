@@ -18,11 +18,11 @@ import {
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+// import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
-import TokenSelector from 'components/atlantics/TokenSelector';
+// import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomInput from 'components/UI/CustomInput';
 import CustomButton from 'components/UI/Button';
 import StrategyDetails from 'components/atlantics/InsuredPerps/ManagePosition/StrategyDetails';
@@ -125,8 +125,8 @@ const ManagePosition = () => {
     quote: false,
     base: false,
   });
-  const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
-  const [selectedToken, setSelectedToken] = useState<string>('USDC');
+  // const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
+  const [selectedToken /* setSelectedToken */] = useState<string>('USDC');
   const [positionBalance, setPositionBalance] = useState<string>('');
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
     positionSize: BigNumber.from(0),
@@ -259,9 +259,9 @@ const ManagePosition = () => {
     return tokens;
   }, [selectedPool, contractAddresses]);
 
-  const selectToken = (token: string) => {
-    setSelectedToken(() => token);
-  };
+  // const selectToken = (token: string) => {
+  //   setSelectedToken(() => token);
+  // };
 
   const handleStrategyCalculations = useCallback(async () => {
     if (
@@ -685,22 +685,22 @@ const ManagePosition = () => {
           value={positionBalance}
           onChange={handlePositionBalanceChange}
           leftElement={
-            <Box className="flex my-auto">
+            <Box className="flex my-auto space-x-2">
               <Box
-                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-1"
-                role="button"
-                onClick={() => setOpenTokenSelector(() => true)}
+                className="flex w-full bg-cod-gray rounded-full space-x-2 p-1 pr-1"
+                // role="button"
+                // onClick={() => setOpenTokenSelector(() => true)}
               >
                 <img
                   src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
                   alt={selectedToken}
                   className="w-[2rem]"
                 />
-                <Typography variant="h6" className="my-auto">
-                  {selectedToken}
-                </Typography>
-                <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" />
               </Box>
+              {/* <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" /> */}
+              {/* <Typography variant="h6" className="my-auto">
+                {selectedToken}
+              </Typography> */}
               <Box
                 role="button"
                 className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
@@ -729,13 +729,13 @@ const ManagePosition = () => {
             {selectedToken}
           </Typography>
         </Box>
-        <TokenSelector
+        {/* <TokenSelector
           setSelection={selectToken}
           open={openTokenSelector}
           setOpen={setOpenTokenSelector}
           tokens={allowedTokens}
           containerRef={containerRef}
-        />
+        /> */}
       </Box>
       <Box className="w-full flex flex-col border-t-2 border-cod-gray space-y-2">
         <Box className="flex flex-col items-center p-3 bg-umbra rounded-b-lg">
