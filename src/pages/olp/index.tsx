@@ -11,8 +11,6 @@ import { useBoundStore } from 'store';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
-const CHAIN_ID = 5;
-
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
     <Box className="flex space-x-4 mb-8">
@@ -29,7 +27,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Olp = () => {
-  const { provider, tokenPrices } = useBoundStore();
+  const { provider, tokenPrices, chainId } = useBoundStore();
 
   const [vaults, setVaults] = useState<{
     [key: string]: {
@@ -96,7 +94,7 @@ const Olp = () => {
         <Box className="mb-12">
           <NetworkHeader chainId={42161} />
           <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-            {getOlpCards(CHAIN_ID)}
+            {getOlpCards(chainId)}
           </Box>
         </Box>
       </Box>

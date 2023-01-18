@@ -22,9 +22,9 @@ interface Props {
 
 const StyledWrapper = styled(Box)`
   ${(props: { symbol: string }) => {
-    if (props.symbol === 'ETH-MONTHLY-OLP')
+    if (props.symbol === 'ETH-MONTHLY')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)';
-    else if (props.symbol === 'RDPX-MONTHLY-OLP')
+    else if (props.symbol === 'RDPX-MONTHLY')
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)';
     return '';
   }};
@@ -36,7 +36,8 @@ function VaultCard(props: Props) {
   const vaults = (
     <Box className="flex flex-row">
       <Box className="flex flex-grow items-center justify-between">
-        {data.duration.toUpperCase()}
+        {data.duration.charAt(0).toUpperCase() +
+          data.duration.slice(1).toLowerCase()}
       </Box>
       <Typography variant="h4" className="mr-2">
         {data.tvl > 0 && `$${formatAmount(data.tvl.toString(), 0, true)}`}
