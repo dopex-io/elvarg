@@ -406,7 +406,7 @@ const UserPositions = () => {
                     <TableHeader>PnL</TableHeader>
                     <TableHeader>Mark Price</TableHeader>
                     <TableHeader>Status</TableHeader>
-                    <TableHeader>Liqudation Price</TableHeader>
+                    <TableHeader>Liquidation Price</TableHeader>
                     <TableHeader>Put Strike</TableHeader>
                     <TableHeader align="right">Action</TableHeader>
                   </TableRow>
@@ -432,8 +432,8 @@ const UserPositions = () => {
                       <Typography
                         className={`${
                           Number(userPositionData.delta) > 0
-                            ? 'text-green-500'
-                            : 'text-red-400'
+                            ? 'text-up-only'
+                            : 'text-down-bad'
                         }`}
                         variant="h6"
                       >
