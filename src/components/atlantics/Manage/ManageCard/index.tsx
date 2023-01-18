@@ -73,10 +73,12 @@ const ManageCard = (props: ManageCardProps) => {
 
   const containerRef = React.useRef(null);
 
-  // const disableButton = useMemo(() => {
-  //   if (!atlanticPoolEpochData) return true;
-  //   return !atlanticPoolEpochData.isVaultReady || !value || !maxStrike;
-  // }, [value, maxStrike, atlanticPoolEpochData]);
+  const disableButton = useMemo(() => {
+    if (!atlanticPoolEpochData) return true;
+    return (
+      !atlanticPoolEpochData.isVaultReady || Number(value) <= 0 || !maxStrike
+    );
+  }, [value, maxStrike, atlanticPoolEpochData]);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -332,7 +334,7 @@ const ManageCard = (props: ManageCardProps) => {
         <CustomButton
           className="flex w-full text-center"
           color="primary"
-          // disabled={disableButton}
+          disabled={disableButton}
           onClick={approved ? handleDeposit : handleApprove}
         >
           {approved ? 'Deposit' : 'Approve'}

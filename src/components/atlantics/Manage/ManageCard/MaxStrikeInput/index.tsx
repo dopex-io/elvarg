@@ -1,8 +1,4 @@
-import {
-  useCallback,
-  // useState,
-  useMemo,
-} from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -11,11 +7,11 @@ import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
 
-// import { useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
-// import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-// import { TOKEN_DECIMALS } from 'constants/index';
+import { TOKEN_DECIMALS } from 'constants/index';
 
 interface MaxStrikeInputProps {
   token: string;
@@ -26,16 +22,11 @@ interface MaxStrikeInputProps {
 }
 
 const MaxStrikeInput = (props: MaxStrikeInputProps) => {
-  const {
-    currentPrice,
-    // token,
-    tickSize,
-    setMaxStrike,
-  } = props;
+  const { currentPrice, token, tickSize, setMaxStrike } = props;
 
-  // const { chainId } = useBoundStore();
+  const { chainId } = useBoundStore();
 
-  // const [error, setError] = useState('');
+  const [error, setError] = useState('');
 
   const depositPlaceHolderText = useMemo(() => {
     if (!tickSize || !currentPrice) return 'Enter Max Strike';
@@ -52,27 +43,20 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
     (e: { target: { value: number | string } }) => {
       if (Number(e.target.value) === 0) return;
 
-      // const _input = getContractReadableAmount(
-      //   Number(e.target.value),
-      //   TOKEN_DECIMALS[chainId]?.[token] ?? 18
-      // ).mul(1e2);
-
-      // let _mod = _input.mod(tickSize ?? BigNumber.from(0));
-
-      // if (_mod.eq('0') && currentPrice.gte(_input) && _input.gt('0')) {
-      setMaxStrike(e.target.value);
-      //   setError('');
-      // } else {
-      //   setError('Invalid Strike Price');
-      // }
+      const _input = getContractReadableAmount(
+        Number(e.target.value),
+        TOKEN_DECIMALS[chainId]?.[token] ?? 18
+      ).mul(1e2);
+      let _mod = _input.mod(tickSize ?? BigNumber.from(0));
+      if (_mod.eq('0') && currentPrice.gte(_input) && _input.gt('0')) {
+        setMaxStrike(e.target.value);
+        setError('');
+      } else {
+        setMaxStrike('');
+        setError('Invalid Strike Price');
+      }
     },
-    [
-      // tickSize,
-      // chainId,
-      // token,
-      // currentPrice,
-      setMaxStrike,
-    ]
+    [tickSize, chainId, token, currentPrice, setMaxStrike]
   );
 
   return (
@@ -93,15 +77,15 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
         onChange={handleChange}
         type="number"
         className={`border ${
-          true ? 'border-mineshaft' : 'border-down-bad'
+          !error ? 'border-mineshaft' : 'border-down-bad'
         } rounded-md px-2 bg-umbra w-full`}
         classes={{ input: 'text-white text-xs text-right py-2' }}
       />
-      {/* {error ? (
+      {error ? (
         <Typography variant="h6" className="text-right" color="down-bad">
           {error}
         </Typography>
-      ) : null} */}
+      ) : null}
     </Box>
   );
 };
