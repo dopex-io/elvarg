@@ -31,6 +31,7 @@ const ManageModal = (props: IManageModalProps) => {
       keepMounted={false}
       showCloseIcon
       background={'bg-umbra'}
+      width={340}
     >
       <Box className="space-y-4">
         <Typography variant="h5">{SECTIONS[section]?.['title']}</Typography>
