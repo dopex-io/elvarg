@@ -39,6 +39,7 @@
     "react-dom": "^18.0.0",
     "react-firebase-hooks": "^5.0.3",
     "react-hot-toast": "^2.0.0",
+    "react-tradingview-embed": "^3.0.6",
     "react-use": "^17.2.4",
     "recharts": "2.2.0",
     "sass": "^1.49.8",

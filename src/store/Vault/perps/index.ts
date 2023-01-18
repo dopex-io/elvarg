@@ -15,6 +15,7 @@ export interface OptionPerpData {
   feeLiquidation: BigNumber;
   feePriorityWithheld: BigNumber;
   liquidationThreshold: BigNumber;
+  markPrice: BigNumber;
 }
 
 export interface OptionPerpEpochData {
@@ -151,6 +152,7 @@ export const createOptionPerpSlice: StateCreator<
       feeLiquidation,
       feePriorityWithheld,
       liquidationThreshold,
+      markPrice,
     ] = await Promise.all([
       optionPerpContract!['epoch'](),
       optionPerpContract!['expiry'](),
@@ -162,6 +164,7 @@ export const createOptionPerpSlice: StateCreator<
       optionPerpContract!['feeLiquidation'](),
       optionPerpContract!['feePriorityWithheld'](),
       optionPerpContract!['liquidationThreshold'](),
+      optionPerpContract!['getMarkPrice'](),
     ]);
 
     set((prevState) => ({
@@ -178,6 +181,7 @@ export const createOptionPerpSlice: StateCreator<
         feeLiquidation: feeLiquidation,
         feePriorityWithheld: feePriorityWithheld,
         liquidationThreshold: liquidationThreshold,
+        markPrice: markPrice,
       },
     }));
   },
@@ -189,17 +193,41 @@ export const createOptionPerpSlice: StateCreator<
     const abi = [
       {
         inputs: [
-          { internalType: 'address', name: '_base', type: 'address' },
-          { internalType: 'address', name: '_quote', type: 'address' },
-          { internalType: 'address', name: '_optionPricing', type: 'address' },
+          {
+            internalType: 'address',
+            name: '_base',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: '_quote',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: '_optionPricing',
+            type: 'address',
+          },
           {
             internalType: 'address',
             name: '_volatilityOracle',
             type: 'address',
           },
-          { internalType: 'address', name: '_priceOracle', type: 'address' },
-          { internalType: 'address', name: '_gmxRouter', type: 'address' },
-          { internalType: 'address', name: '_gmxHelper', type: 'address' },
+          {
+            internalType: 'address',
+            name: '_priceOracle',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: '_gmxRouter',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: '_gmxHelper',
+            type: 'address',
+          },
           {
             internalType: 'address',
             name: '_quoteLpPositionMinter',
@@ -210,13 +238,35 @@ export const createOptionPerpSlice: StateCreator<
             name: '_baseLpPositionMinter',
             type: 'address',
           },
-          { internalType: 'int256', name: '_expiry', type: 'int256' },
+          {
+            internalType: 'address',
+            name: '_perpPositionMinter',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: '_optionPositionMinter',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: '_expiry',
+            type: 'uint256',
+          },
         ],
         stateMutability: 'nonpayable',
         type: 'constructor',
       },
-      { inputs: [], name: 'ContractNotPaused', type: 'error' },
-      { inputs: [], name: 'ContractPaused', type: 'error' },
+      {
+        inputs: [],
+        name: 'ContractNotPaused',
+        type: 'error',
+      },
+      {
+        inputs: [],
+        name: 'ContractPaused',
+        type: 'error',
+      },
       {
         anonymous: false,
         inputs: [
@@ -228,9 +278,9 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amount',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: true,
@@ -253,9 +303,9 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'size',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
@@ -284,9 +334,9 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amountIn',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
@@ -296,15 +346,15 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'minAmountOut',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'priorityFee',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: true,
@@ -390,27 +440,27 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'margin',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'positions',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'price',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'liquidationFee',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: true,
@@ -433,15 +483,15 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'size',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'collateralAmount',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: true,
@@ -502,9 +552,9 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amount',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: true,
@@ -527,21 +577,21 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'strike',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amount',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'pnl',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: true,
@@ -571,15 +621,15 @@ export const createOptionPerpSlice: StateCreator<
         inputs: [
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amountIn',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amountOut',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
@@ -589,15 +639,15 @@ export const createOptionPerpSlice: StateCreator<
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amountOutFeesForBot',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'amountOutFeesWithheld',
-            type: 'int256',
+            type: 'uint256',
           },
           {
             indexed: false,
@@ -617,85 +667,16 @@ export const createOptionPerpSlice: StateCreator<
       },
       {
         inputs: [
-          { internalType: 'bool', name: 'isQuote', type: 'bool' },
-          { internalType: 'int256', name: 'amountIn', type: 'int256' },
-        ],
-        name: '_calcLpAmount',
-        outputs: [
-          { internalType: 'int256', name: 'amountOut', type: 'int256' },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: '_getMarkPrice',
-        outputs: [{ internalType: 'int256', name: 'price', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_getOptionPnl',
-        outputs: [{ internalType: 'int256', name: 'value', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_getPositionFunding',
-        outputs: [{ internalType: 'int256', name: 'funding', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_getPositionLiquidationPrice',
-        outputs: [{ internalType: 'int256', name: 'price', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_getPositionNetMargin',
-        outputs: [{ internalType: 'int256', name: 'value', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_getPositionPnl',
-        outputs: [{ internalType: 'int256', name: 'value', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_getPositionValue',
-        outputs: [{ internalType: 'int256', name: 'value', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_isPositionCollateralized',
-        outputs: [
-          { internalType: 'bool', name: 'isCollateralized', type: 'bool' },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: '_isPositionOpen',
-        outputs: [{ internalType: 'bool', name: 'value', type: 'bool' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          { internalType: 'uint256', name: 'id', type: 'uint256' },
-          { internalType: 'int256', name: 'collateralAmount', type: 'int256' },
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'collateralAmount',
+            type: 'uint256',
+          },
         ],
         name: 'addCollateral',
         outputs: [],
@@ -706,7 +687,11 @@ export const createOptionPerpSlice: StateCreator<
         inputs: [],
         name: 'base',
         outputs: [
-          { internalType: 'contract IERC20', name: '', type: 'address' },
+          {
+            internalType: 'contract IERC20',
+            name: '',
+            type: 'address',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -725,7 +710,37 @@ export const createOptionPerpSlice: StateCreator<
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+        inputs: [
+          {
+            internalType: 'bool',
+            name: 'isQuote',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountIn',
+            type: 'uint256',
+          },
+        ],
+        name: 'calcLpAmount',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'amountOut',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
         name: 'cancelWithdrawalRequest',
         outputs: [],
         stateMutability: 'nonpayable',
@@ -733,44 +748,57 @@ export const createOptionPerpSlice: StateCreator<
       },
       {
         inputs: [
-          { internalType: 'uint256', name: 'id', type: 'uint256' },
-          { internalType: 'int256', name: 'size', type: 'int256' },
-          { internalType: 'int256', name: 'collateralAmount', type: 'int256' },
-          { internalType: 'uint256', name: 'minAmountOut', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'size',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'collateralAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minAmountOut',
+            type: 'uint256',
+          },
         ],
         name: 'changePositionSize',
         outputs: [
-          { internalType: 'uint256', name: 'amountOut', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'amountOut',
+            type: 'uint256',
+          },
         ],
         stateMutability: 'nonpayable',
         type: 'function',
       },
       {
         inputs: [
-          { internalType: 'uint256', name: 'id', type: 'uint256' },
-          { internalType: 'uint256', name: 'minAmountOut', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minAmountOut',
+            type: 'uint256',
+          },
         ],
         name: 'closePosition',
         outputs: [
-          { internalType: 'uint256', name: 'amountOut', type: 'uint256' },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: 'completeWithdrawalRequest',
-        outputs: [
-          { internalType: 'int256', name: 'amountOut', type: 'int256' },
           {
-            internalType: 'int256',
-            name: 'amountOutFeesForBot',
-            type: 'int256',
-          },
-          {
-            internalType: 'int256',
-            name: 'amountOutFeesWithheld',
-            type: 'int256',
+            internalType: 'uint256',
+            name: 'amountOut',
+            type: 'uint256',
           },
         ],
         stateMutability: 'nonpayable',
@@ -778,8 +806,45 @@ export const createOptionPerpSlice: StateCreator<
       },
       {
         inputs: [
-          { internalType: 'bool', name: 'isQuote', type: 'bool' },
-          { internalType: 'uint256', name: 'amountIn', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'completeWithdrawalRequest',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'amountOut',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountOutFeesForBot',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountOutFeesWithheld',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'bool',
+            name: 'isQuote',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountIn',
+            type: 'uint256',
+          },
         ],
         name: 'deposit',
         outputs: [],
@@ -789,14 +854,28 @@ export const createOptionPerpSlice: StateCreator<
       {
         inputs: [],
         name: 'divisor',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
         inputs: [
-          { internalType: 'address[]', name: 'tokens', type: 'address[]' },
-          { internalType: 'bool', name: 'transferNative', type: 'bool' },
+          {
+            internalType: 'address[]',
+            name: 'tokens',
+            type: 'address[]',
+          },
+          {
+            internalType: 'bool',
+            name: 'transferNative',
+            type: 'bool',
+          },
         ],
         name: 'emergencyWithdraw',
         outputs: [],
@@ -806,23 +885,71 @@ export const createOptionPerpSlice: StateCreator<
       {
         inputs: [],
         name: 'epoch',
-        outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+        inputs: [
+          {
+            internalType: 'bool',
+            name: '',
+            type: 'bool',
+          },
+        ],
         name: 'epochData',
         outputs: [
-          { internalType: 'int256', name: 'totalDeposits', type: 'int256' },
-          { internalType: 'int256', name: 'activeDeposits', type: 'int256' },
-          { internalType: 'int256', name: 'averageOpenPrice', type: 'int256' },
-          { internalType: 'int256', name: 'positions', type: 'int256' },
-          { internalType: 'int256', name: 'margin', type: 'int256' },
-          { internalType: 'int256', name: 'premium', type: 'int256' },
-          { internalType: 'int256', name: 'openingFees', type: 'int256' },
-          { internalType: 'int256', name: 'closingFees', type: 'int256' },
-          { internalType: 'int256', name: 'oi', type: 'int256' },
+          {
+            internalType: 'uint256',
+            name: 'totalDeposits',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'activeDeposits',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'averageOpenPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'positions',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'margin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'premium',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'openingFees',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'closingFees',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'oi',
+            type: 'uint256',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -830,50 +957,248 @@ export const createOptionPerpSlice: StateCreator<
       {
         inputs: [],
         name: 'expiry',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         name: 'expiryPrices',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
         inputs: [],
         name: 'feeClosePosition',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
         inputs: [],
         name: 'feeLiquidation',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
         inputs: [],
         name: 'feeOpenPosition',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
         inputs: [],
         name: 'feePriorityWithheld',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'int256', name: 'strike', type: 'int256' }],
+        inputs: [
+          {
+            internalType: 'bool',
+            name: 'isShort',
+            type: 'bool',
+          },
+        ],
+        name: 'getFundingRate',
+        outputs: [
+          {
+            internalType: 'int256',
+            name: 'fundingRate',
+            type: 'int256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'getMarkPrice',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'price',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'getOptionPnl',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'value',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'getPositionFunding',
+        outputs: [
+          {
+            internalType: 'int256',
+            name: 'funding',
+            type: 'int256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'getPositionLiquidationPrice',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'price',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'getPositionNetMargin',
+        outputs: [
+          {
+            internalType: 'int256',
+            name: 'value',
+            type: 'int256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'getPositionPnl',
+        outputs: [
+          {
+            internalType: 'int256',
+            name: 'value',
+            type: 'int256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'getPositionValue',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'value',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'strike',
+            type: 'uint256',
+          },
+        ],
         name: 'getVolatility',
         outputs: [
-          { internalType: 'int256', name: 'volatility', type: 'int256' },
+          {
+            internalType: 'uint256',
+            name: 'volatility',
+            type: 'uint256',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -882,77 +1207,8 @@ export const createOptionPerpSlice: StateCreator<
         inputs: [],
         name: 'gmxHelper',
         outputs: [
-          { internalType: 'contract IGmxHelper', name: '', type: 'address' },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'gmxRouter',
-        outputs: [
-          { internalType: 'contract IGmxRouter', name: '', type: 'address' },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        name: 'liquidate',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'liquidationThreshold',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'maxFundingRate',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'minFundingRate',
-        outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          { internalType: 'bool', name: 'isShort', type: 'bool' },
-          { internalType: 'int256', name: 'size', type: 'int256' },
-          { internalType: 'int256', name: 'collateralAmount', type: 'int256' },
-        ],
-        name: 'openPosition',
-        outputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          { internalType: 'bool', name: 'isQuote', type: 'bool' },
-          { internalType: 'int256', name: 'amountIn', type: 'int256' },
-          { internalType: 'int256', name: 'minAmountOut', type: 'int256' },
-          { internalType: 'int256', name: 'priorityFee', type: 'int256' },
-        ],
-        name: 'openWithdrawalRequest',
-        outputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'optionPositionMinter',
-        outputs: [
           {
-            internalType: 'contract OptionPositionMinter',
+            internalType: 'contract IGmxHelper',
             name: '',
             type: 'address',
           },
@@ -961,14 +1217,219 @@ export const createOptionPerpSlice: StateCreator<
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        inputs: [],
+        name: 'gmxRouter',
+        outputs: [
+          {
+            internalType: 'contract IGmxRouter',
+            name: '',
+            type: 'address',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'isPositionCollateralized',
+        outputs: [
+          {
+            internalType: 'bool',
+            name: 'isCollateralized',
+            type: 'bool',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'isPositionOpen',
+        outputs: [
+          {
+            internalType: 'bool',
+            name: 'value',
+            type: 'bool',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        name: 'liquidate',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'liquidationThreshold',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'maxFundingRate',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'minFundingRate',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'bool',
+            name: 'isShort',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'size',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'collateralAmount',
+            type: 'uint256',
+          },
+        ],
+        name: 'openPosition',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'bool',
+            name: 'isQuote',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountIn',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minAmountOut',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'priorityFee',
+            type: 'uint256',
+          },
+        ],
+        name: 'openWithdrawalRequest',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'optionPositionMinter',
+        outputs: [
+          {
+            internalType: 'contract IOptionPositionMinter',
+            name: '',
+            type: 'address',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         name: 'optionPositions',
         outputs: [
-          { internalType: 'bool', name: 'isSettled', type: 'bool' },
-          { internalType: 'bool', name: 'isPut', type: 'bool' },
-          { internalType: 'int256', name: 'amount', type: 'int256' },
-          { internalType: 'int256', name: 'strike', type: 'int256' },
-          { internalType: 'uint256', name: 'epoch', type: 'uint256' },
+          {
+            internalType: 'bool',
+            name: 'isSettled',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'isPut',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'strike',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'epoch',
+            type: 'uint256',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -989,7 +1450,13 @@ export const createOptionPerpSlice: StateCreator<
       {
         inputs: [],
         name: 'owner',
-        outputs: [{ internalType: 'address', name: '', type: 'address' }],
+        outputs: [
+          {
+            internalType: 'address',
+            name: '',
+            type: 'address',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
@@ -1003,19 +1470,51 @@ export const createOptionPerpSlice: StateCreator<
       {
         inputs: [],
         name: 'paused',
-        outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+        outputs: [
+          {
+            internalType: 'bool',
+            name: '',
+            type: 'bool',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         name: 'pendingWithdrawals',
         outputs: [
-          { internalType: 'int256', name: 'amountIn', type: 'int256' },
-          { internalType: 'int256', name: 'minAmountOut', type: 'int256' },
-          { internalType: 'bool', name: 'isQuote', type: 'bool' },
-          { internalType: 'int256', name: 'priorityFee', type: 'int256' },
-          { internalType: 'address', name: 'user', type: 'address' },
+          {
+            internalType: 'uint256',
+            name: 'amountIn',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minAmountOut',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'isQuote',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'priorityFee',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'user',
+            type: 'address',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -1025,7 +1524,7 @@ export const createOptionPerpSlice: StateCreator<
         name: 'perpPositionMinter',
         outputs: [
           {
-            internalType: 'contract PerpPositionMinter',
+            internalType: 'contract IPerpPositionMinter',
             name: '',
             type: 'address',
           },
@@ -1034,21 +1533,80 @@ export const createOptionPerpSlice: StateCreator<
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         name: 'perpPositions',
         outputs: [
-          { internalType: 'bool', name: 'isOpen', type: 'bool' },
-          { internalType: 'bool', name: 'isShort', type: 'bool' },
-          { internalType: 'int256', name: 'positions', type: 'int256' },
-          { internalType: 'int256', name: 'size', type: 'int256' },
-          { internalType: 'int256', name: 'averageOpenPrice', type: 'int256' },
-          { internalType: 'int256', name: 'margin', type: 'int256' },
-          { internalType: 'int256', name: 'premium', type: 'int256' },
-          { internalType: 'int256', name: 'openingFees', type: 'int256' },
-          { internalType: 'int256', name: 'closingFees', type: 'int256' },
-          { internalType: 'int256', name: 'funding', type: 'int256' },
-          { internalType: 'int256', name: 'pnl', type: 'int256' },
-          { internalType: 'uint256', name: 'openedAt', type: 'uint256' },
+          {
+            internalType: 'bool',
+            name: 'isOpen',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'isShort',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'positions',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'size',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'averageOpenPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'margin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'premium',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'openingFees',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'closingFees',
+            type: 'uint256',
+          },
+          {
+            internalType: 'int256',
+            name: 'funding',
+            type: 'int256',
+          },
+          {
+            internalType: 'int256',
+            name: 'pnl',
+            type: 'int256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'openedAt',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'allocatedDeposits',
+            type: 'uint256',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -1057,7 +1615,11 @@ export const createOptionPerpSlice: StateCreator<
         inputs: [],
         name: 'priceOracle',
         outputs: [
-          { internalType: 'contract IPriceOracle', name: '', type: 'address' },
+          {
+            internalType: 'contract IPriceOracle',
+            name: '',
+            type: 'address',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -1066,7 +1628,11 @@ export const createOptionPerpSlice: StateCreator<
         inputs: [],
         name: 'quote',
         outputs: [
-          { internalType: 'contract IERC20', name: '', type: 'address' },
+          {
+            internalType: 'contract IERC20',
+            name: '',
+            type: 'address',
+          },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -1086,8 +1652,16 @@ export const createOptionPerpSlice: StateCreator<
       },
       {
         inputs: [
-          { internalType: 'uint256', name: 'id', type: 'uint256' },
-          { internalType: 'int256', name: 'collateralAmount', type: 'int256' },
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'collateralAmount',
+            type: 'uint256',
+          },
         ],
         name: 'reduceCollateral',
         outputs: [],
@@ -1102,7 +1676,13 @@ export const createOptionPerpSlice: StateCreator<
         type: 'function',
       },
       {
-        inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+        ],
         name: 'settle',
         outputs: [],
         stateMutability: 'nonpayable',
@@ -1110,7 +1690,11 @@ export const createOptionPerpSlice: StateCreator<
       },
       {
         inputs: [
-          { internalType: 'address', name: 'newOwner', type: 'address' },
+          {
+            internalType: 'address',
+            name: 'newOwner',
+            type: 'address',
+          },
         ],
         name: 'transferOwnership',
         outputs: [],
@@ -1127,9 +1711,9 @@ export const createOptionPerpSlice: StateCreator<
       {
         inputs: [
           {
-            internalType: 'int256',
+            internalType: 'uint256',
             name: 'nextExpiryTimestamp',
-            type: 'int256',
+            type: 'uint256',
           },
         ],
         name: 'updateEpoch',
@@ -1139,7 +1723,11 @@ export const createOptionPerpSlice: StateCreator<
       },
       {
         inputs: [
-          { internalType: 'int256[7]', name: 'parameters', type: 'int256[7]' },
+          {
+            internalType: 'uint256[7]',
+            name: 'parameters',
+            type: 'uint256[7]',
+          },
         ],
         name: 'updateParameters',
         outputs: [],
@@ -1161,13 +1749,29 @@ export const createOptionPerpSlice: StateCreator<
       },
       {
         inputs: [
-          { internalType: 'bool', name: 'isQuote', type: 'bool' },
-          { internalType: 'int256', name: 'amountIn', type: 'int256' },
-          { internalType: 'int256', name: 'minAmountOut', type: 'int256' },
+          {
+            internalType: 'bool',
+            name: 'isQuote',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountIn',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minAmountOut',
+            type: 'uint256',
+          },
         ],
         name: 'withdraw',
         outputs: [
-          { internalType: 'int256', name: 'amountOut', type: 'int256' },
+          {
+            internalType: 'uint256',
+            name: 'amountOut',
+            type: 'uint256',
+          },
         ],
         stateMutability: 'nonpayable',
         type: 'function',
@@ -1175,14 +1779,20 @@ export const createOptionPerpSlice: StateCreator<
       {
         inputs: [],
         name: 'withdrawalRequestsCounter',
-        outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
         stateMutability: 'view',
         type: 'function',
       },
     ];
 
     return new ethers.Contract(
-      '0x68a98d448c983509e338545dEbbCB6959e1F0A7e',
+      '0xFCd372d17CF7dAB55D4d3Aaa0A4008473AA1B665',
       abi,
       provider
     );
@@ -1958,7 +2568,7 @@ export const createOptionPerpSlice: StateCreator<
     ];
 
     return new ethers.Contract(
-      '0x3c46Af214c43e3b0Dc9c1848fF59Bb1e3B59c880',
+      '0x5A0e5A9c6B90F78AEf1128e0633Bd96C5D2E1F7d',
       abi,
       provider
     );
@@ -2734,7 +3344,7 @@ export const createOptionPerpSlice: StateCreator<
     ];
 
     return new ethers.Contract(
-      '0x01ffd156b3f506B65ea45b3B4ACFe61E5e504412',
+      '0x74D3978feC062bD92315350d3b889fF1f165C843',
       abi,
       provider
     );

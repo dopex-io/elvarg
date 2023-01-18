@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import format from 'date-fns/format';
 
 import Typography from 'components/UI/Typography';
 import InfoBox from './InfoBox';
@@ -28,7 +29,10 @@ const Stats = () => {
             Funding (1 day) %
           </Typography>
           <Typography variant="h6" className="text-white">
-            {optionPerpData?.fundingRate.toString()}%
+            {(
+              getUserReadableAmount(optionPerpData?.fundingRate!, 8) / 365
+            ).toString()}
+            %
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
@@ -46,7 +50,7 @@ const Stats = () => {
             <span className="text-gray-400"> USDC</span>
           </Typography>
         </Box>
-        <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
+        <Box className="border border-neutral-800 flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
             Total deposits (USDC)
           </Typography>
@@ -61,9 +65,39 @@ const Stats = () => {
             <span className="text-gray-400"> USDC</span>
           </Typography>
         </Box>
+        <Box className="border border-neutral-800 flex justify-between p-2">
+          <Typography variant="h6" className="text-gray-400">
+            Total long
+          </Typography>
+          <Typography variant="h6" className="text-white ml-auto mr-1">
+            <span className="text-gray-400">$</span>{' '}
+            {formatAmount(
+              getUserReadableAmount(
+                optionPerpEpochData!['base']?.positions!,
+                8
+              ),
+              0
+            )}{' '}
+          </Typography>
+        </Box>
+        <Box className="border rounded-bl-lg border-neutral-800 flex justify-between p-2">
+          <Typography variant="h6" className="text-gray-400">
+            Total short
+          </Typography>
+          <Typography variant="h6" className="text-white ml-auto mr-1">
+            <span className="text-gray-400">$</span>{' '}
+            {formatAmount(
+              getUserReadableAmount(
+                optionPerpEpochData!['quote']?.positions!,
+                8
+              ),
+              0
+            )}{' '}
+          </Typography>
+        </Box>
       </Box>
       <Box className="w-full">
-        <Box className="border border-neutral-800 p-2">
+        <Box className="border border-neutral-800 p-2 pb-[0.6rem]">
           <Typography variant="h6" className="mb-1 text-gray-400">
             Contract
           </Typography>
@@ -95,14 +129,14 @@ const Stats = () => {
           </Button>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
-          <InfoBox
-            heading={'Annualized Premium'}
-            tooltip={`The deposited principal is subject to a loss in case of a market downturn, 
-            as the writers are selling put options.
-            In such a case, the loss may be greater than the premiums received`}
-          />
+          <Typography
+            variant="h6"
+            className="flex justify-center items-center text-gray-400"
+          >
+            Close fees
+          </Typography>
           <Typography variant="h6" className="text-white">
-            {0}%
+            {getUserReadableAmount(optionPerpData?.feeClosePosition!, 8)}%
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
@@ -110,16 +144,26 @@ const Stats = () => {
             variant="h6"
             className="flex justify-center items-center text-gray-400"
           >
-            Utilization
+            Open fees
           </Typography>
           <Typography variant="h6" className="text-white">
-            {0}
-            <span className="text-gray-400"> USDC</span>
+            {getUserReadableAmount(optionPerpData?.feeClosePosition!, 8)}%
+          </Typography>
+        </Box>
+        <Box className="border border-neutral-800 flex justify-between p-2">
+          <Typography
+            variant="h6"
+            className="flex justify-center items-center text-gray-400"
+          >
+            Liquidation fees
+          </Typography>
+          <Typography variant="h6" className="text-white">
+            {getUserReadableAmount(optionPerpData?.feeLiquidation!, 8)}%
           </Typography>
         </Box>
       </Box>
       <Box className="w-full">
-        <Box className="border border-neutral-800 rounded-tr-lg p-2">
+        <Box className="border border-neutral-800 rounded-tr-lg p-2 pb-[0.6rem]">
           <Typography variant="h6" className="mb-1 text-gray-400">
             Strategy
           </Typography>
@@ -133,29 +177,38 @@ const Stats = () => {
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
-            Epoch Length
+            Next expiry
           </Typography>
           <Typography variant="h6" className="text-white">
-            2 Days
+            {optionPerpData?.expiry
+              ? format(Number(optionPerpData?.expiry) * 1000, 'd LLL')
+              : '-'}
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
-            Implied Volatility
+            Open Interest
           </Typography>
           <Typography variant="h6" color="white">
-            0
+            <span className="text-gray-400">$</span>{' '}
+            {formatAmount(
+              getUserReadableAmount(
+                optionPerpEpochData!['quote']?.oi!.add(
+                  optionPerpEpochData!['base']?.oi!
+                ),
+                8
+              ),
+              0
+            )}{' '}
           </Typography>
         </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
-            Premiums
+            LTV
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
-            0
-          </Typography>
-          <Typography variant="h6" className="text-gray-400">
-            USDC
+            {100 -
+              getUserReadableAmount(optionPerpData?.liquidationThreshold!, 8)}
           </Typography>
         </Box>
       </Box>

@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
+import TradingViewChart from 'components/common/TradingViewChart';
 import TopBar from 'components/perps/TopBar';
 import Stats from 'components/perps/Stats';
 import PoolCard from 'components/perps/Charts/PoolCard';
@@ -43,8 +44,11 @@ const Perps = ({ poolName }: Props) => {
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">
             <TopBar />
           </Box>
-          <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
+          <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 mb-6">
             <Stats />
+          </Box>
+          <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 mb-6">
+            <TradingViewChart />
           </Box>
 
           {SHOWCHARTS ? (

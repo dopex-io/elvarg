@@ -24,7 +24,7 @@ const TopBar = () => {
       <Box className="flex items-center">
         <Typography
           variant="h5"
-          className="ml-4 bg-primary rounded-lg p-2 font-bold h-[fit-content]"
+          className="bg-primary rounded-lg p-2 font-bold h-[fit-content]"
         >
           BETA
         </Typography>
@@ -50,13 +50,6 @@ const TopBar = () => {
           ${tokenPrice}
         </Typography>
       </Box>
-      {isEpochExpired ? (
-        <Box className="p-2 my-2 rounded-lg border border-down-bad border-opacity-30 bg-down-bad bg-opacity-10">
-          <Typography variant="h6" color="down-bad">
-            Expired
-          </Typography>
-        </Box>
-      ) : null}
     </Box>
   );
 };
