@@ -50,7 +50,7 @@ const TokenSelector = (props: TokenSelectorProps) => {
       unmountOnExit
       container={containerRef.current}
     >
-      <Box className="overflow-y-auto w-full bg-umbra z-20 rounded-b-xl">
+      <Box className="overflow-y-auto w-full bg-umbra z-20">
         {tokens?.map((token, index) => {
           return (
             <Box

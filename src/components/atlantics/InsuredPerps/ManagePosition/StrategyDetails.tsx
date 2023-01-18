@@ -247,25 +247,34 @@ const StrategyDetails = (props: {
             title="Strategy Fee"
             content={
               strategyFee.lt(feesWithoutDiscount.strategyFee)
-                ? `$${getUserReadableAmount(
+                ? `${
+                    selectedToken === 'USDC' ? '$' : ''
+                  }${getUserReadableAmount(
                     feesWithoutDiscount.strategyFee,
-                    6
-                  )} → $${getUserReadableAmount(strategyFee, 6)}`
-                : '$' + getUserReadableAmount(strategyFee, 6)
+                    getTokenDecimals(selectedToken, chainId)
+                  )} → ${
+                    selectedToken === 'USDC' ? '$' : ''
+                  }${getUserReadableAmount(
+                    strategyFee,
+                    getTokenDecimals(selectedToken, chainId)
+                  )}`
+                : `${
+                    selectedToken === 'USDC' ? '$' : ''
+                  }${getUserReadableAmount(
+                    strategyFee,
+                    getTokenDecimals(selectedToken, chainId)
+                  )}`
             }
           />
           <ContentRow
             title="Position Fee"
-            content={
-              '$' +
-              formatAmount(
-                getUserReadableAmount(
-                  positionFee,
-                  getTokenDecimals(selectedToken, chainId)
-                ),
-                3
-              )
-            }
+            content={`${selectedToken === 'USDC' ? '$' : ''}${formatAmount(
+              getUserReadableAmount(
+                positionFee,
+                getTokenDecimals(selectedToken, chainId)
+              ),
+              3
+            )}`}
           />
           <ContentRow
             title="Total"

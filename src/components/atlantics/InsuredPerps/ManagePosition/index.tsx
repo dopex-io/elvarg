@@ -737,8 +737,8 @@ const ManagePosition = () => {
           containerRef={containerRef}
         />
       </Box>
-      <Box className="w-full flex flex-col border-t-2 border-cod-gray">
-        <Box className="flex flex-col items-center p-3 bg-umbra">
+      <Box className="w-full flex flex-col border-t-2 border-cod-gray space-y-2">
+        <Box className="flex flex-col items-center p-3 bg-umbra rounded-b-lg">
           <Typography
             variant="h6"
             className="text-left w-full"
@@ -779,7 +779,7 @@ const ManagePosition = () => {
           <Box className="mb-2">
             <Typography
               variant="h6"
-              className="text-red-400 border border-red-400 p-5 text-center rounded-xl"
+              className="text-down-bad border border-down-bad p-5 text-center rounded-xl"
             >
               {error}
             </Typography>
