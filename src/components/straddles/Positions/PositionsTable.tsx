@@ -117,7 +117,9 @@ const PositionsTable = () => {
       <Box className="flex">
         {straddlesUserData?.straddlePositions?.length === 0 ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
-        ) : null}
+        ) : (
+          <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
+        )}
       </Box>
     </Box>
   );
