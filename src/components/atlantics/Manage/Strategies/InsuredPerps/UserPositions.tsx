@@ -35,20 +35,18 @@ import useSendTx from 'hooks/useSendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-
 interface IUserPositionData {
   underlying: string;
-  delta: string | number;
-  markPrice: string;
-  entryPrice: string;
-  liquidationPrice: string;
-  leverage: string;
-  putStrike: string;
+  delta: string | number | BigNumber;
+  markPrice: string | BigNumber;
+  entryPrice: string | BigNumber;
+  liquidationPrice: string | BigNumber;
+  leverage: string | BigNumber;
+  putStrike: string | BigNumber;
   state: string | undefined;
-  collateral: string;
-  initialCollateral: string;
-  size: string;
+  collateral: string | BigNumber;
+  initialCollateral: string | BigNumber;
+  size: string | BigNumber;
   depositUnderlying: boolean;
   type: 'Long';
 }
@@ -167,16 +165,16 @@ const UserPositions = () => {
       hasProfit = false,
       position: IUserPositionData = {
         underlying,
-        entryPrice: '0',
-        markPrice: '0',
-        leverage: '0',
-        putStrike: '0',
-        delta: '0',
-        liquidationPrice: '0',
+        entryPrice: BigNumber.from(0),
+        markPrice: BigNumber.from(0),
+        leverage: BigNumber.from(0),
+        putStrike: BigNumber.from(0),
+        delta: BigNumber.from(0),
+        liquidationPrice: BigNumber.from(0),
         state: 'Loading',
-        collateral: '0',
-        initialCollateral: '0',
-        size: '0',
+        collateral: BigNumber.from(0),
+        initialCollateral: BigNumber.from(0),
+        size: BigNumber.from(0),
         depositUnderlying: false,
         type: 'Long',
       };
@@ -200,40 +198,25 @@ const UserPositions = () => {
           strategyUtils.getPrice(underlyingAddress),
         ]);
 
-      const positionSize = getUserReadableAmount(gmxPosition[0], 30);
-      const collateral = getUserReadableAmount(gmxPosition[1], 30);
-      const collateralAccess = getUserReadableAmount(
-        atlanticsPosition.optionStrike
-          .mul(atlanticsPosition.optionsAmount)
-          .div(getContractReadableAmount(1, 18)),
-        8
+      const positionSize = gmxPosition[0];
+      const collateral = gmxPosition[1];
+      const collateralAccess = atlanticsPosition.optionStrike.mul(
+        atlanticsPosition.optionsAmount.mul(10000)
       );
-
       hasProfit = positionDelta[0];
 
       position = {
         underlying,
-        entryPrice: formatAmount(getUserReadableAmount(gmxPosition[2], 30), 3),
-        markPrice: formatAmount(getUserReadableAmount(markPrice, 8), 3),
-        leverage: formatAmount(
-          positionSize / (collateral - collateralAccess),
-          1
-        ),
-        putStrike: formatAmount(
-          getUserReadableAmount(atlanticsPosition.optionStrike, 8),
-          3
-        ),
-        delta: hasProfit
-          ? getUserReadableAmount(positionDelta[1], 30)
-          : getUserReadableAmount(positionDelta[1], 30) * -1,
-        liquidationPrice: formatAmount(
-          getUserReadableAmount(liquidationPrice, 30),
-          3
-        ),
+        entryPrice: gmxPosition[2],
+        markPrice: markPrice,
+        leverage: positionSize.div(collateral.sub(collateralAccess)),
+        putStrike: atlanticsPosition.optionStrike,
+        delta: hasProfit ? positionDelta[1] : -positionDelta[1],
+        liquidationPrice: liquidationPrice,
         state: ActionState[String(strategyPosition.state)],
-        collateral: formatAmount(collateral, 3),
-        size: formatAmount(positionSize, 3),
-        initialCollateral: formatAmount(collateral - collateralAccess, 3),
+        collateral: gmxPosition[1],
+        size: positionSize,
+        initialCollateral: collateral.sub(collateralAccess),
         depositUnderlying: strategyPosition.keepCollateral,
         type: 'Long',
       };
@@ -442,7 +425,7 @@ const UserPositions = () => {
                         </Typography>
                         <Box className="flex space-x-1">
                           <Typography variant="caption">
-                            {userPositionData.leverage}x
+                            {userPositionData.leverage.toString()}x
                           </Typography>
                           <Typography
                             variant="caption"
@@ -466,19 +449,34 @@ const UserPositions = () => {
                           <Box className="flex flex-col p-2 bg-carbon rounded-lg border border-mineshaft w-[12rem] space-y-2 bg-opacity-50 backdrop-blur-md">
                             <ContentRow
                               title="Initial Collateral:"
-                              content={`$${userPositionData.initialCollateral}`}
+                              content={`$${formatAmount(
+                                getUserReadableAmount(
+                                  userPositionData.initialCollateral,
+                                  30
+                                ),
+                                2
+                              )}`}
                               textSize="caption"
                             />
                             <ContentRow
                               title="Put Strike:"
-                              content={`$${userPositionData.putStrike}`}
+                              content={`$${formatAmount(
+                                getUserReadableAmount(
+                                  userPositionData.putStrike,
+                                  8
+                                ),
+                                3
+                              )}`}
                               textSize="caption"
                             />
                             <ContentRow
                               title="PnL:"
                               content={`${formatAmount(
-                                userPositionData.delta,
-                                5
+                                getUserReadableAmount(
+                                  userPositionData.delta,
+                                  30
+                                ),
+                                2
                               )}`}
                               textSize="caption"
                               highlightPnl
@@ -486,8 +484,11 @@ const UserPositions = () => {
                             <ContentRow
                               title="Collateral:"
                               content={`$${formatAmount(
-                                userPositionData.collateral,
-                                5
+                                getUserReadableAmount(
+                                  userPositionData.collateral,
+                                  30
+                                ),
+                                2
                               )}`}
                               textSize="caption"
                             />
@@ -505,7 +506,14 @@ const UserPositions = () => {
                             variant="h6"
                             className="underline decoration-dashed"
                           >
-                            ${userPositionData.collateral}
+                            $
+                            {formatAmount(
+                              getUserReadableAmount(
+                                userPositionData.collateral,
+                                30
+                              ),
+                              2
+                            )}
                           </Typography>
                           <Typography
                             className={`${
@@ -516,8 +524,8 @@ const UserPositions = () => {
                             variant="caption"
                           >
                             {`${formatAmount(
-                              userPositionData.delta,
-                              5
+                              getUserReadableAmount(userPositionData.delta, 30),
+                              2
                             )}(${pnlPercentage}%)`}
                           </Typography>
                         </span>
@@ -525,27 +533,56 @@ const UserPositions = () => {
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
-                        ${userPositionData.size}
+                        $
+                        {formatAmount(
+                          getUserReadableAmount(userPositionData.size, 30),
+                          2
+                        )}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
-                        ${formatAmount(userPositionData.collateral, 5)}
+                        $
+                        {formatAmount(
+                          getUserReadableAmount(
+                            userPositionData.collateral,
+                            30
+                          ),
+                          2
+                        )}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
-                        ${userPositionData.markPrice}
+                        $
+                        {formatAmount(
+                          getUserReadableAmount(userPositionData.markPrice, 8),
+                          2
+                        )}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
-                        ${userPositionData.entryPrice}
+                        $
+                        {formatAmount(
+                          getUserReadableAmount(
+                            userPositionData.entryPrice,
+                            30
+                          ),
+                          3
+                        )}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
-                        ${userPositionData.liquidationPrice}
+                        $
+                        {formatAmount(
+                          getUserReadableAmount(
+                            userPositionData.liquidationPrice,
+                            30
+                          ),
+                          2
+                        )}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell align="right">
