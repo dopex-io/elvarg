@@ -17,11 +17,11 @@ interface CardProps {
   href: string;
   Icon: any;
 }
-//hover:bg-gradient-to-l from-wave-blue
+
 const Card = ({ name, description, href, Icon }: CardProps) => {
   return (
     <Link href={href}>
-      <Box className="bg-umbra shadow-2xl p-4 rounded-2xl flex space-x-4 items-center hover:-translate-y-1 transition ease-in hover:backdrop-blur-md hover:bg-transparent cursor-pointer">
+      <Box className="bg-umbra shadow-2xl p-4 rounded-2xl flex space-x-4 items-center hover:-translate-y-1 transition ease-in hover:backdrop-blur-sm hover:bg-transparent cursor-pointer hover:border-wave-blue border-2 border-transparent">
         <Icon className="w-8 h-8" />
         <Box>
           <Typography variant="h5" className="font-bold">
@@ -38,28 +38,19 @@ const Card = ({ name, description, href, Icon }: CardProps) => {
 
 const Home = () => {
   return (
-    <Box
-      // className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen"
-      className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen"
-      // sx={{
-      //   background: 'linear-gradient(219deg, #001a37, #101010, #003451)',
-      //   backgroundSize: '600% 600%',
-      // }}
-    >
+    <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
         <title>Home | Dopex</title>
       </Head>
       <AppBar />
       <Box className="pb-28 pt-40 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 to-">
-        <Box className="flex space-x-8">
+        <Box className="flex space-x-8 mb-24">
           <img
             src="/images/brand/logo.svg"
             alt="logo"
             className="md:w-28 md:h-28 w-20 h-20"
           />
-          <h1 className="md:text-8xl text-7xl font-mono font-bold mb-24">
-            DOPEX
-          </h1>
+          <h1 className="md:text-8xl text-7xl font-mono font-bold">DOPEX</h1>
         </Box>
         <Box className="flex md:flex-row md:space-y-0 space-y-8 flex-col justify-between mb-24">
           <Box className="flex flex-col max-w-fit">
@@ -79,8 +70,7 @@ const Home = () => {
             </span>
           </Box>
         </Box>
-
-        <Box className="">
+        <Box>
           <Typography variant="h2" className="mb-8 font-bold">
             Our Products
           </Typography>
