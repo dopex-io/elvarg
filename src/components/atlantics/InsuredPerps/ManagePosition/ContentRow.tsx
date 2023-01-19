@@ -7,16 +7,22 @@ interface IContentRowProps {
   title: string;
   content: string | number | ReactNode;
   highlightPnl?: boolean;
+  textSize?: 'caption' | 'h6' | 'h5' | 'h4' | 'h3' | 'h2' | 'h1';
 }
 
-const ContentRow = ({ title, content, highlightPnl }: IContentRowProps) => {
+const ContentRow = ({
+  title,
+  content,
+  highlightPnl,
+  textSize,
+}: IContentRowProps) => {
   return (
-    <Box className="flex space-y-2 flex-row w-full justify-between items-center">
-      <Typography variant="h6" color="stieglitz">
+    <Box className="flex flex-row w-full justify-between items-center">
+      <Typography variant={textSize ? textSize : 'h6'} color="stieglitz">
         {title}
       </Typography>
       <Typography
-        variant="h6"
+        variant={textSize ? textSize : 'h6'}
         color={
           highlightPnl
             ? Number(content) > 0

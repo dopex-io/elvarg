@@ -14,15 +14,19 @@ import TableRow from '@mui/material/TableRow';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
+import Select from '@mui/material/Select';
+import Tooltip from '@mui/material/Tooltip';
+import { styled } from '@mui/styles';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
+import WalletButton from 'components/common/WalletButton';
 import {
   TableHeader,
   TableBodyCell,
 } from 'components/atlantics/Manage/UserDepositsTable';
 import ManageModal from 'components/atlantics/Dialogs/InsuredPerps/ManageDialog';
-import WalletButton from 'components/common/WalletButton';
+import ContentRow from 'components/atlantics/InsuredPerps/ManagePosition/ContentRow';
 
 import { useBoundStore } from 'store';
 
@@ -31,7 +35,6 @@ import useSendTx from 'hooks/useSendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { Select } from '@mui/material';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 interface IUserPositionData {
@@ -47,7 +50,16 @@ interface IUserPositionData {
   initialCollateral: string;
   size: string;
   depositUnderlying: boolean;
+  type: 'Long';
 }
+
+const StyledTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ color }) => ({
+  '& .MuiTooltip-tooltip': {
+    background: color,
+  },
+}));
 
 export const ActionState: { [key: string]: string } = {
   '0': 'None', // 0
@@ -95,6 +107,7 @@ const UserPositions = () => {
     initialCollateral: '0',
     size: '0',
     depositUnderlying: false,
+    type: 'Long',
   });
 
   const pnlPercentage = useMemo(() => {
@@ -165,6 +178,7 @@ const UserPositions = () => {
         initialCollateral: '0',
         size: '0',
         depositUnderlying: false,
+        type: 'Long',
       };
 
     if (!gmxPosition[0].isZero()) {
@@ -221,6 +235,7 @@ const UserPositions = () => {
         size: formatAmount(positionSize, 3),
         initialCollateral: formatAmount(collateral - collateralAccess, 3),
         depositUnderlying: strategyPosition.keepCollateral,
+        type: 'Long',
       };
     } else {
       position.state = 'None';
@@ -361,7 +376,6 @@ const UserPositions = () => {
         open={openManageModal}
         handleClose={handleClose}
       />
-      {/* <CustomButton onClick={handleClickMenu}>Test Modals</CustomButton> */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -409,20 +423,121 @@ const UserPositions = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableHeader>Entry</TableHeader>
-                    <TableHeader>Balance</TableHeader>
-                    <TableHeader>Initial Balance</TableHeader>
-                    <TableHeader>Leverage</TableHeader>
-                    <TableHeader>PnL</TableHeader>
+                    <TableHeader>Position</TableHeader>
+                    <TableHeader>Net Value</TableHeader>
+                    <TableHeader>Size</TableHeader>
+                    <TableHeader>Collateral</TableHeader>
                     <TableHeader>Mark Price</TableHeader>
-                    <TableHeader>Status</TableHeader>
-                    <TableHeader>Liquidation Price</TableHeader>
-                    <TableHeader>Put Strike</TableHeader>
+                    <TableHeader>Entry Price</TableHeader>
+                    <TableHeader>Liq. Price</TableHeader>
                     <TableHeader align="right">Action</TableHeader>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   <TableRow>
+                    <TableBodyCell>
+                      <Box className="flex flex-col">
+                        <Typography variant="h6">
+                          {userPositionData.underlying}
+                        </Typography>
+                        <Box className="flex space-x-1">
+                          <Typography variant="caption">
+                            {userPositionData.leverage}x
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color={
+                              userPositionData.type === 'Long'
+                                ? 'up-only'
+                                : 'down-bad'
+                            }
+                          >
+                            {userPositionData.type}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <StyledTooltip
+                        followCursor
+                        arrow={true}
+                        color="transparent"
+                        title={
+                          <Box className="flex flex-col p-2 bg-carbon rounded-lg border border-mineshaft w-[12rem] space-y-2 bg-opacity-50 backdrop-blur-md">
+                            <ContentRow
+                              title="Initial Collateral:"
+                              content={`$${userPositionData.initialCollateral}`}
+                              textSize="caption"
+                            />
+                            <ContentRow
+                              title="Put Strike:"
+                              content={`$${userPositionData.putStrike}`}
+                              textSize="caption"
+                            />
+                            <ContentRow
+                              title="PnL:"
+                              content={`${formatAmount(
+                                userPositionData.delta,
+                                5
+                              )}`}
+                              textSize="caption"
+                              highlightPnl
+                            />
+                            <ContentRow
+                              title="Collateral:"
+                              content={`$${formatAmount(
+                                userPositionData.collateral,
+                                5
+                              )}`}
+                              textSize="caption"
+                            />
+                            <ContentRow
+                              title="Status:"
+                              content={`
+                                ${userPositionData.state}`}
+                              textSize="caption"
+                            />
+                          </Box>
+                        }
+                      >
+                        <span className="flex flex-col hover:cursor-help">
+                          <Typography
+                            variant="h6"
+                            className="underline decoration-dashed"
+                          >
+                            ${userPositionData.collateral}
+                          </Typography>
+                          <Typography
+                            className={`${
+                              Number(userPositionData.delta) > 0
+                                ? 'text-up-only'
+                                : 'text-down-bad'
+                            }`}
+                            variant="caption"
+                          >
+                            {`${formatAmount(
+                              userPositionData.delta,
+                              5
+                            )}(${pnlPercentage}%)`}
+                          </Typography>
+                        </span>
+                      </StyledTooltip>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        ${userPositionData.size}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        ${formatAmount(userPositionData.collateral, 5)}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        ${userPositionData.markPrice}
+                      </Typography>
+                    </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
                         ${userPositionData.entryPrice}
@@ -430,50 +545,7 @@ const UserPositions = () => {
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
-                        ${userPositionData.collateral}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        ${userPositionData.initialCollateral}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        {userPositionData.leverage}x
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography
-                        className={`${
-                          Number(userPositionData.delta) > 0
-                            ? 'text-up-only'
-                            : 'text-down-bad'
-                        }`}
-                        variant="h6"
-                      >
-                        {formatAmount(userPositionData.delta, 5)}{' '}
-                        {`(${pnlPercentage}%)`}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        {userPositionData.markPrice}{' '}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        {userPositionData.state}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        {userPositionData.liquidationPrice}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        {userPositionData.putStrike}
+                        ${userPositionData.liquidationPrice}
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell align="right">

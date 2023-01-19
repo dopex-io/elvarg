@@ -166,8 +166,8 @@ const StrategyDetails = (props: {
             </Box>
           </Tooltip>
         </Box>
-        <Box className="flex flex-col p-3">
-          <Box className="flex space-x-1 x">
+        <Box className="flex flex-col p-3 space-y-2">
+          <Box className="flex space-x-1">
             <ReceiptIcon className="fill-current text-stieglitz p-1" />
             <Typography variant="h6" color="stieglitz" className="w-full">
               Futures Position
@@ -208,7 +208,7 @@ const StrategyDetails = (props: {
             />
           )}
         </Box>
-        <Box className="flex flex-col p-3">
+        <Box className="flex flex-col p-3 space-y-2">
           <Box className="flex space-x-1">
             <SouthEastRoundedIcon className="fill-current text-down-bad p-1" />
             <Typography variant="h6" color="stieglitz">
