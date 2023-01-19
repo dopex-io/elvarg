@@ -57,21 +57,21 @@ const Home = () => {
             alt="logo"
             className="md:w-28 md:h-28 w-20 h-20"
           />
-          <h1 className="md:text-9xl text-7xl font-mono font-bold mb-24">
+          <h1 className="md:text-8xl text-7xl font-mono font-bold mb-24">
             DOPEX
           </h1>
         </Box>
         <Box className="flex md:flex-row md:space-y-0 space-y-8 flex-col justify-between mb-24">
           <Box className="flex flex-col max-w-fit">
-            <h1 className="md:text-8xl text-6xl  font-mono font-bold text-wave-blue">
-              $400M+
+            <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
+              $300M+
             </h1>
             <span className="text-2xl text-white self-end font-bold font-mono">
               All Time Open Interest
             </span>
           </Box>
           <Box className="flex flex-col max-w-fit">
-            <h1 className="md:text-8xl text-6xl  font-mono font-bold text-wave-blue">
+            <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
               $32M+
             </h1>
             <span className="text-2xl text-white self-end font-bold font-mono">
