@@ -14,6 +14,7 @@ import {
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
 import Typography from 'components/UI/Typography';
+import CustomTooltipContent from 'components/atlantics/Charts/LiquidityBarGraph/CustomTooltipContent';
 import CallsIcon from 'svgs/icons/CallsIcon';
 import PutsIcon from 'svgs/icons/PutsIcon';
 
@@ -106,6 +107,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
                 backgroundColor: '#2D2D2D',
                 color: '#2D2D2D',
               }}
+              content={<CustomTooltipContent title="Collateral Distribution" />}
             />
             <XAxis type="number" dataKey="availableCollateral" hide />
             <XAxis type="number" dataKey="unlocked" hide />
