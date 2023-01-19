@@ -11,7 +11,6 @@ const isShowPreviousEpochVisible = false;
 
 const Deposits = () => {
   const { accountAddress, ensName } = useBoundStore();
-  console.log('accountAddress: ', accountAddress);
 
   return (
     <Box className="text-gray-400 w-full rounded-lg">
