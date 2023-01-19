@@ -26,25 +26,21 @@ function App({ Component, pageProps }: AppProps) {
         if (BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(countryAlpha2Code)) {
           setState({ isOfac: true });
         } else {
-          setState({ isOfac: true });
+          setState({ isOfac: false });
         }
       } catch {
         setState({ isOfac: false });
       }
     }
 
-    console.log(navigator.geolocation);
-
     checkLocation();
   }, []);
-
-  console.log(state);
 
   if (state.isOfac) {
     return (
       <div>
-        You are connected from a restricted country due to regulations and are
-        not permitted to use the platform.
+        You are connected from a restricted country and are not permitted to use
+        the platform.
       </div>
     );
   }
