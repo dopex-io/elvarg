@@ -62,11 +62,11 @@ const Home = () => {
           <img
             src="/images/brand/logo.svg"
             alt="logo"
-            className="md:w-28 md:h-28 w-20 h-20"
+            className="md:w-24 md:h-24 w-20 h-20"
           />
           <h1 className="md:text-8xl text-7xl font-mono font-bold">DOPEX</h1>
         </Box>
-        <Box className="flex md:flex-row md:space-y-0 space-y-8 flex-col justify-between mb-24">
+        <Box className="flex md:flex-row md:space-y-0 space-y-12 flex-col justify-between mb-24">
           <Box className="flex flex-col max-w-fit">
             <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
               $300M+
