@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 import Link from 'next/link';
+import axios from 'axios';
 
 import PieChartIcon from '@mui/icons-material/PieChart';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -10,6 +12,7 @@ import GavelIcon from '@mui/icons-material/Gavel';
 
 import AppBar from 'components/common/AppBar';
 import { Typography } from 'components/UI';
+import { formatAmount } from 'utils/general';
 
 interface CardProps {
   name: string;
@@ -37,6 +40,17 @@ const Card = ({ name, description, href, Icon }: CardProps) => {
 };
 
 const Home = () => {
+  const [tvl, setTvl] = useState('0');
+
+  useEffect(() => {
+    async function getTvl() {
+      const res = await axios.get('https://api.dopex.io/v2/tvl');
+
+      setTvl(res.data.tvl);
+    }
+    getTvl();
+  }, []);
+
   return (
     <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
       <Head>
@@ -63,7 +77,7 @@ const Home = () => {
           </Box>
           <Box className="flex flex-col max-w-fit">
             <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
-              $32M+
+              ${formatAmount(tvl)}
             </h1>
             <span className="text-2xl text-white self-end font-bold font-mono">
               Total Value Locked
