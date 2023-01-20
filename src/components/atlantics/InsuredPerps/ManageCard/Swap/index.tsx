@@ -5,10 +5,10 @@ import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 import { ERC20__factory, GmxRouter__factory } from '@dopex-io/sdk';
 
 import Wrapper from 'components/ssov/Wrapper';
-import CustomInput from 'components/UI/CustomInput';
+import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
 import Button from 'components/UI/Button';
-import SwapInfo from 'components/atlantics/InsuredPerps/Swap/SwapInfo';
+import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
 
 import { useBoundStore } from 'store';
 
@@ -231,12 +231,13 @@ const Swap = (props: SwapProps) => {
       <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       <Box className="space-y-1">
         <Box className="bg-umbra rounded-xl">
-          <CustomInput
+          <Input
             size="small"
             variant="outlined"
             outline="umbra"
             value={amountIn}
             onChange={handleChange}
+            className="p-3"
             leftElement={
               <Box className="flex my-auto">
                 <Box className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
@@ -279,7 +280,7 @@ const Swap = (props: SwapProps) => {
           </IconButton>
         </Box>
         <Box className="bg-umbra rounded-xl">
-          <CustomInput
+          <Input
             size="small"
             variant="outlined"
             outline="umbra"

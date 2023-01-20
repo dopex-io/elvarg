@@ -1,3 +1,10 @@
+/*
+ *   The commented code contains the logic and UI for token selector.
+ *   Users can either use underlying or the collateral asset to create
+ *   their positions. For our initial rollup, the UI is restricted to
+ *   use the collateral asset (USDC).
+ */
+
 import { useCallback, useRef, useMemo, useState, useEffect } from 'react';
 import {
   DopexPositionManager__factory,
@@ -13,11 +20,11 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { BigNumber } from 'ethers';
 
-// import CustomInput from 'components/UI/CustomInput';
+// import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 // import TokenSelector from 'components/atlantics/TokenSelector';
-import ContentRow from 'components/atlantics/InsuredPerps/ManagePosition/ContentRow';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 
 import { useBoundStore } from 'store';
 
@@ -444,7 +451,7 @@ const ManagePosition = () => {
   return (
     <Box className="space-y-4 w-full">
       <Box className="bg-umbra rounded-xl mb-2 w-full" ref={containerRef}>
-        {/* <CustomInput
+        {/* <Input
           size="medium"
           variant="outlined"
           outline="umbra"

@@ -23,9 +23,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
 // import TokenSelector from 'components/atlantics/TokenSelector';
-import CustomInput from 'components/UI/CustomInput';
+import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/Button';
-import StrategyDetails from 'components/atlantics/InsuredPerps/ManagePosition/StrategyDetails';
+import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -695,25 +695,26 @@ const ManagePosition = () => {
   ]);
 
   return (
-    <Box className="">
+    <Box>
       <Box className="bg-umbra rounded-xl space-y-2" ref={containerRef}>
-        <CustomInput
+        <Input
           size="small"
-          variant="outlined"
-          outline="umbra"
+          variant="default"
+          type="number"
+          placeholder="0.0"
           value={positionBalance}
           onChange={handlePositionBalanceChange}
           leftElement={
             <Box className="flex my-auto space-x-2">
               <Box
-                className="flex w-full bg-cod-gray rounded-full space-x-2 p-1 pr-1"
+                className="flex w-full bg-cod-gray rounded-full space-x-2 pr-1"
                 // role="button"
                 // onClick={() => setOpenTokenSelector(() => true)}
               >
                 <img
                   src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
                   alt={selectedToken}
-                  className="w-[2rem]"
+                  className="w-24"
                 />
               </Box>
               {/* <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" /> */}

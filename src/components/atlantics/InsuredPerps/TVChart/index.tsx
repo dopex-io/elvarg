@@ -27,7 +27,7 @@ interface Props {
   };
 }
 
-const ChartComponent = (props: Props) => {
+const TVChart = (props: Props) => {
   const { data, triggerMarker, colors, period, setPeriod } = props;
   const {
     backgroundColor,
@@ -175,4 +175,4 @@ const ChartComponent = (props: Props) => {
   );
 };
 
-export default ChartComponent;
+export default TVChart;

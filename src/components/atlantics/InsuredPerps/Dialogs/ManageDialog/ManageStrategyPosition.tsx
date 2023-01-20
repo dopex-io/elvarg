@@ -1,18 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-// import MenuItem from '@mui/material/MenuItem';
-// import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import {
   GmxVault__factory,
   InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
-// import Tooltip from '@mui/material/Tooltip';
 import { BigNumber } from 'ethers';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import ContentRow from 'components/atlantics/InsuredPerps/ManagePosition/ContentRow';
-import { ActionState } from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
+import { ActionState } from 'components/atlantics/InsuredPerps/Tables/Positions';
 import LiquidationProtectionIcon from 'svgs/icons/LiquidationProtection';
 
 import { useBoundStore } from 'store';
@@ -28,8 +25,8 @@ import { MAX_VALUE } from 'constants/index';
 const options: { [key: string]: string }[] = [
   {
     option: 'Exit Strategy + Long Position',
-    description:
-      'Exit long position and strategy, withdrawing remaining collateral from the position along with PnL. Note that strategy positions with ITM put options and no deposited underlying can only choose to close.',
+    description: `Exit long position and strategy, withdrawing remaining collateral from the position along with PnL. 
+      Note that strategy positions with ITM put options and no deposited underlying can only choose to close.`,
   },
 ];
 
@@ -45,12 +42,6 @@ const ManageStrategyPositionDialog = (props: Props) => {
 
   const sendTx = useSendTx();
 
-  // const [selectedOption, setSelectedOption] = useState<string>(
-  //   'Exit Strategy & Long Position'
-  // );
-  // const [optionDescription, setOptionDescription] = useState(
-  //   options[0]?.['description']
-  // );
   const [unwindApproved, setUnwindApproved] = useState(false);
   const [selectedOptionItem, _] = useState<number>(0);
   const [strategyDetails, setStrategyDetails] = useState({
@@ -63,18 +54,6 @@ const ManageStrategyPositionDialog = (props: Props) => {
     positionId: BigNumber.from(0),
     atlanticsPurchaseId: BigNumber.from(0),
   });
-
-  // const handleOptionSelectChange = useCallback(
-  //   (e: { target: { value: SetStateAction<string> } }) => {
-  //     setSelectedOption(e.target.value);
-  //   },
-  //   []
-  // );
-
-  // const handleOptioItemSelected = useCallback((index: number) => {
-  //   setOptionDescription(options[index]?.['description']);
-  //   setSelectedOptionItem(index);
-  // }, []);
 
   const updateStrategyPosition = useCallback(async () => {
     if (!contractAddresses || !accountAddress || !signer || !atlanticPool)
@@ -259,69 +238,6 @@ const ManageStrategyPositionDialog = (props: Props) => {
   }, [checkApproved]);
 
   return (
-    // <Box className="w-full space-y-3">
-    //   <Box className="bg-umbra w-full rounded-xl p-3">
-    //     <ContentRow title="PnL" content={strategyDetails.pnl} />
-    //     <ContentRow title="Collateral" content={strategyDetails.collateral} />
-    //     <ContentRow title="Put Strike" content={strategyDetails.putStrike} />
-    //     <ContentRow
-    //       title="Options Amount"
-    //       content={strategyDetails.optionsAmount}
-    //     />
-    //     <ContentRow
-    //       title="Underlying Deposited"
-    //       content={strategyDetails.UnderlyingDeposited}
-    //     />
-    //     <ContentRow title="Status" content={strategyDetails.status} />
-    //   </Box>
-    //   <Box className="flex flex-col items-center w-full space-y-3">
-    //     <Select
-    //       value={selectedOption}
-    //       onChange={handleOptionSelectChange}
-    //       className="bg-umbra rounded-md text-center font-semibold text-white w-full"
-    //       MenuProps={{
-    //         classes: { paper: 'bg-umbra' },
-    //       }}
-    //       classes={{ icon: 'text-white', select: 'px-3' }}
-    //       placeholder={'Select Option'}
-    //       variant="standard"
-    //       disableUnderline
-    //     >
-    //       {options.map(({ option }, index) => (
-    //         <MenuItem
-    //           onClick={() => handleOptioItemSelected(index)}
-    //           key={index}
-    //           value={option}
-    //         >
-    //           <Typography variant="body1" className="my-auto text-white">
-    //             {option}
-    //           </Typography>
-    //         </MenuItem>
-    //       ))}
-    //     </Select>
-    //     <Tooltip
-    //       title={optionDescription}
-    //       placement="bottom"
-    //       arrow
-    //       enterTouchDelay={0}
-    //       leaveTouchDelay={1000}
-    //     >
-    //       {selectedOptionItem === 2 && !unwindApproved ? (
-    //         <CustomButton
-    //           onClick={handleKeepCollateralApprove}
-    //           className="w-full"
-    //         >
-    //           {' '}
-    //           Approve WETH{' '}
-    //         </CustomButton>
-    //       ) : (
-    //         <CustomButton onClick={handleSubmit} className="w-full">
-    //           Submit
-    //         </CustomButton>
-    //       )}
-    //     </Tooltip>
-    //   </Box>
-    // </Box>
     <Box className="w-full space-y-3 bg-umbra">
       <Box className="border border-carbon rounded-lg w-full divide-y divide-carbon">
         <Box className="flex divide-x divide-carbon">

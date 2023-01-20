@@ -6,8 +6,8 @@ import SouthEastRoundedIcon from '@mui/icons-material/SouthEastRounded';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
-import { IStrategyDetails } from 'components/atlantics/InsuredPerps/ManagePosition';
-import ContentRow from 'components/atlantics/InsuredPerps/ManagePosition/ContentRow';
+import { IStrategyDetails } from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { useBoundStore } from 'store';

@@ -4,8 +4,8 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
-import ManagePosition from '../ManagePosition';
-import Swap from '../Swap';
+import ManagePosition from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition';
+import Swap from 'components/atlantics/InsuredPerps/ManageCard/Swap';
 
 const buttonLabels = ['Long', /*'Short',*/ 'Swap'];
 

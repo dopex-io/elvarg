@@ -6,14 +6,12 @@ import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import IconButton from '@mui/material/IconButton';
 
 import Typography from 'components/UI/Typography';
-import PoolCardItem from 'components/atlantics/Pool/PoolCardItem';
+import PoolCardItem from 'components/atlantics/PoolCard/PoolCardItem';
 import PutsIcon from 'svgs/icons/PutsIcon';
 import CallsIcon from 'svgs/icons/CallsIcon';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-// import { TOKEN_DECIMALS } from 'constants/index';
 
 interface PoolCardProps {
   depositToken: string;

@@ -1,10 +1,9 @@
 import { useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import Box from '@mui/material/Box';
-import { CircularProgress } from '@mui/material';
 import { BigNumber } from 'ethers';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
-// import CallPoolStats from 'components/atlantics/Charts/CallPoolStats';
 import CustomButton from 'components/UI/Button';
 
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
@@ -120,41 +119,7 @@ const Charts = (props: ChartsProps) => {
       );
   }, [collateral, handleWalletConnect, poolData, title, type, underlying]);
 
-  // const lineData: ILineData = useMemo(() => {
-  //   if (!selectedPool || selectedPool.checkpoints.length <= 1)
-  //     return {
-  //       totalEpochLiquidityByCheckpoint: [],
-  //       totalEpochUnlockedCollateralByCheckpoint: [],
-  //     };
-
-  //   const _checkpoints = selectedPool.checkpoints;
-
-  //   const _checkpointStrikeData = _checkpoints
-  //     .map((strike: any) => {
-  //       return strike.map((data: any) => ({
-  //         unlocks: data.activeCollateral,
-  //         liquidity: data.totalLiquidity,
-  //         timestamp: Number(data.startTime),
-  //       }));
-  //     })
-  //     .flat();
-
-  //   const _aggregatedUnlocks = _checkpointStrikeData.reduce(
-  //     (acc, curr) => ({
-  //       unlocks: acc.unlocks.add(curr.unlocks),
-  //       liquidity: acc.liquidity.add(curr.liquidity),
-  //     }),
-  //     {
-  //       unlocks: BigNumber.from(0),
-  //       liquidity: BigNumber.from(0),
-  //     }
-  //   );
-
-  //   return {
-  //     totalEpochLiquidityByCheckpoint: [],
-  //     totalEpochUnlockedCollateralByCheckpoint: [],
-  //   };
-  // }, [selectedPool]);
+  // const lineData = useMemo(() => {}, []);
 
   return (
     <Box className="flex flex-col sm:flex-col md:flex-row space-y-3 sm:space-y-3 md:space-y-0 sm:space-x-0 md:space-x-3">

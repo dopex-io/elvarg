@@ -19,8 +19,8 @@ import { GmxCandleStick } from 'types';
 export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
 export type Period = typeof periods[number];
 
-const ChartComponent = dynamic(
-  () => import('components/atlantics/InsuredPerps/ChartComponent'),
+const TVChart = dynamic(
+  () => import('components/atlantics/InsuredPerps/TVChart'),
   {
     ssr: false,
   }
@@ -101,6 +101,30 @@ export const Main = (props: TickerProps) => {
     );
 
     setGmxChartData(prices);
+
+    if (period === '1D') {
+      const latestTicker = prices[prices.length - 1];
+
+      if (!latestTicker) return;
+
+      const { usd } = await axios
+        .get(
+          `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
+        )
+        .then((res) => res.data.ethereum);
+
+      setMarketData((prevData) => ({ ...prevData, latest: usd }));
+
+      setMarketData((prevData) => ({
+        ...prevData,
+        high_24h: latestTicker.high,
+        low_24h: latestTicker.low,
+        change_24h:
+          (Math.abs(latestTicker.open - latestTicker.close) /
+            latestTicker.open) *
+          100,
+      }));
+    }
   }, [chainId, period, underlying]);
 
   useEffect(() => {
@@ -118,50 +142,8 @@ export const Main = (props: TickerProps) => {
   }, [updateAtlanticPoolEpochData, selectedPoolName, atlanticPool, provider]);
 
   useEffect(() => {
-    // setInterval(async () => await updatePriceData(), 10000);
     updatePriceData();
   }, [updatePriceData]);
-
-  useEffect(() => {
-    (async function () {
-      try {
-        const currentTime = Math.ceil(Number(new Date()) / 1000);
-        const minusOneDay = Math.ceil(Number(new Date()) / 1000) - 86400;
-
-        const results = await Promise.all([
-          axios.get(
-            `https://api.coingecko.com/api/v3/coins/ethereum/market_chart/range?vs_currency=usd&from=${minusOneDay}&to=${currentTime}`
-          ),
-        ]);
-
-        const sortedPrices = results[0].data.prices
-          .map((a: number[]) => a[1])
-          .sort((a: number, b: number) => a - b);
-
-        const len = sortedPrices.length;
-
-        const latest =
-          results[0].data.prices[results[0].data.prices.length - 1][1];
-
-        setMarketData({
-          latest,
-          high_24h: sortedPrices[len - 1],
-          low_24h: sortedPrices[0],
-          change_24h:
-            ((sortedPrices[len - 1] - sortedPrices[0]) /
-              sortedPrices[len - 1]) *
-            100,
-        });
-      } catch (e) {
-        setMarketData({
-          latest: 0,
-          high_24h: 0,
-          low_24h: 0,
-          change_24h: 0,
-        });
-      }
-    })();
-  }, []);
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
@@ -179,7 +161,7 @@ export const Main = (props: TickerProps) => {
                 stats={marketData}
               />
               <Box className="h-[546px] w-full space-y-4 flex flex-col bg-cod-gray rounded-xl text-center">
-                <ChartComponent
+                <TVChart
                   data={gmxChartData}
                   triggerMarker={triggerMarker ?? '0'}
                   period={period}

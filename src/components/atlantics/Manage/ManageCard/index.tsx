@@ -6,7 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
-import CustomInput from 'components/UI/CustomInput';
+import Input from 'components/UI/Input';
 import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInput';
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -245,16 +245,18 @@ const ManageCard = (props: ManageCardProps) => {
         </Typography>
       </Box>
       <Box className="bg-umbra rounded-xl w-full">
-        <CustomInput
+        <Input
           size="small"
-          variant="outlined"
+          variant="default"
+          type="number"
           outline="umbra"
+          placeholder="0.0"
           value={value}
           onChange={handleChange}
           leftElement={
             <Box className="flex h-full my-auto">
               <Box
-                className="flex w-full mr-3 bg-cod-gray rounded-full space-x-1 p-1 pr-3"
+                className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-1 p-1 pr-3"
                 role="button"
               >
                 <img

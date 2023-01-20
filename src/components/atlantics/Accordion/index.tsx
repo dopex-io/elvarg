@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 
 import Typography from 'components/UI/Typography';
-import PoolCard from 'components/atlantics/Pool';
+import PoolCard from 'components/atlantics/PoolCard';
 
 import { Pool } from 'pages/atlantics';
 

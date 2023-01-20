@@ -3,14 +3,12 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
+import Typography from 'components/UI/Typography';
 import ManageCard from 'components/atlantics/Manage/ManageCard';
 import Charts from 'components/atlantics/Charts';
 import ManageTitle from 'components/atlantics/Manage/ManageTitle';
 import ContractData from 'components/atlantics/Manage/ContractData';
-import Typography from 'components/UI/Typography';
 import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
-// import UserPositions from 'components/atlantics/Manage/Strategies/InsuredPerps/UserPositions';
-// import InfoTooltip from 'components/UI/InfoTooltip';
 
 import { useBoundStore } from 'store';
 
