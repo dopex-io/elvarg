@@ -4,20 +4,13 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
 import { useBoundStore } from 'store';
 
 const TopBar = () => {
-  const { tokenPrices, selectedPoolName, straddlesEpochData } = useBoundStore();
-
-  const tokenPrice =
-    tokenPrices.find((token) => token.name === selectedPoolName)?.price || 0;
-
-  const isEpochExpired = useMemo(() => {
-    if (!straddlesEpochData) return;
-    return straddlesEpochData?.expiry.lt(
-      BigNumber.from((new Date().getTime() / 1000).toFixed())
-    );
-  }, [straddlesEpochData]);
+  const { optionPerpData, selectedPoolName } = useBoundStore();
 
   return (
     <Box className="flex justify-between">
@@ -47,7 +40,7 @@ const TopBar = () => {
           </Typography>
         </Box>
         <Typography variant="h4" className="ml-4 self-start">
-          ${tokenPrice}
+          ${formatAmount(getUserReadableAmount(optionPerpData?.markPrice!, 8), 2)}
         </Typography>
       </Box>
     </Box>

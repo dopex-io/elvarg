@@ -22,7 +22,7 @@ interface Props {
 }
 
 const Perps = ({ poolName }: Props) => {
-  const { setSelectedPoolName, updateOptionPerp, updateOptionPerpUserData } =
+  const { setSelectedPoolName, updateOptionPerp, updateOptionPerpUserData, updateOptionPerpEpochData } =
     useBoundStore();
 
   useEffect(() => {
@@ -30,8 +30,10 @@ const Perps = ({ poolName }: Props) => {
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
-    updateOptionPerp().then(() => updateOptionPerpUserData());
-  }, [updateOptionPerp, updateOptionPerpUserData]);
+    updateOptionPerp().then(() => updateOptionPerpUserData().then(() => {
+        updateOptionPerpEpochData();
+      }));
+  }, [updateOptionPerp, updateOptionPerpUserData, updateOptionPerpEpochData]);
 
   return (
     <Box className="bg-black min-h-screen">
