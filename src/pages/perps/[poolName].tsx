@@ -9,11 +9,13 @@ import TopBar from 'components/perps/TopBar';
 import Stats from 'components/perps/Stats';
 import PoolCard from 'components/perps/Charts/PoolCard';
 import TVLCard from 'components/perps/Charts/TVLCard';
-import Deposits from 'components/perps/Deposits';
-import Positions from 'components/perps/Positions';
+import PerpPositions from 'components/perps/PerpPositions';
+import OptionPositions from 'components/perps/OptionPositions';
 import Manage from 'components/perps/Manage';
 
 import { useBoundStore } from 'store';
+
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 const SHOWCHARTS = false;
 
@@ -22,7 +24,7 @@ interface Props {
 }
 
 const Perps = ({ poolName }: Props) => {
-  const { setSelectedPoolName, updateOptionPerp, updateOptionPerpUserData, updateOptionPerpEpochData } =
+  const { chainId, setSelectedPoolName, optionPerpData, updateOptionPerp, updateOptionPerpUserData, updateOptionPerpEpochData } =
     useBoundStore();
 
   useEffect(() => {
@@ -76,28 +78,47 @@ const Perps = ({ poolName }: Props) => {
               </Box>
             </Box>
           ) : null}
-
-          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 mt-5">
-            <Typography variant="h6" className="-ml-1">
-              Deposits
-            </Typography>
-          </Box>
-          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto">
-            <Deposits />
-          </Box>
+          
           <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
             <Typography variant="h6" className="-ml-1">
               Positions
             </Typography>
           </Box>
           <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto">
-            <Positions />
+            <PerpPositions />
+          </Box>
+          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
+            <Typography variant="h6" className="-ml-1">
+              Options
+            </Typography>
+          </Box>
+          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto">
+            <OptionPositions />
           </Box>
         </Box>
         <Box className="lg:pt-32 sm:pt-20 lg:mr-auto md:mx-0 mx-4 mb-8 px-2 lg:px-0 lg:ml-32">
           <Manage />
         </Box>
       </Box>
+      <Box className="flex justify-center space-x-2 my-8">
+          <Typography variant="h5" className="text-silver">
+            Contract Address:
+          </Typography>
+          <Typography
+            variant="h5"
+            className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
+          >
+            <a
+              href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
+                optionPerpData?.optionPerpContract?.address ?? ''
+              }`}
+              rel="noopener noreferrer"
+              target={'_blank'}
+            >
+              {optionPerpData?.optionPerpContract?.address}
+            </a>
+          </Typography>
+        </Box>
     </Box>
   );
 };

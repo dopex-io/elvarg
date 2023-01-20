@@ -51,6 +51,8 @@ export interface OptionPosition {
   amount: BigNumber;
   strike: BigNumber;
   epoch: BigNumber;
+  pnl: BigNumber;
+  canBeSettled: boolean;
 }
 
 export interface PendingWithdrawal {
@@ -4210,6 +4212,8 @@ export const createOptionPerpSlice: StateCreator<
         amount: data['amount'],
         strike: data['strike'],
         epoch: data['epoch'],
+        pnl: BigNumber.from('0'),
+        canBeSettled: false
       };
     } catch (err) {
       console.log(err);

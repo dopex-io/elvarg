@@ -72,7 +72,7 @@ const TradeCard = () => {
     if (isShort) {
       return (collateralAmount / positions) + price
     } else {
-      return (collateralAmount / positions) - price;
+      return price - (collateralAmount / positions);
     }
   }, [isShort, amount, collateralAmount, optionPerpData]);
   

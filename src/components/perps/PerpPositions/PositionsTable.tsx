@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { BigNumber } from 'ethers';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
@@ -22,28 +21,16 @@ import { useBoundStore } from 'store';
 const PositionsTable = () => {
   const sendTx = useSendTx();
 
-  const { signer, straddlesUserData, straddlesData, updateStraddlesUserData } =
+  const { signer, optionPerpUserData, optionPerpData, optionPerpEpochData, updateOptionPerp, updateOptionPerpEpochData, updateOptionPerpUserData } =
     useBoundStore();
 
-  const handleExercise = useCallback(
-    async (selectedPositionNftIndex: number) => {
-      if (!straddlesData?.isEpochExpired || !straddlesData?.straddlesContract)
-        return;
-
-      if (straddlesData && straddlesUserData && signer) {
-        await sendTx(
-          straddlesData?.straddlesContract.connect(signer),
-          'settle',
-          [
-            straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
-              'id'
-            ],
-          ]
-        );
-        await updateStraddlesUserData!();
-      }
+  const handleClose = useCallback(
+    async () => {
+      await updateOptionPerp();
+      await updateOptionPerpEpochData();
+      await updateOptionPerpUserData();
     },
-    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx]
+    [optionPerpUserData, optionPerpData, signer, optionPerpEpochData, sendTx, updateOptionPerp, updateOptionPerpEpochData, updateOptionPerpUserData]
   );
 
   return (
@@ -52,15 +39,16 @@ const PositionsTable = () => {
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
             <TableRow>
-              <TableHeader label="Amount" showArrowIcon />
-              <TableHeader label="AP Strike" />
+              <TableHeader label="Positions" showArrowIcon />
+              <TableHeader label="Average Open Price" />
               <TableHeader label="PnL" />
-              <TableHeader label="Epoch" />
+              <TableHeader label="Margin" />
+              <TableHeader label="Funding" />
               <TableHeader label="Action" variant="text-end" />
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {straddlesUserData?.straddlePositions?.map((position, i) => (
+            {optionPerpUserData?.perpPositions?.map((position, i) => (
               <TableRow key={i}>
                 <TableCell className="pt-2 border-0">
                   <Box>
@@ -70,8 +58,8 @@ const PositionsTable = () => {
                       <Typography variant="h6" className="pr-7 pt-[2px]">
                         {formatAmount(
                           getUserReadableAmount(
-                            position.amount.div(BigNumber.from(2)),
-                            18
+                            position.positions,
+                            8
                           ),
                           8
                         )}
@@ -79,34 +67,34 @@ const PositionsTable = () => {
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" className="text-[#6DFFB9]">
-                    ${getUserReadableAmount(position.apStrike, 8).toFixed(2)}
+                  <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    ${getUserReadableAmount(position.averageOpenPrice, 8).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    ${getUserReadableAmount(position.pnl, 18).toFixed(2)}
+                    ${getUserReadableAmount(position.pnl, 6).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6">
-                    {Number(position.epoch!)}
+                  <Typography variant="h6" color="white" className="text-left">
+                    ${getUserReadableAmount(position.margin, 6).toFixed(2)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    ${getUserReadableAmount(position.funding, 6).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end border-0">
                   <CustomButton
                     className="cursor-pointer text-white"
-                    color={
-                      straddlesData?.isEpochExpired ? 'mineshaft' : 'primary'
+                    color={'primary'
                     }
-                    disabled={
-                      !straddlesData?.isEpochExpired ||
-                      straddlesUserData?.straddlePositions![i]!.pnl.lte(0)
-                    }
-                    onClick={() => handleExercise(i)}
+                    onClick={() => handleClose()}
                   >
-                    Exercise
+                    Close
                   </CustomButton>
                 </TableCell>
               </TableRow>
@@ -115,7 +103,7 @@ const PositionsTable = () => {
         </Table>
       </TableContainer>
       <Box className="flex">
-        {straddlesUserData?.straddlePositions?.length === 0 ? (
+        {optionPerpUserData?.perpPositions?.length === 0 ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
         ) : null}
       </Box>
