@@ -231,20 +231,21 @@ const Swap = (props: SwapProps) => {
         <Box className="bg-umbra rounded-xl">
           <Input
             size="small"
-            variant="outlined"
-            outline="umbra"
+            variant="default"
+            type="number"
+            placeholder="0.0"
             value={amountIn}
             onChange={handleChange}
             className="p-3"
             leftElement={
               <Box className="flex my-auto">
-                <Box className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
+                <Box className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
                   <img
                     src={`/images/tokens/${
                       inverted ? stable.toLowerCase() : underlying.toLowerCase()
                     }.svg`}
                     alt={inverted ? stable : underlying}
-                    className="w-[2rem]"
+                    className="w-full"
                   />
                   <Typography variant="h6" className="my-auto">
                     {inverted ? stable : underlying}
@@ -280,25 +281,27 @@ const Swap = (props: SwapProps) => {
         <Box className="bg-umbra rounded-xl">
           <Input
             size="small"
-            variant="outlined"
-            outline="umbra"
+            variant="default"
+            type="number"
+            placeholder="0.0"
             value={amountOut}
             disabled
             sx={{
               '& input.MuiInputBase-input': {
                 '-webkit-text-fill-color': '#5D5D5D',
                 overflowX: 'true',
+                padding: '0',
               },
             }}
             leftElement={
               <Box className="flex my-auto">
-                <Box className="flex w-full mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
+                <Box className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
                   <img
                     src={`/images/tokens/${
                       inverted ? underlying.toLowerCase() : stable.toLowerCase()
                     }.svg`}
                     alt={stable}
-                    className="w-[2rem]"
+                    className="w-[1.9rem]"
                   />
                   <Typography variant="h6" className="my-auto">
                     {inverted ? underlying : stable}
