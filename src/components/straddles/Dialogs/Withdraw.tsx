@@ -57,11 +57,9 @@ const WithdrawModal = ({
 
     if (straddlesData && straddlesUserData && signer) {
       await sendTx(
-        straddlesData?.straddlesContract
-          .connect(signer)
-          .withdraw(
-            straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
-          )
+        straddlesData?.straddlesContract.connect(signer),
+        'withdraw',
+        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']]
       );
       await updateStraddlesUserData!();
     }
@@ -77,11 +75,9 @@ const WithdrawModal = ({
   const handleToggleRollover = useCallback(async () => {
     if (straddlesData?.straddlesContract && straddlesUserData && signer) {
       await sendTx(
-        straddlesData.straddlesContract
-          .connect(signer)
-          .toggleRollover(
-            straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']
-          )
+        straddlesData.straddlesContract.connect(signer),
+        'toggleRollover',
+        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']]
       );
       await updateStraddlesUserData!();
     }

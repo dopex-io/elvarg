@@ -138,16 +138,24 @@ const UserDepositsTable = () => {
       }
       try {
         const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
-        await sendTx(
-          apContract.withdraw([depositId], await signer.getAddress())
-        ).then(() => {
+        await sendTx(apContract, 'withdraw', [
+          [depositId],
+          accountAddress,
+        ]).then(() => {
           updateUserPositions();
         });
       } catch (err) {
         console.log(err);
       }
     },
-    [selectedEpoch, atlanticPool, signer, sendTx, updateUserPositions]
+    [
+      atlanticPool,
+      selectedEpoch,
+      signer,
+      accountAddress,
+      sendTx,
+      updateUserPositions,
+    ]
   );
 
   const userPositionsRenderState = useMemo(() => {

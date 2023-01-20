@@ -287,7 +287,7 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
-    await sendTx(strategyContract.emergencyStrategyExit(positionId)).then(
+    await sendTx(strategyContract, 'emergencyStrategyExit', [positionId]).then(
       () => {
         getUserPositions();
       }
@@ -335,9 +335,11 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
-    await sendTx(
-      strategyContract.reuseStrategy(positionId, expiry, false)
-    ).then(() => {
+    await sendTx(strategyContract, 'reuseStrategy', [
+      positionId,
+      expiry,
+      false,
+    ]).then(() => {
       getUserPositions();
     });
   }, [

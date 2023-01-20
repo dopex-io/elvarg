@@ -96,17 +96,16 @@ const ManageCard = (props: ManageCardProps) => {
         contractAddresses[depositToken],
         signer
       );
-      await sendTx(
-        token.approve(
-          contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-          maxApprove
-            ? MAX_VALUE.toString()
-            : getContractReadableAmount(
-                value,
-                TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
-              )
-        )
+
+      const customApproveAmount = getContractReadableAmount(
+        value,
+        TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
       );
+
+      await sendTx(token, 'approve', [
+        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+        maxApprove ? MAX_VALUE.toString() : customApproveAmount,
+      ]);
       setApproved(true);
     } catch (err) {
       console.log(err);
@@ -137,15 +136,11 @@ const ManageCard = (props: ManageCardProps) => {
         signer
       );
 
-      await sendTx(
-        apContract
-          .connect(signer)
-          .deposit(
-            getContractReadableAmount(maxStrike, 8),
-            getContractReadableAmount(value, 6),
-            accountAddress
-          )
-      ).then(() => {
+      await sendTx(apContract, 'deposit', [
+        getContractReadableAmount(maxStrike, 8),
+        getContractReadableAmount(value, 6),
+        accountAddress,
+      ]).then(() => {
         updateAtlanticPoolEpochData();
         updateUserPositions();
       });

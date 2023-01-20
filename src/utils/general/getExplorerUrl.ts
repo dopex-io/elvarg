@@ -2,6 +2,7 @@ const ETHERSCAN = 'https://etherscan.io/';
 
 const CHAIN_ID_TO_EXPLORER = {
   1: ETHERSCAN,
+  5: 'https://goerli.etherscan.io/',
   42: 'https://kovan.etherscan.io/',
   56: 'https://bscscan.com/',
   1337: '',

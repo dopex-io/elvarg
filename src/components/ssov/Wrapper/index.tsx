@@ -33,13 +33,8 @@ const Wrapper = ({ open, handleClose }: Props) => {
       ['function deposit() payable external'],
       signer
     );
-    try {
-      await sendTx(
-        weth['deposit']({ value: getContractReadableAmount(value, 18) })
-      );
-    } catch (e) {
-      console.log(e);
-    }
+
+    await sendTx(weth, 'deposit', [], getContractReadableAmount(value, 18));
   }, [signer, sendTx, value]);
 
   return (

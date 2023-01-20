@@ -568,7 +568,10 @@ const ManagePosition = () => {
     );
 
     try {
-      await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+      await sendTx(tokenContract, 'approve', [
+        strategyContractAddress,
+        MAX_VALUE,
+      ]);
       setApproved((prevState) => ({ ...prevState, quote: true }));
     } catch (err) {
       console.error(err);
@@ -586,7 +589,10 @@ const ManagePosition = () => {
         contractAddresses[underlying],
         signer
       );
-      await sendTx(tokenContract.approve(strategyContractAddress, MAX_VALUE));
+      await sendTx(tokenContract, 'approve', [
+        strategyContractAddress,
+        MAX_VALUE,
+      ]);
       setApproved((prevState) => ({ ...prevState, base: true }));
     } catch (err) {
       console.error(err);
@@ -671,14 +677,13 @@ const ManagePosition = () => {
     };
 
     try {
-      const tx = strategyContract.useStrategyAndOpenLongPosition(
+      await sendTx(strategyContract, 'useStrategyAndOpenLongPosition', [
         increaseOrderParams,
         depositTokenAddress,
         atlanticPoolEpochData.expiry,
         false,
-        overrides
-      );
-      await sendTx(tx);
+        overrides,
+      ]);
     } catch (err) {
       console.error(err);
     }

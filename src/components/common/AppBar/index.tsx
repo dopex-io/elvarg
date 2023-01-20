@@ -18,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import axios from 'axios';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
@@ -25,6 +26,7 @@ import Typography from 'components/UI/Typography';
 import WalletDialog from 'components/common/AppBar/WalletDialog';
 import CustomButton from 'components/UI/Button';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
+import DisclaimerDialog from 'components/common/DisclaimerDialog';
 
 import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 import { useBoundStore } from 'store';
@@ -32,6 +34,8 @@ import { useBoundStore } from 'store';
 import {
   CHAIN_ID_TO_RPC,
   CURRENCIES_MAP,
+  DISCLAIMER_MESSAGE,
+  OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
   PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -101,17 +105,21 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
-    // { name: 'Portfolio', to: '/portfolio' },
-    // { name: 'Farms', to: '/farms' },
-    // { name: 'veDPX', to: '/governance/vedpx' },
-    // { name: 'SSOV', to: '/ssov' },
-    // { name: 'Rate Vaults', to: '/ir' },
-    // { name: 'Straddles', to: '/straddles' },
-    // { name: 'DPX Bonds', to: '/dpx-bonds' },
+    { name: 'Portfolio', to: '/portfolio' },
+    { name: 'Farms', to: '/farms' },
+    { name: 'veDPX', to: '/governance/vedpx' },
+    { name: 'SSOV', to: '/ssov' },
+    { name: 'Straddles', to: '/straddles' },
+    { name: 'DPX Bonds', to: '/dpx-bonds' },
+    { name: 'Options LP', to: '/olp/DPX-MONTHLY' },
     { name: 'Atlantics', to: '/atlantics' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
+  5: [
+    { name: 'faucet', to: '/faucet' },
+    { name: 'OLP', to: '/olp' },
+  ],
 };
 
 const menuLinks = [
@@ -139,6 +147,7 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
+    | 'OLPs'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
@@ -163,6 +172,9 @@ export default function AppBar(props: AppBarProps) {
     updateTokenPrices,
     userAssetBalances,
     updateAssetBalances,
+    setOpenComplianceDialog,
+    openComplianceDialog,
+    setUserCompliant,
   } = useBoundStore();
 
   useEffect(() => {
@@ -215,6 +227,45 @@ export default function AppBar(props: AppBarProps) {
   const handleClaimRdpx = () => {
     setClaimRdpxDialog(true);
   };
+
+  const userComplianceCheck = useCallback(async () => {
+    if (!accountAddress) return;
+
+    let data = localStorage.getItem(accountAddress) as any;
+    let signature: string | null = null;
+    // If signature does not exit in local storage
+    if (!data) {
+      // Get signature from api
+      let res;
+      try {
+        res = await axios.get(
+          `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${accountAddress}`
+        );
+      } catch (err) {
+        console.log(err);
+      }
+      signature = res ? res.data.signature : null;
+    } else {
+      let objectified = JSON.parse(data) as any;
+      signature = objectified[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY];
+    }
+
+    if (!signature) {
+      setUserCompliant(false);
+      return;
+    }
+
+    const signatureSigner = ethers.utils.verifyMessage(
+      DISCLAIMER_MESSAGE['english'],
+      signature
+    );
+
+    if (signatureSigner === accountAddress) setUserCompliant(true);
+  }, [accountAddress, setUserCompliant]);
+
+  useEffect(() => {
+    userComplianceCheck();
+  }, [userComplianceCheck]);
 
   useEffect(() => {
     updateAssetBalances();
@@ -269,6 +320,10 @@ export default function AppBar(props: AppBarProps) {
         open={claimRdpxDialog}
         handleClose={handleRdpxDialogClose}
       />
+      <DisclaimerDialog
+        open={openComplianceDialog}
+        handleClose={setOpenComplianceDialog}
+      />
       <WalletDialog
         open={walletDialog}
         userBalances={userAssetBalances}
@@ -278,7 +333,7 @@ export default function AppBar(props: AppBarProps) {
         <PriceCarousel tokenPrices={tokenPrices} />
         <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
           <Box className="flex items-center">
-            <a
+            <Link
               className="flex items-center mr-10 cursor-pointer hover:no-underline"
               href="/"
             >
@@ -287,7 +342,7 @@ export default function AppBar(props: AppBarProps) {
                 className="w-9 text-left"
                 alt="logo"
               />
-            </a>
+            </Link>
             <Box className="space-x-10 mr-10 hidden lg:flex">
               {links?.map(
                 (link: { name: Key | null | undefined; to: string }) => {

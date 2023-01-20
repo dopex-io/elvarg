@@ -39,8 +39,8 @@ export const TableHeader = ({
   );
 };
 
-const Label = (props: { posEpoch: number; curEpoch: number }) => {
-  return props.posEpoch === props.curEpoch ? (
+const Label = ({ active }: { active: boolean }) => {
+  return active ? (
     <Box className="ml-2 -mt-1 p-1 rounded-lg border border-emerald-500 border-opacity-30 bg-emerald-500 bg-opacity-10">
       <Typography variant="h6" className="-mt-1" color="emerald-500">
         Active
@@ -56,7 +56,7 @@ const Label = (props: { posEpoch: number; curEpoch: number }) => {
 };
 
 const DepositsTable = () => {
-  const { straddlesUserData, straddlesData } = useBoundStore();
+  const { straddlesUserData, straddlesData, accountAddress } = useBoundStore();
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
@@ -112,8 +112,11 @@ const DepositsTable = () => {
                     {position.epoch.toNumber()}
                   </Typography>
                   <Label
-                    posEpoch={position.epoch.toNumber()}
-                    curEpoch={straddlesData?.currentEpoch!}
+                    active={
+                      position.epoch.toNumber() ==
+                        straddlesData?.currentEpoch! &&
+                      !straddlesData?.isEpochExpired
+                    }
                   />
                 </TableCell>
                 <TableCell className="pt-1 border-0">
@@ -147,7 +150,8 @@ const DepositsTable = () => {
         </Table>
       </TableContainer>
       <Box className="flex">
-        {straddlesUserData?.writePositions?.length === 0 ? (
+        {straddlesUserData?.writePositions?.length === 0 ||
+        accountAddress == undefined ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
         ) : null}
       </Box>

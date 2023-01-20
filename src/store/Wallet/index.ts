@@ -30,6 +30,10 @@ export interface WalletSlice {
   supportedChainIds: number[];
   changeNetwork?: 'user' | 'wrong-network' | 'close';
   setChangeNetwork: Function;
+  userCompliant: boolean;
+  setUserCompliant: Function;
+  openComplianceDialog: boolean;
+  setOpenComplianceDialog: Function;
 }
 
 export const createWalletSlice: StateCreator<
@@ -38,6 +42,17 @@ export const createWalletSlice: StateCreator<
   [],
   WalletSlice
 > = (set, get) => ({
+  userCompliant: false,
+  setUserCompliant: async (setAs: boolean) => {
+    set((prev) => ({
+      ...prev,
+      userCompliant: setAs,
+    }));
+  },
+  openComplianceDialog: false,
+  setOpenComplianceDialog: (setAs: boolean) => {
+    set((prev) => ({ ...prev, openComplianceDialog: setAs }));
+  },
   wrongNetwork: false,
   connect: () => {
     const { updateState } = get();
@@ -55,9 +70,8 @@ export const createWalletSlice: StateCreator<
         });
         await updateState({ provider, isUser: true });
       })
-      .catch(async (e) => {
-        console.error(e);
-        // if (window.location.pathname !== '/ssov') window.location.replace('/');
+      .catch((errorMsg) => {
+        console.log(errorMsg);
       });
   },
   disconnect: () =>

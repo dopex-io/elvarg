@@ -175,14 +175,12 @@ const ManageStrategyPositionDialog = (props: Props) => {
         strategyDetails.atlanticsPurchaseId
       )
     ).optionsAmount;
-    const tx = atlanticPool.contracts.baseToken
-      .connect(signer)
-      .approve(
-        contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
-        options
-      );
+
     try {
-      await sendTx(tx);
+      await sendTx(atlanticPool.contracts.baseToken, 'approve', [
+        contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
+        options,
+      ]);
     } catch (e) {
       console.log(e);
     }
@@ -223,7 +221,13 @@ const ManageStrategyPositionDialog = (props: Props) => {
     }
 
     try {
-      if (tx) await sendTx(tx);
+      if (tx)
+        await sendTx(strategy, 'createExitStrategyOrder', [
+          userPositionId,
+          '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+          true,
+          overrides,
+        ]);
     } catch (e) {
       console.log(e);
     }

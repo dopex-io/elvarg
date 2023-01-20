@@ -22,8 +22,13 @@ import { useBoundStore } from 'store';
 const PositionsTable = () => {
   const sendTx = useSendTx();
 
-  const { signer, straddlesUserData, straddlesData, updateStraddlesUserData } =
-    useBoundStore();
+  const {
+    signer,
+    straddlesUserData,
+    straddlesData,
+    updateStraddlesUserData,
+    accountAddress,
+  } = useBoundStore();
 
   const handleExercise = useCallback(
     async (selectedPositionNftIndex: number) => {
@@ -32,13 +37,13 @@ const PositionsTable = () => {
 
       if (straddlesData && straddlesUserData && signer) {
         await sendTx(
-          straddlesData?.straddlesContract
-            .connect(signer)
-            .settle(
-              straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
-                'id'
-              ]
-            )
+          straddlesData?.straddlesContract.connect(signer),
+          'settle',
+          [
+            straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
+              'id'
+            ],
+          ]
         );
         await updateStraddlesUserData!();
       }
@@ -115,7 +120,8 @@ const PositionsTable = () => {
         </Table>
       </TableContainer>
       <Box className="flex">
-        {straddlesUserData?.straddlePositions?.length === 0 ? (
+        {straddlesUserData?.straddlePositions?.length === 0 ||
+        accountAddress == undefined ? (
           <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
         ) : null}
       </Box>

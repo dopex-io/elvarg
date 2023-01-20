@@ -48,13 +48,10 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
       dpxBondsUserEpochData.userClaimableBonds.length < 1
     )
       return;
-
     try {
-      await sendTx(
-        bondsContracts.bondsContract
-          .connect(signer)
-          .redeem(dpxBondsEpochData.epoch)
-      );
+      await sendTx(bondsContracts.bondsContract.connect(signer), 'redeem', [
+        dpxBondsEpochData.epoch,
+      ]);
     } catch (e) {
       console.log(e);
     }

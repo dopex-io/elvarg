@@ -350,16 +350,15 @@ const Deposits = () => {
   }, [rateVaultUserData]);
 
   const handleWithdraw = useCallback(async () => {
-    await sendTx(
-      rateVaultContract!.withdrawMultiple(
-        selectedEpoch,
-        withdrawData.strikesIndexes,
-        withdrawData.callLeveragesIndexes,
-        withdrawData.putLeveragesIndexes,
-        accountAddress ?? '',
-        { gasLimit: 3000000 }
-      )
-    );
+    if (!rateVaultContract) return;
+    await sendTx(rateVaultContract, 'withdrawMultiple', [
+      selectedEpoch,
+      withdrawData.strikesIndexes,
+      withdrawData.callLeveragesIndexes,
+      withdrawData.putLeveragesIndexes,
+      accountAddress ?? '',
+      { gasLimit: 3000000 },
+    ]);
 
     updateAssetBalances();
     updateRateVaultEpochData();

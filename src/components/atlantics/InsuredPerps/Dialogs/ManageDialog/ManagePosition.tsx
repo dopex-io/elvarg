@@ -267,10 +267,6 @@ const ManagePosition = () => {
       strategy.userPositionIds(accountAddress),
     ]);
     const strategyPosition = await strategy.strategyPositions(positionId);
-    const positionManagerContract = DopexPositionManager__factory.connect(
-      positionManager,
-      signer
-    );
 
     const gmxVault = GmxVault__factory.connect(
       contractAddresses['GMX-VAULT'],
@@ -345,11 +341,12 @@ const ManagePosition = () => {
         withdrawETH: false,
       };
 
-      const tx = positionManagerContract.decreaseOrder(decreaseOrderParams, {
-        value: MIN_EXECUTION_FEE,
-      });
-
-      await sendTx(tx);
+      await sendTx(
+        DopexPositionManager__factory.connect(positionManager, signer),
+        'decreaseOrder',
+        [decreaseOrderParams],
+        MIN_EXECUTION_FEE
+      );
     }
   }, [
     accountAddress,

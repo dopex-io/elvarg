@@ -139,15 +139,13 @@ const Swap = (props: SwapProps) => {
 
     try {
       if (approved)
-        await sendTx(
-          gmxRouter.swap(
-            path,
-            amountInContractReadable,
-            _minOut,
-            accountAddress
-          )
-        );
-      else await sendTx(tokenIn.approve(gmxRouter.address, MAX_VALUE));
+        await sendTx(gmxRouter, 'swap', [
+          path,
+          amountInContractReadable,
+          _minOut,
+          accountAddress,
+        ]);
+      else await sendTx(tokenIn, 'approve', [gmxRouter.address, MAX_VALUE]);
     } catch (e) {
       console.log(e);
     }

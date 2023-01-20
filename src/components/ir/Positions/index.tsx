@@ -17,6 +17,8 @@ import Typography from 'components/UI/Typography';
 
 import { useBoundStore } from 'store';
 
+import useSendTx from 'hooks/useSendTx';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -55,6 +57,8 @@ const Positions = () => {
   const { userStrikePurchaseData } = rateVaultUserData!;
   const { epochTimes } = rateVaultEpochData!;
 
+  const sendTx = useSendTx();
+
   const [positions, setPositions] = useState<any[]>([]);
   const tokenPrice: number = 1;
 
@@ -83,21 +87,27 @@ const Positions = () => {
       );
 
       if (allowance.eq(0)) {
-        await token
-          .connect(signer)
-          .approve(rateVaultContract.address, MAX_VALUE);
+        await sendTx(token.connect(signer), 'approve', [
+          rateVaultContract.address,
+          MAX_VALUE,
+        ]);
       }
 
-      await rateVaultContract
-        .connect(signer)
-        .settle(strikeIndex, isPut, amount, selectedEpoch, {
+      await sendTx(rateVaultContract.connect(signer), 'settle', [
+        strikeIndex,
+        isPut,
+        amount,
+        selectedEpoch,
+        {
           gasLimit: 2000000,
-        });
+        },
+      ]);
 
       updateAssetBalances();
       updateRateVaultUserData();
     },
     [
+      sendTx,
       signer,
       selectedEpoch,
       updateAssetBalances,

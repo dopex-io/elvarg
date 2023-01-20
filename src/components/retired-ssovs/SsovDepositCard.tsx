@@ -7,7 +7,13 @@ const SsovDepositCard = (props: any) => {
   if (deposit.version === 2) {
     return <SsovV2Deposit deposit={deposit} />;
   } else {
-    return <SsovV3Deposit id={deposit.id} ssovAddress={deposit.ssovAddress} />;
+    return (
+      <SsovV3Deposit
+        ssovSymbol={deposit.ssovSymbol}
+        id={deposit.id}
+        ssovAddress={deposit.ssovAddress}
+      />
+    );
   }
 };
 
