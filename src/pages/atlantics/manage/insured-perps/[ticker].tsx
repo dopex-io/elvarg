@@ -17,7 +17,7 @@ import { GMX_STATS_API } from 'constants/env';
 import { GmxCandleStick } from 'types';
 
 export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
-export type Period = typeof periods[number];
+export type Period = (typeof periods)[number];
 
 const TVChart = dynamic(
   () => import('components/atlantics/InsuredPerps/TVChart'),
