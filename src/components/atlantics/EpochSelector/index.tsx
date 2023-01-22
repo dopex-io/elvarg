@@ -3,6 +3,8 @@ import range from 'lodash/range';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
+import { useBoundStore } from 'store';
+
 interface EpochSelectorProps {
   currentEpoch: number;
   selectedEpoch: number;
@@ -11,6 +13,8 @@ interface EpochSelectorProps {
 
 const EpochSelector = (props: EpochSelectorProps) => {
   const { currentEpoch, selectedEpoch, setSelectedEpoch } = props;
+
+  const { updateAtlanticPoolEpochData } = useBoundStore();
 
   const epochs = useMemo(() => {
     return range(currentEpoch)
@@ -30,8 +34,9 @@ const EpochSelector = (props: EpochSelectorProps) => {
   const handleEpochSelection = useCallback(
     (e: { target: { value: string | number } }) => {
       setSelectedEpoch(Number(e.target.value));
+      updateAtlanticPoolEpochData();
     },
-    [setSelectedEpoch]
+    [setSelectedEpoch, updateAtlanticPoolEpochData]
   );
 
   return (

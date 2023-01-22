@@ -48,8 +48,13 @@ const ContractData = () => {
   useEffect(() => {
     if (currentEpoch === 0) return;
     setSelectedEpoch(currentEpoch);
+  }, [currentEpoch, setSelectedEpoch]);
+
+  useEffect(() => {
+    if (!atlanticPool || Number(atlanticPool.currentEpoch) > selectedEpoch)
+      return;
     updateAtlanticPoolEpochData();
-  }, [currentEpoch, setSelectedEpoch, updateAtlanticPoolEpochData]);
+  }, [atlanticPool, selectedEpoch, updateAtlanticPoolEpochData]);
 
   useEffect(() => {
     (async () => {

@@ -70,10 +70,6 @@ export const Manage = (props: ManageProps) => {
     provider,
     atlanticPool,
     updateAtlanticPool,
-    atlanticPoolEpochData,
-    updateAtlanticPoolEpochData,
-    selectedEpoch,
-    selectedPoolName,
     setSelectedPoolName,
   } = useBoundStore();
 
@@ -85,16 +81,6 @@ export const Manage = (props: ManageProps) => {
   useEffect(() => {
     setSelectedPoolName(`${underlying}-${type}-${duration}`);
   }, [duration, setSelectedPoolName, type, underlying]);
-
-  useEffect(() => {
-    if (!selectedPoolName || !atlanticPool) return;
-    updateAtlanticPoolEpochData();
-  }, [
-    updateAtlanticPoolEpochData,
-    selectedEpoch,
-    selectedPoolName,
-    atlanticPool,
-  ]);
 
   const depositToken = useMemo((): string => {
     if (!atlanticPool) return '';
@@ -112,7 +98,7 @@ export const Manage = (props: ManageProps) => {
         <title>Atlantics | Dopex</title>
       </Head>
       <AppBar active="Atlantics" />
-      {atlanticPoolEpochData === undefined || atlanticPool === undefined ? (
+      {atlanticPool === undefined ? (
         <Box className="overflow-x-hidden bg-black h-screen">
           <PageLoader />
         </Box>
