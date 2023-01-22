@@ -31,7 +31,6 @@
     "ethers": "^5.6.6",
     "firebase": "^9.8.2",
     "formik": "^2.2.6",
-    "git": "^0.1.5",
     "graphql": "^16.0.1",
     "lightweight-charts": "^3.8.0",
     "lodash": "^4.17.20",
