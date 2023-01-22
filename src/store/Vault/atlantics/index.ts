@@ -7,7 +7,6 @@ import {
   AtlanticPutsPool__factory,
   AtlanticsViewer__factory,
   AtlanticsViewer,
-  DopexFeeStrategy__factory,
 } from '@dopex-io/sdk';
 import { CheckpointStructOutput } from '@dopex-io/sdk/dist/types/typechain/AtlanticPutsPool';
 
@@ -170,7 +169,7 @@ export const createAtlanticsSlice: StateCreator<
       { tickSize },
       fundingInterval,
       expireDelayTolerance,
-      { feeBps },
+      feeBps,
     ] = await Promise.all([
       atlanticPool.addresses(Contracts.BaseToken),
       atlanticPool.addresses(Contracts.QuoteToken),
@@ -178,10 +177,7 @@ export const createAtlanticsSlice: StateCreator<
       atlanticPool.getEpochData(currentEpoch),
       atlanticPool.vaultConfig(VaultConfig.FundingInterval),
       atlanticPool.vaultConfig(VaultConfig.ExpireDelayTolerance),
-      DopexFeeStrategy__factory.connect(
-        contractAddresses['FEE-STRATEGY'],
-        provider
-      )['getFeeBps(uint256)'](1),
+      atlanticPool.vaultConfig(VaultConfig.BaseFundingRate),
     ]);
 
     const contracts: ApContracts = {
@@ -222,13 +218,7 @@ export const createAtlanticsSlice: StateCreator<
     const { selectedEpoch, selectedPoolName, contractAddresses, atlanticPool } =
       get();
 
-    if (
-      !selectedEpoch ||
-      !selectedPoolName ||
-      !contractAddresses ||
-      !atlanticPool
-    )
-      return;
+    if (!selectedPoolName || !contractAddresses || !atlanticPool) return;
 
     // Strikes
     const maxStrikes: BigNumber[] =

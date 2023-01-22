@@ -132,7 +132,7 @@ const ContractData = () => {
           value={
             <Typography variant="h6" className="font-semibold">
               {Number(atlanticPool?.vaultConfig.fundingFee) / 100000 ?? 0.05}% /
-              Day
+              Hour
             </Typography>
           }
           variant="row"

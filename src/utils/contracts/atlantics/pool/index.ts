@@ -32,12 +32,11 @@ export function getPurchaseFees(
     )
   );
 
-  if (currentPrice.lt(strike)) {
+  if (strike.lt(currentPrice)) {
     const feeMultiplier = strike.mul(100).div(currentPrice).sub(100);
 
     finalFee = feeMultiplier.mul(finalFee).div(100);
   }
-
   return finalFee;
 }
 
@@ -46,13 +45,10 @@ export function getFundingFees(
   currentTimestamp: BigNumber,
   expiry: BigNumber
 ) {
-  console.log(expiry.toString());
   const fees = expiry
     .sub(currentTimestamp)
     .div(FUNDING_INTERVAL)
     .mul(FUNDING_RATE);
-  console.log('fees for borrow', fees.toString());
-  console.log('collateralAccess', collateralAccess.toString());
 
   return collateralAccess
     .mul(fees.add(FEE_PRECISION))

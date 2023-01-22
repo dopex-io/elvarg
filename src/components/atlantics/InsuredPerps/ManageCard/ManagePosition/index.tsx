@@ -59,6 +59,8 @@ import {
   OPTIONS_TOKEN_DECIMALS,
 } from 'utils/contracts/atlantics/pool';
 
+import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
+
 const steps = 0.1;
 const minMarks = 2;
 const maxMarks = 10;
@@ -98,6 +100,7 @@ export interface IStrategyDetails {
   fundingFees: BigNumber;
   totalFeesUsd: BigNumber;
   collateralDeltaUsd: BigNumber;
+  availabeLiquidityForLongs: number;
   feesWithoutDiscount: {
     purchaseFees: BigNumber;
     strategyFee: BigNumber;
@@ -123,6 +126,7 @@ const ManagePosition = () => {
     atlanticPool,
     atlanticPoolEpochData,
     userAssetBalances,
+    setSelectedEpoch,
   } = useBoundStore();
   const { selectedPool } = useContext(AtlanticsContext);
   const [leverage, setLeverage] = useState<BigNumber>(INITIAL_LEVERAGE);
@@ -160,6 +164,7 @@ const ManagePosition = () => {
     fundingFees: BigNumber.from(0),
     totalFeesUsd: BigNumber.from(0),
     collateralDeltaUsd: BigNumber.from(0),
+    availabeLiquidityForLongs: 0,
     feesWithoutDiscount: {
       purchaseFees: BigNumber.from(0),
       strategyFee: BigNumber.from(0),
@@ -224,6 +229,14 @@ const ManagePosition = () => {
           .add(swapFees)
       );
 
+    const [highestStrikeData] = availableStrikesData;
+
+    let unavailableStrike = false;
+    if (highestStrikeData) {
+      const { strike } = highestStrikeData as IAtlanticPoolEpochStrikeData;
+      unavailableStrike = strategyDetails.putStrike.gt(strike);
+    }
+
     if (collateralDeltaUsd.lt(totalFeesUsd)) {
       errorMessage = 'Insufficent collateral for fees.';
     }
@@ -233,10 +246,16 @@ const ManagePosition = () => {
       errorMessage = 'Insufficient balance to pay premium & fees';
     } else if (longLimitExceeded) {
       errorMessage = 'Max longs exceeded';
+    } else if (unavailableStrike) {
+      errorMessage = `Put Strike exceeds highest strike. Highest strike available: ${getUserReadableAmount(
+        availableStrikesData[0]?.strike ?? 0,
+        8
+      )} `;
     }
 
     return errorMessage;
   }, [
+    // unavailableStrike,
     longLimitExceeded,
     atlanticPoolEpochData,
     selectedToken,
@@ -362,8 +381,6 @@ const ManagePosition = () => {
         selectedTokenDecimals,
         getTokenDecimals(underlying, chainId)
       );
-
-      console.log(swapFees);
     }
 
     const collateralUsd = tokenToUsdMin(
@@ -394,14 +411,10 @@ const ManagePosition = () => {
     );
 
     const [highestStrike] = atlanticPoolEpochData.maxStrikes;
-    // const highestStrike = BigNumber.from(1600e8);
+
     if (!highestStrike) {
       setStrategyDetailsLoading(false);
       return;
-    }
-
-    if (putStrike.gte(highestStrike)) {
-      putStrike = BigNumber.from(atlanticPool.vaultConfig.tickSize);
     }
 
     const collateralAccessInCollateralToken = usdToTokenMin(
@@ -414,11 +427,15 @@ const ManagePosition = () => {
       .mul(getContractReadableAmount(1, OPTIONS_TOKEN_DECIMALS + 2))
       .div(putStrike);
 
-    const putOptionsPremium =
-      await atlanticPool.contracts.atlanticPool.calculatePremium(
-        putStrike,
-        optionsAmount
-      );
+    let putOptionsPremium = BigNumber.from(0);
+
+    if (!putStrike.gt(highestStrike)) {
+      putOptionsPremium =
+        await atlanticPool.contracts.atlanticPool.calculatePremium(
+          putStrike,
+          optionsAmount
+        );
+    }
 
     const purchaseFees = getPurchaseFees(
       collateralTokenMinPrice.div(getContractReadableAmount(1, 22)),
@@ -458,6 +475,10 @@ const ManagePosition = () => {
       strategyFee,
       totalFeesUsd: positionFeeUsd.add(LIQUIDATION_FEE_USD),
       collateralDeltaUsd: collateralUsd,
+      availabeLiquidityForLongs: getUserReadableAmount(
+        maxLongsLimit.sub(currentLongsUsd),
+        30
+      ),
       feesWithoutDiscount: {
         purchaseFees: purchaseFees /* purchaseFeesWithoutDiscount */,
         strategyFee: BigNumber.from(0) /* strategyFeeWithoutDiscount */,
@@ -476,9 +497,9 @@ const ManagePosition = () => {
       indexToken: underlyingTokenAddress,
       collateralDelta: usdToTokenMin(
         selectedTokenMaxPrice,
-        collateralUsd.add(swapFees).add(positionFeeUsd),
+        collateralUsd.add(positionFeeUsd),
         selectedTokenDecimals
-      ),
+      ).add(swapFees),
       positionSizeDelta: sizeUsd,
       acceptablePrice,
       isLong: true,
@@ -694,6 +715,13 @@ const ManagePosition = () => {
     increaseOrderParams,
     sendTx,
   ]);
+
+  useEffect(() => {
+    if (!atlanticPool) {
+      return;
+    }
+    setSelectedEpoch(atlanticPool.contracts.atlanticPool.currentEpoch());
+  }, [atlanticPool, setSelectedEpoch]);
 
   return (
     <Box>
