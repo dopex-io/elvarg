@@ -1,8 +1,8 @@
 import { BigNumber } from 'ethers';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-export const FUNDING_RATE = 5000;
-export const FUNDING_INTERVAL = 86400;
+export const FUNDING_RATE = 1000;
+export const FUNDING_INTERVAL = 3600;
 export const FEE_PRECISION = 10000000;
 export const OPTIONS_TOKEN_DECIMALS = 18;
 export const STRIKE_DECIMALS = 8;
