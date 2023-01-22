@@ -29,7 +29,6 @@ const StrategyDetails = (props: {
   const {
     data: {
       putStrike,
-      expiry,
       markPrice,
       liquidationPrice,
       positionSize,
@@ -49,7 +48,8 @@ const StrategyDetails = (props: {
     loading,
   } = props;
 
-  const { tokenPrices, tokens, chainId, atlanticPool } = useBoundStore();
+  const { tokenPrices, tokens, chainId, atlanticPool, atlanticPoolEpochData } =
+    useBoundStore();
 
   const total = useMemo((): {
     totalQuoteAsset: {
@@ -157,7 +157,14 @@ const StrategyDetails = (props: {
             <Box className="flex-1 p-4">
               <Box className="flex space-y-1 flex-col">
                 <Typography variant="h6">
-                  {new Date(expiry.mul(1000).toNumber()).toDateString()}
+                  {new Date(
+                    (atlanticPoolEpochData
+                      ? atlanticPoolEpochData.expiry
+                      : BigNumber.from(0)
+                    )
+                      .mul(1000)
+                      .toNumber()
+                  ).toDateString()}
                 </Typography>
                 <Typography variant="h6" color="stieglitz">
                   Expiry

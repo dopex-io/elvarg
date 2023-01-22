@@ -12,10 +12,8 @@ import React, {
 import { BigNumber, ethers } from 'ethers';
 import {
   ERC20__factory,
-  GmxReader__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
-  InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 // import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
@@ -41,6 +39,25 @@ import formatAmount from 'utils/general/formatAmount';
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 import { getBlockTime } from 'utils/general/getBlocktime';
+
+import {
+  getPositionFee,
+  getSwapFees,
+  LIQUIDATION_FEE_USD,
+  tokenToUsdMin,
+  usdToTokenMin,
+} from 'utils/contracts/gmx';
+
+import {
+  getEligiblePutStrike,
+  getStrategyFee,
+} from 'utils/contracts/atlantics/insuredPerps';
+
+import {
+  getFundingFees,
+  getPurchaseFees,
+  OPTIONS_TOKEN_DECIMALS,
+} from 'utils/contracts/atlantics/pool';
 
 const steps = 0.1;
 const minMarks = 2;
@@ -273,16 +290,13 @@ const ManagePosition = () => {
       !contractAddresses ||
       !atlanticPoolEpochData ||
       !signer ||
-      !accountAddress
+      !accountAddress ||
+      !atlanticPoolEpochData
     )
       return;
 
     setStrategyDetailsLoading(true);
     const { underlying, depositToken } = atlanticPool.tokens;
-    const putsContract = atlanticPool.contracts.atlanticPool;
-
-    const utilsAddress =
-      contractAddresses['STRATEGIES']['INSURED-PERPS']['UTILS'];
     const gmxVaultAddress = contractAddresses['GMX-VAULT'];
     const depositTokenAddress = contractAddresses[depositToken];
     const underlyingTokenAddress = contractAddresses[underlying];
@@ -290,56 +304,7 @@ const ManagePosition = () => {
 
     if (!selectedTokenAddress) return;
 
-    const utilsContract = InsuredLongsUtils__factory.connect(
-      utilsAddress,
-      signer
-    );
     const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
-    const strategy = InsuredLongsStrategy__factory.connect(
-      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
-      signer
-    );
-
-    if (!utilsContract || !gmxVault || !strategy) {
-      return;
-    }
-
-    const usdMultiplier = getContractReadableAmount(1, 30);
-
-    let inputAmount: string | BigNumber = positionBalance;
-
-    if (inputAmount === '') {
-      inputAmount = '0';
-    }
-
-    inputAmount = getContractReadableAmount(
-      inputAmount,
-      getTokenDecimals(selectedToken, chainId)
-    );
-
-    let collateralUsd = await gmxVault.tokenToUsdMin(
-      selectedTokenAddress,
-      inputAmount
-    );
-
-    let sizeUsd = collateralUsd.mul(leverage).div(usdMultiplier);
-
-    let swapFees = BigNumber.from(0);
-    let path = [underlyingTokenAddress];
-    let liquidationPrice = BigNumber.from(0);
-    let putOptionsPremium = BigNumber.from(0),
-      putOptionsfees = BigNumber.from(0),
-      strategyFee = BigNumber.from(0),
-      tickSizeMultiplier = BigNumber.from(0),
-      optionsAmount = BigNumber.from(0),
-      putStrike = BigNumber.from(0),
-      positionFee = BigNumber.from(0),
-      acceptablePrice = BigNumber.from(0),
-      collateralAccess = BigNumber.from(0),
-      purchaseFeesWithoutDiscount = BigNumber.from(0),
-      strategyFeeWithoutDiscount = BigNumber.from(0),
-      fundingFees = BigNumber.from(0),
-      totalFeesUsd = BigNumber.from(0);
 
     const positionRouter = new ethers.Contract(
       '0xb87a436B93fFE9D75c5cFA7bAcFff96430b09868',
@@ -347,147 +312,178 @@ const ManagePosition = () => {
       provider
     );
 
-    let [positionFeeUsd, markPrice, maxLongsUsd, currentLongsUsd] =
-      await Promise.all([
-        utilsContract.getPositionFee(sizeUsd),
-        gmxVault.getMaxPrice(underlyingTokenAddress),
-        positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
-        gmxVault.guaranteedUsd(underlyingTokenAddress),
-      ]);
-
-    let leveragedCollateral;
-    [positionFee, leveragedCollateral] = await Promise.all([
-      gmxVault.usdToTokenMax(selectedTokenAddress, positionFeeUsd),
-      gmxVault.usdToTokenMax(depositTokenAddress, sizeUsd.sub(collateralUsd)),
+    const [
+      underlyingMaxPrice,
+      underlyingMinPrice,
+      selectedTokenMaxPrice,
+      selectedTokenMinPrice,
+      collateralTokenMinPrice,
+      currentTimestamp,
+      maxLongsLimit,
+      currentLongsUsd,
+    ] = await Promise.all([
+      gmxVault.getMaxPrice(underlyingTokenAddress),
+      gmxVault.getMinPrice(underlyingTokenAddress),
+      gmxVault.getMaxPrice(selectedTokenAddress),
+      gmxVault.getMinPrice(selectedTokenAddress),
+      gmxVault.getMinPrice(depositTokenAddress),
+      getBlockTime(provider),
+      positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
+      gmxVault.guaranteedUsd(underlyingTokenAddress),
     ]);
 
-    if (selectedToken !== underlying) {
-      if (!collateralUsd.isZero()) {
-        path = [selectedTokenAddress, underlyingTokenAddress];
-        let [, fees] = await GmxReader__factory.connect(
-          contractAddresses['GMX-READER'],
-          signer
-        ).getAmountOut(
-          gmxVault.address,
-          selectedTokenAddress,
-          underlyingTokenAddress,
-          inputAmount
-        );
-
-        swapFees = await gmxVault.tokenToUsdMin(underlyingTokenAddress, fees);
-        swapFees = swapFees.mul(usdMultiplier).div(collateralUsd);
-        swapFees = collateralUsd.mul(swapFees).div(usdMultiplier);
-        swapFees = await gmxVault.usdToTokenMax(selectedTokenAddress, swapFees);
-      }
+    let inputAmount: string | BigNumber = positionBalance;
+    if (inputAmount === '') {
+      inputAmount = '0';
     }
 
-    if (!inputAmount.isZero()) {
-      totalFeesUsd = positionFeeUsd.add(getContractReadableAmount(5, 30));
+    let swapFees = BigNumber.from(0);
 
-      if (collateralUsd.lt(totalFeesUsd)) {
-      }
+    const selectedTokenDecimals = getTokenDecimals(selectedToken, chainId);
+    const collateralTokenDecimals = getTokenDecimals(depositToken, chainId);
+    const selectedTokenInputAmount = BigNumber.from(inputAmount).mul(
+      getContractReadableAmount(1, selectedTokenDecimals)
+    );
 
-      const priceDelta = markPrice
-        .mul(collateralUsd.sub(totalFeesUsd))
-        .div(sizeUsd);
-      const liquidationUsd = markPrice.sub(priceDelta);
+    let sizeUsd = selectedTokenInputAmount
+      .mul(leverage)
+      .div(getContractReadableAmount(1, selectedTokenDecimals));
 
-      liquidationPrice = liquidationUsd.div(getContractReadableAmount(1, 22));
-
-      [tickSizeMultiplier, strategyFee, strategyFeeWithoutDiscount] =
-        await Promise.all([
-          strategy.tickSizeMultiplierBps(underlyingTokenAddress),
-          strategy.getPositionfee(
-            sizeUsd,
-            selectedTokenAddress,
-            accountAddress
-          ),
-          strategy.getPositionfee(
-            sizeUsd,
-            selectedTokenAddress,
-            putsContract.address
-          ),
-        ]);
-
-      putStrike = await utilsContract[
-        'getEligiblePutStrike(address,uint256,uint256)'
-      ](putsContract.address, tickSizeMultiplier, liquidationPrice);
-
-      optionsAmount = leveragedCollateral
-        .mul(getContractReadableAmount(1, 20))
-        .div(putStrike);
-
-      if (!totalFeesUsd.gt(collateralUsd)) {
-        [
-          putOptionsPremium,
-          putOptionsfees,
-          collateralAccess,
-          purchaseFeesWithoutDiscount,
-        ] = await Promise.all([
-          putsContract.calculatePremium(putStrike, optionsAmount),
-          putsContract.calculatePurchaseFees(
-            accountAddress,
-            putStrike,
-            optionsAmount
-          ),
-          putsContract.strikeMulAmount(putStrike, optionsAmount),
-          putsContract.calculatePurchaseFees(
-            putsContract.address,
-            putStrike,
-            optionsAmount
-          ),
-        ]);
-
-        fundingFees = await putsContract.calculateFundingFees(
-          collateralAccess,
-          await getBlockTime(provider)
-        );
-        const precision = 100000;
-        const slippage = 500;
-        acceptablePrice = markPrice.mul(precision + slippage).div(precision);
-      } else {
-        setStrategyDetailsLoading(false);
-        return;
-      }
+    if (selectedTokenInputAmount.eq(0)) {
+      setStrategyDetailsLoading(false);
+      return;
     }
 
-    if (sizeUsd.add(currentLongsUsd).gte(maxLongsUsd)) {
+    if (selectedTokenAddress !== underlyingTokenAddress) {
+      swapFees = getSwapFees(
+        selectedTokenMinPrice,
+        underlyingMaxPrice,
+        selectedTokenInputAmount,
+        selectedTokenDecimals,
+        getTokenDecimals(underlying, chainId)
+      );
+
+      console.log(swapFees);
+    }
+
+    const collateralUsd = tokenToUsdMin(
+      selectedTokenMinPrice,
+      selectedTokenInputAmount,
+      selectedTokenDecimals
+    );
+
+    const positionFeeUsd = getPositionFee(sizeUsd);
+
+    if (positionFeeUsd.add(sizeUsd).add(currentLongsUsd).gt(maxLongsLimit)) {
       setLongLimitExceeded(true);
-    } else {
-      setLongLimitExceeded(false);
     }
+
+    const priceDelta = underlyingMinPrice
+      .mul(collateralUsd.sub(positionFeeUsd.add(LIQUIDATION_FEE_USD)))
+      .div(sizeUsd);
+
+    const liquidationUsd = underlyingMinPrice.sub(priceDelta);
+
+    const liquidationPrice = liquidationUsd.div(
+      getContractReadableAmount(1, 22)
+    );
+
+    let putStrike = getEligiblePutStrike(
+      liquidationPrice,
+      atlanticPool.vaultConfig.tickSize
+    );
+
+    const [highestStrike] = atlanticPoolEpochData.maxStrikes;
+    // const highestStrike = BigNumber.from(1600e8);
+    if (!highestStrike) {
+      setStrategyDetailsLoading(false);
+      return;
+    }
+
+    if (putStrike.gte(highestStrike)) {
+      putStrike = BigNumber.from(atlanticPool.vaultConfig.tickSize);
+    }
+
+    const collateralAccessInCollateralToken = usdToTokenMin(
+      collateralTokenMinPrice,
+      sizeUsd.sub(collateralUsd),
+      collateralTokenDecimals
+    );
+
+    const optionsAmount = collateralAccessInCollateralToken
+      .mul(getContractReadableAmount(1, OPTIONS_TOKEN_DECIMALS + 2))
+      .div(putStrike);
+
+    const putOptionsPremium =
+      await atlanticPool.contracts.atlanticPool.calculatePremium(
+        putStrike,
+        optionsAmount
+      );
+
+    const purchaseFees = getPurchaseFees(
+      collateralTokenMinPrice.div(getContractReadableAmount(1, 22)),
+      putStrike,
+      optionsAmount,
+      collateralTokenDecimals
+    );
+
+    const fundingFees = getFundingFees(
+      collateralAccessInCollateralToken,
+      currentTimestamp,
+      atlanticPoolEpochData.expiry
+    );
+
+    const strategyFee = usdToTokenMin(
+      selectedTokenMinPrice,
+      getStrategyFee(sizeUsd),
+      selectedTokenDecimals
+    );
 
     setStrategyDetails(() => ({
       fundingFees,
       positionSize: sizeUsd,
       putOptionsPremium,
-      putOptionsfees,
-      positionFee,
+      putOptionsfees: purchaseFees,
+      positionFee: usdToTokenMin(
+        selectedTokenMinPrice,
+        positionFeeUsd,
+        selectedTokenDecimals
+      ),
       optionsAmount,
       liquidationPrice,
-      markPrice,
+      markPrice: underlyingMaxPrice,
       putStrike,
       expiry: atlanticPoolEpochData.expiry,
       swapFees,
       strategyFee,
-      totalFeesUsd,
+      totalFeesUsd: positionFeeUsd.add(LIQUIDATION_FEE_USD),
       collateralDeltaUsd: collateralUsd,
       feesWithoutDiscount: {
-        purchaseFees: purchaseFeesWithoutDiscount,
-        strategyFee: strategyFeeWithoutDiscount,
+        purchaseFees: purchaseFees /* purchaseFeesWithoutDiscount */,
+        strategyFee: BigNumber.from(0) /* strategyFeeWithoutDiscount */,
       },
     }));
+
+    const acceptablePrice = underlyingMinPrice.mul(100050).div(100000);
+
+    let path = [underlyingTokenAddress];
+    if (selectedTokenAddress != underlyingTokenAddress) {
+      path = [selectedTokenAddress, underlyingTokenAddress];
+    }
 
     setIncreaseOrderParams(() => ({
       path,
       indexToken: underlyingTokenAddress,
-      collateralDelta: (inputAmount as BigNumber)
-        .add(swapFees)
-        .add(positionFee),
+      collateralDelta: usdToTokenMin(
+        selectedTokenMaxPrice,
+        collateralUsd.add(swapFees).add(positionFeeUsd),
+        selectedTokenDecimals
+      ),
       positionSizeDelta: sizeUsd,
       acceptablePrice,
       isLong: true,
     }));
+
     setStrategyDetailsLoading(false);
   }, [
     selectedToken,

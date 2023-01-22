@@ -4,8 +4,12 @@ import { Addresses, ERC20__factory } from '@dopex-io/sdk';
 import { WalletSlice } from 'store/Wallet';
 
 import { TOKENS, TOKEN_DATA } from 'constants/tokens';
+
 import axios from 'axios';
+
 import { FarmingSlice } from 'store/Farming';
+
+import { vedpxAddress } from 'store/VeDPX';
 
 const initKeysToVal = (arr: Array<string>, val: any) => {
   return arr.reduce((acc, item) => {
@@ -46,7 +50,7 @@ export const createAssetsSlice: StateCreator<
 
       if (tokenKey) {
         const tokenData = TOKEN_DATA[tokenKey];
-        tokenData?.cgId && cgIds.push(tokenData.cgId);
+        tokenData?.cgId && tokenData?.cgId !== '' && cgIds.push(tokenData.cgId);
       }
     }
 
@@ -97,17 +101,31 @@ export const createAssetsSlice: StateCreator<
 
     if (!provider || !accountAddress || !contractAddresses) return;
 
-    const assets = Object.keys(userAssetBalances)
+    let assets = Object.keys(userAssetBalances)
       .map((asset) => {
         return Addresses[chainId][asset] ? asset : '';
       })
       .filter((asset) => asset !== '');
 
-    const assetAddresses = Object.keys(userAssetBalances)
+    let assetAddresses = Object.keys(userAssetBalances)
       .map((asset) => {
         return Addresses[chainId][asset] ?? '';
       })
       .filter((asset) => asset !== '');
+
+    // Include NFTs
+    const NFTs = Addresses[chainId]['NFTS'];
+    Object.keys(NFTs).map((key: string) => {
+      assets.push(key);
+    });
+
+    Object.values(NFTs).map((address) => {
+      assetAddresses.push(address);
+    });
+
+    // Include veDPX
+    assets.push('veDEPX');
+    assetAddresses.push(vedpxAddress);
 
     const balanceCalls = assetAddresses.map((assetAddress) =>
       ERC20__factory.connect(assetAddress, provider).balanceOf(

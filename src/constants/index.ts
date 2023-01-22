@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 
 import { INFURA_PROJECT_ID, ANKR_KEY, GOERLI_KEY } from './env';
 
@@ -14,6 +14,51 @@ export const ASC = 'asc';
 export const DESC = 'desc';
 export const NULL: string = '0x0000000000000000000000000000000000000000';
 export const PERCENT: BigNumber = BigNumber.from(100);
+
+export const FEE_BPS_MAP: Record<
+  string,
+  Record<string, Record<string, BigNumberish>>
+> = {
+  ATLANTICS: {
+    PURCHASE_FEES: {
+      fee: BigNumber.from(100000),
+      maxDiscount: BigNumber.from(2500000),
+    },
+    FUNDING_FEES: {
+      fee: BigNumber.from(100000),
+      maxDiscount: BigNumber.from(0),
+    },
+    STRATEGY_FEES: {
+      FEE: BigNumber.from(25000),
+      MAX_DISCOUNT: BigNumber.from(2500000),
+    },
+  },
+};
+
+export const OPTION_TOKEN_DECIMALS = 18;
+
+export const FEE_DISCOUNTS: Record<string, Record<string, BigNumberish>> = {
+  // Bridgoor
+  '0x4Ee9fe9500E7C4Fe849AdD9b14beEc5eC5b7d955': {
+    decimals: 1,
+    maxBalance: 10,
+    discountBps: 250000,
+  },
+  // VeDPX
+  '0x80789D252A288E93b01D82373d767D71a75D9F16': {
+    decimals: 18,
+    maxBalance: ethers.utils.parseEther('1'),
+    discountBps: 100000,
+  },
+  // Halloweeneis
+  '0x9baDE4013a7601aA1f3e9f1361a4ebE60D91B1B5': {
+    decimals: 1,
+    maxBalance: 1,
+    discountBps: 2500000,
+  },
+};
+
+export const FEE_BPS_PRECISION = 10000000;
 
 export const CURRENCIES_MAP: { [key: string]: string } = {
   '1': 'ETH',
