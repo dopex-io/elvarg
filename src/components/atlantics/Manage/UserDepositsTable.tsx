@@ -139,8 +139,7 @@ const UserDepositsTable = () => {
       try {
         const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
         await sendTx(apContract, 'withdraw', [
-          [depositId],
-          accountAddress,
+          [depositId, accountAddress],
         ]).then(() => {
           updateUserPositions();
         });
