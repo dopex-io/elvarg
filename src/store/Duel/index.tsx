@@ -54,6 +54,7 @@ export interface DuelSlice {
   updateUserNfts?: Function;
   isLoading: boolean;
   duelContract?: any;
+  mintContract?: any;
   selectedDuel: Duel | null;
   setSelectedDuel?: Function;
   availableCredit: BigNumber;
@@ -164,6 +165,11 @@ export const createDuelSlice: StateCreator<
 
     const duelContract = DuelDiamondPepesNFTsDuel__factory.connect(
       contractAddresses['DuelDiamondPepesNFTsDuel'],
+      provider
+    );
+
+    const mintContract = DuelDiamondPepesNFTsMint__factory.connect(
+      contractAddresses['DuelDiamondPepesNFTsMint'],
       provider
     );
 
@@ -353,6 +359,7 @@ export const createDuelSlice: StateCreator<
       activeDuels: _activeDuels,
       isLoading: false,
       duelContract: duelContract,
+      mintContract: mintContract,
     }));
   },
   updateNfts: async () => {

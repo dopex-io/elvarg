@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 
+import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 import Box from '@mui/material/Box';
 
 import ActionsDialog from 'components/nfts/diamondpepes/ActionsDialog';
@@ -12,19 +15,71 @@ import { useBoundStore } from 'store';
 import styles from 'components/nfts/diamondpepes/styles.module.scss';
 
 const DiamondPepesNfts = () => {
-  const { contractAddresses } = useBoundStore();
+  const {
+    updateDuels,
+    updatePepesData,
+    updateCredit,
+    pepesData,
+    contractAddresses,
+    signer,
+  } = useBoundStore();
 
   const [actionsDialogDisplayState, setActionsDialogDisplayState] = useState({
     visible: false,
     tab: 'mint',
   });
 
-  const boxes = [
-    { title: '-', subTitle: 'PEPES REMAINING' },
-    { title: '5:55PM 5/12/2022', subTitle: 'START' },
-    { title: '-', subTitle: 'TIME REMAINING' },
-    { title: '-', subTitle: 'DEPOSITS' },
-  ];
+  const boxes = useMemo(
+    () =>
+      pepesData
+        ? [
+            {
+              title: Math.max(
+                BigNumber.from(1111).sub(pepesData?.nextMintId)?.toNumber(),
+                0
+              ),
+              subTitle: 'PEPES REMAINING',
+            },
+            { title: '6:00pm UTC 09/27/2022', subTitle: 'START' },
+            {
+              title: (
+                <Countdown
+                  date={new Date(pepesData?.startTime?.toNumber() * 1000)}
+                  renderer={({ days, hours, minutes, seconds, completed }) => {
+                    if (completed) {
+                      return (
+                        <span className="text-wave-blue">
+                          The sale has been opened
+                        </span>
+                      );
+                    } else {
+                      return (
+                        <span className="text-wave-blue">
+                          {days}d {hours}h {minutes}m {seconds}s
+                        </span>
+                      );
+                    }
+                  }}
+                />
+              ),
+              subTitle: 'GOOD LUCK SER',
+            },
+          ]
+        : [],
+    [pepesData]
+  );
+
+  useEffect(() => {
+    if (updateCredit && signer) updateCredit();
+  }, [updateCredit, signer]);
+
+  useEffect(() => {
+    if (updateDuels && signer) updateDuels();
+  }, [updateDuels, signer]);
+
+  useEffect(() => {
+    if (updatePepesData && signer) updatePepesData();
+  }, [updatePepesData, signer]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -64,7 +119,7 @@ const DiamondPepesNfts = () => {
 
           <Box className="p-2 mt-7 md:flex">
             {boxes.map((box, index) => (
-              <Box key={index} className="md:w-1/4 p-4 text-center">
+              <Box key={index} className="md:w-1/3 p-4 text-center">
                 <Typography
                   variant="h3"
                   className="text-white font-display font-['Minecraft'] relative z-1"
@@ -119,20 +174,6 @@ const DiamondPepesNfts = () => {
                 Everyone who participated in the pledge event will be getting a
                 free Gen 2 sent to their wallets.
               </Typography>
-
-              <Box className={'flex mt-6'}>
-                <img
-                  src={'/assets/export.svg'}
-                  className={'w-5 ml-auto'}
-                  alt={'Export'}
-                />
-                <Typography
-                  variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
-                >
-                  <span className={styles['pepeLink']!}>Pledge Event</span>
-                </Typography>
-              </Box>
             </Box>
             <Box className="md:w-1/3 p-4 text-center">
               <img
@@ -157,41 +198,69 @@ const DiamondPepesNfts = () => {
               </Typography>
 
               <Box className={'flex mt-6'}>
-                <img
-                  src={'/assets/export.svg'}
-                  className={'w-4 ml-auto'}
-                  alt={'Export'}
-                />
-                <Typography
-                  variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                <Link
+                  href="https://tofunft.com/collection/duel-pepes/items"
+                  target="_blank"
                 >
-                  <span className={styles['pepeLink']!}>Tofunft</span>
-                </Typography>
+                  <img
+                    src={'/assets/export.svg'}
+                    className={'w-4 ml-auto'}
+                    alt={'Export'}
+                  />
+                </Link>
+                <Link
+                  href="https://tofunft.com/collection/duel-pepes/items"
+                  target="_blank"
+                >
+                  <Typography
+                    variant="h5"
+                    className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                  >
+                    <span className={styles['pepeLink']!}>Tofunft</span>
+                  </Typography>
+                </Link>
 
-                <img
-                  src={'/assets/pepe-tweet.png'}
-                  className={'w-6 h-5 ml-auto'}
-                  alt={'Pepe tweet'}
-                />
-                <Typography
-                  variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                <Link
+                  href="https://twitter.com/dopex_io"
+                  target="_blank"
+                  className="ml-auto"
                 >
-                  <span className={styles['pepeLink']!}>DOPEX</span>
-                </Typography>
+                  <img
+                    src={'/assets/pepe-tweet.png'}
+                    className={'w-6 h-5'}
+                    alt={'Pepe tweet'}
+                  />
+                </Link>
+                <Link
+                  href="https://twitter.com/dopex_io"
+                  target="_blank"
+                  className="mr-auto ml-2"
+                >
+                  <Typography
+                    variant="h5"
+                    className="text-[#78859E] font-['Minecraft'] relative z-1"
+                  >
+                    <span className={styles['pepeLink']!}>DOPEX</span>
+                  </Typography>
+                </Link>
 
-                <img
-                  src={'/assets/pepe-tweet.png'}
-                  className={'w-6 h-5 ml-auto'}
-                  alt={'Pepe tweet'}
-                />
-                <Typography
-                  variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
-                >
-                  <span className={styles['pepeLink']!}>CEO</span>
-                </Typography>
+                <Link href="https://twitter.com/chutoro_au" target="_blank">
+                  {' '}
+                  <img
+                    src={'/assets/pepe-tweet.png'}
+                    className={'w-6 h-5 ml-auto'}
+                    alt={'Pepe tweet'}
+                  />
+                </Link>
+                <Link href="https://twitter.com/chutoro_au" target="_blank">
+                  {' '}
+                  <Typography
+                    variant="h5"
+                    className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                  >
+                    <span className={styles['pepeLink']!}>CEO</span>
+                  </Typography>
+                </Link>
               </Box>
             </Box>
             <Box className="md:w-1/3 p-4 text-center">
@@ -215,17 +284,31 @@ const DiamondPepesNfts = () => {
               </Typography>
 
               <Box className={'flex mt-6'}>
-                <img
-                  src={'/assets/export.svg'}
-                  className={'w-5 ml-auto'}
-                  alt={'Export'}
-                />
-                <Typography
-                  variant="h5"
-                  className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                <Link
+                  href="https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough"
+                  target="_blank"
+                  className="ml-auto"
                 >
-                  <span className={styles['pepeLink']!}>How to play</span>
-                </Typography>
+                  {' '}
+                  <img
+                    src={'/assets/export.svg'}
+                    className={'w-5 ml-auto'}
+                    alt={'Export'}
+                  />
+                </Link>
+                <Link
+                  href="https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough"
+                  target="_blank"
+                  className="mr-auto"
+                >
+                  {' '}
+                  <Typography
+                    variant="h5"
+                    className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
+                  >
+                    <span className={styles['pepeLink']!}>How to play</span>
+                  </Typography>
+                </Link>
               </Box>
             </Box>
           </Box>
@@ -241,12 +324,12 @@ const DiamondPepesNfts = () => {
               <a
                 href={
                   'https://arbiscan.io/address/' +
-                  contractAddresses['NFTS']['DuelDiamondPepesNFT']
+                  contractAddresses['DuelDiamondPepesNFTsMint']
                 }
                 rel="noopener noreferrer"
                 target={'_blank'}
               >
-                {contractAddresses['NFTS']['DuelDiamondPepesNFT']!}
+                {contractAddresses['DuelDiamondPepesNFTsMint']!}
               </a>
             </Typography>
           </Box>

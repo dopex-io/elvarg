@@ -1,9 +1,12 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
-import Switch from '@mui/material/Switch';
+
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
@@ -96,7 +99,8 @@ const quotes = [
 ];
 
 const ActionsDialog = ({ open, handleClose }: Props) => {
-  const { chainId } = useBoundStore();
+  const { chainId, pepesData, mintContract, signer, accountAddress } =
+    useBoundStore();
   const [toMint, setToMint] = useState<number>(1);
 
   const decreaseToMintAmount = () => {
@@ -122,7 +126,13 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
     return quotes[activeQuoteIndex];
   }, [activeQuoteIndex]);
 
-  const handleMint = useCallback(async () => {}, []);
+  const handleMint = useCallback(async () => {
+    await mintContract
+      .connect(signer)
+      .mint(toMint, accountAddress, {
+        value: getContractReadableAmount(0.88, 18).mul(toMint),
+      });
+  }, [mintContract, signer, toMint, accountAddress]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -145,8 +155,13 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
 
   const boxes = [
     { title: '0.88 ETH', subTitle: '1 PEPE' },
-    { title: '-', subTitle: 'REMAINING' },
-    { title: '-', subTitle: 'TIME' },
+    {
+      title: Math.max(
+        BigNumber.from(1111).sub(pepesData?.nextMintId)?.toNumber(),
+        0
+      ),
+      subTitle: 'REMAINING',
+    },
   ];
 
   return (
@@ -189,7 +204,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
       </Box>
       <Box className="p-2 mt-5 md:flex">
         {boxes.map((box, i) => (
-          <Box className="md:w-1/3 p-2 text-center" key={i}>
+          <Box className="md:w-1/2 p-2 text-center" key={i}>
             <Typography
               variant="h5"
               className="text-white font-display font-['Minecraft'] relative z-1"
@@ -207,15 +222,6 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
       </Box>
       <Box className={'mt-2'}>
         <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
-          <Box className="flex flex-row justify-between mb-2 mt-1">
-            <Typography variant="h6" className="text-[#78859E] ml-2 mt-1.5">
-              Mint with{' '}
-              <span className={cx("font-['Minecraft']", styles['pepeText'])}>
-                $APE
-              </span>
-            </Typography>
-            <Switch className="ml-auto cursor-pointer" color="default" />
-          </Box>
           <Box className="flex pl-2 pr-2">
             <button
               className={styles['pepeButtonSquare']}
@@ -251,7 +257,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  0.88 ETH
+                  {formatAmount(0.88 * toMint, 2)} ETH
                 </Typography>
               </Box>
             </Box>
@@ -286,11 +292,10 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
           <CustomButton
             size="medium"
             className={styles['pepeButton']!}
-            disabled={true}
             onClick={handleMint}
           >
             <Typography variant="h5" className={styles['pepeButtonText']!}>
-              Not ready yet
+              Buy
             </Typography>
           </CustomButton>
         </Box>
