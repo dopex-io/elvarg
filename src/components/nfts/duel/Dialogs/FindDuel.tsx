@@ -15,8 +15,6 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import useSendTx from 'hooks/useSendTx';
-
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -45,7 +43,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
     updateDuels,
     selectedDuel,
   } = useBoundStore();
-  const sendTx = useSendTx();
+
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
@@ -181,16 +179,14 @@ const FindDuel = ({ open, handleClose }: Props) => {
       else numericMoves.push(2);
     });
 
-    await sendTx(
-      duelContract
-        .connect(signer)
-        ['challenge'](selectedDuel!['id'], numericMoves, {
-          value:
-            tokenName === 'ETH'
-              ? getContractReadableAmount(selectedDuel!['wager'], 18)
-              : 0,
-        })
-    );
+    await duelContract
+      .connect(signer)
+      ['challenge'](selectedDuel!['id'], numericMoves, {
+        value:
+          tokenName === 'ETH'
+            ? getContractReadableAmount(selectedDuel!['wager'], 18)
+            : 0,
+      });
 
     setMoves([]);
     handleClose();
@@ -205,7 +201,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
     moves,
     handleClose,
     updateDuels,
-    sendTx,
     atLeastOneBlock,
   ]);
 

@@ -105,15 +105,12 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   }, [userEpochStrikeTokenBalance]);
 
   const handleTransfer = useCallback(() => {
-    if (!accountAddress || !epochStrikeToken) return;
+    if (!accountAddress || !epochStrikeToken || !signer) return;
     try {
-      sendTx(
-        // @ts-ignore TODO: FIX
-        ERC20__factory.connect(epochStrikeToken, signer).transfer(
-          recipient,
-          ethersUtils.parseEther(String(transferAmount))
-        )
-      );
+      sendTx(ERC20__factory.connect(epochStrikeToken, signer), 'transfer', [
+        recipient,
+        ethersUtils.parseEther(String(transferAmount)),
+      ]);
       // @ts-ignore TODO: FIX
       updateSsovV3EpochData();
       // @ts-ignore TODO: FIX

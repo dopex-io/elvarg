@@ -18,8 +18,6 @@ import RevealDuel from 'components/nfts/duel/Dialogs/RevealDuel';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import useSendTx from 'hooks/useSendTx';
-
 import { useBoundStore } from 'store';
 import { Duel } from 'store/Duel';
 
@@ -44,7 +42,6 @@ const DuelPepes = () => {
     useState<boolean>(false);
   const [isRevealDuelDialogOpen, setIsRevealDuelDialogOpen] =
     useState<boolean>(false);
-  const sendTx = useSendTx();
 
   const handleUndo = useCallback(
     async (id: number) => {
@@ -101,20 +98,20 @@ const DuelPepes = () => {
   }, [availableCredit]);
 
   const mintForFree = useCallback(async () => {
-    if (!duelContract || !signer || !updateCredit || !sendTx) return;
+    if (!duelContract || !signer || !updateCredit) return;
 
-    await sendTx(duelContract['mint']());
+    await duelContract['mint']();
     await updateCredit();
-  }, [duelContract, signer, updateCredit, sendTx]);
+  }, [duelContract, signer, updateCredit]);
 
   const mintMixed = useCallback(async () => {
-    if (!duelContract || !signer || !updateCredit || !sendTx) return;
+    if (!duelContract || !signer || !updateCredit) return;
 
     const missing = BigNumber.from('880000000000000000').sub(availableCredit);
 
-    await sendTx(duelContract['mintMixed']({ value: missing }));
+    await duelContract['mintMixed']({ value: missing });
     await updateCredit();
-  }, [duelContract, signer, updateCredit, availableCredit, sendTx]);
+  }, [duelContract, signer, updateCredit, availableCredit]);
 
   const boxes = useMemo(
     () =>

@@ -126,7 +126,7 @@ const Tzwap = () => {
         decimals: number;
       };
     } = {};
-    Object.keys(contractAddresses).map((tokenName) => {
+    Object.keys(contractAddresses ? contractAddresses : {}).map((tokenName) => {
       if (typeof contractAddresses[tokenName] === 'string') {
         try {
           const decimals = getTokenDecimals(tokenName, chainId);
@@ -237,10 +237,9 @@ const Tzwap = () => {
     if (!signer) return;
 
     await sendTx(
-      ERC20__factory.connect(contractAddresses[fromTokenName], signer).approve(
-        tzwapRouterAddress,
-        MAX_VALUE
-      )
+      ERC20__factory.connect(contractAddresses[fromTokenName], signer),
+      'approve',
+      [tzwapRouterAddress, MAX_VALUE]
     );
     setApproved(true);
   }, [sendTx, contractAddresses, fromTokenName, signer, tzwapRouterAddress]);
@@ -253,7 +252,8 @@ const Tzwap = () => {
       signer
     );
 
-    await sendTx(tzwapRouter.connect(signer).killOrder(openOrder));
+    await sendTx(tzwapRouter.connect(signer), 'killOrder', [openOrder]);
+
     setOpenOrder(null);
     updateOrders();
     updateAssetBalances();
@@ -346,58 +346,58 @@ const Tzwap = () => {
     let tickSize = amount * precision * (selectedTickSize / 100);
     let total = Math.round((amount * precision) / tickSize) * tickSize;
 
-    await sendTx(
-      tzwapRouter.connect(signer).newOrder(
-        {
-          creator: accountAddress,
-          srcToken:
-            fromTokenName === 'ETH'
-              ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-              : contractAddresses[fromTokenName],
-          dstToken:
-            toTokenName === 'ETH'
-              ? Addresses[chainId]['WETH']
-              : contractAddresses[toTokenName],
-          interval: seconds,
-          tickSize: getContractReadableAmount(
-            Math.round(tickSize) / precision,
-            getTokenDecimals(fromTokenName, chainId)
-          ),
-          total: getContractReadableAmount(
-            Math.round(total) / precision,
-            getTokenDecimals(fromTokenName, chainId)
-          ),
-          minFees: Math.round(minFees * 10 ** 3),
-          maxFees: Math.round(maxFees * 10 ** 3),
-          created: Math.round(new Date().getTime() / 1000),
-          killed: false,
-        },
-        {
-          value:
-            fromTokenName === 'ETH'
-              ? getContractReadableAmount(
-                  Math.round(total) / precision,
-                  getTokenDecimals(fromTokenName, chainId)
-                )
-              : 0,
-          gasLimit: chainId === 1 ? 700000 : 1700000,
-        }
-      )
-    );
+    const params = [
+      {
+        creator: accountAddress,
+        srcToken:
+          fromTokenName === 'ETH'
+            ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+            : contractAddresses[fromTokenName],
+        dstToken:
+          toTokenName === 'ETH'
+            ? Addresses[chainId]['WETH']
+            : contractAddresses[toTokenName],
+        interval: seconds,
+        tickSize: getContractReadableAmount(
+          Math.round(tickSize) / precision,
+          getTokenDecimals(fromTokenName, chainId)
+        ),
+        total: getContractReadableAmount(
+          Math.round(total) / precision,
+          getTokenDecimals(fromTokenName, chainId)
+        ),
+        minFees: Math.round(minFees * 10 ** 3),
+        maxFees: Math.round(maxFees * 10 ** 3),
+        created: Math.round(new Date().getTime() / 1000),
+        killed: false,
+      },
+      {
+        value:
+          fromTokenName === 'ETH'
+            ? getContractReadableAmount(
+                Math.round(total) / precision,
+                getTokenDecimals(fromTokenName, chainId)
+              )
+            : 0,
+        gasLimit: chainId === 1 ? 700000 : 1700000,
+      },
+    ];
+
+    await sendTx(tzwapRouter.connect(signer), 'newOrder', params);
     updateOrders();
     updateAssetBalances();
   }, [
+    accountAddress,
+    contractAddresses,
+    fromTokenName,
+    signer,
+    toTokenName,
+    tzwapRouterAddress,
     intervalAmount,
     selectedInterval,
     amount,
     selectedTickSize,
     sendTx,
-    tzwapRouterAddress,
-    signer,
-    accountAddress,
-    fromTokenName,
-    contractAddresses,
-    toTokenName,
     chainId,
     minFees,
     maxFees,

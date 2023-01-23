@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import { WalletSlice, createWalletSlice } from './Wallet';
@@ -14,6 +14,7 @@ import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
 import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
 import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
+import { OlpSlice, createOlpSlice } from './Vault/olp';
 
 type T = WalletSlice &
   TokenSaleSlice &
@@ -27,7 +28,8 @@ type T = WalletSlice &
   RateVaultSlice &
   VeDPXSlice &
   StraddlesSlice &
-  DpxBondsSlice;
+  DpxBondsSlice &
+  OlpSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -44,5 +46,6 @@ export const useBoundStore = create<T>()(
     ...createVedpxSlice(...a),
     ...createStraddlesSlice(...a),
     ...createDpxBondsSlice(...a),
+    ...createOlpSlice(...a),
   }))
 );

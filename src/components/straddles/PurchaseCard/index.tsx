@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Box, CircularProgress, Input, Tooltip } from '@mui/material';
@@ -11,7 +11,6 @@ import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import PnlChart from '../PnlChart';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import InfoBox from '../infoBox';
 
 import { useBoundStore } from 'store';
 
@@ -19,7 +18,46 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
+
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import formatAmount from 'utils/general/formatAmount';
+
+const POOL_TO_SWAPPER_IDS: { [key: string]: number[] } = {
+  ETH: [2, 3],
+  DPX: [5, 6],
+  RDPX: [5, 6],
+};
+
+const SWAPPER_ID_TO_ROUTE: { [key: string]: string } = {
+  0: 'Sushiswap',
+  1: 'Uniswap V3',
+  2: 'GMX',
+  3: 'Sushiswap and GMX',
+  4: 'Sushiswap and Uniswap V3',
+  5: 'GMX and Sushiswap',
+  6: 'Uniswap V3 and Sushiswap',
+};
+
+function InfoBox({
+  info,
+  value,
+  precision,
+}: {
+  info: string;
+  value: any;
+  precision: number;
+}) {
+  return (
+    <Box className="flex justify-between mb-2">
+      <Typography variant="caption" color="stieglitz">
+        {info}
+      </Typography>
+      <Typography variant="caption">
+        ~{`${formatAmount(value, precision)} USDC`}
+      </Typography>
+    </Box>
+  );
+}
 
 const PurchaseCard = () => {
   const {
@@ -36,11 +74,17 @@ const PurchaseCard = () => {
     updateStraddlesUserData,
   } = useBoundStore();
 
+  const [bestSwapperId, setBestSwapperId] = useState<number>(
+    POOL_TO_SWAPPER_IDS[selectedPoolName]![0]!
+  );
+
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
     () => straddlesData?.straddlesContract?.getUnderlyingPrice(),
     { initialData: oneEBigNumber(8) }
   );
+
+  const [finalCost, setFinalCost] = useState(BigNumber.from(0));
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
@@ -73,6 +117,57 @@ const PurchaseCard = () => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
 
+  useEffect(() => {
+    async function updateFinalCost() {
+      if (!accountAddress || !signer || !straddlesData?.straddlesContract)
+        return;
+
+      const promises = [];
+
+      for (let i in POOL_TO_SWAPPER_IDS[selectedPoolName]) {
+        const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
+
+        promises.push(
+          straddlesData.straddlesContract
+            .connect(signer)
+            .callStatic.purchase(
+              getContractReadableAmount(2 * amount, 18),
+              0,
+              swapperId,
+              accountAddress
+            )
+        );
+      }
+
+      const responses = await Promise.all(promises);
+
+      let bestProtocolFee: BigNumber = BigNumber.from('0');
+      let bestStraddleCost: BigNumber = BigNumber.from('0');
+      let _bestSwapperId: number = 0;
+
+      for (let i in POOL_TO_SWAPPER_IDS[selectedPoolName]) {
+        const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
+
+        const { protocolFee, straddleCost } = responses[Number(i)]!;
+
+        if (bestStraddleCost.eq(0) || straddleCost.lt(bestStraddleCost)) {
+          bestProtocolFee = protocolFee;
+          bestStraddleCost = straddleCost;
+          _bestSwapperId = swapperId;
+        }
+      }
+
+      setFinalCost(bestProtocolFee.add(bestStraddleCost));
+      setBestSwapperId(_bestSwapperId);
+    }
+
+    try {
+      updateFinalCost();
+    } catch (e) {
+      console.log(e);
+    }
+  }, [accountAddress, amount, selectedPoolName, signer, straddlesData]);
+
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
     if (
@@ -86,13 +181,14 @@ const PurchaseCard = () => {
 
     try {
       await sendTx(
-        straddlesData.straddlesContract
-          .connect(signer)
-          .purchase(
-            getContractReadableAmount(2 * amount, 18),
-            0,
-            accountAddress
-          )
+        straddlesData.straddlesContract.connect(signer),
+        'purchase',
+        [
+          getContractReadableAmount(2 * amount, 18),
+          0,
+          bestSwapperId,
+          accountAddress,
+        ]
       );
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
@@ -101,12 +197,13 @@ const PurchaseCard = () => {
     }
   }, [
     accountAddress,
-    straddlesData,
     signer,
+    updateStraddlesEpochData,
+    updateStraddlesUserData,
+    straddlesData,
     sendTx,
     amount,
-    updateStraddlesUserData,
-    updateStraddlesEpochData,
+    bestSwapperId,
   ]);
 
   const handleApprove = useCallback(async () => {
@@ -114,10 +211,9 @@ const PurchaseCard = () => {
       return;
     try {
       await sendTx(
-        ERC20__factory.connect(straddlesData.usd, signer).approve(
-          straddlesData.straddlesContract.address,
-          MAX_VALUE
-        )
+        ERC20__factory.connect(straddlesData.usd, signer),
+        'approve',
+        [straddlesData.straddlesContract.address, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {
@@ -234,14 +330,14 @@ const PurchaseCard = () => {
             variant="h6"
             className="flex justify-between mx-2 pb-2 text-gray-400"
           >
-            <div>Max amount of straddles available:</div>
-            <div>
+            <Box>Max amount of straddles available:</Box>
+            <Box>
               <NumberDisplay
                 n={maxStraddlesCanBeBought || BigNumber.from(0)}
                 decimals={18}
                 decimalsToShow={4}
               />
-            </div>
+            </Box>
           </Typography>
         </Box>
       </Box>
@@ -255,40 +351,75 @@ const PurchaseCard = () => {
           symbol={selectedPoolName}
         />
       </Box>
-      <Box className="mt-4 flex justify-center mb-4">
-        <Box className="py-2 w-full rounded border border-neutral-800">
-          <InfoBox info={"You'll spend"} value={totalCost} precision={6} />
-          <Box className="flex-col">
-            <InfoBox
-              info={'Premium:'}
-              value={
-                getUserReadableAmount(
-                  straddlesEpochData?.straddlePremium!,
-                  26
-                ) * amount
-              }
-              precision={2}
-            />
-            <InfoBox
-              info={'Funding:'}
-              value={
-                getUserReadableAmount(
-                  straddlesEpochData?.straddleFunding!,
-                  26
-                ) * amount
-              }
-              precision={4}
-            />
-            <InfoBox
-              info={'Fees:'}
-              value={
-                getUserReadableAmount(straddlesEpochData?.purchaseFee!, 26) *
-                amount
-              }
-              precision={4}
-            />
+      <Box className="mt-4 flex flex-col mb-4 p-2 w-full rounded border border-neutral-800">
+        <InfoBox
+          info={'Premium:'}
+          value={
+            getUserReadableAmount(straddlesEpochData?.straddlePremium!, 26) *
+            amount
+          }
+          precision={2}
+        />
+        <InfoBox
+          info={'Funding:'}
+          value={
+            getUserReadableAmount(straddlesEpochData?.straddleFunding!, 26) *
+            amount
+          }
+          precision={4}
+        />
+        <InfoBox
+          info={'Fees:'}
+          value={
+            getUserReadableAmount(straddlesEpochData?.purchaseFee!, 26) * amount
+          }
+          precision={4}
+        />
+        <Typography variant="caption" color="down-bad">
+          Note that the above cost breakdown is an approximation.
+        </Typography>
+      </Box>
+      <Box className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
+        {finalCost.isZero() ? (
+          approved ? (
+            <Typography variant="caption" color="down-bad">
+              Error calculating final cost
+            </Typography>
+          ) : (
+            <Typography variant="caption" color="wave-blue">
+              Please approve to see final cost
+            </Typography>
+          )
+        ) : (
+          <>
+            <Typography variant="caption" color="stieglitz">
+              You will spend{' '}
+            </Typography>
+            <Typography variant="caption">
+              {ethersUtils.formatUnits(finalCost, 6)} USDC
+            </Typography>
+          </>
+        )}
+      </Box>
+      <Box className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
+        {bestSwapperId === 0 ? (
+          <Box className="flex">
+            <CircularProgress className="text-stieglitz mr-2" size={13} />
+            <Typography variant="caption" color="stieglitz">
+              Calculating best route...
+            </Typography>
           </Box>
-        </Box>
+        ) : (
+          <>
+            <Typography variant="caption" color="stieglitz">
+              You will swap using
+            </Typography>
+
+            <Typography variant="caption">
+              {SWAPPER_ID_TO_ROUTE[bestSwapperId]}
+            </Typography>
+          </>
+        )}
       </Box>
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">

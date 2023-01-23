@@ -417,10 +417,9 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
       if (!signer) return;
 
       await sendTx(
-        ERC20__factory.connect(
-          contractAddresses[depositTokenName],
-          signer
-        ).approve(spender, MAX_VALUE)
+        ERC20__factory.connect(contractAddresses[depositTokenName], signer),
+        'approve',
+        [spender, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {

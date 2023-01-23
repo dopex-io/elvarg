@@ -19,6 +19,7 @@ import SsovDepositCard from 'components/retired-ssovs/SsovDepositCard';
 import SsovOption from 'components/retired-ssovs/SsovOption';
 
 import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
+import { DOPEX_API_BASE_URL } from 'constants/index';
 
 interface Ssov {
   type: string;
@@ -109,9 +110,7 @@ const RetiredSsovs = () => {
     if (!signer) return;
     setSsovsLoading(true);
     let data: Ssov[] = await axios
-      .get(
-        `https://dopex-api-git-feat-retired-ssovs-dopex-io.vercel.app/v2/ssov/retired`
-      )
+      .get(`${DOPEX_API_BASE_URL}/v2/ssov/retired`)
       .then((payload) => payload.data);
 
     const ssovCurrentEpochs = await Promise.all(

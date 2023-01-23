@@ -26,8 +26,6 @@ import { getRandomString } from 'utils/general/getRandomString';
 
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
-
 import { MAX_VALUE } from 'constants/index';
 
 import styles from './styles.module.scss';
@@ -51,7 +49,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     updateDuels,
     duelContract,
   } = useBoundStore();
-  const sendTx = useSendTx();
+
   const [tokenName, setTokenName] = useState<string>('WETH');
   const [wager, setWager] = useState<number>(1);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
@@ -256,22 +254,20 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     }
 
     try {
-      await sendTx(
-        duelContract
-          .connect(signer)
-          ['createDuel'](
-            identifier,
-            getContractReadableAmount(
-              wager,
-              getTokenDecimals(tokenName, chainId)
-            ),
-            movesSig,
-            {
-              value:
-                tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
-            }
-          )
-      );
+      await duelContract
+        .connect(signer)
+        ['createDuel'](
+          identifier,
+          getContractReadableAmount(
+            wager,
+            getTokenDecimals(tokenName, chainId)
+          ),
+          movesSig,
+          {
+            value:
+              tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
+          }
+        );
     } catch (err) {
       console.log(err);
       alert('Create duel tx fails');
@@ -284,7 +280,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   }, [
     duelContract,
     handleClose,
-    sendTx,
     signer,
     accountAddress,
     updateDuels,

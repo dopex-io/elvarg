@@ -23,8 +23,6 @@ import { vedpxAddress, vedpxYieldDistributorAddress } from 'store/VeDPX';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
-
 const ACTION_COPY = {
   create_lock: {
     cta: 'Lock',
@@ -130,16 +128,16 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
           );
 
       if (action === 'create_lock') {
-        await sendTx(vedpx.create_lock(_amount, unlockTime + 86400 * 7));
+        await sendTx(vedpx, 'create_lock', [_amount, unlockTime + 86400 * 7]);
       } else if (action === 'increase_amount_and_time') {
-        await sendTx(vedpx.increase_amount_and_time(_amount, unlockTime));
+        await sendTx(vedpx, 'increase_amount_and_time', [_amount, unlockTime]);
       } else if (action === 'increase_unlock_time') {
-        await sendTx(vedpx.increase_unlock_time(unlockTime));
+        await sendTx(vedpx, 'increase_unlock_time', [unlockTime]);
       } else if (action === 'increase_amount') {
-        await sendTx(vedpx.increase_amount(_amount));
+        await sendTx(vedpx, 'increase_amount', [_amount]);
       }
 
-      await sendTx(vedpxYieldDistributor.checkpoint());
+      await sendTx(vedpxYieldDistributor, 'checkpoint', []);
 
       await updateData();
       await updateUserData();
@@ -165,12 +163,14 @@ const LockDialog = (props: { open: boolean; handleClose: () => void }) => {
         signer
       );
 
-      await sendTx(dpx.approve(vedpxAddress, MAX_VALUE));
+      const _amount = utils.parseEther(amount);
+
+      await sendTx(dpx, 'approve', [vedpxAddress, _amount]);
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx]);
+  }, [signer, sendTx, amount]);
 
   useEffect(() => {
     (async function () {

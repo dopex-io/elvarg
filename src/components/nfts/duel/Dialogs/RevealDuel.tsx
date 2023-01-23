@@ -11,8 +11,6 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import useSendTx from 'hooks/useSendTx';
-
 import { useBoundStore } from 'store';
 
 import styles from './styles.module.scss';
@@ -28,7 +26,7 @@ const feesPercentage = 80;
 const RevealDuel = ({ open, handleClose }: Props) => {
   const { chainId, signer, duelContract, updateDuels, selectedDuel } =
     useBoundStore();
-  const sendTx = useSendTx();
+
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
   const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
@@ -127,31 +125,21 @@ const RevealDuel = ({ open, handleClose }: Props) => {
 
     const salt = window.prompt('Insert your salt');
 
-    await sendTx(
-      duelContract
-        .connect(signer)
-        ['revealDuel'](
-          selectedDuel!['id'],
-          numericMoves,
-          ethers.utils.formatBytes32String(salt!),
-          {
-            value: 0,
-          }
-        )
-    );
+    await duelContract
+      .connect(signer)
+      ['revealDuel'](
+        selectedDuel!['id'],
+        numericMoves,
+        ethers.utils.formatBytes32String(salt!),
+        {
+          value: 0,
+        }
+      );
 
     setMoves([]);
     handleClose();
     await updateDuels();
-  }, [
-    duelContract,
-    signer,
-    selectedDuel,
-    moves,
-    handleClose,
-    sendTx,
-    updateDuels,
-  ]);
+  }, [duelContract, signer, selectedDuel, moves, handleClose, updateDuels]);
 
   const canReveal = useMemo(() => {
     if (moves.length < 5) return false;
