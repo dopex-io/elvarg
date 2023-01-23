@@ -17,7 +17,7 @@ import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
+// import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -80,7 +80,7 @@ const UserDepositsTable = () => {
   const [canWithdraw, setCanWithdraw] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('0');
 
-  const sendTx = useSendTx();
+  // const sendTx = useSendTx();
 
   useEffect(() => {
     if (!atlanticPoolEpochData) return;
@@ -133,17 +133,20 @@ const UserDepositsTable = () => {
 
   const handleWithdraw = useCallback(
     async (depositId: number) => {
-      if (!atlanticPool || !selectedEpoch || !signer) {
+      if (!atlanticPool || !selectedEpoch || !signer || !accountAddress) {
         return;
       }
       try {
         const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
-        await sendTx(apContract, 'withdraw', [
-          [depositId],
-          accountAddress,
-        ]).then(() => {
+        // await sendTx(apContract, 'withdraw', [
+        //   [depositId],
+        //   accountAddress,
+        // ]).then(() => {
+
+        await apContract.withdraw([depositId], accountAddress).then(() => {
           updateUserPositions();
         });
+        // });
       } catch (err) {
         console.log(err);
       }
@@ -153,7 +156,7 @@ const UserDepositsTable = () => {
       selectedEpoch,
       signer,
       accountAddress,
-      sendTx,
+      // sendTx,
       updateUserPositions,
     ]
   );
