@@ -13,6 +13,8 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
+import useSendTx from 'hooks/useSendTx';
+
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { useBoundStore } from 'store';
@@ -99,6 +101,7 @@ const quotes = [
 ];
 
 const ActionsDialog = ({ open, handleClose }: Props) => {
+  const sendTx = useSendTx();
   const { chainId, pepesData, mintContract, signer, accountAddress } =
     useBoundStore();
   const [toMint, setToMint] = useState<number>(1);
@@ -127,12 +130,12 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
   }, [activeQuoteIndex]);
 
   const handleMint = useCallback(async () => {
-    await mintContract
-      .connect(signer)
-      .mint(toMint, accountAddress, {
-        value: getContractReadableAmount(0.88, 18).mul(toMint),
-      });
-  }, [mintContract, signer, toMint, accountAddress]);
+    await sendTx(mintContract.connect(signer), 'mint', [
+      toMint,
+      accountAddress,
+      { value: getContractReadableAmount(0.88, 18).mul(toMint) },
+    ]);
+  }, [mintContract, signer, toMint, accountAddress, sendTx]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
