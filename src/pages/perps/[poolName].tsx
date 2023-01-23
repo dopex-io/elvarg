@@ -11,6 +11,7 @@ import PoolCard from 'components/perps/Charts/PoolCard';
 import TVLCard from 'components/perps/Charts/TVLCard';
 import PerpPositions from 'components/perps/PerpPositions';
 import OptionPositions from 'components/perps/OptionPositions';
+import TradeCard from 'components/perps/TradeCard';
 import Manage from 'components/perps/Manage';
 
 import { useBoundStore } from 'store';
@@ -97,7 +98,12 @@ const Perps = ({ poolName }: Props) => {
           </Box>
         </Box>
         <Box className="lg:pt-32 sm:pt-20 lg:mr-auto md:mx-0 mx-4 mb-8 px-2 lg:px-0 lg:ml-32">
-          <Manage />
+          <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
+            <TradeCard />
+          </Box>
+          <Box className="bg-cod-gray rounded-xl p-3 max-w-sm mt-4">
+            <Manage />
+          </Box>
         </Box>
       </Box>
       <Box className="flex justify-center space-x-2 my-8">
