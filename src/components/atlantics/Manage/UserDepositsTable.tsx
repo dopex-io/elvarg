@@ -17,7 +17,7 @@ import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import { useBoundStore } from 'store';
 
-// import useSendTx from 'hooks/useSendTx';
+import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -80,7 +80,7 @@ const UserDepositsTable = () => {
   const [canWithdraw, setCanWithdraw] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('0');
 
-  // const sendTx = useSendTx();
+  const sendTx = useSendTx();
 
   useEffect(() => {
     if (!atlanticPoolEpochData) return;
@@ -123,9 +123,7 @@ const UserDepositsTable = () => {
       };
 
     return {
-      // funding: selectedPool.isPut ? 6 : 18,
       funding: 6,
-      // premium: selectedPool.isPut ? 6 : 18,
       premium: 6,
       underlying: 18,
     };
@@ -138,15 +136,13 @@ const UserDepositsTable = () => {
       }
       try {
         const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
-        // await sendTx(apContract, 'withdraw', [
-        //   [depositId],
-        //   accountAddress,
-        // ]).then(() => {
 
-        await apContract.withdraw([depositId], accountAddress).then(() => {
+        await sendTx(apContract, 'withdraw', [
+          [depositId],
+          accountAddress,
+        ]).then(() => {
           updateUserPositions();
         });
-        // });
       } catch (err) {
         console.log(err);
       }
@@ -156,7 +152,7 @@ const UserDepositsTable = () => {
       selectedEpoch,
       signer,
       accountAddress,
-      // sendTx,
+      sendTx,
       updateUserPositions,
     ]
   );
@@ -205,14 +201,6 @@ const UserDepositsTable = () => {
                   ${getUserReadableAmount(position?.strike ?? 0, 8)}
                 </TableBodyCell>
               }
-              {/* <TableBodyCell>
-                <Typography variant="h6">
-                  {format(
-                    new Date(position.timestamp.toNumber() * 1000),
-                    'd LLL yyyy'
-                  )}
-                </Typography>
-              </TableBodyCell> */}
               <TableBodyCell>
                 <Typography variant="h6">
                   $
