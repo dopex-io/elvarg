@@ -2,7 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils as ethersUtils } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
-import { Alert, Box, CircularProgress, Input, Tooltip } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Input from '@mui/material/Input';
+import Tooltip from '@mui/material/Tooltip';
 
 import useSendTx from 'hooks/useSendTx';
 
