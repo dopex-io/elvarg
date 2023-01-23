@@ -42,15 +42,13 @@ export enum Contracts {
 
 export enum VaultConfig {
   IvBoost,
-  ExpiryWindow,
+  BlackoutWindow,
   FundingInterval,
   BaseFundingRate,
   UseDiscount,
-  ExpireDelayTolerance,
 }
 
 interface IVaultConfiguration {
-  expireDelayTolerance: BigNumber;
   fundingInterval: BigNumber;
   tickSize: BigNumber;
   fundingFee: BigNumber;
@@ -79,7 +77,6 @@ interface IAtlanticPoolEpochData {
   epoch: number;
   tickSize?: BigNumber;
   maxStrikes: BigNumber[];
-  settlementPrice: BigNumber;
   premiaAccrued: BigNumber;
   utilizationRate: number | string;
   apr: number | string;
@@ -168,7 +165,6 @@ export const createAtlanticsSlice: StateCreator<
       underlyingPrice,
       { tickSize },
       fundingInterval,
-      expireDelayTolerance,
       feeBps,
     ] = await Promise.all([
       atlanticPool.addresses(Contracts.BaseToken),
@@ -176,7 +172,6 @@ export const createAtlanticsSlice: StateCreator<
       atlanticPool.getUsdPrice(),
       atlanticPool.getEpochData(currentEpoch),
       atlanticPool.vaultConfig(VaultConfig.FundingInterval),
-      atlanticPool.vaultConfig(VaultConfig.ExpireDelayTolerance),
       atlanticPool.vaultConfig(VaultConfig.BaseFundingRate),
     ]);
 
@@ -200,7 +195,6 @@ export const createAtlanticsSlice: StateCreator<
         currentEpoch,
         vaultConfig: {
           fundingInterval,
-          expireDelayTolerance,
           tickSize,
           fundingFee: feeBps,
         },
@@ -254,7 +248,6 @@ export const createAtlanticsSlice: StateCreator<
       state,
       startTime,
       expiryTime,
-      settlementPrice,
       tickSize,
       totalLiquidity,
       totalActiveCollateral,
@@ -344,7 +337,6 @@ export const createAtlanticsSlice: StateCreator<
       epoch: selectedEpoch,
       tickSize,
       maxStrikes,
-      settlementPrice,
       premiaAccrued: totalPremium,
       apr: isNaN(apr) ? 0 : apr,
       utilizationRate,
@@ -390,7 +382,7 @@ export const createAtlanticsSlice: StateCreator<
     const poolAddress = atlanticPool.contracts.atlanticPool.address;
 
     const atlanticsViewer = AtlanticsViewer__factory.connect(
-      contractAddresses['ATLANTICS-VIEWER'],
+      '0xD8D6A6CAB18440aEfBfc0BBf811e672730D22177',
       provider
     );
 

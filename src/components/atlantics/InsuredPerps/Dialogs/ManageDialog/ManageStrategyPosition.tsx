@@ -212,19 +212,13 @@ const ManageStrategyPositionDialog = (props: Props) => {
 
     // @TODO To add token selector for this
     if (selectedOptionItem === 0) {
-      tx = strategy.createExitStrategyOrder(
-        userPositionId,
-        '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-        true,
-        overrides
-      );
+      tx = strategy.createExitStrategyOrder(userPositionId, true, overrides);
     }
 
     try {
       if (tx)
         await sendTx(strategy, 'createExitStrategyOrder', [
           userPositionId,
-          '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
           true,
           overrides,
         ]);

@@ -24,7 +24,7 @@ import { Contracts, VaultConfig } from 'store/Vault/atlantics';
 
 interface IVaultConfiguration {
   fundingInterval: BigNumber;
-  expireDelayTolerance: BigNumber;
+  // expireDelayTolerance: BigNumber;
   tickSize: BigNumber;
 }
 
@@ -150,7 +150,7 @@ const atlanticPoolsZeroData: IAtlanticPoolType = {
   },
   config: {
     tickSize: BigNumber.from(0),
-    expireDelayTolerance: BigNumber.from(0),
+    // expireDelayTolerance: BigNumber.from(0),
     fundingInterval: BigNumber.from(0),
   },
   tokens: {
@@ -244,14 +244,14 @@ export const AtlanticsProvider = (props: any) => {
         underlyingPrice,
         { tickSize },
         fundingInterval,
-        expireDelayTolerance,
+        // expireDelayTolerance,
       ] = await Promise.all([
         atlanticPool.addresses(Contracts.BaseToken),
         atlanticPool.addresses(Contracts.QuoteToken),
         atlanticPool.getUsdPrice(),
         atlanticPool.getEpochData(epoch),
         atlanticPool.vaultConfig(VaultConfig.FundingInterval),
-        atlanticPool.vaultConfig(VaultConfig.ExpireDelayTolerance),
+        // atlanticPool.vaultConfig(VaultConfig.ExpireDelayTolerance),
       ]);
       let data: IEpochData;
 
@@ -346,7 +346,7 @@ export const AtlanticsProvider = (props: any) => {
         config: {
           fundingInterval,
           tickSize,
-          expireDelayTolerance,
+          // expireDelayTolerance,
         },
         contracts,
         tokens: {
@@ -511,6 +511,7 @@ export const AtlanticsProvider = (props: any) => {
     )
       return;
 
+    console.log(contractAddresses['ATLANTICS-VIEWER']);
     const poolAddress =
       contractAddresses['ATLANTIC-POOLS'][selectedPool.asset][poolType][
         selectedPool.duration
