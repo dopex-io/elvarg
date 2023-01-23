@@ -92,10 +92,11 @@ const Positions = ({
   const [action, setAction] = useState<string | number>('Enable');
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const handleOpenManageModal = useCallback((section: string) => {
+
+  const handleOpenManageModal = (section: string) => {
     setOnOpenSection(() => section);
     setOpenManageModal(() => true);
-  }, []);
+  };
 
   const [userPositionData, setUserPositionData] = useState<IUserPositionData>({
     underlying: '',
@@ -241,7 +242,7 @@ const Positions = ({
       handleOpenManageModal('MANAGE_STRATEGY');
       setOpenManageModal(true);
     }
-  }, [handleOpenManageModal, setOpenManageModal, userPositionData.state]);
+  }, [setOpenManageModal, userPositionData.state]);
 
   const handleUseStrategy = useCallback(() => {
     setOnOpenSection(() => 'USE_STRATEGY');
