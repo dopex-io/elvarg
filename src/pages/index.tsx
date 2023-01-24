@@ -26,7 +26,7 @@ interface CardProps {
 const Card = ({ name, description, href, Icon }: CardProps) => {
   return (
     <Link href={href}>
-      <Box className="bg-umbra shadow-2xl p-4 rounded-2xl flex space-x-4 items-center hover:-translate-y-1 transition ease-in hover:backdrop-blur-sm hover:bg-transparent cursor-pointer hover:border-wave-blue border-2 border-transparent">
+      <Box className="bg-umbra shadow-2xl p-4 rounded-2xl flex space-x-4 items-center hover:-translate-y-1 transition ease-in hover:backdrop-blur-sm hover:bg-opacity-60 cursor-pointer hover:border-wave-blue border-2 border-transparent">
         <Icon className="w-8 h-8" />
         <Box>
           <Typography variant="h5" className="font-bold">
@@ -54,7 +54,7 @@ const Home = () => {
   }, []);
 
   return (
-    <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="min-h-screen">
       <Head>
         <title>Home | Dopex</title>
       </Head>
