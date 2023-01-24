@@ -116,14 +116,6 @@ const Positions = ({
     type: 'Long',
   });
 
-  const pnlPercentage = useMemo(() => {
-    return formatAmount(
-      (Number(userPositionData.delta) / Number(userPositionData.collateral)) *
-        100,
-      2
-    );
-  }, [userPositionData]);
-
   const getUserPositions = useCallback(async () => {
     if (!contractAddresses || !accountAddress || !atlanticPool || !signer)
       return;
@@ -378,9 +370,12 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
-    await sendTx(strategyContract, 'createIncreaseManagedPositionOrder', [
-      positionId,
-    ], MIN_EXECUTION_FEE).then(() => {
+    await sendTx(
+      strategyContract,
+      'createIncreaseManagedPositionOrder',
+      [positionId],
+      MIN_EXECUTION_FEE
+    ).then(() => {
       getUserPositions();
     });
   }, [
@@ -391,6 +386,34 @@ const Positions = ({
     getUserPositions,
     contractAddresses,
     sendTx,
+  ]);
+
+  const pnlPercentage = useMemo(() => {
+    return formatAmount(
+      (Number(userPositionData.delta) / Number(userPositionData.collateral)) *
+        100,
+      2
+    );
+  }, [userPositionData]);
+
+  const renderButton = useMemo(() => {
+    if (userPositionData.state === ActionState['2'])
+      return (
+        <CustomButton onClick={handleIncreaseManagedPosition}>
+          Add Collateral
+        </CustomButton>
+      );
+    else if (userPositionData.state === ActionState['4'])
+      return (
+        <CustomButton onClick={handleManageButtonClick}>Manage</CustomButton>
+      );
+    else if (userPositionData.state === ActionState['5'])
+      return <CustomButton disabled>Enable Pending</CustomButton>;
+    return <CustomButton disabled>...</CustomButton>;
+  }, [
+    handleIncreaseManagedPosition,
+    handleManageButtonClick,
+    userPositionData.state,
   ]);
 
   useEffect(() => {
@@ -665,17 +688,7 @@ const Positions = ({
                           </MenuItem>
                         </Select>
                       ) : (
-                        <>
-                          {userPositionData.state === ActionState['2'] ? (
-                            <CustomButton onClick={handleIncreaseManagedPosition}>
-                              Add Collateral
-                            </CustomButton>
-                          ) : (
-                            <CustomButton onClick={handleManageButtonClick}>
-                              Manage
-                            </CustomButton>
-                          )}
-                        </>
+                        renderButton
                       )}
                     </TableBodyCell>
                   </TableRow>
