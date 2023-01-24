@@ -35,6 +35,8 @@ import useSendTx from 'hooks/useSendTx';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
+import { MIN_EXECUTION_FEE } from 'constants/gmx';
+
 interface IUserPositionData {
   underlying: string;
   delta: string | number | BigNumber;
@@ -353,6 +355,44 @@ const Positions = ({
     sendTx,
   ]);
 
+  const handleIncreaseManagedPosition = useCallback(async () => {
+    if (
+      !contractAddresses ||
+      !accountAddress ||
+      !atlanticPool ||
+      !signer ||
+      !atlanticPoolEpochData
+    )
+      return;
+
+    const strategyContractAddress: string =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
+    const strategyContract = InsuredLongsStrategy__factory.connect(
+      strategyContractAddress,
+      signer
+    );
+
+    const [positionId] = await Promise.all([
+      strategyContract.userPositionIds(accountAddress),
+      strategyContract.userPositionManagers(accountAddress),
+    ]);
+
+    await sendTx(strategyContract, 'createIncreaseManagedPositionOrder', [
+      positionId,
+    ], MIN_EXECUTION_FEE).then(() => {
+      getUserPositions();
+    });
+  }, [
+    accountAddress,
+    atlanticPool,
+    atlanticPoolEpochData,
+    signer,
+    getUserPositions,
+    contractAddresses,
+    sendTx,
+  ]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       getUserPositions();
@@ -625,9 +665,17 @@ const Positions = ({
                           </MenuItem>
                         </Select>
                       ) : (
-                        <CustomButton onClick={handleManageButtonClick}>
-                          Manage
-                        </CustomButton>
+                        <>
+                          {userPositionData.state === ActionState['2'] ? (
+                            <CustomButton onClick={handleIncreaseManagedPosition}>
+                              Add Collateral
+                            </CustomButton>
+                          ) : (
+                            <CustomButton onClick={handleManageButtonClick}>
+                              Manage
+                            </CustomButton>
+                          )}
+                        </>
                       )}
                     </TableBodyCell>
                   </TableRow>
