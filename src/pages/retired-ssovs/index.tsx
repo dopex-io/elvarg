@@ -202,7 +202,7 @@ const RetiredSsovs = () => {
   }, [signer, accountAddress]);
 
   return (
-    <Box className="bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="min-h-screen">
       <Head>
         <title>Retired SSOVs | Dopex</title>
       </Head>

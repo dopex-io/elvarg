@@ -32,10 +32,12 @@ interface Props {
 
 const StyledWrapper = styled(Box)`
   ${(props: { symbol: string }) => {
-    if (props.symbol === 'ETH-ATLANTIC-STRADDLE-3')
+    if (props.symbol.includes('ETH'))
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)';
-    else if (props.symbol === 'RDPX-ATLANTIC-STRADDLE-3')
+    else if (props.symbol.includes('RDPX'))
       return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #0400ff 99.1%)';
+    else if (props.symbol.includes('DPX'))
+      return 'background: linear-gradient(359.05deg, #3e3e3e 0.72%, #22e1ff 99.1%)';
     return '';
   }};
 `;
