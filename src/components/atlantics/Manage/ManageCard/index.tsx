@@ -124,6 +124,43 @@ const ManageCard = (props: ManageCardProps) => {
     sendTx,
   ]);
 
+  const updateApproved = useCallback(async () => {
+    if (
+      !signer ||
+      !contractAddresses ||
+      !accountAddress ||
+      !atlanticPool?.tokens ||
+      !contractAddresses['ATLANTIC-POOLS']
+    )
+      return;
+    const deposit = atlanticPool.tokens.depositToken;
+    if (!deposit) return;
+    if (!contractAddresses[deposit]) return;
+    const token = ERC20__factory.connect(contractAddresses[deposit], signer);
+    const allowance = await token.allowance(
+      accountAddress,
+      contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
+    );
+    setApproved(
+      allowance.gte(
+        getContractReadableAmount(
+          value,
+          TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
+        )
+      )
+    );
+  }, [
+    accountAddress,
+    chainId,
+    contractAddresses,
+    duration,
+    poolType,
+    signer,
+    underlying,
+    value,
+    atlanticPool,
+  ]);
+
   const handleDeposit = useCallback(async () => {
     if (!signer || !accountAddress || !contractAddresses['ATLANTIC-POOLS'])
       return;
@@ -143,6 +180,7 @@ const ManageCard = (props: ManageCardProps) => {
       ]).then(() => {
         updateAtlanticPoolEpochData();
         updateUserPositions();
+        updateApproved();
       });
     } catch (err) {
       console.log(err);
@@ -159,6 +197,7 @@ const ManageCard = (props: ManageCardProps) => {
     value,
     updateAtlanticPoolEpochData,
     updateUserPositions,
+    updateApproved,
   ]);
 
   const handleMax = useCallback(() => {
@@ -178,43 +217,8 @@ const ManageCard = (props: ManageCardProps) => {
   }, [maxApprove]);
 
   useEffect(() => {
-    (async () => {
-      if (
-        !signer ||
-        !contractAddresses ||
-        !accountAddress ||
-        !atlanticPool?.tokens ||
-        !contractAddresses['ATLANTIC-POOLS']
-      )
-        return;
-      const deposit = atlanticPool.tokens.depositToken;
-      if (!deposit) return;
-      if (!contractAddresses[deposit]) return;
-      const token = ERC20__factory.connect(contractAddresses[deposit], signer);
-      const allowance = await token.allowance(
-        accountAddress,
-        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
-      );
-      setApproved(
-        allowance.gte(
-          getContractReadableAmount(
-            value,
-            TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
-          )
-        )
-      );
-    })();
-  }, [
-    accountAddress,
-    chainId,
-    contractAddresses,
-    duration,
-    poolType,
-    signer,
-    underlying,
-    value,
-    atlanticPool?.tokens,
-  ]);
+    updateApproved();
+  }, [updateApproved]);
 
   useEffect(() => {
     (async () => {
