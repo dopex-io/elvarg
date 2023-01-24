@@ -245,7 +245,7 @@ const ManagePosition = () => {
     } else if (totalCost.gt(userBalance ?? '0')) {
       errorMessage = 'Insufficient balance to pay premium & fees';
     } else if (longLimitExceeded) {
-      errorMessage = 'Max longs exceeded';
+      errorMessage = 'Insufficient liquidity to open long positions';
     } else if (unavailableStrike) {
       errorMessage = `Put Strike exceeds highest strike. Highest strike available: ${getUserReadableAmount(
         availableStrikesData[0]?.strike ?? 0,
@@ -481,7 +481,7 @@ const ManagePosition = () => {
         totalFeesUsd: positionFeeUsd.add(LIQUIDATION_FEE_USD),
         collateralDeltaUsd: collateralUsd,
         availabeLiquidityForLongs: getUserReadableAmount(
-          maxLongsLimit.sub(currentLongsUsd),
+          maxLongsLimit.sub(currentLongsUsd).gt(0) ? maxLongsLimit.sub(currentLongsUsd) : 0,
           30
         ),
         feesWithoutDiscount: {
