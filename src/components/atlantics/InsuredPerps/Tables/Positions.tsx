@@ -116,14 +116,6 @@ const Positions = ({
     type: 'Long',
   });
 
-  const pnlPercentage = useMemo(() => {
-    return formatAmount(
-      (Number(userPositionData.delta) / Number(userPositionData.collateral)) *
-        100,
-      2
-    );
-  }, [userPositionData]);
-
   const getUserPositions = useCallback(async () => {
     if (!contractAddresses || !accountAddress || !atlanticPool || !signer)
       return;
@@ -378,9 +370,12 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
-    await sendTx(strategyContract, 'createIncreaseManagedPositionOrder', [
-      positionId,
-    ], MIN_EXECUTION_FEE).then(() => {
+    await sendTx(
+      strategyContract,
+      'createIncreaseManagedPositionOrder',
+      [positionId],
+      MIN_EXECUTION_FEE
+    ).then(() => {
       getUserPositions();
     });
   }, [
@@ -391,6 +386,44 @@ const Positions = ({
     getUserPositions,
     contractAddresses,
     sendTx,
+  ]);
+
+  const pnlPercentage = useMemo(() => {
+    return formatAmount(
+      (Number(userPositionData.delta) / Number(userPositionData.collateral)) *
+        100,
+      2
+    );
+  }, [userPositionData]);
+
+  const renderButton = useMemo(() => {
+    if (
+      userPositionData.state === ActionState['2'] ||
+      userPositionData.state === ActionState['3']
+    )
+      return (
+        <CustomButton onClick={handleIncreaseManagedPosition}>
+          Add Collateral
+        </CustomButton>
+      );
+    else if (userPositionData.state === ActionState['4'])
+      return (
+        <CustomButton onClick={handleManageButtonClick}>
+          Exit Position
+        </CustomButton>
+      );
+    else if (userPositionData.state === ActionState['5'])
+      return (
+        <CustomButton onClick={handleReuseStrategy}>
+          Re-use Strategy
+        </CustomButton>
+      );
+    return <CustomButton disabled>...</CustomButton>;
+  }, [
+    handleIncreaseManagedPosition,
+    handleManageButtonClick,
+    handleReuseStrategy,
+    userPositionData.state,
   ]);
 
   useEffect(() => {
@@ -665,17 +698,7 @@ const Positions = ({
                           </MenuItem>
                         </Select>
                       ) : (
-                        <>
-                          {userPositionData.state === ActionState['2'] ? (
-                            <CustomButton onClick={handleIncreaseManagedPosition}>
-                              Add Collateral
-                            </CustomButton>
-                          ) : (
-                            <CustomButton onClick={handleManageButtonClick}>
-                              Manage
-                            </CustomButton>
-                          )}
-                        </>
+                        renderButton
                       )}
                     </TableBodyCell>
                   </TableRow>
