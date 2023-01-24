@@ -1,3 +1,10 @@
+/*
+ *   The commented code contains the logic and UI for token selector.
+ *   Users can either use underlying or the collateral asset to create
+ *   their positions. For our initial rollup, the UI is restricted to
+ *   use the collateral asset (USDC).
+ */
+
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
 import React, {

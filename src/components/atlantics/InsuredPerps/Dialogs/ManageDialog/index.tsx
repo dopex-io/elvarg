@@ -2,7 +2,6 @@ import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 import Dialog from 'components/UI/Dialog';
-import ManagePosition from 'components/atlantics/InsuredPerps/Dialogs/ManageDialog/ManagePosition';
 import ManageStrategyPosition from 'components/atlantics/InsuredPerps/Dialogs/ManageDialog/ManageStrategyPosition';
 
 interface IManageModalProps {
@@ -16,7 +15,6 @@ const SECTIONS: Record<string, Record<string, string | JSX.Element>> = {
     title: 'Manage Strategy',
     component: <ManageStrategyPosition />,
   },
-  MANAGE_POSITION: { title: 'Manage Position', component: <ManagePosition /> },
 };
 
 const ManageModal = (props: IManageModalProps) => {
