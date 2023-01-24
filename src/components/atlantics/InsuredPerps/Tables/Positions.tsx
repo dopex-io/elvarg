@@ -397,7 +397,10 @@ const Positions = ({
   }, [userPositionData]);
 
   const renderButton = useMemo(() => {
-    if (userPositionData.state === ActionState['2'])
+    if (
+      userPositionData.state === ActionState['2'] ||
+      userPositionData.state === ActionState['3']
+    )
       return (
         <CustomButton onClick={handleIncreaseManagedPosition}>
           Add Collateral
@@ -405,14 +408,21 @@ const Positions = ({
       );
     else if (userPositionData.state === ActionState['4'])
       return (
-        <CustomButton onClick={handleManageButtonClick}>Manage</CustomButton>
+        <CustomButton onClick={handleManageButtonClick}>
+          Exit Position
+        </CustomButton>
       );
     else if (userPositionData.state === ActionState['5'])
-      return <CustomButton disabled>Enable Pending</CustomButton>;
+      return (
+        <CustomButton onClick={handleReuseStrategy}>
+          Re-use Strategy
+        </CustomButton>
+      );
     return <CustomButton disabled>...</CustomButton>;
   }, [
     handleIncreaseManagedPosition,
     handleManageButtonClick,
+    handleReuseStrategy,
     userPositionData.state,
   ]);
 
