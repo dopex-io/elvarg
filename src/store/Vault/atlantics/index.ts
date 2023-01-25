@@ -16,6 +16,8 @@ import { WalletSlice } from 'store/Wallet';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import { getTokenDecimals } from 'utils/general';
+
 export enum OptionsState {
   Settled,
   Active,
@@ -78,6 +80,7 @@ interface IAtlanticPoolEpochData {
   tickSize?: BigNumber;
   maxStrikes: BigNumber[];
   premiaAccrued: BigNumber;
+  fundingAccrued: number;
   utilizationRate: number | string;
   apr: number | string;
   startTime: BigNumber;
@@ -209,8 +212,13 @@ export const createAtlanticsSlice: StateCreator<
     }));
   },
   updateAtlanticPoolEpochData: async () => {
-    const { selectedEpoch, selectedPoolName, contractAddresses, atlanticPool } =
-      get();
+    const {
+      selectedEpoch,
+      selectedPoolName,
+      contractAddresses,
+      atlanticPool,
+      chainId,
+    } = get();
 
     if (!selectedPoolName || !contractAddresses || !atlanticPool) return;
 
@@ -348,6 +356,10 @@ export const createAtlanticsSlice: StateCreator<
         maxStrikes[0] ?? BigNumber.from(0),
         maxStrikes[maxStrikes.length - 1] ?? BigNumber.from(0),
       ],
+      fundingAccrued: getUserReadableAmount(
+        totalFunding,
+        getTokenDecimals(atlanticPool.tokens.depositToken, chainId)
+      ),
       epochStrikeData: maxStrikeData,
       totalEpochActiveCollateral: totalActiveCollateral,
       totalEpochLiquidity: totalEpochDeposits,

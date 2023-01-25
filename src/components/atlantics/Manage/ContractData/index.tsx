@@ -164,8 +164,14 @@ const ContractData = () => {
           variant="row"
         />
         <ContractDataItem
-          description="Options Sold"
-          value={<Typography variant="h6">{'...'}</Typography>}
+          description="Funding"
+          value={
+            <Typography variant="h6">
+              {`${
+                formatAmount(atlanticPoolEpochData?.fundingAccrued, 3) ?? 0
+              } ${atlanticPool?.tokens.depositToken}`}
+            </Typography>
+          }
           variant="row"
         />
         <ContractDataItem
