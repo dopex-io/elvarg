@@ -16,6 +16,8 @@ export interface OptionPerpData {
   feePriorityWithheld: BigNumber;
   liquidationThreshold: BigNumber;
   markPrice: BigNumber;
+  quoteLpPositionMinter: string;
+  baseLpPositionMinter : string;
 }
 
 export interface OptionPerpEpochData {
@@ -155,6 +157,8 @@ export const createOptionPerpSlice: StateCreator<
       feePriorityWithheld,
       liquidationThreshold,
       markPrice,
+      quoteLpPositionMinter,
+      baseLpPositionMinter  
     ] = await Promise.all([
       optionPerpContract!['epoch'](),
       optionPerpContract!['expiry'](),
@@ -167,6 +171,8 @@ export const createOptionPerpSlice: StateCreator<
       optionPerpContract!['feePriorityWithheld'](),
       optionPerpContract!['liquidationThreshold'](),
       optionPerpContract!['getMarkPrice'](),
+      optionPerpContract!['quoteLpPositionMinter'](),
+      optionPerpContract!['baseLpPositionMinter'](),  
     ]);
 
     set((prevState) => ({
@@ -184,6 +190,8 @@ export const createOptionPerpSlice: StateCreator<
         feePriorityWithheld: feePriorityWithheld,
         liquidationThreshold: liquidationThreshold,
         markPrice: markPrice,
+        quoteLpPositionMinter: quoteLpPositionMinter,
+        baseLpPositionMinter: baseLpPositionMinter
       },
     }));
   },
@@ -193,1605 +201,1605 @@ export const createOptionPerpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
 
     const abi = [
-      {
-        inputs: [
-          {
-            internalType: 'address',
-            name: '_base',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_quote',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_optionPricing',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_volatilityOracle',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_priceOracle',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_gmxRouter',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_gmxHelper',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_quoteLpPositionMinter',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_baseLpPositionMinter',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_perpPositionMinter',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_optionPositionMinter',
-            type: 'address',
-          },
-          {
-            internalType: 'uint256',
-            name: '_expiry',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'constructor',
-      },
-      {
-        inputs: [],
-        name: 'ContractNotPaused',
-        type: 'error',
-      },
-      {
-        inputs: [],
-        name: 'ContractPaused',
-        type: 'error',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'sender',
-            type: 'address',
-          },
-        ],
-        name: 'AddCollateralToPosition',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'size',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'int256',
-            name: 'pnl',
-            type: 'int256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'user',
-            type: 'address',
-          },
-        ],
-        name: 'ClosePerpPosition',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'minAmountOut',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'priorityFee',
-            type: 'uint256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'user',
-            type: 'address',
-          },
-        ],
-        name: 'CreateWithdrawRequest',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'bool',
-            name: 'isFulfilled',
-            type: 'bool',
-          },
-        ],
-        name: 'DeleteWithdrawRequest',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amountOut',
-            type: 'uint256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'user',
-            type: 'address',
-          },
-        ],
-        name: 'Deposit',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'address',
-            name: 'sender',
-            type: 'address',
-          },
-        ],
-        name: 'EmergencyWithdraw',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'margin',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'positions',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'price',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'liquidationFee',
-            type: 'uint256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'liquidator',
-            type: 'address',
-          },
-        ],
-        name: 'LiquidatePosition',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'bool',
-            name: 'isShort',
-            type: 'bool',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'size',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'collateralAmount',
-            type: 'uint256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'user',
-            type: 'address',
-          },
-          {
-            indexed: true,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'OpenPerpPosition',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'previousOwner',
-            type: 'address',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'newOwner',
-            type: 'address',
-          },
-        ],
-        name: 'OwnershipTransferred',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'address',
-            name: 'account',
-            type: 'address',
-          },
-        ],
-        name: 'Paused',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'sender',
-            type: 'address',
-          },
-        ],
-        name: 'ReduceCollateralForPosition',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'epoch',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'strike',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'pnl',
-            type: 'uint256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'to',
-            type: 'address',
-          },
-        ],
-        name: 'Settle',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'address',
-            name: 'account',
-            type: 'address',
-          },
-        ],
-        name: 'Unpaused',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amountOut',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amountOutFeesForBot',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'amountOutFeesWithheld',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'address',
-            name: 'resolver',
-            type: 'address',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'user',
-            type: 'address',
-          },
-        ],
-        name: 'Withdraw',
-        type: 'event',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'collateralAmount',
-            type: 'uint256',
-          },
-        ],
-        name: 'addCollateral',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'base',
-        outputs: [
-          {
-            internalType: 'contract IERC20',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'baseLpPositionMinter',
-        outputs: [
-          {
-            internalType: 'contract ILpPositionMinter',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-        ],
-        name: 'calcLpAmount',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'amountOut',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'cancelWithdrawalRequest',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'size',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'collateralAmount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'minAmountOut',
-            type: 'uint256',
-          },
-        ],
-        name: 'changePositionSize',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'amountOut',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'minAmountOut',
-            type: 'uint256',
-          },
-        ],
-        name: 'closePosition',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'amountOut',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'completeWithdrawalRequest',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'amountOut',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amountOutFeesForBot',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amountOutFeesWithheld',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-        ],
-        name: 'deposit',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'divisor',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'address[]',
-            name: 'tokens',
-            type: 'address[]',
-          },
-          {
-            internalType: 'bool',
-            name: 'transferNative',
-            type: 'bool',
-          },
-        ],
-        name: 'emergencyWithdraw',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'epoch',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'bool',
-            name: '',
-            type: 'bool',
-          },
-        ],
-        name: 'epochData',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'totalDeposits',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'activeDeposits',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'averageOpenPrice',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'positions',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'margin',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'premium',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'openingFees',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'closingFees',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'oi',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'expiry',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        name: 'expiryPrices',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'feeClosePosition',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'feeLiquidation',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'feeOpenPosition',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'feePriorityWithheld',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'bool',
-            name: 'isShort',
-            type: 'bool',
-          },
-        ],
-        name: 'getFundingRate',
-        outputs: [
-          {
-            internalType: 'int256',
-            name: 'fundingRate',
-            type: 'int256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'getMarkPrice',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'price',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'getOptionPnl',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'value',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'getPositionFunding',
-        outputs: [
-          {
-            internalType: 'int256',
-            name: 'funding',
-            type: 'int256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'getPositionLiquidationPrice',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'price',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'getPositionNetMargin',
-        outputs: [
-          {
-            internalType: 'int256',
-            name: 'value',
-            type: 'int256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'getPositionPnl',
-        outputs: [
-          {
-            internalType: 'int256',
-            name: 'value',
-            type: 'int256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'getPositionValue',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'value',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'strike',
-            type: 'uint256',
-          },
-        ],
-        name: 'getVolatility',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'volatility',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'gmxHelper',
-        outputs: [
-          {
-            internalType: 'contract IGmxHelper',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'gmxRouter',
-        outputs: [
-          {
-            internalType: 'contract IGmxRouter',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'isPositionCollateralized',
-        outputs: [
-          {
-            internalType: 'bool',
-            name: 'isCollateralized',
-            type: 'bool',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'isPositionOpen',
-        outputs: [
-          {
-            internalType: 'bool',
-            name: 'value',
-            type: 'bool',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'liquidate',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'liquidationThreshold',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'maxFundingRate',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'minFundingRate',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'bool',
-            name: 'isShort',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'size',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'collateralAmount',
-            type: 'uint256',
-          },
-        ],
-        name: 'openPosition',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'minAmountOut',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'priorityFee',
-            type: 'uint256',
-          },
-        ],
-        name: 'openWithdrawalRequest',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'optionPositionMinter',
-        outputs: [
-          {
-            internalType: 'contract IOptionPositionMinter',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        name: 'optionPositions',
-        outputs: [
-          {
-            internalType: 'bool',
-            name: 'isSettled',
-            type: 'bool',
-          },
-          {
-            internalType: 'bool',
-            name: 'isPut',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'strike',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'epoch',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'optionPricing',
-        outputs: [
-          {
-            internalType: 'contract IOptionPricing',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'owner',
-        outputs: [
-          {
-            internalType: 'address',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'pause',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'paused',
-        outputs: [
-          {
-            internalType: 'bool',
-            name: '',
-            type: 'bool',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        name: 'pendingWithdrawals',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'minAmountOut',
-            type: 'uint256',
-          },
-          {
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'priorityFee',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'user',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'perpPositionMinter',
-        outputs: [
-          {
-            internalType: 'contract IPerpPositionMinter',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        name: 'perpPositions',
-        outputs: [
-          {
-            internalType: 'bool',
-            name: 'isOpen',
-            type: 'bool',
-          },
-          {
-            internalType: 'bool',
-            name: 'isShort',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'positions',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'size',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'averageOpenPrice',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'margin',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'premium',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'openingFees',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'closingFees',
-            type: 'uint256',
-          },
-          {
-            internalType: 'int256',
-            name: 'funding',
-            type: 'int256',
-          },
-          {
-            internalType: 'int256',
-            name: 'pnl',
-            type: 'int256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'openedAt',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'allocatedDeposits',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'priceOracle',
-        outputs: [
-          {
-            internalType: 'contract IPriceOracle',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'quote',
-        outputs: [
-          {
-            internalType: 'contract IERC20',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'quoteLpPositionMinter',
-        outputs: [
-          {
-            internalType: 'contract ILpPositionMinter',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'collateralAmount',
-            type: 'uint256',
-          },
-        ],
-        name: 'reduceCollateral',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'renounceOwnership',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-        ],
-        name: 'settle',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'address',
-            name: 'newOwner',
-            type: 'address',
-          },
-        ],
-        name: 'transferOwnership',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'unpause',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256',
-            name: 'nextExpiryTimestamp',
-            type: 'uint256',
-          },
-        ],
-        name: 'updateEpoch',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'uint256[7]',
-            name: 'parameters',
-            type: 'uint256[7]',
-          },
-        ],
-        name: 'updateParameters',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'volatilityOracle',
-        outputs: [
-          {
-            internalType: 'contract IVolatilityOracle',
-            name: '',
-            type: 'address',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          {
-            internalType: 'bool',
-            name: 'isQuote',
-            type: 'bool',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amountIn',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'minAmountOut',
-            type: 'uint256',
-          },
-        ],
-        name: 'withdraw',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'amountOut',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'withdrawalRequestsCounter',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
-          },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-    ];
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_base",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_quote",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_optionPricing",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_volatilityOracle",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_priceOracle",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_gmxRouter",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_gmxHelper",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_quoteLpPositionMinter",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_baseLpPositionMinter",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_perpPositionMinter",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_optionPositionMinter",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_expiry",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ContractNotPaused",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ContractPaused",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "AddCollateralToPosition",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "size",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "pnl",
+          "type": "int256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "ClosePerpPosition",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "priorityFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "CreateWithdrawRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isFulfilled",
+          "type": "bool"
+        }
+      ],
+      "name": "DeleteWithdrawRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "Deposit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "EmergencyWithdraw",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "margin",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "positions",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "liquidationFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "liquidator",
+          "type": "address"
+        }
+      ],
+      "name": "LiquidatePosition",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isShort",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "size",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "collateralAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "OpenPerpPosition",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ReduceCollateralForPosition",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "epoch",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "strike",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "pnl",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        }
+      ],
+      "name": "Settle",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountOutFeesForBot",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountOutFeesWithheld",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "resolver",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "Withdraw",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collateralAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "addCollateral",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "base",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "baseLpPositionMinter",
+      "outputs": [
+        {
+          "internalType": "contract ILpPositionMinter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        }
+      ],
+      "name": "calcLpAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelWithdrawalRequest",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "size",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collateralAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "changePositionSize",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "closePosition",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "completeWithdrawalRequest",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOutFeesForBot",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOutFeesWithheld",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "divisor",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "tokens",
+          "type": "address[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "transferNative",
+          "type": "bool"
+        }
+      ],
+      "name": "emergencyWithdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "epoch",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "name": "epochData",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalDeposits",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "activeDeposits",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "averageOpenPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "positions",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "margin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "premium",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "openingFees",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "closingFees",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "oi",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "expiry",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "expiryPrices",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feeClosePosition",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feeLiquidation",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feeOpenPosition",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feePriorityWithheld",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isShort",
+          "type": "bool"
+        }
+      ],
+      "name": "getFundingRate",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "fundingRate",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMarkPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getOptionPnl",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPositionFunding",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "funding",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPositionLiquidationPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPositionNetMargin",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "value",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPositionPnl",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "value",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPositionValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "strike",
+          "type": "uint256"
+        }
+      ],
+      "name": "getVolatility",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "volatility",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "gmxHelper",
+      "outputs": [
+        {
+          "internalType": "contract IGmxHelper",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "gmxRouter",
+      "outputs": [
+        {
+          "internalType": "contract IGmxRouter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "isPositionCollateralized",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isCollateralized",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "isPositionOpen",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "value",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "liquidate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "liquidationThreshold",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxFundingRate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minFundingRate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isShort",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "size",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collateralAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "openPosition",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "priorityFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "openWithdrawalRequest",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "optionPositionMinter",
+      "outputs": [
+        {
+          "internalType": "contract IOptionPositionMinter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "optionPositions",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isSettled",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "isPut",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "strike",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "epoch",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "optionPricing",
+      "outputs": [
+        {
+          "internalType": "contract IOptionPricing",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paused",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "pendingWithdrawals",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "priorityFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "perpPositionMinter",
+      "outputs": [
+        {
+          "internalType": "contract IPerpPositionMinter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "perpPositions",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isOpen",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "isShort",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "positions",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "size",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "averageOpenPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "margin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "premium",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "openingFees",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "closingFees",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int256",
+          "name": "funding",
+          "type": "int256"
+        },
+        {
+          "internalType": "int256",
+          "name": "pnl",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "openedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allocatedDeposits",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "priceOracle",
+      "outputs": [
+        {
+          "internalType": "contract IPriceOracle",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "quote",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "quoteLpPositionMinter",
+      "outputs": [
+        {
+          "internalType": "contract ILpPositionMinter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collateralAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "reduceCollateral",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "settle",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "nextExpiryTimestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateEpoch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "parameters",
+          "type": "uint256[7]"
+        }
+      ],
+      "name": "updateParameters",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "volatilityOracle",
+      "outputs": [
+        {
+          "internalType": "contract IVolatilityOracle",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isQuote",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawalRequestsCounter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
 
     return new ethers.Contract(
       '0xFCd372d17CF7dAB55D4d3Aaa0A4008473AA1B665',

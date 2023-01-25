@@ -9,7 +9,7 @@ const Manage = () => {
   const [activeTab, setActiveTab] = useState<string>('Deposit');
 
   return (
-    <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
+    <Box className="bg-cod-gray rounded-xl p-1 max-w-sm">
       <Box className={'flex'}>
         <Box className={'w-full'}>
           <Box className="flex flex-row mb-4 justify-between p-1 border-[1px] border-[#1E1E1E] rounded-md">
@@ -25,7 +25,7 @@ const Manage = () => {
             </Box>
             <Box
               className={`text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
-                activeTab === 'Earn' ? 'bg-[#2D2D2D]' : ''
+                activeTab === 'Withdraw' ? 'bg-[#2D2D2D]' : ''
               }`}
               onClick={() => setActiveTab('Withdraw')}
             >
