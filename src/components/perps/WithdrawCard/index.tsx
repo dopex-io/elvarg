@@ -40,7 +40,7 @@ const WithdrawCard = () => {
 
   const [rawAmount, setRawAmount] = useState<string>('1000');
 
-  const [estimatedLpTokens, setEstimatedLpTokens] = useState<string>('0');
+  const [estimatedOut, setEstimatedOut] = useState<string>('0');
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -66,9 +66,10 @@ const WithdrawCard = () => {
       return;
     
     try {
-      await sendTx(optionPerpData.optionPerpContract.connect(signer), 'deposit', [
+      await sendTx(optionPerpData.optionPerpContract.connect(signer), 'withdraw', [
         isQuote,
-        getContractReadableAmount(amount, isQuote ? 6 : 18)
+        getContractReadableAmount(amount, isQuote ? 6 : 18),
+        estimatedOut
       ]);
       await updateOptionPerp();
       await updateOptionPerpEpochData();
@@ -85,20 +86,22 @@ const WithdrawCard = () => {
     updateOptionPerpUserData,
     updateOptionPerpEpochData,
     sendTx,
-    isQuote  
+    isQuote,
+    estimatedOut  
   ]);
   
-  const calcLpAmount = useCallback(async () => {
+  const calcTokenAmount = useCallback(async () => {
     if (!optionPerpData) return;
     
-    const estimatedOutput = await optionPerpData.optionPerpContract.calcLpAmount(isQuote, getContractReadableAmount(amount, isQuote ? 6 : 18));
-    setEstimatedLpTokens(estimatedOutput);
+    try {
+      const estimatedOutput = await optionPerpData.optionPerpContract.callStatic.withdraw(isQuote, getContractReadableAmount(amount, isQuote ? 6 : 18), 0);
+      setEstimatedOut(estimatedOutput);
+    } catch (e) {}
   }, [optionPerpData, isQuote, amount, optionPerpData]);
 
-  // Update LP tokens
   useEffect(() => {
-    calcLpAmount();
-  }, [calcLpAmount]);
+    calcTokenAmount();
+  }, [calcTokenAmount]);
   
   // Updates user balance
   useEffect(() => {
@@ -106,8 +109,8 @@ const WithdrawCard = () => {
       if (!accountAddress || !signer || !optionPerpData?.optionPerpContract)
         return;
 
-      const quote = ERC20__factory.connect(contractAddresses['USDC'], signer);
-      const base = ERC20__factory.connect(contractAddresses['WETH'], signer);
+      const quote = ERC20__factory.connect(optionPerpData.quoteLpPositionMinter, signer);
+      const base = ERC20__factory.connect(optionPerpData.baseLpPositionMinter, signer);
       const balance: BigNumber = await (isQuote ? quote : base).balanceOf(accountAddress);
       if (isQuote) {
         setUserQuoteBalance(balance);
@@ -120,7 +123,7 @@ const WithdrawCard = () => {
     accountAddress,
     signer,
     chainId,
-    optionPerpData,
+    optionPerpData
   ]);
 
   return (
@@ -178,12 +181,12 @@ const WithdrawCard = () => {
                 getUserReadableAmount(userTokenBalance, isQuote ? 6 : 18),
                 isQuote ? 0 : 3
               )}{' '}
-              {isQuote ? 'USDC' : 'WETH'}
+              {isQuote ? 'USDC' : 'WETH'} LP
             </Typography>
           </Box>
         </Box>
       </Box>
-      <Box className="bg-umbra rounded-2xl">
+      {estimatedOut !== '0' ? <Box className="bg-umbra rounded-2xl">
           <Box className="flex flex-col mb-4 p-4 w-full">
           <Box className={'flex mb-0.5'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
@@ -191,12 +194,12 @@ const WithdrawCard = () => {
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(getUserReadableAmount(estimatedLpTokens, isQuote ? 6 : 18), 2)} {isQuote ? 'USDC' : 'ETH'}
+                {formatAmount(getUserReadableAmount(estimatedOut, isQuote ? 6 : 18), 2)} {isQuote ? 'USDC' : 'ETH'}
               </Typography>
             </Box>
           </Box>
         </Box>
-      </Box>
+      </Box> : null}
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">
           <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
