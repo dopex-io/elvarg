@@ -264,7 +264,9 @@ export const createAtlanticsSlice: StateCreator<
     let totalPremium = BigNumber.from(0);
     let totalFunding = BigNumber.from(0);
     let maxStrikeData: IAtlanticPoolEpochStrikeData[] = [];
+    let totalEpochActiveCollateral = BigNumber.from(0);
     let totalEpochUnlockedCollateral = BigNumber.from(0);
+    let totalEpochLiquidity = BigNumber.from(0);
 
     for (const i in maxStrikes) {
       const strike = maxStrikes[i];
@@ -290,19 +292,21 @@ export const createAtlanticsSlice: StateCreator<
           borrowFeesAccrued,
         } = checkpoint;
 
-        totalActiveCollateral = totalActiveCollateral.add(activeCollateral);
-
-        totalUnlockedCollateral =
-          totalUnlockedCollateral.add(unlockedCollateral);
-
-        liquidity = liquidity.add(totalLiquidity);
         totalPremium = totalPremium.add(premiumAccrued);
         totalFunding = totalFunding.add(borrowFeesAccrued);
+        totalActiveCollateral = totalActiveCollateral.add(activeCollateral);
+        totalUnlockedCollateral =
+          totalUnlockedCollateral.add(unlockedCollateral);
+        liquidity = liquidity.add(totalLiquidity);
       }
 
+      totalEpochActiveCollateral = totalEpochActiveCollateral.add(
+        totalActiveCollateral
+      );
       totalEpochUnlockedCollateral = totalEpochUnlockedCollateral.add(
         totalUnlockedCollateral
       );
+      totalEpochLiquidity = totalEpochLiquidity.add(liquidity);
 
       maxStrikeData.push({
         strike: strike,
@@ -312,14 +316,14 @@ export const createAtlanticsSlice: StateCreator<
       });
     }
 
-    // TODO
     let utilizationRate: number;
 
     try {
       utilizationRate = getUserReadableAmount(
         totalEpochUnlockedCollateral
           .mul(getContractReadableAmount(1, 6))
-          .div(totalLiquidity),
+          .div(totalEpochLiquidity)
+          .mul(100),
         6
       );
     } catch (e) {
@@ -333,13 +337,12 @@ export const createAtlanticsSlice: StateCreator<
 
     const epochLength = expiryTime.sub(startTime);
 
-    const epochDurationInDays = epochLength.div('84600').toNumber();
+    const epochDurationInDays = Number(epochLength) / 84600;
 
     const apr =
-      ((totalPremium.add(totalFunding).div(1e6).toNumber() /
-        totalEpochDeposits.div(getContractReadableAmount(1, 6)).toNumber()) *
-        (365 * 100)) /
-      epochDurationInDays;
+      (totalPremium.add(totalFunding).div(1e6).toNumber() /
+        totalEpochLiquidity.div(1e6).toNumber()) *
+      ((365 * 100) / epochDurationInDays);
 
     let atlanticPoolEpochData: IAtlanticPoolEpochData = {
       epoch: selectedEpoch,
@@ -361,9 +364,9 @@ export const createAtlanticsSlice: StateCreator<
         getTokenDecimals(atlanticPool.tokens.depositToken, chainId)
       ),
       epochStrikeData: maxStrikeData,
-      totalEpochActiveCollateral: totalActiveCollateral,
+      totalEpochActiveCollateral,
       totalEpochLiquidity: totalEpochDeposits,
-      totalEpochUnlockedCollateral: totalEpochUnlockedCollateral,
+      totalEpochUnlockedCollateral,
     };
 
     set((prevState) => ({
