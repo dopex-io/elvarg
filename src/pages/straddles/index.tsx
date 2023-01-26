@@ -97,7 +97,7 @@ const Straddles = () => {
   }, [provider, tokenPrices]);
 
   return (
-    <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="min-h-screen">
       <Head>
         <title>Straddles | Dopex</title>
       </Head>
