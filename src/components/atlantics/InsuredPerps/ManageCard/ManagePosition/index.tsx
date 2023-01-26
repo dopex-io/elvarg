@@ -403,7 +403,7 @@ const ManagePosition = () => {
 
       const positionFeeUsd = getPositionFee(sizeUsd);
 
-      if (positionFeeUsd.add(sizeUsd).add(currentLongsUsd).gt(maxLongsLimit)) {
+      if (sizeUsd.add(currentLongsUsd).gt(maxLongsLimit)) {
         setLongLimitExceeded(true);
       }
 
@@ -488,7 +488,9 @@ const ManagePosition = () => {
         totalFeesUsd: positionFeeUsd.add(LIQUIDATION_FEE_USD),
         collateralDeltaUsd: collateralUsd,
         availabeLiquidityForLongs: getUserReadableAmount(
-          maxLongsLimit.sub(currentLongsUsd).gt(0) ? maxLongsLimit.sub(currentLongsUsd) : 0,
+          maxLongsLimit.sub(currentLongsUsd).gt(0)
+            ? maxLongsLimit.sub(currentLongsUsd)
+            : 0,
           30
         ),
         feesWithoutDiscount: {
@@ -535,22 +537,53 @@ const ManagePosition = () => {
   ]);
 
   const updatePrice = useCallback(async () => {
-    if (!contractAddresses['GMX-VAULT'] || !signer || !atlanticPool) return;
+    if (
+      !contractAddresses['GMX-VAULT'] ||
+      !signer ||
+      !atlanticPool ||
+      !provider
+    )
+      return;
 
     const gmxVault = GmxVault__factory.connect(
       contractAddresses['GMX-VAULT'],
       signer
     );
 
-    const price = await gmxVault.getMaxPrice(
-      contractAddresses[atlanticPool.tokens.underlying]
+    const positionRouter = new ethers.Contract(
+      '0xb87a436B93fFE9D75c5cFA7bAcFff96430b09868',
+      ['function maxGlobalLongSizes(address) external view returns (uint256)'],
+      provider
     );
+
+    const underlyingTokenAddress =
+      contractAddresses[atlanticPool.tokens.underlying];
+
+    const [price, maxLongs, currentLongs] = await Promise.all([
+      gmxVault.getMaxPrice(contractAddresses[atlanticPool.tokens.underlying]),
+      positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
+      gmxVault.guaranteedUsd(underlyingTokenAddress),
+    ]);
+
+    if (strategyDetails.positionSize.add(currentLongs).gte(maxLongs)) {
+      setLongLimitExceeded(true);
+    }
 
     setStrategyDetails((prev) => ({
       ...prev,
       markPrice: price,
+      availabeLiquidityForLongs: getUserReadableAmount(
+        maxLongs.sub(currentLongs),
+        30
+      ),
     }));
-  }, [signer, contractAddresses, atlanticPool]);
+  }, [
+    signer,
+    contractAddresses,
+    atlanticPool,
+    strategyDetails.positionSize,
+    provider,
+  ]);
 
   const handleChangeLeverage = useCallback(
     (_: Event | SyntheticEvent<Element, Event>, value: number | number[]) => {
