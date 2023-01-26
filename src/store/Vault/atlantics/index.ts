@@ -316,7 +316,6 @@ export const createAtlanticsSlice: StateCreator<
       });
     }
 
-    // TODO
     let utilizationRate: number;
 
     try {

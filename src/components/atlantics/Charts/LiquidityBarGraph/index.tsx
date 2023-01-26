@@ -8,7 +8,6 @@ import {
   Tooltip,
   Bar,
   ResponsiveContainer,
-  LabelList,
   Cell,
 } from 'recharts';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
@@ -20,7 +19,6 @@ import PutsIcon from 'svgs/icons/PutsIcon';
 
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface IBarData {
@@ -65,11 +63,11 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             <PutsIcon className="my-auto" />
           )}
           <Typography variant="h6" className="align-center" color="stieglitz">
-            Available ({header['collateral']})
+            Collateral Distribution ({header['collateral']})
           </Typography>
         </Box>
-        <Box className="flex">
-          <ArrowDownwardRoundedIcon className="fill-current text-stieglitz h-5 my-auto" />
+        <Box className="flex my-auto">
+          <ArrowDownwardRoundedIcon className="fill-current text-stieglitz h-5 p-0" />
           <Typography variant="h6" color="stieglitz">
             Max Strike
           </Typography>
@@ -107,7 +105,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
                 backgroundColor: '#2D2D2D',
                 color: '#2D2D2D',
               }}
-              content={<CustomTooltipContent title="Collateral Distribution" />}
+              content={<CustomTooltipContent />}
             />
             <XAxis type="number" dataKey="availableCollateral" hide />
             <XAxis type="number" dataKey="unlocked" hide />
@@ -128,12 +126,6 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               label="availableCollateral"
               radius={[5, 0, 0, 5]}
             >
-              <LabelList
-                dataKey="availableCollateral"
-                position="insideLeft"
-                fill="white"
-                formatter={(value: number) => formatAmount(value, 3)}
-              />
               {data.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}

@@ -121,7 +121,7 @@ export const Manage = (props: ManageProps) => {
                 <Charts
                   line_data={line_chart_data}
                   underlying={underlying}
-                  collateral={tokenId}
+                  collateral={depositToken}
                   title={title}
                   type={type}
                 />
