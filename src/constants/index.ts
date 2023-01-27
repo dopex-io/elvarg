@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 
 import { INFURA_PROJECT_ID, ANKR_KEY, GOERLI_KEY } from './env';
 
@@ -14,6 +14,51 @@ export const ASC = 'asc';
 export const DESC = 'desc';
 export const NULL: string = '0x0000000000000000000000000000000000000000';
 export const PERCENT: BigNumber = BigNumber.from(100);
+
+export const FEE_BPS_MAP: Record<
+  string,
+  Record<string, Record<string, BigNumberish>>
+> = {
+  ATLANTICS: {
+    PURCHASE_FEES: {
+      fee: BigNumber.from(100000),
+      maxDiscount: BigNumber.from(2500000),
+    },
+    FUNDING_FEES: {
+      fee: BigNumber.from(100000),
+      maxDiscount: BigNumber.from(0),
+    },
+    STRATEGY_FEES: {
+      FEE: BigNumber.from(25000),
+      MAX_DISCOUNT: BigNumber.from(2500000),
+    },
+  },
+};
+
+export const OPTION_TOKEN_DECIMALS = 18;
+
+export const FEE_DISCOUNTS: Record<string, Record<string, BigNumberish>> = {
+  // Bridgoor
+  '0x4Ee9fe9500E7C4Fe849AdD9b14beEc5eC5b7d955': {
+    decimals: 1,
+    maxBalance: 10,
+    discountBps: 250000,
+  },
+  // VeDPX
+  '0x80789D252A288E93b01D82373d767D71a75D9F16': {
+    decimals: 18,
+    maxBalance: ethers.utils.parseEther('1'),
+    discountBps: 100000,
+  },
+  // Halloweeneis
+  '0x9baDE4013a7601aA1f3e9f1361a4ebE60D91B1B5': {
+    decimals: 1,
+    maxBalance: 1,
+    discountBps: 2500000,
+  },
+};
+
+export const FEE_BPS_PRECISION = 10000000;
 
 export const CURRENCIES_MAP: { [key: string]: string } = {
   '1': 'ETH',
@@ -98,6 +143,11 @@ export const SSOV_MAP: {
   },
 };
 
+export const ATLANTIC_STATS_MAPPING: { [key: string]: string } = {
+  TVL: 'TVL',
+  pools: 'Pools',
+};
+// volume: 'Volume',
 export const VAULT_MAP: { [key: string]: { src: string } } = {
   'MIM3CRV-1': {
     src: '/images/tokens/mim.svg',
@@ -255,12 +305,20 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   421611: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/images/tokens/avax.svg' },
   1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
+  1337: { name: 'Localhost', icon: '/images/tokens/eth.svg' },
 };
 
-export const TOKEN_DECIMALS = {
+export const TOKEN_DECIMALS: {
+  [key: string | number]: { [key: string]: number };
+} = {
   '56': {
     BNB: 18,
     VBNB: 8,
+  },
+  '1337': {
+    WETH: 18,
+    USDT: 6,
+    USDC: 6,
   },
   '1': {
     USDT: 6,
@@ -273,10 +331,12 @@ export const TOKEN_DECIMALS = {
   '421611': {
     USDT: 6,
     USDC: 6,
+    WETH: 18,
   },
   '42161': {
     USDT: 6,
     USDC: 6,
+    WETH: 18,
   },
   '43114': {
     USDT: 6,
@@ -349,6 +409,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/faucet': { default: 5, all: [5] },
   '/olp': { default: 5, all: [5, 42161] },
   '/olp/DPX': { default: 5, all: [5, 42161] },
+  '/atlantics': { default: 42161, all: [1337, 42161] },
 };
 
 export const DISCLAIMER_MESSAGE = {

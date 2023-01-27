@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import Head from 'next/head';
-import { isEmpty } from 'lodash';
-import { Alert, Box, CircularProgress } from '@mui/material';
+import isEmpty from 'lodash/isEmpty';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   useQuery,
   QueryClient,
@@ -104,7 +106,7 @@ const SsovData = () => {
     );
 
   return (
-    <Box className="bg-[url('/assets/vaults-background.png')] bg-left-top bg-contain bg-no-repeat min-h-screen">
+    <Box className="min-h-screen">
       <Head>
         <title>SSOV | Dopex</title>
       </Head>

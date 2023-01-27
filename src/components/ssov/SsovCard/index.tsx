@@ -27,6 +27,7 @@ const nameToSsovStyle: { [key: string]: string } = {
   AVAX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f00404 99.1%)',
   CRV: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #82f004 99.1%)',
   BTC: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f06a04 99.1%)',
+  stETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #68ccfc 99.1%)',
 };
 
 const CustomBox = styled(Box)(({ token }: { token: string }) => ({

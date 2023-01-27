@@ -30,6 +30,11 @@ module.exports = {
         destination: '/straddles',
         permanent: false,
       },
+      {
+        source: '/atlantics',
+        destination: '/atlantics/manage/WETH-PUTS-WEEKLY',
+        permanent: false,
+      },
     ];
   },
 };

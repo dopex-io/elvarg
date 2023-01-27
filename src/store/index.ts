@@ -14,6 +14,8 @@ import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
 import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
 import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
+import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
+import { GmxSlice, createGmxSlice } from './Vault/atlantics/gmx';
 import { OlpSlice, createOlpSlice } from './Vault/olp';
 
 type T = WalletSlice &
@@ -29,7 +31,9 @@ type T = WalletSlice &
   VeDPXSlice &
   StraddlesSlice &
   DpxBondsSlice &
-  OlpSlice;
+  OlpSlice &
+  GmxSlice &
+  AtlanticPoolsSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -47,5 +51,7 @@ export const useBoundStore = create<T>()(
     ...createStraddlesSlice(...a),
     ...createDpxBondsSlice(...a),
     ...createOlpSlice(...a),
+    ...createAtlanticsSlice(...a),
+    ...createGmxSlice(...a),
   }))
 );
