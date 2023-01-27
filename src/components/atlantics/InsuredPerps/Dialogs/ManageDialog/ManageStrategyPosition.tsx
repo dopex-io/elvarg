@@ -205,27 +205,22 @@ const ManageStrategyPositionDialog = (props: Props) => {
 
     const userPositionId = await strategy.userPositionIds(accountAddress);
 
-    let tx;
     const overrides = {
       value: MIN_EXECUTION_FEE,
     };
 
     // @TODO To add token selector for this
-    if (selectedOptionItem === 0) {
-      tx = strategy.createExitStrategyOrder(userPositionId, true, overrides);
-    }
 
     try {
-      if (tx)
-        await sendTx(strategy, 'createExitStrategyOrder', [
-          userPositionId,
-          true,
-          overrides,
-        ]);
+      await sendTx(strategy, 'createExitStrategyOrder', [
+        userPositionId,
+        true,
+        overrides,
+      ]);
     } catch (e) {
       console.log(e);
     }
-  }, [accountAddress, contractAddresses, sendTx, signer, selectedOptionItem]);
+  }, [accountAddress, contractAddresses, sendTx, signer]);
 
   useEffect(() => {
     updateStrategyPosition();
