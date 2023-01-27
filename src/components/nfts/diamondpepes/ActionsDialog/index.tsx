@@ -10,8 +10,10 @@ import formatAmount from 'utils/general/formatAmount';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import PepeButton from 'components/nfts/components/PepeButton';
+import PepeText from 'components/nfts/components/PepeText';
+import PepeButtonSquare from 'components/nfts/components/PepeButtonSquare';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -212,7 +214,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
               variant="h5"
               className="text-white font-display font-['Minecraft'] relative z-1"
             >
-              <span className={styles['pepeText']}>{box.title}</span>
+              <PepeText text={String(box.title)} />
             </Typography>
             <Typography
               variant="h5"
@@ -224,21 +226,22 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
         ))}
       </Box>
       <Box className={'mt-2'}>
-        <Box className="bg-[#232935] rounded-xl flex pb-6 flex-col p-3">
+        <Box className="bg-[#232935] rounded-xl flex pb-3 flex-col p-3">
           <Box className="flex pl-2 pr-2">
-            <button
-              className={styles['pepeButtonSquare']}
+            <PepeButtonSquare
+              text="-"
+              action={decreaseToMintAmount}
               disabled={toMint < 2}
-              onClick={decreaseToMintAmount}
-            >
-              -
-            </button>
-            <button
-              className={cx('ml-2', styles['pepeButtonSquare'])}
-              onClick={increaseToMintAmount}
-            >
-              +
-            </button>
+            />
+
+            <Box className="ml-2">
+              <PepeButtonSquare
+                text="+"
+                action={increaseToMintAmount}
+                disabled={false}
+              />
+            </Box>
+
             <Input
               id="amount"
               name="amount"
@@ -292,15 +295,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
               </Typography>
             </Box>
           </Box>
-          <CustomButton
-            size="medium"
-            className={styles['pepeButton']!}
-            onClick={handleMint}
-          >
-            <Typography variant="h5" className={styles['pepeButtonText']!}>
-              Buy
-            </Typography>
-          </CustomButton>
+          <PepeButton handleMint={handleMint} text={'Buy'} />
         </Box>
       </Box>
     </Dialog>

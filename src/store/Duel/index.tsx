@@ -184,7 +184,7 @@ export const createDuelSlice: StateCreator<
       const revealDate = new Date(duelData[7][2].toNumber() * 1000);
 
       let challengerAddress = duelData[1][1];
-      if (challengerAddress.includes('0x00000000000000000000'))
+      if (challengerAddress === '0x0000000000000000000000000000000000000000')
         challengerAddress = '?';
 
       const rawMoves = duelData[5];
