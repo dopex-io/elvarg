@@ -7,6 +7,7 @@ export const FEE_PRECISION = 10000000;
 export const OPTIONS_TOKEN_DECIMALS = 18;
 export const STRIKE_DECIMALS = 8;
 export const PURCHASE_FEE_BPS = 100000;
+export const BLACKOUT_WINDOW = 3600;
 
 export const discountsMapping = [
   {
