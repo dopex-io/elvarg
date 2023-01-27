@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import { AtlanticPutsPool__factory, ERC20__factory } from '@dopex-io/sdk';
+import { ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
 import Tooltip from '@mui/material/Tooltip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -88,7 +88,13 @@ const ManageCard = (props: ManageCardProps) => {
   );
 
   const handleApprove = useCallback(async () => {
-    if (!signer || !contractAddresses || !accountAddress || !depositToken)
+    if (
+      !signer ||
+      !contractAddresses ||
+      !accountAddress ||
+      !depositToken ||
+      !atlanticPool
+    )
       return;
 
     try {
@@ -103,7 +109,7 @@ const ManageCard = (props: ManageCardProps) => {
       );
 
       await sendTx(token, 'approve', [
-        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
+        atlanticPool.contracts.atlanticPool.address,
         maxApprove ? MAX_VALUE.toString() : customApproveAmount,
       ]);
       setApproved(true);
@@ -111,13 +117,11 @@ const ManageCard = (props: ManageCardProps) => {
       console.log(err);
     }
   }, [
+    atlanticPool,
     accountAddress,
     chainId,
     contractAddresses,
-    duration,
-    poolType,
     signer,
-    underlying,
     value,
     depositToken,
     maxApprove,
@@ -129,8 +133,8 @@ const ManageCard = (props: ManageCardProps) => {
       !signer ||
       !contractAddresses ||
       !accountAddress ||
-      !atlanticPool?.tokens ||
-      !contractAddresses['ATLANTIC-POOLS']
+      !atlanticPool ||
+      !atlanticPool?.tokens
     )
       return;
     const deposit = atlanticPool.tokens.depositToken;
@@ -139,7 +143,7 @@ const ManageCard = (props: ManageCardProps) => {
     const token = ERC20__factory.connect(contractAddresses[deposit], signer);
     const allowance = await token.allowance(
       accountAddress,
-      contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration]
+      atlanticPool.contracts.atlanticPool.address
     );
     setApproved(
       allowance.gte(
@@ -149,29 +153,15 @@ const ManageCard = (props: ManageCardProps) => {
         )
       )
     );
-  }, [
-    accountAddress,
-    chainId,
-    contractAddresses,
-    duration,
-    poolType,
-    signer,
-    underlying,
-    value,
-    atlanticPool,
-  ]);
+  }, [accountAddress, chainId, contractAddresses, signer, value, atlanticPool]);
 
   const handleDeposit = useCallback(async () => {
-    if (!signer || !accountAddress || !contractAddresses['ATLANTIC-POOLS'])
-      return;
+    if (!signer || !accountAddress || !atlanticPool) return;
 
     let apContract;
 
     try {
-      apContract = AtlanticPutsPool__factory.connect(
-        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-        signer
-      );
+      apContract = atlanticPool?.contracts.atlanticPool.connect(signer);
 
       await sendTx(apContract, 'deposit', [
         getContractReadableAmount(maxStrike, 8),
@@ -188,10 +178,7 @@ const ManageCard = (props: ManageCardProps) => {
   }, [
     signer,
     accountAddress,
-    contractAddresses,
-    underlying,
-    poolType,
-    duration,
+    atlanticPool,
     sendTx,
     maxStrike,
     value,
@@ -222,12 +209,9 @@ const ManageCard = (props: ManageCardProps) => {
 
   useEffect(() => {
     (async () => {
-      if (!signer || !contractAddresses['ATLANTIC-POOLS']) return;
+      if (!signer || !atlanticPool) return;
 
-      let pool = AtlanticPutsPool__factory.connect(
-        contractAddresses['ATLANTIC-POOLS'][underlying][poolType][duration],
-        signer
-      );
+      let pool = atlanticPool.contracts.atlanticPool;
 
       setCurrentPrice(await pool.getUsdPrice());
     })();

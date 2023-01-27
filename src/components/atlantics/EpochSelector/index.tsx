@@ -14,10 +14,10 @@ interface EpochSelectorProps {
 const EpochSelector = (props: EpochSelectorProps) => {
   const { currentEpoch, selectedEpoch, setSelectedEpoch } = props;
 
-  const { updateAtlanticPoolEpochData } = useBoundStore();
+  const { updateAtlanticPoolEpochData, updateAtlanticPool } = useBoundStore();
 
   const epochs = useMemo(() => {
-    return range(currentEpoch)
+    return range(2)
       .join()
       .split(',')
       .map((_i, index) => {
@@ -34,9 +34,14 @@ const EpochSelector = (props: EpochSelectorProps) => {
   const handleEpochSelection = useCallback(
     (e: { target: { value: string | number } }) => {
       setSelectedEpoch(Number(e.target.value));
+      if (Number(e.target.value) == 1) {
+        updateAtlanticPool('WETH', 'WEEKLY', true);
+      } else {
+        updateAtlanticPool('WETH', 'WEEKLY');
+      }
       updateAtlanticPoolEpochData();
     },
-    [setSelectedEpoch, updateAtlanticPoolEpochData]
+    [setSelectedEpoch, updateAtlanticPoolEpochData, updateAtlanticPool]
   );
 
   return (
