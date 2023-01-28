@@ -5,8 +5,6 @@ import {
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
-import { IncreaseOrderParamsStruct } from '@dopex-io/sdk/dist/types/typechain/InsuredLongsStrategy';
-import { DecreaseOrderParamsStruct } from '@dopex-io/sdk/dist/types/typechain/DopexPositionManager';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -346,7 +344,7 @@ const Positions = ({
       true
     );
 
-    const increaseOrderParams: IncreaseOrderParamsStruct = {
+    const increaseOrderParams = {
       path: [indexToken, toTokenAddress],
       indexToken: indexToken,
       collateralDelta: 0,
@@ -355,7 +353,7 @@ const Positions = ({
       isLong: true,
     };
 
-    const decreaseOrder: DecreaseOrderParamsStruct = {
+    const decreaseOrder = {
       orderParams: increaseOrderParams,
       receiver: accountAddress,
       withdrawETH: false,
