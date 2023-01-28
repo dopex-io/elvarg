@@ -1,6 +1,6 @@
-# DApp
+# Elvarg
 
-The Dopex DApp, currently hosted on https://app.dopex.io
+The Dopex frontend monorepo
 
 ## Getting started
 
@@ -8,7 +8,7 @@ The Dopex DApp, currently hosted on https://app.dopex.io
 
 Please have these installed on your machine:
 
-- [Node.js 14+](https://nodejs.org/)
+- [Node.js 16+](https://nodejs.org/)
 - [Yarn v1](https://classic.yarnpkg.com/lang/)
 
 ### Install dependencies:
@@ -17,18 +17,6 @@ Please have these installed on your machine:
 yarn
 ```
 
-To start the DApp you also need to setup an additional .env.local file:
+### Starting individual workspaces
 
-It should look like the [`.env.example`](/.env.example)
-
-Then you can proceed to start the app:
-
-```
-yarn start
-```
-
-To build the App:
-
-```
-yarn build
-```
+Look into the specific README of the workspace to begin.
