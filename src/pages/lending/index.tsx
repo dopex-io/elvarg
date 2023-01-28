@@ -52,170 +52,6 @@ const TopBar = () => {
   );
 };
 
-const Stats = ({ currentUtilization }: { currentUtilization: number }) => {
-  const [value, setValue] = React.useState<number>(currentUtilization);
-
-  const handleChange = (event: Event, newValue: number | number[]) => {
-    setValue(newValue as number);
-  };
-  const borrowApr = value / 100;
-  const earnApr = value / 100;
-
-  const GridWrapper = styled(Grid)`
-    @media (max-width: 800px) {
-      flex-direction: column;
-    }
-  `;
-
-  return (
-    <Box className="flex flex-row grow mt-5 bg-umbra p-3 rounded-2xl justify-around">
-      <Box className="">
-        <GridWrapper container spacing={3}>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Total earning
-            </Typography>
-            <Typography variant="h5" color="white">
-              $170.25M
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Earn APR
-            </Typography>
-            <Box className="flex flex-row mt-1">
-              <img
-                className="w-5 h-5"
-                src="/images/tokens/usdc.svg"
-                alt="USDC"
-              />
-              <Typography variant="h5" color="white" className="ml-1.5 -mt-1">
-                1.47%
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Earn Distribution
-            </Typography>
-            <Typography variant="h5" color="white">
-              0.00%
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Reserves
-            </Typography>
-            <Typography variant="h5" color="white">
-              $580.71K
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Total borrowing
-            </Typography>
-            <Typography variant="h5" color="white">
-              $170.25M
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Borrow APR
-            </Typography>
-            <Box className="flex flex-row mt-1">
-              <img
-                className="w-5 h-5"
-                src="/images/tokens/usdc.svg"
-                alt="USDC"
-              />
-              <Typography variant="h5" color="white" className="ml-1.5 -mt-1">
-                1.47%
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Borrow Distribution
-            </Typography>
-            <Typography variant="h5" color="white">
-              2.87%
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="stieglitz">
-              Oracle Price
-            </Typography>
-            <Typography variant="h5" color="white">
-              $1.00
-            </Typography>
-          </Grid>
-        </GridWrapper>
-      </Box>
-      <Box className="w-2/5 mr-2 -mt-3">
-        <Grid container spacing={3}>
-          <Grid item xs={3} className="relative top-3.5">
-            <Typography variant="h6" color="white">
-              Utilization
-            </Typography>
-          </Grid>
-          <Grid item xs={3} className="relative top-3.5">
-            <Typography variant="h6" color="white">
-              {value}%
-            </Typography>
-          </Grid>
-          <Grid item xs={6} className="relative top-3">
-            <Slider
-              defaultValue={value}
-              aria-label="Default"
-              valueLabelDisplay="auto"
-              onChange={handleChange}
-              sx={{
-                color: 'white',
-                '.MuiSlider-thumb': {
-                  height: 12,
-                  width: 12,
-                },
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={3}>
-            <Typography variant="h6" color="white">
-              Borrow
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="h6" color="white">
-              {borrowApr}%
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Box className="mt-2">
-              <LinearProgress variant="determinate" value={value} />
-            </Box>
-          </Grid>
-
-          <Grid item xs={3}>
-            <Typography variant="h6" color="white">
-              Earn APR
-            </Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="h6" color="white">
-              {earnApr}%
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Box className="mt-2">
-              <LinearProgress variant="determinate" value={value} />
-            </Box>
-          </Grid>
-        </Grid>
-      </Box>
-    </Box>
-  );
-};
-
 export interface AssetData {
   symbol: string;
   assetDecimals: BigNumber;
@@ -255,7 +91,7 @@ const AssetRow = ({ data }: { data: AssetData }) => {
             />
             <div className="ml-2">
               <Typography variant="caption" color="white">
-                {TOKEN_DATA[data.symbol]!.name}
+                dpx
               </Typography>
               <Typography variant="caption" color="white">
                 {data.symbol}
@@ -321,13 +157,7 @@ const AssetRow = ({ data }: { data: AssetData }) => {
         </TableCell>
         <TableCell align="left">
           <Typography variant="caption" color="white">
-            $
-            {formatAmount(
-              getUserReadableAmount(
-                data.assetPrice,
-                data.assetDecimals.toNumber()
-              )
-            )}
+            ${formatAmount(getUserReadableAmount(data.assetPrice, 8))}
           </Typography>
         </TableCell>
         <TableCell align="left">
@@ -590,12 +420,12 @@ const Assets = () => {
               </TableCell>
               <TableCell align="left" className="border-none">
                 <Typography variant="caption" color="stieglitz">
-                  Total Liquidity
+                  Total Supply
                 </Typography>
               </TableCell>
               <TableCell align="left" className="border-none">
                 <Typography variant="caption" color="stieglitz">
-                  Oracle Price
+                  Price
                 </Typography>
               </TableCell>
               <TableCell align="left" className="border-none">
@@ -634,81 +464,6 @@ interface DebtPosition {
   borrowed: BigNumber;
 }
 
-const DebtRow = ({ debt }: { debt: DebtPosition }) => {
-  return (
-    <TableBody key={debt.id.toNumber()} className="rounded-lg bg-umbra">
-      <TableRow key={`debt-row-${debt.id}`}>
-        <TableCell align="left">
-          <Typography variant="caption" color="white">
-            {debt.epoch.toString()}
-          </Typography>
-        </TableCell>
-        <TableCell align="center">
-          <Typography variant="caption" color="white">
-            ${formatAmount(getUserReadableAmount(debt.strike, 8), 2)}
-          </Typography>
-        </TableCell>
-        <TableCell align="center">
-          <Typography variant="caption" color="white">
-            ${formatAmount(getUserReadableAmount(debt.supplied, 18), 2)}
-          </Typography>
-        </TableCell>
-        <TableCell align="center">
-          <Typography variant="caption" color="white">
-            ${formatAmount(getUserReadableAmount(debt.borrowed, 6), 2)}
-          </Typography>
-        </TableCell>
-        <TableCell align="right">
-          <CustomButton>Repay</CustomButton>
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  );
-};
-
-const Debts = ({ data }: { data: DebtPosition[] }) => {
-  return (
-    <Box className="bg-cod-gray p-2 mt-2 border-radius rounded-lg ">
-      <StyleContainer>
-        <Table>
-          <TableHead className="bg-cod-gray">
-            <TableRow>
-              <TableCell align="left" className="border-none">
-                <Typography variant="caption" color="stieglitz">
-                  Epoch
-                </Typography>
-              </TableCell>
-              <TableCell align="center" className="border-none">
-                <Typography variant="caption" color="stieglitz">
-                  Strike
-                </Typography>
-              </TableCell>
-              <TableCell align="center" className="border-none">
-                <Typography variant="caption" color="stieglitz">
-                  Supplied
-                </Typography>
-              </TableCell>
-              <TableCell align="center" className="border-none">
-                <Typography variant="caption" color="stieglitz">
-                  Borrowed
-                </Typography>
-              </TableCell>
-              <TableCell align="right" className="border-none">
-                <Typography variant="caption" color="stieglitz">
-                  Action
-                </Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          {data.map((debt) => (
-            <DebtRow key={debt.id.toNumber()} debt={debt} />
-          ))}
-        </Table>
-      </StyleContainer>
-    </Box>
-  );
-};
-
 const ranNum = () => {
   return Math.floor(Math.random() * 10);
 };
@@ -729,16 +484,6 @@ const getBorrowingData = () => {
   }));
 };
 
-const getDebtData = () => {
-  return [...Array(6)].map((_, i) => ({
-    id: BigNumber.from(i),
-    epoch: BigNumber.from(1),
-    strike: BigNumber.from(ranNum()).mul(oneEBigNumber(8)),
-    supplied: BigNumber.from(ranNum()).mul(oneEBigNumber(18)),
-    borrowed: BigNumber.from(ranNum()).mul(oneEBigNumber(6)),
-  }));
-};
-
 const Lending = () => {
   return (
     <Box className="bg-black min-h-screen">
@@ -752,9 +497,7 @@ const Lending = () => {
           <CollateralChart data={getCollateralData()} totalCollateral={180} />
           <BorrowingChart data={getBorrowingData()} totalBorrowing={180} />
         </div>
-        <Stats currentUtilization={45} />
         <Assets />
-        <Debts data={getDebtData()} />
       </Box>
     </Box>
   );

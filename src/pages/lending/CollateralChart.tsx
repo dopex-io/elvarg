@@ -3,7 +3,7 @@ import {
   ResponsiveContainer,
   Line,
   Bar,
-  ComposedChart,
+  BarChart,
   Tooltip as RechartsTooltip,
   Cell,
 } from 'recharts';
@@ -26,9 +26,6 @@ const CustomizedTooltip = ({ active, payload }: any) => {
   return active && payload && payload.length ? (
     <>
       <Box className="flex flex-col items-center">
-        <Typography variant="h6" color="white">
-          {payload[0].payload.earn_apr / 100}% Earn APR
-        </Typography>
         <Typography variant="h6" className="-mt-1">
           ${payload[0].payload.collateral} Collateral
         </Typography>
@@ -64,7 +61,7 @@ export const CollateralChart = (props: CollateralChartProps) => {
         </Typography>
 
         <ResponsiveContainer aspect={2.5} width={450}>
-          <ComposedChart
+          <BarChart
             barCategoryGap={1}
             data={data}
             margin={{
@@ -102,17 +99,7 @@ export const CollateralChart = (props: CollateralChartProps) => {
                 </>
               ))}
             </Bar>
-            <Line
-              dataKey="earn_apr"
-              strokeWidth={3}
-              stroke="#002EFF"
-              yAxisId="right"
-              type="monotone"
-              legendType="rect"
-              dot={false}
-              activeDot={false}
-            />
-          </ComposedChart>
+          </BarChart>
         </ResponsiveContainer>
       </Box>
     </div>

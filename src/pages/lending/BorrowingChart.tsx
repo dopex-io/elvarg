@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   ResponsiveContainer,
-  Line,
   Bar,
-  ComposedChart,
+  BarChart,
   Tooltip as RechartsTooltip,
   Cell,
 } from 'recharts';
@@ -12,7 +11,6 @@ import Box from '@mui/material/Box';
 import Typography from 'components/UI/Typography';
 
 interface BorrowingData {
-  borrow_apr: number;
   borrowing: number;
   datetime: string;
 }
@@ -26,9 +24,6 @@ const CustomizedTooltip = ({ active, payload }: any) => {
   return active && payload && payload.length ? (
     <>
       <Box className="flex flex-col items-center border-transparent">
-        <Typography variant="h6" color="white">
-          {payload[0].payload.borrow_apr / 100}% Borrow APR
-        </Typography>
         <Typography variant="h6" className="-mt-1">
           ${payload[0].payload.borrowing} Borrowing
         </Typography>
@@ -64,7 +59,7 @@ export const BorrowingChart = (props: BorrowingChartProps) => {
         </Typography>
 
         <ResponsiveContainer aspect={2.5} width={450}>
-          <ComposedChart
+          <BarChart
             barCategoryGap={1}
             data={data}
             margin={{
@@ -102,17 +97,7 @@ export const BorrowingChart = (props: BorrowingChartProps) => {
                 </>
               ))}
             </Bar>
-            <Line
-              dataKey="borrow_apr"
-              strokeWidth={3}
-              stroke="#22E1FF"
-              yAxisId="right"
-              type="monotone"
-              legendType="rect"
-              dot={false}
-              activeDot={false}
-            />
-          </ComposedChart>
+          </BarChart>
         </ResponsiveContainer>
       </Box>
     </div>
