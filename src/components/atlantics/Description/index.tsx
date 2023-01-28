@@ -9,7 +9,7 @@ const Description = () => {
     <Box className="space-y-1 py-4">
       <Typography variant="h4">{String(info?.title)}</Typography>
       <Typography variant="h6" color="stieglitz">
-        String(info?.description))
+        {String(info.description)}
       </Typography>
     </Box>
   );

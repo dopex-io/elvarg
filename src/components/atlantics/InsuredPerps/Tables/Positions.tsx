@@ -299,7 +299,6 @@ const Positions = ({
 
   const handleActionChange = useCallback(
     (e: { target: { value: string | number } }) => {
-      console.log(e.target.value);
       setAction(String(e.target.value));
     },
     []

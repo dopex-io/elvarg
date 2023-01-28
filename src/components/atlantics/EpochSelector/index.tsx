@@ -17,7 +17,7 @@ const EpochSelector = (props: EpochSelectorProps) => {
   const { updateAtlanticPoolEpochData, updateAtlanticPool } = useBoundStore();
 
   const epochs = useMemo(() => {
-    return range(2)
+    return range(currentEpoch)
       .join()
       .split(',')
       .map((_i, index) => {
@@ -34,12 +34,9 @@ const EpochSelector = (props: EpochSelectorProps) => {
   const handleEpochSelection = useCallback(
     (e: { target: { value: string | number } }) => {
       setSelectedEpoch(Number(e.target.value));
-      if (Number(e.target.value) == 1) {
-        updateAtlanticPool('WETH', 'WEEKLY', true);
-      } else {
-        updateAtlanticPool('WETH', 'WEEKLY');
-      }
-      updateAtlanticPoolEpochData();
+      updateAtlanticPool('WETH', 'WEEKLY').then(() => {
+        updateAtlanticPoolEpochData();
+      });
     },
     [setSelectedEpoch, updateAtlanticPoolEpochData, updateAtlanticPool]
   );

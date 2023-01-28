@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import { BigNumber } from 'ethers';
-import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import IconButton from '@mui/material/IconButton';
@@ -11,26 +9,38 @@ import PutsIcon from 'svgs/icons/PutsIcon';
 import CallsIcon from 'svgs/icons/CallsIcon';
 
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface PoolCardProps {
   depositToken: string;
   underlying: string;
   duration: string | null;
   isPut: boolean;
-  tvl: string | BigNumber;
-  apy: BigNumber | BigNumber[] | string;
+  tvl: string;
+  apy: string;
+  retired: boolean;
+  version: string | number;
 }
 
 const PoolCard = (props: PoolCardProps) => {
-  const { depositToken, underlying, duration, isPut, tvl, apy } = props;
+  const {
+    depositToken,
+    underlying,
+    duration,
+    isPut,
+    tvl,
+    apy,
+    retired = false,
+    version,
+  } = props;
   const type: string = isPut ? 'PUTS' : 'CALLS';
-  const _apy = useMemo(() => {
-    return isPut ? '-' : apy + '%';
-  }, [isPut, apy]);
 
   return (
-    <Link href={`/atlantics/manage/${underlying}-${type}-${duration}`} passHref>
+    <Link
+      href={`/atlantics/manage/${underlying}-${type}-${duration}${
+        retired ? '?version=' + version : ''
+      }`}
+      passHref
+    >
       <Box
         className="bg-umbra rounded-lg p-3 border border-umbra hover:border-primary transition ease-in-out hover:duration-250 flex-1"
         role="button"
@@ -62,9 +72,19 @@ const PoolCard = (props: PoolCardProps) => {
           />
           <PoolCardItem
             description="TVL"
-            value={'$' + formatAmount(getUserReadableAmount(tvl, 6), 3, true)}
+            value={'$' + formatAmount(tvl ?? 0, 2, true)}
           />
-          <PoolCardItem description="APY" value={_apy} />
+          <PoolCardItem
+            description="APY"
+            value={isNaN(Number(apy)) ? '-' : `${formatAmount(apy, 2)}%`}
+          />
+          {retired ? (
+            <PoolCardItem
+              description="Status"
+              value={'RETIRED'}
+              highlight="down-bad"
+            />
+          ) : null}
         </Box>
       </Box>
     </Link>

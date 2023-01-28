@@ -9,6 +9,8 @@ export interface CommonSlice {
   setIsLoading: Function;
   selectedIsPut: boolean | false;
   setSelectedIsPut: Function;
+  version?: number;
+  setVersion: Function;
 }
 
 export const createCommonSlice: StateCreator<
@@ -35,4 +37,7 @@ export const createCommonSlice: StateCreator<
       ...prevState,
       selectedIsPut: isPut,
     })),
+  setVersion: (version: number) => {
+    set((prevState) => ({ ...prevState, version }));
+  },
 });
