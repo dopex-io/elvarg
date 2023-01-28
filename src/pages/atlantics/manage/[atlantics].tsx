@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -64,6 +65,7 @@ interface Info {
 export const Manage = (props: ManageProps) => {
   const { underlying, type, duration, tokenId } = props;
   let { title }: Info = ATLANTIC_POOL_INFO[type]!;
+  const router = useRouter();
 
   const {
     signer,
@@ -71,7 +73,13 @@ export const Manage = (props: ManageProps) => {
     atlanticPool,
     updateAtlanticPool,
     setSelectedPoolName,
+    setVersion,
   } = useBoundStore();
+
+  useEffect(() => {
+    const _version = Number(router.query?.['version']);
+    if (_version) setVersion(_version);
+  }, [router.query, setVersion]);
 
   useEffect(() => {
     if (!underlying || !duration) return;

@@ -151,13 +151,19 @@ export const createAtlanticsSlice: StateCreator<
   AtlanticPoolsSlice
 > = (set, get) => ({
   updateAtlanticPool: async (asset: string, duration: string) => {
-    const { contractAddresses, signer, provider } = get();
+    const { contractAddresses, signer, provider, version } = get();
 
     if (!contractAddresses || !signer || !provider || !asset || !duration)
       return;
 
+    const poolAddress = version
+      ? contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'][duration]['RETIRED'][
+          version - 1
+        ]
+      : contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'][duration]['ACTIVE'];
+
     const atlanticPool = AtlanticPutsPool__factory.connect(
-      contractAddresses['ATLANTIC-POOLS'][asset]['PUTS'][duration],
+      poolAddress,
       provider
     );
 

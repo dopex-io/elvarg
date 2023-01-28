@@ -19,7 +19,6 @@ const CustomizedAccordion = styled(Accordion)`
 interface CustomAccordionProps {
   header: string;
   putPools: Pool[] | undefined;
-  // callPools?: DurationTypesOfPools;
   className: string;
 }
 
@@ -91,8 +90,10 @@ const CustomAccordion = ({
                     depositToken={pool['base'] ?? ''}
                     duration={duration.toUpperCase()}
                     tvl={pool['tvl']}
-                    apy={'0'}
+                    apy={pool['apy']}
                     isPut={true}
+                    retired={pool['retired'] ?? false}
+                    version={pool['version'] ?? 0}
                   />
                 );
               }
