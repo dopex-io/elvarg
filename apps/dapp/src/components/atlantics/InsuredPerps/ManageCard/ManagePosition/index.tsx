@@ -61,6 +61,7 @@ import {
 } from 'utils/contracts/atlantics/insuredPerps';
 
 import {
+  BLACKOUT_WINDOW,
   getFundingFees,
   getPurchaseFees,
   OPTIONS_TOKEN_DECIMALS,
@@ -180,6 +181,7 @@ const ManagePosition = () => {
   const [, setLoading] = useState<boolean>(true);
   const [strategyDetailsLoading, setStrategyDetailsLoading] = useState(false);
   const [longLimitExceeded, setLongLimitExceeded] = useState(false);
+  const [isBlackoutWindow, setIsBlackoutWindow] = useState(false);
 
   const debouncedStrategyDetails = useDebounce(strategyDetails, 500, {});
 
@@ -260,10 +262,14 @@ const ManagePosition = () => {
       )} `;
     } else if (Number(positionBalance) <= 0) {
       errorMessage = 'Invalid input amount';
+    } else if (isBlackoutWindow) {
+      errorMessage =
+        'Within blackout window to settle positions. Please wait for next epoch to start.';
     }
 
     return errorMessage;
   }, [
+    isBlackoutWindow,
     atlanticPoolEpochData,
     strategyDetails,
     userAssetBalances,
@@ -541,7 +547,8 @@ const ManagePosition = () => {
       !contractAddresses['GMX-VAULT'] ||
       !signer ||
       !atlanticPool ||
-      !provider
+      !provider ||
+      !atlanticPoolEpochData
     )
       return;
 
@@ -559,11 +566,23 @@ const ManagePosition = () => {
     const underlyingTokenAddress =
       contractAddresses[atlanticPool.tokens.underlying];
 
-    const [price, maxLongs, currentLongs] = await Promise.all([
-      gmxVault.getMaxPrice(contractAddresses[atlanticPool.tokens.underlying]),
-      positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
-      gmxVault.guaranteedUsd(underlyingTokenAddress),
-    ]);
+    const [price, maxLongs, currentLongs, currentTimestamp] = await Promise.all(
+      [
+        gmxVault.getMaxPrice(contractAddresses[atlanticPool.tokens.underlying]),
+        positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
+        gmxVault.guaranteedUsd(underlyingTokenAddress),
+        getBlockTime(provider),
+      ]
+    );
+
+    if (
+      currentTimestamp >
+      Number(atlanticPoolEpochData.expiry) - BLACKOUT_WINDOW
+    ) {
+      setIsBlackoutWindow(true);
+    } else {
+      setIsBlackoutWindow(false);
+    }
 
     if (strategyDetails.positionSize.add(currentLongs).gte(maxLongs)) {
       setLongLimitExceeded(true);
@@ -581,6 +600,7 @@ const ManagePosition = () => {
     signer,
     contractAddresses,
     atlanticPool,
+    atlanticPoolEpochData,
     strategyDetails.positionSize,
     provider,
   ]);

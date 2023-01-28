@@ -485,7 +485,9 @@ export const AtlanticsProvider = (props: any) => {
     ): Promise<IAtlanticPoolType | undefined> => {
       if (!contractAddresses['ATLANTIC-POOLS']) return undefined;
       const poolAddress =
-        contractAddresses['ATLANTIC-POOLS'][underlying][type][duration];
+        contractAddresses['ATLANTIC-POOLS'][underlying][type][duration][
+          'ACTIVE'
+        ];
 
       if (type === 'CALLS') {
         return undefined;
@@ -515,7 +517,7 @@ export const AtlanticsProvider = (props: any) => {
     const poolAddress =
       contractAddresses['ATLANTIC-POOLS'][selectedPool.asset][poolType][
         selectedPool.duration
-      ];
+      ]['ACTIVE'];
 
     const atlanticsViewer = AtlanticsViewer__factory.connect(
       contractAddresses['ATLANTICS-VIEWER'],

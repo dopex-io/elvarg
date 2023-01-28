@@ -14,7 +14,7 @@ interface EpochSelectorProps {
 const EpochSelector = (props: EpochSelectorProps) => {
   const { currentEpoch, selectedEpoch, setSelectedEpoch } = props;
 
-  const { updateAtlanticPoolEpochData } = useBoundStore();
+  const { updateAtlanticPoolEpochData, updateAtlanticPool } = useBoundStore();
 
   const epochs = useMemo(() => {
     return range(currentEpoch)
@@ -34,9 +34,11 @@ const EpochSelector = (props: EpochSelectorProps) => {
   const handleEpochSelection = useCallback(
     (e: { target: { value: string | number } }) => {
       setSelectedEpoch(Number(e.target.value));
-      updateAtlanticPoolEpochData();
+      updateAtlanticPool('WETH', 'WEEKLY').then(() => {
+        updateAtlanticPoolEpochData();
+      });
     },
-    [setSelectedEpoch, updateAtlanticPoolEpochData]
+    [setSelectedEpoch, updateAtlanticPoolEpochData, updateAtlanticPool]
   );
 
   return (
