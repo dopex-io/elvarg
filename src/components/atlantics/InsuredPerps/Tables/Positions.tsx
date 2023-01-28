@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  DopexPositionManager__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
+import { IncreaseOrderParamsStruct } from '@dopex-io/sdk/dist/types/typechain/InsuredLongsStrategy';
+import { DecreaseOrderParamsStruct } from '@dopex-io/sdk/dist/types/typechain/DopexPositionManager';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -304,6 +307,82 @@ const Positions = ({
     []
   );
 
+  const handleExitLongPosition = useCallback(async () => {
+    if (
+      !contractAddresses ||
+      !accountAddress ||
+      !atlanticPool ||
+      !signer ||
+      !atlanticPool ||
+      !atlanticPool.tokens
+    )
+      return;
+
+    const strategyContractAddress: string =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
+    const gmxVaultAddress: string = contractAddresses['GMX-VAULT'];
+
+    const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
+
+    const strategyContract = InsuredLongsStrategy__factory.connect(
+      strategyContractAddress,
+      signer
+    );
+
+    const indexToken = await strategyContract.strategyIndexToken();
+
+    const [userPositionManager, minPrice] = await Promise.all([
+      strategyContract.userPositionManagers(accountAddress),
+      gmxVault.getMinPrice(indexToken),
+    ]);
+
+    const toTokenAddress = contractAddresses[atlanticPool.tokens.depositToken];
+
+    const gmxPosition = await gmxVault.getPosition(
+      userPositionManager,
+      indexToken,
+      indexToken,
+      true
+    );
+
+    const increaseOrderParams: IncreaseOrderParamsStruct = {
+      path: [indexToken, toTokenAddress],
+      indexToken: indexToken,
+      collateralDelta: 0,
+      positionSizeDelta: gmxPosition[0],
+      acceptablePrice: minPrice.mul(995).div(1000),
+      isLong: true,
+    };
+
+    const decreaseOrder: DecreaseOrderParamsStruct = {
+      orderParams: increaseOrderParams,
+      receiver: accountAddress,
+      withdrawETH: false,
+    };
+
+    const userPositionManagerContract = DopexPositionManager__factory.connect(
+      userPositionManager,
+      signer
+    );
+
+    await sendTx(
+      userPositionManagerContract,
+      'decreaseOrder',
+      [decreaseOrder],
+      MIN_EXECUTION_FEE
+    ).then(() => {
+      getUserPositions();
+    });
+  }, [
+    accountAddress,
+    atlanticPool,
+    signer,
+    contractAddresses,
+    getUserPositions,
+    sendTx,
+  ]);
+
   const handleReuseStrategy = useCallback(async () => {
     if (
       !contractAddresses ||
@@ -326,7 +405,6 @@ const Positions = ({
 
     const [positionId] = await Promise.all([
       strategyContract.userPositionIds(accountAddress),
-      strategyContract.userPositionManagers(accountAddress),
     ]);
 
     await sendTx(strategyContract, 'reuseStrategy', [
@@ -417,6 +495,7 @@ const Positions = ({
           Re-use Strategy
         </CustomButton>
       );
+
     return <CustomButton disabled>...</CustomButton>;
   }, [
     handleIncreaseManagedPosition,
@@ -666,7 +745,8 @@ const Positions = ({
                       </Typography>
                     </TableBodyCell>
                     <TableBodyCell align="right">
-                      {userPositionData.state === ActionState['5'] ? (
+                      {userPositionData.state === ActionState['5'] ||
+                      userPositionData.state === ActionState['1'] ? (
                         <Select
                           value={action}
                           onChange={handleActionChange}
@@ -690,7 +770,11 @@ const Positions = ({
                           </MenuItem>
                           <MenuItem
                             className="text-white"
-                            onClick={handleEmergencyExit}
+                            onClick={
+                              userPositionData.state === ActionState['1']
+                                ? handleExitLongPosition
+                                : handleEmergencyExit
+                            }
                             value={'Close'}
                           >
                             <Typography variant="h6">Exit strategy</Typography>
