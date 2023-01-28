@@ -10,7 +10,7 @@ import Description from 'components/atlantics/Description';
 import Stats from 'components/atlantics/Stats';
 import Filter from 'components/atlantics/Filter';
 
-// import { Manage } from './manage/[atlantics]';
+import { DOPEX_API_BASE_URL } from 'constants/index';
 
 export const ATLANTIC_POOLS: string[] | string = ['WETH'];
 
@@ -58,9 +58,7 @@ const Atlantics = () => {
   useEffect(() => {
     (async () => {
       const data = await axios
-        .get(
-          'https://dopex-api-git-feat-atlantics-dopex-io.vercel.app/api/v2/atlantics'
-        )
+        .get(`${DOPEX_API_BASE_URL}/v2/atlantics`)
         .then((res) => res.data)
         .catch(() => null);
       setPools(data);
@@ -127,15 +125,7 @@ const Atlantics = () => {
 };
 
 const AtlanticsPage = () => {
-  return (
-    <Atlantics />
-    // <Manage
-    //   tokenId="WETH-PUTS-WEEKLY"
-    //   underlying={'WETH'}
-    //   type={'PUTS'}
-    //   duration={'WEEKLY'}
-    // />
-  );
+  return <Atlantics />;
 };
 
 export default AtlanticsPage;
