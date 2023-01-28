@@ -127,8 +127,9 @@ export const createOlpSlice: StateCreator<
     } = get();
 
     // selectedPoolName e.g., DPX-MONTHLY
-    const tokenSymbol = selectedPoolName.split('-')[0]?.toUpperCase();
-    const tokenAddress = Addresses[42161][tokenSymbol!];
+    const tokenSymbol: string =
+      selectedPoolName.split('-')[0]?.toUpperCase() || '';
+    const tokenAddress = Addresses[42161][tokenSymbol];
     const olpContract = getOlpContract();
 
     try {
@@ -158,7 +159,7 @@ export const createOlpSlice: StateCreator<
         ...prevState,
         olpData: {
           olpContract: olpContract,
-          underlyingSymbol: olpContract.underlyingSymbol(),
+          underlyingSymbol: tokenSymbol,
           underlying: tokenAddress,
           ssov: ssov,
           usd: addresses.usd,
