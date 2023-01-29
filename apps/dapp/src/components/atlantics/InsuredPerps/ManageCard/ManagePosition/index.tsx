@@ -592,7 +592,7 @@ const ManagePosition = () => {
       ...prev,
       markPrice: price,
       availabeLiquidityForLongs: getUserReadableAmount(
-        maxLongs.sub(currentLongs),
+        maxLongs.sub(currentLongs).gt(0) ? maxLongs.sub(currentLongs) : 0,
         30
       ),
     }));
