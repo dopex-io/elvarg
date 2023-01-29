@@ -23,50 +23,16 @@ import {
 } from '@mui/material';
 import { BigNumber } from 'ethers';
 import InputHelpers from 'components/common/InputHelpers';
-import { CollateralChart } from './CollateralChart';
-import { BorrowingChart } from './BorrowingChart';
+import { Chart } from './Chart';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-import { TOKEN_DATA } from 'constants/tokens';
-
-const TopBar = () => {
-  return (
-    <Box>
-      <Box className="flex flex-row">
-        <Box className="flex flex-row rounded-3xl bg-umbra py-1 px-3 w-fit h-fit mt-1">
-          <img className="w-9 h-9" src="/images/tokens/usdc.svg" alt="USDC" />
-          <img className="w-9 h-9" src="/images/tokens/ETH.svg" alt="ETH" />
-        </Box>
-        <Box className="ml-3">
-          <Typography variant="h4" className="mr-">
-            USDC <span className="text-stieglitz">| Ethereum</span>
-          </Typography>
-          <Typography variant="h6" color="stieglitz">
-            0x12345
-          </Typography>
-        </Box>
-      </Box>
-    </Box>
-  );
-};
-
 export interface AssetData {
+  name: string;
   symbol: string;
-  assetDecimals: BigNumber;
-  assetPrice: BigNumber;
-  epochTimes: BigNumber[];
-  epochStrikes: BigNumber[];
-  totalEpochStrikeDeposits: BigNumber[];
-  sumTotalEpochStrikeDeposits: BigNumber;
-  totalEpochOptionsPurchased: BigNumber[];
-  totalEpochPremium: BigNumber[];
-  availableCollateralForStrikes: BigNumber[];
-  sumAvailableCollateralForStrikes: BigNumber;
-  totalCollateralFromLiquidations: BigNumber;
-  totalBorrowedCollateral: BigNumber;
-  totalSuppliedUnderlying: BigNumber;
+  borrowAPR: number[];
+  price: number;
 }
 
 const AssetRow = ({ data }: { data: AssetData }) => {
@@ -91,7 +57,7 @@ const AssetRow = ({ data }: { data: AssetData }) => {
             />
             <div className="ml-2">
               <Typography variant="caption" color="white">
-                dpx
+                {data.name}
               </Typography>
               <Typography variant="caption" color="white">
                 {data.symbol}
@@ -100,69 +66,13 @@ const AssetRow = ({ data }: { data: AssetData }) => {
           </Box>
         </TableCell>
         <TableCell align="left">
-          <MuiTooltip
-            title={
-              <Box className="p-1 w-48 ">
-                <Box className="flex flex-row justify-between mb-3">
-                  <Typography variant="caption" color="inherit">
-                    {data.symbol} Supply Cap
-                  </Typography>
-                  <Typography variant="caption" color="stieglitz">
-                    $
-                    {formatAmount(
-                      getUserReadableAmount(data.sumTotalEpochStrikeDeposits, 6)
-                    )}
-                  </Typography>
-                </Box>
-                <Typography variant="caption" color="inherit">
-                  There is $
-                  {formatAmount(
-                    getUserReadableAmount(
-                      data.sumAvailableCollateralForStrikes,
-                      6
-                    )
-                  )}
-                  of ETH capacity remaining.
-                </Typography>
-              </Box>
-            }
-            disableInteractive
-            className="h-4"
-            placement="top"
-          >
-            <Button
-              style={{
-                minHeight: '2.5rem',
-                padding: '10px',
-              }}
-            >
-              <Box className="w-24">
-                <Typography
-                  variant="caption"
-                  color="white"
-                  className="relative right-5 bottom-2"
-                >
-                  $
-                  {formatAmount(
-                    getUserReadableAmount(
-                      data.sumAvailableCollateralForStrikes,
-                      6
-                    )
-                  )}
-                </Typography>
-                <LinearProgress variant="determinate" value={50} />
-              </Box>
-            </Button>
-          </MuiTooltip>
-        </TableCell>
-        <TableCell align="left">
           <Typography variant="caption" color="white">
-            ${formatAmount(getUserReadableAmount(data.assetPrice, 8))}
+            $123
           </Typography>
         </TableCell>
         <TableCell align="left">
           <Typography variant="caption" color="white">
-            $0.14
+            ${formatAmount(data.price)}
           </Typography>
         </TableCell>
         <TableCell align="left">
@@ -173,19 +83,10 @@ const AssetRow = ({ data }: { data: AssetData }) => {
         <TableCell align="right">
           <CustomButton onClick={() => setOpen(!open)}>Borrow</CustomButton>
         </TableCell>
-      </StyleRow>
-      <TableRow key={`dropdown-${data.symbol}`}>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={12}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <AssetRowStats
-              key={data.symbol}
-              asset={data.symbol}
-              borrowAmount={borrowAmount}
-              handleBorrowAmount={handleBorrowAmount}
-            />
-          </Collapse>
+        <TableCell align="right">
+          <CustomButton onClick={() => setOpen(!open)}>Repay</CustomButton>
         </TableCell>
-      </TableRow>
+      </StyleRow>
     </>
   );
 };
@@ -390,20 +291,16 @@ const StyleRow = styled(TableRow)`
 const Assets = () => {
   const assetData: AssetData[] = [
     {
-      asset: 'ETH',
-      totalLiquidity: 116,
-      oraclePrice: 1.5,
-      collateralRatio: 0.5,
-      borrowAPR: 12,
-      ltv: [0.5, 0.6, 0.7, 0.8, 0.9],
+      name: 'Ether',
+      symbol: 'ETH',
+      borrowAPR: [12],
+      price: 1200,
     },
     {
-      asset: 'USDC',
-      totalLiquidity: 116,
-      oraclePrice: 1.5,
-      collateralRatio: 0.5,
-      borrowAPR: 12,
-      ltv: [0.5, 0.6, 0.7, 0.8, 0.9],
+      name: 'Dopex',
+      symbol: 'DPX',
+      borrowAPR: [12],
+      price: 300,
     },
   ];
 
@@ -430,12 +327,12 @@ const Assets = () => {
               </TableCell>
               <TableCell align="left" className="border-none">
                 <Typography variant="caption" color="stieglitz">
-                  Reserves
+                  Utilization
                 </Typography>
               </TableCell>
-              <TableCell align="left" className="border-none">
+              <TableCell align="right" className="border-none">
                 <Typography variant="caption" color="stieglitz">
-                  Utilization
+                  Action
                 </Typography>
               </TableCell>
               <TableCell align="right" className="border-none">
@@ -456,30 +353,20 @@ const Assets = () => {
   );
 };
 
-interface DebtPosition {
-  id: BigNumber;
-  epoch: BigNumber;
-  strike: BigNumber;
-  supplied: BigNumber;
-  borrowed: BigNumber;
-}
-
 const ranNum = () => {
   return Math.floor(Math.random() * 10);
 };
 
 const getCollateralData = () => {
-  return [...Array(10)].map((_, i) => ({
-    earn_apr: ranNum() * 10,
-    collateral: ranNum() * 100,
+  return [...Array(30)].map((_, i) => ({
+    loanAmount: (ranNum() + 1) * 100,
     datetime: `${ranNum() + 1} Dec`,
   }));
 };
 
 const getBorrowingData = () => {
-  return [...Array(10)].map((_, i) => ({
-    borrow_apr: ranNum() * 10,
-    borrowing: ranNum() * 100,
+  return [...Array(30)].map((_, i) => ({
+    loanAmount: (ranNum() + 1) * 100,
     datetime: `${ranNum() + 1} Dec`,
   }));
 };
@@ -491,11 +378,20 @@ const Lending = () => {
         <title>Lending | Dopex</title>
       </Head>
       <AppBar active="Lending" />
-      <Box className="lg:pt-28 lg:max-w-5xl md:max-w-3xl sm:max-w-2xl ml-auto mr-auto">
-        <TopBar />
-        <div className="flex flex-row justify-between">
-          <CollateralChart data={getCollateralData()} totalCollateral={180} />
-          <BorrowingChart data={getBorrowingData()} totalBorrowing={180} />
+      <Box className="lg:pt-28 lg:max-w-5xl md:max-w-3xl sm:max-w-2xl ml-auto mr-auto mt-10">
+        <div className="flex flex-row justify-between mb-10">
+          <Chart
+            key={'Collateral'}
+            loanType={'Collateral'}
+            data={getCollateralData()}
+            totalLoan={180}
+          />
+          <Chart
+            key={'Borrowing'}
+            loanType={'Borrowing'}
+            data={getBorrowingData()}
+            totalLoan={180}
+          />
         </div>
         <Assets />
       </Box>
