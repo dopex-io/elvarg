@@ -51,6 +51,31 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
     return (atlanticPoolEpochData?.expiry.toNumber() ?? 0) * 1000;
   }, [atlanticPoolEpochData]);
 
+  const renderValues = useMemo(() => {
+    if (!atlanticPool || !atlanticPoolEpochData)
+      return {
+        ...poolShareStats,
+        tickSize: '...',
+        durationType: '...',
+        side: '...',
+        expiry: '...',
+      };
+
+    return {
+      ...poolShareStats,
+      tickSize: atlanticPoolEpochData.tickSize?.div(1e8).toString() ?? '0',
+      durationType: atlanticPool.durationType.toLocaleUpperCase(),
+      side: poolType.toLocaleUpperCase(),
+      expiry: format(epochExpiry, 'dd LLLL, yyyy'),
+    };
+  }, [
+    atlanticPool,
+    atlanticPoolEpochData,
+    epochExpiry,
+    poolShareStats,
+    poolType,
+  ]);
+
   return (
     <Box className="border border-umbra rounded-xl divide-y divide-umbra">
       <Box className="flex divide-x divide-umbra">
@@ -59,24 +84,18 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
           description="Total Deposits"
         />
         <PoolStatsBox
-          stat={formatAmount(poolShareStats.userShare, 8, true) + '%'}
+          stat={`${renderValues.userShare}%`}
           description="Pool Share"
         />
       </Box>
       <Box className="flex flex-col space-y-2 p-3">
-        <PoolStatsRow
-          description="Tick size"
-          value={atlanticPoolEpochData?.tickSize?.div(1e8).toString()!}
-        />
+        <PoolStatsRow description="Tick size" value={renderValues.tickSize} />
         <PoolStatsRow
           description="Epoch Type"
-          value={atlanticPool?.durationType.toLocaleUpperCase()!}
+          value={renderValues.durationType}
         />
-        <PoolStatsRow description="Side" value={poolType.toLocaleUpperCase()} />
-        <PoolStatsRow
-          description="Expiry"
-          value={format(epochExpiry, 'dd LLLL, yyyy')}
-        />
+        <PoolStatsRow description="Side" value={renderValues.side} />
+        <PoolStatsRow description="Expiry" value={renderValues.expiry} />
       </Box>
     </Box>
   );

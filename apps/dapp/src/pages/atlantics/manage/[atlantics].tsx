@@ -4,7 +4,6 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
-import PageLoader from 'components/common/PageLoader';
 import Typography from 'components/UI/Typography';
 import ManageCard from 'components/atlantics/Manage/ManageCard';
 import Charts from 'components/atlantics/Charts';
@@ -106,54 +105,48 @@ export const Manage = (props: ManageProps) => {
         <title>Atlantics | Dopex</title>
       </Head>
       <AppBar active="Atlantics" />
-      {atlanticPool === undefined ? (
-        <Box className="overflow-x-hidden bg-black h-screen">
-          <PageLoader />
-        </Box>
-      ) : (
-        <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-          <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
-            <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
-              <ManageTitle
-                depositToken={depositToken}
+      <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
+          <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
+            <ManageTitle
+              depositToken={depositToken}
+              underlying={underlying}
+              strategy={title}
+              epochLength={duration}
+              poolType={type}
+            />
+            <ContractData />
+            <Box className="w-full space-y-4 flex flex-col">
+              {type === 'CALLS' ? null : (
+                <Typography variant="h5">Liquidity</Typography>
+              )}
+              <Charts
+                line_data={line_chart_data}
                 underlying={underlying}
-                strategy={title}
-                epochLength={duration}
-                poolType={type}
+                collateral={depositToken}
+                title={title}
+                type={type}
               />
-              <ContractData />
-              <Box className="w-full space-y-4 flex flex-col">
-                {type === 'CALLS' ? null : (
-                  <Typography variant="h5">Liquidity</Typography>
-                )}
-                <Charts
-                  line_data={line_chart_data}
-                  underlying={underlying}
-                  collateral={depositToken}
-                  title={title}
-                  type={type}
-                />
-              </Box>
-              <Box className="w-full space-y-4">
-                <Box className="flex space-x-2">
-                  <Typography variant="h5" className="my-auto">
-                    Deposits
-                  </Typography>
-                </Box>
-                <UserDepositsTable />
-              </Box>
             </Box>
-            <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
-              <ManageCard
-                tokenId={tokenId}
-                underlying={underlying}
-                poolType={type}
-                duration={duration}
-              />
+            <Box className="w-full space-y-4">
+              <Box className="flex space-x-2">
+                <Typography variant="h5" className="my-auto">
+                  Deposits
+                </Typography>
+              </Box>
+              <UserDepositsTable />
             </Box>
           </Box>
+          <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
+            <ManageCard
+              tokenId={tokenId}
+              underlying={underlying}
+              poolType={type}
+              duration={duration}
+            />
+          </Box>
         </Box>
-      )}
+      </Box>
     </Box>
   );
 };
