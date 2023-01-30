@@ -1,74 +1,49 @@
 import { StateCreator } from 'zustand';
-import {
-  SsovV3Viewer__factory,
-  SSOVOptionPricing__factory,
-  ERC20__factory,
-} from '@dopex-io/sdk';
-import { SsovV4Put__factory } from 'mocks/factories';
-import { SsovV4Put } from 'mocks';
-import { BigNumber, ethers } from 'ethers';
+import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
 import axios from 'axios';
 
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+const LENDING_URL = 'http://localhost:5001/api/v2/lending';
+const BASE_STATS_URL = 'http://localhost:3001/fetchCollateralBorrowingAmount';
 
-import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
-import { DOPEX_API_BASE_URL } from 'constants/index';
-
-import { TokenData } from 'types';
-
-const SSOV = '0x94bA72E58Be755c64d7cA1C543DE264A65ccEb66';
-const CHAIN_ID = 421613;
-
-export interface SsovV4EpochData {
-  collateralSymbol?: string;
-  underlyingSymbol?: string;
-  collateralAddress?: string;
-  tokenPrice?: BigNumber;
-  underlyingPrice?: BigNumber;
-  collateralPrice?: BigNumber;
+export interface SsovLendingData {
+  underlyingSymbol: string;
+  symbol: string;
+  chainId: number;
+  address: string;
+  totalSupply: number;
+  totalBorrow: number;
+  tokenPrice: number;
+  aprs: number[];
 }
 
-export interface SsovV4EpochStrikeData {
-  epochStrikes: BigNumber[];
-  totalEpochStrikeDeposits: BigNumber[];
-  totalEpochOptionsPurchased: BigNumber[];
-  totalEpochPremium: BigNumber[];
-  availableCollateralForStrikes: BigNumber[];
-  epochStrikeTokens: string[];
-  totalCollateral: BigNumber;
-  activeCollateral: BigNumber;
-  borrowedCollateral: BigNumber;
+export interface LendingStats {
+  totalSupply: number;
+  totalBorrow: number;
+  timestamp: number;
+}
+export interface SsovLendingSlice {
+  getSsovLendingContract: Function;
+  // updateSsovLendingData: Function;
+  // updateSsovLendingStats: Function;
+  // lendingData: SsovLendingData[];
+  // lendingStats: LendingStats[];
+  selectedAssetIdx: number;
+  setSelectedAssetIdx: (idx: number) => void;
 }
 
-export interface DebtPositionInterface {
-  epoch: BigNumber;
-  strike: BigNumber;
-  supplied: BigNumber;
-  borrowed: BigNumber;
-  tokenId: BigNumber;
-}
-
-export interface UserDebtPositions {
-  debtPositions: DebtPositionInterface[];
-}
-
-export interface SsovV4Slice {}
-
-export const createSsovV4Slice: StateCreator<
-  WalletSlice & CommonSlice & SsovV4Slice,
+export const createSsovLending: StateCreator<
+  WalletSlice & CommonSlice & SsovLendingSlice,
   [['zustand/devtools', never]],
   [],
-  SsovV4Slice
+  SsovLendingSlice
 > = (set, get) => ({
-  getLendingContract: () => {
-    const { selectedPoolName, provider, contractAddresses } = get();
-    if (!selectedPoolName || !provider) return;
-
-    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
-
+  getSsovLendingContract: (ssovAddress: string) => {
+    const { provider, lendingData, selectedAssetIdx } = get();
+    if (!provider) return;
+    // const ssovAddress = lendingData[selectedAssetIdx]?.address || '';
     try {
       return SsovV4Put__factory.connect(ssovAddress, provider);
     } catch (err) {
@@ -76,15 +51,46 @@ export const createSsovV4Slice: StateCreator<
       throw new Error('Fail to get ssov lending contract');
     }
   },
-  updateSsovV4Data: async () => {
-    set((prevState) => ({ ...prevState, ssovEpochData: null }));
-  },
-  updateSsovV4EpochStrikeData: async () => {
-    set((prevState) => ({ ...prevState, ssovEpochData: null }));
-  },
-  getSsovViewerAddress: () => {
-    const { selectedPoolName, contractAddresses } = get();
-    if (!selectedPoolName || !contractAddresses) return;
-    return contractAddresses['SSOV-V3'].VIEWER;
-  },
+  // updateSsovLendingData: async () => {
+  //   const { chainId } = get();
+  //   const ssovLendingData = await axios.get(LENDING_URL);
+  //   const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
+
+  //   set((prevState) => ({
+  //     ...prevState,
+  //     lendingData: ssovs,
+  //   }));
+  // },
+  // updateSsovLendingStats: async () => {
+  //   // const lendingStats = await axios.get(`${BASE_STATS_URL}?chainId=${chainId}`);
+  // const lendingStats = `
+  //   {
+  //     "data": [
+  //       {
+  //         "totalSupply": 674529,
+  //         "totalBorrow": 0,
+  //         "timestamp": 1675038259
+  //       }
+  //     ]
+  //   }
+  // `;
+  //   const stats: LendingStats[] = JSON.parse(lendingStats).data;
+
+  //   set((prevState) => ({
+  //     ...prevState,
+  //     lendingStats: stats,
+  //   }));
+  // },
+  // lendingData: [],
+  // lendingStats: [],
+  // getLendingStats: async () => {
+  //   const { updateSsovLendingStats } = get();
+  //   updateSsovLendingStats();
+  // },
+  selectedAssetIdx: 0,
+  setSelectedAssetIdx: (idx: number) =>
+    set((prevState) => ({
+      ...prevState,
+      selectedAssetIdx: idx,
+    })),
 });

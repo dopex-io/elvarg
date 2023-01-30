@@ -9,20 +9,18 @@ import {
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
+import { LendingStats } from 'store/Vault/lending';
+import { format } from 'date-fns';
+import { formatAmount } from 'utils/general';
 
 const loanTypeToColor: Record<string, string> = {
   Borrowing: '#22E1FF',
   Collateral: '#002EFF',
 };
 
-interface LoanData {
-  loanAmount: number;
-  datetime: string;
-}
-
 interface ChartProps {
   loanType: 'Borrowing' | 'Collateral';
-  data: LoanData[];
+  stats: Partial<LendingStats>[];
   totalLoan: number;
 }
 
@@ -31,10 +29,10 @@ const CustomizedTooltip = ({ active, payload }: any) => {
     <>
       <Box className="flex flex-col items-center border-transparent">
         <Typography variant="h5" className="-mt-1">
-          ${payload[0].payload.loanAmount}
+          ${formatAmount(payload[0].payload.loanAmount, 0, true)}
         </Typography>
         <Typography variant="h5" className="-mt-1">
-          {payload[0].payload.datetime}
+          {format(new Date(payload[0].payload.timestamp * 1000), 'LLL d')}
         </Typography>
       </Box>
     </>
@@ -42,7 +40,7 @@ const CustomizedTooltip = ({ active, payload }: any) => {
 };
 
 export const Chart = (props: ChartProps) => {
-  const { loanType, data, totalLoan } = props;
+  const { loanType, stats, totalLoan } = props;
 
   const [focusBar, setFocusBar] = useState<number>(-1);
   const [toolTipYPosition, setToolTipYPosition] = useState<number>(0);
@@ -55,7 +53,7 @@ export const Chart = (props: ChartProps) => {
     setToolTipYPosition(barChart?.getBoundingClientRect().height);
     setToolTipXPosition(barChart?.getBoundingClientRect().width);
   }, [focusBar]);
-
+  
   return (
     <Box key={`${loanType}-box`}>
       <Typography
@@ -71,9 +69,8 @@ export const Chart = (props: ChartProps) => {
 
       <ResponsiveContainer aspect={2.5} width={480}>
         <BarChart
-          key={loanType}
           barCategoryGap={1}
-          data={data}
+          data={stats}
           margin={{
             top: 0,
             right: 0,
@@ -90,19 +87,18 @@ export const Chart = (props: ChartProps) => {
           onMouseLeave={() => setFocusBar(-1)}
         >
           <RechartsTooltip
-            key={loanType}
             cursor={false}
             position={{
               y: toolTipYPosition,
               x: focusBar * toolTipXPosition,
             }}
             offset={-100}
-            content={<CustomizedTooltip payload={data} />}
+            content={<CustomizedTooltip payload={stats} />}
             wrapperStyle={{ outline: 'none' }}
             allowEscapeViewBox={{ x: true }}
           />
           <Bar dataKey="loanAmount" radius={[2, 2, 0, 0]}>
-            {[...Array(data.length).keys()].map((index) => (
+            {[...Array(stats.length).keys()].map((index) => (
               <>
                 <Cell
                   key={`cell-${loanType}-${index}`}

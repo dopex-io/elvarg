@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -27,52 +28,60 @@ import { Chart } from './Chart';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import { chain, max, min } from 'lodash';
+import BorrowDialog from './BorrowDialog';
+import { useBoundStore } from 'store';
+import { LendingStats, SsovLendingData } from 'store/Vault/lending';
+import { format } from 'date-fns';
 
-export interface AssetData {
-  name: string;
-  symbol: string;
-  borrowAPR: number[];
-  price: number;
-}
+const LENDING_URL = 'http://localhost:5001/api/v2/lending';
 
-const AssetRow = ({ data }: { data: AssetData }) => {
+const AssetRow = ({ positionIdx, assetDatum }: { positionIdx: number;  assetDatum: SsovLendingData }) => {
+  const {
+    underlyingSymbol,
+    address,
+    totalSupply,
+    totalBorrow,
+    tokenPrice,
+    aprs,
+  } = assetDatum;
   const [open, setOpen] = React.useState(false);
   const [borrowAmount, setBorrowAmount] = React.useState<string>('1');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleBorrowAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string> } }) =>
       setBorrowAmount(e.target.value),
     []
   );
+  
+  console.log('aprs: ', aprs);
+  const minApr = min(aprs)
+  const maxApr = max(aprs)
 
   return (
     <>
-      <StyleRow open={open} key={`main-${data.symbol}`}>
+      <StyleRow open={open} key={`main-${underlyingSymbol}`}>
         <TableCell align="left">
           <Box className="flex flex-row">
             <img
               className="-ml-1 w-9 h-9"
-              src={`/images/tokens/${data.symbol}.svg`}
-              alt={`${data.symbol}`}
+              src={`/images/tokens/${underlyingSymbol}.svg`}
+              alt={`${underlyingSymbol}`}
             />
-            <div className="ml-2">
-              <Typography variant="caption" color="white">
-                {data.name}
+              <Typography variant="h6" color="white" className="ml-3 mt-2">
+                {underlyingSymbol}
               </Typography>
-              <Typography variant="caption" color="white">
-                {data.symbol}
-              </Typography>
-            </div>
           </Box>
         </TableCell>
         <TableCell align="left">
           <Typography variant="caption" color="white">
-            $123
+          ${formatAmount(totalSupply, 0, true)}
           </Typography>
         </TableCell>
         <TableCell align="left">
           <Typography variant="caption" color="white">
-            ${formatAmount(data.price)}
+            ${formatAmount(tokenPrice)}
           </Typography>
         </TableCell>
         <TableCell align="left">
@@ -80,181 +89,30 @@ const AssetRow = ({ data }: { data: AssetData }) => {
             83%
           </Typography>
         </TableCell>
+        <TableCell align="left">
+          <Typography variant="caption" color="white">
+            {minApr === 0 && minApr === maxApr ? "-" : `${minApr}% - ${maxApr}%`}
+          </Typography>
+        </TableCell>
         <TableCell align="right">
-          <CustomButton onClick={() => setOpen(!open)}>Borrow</CustomButton>
+        <CustomButton
+          className="cursor-pointer text-white"
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+          >
+            Borrow
+        </CustomButton>
+          {anchorEl && (
+            <BorrowDialog
+              key={positionIdx}
+              anchorEl={anchorEl}
+              setAnchorEl={setAnchorEl}
+            />)}
         </TableCell>
         <TableCell align="right">
           <CustomButton onClick={() => setOpen(!open)}>Repay</CustomButton>
         </TableCell>
       </StyleRow>
     </>
-  );
-};
-
-const ltvBox = ({ percent, amount }: { percent: number; amount: number }) => {
-  return (
-    <Box
-      className="space-y-1.5 p-1 bg-mineshaft rounded-lg pb-2 w-min"
-      sx={{
-        minWidth: '5rem',
-      }}
-    >
-      <Typography
-        variant="caption"
-        color="stieglitz"
-        className="flex justify-center "
-      >
-        {percent}%
-      </Typography>
-      <LinearProgress
-        variant="determinate"
-        value={percent}
-        sx={{
-          maxWidth: '60%',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}
-      />
-      <Typography
-        variant="caption"
-        color="white"
-        className="flex justify-center"
-      >
-        ${amount}
-      </Typography>
-    </Box>
-  );
-};
-
-const AssetRowStats = ({
-  asset,
-  handleBorrowAmount,
-  borrowAmount,
-}: {
-  asset: string;
-  handleBorrowAmount: Function;
-  borrowAmount: string;
-}) => {
-  const ltvs = [
-    { percent: 25, amount: 25 },
-    { percent: 50, amount: 50 },
-    { percent: 75, amount: 75 },
-    { percent: 100, amount: 100 },
-  ];
-
-  // const handleMax = React.useCallback(() => {
-  //   setBorrowAmount(utils.formatEther(userTokenBalance));
-  // }, [userTokenBalance]);
-
-  const DropdownWrapper = styled(Box)`
-    border: 0.125rem solid #3e3e3e;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: row;
-
-    @media (max-width: 800px) {
-      flex-direction: column;
-      min-width: 100px;
-      align-items: center;
-    }
-  `;
-
-  const LtvWrapper = styled(Box)`
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    padding: 1rem;
-    border-right: solid #3e3e3e 2px;
-    width: fit-content;
-
-    @media (max-width: 800px) {
-      flex-direction: column;
-      border-right: revert;
-      align-items: center;
-    }
-  `;
-
-  const StatsWrapper = styled(Box)`
-    padding: 1rem;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    @media (max-width: 800px) {
-      flex-direction: row;
-      justify-content: space-around;
-      width: 100%;
-      border-top: solid #3e3e3e 2px;
-      border-bottom: solid #3e3e3e 2px;
-    }
-  `;
-
-  const BalanceWrapper = styled(Box)`
-    gap: 0.125rem;
-    border-left: solid #3e3e3e 2px;
-    width: fit-content;
-    display: flex;
-    padding: 0.5rem;
-    flex-direction: column;
-
-    @media (max-width: 800px) {
-      border-left: revert;
-    }
-  `;
-
-  return (
-    <DropdownWrapper key={asset}>
-      <LtvWrapper>
-        <Typography variant="caption" color="white" className="self-center">
-          Loan To Value Ratio (LTV)
-        </Typography>
-        <Box className="flex flex-row gap-1">
-          {ltvs.map((ltv) => ltvBox(ltv))}
-        </Box>
-      </LtvWrapper>
-      <StatsWrapper>
-        <Box className="flex justify-between  w-full">
-          <Typography variant="caption" color="white" className="w-fit">
-            Average Liquidity
-          </Typography>
-          <Typography variant="caption" color="stieglitz" className="ml-3">
-            $116M
-          </Typography>
-        </Box>
-        <Box className="flex justify-between w-full">
-          <Typography variant="caption" color="white">
-            Borrow APR
-          </Typography>
-          <Typography variant="caption" color="stieglitz">
-            12%
-          </Typography>
-        </Box>
-      </StatsWrapper>
-
-      <BalanceWrapper>
-        <Typography variant="caption" className="self-end " color="stieglitz">
-          Balance: 1 {asset}
-        </Typography>
-        <Box className="flex flex-row border border-mineshaft rounded-lg p-1 bg-mineshaft">
-          <Input
-            key={`borrow-${asset}`}
-            disableUnderline
-            type="number"
-            className="rounded-md pl-2"
-            classes={{ input: 'text-white text-xs text-left' }}
-            value={borrowAmount}
-            onChange={handleBorrowAmount}
-          />
-          <CustomButton className="w-fit h-1">Borrow</CustomButton>
-        </Box>
-        <Typography variant="caption" className="self-start" color="stieglitz">
-          Max Borrowable: $250
-        </Typography>
-      </BalanceWrapper>
-    </DropdownWrapper>
   );
 };
 
@@ -288,22 +146,7 @@ const StyleRow = styled(TableRow)`
   }
 `;
 
-const Assets = () => {
-  const assetData: AssetData[] = [
-    {
-      name: 'Ether',
-      symbol: 'ETH',
-      borrowAPR: [12],
-      price: 1200,
-    },
-    {
-      name: 'Dopex',
-      symbol: 'DPX',
-      borrowAPR: [12],
-      price: 300,
-    },
-  ];
-
+const Assets = ({data}: {data: any[]}) => {
   return (
     <Box className="bg-cod-gray p-2 mt-2 border-radius rounded-lg ">
       <StyleContainer>
@@ -330,6 +173,11 @@ const Assets = () => {
                   Utilization
                 </Typography>
               </TableCell>
+              <TableCell align="left" className="border-none">
+                <Typography variant="caption" color="stieglitz">
+                  Borrow APR
+                </Typography>
+              </TableCell>
               <TableCell align="right" className="border-none">
                 <Typography variant="caption" color="stieglitz">
                   Action
@@ -342,9 +190,9 @@ const Assets = () => {
               </TableCell>
             </TableRow>
           </TableHead>
-          {assetData.map((assetDatum) => (
-            <TableBody key={assetDatum.symbol} className="rounded-lg bg-umbra">
-              <AssetRow key={assetDatum.symbol} data={assetDatum} />
+          {data.map((assetDatum, idx) => (
+            <TableBody key={idx} className="rounded-lg bg-umbra">
+              <AssetRow key={idx} positionIdx={idx} assetDatum={assetDatum} />
             </TableBody>
           ))}
         </Table>
@@ -357,21 +205,40 @@ const ranNum = () => {
   return Math.floor(Math.random() * 10);
 };
 
-const getCollateralData = () => {
-  return [...Array(30)].map((_, i) => ({
-    loanAmount: (ranNum() + 1) * 100,
-    datetime: `${ranNum() + 1} Dec`,
-  }));
-};
-
 const getBorrowingData = () => {
   return [...Array(30)].map((_, i) => ({
     loanAmount: (ranNum() + 1) * 100,
-    datetime: `${ranNum() + 1} Dec`,
+    timestamp: 123+i,
   }));
 };
 
 const Lending = () => {
+  const { chainId } = useBoundStore()
+  const [lendingStats, setLendingStats] = useState<LendingStats[]>([])
+  const [assetData, setAssetData] = useState<SsovLendingData[]>([])
+  
+  useEffect(() => {
+    (async () => {
+      const ssovLendingData = await axios.get(LENDING_URL);
+      const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
+      setAssetData(ssovs)
+
+      const lendingStats = `
+      {
+        "data": [
+          {
+            "totalSupply": 674529,
+            "totalBorrow": 0,
+            "timestamp": 1675038259
+          }
+        ]
+      }
+    `;
+      const stats: LendingStats[] = JSON.parse(lendingStats).data;
+      setLendingStats(stats)
+    })();
+  }, [chainId]);
+  
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -383,17 +250,28 @@ const Lending = () => {
           <Chart
             key={'Collateral'}
             loanType={'Collateral'}
-            data={getCollateralData()}
+            stats={lendingStats.map(s => {
+              return {
+                loanAmount: s.totalSupply,
+                timestamp: s.timestamp
+              }
+            })}
             totalLoan={180}
           />
           <Chart
             key={'Borrowing'}
             loanType={'Borrowing'}
-            data={getBorrowingData()}
+            // stats={lendingStats.map(s => {
+            //   return {
+            //     loanAmount: s.totalBorrow,
+            //     timestamp: s.timestamp
+            //   }
+            // })}
+            stats={getBorrowingData()}
             totalLoan={180}
           />
         </div>
-        <Assets />
+        <Assets data={assetData} />
       </Box>
     </Box>
   );
