@@ -133,18 +133,20 @@ export const createOlpSlice: StateCreator<
     const olpContract = getOlpContract();
 
     try {
-      const hasPut =
-        (await olpContract.getTokenVaultRegistry(tokenAddress, true)) !== NULL;
-      const hasCall =
-        (await olpContract.getTokenVaultRegistry(tokenAddress, false)) !== NULL;
+      const [ssovPutAddress, ssovCallAddress] = await Promise.all([
+        olpContract.getTokenVaultRegistry(tokenAddress, true),
+        olpContract.getTokenVaultRegistry(tokenAddress, false),
+      ]);
+
+      const hasPut = ssovPutAddress !== NULL;
+      const hasCall = ssovCallAddress !== NULL;
 
       let isPut: boolean = selectedIsPut;
-
       if (hasPut && !hasCall) {
         isPut = true;
       }
 
-      const ssov = await olpContract.getTokenVaultRegistry(tokenAddress, isPut);
+      const ssov = isPut ? ssovPutAddress : ssovCallAddress;
 
       const [addresses, expiries, epochs, currentEpoch] = await Promise.all([
         olpContract.addresses(),
