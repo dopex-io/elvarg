@@ -19,7 +19,7 @@ const PoolStrategies = ({
 }) => {
   const [underlying, base] = pair;
 
-  const { chainId, contractAddresses } = useBoundStore();
+  const { chainId, contractAddresses, accountAddress } = useBoundStore();
 
   const [_, setSelection] = useState<string>('Insured Long Perps');
 
@@ -36,8 +36,8 @@ const PoolStrategies = ({
       !chainId
     )
       return (
-        <Typography variant="h6" className="font-mono">
-          Loading...
+        <Typography variant="h6" className="font-mono pt-2">
+          {accountAddress ? 'Loading...' : '...'}
         </Typography>
       );
 
@@ -51,7 +51,7 @@ const PoolStrategies = ({
         }}
         displayEmpty
         renderValue={() => (
-          <Typography variant="h6" className="text-white text-center relative">
+          <Typography variant="h6" className="text-center relative">
             Select Strategy
           </Typography>
         )}
@@ -66,7 +66,7 @@ const PoolStrategies = ({
                 strategyItem['path']?.concat(`${underlying + '-' + base}`) ?? ''
               }
               passHref
-              className="font-mono text-white"
+              className="text-white"
             >
               {strategyItem['title']}
             </Link>
@@ -88,7 +88,14 @@ const PoolStrategies = ({
         ))}
       </Select>
     );
-  }, [base, chainId, contractAddresses, handleClick, underlying]);
+  }, [
+    base,
+    chainId,
+    accountAddress,
+    contractAddresses,
+    handleClick,
+    underlying,
+  ]);
 
   return menu;
 };
