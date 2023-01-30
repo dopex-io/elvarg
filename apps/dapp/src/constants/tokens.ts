@@ -36,7 +36,9 @@ export const TOKEN_DATA: {
 } = {
   ETH: { cgId: 'ethereum', name: 'Ethereum' },
   WETH: { cgId: 'weth', name: 'Wrapped Ethereum' },
+  STETH: { cgId: 'weth', name: 'Lido Staked Ether ' },
   WBTC: { cgId: 'bitcoin', name: 'Wrapped Bitcoin' },
+  BTC: { cgId: 'bitcoin', name: 'Bitcoin' },
   PLS: { cgId: 'plutusdao', name: 'Plutus DAO' },
   BNB: { cgId: 'binancecoin', name: 'Binance Coin' },
   USDT: { cgId: 'tether', name: 'Tether USD' },
