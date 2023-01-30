@@ -28,6 +28,7 @@ const PositionsTable = () => {
     straddlesData,
     updateStraddlesUserData,
     accountAddress,
+    isLoading,
   } = useBoundStore();
 
   const handleExercise = useCallback(
@@ -65,57 +66,62 @@ const PositionsTable = () => {
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {straddlesUserData?.straddlePositions?.map((position, i) => (
-              <TableRow key={i}>
-                <TableCell className="pt-2 border-0">
-                  <Box>
-                    <Box
-                      className={`rounded-md flex items-center px-2 py-2 w-fit`}
-                    >
-                      <Typography variant="h6" className="pr-7 pt-[2px]">
-                        {formatAmount(
-                          getUserReadableAmount(
-                            position.amount.div(BigNumber.from(2)),
-                            18
-                          ),
-                          8
-                        )}
-                      </Typography>
+            {!isLoading &&
+              straddlesUserData?.straddlePositions?.map((position, i) => (
+                <TableRow key={i}>
+                  <TableCell className="pt-2 border-0">
+                    <Box>
+                      <Box
+                        className={`rounded-md flex items-center px-2 py-2 w-fit`}
+                      >
+                        <Typography variant="h6" className="pr-7 pt-[2px]">
+                          {formatAmount(
+                            getUserReadableAmount(
+                              position.amount.div(BigNumber.from(2)),
+                              18
+                            ),
+                            8
+                          )}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" className="text-[#6DFFB9]">
-                    ${getUserReadableAmount(position.apStrike, 8).toFixed(2)}
-                  </Typography>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
-                    ${getUserReadableAmount(position.pnl, 18).toFixed(2)}
-                  </Typography>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography variant="h6">
-                    {Number(position.epoch!)}
-                  </Typography>
-                </TableCell>
-                <TableCell className="flex justify-end border-0">
-                  <CustomButton
-                    className="cursor-pointer text-white"
-                    color={
-                      straddlesData?.isEpochExpired ? 'mineshaft' : 'primary'
-                    }
-                    disabled={
-                      !straddlesData?.isEpochExpired ||
-                      straddlesUserData?.straddlePositions![i]!.pnl.lte(0)
-                    }
-                    onClick={() => handleExercise(i)}
-                  >
-                    Exercise
-                  </CustomButton>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                  <TableCell className="pt-1 border-0">
+                    <Typography variant="h6" className="text-[#6DFFB9]">
+                      ${getUserReadableAmount(position.apStrike, 8).toFixed(2)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell className="pt-1 border-0">
+                    <Typography
+                      variant="h6"
+                      color="white"
+                      className="text-left"
+                    >
+                      ${getUserReadableAmount(position.pnl, 18).toFixed(2)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell className="pt-1 border-0">
+                    <Typography variant="h6">
+                      {Number(position.epoch!)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell className="flex justify-end border-0">
+                    <CustomButton
+                      className="cursor-pointer text-white"
+                      color={
+                        straddlesData?.isEpochExpired ? 'mineshaft' : 'primary'
+                      }
+                      disabled={
+                        !straddlesData?.isEpochExpired ||
+                        straddlesUserData?.straddlePositions![i]!.pnl.lte(0)
+                      }
+                      onClick={() => handleExercise(i)}
+                    >
+                      Exercise
+                    </CustomButton>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>

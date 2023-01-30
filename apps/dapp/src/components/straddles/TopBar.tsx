@@ -7,7 +7,8 @@ import Typography from 'components/UI/Typography';
 import { useBoundStore } from 'store';
 
 const TopBar = () => {
-  const { tokenPrices, selectedPoolName, straddlesEpochData } = useBoundStore();
+  const { tokenPrices, selectedPoolName, straddlesEpochData, isLoading } =
+    useBoundStore();
 
   const tokenPrice =
     tokenPrices.find((token) => token.name === selectedPoolName)?.price || 0;
@@ -50,7 +51,7 @@ const TopBar = () => {
           ${tokenPrice}
         </Typography>
       </Box>
-      {isEpochExpired ? (
+      {!isLoading && isEpochExpired ? (
         <Box className="p-2 my-2 rounded-lg border border-down-bad border-opacity-30 bg-down-bad bg-opacity-10">
           <Typography variant="h6" color="down-bad">
             Expired

@@ -26,6 +26,7 @@ const Straddles = ({ poolName }: Props) => {
     updateStraddles,
     updateStraddlesUserData,
     updateStraddlesEpochData,
+    setIsLoading,
   } = useBoundStore();
 
   useEffect(() => {
@@ -33,12 +34,20 @@ const Straddles = ({ poolName }: Props) => {
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
+    setIsLoading(true);
     updateStraddles().then(() =>
       updateStraddlesEpochData().then(() => {
-        updateStraddlesUserData();
+        updateStraddlesUserData().then(() => {
+          setIsLoading(false);
+        });
       })
     );
-  }, [updateStraddles, updateStraddlesEpochData, updateStraddlesUserData]);
+  }, [
+    setIsLoading,
+    updateStraddles,
+    updateStraddlesEpochData,
+    updateStraddlesUserData,
+  ]);
 
   return (
     <Box className="bg-black min-h-screen">
