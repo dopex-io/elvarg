@@ -36,7 +36,13 @@ import { format } from 'date-fns';
 
 const LENDING_URL = 'http://localhost:5001/api/v2/lending';
 
-const AssetRow = ({ positionIdx, assetDatum }: { positionIdx: number;  assetDatum: SsovLendingData }) => {
+const AssetRow = ({
+  positionIdx,
+  assetDatum,
+}: {
+  positionIdx: number;
+  assetDatum: SsovLendingData;
+}) => {
   const {
     underlyingSymbol,
     address,
@@ -54,10 +60,10 @@ const AssetRow = ({ positionIdx, assetDatum }: { positionIdx: number;  assetDatu
       setBorrowAmount(e.target.value),
     []
   );
-  
+
   console.log('aprs: ', aprs);
-  const minApr = min(aprs)
-  const maxApr = max(aprs)
+  const minApr = min(aprs);
+  const maxApr = max(aprs);
 
   return (
     <>
@@ -69,14 +75,14 @@ const AssetRow = ({ positionIdx, assetDatum }: { positionIdx: number;  assetDatu
               src={`/images/tokens/${underlyingSymbol}.svg`}
               alt={`${underlyingSymbol}`}
             />
-              <Typography variant="h6" color="white" className="ml-3 mt-2">
-                {underlyingSymbol}
-              </Typography>
+            <Typography variant="h6" color="white" className="ml-3 mt-2">
+              {underlyingSymbol}
+            </Typography>
           </Box>
         </TableCell>
         <TableCell align="left">
           <Typography variant="caption" color="white">
-          ${formatAmount(totalSupply, 0, true)}
+            ${formatAmount(totalSupply, 0, true)}
           </Typography>
         </TableCell>
         <TableCell align="left">
@@ -84,29 +90,33 @@ const AssetRow = ({ positionIdx, assetDatum }: { positionIdx: number;  assetDatu
             ${formatAmount(tokenPrice)}
           </Typography>
         </TableCell>
-        <TableCell align="left">
+        {/* <TableCell align="left">
           <Typography variant="caption" color="white">
             83%
           </Typography>
-        </TableCell>
+        </TableCell> */}
         <TableCell align="left">
           <Typography variant="caption" color="white">
-            {minApr === 0 && minApr === maxApr ? "-" : `${minApr}% - ${maxApr}%`}
+            {minApr === 0 && minApr === maxApr
+              ? '-'
+              : `${minApr}% - ${maxApr}%`}
           </Typography>
         </TableCell>
         <TableCell align="right">
-        <CustomButton
-          className="cursor-pointer text-white"
-          onClick={(e) => setAnchorEl(e.currentTarget)}
+          <CustomButton
+            className="cursor-pointer text-white"
+            onClick={(e) => setAnchorEl(e.currentTarget)}
           >
             Borrow
-        </CustomButton>
+          </CustomButton>
           {anchorEl && (
             <BorrowDialog
               key={positionIdx}
+              assetDatum={assetDatum}
               anchorEl={anchorEl}
               setAnchorEl={setAnchorEl}
-            />)}
+            />
+          )}
         </TableCell>
         <TableCell align="right">
           <CustomButton onClick={() => setOpen(!open)}>Repay</CustomButton>
@@ -146,7 +156,7 @@ const StyleRow = styled(TableRow)`
   }
 `;
 
-const Assets = ({data}: {data: any[]}) => {
+const Assets = ({ data }: { data: any[] }) => {
   return (
     <Box className="bg-cod-gray p-2 mt-2 border-radius rounded-lg ">
       <StyleContainer>
@@ -168,11 +178,11 @@ const Assets = ({data}: {data: any[]}) => {
                   Price
                 </Typography>
               </TableCell>
-              <TableCell align="left" className="border-none">
+              {/* <TableCell align="left" className="border-none">
                 <Typography variant="caption" color="stieglitz">
                   Utilization
                 </Typography>
-              </TableCell>
+              </TableCell> */}
               <TableCell align="left" className="border-none">
                 <Typography variant="caption" color="stieglitz">
                   Borrow APR
@@ -208,20 +218,20 @@ const ranNum = () => {
 const getBorrowingData = () => {
   return [...Array(30)].map((_, i) => ({
     loanAmount: (ranNum() + 1) * 100,
-    timestamp: 123+i,
+    timestamp: 123 + i,
   }));
 };
 
 const Lending = () => {
-  const { chainId } = useBoundStore()
-  const [lendingStats, setLendingStats] = useState<LendingStats[]>([])
-  const [assetData, setAssetData] = useState<SsovLendingData[]>([])
-  
+  const { chainId } = useBoundStore();
+  const [lendingStats, setLendingStats] = useState<LendingStats[]>([]);
+  const [assetData, setAssetData] = useState<SsovLendingData[]>([]);
+
   useEffect(() => {
     (async () => {
       const ssovLendingData = await axios.get(LENDING_URL);
       const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
-      setAssetData(ssovs)
+      setAssetData(ssovs);
 
       const lendingStats = `
       {
@@ -235,10 +245,10 @@ const Lending = () => {
       }
     `;
       const stats: LendingStats[] = JSON.parse(lendingStats).data;
-      setLendingStats(stats)
+      setLendingStats(stats);
     })();
   }, [chainId]);
-  
+
   return (
     <Box className="bg-black min-h-screen">
       <Head>
@@ -250,11 +260,11 @@ const Lending = () => {
           <Chart
             key={'Collateral'}
             loanType={'Collateral'}
-            stats={lendingStats.map(s => {
+            stats={lendingStats.map((s) => {
               return {
                 loanAmount: s.totalSupply,
-                timestamp: s.timestamp
-              }
+                timestamp: s.timestamp,
+              };
             })}
             totalLoan={180}
           />

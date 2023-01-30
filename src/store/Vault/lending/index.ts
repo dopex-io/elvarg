@@ -17,6 +17,7 @@ export interface SsovLendingData {
   totalBorrow: number;
   tokenPrice: number;
   aprs: number[];
+  strikes: number[];
 }
 
 export interface LendingStats {

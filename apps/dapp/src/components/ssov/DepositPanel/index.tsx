@@ -4,8 +4,7 @@ import format from 'date-fns/format';
 import { BigNumber, utils } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { SelectChangeEvent } from '@mui/material/Select';
 
 import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Vault/ssov';
@@ -21,23 +20,11 @@ import LockerIcon from 'svgs/icons/LockerIcon';
 
 import useSendTx from 'hooks/useSendTx';
 
-import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
-
-const SelectMenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: 324,
-      width: 250,
-    },
-  },
-  classes: {
-    paper: 'bg-mineshaft',
-  },
-};
+import SsovStrikeBox from 'components/common/SsovStrikeBox';
 
 const DepositPanel = () => {
   const {
@@ -231,52 +218,13 @@ const DepositPanel = () => {
       </Box>
       <Box>
         <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
-          <Box className="flex">
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
-            >
-              Balance
-            </Typography>
-            <Typography
-              variant="h6"
-              className="text-white ml-auto mr-0 text-[0.72rem]"
-            >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 18), 8)}{' '}
-              {ssovData?.collateralSymbol}
-            </Typography>
-          </Box>
-          <Box className="mt-2 flex">
-            <Box className={'w-full'}>
-              <Select
-                className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
-                fullWidth
-                value={strike}
-                onChange={handleSelectStrike}
-                input={<Input />}
-                variant="outlined"
-                placeholder="Select Strike Prices"
-                MenuProps={SelectMenuProps}
-                classes={{
-                  icon: 'absolute right-7 text-white',
-                  select: 'overflow-hidden',
-                }}
-                disableUnderline
-                label="strikes"
-              >
-                {strikes.map((strike: string, index: number) => (
-                  <MenuItem key={index} value={index} className="pb-2 pt-2">
-                    <Typography
-                      variant="h5"
-                      className="text-white text-left w-full relative ml-3"
-                    >
-                      ${formatAmount(strike, 4)}
-                    </Typography>
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
-          </Box>
+          <SsovStrikeBox
+            userTokenBalance={userTokenBalance}
+            collateralSymbol={ssovData?.collateralSymbol!}
+            strike={strike}
+            handleSelectStrike={handleSelectStrike}
+            strikes={strikes}
+          />
           <Box className="mt-3">
             <Box className="flex mb-3 group">
               <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
