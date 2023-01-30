@@ -108,7 +108,7 @@ const TVChart = (props: Props) => {
     newSeries.createPriceLine({
       price: Number(triggerMarker),
       color: '#FF617D',
-      title: `Liq. @$${triggerMarker}`,
+      title: `Put Strike $${triggerMarker}`,
       lineStyle: 2,
       axisLabelVisible: true,
       lineWidth: 1,

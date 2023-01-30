@@ -73,6 +73,7 @@ export const ActionState: { [key: string]: string } = {
 
 const Positions = ({
   active,
+  setTriggerMarker,
 }: {
   active: string;
   setTriggerMarker: Function;
@@ -225,8 +226,17 @@ const Positions = ({
     }
 
     setUserPositionData(() => position);
+    setTriggerMarker(() =>
+      getUserReadableAmount(position.putStrike, 8).toString()
+    );
     setIsPositionReleased(() => strategyPosition.state === 1);
-  }, [contractAddresses, signer, accountAddress, atlanticPool]);
+  }, [
+    contractAddresses,
+    signer,
+    accountAddress,
+    atlanticPool,
+    setTriggerMarker,
+  ]);
 
   const handleManageButtonClick = useCallback(() => {
     if (userPositionData.state === 'Settled') {
