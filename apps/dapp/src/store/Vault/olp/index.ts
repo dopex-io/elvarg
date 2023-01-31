@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
 import { orderBy } from 'lodash';
-import { SsovLp, SsovLp__factory } from '@dopex-io/sdk';
+import { SsovLp, SsovLp__factory, Addresses } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
@@ -17,9 +17,6 @@ import {
   NULL,
   PERCENT,
 } from '../../../constants';
-
-const OLP: string = '0x3D0354322D4Ef15CBF4498581976F0dd40DedD07';
-const TOKEN: string = '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55';
 
 export interface OlpDataInterface {
   olpContract: SsovLp | undefined;
@@ -111,32 +108,45 @@ export const createOlpSlice: StateCreator<
 
     if (!selectedPoolName || !provider) return;
 
-    // TODO: Addresses[CHAIN_ID].OLP[selectedPoolName].Vault
     try {
-      return SsovLp__factory.connect(OLP, provider);
+      return SsovLp__factory.connect(
+        Addresses[42161].OLP.SsovLp[selectedPoolName],
+        provider
+      );
     } catch (err) {
       console.log(err);
       throw Error('unable to create address');
     }
   },
   updateOlp: async () => {
-    const { getOlpContract, setSelectedEpoch, selectedIsPut } = get();
+    const {
+      getOlpContract,
+      setSelectedEpoch,
+      selectedIsPut,
+      selectedPoolName,
+    } = get();
 
+    // selectedPoolName e.g., DPX-MONTHLY
+    const tokenSymbol: string =
+      selectedPoolName.split('-')[0]?.toUpperCase() || '';
+    const tokenAddress = Addresses[42161][tokenSymbol];
     const olpContract = getOlpContract();
 
     try {
-      const hasPut =
-        (await olpContract.getTokenVaultRegistry(TOKEN, true)) !== NULL;
-      const hasCall =
-        (await olpContract.getTokenVaultRegistry(TOKEN, false)) !== NULL;
+      const [ssovPutAddress, ssovCallAddress] = await Promise.all([
+        olpContract.getTokenVaultRegistry(tokenAddress, true),
+        olpContract.getTokenVaultRegistry(tokenAddress, false),
+      ]);
+
+      const hasPut = ssovPutAddress !== NULL;
+      const hasCall = ssovCallAddress !== NULL;
 
       let isPut: boolean = selectedIsPut;
-
       if (hasPut && !hasCall) {
         isPut = true;
       }
 
-      const ssov = await olpContract.getTokenVaultRegistry(TOKEN, isPut);
+      const ssov = isPut ? ssovPutAddress : ssovCallAddress;
 
       const [addresses, expiries, epochs, currentEpoch] = await Promise.all([
         olpContract.addresses(),
@@ -145,16 +155,14 @@ export const createOlpSlice: StateCreator<
         olpContract.getSsovEpoch(ssov),
       ]);
 
-      const underlyingSymbol = 'DPX';
-
       setSelectedEpoch(expiries.length > 0 ? expiries.length - 1 : 0);
 
       set((prevState) => ({
         ...prevState,
         olpData: {
           olpContract: olpContract,
-          underlyingSymbol: underlyingSymbol,
-          underlying: TOKEN,
+          underlyingSymbol: tokenSymbol,
+          underlying: tokenAddress,
           ssov: ssov,
           usd: addresses.usd,
           currentEpoch: currentEpoch,

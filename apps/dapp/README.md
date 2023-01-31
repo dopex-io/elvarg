@@ -17,6 +17,12 @@ Please have these installed on your machine:
 yarn
 ```
 
+### Generate graphql modules
+
+```
+yarn generate
+```
+
 To start the DApp you also need to setup an additional .env.local file:
 
 It should look like the [`.env.example`](/.env.example)

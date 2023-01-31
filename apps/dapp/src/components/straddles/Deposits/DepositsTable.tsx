@@ -56,7 +56,8 @@ const Label = ({ active }: { active: boolean }) => {
 };
 
 const DepositsTable = () => {
-  const { straddlesUserData, straddlesData, accountAddress } = useBoundStore();
+  const { straddlesUserData, straddlesData, accountAddress, isLoading } =
+    useBoundStore();
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] =
     useState<boolean>(false);
@@ -86,66 +87,68 @@ const DepositsTable = () => {
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {straddlesUserData?.writePositions?.map((position, i) => (
-              <TableRow key={i}>
-                <TableCell className="pt-1 border-0">
-                  <Box className="rounded-md w-2/3 flex justify-between p-2">
-                    <Typography variant="h6" className="pt-[2px]">
-                      {formatAmount(
-                        getUserReadableAmount(position.usdDeposit, 6),
-                        2
-                      )}
-                    </Typography>
-                    <Box className="rounded-sm bg-mineshaft">
-                      <Typography
-                        variant="h6"
-                        className="px-1 py-[2px]"
-                        color="stieglitz"
-                      >
-                        USDC
+            {!isLoading &&
+              straddlesUserData?.writePositions?.map((position, i) => (
+                <TableRow key={i}>
+                  <TableCell className="pt-1 border-0">
+                    <Box className="rounded-md w-2/3 flex justify-between p-2">
+                      <Typography variant="h6" className="pt-[2px]">
+                        {formatAmount(
+                          getUserReadableAmount(position.usdDeposit, 6),
+                          2
+                        )}
                       </Typography>
+                      <Box className="rounded-sm bg-mineshaft">
+                        <Typography
+                          variant="h6"
+                          className="px-1 py-[2px]"
+                          color="stieglitz"
+                        >
+                          USDC
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </TableCell>
-                <TableCell className="pt-1 border-0 flex">
-                  <Typography variant="h6">
-                    {position.epoch.toNumber()}
-                  </Typography>
-                  <Label
-                    active={
-                      position.epoch.toNumber() ==
-                        straddlesData?.currentEpoch! &&
-                      !straddlesData?.isEpochExpired
-                    }
-                  />
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" className="text-right">
-                    $
-                    {getUserReadableAmount(position.premiumFunding, 26).toFixed(
-                      2
-                    )}
-                  </Typography>
-                </TableCell>
-                <TableCell className="flex justify-end border-0">
-                  <CustomButton
-                    onClick={() => handleWithdraw(i)}
-                    className={
-                      'cursor-pointer bg-primary hover:bg-primary text-white'
-                    }
-                  >
-                    Withdraw
-                  </CustomButton>
-                  {isWithdrawModalOpen && (
-                    <WithdrawModal
-                      open={isWithdrawModalOpen}
-                      selectedPositionNftIndex={selectedPositionNftIndex}
-                      handleClose={closeWithdrawModal}
+                  </TableCell>
+                  <TableCell className="pt-1 border-0 flex">
+                    <Typography variant="h6">
+                      {position.epoch.toNumber()}
+                    </Typography>
+                    <Label
+                      active={
+                        position.epoch.toNumber() ==
+                          straddlesData?.currentEpoch! &&
+                        !straddlesData?.isEpochExpired
+                      }
                     />
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                  <TableCell className="pt-1 border-0">
+                    <Typography variant="h6" className="text-right">
+                      $
+                      {getUserReadableAmount(
+                        position.premiumFunding,
+                        26
+                      ).toFixed(2)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell className="flex justify-end border-0">
+                    <CustomButton
+                      onClick={() => handleWithdraw(i)}
+                      className={
+                        'cursor-pointer bg-primary hover:bg-primary text-white'
+                      }
+                    >
+                      Withdraw
+                    </CustomButton>
+                    {isWithdrawModalOpen && (
+                      <WithdrawModal
+                        open={isWithdrawModalOpen}
+                        selectedPositionNftIndex={selectedPositionNftIndex}
+                        handleClose={closeWithdrawModal}
+                      />
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>

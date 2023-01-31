@@ -39,6 +39,43 @@ const ContractData = () => {
     else return 'Expired';
   }, [atlanticPoolEpochData]);
 
+  const renderValues = useMemo(() => {
+    if (!atlanticPool || !atlanticPoolEpochData)
+      return {
+        epochDuration: '...',
+        fundingRate: '...',
+        fundingAccrued: '...',
+        apr: '...',
+        utilization: '...',
+        premiaAccrued: '...',
+        durationType: '...',
+      };
+
+    return {
+      epochDuration,
+      fundingRate: `${
+        Number(atlanticPool?.vaultConfig.fundingFee ?? 0) / 100000
+      }% / Hour`,
+      fundingAccrued: `${formatAmount(
+        atlanticPoolEpochData.fundingAccrued,
+        3
+      )} ${atlanticPool?.tokens.depositToken}`,
+      apr: `~${formatAmount(atlanticPoolEpochData?.apr, 3)}%`,
+      utilization: `${formatAmount(
+        atlanticPoolEpochData?.utilizationRate,
+        3
+      )}%`,
+      premiaAccrued: `${formatAmount(
+        getUserReadableAmount(atlanticPoolEpochData.premiaAccrued, 6),
+        3,
+        true
+      )} ${atlanticPool?.tokens.depositToken}`,
+      durationType: `${
+        atlanticPool.durationType[0]
+      } ${atlanticPool?.durationType.substring(1).toLowerCase()}`,
+    };
+  }, [atlanticPool, atlanticPoolEpochData, epochDuration]);
+
   useEffect(() => {
     if (currentEpoch === 0) return;
     setSelectedEpoch(currentEpoch);
@@ -90,10 +127,10 @@ const ContractData = () => {
               <AlarmIcon fill="#8E8E8E" />
               <Typography
                 variant="h6"
-                className="my-auto font-semibold"
+                className="my-auto font-semibold font-mono"
                 color="stieglitz"
               >
-                {epochDuration === 'less than a minute' ? '...' : epochDuration}
+                {renderValues.epochDuration}
               </Typography>
             </Box>
           </Box>
@@ -125,30 +162,20 @@ const ContractData = () => {
           description="Funding Rate"
           value={
             <Typography variant="h6" className="font-semibold">
-              {Number(atlanticPool?.vaultConfig.fundingFee) / 100000 ?? 0.05}% /
-              Hour
+              {renderValues.fundingRate}
             </Typography>
           }
           variant="row"
         />
         <ContractDataItem
           description="APR"
-          value={
-            <Typography variant="h6">
-              ~{formatAmount(atlanticPoolEpochData?.apr, 3)}%
-            </Typography>
-          }
+          value={<Typography variant="h6">{renderValues.apr}</Typography>}
           variant="row"
         />
         <ContractDataItem
           description="Epoch Length"
           value={
-            <Typography variant="h6">
-              {atlanticPool?.durationType
-                ? atlanticPool?.durationType[0] +
-                  atlanticPool?.durationType.substring(1).toLowerCase()
-                : '...'}
-            </Typography>
+            <Typography variant="h6">{renderValues.durationType}</Typography>
           }
           variant="row"
         />
@@ -157,37 +184,21 @@ const ContractData = () => {
         <ContractDataItem
           description="Utilization"
           value={
-            <Typography variant="h6">
-              {formatAmount(atlanticPoolEpochData?.utilizationRate, 3)}%
-            </Typography>
+            <Typography variant="h6">{renderValues.utilization}</Typography>
           }
           variant="row"
         />
         <ContractDataItem
           description="Funding"
           value={
-            <Typography variant="h6">
-              {`${
-                formatAmount(atlanticPoolEpochData?.fundingAccrued, 3) ?? 0
-              } ${atlanticPool?.tokens.depositToken}`}
-            </Typography>
+            <Typography variant="h6">{renderValues.fundingAccrued}</Typography>
           }
           variant="row"
         />
         <ContractDataItem
           description="Premiums"
           value={
-            <Typography variant="h6">
-              {formatAmount(
-                getUserReadableAmount(
-                  atlanticPoolEpochData?.premiaAccrued ?? '0',
-                  6
-                ),
-                3,
-                true
-              )}{' '}
-              {atlanticPool?.tokens.depositToken}
-            </Typography>
+            <Typography variant="h6">{renderValues.premiaAccrued}</Typography>
           }
           variant="row"
         />
