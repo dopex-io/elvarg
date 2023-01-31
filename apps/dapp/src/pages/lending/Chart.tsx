@@ -53,7 +53,7 @@ export const Chart = (props: ChartProps) => {
     setToolTipYPosition(barChart?.getBoundingClientRect().height);
     setToolTipXPosition(barChart?.getBoundingClientRect().width);
   }, [focusBar]);
-  
+
   return (
     <Box key={`${loanType}-box`}>
       <Typography

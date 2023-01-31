@@ -1,32 +1,14 @@
-import {
-  MouseEventHandler,
-  useReducer,
-  useState,
-  useEffect,
-  useCallback,
-} from 'react';
+import { useState, useCallback } from 'react';
 import { BigNumber, utils } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
-import Switch from '@mui/material/Switch';
-import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { styled } from '@mui/material/styles';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import Typography from 'components/UI/Typography';
 import Button from 'components/UI/Button';
-import {
-  DialogRow,
-  LiquidityDialogRow,
-  NumberLiquidityDialogRow,
-} from 'components/common/LpCommon/Table';
-
-import { LpPosition } from 'store/Vault/olp';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 
 import {
   DECIMALS_TOKEN,

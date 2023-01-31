@@ -12,20 +12,20 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
+} from 'ethers';
 import type {
   FunctionFragment,
   Result,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+} from '@ethersproject/abi';
+import type { Listener, Provider } from '@ethersproject/providers';
 import type {
   TypedEventFilter,
   TypedEvent,
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "./common";
+} from './common';
 
 export type AddressesStruct = {
   feeStrategy: PromiseOrValue<string>;
@@ -149,171 +149,171 @@ export type EpochStrikeDataStructOutput = [
 
 export interface SsovV4PutInterface extends utils.Interface {
   functions: {
-    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
-    "MANAGER_ROLE()": FunctionFragment;
-    "addToContractWhitelist(address)": FunctionFragment;
-    "addresses()": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "bootstrap(uint256[],uint256,string)": FunctionFragment;
-    "borrow(uint256,uint256)": FunctionFragment;
-    "burn(uint256)": FunctionFragment;
-    "calculatePnl(uint256,uint256,uint256,uint256)": FunctionFragment;
-    "calculatePremium(uint256,uint256,uint256)": FunctionFragment;
-    "calculatePurchaseFees(uint256,uint256)": FunctionFragment;
-    "calculateRequiredCollateral(uint256,uint256)": FunctionFragment;
-    "calculateSettlementFees(uint256)": FunctionFragment;
-    "changeAllowanceForStakingStrategy(bool,uint256)": FunctionFragment;
-    "collateralPrecision()": FunctionFragment;
-    "collateralToken()": FunctionFragment;
-    "currentEpoch()": FunctionFragment;
-    "deposit(uint256,uint256,address)": FunctionFragment;
-    "emergencyWithdraw(address[],bool)": FunctionFragment;
-    "expire()": FunctionFragment;
-    "expire(uint256,uint256)": FunctionFragment;
-    "expireDelayTolerance()": FunctionFragment;
-    "getApproved(uint256)": FunctionFragment;
-    "getCollateralPrice()": FunctionFragment;
-    "getDebtPosition(uint256)": FunctionFragment;
-    "getEpochData(uint256)": FunctionFragment;
-    "getEpochStrikeCheckpointsLength(uint256,uint256)": FunctionFragment;
-    "getEpochStrikeData(uint256,uint256)": FunctionFragment;
-    "getEpochTimes(uint256)": FunctionFragment;
-    "getRoleAdmin(bytes32)": FunctionFragment;
-    "getUnderlyingPrice()": FunctionFragment;
-    "getVolatility(uint256)": FunctionFragment;
-    "grantRole(bytes32,address)": FunctionFragment;
-    "hasRole(bytes32,address)": FunctionFragment;
-    "isApprovedForAll(address,address)": FunctionFragment;
-    "isContract(address)": FunctionFragment;
-    "isPut()": FunctionFragment;
-    "name()": FunctionFragment;
-    "ownerOf(uint256)": FunctionFragment;
-    "pause()": FunctionFragment;
-    "paused()": FunctionFragment;
-    "preExpireEpoch(uint256,uint256,uint256)": FunctionFragment;
-    "purchase(uint256,uint256,address)": FunctionFragment;
-    "removeFromContractWhitelist(address)": FunctionFragment;
-    "renounceRole(bytes32,address)": FunctionFragment;
-    "repay(uint256,uint256)": FunctionFragment;
-    "revokeRole(bytes32,address)": FunctionFragment;
-    "safeTransferFrom(address,address,uint256)": FunctionFragment;
-    "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
-    "setAddresses((address,address,address,address,address,address,address,address,address))": FunctionFragment;
-    "setApprovalForAll(address,bool)": FunctionFragment;
-    "settle(uint256,uint256,uint256,address)": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
-    "symbol()": FunctionFragment;
-    "tokenByIndex(uint256)": FunctionFragment;
-    "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
-    "tokenURI(uint256)": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-    "underlyingPrecision()": FunctionFragment;
-    "underlyingSymbol()": FunctionFragment;
-    "underlyingToken()": FunctionFragment;
-    "unpause()": FunctionFragment;
-    "updateExpireDelayTolerance(uint256)": FunctionFragment;
-    "whitelistedContracts(address)": FunctionFragment;
-    "withdraw(uint256,address)": FunctionFragment;
-    "writePosition(uint256)": FunctionFragment;
+    'DEFAULT_ADMIN_ROLE()': FunctionFragment;
+    'MANAGER_ROLE()': FunctionFragment;
+    'addToContractWhitelist(address)': FunctionFragment;
+    'addresses()': FunctionFragment;
+    'approve(address,uint256)': FunctionFragment;
+    'balanceOf(address)': FunctionFragment;
+    'bootstrap(uint256[],uint256,string)': FunctionFragment;
+    'borrow(uint256,uint256)': FunctionFragment;
+    'burn(uint256)': FunctionFragment;
+    'calculatePnl(uint256,uint256,uint256,uint256)': FunctionFragment;
+    'calculatePremium(uint256,uint256,uint256)': FunctionFragment;
+    'calculatePurchaseFees(uint256,uint256)': FunctionFragment;
+    'calculateRequiredCollateral(uint256,uint256)': FunctionFragment;
+    'calculateSettlementFees(uint256)': FunctionFragment;
+    'changeAllowanceForStakingStrategy(bool,uint256)': FunctionFragment;
+    'collateralPrecision()': FunctionFragment;
+    'collateralToken()': FunctionFragment;
+    'currentEpoch()': FunctionFragment;
+    'deposit(uint256,uint256,address)': FunctionFragment;
+    'emergencyWithdraw(address[],bool)': FunctionFragment;
+    'expire()': FunctionFragment;
+    'expire(uint256,uint256)': FunctionFragment;
+    'expireDelayTolerance()': FunctionFragment;
+    'getApproved(uint256)': FunctionFragment;
+    'getCollateralPrice()': FunctionFragment;
+    'getDebtPosition(uint256)': FunctionFragment;
+    'getEpochData(uint256)': FunctionFragment;
+    'getEpochStrikeCheckpointsLength(uint256,uint256)': FunctionFragment;
+    'getEpochStrikeData(uint256,uint256)': FunctionFragment;
+    'getEpochTimes(uint256)': FunctionFragment;
+    'getRoleAdmin(bytes32)': FunctionFragment;
+    'getUnderlyingPrice()': FunctionFragment;
+    'getVolatility(uint256)': FunctionFragment;
+    'grantRole(bytes32,address)': FunctionFragment;
+    'hasRole(bytes32,address)': FunctionFragment;
+    'isApprovedForAll(address,address)': FunctionFragment;
+    'isContract(address)': FunctionFragment;
+    'isPut()': FunctionFragment;
+    'name()': FunctionFragment;
+    'ownerOf(uint256)': FunctionFragment;
+    'pause()': FunctionFragment;
+    'paused()': FunctionFragment;
+    'preExpireEpoch(uint256,uint256,uint256)': FunctionFragment;
+    'purchase(uint256,uint256,address)': FunctionFragment;
+    'removeFromContractWhitelist(address)': FunctionFragment;
+    'renounceRole(bytes32,address)': FunctionFragment;
+    'repay(uint256,uint256)': FunctionFragment;
+    'revokeRole(bytes32,address)': FunctionFragment;
+    'safeTransferFrom(address,address,uint256)': FunctionFragment;
+    'safeTransferFrom(address,address,uint256,bytes)': FunctionFragment;
+    'setAddresses((address,address,address,address,address,address,address,address,address))': FunctionFragment;
+    'setApprovalForAll(address,bool)': FunctionFragment;
+    'settle(uint256,uint256,uint256,address)': FunctionFragment;
+    'supportsInterface(bytes4)': FunctionFragment;
+    'symbol()': FunctionFragment;
+    'tokenByIndex(uint256)': FunctionFragment;
+    'tokenOfOwnerByIndex(address,uint256)': FunctionFragment;
+    'tokenURI(uint256)': FunctionFragment;
+    'totalSupply()': FunctionFragment;
+    'transferFrom(address,address,uint256)': FunctionFragment;
+    'underlyingPrecision()': FunctionFragment;
+    'underlyingSymbol()': FunctionFragment;
+    'underlyingToken()': FunctionFragment;
+    'unpause()': FunctionFragment;
+    'updateExpireDelayTolerance(uint256)': FunctionFragment;
+    'whitelistedContracts(address)': FunctionFragment;
+    'withdraw(uint256,address)': FunctionFragment;
+    'writePosition(uint256)': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "DEFAULT_ADMIN_ROLE"
-      | "MANAGER_ROLE"
-      | "addToContractWhitelist"
-      | "addresses"
-      | "approve"
-      | "balanceOf"
-      | "bootstrap"
-      | "borrow"
-      | "burn"
-      | "calculatePnl"
-      | "calculatePremium"
-      | "calculatePurchaseFees"
-      | "calculateRequiredCollateral"
-      | "calculateSettlementFees"
-      | "changeAllowanceForStakingStrategy"
-      | "collateralPrecision"
-      | "collateralToken"
-      | "currentEpoch"
-      | "deposit"
-      | "emergencyWithdraw"
-      | "expire()"
-      | "expire(uint256,uint256)"
-      | "expireDelayTolerance"
-      | "getApproved"
-      | "getCollateralPrice"
-      | "getDebtPosition"
-      | "getEpochData"
-      | "getEpochStrikeCheckpointsLength"
-      | "getEpochStrikeData"
-      | "getEpochTimes"
-      | "getRoleAdmin"
-      | "getUnderlyingPrice"
-      | "getVolatility"
-      | "grantRole"
-      | "hasRole"
-      | "isApprovedForAll"
-      | "isContract"
-      | "isPut"
-      | "name"
-      | "ownerOf"
-      | "pause"
-      | "paused"
-      | "preExpireEpoch"
-      | "purchase"
-      | "removeFromContractWhitelist"
-      | "renounceRole"
-      | "repay"
-      | "revokeRole"
-      | "safeTransferFrom(address,address,uint256)"
-      | "safeTransferFrom(address,address,uint256,bytes)"
-      | "setAddresses"
-      | "setApprovalForAll"
-      | "settle"
-      | "supportsInterface"
-      | "symbol"
-      | "tokenByIndex"
-      | "tokenOfOwnerByIndex"
-      | "tokenURI"
-      | "totalSupply"
-      | "transferFrom"
-      | "underlyingPrecision"
-      | "underlyingSymbol"
-      | "underlyingToken"
-      | "unpause"
-      | "updateExpireDelayTolerance"
-      | "whitelistedContracts"
-      | "withdraw"
-      | "writePosition"
+      | 'DEFAULT_ADMIN_ROLE'
+      | 'MANAGER_ROLE'
+      | 'addToContractWhitelist'
+      | 'addresses'
+      | 'approve'
+      | 'balanceOf'
+      | 'bootstrap'
+      | 'borrow'
+      | 'burn'
+      | 'calculatePnl'
+      | 'calculatePremium'
+      | 'calculatePurchaseFees'
+      | 'calculateRequiredCollateral'
+      | 'calculateSettlementFees'
+      | 'changeAllowanceForStakingStrategy'
+      | 'collateralPrecision'
+      | 'collateralToken'
+      | 'currentEpoch'
+      | 'deposit'
+      | 'emergencyWithdraw'
+      | 'expire()'
+      | 'expire(uint256,uint256)'
+      | 'expireDelayTolerance'
+      | 'getApproved'
+      | 'getCollateralPrice'
+      | 'getDebtPosition'
+      | 'getEpochData'
+      | 'getEpochStrikeCheckpointsLength'
+      | 'getEpochStrikeData'
+      | 'getEpochTimes'
+      | 'getRoleAdmin'
+      | 'getUnderlyingPrice'
+      | 'getVolatility'
+      | 'grantRole'
+      | 'hasRole'
+      | 'isApprovedForAll'
+      | 'isContract'
+      | 'isPut'
+      | 'name'
+      | 'ownerOf'
+      | 'pause'
+      | 'paused'
+      | 'preExpireEpoch'
+      | 'purchase'
+      | 'removeFromContractWhitelist'
+      | 'renounceRole'
+      | 'repay'
+      | 'revokeRole'
+      | 'safeTransferFrom(address,address,uint256)'
+      | 'safeTransferFrom(address,address,uint256,bytes)'
+      | 'setAddresses'
+      | 'setApprovalForAll'
+      | 'settle'
+      | 'supportsInterface'
+      | 'symbol'
+      | 'tokenByIndex'
+      | 'tokenOfOwnerByIndex'
+      | 'tokenURI'
+      | 'totalSupply'
+      | 'transferFrom'
+      | 'underlyingPrecision'
+      | 'underlyingSymbol'
+      | 'underlyingToken'
+      | 'unpause'
+      | 'updateExpireDelayTolerance'
+      | 'whitelistedContracts'
+      | 'withdraw'
+      | 'writePosition'
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MANAGER_ROLE",
+    functionFragment: 'MANAGER_ROLE',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addToContractWhitelist",
+    functionFragment: 'addToContractWhitelist',
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(functionFragment: "addresses", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'addresses', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "approve",
+    functionFragment: 'approve',
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "balanceOf",
+    functionFragment: 'balanceOf',
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "bootstrap",
+    functionFragment: 'bootstrap',
     values: [
       PromiseOrValue<BigNumberish>[],
       PromiseOrValue<BigNumberish>,
@@ -321,15 +321,15 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "borrow",
+    functionFragment: 'borrow',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "burn",
+    functionFragment: 'burn',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "calculatePnl",
+    functionFragment: 'calculatePnl',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
@@ -338,7 +338,7 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "calculatePremium",
+    functionFragment: 'calculatePremium',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
@@ -346,35 +346,35 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "calculatePurchaseFees",
+    functionFragment: 'calculatePurchaseFees',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "calculateRequiredCollateral",
+    functionFragment: 'calculateRequiredCollateral',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "calculateSettlementFees",
+    functionFragment: 'calculateSettlementFees',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "changeAllowanceForStakingStrategy",
+    functionFragment: 'changeAllowanceForStakingStrategy',
     values: [PromiseOrValue<boolean>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "collateralPrecision",
+    functionFragment: 'collateralPrecision',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "collateralToken",
+    functionFragment: 'collateralToken',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "currentEpoch",
+    functionFragment: 'currentEpoch',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "deposit",
+    functionFragment: 'deposit',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
@@ -382,84 +382,84 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "emergencyWithdraw",
+    functionFragment: 'emergencyWithdraw',
     values: [PromiseOrValue<string>[], PromiseOrValue<boolean>]
   ): string;
-  encodeFunctionData(functionFragment: "expire()", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'expire()', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "expire(uint256,uint256)",
+    functionFragment: 'expire(uint256,uint256)',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "expireDelayTolerance",
+    functionFragment: 'expireDelayTolerance',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getApproved",
+    functionFragment: 'getApproved',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getCollateralPrice",
+    functionFragment: 'getCollateralPrice',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getDebtPosition",
+    functionFragment: 'getDebtPosition',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getEpochData",
+    functionFragment: 'getEpochData',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getEpochStrikeCheckpointsLength",
+    functionFragment: 'getEpochStrikeCheckpointsLength',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getEpochStrikeData",
+    functionFragment: 'getEpochStrikeData',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getEpochTimes",
+    functionFragment: 'getEpochTimes',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleAdmin",
+    functionFragment: 'getRoleAdmin',
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getUnderlyingPrice",
+    functionFragment: 'getUnderlyingPrice',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getVolatility",
+    functionFragment: 'getVolatility',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "grantRole",
+    functionFragment: 'grantRole',
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasRole",
+    functionFragment: 'hasRole',
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isApprovedForAll",
+    functionFragment: 'isApprovedForAll',
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContract",
+    functionFragment: 'isContract',
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(functionFragment: "isPut", values?: undefined): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'isPut', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "ownerOf",
+    functionFragment: 'ownerOf',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
-  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'pause', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'paused', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "preExpireEpoch",
+    functionFragment: 'preExpireEpoch',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
@@ -467,7 +467,7 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "purchase",
+    functionFragment: 'purchase',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
@@ -475,23 +475,23 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeFromContractWhitelist",
+    functionFragment: 'removeFromContractWhitelist',
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "renounceRole",
+    functionFragment: 'renounceRole',
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "repay",
+    functionFragment: 'repay',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeRole",
+    functionFragment: 'revokeRole',
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "safeTransferFrom(address,address,uint256)",
+    functionFragment: 'safeTransferFrom(address,address,uint256)',
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -499,7 +499,7 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "safeTransferFrom(address,address,uint256,bytes)",
+    functionFragment: 'safeTransferFrom(address,address,uint256,bytes)',
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -508,15 +508,15 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setAddresses",
+    functionFragment: 'setAddresses',
     values: [AddressesStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "setApprovalForAll",
+    functionFragment: 'setApprovalForAll',
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "settle",
+    functionFragment: 'settle',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
@@ -525,28 +525,28 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "supportsInterface",
+    functionFragment: 'supportsInterface',
     values: [PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "tokenByIndex",
+    functionFragment: 'tokenByIndex',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenOfOwnerByIndex",
+    functionFragment: 'tokenOfOwnerByIndex',
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenURI",
+    functionFragment: 'tokenURI',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "totalSupply",
+    functionFragment: 'totalSupply',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "transferFrom",
+    functionFragment: 'transferFrom',
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -554,285 +554,285 @@ export interface SsovV4PutInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "underlyingPrecision",
+    functionFragment: 'underlyingPrecision',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "underlyingSymbol",
+    functionFragment: 'underlyingSymbol',
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "underlyingToken",
+    functionFragment: 'underlyingToken',
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'unpause', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "updateExpireDelayTolerance",
+    functionFragment: 'updateExpireDelayTolerance',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "whitelistedContracts",
+    functionFragment: 'whitelistedContracts',
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdraw",
+    functionFragment: 'withdraw',
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "writePosition",
+    functionFragment: 'writePosition',
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "MANAGER_ROLE",
+    functionFragment: 'MANAGER_ROLE',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "addToContractWhitelist",
+    functionFragment: 'addToContractWhitelist',
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addresses", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "bootstrap", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addresses', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'bootstrap', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'burn', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "calculatePnl",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "calculatePremium",
+    functionFragment: 'calculatePnl',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "calculatePurchaseFees",
+    functionFragment: 'calculatePremium',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "calculateRequiredCollateral",
+    functionFragment: 'calculatePurchaseFees',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "calculateSettlementFees",
+    functionFragment: 'calculateRequiredCollateral',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "changeAllowanceForStakingStrategy",
+    functionFragment: 'calculateSettlementFees',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "collateralPrecision",
+    functionFragment: 'changeAllowanceForStakingStrategy',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "collateralToken",
+    functionFragment: 'collateralPrecision',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "currentEpoch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "emergencyWithdraw",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "expire()", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "expire(uint256,uint256)",
+    functionFragment: 'collateralToken',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "expireDelayTolerance",
+    functionFragment: 'currentEpoch',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: 'deposit', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'emergencyWithdraw',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: 'expire()', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'expire(uint256,uint256)',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getApproved",
+    functionFragment: 'expireDelayTolerance',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getCollateralPrice",
+    functionFragment: 'getApproved',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDebtPosition",
+    functionFragment: 'getCollateralPrice',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getEpochData",
+    functionFragment: 'getDebtPosition',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getEpochStrikeCheckpointsLength",
+    functionFragment: 'getEpochData',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getEpochStrikeData",
+    functionFragment: 'getEpochStrikeCheckpointsLength',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getEpochTimes",
+    functionFragment: 'getEpochStrikeData',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
+    functionFragment: 'getEpochTimes',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getUnderlyingPrice",
+    functionFragment: 'getRoleAdmin',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getVolatility",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isApprovedForAll",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "isContract", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isPut", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "preExpireEpoch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "purchase", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeFromContractWhitelist",
+    functionFragment: 'getUnderlyingPrice',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "renounceRole",
+    functionFragment: 'getVolatility',
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "repay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "safeTransferFrom(address,address,uint256)",
+    functionFragment: 'isApprovedForAll',
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: 'isContract', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isPut', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'ownerOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pause', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'paused', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "safeTransferFrom(address,address,uint256,bytes)",
+    functionFragment: 'preExpireEpoch',
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: 'purchase', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setAddresses",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setApprovalForAll",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenByIndex",
+    functionFragment: 'removeFromContractWhitelist',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenOfOwnerByIndex",
+    functionFragment: 'renounceRole',
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'repay', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
+    functionFragment: 'safeTransferFrom(address,address,uint256)',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "underlyingPrecision",
+    functionFragment: 'safeTransferFrom(address,address,uint256,bytes)',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "underlyingSymbol",
+    functionFragment: 'setAddresses',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "underlyingToken",
+    functionFragment: 'setApprovalForAll',
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'settle', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "updateExpireDelayTolerance",
+    functionFragment: 'supportsInterface',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'tokenByIndex',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "whitelistedContracts",
+    functionFragment: 'tokenOfOwnerByIndex',
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'tokenURI', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "writePosition",
+    functionFragment: 'totalSupply',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'transferFrom',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'underlyingPrecision',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'underlyingSymbol',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'underlyingToken',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: 'unpause', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'updateExpireDelayTolerance',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'whitelistedContracts',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: 'withdraw', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'writePosition',
     data: BytesLike
   ): Result;
 
   events: {
-    "AddToContractWhitelist(address)": EventFragment;
-    "AddressesSet(tuple)": EventFragment;
-    "Approval(address,address,uint256)": EventFragment;
-    "ApprovalForAll(address,address,bool)": EventFragment;
-    "Bootstrap(uint256,uint256[])": EventFragment;
-    "Borrow(uint256,uint256,uint256,uint256,address)": EventFragment;
-    "Deposit(uint256,address,address)": EventFragment;
-    "EmergencyWithdraw(address)": EventFragment;
-    "EpochExpired(address,uint256)": EventFragment;
-    "EpochPreExpired(address)": EventFragment;
-    "ExpireDelayToleranceUpdate(uint256)": EventFragment;
-    "Paused(address)": EventFragment;
-    "Purchase(uint256,uint256,uint256,uint256,uint256,address,address)": EventFragment;
-    "RemoveFromContractWhitelist(address)": EventFragment;
-    "Repay(uint256,uint256,uint256,uint256,uint256,address)": EventFragment;
-    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
-    "RoleGranted(bytes32,address,address)": EventFragment;
-    "RoleRevoked(bytes32,address,address)": EventFragment;
-    "Settle(uint256,uint256,uint256,uint256,uint256,address,address)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
-    "Unpaused(address)": EventFragment;
-    "Withdraw(uint256,uint256,uint256[],address,address)": EventFragment;
+    'AddToContractWhitelist(address)': EventFragment;
+    'AddressesSet(tuple)': EventFragment;
+    'Approval(address,address,uint256)': EventFragment;
+    'ApprovalForAll(address,address,bool)': EventFragment;
+    'Bootstrap(uint256,uint256[])': EventFragment;
+    'Borrow(uint256,uint256,uint256,uint256,address)': EventFragment;
+    'Deposit(uint256,address,address)': EventFragment;
+    'EmergencyWithdraw(address)': EventFragment;
+    'EpochExpired(address,uint256)': EventFragment;
+    'EpochPreExpired(address)': EventFragment;
+    'ExpireDelayToleranceUpdate(uint256)': EventFragment;
+    'Paused(address)': EventFragment;
+    'Purchase(uint256,uint256,uint256,uint256,uint256,address,address)': EventFragment;
+    'RemoveFromContractWhitelist(address)': EventFragment;
+    'Repay(uint256,uint256,uint256,uint256,uint256,address)': EventFragment;
+    'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment;
+    'RoleGranted(bytes32,address,address)': EventFragment;
+    'RoleRevoked(bytes32,address,address)': EventFragment;
+    'Settle(uint256,uint256,uint256,uint256,uint256,address,address)': EventFragment;
+    'Transfer(address,address,uint256)': EventFragment;
+    'Unpaused(address)': EventFragment;
+    'Withdraw(uint256,uint256,uint256[],address,address)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AddToContractWhitelist"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AddressesSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Bootstrap"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Borrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "EmergencyWithdraw"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "EpochExpired"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "EpochPreExpired"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ExpireDelayToleranceUpdate"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Purchase"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'AddToContractWhitelist'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'AddressesSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ApprovalForAll'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Bootstrap'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Borrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Deposit'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'EmergencyWithdraw'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'EpochExpired'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'EpochPreExpired'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ExpireDelayToleranceUpdate'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Paused'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Purchase'): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RemoveFromContractWhitelist"
+    nameOrSignatureOrTopic: 'RemoveFromContractWhitelist'
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Repay"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Settle"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Withdraw"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Repay'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Settle'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Transfer'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Unpaused'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Withdraw'): EventFragment;
 }
 
 export interface AddToContractWhitelistEventObject {
@@ -1131,9 +1131,7 @@ export interface SsovV4Put extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    addresses(
-      overrides?: CallOverrides
-    ): Promise<
+    addresses(overrides?: CallOverrides): Promise<
       [
         string,
         string,
@@ -1243,11 +1241,11 @@ export interface SsovV4Put extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "expire()"(
+    'expire()'(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "expire(uint256,uint256)"(
+    'expire(uint256,uint256)'(
       _settlementPrice: PromiseOrValue<BigNumberish>,
       _settlementCollateralExchangeRate: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1383,14 +1381,14 @@ export interface SsovV4Put extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "safeTransferFrom(address,address,uint256)"(
+    'safeTransferFrom(address,address,uint256)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "safeTransferFrom(address,address,uint256,bytes)"(
+    'safeTransferFrom(address,address,uint256,bytes)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1498,9 +1496,7 @@ export interface SsovV4Put extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  addresses(
-    overrides?: CallOverrides
-  ): Promise<
+  addresses(overrides?: CallOverrides): Promise<
     [string, string, string, string, string, string, string, string, string] & {
       feeStrategy: string;
       stakingStrategy: string;
@@ -1600,11 +1596,11 @@ export interface SsovV4Put extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "expire()"(
+  'expire()'(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "expire(uint256,uint256)"(
+  'expire(uint256,uint256)'(
     _settlementPrice: PromiseOrValue<BigNumberish>,
     _settlementCollateralExchangeRate: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1740,14 +1736,14 @@ export interface SsovV4Put extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "safeTransferFrom(address,address,uint256)"(
+  'safeTransferFrom(address,address,uint256)'(
     from: PromiseOrValue<string>,
     to: PromiseOrValue<string>,
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "safeTransferFrom(address,address,uint256,bytes)"(
+  'safeTransferFrom(address,address,uint256,bytes)'(
     from: PromiseOrValue<string>,
     to: PromiseOrValue<string>,
     tokenId: PromiseOrValue<BigNumberish>,
@@ -1855,9 +1851,7 @@ export interface SsovV4Put extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    addresses(
-      overrides?: CallOverrides
-    ): Promise<
+    addresses(overrides?: CallOverrides): Promise<
       [
         string,
         string,
@@ -1967,9 +1961,9 @@ export interface SsovV4Put extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "expire()"(overrides?: CallOverrides): Promise<void>;
+    'expire()'(overrides?: CallOverrides): Promise<void>;
 
-    "expire(uint256,uint256)"(
+    'expire(uint256,uint256)'(
       _settlementPrice: PromiseOrValue<BigNumberish>,
       _settlementCollateralExchangeRate: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -2105,14 +2099,14 @@ export interface SsovV4Put extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "safeTransferFrom(address,address,uint256)"(
+    'safeTransferFrom(address,address,uint256)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "safeTransferFrom(address,address,uint256,bytes)"(
+    'safeTransferFrom(address,address,uint256,bytes)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -2215,17 +2209,17 @@ export interface SsovV4Put extends BaseContract {
   };
 
   filters: {
-    "AddToContractWhitelist(address)"(
+    'AddToContractWhitelist(address)'(
       _contract?: PromiseOrValue<string> | null
     ): AddToContractWhitelistEventFilter;
     AddToContractWhitelist(
       _contract?: PromiseOrValue<string> | null
     ): AddToContractWhitelistEventFilter;
 
-    "AddressesSet(tuple)"(addresses?: null): AddressesSetEventFilter;
+    'AddressesSet(tuple)'(addresses?: null): AddressesSetEventFilter;
     AddressesSet(addresses?: null): AddressesSetEventFilter;
 
-    "Approval(address,address,uint256)"(
+    'Approval(address,address,uint256)'(
       owner?: PromiseOrValue<string> | null,
       approved?: PromiseOrValue<string> | null,
       tokenId?: PromiseOrValue<BigNumberish> | null
@@ -2236,7 +2230,7 @@ export interface SsovV4Put extends BaseContract {
       tokenId?: PromiseOrValue<BigNumberish> | null
     ): ApprovalEventFilter;
 
-    "ApprovalForAll(address,address,bool)"(
+    'ApprovalForAll(address,address,bool)'(
       owner?: PromiseOrValue<string> | null,
       operator?: PromiseOrValue<string> | null,
       approved?: null
@@ -2247,13 +2241,13 @@ export interface SsovV4Put extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
-    "Bootstrap(uint256,uint256[])"(
+    'Bootstrap(uint256,uint256[])'(
       epoch?: null,
       strikes?: null
     ): BootstrapEventFilter;
     Bootstrap(epoch?: null, strikes?: null): BootstrapEventFilter;
 
-    "Borrow(uint256,uint256,uint256,uint256,address)"(
+    'Borrow(uint256,uint256,uint256,uint256,address)'(
       epoch?: null,
       strike?: null,
       amount?: null,
@@ -2268,7 +2262,7 @@ export interface SsovV4Put extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): BorrowEventFilter;
 
-    "Deposit(uint256,address,address)"(
+    'Deposit(uint256,address,address)'(
       tokenId?: null,
       to?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null
@@ -2279,10 +2273,10 @@ export interface SsovV4Put extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): DepositEventFilter;
 
-    "EmergencyWithdraw(address)"(sender?: null): EmergencyWithdrawEventFilter;
+    'EmergencyWithdraw(address)'(sender?: null): EmergencyWithdrawEventFilter;
     EmergencyWithdraw(sender?: null): EmergencyWithdrawEventFilter;
 
-    "EpochExpired(address,uint256)"(
+    'EpochExpired(address,uint256)'(
       sender?: null,
       settlementPrice?: null
     ): EpochExpiredEventFilter;
@@ -2291,20 +2285,20 @@ export interface SsovV4Put extends BaseContract {
       settlementPrice?: null
     ): EpochExpiredEventFilter;
 
-    "EpochPreExpired(address)"(sender?: null): EpochPreExpiredEventFilter;
+    'EpochPreExpired(address)'(sender?: null): EpochPreExpiredEventFilter;
     EpochPreExpired(sender?: null): EpochPreExpiredEventFilter;
 
-    "ExpireDelayToleranceUpdate(uint256)"(
+    'ExpireDelayToleranceUpdate(uint256)'(
       expireDelayTolerance?: null
     ): ExpireDelayToleranceUpdateEventFilter;
     ExpireDelayToleranceUpdate(
       expireDelayTolerance?: null
     ): ExpireDelayToleranceUpdateEventFilter;
 
-    "Paused(address)"(account?: null): PausedEventFilter;
+    'Paused(address)'(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
 
-    "Purchase(uint256,uint256,uint256,uint256,uint256,address,address)"(
+    'Purchase(uint256,uint256,uint256,uint256,uint256,address,address)'(
       epoch?: null,
       strike?: null,
       amount?: null,
@@ -2323,14 +2317,14 @@ export interface SsovV4Put extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): PurchaseEventFilter;
 
-    "RemoveFromContractWhitelist(address)"(
+    'RemoveFromContractWhitelist(address)'(
       _contract?: PromiseOrValue<string> | null
     ): RemoveFromContractWhitelistEventFilter;
     RemoveFromContractWhitelist(
       _contract?: PromiseOrValue<string> | null
     ): RemoveFromContractWhitelistEventFilter;
 
-    "Repay(uint256,uint256,uint256,uint256,uint256,address)"(
+    'Repay(uint256,uint256,uint256,uint256,uint256,address)'(
       tokenId?: null,
       epoch?: null,
       strike?: null,
@@ -2347,7 +2341,7 @@ export interface SsovV4Put extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): RepayEventFilter;
 
-    "RoleAdminChanged(bytes32,bytes32,bytes32)"(
+    'RoleAdminChanged(bytes32,bytes32,bytes32)'(
       role?: PromiseOrValue<BytesLike> | null,
       previousAdminRole?: PromiseOrValue<BytesLike> | null,
       newAdminRole?: PromiseOrValue<BytesLike> | null
@@ -2358,7 +2352,7 @@ export interface SsovV4Put extends BaseContract {
       newAdminRole?: PromiseOrValue<BytesLike> | null
     ): RoleAdminChangedEventFilter;
 
-    "RoleGranted(bytes32,address,address)"(
+    'RoleGranted(bytes32,address,address)'(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null
@@ -2369,7 +2363,7 @@ export interface SsovV4Put extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): RoleGrantedEventFilter;
 
-    "RoleRevoked(bytes32,address,address)"(
+    'RoleRevoked(bytes32,address,address)'(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null
@@ -2380,7 +2374,7 @@ export interface SsovV4Put extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): RoleRevokedEventFilter;
 
-    "Settle(uint256,uint256,uint256,uint256,uint256,address,address)"(
+    'Settle(uint256,uint256,uint256,uint256,uint256,address,address)'(
       epoch?: null,
       strike?: null,
       amount?: null,
@@ -2399,7 +2393,7 @@ export interface SsovV4Put extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): SettleEventFilter;
 
-    "Transfer(address,address,uint256)"(
+    'Transfer(address,address,uint256)'(
       from?: PromiseOrValue<string> | null,
       to?: PromiseOrValue<string> | null,
       tokenId?: PromiseOrValue<BigNumberish> | null
@@ -2410,10 +2404,10 @@ export interface SsovV4Put extends BaseContract {
       tokenId?: PromiseOrValue<BigNumberish> | null
     ): TransferEventFilter;
 
-    "Unpaused(address)"(account?: null): UnpausedEventFilter;
+    'Unpaused(address)'(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
 
-    "Withdraw(uint256,uint256,uint256[],address,address)"(
+    'Withdraw(uint256,uint256,uint256[],address,address)'(
       tokenId?: null,
       collateralTokenWithdrawn?: null,
       rewardTokenWithdrawAmounts?: null,
@@ -2527,11 +2521,11 @@ export interface SsovV4Put extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "expire()"(
+    'expire()'(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "expire(uint256,uint256)"(
+    'expire(uint256,uint256)'(
       _settlementPrice: PromiseOrValue<BigNumberish>,
       _settlementCollateralExchangeRate: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2660,14 +2654,14 @@ export interface SsovV4Put extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "safeTransferFrom(address,address,uint256)"(
+    'safeTransferFrom(address,address,uint256)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "safeTransferFrom(address,address,uint256,bytes)"(
+    'safeTransferFrom(address,address,uint256,bytes)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -2860,11 +2854,11 @@ export interface SsovV4Put extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "expire()"(
+    'expire()'(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "expire(uint256,uint256)"(
+    'expire(uint256,uint256)'(
       _settlementPrice: PromiseOrValue<BigNumberish>,
       _settlementCollateralExchangeRate: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2999,14 +2993,14 @@ export interface SsovV4Put extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "safeTransferFrom(address,address,uint256)"(
+    'safeTransferFrom(address,address,uint256)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "safeTransferFrom(address,address,uint256,bytes)"(
+    'safeTransferFrom(address,address,uint256,bytes)'(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,

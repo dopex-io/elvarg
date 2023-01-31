@@ -28,11 +28,10 @@ import { Chart } from './Chart';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
-import { chain, max, min } from 'lodash';
+import { max, min } from 'lodash';
 import BorrowDialog from './BorrowDialog';
 import { useBoundStore } from 'store';
 import { LendingStats, SsovLendingData } from 'store/Vault/lending';
-import { format } from 'date-fns';
 
 const LENDING_URL = 'http://localhost:5001/api/v2/lending';
 
@@ -240,6 +239,11 @@ const Lending = () => {
             "totalSupply": 674529,
             "totalBorrow": 0,
             "timestamp": 1675038259
+          },
+          {
+            "totalSupply": 709672,
+            "totalBorrow": 0,
+            "timestamp": 1675175442
           }
         ]
       }

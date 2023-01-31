@@ -42,7 +42,7 @@ export const createSsovLending: StateCreator<
   SsovLendingSlice
 > = (set, get) => ({
   getSsovLendingContract: (ssovAddress: string) => {
-    const { provider, lendingData, selectedAssetIdx } = get();
+    const { provider, selectedAssetIdx } = get();
     if (!provider) return;
     // const ssovAddress = lendingData[selectedAssetIdx]?.address || '';
     try {
