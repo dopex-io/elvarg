@@ -210,15 +210,18 @@ const getBorrowingData = () => {
 };
 
 const Lending = () => {
-  const { chainId } = useBoundStore();
+  const { chainId, lendingData, updateSsovLendingData } = useBoundStore();
   const [lendingStats, setLendingStats] = useState<LendingStats[]>([]);
   const [assetData, setAssetData] = useState<SsovLendingData[]>([]);
 
   useEffect(() => {
     (async () => {
-      const ssovLendingData = await axios.get(LENDING_URL);
-      const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
-      setAssetData(ssovs);
+      // const ssovLendingData = await axios.get(LENDING_URL);
+      // const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
+      // setAssetData(ssovs);
+
+      await updateSsovLendingData();
+      setAssetData(lendingData);
 
       const lendingStats = `
       {
@@ -232,6 +235,11 @@ const Lending = () => {
             "totalSupply": 709672,
             "totalBorrow": 0,
             "timestamp": 1675175442
+          },
+          {
+            "totalSupply": 714649,
+            "totalBorrow": 0,
+            "timestamp": 1675256169
           }
         ]
       }
@@ -239,7 +247,7 @@ const Lending = () => {
       const stats: LendingStats[] = JSON.parse(lendingStats).data;
       setLendingStats(stats);
     })();
-  }, [chainId]);
+  }, [chainId, lendingData, updateSsovLendingData]);
 
   return (
     <Box className="bg-black min-h-screen">

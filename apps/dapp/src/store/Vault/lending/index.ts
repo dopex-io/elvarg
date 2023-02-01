@@ -30,7 +30,7 @@ export interface SsovLendingSlice {
   getSsovLendingContract: Function;
   // updateSsovLendingData: Function;
   // updateSsovLendingStats: Function;
-  // lendingData: SsovLendingData[];
+  lendingData: SsovLendingData[];
   // lendingStats: LendingStats[];
   selectedAssetIdx: number;
   setSelectedAssetIdx: (idx: number) => void;
@@ -53,16 +53,17 @@ export const createSsovLending: StateCreator<
       throw new Error('Fail to get ssov lending contract');
     }
   },
-  // updateSsovLendingData: async () => {
-  //   const { chainId } = get();
-  //   const ssovLendingData = await axios.get(LENDING_URL);
-  //   const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
+  updateSsovLendingData: async () => {
+    const { chainId } = get();
+    const ssovLendingData = await axios.get(LENDING_URL);
+    const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
+    console.log('ssovs: ', ssovs);
 
-  //   set((prevState) => ({
-  //     ...prevState,
-  //     lendingData: ssovs,
-  //   }));
-  // },
+    set((prevState) => ({
+      ...prevState,
+      lendingData: ssovs,
+    }));
+  },
   // updateSsovLendingStats: async () => {
   //   // const lendingStats = await axios.get(`${BASE_STATS_URL}?chainId=${chainId}`);
   // const lendingStats = `
@@ -83,7 +84,7 @@ export const createSsovLending: StateCreator<
   //     lendingStats: stats,
   //   }));
   // },
-  // lendingData: [],
+  lendingData: [],
   // lendingStats: [],
   // getLendingStats: async () => {
   //   const { updateSsovLendingStats } = get();

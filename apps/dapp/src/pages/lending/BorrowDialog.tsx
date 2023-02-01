@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
-import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import Typography from 'components/UI/Typography';
-import Button from 'components/UI/Button';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -19,7 +17,7 @@ import {
 } from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
-import { Addresses, ERC20__factory, ERC721__factory } from '@dopex-io/sdk';
+import { Addresses } from '@dopex-io/sdk';
 import { CustomButton, Dialog } from 'components/UI';
 import useUserTokenBalance from 'hooks/useUserTokenBalance';
 import { SsovLendingData } from 'store/Vault/lending';
@@ -82,17 +80,25 @@ export default function BorrowDialog({
   );
 
   const handleBorrow = useCallback(async () => {
+    if (!signer || !provider) return;
+
     const contract = SsovV4Put__factory.connect(assetDatum.address, provider);
+
     try {
-      await contract.borrow(
+      await sendTx(contract.connect(signer), 'borrow', [
         strikeIndex,
-        getContractReadableAmount(tokenDepositAmount, DECIMALS_TOKEN)
-      );
+        getContractReadableAmount(tokenDepositAmount, DECIMALS_TOKEN),
+      ]);
+
+      setTokenDepositAmount('0');
+
+      // await updateOlpEpochData!();
+      // await updateOlpUserData!();
     } catch (e) {
-      console.log('fail to deposit');
-      throw new Error('fail to deposit');
+      console.log('fail to borrow');
+      throw new Error('fail to borrow');
     }
-  }, [tokenDepositAmount, strikeIndex, assetDatum, provider]);
+  }, [sendTx, tokenDepositAmount, strikeIndex, assetDatum, signer, provider]);
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
@@ -108,6 +114,10 @@ export default function BorrowDialog({
   const usdToReceive =
     (Number(tokenDepositAmount) * assetDatum?.strikes[strikeIndex]!) /
     assetDatum.tokenPrice;
+
+  const optionTokenSymbol = `${
+    assetDatum.underlyingSymbol
+  }-${assetDatum.strikes[strikeIndex]?.toString()}-P`;
 
   return (
     <Dialog
@@ -152,9 +162,19 @@ export default function BorrowDialog({
           </Box>
 
           <Typography variant="h6">
-            {`Deposit ${tokenDepositAmount} ETH and ${tokenDepositAmount} ETH-${assetDatum.strikes[
-              strikeIndex
-            ]?.toString()}-P to borrow ${formatAmount(usdToReceive, 2)} 2CRV`}
+            {`Balance of ${optionTokenSymbol}: ${formatAmount(
+              getUserReadableAmount(userOptionTokenBalance, DECIMALS_TOKEN),
+              2
+            )}`}
+          </Typography>
+
+          <Typography variant="h6">
+            {`Deposit ${tokenDepositAmount} ${
+              assetDatum.underlyingSymbol
+            } and ${tokenDepositAmount} ${optionTokenSymbol} to borrow ${formatAmount(
+              usdToReceive,
+              2
+            )} 2CRV`}
           </Typography>
 
           <CustomButton
