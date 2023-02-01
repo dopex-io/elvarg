@@ -28,7 +28,7 @@ import { getTokenDecimals } from 'utils/general';
  */
 
 interface IOverrides {
-  setTokenSelector: Dispatch<React.SetStateAction<boolean>>;
+  setTokenSelectorOpen: Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface IInputWithTokenSelectorProps {
@@ -83,16 +83,11 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     return defaultInfo;
   }, [chainId, selectedTokenBalance, selectedTokenSymbol]);
 
-  const handleMax = useCallback(() => {
-    if (!information) return;
-    setInputAmount(information.selectedTokenBalance);
-  }, [setInputAmount, information]);
-
   const handleTokenSelectorClick = useCallback(() => {
     setTokenSelectorOpen((prev) => !prev);
 
     // overrides
-    overrides?.setTokenSelector((prev) => !prev);
+    overrides?.setTokenSelectorOpen((prev) => !prev);
   }, [overrides]);
 
   return (
@@ -105,13 +100,12 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
         value={inputAmount}
         onChange={handleInputAmountChange}
         leftElement={
-          <Box className="flex my-auto space-x-2">
+          <Box className="flex my-auto w-full space-x-2">
             <Box
-              className="flex w-full bg-cod-gray rounded-full space-x-2 pr-3 p-2 border border-gray-800"
+              className="flex w-fit bg-cod-gray rounded-full space-x-2 px-4 py-2 border border-gray-800"
               role="button"
               onClick={handleTokenSelectorClick}
             >
-              {' '}
               <img
                 src={`/images/tokens/${selectedTokenSymbol.toLowerCase()}.svg`}
                 alt={selectedTokenSymbol}
@@ -120,16 +114,6 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               <Typography variant="h6" className="my-auto">
                 {selectedTokenSymbol}
               </Typography>
-              <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" />
-            </Box>
-            <Box
-              role="button"
-              className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
-              onClick={handleMax}
-            >
-              <Typography variant="caption" color="stieglitz">
-                MAX
-              </Typography>
             </Box>
           </Box>
         }
@@ -137,20 +121,22 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
       {tokenSelectorOpen && (
         <TokenSelector
           open={tokenSelectorOpen}
-          setOpen={setTokenSelectorOpen}
+          setOpen={handleTokenSelectorClick}
           setFromTokenSymbol={setSelectedToken}
           isInDialog={false}
           tokensToExclude={[]}
         />
       )}
-      <Box className="flex w-full">
-        <Typography className="pl-[1.5rem] text-left flex-1" variant="h6">
-          Balance
-        </Typography>
-        <Typography className="pr-[1rem] text-right flex-1" variant="h6">
-          {information?.selectedTokenBalance}
-        </Typography>
-      </Box>
+      {!tokenSelectorOpen && (
+        <Box className="flex w-full mt-2 h-full p-1">
+          <Typography className="pl-[1.5rem] text-left flex-1" variant="h6">
+            Balance
+          </Typography>
+          <Typography className="pr-[1rem] text-right flex-1" variant="h6">
+            {information?.selectedTokenBalance}
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 };
