@@ -16,6 +16,7 @@ import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
+import OneinchSwapDetails from 'components/common/OneinchSwapDetails';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -65,6 +66,7 @@ const DepositPanel = () => {
   );
 
   const [fromToken, setFromToken] = useState('DPX');
+  const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
 
   const { ssovContractWithSigner } = ssovSigner;
 
@@ -237,119 +239,133 @@ const DepositPanel = () => {
           setInputAmount={setStrikeDepositAmount}
           inputAmount={strikeDepositAmount}
           handleInputAmountChange={handleDepositAmount}
+          overrides={{ setTokenSelectorOpen }}
         />
       </Box>
-      <Box>
-        <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
-          <Box className="mt-2 flex">
-            <Box className={'w-full'}>
-              <Select
-                className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
-                fullWidth
-                value={strike}
-                onChange={handleSelectStrike}
-                input={<Input />}
-                variant="outlined"
-                placeholder="Select Strike Prices"
-                MenuProps={SelectMenuProps}
-                classes={{
-                  icon: 'absolute right-7 text-white',
-                  select: 'overflow-hidden',
-                }}
-                disableUnderline
-                label="strikes"
-              >
-                {strikes.map((strike: string, index: number) => (
-                  <MenuItem key={index} value={index} className="pb-2 pt-2">
-                    <Typography
-                      variant="h5"
-                      className="text-white text-left w-full relative ml-3"
-                    >
-                      ${formatAmount(strike, 4)}
-                    </Typography>
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
-          </Box>
-        </Box>
-        <Box className="mt-3.5">
-          <Box className="rounded-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
-            <Box className={'flex mb-1'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Epoch
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {selectedEpoch}
-                </Typography>
+      <OneinchSwapDetails
+        fromTokenSymbol={fromToken}
+        amount={strikeDepositAmount.toString()}
+        toTokenSymbol={ssovData?.collateralSymbol ?? ''}
+      />
+      {!isTokenSelectorOpen && (
+        <Box>
+          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
+            <Box className="mt-2 flex">
+              <Box className={'w-full'}>
+                <Select
+                  className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
+                  fullWidth
+                  value={strike}
+                  onChange={handleSelectStrike}
+                  input={<Input />}
+                  variant="outlined"
+                  placeholder="Select Strike Prices"
+                  MenuProps={SelectMenuProps}
+                  classes={{
+                    icon: 'absolute right-7 text-white',
+                    select: 'overflow-hidden',
+                  }}
+                  disableUnderline
+                  label="strikes"
+                >
+                  {strikes.map((strike: string, index: number) => (
+                    <MenuItem key={index} value={index} className="pb-2 pt-2">
+                      <Typography
+                        variant="h5"
+                        className="text-white text-left w-full relative ml-3"
+                      >
+                        ${formatAmount(strike, 4)}
+                      </Typography>
+                    </MenuItem>
+                  ))}
+                </Select>
               </Box>
             </Box>
-            <Box className={'flex mb-1'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Withdrawable
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
+          </Box>
+          <Box className="mt-3.5">
+            <Box className="rounded-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
+              <Box className={'flex mb-1'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Epoch
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {selectedEpoch}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box className={'flex mb-1'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Withdrawable
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {epochTimes[1]
+                      ? format(
+                          new Date(epochTimes[1].toNumber() * 1000),
+                          'd LLL yyyy'
+                        )
+                      : '-'}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+          <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
+            <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+              <EstimatedGasCostButton gas={500000} chainId={chainId} />
+            </Box>
+            <Box className="flex">
+              <Box className="flex text-center p-2 mr-2 mt-1">
+                <LockerIcon />
+              </Box>
+              <Typography variant="h6" className="text-stieglitz">
+                Withdrawals are locked until end of Epoch{' '}
+                {ssovData?.currentEpoch || 0}{' '}
+                <span className="text-white">
+                  ({' '}
                   {epochTimes[1]
                     ? format(
                         new Date(epochTimes[1].toNumber() * 1000),
-                        'd LLL yyyy'
+                        'd MMM yyyy HH:mm'
                       )
                     : '-'}
-                </Typography>
-              </Box>
+                  )
+                </span>
+              </Typography>
             </Box>
+            <CustomButton
+              size="medium"
+              className="w-full mt-4 !rounded-md"
+              color={
+                !approved ||
+                (strikeDepositAmount > 0 &&
+                  strikeDepositAmount <=
+                    getUserReadableAmount(userTokenBalance, 18))
+                  ? 'primary'
+                  : 'mineshaft'
+              }
+              disabled={strikeDepositAmount <= 0 || hasExpiryElapsed}
+              onClick={approved ? handleDeposit : handleApprove}
+            >
+              {approved
+                ? strikeDepositAmount == 0
+                  ? 'Insert an amount'
+                  : strikeDepositAmount >
+                    getUserReadableAmount(userTokenBalance, 18)
+                  ? 'Insufficient balance'
+                  : 'Deposit'
+                : 'Approve'}
+            </CustomButton>
           </Box>
         </Box>
-        <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
-          <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
-            <EstimatedGasCostButton gas={500000} chainId={chainId} />
-          </Box>
-          <Box className="flex">
-            <Box className="flex text-center p-2 mr-2 mt-1">
-              <LockerIcon />
-            </Box>
-            <Typography variant="h6" className="text-stieglitz">
-              Withdrawals are locked until end of Epoch{' '}
-              {ssovData?.currentEpoch || 0}{' '}
-              <span className="text-white">
-                ({' '}
-                {epochTimes[1]
-                  ? format(
-                      new Date(epochTimes[1].toNumber() * 1000),
-                      'd MMM yyyy HH:mm'
-                    )
-                  : '-'}
-                )
-              </span>
-            </Typography>
-          </Box>
-          <CustomButton
-            size="medium"
-            className="w-full mt-4 !rounded-md"
-            color={
-              !approved ||
-              (strikeDepositAmount > 0 &&
-                strikeDepositAmount <=
-                  getUserReadableAmount(userTokenBalance, 18))
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={strikeDepositAmount <= 0 || hasExpiryElapsed}
-            onClick={approved ? handleDeposit : handleApprove}
-          >
-            {approved
-              ? strikeDepositAmount == 0
-                ? 'Insert an amount'
-                : strikeDepositAmount >
-                  getUserReadableAmount(userTokenBalance, 18)
-                ? 'Insufficient balance'
-                : 'Deposit'
-              : 'Approve'}
-          </CustomButton>
-        </Box>
-      </Box>
+      )}
     </Box>
   );
 };
