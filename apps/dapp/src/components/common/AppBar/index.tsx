@@ -260,6 +260,8 @@ interface AppBarProps {
     | 'leaderboard'
     | 'swap'
     | 'DPX Bonds'
+    | 'vaults'
+    | 'Atlantics'
     | 'OLP'
     | 'Lending';
 }
