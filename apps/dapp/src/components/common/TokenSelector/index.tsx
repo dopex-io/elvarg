@@ -64,9 +64,8 @@ const TokenSelector = ({
   return open ? (
     <Box className="overflow-hidden">
       <Box className="flex flex-row items-center mb-4">
-        <Typography variant="h5">Pay with</Typography>
         <IconButton
-          className="p-0 pb-1 mr-0 ml-auto"
+          className="p-0 mr-2 ml-auto"
           onClick={handleClose}
           size="large"
         >
@@ -91,7 +90,7 @@ const TokenSelector = ({
         </Box>
       ) : null}
       <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-        <Box className={isInDialog ? '' : 'h-[32rem] overflow-y-scroll'}>
+        <Box className={isInDialog ? '' : 'h-[15rem] overflow-y-scroll'}>
           {tokens
             .sort((a, b) => {
               return getValueInUsd(b) - getValueInUsd(a);
