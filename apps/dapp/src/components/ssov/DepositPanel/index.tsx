@@ -14,8 +14,8 @@ import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import InputHelpers from 'components/common/InputHelpers';
 import Wrapper from 'components/ssov/Wrapper';
+import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -63,6 +63,8 @@ const DepositPanel = () => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
+
+  const [fromToken, setFromToken] = useState('DPX');
 
   const { ssovContractWithSigner } = ssovSigner;
 
@@ -219,7 +221,7 @@ const DepositPanel = () => {
   }, [ssovData]);
 
   return (
-    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
+    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[400px] border h-full">
       <Box className="flex mb-3">
         <Typography variant="h3" className="text-stieglitz">
           Deposit
@@ -228,22 +230,17 @@ const DepositPanel = () => {
         <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       </Box>
       <Box>
-        <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
-          <Box className="flex">
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
-            >
-              Balance
-            </Typography>
-            <Typography
-              variant="h6"
-              className="text-white ml-auto mr-0 text-[0.72rem]"
-            >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 18), 8)}{' '}
-              {ssovData?.collateralSymbol}
-            </Typography>
-          </Box>
+        <InputWithTokenSelector
+          selectedTokenSymbol={fromToken}
+          setSelectedToken={setFromToken}
+          handleMax={handleMax}
+          setInputAmount={setStrikeDepositAmount}
+          inputAmount={strikeDepositAmount}
+          handleInputAmountChange={handleDepositAmount}
+        />
+      </Box>
+      <Box>
+        <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
           <Box className="mt-2 flex">
             <Box className={'w-full'}>
               <Select
@@ -273,25 +270,6 @@ const DepositPanel = () => {
                   </MenuItem>
                 ))}
               </Select>
-            </Box>
-          </Box>
-          <Box className="mt-3">
-            <Box className="flex mb-3 group">
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Amount
-              </Typography>
-              <Box className="relative">
-                <InputHelpers handleMax={handleMax} />
-                <Input
-                  disableUnderline={true}
-                  type="number"
-                  className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
-                  classes={{ input: 'text-white text-xs text-right' }}
-                  value={strikeDepositAmount}
-                  placeholder="0"
-                  onChange={handleDepositAmount}
-                />
-              </Box>
             </Box>
           </Box>
         </Box>
