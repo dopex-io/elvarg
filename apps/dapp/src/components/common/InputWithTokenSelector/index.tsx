@@ -16,7 +16,6 @@ import TokenSelector from '../TokenSelector';
 
 import { useBoundStore } from 'store';
 import { ERC20__factory } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
 import { getUserReadableAmount } from 'utils/contracts';
 import { getTokenDecimals } from 'utils/general';
 
@@ -24,9 +23,13 @@ import { getTokenDecimals } from 'utils/general';
  * React.useStates required from parent component:
  * 1.selectedTokenSymbol - Symbol of the token selected from the token selector
  * 2.setSelectedToken - Setter for the symbol once the token is selected from the token selector.
- * 3.inputAmount - Amount entered in the input area. Only BigNumberish
+ * 3.inputAmount - Amount entered in the input area.
  * 4.setInputAmount - Setter for the input amount entered.
  */
+
+interface IOverrides {
+  setTokenSelector: Dispatch<React.SetStateAction<boolean>>;
+}
 
 interface IInputWithTokenSelectorProps {
   selectedTokenSymbol: string;
@@ -36,13 +39,8 @@ interface IInputWithTokenSelectorProps {
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   inputAmount: string | number;
-  overrides?: IInputWithTokenSelectorOverridesProps;
+  overrides?: IOverrides;
   setInputAmount: Dispatch<React.SetStateAction<string | number>>;
-}
-
-interface IInputWithTokenSelectorOverridesProps {
-  disableTokenSelector: boolean;
-  disableInputField: boolean;
 }
 
 const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
@@ -52,6 +50,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     handleInputAmountChange,
     setSelectedToken,
     selectedTokenSymbol,
+    overrides,
   } = props;
 
   const { accountAddress, signer, contractAddresses, chainId } =
@@ -89,6 +88,13 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     setInputAmount(information.selectedTokenBalance);
   }, [setInputAmount, information]);
 
+  const handleTokenSelectorClick = useCallback(() => {
+    setTokenSelectorOpen((prev) => !prev);
+
+    // overrides
+    overrides?.setTokenSelector((prev) => !prev);
+  }, [overrides]);
+
   return (
     <Box className="bg-umbra rounded-md py-[1rem]">
       <Input
@@ -103,7 +109,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             <Box
               className="flex w-full bg-cod-gray rounded-full space-x-2 pr-3 p-2 border border-gray-800"
               role="button"
-              onClick={() => setTokenSelectorOpen(() => true)}
+              onClick={handleTokenSelectorClick}
             >
               {' '}
               <img
