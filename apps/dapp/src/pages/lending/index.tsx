@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
@@ -7,12 +7,6 @@ import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import AppBar from 'components/common/AppBar';
 import {
-  Button,
-  Collapse,
-  Grid,
-  Input,
-  LinearProgress,
-  Slider,
   styled,
   Table,
   TableBody,
@@ -20,14 +14,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Tooltip as MuiTooltip,
 } from '@mui/material';
-import { BigNumber } from 'ethers';
-import InputHelpers from 'components/common/InputHelpers';
 import { Chart } from './Chart';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 import { max, min } from 'lodash';
 import BorrowDialog from './BorrowDialog';
 import { useBoundStore } from 'store';

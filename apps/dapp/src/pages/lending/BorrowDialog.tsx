@@ -99,7 +99,7 @@ export default function BorrowDialog({
       <Box className="bg-cod-gray rounded-lg">
         <Box className="flex flex-col mb-2">
           <Typography variant="h5">Borrow</Typography>
-          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
+          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra mt-2">
             <SsovStrikeBox
               userTokenBalance={userTokenBalance}
               collateralSymbol={assetDatum?.underlyingSymbol}
@@ -125,6 +125,12 @@ export default function BorrowDialog({
               </Box>
             </Box>
           </Box>
+
+          <Typography variant="h6">
+            {`Deposit 1 ETH and 1 ETH-${assetDatum.strikes[
+              strike
+            ]?.toString()}-P`}
+          </Typography>
 
           <CustomButton
             size="medium"
