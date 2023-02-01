@@ -15,6 +15,7 @@ import {
   DECIMALS_STRIKE,
   DECIMALS_USD,
   MAX_VALUE,
+  TOKEN_DECIMALS,
 } from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -26,6 +27,9 @@ import InputHelpers from 'components/common/InputHelpers';
 import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
+import useAssetApproval from 'hooks/useAssetApproval';
+import { getContractReadableAmount } from 'utils/contracts';
+import { formatAmount } from 'utils/general';
 
 interface Props {
   anchorEl: null | HTMLElement;
@@ -41,48 +45,69 @@ export default function BorrowDialog({
   const { accountAddress, signer, provider } = useBoundStore();
 
   const sendTx = useSendTx();
+  const [strikeIndex, setStrikeIndex] = useState(0);
 
   const tokenAddress =
     Addresses[assetDatum.chainId][assetDatum.underlyingSymbol];
+  const optionTokenAddress = assetDatum.optionTokens[strikeIndex]!;
+
   const userTokenBalance = useUserTokenBalance(
     accountAddress!,
     tokenAddress,
     signer
   );
-  const [strike, setStrike] = useState(0);
+  const userOptionTokenBalance = useUserTokenBalance(
+    accountAddress!,
+    optionTokenAddress,
+    signer
+  );
+
   const handleSelectStrike = useCallback((event: SelectChangeEvent<number>) => {
-    setStrike(Number(event.target.value));
+    setStrikeIndex(Number(event.target.value));
   }, []);
 
-  const [tokenApproved, setTokenApproved] = useState<boolean>(false);
   const [tokenDepositAmount, setTokenDepositAmount] = useState<string | number>(
     0
   );
 
-  const handleAssetApprove = useCallback(async () => {
-    if (!signer || !assetDatum || !tokenAddress) return;
-    try {
-      const token = await ERC20__factory.connect(tokenAddress, signer);
-      await sendTx(token, 'approve', [assetDatum.address, MAX_VALUE]);
-      setTokenApproved(true);
-    } catch (err) {
-      console.log(err);
-    }
-  }, [sendTx, signer, assetDatum, tokenAddress]);
+  const [handleTokenApprove, tokenApproved] = useAssetApproval(
+    signer,
+    assetDatum.address,
+    tokenAddress
+  );
+  const [handleOptionTokenApprove, optionTokenApproved] = useAssetApproval(
+    signer,
+    assetDatum.address,
+    optionTokenAddress
+  );
 
-  const handleDepositAmount = useCallback(async () => {
+  const handleBorrow = useCallback(async () => {
     const contract = SsovV4Put__factory.connect(assetDatum.address, provider);
     try {
-      await contract.borrow(strike, tokenDepositAmount);
+      await contract.borrow(
+        strikeIndex,
+        getContractReadableAmount(tokenDepositAmount, DECIMALS_TOKEN)
+      );
     } catch (e) {
       console.log('fail to deposit');
       throw new Error('fail to deposit');
     }
-  }, [tokenDepositAmount, strike, assetDatum, provider]);
+  }, [tokenDepositAmount, strikeIndex, assetDatum, provider]);
+
+  const handleDepositAmount = useCallback(
+    (e: { target: { value: React.SetStateAction<string | number> } }) =>
+      setTokenDepositAmount(e.target.value),
+    []
+  );
 
   const handleMax = useCallback(() => {
     setTokenDepositAmount(utils.formatEther(userTokenBalance));
   }, [userTokenBalance]);
+
+  // requiredCollateral = ((amount * strike * collateralPrecision) / getCollateralPrice()) / 1e18;
+  const usdToReceive =
+    (Number(tokenDepositAmount) * assetDatum?.strikes[strikeIndex]!) /
+    assetDatum.tokenPrice;
 
   return (
     <Dialog
@@ -103,7 +128,7 @@ export default function BorrowDialog({
             <SsovStrikeBox
               userTokenBalance={userTokenBalance}
               collateralSymbol={assetDatum?.underlyingSymbol}
-              strike={strike}
+              strike={strikeIndex}
               handleSelectStrike={handleSelectStrike}
               strikes={assetDatum?.strikes.map((s) => s.toString())}
             />
@@ -127,9 +152,9 @@ export default function BorrowDialog({
           </Box>
 
           <Typography variant="h6">
-            {`Deposit 1 ETH and 1 ETH-${assetDatum.strikes[
-              strike
-            ]?.toString()}-P`}
+            {`Deposit ${tokenDepositAmount} ETH and ${tokenDepositAmount} ETH-${assetDatum.strikes[
+              strikeIndex
+            ]?.toString()}-P to borrow ${formatAmount(usdToReceive, 2)} 2CRV`}
           </Typography>
 
           <CustomButton
@@ -144,7 +169,14 @@ export default function BorrowDialog({
                 : 'mineshaft'
             }
             disabled={tokenDepositAmount <= 0}
-            onClick={tokenApproved ? handleDepositAmount : handleAssetApprove}
+            // approve token, e.g., $DPX, then approve $DPX-4444-P, then deposit
+            onClick={
+              !tokenApproved
+                ? handleTokenApprove
+                : !optionTokenApproved
+                ? handleOptionTokenApprove
+                : handleBorrow
+            }
           >
             {tokenApproved
               ? tokenDepositAmount == 0

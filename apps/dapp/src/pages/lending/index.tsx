@@ -49,7 +49,6 @@ const AssetRow = ({
     []
   );
 
-  console.log('aprs: ', aprs);
   const minApr = min(aprs);
   const maxApr = max(aprs);
 
