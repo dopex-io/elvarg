@@ -217,11 +217,15 @@ const appLinks = {
           to: '/atlantics',
           description: 'Write weekly atlantic puts to earn premium + funding',
         },
-
         {
           name: 'DPX Bonds',
           to: '/dpx-bonds',
           description: 'Commit stables upfront to receive DPX at a discount',
+        },
+        {
+          name: 'Tzwap',
+          to: '/tzwap',
+          description: 'Open TWAP orders',
         },
       ],
     },
@@ -243,7 +247,6 @@ const menuLinks = [
   { name: 'Diamond Pepe NFTs', to: 'https://dp2.dopex.io' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
   { name: 'Community NFTs', to: '/nfts/community' },
-  { name: 'Tzwap', to: '/tzwap' },
 ];
 
 interface AppBarProps {
