@@ -2,13 +2,12 @@ import React, { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Countdown from 'react-countdown';
 
+import { PepeChildrenButton } from 'components/nfts/components/PepeButton';
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
 
 import { useBoundStore } from 'store';
 import { Duel } from 'store/Duel';
-
-import styles from '../styles.module.scss';
 
 const ActiveDuel = ({
   duel,
@@ -146,9 +145,9 @@ const ActiveDuel = ({
       </Box>
 
       <Box className="ml-auto mr-auto mt-2.5">
-        <button
-          className={styles['pepeButton']}
-          onClick={handleClick}
+        <PepeChildrenButton
+          className=""
+          action={handleClick}
           disabled={['forfeit', 'tie', 'won', 'lost', 'waiting'].includes(
             duel['status']
           )}
@@ -178,7 +177,7 @@ const ActiveDuel = ({
               }}
             />
           ) : null}
-        </button>
+        </PepeChildrenButton>
       </Box>
 
       <Box className="ml-4 mt-2">
