@@ -6,6 +6,7 @@ import {
   MouseEvent,
   Key,
   useEffect,
+  SetStateAction,
 } from 'react';
 import Router from 'next/router';
 import { ethers } from 'ethers';
@@ -48,12 +49,12 @@ const AppLink = ({
   name,
   to,
   active,
-  className,
+  children,
 }: {
-  name: string;
+  name: Key | null | undefined;
   to: string;
   active?: boolean;
-  className?: string;
+  children?: ReactNode;
 }) => {
   const linkClassName = cx(
     'hover:no-underline hover:text-white cursor-pointer',
@@ -64,20 +65,86 @@ const AppLink = ({
     return (
       <a
         href={to}
-        className={cx(className, linkClassName)}
+        className={children ? '' : linkClassName}
         target="_blank"
         rel="noopener noreferrer"
       >
-        {name}
+        {children ? children : name}
       </a>
     );
   } else {
     return (
-      <Link href={to} className={linkClassName}>
-        {name}
+      <Link href={to} passHref>
+        <Box className={children ? '' : linkClassName}>
+          {children ? children : name}
+        </Box>
       </Link>
     );
   }
+};
+
+type LinkType = {
+  name: string;
+  to?: string;
+  description: string;
+  subLinks?: LinkType[];
+};
+
+const AppSubMenu = ({
+  menuName,
+  links,
+}: {
+  menuName: Key | null | undefined;
+  links: LinkType[];
+}) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleClick = useCallback(
+    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
+      setAnchorEl(event.currentTarget),
+    []
+  );
+
+  const handleClose = useCallback(() => setAnchorEl(null), []);
+
+  return (
+    <>
+      <Typography
+        variant="h5"
+        onClick={handleClick}
+        color="stieglitz"
+        className="cursor-pointer"
+      >
+        {menuName}
+      </Typography>
+      <Menu
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        classes={{ paper: 'dark:bg-cod-gray' }}
+      >
+        {links.map((link) => {
+          return (
+            <MenuItem onClick={handleClose} key={link.name}>
+              <Box className="flex flex-col">
+                <AppLink
+                  to={link.to || ''}
+                  name={link.name}
+                  active={link.name === menuName}
+                >
+                  <Typography variant="h6">{link.name}</Typography>
+                  <Typography variant="caption" color="stieglitz">
+                    {link.description}
+                  </Typography>
+                </AppLink>
+              </Box>
+            </MenuItem>
+          );
+        })}
+      </Menu>
+    </>
+  );
 };
 
 const appLinks = {
@@ -108,11 +175,42 @@ const appLinks = {
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Farms', to: '/farms' },
     { name: 'veDPX', to: '/governance/vedpx' },
-    { name: 'SSOV', to: '/ssov' },
-    { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
-    { name: 'Options LP', to: '/olp' },
-    { name: 'Atlantics', to: '/atlantics' },
+    {
+      name: 'Options',
+      subLinks: [
+        {
+          name: 'SSOV',
+          to: '/ssov',
+          description: 'Covered calls and puts for crypto assets',
+        },
+        {
+          name: 'Option LP',
+          to: '/olp',
+          description: 'Liquidity pools for SSOV options',
+        },
+        {
+          name: 'Straddles',
+          to: '/straddles',
+          description: 'Buy/write straddles for crypto assets',
+        },
+      ],
+    },
+    {
+      name: 'Trade',
+      subLinks: [
+        {
+          name: 'Insured Perps',
+          to: '/atlantics/manage/insured-perps/WETH-USDC',
+          description: 'Open liquidation-free longs',
+        },
+        {
+          name: 'Insured Perps LP',
+          to: '/atlantics',
+          description: 'Write weekly atlantic puts to earn premium + funding',
+        },
+      ],
+    },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -344,21 +442,27 @@ export default function AppBar(props: AppBarProps) {
               />
             </Link>
             <Box className="space-x-10 mr-10 hidden lg:flex">
-              {links?.map(
-                (link: { name: Key | null | undefined; to: string }) => {
-                  if (link.name === active)
+              {links.map(
+                (link: {
+                  name: Key | null | undefined;
+                  to: string;
+                  subLinks: any;
+                  active: string;
+                }) => {
+                  if (link.subLinks) {
                     return (
-                      <AppLink
-                        to={link.to}
-                        name={link.name!}
+                      <AppSubMenu
                         key={link.name}
-                        active
+                        menuName={link.name}
+                        links={link.subLinks}
                       />
                     );
+                  }
                   return (
                     <AppLink
-                      to={link.to}
-                      name={String(link.name!)}
+                      to={link.to || ''}
+                      name={link.name}
+                      active={link.name === active}
                       key={link.name}
                     />
                   );
