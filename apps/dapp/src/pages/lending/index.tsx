@@ -39,6 +39,7 @@ const AssetRow = ({
     tokenPrice,
     aprs,
   } = assetDatum;
+
   const [open, setOpen] = React.useState(false);
   const [borrowAmount, setBorrowAmount] = React.useState<string>('1');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -74,7 +75,7 @@ const AssetRow = ({
         </TableCell>
         <TableCell align="left">
           <Typography variant="caption" color="white">
-            ${formatAmount(tokenPrice)}
+            ${formatAmount(tokenPrice, 2)}
           </Typography>
         </TableCell>
         {/* <TableCell align="left">
@@ -240,6 +241,11 @@ const Lending = () => {
             "totalSupply": 714649,
             "totalBorrow": 0,
             "timestamp": 1675256169
+          },
+          {
+            "totalSupply": 813687,
+            "totalBorrow": 0,
+            "timestamp": 1675305088
           }
         ]
       }
