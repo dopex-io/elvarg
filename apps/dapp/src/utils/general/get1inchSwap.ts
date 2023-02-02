@@ -9,7 +9,7 @@ const get1inchSwap = async ({
 }: any) => {
   if (fromTokenAddress === toTokenAddress) return {};
   const { data } = await axios.get(
-    `https://api.1inch.exchange/v4.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
+    `https://api.1inch.exchange/v5.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
       amount
     )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
   );
