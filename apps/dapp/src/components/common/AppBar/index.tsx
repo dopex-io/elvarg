@@ -111,7 +111,7 @@ const appLinks = {
     { name: 'SSOV', to: '/ssov' },
     { name: 'Straddles', to: '/straddles' },
     { name: 'DPX Bonds', to: '/dpx-bonds' },
-    { name: 'Options LP', to: '/olp/DPX-MONTHLY' },
+    { name: 'Options LP', to: '/olp' },
     { name: 'Atlantics', to: '/atlantics' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
