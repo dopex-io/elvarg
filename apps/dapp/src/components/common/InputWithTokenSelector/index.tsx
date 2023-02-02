@@ -8,24 +8,14 @@ import {
   useState,
 } from 'react';
 import Box from '@mui/material/Box';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
 import TokenSelector from '../TokenSelector';
 
 import { useBoundStore } from 'store';
-import { ERC20__factory } from '@dopex-io/sdk';
 import { getUserReadableAmount } from 'utils/contracts';
 import { getTokenDecimals } from 'utils/general';
-
-/**
- * React.useStates required from parent component:
- * 1.selectedTokenSymbol - Symbol of the token selected from the token selector
- * 2.setSelectedToken - Setter for the symbol once the token is selected from the token selector.
- * 3.inputAmount - Amount entered in the input area.
- * 4.setInputAmount - Setter for the input amount entered.
- */
 
 interface IOverrides {
   setTokenSelectorOpen: Dispatch<React.SetStateAction<boolean>>;
@@ -46,29 +36,26 @@ interface IInputWithTokenSelectorProps {
 const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
   const {
     inputAmount,
-    setInputAmount,
     handleInputAmountChange,
     setSelectedToken,
     selectedTokenSymbol,
     overrides,
   } = props;
 
-  const { accountAddress, signer, contractAddresses, chainId } =
-    useBoundStore();
+  const { chainId, userAssetBalances } = useBoundStore();
 
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
   const [selectedTokenBalance, setSelectedTokenBalance] = useState('0');
 
   useEffect(() => {
-    (async function () {
-      if (!accountAddress || !signer || !contractAddresses) return;
-      const bal = await ERC20__factory.connect(
-        contractAddresses[selectedTokenSymbol],
-        signer
-      ).balanceOf(accountAddress);
-      setSelectedTokenBalance(bal.toString());
-    })();
-  }, [accountAddress, signer, contractAddresses, selectedTokenSymbol]);
+    if (!selectedTokenSymbol) return;
+
+    const assetBalance = userAssetBalances[selectedTokenSymbol];
+
+    if (!assetBalance) return;
+
+    setSelectedTokenBalance(assetBalance);
+  }, [userAssetBalances, selectedTokenBalance, selectedTokenSymbol]);
 
   const information = useMemo(() => {
     let defaultInfo = {
