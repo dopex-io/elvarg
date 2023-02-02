@@ -1,124 +1,200 @@
-import { Box, Typography } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Box,
+  IconButton,
+  Popover,
+  Slider,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
+import { BigNumber } from 'ethers';
 
 import { useBoundStore } from 'store';
-import { getTokenDecimals } from 'utils/general';
+import { formatAmount, getTokenDecimals } from 'utils/general';
 
-import get1inchQuote, {
-  defaultQuoteData,
-  I1inchQuote,
-} from 'utils/general/get1inchQuote';
+import CrossIcon from 'svgs/icons/CrossIcon';
 
-import { ZERO_ADDRESS } from 'constants/index';
+import get1inchQuote from 'utils/general/get1inchQuote';
 import {
   getContractReadableAmount,
   getUserReadableAmount,
 } from 'utils/contracts';
 
+import SettingsIcon from 'svgs/icons/SettingsIcon';
+
 interface IProps {
   fromTokenSymbol: string;
   toTokenSymbol: string;
   amount: string;
-}
-
-interface IDisplayInfo {
-  fromTokenAddress: string;
-  toTokenAddress: string;
-  amountIn: number;
-  amountOut: number;
-  route: { fromTokenAddress: string; name: string }[];
+  setAmount: Function;
 }
 
 const OneinchSwapDetails = (props: IProps) => {
-  const { fromTokenSymbol, toTokenSymbol, amount } = props;
+  const { fromTokenSymbol, toTokenSymbol, amount, setAmount } = props;
 
   const { accountAddress, chainId, contractAddresses } = useBoundStore();
 
-  const [slippage, setSlippage] = useState<number>(0.3);
+  const [slippageTolerance, setSlippageTolerance] = useState(0.3);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [amountOut, setAmountOut] = useState('0');
 
-  const [error, setError] = useState<string | null>(null);
-  const [quote, setQuote] = useState<I1inchQuote>(defaultQuoteData);
+  const handleSlippageSlider = useCallback(
+    (__: Event | any, value: any, _: number) => {
+      setSlippageTolerance(value);
+    },
+    []
+  );
 
-  const displayInfo = useMemo(() => {
-    let _displayInfo: IDisplayInfo = {
-      fromTokenAddress: ZERO_ADDRESS,
-      toTokenAddress: ZERO_ADDRESS,
-      amountIn: 0,
-      amountOut: 0,
-      route: [],
-    };
+  const handleCloseSettings = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
 
-    if (quote.toTokenAmount !== defaultQuoteData.toTokenAmount)
-      _displayInfo.amountOut = getUserReadableAmount(
-        quote.toTokenAmount,
-        getTokenDecimals(toTokenSymbol, chainId)
-      );
+  const handleOpenSettings = useCallback(
+    (event: any) => setAnchorEl(event.currentTarget),
+    []
+  );
 
-    if (quote.protocols[0] && quote.protocols !== defaultQuoteData.protocols) {
-      quote.protocols[0].map((protocol) => {
-        _displayInfo.route.push({
-          fromTokenAddress: protocol.fromTokenAddress,
-          name: protocol.name,
-        });
-      });
-    }
+  const updateQuote = useCallback(async () => {
+    if (!contractAddresses) return;
 
     const fromTokenAddress = contractAddresses[fromTokenSymbol];
     const toTokenAddress = contractAddresses[toTokenSymbol];
 
-    if (fromTokenAddress) {
-      _displayInfo.fromTokenAddress = fromTokenAddress;
-    }
-
-    if (toTokenAddress) {
-      _displayInfo.toTokenAddress = toTokenAddress;
-    }
-
-    return _displayInfo;
-  }, [
-    chainId,
-    contractAddresses,
-    fromTokenSymbol,
-    quote.protocols,
-    quote.toTokenAmount,
-    toTokenSymbol,
-  ]);
-
-  const updateQuote = useCallback(async () => {
-    const { fromTokenAddress, toTokenAddress } = displayInfo;
-
     if (
-      displayInfo.fromTokenAddress === ZERO_ADDRESS ||
-      displayInfo.toTokenAddress === ZERO_ADDRESS ||
       !chainId ||
       !accountAddress ||
-      !amount
+      !amount ||
+      fromTokenAddress === toTokenAddress
     )
       return;
 
-    const _quote = await get1inchQuote(
+    const { toTokenAmount } = await get1inchQuote(
       fromTokenAddress,
       toTokenAddress,
       getContractReadableAmount(
-        Number(amount).toFixed(0),
+        Number(amount),
         getTokenDecimals(fromTokenSymbol, chainId)
       ).toString(),
       chainId,
-      accountAddress
+      accountAddress,
+      (slippageTolerance * 10).toFixed(0)
     );
 
-    setQuote(() => _quote);
-  }, [accountAddress, amount, chainId, displayInfo, fromTokenSymbol]);
+    setAmountOut(
+      formatAmount(
+        getUserReadableAmount(
+          toTokenAmount,
+          getTokenDecimals(toTokenSymbol, chainId)
+        ),
+        3
+      )
+    );
+
+    // External setters
+    setAmount({
+      userReadable: formatAmount(
+        getUserReadableAmount(
+          toTokenAmount,
+          getTokenDecimals(toTokenSymbol, chainId)
+        ),
+        3
+      ),
+      contractReadable: BigNumber.from(toTokenAmount),
+    });
+  }, [
+    accountAddress,
+    amount,
+    chainId,
+    contractAddresses,
+    fromTokenSymbol,
+    toTokenSymbol,
+    setAmount,
+    slippageTolerance,
+  ]);
 
   useEffect(() => {
     updateQuote();
   }, [updateQuote]);
 
   return (
-    <Box className="flex w-full h-full p-[1rem]">
-      <Typography>Receive:</Typography>
-      <Typography>Slippage:</Typography>
-      <Typography></Typography>
+    <Box className="flex w-full h-full mb-3">
+      <Box className="mt-3.5 w-full">
+        <Box className="rounded-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
+          <Popover
+            anchorEl={anchorEl}
+            open={!!anchorEl}
+            classes={{ paper: 'bg-umbra rounded-md' }}
+            onClose={handleCloseSettings}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <Box className="w-52 p-3">
+              <Box className="flex">
+                <Typography
+                  variant="h6"
+                  className="text-white text-xs pt-1 pb-1"
+                >
+                  Max. slippage: {slippageTolerance}%
+                </Typography>
+                <IconButton
+                  className="p-0 pb-1 mr-0 ml-auto"
+                  onClick={handleCloseSettings}
+                  role="button"
+                  size="small"
+                >
+                  <CrossIcon
+                    className="group"
+                    subClassName="fill-gray-200 group-hover:fill-gray-100"
+                  />
+                </IconButton>
+              </Box>
+              <Slider
+                value={slippageTolerance}
+                min={0.1}
+                max={1}
+                step={0.1}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+                onChange={handleSlippageSlider}
+              />
+            </Box>
+          </Popover>
+          <Tooltip title="Go to advanced mode" aria-label="add" placement="top">
+            <IconButton
+              className="p-0 pb-1 mr-0 ml-auto"
+              onClick={handleOpenSettings}
+              size="large"
+            >
+              <SettingsIcon
+                className="group"
+                subClassName="fill-gray-200 group-hover:fill-gray-400"
+              />
+            </IconButton>
+          </Tooltip>
+          <Box className={'flex mb-1 mt-1'}>
+            <Typography variant="body2" className="text-stieglitz ml-0 mr-auto">
+              Receive & Deposit:
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="body2" className="text-white mr-auto ml-0">
+                {amountOut} {toTokenSymbol}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-1'}>
+            <Typography variant="body2" className="text-stieglitz ml-0 mr-auto">
+              Slippage
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="body2" className="text-white mr-auto ml-0">
+                {slippageTolerance}%
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };
