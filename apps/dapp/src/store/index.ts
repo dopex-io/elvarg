@@ -7,6 +7,7 @@ import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
 import { AssetsSlice, createAssetsSlice } from './Assets';
 import { FarmingSlice, createFarmingSlice } from './Farming';
 import { NftsSlice, createNftsSlice } from './Nfts';
+import { DuelSlice, createDuelSlice } from './Duel';
 import { CommonSlice, createCommonSlice } from './Vault/common';
 import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
 import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
@@ -22,6 +23,7 @@ type T = WalletSlice &
   PortfolioSlice &
   AssetsSlice &
   FarmingSlice &
+  DuelSlice &
   NftsSlice &
   CommonSlice &
   SsovV3Slice &
@@ -40,6 +42,7 @@ export const useBoundStore = create<T>()(
     ...createPortfolioSlice(...a),
     ...createAssetsSlice(...a),
     ...createFarmingSlice(...a),
+    ...createDuelSlice(...a),
     ...createNftsSlice(...a),
     ...createCommonSlice(...a),
     ...createSsovV3Slice(...a),

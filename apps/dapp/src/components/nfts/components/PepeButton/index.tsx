@@ -4,11 +4,15 @@ import CustomButton from 'components/UI/Button';
 import PepeButtonText from 'components/nfts/components/PepeButtonText';
 
 const PepeButton = ({
-  handleMint,
+  action,
   text,
+  className = '',
+  variant = 'caption',
 }: {
-  handleMint: () => {};
+  action: (() => {}) | (() => void);
   text: string;
+  className: string;
+  variant: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'caption';
 }) => {
   const StyledButton = styled(CustomButton)`
     width: 100%;
@@ -25,8 +29,8 @@ const PepeButton = ({
   `;
 
   return (
-    <StyledButton size="medium" onClick={handleMint}>
-      <PepeButtonText text={text} />
+    <StyledButton size="medium" onClick={action} className={className}>
+      <PepeButtonText text={text} variant={variant} />
     </StyledButton>
   );
 };

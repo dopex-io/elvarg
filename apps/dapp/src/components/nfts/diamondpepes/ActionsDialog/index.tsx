@@ -214,7 +214,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
               variant="h5"
               className="text-white font-display font-['Minecraft'] relative z-1"
             >
-              <PepeText text={String(box.title)} />
+              <PepeText text={String(box.title)} className="" />
             </Typography>
             <Typography
               variant="h5"
@@ -295,7 +295,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
               </Typography>
             </Box>
           </Box>
-          <PepeButton handleMint={handleMint} text={'Buy'} />
+          <PepeButton action={handleMint} text={'Buy'} />
         </Box>
       </Box>
     </Dialog>
