@@ -173,9 +173,8 @@ const appLinks = {
   ],
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
-    { name: 'Farms', to: '/farms' },
-    { name: 'veDPX', to: '/governance/vedpx' },
-    { name: 'DPX Bonds', to: '/dpx-bonds' },
+    { name: 'Stake', to: '/farms' },
+    { name: 'Governance', to: '/governance/vedpx' },
     {
       name: 'Options',
       subLinks: [
@@ -230,6 +229,7 @@ const menuLinks = [
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
   { name: 'Community NFTs', to: '/nfts/community' },
   { name: 'Tzwap', to: '/tzwap' },
+  { name: 'DPX Bonds', to: '/dpx-bonds' },
 ];
 
 interface AppBarProps {
@@ -237,10 +237,10 @@ interface AppBarProps {
     | 'options'
     | 'pools'
     | 'rewards'
-    | 'Farms'
-    | 'veDPX'
+    | 'Stake'
+    | 'Governance'
     | 'volume pool'
-    | 'portfolio'
+    | 'Portfolio'
     | 'token sale'
     | 'faucet'
     | 'Rate Vaults'
