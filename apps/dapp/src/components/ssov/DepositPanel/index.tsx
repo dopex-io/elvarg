@@ -24,6 +24,7 @@ import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { getTokenDecimals } from 'utils/general';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
@@ -65,7 +66,12 @@ const DepositPanel = () => {
     BigNumber.from('0')
   );
 
-  const [fromToken, setFromToken] = useState('DPX');
+  const [depositAmount, setDepositAmount] = useState({
+    userReadable: 0,
+    contractReadable: BigNumber.from(0),
+  });
+
+  const [fromTokenSymbol, setFromTokenSymbol] = useState('DPX');
   const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
 
   const { ssovContractWithSigner } = ssovSigner;
@@ -88,9 +94,18 @@ const DepositPanel = () => {
   }, []);
 
   const handleDepositAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) =>
-      setStrikeDepositAmount(e.target.value),
-    []
+    (e: { target: { value: React.SetStateAction<string | number> } }) => {
+      setStrikeDepositAmount(e.target.value);
+      setDepositAmount({
+        userReadable: e.target.value as number,
+        contractReadable: getContractReadableAmount(
+          e.target.value as number,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ),
+      });
+    },
+
+    [chainId, fromTokenSymbol]
   );
 
   const hasExpiryElapsed = useMemo(() => {
@@ -233,8 +248,8 @@ const DepositPanel = () => {
       </Box>
       <Box>
         <InputWithTokenSelector
-          selectedTokenSymbol={fromToken}
-          setSelectedToken={setFromToken}
+          selectedTokenSymbol={fromTokenSymbol}
+          setSelectedToken={setFromTokenSymbol}
           handleMax={handleMax}
           setInputAmount={setStrikeDepositAmount}
           inputAmount={strikeDepositAmount}
@@ -242,11 +257,14 @@ const DepositPanel = () => {
           overrides={{ setTokenSelectorOpen }}
         />
       </Box>
-      <OneinchSwapDetails
-        fromTokenSymbol={fromToken}
-        amount={strikeDepositAmount.toString()}
-        toTokenSymbol={ssovData?.collateralSymbol ?? ''}
-      />
+      {fromTokenSymbol !== ssovData?.collateralSymbol && (
+        <OneinchSwapDetails
+          fromTokenSymbol={fromTokenSymbol}
+          amount={strikeDepositAmount.toString()}
+          toTokenSymbol={ssovData?.collateralSymbol ?? ''}
+          setAmount={setDepositAmount}
+        />
+      )}
       {!isTokenSelectorOpen && (
         <Box>
           <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
