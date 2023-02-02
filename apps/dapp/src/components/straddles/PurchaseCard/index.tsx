@@ -18,6 +18,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { useBoundStore } from 'store';
 
+import get1inchSwap from 'utils/general/get1inchSwap';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
@@ -122,7 +123,7 @@ const PurchaseCard = () => {
   }, [rawAmount]);
 
   useEffect(() => {
-    async function updateFinalCost() {
+    async function updateFinalCostV1() {
       if (!accountAddress || !signer || !straddlesData?.straddlesContract)
         return;
 
@@ -164,13 +165,53 @@ const PurchaseCard = () => {
       setFinalCost(bestProtocolFee.add(bestStraddleCost));
       setBestSwapperId(_bestSwapperId);
     }
+    async function updateFinalCostV2() {
+      if (
+        !accountAddress ||
+        !signer ||
+        !straddlesData?.straddlesContract ||
+        !straddlesEpochData
+      )
+        return;
+
+      const amountOfUsdToSwap = straddlesEpochData.currentPrice
+        .mul(amount)
+        .div(2)
+        .div(BigNumber.from('100000000000000000000'));
+
+      const swap = await get1inchSwap({
+        usd: straddlesData.usd,
+        underlying: straddlesData.underlying,
+        amount: amountOfUsdToSwap,
+        chainId: 137,
+        accountAddress: straddlesData.straddlesContract.address,
+      });
+
+      const results = await straddlesData.straddlesContract
+        .connect(signer)
+        .callStatic.purchase(amount, 1, accountAddress, swap['tx']['data']);
+
+      const protocolFee = results[1];
+      const straddleCost = results[2];
+
+      setFinalCost(protocolFee.add(straddleCost));
+    }
 
     try {
-      updateFinalCost();
+      if (chainId === 137) updateFinalCostV2();
+      else updateFinalCostV1();
     } catch (e) {
       console.log(e);
     }
-  }, [accountAddress, amount, selectedPoolName, signer, straddlesData]);
+  }, [
+    accountAddress,
+    amount,
+    selectedPoolName,
+    signer,
+    straddlesData,
+    chainId,
+    straddlesEpochData,
+  ]);
 
   // Handle Purchase
   const handlePurchase = useCallback(async () => {
@@ -179,27 +220,50 @@ const PurchaseCard = () => {
       !signer ||
       !updateStraddlesEpochData ||
       !updateStraddlesUserData ||
-      !straddlesData?.straddlesContract
+      !straddlesData?.straddlesContract ||
+      !straddlesEpochData
     )
       return;
 
     try {
-      await sendTx(
-        straddlesData.straddlesContract.connect(signer),
-        'purchase',
-        [
-          getContractReadableAmount(2 * amount, 18),
-          0,
-          bestSwapperId,
-          accountAddress,
-        ]
-      );
+      if (chainId === 137) {
+        const amountOfUsdToSwap = straddlesEpochData.currentPrice
+          .mul(amount)
+          .div(2)
+          .div(BigNumber.from('100000000000000000000'));
+
+        const swap = await get1inchSwap({
+          usd: straddlesData.usd,
+          underlying: straddlesData.underlying,
+          amount: amountOfUsdToSwap,
+          chainId: 137,
+          accountAddress: straddlesData.straddlesContract.address,
+        });
+
+        await sendTx(
+          straddlesData.straddlesContract.connect(signer),
+          'purchase',
+          [amount, swap['toTokenAmount'], accountAddress, swap['tx']['data']]
+        );
+      } else {
+        await sendTx(
+          straddlesData.straddlesContract.connect(signer),
+          'purchase',
+          [
+            getContractReadableAmount(2 * amount, 18),
+            0,
+            bestSwapperId,
+            accountAddress,
+          ]
+        );
+      }
       await updateStraddlesUserData();
       await updateStraddlesEpochData();
     } catch (err) {
       console.log(err);
     }
   }, [
+    chainId,
     accountAddress,
     signer,
     updateStraddlesEpochData,
@@ -208,6 +272,7 @@ const PurchaseCard = () => {
     sendTx,
     amount,
     bestSwapperId,
+    straddlesEpochData,
   ]);
 
   const handleApprove = useCallback(async () => {
