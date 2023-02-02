@@ -15,7 +15,7 @@ import {
 } from 'components/nfts/components/PepeBackground';
 import PepeLink from 'components/nfts/components/PepeLink';
 import PepeText from 'components/nfts/components/PepeText';
-import PepeButton from 'components/nfts/components/PepeButton';
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import ActiveDuel from 'components/nfts/duel/ActiveDuel';
 import Duels from 'components/nfts/duel/Duels';
 import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';

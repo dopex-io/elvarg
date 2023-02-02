@@ -11,14 +11,12 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
 import { useBoundStore } from 'store';
-
-import styles from '../styles.module.scss';
 
 export const Duels = ({ findDuel }: { findDuel: Function }) => {
   const { duels } = useBoundStore();
@@ -33,7 +31,7 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
   return (
     <Box className={'bg-[#181C24] w-full p-4 pt-2 pb-4.5 pb-0 rounded-sm'}>
       <Box className="balances-table text-white">
-        <TableContainer className={cx(styles['optionsTable'], 'bg-[#181C24]')}>
+        <TableContainer className={'bg-[#181C24]'}>
           {duels.length === 0 ? (
             <Box>
               <Box className={cx('rounded-lg text-center mt-1')}>
@@ -185,19 +183,13 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                       </TableCell>
 
                       <TableCell align="left" className="px-6 pt-2">
-                        <CustomButton
-                          size="medium"
-                          className={styles['smallPepeButton']!}
+                        <PepeButton
+                          variant={'h3'}
+                          text={'DUEL'}
+                          action={() => findDuel(duel)}
                           disabled={!isAvailable}
-                          onClick={() => findDuel(duel)}
-                        >
-                          <Typography
-                            variant="h5"
-                            className={styles['pepeButtonText']!}
-                          >
-                            DUEL
-                          </Typography>
-                        </CustomButton>
+                          className={''}
+                        />
                       </TableCell>
                     </TableRow>
                   );

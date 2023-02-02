@@ -11,7 +11,7 @@ import {
   MobileBackgroundOverlay,
   BackgroundOverlay,
 } from 'components/nfts/components/PepeBackground';
-import PepeButton from 'components/nfts/components/PepeButton';
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import PepeText from 'components/nfts/components/PepeText';
 import PepeLink from 'components/nfts/components/PepeLink';
 import Typography from 'components/UI/Typography';
@@ -136,6 +136,7 @@ const DiamondPepesNfts = () => {
                 text={'MINT'}
                 className="pl-2 pr-2 p-1.5"
                 variant={'h4'}
+                disabled={false}
               />
             </Box>
           </Box>
@@ -200,6 +201,7 @@ const DiamondPepesNfts = () => {
                   link={'https://tofunft.com/collection/duel-pepes/items'}
                   text={'Tofunft'}
                   className=""
+                  variant="caption"
                 />
 
                 <Link
@@ -218,6 +220,7 @@ const DiamondPepesNfts = () => {
                   link={'https://twitter.com/dopex_io'}
                   text={'DOPEX'}
                   className="mr-auto"
+                  variant={'caption'}
                 />
 
                 <Link href="https://twitter.com/chutoro_au" target="_blank">
@@ -232,6 +235,7 @@ const DiamondPepesNfts = () => {
                   link={'https://twitter.com/chutoro_au'}
                   text={'CEO'}
                   className="mr-auto"
+                  variant={'caption'}
                 />
               </Box>
             </Box>
@@ -274,6 +278,7 @@ const DiamondPepesNfts = () => {
                   }
                   text={'How to play'}
                   className="mr-auto"
+                  variant={'caption'}
                 />
               </Box>
             </Box>

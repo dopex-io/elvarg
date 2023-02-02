@@ -11,7 +11,7 @@ import formatAmount from 'utils/general/formatAmount';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import PepeButton from 'components/nfts/components/PepeButton';
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import PepeText from 'components/nfts/components/PepeText';
 import PepeButtonSquare from 'components/nfts/components/PepeButtonSquare';
 
@@ -210,12 +210,11 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
       <Box className="p-2 mt-5 md:flex">
         {boxes.map((box, i) => (
           <Box className="md:w-1/2 p-2 text-center" key={i}>
-            <Typography
-              variant="h5"
+            <PepeText
+              text={String(box.title)}
               className="text-white font-display font-['Minecraft'] relative z-1"
-            >
-              <PepeText text={String(box.title)} className="" />
-            </Typography>
+              variant={'h5'}
+            />
             <Typography
               variant="h5"
               className="text-[#78859E] font-['Minecraft'] relative z-1"
@@ -229,6 +228,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
         <Box className="bg-[#232935] rounded-xl flex pb-3 flex-col p-3">
           <Box className="flex pl-2 pr-2">
             <PepeButtonSquare
+              variant={'h3'}
               text="-"
               action={decreaseToMintAmount}
               disabled={toMint < 2}
@@ -236,6 +236,7 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
 
             <Box className="ml-2">
               <PepeButtonSquare
+                variant={'h3'}
                 text="+"
                 action={increaseToMintAmount}
                 disabled={false}
@@ -295,7 +296,13 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
               </Typography>
             </Box>
           </Box>
-          <PepeButton action={handleMint} text={'Buy'} />
+          <PepeButton
+            action={handleMint}
+            text={'Buy'}
+            className={''}
+            variant={'caption'}
+            disabled={false}
+          />
         </Box>
       </Box>
     </Dialog>

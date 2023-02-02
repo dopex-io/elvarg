@@ -4,13 +4,15 @@ import CustomButton from 'components/UI/Button';
 import PepeButtonText from 'components/nfts/components/PepeButtonText';
 
 const PepeButtonSquare = ({
-  disabled,
+  disabled = false,
   action,
   text,
+  variant = 'caption',
 }: {
   disabled: boolean;
   action: () => void;
   text: string;
+  variant: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'caption';
 }) => {
   const StyledButton = styled(CustomButton)`
     cursor: pointer;
@@ -28,7 +30,7 @@ const PepeButtonSquare = ({
 
   return (
     <StyledButton disabled={disabled} onClick={action}>
-      <PepeButtonText text={text} />
+      <PepeButtonText text={text} variant={variant} />
     </StyledButton>
   );
 };
