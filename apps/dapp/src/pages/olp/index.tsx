@@ -47,7 +47,6 @@ const Olp = () => {
           return (
             <VaultCard
               key={idx}
-              underlyingSymbol={vault.underlyingSymbol}
               data={{
                 underlyingSymbol: vault.underlyingSymbol,
                 symbol: vault.symbol,

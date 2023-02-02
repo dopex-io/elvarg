@@ -118,7 +118,7 @@ const Home = () => {
             <Card
               name="Option Liquidity Pools"
               description="Purchase SSOV options at a discounted IV"
-              href="/olp/DPX-MONTHLY"
+              href="/olp"
               Icon={AccountTreeIcon}
             />
             <Card

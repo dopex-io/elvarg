@@ -128,7 +128,9 @@ const Stats = () => {
                         key={idx}
                         liquidity={liquidity}
                         strike={strike}
-                        utilization={BigNumber.from(0)}
+                        utilization={
+                          olpEpochData?.strikeToUtilization[strike?.toString()]!
+                        }
                       />
                     );
                   }
