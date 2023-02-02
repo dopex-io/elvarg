@@ -174,7 +174,16 @@ const appLinks = {
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },
-    { name: 'Governance', to: '/governance/vedpx' },
+    {
+      name: 'Governance',
+      subLinks: [
+        {
+          name: 'veDPX',
+          to: '/governance/vedpx',
+          description: 'Lock DPX to earn protocol fees & yield',
+        },
+      ],
+    },
     {
       name: 'Options',
       subLinks: [
@@ -208,6 +217,12 @@ const appLinks = {
           to: '/atlantics',
           description: 'Write weekly atlantic puts to earn premium + funding',
         },
+
+        {
+          name: 'DPX Bonds',
+          to: '/dpx-bonds',
+          description: 'Commit stables upfront to receive DPX at a discount',
+        },
       ],
     },
   ],
@@ -229,7 +244,6 @@ const menuLinks = [
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
   { name: 'Community NFTs', to: '/nfts/community' },
   { name: 'Tzwap', to: '/tzwap' },
-  { name: 'DPX Bonds', to: '/dpx-bonds' },
 ];
 
 interface AppBarProps {
@@ -548,16 +562,33 @@ export default function AppBar(props: AppBarProps) {
                 <Typography variant="h5" className="font-bold ml-4 my-2">
                   App
                 </Typography>
-                {links?.map((link: { name: string; to: string }) => {
-                  return (
-                    <MenuItem
-                      onClick={handleCloseSmall}
-                      className="ml-2 text-white"
-                      key={link?.name}
-                    >
-                      <AppLink to={link.to} name={link.name} />
-                    </MenuItem>
-                  );
+                {links?.map(({ to, name, subLinks }: LinkType) => {
+                  if (to)
+                    return (
+                      <MenuItem
+                        onClick={handleCloseSmall}
+                        className="ml-2 text-white"
+                        key={name}
+                      >
+                        <AppLink to={to} name={name} />
+                      </MenuItem>
+                    );
+                  else {
+                    return subLinks!.map(
+                      ({ to, name }: LinkType, i: number) => {
+                        if (!to) return;
+                        return (
+                          <MenuItem
+                            onClick={handleCloseSmall}
+                            className="ml-2 text-white"
+                            key={i}
+                          >
+                            <AppLink to={to} name={name} />
+                          </MenuItem>
+                        );
+                      }
+                    );
+                  }
                 })}
                 <Box>
                   <Typography variant="h5" className="font-bold ml-4 my-2">
