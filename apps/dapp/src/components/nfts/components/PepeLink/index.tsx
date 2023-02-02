@@ -6,10 +6,12 @@ const PepeLink = ({
   link,
   text,
   className = '',
+  variant = 'caption',
 }: {
   link: string;
   text: string;
   className: string;
+  variant: 'caption' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }) => {
   const StyledText = styled(Typography)`
     background: linear-gradient(to right, #ffffff 0%, #9cecfd 64.06%);
@@ -22,7 +24,7 @@ const PepeLink = ({
   return (
     <Link href={link} target="_blank" className={className}>
       <StyledText
-        variant="caption"
+        variant={variant}
         className="text-[#78859E] font-['Minecraft'] relative z-1 mr-auto ml-2"
       >
         {text}
