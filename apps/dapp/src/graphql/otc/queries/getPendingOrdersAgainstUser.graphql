@@ -1,0 +1,21 @@
+query getPendingOrdersAgainstUser($user: String!) {
+  users {
+    id
+    ordersOpened(
+      where: { fulfilled: false, closed: false, counterParty: $user }
+    ) {
+      id
+      fulfilled
+      quote
+      sendAmount
+      base
+      receiveAmount
+      dealer {
+        id
+      }
+      counterParty {
+        id
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "errors": {
+    "greaterThanZero": "Amount has to be greater than 0",
+    "amountRequired": "Amount is required",
+    "moreThanBalance": "Amount can not be more than balance"
+  },
+  "deposit": "Deposit",
+  "claim": "Claim",
+  "enterAnAmount": "Enter An Amount",
+  "currentPrice": "Current Price",
+  "maximumPrice": "Maximum Price",
+  "finalPrice": "Final Price",
+  "yourShare": "Your Share",
+  "price": "Price",
+  "balance": "Balance",
+  "max": "Max",
+  "estimatedDpxClaim": "Estimated DPX claim",
+  "checkBackLater": "Please check back later!",
+  "transactionPending": "Transaction pending...",
+  "transactionConfirmed": "Transaction confirmed!",
+  "appBar": {
+    "docs": "Docs",
+    "tokenSale": "Token Sale",
+    "farming": "Farming"
+  }
+}
