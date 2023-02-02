@@ -409,7 +409,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/faucet': { default: 5, all: [5] },
   '/olp': { default: 5, all: [5, 42161] },
   '/olp/DPX': { default: 5, all: [5, 42161] },
-  '/atlantics': { default: 42161, all: [1337, 42161] },
+  '/atlantics': { default: 42161, all: [42161] },
 };
 
 export const DISCLAIMER_MESSAGE = {
