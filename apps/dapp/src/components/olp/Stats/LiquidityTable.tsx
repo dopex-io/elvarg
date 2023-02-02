@@ -38,10 +38,7 @@ export const LiquidityTable = (props: LiquidityTableProps) => {
       <StyleRightCell align="right">
         <Typography variant="caption" color="white">
           $
-          <NumberDisplay
-            n={liquidity.sub(utilization ?? 0)}
-            decimals={DECIMALS_USD}
-          />
+          <NumberDisplay n={utilization ?? 0} decimals={DECIMALS_USD} />
         </Typography>
       </StyleRightCell>
     </TableRow>
