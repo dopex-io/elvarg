@@ -36,6 +36,7 @@ export interface OlpEpochDataInterface {
   totalLiquidityPerStrike: BigNumber[];
   lpPositions: LpPosition[];
   strikes: BigNumber[];
+  strikeToUtilization: Record<string, BigNumber>;
   strikeTokens: string[];
   optionTokens: OptionTokenInfoInterface[];
   isEpochExpired: boolean;
@@ -181,6 +182,7 @@ export const createOlpSlice: StateCreator<
     totalLiquidityPerStrike: [],
     lpPositions: [],
     strikes: [],
+    strikeToUtilization: {},
     strikeTokens: [],
     optionTokens: [],
     isEpochExpired: false,
@@ -210,19 +212,19 @@ export const createOlpSlice: StateCreator<
       const strikeTokenLpPositions = await Promise.all(lpPositionsPromise);
       const strikeTokensInfo = await Promise.all(strikeTokensInfoPromise);
       const currentPrice = await olpContract?.getSsovUnderlyingPrice(ssov);
-
-      const totalLiquidityPerStrike: BigNumber[] = [];
-      strikeTokensInfo.map((info) => {
-        const usdLiq = info.usdLiquidity;
-        const underLiqToUsd = info.underlyingLiquidity
-          .mul(currentPrice)
-          .mul(oneEBigNumber(DECIMALS_USD))
-          .div(oneEBigNumber(DECIMALS_STRIKE))
-          .div(oneEBigNumber(DECIMALS_TOKEN));
-        totalLiquidityPerStrike.push(usdLiq.add(underLiqToUsd));
-      });
+      const totalLiquidityPerStrike = strikeTokensInfo.map(
+        ({ usdLiquidity, underlyingLiquidity }) => {
+          const underLiqToUsd = underlyingLiquidity
+            .mul(currentPrice)
+            .mul(oneEBigNumber(DECIMALS_USD))
+            .div(oneEBigNumber(DECIMALS_STRIKE))
+            .div(oneEBigNumber(DECIMALS_TOKEN));
+          return usdLiquidity.add(underLiqToUsd);
+        }
+      );
 
       const expiry = olpData?.expiries[selectedEpoch] || BigNumber.from(0);
+      const strikeToUtilization: Record<string, BigNumber> = {};
 
       const allLpPositions: LpPosition[] = await Promise.all(
         strikeTokenLpPositions
@@ -244,6 +246,18 @@ export const createOlpSlice: StateCreator<
             );
             const underlyingPremium: BigNumber =
               await olpContract?.getPremiumInUnderlying(olpData?.ssov, premium);
+            const underlyingUsedinUsd = pos.underlyingLiquidity
+              .mul(currentPrice)
+              .mul(oneEBigNumber(DECIMALS_USD))
+              .div(oneEBigNumber(DECIMALS_STRIKE))
+              .div(oneEBigNumber(DECIMALS_TOKEN));
+            strikeToUtilization[pos.strike.toString()] = strikeToUtilization[
+              pos.strike.toString()
+            ]
+              ? strikeToUtilization[pos.strike.toString()]!.add(
+                  pos.usdLiquidityUsed.add(underlyingUsedinUsd)
+                )
+              : pos.usdLiquidityUsed.add(underlyingUsedinUsd);
             return {
               ...pos,
               idx: idx,
@@ -272,6 +286,7 @@ export const createOlpSlice: StateCreator<
             olpData?.isPut ? [DESC, ASC] : [ASC, ASC]
           ).map((pos, idx) => ({ ...pos, idx: idx })),
           strikes: strikes,
+          strikeToUtilization: strikeToUtilization,
           strikeTokens: strikeTokens,
           optionTokens: strikeTokensInfo,
           isEpochExpired: expiry.lt(BigNumber.from(getCurrentTime().toFixed())),
