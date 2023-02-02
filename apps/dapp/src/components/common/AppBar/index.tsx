@@ -122,7 +122,7 @@ const AppSubMenu = ({
         keepMounted
         open={Boolean(anchorEl)}
         onClose={handleClose}
-        classes={{ paper: 'dark:bg-cod-gray' }}
+        classes={{ paper: 'bg-cod-gray' }}
       >
         {links.map((link) => {
           return (
