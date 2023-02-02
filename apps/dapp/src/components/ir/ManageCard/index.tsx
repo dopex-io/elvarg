@@ -178,6 +178,8 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   // Updates the 1inch quote
   useEffect(() => {
     async function updateQuote() {
+      if (!accountAddress) return;
+
       const fromTokenAddress: string = IS_NATIVE(depositTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         : contractAddresses[depositTokenName];
@@ -191,13 +193,14 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
         10 ** getTokenDecimals(depositTokenName, chainId)
       ).toString();
 
-      const quote = await get1inchQuote({
+      const quote = await get1inchQuote(
         fromTokenAddress,
         toTokenAddress,
         amount,
         chainId,
         accountAddress,
-      });
+        '3'
+      );
 
       setQuote(quote);
     }
