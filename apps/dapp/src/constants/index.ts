@@ -366,7 +366,7 @@ export const IS_NATIVE = (asset: string) => {
   return ['ETH', 'BNB', 'AVAX'].includes(asset);
 };
 
-export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
+export const DOPEX_API_BASE_URL = 'http://localhost:5001/api';
 
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
