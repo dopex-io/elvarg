@@ -71,11 +71,13 @@ const Stats = () => {
 
   function getSettlementDisplay() {
     return settlementPrice != 0 ? (
-      <Box className="flex justify-between p-2">
-        <Typography variant="h6" color="stieglitz">
-          Settlement Price
-        </Typography>
-        <Typography variant="h6">${settlementPrice}</Typography>
+      <Box className="w-full lg:border-r lg:border-t-0 border-r-0 border-t border-carbon">
+        <Box className="flex justify-between p-2">
+          <Typography variant="h6" color="stieglitz">
+            Settlement Price
+          </Typography>
+          <Typography variant="h6">${settlementPrice}</Typography>
+        </Box>
       </Box>
     ) : null;
   }
@@ -260,9 +262,7 @@ const Stats = () => {
           )}
         </Typography>
       </Box>
-      <Box className="w-full lg:border-r border-r-0 border-carbon">
-        {getSettlementDisplay()}
-      </Box>
+      {getSettlementDisplay()}
     </Box>
   );
 };
