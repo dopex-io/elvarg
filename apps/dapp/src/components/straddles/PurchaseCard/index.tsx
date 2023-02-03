@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils as ethersUtils } from 'ethers';
+import axios from 'axios';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
 import Alert from '@mui/material/Alert';
@@ -240,10 +241,29 @@ const PurchaseCard = () => {
           accountAddress: straddlesData.straddlesContract.address,
         });
 
+        const response = await axios.get(
+          `https://gasstation-mainnet.matic.network/`
+        );
+
+        const gasPrices = response.data;
+
+        const maxPriorityFeePerGas = gasPrices['fastest'] * 10 ** 9;
+
+        const maxFeePerGas = 1000 * 10 ** 9;
+
         await sendTx(
           straddlesData.straddlesContract.connect(signer),
           'purchase',
-          [amount, swap['toTokenAmount'], accountAddress, swap['tx']['data']]
+          [
+            amount,
+            swap['toTokenAmount'],
+            accountAddress,
+            swap['tx']['data'],
+            {
+              maxFeePerGas: maxFeePerGas,
+              maxPriorityFeePerGas: maxPriorityFeePerGas,
+            },
+          ]
         );
       } else {
         await sendTx(
