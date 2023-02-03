@@ -70,7 +70,7 @@ const SsovFilter = (props: Props) => {
           icon: 'absolute right-2 p-0.5 text-white',
         }}
       >
-        {options.map((option) => (
+        {options?.map((option) => (
           <MenuItem key={option} value={option} className="pb-2 pt-2">
             <Checkbox
               className={
