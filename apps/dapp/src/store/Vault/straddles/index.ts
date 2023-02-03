@@ -2,9 +2,9 @@ import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
 import {
   AtlanticStraddle__factory,
-  Addresses,
   AtlanticStraddle,
   SSOVOptionPricing__factory,
+  Addresses,
 } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
@@ -315,22 +315,24 @@ export const createStraddlesSlice: StateCreator<
     }));
   },
   getStraddlesContract: () => {
-    const { selectedPoolName, provider } = get();
+    const { selectedPoolName, provider, chainId } = get();
 
-    if (!selectedPoolName || !provider) return;
+    if (!selectedPoolName || !provider || !chainId) return;
+
+    if (!Addresses[chainId]['STRADDLES'].Vault[selectedPoolName]) return;
 
     return AtlanticStraddle__factory.connect(
-      Addresses[42161].STRADDLES.Vault[selectedPoolName],
+      Addresses[chainId]['STRADDLES'].Vault[selectedPoolName],
       provider
     );
   },
   getOptionPricingContract: () => {
-    const { selectedPoolName, provider } = get();
+    const { selectedPoolName, provider, chainId } = get();
 
-    if (!selectedPoolName || !provider) return;
+    if (!selectedPoolName || !provider || !chainId) return;
 
     return SSOVOptionPricing__factory.connect(
-      Addresses[42161].STRADDLES.OPTION_PRICING,
+      Addresses[chainId]['STRADDLES'].OPTION_PRICING,
       provider
     );
   },

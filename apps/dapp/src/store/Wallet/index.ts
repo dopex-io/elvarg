@@ -178,11 +178,12 @@ export const createWalletSlice: StateCreator<
       }),
     }));
   },
-  setChangeNetwork: (networkStatus: 'user' | 'wrong-network' | 'close') =>
+  setChangeNetwork: (networkStatus: 'user' | 'wrong-network' | 'close') => {
     set((prevState: WalletSlice) => ({
       ...prevState,
       changeNetwork: networkStatus,
-    })),
+    }));
+  },
   chainId: DEFAULT_CHAIN_ID,
   supportedChainIds: [DEFAULT_CHAIN_ID],
   contractAddresses: Addresses[Number(DEFAULT_CHAIN_ID)],
