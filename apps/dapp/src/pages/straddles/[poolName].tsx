@@ -27,6 +27,7 @@ const Straddles = ({ poolName }: Props) => {
     updateStraddlesUserData,
     updateStraddlesEpochData,
     setIsLoading,
+    chainId,
   } = useBoundStore();
 
   useEffect(() => {
@@ -43,6 +44,7 @@ const Straddles = ({ poolName }: Props) => {
       })
     );
   }, [
+    chainId,
     setIsLoading,
     updateStraddles,
     updateStraddlesEpochData,
@@ -63,7 +65,6 @@ const Straddles = ({ poolName }: Props) => {
           <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
             <Stats />
           </Box>
-
           {SHOWCHARTS ? (
             <Box>
               <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">

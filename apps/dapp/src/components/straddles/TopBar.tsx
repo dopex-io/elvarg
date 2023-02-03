@@ -51,13 +51,13 @@ const TopBar = () => {
           ${tokenPrice}
         </Typography>
       </Box>
-      {!isLoading && isEpochExpired ? (
+      {/* {!isLoading && isEpochExpired ? (
         <Box className="p-2 my-2 rounded-lg border border-down-bad border-opacity-30 bg-down-bad bg-opacity-10">
           <Typography variant="h6" color="down-bad">
             Expired
           </Typography>
         </Box>
-      ) : null}
+      ) : null} */}
     </Box>
   );
 };

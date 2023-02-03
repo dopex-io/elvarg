@@ -127,8 +127,12 @@ const Straddles = () => {
             </Box>
           </Box>
           <NetworkHeader chainId={42161} />
-          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10 mb-10">
             {getStraddlesCards(42161)}
+          </Box>
+          <NetworkHeader chainId={137} />
+          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+            {getStraddlesCards(137)}
           </Box>
         </Box>
       </Box>
