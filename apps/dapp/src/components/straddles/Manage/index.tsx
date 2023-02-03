@@ -6,9 +6,13 @@ import Typography from 'components/UI/Typography';
 import DepositCard from 'components/straddles/DepositCard';
 import PurchaseCard from 'components/straddles/PurchaseCard';
 
+import { useBoundStore } from 'store';
+
 const queryClient = new QueryClient();
 
 const Manage = () => {
+  const { chainId } = useBoundStore();
+
   const [activeTab, setActiveTab] = useState<string>('Deposit');
 
   return (
@@ -30,7 +34,9 @@ const Manage = () => {
               className={`text-center w-full pt-0.5 pb-1 cursor-pointer group rounded hover:bg-mineshaft hover:opacity-80 ${
                 activeTab === 'Purchase' ? 'bg-[#2D2D2D]' : ''
               }`}
-              onClick={() => setActiveTab('Purchase')}
+              onClick={() => {
+                if (chainId !== 137) setActiveTab('Purchase');
+              }}
             >
               <Typography variant="h6" className="text-xs font-normal">
                 Purchase
