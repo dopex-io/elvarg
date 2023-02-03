@@ -7,7 +7,9 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "dev": "turbo run dev",
+    "build": "turbo run build"
   },
   "packageManager": "yarn@1.22.19",
   "devDependencies": {

@@ -1,11 +1,16 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
-    "dev": {},
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["generate"]
+    },
     "build": {
       "outputs": [".next/**"]
     },
+    "storybook": { "cache": false, "persistent": true },
     "lint": {},
-    "generate": {}
+    "generate": { "outputs": ["src/graphql/generated"] }
   }
 }
