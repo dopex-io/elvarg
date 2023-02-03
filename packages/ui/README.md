@@ -1,10 +1,10 @@
 # Dopex UI
 
-The UI package for Dopex built with react and tailwindcss
+The UI package for Dopex built with react, tailwindcss and headless ui.
 
 ## Usage
 
-Usage docs coming soon
+Usage docs coming soon.
 
 ## Development
 
