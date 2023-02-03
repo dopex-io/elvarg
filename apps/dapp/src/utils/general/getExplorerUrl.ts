@@ -9,6 +9,7 @@ const CHAIN_ID_TO_EXPLORER = {
   421611: 'https://testnet.arbiscan.io/',
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
+  137: 'https://polygonscan.com/',
 };
 
 function getExplorerUrl(chainId: number): string {
