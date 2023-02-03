@@ -236,6 +236,7 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'OLP', to: '/olp' },
   ],
+  137: [{ name: 'Straddles', to: '/straddles' }],
 };
 
 const menuLinks = [
