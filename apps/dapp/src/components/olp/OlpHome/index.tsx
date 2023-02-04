@@ -1,43 +1,35 @@
-import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import _ from 'lodash';
-import { isEmpty, sortBy } from 'lodash';
-
-import Typography from 'components/UI/Typography';
+import { useCallback, useMemo, useState } from 'react';
 import {
-  StyleTable,
-  StyleTableCell,
-  StyleLeftTableCell,
-  StyleRightTableCell,
-  StyleLeftCell,
-  StyleCell,
-  StyleRightCell,
-} from 'components/common/LpCommon/Table';
-import {
-  Input,
-  Select,
+  Box,
+  TableBody,
+  Table,
+  TableHead,
+  TableRow,
   TableCell,
   TableContainer,
   TablePagination,
 } from '@mui/material';
-import SsovFilter from 'components/ssov/SsovFilter';
-import { DEFAULT_CHAIN_ID } from 'constants/env';
-import { useCallback, useMemo, useState } from 'react';
-import { IOlpApi } from '.';
-import { getReadableTime } from 'utils/contracts';
-import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
-import {
-  CustomButton,
-  NumberDisplay,
-  TablePaginationActions,
-} from 'components/UI';
-import { BigNumber } from 'ethers';
-import Link from 'next/link';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { styled } from '@mui/material/styles';
+import _ from 'lodash';
+import { isEmpty } from 'lodash';
+
+import { Typography, TablePaginationActions } from 'components/UI';
+import {
+  StyleTableCell,
+  StyleLeftTableCell,
+  StyleRightTableCell,
+} from 'components/common/LpCommon/Table';
+import SsovFilter from 'components/ssov/SsovFilter';
+
+import { getReadableTime } from 'utils/contracts';
+
+import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
+
+import { IOlpApi } from '../../../pages/olp';
+import { FeaturedAsset } from './FeaturedAsset';
+import { AssetTableRow } from './AssetTableRow';
 
 const StyleSecondHeaderTable = styled(TableContainer)`
   table {
@@ -53,7 +45,7 @@ const StyleSecondHeaderTable = styled(TableContainer)`
   }
 `;
 
-export const AssetTable = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
+export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const chainIds: string[] = Object.keys(olps ?? []);
 
   const [selectedOlpMarkets, setSelectedOlpMarkets] = useState<string[]>([]);
@@ -108,61 +100,6 @@ export const AssetTable = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
     [setPage]
   );
 
-  const FeaturedAsset = ({ olp }: { olp: IOlpApi | undefined }) => {
-    if (olp === undefined) return null;
-
-    const splitSymbol = olp.symbol.split('-');
-
-    return (
-      <Box className="border border-wave-blue rounded-lg flex-1 p-2">
-        <Box className="flex flex-row">
-          <Box className="w-7 h-7 border border-gray-500 rounded-full mr-2">
-            <img
-              src={`/images/tokens/${olp.underlyingSymbol.toLowerCase()}.svg`}
-              alt={olp.underlyingSymbol}
-            />
-          </Box>
-          <Typography variant="h6" color="white" className="capitalize my-auto">
-            {`${splitSymbol[0]} ${splitSymbol[1]?.toLowerCase()}`}
-          </Typography>
-          <Box className="ml-auto">
-            <img
-              src={CHAIN_ID_TO_NETWORK_DATA[olp.chainId]?.icon}
-              alt={CHAIN_ID_TO_NETWORK_DATA[olp.chainId]?.name}
-              className="w-6 h-6 "
-            />
-          </Box>
-        </Box>
-        <Box className="flex flex-row justify-between ">
-          <Box className=" flex flex-col flex-1 items-center">
-            <Typography variant="h6" color="white">
-              $
-              <NumberDisplay n={BigNumber.from(olp.tvl)} decimals={0} />
-            </Typography>
-            <Typography variant="h6" color="stieglitz">
-              TVL
-            </Typography>
-          </Box>
-          <Box className=" flex flex-col flex-1 items-center">
-            <Typography variant="h6" color="white">
-              $
-              <NumberDisplay n={BigNumber.from(olp.utilization)} decimals={0} />
-            </Typography>
-            <Typography variant="h6" color="stieglitz">
-              Utilization
-            </Typography>
-          </Box>
-          <Box className=" flex flex-col flex-1 items-center">
-            <Typography variant="h6">{getReadableTime(olp.expiry)}</Typography>
-            <Typography variant="h6" color="stieglitz">
-              Expiry
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    );
-  };
-
   const featuredOlps: string[] = [
     'DPX-MONTHLY',
     'RDPX-MONTHLY',
@@ -175,7 +112,7 @@ export const AssetTable = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
         Featured
       </Typography>
 
-      <Box className="flex flex-row space-x-1 mt-2">
+      <Box className="flex mt-2 flex-col space-x-0 space-y-1 lg:flex-row lg:space-x-1 lg:space-y-0">
         <FeaturedAsset
           olp={olps[DEFAULT_CHAIN_ID]?.find(
             (o) => o?.symbol === featuredOlps[0]
@@ -276,69 +213,9 @@ export const AssetTable = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
                 page * ROWS_PER_PAGE,
                 page * ROWS_PER_PAGE + ROWS_PER_PAGE
               )
-              ?.map((f, idx) => {
-                const splitSymbol = f.symbol.split('-');
-                return (
-                  <TableRow key={idx} className="text-white mb-2 rounded-lg">
-                    <StyleLeftCell align="left">
-                      <Box className="flex flex-row items-center">
-                        <Box className="w-7 h-7 border border-gray-500 rounded-full mr-2">
-                          <img
-                            src={`/images/tokens/${f.underlyingSymbol.toLowerCase()}.svg`}
-                            alt={f.underlyingSymbol}
-                          />
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          color="white"
-                          className="capitalize"
-                        >
-                          {`${splitSymbol[0]} ${splitSymbol[1]?.toLowerCase()}`}
-                        </Typography>
-                      </Box>
-                    </StyleLeftCell>
-                    <StyleCell align="left">
-                      <Typography variant="h6" color="white">
-                        $
-                        <NumberDisplay n={BigNumber.from(f.tvl)} decimals={0} />
-                      </Typography>
-                    </StyleCell>
-                    <StyleCell align="left">
-                      <Typography variant="h6" color="white">
-                        $
-                        <NumberDisplay
-                          n={BigNumber.from(f.utilization)}
-                          decimals={0}
-                        />
-                      </Typography>
-                    </StyleCell>
-                    <StyleCell align="left">
-                      <Typography
-                        variant="h6"
-                        color="white"
-                        className="capitalize"
-                      >
-                        <img
-                          src={CHAIN_ID_TO_NETWORK_DATA[f.chainId]?.icon}
-                          alt={CHAIN_ID_TO_NETWORK_DATA[f.chainId]?.name}
-                          className="w-6 h-6"
-                        />
-                      </Typography>
-                    </StyleCell>
-                    <StyleRightCell align="right" className="pt-2">
-                      <CustomButton className="cursor-pointer text-white">
-                        <Link
-                          href={`/olp/${f.symbol}`}
-                          passHref
-                          target="_blank"
-                        >
-                          View
-                        </Link>
-                      </CustomButton>
-                    </StyleRightCell>
-                  </TableRow>
-                );
-              })}
+              ?.map((f, idx) => (
+                <AssetTableRow key={idx} f={f} idx={idx} />
+              ))}
           </TableBody>
         </Table>
       </StyleSecondHeaderTable>
@@ -358,3 +235,5 @@ export const AssetTable = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
     </Box>
   );
 };
+
+export default OlpHome;

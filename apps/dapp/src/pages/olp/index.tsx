@@ -1,44 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import axios from 'axios';
 import Box from '@mui/material/Box';
-import TableRow from '@mui/material/TableRow';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import NumberDisplay from 'components/UI/NumberDisplay';
-import {
-  StyleCell,
-  StyleLeftCell,
-  StyleRightCell,
-} from 'components/common/LpCommon/Table';
-
-import VaultCard from 'components/olp/VaultCard';
 
 import { useBoundStore } from 'store';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { AssetTable } from './AssetTable';
+import { OlpHome } from '../../components/olp/OlpHome';
 
 const OLP_INTRO: string =
   'https://blog.dopex.io/articles/product-launches-updates/Option-Liquidity-Pools-Walkthrough';
-
-const NetworkHeader = ({ chainId }: { chainId: number }) => {
-  return (
-    <Box className="flex space-x-4 mb-8">
-      <img
-        className="w-8 h-8"
-        src={CHAIN_ID_TO_NETWORK_DATA[chainId]?.icon}
-        alt={CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
-      />
-      <Typography variant="h4">
-        {CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
-      </Typography>
-    </Box>
-  );
-};
 
 export interface IOlpApi {
   underlyingSymbol: string;
@@ -54,7 +29,7 @@ export interface IOlpApi {
 }
 
 const Olp = () => {
-  const { provider, tokenPrices, chainId } = useBoundStore();
+  const { provider, tokenPrices } = useBoundStore();
 
   const [vaults, setVaults] = useState<{
     [key: string]: IOlpApi[];
@@ -111,38 +86,10 @@ const Olp = () => {
               </div>
             </a>
           </Box>
-
-          {/* <TableRow>
-            <StyleLeftCell align="left">
-              <Typography variant="caption" color="white">
-                <Box className="bg-umbra w-14 p-2 rounded-md flex justify-around">
-                  123{' '}
-                </Box>
-              </Typography>
-            </StyleLeftCell>
-            <StyleCell align="center">
-              <Typography variant="caption" color="white">
-                123{' '}
-              </Typography>
-            </StyleCell>
-            <StyleRightCell align="right">
-              <Typography variant="caption" color="white">
-                123{' '}
-              </Typography>
-            </StyleRightCell>
-          </TableRow> */}
         </Box>
-
         <Box className="lg:max-w-4xl md:max-w-3xl sm:max-w-2xl p-5 mx-auto">
-          <AssetTable olps={vaults!} />
+          <OlpHome olps={vaults!} />
         </Box>
-
-        {/* <Box className="mb-12">
-          <NetworkHeader chainId={chainId} />
-          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
-            {getOlpCards(chainId)}
-          </Box>
-        </Box> */}
       </Box>
     </Box>
   );
