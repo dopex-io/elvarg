@@ -134,7 +134,7 @@ const Olp = () => {
         </Box>
 
         <Box className="lg:max-w-4xl md:max-w-3xl sm:max-w-2xl p-5 mx-auto">
-          <AssetTable olps={vaults} />
+          <AssetTable olps={vaults!} />
         </Box>
 
         {/* <Box className="mb-12">
