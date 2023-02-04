@@ -45,6 +45,12 @@ const StyleSecondHeaderTable = styled(TableContainer)`
   }
 `;
 
+const FEATURED_OLPS: string[] = [
+  'DPX-MONTHLY',
+  'RDPX-MONTHLY',
+  'STETH-MONTHLY',
+];
+
 export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const chainIds: string[] = Object.keys(olps ?? []);
 
@@ -100,12 +106,6 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
     [setPage]
   );
 
-  const featuredOlps: string[] = [
-    'DPX-MONTHLY',
-    'RDPX-MONTHLY',
-    'STETH-MONTHLY',
-  ];
-
   return (
     <Box className="flex flex-col flex-grow w-full">
       <Typography variant="h5" color="white">
@@ -113,21 +113,11 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       </Typography>
 
       <Box className="flex mt-2 flex-col space-x-0 space-y-1 lg:flex-row lg:space-x-1 lg:space-y-0">
-        <FeaturedAsset
-          olp={olps[DEFAULT_CHAIN_ID]?.find(
-            (o) => o?.symbol === featuredOlps[0]
-          )}
-        />
-        <FeaturedAsset
-          olp={olps[DEFAULT_CHAIN_ID]?.find(
-            (o) => o?.symbol === featuredOlps[1]
-          )}
-        />
-        <FeaturedAsset
-          olp={olps[DEFAULT_CHAIN_ID]?.find(
-            (o) => o?.symbol === featuredOlps[2]
-          )}
-        />
+        {olps[DEFAULT_CHAIN_ID]?.filter((o) =>
+          FEATURED_OLPS.includes(o.symbol)
+        ).map((o, idx) => (
+          <FeaturedAsset key={idx} olp={o} />
+        ))}
       </Box>
 
       <Typography variant="h5" color="white my-3">
@@ -172,7 +162,6 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
             </TableCell>
           </TableRow>
         </TableHead>
-        <TableBody></TableBody>
       </Table>
 
       <StyleSecondHeaderTable>
