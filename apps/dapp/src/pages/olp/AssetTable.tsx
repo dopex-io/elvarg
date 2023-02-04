@@ -15,8 +15,15 @@ import {
   StyleRightTableCell,
   StyleLeftCell,
   StyleCell,
+  StyleRightCell,
 } from 'components/common/LpCommon/Table';
-import { Input, Select, TableCell, TablePagination } from '@mui/material';
+import {
+  Input,
+  Select,
+  TableCell,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import SsovFilter from 'components/ssov/SsovFilter';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { useCallback, useMemo, useState } from 'react';
@@ -30,14 +37,41 @@ import {
 } from 'components/UI';
 import { BigNumber } from 'ethers';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { styled } from '@mui/material/styles';
+
+const StyleFirstHeaderTable = styled(TableContainer)`
+  table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+    border-radius: 0.5rem;
+  }
+  tr:last-of-type td:first-of-type {
+    border-radius: 0 0 0 10px;
+  }
+  tr:last-of-type td:last-of-type {
+    border-radius: 0 0 10px 0;
+  }
+`;
+
+const StyleSecondHeaderTable = styled(TableContainer)`
+  table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+    border-radius: 0.5rem;
+  }
+  tr:last-of-type td:first-of-type {
+    border-radius: 0 0 0 10px;
+  }
+  tr:last-of-type td:last-of-type {
+    border-radius: 0 0 10px 0;
+  }
+`;
 
 export const AssetTable = ({
   olps,
 }: {
   olps: Record<string, IOlpApi[]> | undefined;
 }) => {
-  const router = useRouter();
   const chainIds: string[] = Object.keys(olps ?? []);
 
   const [selectedOlpMarkets, setSelectedOlpMarkets] = useState<string[]>([]);
@@ -98,14 +132,18 @@ export const AssetTable = ({
         All Options LP
       </Typography>
       <Box className="mt-3">
-        <StyleTable>
-          <Table className="border-collapse" size="medium">
-            <TableHead
-              sx={{
-                borderRight: '1px solid #ffffff',
-              }}
-            >
-              <TableCell className="mb-4 flex flex-wrap justify-center">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell
+                className="flex flex-row"
+                sx={{
+                  border: '1px solid #1e1e1e',
+                  borderRadius: '10px 10px 0 0',
+                  borderBottom: '0px',
+                  padding: '1px',
+                }}
+              >
                 <SsovFilter
                   activeFilters={selectedOlpMarkets}
                   setActiveFilters={setSelectedOlpMarkets}
@@ -131,18 +169,15 @@ export const AssetTable = ({
                   showImages={false}
                 />
               </TableCell>
-              <TableRow
-                sx={{
-                  borderRight: '1px solid #ffffff',
-                  height: '5px',
-                }}
-              ></TableRow>
-              <TableRow
-                sx={{
-                  borderRight: '1px solid #ffffff',
-                  height: '5px',
-                }}
-              >
+            </TableRow>
+          </TableHead>
+          <TableBody></TableBody>
+        </Table>
+
+        <StyleSecondHeaderTable>
+          <Table className="border-collapse" size="medium">
+            <TableHead>
+              <TableRow>
                 <StyleLeftTableCell align="left" className="flex space-x-1">
                   <ArrowDownwardIcon className="fill-current text-stieglitz w-4 my-auto" />
                   <Typography
@@ -153,17 +188,17 @@ export const AssetTable = ({
                     Market
                   </Typography>
                 </StyleLeftTableCell>
-                <StyleTableCell align="center">
+                <StyleTableCell align="left">
                   <Typography variant="h6" color="stieglitz">
                     TVL
                   </Typography>
                 </StyleTableCell>
-                <StyleTableCell align="center">
+                <StyleTableCell align="left">
                   <Typography variant="h6" color="stieglitz">
                     Utilization
                   </Typography>
                 </StyleTableCell>
-                <StyleTableCell align="center">
+                <StyleTableCell align="left">
                   <Typography variant="h6" color="stieglitz">
                     Network
                   </Typography>
@@ -235,7 +270,7 @@ export const AssetTable = ({
                           />
                         </Typography>
                       </StyleCell>
-                      <StyleRightTableCell align="right" className="pt-2">
+                      <StyleRightCell align="right" className="pt-2">
                         <CustomButton className="cursor-pointer text-white">
                           <Link
                             href={`/olp/${f.symbol}`}
@@ -245,13 +280,13 @@ export const AssetTable = ({
                             View
                           </Link>
                         </CustomButton>
-                      </StyleRightTableCell>
+                      </StyleRightCell>
                     </TableRow>
                   );
                 })}
             </TableBody>
           </Table>
-        </StyleTable>
+        </StyleSecondHeaderTable>
         {filteredMarket?.length ?? 0 > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"
