@@ -48,7 +48,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
         TOKEN_DECIMALS[chainId]?.[token] ?? 18
       ).mul(1e2);
       let _mod = _input.mod(tickSize ?? BigNumber.from(0));
-      if (_mod.eq('0') && currentPrice.gte(_input) && _input.gt('0')) {
+      if (_mod.eq('0') && _input.gt('0')) {
         setMaxStrike(e.target.value);
         setError('');
       } else {
@@ -56,7 +56,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
         setError('Invalid Strike Price');
       }
     },
-    [tickSize, chainId, token, currentPrice, setMaxStrike]
+    [tickSize, chainId, token, setMaxStrike]
   );
 
   return (
