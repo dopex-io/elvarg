@@ -1,13 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils as ethersUtils } from 'ethers';
 import axios from 'axios';
-import { ERC20__factory } from '@dopex-io/sdk';
+import {
+  Addresses,
+  AtlanticStraddleV2__factory,
+  ERC20__factory,
+} from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
+import { ethers } from 'ethers';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -228,7 +233,14 @@ const PurchaseCard = () => {
 
     try {
       if (chainId === 137) {
-        const amountOfUsdToSwap = straddlesEpochData.currentPrice
+        const straddlesContract = AtlanticStraddleV2__factory.connect(
+          Addresses[137]['STRADDLES'].Vault['MATIC'],
+          signer
+        );
+
+        const currentPrice = await straddlesContract.getUnderlyingPrice();
+
+        const amountOfUsdToSwap = currentPrice
           .mul(amount)
           .div(2)
           .div(BigNumber.from('100000000000000000000'));
@@ -241,30 +253,24 @@ const PurchaseCard = () => {
           accountAddress: straddlesData.straddlesContract.address,
         });
 
-        const response = await axios.get(
-          `https://gasstation-mainnet.matic.network/`
+        const { data } = await axios.get(
+          `https://gasstation-mainnet.matic.network/v2`
         );
 
-        const gasPrices = response.data;
-
-        const maxPriorityFeePerGas = gasPrices['fastest'] * 10 ** 9;
-
-        const maxFeePerGas = 1000 * 10 ** 9;
-
-        await sendTx(
-          straddlesData.straddlesContract.connect(signer),
-          'purchase',
-          [
-            amount,
-            swap['toTokenAmount'],
-            accountAddress,
-            swap['tx']['data'],
-            {
-              maxFeePerGas: maxFeePerGas,
-              maxPriorityFeePerGas: maxPriorityFeePerGas,
-            },
-          ]
+        const maxPriorityFeePerGas = ethers.utils.parseUnits(
+          String(data['fast']['maxPriorityFee']),
+          9
         );
+
+        await sendTx(straddlesContract, 'purchase', [
+          amount,
+          swap['toTokenAmount'],
+          accountAddress,
+          swap['tx']['data'],
+          {
+            maxPriorityFeePerGas,
+          },
+        ]);
       } else {
         await sendTx(
           straddlesData.straddlesContract.connect(signer),
