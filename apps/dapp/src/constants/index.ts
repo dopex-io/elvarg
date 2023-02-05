@@ -315,7 +315,7 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
 };
 
 export const TOKEN_DECIMALS: {
-  [key: string | number]: { [key: string]: number };
+  [key: string]: { [key: string]: number };
 } = {
   '56': {
     BNB: 18,
