@@ -364,6 +364,7 @@ const DuelPepes = () => {
                 text={'CREATE DUEL'}
                 className="pl-2 pr-2 p-1.5"
                 variant={'h4'}
+                disabled={false}
               />
             </Box>
           </Box>
