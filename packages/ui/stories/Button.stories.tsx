@@ -39,7 +39,7 @@ Variant.args = {
 export const Color = Template.bind({});
 Color.args = {
   propName: "color",
-  array: ["primary", "mineshaft", "umbra", "error", "success"],
+  array: ["primary", "mineshaft", "umbra", "carbon", "error", "success"],
 };
 
 export const Size = Template.bind({});

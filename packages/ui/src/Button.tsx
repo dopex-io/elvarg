@@ -3,11 +3,10 @@ import React, { FC, ReactNode } from "react";
 type colors =
   | "primary"
   | "mineshaft"
+  | "carbon"
   | "umbra"
-  | "jaffa"
   | "success"
-  | "error"
-  | string;
+  | "error";
 
 export interface ButtonProps {
   children: ReactNode;
@@ -25,15 +24,16 @@ const SIZE_CLASSES = {
   large: "p-3",
 };
 
-const BACKGROUND_COLORS: { [key: colors]: string } = {
+const BACKGROUND_COLORS: { [key: string]: string } = {
   primary: "bg-primary",
   mineshaft: "bg-mineshaft",
   umbra: "bg-umbra",
+  carbon: "bg-carbon",
   error: "bg-down-bad !text-black",
   success: "bg-up-only !text-black",
 };
 
-const BORDER_COLORS: { [key: colors]: string } = {
+const BORDER_COLORS: { [key: string]: string } = {
   primary: "border-primary",
   mineshaft: "border-mineshaft",
   umbra: "border-umbra",
