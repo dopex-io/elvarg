@@ -1,4 +1,13 @@
 import axios from 'axios';
+import { BigNumber } from 'ethers';
+
+interface Args {
+  fromTokenAddress: string;
+  toTokenAddress: string;
+  amount: BigNumber;
+  chainId: number;
+  accountAddress: string;
+}
 
 const get1inchSwap = async ({
   fromTokenAddress,
@@ -6,12 +15,9 @@ const get1inchSwap = async ({
   amount,
   chainId,
   accountAddress,
-}: any) => {
-  if (fromTokenAddress === toTokenAddress) return {};
+}: Args) => {
   const { data } = await axios.get(
-    `https://api.1inch.exchange/v5.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${Math.round(
-      amount
-    )}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+    `https://api.1inch.exchange/v5.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount.toString()}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
   );
 
   return data;

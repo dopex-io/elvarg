@@ -37,6 +37,7 @@ const POOL_TO_SWAPPER_IDS: { [key: string]: number[] } = {
   ETH: [2, 3],
   DPX: [5, 6],
   RDPX: [5, 6],
+  MATIC: [2, 3],
 };
 
 const SWAPPER_ID_TO_ROUTE: { [key: string]: string } = {
@@ -175,27 +176,37 @@ const PurchaseCard = () => {
       if (
         !accountAddress ||
         !signer ||
-        !straddlesData?.straddlesContract ||
-        !straddlesEpochData
+        !straddlesData ||
+        !straddlesEpochData ||
+        amount === 0
       )
         return;
 
-      const amountOfUsdToSwap = straddlesEpochData.currentPrice
+      const straddlesContract = AtlanticStraddleV2__factory.connect(
+        Addresses[137]['STRADDLES'].Vault['MATIC'],
+        signer
+      );
+
+      const currentPrice = await straddlesContract.getUnderlyingPrice();
+
+      const amountOfUsdToSwap = currentPrice
         .mul(amount)
-        .div(2)
-        .div(BigNumber.from('100000000000000000000'));
+        .div(BigNumber.from('100'));
 
       const swap = await get1inchSwap({
-        usd: straddlesData.usd,
-        underlying: straddlesData.underlying,
+        fromTokenAddress: straddlesData.usd,
+        toTokenAddress: straddlesData.underlying,
         amount: amountOfUsdToSwap,
         chainId: 137,
-        accountAddress: straddlesData.straddlesContract.address,
+        accountAddress: straddlesContract.address,
       });
 
-      const results = await straddlesData.straddlesContract
-        .connect(signer)
-        .callStatic.purchase(amount, 1, accountAddress, swap['tx']['data']);
+      const results = await straddlesContract.callStatic.purchase(
+        getContractReadableAmount(amount * 2, 18),
+        0,
+        accountAddress,
+        swap['tx']['data']
+      );
 
       const protocolFee = results[1];
       const straddleCost = results[2];
@@ -242,12 +253,11 @@ const PurchaseCard = () => {
 
         const amountOfUsdToSwap = currentPrice
           .mul(amount)
-          .div(2)
-          .div(BigNumber.from('100000000000000000000'));
+          .div(BigNumber.from('100'));
 
         const swap = await get1inchSwap({
-          usd: straddlesData.usd,
-          underlying: straddlesData.underlying,
+          fromTokenAddress: straddlesData.usd,
+          toTokenAddress: straddlesData.underlying,
           amount: amountOfUsdToSwap,
           chainId: 137,
           accountAddress: straddlesData.straddlesContract.address,
@@ -257,17 +267,23 @@ const PurchaseCard = () => {
           `https://gasstation-mainnet.matic.network/v2`
         );
 
+        const maxFeePerGas = ethers.utils.parseUnits(
+          data['fast']['maxFee'].toFixed(9),
+          9
+        );
+
         const maxPriorityFeePerGas = ethers.utils.parseUnits(
-          String(data['fast']['maxPriorityFee']),
+          data['fast']['maxPriorityFee'].toFixed(9),
           9
         );
 
         await sendTx(straddlesContract, 'purchase', [
-          amount,
+          getContractReadableAmount(amount * 2, 18),
           swap['toTokenAmount'],
           accountAddress,
           swap['tx']['data'],
           {
+            maxFeePerGas,
             maxPriorityFeePerGas,
           },
         ]);
