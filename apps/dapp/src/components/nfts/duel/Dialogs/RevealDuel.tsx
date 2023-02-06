@@ -1,20 +1,18 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { useBoundStore } from 'store';
-
-import styles from './styles.module.scss';
-import { ethers } from 'ethers';
 
 export interface Props {
   open: boolean;
@@ -496,27 +494,23 @@ const RevealDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
-              <CustomButton
-                size="medium"
-                className={styles['pepeButton']!}
-                onClick={() => setMoves([])}
-              >
-                <Typography variant="h5" className={styles['pepeButtonText']!}>
-                  RESET
-                </Typography>
-              </CustomButton>
+              <PepeButton
+                action={() => setMoves([])}
+                text={'RESET'}
+                className={''}
+                variant={'h5'}
+                disabled={false}
+              />
             </Box>
 
             <Box className="w-1/2 ml-2 mr-4">
-              <CustomButton
-                size="medium"
-                className={styles['pepeButton']!}
-                onClick={saveMoves}
-              >
-                <Typography variant="h5" className={styles['pepeButtonText']!}>
-                  SAVE
-                </Typography>
-              </CustomButton>
+              <PepeButton
+                action={saveMoves}
+                text={'SAVE'}
+                className={''}
+                variant={'h5'}
+                disabled={false}
+              />
             </Box>
           </Box>
         </Box>
@@ -620,17 +614,13 @@ const RevealDuel = ({ open, handleClose }: Props) => {
                 </span>
               </Typography>
             </Box>
-            <CustomButton
-              size="medium"
-              className={styles['pepeButton']!}
-              color={canReveal ? 'primary' : 'mineshaft'}
+            <PepeButton
+              action={handleReveal}
+              text={'REVEAL'}
+              className={''}
+              variant={'h5'}
               disabled={!canReveal}
-              onClick={handleReveal}
-            >
-              <Typography variant="h5" className={styles['pepeButtonText']!}>
-                REVEAL
-              </Typography>
-            </CustomButton>
+            />
           </Box>
         </Box>
       )}

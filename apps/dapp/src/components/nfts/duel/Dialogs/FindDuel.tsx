@@ -8,9 +8,9 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
@@ -22,8 +22,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { MAX_VALUE } from 'constants/index';
 
 import { useBoundStore } from 'store';
-
-import styles from './styles.module.scss';
 
 export interface Props {
   open: boolean;
@@ -366,7 +364,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
             />
           </Box>
           <Box className="h-[40rem] overflow-hidden mt-2">
-            <Box className={styles['darkBg']!}>
+            <Box>
               <Box className="absolute left-[20%] top-[40%] z-50 text-center">
                 <Typography
                   variant="h5"
@@ -681,27 +679,23 @@ const FindDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
-              <CustomButton
-                size="medium"
-                className={styles['pepeButton']!}
-                onClick={() => setMoves([])}
-              >
-                <Typography variant="h5" className={styles['pepeButtonText']!}>
-                  RESET
-                </Typography>
-              </CustomButton>
+              <PepeButton
+                action={() => setMoves([])}
+                text={'RESET'}
+                className={''}
+                variant={'h5'}
+                disabled={false}
+              />
             </Box>
 
             <Box className="w-1/2 ml-2 mr-4">
-              <CustomButton
-                size="medium"
-                className={styles['pepeButton']!}
-                onClick={saveMoves}
-              >
-                <Typography variant="h5" className={styles['pepeButtonText']!}>
-                  SAVE
-                </Typography>
-              </CustomButton>
+              <PepeButton
+                action={saveMoves}
+                text={'SAVE'}
+                className={''}
+                variant={'h5'}
+                disabled={false}
+              />
             </Box>
           </Box>
         </Box>
@@ -854,17 +848,14 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 </span>
               </Typography>
             </Box>
-            <CustomButton
-              size="medium"
-              className={styles['pepeButton']!}
-              color={canCreate ? 'primary' : 'mineshaft'}
+
+            <PepeButton
+              action={handleMatch}
+              text={!sufficientBalance ? 'Insufficient balance' : 'DUEL'}
+              className={''}
+              variant={'h5'}
               disabled={!canCreate}
-              onClick={handleMatch}
-            >
-              <Typography variant="h5" className={styles['pepeButtonText']!}>
-                {!sufficientBalance ? 'Insufficient balance' : 'DUEL'}
-              </Typography>
-            </CustomButton>
+            />
           </Box>
         </Box>
       )}

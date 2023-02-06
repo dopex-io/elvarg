@@ -9,9 +9,9 @@ import Select from '@mui/material/Select';
 import IconButton from '@mui/material/IconButton';
 import Checkbox from '@mui/material/Checkbox';
 
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import TokenSelector from 'components/common/TokenSelector';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
@@ -27,8 +27,6 @@ import { getRandomString } from 'utils/general/getRandomString';
 import { useBoundStore } from 'store';
 
 import { MAX_VALUE } from 'constants/index';
-
-import styles from './styles.module.scss';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -746,27 +744,23 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
-              <CustomButton
-                size="medium"
-                className={styles['pepeButton']!}
-                onClick={() => setMoves([])}
-              >
-                <Typography variant="h5" className={styles['pepeButtonText']!}>
-                  RESET
-                </Typography>
-              </CustomButton>
+              <PepeButton
+                action={() => setMoves([])}
+                text={'RESET'}
+                className={''}
+                variant={'h5'}
+                disabled={false}
+              />
             </Box>
 
             <Box className="w-1/2 ml-2 mr-4">
-              <CustomButton
-                size="medium"
-                className={styles['pepeButton']!}
-                onClick={saveMoves}
-              >
-                <Typography variant="h5" className={styles['pepeButtonText']!}>
-                  SAVE
-                </Typography>
-              </CustomButton>
+              <PepeButton
+                action={saveMoves}
+                text={'SAVE'}
+                className={''}
+                variant={'h5'}
+                disabled={false}
+              />
             </Box>
           </Box>
         </Box>
@@ -933,17 +927,14 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 </span>
               </Typography>
             </Box>
-            <CustomButton
-              size="medium"
-              className={styles['pepeButton']!}
-              color={canCreate ? 'primary' : 'mineshaft'}
+
+            <PepeButton
+              action={handleCreate}
+              text={'Create'}
+              className={''}
+              variant={'h5'}
               disabled={!canCreate}
-              onClick={handleCreate}
-            >
-              <Typography variant="h5" className={styles['pepeButtonText']!}>
-                CREATE
-              </Typography>
-            </CustomButton>
+            />
           </Box>
         </Box>
       )}

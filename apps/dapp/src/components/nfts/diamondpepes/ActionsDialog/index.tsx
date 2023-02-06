@@ -21,7 +21,6 @@ import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { useBoundStore } from 'store';
 
-import styles from './styles.module.scss';
 import cx from 'classnames';
 
 export interface Props {
@@ -40,10 +39,10 @@ const Hero = ({
   letter: string;
 }) => {
   const heroColorToClass = useMemo(() => {
-    if (heroColor === 'blue') return styles['blueBackground'];
-    if (heroColor === 'orange') return styles['orangeBackground'];
-    if (heroColor === 'diamond') return styles['diamondBackground'];
-    return styles['goldBackground'];
+    if (heroColor === 'blue') return 'bg-[#43609a]';
+    if (heroColor === 'orange') return 'bg-[#db814a]';
+    if (heroColor === 'diamond') return 'bg-[#9cecfd]';
+    return 'bg-[#ffad14]';
   }, [heroColor]);
 
   return active ? (
