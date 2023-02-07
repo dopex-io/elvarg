@@ -16,7 +16,6 @@ import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
-import OneinchSwapDetails from 'components/common/OneinchSwapDetails';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -24,10 +23,12 @@ import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { getTokenDecimals } from 'utils/general';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
+
+import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
+import { getTokenDecimals } from 'utils/general';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -53,11 +54,12 @@ const DepositPanel = () => {
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
+    contractAddresses,
   } = useBoundStore();
 
   const [wrapOpen, setWrapOpen] = useState(false);
-
   const sendTx = useSendTx();
+  const [quote, setQuote] = useState(defaultQuoteData);
 
   const [strikeDepositAmount, setStrikeDepositAmount] = useState<
     number | string
@@ -65,11 +67,6 @@ const DepositPanel = () => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-
-  const [depositAmount, setDepositAmount] = useState({
-    userReadable: 0,
-    contractReadable: BigNumber.from(0),
-  });
 
   const [fromTokenSymbol, setFromTokenSymbol] = useState('DPX');
   const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
@@ -96,16 +93,8 @@ const DepositPanel = () => {
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
       setStrikeDepositAmount(e.target.value);
-      setDepositAmount({
-        userReadable: e.target.value as number,
-        contractReadable: getContractReadableAmount(
-          e.target.value as number,
-          getTokenDecimals(fromTokenSymbol, chainId)
-        ),
-      });
     },
-
-    [chainId, fromTokenSymbol]
+    []
   );
 
   const hasExpiryElapsed = useMemo(() => {
@@ -192,6 +181,46 @@ const DepositPanel = () => {
     })();
   }, [accountAddress, signer, ssovData]);
 
+  const updateQuote = useCallback(async () => {
+    if (!contractAddresses || !ssovData || !ssovData?.collateralSymbol) return;
+
+    const fromTokenAddress = contractAddresses[fromTokenSymbol];
+    const toTokenAddress = contractAddresses[ssovData.collateralSymbol];
+
+    if (
+      !chainId ||
+      !accountAddress ||
+      !strikeDepositAmount ||
+      fromTokenAddress === toTokenAddress
+    )
+      return;
+
+    setQuote(
+      await get1inchQuote(
+        fromTokenAddress,
+        toTokenAddress,
+        getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ).toString(),
+        chainId,
+        accountAddress,
+        '3'
+      )
+    );
+  }, [
+    accountAddress,
+    strikeDepositAmount,
+    chainId,
+    contractAddresses,
+    fromTokenSymbol,
+    ssovData,
+  ]);
+
+  useEffect(() => {
+    updateQuote();
+  }, [updateQuote]);
+
   const collateralCTA = useMemo(() => {
     if (ssovData?.isPut) {
       return (
@@ -238,7 +267,7 @@ const DepositPanel = () => {
   }, [ssovData]);
 
   return (
-    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[400px] border h-full">
+    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[400px] h-full">
       <Box className="flex mb-3">
         <Typography variant="h3" className="text-stieglitz">
           Deposit
@@ -257,14 +286,6 @@ const DepositPanel = () => {
           overrides={{ setTokenSelectorOpen }}
         />
       </Box>
-      {fromTokenSymbol !== ssovData?.collateralSymbol && (
-        <OneinchSwapDetails
-          fromTokenSymbol={fromTokenSymbol}
-          amount={strikeDepositAmount.toString()}
-          toTokenSymbol={ssovData?.collateralSymbol ?? ''}
-          setAmount={setDepositAmount}
-        />
-      )}
       {!isTokenSelectorOpen && (
         <Box>
           <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
@@ -333,6 +354,31 @@ const DepositPanel = () => {
                   </Typography>
                 </Box>
               </Box>
+              {fromTokenSymbol !== ssovData?.collateralSymbol && (
+                <Box className={'flex mb-1'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    Deposit amount
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {formatAmount(
+                        getUserReadableAmount(
+                          quote.toTokenAmount,
+                          quote.toToken.decimals
+                        ),
+                        3
+                      )}{' '}
+                      {quote.toToken.symbol}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
             </Box>
           </Box>
           <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
