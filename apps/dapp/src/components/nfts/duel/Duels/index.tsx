@@ -12,6 +12,7 @@ import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 
 import { PepeButton } from 'components/nfts/components/PepeButton';
+import PepeSimpleText from 'components/nfts/components/PepeSimpleText';
 import Typography from 'components/UI/Typography';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
@@ -104,7 +105,6 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                   const isAvailable =
                     duel['challengerAddress'] === '?' &&
                     duel['status'] !== 'requireUndo';
-
                   return (
                     <TableRow
                       key={i}
@@ -137,11 +137,11 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                         </Box>
                       </TableCell>
                       <TableCell align="left" className="pt-2">
-                        <Typography variant="h5" className="font-['Minecraft']">
-                          {displayAddress(duel['challengerAddress'])}
-                        </Typography>
+                        <PepeSimpleText
+                          variant="h5"
+                          text={displayAddress(duel['challengerAddress'])}
+                        />
                       </TableCell>
-
                       <TableCell align="left" className="pt-2">
                         <Typography variant="h5" className="font-['Minecraft']">
                           <Countdown
@@ -164,24 +164,20 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                           />
                         </Typography>
                       </TableCell>
-
                       <TableCell align="left" className="px-6 pt-2">
-                        <Typography variant="h5" className="font-['Minecraft']">
-                          #{duel['id']}
-                        </Typography>
+                        <PepeSimpleText variant="h5" text={'#' + duel['id']} />
                       </TableCell>
-
                       <TableCell align="left" className="px-6 pt-2">
-                        <Typography variant="h5" className="font-['Minecraft']">
-                          {duel['wager']} {duel['tokenName']}
-                        </Typography>
+                        <PepeSimpleText
+                          variant="h5"
+                          text={duel['wager'] + ' ' + duel['tokenName']}
+                        />
                         <Typography variant="h6" className="font-['Minecraft']">
                           <span className="text-stieglitz">
                             ~${formatAmount(duel['wagerValueInUSD'], 2)}
                           </span>
                         </Typography>
                       </TableCell>
-
                       <TableCell align="left" className="px-6 pt-2">
                         <PepeButton
                           variant={'h3'}

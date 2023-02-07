@@ -9,9 +9,12 @@ import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { PepeButton } from 'components/nfts/components/PepeButton';
+import Moves from 'components/nfts/duel/Moves';
+import Details from 'components/nfts/duel/Details';
+import Instructions from 'components/nfts/duel/Instructions';
+import DuelExpiry from 'components/nfts/duel/DuelExpiry';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
@@ -32,7 +35,6 @@ const feesPercentage = 80;
 
 const FindDuel = ({ open, handleClose }: Props) => {
   const {
-    chainId,
     signer,
     contractAddresses,
     accountAddress,
@@ -44,7 +46,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
 
   const [isSelectingNfts, setIsSelectingNfts] = useState<boolean>(false);
   const [isSelectingMoves, setIsSelectingMoves] = useState<boolean>(false);
-  const [activeInfoSlide, setActiveInfoSlide] = useState<number>(0);
   const [moves, setMoves] = useState<string[]>([]);
   const [isSearchModeActive, setIsSearchModeActive] = useState<boolean>(false);
   const [payWithETH, setPayWithETH] = useState<boolean>(false);
@@ -219,77 +220,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
     return true;
   }, [moves, sufficientBalance, atLeastOneBlock]);
 
-  const Moves = useCallback(() => {
-    return (
-      <Box className="flex">
-        {moves.map((move, i) => (
-          <Box className="flex" key={i}>
-            <Box className="mr-3">
-              <Box className="bg-[#343C4D] flex h-10 w-10 rounded-md">
-                <img
-                  src={`/images/nfts/pepes/${move}.png`}
-                  className="my-auto mx-auto"
-                  alt="Move"
-                />
-              </Box>
-
-              {move === 'kick' ? (
-                <Box className="mt-1 text-center">
-                  <Typography variant="h6" className="mt-1 text-[10px]">
-                    <span className="text-amber-600">*</span>
-                  </Typography>
-                  <Typography variant="h6" className="text-[10px]">
-                    <span className="text-white font-['Minecraft']">2</span>
-                  </Typography>
-                </Box>
-              ) : null}
-
-              {move === 'block' ? (
-                <Box className="mt-1 text-center">
-                  <Typography variant="h6" className="mt-1 text-[10px]">
-                    <span className="text-emerald-400">*</span>
-                  </Typography>
-                  <Typography variant="h6" className="text-[10px]">
-                    <span className="text-white font-['Minecraft']">3</span>
-                  </Typography>
-                </Box>
-              ) : null}
-
-              {move === 'punch' ? (
-                <Box className="mt-1 text-center">
-                  <Typography variant="h6" className="mt-1 text-[10px]">
-                    <span className="text-emerald-400">*</span>
-                  </Typography>
-                  <Typography variant="h6" className="text-[10px]">
-                    <span className="text-white font-['Minecraft']">1</span>
-                  </Typography>
-                </Box>
-              ) : null}
-
-              {move === 'special' ? (
-                <Box className="mt-1 text-center">
-                  <Typography variant="h6" className="mt-1 text-[10px]">
-                    <span className="text-amber-600">*</span>
-                  </Typography>
-                  <Typography variant="h6" className="text-[10px]">
-                    <span className="text-white font-['Minecraft']">3</span>
-                  </Typography>
-                </Box>
-              ) : null}
-            </Box>
-            {i !== 4 ? (
-              <img
-                src="/images/misc/arrow-right-black.svg"
-                className="w-2.5 h-3 mt-3 mr-3"
-                alt="Arrow right"
-              />
-            ) : null}
-          </Box>
-        ))}
-      </Box>
-    );
-  }, [moves]);
-
   // Updates the approved and user balance state
   useEffect(() => {
     (async function () {
@@ -340,7 +270,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               <BigCrossIcon className="" />
             </IconButton>
           </Box>
-
           <Box className="flex flex-row items-center mb-24 mt-2"></Box>
         </Box>
       ) : isSelectingNfts ? (
@@ -378,7 +307,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
                   className="mr-auto ml-auto mt-0.5 text-[#9CECFD]"
                 />
               </Box>
-
               {[...Array(8)].map((i) => {
                 return (
                   <Box className="flex lg:grid lg:grid-cols-12 mb-3" key={i}>
@@ -436,7 +364,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               alt="Select moves"
             />
           </Box>
-
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-4 px-3 py-3">
             <Box className="flex">
               <img
@@ -449,7 +376,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Typography>
             </Box>
             <Box className="flex mt-5 mb-1 ml-2">
-              <Moves />
+              <Moves moves={moves} />
               {[...Array(5 - moves.length)].map((i) => (
                 <Box className="flex" key={i}>
                   <Box className="mr-3">
@@ -474,101 +401,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
               ))}
             </Box>
           </Box>
-
-          {activeInfoSlide === 0 ? (
-            <Box className="bg-[#232935] rounded-md flex flex-col mb-4 px-3 py-3 text-center text-white font-['Minecraft']">
-              <Typography variant="h6" className="mt-1">
-                <span className="text-[#78859E]">How-To-Play</span>
-              </Typography>
-              <Typography variant="h6" className="mt-1.5 px-2">
-                There are four possible moves with three types of attributes:{' '}
-                <span className="text-amber-600">Damage</span>,{' '}
-                <span className="text-emerald-400">Guaranteed Damage</span> and{' '}
-                <span className="text-cyan-500">Defence</span>
-              </Typography>
-            </Box>
-          ) : null}
-          {activeInfoSlide === 1 ? (
-            <Box className="bg-[#232935] rounded-md flex flex-col mb-4 px-3 py-3 text-center text-white font-['Minecraft']">
-              <Typography variant="h6" className="mt-1">
-                <span className="text-[#78859E]">Moves & Attributes</span>
-              </Typography>
-              <Box className="flex mt-3">
-                <Typography
-                  variant="h6"
-                  className="mt-1.5 px-2 ml-auto mr-auto"
-                >
-                  Punch: <span className="text-amber-600">0</span>{' '}
-                  <span className="text-emerald-400">1</span>{' '}
-                  <span className="text-stieglitz">0</span>
-                </Typography>
-
-                <Typography
-                  variant="h6"
-                  className="mt-1.5 px-2 ml-auto mr-auto"
-                >
-                  Kick: <span className="text-amber-600">2</span>{' '}
-                  <span className="text-stieglitz">0</span>{' '}
-                  <span className="text-stieglitz">0</span>
-                </Typography>
-              </Box>
-
-              <Box className="flex mt-2 mb-1.5">
-                <Typography
-                  variant="h6"
-                  className="mt-1.5 px-2 ml-auto mr-auto"
-                >
-                  Block: <span className="text-stieglitz">0</span>{' '}
-                  <span className="text-stieglitz">0</span>{' '}
-                  <span className="text-cyan-500">3</span>
-                </Typography>
-
-                <Typography
-                  variant="h6"
-                  className="mt-1.5 px-2 ml-auto mr-auto"
-                >
-                  Special: <span className="text-amber-600">3</span>{' '}
-                  <span className="text-stieglitz">0</span>{' '}
-                  <span className="text-stieglitz">0</span>
-                </Typography>
-              </Box>
-            </Box>
-          ) : null}
-          {activeInfoSlide === 2 ? (
-            <Box className="bg-[#232935] rounded-md flex flex-col mb-4 px-3 py-3 text-center text-white font-['Minecraft']">
-              <Typography variant="h6" className="mt-1">
-                <span className="text-[#78859E]">How-To-Play</span>
-              </Typography>
-              <Typography variant="h6" className="mt-1.5 px-2">
-                There are four possible moves with three types of attributes:{' '}
-                <span className="text-amber-600">Damage</span>,{' '}
-                <span className="text-emerald-400">Guaranteed Damage</span> and{' '}
-                <span className="text-cyan-500">Defence</span>
-              </Typography>
-            </Box>
-          ) : null}
-
-          <Box className="flex mb-8">
-            <Box
-              className={`w-2 h-2 ${
-                activeInfoSlide === 0 ? 'bg-white' : ''
-              } border-[#43609A] border-[0.1px] rounded-full ml-auto mr-0 cursor-pointer`}
-              onClick={() => setActiveInfoSlide(0)}
-            />
-            <Box
-              className={`w-2 h-2 ${
-                activeInfoSlide === 1 ? 'bg-white' : ''
-              } border-[#43609A] border-[0.1px] rounded-full ml-2 mr-2 cursor-pointer`}
-              onClick={() => setActiveInfoSlide(1)}
-            />
-            <Box
-              className={`w-2 h-2 ${
-                activeInfoSlide === 2 ? 'bg-white' : ''
-              } border-[#43609A] border-[0.1px] rounded-full ml-0 mr-auto cursor-pointer`}
-              onClick={() => setActiveInfoSlide(2)}
-            />
-          </Box>
-
+          <Instructions />
           <Box className="flex">
             <Box className="ml-auto w-1/2 flex">
               <Tooltip title="Kick">
@@ -594,7 +427,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Tooltip>
             </Box>
           </Box>
-
           <Box className="flex mt-0.5">
             <Box className="ml-auto w-1/2 flex">
               <Tooltip title="Block">
@@ -639,7 +471,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Tooltip>
             </Box>
           </Box>
-
           <Box className="flex">
             <Tooltip title="Punch">
               <Box
@@ -665,7 +496,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Box>
             </Tooltip>
           </Box>
-
           {moves.length > 0 && !atLeastOneBlock ? (
             <Box className="flex mt-8 ml-4 mr-4">
               <Typography
@@ -676,7 +506,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Typography>
             </Box>
           ) : null}
-
           <Box className="flex mt-5">
             <Box className="w-1/2 mr-2 ml-4">
               <PepeButton
@@ -687,7 +516,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
                 disabled={false}
               />
             </Box>
-
             <Box className="w-1/2 ml-2 mr-4">
               <PepeButton
                 action={saveMoves}
@@ -723,7 +551,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               <BigCrossIcon className="" />
             </IconButton>
           </Box>
-
           <Box className="bg-[#232935] rounded-2xl flex flex-col mb-1 p-1 pr-2">
             <Box className="flex flex-row justify-between mb-1.5">
               <Box className="flex">
@@ -763,7 +590,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
               </Typography>
             </Box>
           </Box>
-
           <Box className="bg-[#232935] rounded-2xl flex flex-col mt-4 mb-4 px-3 py-3">
             <Box className="flex">
               <img
@@ -786,7 +612,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
             </Box>
             <Box className="flex mt-3 mb-1">
               {moves.length === 5 ? (
-                <Moves />
+                <Moves moves={moves} />
               ) : (
                 <Box
                   className="py-6 bg-[#343C4D] flex rounded-md w-full cursor-pointer"
@@ -801,54 +627,17 @@ const FindDuel = ({ open, handleClose }: Props) => {
               )}
             </Box>
           </Box>
-
           <Box className="rounded-xl p-4 pb-1.5 border border-[#232935] bg-[#232935] w-full mt-0.5">
-            <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-[#343C4D] w-full bg-[#343C4D]">
-              <EstimatedGasCostButton gas={500000} chainId={chainId} />
-              <Box className={'flex mt-3'}>
-                <Typography
-                  variant="h6"
-                  className="text-[#78859E] ml-0 mr-auto"
-                >
-                  Max Payout
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {maxPayout} {selectedDuel['tokenName']}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box className={'flex mt-3'}>
-                <Typography
-                  variant="h6"
-                  className="text-[#78859E] ml-0 mr-auto"
-                >
-                  Fees
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {fees}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            <Box className="flex mb-1.5">
-              <Box className="flex text-center p-2 mr-2 mt-1">
-                <img
-                  src="/images/misc/clock.svg"
-                  className="w-7 h-5 mt-1"
-                  alt="Clock"
-                />
-              </Box>
-              <Typography variant="h6" className="mt-1">
-                <span className="text-[#78859E]">
-                  You will automatically win if your opponent does not reveal
-                  his moves in 24 hours
-                </span>
-              </Typography>
-            </Box>
-
+            <Details
+              maxPayout={maxPayout}
+              payoutTokenName={selectedDuel['tokenName']}
+              fees={fees}
+            />
+            <DuelExpiry
+              text={
+                'You will automatically win if your opponent does not reveal his moves in 24 hours'
+              }
+            />
             <PepeButton
               action={handleMatch}
               text={!sufficientBalance ? 'Insufficient balance' : 'DUEL'}

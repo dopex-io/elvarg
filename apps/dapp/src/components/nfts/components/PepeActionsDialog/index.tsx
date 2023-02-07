@@ -101,7 +101,7 @@ const quotes = [
   },
 ];
 
-const ActionsDialog = ({ open, handleClose }: Props) => {
+const PepeActionsDialog = ({ open, handleClose }: Props) => {
   const sendTx = useSendTx();
   const { chainId, pepesData, mintContract, signer, accountAddress } =
     useBoundStore();
@@ -308,4 +308,4 @@ const ActionsDialog = ({ open, handleClose }: Props) => {
   );
 };
 
-export default ActionsDialog;
+export default PepeActionsDialog;

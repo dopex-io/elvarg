@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 
-import ActionsDialog from 'components/nfts/diamondpepes/ActionsDialog';
+import PepeActionsDialog from 'components/nfts/components/PepeActionsDialog';
 import {
   BackgroundBox,
   MobileBackgroundOverlay,
@@ -76,7 +76,7 @@ const DiamondPepesNfts = () => {
       <Head>
         <title>Diamond Pepes NFTs | Dopex</title>
       </Head>
-      <ActionsDialog
+      <PepeActionsDialog
         open={actionsDialogDisplayState.visible}
         tab={actionsDialogDisplayState.tab}
         handleClose={() => {
