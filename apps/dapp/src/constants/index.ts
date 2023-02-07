@@ -142,6 +142,11 @@ export const SSOV_MAP: {
     imageSrc: '/images/tokens/wsteth.svg',
     tokens: ['wstETH'],
   },
+  MATIC: {
+    tokenSymbol: 'MATIC',
+    imageSrc: '/images/tokens/matic.svg',
+    tokens: ['MATIC'],
+  },
 };
 
 export const ATLANTIC_STATS_MAPPING: { [key: string]: string } = {
@@ -307,10 +312,11 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   43114: { name: 'Avalanche', icon: '/images/tokens/avax.svg' },
   1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
   1337: { name: 'Localhost', icon: '/images/tokens/eth.svg' },
+  137: { name: 'Polygon', icon: '/images/tokens/matic.svg' },
 };
 
 export const TOKEN_DECIMALS: {
-  [key: string | number]: { [key: string]: number };
+  [key: string]: { [key: string]: number };
 } = {
   '56': {
     BNB: 18,
@@ -372,6 +378,7 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   1088: 'https://andromeda.metis.io/?owner=1088',
   1337: 'http://127.0.0.1:8545',
+  137: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
 };
 
 export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
@@ -382,12 +389,13 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   43114: 'https://snowtrace.io/',
   1088: 'https://andromeda-explorer.metis.io/',
   421611: 'https://testnet.arbiscan.io/',
+  137: 'https://polygonscan.com/',
 };
 
 export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   [key: string]: { default: number; all: number[] };
 } = {
-  '/': { default: 42161, all: [1, 42161, 43114, 56] },
+  '/': { default: 42161, all: [1, 42161, 43114, 56, 137] },
   '/governance/vedpx': { default: 42161, all: [42161] },
   '/farms': { default: 42161, all: [1, 42161] },
   '/ssov': { default: 42161, all: [42161, 56, 43114, 1088] },
@@ -403,14 +411,16 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/ir/MIM3CRV-2': { default: 42161, all: [42161] },
   '/ir/PUSD3CRV': { default: 42161, all: [42161] },
   '/ir': { default: 42161, all: [42161] },
-  '/straddles': { default: 42161, all: [42161] },
+  '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/ETH': { default: 42161, all: [42161] },
   '/straddles/RDPX': { default: 42161, all: [42161] },
+  '/straddles/DPX': { default: 42161, all: [42161] },
+  '/straddles/MATIC': { default: 137, all: [137] },
   '/dpx-bonds': { default: 42161, all: [42161] },
   '/faucet': { default: 5, all: [5] },
   '/olp': { default: 5, all: [5, 42161] },
   '/olp/DPX': { default: 5, all: [5, 42161] },
-  '/atlantics': { default: 42161, all: [1337, 42161] },
+  '/atlantics': { default: 42161, all: [42161] },
 };
 
 export const DISCLAIMER_MESSAGE = {

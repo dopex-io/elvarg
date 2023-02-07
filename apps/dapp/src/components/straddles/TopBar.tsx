@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { BigNumber } from 'ethers';
+// import { useMemo } from 'react';
+// import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -7,18 +7,17 @@ import Typography from 'components/UI/Typography';
 import { useBoundStore } from 'store';
 
 const TopBar = () => {
-  const { tokenPrices, selectedPoolName, straddlesEpochData, isLoading } =
-    useBoundStore();
+  const { tokenPrices, selectedPoolName } = useBoundStore();
 
   const tokenPrice =
     tokenPrices.find((token) => token.name === selectedPoolName)?.price || 0;
 
-  const isEpochExpired = useMemo(() => {
-    if (!straddlesEpochData) return;
-    return straddlesEpochData?.expiry.lt(
-      BigNumber.from((new Date().getTime() / 1000).toFixed())
-    );
-  }, [straddlesEpochData]);
+  // const isEpochExpired = useMemo(() => {
+  //   if (!straddlesEpochData) return;
+  //   return straddlesEpochData?.expiry.lt(
+  //     BigNumber.from((new Date().getTime() / 1000).toFixed())
+  //   );
+  // }, [straddlesEpochData]);
 
   return (
     <Box className="flex justify-between">
@@ -51,13 +50,13 @@ const TopBar = () => {
           ${tokenPrice}
         </Typography>
       </Box>
-      {!isLoading && isEpochExpired ? (
+      {/* {!isLoading && isEpochExpired ? (
         <Box className="p-2 my-2 rounded-lg border border-down-bad border-opacity-30 bg-down-bad bg-opacity-10">
           <Typography variant="h6" color="down-bad">
             Expired
           </Typography>
         </Box>
-      ) : null}
+      ) : null} */}
     </Box>
   );
 };

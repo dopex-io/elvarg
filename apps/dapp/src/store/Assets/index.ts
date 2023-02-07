@@ -115,17 +115,20 @@ export const createAssetsSlice: StateCreator<
 
     // Include NFTs
     const NFTs = Addresses[chainId]['NFTS'];
-    Object.keys(NFTs).map((key: string) => {
-      assets.push(key);
-    });
-
-    Object.values(NFTs).map((address) => {
-      assetAddresses.push(address);
-    });
+    if (NFTs) {
+      Object.keys(NFTs).map((key: string) => {
+        assets.push(key);
+      });
+      Object.values(NFTs).map((address) => {
+        assetAddresses.push(address);
+      });
+    }
 
     // Include veDPX
-    assets.push('veDEPX');
-    assetAddresses.push(vedpxAddress);
+    if (chainId === 42161) {
+      assets.push('veDEPX');
+      assetAddresses.push(vedpxAddress);
+    }
 
     const balanceCalls = assetAddresses.map((assetAddress) =>
       ERC20__factory.connect(assetAddress, provider).balanceOf(

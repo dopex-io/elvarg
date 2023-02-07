@@ -102,6 +102,22 @@ const NETWORKS = {
       },
     ],
   },
+  137: {
+    chainId: '0x89',
+    params: [
+      {
+        chainId: '0x89',
+        chainName: 'Polygon',
+        nativeCurrency: {
+          name: 'Polygon MATIC',
+          symbol: 'MATIC',
+          decimals: 18,
+        },
+        rpcUrls: ['https://polygon-rpc.com'],
+        blockExplorerUrls: ['https://polygonscan.com/'],
+      },
+    ],
+  },
 };
 
 export default async function changeOrAddNetwork(chainId: number) {
