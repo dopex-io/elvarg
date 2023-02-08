@@ -1,8 +1,14 @@
-import React from "react";
+import React, { ReactNode, FC } from "react";
 import { Tab as HeadlessTab } from "@headlessui/react";
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
+}
+
+export interface TabHeaderProps {
+  children: ReactNode;
+  className?: string;
+  disabled?: boolean;
 }
 
 const SIZES: { [key: string]: string } = {
@@ -11,44 +17,47 @@ const SIZES: { [key: string]: string } = {
   large: "h-[3.625rem] w-[50.5rem]",
 };
 
-function Tabs({
-  categories,
-  size,
+export const TabHeader: FC<TabHeaderProps> = (props) => {
+  const { children, className = "", disabled = false, ...otherProps } = props;
+
+  return (
+    <HeadlessTab
+      disabled={disabled}
+      className={({ selected }) =>
+        classNames(
+          "w-full rounded-lg text-sm font-medium text-white",
+          "focus:outline-none",
+          otherProps,
+          selected
+            ? "bg-carbon shadow text-white"
+            : "text-stieglitz hover:bg-carbon/[0.12] hover:text-white"
+        )
+      }
+    >
+      {children}
+    </HeadlessTab>
+  );
+};
+
+export function Tabs({
+  children,
+  size = "medium",
 }: {
-  categories: { [head: string]: string };
-  size: string;
+  children: ReactNode;
+  size?: string;
 }) {
   return (
     <HeadlessTab.Group>
       <HeadlessTab.List
-        className={`flex space-x-1 rounded-lg bg-umbra border border-carbon p-1 ${SIZES[size]}`}
+        className={`flex mt-2 space-x-1 rounded-lg bg-umbra border border-carbon p-1 ${SIZES[size]}`}
       >
-        {Object.keys(categories).map((category) => (
-          <HeadlessTab
-            key={category}
-            className={({ selected }) =>
-              classNames(
-                "w-full rounded-lg text-sm font-medium text-white",
-                "focus:outline-none",
-                selected
-                  ? "bg-carbon shadow text-white"
-                  : "text-stieglitz hover:bg-carbon/[0.12] hover:text-white"
-              )
-            }
-          >
-            {category}
-          </HeadlessTab>
-        ))}
+        {children}
       </HeadlessTab.List>
-      <HeadlessTab.Panels className="mt-2">
-        {Object.values(categories).map((_, idx) => (
-          <HeadlessTab.Panel key={idx} className="rounded-xl bg-white p-3">
-            {size}
-          </HeadlessTab.Panel>
-        ))}
+      <HeadlessTab.Panels className={`my-2 ${SIZES[size]}`}>
+        <HeadlessTab.Panel className="rounded-lg bg-umbra text-white p-1">
+          {size}
+        </HeadlessTab.Panel>
       </HeadlessTab.Panels>
     </HeadlessTab.Group>
   );
 }
-
-export default Tabs;

@@ -1,7 +1,9 @@
 import React from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { ComponentMeta } from "@storybook/react";
 
-import Tabs from "../src/Tabs";
+import AlarmIcon from "../../../apps/dapp/src/svgs/icons/AlarmIcon";
+
+import { Tabs, TabHeader } from "../src/Tabs";
 
 export default {
   title: "Tabs",
@@ -12,7 +14,13 @@ const Template = (args) => {
   return (
     <div className="max-w-md px-2 py-16 sm:px-0">
       {args.array.map((size) => {
-        return <Tabs categories={args.categories} size={size} />;
+        return (
+          <Tabs size={size}>
+            <TabHeader>item one</TabHeader>
+            <TabHeader>item two</TabHeader>
+            <TabHeader>item three</TabHeader>
+          </Tabs>
+        );
       })}
     </div>
   );
@@ -20,10 +28,53 @@ const Template = (args) => {
 
 export const Sizes = Template.bind({});
 Sizes.args = {
-  categories: {
-    "item one head": "item one panel",
-    "item two head": "item two panel",
-    "item three head": "item three panel",
-  },
   array: ["large", "medium", "small"],
+};
+
+export const Disabled = () => {
+  return (
+    <div className="max-w-md px-2 py-16 sm:px-0">
+      <Tabs>
+        <TabHeader>item one</TabHeader>
+        <TabHeader disabled>item two</TabHeader>
+        <TabHeader>item three</TabHeader>
+      </Tabs>
+    </div>
+  );
+};
+
+export const Icons = () => {
+  return (
+    <div className="max-w-md px-2 py-16 sm:px-0">
+      <Tabs>
+        <TabHeader>
+          <div className="flex justify-around">
+            <AlarmIcon />
+          </div>
+        </TabHeader>
+        <TabHeader>
+          <div className="flex justify-around">
+            <AlarmIcon />
+          </div>
+        </TabHeader>
+        <TabHeader>
+          <div className="flex justify-around">
+            <AlarmIcon />
+          </div>
+        </TabHeader>
+      </Tabs>
+    </div>
+  );
+};
+
+export const Scrollable = () => {
+  return (
+    <div className="max-w-md px-2 py-16 sm:px-0">
+      <Tabs>
+        <TabHeader>item one</TabHeader>
+        <TabHeader disabled>item two</TabHeader>
+        <TabHeader>item three</TabHeader>
+      </Tabs>
+    </div>
+  );
 };
