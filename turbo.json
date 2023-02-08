@@ -1,11 +1,17 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
-    "dev": {},
-    "build": {
-      "outputs": [".next/**"]
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["generate", "@dopex-io/ui#build"]
     },
+    "build": {
+      "outputs": [".next/**"],
+      "dependsOn": ["generate", "^build"]
+    },
+    "storybook": { "cache": false, "persistent": true },
     "lint": {},
-    "generate": {}
+    "generate": { "outputs": ["src/graphql/generated"] }
   }
 }
