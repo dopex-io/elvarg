@@ -8,6 +8,7 @@ import WalletButton from 'components/common/WalletButton';
 import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
+import getSrcFromAssetName from 'utils/general/getSrcFromAssetName';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -54,7 +55,7 @@ export default function Balances() {
               <Box key={i} className={`flex my-5`}>
                 <img
                   alt={asset}
-                  src={`/images/tokens/${asset.toLowerCase()}.svg`}
+                  src={getSrcFromAssetName(asset)}
                   className="w-7 h-7 object-cover"
                 />
                 <Typography variant="h5" className="ml-3 mt-0.5">
