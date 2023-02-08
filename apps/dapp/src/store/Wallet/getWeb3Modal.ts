@@ -22,6 +22,9 @@ export const getWeb3Modal = () => {
           rpc: CHAIN_ID_TO_RPC,
         },
       },
+      bitkeep: {
+        package: true,
+      },
       ...((window as any).clover && {
         injected: {
           display: {
@@ -38,16 +41,6 @@ export const getWeb3Modal = () => {
             logo: '/wallets/Coin98.png',
             name: 'Coin98',
             description: 'Connect to your Coin98 Wallet',
-          },
-          package: null,
-        },
-      }),
-      ...(window.ethereum?.isBitKeep && {
-        injected: {
-          display: {
-            logo: '/wallets/Bitkeep.png',
-            name: 'Bitkeep',
-            description: 'Connect to your Bitkeep Wallet',
           },
           package: null,
         },
