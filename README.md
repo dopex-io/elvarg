@@ -53,13 +53,43 @@ Via turbo:
 turbo build
 ```
 
+`storybook` - Run the storybook in dev mode
+
+Via yarn:
+
+```
+yarn storybook
+```
+
+Via turbo:
+
+```
+turbo storybook
+```
+
 `generate` - Runs the graphql codegen in dapp
+
+Via yarn:
+
+```
+yarn generate
+```
+
+Via turbo:
 
 ```
 turbo generate
 ```
 
 `lint` - Runs linting
+
+Via yarn:
+
+```
+yarn lint
+```
+
+Via turbo:
 
 ```
 turbo lint

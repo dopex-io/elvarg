@@ -4,7 +4,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["generate"]
+      "dependsOn": ["generate", "@dopex-io/ui#build"]
     },
     "build": {
       "outputs": [".next/**"]
