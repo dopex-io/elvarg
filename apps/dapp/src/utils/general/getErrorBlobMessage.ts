@@ -1,9 +1,9 @@
-import { OLP_ERROS } from 'constants/errors';
+import { CONTRACT_ERRORS } from 'constants/errors';
 
 const START_OFFSET: number = 1;
 const END_OFFSET: number = 2;
 
-const errorParser = (message: string) => {
+const getErrorBlobMessage = (message: string) => {
   // check if it's BigNumber error
   if (message.includes('BigNumber')) {
     return 'Invalid input';
@@ -16,7 +16,7 @@ const errorParser = (message: string) => {
     message.substring(start - START_OFFSET, end - END_OFFSET)
   );
 
-  const reason = jsonError.message;
+  const reason = jsonError.data.data;
 
   let displayError: string = reason;
 
@@ -27,12 +27,11 @@ const errorParser = (message: string) => {
   }
 
   try {
-    const contractReason = jsonError.data.originalError.data;
-    displayError = OLP_ERROS[contractReason]!;
+    displayError = CONTRACT_ERRORS[reason.toString()] ?? jsonError.data.message;
   } catch (err) {
     console.log(err);
   }
   return displayError;
 };
 
-export default errorParser;
+export default getErrorBlobMessage;

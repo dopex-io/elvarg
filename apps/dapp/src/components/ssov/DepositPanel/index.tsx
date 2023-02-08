@@ -113,19 +113,21 @@ const DepositPanel = () => {
   const handleDeposit = useCallback(async () => {
     if (!ssovContractWithSigner || !accountAddress) return;
     try {
-      await ssovContractWithSigner.deposit(
+      await sendTx(ssovContractWithSigner, 'deposit', [
         strike,
         getContractReadableAmount(strikeDepositAmount, 18),
-        accountAddress
-      );
-      setStrikeDepositAmount(0);
-      updateAssetBalances();
-      updateSsovEpochData();
-      updateSsovUserData();
+        accountAddress,
+      ]).then(() => {
+        setStrikeDepositAmount(0);
+        updateAssetBalances();
+        updateSsovEpochData();
+        updateSsovUserData();
+      });
     } catch (err) {
       console.log(err);
     }
   }, [
+    sendTx,
     accountAddress,
     ssovContractWithSigner,
     strike,
