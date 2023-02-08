@@ -85,7 +85,7 @@ const PurchaseDialog = ({
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-  const [amoutOut, setAmountOut] = useState(BigNumber.from(0));
+  const [amountOut, setAmountOut] = useState(BigNumber.from(0));
 
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] = useState(true);
 
@@ -145,16 +145,13 @@ const PurchaseDialog = ({
       '3'
     );
 
-    const dpxRequired = state.totalCost
+    const fromTokenAmountRequired = state.totalCost
       .mul(
-        getContractReadableAmount(
-          1,
-          getTokenDecimals(ssovData.collateralSymbol, chainId)
-        )
+        getContractReadableAmount(1, getTokenDecimals(fromTokenSymbol, chainId))
       )
       .div(toTokenAmount);
 
-    setAmountOut(dpxRequired);
+    setAmountOut(fromTokenAmountRequired);
   }, [
     accountAddress,
     rawOptionsAmount,
@@ -758,7 +755,15 @@ const PurchaseDialog = ({
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(getUserReadableAmount(state.totalCost, 18), 5)}{' '}
+                  {formatAmount(
+                    getUserReadableAmount(
+                      fromTokenSymbol === ssovData.collateralSymbol
+                        ? state.totalCost
+                        : amountOut,
+                      getTokenDecimals(fromTokenSymbol, chainId)
+                    ),
+                    5
+                  )}{' '}
                   {fromTokenSymbol}
                 </Typography>
               </Box>

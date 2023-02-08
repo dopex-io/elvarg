@@ -59,13 +59,6 @@ const get1inchQuote = async (
   if (fromTokenAddress === toTokenAddress || amount === '' || amount === '0')
     return defaultQuoteData;
 
-  console.log(
-    chainId,
-    fromTokenAddress,
-    toTokenAddress,
-    amount,
-    accountAddress
-  );
   const { data } = await axios.get(
     `https://api.1inch.exchange/v5.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=${slippage}&disableEstimate=true`
   );
