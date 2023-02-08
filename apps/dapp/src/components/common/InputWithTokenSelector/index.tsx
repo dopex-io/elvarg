@@ -29,6 +29,8 @@ interface IInputWithTokenSelectorProps {
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   inputAmount: string | number;
+  topLeftTag?: string;
+  topRightTag?: string;
   overrides?: IOverrides;
 }
 
@@ -38,6 +40,8 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     handleInputAmountChange,
     setSelectedToken,
     selectedTokenSymbol,
+    topLeftTag,
+    topRightTag,
     overrides,
   } = props;
 
@@ -80,7 +84,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
   }, [overrides]);
 
   return (
-    <Box className="bg-umbra rounded-md py-[1rem]">
+    <Box className="bg-umbra rounded-md">
       <Input
         size="small"
         variant="default"
@@ -88,10 +92,26 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
         placeholder="0.0"
         value={inputAmount}
         onChange={handleInputAmountChange}
+        topElement={
+          <Box className="flex mb-2">
+            <Typography
+              variant="h6"
+              className="text-left flex-1 text-stieglitz"
+            >
+              {topLeftTag}
+            </Typography>
+            <Typography
+              variant="h6"
+              className="text-right flex-1 text-stieglitz"
+            >
+              {topRightTag}
+            </Typography>
+          </Box>
+        }
         leftElement={
           <Box className="flex my-auto w-full space-x-2">
             <Box
-              className="flex w-fit bg-cod-gray rounded-full space-x-2 px-4 py-2 border border-gray-800"
+              className="flex w-fit bg-cod-gray rounded-full space-x-2 py-2 border border-gray-800"
               role="button"
               onClick={handleTokenSelectorClick}
             >
@@ -106,6 +126,22 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             </Box>
           </Box>
         }
+        bottomElement={
+          <Box className="flex w-full mt-2">
+            <Typography
+              className=" text-left flex-1 text-stieglitz"
+              variant="h6"
+            >
+              Balance
+            </Typography>
+            <Typography
+              className=" text-right flex-1 text-stieglitz"
+              variant="h6"
+            >
+              {information?.selectedTokenBalance}
+            </Typography>
+          </Box>
+        }
       />
       {tokenSelectorOpen && (
         <TokenSelector
@@ -115,16 +151,6 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
           isInDialog={false}
           tokensToExclude={[]}
         />
-      )}
-      {!tokenSelectorOpen && (
-        <Box className="flex w-full mt-2 h-full p-1">
-          <Typography className="pl-[1.5rem] text-left flex-1" variant="h6">
-            Balance
-          </Typography>
-          <Typography className="pr-[1rem] text-right flex-1" variant="h6">
-            {information?.selectedTokenBalance}
-          </Typography>
-        </Box>
       )}
     </Box>
   );

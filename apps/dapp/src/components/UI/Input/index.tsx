@@ -5,6 +5,7 @@ import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 interface InputProps extends MuiInputProps {
   leftElement: ReactNode;
   bottomElement?: ReactNode;
+  topElement: ReactNode;
   variant?: string;
   outline?: 'mineshaft' | 'down-bad' | 'umbra';
   placeholder?: string;
@@ -33,6 +34,7 @@ const Input = (props: InputProps) => {
     variant = 'default',
     outline = 'umbra',
     placeholder = '',
+    topElement,
     ...rest
   } = props;
 
@@ -56,8 +58,9 @@ const Input = (props: InputProps) => {
 
   return (
     <Box
-      className={`${variants[variant]?.['box']} ${className} border border-${outline}`}
+      className={`${variants[variant]?.['box']} ${className} border border-${outline} flex-col`}
     >
+      <Box>{topElement}</Box>
       <Box className="flex justify-between items-center">
         {leftElement}
         <MuiInput
@@ -74,7 +77,7 @@ const Input = (props: InputProps) => {
           placeholder={placeholder}
         />
       </Box>
-      {bottomElement}
+      <Box>{bottomElement}</Box>
     </Box>
   );
 };

@@ -280,6 +280,8 @@ const DepositPanel = () => {
       </Box>
       <Box>
         <InputWithTokenSelector
+          topRightTag="Deposit Amount"
+          topLeftTag="Deposit With"
           selectedTokenSymbol={fromTokenSymbol}
           setSelectedToken={setFromTokenSymbol}
           handleMax={handleMax}

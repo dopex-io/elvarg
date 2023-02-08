@@ -464,6 +464,8 @@ const PurchaseDialog = ({
         <Box className="bg-umbra rounded-2xl flex flex-col mb-4  pr-2">
           <Box className="flex flex-row justify-between">
             <InputWithTokenSelector
+              topRightTag="Options Size"
+              topLeftTag="Pay With"
               selectedTokenSymbol={fromTokenSymbol}
               setSelectedToken={setFromTokenSymbol}
               inputAmount={rawOptionsAmount}
