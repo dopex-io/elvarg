@@ -456,9 +456,9 @@ const PurchaseCard = () => {
         <PnlChart
           optionPrice={totalCost}
           amount={amount}
-          price={BigNumber.from(straddlesEpochData?.currentPrice)
-            .div(1e8)
-            .toNumber()}
+          price={
+            BigNumber.from(straddlesEpochData?.currentPrice).toNumber() / 1e8
+          }
           symbol={selectedPoolName}
         />
       </Box>
