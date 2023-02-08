@@ -68,7 +68,10 @@ const DepositPanel = () => {
     BigNumber.from('0')
   );
 
-  const [fromTokenSymbol, setFromTokenSymbol] = useState('DPX');
+  const [fromTokenSymbol, setFromTokenSymbol] = useState(
+    ssovData?.collateralSymbol ?? ''
+  );
+
   const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
 
   const { ssovContractWithSigner } = ssovSigner;
@@ -280,7 +283,6 @@ const DepositPanel = () => {
           selectedTokenSymbol={fromTokenSymbol}
           setSelectedToken={setFromTokenSymbol}
           handleMax={handleMax}
-          setInputAmount={setStrikeDepositAmount}
           inputAmount={strikeDepositAmount}
           handleInputAmountChange={handleDepositAmount}
           overrides={{ setTokenSelectorOpen }}

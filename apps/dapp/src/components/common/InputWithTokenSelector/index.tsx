@@ -15,7 +15,7 @@ import TokenSelector from '../TokenSelector';
 
 import { useBoundStore } from 'store';
 import { getUserReadableAmount } from 'utils/contracts';
-import { getTokenDecimals } from 'utils/general';
+import { formatAmount, getTokenDecimals } from 'utils/general';
 
 interface IOverrides {
   setTokenSelectorOpen: Dispatch<React.SetStateAction<boolean>>;
@@ -30,7 +30,6 @@ interface IInputWithTokenSelectorProps {
   ) => void;
   inputAmount: string | number;
   overrides?: IOverrides;
-  setInputAmount: Dispatch<React.SetStateAction<string | number>>;
 }
 
 const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
@@ -59,12 +58,15 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
 
   const information = useMemo(() => {
     let defaultInfo = {
-      selectedTokenBalance: 0,
+      selectedTokenBalance: '0',
     };
     if (!chainId || !selectedTokenBalance) return;
-    defaultInfo.selectedTokenBalance = getUserReadableAmount(
-      selectedTokenBalance,
-      getTokenDecimals(selectedTokenSymbol, chainId)
+    defaultInfo.selectedTokenBalance = formatAmount(
+      getUserReadableAmount(
+        selectedTokenBalance,
+        getTokenDecimals(selectedTokenSymbol, chainId)
+      ),
+      5
     );
 
     return defaultInfo;
