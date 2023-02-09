@@ -1,14 +1,4 @@
 generates:
-  ./src/graphql/generated/otc.ts:
-    schema: https://api.thegraph.com/subgraphs/name/psytama/dopex-otc
-    plugins:
-      - typescript
-      - typescript-operations
-      - typescript-react-apollo
-    config:
-      withHooks: true
-      defaultScalarType: string
-    documents: 'src/graphql/otc/**/*.graphql'
   ./src/graphql/generated/portfolio.ts:
     schema: https://api.thegraph.com/subgraphs/name/psytama/dopex-ssov
     plugins:

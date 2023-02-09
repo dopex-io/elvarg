@@ -6,7 +6,8 @@ import BN from 'bignumber.js';
 import TransactionToast from 'components/UI/TransactionToast';
 
 import { useBoundStore } from 'store';
-import errorParser from './errorParser';
+
+import getErrorBlobMessage from 'utils/general/getErrorBlobMessage';
 
 const useSendTx = () => {
   const {
@@ -45,7 +46,6 @@ const useSendTx = () => {
       if (value) {
         transaction = contractWithSigner[method](...params, { value });
       }
-      console.log(transaction);
       try {
         const tx = await transaction;
         toast.loading(
@@ -85,8 +85,11 @@ const useSendTx = () => {
           toast.error(err.data.message, { id: toastId });
         } else {
           if (err.message.includes('user rejected transaction'))
-            toast('You rejected the transaction', { id: toastId, icon: '🤑' });
-          else toast.error(errorParser(err.message), { id: toastId });
+            toast.error('Transaction rejected', { id: toastId });
+          else
+            toast.error(getErrorBlobMessage(err.message), {
+              id: toastId,
+            });
         }
         throw Error(err);
       }

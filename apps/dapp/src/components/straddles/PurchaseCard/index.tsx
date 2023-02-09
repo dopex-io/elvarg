@@ -456,9 +456,9 @@ const PurchaseCard = () => {
         <PnlChart
           optionPrice={totalCost}
           amount={amount}
-          price={BigNumber.from(straddlesEpochData?.currentPrice)
-            .div(1e8)
-            .toNumber()}
+          price={
+            BigNumber.from(straddlesEpochData?.currentPrice).toNumber() / 1e8
+          }
           symbol={selectedPoolName}
         />
       </Box>
@@ -527,7 +527,7 @@ const PurchaseCard = () => {
             </Typography>
 
             <Typography variant="caption">
-              {SWAPPER_ID_TO_ROUTE[bestSwapperId]}
+              {chainId === 137 ? '1inch' : SWAPPER_ID_TO_ROUTE[bestSwapperId]}
             </Typography>
           </>
         )}
