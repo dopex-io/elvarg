@@ -39,7 +39,7 @@ Via turbo:
 turbo dev
 ```
 
-`build` - Builds the dapp and ui
+`build` - Builds the dapp
 
 Via yarn:
 
@@ -67,6 +67,20 @@ Via turbo:
 turbo storybook
 ```
 
+`lint` - Runs linting
+
+Via yarn:
+
+```
+yarn lint
+```
+
+Via turbo:
+
+```
+turbo lint
+```
+
 `generate` - Runs the graphql codegen in dapp
 
 Via yarn:
@@ -81,18 +95,32 @@ Via turbo:
 turbo generate
 ```
 
-`lint` - Runs linting
+`build-ui` - Builds the UI package
 
 Via yarn:
 
 ```
-yarn lint
+yarn build-ui
 ```
 
 Via turbo:
 
 ```
-turbo lint
+turbo build-ui
+```
+
+`build-storybook` - Builds the storybook
+
+Via yarn:
+
+```
+yarn build-storybook
+```
+
+Via turbo:
+
+```
+turbo build-storybook
 ```
 
 ### Installing dependencies into a workspace
