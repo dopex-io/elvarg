@@ -15,6 +15,9 @@
     "generate": { "outputs": ["src/graphql/generated/**"] },
     "build-ui": {
       "outputs": ["dist/**"]
+    },
+    "build-storybook": {
+      "outputs": ["storybook-static/**"]
     }
   }
 }
