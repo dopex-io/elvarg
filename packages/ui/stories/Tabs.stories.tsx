@@ -66,15 +66,3 @@ export const Icons = () => {
     </div>
   );
 };
-
-export const Scrollable = () => {
-  return (
-    <div className="max-w-md px-2 py-16 sm:px-0">
-      <Tabs>
-        <TabHeader>item one</TabHeader>
-        <TabHeader disabled>item two</TabHeader>
-        <TabHeader>item three</TabHeader>
-      </Tabs>
-    </div>
-  );
-};
