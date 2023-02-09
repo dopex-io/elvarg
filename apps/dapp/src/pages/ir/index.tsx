@@ -12,6 +12,8 @@ import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
 import RateVaultCard from 'components/ir/VaultCard';
 
+import { DOPEX_API_BASE_URL } from 'constants/env';
+
 const ssovStates: string[] = ['Active', 'Retired'];
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
@@ -92,7 +94,7 @@ const Vaults = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://api.dopex.io/api/v2/irVaults`)
+        .get(`${DOPEX_API_BASE_URL}/v2/irVaults`)
         .then((payload) => payload.data);
 
       setVaults(data);

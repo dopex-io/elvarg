@@ -12,7 +12,7 @@ import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
 
 import { useBoundStore } from 'store';
 
-import { GMX_STATS_API } from 'constants/env';
+import { GMX_STATS_API_URL } from 'constants/env';
 
 import { GmxCandleStick } from 'types';
 
@@ -70,7 +70,7 @@ export const Main = (props: TickerProps) => {
         if (done) return;
         try {
           const res = await fetch(
-            `${GMX_STATS_API}/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${period}&from=${
+            `${GMX_STATS_API_URL}/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${period}&from=${
               Math.ceil(Number(new Date()) / 1000) - 86400 * 100
             }&preferableSource=fast`
           );

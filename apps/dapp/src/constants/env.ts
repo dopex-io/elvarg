@@ -5,6 +5,6 @@ export const ANKR_KEY = process.env['NEXT_PUBLIC_ANKR_KEY'];
 export const DEFAULT_CHAIN_ID =
   Number(process.env['NEXT_PUBLIC_DEFAULT_CHAIN_ID']) ?? 42161;
 
-export const GOERLI_KEY = process.env['NEXT_PUBLIC_GOERLI_KEY'];
+export const DOPEX_API_BASE_URL = process.env['NEXT_PUBLIC_DOPEX_API_BASE_URL'];
 
-export const GMX_STATS_API = process.env['NEXT_PUBLIC_GMX_STATS_API_URL'];
+export const GMX_STATS_API_URL = process.env['NEXT_PUBLIC_GMX_STATS_API_URL'];
