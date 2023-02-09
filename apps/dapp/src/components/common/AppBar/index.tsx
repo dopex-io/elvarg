@@ -167,7 +167,6 @@ const appLinks = {
     // { name: 'faucet', to: '/faucet' },
     // { name: 'swap', to: '/swap' },
     // { name: 'SSOV', to: '/ssov' },
-    // { name: 'OTC', to: '/otc' },
     { name: 'Atlantics', to: '/atlantics' },
     { name: 'veDPX', to: '/governance/vedpx' },
   ],
@@ -267,7 +266,6 @@ interface AppBarProps {
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
-    | 'OTC'
     | 'DPX Bonds'
     | 'vaults'
     | 'Atlantics';

@@ -527,7 +527,7 @@ const PurchaseCard = () => {
             </Typography>
 
             <Typography variant="caption">
-              {SWAPPER_ID_TO_ROUTE[bestSwapperId]}
+              {chainId === 137 ? '1inch' : SWAPPER_ID_TO_ROUTE[bestSwapperId]}
             </Typography>
           </>
         )}
