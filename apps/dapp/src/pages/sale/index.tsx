@@ -4,7 +4,6 @@ import { TokenSale__factory } from '@dopex-io/sdk';
 import c from 'classnames';
 import Box from '@mui/material/Box';
 import { useFormik } from 'formik';
-import * as yup from 'yup';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
@@ -30,8 +29,6 @@ const TokenSale = () => {
     updateUserData,
     updateSaleData,
     weiDeposited,
-    saleStart,
-    saleWhitelistStart,
     saleClose,
     tokensAllocated,
     claimAmount,
@@ -42,32 +39,10 @@ const TokenSale = () => {
   const ethPrice = useEthPrice();
   const sendTx = useSendTx();
 
-  const saleStartedWhitelist = blockTime >= saleWhitelistStart ? true : false;
-
-  const saleStarted = blockTime >= saleStart ? true : false;
-  let validationSchema;
-
-  if (saleStartedWhitelist && !saleStarted) {
-    validationSchema = yup.object({
-      amount: yup
-        .number()
-        .min(0, 'Amount has to be greater than 0')
-        .required('Amount is required'),
-    });
-  } else {
-    validationSchema = yup.object({
-      amount: yup
-        .number()
-        .min(0, 'Amount has to be greater than 0')
-        .required('Amount is required'),
-    });
-  }
-
   const formik = useFormik({
     initialValues: {
       amount: '0',
     },
-    validationSchema: validationSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
     },
