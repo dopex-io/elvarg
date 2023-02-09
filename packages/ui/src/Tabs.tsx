@@ -28,9 +28,11 @@ export const TabHeader: FC<TabHeaderProps> = (props) => {
           "w-full rounded-lg text-sm font-medium text-white",
           "focus:outline-none",
           otherProps,
-          selected
-            ? "bg-carbon shadow text-white"
-            : "text-stieglitz hover:bg-carbon/[0.12] hover:text-white"
+          disabled
+            ? "bg-carbon/[0.5] text-stieglitz/[0.5]"
+            : selected
+            ? "bg-carbon"
+            : "text-stieglitz hover:bg-carbon hover:text-white"
         )
       }
     >
