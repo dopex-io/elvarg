@@ -8,6 +8,8 @@ import {
   useState,
 } from 'react';
 import Box from '@mui/material/Box';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
@@ -111,7 +113,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
         leftElement={
           <Box className="flex my-auto w-full space-x-2">
             <Box
-              className="flex w-fit bg-cod-gray rounded-full space-x-2 py-2 border border-gray-800"
+              className="flex w-fit bg-cod-gray rounded-md justify-content items-center space-x-2 py-2 px-2"
               role="button"
               onClick={handleTokenSelectorClick}
             >
@@ -122,7 +124,12 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               />
               <Typography variant="h6" className="my-auto">
                 {selectedTokenSymbol}
-              </Typography>
+              </Typography>{' '}
+              {tokenSelectorOpen ? (
+                <KeyboardArrowUpIcon className="text-white" />
+              ) : (
+                <KeyboardArrowDownIcon className="text-white" />
+              )}
             </Box>
           </Box>
         }
