@@ -20,16 +20,6 @@ module.exports = {
         destination: '/ssov/:path*',
         permanent: false,
       },
-      {
-        source: '/otc',
-        destination: '/straddles',
-        permanent: false,
-      },
-      {
-        source: '/otc/chat',
-        destination: '/straddles',
-        permanent: false,
-      },
     ];
   },
 };
