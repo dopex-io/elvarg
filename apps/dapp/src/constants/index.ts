@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { INFURA_PROJECT_ID, ANKR_KEY, GOERLI_KEY } from './env';
+import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
 
 export const DATE_FORMAT: string = 'd LLL yy';
 
@@ -366,11 +366,9 @@ export const IS_NATIVE = (asset: string) => {
   return ['ETH', 'BNB', 'AVAX'].includes(asset);
 };
 
-export const DOPEX_API_BASE_URL = 'https://api.dopex.io/api';
-
 export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  5: `https://goerli.infura.io/v3/${GOERLI_KEY}`,
+  5: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
@@ -384,11 +382,11 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   1: 'https://etherscan.io/',
   5: 'https://goerli.etherscan.io/',
   56: 'https://bscscan.com/',
+  137: 'https://polygonscan.com/',
+  1088: 'https://andromeda-explorer.metis.io/',
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
-  1088: 'https://andromeda-explorer.metis.io/',
   421611: 'https://testnet.arbiscan.io/',
-  137: 'https://polygonscan.com/',
 };
 
 export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
@@ -416,9 +414,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/straddles/DPX': { default: 42161, all: [42161] },
   '/straddles/MATIC': { default: 137, all: [137] },
   '/dpx-bonds': { default: 42161, all: [42161] },
-  '/faucet': { default: 5, all: [5] },
-  '/olp': { default: 5, all: [5, 42161] },
-  '/olp/DPX': { default: 5, all: [5, 42161] },
+  '/olp': { default: 42161, all: [42161] },
   '/atlantics': { default: 42161, all: [42161] },
 };
 
