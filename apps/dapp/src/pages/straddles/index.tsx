@@ -10,7 +10,8 @@ import Filter from 'components/common/Filter';
 import Typography from 'components/UI/Typography';
 import VaultCard from 'components/straddles/VaultCard';
 
-import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const states: string[] = ['Active', 'Retired'];
 
