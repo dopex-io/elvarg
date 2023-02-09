@@ -18,6 +18,7 @@ export interface WalletSlice {
   ensName?: string;
   ensAvatar?: string;
   contractAddresses: { [key: string]: any };
+  getContractAddress: Function;
   provider: ethers.providers.Provider;
   signer?: Signer;
   wrongNetwork: boolean;
@@ -192,4 +193,9 @@ export const createWalletSlice: StateCreator<
       CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
     )
   ),
+  getContractAddress: (key: string) => {
+    const { contractAddresses } = get();
+    if (key.toUpperCase() === 'WSTETH') return contractAddresses['STETH'];
+    return contractAddresses[key.toUpperCase()];
+  },
 });
