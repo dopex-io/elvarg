@@ -10,11 +10,13 @@ import { NumberDisplay } from 'components/UI';
 
 import { getReadableTime } from 'utils/contracts';
 
-import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 import { IOlpApi } from 'pages/olp';
 
-const data = [4000, 3000, 2000, 2780, 3490];
+// TODO: remove
+const fakeData = [4000, 3000, 2000, 2780, 3490];
 
 const CustomizedTooltip = ({ active, payload }: any) => {
   return active && payload && payload.length ? (
@@ -30,6 +32,7 @@ const CustomizedTooltip = ({ active, payload }: any) => {
 
 export const FeaturedAsset = ({ olp }: { olp: IOlpApi | undefined }) => {
   const [utilizationData, setUtilizationData] = useState([]);
+  console.log('utilizationData: ', utilizationData); // TODO: remove
 
   useEffect(() => {
     if (!olp) {
@@ -70,11 +73,13 @@ export const FeaturedAsset = ({ olp }: { olp: IOlpApi | undefined }) => {
       </Box>
 
       <ResponsiveContainer width="99%" height="35%" className="my-3">
-        <LineChart data={data.map((d) => ({ utilization: d }))}>
+        {/* TODO: use utilizationData */}
+        <LineChart data={fakeData.map((d) => ({ utilization: d }))}>
+          {/* TODO: use utilizationData */}
           <Tooltip
             cursor={false}
             wrapperStyle={{ outline: 'none' }}
-            content={<CustomizedTooltip payload={data} />}
+            content={<CustomizedTooltip payload={fakeData} />}
           />
           <Line
             type="monotone"
