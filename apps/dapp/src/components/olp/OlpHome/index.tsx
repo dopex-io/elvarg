@@ -8,6 +8,7 @@ import {
   TableCell,
   TableContainer,
   TablePagination,
+  Paper,
 } from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { styled } from '@mui/material/styles';
@@ -27,7 +28,7 @@ import { getReadableTime } from 'utils/contracts';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
 
-import { IOlpApi } from '../../../pages/olp';
+import { IOlpApi } from 'pages/olp';
 import { FeaturedAsset } from './FeaturedAsset';
 import { AssetTableRow } from './AssetTableRow';
 
@@ -45,6 +46,21 @@ const StyleSecondHeaderTable = styled(TableContainer)`
   }
 `;
 
+interface HeaderCellInterface {
+  children: string;
+}
+
+const StyleTableCellHeader = (props: HeaderCellInterface) => {
+  const { children } = props;
+  return (
+    <StyleTableCell align="left">
+      <Typography variant="h6" color="stieglitz">
+        {children}
+      </Typography>
+    </StyleTableCell>
+  );
+};
+
 const FEATURED_OLPS: string[] = [
   'DPX-MONTHLY',
   'RDPX-MONTHLY',
@@ -55,8 +71,8 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const chainIds: string[] = Object.keys(olps ?? []);
 
   const [selectedOlpMarkets, setSelectedOlpMarkets] = useState<string[]>([]);
-  const [olpExpiry, setOlpExpiry] = useState<string>('');
-  const [olpNetwork, setOlpNetwork] = useState<string>(`${DEFAULT_CHAIN_ID}`);
+  const [selectedOlpExpiries, setSelectedOlpExpiries] = useState<string[]>([]);
+  const [selectedOlpNetworks, setSelectedOlpNetworks] = useState<string[]>([]);
   const [page, setPage] = useState<number>(0);
 
   const olpMarkets = useMemo(() => {
@@ -76,9 +92,9 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       ...new Set(chainIds?.map((c) => olps[c]?.map((o) => o.expiry)).flat()),
     ];
 
-    if (!expiries || expiries === undefined) return [];
+    if (!expiries) return [];
 
-    return _.sortBy(expiries)?.map((o) => getReadableTime(o ?? 0));
+    return _.sortBy(expiries)?.map((o) => getReadableTime(o!));
   }, [olps, chainIds]);
 
   const olpNetworks = useMemo(() => {
@@ -89,15 +105,30 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const filteredMarket = useMemo(() => {
     if (!olps) return [];
 
-    return olps[olpNetwork]?.filter((o) => {
-      return (
-        (isEmpty(selectedOlpMarkets) ||
-          selectedOlpMarkets.includes(o.underlyingSymbol)) &&
-        (olpExpiry === '' || olpExpiry === getReadableTime(o.expiry)) &&
-        (Number(olpNetwork) === o.chainId || DEFAULT_CHAIN_ID === o.chainId)
+    let filtered: IOlpApi[] = Object.values(olps).flat();
+
+    if (!isEmpty(selectedOlpNetworks)) {
+      filtered = filtered.filter((o) =>
+        selectedOlpNetworks.includes(
+          CHAIN_ID_TO_NETWORK_DATA[o.chainId!]?.name || ''
+        )
       );
-    });
-  }, [olps, selectedOlpMarkets, olpExpiry, olpNetwork]);
+    }
+
+    if (!isEmpty(selectedOlpExpiries)) {
+      filtered = filtered.filter((o) => {
+        return selectedOlpExpiries.includes(getReadableTime(o?.expiry!));
+      });
+    }
+
+    if (!isEmpty(selectedOlpMarkets)) {
+      filtered = filtered.filter((o) =>
+        selectedOlpMarkets.includes(o.underlyingSymbol)
+      );
+    }
+
+    return filtered;
+  }, [olps, selectedOlpMarkets, selectedOlpExpiries, selectedOlpNetworks]);
 
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -120,52 +151,56 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
         ))}
       </Box>
 
-      <Typography variant="h5" color="white my-3">
+      <Typography variant="h5" color="white" className="my-3 mt-8">
         All Options LP
       </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell
-              className="flex flex-row"
-              sx={{
-                border: '1px solid #1e1e1e',
-                borderRadius: '10px 10px 0 0',
-                borderBottom: '0px',
-                padding: '1px',
-              }}
-            >
-              <SsovFilter
-                activeFilters={selectedOlpMarkets}
-                setActiveFilters={setSelectedOlpMarkets}
-                text="All"
-                options={olpMarkets}
-                multiple={true}
-                showImages={true}
-              />
-              <SsovFilter
-                activeFilters={olpExpiry}
-                setActiveFilters={setOlpExpiry}
-                text="Expiry"
-                options={olpExpiries}
-                multiple={false}
-                showImages={false}
-              />
-              <SsovFilter
-                activeFilters={olpNetwork}
-                setActiveFilters={setOlpNetwork}
-                text="Network"
-                options={olpNetworks}
-                multiple={false}
-                showImages={false}
-              />
-            </TableCell>
-          </TableRow>
-        </TableHead>
-      </Table>
+      <Paper sx={{ width: '100%', overflow: 'hidden', background: 'black' }}>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  className="flex"
+                  sx={{
+                    border: '1px solid #1e1e1e',
+                    borderRadius: '10px 10px 0 0',
+                    borderBottom: '0px',
+                    padding: '1px',
+                  }}
+                >
+                  <SsovFilter
+                    activeFilters={selectedOlpMarkets}
+                    setActiveFilters={setSelectedOlpMarkets}
+                    text="All"
+                    options={olpMarkets}
+                    multiple={true}
+                    showImages={true}
+                  />
+                  <SsovFilter
+                    activeFilters={selectedOlpExpiries}
+                    setActiveFilters={setSelectedOlpExpiries}
+                    text="Expiry"
+                    options={olpExpiries}
+                    multiple={true}
+                    showImages={false}
+                  />
+                  <SsovFilter
+                    activeFilters={selectedOlpNetworks}
+                    setActiveFilters={setSelectedOlpNetworks}
+                    text="Network"
+                    options={olpNetworks}
+                    multiple={true}
+                    showImages={false}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
+      </Paper>
 
       <StyleSecondHeaderTable>
-        <Table className="border-collapse" size="medium">
+        <Table>
           <TableHead>
             <TableRow>
               <StyleLeftTableCell align="left" className="flex space-x-1">
@@ -174,21 +209,9 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
                   Market
                 </Typography>
               </StyleLeftTableCell>
-              <StyleTableCell align="left">
-                <Typography variant="h6" color="stieglitz">
-                  TVL
-                </Typography>
-              </StyleTableCell>
-              <StyleTableCell align="left">
-                <Typography variant="h6" color="stieglitz">
-                  Utilization
-                </Typography>
-              </StyleTableCell>
-              <StyleTableCell align="left">
-                <Typography variant="h6" color="stieglitz">
-                  Network
-                </Typography>
-              </StyleTableCell>
+              <StyleTableCellHeader>TVL</StyleTableCellHeader>
+              <StyleTableCellHeader>Utilization</StyleTableCellHeader>
+              <StyleTableCellHeader>Network</StyleTableCellHeader>
               <StyleRightTableCell align="right">
                 <Typography variant="h6" color="stieglitz">
                   Action
@@ -211,7 +234,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       {filteredMarket?.length ?? 0 > ROWS_PER_PAGE ? (
         <TablePagination
           component="div"
-          id="stats"
+          id="olps"
           rowsPerPageOptions={[ROWS_PER_PAGE]}
           count={filteredMarket?.length ?? 0}
           page={page}

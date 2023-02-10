@@ -3,11 +3,11 @@ import cx from 'classnames';
 import Box, { BoxProps } from '@mui/material/Box';
 
 interface TypographyProps extends BoxProps {
-  variant: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'caption' | '';
+  variant: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'caption';
   color?: string;
 }
 
-const CLASSES: Record<string, string | null> = {
+const CLASSES = {
   h1: 'text-4xl',
   h2: 'text-3xl',
   h3: 'text-2xl',
@@ -15,7 +15,6 @@ const CLASSES: Record<string, string | null> = {
   h5: 'text-base',
   h6: 'text-sm',
   caption: 'text-xs',
-  '': '',
 };
 
 const Typography: FC<TypographyProps> = (props) => {
