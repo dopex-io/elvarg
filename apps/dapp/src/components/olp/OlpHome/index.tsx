@@ -29,8 +29,8 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
 
 import { IOlpApi } from 'pages/olp';
-import { FeaturedAsset } from './FeaturedAsset';
-import { AssetTableRow } from './AssetTableRow';
+import { FeaturedOlp } from './FeaturedOlp';
+import { OlpTableRow } from './OlpTableRow';
 
 const StyleSecondHeaderTable = styled(TableContainer)`
   table {
@@ -142,15 +142,13 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       <Typography variant="h5" color="white">
         Featured
       </Typography>
-
       <Box className="flex mt-2 flex-col space-x-0 space-y-1 lg:flex-row lg:space-x-1 lg:space-y-0">
         {olps[DEFAULT_CHAIN_ID]?.filter((o) =>
           FEATURED_OLPS.includes(o.symbol)
         ).map((o, idx) => (
-          <FeaturedAsset key={idx} olp={o} />
+          <FeaturedOlp key={idx} olp={o} />
         ))}
       </Box>
-
       <Typography variant="h5" color="white" className="my-3 mt-8">
         All Options LP
       </Typography>
@@ -198,7 +196,6 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
           </Table>
         </TableContainer>
       </Paper>
-
       <StyleSecondHeaderTable>
         <Table>
           <TableHead>
@@ -225,8 +222,8 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
                 page * ROWS_PER_PAGE,
                 page * ROWS_PER_PAGE + ROWS_PER_PAGE
               )
-              ?.map((f, idx) => (
-                <AssetTableRow key={idx} f={f} idx={idx} />
+              ?.map((olp, idx) => (
+                <OlpTableRow key={idx} olp={olp} idx={idx} />
               ))}
           </TableBody>
         </Table>
