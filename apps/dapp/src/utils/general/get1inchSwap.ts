@@ -16,11 +16,22 @@ const get1inchSwap = async ({
   chainId,
   accountAddress,
 }: Args) => {
-  const { data } = await axios.get(
-    `https://api.1inch.exchange/v5.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount.toString()}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+  console.log(
+    fromTokenAddress,
+    toTokenAddress,
+    amount,
+    chainId,
+    accountAddress
   );
 
-  return data;
+  try {
+    const { data } = await axios.get(
+      `https://api.1inch.exchange/v5.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount.toString()}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true`
+    );
+    return data;
+  } catch {
+    return { tx: '' };
+  }
 };
 
 export default get1inchSwap;

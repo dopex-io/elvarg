@@ -34,7 +34,7 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
-import { IS_NATIVE, MAX_VALUE } from 'constants/index';
+import { IS_NATIVE, MAX_VALUE, OPTION_TOKEN_DECIMALS } from 'constants/index';
 import get1inchSwap from 'utils/general/get1inchSwap';
 
 export interface Props {
@@ -101,7 +101,7 @@ const PurchaseDialog = ({
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
 
   const routerMode = useMemo(() => {
-    return fromTokenSymbol == ssovData?.collateralSymbol;
+    return fromTokenSymbol !== ssovData?.collateralSymbol;
   }, [fromTokenSymbol, ssovData]);
 
   const spender = useMemo(() => {
@@ -132,19 +132,19 @@ const PurchaseDialog = ({
   const updateQuote = useCallback(async () => {
     if (!contractAddresses || !ssovData || !ssovData?.collateralSymbol) return;
 
-    const fromTokenAddress = contractAddresses[fromTokenSymbol];
-    const toTokenAddress = contractAddresses[ssovData.collateralSymbol];
+    const fromTokenAddress = getContractAddress(fromTokenSymbol);
+    const toTokenAddress = getContractAddress(ssovData.collateralSymbol);
 
     if (
       !chainId ||
       !accountAddress ||
-      !rawOptionsAmount ||
       fromTokenAddress === toTokenAddress ||
       !ssovSigner ||
       !ssovSigner.ssovRouterWithSigner ||
       !ssovContractWithSigner ||
       !ssovData ||
-      !ssovData.collateralSymbol
+      !ssovData.collateralSymbol ||
+      state.totalCost.isZero()
     )
       return;
 
@@ -166,6 +166,8 @@ const PurchaseDialog = ({
       )
       .div(toTokenAmount);
 
+    if (fromTokenAmountRequired.isZero()) return;
+
     const swapData = (
       await get1inchSwap({
         fromTokenAddress,
@@ -180,18 +182,25 @@ const PurchaseDialog = ({
       amountOut: fromTokenAmountRequired,
       swapData: swapData,
     });
-    // setAmountOut(fromTokenAmountRequired);
+    setState((prev) => ({ ...prev, totalCost: fromTokenAmountRequired }));
   }, [
     accountAddress,
-    rawOptionsAmount,
+    getContractAddress,
     chainId,
     contractAddresses,
     fromTokenSymbol,
     ssovData,
     ssovContractWithSigner,
     ssovSigner,
-    state.totalCost,
+    state,
   ]);
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setRawOptionsAmount(e.target.value);
+    },
+    []
+  );
 
   useEffect(() => {
     updateQuote();
@@ -221,31 +230,37 @@ const PurchaseDialog = ({
     )
       return;
 
-    const _amount = getContractReadableAmount(optionsAmount, 18);
+    const _amount = getContractReadableAmount(
+      optionsAmount,
+      OPTION_TOKEN_DECIMALS
+    );
 
     const contractWithSigner = routerMode
       ? ssovSigner.ssovRouterWithSigner
       : ssovContractWithSigner;
+
     const params = routerMode
       ? [
           ssovContractWithSigner.address,
           getContractAddress(fromTokenSymbol),
           getContractAddress(ssovData.collateralSymbol),
           accountAddress,
-          quote.amountOut,
-          quote.amountOut,
+          strikeIndex,
+          state.totalCost,
+          '0',
           quote.swapData,
         ]
       : [strikeIndex, _amount, accountAddress];
 
     const msgValue = IS_NATIVE(fromTokenSymbol) ? _amount : 0;
+    console.log(params);
+    console.log(contractWithSigner.address);
 
     const method = routerMode ? 'swapAndPurchase' : 'purchase';
 
     try {
       await sendTx(contractWithSigner, method, params, msgValue);
       setRawOptionsAmount('0');
-
       updateAssetBalances();
       updateSsovV3UserData();
       updateSsovV3EpochData();
@@ -264,11 +279,11 @@ const PurchaseDialog = ({
     updateSsovV3EpochData,
     fromTokenSymbol,
     getContractAddress,
-    quote.amountOut,
     quote.swapData,
     routerMode,
     ssovData.collateralSymbol,
     ssovSigner,
+    state.totalCost,
   ]);
 
   // Calculate the Option Price & Fees
@@ -384,7 +399,7 @@ const PurchaseDialog = ({
 
       const finalAmount = state.totalCost;
       const _token = ERC20__factory.connect(
-        ssovData.collateralAddress!,
+        getContractAddress(fromTokenSymbol),
         provider
       );
 
@@ -403,6 +418,7 @@ const PurchaseDialog = ({
     fromTokenSymbol,
     accountAddress,
     state.totalCost,
+    getContractAddress,
     isPut,
     provider,
     spender,
@@ -462,6 +478,14 @@ const PurchaseDialog = ({
               .div(ssovData.collateralPrice!)
               .gt(userTokenBalance)
       ) {
+        console.log(
+          state.totalCost.gt(userTokenBalance).toString(),
+          state.totalCost
+            .mul(1e8)
+            .div(ssovData.collateralPrice!)
+            .gt(userTokenBalance)
+            .toString()
+        );
         children = 'Insufficient Balance';
       } else if (approved) {
         children = 'Purchase';
@@ -525,9 +549,7 @@ const PurchaseDialog = ({
               setSelectedToken={setFromTokenSymbol}
               inputAmount={rawOptionsAmount}
               handleMax={handleMax}
-              handleInputAmountChange={(e) =>
-                setRawOptionsAmount(e.target.value)
-              }
+              handleInputAmountChange={handleInputChange}
             />
           </Box>
           <Box className="flex flex-row justify-between"></Box>
@@ -815,7 +837,7 @@ const PurchaseDialog = ({
                 <Typography variant="h6" className="text-white mr-auto ml-0">
                   {formatAmount(
                     getUserReadableAmount(
-                      routerMode ? state.totalCost : quote.amountOut,
+                      state.totalCost,
                       getTokenDecimals(fromTokenSymbol, chainId)
                     ),
                     5
