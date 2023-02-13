@@ -7,13 +7,14 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "husky install && yarn build-ui",
+    "postinstall": "husky install",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "storybook": "turbo run storybook",
     "lint": "turbo run lint",
     "generate": "turbo run generate",
-    "build-ui": "turbo run build-ui"
+    "build-ui": "turbo run build-ui",
+    "build-storybook": "turbo run build-storybook"
   },
   "packageManager": "yarn@1.22.19",
   "devDependencies": {

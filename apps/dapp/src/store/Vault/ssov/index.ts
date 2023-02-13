@@ -18,7 +18,7 @@ import { CommonSlice } from 'store/Vault/common';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
-import { DOPEX_API_BASE_URL } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 import { TokenData } from 'types';
 

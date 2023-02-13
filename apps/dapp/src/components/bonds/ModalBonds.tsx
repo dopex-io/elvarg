@@ -23,6 +23,7 @@ import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
 import { CHAIN_ID_TO_EXPLORER, MAX_VALUE } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 export interface ModalBondsProps {
   modalOpen: boolean;
@@ -92,7 +93,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
   useEffect(() => {
     async function getData() {
-      const response = await axios.get(`https://api.dopex.io/v2/price/dpx`);
+      const response = await axios.get(`${DOPEX_API_BASE_URL}/v2/price/dpx`);
 
       setOraclePrice(Number(response.data.oraclePrice));
     }
