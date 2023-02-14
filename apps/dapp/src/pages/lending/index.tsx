@@ -17,10 +17,12 @@ import {
 } from '@mui/material';
 import { Chart } from './Chart';
 import formatAmount from 'utils/general/formatAmount';
+import DepositPanel from 'components/ssov/DepositPanel';
 import { max, min } from 'lodash';
 import BorrowDialog from './BorrowDialog';
 import { useBoundStore } from 'store';
 import { LendingStats, SsovLendingData } from 'store/Vault/lending';
+import LendDialog from './LendDialog';
 
 const LENDING_URL = 'http://localhost:5001/api/v2/lending';
 
@@ -43,6 +45,7 @@ const AssetRow = ({
   const [open, setOpen] = React.useState(false);
   const [borrowAmount, setBorrowAmount] = React.useState<string>('1');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [lendAnchorEl, setLendAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleBorrowAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string> } }) =>
@@ -107,7 +110,17 @@ const AssetRow = ({
           )}
         </TableCell>
         <TableCell align="right">
-          <CustomButton onClick={() => setOpen(!open)}>Repay</CustomButton>
+          <CustomButton onClick={(e) => setLendAnchorEl(e.currentTarget)}>
+            Lend
+          </CustomButton>
+          {lendAnchorEl && (
+            <LendDialog
+              key={positionIdx}
+              assetDatum={assetDatum}
+              anchorEl={lendAnchorEl}
+              setAnchorEl={setLendAnchorEl}
+            />
+          )}
         </TableCell>
       </StyleRow>
     </>
