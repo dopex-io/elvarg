@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
-
+import { BigNumber } from 'ethers';
 const LENDING_URL = 'http://localhost:5001/api/v2/lending';
 const BASE_STATS_URL = 'http://localhost:3001/fetchCollateralBorrowingAmount';
 
@@ -14,6 +14,7 @@ export interface SsovLendingData {
   chainId: number;
   address: string;
   totalSupply: number;
+  expiry: BigNumber;
   totalBorrow: number;
   tokenPrice: number;
   aprs: number[];

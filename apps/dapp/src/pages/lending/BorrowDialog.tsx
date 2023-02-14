@@ -21,12 +21,11 @@ import { CustomButton, Dialog } from 'components/UI';
 import Input from 'components/UI/Input';
 import useUserTokenBalance from 'hooks/useUserTokenBalance';
 import { SsovLendingData } from 'store/Vault/lending';
-import InputHelpers from 'components/common/InputHelpers';
 import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
 import useAssetApproval from 'hooks/useAssetApproval';
-import { getContractReadableAmount } from 'utils/contracts';
+import { getContractReadableAmount, getReadableTime } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
@@ -219,7 +218,7 @@ export default function BorrowDialog({
                       <img
                         src="/images/tokens/2crv.svg"
                         alt="usdc"
-                        className="h-8"
+                        className="h-8 p-1"
                       />
                       <Typography
                         variant="h5"
@@ -346,19 +345,18 @@ export default function BorrowDialog({
                   Put Option
                 </Typography>
               </Box>
-              <ContentRow title="Premium" content="123" />
-              <ContentRow title="Options Fee" content="123" />
+              <ContentRow
+                title="Expiry"
+                content={`${getReadableTime(assetDatum.expiry)}`}
+              />
               <ContentRow title="Borrow Fees" content="123" />
-              <ContentRow title="Options" content="123" />
             </Box>
           </Box>
-
           <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">
             <Box className="bg-carbon rounded-lg p-3">
               <EstimatedGasCostButton gas={500000} chainId={42161} />
             </Box>
           </Box>
-
           <CustomButton
             size="medium"
             className="w-full mt-4 !rounded-md"
