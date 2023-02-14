@@ -13,14 +13,16 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
+
 import TokenSelector from '../TokenSelector';
 
 import { useBoundStore } from 'store';
+
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount, getTokenDecimals } from 'utils/general';
 
 interface IOverrides {
-  setTokenSelectorOpen: Dispatch<React.SetStateAction<boolean>>;
+  setTokenSelectorOpen?: Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface IInputWithTokenSelectorProps {
@@ -82,7 +84,8 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     setTokenSelectorOpen((prev) => !prev);
 
     // overrides
-    overrides?.setTokenSelectorOpen((prev) => !prev);
+    overrides?.setTokenSelectorOpen &&
+      overrides?.setTokenSelectorOpen((prev) => !prev);
   }, [overrides]);
 
   return (
