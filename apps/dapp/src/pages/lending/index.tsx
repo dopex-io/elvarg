@@ -59,32 +59,32 @@ const AssetRow = ({
         <TableCell align="left">
           <Box className="flex flex-row">
             <img
-              className="-ml-1 w-9 h-9"
+              className="-ml-1 w-7 h-7"
               src={`/images/tokens/${underlyingSymbol}.svg`}
               alt={`${underlyingSymbol}`}
             />
-            <Typography variant="h6" color="white" className="ml-3 mt-2">
+            <Typography variant="h6" color="white" className="ml-3 my-auto">
               {underlyingSymbol}
             </Typography>
           </Box>
         </TableCell>
         <TableCell align="left">
-          <Typography variant="caption" color="white">
+          <Typography variant="h6" color="white">
             ${formatAmount(totalSupply, 0, true)}
           </Typography>
         </TableCell>
         <TableCell align="left">
-          <Typography variant="caption" color="white">
+          <Typography variant="h6" color="white">
             ${formatAmount(tokenPrice, 2)}
           </Typography>
         </TableCell>
         {/* <TableCell align="left">
-          <Typography variant="caption" color="white">
+          <Typography variant="h6" color="white">
             83%
           </Typography>
         </TableCell> */}
         <TableCell align="left">
-          <Typography variant="caption" color="white">
+          <Typography variant="h6" color="white">
             {minApr === 0 && minApr === maxApr
               ? '-'
               : `${minApr}% - ${maxApr}%`}
@@ -116,9 +116,8 @@ const AssetRow = ({
 
 const StyleContainer = styled(TableContainer)`
   table {
-    border-spacing: 0;
-    border-radius: 0.5rem;
-    border: none !important;
+    border-collapse: separate !important;
+    border-spacing: 0 0.5em !important;
   }
   td {
     border: none !important;
@@ -152,38 +151,28 @@ const Assets = ({ data }: { data: any[] }) => {
           <TableHead className="bg-cod-gray">
             <TableRow>
               <TableCell align="left" className="border-none">
-                <Typography variant="caption" color="stieglitz">
+                <Typography variant="h6" color="stieglitz">
                   Collateral Asset
                 </Typography>
               </TableCell>
               <TableCell align="left" className="border-none">
-                <Typography variant="caption" color="stieglitz">
+                <Typography variant="h6" color="stieglitz">
                   Total Supply
                 </Typography>
               </TableCell>
               <TableCell align="left" className="border-none">
-                <Typography variant="caption" color="stieglitz">
+                <Typography variant="h6" color="stieglitz">
                   Price
                 </Typography>
               </TableCell>
               {/* <TableCell align="left" className="border-none">
-                <Typography variant="caption" color="stieglitz">
+                <Typography variant="h6" color="stieglitz">
                   Utilization
                 </Typography>
               </TableCell> */}
               <TableCell align="left" className="border-none">
-                <Typography variant="caption" color="stieglitz">
+                <Typography variant="h6" color="stieglitz">
                   Borrow APR
-                </Typography>
-              </TableCell>
-              <TableCell align="right" className="border-none">
-                <Typography variant="caption" color="stieglitz">
-                  Action
-                </Typography>
-              </TableCell>
-              <TableCell align="right" className="border-none">
-                <Typography variant="caption" color="stieglitz">
-                  Action
                 </Typography>
               </TableCell>
             </TableRow>

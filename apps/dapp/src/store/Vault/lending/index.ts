@@ -57,7 +57,6 @@ export const createSsovLending: StateCreator<
     const { chainId } = get();
     const ssovLendingData = await axios.get(LENDING_URL);
     const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
-    console.log('ssovs: ', ssovs);
 
     set((prevState) => ({
       ...prevState,

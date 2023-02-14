@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
 import { utils } from 'ethers';
 import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
 
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -19,6 +18,7 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { Addresses } from '@dopex-io/sdk';
 import { CustomButton, Dialog } from 'components/UI';
+import Input from 'components/UI/Input';
 import useUserTokenBalance from 'hooks/useUserTokenBalance';
 import { SsovLendingData } from 'store/Vault/lending';
 import InputHelpers from 'components/common/InputHelpers';
@@ -28,6 +28,8 @@ import { SelectChangeEvent } from '@mui/material';
 import useAssetApproval from 'hooks/useAssetApproval';
 import { getContractReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
+import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
 
 interface Props {
   anchorEl: null | HTMLElement;
@@ -134,34 +136,193 @@ export default function BorrowDialog({
       <Box className="bg-cod-gray rounded-lg">
         <Box className="flex flex-col mb-2">
           <Typography variant="h5">Borrow</Typography>
-          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra mt-2">
+          <Box className="rounded-lg p-3 pt-2.5 pb-2 border border-neutral-800 w-full bg-umbra my-2">
             <SsovStrikeBox
-              userTokenBalance={userTokenBalance}
-              collateralSymbol={assetDatum?.underlyingSymbol}
+              userTokenBalance={userOptionTokenBalance}
+              collateralSymbol={optionTokenSymbol}
               strike={strikeIndex}
               handleSelectStrike={handleSelectStrike}
               strikes={assetDatum?.strikes.map((s) => s.toString())}
             />
-            <Box className="flex mt-2 group">
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                {assetDatum.underlyingSymbol} to deposit
-              </Typography>
-              <Box className="relative">
-                <InputHelpers handleMax={handleMax} />
-                <Input
-                  disableUnderline={true}
-                  type="number"
-                  className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
-                  classes={{ input: 'text-white text-xs text-right' }}
-                  value={tokenDepositAmount}
-                  placeholder="0"
-                  onChange={handleDepositAmount}
-                />
+          </Box>
+
+          <Box className="space-y-1">
+            <Box className="bg-umbra rounded-xl">
+              <Input
+                size="small"
+                variant="default"
+                type="number"
+                placeholder="0.0"
+                value={tokenDepositAmount}
+                onChange={handleDepositAmount}
+                className="p-3"
+                leftElement={
+                  <Box className="flex my-auto">
+                    <Box className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
+                      <img
+                        src={`/images/tokens/${assetDatum?.underlyingSymbol.toLowerCase()}.svg`}
+                        alt="usdc"
+                        className="h-8"
+                      />
+                      <Typography
+                        variant="h5"
+                        color="white"
+                        className="flex items-center ml-2"
+                      >
+                        {assetDatum?.underlyingSymbol}
+                      </Typography>
+                    </Box>
+                    <Box
+                      role="button"
+                      className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
+                      onClick={handleMax}
+                    >
+                      <Typography variant="caption" color="stieglitz">
+                        MAX
+                      </Typography>
+                    </Box>
+                  </Box>
+                }
+              />
+              <Box className="flex justify-between pb-3 px-5 pt-0">
+                <Typography variant="h6" color="stieglitz">
+                  Collateral
+                </Typography>
+
+                <Typography variant="h6" color="stieglitz">
+                  Balance:{' '}
+                  {`${formatAmount(
+                    getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN),
+                    2
+                  )}`}
+                </Typography>
+              </Box>
+            </Box>
+            <Box className="bg-umbra rounded-xl">
+              <Input
+                size="small"
+                variant="default"
+                type="number"
+                placeholder="0.0"
+                value={usdToReceive}
+                disabled
+                sx={{
+                  '& input.MuiInputBase-input': {
+                    '-webkit-text-fill-color': 'white',
+                    overflowX: 'true',
+                    padding: '0',
+                  },
+                }}
+                leftElement={
+                  <Box className="flex my-auto">
+                    <Box className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
+                      <img
+                        src="/images/tokens/2crv.svg"
+                        alt="usdc"
+                        className="h-8"
+                      />
+                      <Typography
+                        variant="h5"
+                        color="white"
+                        className="flex items-center ml-2"
+                      >
+                        2CRV
+                      </Typography>
+                    </Box>
+                  </Box>
+                }
+              />
+              <Box className="flex justify-between pb-3 px-5 pt-0">
+                <Typography variant="h6" color="stieglitz">
+                  Borrow
+                  {/* {formatAmount(userTokenBalances?.[inverted ? 0 : 1] ?? 0, 3)} */}
+                </Typography>
               </Box>
             </Box>
           </Box>
 
-          <Typography variant="h6">
+          {/* <Box className="rounded-lg bg-umbra p-2">
+            <Box className="flex">
+              <Box className="p-1 rounded-full flex w-full">
+                <Box className="bg-cod-gray flex p-1 px-2 rounded-full mr-1">
+                  <img
+                    src="/images/tokens/usdc.svg"
+                    alt="usdc"
+                    className="h-8"
+                  />
+                  <Typography
+                    variant="h5"
+                    color="white"
+                    className="flex items-center ml-2"
+                  >
+                    USDC
+                  </Typography>
+                </Box>
+                <CustomButton
+                  onClick={handleMax}
+                  className="rounded-md p-1"
+                  color="mineshaft"
+                >
+                  <Typography variant="h6" color="stieglitz">
+                    MAX
+                  </Typography>
+                </CustomButton>
+              </Box>
+
+              <Input
+                disableUnderline
+                id="amount"
+                name="amount"
+                placeholder="0"
+                type="number"
+                className="h-12 text-2xl text-stieglitz font-mono"
+                value={tokenDepositAmount}
+                onChange={handleDepositAmount}
+                classes={{ input: 'text-right' }}
+              />
+            </Box>
+
+            <Box className="flex justify-between p-1">
+              <Typography variant="h6" color="stieglitz">
+                Borrow
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* TODO: space-x */}
+          {/* <Box className="rounded-lg bg-umbra p-2 mt-1">
+            <Box className="flex">
+              <Box className="p-1 rounded-full flex w-full">
+                <Box className="bg-cod-gray flex p-1 px-2 rounded-full mr-1">
+                  <img
+                    src={`/images/tokens/${assetDatum?.underlyingSymbol.toLowerCase()}.svg`}
+                    alt="usdc"
+                    className="h-8"
+                  />
+                  <Typography
+                    variant="h5"
+                    color="white"
+                    className="flex items-center ml-2"
+                  >
+                    {assetDatum?.underlyingSymbol}
+                  </Typography>
+                </Box>
+              </Box>
+              <Typography variant="h4" className="flex items-center">
+                ${formatAmount(usdToReceive, 2)}
+              </Typography>
+            </Box>
+            <Box className="flex justify-between p-1">
+              <Typography variant="h6" color="stieglitz">
+                Collateral
+              </Typography>
+              <Typography variant="h6" color="stieglitz">
+                {assetDatum?.underlyingSymbol}
+              </Typography>
+            </Box>
+          </Box> */}
+
+          {/* <Typography variant="h6">
             {`Balance of ${optionTokenSymbol}: ${formatAmount(
               getUserReadableAmount(userOptionTokenBalance, DECIMALS_TOKEN),
               2
@@ -175,7 +336,28 @@ export default function BorrowDialog({
               usdToReceive,
               2
             )} 2CRV`}
-          </Typography>
+          </Typography> */}
+
+          <Box className="rounded-lg bg-umbra pl-1 pr-2 mt-1 space-y-1">
+            <Box className="flex flex-col p-3 space-y-2">
+              <Box className="flex space-x-1">
+                <SouthEastRounded className="fill-current text-down-bad p-1" />
+                <Typography variant="h6" color="stieglitz">
+                  Put Option
+                </Typography>
+              </Box>
+              <ContentRow title="Premium" content="123" />
+              <ContentRow title="Options Fee" content="123" />
+              <ContentRow title="Borrow Fees" content="123" />
+              <ContentRow title="Options" content="123" />
+            </Box>
+          </Box>
+
+          <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">
+            <Box className="bg-carbon rounded-lg p-3">
+              <EstimatedGasCostButton gas={500000} chainId={42161} />
+            </Box>
+          </Box>
 
           <CustomButton
             size="medium"
