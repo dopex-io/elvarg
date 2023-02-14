@@ -317,7 +317,7 @@ const ManagePosition = () => {
   //   setSelectedToken(() => token);
   // };
 
-  const updateLiquidityBalanceForStrike = useCallback(async () => {
+  const updatePurchasableOptionsForMaxStrike = useCallback(async () => {
     if (
       !strategyDetails.putStrike ||
       !atlanticPool ||
@@ -779,8 +779,8 @@ const ManagePosition = () => {
   }, [handleStrategyCalculations]);
 
   useEffect(() => {
-    updateLiquidityBalanceForStrike();
-  }, [updateLiquidityBalanceForStrike]);
+    updatePurchasableOptionsForMaxStrike();
+  }, [updatePurchasableOptionsForMaxStrike]);
 
   useEffect(() => {
     const interval = setInterval(() => {
