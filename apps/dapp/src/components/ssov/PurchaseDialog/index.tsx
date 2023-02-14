@@ -93,12 +93,34 @@ const PurchaseDialog = ({
   });
 
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] = useState(true);
+  const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const ssovTokenName = useMemo(() => underlyingSymbol, [underlyingSymbol]);
 
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
+
+  const amountPayable = useMemo(() => {
+    let _amountPayable = '0';
+    if (!chainId) return _amountPayable;
+
+    return formatAmount(
+      getUserReadableAmount(
+        fromTokenSymbol !== ssovData.collateralSymbol
+          ? quote.amountOut
+          : state.totalCost,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      ),
+      5
+    );
+  }, [
+    chainId,
+    fromTokenSymbol,
+    state.totalCost,
+    quote.amountOut,
+    ssovData.collateralSymbol,
+  ]);
 
   const routerMode = useMemo(() => {
     return fromTokenSymbol !== ssovData?.collateralSymbol;
@@ -182,7 +204,6 @@ const PurchaseDialog = ({
       amountOut: fromTokenAmountRequired,
       swapData: swapData,
     });
-    setState((prev) => ({ ...prev, totalCost: fromTokenAmountRequired }));
   }, [
     accountAddress,
     getContractAddress,
@@ -192,7 +213,7 @@ const PurchaseDialog = ({
     ssovData,
     ssovContractWithSigner,
     ssovSigner,
-    state,
+    state.totalCost,
   ]);
 
   const handleInputChange = useCallback(
@@ -550,223 +571,233 @@ const PurchaseDialog = ({
               inputAmount={rawOptionsAmount}
               handleMax={handleMax}
               handleInputAmountChange={handleInputChange}
+              overrides={{ setTokenSelectorOpen }}
             />
           </Box>
           <Box className="flex flex-row justify-between"></Box>
         </Box>
-        <Box>
-          {debouncedIsChartVisible[0] && (
-            <Slide direction="left" in={isChartVisible}>
-              <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
-                <PnlChart
-                  breakEven={
-                    isPut
-                      ? Number(strikes[strikeIndex]) -
-                        getUserReadableAmount(state.optionPrice, 8)
-                      : Number(strikes[strikeIndex]) +
-                        getUserReadableAmount(state.optionPrice, 8)
-                  }
-                  optionPrice={getUserReadableAmount(state.optionPrice, 8)}
-                  amount={optionsAmount}
-                  isPut={isPut!}
-                  price={getUserReadableAmount(tokenPrice!, 8)}
-                  symbol={ssovTokenName!}
-                />
-              </Box>
-            </Slide>
-          )}
-          {!debouncedIsChartVisible[0] && (
-            <Slide direction="left" in={!isChartVisible}>
-              <Box className="h-full">
-                <Box className={'flex'}>
-                  <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
-                    <Box className={'w-5/6'}>
+        {!tokenSelectorOpen && (
+          <Box>
+            {debouncedIsChartVisible[0] && (
+              <Slide direction="left" in={isChartVisible}>
+                <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
+                  <PnlChart
+                    breakEven={
+                      isPut
+                        ? Number(strikes[strikeIndex]) -
+                          getUserReadableAmount(state.optionPrice, 8)
+                        : Number(strikes[strikeIndex]) +
+                          getUserReadableAmount(state.optionPrice, 8)
+                    }
+                    optionPrice={getUserReadableAmount(state.optionPrice, 8)}
+                    amount={optionsAmount}
+                    isPut={isPut!}
+                    price={getUserReadableAmount(tokenPrice!, 8)}
+                    symbol={ssovTokenName!}
+                  />
+                </Box>
+              </Slide>
+            )}
+            {!debouncedIsChartVisible[0] && (
+              <Slide direction="left" in={!isChartVisible}>
+                <Box className="h-full">
+                  <Box className={'flex'}>
+                    <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
+                      <Box className={'w-5/6'}>
+                        <Typography
+                          variant="h5"
+                          className="text-white pb-1 pr-2"
+                        >
+                          ${strikes[strikeIndex]}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz pb-1 pr-2"
+                        >
+                          Strike Price
+                        </Typography>
+                      </Box>
+                      <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
+                        <IconButton
+                          className="p-0"
+                          onClick={(e) => setAnchorEl(e.currentTarget)}
+                          size="large"
+                        >
+                          {anchorEl ? (
+                            <ArrowDropUpIcon
+                              className={
+                                'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'
+                              }
+                            />
+                          ) : (
+                            <ArrowDropDownIcon
+                              className={
+                                'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'
+                              }
+                            />
+                          )}
+                        </IconButton>
+                        <Menu
+                          anchorEl={anchorEl}
+                          open={Boolean(anchorEl)}
+                          onClose={() => setAnchorEl(null)}
+                          classes={{ paper: 'bg-umbra' }}
+                          className="mt-12"
+                        >
+                          {strikes.map((strike, strikeIndex) => (
+                            <MenuItem
+                              key={strikeIndex}
+                              className="capitalize text-white hover:bg-mineshaft cursor-pointer"
+                              onClick={() => {
+                                setStrikeIndex(strikeIndex);
+                                setAnchorEl(null);
+                              }}
+                            >
+                              ${strike}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </Box>
+                    </Box>
+                    <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
                       <Typography variant="h5" className="text-white pb-1 pr-2">
-                        ${strikes[strikeIndex]}
+                        {state.expiry
+                          ? format(new Date(state.expiry * 1000), 'd LLL yyyy')
+                          : '-'}
                       </Typography>
                       <Typography
                         variant="h6"
                         className="text-stieglitz pb-1 pr-2"
                       >
-                        Strike Price
+                        Expiry
                       </Typography>
                     </Box>
-                    <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
-                      <IconButton
-                        className="p-0"
-                        onClick={(e) => setAnchorEl(e.currentTarget)}
-                        size="large"
-                      >
-                        {anchorEl ? (
-                          <ArrowDropUpIcon
-                            className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                          />
-                        ) : (
-                          <ArrowDropDownIcon
-                            className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
-                          />
-                        )}
-                      </IconButton>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={() => setAnchorEl(null)}
-                        classes={{ paper: 'bg-umbra' }}
-                        className="mt-12"
-                      >
-                        {strikes.map((strike, strikeIndex) => (
-                          <MenuItem
-                            key={strikeIndex}
-                            className="capitalize text-white hover:bg-mineshaft cursor-pointer"
-                            onClick={() => {
-                              setStrikeIndex(strikeIndex);
-                              setAnchorEl(null);
-                            }}
-                          >
-                            ${strike}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </Box>
                   </Box>
-                  <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
-                    <Typography variant="h5" className="text-white pb-1 pr-2">
-                      {state.expiry
-                        ? format(new Date(state.expiry * 1000), 'd LLL yyyy')
-                        : '-'}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz pb-1 pr-2"
-                    >
-                      Expiry
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
-                  <Box className={'flex mb-2'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      Breakeven
-                    </Typography>
-                    <Box className={'text-right'}>
+                  <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
+                    <Box className={'flex mb-2'}>
                       <Typography
                         variant="h6"
-                        className="text-white mr-auto ml-0"
+                        className="text-stieglitz ml-0 mr-auto"
                       >
-                        $
-                        {isPut
-                          ? formatAmount(
-                              Number(strikes[strikeIndex]) -
-                                getUserReadableAmount(state.optionPrice, 8),
-                              5
-                            )
-                          : formatAmount(
-                              Number(strikes[strikeIndex]) +
-                                getUserReadableAmount(state.optionPrice, 8),
-                              5
-                            )}
+                        Breakeven
                       </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0"
+                        >
+                          $
+                          {isPut
+                            ? formatAmount(
+                                Number(strikes[strikeIndex]) -
+                                  getUserReadableAmount(state.optionPrice, 8),
+                                5
+                              )
+                            : formatAmount(
+                                Number(strikes[strikeIndex]) +
+                                  getUserReadableAmount(state.optionPrice, 8),
+                                5
+                              )}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                  <Box className={'flex mb-2'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      Available
-                    </Typography>
-                    <Box className={'text-right'}>
+                    <Box className={'flex mb-2'}>
                       <Typography
                         variant="h6"
-                        className="text-white mr-auto ml-0"
+                        className="text-stieglitz ml-0 mr-auto"
                       >
-                        {formatAmount(
-                          isPut
-                            ? getUserReadableAmount(
-                                availableCollateralForStrikes[strikeIndex]!,
-                                18
-                              ) / Number(strikes[strikeIndex])
-                            : getUserReadableAmount(
-                                availableCollateralForStrikes[strikeIndex]!,
-                                18
-                              ),
-                          5
-                        )}{' '}
+                        Available
                       </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0"
+                        >
+                          {formatAmount(
+                            isPut
+                              ? getUserReadableAmount(
+                                  availableCollateralForStrikes[strikeIndex]!,
+                                  18
+                                ) / Number(strikes[strikeIndex])
+                              : getUserReadableAmount(
+                                  availableCollateralForStrikes[strikeIndex]!,
+                                  18
+                                ),
+                            5
+                          )}{' '}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                  <Box className={'flex mb-2'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      Option Price
-                    </Typography>
-                    <Box className={'text-right'}>
+                    <Box className={'flex mb-2'}>
                       <Typography
                         variant="h6"
-                        className="text-white mr-auto ml-0"
+                        className="text-stieglitz ml-0 mr-auto"
                       >
-                        ${ethers.utils.formatUnits(state.optionPrice, 8)}
+                        Option Price
                       </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0"
+                        >
+                          ${ethers.utils.formatUnits(state.optionPrice, 8)}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                  <Box className={'flex mb-2'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      Side
-                    </Typography>
-                    <Box className={'text-right'}>
+                    <Box className={'flex mb-2'}>
                       <Typography
                         variant="h6"
-                        className="text-white mr-auto ml-0"
+                        className="text-stieglitz ml-0 mr-auto"
                       >
-                        {isPut ? 'PUT' : 'CALL'}
+                        Side
                       </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0"
+                        >
+                          {isPut ? 'PUT' : 'CALL'}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                  <Box className={'flex mb-2'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      IV
-                    </Typography>
-                    <Box className={'text-right'}>
+                    <Box className={'flex mb-2'}>
                       <Typography
                         variant="h6"
-                        className="text-white mr-auto ml-0"
+                        className="text-stieglitz ml-0 mr-auto"
                       >
-                        {state.volatility}
+                        IV
                       </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0"
+                        >
+                          {state.volatility}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                  <Box className={'flex'}>
-                    <Typography
-                      variant="h6"
-                      className="text-stieglitz ml-0 mr-auto"
-                    >
-                      Delta
-                    </Typography>
-                    <Box className={'text-right'}>
+                    <Box className={'flex'}>
                       <Typography
                         variant="h6"
-                        className="text-white mr-auto ml-0"
+                        className="text-stieglitz ml-0 mr-auto"
                       >
-                        {state.greeks.delta.toFixed(2)}
+                        Delta
                       </Typography>
+                      <Box className={'text-right'}>
+                        <Typography
+                          variant="h6"
+                          className="text-white mr-auto ml-0"
+                        >
+                          {state.greeks.delta.toFixed(2)}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
-              </Box>
-            </Slide>
-          )}
-        </Box>
+              </Slide>
+            )}
+          </Box>
+        )}
         <Box className="flex mt-5 mb-5">
           <CircleIcon
             className={
@@ -835,14 +866,7 @@ const PurchaseDialog = ({
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(
-                    getUserReadableAmount(
-                      state.totalCost,
-                      getTokenDecimals(fromTokenSymbol, chainId)
-                    ),
-                    5
-                  )}{' '}
-                  {fromTokenSymbol}
+                  {amountPayable} {fromTokenSymbol}
                 </Typography>
               </Box>
             </Box>
