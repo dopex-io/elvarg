@@ -28,8 +28,8 @@ const variants: Record<string, Record<string, string>> = {
 
 const Input = (props: InputProps) => {
   const {
-    leftElement,
-    bottomElement,
+    leftElement = '',
+    bottomElement = '',
     className,
     variant = 'default',
     outline = 'umbra',
