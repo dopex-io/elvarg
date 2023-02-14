@@ -363,7 +363,7 @@ const ManagePosition = () => {
         return (
           prev +
           (Number(curr['totalLiquidity']) - Number(curr['activeCollateral'])) /
-            Number(curr['strike'])
+            Number(strategyDetails.putStrike.div(1e8))
         );
       },
       0
@@ -928,6 +928,7 @@ const ManagePosition = () => {
           <Box className="w-full px-5 pt-2">
             <Slider
               sx={customSliderStyle}
+              onChange={handleChangeLeverage}
               className="w-full"
               aria-label="Small steps"
               defaultValue={1.1}
