@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { string } from 'yup/lib/locale';
 
 export interface TokenData {
   address: string;

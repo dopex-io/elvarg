@@ -3,9 +3,9 @@ import Box from '@mui/material/Box';
 import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 
 interface InputProps extends MuiInputProps {
-  leftElement: ReactNode;
+  leftElement?: ReactNode;
   bottomElement?: ReactNode;
-  topElement: ReactNode;
+  topElement?: ReactNode;
   variant?: string;
   outline?: 'mineshaft' | 'down-bad' | 'umbra';
   placeholder?: string;
