@@ -13,8 +13,8 @@ export interface SsovLendingData {
   symbol: string;
   chainId: number;
   address: string;
-  totalSupply: number;
   expiry: BigNumber;
+  totalSupply: number;
   totalBorrow: number;
   tokenPrice: number;
   aprs: number[];

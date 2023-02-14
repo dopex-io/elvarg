@@ -187,7 +187,6 @@ export default function BorrowDialog({
                 <Typography variant="h6" color="stieglitz">
                   Collateral
                 </Typography>
-
                 <Typography variant="h6" color="stieglitz">
                   Balance:{' '}
                   {`${formatAmount(
@@ -234,7 +233,10 @@ export default function BorrowDialog({
               <Box className="flex justify-between pb-3 px-5 pt-0">
                 <Typography variant="h6" color="stieglitz">
                   Borrow
-                  {/* {formatAmount(userTokenBalances?.[inverted ? 0 : 1] ?? 0, 3)} */}
+                </Typography>
+                <Typography variant="h6" color="stieglitz">
+                  Liquidity:{' $'}
+                  {`${formatAmount(assetDatum.totalSupply, 2, true)}`}
                 </Typography>
               </Box>
             </Box>
@@ -349,7 +351,10 @@ export default function BorrowDialog({
                 title="Expiry"
                 content={`${getReadableTime(assetDatum.expiry)}`}
               />
-              <ContentRow title="Borrow Fees" content="123" />
+              <ContentRow
+                title="Borrow APR"
+                content={`${assetDatum.aprs[strikeIndex] ?? 0}%`}
+              />
             </Box>
           </Box>
           <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">

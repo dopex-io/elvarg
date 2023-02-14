@@ -145,7 +145,7 @@ const StyleRow = styled(TableRow)`
 
 const Assets = ({ data }: { data: any[] }) => {
   return (
-    <Box className="bg-cod-gray p-2 mt-2 border-radius rounded-lg ">
+    <Box className="bg-cod-gray px-2 mt-2 border-radius rounded-lg ">
       <StyleContainer>
         <Table>
           <TableHead className="bg-cod-gray">
