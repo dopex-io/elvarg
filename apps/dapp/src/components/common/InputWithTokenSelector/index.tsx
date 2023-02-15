@@ -159,7 +159,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
           setOpen={handleTokenSelectorClick}
           setFromTokenSymbol={setSelectedToken}
           isInDialog={false}
-          tokensToExclude={[]}
+          tokensToExclude={['ETH']}
         />
       )}
     </Box>
