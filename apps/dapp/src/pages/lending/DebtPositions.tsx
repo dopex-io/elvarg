@@ -9,6 +9,7 @@ import {
   TableRow,
   TablePagination,
 } from '@mui/material';
+import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
 
 import Typography from 'components/UI/Typography';
 
@@ -90,7 +91,8 @@ const DebtPositionTableData = (props: IDebtPositionTableData) => {
 };
 
 const DebtPositions = () => {
-  const { userDebtPositions, getSsovLendingContract, signer } = useBoundStore();
+  const { userDebtPositions, signer, provider, assetToContractAddress } =
+    useBoundStore();
   const sendTx = useSendTx();
 
   const [page, setPage] = useState(0);
@@ -105,16 +107,20 @@ const DebtPositions = () => {
   const handleRepay = useCallback(
     async (selectedIndex: number) => {
       if (
+        !signer ||
+        !provider ||
         !userDebtPositions ||
-        !getSsovLendingContract ||
         selectedIndex === undefined
       )
         return;
 
-      const debt: IDebtPosition = userDebtPositions[selectedIndex]!;
-
       try {
-        await sendTx(getSsovLendingContract().connect(signer), 'repay', [
+        const debt: IDebtPosition = userDebtPositions[selectedIndex]!;
+        const contract = SsovV4Put__factory.connect(
+          assetToContractAddress.get(debt.underlyingSymbol)!,
+          provider
+        );
+        await sendTx(contract.connect(signer), 'repay', [
           debt.tokenId,
           debt.borrowed,
           debt.supplied,
@@ -122,9 +128,10 @@ const DebtPositions = () => {
         // TODO: update
       } catch (err) {
         console.log(err);
+        throw new Error('fail to repay');
       }
     },
-    [sendTx, userDebtPositions, signer, getSsovLendingContract]
+    [sendTx, userDebtPositions, provider, signer, assetToContractAddress]
   );
 
   return (
@@ -159,12 +166,12 @@ const DebtPositions = () => {
                   </TableCell>
                   <TableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Supply
+                      Supplied
                     </Typography>
                   </TableCell>
                   <TableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Borrow
+                      Borrowed
                     </Typography>
                   </TableCell>
                 </TableRow>

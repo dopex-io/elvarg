@@ -1,12 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
-import Head from 'next/head';
-import Box from '@mui/material/Box';
-
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import AppBar from 'components/common/AppBar';
+import React, { useCallback, useState } from 'react';
 import {
+  Box,
   styled,
   Table,
   TableBody,
@@ -15,11 +9,16 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import formatAmount from 'utils/general/formatAmount';
 import { max, min } from 'lodash';
+
+import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/Button';
+
+import formatAmount from 'utils/general/formatAmount';
+
+import { ISsovLendingData } from 'store/Vault/lending';
+
 import BorrowDialog from './BorrowDialog';
-import { useBoundStore } from 'store';
-import { LendingStats, SsovLendingData } from 'store/Vault/lending';
 import LendDialog from './LendDialog';
 
 export const StyleContainer = styled(TableContainer)`
@@ -54,7 +53,7 @@ const AssetTableData = ({
   assetDatum,
 }: {
   positionIdx: number;
-  assetDatum: SsovLendingData;
+  assetDatum: ISsovLendingData;
 }) => {
   const {
     underlyingSymbol,
@@ -65,16 +64,8 @@ const AssetTableData = ({
     aprs,
   } = assetDatum;
 
-  const [open, setOpen] = React.useState(false);
-  const [borrowAmount, setBorrowAmount] = React.useState<string>('1');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [lendAnchorEl, setLendAnchorEl] = useState<null | HTMLElement>(null);
-
-  const handleBorrowAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string> } }) =>
-      setBorrowAmount(e.target.value),
-    []
-  );
 
   const minApr = min(aprs);
   const maxApr = max(aprs);

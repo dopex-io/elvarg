@@ -1,72 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
 import { Chart } from './Chart';
 import { useBoundStore } from 'store';
-import { LendingStats, SsovLendingData } from 'store/Vault/lending';
 import { Assets } from './Assets';
 import DebtPositions from './DebtPositions';
 
-const LENDING_URL = 'http://localhost:5001/api/v2/lending';
-
-const ranNum = () => {
-  return Math.floor(Math.random() * 10);
-};
-
-const getBorrowingData = () => {
-  return [...Array(30)].map((_, i) => ({
-    loanAmount: (ranNum() + 1) * 100,
-    timestamp: 123 + i,
-  }));
-};
-
 const Lending = () => {
-  const { chainId, lendingData, updateSsovLendingData } = useBoundStore();
-  const [lendingStats, setLendingStats] = useState<LendingStats[]>([]);
-  const [assetData, setAssetData] = useState<SsovLendingData[]>([]);
+  const { lendingData, getSsovLending, lendingStats } = useBoundStore();
 
   useEffect(() => {
     (async () => {
-      // const ssovLendingData = await axios.get(LENDING_URL);
-      // const ssovs: SsovLendingData[] = ssovLendingData.data[chainId] || [];
-      // setAssetData(ssovs);
-
-      await updateSsovLendingData();
-      setAssetData(lendingData);
-
-      const lendingStats = `
-      {
-        "data": [
-          {
-            "totalSupply": 674529,
-            "totalBorrow": 0,
-            "timestamp": 1675038259
-          },
-          {
-            "totalSupply": 709672,
-            "totalBorrow": 0,
-            "timestamp": 1675175442
-          },
-          {
-            "totalSupply": 714649,
-            "totalBorrow": 0,
-            "timestamp": 1675256169
-          },
-          {
-            "totalSupply": 813687,
-            "totalBorrow": 0,
-            "timestamp": 1675305088
-          }
-        ]
-      }
-    `;
-      const stats: LendingStats[] = JSON.parse(lendingStats).data;
-      setLendingStats(stats);
+      await getSsovLending();
     })();
-  }, [chainId, lendingData, updateSsovLendingData]);
+  }, [getSsovLending]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -90,17 +39,16 @@ const Lending = () => {
           <Chart
             key={'Borrowing'}
             loanType={'Borrowing'}
-            // stats={lendingStats.map(s => {
-            //   return {
-            //     loanAmount: s.totalBorrow,
-            //     timestamp: s.timestamp
-            //   }
-            // })}
-            stats={getBorrowingData()}
+            stats={lendingStats.map((s) => {
+              return {
+                loanAmount: s.totalBorrow,
+                timestamp: s.timestamp,
+              };
+            })}
             totalLoan={180}
           />
         </div>
-        <Assets data={assetData} />
+        <Assets data={lendingData} />
         <DebtPositions />
       </Box>
     </Box>

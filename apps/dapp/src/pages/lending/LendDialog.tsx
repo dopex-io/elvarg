@@ -15,7 +15,7 @@ import { Addresses } from '@dopex-io/sdk';
 import { CustomButton, Dialog } from 'components/UI';
 import Input from '@mui/material/Input';
 import useUserTokenBalance from 'hooks/useUserTokenBalance';
-import { SsovLendingData } from 'store/Vault/lending';
+import { ISsovLendingData } from 'store/Vault/lending';
 import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
@@ -26,7 +26,7 @@ import InputHelpers from 'components/common/InputHelpers';
 interface Props {
   anchorEl: null | HTMLElement;
   setAnchorEl: Function;
-  assetDatum: SsovLendingData;
+  assetDatum: ISsovLendingData;
 }
 
 export default function LendDialog({
@@ -68,20 +68,27 @@ export default function LendDialog({
     const contract = SsovV4Put__factory.connect(assetDatum.address, provider);
 
     try {
-      await sendTx(contract.connect(signer), 'borrow', [
-        strikeIndex,
+      await sendTx(contract.connect(signer), 'deposit', [
+        assetDatum.strikes[strikeIndex],
         getContractReadableAmount(tokenDepositAmount, DECIMALS_TOKEN),
-      ]);
-
-      setTokenDepositAmount('0');
-
-      // await updateOlpEpochData!();
-      // await updateOlpUserData!();
+        accountAddress,
+      ]).then(() => {
+        setTokenDepositAmount('0');
+        // TODO: update
+      });
     } catch (e) {
       console.log('fail to borrow');
       throw new Error('fail to borrow');
     }
-  }, [sendTx, tokenDepositAmount, strikeIndex, assetDatum, signer, provider]);
+  }, [
+    sendTx,
+    tokenDepositAmount,
+    strikeIndex,
+    assetDatum,
+    signer,
+    provider,
+    accountAddress,
+  ]);
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
@@ -92,15 +99,6 @@ export default function LendDialog({
   const handleMax = useCallback(() => {
     setTokenDepositAmount(utils.formatEther(userTokenBalance));
   }, [userTokenBalance]);
-
-  // requiredCollateral = ((amount * strike * collateralPrecision) / getCollateralPrice()) / 1e18;
-  const usdToReceive =
-    (Number(tokenDepositAmount) * assetDatum?.strikes[strikeIndex]!) /
-    assetDatum.tokenPrice;
-
-  const optionTokenSymbol = `${
-    assetDatum.underlyingSymbol
-  }-${assetDatum.strikes[strikeIndex]?.toString()}-P`;
 
   return (
     <Dialog
@@ -222,7 +220,7 @@ export default function LendDialog({
                 </Typography>
                 <Box className={'text-right'}>
                   <Typography variant="h6" className="text-white mr-auto ml-0">
-                    todo
+                    {assetDatum.epoch?.toString() ?? '-'}
                   </Typography>
                 </Box>
               </Box>
@@ -266,12 +264,7 @@ export default function LendDialog({
                 <LockerIcon />
               </Box>
               <Typography variant="h6" className="text-stieglitz">
-                {`Withdrawals are locked until end of Epoch ${assetDatum.expiry} `}
-                {/* ({' '}
-                <span className="text-white">
-                  {getReadableTime(assetDatum.expiry)}
-                </span>
-                ) */}
+                {`Withdrawals are locked until end of Epoch ${assetDatum.epoch} `}
                 <span className="text-white">
                   ({getReadableTime(assetDatum.expiry)})
                 </span>

@@ -14,7 +14,7 @@ import { Addresses } from '@dopex-io/sdk';
 import { CustomButton, Dialog } from 'components/UI';
 import Input from 'components/UI/Input';
 import useUserTokenBalance from 'hooks/useUserTokenBalance';
-import { SsovLendingData } from 'store/Vault/lending';
+import { ISsovLendingData } from 'store/Vault/lending';
 import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
@@ -27,7 +27,7 @@ import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
 interface Props {
   anchorEl: null | HTMLElement;
   setAnchorEl: Function;
-  assetDatum: SsovLendingData;
+  assetDatum: ISsovLendingData;
 }
 
 export default function BorrowDialog({
